@@ -1,0 +1,1201 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>21.18. camcops_server.cc_modules.cc_forms &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="21.19. camcops_server.cc_modules.cc_group" href="cc_group.html" />
+    <link rel="prev" title="21.17. camcops_server.cc_modules.cc_filename" href="cc_filename.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cc_group.html" title="21.19. camcops_server.cc_modules.cc_group"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cc_filename.html" title="21.17. camcops_server.cc_modules.cc_filename"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../_index.html" >21. Automatic documentation of core server source code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="_index.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-camcops_server.cc_modules.cc_forms">
+<span id="camcops-server-cc-modules-cc-forms"></span><h1>21.18. camcops_server.cc_modules.cc_forms<a class="headerlink" href="#module-camcops_server.cc_modules.cc_forms" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><p>This file is part of CamCOPS.</p>
+<p>CamCOPS is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>CamCOPS is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License
+along with CamCOPS. If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
+</div></blockquote>
+<hr class="docutils" />
+<p>COLANDER NODES, NULLS, AND VALIDATION
+- Surprisingly tricky.
+- Nodes must be validly intialized with NO USER-DEFINED PARAMETERS to __init__;</p>
+<blockquote>
+<div>the Deform framework clones them.</div></blockquote>
+<ul>
+<li><p class="first">A null appstruct is used to initialize nodes as Forms are created.
+Therefore, the “default” value must be acceptable to the underlying type’s
+serialize() function. Note in particular that “default = None” is not
+acceptable to Integer. Having no default is fine, though.</p>
+</li>
+<li><p class="first">In general, flexible inheritance is very hard to implement.</p>
+</li>
+<li><dl class="first docutils">
+<dt>Note that this error:</dt>
+<dd><p class="first last">AttributeError: ‘EditTaskFilterSchema’ object has no attribute ‘typ’</p>
+</dd>
+</dl>
+<p>means you have failed to call super().__init__() properly from __init__().</p>
+</li>
+<li><p class="first">When creating a schema, its members seem to have to be created in the class
+declaration as class properties, not in __init__().</p>
+</li>
+</ul>
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AddCancelForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AddCancelForm</code><span class="sig-paren">(</span><em>schema_class: Type[colander.Schema], request: CamcopsRequest, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AddCancelForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AddCancelForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AddGroupForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AddGroupForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AddGroupForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AddGroupForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AddGroupSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AddGroupSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AddGroupSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AddGroupSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AddIdDefinitionForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AddIdDefinitionForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AddIdDefinitionForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AddIdDefinitionForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AddIdDefinitionSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AddIdDefinitionSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AddIdDefinitionSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AddIdDefinitionSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AddSpecialNoteForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AddSpecialNoteForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AddSpecialNoteForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AddSpecialNoteForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AddSpecialNoteSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AddSpecialNoteSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AddSpecialNoteSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AddSpecialNoteSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AddUserGroupadminForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AddUserGroupadminForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AddUserGroupadminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AddUserGroupadminForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AddUserGroupadminSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AddUserGroupadminSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AddUserGroupadminSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AddUserGroupadminSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AddUserSuperuserForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AddUserSuperuserForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AddUserSuperuserForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AddUserSuperuserForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AddUserSuperuserSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AddUserSuperuserSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AddUserSuperuserSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AddUserSuperuserSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AdministeredGroupsSequence">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AdministeredGroupsSequence</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AdministeredGroupsSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AdministeredGroupsSequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Typical use: (non-superuser) group administrator assigns group memberships
+to a user.
+Offers the groups administered by the requestor.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AllGroupsSequence">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AllGroupsSequence</code><span class="sig-paren">(</span><em>*args</em>, <em>minimum_number: int = 0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AllGroupsSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AllGroupsSequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Typical use: superuser assigns group memberships to a user.
+Offer all possible groups.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AllOtherGroupsSequence">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AllOtherGroupsSequence</code><span class="sig-paren">(</span><em>*args</em>, <em>minimum_number: int = 0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AllOtherGroupsSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AllOtherGroupsSequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Typical use: superuser assigns group permissions to another group.
+Offer all possible OTHER groups.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AllowedGroupsSequence">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AllowedGroupsSequence</code><span class="sig-paren">(</span><em>*args</em>, <em>minimum_number: int = 0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AllowedGroupsSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AllowedGroupsSequence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ApplyCancelForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ApplyCancelForm</code><span class="sig-paren">(</span><em>schema_class: Type[colander.Schema], request: CamcopsRequest, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ApplyCancelForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ApplyCancelForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AuditTrailForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AuditTrailForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AuditTrailForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AuditTrailForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.AuditTrailSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">AuditTrailSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#AuditTrailSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.AuditTrailSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.CSRFSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">CSRFSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#CSRFSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.CSRFSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for form schemas that use CSRF (XSRF; cross-site request
+forgery) tokens.</p>
+<p>You can’t put the call to bind() at the end of __init__(), because bind()
+calls clone() with no arguments and clone() ends up calling __init__()…</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.CSRFToken">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">CSRFToken</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#CSRFToken"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.CSRFToken" title="Permalink to this definition">¶</a></dt>
+<dd><p>From <a class="reference external" href="http://deform2000.readthedocs.io/en/latest/basics.html">http://deform2000.readthedocs.io/en/latest/basics.html</a> :</p>
+<p>“The default of a schema node indicates the value to be serialized if a
+value for the schema node is not found in the input data during
+serialization. It should be the deserialized representation. If a schema
+node does not have a default, it is considered “serialization required”.”</p>
+<p>“The missing of a schema node indicates the value to be deserialized if a
+value for the schema node is not found in the input data during
+deserialization. It should be the deserialized representation. If a schema
+node does not have a missing value, a colander.Invalid exception will be
+raised if the data structure being deserialized does not contain a matching
+value.”</p>
+<p>RNC: Serialized values are always STRINGS.</p>
+<dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.CSRFToken.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.CSRFToken.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ChangeOtherPasswordForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ChangeOtherPasswordForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ChangeOtherPasswordForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ChangeOtherPasswordForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ChangeOtherPasswordSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ChangeOtherPasswordSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ChangeOtherPasswordSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ChangeOtherPasswordSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ChangeOwnPasswordForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ChangeOwnPasswordForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>must_differ: bool = True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ChangeOwnPasswordForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ChangeOwnPasswordForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ChangeOwnPasswordSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ChangeOwnPasswordSchema</code><span class="sig-paren">(</span><em>*args</em>, <em>must_differ: bool = True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ChangeOwnPasswordSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ChangeOwnPasswordSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ChooseTrackerForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ChooseTrackerForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>as_ctv: bool</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ChooseTrackerForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ChooseTrackerForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ChooseTrackerSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ChooseTrackerSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ChooseTrackerSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ChooseTrackerSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DangerousForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DangerousForm</code><span class="sig-paren">(</span><em>schema_class: Type[colander.Schema], submit_action: str, submit_title: str, request: CamcopsRequest, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DangerousForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DangerousForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DatabaseDialectSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DatabaseDialectSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DatabaseDialectSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DatabaseDialectSelector" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.DatabaseDialectSelector.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DatabaseDialectSelector.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DeleteCancelForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DeleteCancelForm</code><span class="sig-paren">(</span><em>schema_class: Type[colander.Schema], request: CamcopsRequest, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DeleteCancelForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DeleteCancelForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DeleteGroupForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DeleteGroupForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DeleteGroupForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DeleteGroupForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DeleteGroupSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DeleteGroupSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DeleteGroupSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DeleteGroupSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DeleteIdDefinitionForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DeleteIdDefinitionForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DeleteIdDefinitionForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DeleteIdDefinitionForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DeleteIdDefinitionSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DeleteIdDefinitionSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DeleteIdDefinitionSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DeleteIdDefinitionSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DeletePatientChooseForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DeletePatientChooseForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DeletePatientChooseForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DeletePatientChooseForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DeletePatientChooseSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DeletePatientChooseSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DeletePatientChooseSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DeletePatientChooseSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DeletePatientConfirmForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DeletePatientConfirmForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DeletePatientConfirmForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DeletePatientConfirmForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DeletePatientConfirmSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DeletePatientConfirmSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DeletePatientConfirmSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DeletePatientConfirmSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DeleteUserForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DeleteUserForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DeleteUserForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DeleteUserForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DeleteUserSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DeleteUserSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DeleteUserSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DeleteUserSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DevicesSequence">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DevicesSequence</code><span class="sig-paren">(</span><em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DevicesSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DevicesSequence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.DumpTypeSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">DumpTypeSelector</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#DumpTypeSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DumpTypeSelector" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.DumpTypeSelector.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.DumpTypeSelector.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditGroupForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditGroupForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>group: camcops_server.cc_modules.cc_group.Group</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditGroupForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditGroupForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditGroupSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditGroupSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditGroupSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditGroupSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditIdDefinitionForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditIdDefinitionForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditIdDefinitionForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditIdDefinitionForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditIdDefinitionSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditIdDefinitionSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditIdDefinitionSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditIdDefinitionSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditPatientForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditPatientForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditPatientForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditPatientForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditPatientSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditPatientSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditPatientSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditPatientSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditServerSettingsForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditServerSettingsForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditServerSettingsForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditServerSettingsForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditServerSettingsSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditServerSettingsSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditServerSettingsSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditServerSettingsSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditTaskFilterAdminSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditTaskFilterAdminSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditTaskFilterAdminSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditTaskFilterAdminSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditTaskFilterForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditTaskFilterForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>open_who: bool = False</em>, <em>open_what: bool = False</em>, <em>open_when: bool = False</em>, <em>open_admin: bool = False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditTaskFilterForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditTaskFilterForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditTaskFilterSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditTaskFilterSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditTaskFilterSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditTaskFilterSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditTaskFilterWhatSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditTaskFilterWhatSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditTaskFilterWhatSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditTaskFilterWhatSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditTaskFilterWhenSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditTaskFilterWhenSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditTaskFilterWhenSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditTaskFilterWhenSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditTaskFilterWhoSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditTaskFilterWhoSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditTaskFilterWhoSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditTaskFilterWhoSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditUserFullForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditUserFullForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditUserFullForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditUserFullForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditUserFullSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditUserFullSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditUserFullSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditUserFullSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditUserGroupAdminForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditUserGroupAdminForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditUserGroupAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditUserGroupAdminForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditUserGroupAdminSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditUserGroupAdminSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditUserGroupAdminSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditUserGroupAdminSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditUserGroupMembershipFullForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditUserGroupMembershipFullForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditUserGroupMembershipFullForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditUserGroupMembershipFullForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EditUserGroupMembershipGroupAdminForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EditUserGroupMembershipGroupAdminForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EditUserGroupMembershipGroupAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EditUserGroupMembershipGroupAdminForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EndDateSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EndDateSelector</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EndDateSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EndDateSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EndDateTimeSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EndDateTimeSelector</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EndDateTimeSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EndDateTimeSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EndPendulumSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EndPendulumSelector</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EndPendulumSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EndPendulumSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EraseTaskForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EraseTaskForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EraseTaskForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EraseTaskForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.EraseTaskSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">EraseTaskSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#EraseTaskSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.EraseTaskSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ForciblyFinalizeChooseDeviceForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ForciblyFinalizeChooseDeviceForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ForciblyFinalizeChooseDeviceForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ForciblyFinalizeChooseDeviceForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ForciblyFinalizeChooseDeviceSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ForciblyFinalizeChooseDeviceSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ForciblyFinalizeChooseDeviceSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ForciblyFinalizeChooseDeviceSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ForciblyFinalizeConfirmForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ForciblyFinalizeConfirmForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ForciblyFinalizeConfirmForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ForciblyFinalizeConfirmForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ForciblyFinalizeConfirmSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ForciblyFinalizeConfirmSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ForciblyFinalizeConfirmSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ForciblyFinalizeConfirmSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.GroupsSequenceBase">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">GroupsSequenceBase</code><span class="sig-paren">(</span><em>*args</em>, <em>minimum_number: int = 0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#GroupsSequenceBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.GroupsSequenceBase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.HL7MessageLogForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">HL7MessageLogForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#HL7MessageLogForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.HL7MessageLogForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.HL7MessageLogSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">HL7MessageLogSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#HL7MessageLogSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.HL7MessageLogSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.HL7RunLogForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">HL7RunLogForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#HL7RunLogForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.HL7RunLogForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.HL7RunLogSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">HL7RunLogSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#HL7RunLogSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.HL7RunLogSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.HardWorkConfirmationSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">HardWorkConfirmationSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#HardWorkConfirmationSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.HardWorkConfirmationSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.Hl7AssigningAuthorityNode">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">Hl7AssigningAuthorityNode</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#Hl7AssigningAuthorityNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.Hl7AssigningAuthorityNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.Hl7AssigningAuthorityNode.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.Hl7AssigningAuthorityNode.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.Hl7IdTypeNode">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">Hl7IdTypeNode</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#Hl7IdTypeNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.Hl7IdTypeNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.Hl7IdTypeNode.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.Hl7IdTypeNode.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.IdDefinitionDescriptionNode">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">IdDefinitionDescriptionNode</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#IdDefinitionDescriptionNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.IdDefinitionDescriptionNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.IdDefinitionDescriptionNode.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.IdDefinitionDescriptionNode.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.IdDefinitionShortDescriptionNode">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">IdDefinitionShortDescriptionNode</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#IdDefinitionShortDescriptionNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.IdDefinitionShortDescriptionNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.IdDefinitionShortDescriptionNode.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.IdDefinitionShortDescriptionNode.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.IdNumSequenceAnyCombination">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">IdNumSequenceAnyCombination</code><span class="sig-paren">(</span><em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#IdNumSequenceAnyCombination"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.IdNumSequenceAnyCombination" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.IdNumSequenceUniquePerWhichIdnum">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">IdNumSequenceUniquePerWhichIdnum</code><span class="sig-paren">(</span><em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#IdNumSequenceUniquePerWhichIdnum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.IdNumSequenceUniquePerWhichIdnum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.IncludeBlobsNode">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">IncludeBlobsNode</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#IncludeBlobsNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.IncludeBlobsNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.IncludeBlobsNode.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.IncludeBlobsNode.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.Boolean</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.LinkingIdNumSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">LinkingIdNumSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#LinkingIdNumSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.LinkingIdNumSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.LoginForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">LoginForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>autocomplete_password: bool = True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#LoginForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.LoginForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.LoginSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">LoginSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#LoginSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.LoginSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryDeviceIdSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MandatoryDeviceIdSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MandatoryDeviceIdSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryDeviceIdSelector" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryDeviceIdSelector.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryDeviceIdSelector.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.Integer</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryGroupIdSelectorAdministeredGroups">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MandatoryGroupIdSelectorAdministeredGroups</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MandatoryGroupIdSelectorAdministeredGroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryGroupIdSelectorAdministeredGroups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Offers a picklist of groups from GROUPS ADMINISTERED BY REQUESTOR.
+Used by groupadmins: add user to my group(s).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryGroupIdSelectorAllGroups">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MandatoryGroupIdSelectorAllGroups</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MandatoryGroupIdSelectorAllGroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryGroupIdSelectorAllGroups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Offers a picklist of groups from ALL POSSIBLE GROUPS.
+Used by superusers: add user to any group.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryGroupIdSelectorAllowedGroups">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MandatoryGroupIdSelectorAllowedGroups</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MandatoryGroupIdSelectorAllowedGroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryGroupIdSelectorAllowedGroups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Offers a picklist of groups from THOSE THE USER IS ALLOWED TO SEE.
+Used for task filters.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryGroupIdSelectorOtherGroups">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MandatoryGroupIdSelectorOtherGroups</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MandatoryGroupIdSelectorOtherGroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryGroupIdSelectorOtherGroups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Offers a picklist of groups THAT ARE NOT THE SPECIFIED GROUP.
+Used by superusers: “which other groups can this group see?”</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryGroupIdSelectorUserGroups">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MandatoryGroupIdSelectorUserGroups</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MandatoryGroupIdSelectorUserGroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryGroupIdSelectorUserGroups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Offers a picklist of groups from THOSE THE USER IS A MEMBER OF.
+Used for: “which of your groups do you want to upload into?”</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryIdNumNode">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MandatoryIdNumNode</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MandatoryIdNumNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryIdNumNode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryIdNumValue">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MandatoryIdNumValue</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MandatoryIdNumValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryIdNumValue" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryIdNumValue.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryIdNumValue.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.Integer</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MandatorySexSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MandatorySexSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MandatorySexSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatorySexSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryUserIdSelectorUsersAllowedToSee">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MandatoryUserIdSelectorUsersAllowedToSee</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MandatoryUserIdSelectorUsersAllowedToSee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryUserIdSelectorUsersAllowedToSee" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryUserIdSelectorUsersAllowedToSee.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryUserIdSelectorUsersAllowedToSee.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.Integer</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MandatoryWhichIdNumSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MandatoryWhichIdNumSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MandatoryWhichIdNumSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MandatoryWhichIdNumSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MultiTaskSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MultiTaskSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>tracker_tasks_only: bool = False</em>, <em>minimum_number: int = 0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MultiTaskSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MultiTaskSelector" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.MultiTaskSelector.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MultiTaskSelector.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.Set</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.MustChangePasswordNode">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">MustChangePasswordNode</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#MustChangePasswordNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MustChangePasswordNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.MustChangePasswordNode.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.MustChangePasswordNode.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.Boolean</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.NewPasswordNode">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">NewPasswordNode</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#NewPasswordNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.NewPasswordNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.NewPasswordNode.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.NewPasswordNode.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OfferBasicDumpForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OfferBasicDumpForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OfferBasicDumpForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OfferBasicDumpForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OfferBasicDumpSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OfferBasicDumpSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OfferBasicDumpSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OfferBasicDumpSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OfferDumpManualSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OfferDumpManualSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OfferDumpManualSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OfferDumpManualSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OfferSqlDumpForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OfferSqlDumpForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OfferSqlDumpForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OfferSqlDumpForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OfferSqlDumpManualSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OfferSqlDumpManualSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OfferSqlDumpManualSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OfferSqlDumpManualSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OfferSqlDumpSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OfferSqlDumpSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OfferSqlDumpSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OfferSqlDumpSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OfferTermsForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OfferTermsForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>agree_button_text: str</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OfferTermsForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OfferTermsForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OfferTermsSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OfferTermsSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OfferTermsSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OfferTermsSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OldUserPasswordCheck">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OldUserPasswordCheck</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OldUserPasswordCheck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OldUserPasswordCheck" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.OldUserPasswordCheck.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OldUserPasswordCheck.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OptionalGroupIdSelectorUserGroups">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OptionalGroupIdSelectorUserGroups</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OptionalGroupIdSelectorUserGroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OptionalGroupIdSelectorUserGroups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Offers a picklist of groups from THOSE THE USER IS A MEMBER OF.
+Used for “which do you want to upload into?”.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OptionalIdNumValue">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OptionalIdNumValue</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OptionalIdNumValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OptionalIdNumValue" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="staticmethod">
+<dt id="camcops_server.cc_modules.cc_forms.OptionalIdNumValue.schema_type">
+<em class="property">static </em><code class="descname">schema_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; colander.SchemaType<a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OptionalIdNumValue.schema_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OptionalIdNumValue.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>A type representing an integer.</p>
+<p>If the <code class="xref py py-attr docutils literal notranslate"><span class="pre">colander.null</span></code> value is passed to the serialize
+method of this class, the <code class="xref py py-attr docutils literal notranslate"><span class="pre">colander.null</span></code> value will be
+returned.</p>
+<p>The subnodes of the <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.SchemaNode</span></code> that wraps
+this type are ignored.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OptionalSexSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OptionalSexSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OptionalSexSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OptionalSexSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OptionalSingleTaskSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OptionalSingleTaskSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>tracker_tasks_only: bool = False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OptionalSingleTaskSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OptionalSingleTaskSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OptionalUserNameSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OptionalUserNameSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OptionalUserNameSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OptionalUserNameSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.OptionalWhichIdNumSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">OptionalWhichIdNumSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#OptionalWhichIdNumSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.OptionalWhichIdNumSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.PolicyNode">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">PolicyNode</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#PolicyNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.PolicyNode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.RefreshTasksForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">RefreshTasksForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#RefreshTasksForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.RefreshTasksForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.RefreshTasksSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">RefreshTasksSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#RefreshTasksSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.RefreshTasksSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ReportOutputTypeSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ReportOutputTypeSelector</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ReportOutputTypeSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ReportOutputTypeSelector" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.ReportOutputTypeSelector.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ReportOutputTypeSelector.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ReportParamForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ReportParamForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest, schema_class: Type[camcops_server.cc_modules.cc_forms.ReportParamSchema], **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ReportParamForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ReportParamForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ReportParamSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ReportParamSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ReportParamSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ReportParamSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.RowsPerPageSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">RowsPerPageSelector</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#RowsPerPageSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.RowsPerPageSelector" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.RowsPerPageSelector.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.RowsPerPageSelector.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.Integer</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.SchemaTests">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">SchemaTests</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#SchemaTests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.SchemaTests" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ServerPkSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ServerPkSelector</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ServerPkSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ServerPkSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.SetUserUploadGroupForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">SetUserUploadGroupForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>user: User</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#SetUserUploadGroupForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.SetUserUploadGroupForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.SetUserUploadGroupSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">SetUserUploadGroupSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#SetUserUploadGroupSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.SetUserUploadGroupSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.SimpleSubmitForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">SimpleSubmitForm</code><span class="sig-paren">(</span><em>schema_class: Type[colander.Schema], submit_title: str, request: CamcopsRequest, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#SimpleSubmitForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.SimpleSubmitForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.SortTsvByHeadingsNode">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">SortTsvByHeadingsNode</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#SortTsvByHeadingsNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.SortTsvByHeadingsNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.SortTsvByHeadingsNode.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.SortTsvByHeadingsNode.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.Boolean</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.SqliteSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">SqliteSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#SqliteSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.SqliteSelector" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.SqliteSelector.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.SqliteSelector.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.StartDateSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">StartDateSelector</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#StartDateSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.StartDateSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.StartDateTimeSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">StartDateTimeSelector</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#StartDateTimeSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.StartDateTimeSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.StartPendulumSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">StartPendulumSelector</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#StartPendulumSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.StartPendulumSelector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.TaskTrackerOutputTypeSelector">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">TaskTrackerOutputTypeSelector</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#TaskTrackerOutputTypeSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.TaskTrackerOutputTypeSelector" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.TaskTrackerOutputTypeSelector.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.TaskTrackerOutputTypeSelector.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.TasksPerPageForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">TasksPerPageForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#TasksPerPageForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.TasksPerPageForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.TasksPerPageSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">TasksPerPageSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#TasksPerPageSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.TasksPerPageSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.TextContentsSequence">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">TextContentsSequence</code><span class="sig-paren">(</span><em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#TextContentsSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.TextContentsSequence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.UploadingUserSequence">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">UploadingUserSequence</code><span class="sig-paren">(</span><em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#UploadingUserSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.UploadingUserSequence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.UserGroupMembershipFullSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">UserGroupMembershipFullSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#UserGroupMembershipFullSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.UserGroupMembershipFullSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Edit group membership - for superusers.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.UserGroupMembershipGroupAdminSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">UserGroupMembershipGroupAdminSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#UserGroupMembershipGroupAdminSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.UserGroupMembershipGroupAdminSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Edit group membership - for group administrators.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.UsernameNode">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">UsernameNode</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#UsernameNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.UsernameNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="camcops_server.cc_modules.cc_forms.UsernameNode.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.UsernameNode.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">colander.String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ViewDdlForm">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ViewDdlForm</code><span class="sig-paren">(</span><em>request: CamcopsRequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ViewDdlForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ViewDdlForm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="camcops_server.cc_modules.cc_forms.ViewDdlSchema">
+<em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_forms.</code><code class="descname">ViewDdlSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_forms.html#ViewDdlSchema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_forms.ViewDdlSchema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../_index.html">21. Automatic documentation of core server source code</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../camcops.html">21.1. camcops_server.camcops</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_alembic.html">21.2. camcops_server.cc_modules.cc_alembic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_all_models.html">21.3. camcops_server.cc_modules.cc_all_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_analytics.html">21.4. camcops_server.cc_modules.cc_analytics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_baseconstants.html">21.5. camcops_server.cc_modules.cc_baseconstants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_blob.html">21.6. camcops_server.cc_modules.cc_blob</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_cache.html">21.7. camcops_server.cc_modules.cc_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_client_api_core.html">21.8. camcops_server.cc_modules.cc_client_api_core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_config.html">21.9. camcops_server.cc_modules.cc_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_constants.html">21.10. camcops_server.cc_modules.cc_constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_convert.html">21.11. camcops_server.cc_modules.cc_convert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_ctvinfo.html">21.12. camcops_server.cc_modules.cc_ctvinfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_db.html">21.13. camcops_server.cc_modules.cc_db</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_device.html">21.14. camcops_server.cc_modules.cc_device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_dirtytables.html">21.15. camcops_server.cc_modules.cc_dirtytables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_dump.html">21.16. camcops_server.cc_modules.cc_dump</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_filename.html">21.17. camcops_server.cc_modules.cc_filename</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">21.18. camcops_server.cc_modules.cc_forms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_group.html">21.19. camcops_server.cc_modules.cc_group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_hl7.html">21.20. camcops_server.cc_modules.cc_hl7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_hl7core.html">21.21. camcops_server.cc_modules.cc_hl7core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_html.html">21.22. camcops_server.cc_modules.cc_html</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_idnumdef.html">21.23. camcops_server.cc_modules.cc_idnumdef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_membership.html">21.24. camcops_server.cc_modules.cc_membership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_nhs.html">21.25. camcops_server.cc_modules.cc_nhs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_nlp.html">21.26. camcops_server.cc_modules.cc_nlp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_patient.html">21.27. camcops_server.cc_modules.cc_patient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_patientidnum.html">21.28. camcops_server.cc_modules.cc_patientidnum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_pdf.html">21.29. camcops_server.cc_modules.cc_pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_plot.html">21.30. camcops_server.cc_modules.cc_plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_policy.html">21.31. camcops_server.cc_modules.cc_policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_pyramid.html">21.32. camcops_server.cc_modules.cc_pyramid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_recipdef.html">21.33. camcops_server.cc_modules.cc_recipdef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_report.html">21.34. camcops_server.cc_modules.cc_report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_request.html">21.35. camcops_server.cc_modules.cc_request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_serversettings.html">21.36. camcops_server.cc_modules.cc_serversettings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_session.html">21.37. camcops_server.cc_modules.cc_session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_simpleobjects.html">21.38. camcops_server.cc_modules.cc_simpleobjects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_specialnote.html">21.39. camcops_server.cc_modules.cc_specialnote</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_sqla_coltypes.html">21.40. camcops_server.cc_modules.cc_sqla_coltypes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_sqlalchemy.html">21.41. camcops_server.cc_modules.cc_sqlalchemy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_string.html">21.42. camcops_server.cc_modules.cc_string</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_summaryelement.html">21.43. camcops_server.cc_modules.cc_summaryelement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_tabletsession.html">21.44. camcops_server.cc_modules.cc_tabletsession</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_task.html">21.45. camcops_server.cc_modules.cc_task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_taskfactory.html">21.46. camcops_server.cc_modules.cc_taskfactory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_taskfilter.html">21.47. camcops_server.cc_modules.cc_taskfilter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_tracker.html">21.48. camcops_server.cc_modules.cc_tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_trackerhelpers.html">21.49. camcops_server.cc_modules.cc_trackerhelpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_tsv.html">21.50. camcops_server.cc_modules.cc_tsv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_unittest.html">21.51. camcops_server.cc_modules.cc_unittest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_user.html">21.52. camcops_server.cc_modules.cc_user</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_version.html">21.53. camcops_server.cc_modules.cc_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_version_string.html">21.54. camcops_server.cc_modules.cc_version_string</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_xml.html">21.55. camcops_server.cc_modules.cc_xml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client_api.html">21.56. camcops_server.cc_modules.client_api</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_db.html">21.57. camcops_server.cc_modules.merge_db</a></li>
+<li class="toctree-l2"><a class="reference internal" href="webview.html">21.58. camcops_server.cc_modules.webview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ace3.html">21.59. camcops_server.tasks.ace3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/aims.html">21.60. camcops_server.tasks.aims</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/audit.html">21.61. camcops_server.tasks.audit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/badls.html">21.62. camcops_server.tasks.badls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bdi.html">21.63. camcops_server.tasks.bdi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bmi.html">21.64. camcops_server.tasks.bmi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bprs.html">21.65. camcops_server.tasks.bprs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bprse.html">21.66. camcops_server.tasks.bprse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cage.html">21.67. camcops_server.tasks.cage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cape42.html">21.68. camcops_server.tasks.cape42</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/caps.html">21.69. camcops_server.tasks.caps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cardinal_expdetthreshold.html">21.70. camcops_server.tasks.cardinal_expdetthreshold</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cardinal_expectationdetection.html">21.71. camcops_server.tasks.cardinal_expectationdetection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cbir.html">21.72. camcops_server.tasks.cbir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ceca.html">21.73. camcops_server.tasks.ceca</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cgi_task.html">21.74. camcops_server.tasks.cgi_task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cgisch.html">21.75. camcops_server.tasks.cgisch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cisr.html">21.76. camcops_server.tasks.cisr</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ciwa.html">21.77. camcops_server.tasks.ciwa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/contactlog.html">21.78. camcops_server.tasks.contactlog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cope.html">21.79. camcops_server.tasks.cope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cpft_lps.html">21.80. camcops_server.tasks.cpft_lps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/dad.html">21.81. camcops_server.tasks.dad</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/dast.html">21.82. camcops_server.tasks.dast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/deakin_1_healthreview.html">21.83. camcops_server.tasks.deakin_1_healthreview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/demoquestionnaire.html">21.84. camcops_server.tasks.demoquestionnaire</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/demqol.html">21.85. camcops_server.tasks.demqol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/diagnosis.html">21.86. camcops_server.tasks.diagnosis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/distressthermometer.html">21.87. camcops_server.tasks.distressthermometer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/fast.html">21.88. camcops_server.tasks.fast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/fft.html">21.89. camcops_server.tasks.fft</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/frs.html">21.90. camcops_server.tasks.frs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gad7.html">21.91. camcops_server.tasks.gad7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gaf.html">21.92. camcops_server.tasks.gaf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gds.html">21.93. camcops_server.tasks.gds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gmcpq.html">21.94. camcops_server.tasks.gmcpq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hads.html">21.95. camcops_server.tasks.hads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hama.html">21.96. camcops_server.tasks.hama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hamd.html">21.97. camcops_server.tasks.hamd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hamd7.html">21.98. camcops_server.tasks.hamd7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/honos.html">21.99. camcops_server.tasks.honos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10depressive.html">21.100. camcops_server.tasks.icd10depressive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10manic.html">21.101. camcops_server.tasks.icd10manic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10mixed.html">21.102. camcops_server.tasks.icd10mixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10schizophrenia.html">21.103. camcops_server.tasks.icd10schizophrenia</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10schizotypal.html">21.104. camcops_server.tasks.icd10schizotypal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10specpd.html">21.105. camcops_server.tasks.icd10specpd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ided3d.html">21.106. camcops_server.tasks.ided3d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/iesr.html">21.107. camcops_server.tasks.iesr</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ifs.html">21.108. camcops_server.tasks.ifs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/irac.html">21.109. camcops_server.tasks.irac</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/mast.html">21.110. camcops_server.tasks.mast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/mds_updrs.html">21.111. camcops_server.tasks.mds_updrs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/moca.html">21.112. camcops_server.tasks.moca</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/nart.html">21.113. camcops_server.tasks.nart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/npiq.html">21.114. camcops_server.tasks.npiq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/panss.html">21.115. camcops_server.tasks.panss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/pcl.html">21.116. camcops_server.tasks.pcl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/pdss.html">21.117. camcops_server.tasks.pdss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/photo.html">21.118. camcops_server.tasks.photo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/phq9.html">21.119. camcops_server.tasks.phq9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/phq15.html">21.120. camcops_server.tasks.phq15</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/progressnote.html">21.121. camcops_server.tasks.progressnote</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/pswq.html">21.122. camcops_server.tasks.pswq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/psychiatricclerking.html">21.123. camcops_server.tasks.psychiatricclerking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/qolbasic.html">21.124. camcops_server.tasks.qolbasic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/qolsg.html">21.125. camcops_server.tasks.qolsg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/rand36.html">21.126. camcops_server.tasks.rand36</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/service_satisfaction.html">21.127. camcops_server.tasks.service_satisfaction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/slums.html">21.128. camcops_server.tasks.slums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/smast.html">21.129. camcops_server.tasks.smast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/wemwbs.html">21.130. camcops_server.tasks.wemwbs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/wsas.html">21.131. camcops_server.tasks.wsas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ybocs.html">21.132. camcops_server.tasks.ybocs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/zbi.html">21.133. camcops_server.tasks.zbi</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cc_filename.html"
+                        title="previous chapter">21.17. camcops_server.cc_modules.cc_filename</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cc_group.html"
+                        title="next chapter">21.19. camcops_server.cc_modules.cc_group</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/autodoc/cc_modules/cc_forms.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cc_group.html" title="21.19. camcops_server.cc_modules.cc_group"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cc_filename.html" title="21.17. camcops_server.cc_modules.cc_filename"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../_index.html" >21. Automatic documentation of core server source code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="_index.html" >&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

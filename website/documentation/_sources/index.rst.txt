@@ -27,7 +27,7 @@ cognitive and psychiatric assessment, on tablets, laptops, and desktops. It
 offers simple questionnaires and more complex tasks, and sends its data
 securely to your server.
 
-.. warning::
+.. note::
     CamCOPS is currently in private beta testing (University of Cambridge,
     CPFT) before general release.
 
@@ -63,6 +63,7 @@ securely to your server.
     misc/tcpip_ports.rst
     misc/linux_flavours.rst
     misc/design_notes.rst
+    autodoc/_index.rst
     changelog.rst
     misc/known_problems.rst
     misc/to_do.rst
@@ -74,6 +75,6 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
+* :ref:`modindex`
 * :ref:`search`
 
-.. * :ref:`modindex`

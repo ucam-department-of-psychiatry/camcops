@@ -1,0 +1,440 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.cc_modules.cc_taskfactory &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.cc_modules.cc_taskfactory</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/cc_modules/cc_taskfactory.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Thread</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.logs</span> <span class="k">import</span> <span class="n">BraceStyleAdapter</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sort</span> <span class="k">import</span> <span class="n">MINTYPE_SINGLETON</span><span class="p">,</span> <span class="n">MinType</span>
+<span class="kn">from</span> <span class="nn">pendulum</span> <span class="k">import</span> <span class="n">Pendulum</span>
+<span class="kn">import</span> <span class="nn">pyramid.httpexceptions</span> <span class="k">as</span> <span class="nn">exc</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="k">import</span> <span class="n">Query</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.session</span> <span class="k">import</span> <span class="n">Session</span> <span class="k">as</span> <span class="n">SqlASession</span>
+
+<span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="kn">import</span> <span class="nn">camcops_server.cc_modules.cc_all_models</span>  <span class="c1"># import side effects (ensure all models registered)  # noqa</span>
+<span class="kn">from</span> <span class="nn">.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+<span class="kn">from</span> <span class="nn">.cc_task</span> <span class="k">import</span> <span class="n">Task</span>
+<span class="kn">from</span> <span class="nn">.cc_taskfilter</span> <span class="k">import</span> <span class="n">tablename_to_task_class_dict</span><span class="p">,</span> <span class="n">TaskFilter</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">BraceStyleAdapter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Debugging options</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">DEBUG_QUERY_TIMING</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="k">if</span> <span class="n">DEBUG_QUERY_TIMING</span><span class="p">:</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Debugging options enabled!&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Sorting helpers</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span> <span class="nf">task_when_created_sorter</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Pendulum</span><span class="p">,</span> <span class="n">MinType</span><span class="p">]:</span>
+    <span class="c1"># For sorting of tasks</span>
+    <span class="n">when_created</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">when_created</span>
+    <span class="k">return</span> <span class="n">MINTYPE_SINGLETON</span> <span class="k">if</span> <span class="n">when_created</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">when_created</span>
+
+
+<div class="viewcode-block" id="TaskSortMethod"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_taskfactory.html#camcops_server.cc_modules.cc_taskfactory.TaskSortMethod">[docs]</a><span class="k">class</span> <span class="nc">TaskSortMethod</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">NONE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">CREATION_DATE_ASC</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">CREATION_DATE_DESC</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+
+<span class="k">def</span> <span class="nf">sort_tasks_in_place</span><span class="p">(</span><span class="n">tasklist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span>
+                        <span class="n">sortmethod</span><span class="p">:</span> <span class="n">TaskSortMethod</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Sort?</span>
+    <span class="k">if</span> <span class="n">sortmethod</span> <span class="o">==</span> <span class="n">TaskSortMethod</span><span class="o">.</span><span class="n">CREATION_DATE_ASC</span><span class="p">:</span>
+        <span class="n">tasklist</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">task_when_created_sorter</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">sortmethod</span> <span class="o">==</span> <span class="n">TaskSortMethod</span><span class="o">.</span><span class="n">CREATION_DATE_DESC</span><span class="p">:</span>
+        <span class="n">tasklist</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">task_when_created_sorter</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Task query helpers</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span> <span class="nf">task_query_restricted_to_permitted_users</span><span class="p">(</span>
+        <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="n">Query</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span>
+        <span class="n">as_dump</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Query</span><span class="p">]:</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">user</span>
+
+    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">q</span>  <span class="c1"># anything goes</span>
+
+    <span class="c1"># Implement group security. Simple:</span>
+    <span class="k">if</span> <span class="n">as_dump</span><span class="p">:</span>
+        <span class="n">group_ids</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">ids_of_groups_user_may_dump</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">group_ids</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">ids_of_groups_user_may_see</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">group_ids</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># noinspection PyProtectedMember</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_group_id</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">group_ids</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">q</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Make a single task given its base table name and server PK</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="task_factory"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_taskfactory.html#camcops_server.cc_modules.cc_taskfactory.task_factory">[docs]</a><span class="k">def</span> <span class="nf">task_factory</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span> <span class="n">basetable</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">serverpk</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Task</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a task; return None if the PK doesn&#39;t exist;</span>
+<span class="sd">    raise HTTPBadRequest if the table doesn&#39;t exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">tablename_to_task_class_dict</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">basetable</span><span class="p">]</span>  <span class="c1"># may raise KeyError</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">exc</span><span class="o">.</span><span class="n">HTTPBadRequest</span><span class="p">(</span><span class="s2">&quot;No such task table: </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">basetable</span><span class="p">))</span>
+    <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+    <span class="c1"># noinspection PyProtectedMember</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_pk</span> <span class="o">==</span> <span class="n">serverpk</span><span class="p">)</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">task_query_restricted_to_permitted_users</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">as_dump</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">q</span><span class="o">.</span><span class="n">first</span><span class="p">()</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Parallel fetch helper</span>
+<span class="c1"># =============================================================================</span>
+<span class="c1"># - Why consider a parallel fetch?</span>
+<span class="c1">#   Because a typical fetch might involve 27ms per query (as seen by Python;</span>
+<span class="c1">#   less as seen by MySQL) but about 100 queries, for a not-very-large</span>
+<span class="c1">#   database.</span>
+<span class="c1"># - Initially UNSUCCESSFUL: even after tweaking pool_size=0 in create_engine()</span>
+<span class="c1">#   to get round the SQLAlchemy error &quot;QueuePool limit of size 5 overflow 10</span>
+<span class="c1">#   reached&quot;, in the parallel code, a great many queries are launched, but then</span>
+<span class="c1">#   something goes wrong and others are started but then block -- for ages --</span>
+<span class="c1">#   waiting for a spare database connection, or something.</span>
+<span class="c1"># - Fixed that: I was not explicitly closing the sessions.</span>
+<span class="c1"># - But then a major conceptual problem: anything to be lazy-loaded (e.g.</span>
+<span class="c1">#   patient, but also patient ID, special note, BLOB...) will give this sort of</span>
+<span class="c1">#   error: &quot;DetachedInstanceError: Parent instance &lt;Phq9 at 0x7fe6cce2d278&gt; is</span>
+<span class="c1">#   not bound to a Session; lazy load operation of attribute &#39;patient&#39; cannot</span>
+<span class="c1">#   proceed&quot; -- for obvious reasons. And some of those operations are only</span>
+<span class="c1">#   required on the final paginated task set, which requires aggregation across</span>
+<span class="c1">#   all tasks.</span>
+<span class="c1">#</span>
+<span class="c1"># HOWEVER, the query time per table drops from ~27ms to 4-8ms if we disable</span>
+<span class="c1"># eager loading (lazy=&quot;joined&quot;) of patients from tasks.</span>
+
+<div class="viewcode-block" id="FetchThread"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_taskfactory.html#camcops_server.cc_modules.cc_taskfactory.FetchThread">[docs]</a><span class="k">class</span> <span class="nc">FetchThread</span><span class="p">(</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    CURRENTLY UNUSED.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span>
+                 <span class="n">task_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span>
+                 <span class="n">factory</span><span class="p">:</span> <span class="s2">&quot;TaskCollection&quot;</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">req</span> <span class="o">=</span> <span class="n">req</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_class</span> <span class="o">=</span> <span class="n">task_class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory</span> <span class="o">=</span> <span class="n">factory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">task_class</span><span class="o">.</span><span class="n">__tablename__</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FetchThread.run"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_taskfactory.html#camcops_server.cc_modules.cc_taskfactory.FetchThread.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Thread starting&quot;</span><span class="p">)</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="o">.</span><span class="n">get_bare_dbsession</span><span class="p">()</span>
+        <span class="c1"># noinspection PyBroadException</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># noinspection PyProtectedMember</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">_make_query</span><span class="p">(</span><span class="n">dbsession</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_class</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">q</span><span class="p">:</span>
+                <span class="n">tasks</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>  <span class="c1"># type: List[Task]</span>
+                <span class="c1"># https://stackoverflow.com/questions/6319207/are-lists-thread-safe  # noqa</span>
+                <span class="c1"># https://stackoverflow.com/questions/6953351/thread-safety-in-pythons-dictionary  # noqa</span>
+                <span class="c1"># http://effbot.org/pyfaq/what-kinds-of-global-value-mutation-are-thread-safe.htm  # noqa</span>
+                <span class="c1"># noinspection PyProtectedMember</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">_tasks_by_class</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">task_class</span><span class="p">]</span> <span class="o">=</span> <span class="n">tasks</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Thread finishing with results&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Thread finishing without results&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Thread error&quot;</span><span class="p">)</span>
+        <span class="n">dbsession</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Make a set of tasks, deferring work until things are needed</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="TaskCollection"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_taskfactory.html#camcops_server.cc_modules.cc_taskfactory.TaskCollection">[docs]</a><span class="k">class</span> <span class="nc">TaskCollection</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represent a potential or instantiated call to fetch tasks from the</span>
+<span class="sd">    database.</span>
+<span class="sd">    The caller may want them in a giant list (e.g. task viewer, CTVs), or split</span>
+<span class="sd">    by task class (e.g. trackers).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span>
+                 <span class="n">taskfilter</span><span class="p">:</span> <span class="n">TaskFilter</span><span class="p">,</span>
+                 <span class="n">as_dump</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">sort_method_by_class</span><span class="p">:</span> <span class="n">TaskSortMethod</span> <span class="o">=</span> <span class="n">TaskSortMethod</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+                 <span class="n">sort_method_global</span><span class="p">:</span> <span class="n">TaskSortMethod</span> <span class="o">=</span> <span class="n">TaskSortMethod</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+                 <span class="n">current_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_req</span> <span class="o">=</span> <span class="n">req</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span> <span class="o">=</span> <span class="n">taskfilter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_as_dump</span> <span class="o">=</span> <span class="n">as_dump</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_only</span> <span class="o">=</span> <span class="n">current_only</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sort_method_by_class</span> <span class="o">=</span> <span class="n">sort_method_by_class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sort_method_global</span> <span class="o">=</span> <span class="n">sort_method_global</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_by_class</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>  <span class="c1"># type: Dict[Type[Task], List[Task]]  # noqa</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_tasks</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: List[Task]</span>
+        <span class="c1"># log.critical(&quot;TaskCollection(): taskfilter={!r}&quot;, self._filter)</span>
+
+    <span class="c1"># =========================================================================</span>
+    <span class="c1"># Interface to read</span>
+    <span class="c1"># =========================================================================</span>
+
+    <span class="k">def</span> <span class="nf">task_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span><span class="o">.</span><span class="n">task_classes</span>
+
+    <span class="k">def</span> <span class="nf">tasks_for_task_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_task_class</span><span class="p">(</span><span class="n">task_class</span><span class="p">)</span>
+        <span class="n">tasklist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_by_class</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task_class</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">sort_tasks_in_place</span><span class="p">(</span><span class="n">tasklist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sort_method_by_class</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tasklist</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Task</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_all_tasks</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_all_tasks</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[Task]</span>
+            <span class="k">for</span> <span class="n">single_task_list</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_by_class</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_tasks</span> <span class="o">+=</span> <span class="n">single_task_list</span>
+            <span class="n">sort_tasks_in_place</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_tasks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sort_method_global</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_tasks</span>
+
+    <span class="c1"># =========================================================================</span>
+    <span class="c1"># Internals</span>
+    <span class="c1"># =========================================================================</span>
+
+    <span class="k">def</span> <span class="nf">_make_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbsession</span><span class="p">:</span> <span class="n">SqlASession</span><span class="p">,</span>
+                    <span class="n">task_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Query</span><span class="p">]:</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">task_class</span><span class="p">)</span>
+
+        <span class="c1"># Restrict to what the web front end will supply</span>
+        <span class="c1"># noinspection PyProtectedMember</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_only</span><span class="p">:</span>
+            <span class="c1"># noinspection PyProtectedMember</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">task_class</span><span class="o">.</span><span class="n">_current</span> <span class="o">==</span> <span class="kc">True</span><span class="p">)</span>  <span class="c1"># nopep8</span>
+
+        <span class="c1"># Restrict to what is PERMITTED</span>
+        <span class="c1"># Cache group IDs</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">task_query_restricted_to_permitted_users</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_req</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">task_class</span><span class="p">,</span>
+                                                     <span class="n">as_dump</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_as_dump</span><span class="p">)</span>
+
+        <span class="c1"># Restrict to what is DESIRED</span>
+        <span class="k">if</span> <span class="n">q</span><span class="p">:</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span><span class="o">.</span><span class="n">task_query_restricted_by_filter</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_req</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">task_class</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">q</span>
+
+    <span class="k">def</span> <span class="nf">_serial_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_class</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Query</span><span class="p">]:</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_query</span><span class="p">(</span><span class="n">dbsession</span><span class="p">,</span> <span class="n">task_class</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_filter_through_python</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Task</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Task</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span><span class="o">.</span><span class="n">has_python_parts_to_filter</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">tasks</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span><span class="o">.</span><span class="n">task_matches_python_parts_of_filter</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">forget_task_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_by_class</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">task_class</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># https://stackoverflow.com/questions/11277432/how-to-remove-a-key-from-a-python-dictionary  # noqa</span>
+
+    <span class="k">def</span> <span class="nf">_fetch_task_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Fetch one set of tasks from database.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">task_class</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_by_class</span><span class="p">:</span>
+            <span class="k">return</span>  <span class="c1"># already fetched</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serial_query</span><span class="p">(</span><span class="n">task_class</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">newtasks</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[Task]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">newtasks</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>  <span class="c1"># type: List[Task]</span>
+            <span class="c1"># Apply Python-side filters?</span>
+            <span class="n">newtasks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_through_python</span><span class="p">(</span><span class="n">newtasks</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_by_class</span><span class="p">[</span><span class="n">task_class</span><span class="p">]</span> <span class="o">=</span> <span class="n">newtasks</span>
+
+    <span class="k">def</span> <span class="nf">_fetch_all_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parallel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Fetch all tasks from database.&quot;&quot;&quot;</span>
+
+        <span class="c1"># AVOID parallel=True; see notes above.</span>
+        <span class="k">if</span> <span class="n">DEBUG_QUERY_TIMING</span><span class="p">:</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">Pendulum</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">parallel</span><span class="p">:</span>
+            <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[FetchThread]</span>
+            <span class="k">for</span> <span class="n">task_class</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span><span class="o">.</span><span class="n">task_classes</span><span class="p">:</span>
+                <span class="n">thread</span> <span class="o">=</span> <span class="n">FetchThread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_req</span><span class="p">,</span> <span class="n">task_class</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+                <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">thread</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+                <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">thread</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multithreaded fetch failed&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">task_class</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span><span class="o">.</span><span class="n">task_classes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_task_class</span><span class="p">(</span><span class="n">task_class</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">DEBUG_QUERY_TIMING</span><span class="p">:</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">Pendulum</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="c1"># noinspection PyUnboundLocalVariable</span>
+            <span class="n">time_taken</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;_fetch_all_tasks took </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">time_taken</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

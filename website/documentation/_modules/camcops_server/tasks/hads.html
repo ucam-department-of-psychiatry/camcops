@@ -1,0 +1,446 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.tasks.hads &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.tasks.hads</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/tasks/hads.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.stringfunc</span> <span class="k">import</span> <span class="n">strseq</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="k">import</span> <span class="n">DeclarativeMeta</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.sqltypes</span> <span class="k">import</span> <span class="n">Integer</span>
+
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_constants</span> <span class="k">import</span> <span class="n">DATA_COLLECTION_UNLESS_UPGRADED_DIV</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_ctvinfo</span> <span class="k">import</span> <span class="n">CTV_INCOMPLETE</span><span class="p">,</span> <span class="n">CtvInfo</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_db</span> <span class="k">import</span> <span class="n">add_multiple_columns</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_html</span> <span class="k">import</span> <span class="n">answer</span><span class="p">,</span> <span class="n">tr_qa</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_summaryelement</span> <span class="k">import</span> <span class="n">SummaryElement</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_task</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">Task</span><span class="p">,</span>
+    <span class="n">TaskHasPatientMixin</span><span class="p">,</span>
+    <span class="n">TaskHasRespondentMixin</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_trackerhelpers</span> <span class="k">import</span> <span class="n">TrackerInfo</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># HADS (crippled unless upgraded locally) - base classes</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="HadsMetaclass"><a class="viewcode-back" href="../../../autodoc/tasks/hads.html#camcops_server.tasks.hads.HadsMetaclass">[docs]</a><span class="k">class</span> <span class="nc">HadsMetaclass</span><span class="p">(</span><span class="n">DeclarativeMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    We can&#39;t make this metaclass inherit from DeclarativeMeta.</span>
+
+<span class="sd">    This works:</span>
+
+<span class="sd">        class MyTaskMetaclass(DeclarativeMeta):</span>
+<span class="sd">            def __init__(cls, name, bases, classdict):</span>
+<span class="sd">                # do useful stuff</span>
+<span class="sd">                super().__init__(name, bases, classdict)</span>
+
+<span class="sd">        class MyTask(Task, Base, metaclass=MyTaskMetaclass):</span>
+<span class="sd">            __tablename__ = &quot;mytask&quot;</span>
+
+<span class="sd">    ... but at the point that MyTaskMetaclass calls DeclarativeMeta.__init__,</span>
+<span class="sd">    it registers &quot;cls&quot; (in this case MyTask) with the SQLAlchemy class</span>
+<span class="sd">    registry. In this example, that&#39;s fine, because MyTask wants to be</span>
+<span class="sd">    registered. But here it fails:</span>
+
+<span class="sd">        class OtherTaskMetaclass(DeclarativeMeta):</span>
+<span class="sd">            def __init__(cls, name, bases, classdict):</span>
+<span class="sd">                # do useful stuff</span>
+<span class="sd">                super().__init__(name, bases, classdict)</span>
+
+<span class="sd">        class Intermediate(Task, metaclass=OtherTaskMetaclass): pass</span>
+
+<span class="sd">        class OtherTask(Intermediate, Base):</span>
+<span class="sd">            __tablename__ = &quot;othertask&quot;</span>
+
+<span class="sd">    ... and it fails because OtherTaskMetaclass calls DeclarativeMeta.__init__</span>
+<span class="sd">    and this tries to register &quot;Intermediate&quot; with the SQLALchemy ORM.</span>
+
+<span class="sd">    So, it&#39;s clear that OtherTaskMetaclass shouldn&#39;t derive from</span>
+<span class="sd">    DeclarativeMeta. But if we make it derive from &quot;object&quot; instead, we get</span>
+<span class="sd">    the error</span>
+
+<span class="sd">        TypeError: metaclass conflict: the metaclass of a derived class must</span>
+<span class="sd">        be a (non-strict) subclass of the metaclasses of all its bases</span>
+
+<span class="sd">    because OtherTask inherits from Base, whose metaclass is DeclarativeMeta,</span>
+<span class="sd">    but there is another metaclass in the metaclass set that is incompatible</span>
+<span class="sd">    with this.</span>
+
+<span class="sd">    So, is solution that OtherTaskMetaclass should derive from &quot;type&quot; and then</span>
+<span class="sd">    to use CooperativeMeta (q.v.) for OtherTask?</span>
+
+<span class="sd">    No, that still seems to fail (and before any CooperativeMeta code is</span>
+<span class="sd">    called) -- possibly that framework is for Python 2 only.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/</span>
+
+<span class="sd">    Alternative solution 1: make a new metaclass that pretends to inherit</span>
+<span class="sd">    from HadsMetaclass and DeclarativeMeta.</span>
+<span class="sd">        -- WENT WITH THIS ONE INITIALLY:</span>
+
+<span class="sd">        class HadsMetaclass(type):                      # METACLASS</span>
+<span class="sd">            def __init__(cls: Type[&#39;HadsBase&#39;],</span>
+<span class="sd">                 name: str,</span>
+<span class="sd">                 bases: Tuple[Type, ...],</span>
+<span class="sd">                 classdict: Dict[str, Any]) -&gt; None:</span>
+<span class="sd">            add_multiple_columns(...)</span>
+
+<span class="sd">        class HadsBase(TaskHasPatientMixin, Task,       # INTERMEDIATE</span>
+<span class="sd">                       metaclass=HadsMetaclass):</span>
+<span class="sd">            ...</span>
+
+<span class="sd">        class HadsBlendedMetaclass(HadsMetaclass, DeclarativeMeta):    # ODDITY</span>
+<span class="sd">            # noinspection PyInitNewSignature</span>
+<span class="sd">            def __init__(cls: Type[Union[HadsBase, DeclarativeMeta]],</span>
+<span class="sd">                         name: str,</span>
+<span class="sd">                         bases: Tuple[Type, ...],</span>
+<span class="sd">                         classdict: Dict[str, Any]) -&gt; None:</span>
+<span class="sd">                HadsMetaclass.__init__(cls, name, bases, classdict)</span>
+<span class="sd">                # ... will call DeclarativeMeta.__init__ via its</span>
+<span class="sd">                #     super().__init__()</span>
+
+<span class="sd">        class Hads(HadsBase,                            # ACTUAL TASK</span>
+<span class="sd">                   metaclass=HadsBlendedMetaclass):</span>
+<span class="sd">            __tablename__ = &quot;hads&quot;</span>
+
+<span class="sd">    Alternative solution 2: continue to have the HadsMetaclass deriving from</span>
+<span class="sd">    DeclarativeMeta, but add it in at the last stage.</span>
+
+<span class="sd">    IGNORE THIS, NO LONGER TRUE:</span>
+<span class="sd">        ALL THIS SOMEWHAT REVISED to handle SQLAlchemy concrete inheritance</span>
+<span class="sd">        (q.v.), with the rule that &quot;the only things that inherit from Task are</span>
+<span class="sd">        actual tasks&quot;; Task then inherits from both AbstractConcreteBase and</span>
+<span class="sd">        Base.</span>
+<span class="sd">    SEE ALSO sqla_database_structure.txt</span>
+
+<span class="sd">    FINAL ANSWER:</span>
+<span class="sd">        - classes inherit in a neat chain from Base -&gt; [+/- Task -&gt; ...]</span>
+<span class="sd">        - metaclasses inherit in a neat chain from DeclarativeMeta</span>
+<span class="sd">        - abstract intermediates mark themselves with &quot;__abstract__ = True&quot;</span>
+
+<span class="sd">        class HadsMetaclass(DeclarativeMeta):           # METACLASS</span>
+<span class="sd">            def __init__(cls: Type[&#39;HadsBase&#39;],</span>
+<span class="sd">                         name: str,</span>
+<span class="sd">                         bases: Tuple[Type, ...],</span>
+<span class="sd">                         classdict: Dict[str, Any]) -&gt; None:</span>
+<span class="sd">                add_multiple_columns(...)</span>
+
+<span class="sd">        class HadsBase(TaskHasPatientMixin, Task,       # INTERMEDIATE</span>
+<span class="sd">                       metaclass=HadsMetaclass):</span>
+<span class="sd">            __abstract__ = True</span>
+
+<span class="sd">        class Hads(HadsBase):</span>
+<span class="sd">            __tablename__ = &quot;hads&quot;</span>
+
+<span class="sd">    Yes, that&#39;s it. (Note that if you erroneously also add</span>
+<span class="sd">    &quot;metaclass=HadsMetaclass&quot; on Hads, you get: &quot;TypeError: metaclass conflict:</span>
+<span class="sd">    the metaclass of a derived class must be a (non-strict) subclass of the</span>
+<span class="sd">    metaclasses of all its bases.&quot;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># noinspection PyInitNewSignature</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s1">&#39;HadsBase&#39;</span><span class="p">],</span>
+                 <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">bases</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+                 <span class="n">classdict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NQUESTIONS</span><span class="p">,</span>
+            <span class="n">minimum</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">comment_fmt</span><span class="o">=</span><span class="s2">&quot;Q</span><span class="si">{n}</span><span class="s2">: </span><span class="si">{s}</span><span class="s2"> (0-3)&quot;</span><span class="p">,</span>
+            <span class="n">comment_strings</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;tense&quot;</span><span class="p">,</span> <span class="s2">&quot;enjoy usual&quot;</span><span class="p">,</span> <span class="s2">&quot;apprehensive&quot;</span><span class="p">,</span> <span class="s2">&quot;laugh&quot;</span><span class="p">,</span> <span class="s2">&quot;worry&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cheerful&quot;</span><span class="p">,</span> <span class="s2">&quot;relaxed&quot;</span><span class="p">,</span> <span class="s2">&quot;slow&quot;</span><span class="p">,</span> <span class="s2">&quot;butterflies&quot;</span><span class="p">,</span> <span class="s2">&quot;appearance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;restless&quot;</span><span class="p">,</span> <span class="s2">&quot;anticipate&quot;</span><span class="p">,</span> <span class="s2">&quot;panic&quot;</span><span class="p">,</span> <span class="s2">&quot;book/TV/radio&quot;</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">classdict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HadsBase"><a class="viewcode-back" href="../../../autodoc/tasks/hads.html#camcops_server.tasks.hads.HadsBase">[docs]</a><span class="k">class</span> <span class="nc">HadsBase</span><span class="p">(</span><span class="n">TaskHasPatientMixin</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span>
+               <span class="n">metaclass</span><span class="o">=</span><span class="n">HadsMetaclass</span><span class="p">):</span>
+    <span class="n">__abstract__</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">provides_trackers</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">NQUESTIONS</span> <span class="o">=</span> <span class="mi">14</span>
+    <span class="n">ANXIETY_QUESTIONS</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">]</span>
+    <span class="n">DEPRESSION_QUESTIONS</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">]</span>
+    <span class="n">TASK_FIELDS</span> <span class="o">=</span> <span class="n">strseq</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">NQUESTIONS</span><span class="p">)</span>
+    <span class="n">MAX_ANX_SCORE</span> <span class="o">=</span> <span class="mi">21</span>
+    <span class="n">MAX_DEP_SCORE</span> <span class="o">=</span> <span class="mi">21</span>
+
+<div class="viewcode-block" id="HadsBase.is_complete"><a class="viewcode-back" href="../../../autodoc/tasks/hads.html#camcops_server.tasks.hads.HadsBase.is_complete">[docs]</a>    <span class="k">def</span> <span class="nf">is_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field_contents_valid</span><span class="p">()</span> <span class="ow">and</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">are_all_fields_complete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TASK_FIELDS</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="HadsBase.get_trackers"><a class="viewcode-back" href="../../../autodoc/tasks/hads.html#camcops_server.tasks.hads.HadsBase.get_trackers">[docs]</a>    <span class="k">def</span> <span class="nf">get_trackers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TrackerInfo</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">TrackerInfo</span><span class="p">(</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">anxiety_score</span><span class="p">(),</span>
+                <span class="n">plot_label</span><span class="o">=</span><span class="s2">&quot;HADS anxiety score&quot;</span><span class="p">,</span>
+                <span class="n">axis_label</span><span class="o">=</span><span class="s2">&quot;Anxiety score (out of </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MAX_ANX_SCORE</span><span class="p">),</span>
+                <span class="n">axis_min</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span>
+                <span class="n">axis_max</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_ANX_SCORE</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">TrackerInfo</span><span class="p">(</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">depression_score</span><span class="p">(),</span>
+                <span class="n">plot_label</span><span class="o">=</span><span class="s2">&quot;HADS depression score&quot;</span><span class="p">,</span>
+                <span class="n">axis_label</span><span class="o">=</span><span class="s2">&quot;Depression score (out of </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MAX_DEP_SCORE</span><span class="p">),</span>
+                <span class="n">axis_min</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span>
+                <span class="n">axis_max</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_DEP_SCORE</span> <span class="o">+</span> <span class="mf">0.5</span>
+            <span class="p">),</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="HadsBase.get_clinical_text"><a class="viewcode-back" href="../../../autodoc/tasks/hads.html#camcops_server.tasks.hads.HadsBase.get_clinical_text">[docs]</a>    <span class="k">def</span> <span class="nf">get_clinical_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">CtvInfo</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_complete</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">CTV_INCOMPLETE</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">CtvInfo</span><span class="p">(</span>
+            <span class="n">content</span><span class="o">=</span><span class="s2">&quot;anxiety score </span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">, depression score </span><span class="si">{}</span><span class="s2">/21&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">anxiety_score</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_ANX_SCORE</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">depression_score</span><span class="p">())</span>
+        <span class="p">)]</span></div>
+
+<div class="viewcode-block" id="HadsBase.get_summaries"><a class="viewcode-back" href="../../../autodoc/tasks/hads.html#camcops_server.tasks.hads.HadsBase.get_summaries">[docs]</a>    <span class="k">def</span> <span class="nf">get_summaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SummaryElement</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_task_summary_fields</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;anxiety&quot;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="n">Integer</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">anxiety_score</span><span class="p">(),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Anxiety score (/</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_ANX_SCORE</span><span class="p">)),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;depression&quot;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="n">Integer</span><span class="p">(),</span>
+                           <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">depression_score</span><span class="p">(),</span>
+                           <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Depression score (/21)&quot;</span><span class="p">),</span>
+        <span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">questions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fieldnames_from_list</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="n">questions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_fields</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">anxiety_score</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ANXIETY_QUESTIONS</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">depression_score</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DEPRESSION_QUESTIONS</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HadsBase.get_task_html"><a class="viewcode-back" href="../../../autodoc/tasks/hads.html#camcops_server.tasks.hads.HadsBase.get_task_html">[docs]</a>    <span class="k">def</span> <span class="nf">get_task_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">min_score</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">max_score</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">crippled</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrastrings_exist</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">anxiety_score</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depression_score</span><span class="p">()</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;div class=&quot;summary&quot;&gt;</span>
+<span class="s2">                &lt;table class=&quot;summary&quot;&gt;</span>
+<span class="s2">                    </span><span class="si">{is_complete_tr}</span><span class="s2"></span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{sa}</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="si">{a}</span><span class="s2"> / </span><span class="si">{maxa}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{sd}</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="si">{d}</span><span class="s2"> / 21&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                &lt;/table&gt;</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">            &lt;div class=&quot;explanation&quot;&gt;</span>
+<span class="s2">                All questions are scored from 0–3</span>
+<span class="s2">                (0 least symptomatic, 3 most symptomatic).</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">            &lt;table class=&quot;taskdetail&quot;&gt;</span>
+<span class="s2">                &lt;tr&gt;</span>
+<span class="s2">                    &lt;th width=&quot;50%&quot;&gt;Question&lt;/th&gt;</span>
+<span class="s2">                    &lt;th width=&quot;50%&quot;&gt;Answer&lt;/th&gt;</span>
+<span class="s2">                &lt;/tr&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">is_complete_tr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_is_complete_tr</span><span class="p">(</span><span class="n">req</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">wappstring</span><span class="p">(</span><span class="s2">&quot;hads_anxiety_score&quot;</span><span class="p">),</span>
+            <span class="n">a</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="n">a</span><span class="p">),</span>
+            <span class="n">maxa</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_ANX_SCORE</span><span class="p">,</span>
+            <span class="n">sd</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">wappstring</span><span class="p">(</span><span class="s2">&quot;hads_depression_score&quot;</span><span class="p">),</span>
+            <span class="n">d</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="n">d</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NQUESTIONS</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">crippled</span><span class="p">:</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="s2">&quot;HADS: Q</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="s2">&quot;Q</span><span class="si">{}</span><span class="s2">. </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">n</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_stem&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ANXIETY_QUESTIONS</span><span class="p">:</span>
+                <span class="n">q</span> <span class="o">+=</span> <span class="s2">&quot; (A)&quot;</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEPRESSION_QUESTIONS</span><span class="p">:</span>
+                <span class="n">q</span> <span class="o">+=</span> <span class="s2">&quot; (D)&quot;</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">crippled</span> <span class="ow">or</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">min_score</span> <span class="ow">or</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="n">max_score</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;q</span><span class="si">{}</span><span class="s2">_a</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">v</span><span class="p">)))</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="n">tr_qa</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;/table&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">DATA_COLLECTION_UNLESS_UPGRADED_DIV</span>
+        <span class="k">return</span> <span class="n">h</span></div></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Hads</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="Hads"><a class="viewcode-back" href="../../../autodoc/tasks/hads.html#camcops_server.tasks.hads.Hads">[docs]</a><span class="k">class</span> <span class="nc">Hads</span><span class="p">(</span><span class="n">HadsBase</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;hads&quot;</span>
+    <span class="n">shortname</span> <span class="o">=</span> <span class="s2">&quot;HADS&quot;</span>
+    <span class="n">longname</span> <span class="o">=</span> <span class="s2">&quot;Hospital Anxiety and Depression Scale (data collection only)&quot;</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># HadsRespondent</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="HadsRespondent"><a class="viewcode-back" href="../../../autodoc/tasks/hads.html#camcops_server.tasks.hads.HadsRespondent">[docs]</a><span class="k">class</span> <span class="nc">HadsRespondent</span><span class="p">(</span><span class="n">TaskHasRespondentMixin</span><span class="p">,</span> <span class="n">HadsBase</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;hads_respondent&quot;</span>
+    <span class="n">shortname</span> <span class="o">=</span> <span class="s2">&quot;HADS-Respondent&quot;</span>
+    <span class="n">longname</span> <span class="o">=</span> <span class="s2">&quot;Hospital Anxiety and Depression Scale (data collection &quot;</span> \
+               <span class="s2">&quot;only), non-patient respondent version&quot;</span>
+    <span class="n">extrastring_taskname</span> <span class="o">=</span> <span class="s2">&quot;hads&quot;</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

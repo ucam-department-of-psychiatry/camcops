@@ -126,4 +126,7 @@ Server
 Documentation to-do list
 ------------------------
 
+- Consider autodocumentation for C++ code; see
+  https://stackoverflow.com/questions/11246637/using-sphinx-apidoc-to-generate-documentation-from-c-code
+
 .. todolist::

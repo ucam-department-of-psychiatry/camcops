@@ -1,0 +1,571 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>21.58. camcops_server.cc_modules.webview &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="../tasks/_index.html" />
+    <link rel="prev" title="21.57. camcops_server.cc_modules.merge_db" href="merge_db.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../tasks/_index.html" title="&lt;no title&gt;"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="merge_db.html" title="21.57. camcops_server.cc_modules.merge_db"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../_index.html" >21. Automatic documentation of core server source code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="_index.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-camcops_server.cc_modules.webview">
+<span id="camcops-server-cc-modules-webview"></span><h1>21.58. camcops_server.cc_modules.webview<a class="headerlink" href="#module-camcops_server.cc_modules.webview" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><p>This file is part of CamCOPS.</p>
+<p>CamCOPS is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>CamCOPS is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License
+along with CamCOPS. If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
+</div></blockquote>
+<hr class="docutils" />
+<p>Quick tutorial on Pyramid views:</p>
+<ul>
+<li><p class="first">The configurator registers routes, and routes have URLs associated with
+them. Those URLs can be templatized, e.g. to accept numerical parameters.
+The configurator associates view callables (“views” for short) with routes,
+and one method for doing that is an automatic scan via Venusian for views
+decorated with &#64;view_config().</p>
+</li>
+<li><p class="first">All views take a Request object and return a Response or raise an exception
+that Pyramid will translate into a Response.</p>
+</li>
+<li><p class="first">Having matched a route, Pyramid uses its “view lookup” process to choose
+one from potentially several views. For example, a single route might be
+associated with:</p>
+<blockquote>
+<div><p>&#64;view_config(route_name=”myroute”)
+def myroute_default(req: Request) -&gt; Response:</p>
+<blockquote>
+<div><p>pass</p>
+</div></blockquote>
+<p>&#64;view_config(route_name=”myroute”, method=”POST”)
+def myroute_post(req: Request) -&gt; Response:</p>
+<blockquote>
+<div><p>pass</p>
+</div></blockquote>
+</div></blockquote>
+<p>In this example, POST requests will go to the second; everything else will
+go to the first. Pyramid’s view lookup rule is essentially: if multiple
+views match, choose the one with the most specifiers.</p>
+</li>
+<li><p class="first">Specifiers include:</p>
+<blockquote>
+<div><p>route_name=ROUTENAME</p>
+<blockquote>
+<div><p>the route</p>
+</div></blockquote>
+<p>request_method=”POST”</p>
+<blockquote>
+<div><p>requires HTTP GET, POST, etc.</p>
+</div></blockquote>
+<p>request_param=”XXX”</p>
+<blockquote>
+<div><p>… requires the presence of a GET/POST variable with this name in
+the request.params dictionary</p>
+</div></blockquote>
+<p>request_param=”XXX=YYY”</p>
+<blockquote>
+<div><p>… requires the presence of a GET/POST variable called XXX whose
+value is YYY, in the request.params dictionary</p>
+</div></blockquote>
+<p>match_param=”XXX=YYY”</p>
+<blockquote>
+<div><p>request.matchdict, which contains parameters from the URL</p>
+</div></blockquote>
+</div></blockquote>
+<p><a class="reference external" href="https://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html#pyramid.config.Configurator.add_view">https://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html#pyramid.config.Configurator.add_view</a>  # noqa</p>
+</li>
+<li><p class="first">Getting parameters</p>
+<blockquote>
+<div><p>request.params</p>
+<blockquote>
+<div><p>… parameters from HTTP GET or POST, including both the query
+string (as in <a class="reference external" href="http://somewhere/path?key=value">http://somewhere/path?key=value</a>) and the body (e.g.
+POST).</p>
+</div></blockquote>
+<p>request.matchdict</p>
+<blockquote>
+<div><p>… parameters from the URL, via URL dispatch; see
+<a class="reference external" href="https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html#urldispatch-chapter">https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html#urldispatch-chapter</a>  # noqa</p>
+</div></blockquote>
+</div></blockquote>
+</li>
+<li><p class="first">Regarding rendering:</p>
+<p>There might be some simplicity benefits from converting to a template
+system like Mako. On the downside, that would entail a bit more work;
+likely a minor performance hit (relative to plain Python string rendering);
+and a loss of type checking. The type checking is also why we prefer:</p>
+<blockquote>
+<div><p>html = ” … {param_blah} …”.format(param_blah=PARAM.BLAH)</p>
+</div></blockquote>
+<p>to</p>
+<blockquote>
+<div><p>html = ” … {PARAM.BLAH} …”.format(PARAM=PARAM)</p>
+</div></blockquote>
+<p>as in the first situation, PyCharm will check that “BLAH” is present in
+“PARAM”, and in the second it won’t. Automatic checking is worth a lot.</p>
+</li>
+</ul>
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.account_locked">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">account_locked</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>locked_until: pendulum.pendulum.Pendulum</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#account_locked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.account_locked" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTML given when account locked out.
+Returned by login_view() only.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.add_special_note">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">add_special_note</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#add_special_note"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.add_special_note" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a special note to a task (after confirmation).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.assert_may_edit_user">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">assert_may_edit_user</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>user: camcops_server.cc_modules.cc_user.User</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#assert_may_edit_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.assert_may_edit_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that the requesting user (req.user) is allowed to edit the other
+user (user). Raises HTTPBadRequest otherwise.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.bad_request">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">bad_request</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#bad_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.bad_request" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>NOTE that this view only gets used from</dt>
+<dd>raise HTTPBadRequest(“message”)</dd>
+<dt>and not</dt>
+<dd>return HTTPBadRequest(“message”)</dd>
+</dl>
+<p>… so always raise it.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.change_other_password">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">change_other_password</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#change_other_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.change_other_password" title="Permalink to this definition">¶</a></dt>
+<dd><p>For administrators, to change another’s password.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.choose_tracker_or_ctv">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">choose_tracker_or_ctv</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>as_ctv: bool</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#choose_tracker_or_ctv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.choose_tracker_or_ctv" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTML form for tracker selection.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.crash">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">crash</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#crash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.crash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deliberately raises an exception.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.delete_patient">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">delete_patient</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#delete_patient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.delete_patient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Completely delete all data from a patient (after confirmation),
+within a specific group.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.developer_page">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">developer_page</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#developer_page"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.developer_page" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows developer menu.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.erase_task">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">erase_task</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#erase_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.erase_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wipe all data from a task (after confirmation).</p>
+<p>Leaves the task record as a placeholder.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.forcibly_finalize">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">forcibly_finalize</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#forcibly_finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.forcibly_finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force-finalize all live (_era == ERA_NOW) records from a device.
+Available to group administrators if all those records are within their
+groups (otherwise, it’s a superuser operation).</p>
+<p>This is a superuser permission, since we can’t guarantee to know what group
+the device relates to.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.introspect">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">introspect</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#introspect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.introspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide formatted source code.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.login_failed">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">login_failed</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#login_failed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.login_failed" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTML given after login failure.
+Returned by login_view() only.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.logout">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">logout</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#logout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.logout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs a session out.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.main_menu">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">main_menu</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#main_menu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.main_menu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main HTML menu.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.offer_introspection">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">offer_introspection</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#offer_introspection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.offer_introspection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Page to offer CamCOPS server source code.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.offer_report">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">offer_report</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#offer_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.offer_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Offer configuration options for a single report, or (following submission)
+redirect to serve that report</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.offer_sql_dump">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">offer_sql_dump</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#offer_sql_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.offer_sql_dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Form for SQL research dump selection.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.offer_terms">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">offer_terms</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#offer_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.offer_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTML offering terms/conditions and requesting acknowledgement.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.offer_tsv_dump">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">offer_tsv_dump</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#offer_tsv_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.offer_tsv_dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Form for basic research dump selection.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.reports_menu">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">reports_menu</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#reports_menu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.reports_menu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Offer a menu of reports.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.serve_report">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">serve_report</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#serve_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.serve_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serve a configured report.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.serve_task">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">serve_task</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#serve_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.serve_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serves an individual task.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.simple_failure">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">simple_failure</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>msg: str</em>, <em>extra_html: str = ''</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#simple_failure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.simple_failure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple failure message.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.simple_success">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">simple_success</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>msg: str</em>, <em>extra_html: str = ''</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#simple_success"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.simple_success" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple success message.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.static_bugfix_deform_missing_glyphs">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">static_bugfix_deform_missing_glyphs</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#static_bugfix_deform_missing_glyphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.static_bugfix_deform_missing_glyphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hack for a missing-file bug in deform==2.0.4:</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.view_ddl">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">view_ddl</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; pyramid.response.Response<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#view_ddl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.view_ddl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inspect table definitions with field comments.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.view_server_info">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">view_server_info</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#view_server_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.view_server_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTML showing server’s ID policies, etc..</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="camcops_server.cc_modules.webview.view_tasks">
+<code class="descclassname">camcops_server.cc_modules.webview.</code><code class="descname">view_tasks</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/webview.html#view_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.webview.view_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTML displaying tasks and applicable filters.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../_index.html">21. Automatic documentation of core server source code</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../camcops.html">21.1. camcops_server.camcops</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_alembic.html">21.2. camcops_server.cc_modules.cc_alembic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_all_models.html">21.3. camcops_server.cc_modules.cc_all_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_analytics.html">21.4. camcops_server.cc_modules.cc_analytics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_baseconstants.html">21.5. camcops_server.cc_modules.cc_baseconstants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_blob.html">21.6. camcops_server.cc_modules.cc_blob</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_cache.html">21.7. camcops_server.cc_modules.cc_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_client_api_core.html">21.8. camcops_server.cc_modules.cc_client_api_core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_config.html">21.9. camcops_server.cc_modules.cc_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_constants.html">21.10. camcops_server.cc_modules.cc_constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_convert.html">21.11. camcops_server.cc_modules.cc_convert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_ctvinfo.html">21.12. camcops_server.cc_modules.cc_ctvinfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_db.html">21.13. camcops_server.cc_modules.cc_db</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_device.html">21.14. camcops_server.cc_modules.cc_device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_dirtytables.html">21.15. camcops_server.cc_modules.cc_dirtytables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_dump.html">21.16. camcops_server.cc_modules.cc_dump</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_filename.html">21.17. camcops_server.cc_modules.cc_filename</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_forms.html">21.18. camcops_server.cc_modules.cc_forms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_group.html">21.19. camcops_server.cc_modules.cc_group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_hl7.html">21.20. camcops_server.cc_modules.cc_hl7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_hl7core.html">21.21. camcops_server.cc_modules.cc_hl7core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_html.html">21.22. camcops_server.cc_modules.cc_html</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_idnumdef.html">21.23. camcops_server.cc_modules.cc_idnumdef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_membership.html">21.24. camcops_server.cc_modules.cc_membership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_nhs.html">21.25. camcops_server.cc_modules.cc_nhs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_nlp.html">21.26. camcops_server.cc_modules.cc_nlp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_patient.html">21.27. camcops_server.cc_modules.cc_patient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_patientidnum.html">21.28. camcops_server.cc_modules.cc_patientidnum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_pdf.html">21.29. camcops_server.cc_modules.cc_pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_plot.html">21.30. camcops_server.cc_modules.cc_plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_policy.html">21.31. camcops_server.cc_modules.cc_policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_pyramid.html">21.32. camcops_server.cc_modules.cc_pyramid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_recipdef.html">21.33. camcops_server.cc_modules.cc_recipdef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_report.html">21.34. camcops_server.cc_modules.cc_report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_request.html">21.35. camcops_server.cc_modules.cc_request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_serversettings.html">21.36. camcops_server.cc_modules.cc_serversettings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_session.html">21.37. camcops_server.cc_modules.cc_session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_simpleobjects.html">21.38. camcops_server.cc_modules.cc_simpleobjects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_specialnote.html">21.39. camcops_server.cc_modules.cc_specialnote</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_sqla_coltypes.html">21.40. camcops_server.cc_modules.cc_sqla_coltypes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_sqlalchemy.html">21.41. camcops_server.cc_modules.cc_sqlalchemy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_string.html">21.42. camcops_server.cc_modules.cc_string</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_summaryelement.html">21.43. camcops_server.cc_modules.cc_summaryelement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_tabletsession.html">21.44. camcops_server.cc_modules.cc_tabletsession</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_task.html">21.45. camcops_server.cc_modules.cc_task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_taskfactory.html">21.46. camcops_server.cc_modules.cc_taskfactory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_taskfilter.html">21.47. camcops_server.cc_modules.cc_taskfilter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_tracker.html">21.48. camcops_server.cc_modules.cc_tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_trackerhelpers.html">21.49. camcops_server.cc_modules.cc_trackerhelpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_tsv.html">21.50. camcops_server.cc_modules.cc_tsv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_unittest.html">21.51. camcops_server.cc_modules.cc_unittest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_user.html">21.52. camcops_server.cc_modules.cc_user</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_version.html">21.53. camcops_server.cc_modules.cc_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_version_string.html">21.54. camcops_server.cc_modules.cc_version_string</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_xml.html">21.55. camcops_server.cc_modules.cc_xml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client_api.html">21.56. camcops_server.cc_modules.client_api</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_db.html">21.57. camcops_server.cc_modules.merge_db</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">21.58. camcops_server.cc_modules.webview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ace3.html">21.59. camcops_server.tasks.ace3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/aims.html">21.60. camcops_server.tasks.aims</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/audit.html">21.61. camcops_server.tasks.audit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/badls.html">21.62. camcops_server.tasks.badls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bdi.html">21.63. camcops_server.tasks.bdi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bmi.html">21.64. camcops_server.tasks.bmi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bprs.html">21.65. camcops_server.tasks.bprs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bprse.html">21.66. camcops_server.tasks.bprse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cage.html">21.67. camcops_server.tasks.cage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cape42.html">21.68. camcops_server.tasks.cape42</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/caps.html">21.69. camcops_server.tasks.caps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cardinal_expdetthreshold.html">21.70. camcops_server.tasks.cardinal_expdetthreshold</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cardinal_expectationdetection.html">21.71. camcops_server.tasks.cardinal_expectationdetection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cbir.html">21.72. camcops_server.tasks.cbir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ceca.html">21.73. camcops_server.tasks.ceca</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cgi_task.html">21.74. camcops_server.tasks.cgi_task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cgisch.html">21.75. camcops_server.tasks.cgisch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cisr.html">21.76. camcops_server.tasks.cisr</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ciwa.html">21.77. camcops_server.tasks.ciwa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/contactlog.html">21.78. camcops_server.tasks.contactlog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cope.html">21.79. camcops_server.tasks.cope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cpft_lps.html">21.80. camcops_server.tasks.cpft_lps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/dad.html">21.81. camcops_server.tasks.dad</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/dast.html">21.82. camcops_server.tasks.dast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/deakin_1_healthreview.html">21.83. camcops_server.tasks.deakin_1_healthreview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/demoquestionnaire.html">21.84. camcops_server.tasks.demoquestionnaire</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/demqol.html">21.85. camcops_server.tasks.demqol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/diagnosis.html">21.86. camcops_server.tasks.diagnosis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/distressthermometer.html">21.87. camcops_server.tasks.distressthermometer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/fast.html">21.88. camcops_server.tasks.fast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/fft.html">21.89. camcops_server.tasks.fft</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/frs.html">21.90. camcops_server.tasks.frs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gad7.html">21.91. camcops_server.tasks.gad7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gaf.html">21.92. camcops_server.tasks.gaf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gds.html">21.93. camcops_server.tasks.gds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gmcpq.html">21.94. camcops_server.tasks.gmcpq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hads.html">21.95. camcops_server.tasks.hads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hama.html">21.96. camcops_server.tasks.hama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hamd.html">21.97. camcops_server.tasks.hamd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hamd7.html">21.98. camcops_server.tasks.hamd7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/honos.html">21.99. camcops_server.tasks.honos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10depressive.html">21.100. camcops_server.tasks.icd10depressive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10manic.html">21.101. camcops_server.tasks.icd10manic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10mixed.html">21.102. camcops_server.tasks.icd10mixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10schizophrenia.html">21.103. camcops_server.tasks.icd10schizophrenia</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10schizotypal.html">21.104. camcops_server.tasks.icd10schizotypal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10specpd.html">21.105. camcops_server.tasks.icd10specpd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ided3d.html">21.106. camcops_server.tasks.ided3d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/iesr.html">21.107. camcops_server.tasks.iesr</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ifs.html">21.108. camcops_server.tasks.ifs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/irac.html">21.109. camcops_server.tasks.irac</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/mast.html">21.110. camcops_server.tasks.mast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/mds_updrs.html">21.111. camcops_server.tasks.mds_updrs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/moca.html">21.112. camcops_server.tasks.moca</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/nart.html">21.113. camcops_server.tasks.nart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/npiq.html">21.114. camcops_server.tasks.npiq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/panss.html">21.115. camcops_server.tasks.panss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/pcl.html">21.116. camcops_server.tasks.pcl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/pdss.html">21.117. camcops_server.tasks.pdss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/photo.html">21.118. camcops_server.tasks.photo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/phq9.html">21.119. camcops_server.tasks.phq9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/phq15.html">21.120. camcops_server.tasks.phq15</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/progressnote.html">21.121. camcops_server.tasks.progressnote</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/pswq.html">21.122. camcops_server.tasks.pswq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/psychiatricclerking.html">21.123. camcops_server.tasks.psychiatricclerking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/qolbasic.html">21.124. camcops_server.tasks.qolbasic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/qolsg.html">21.125. camcops_server.tasks.qolsg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/rand36.html">21.126. camcops_server.tasks.rand36</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/service_satisfaction.html">21.127. camcops_server.tasks.service_satisfaction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/slums.html">21.128. camcops_server.tasks.slums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/smast.html">21.129. camcops_server.tasks.smast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/wemwbs.html">21.130. camcops_server.tasks.wemwbs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/wsas.html">21.131. camcops_server.tasks.wsas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ybocs.html">21.132. camcops_server.tasks.ybocs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/zbi.html">21.133. camcops_server.tasks.zbi</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="merge_db.html"
+                        title="previous chapter">21.57. camcops_server.cc_modules.merge_db</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../tasks/_index.html"
+                        title="next chapter">&lt;no title&gt;</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/autodoc/cc_modules/webview.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../tasks/_index.html" title="&lt;no title&gt;"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="merge_db.html" title="21.57. camcops_server.cc_modules.merge_db"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../_index.html" >21. Automatic documentation of core server source code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="_index.html" >&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

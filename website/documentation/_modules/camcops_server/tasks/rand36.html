@@ -1,0 +1,618 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.tasks.rand36 &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.tasks.rand36</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/tasks/rand36.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.maths_py</span> <span class="k">import</span> <span class="n">mean</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.stringfunc</span> <span class="k">import</span> <span class="n">strseq</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="k">import</span> <span class="n">DeclarativeMeta</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.sqltypes</span> <span class="k">import</span> <span class="n">Float</span><span class="p">,</span> <span class="n">Integer</span>
+
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_ctvinfo</span> <span class="k">import</span> <span class="n">CTV_INCOMPLETE</span><span class="p">,</span> <span class="n">CtvInfo</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_db</span> <span class="k">import</span> <span class="n">add_multiple_columns</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_html</span> <span class="k">import</span> <span class="n">answer</span><span class="p">,</span> <span class="n">identity</span><span class="p">,</span> <span class="n">tr</span><span class="p">,</span> <span class="n">tr_span_col</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_sqla_coltypes</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">CamcopsColumn</span><span class="p">,</span>
+    <span class="n">ONE_TO_FIVE_CHECKER</span><span class="p">,</span>
+    <span class="n">ONE_TO_SIX_CHECKER</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_summaryelement</span> <span class="k">import</span> <span class="n">SummaryElement</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_task</span> <span class="k">import</span> <span class="n">Task</span><span class="p">,</span> <span class="n">TaskHasPatientMixin</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_trackerhelpers</span> <span class="k">import</span> <span class="n">TrackerInfo</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># RAND-36</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">class</span> <span class="nc">Rand36Metaclass</span><span class="p">(</span><span class="n">DeclarativeMeta</span><span class="p">):</span>
+    <span class="c1"># noinspection PyInitNewSignature</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s1">&#39;Rand36&#39;</span><span class="p">],</span>
+                 <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">bases</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+                 <span class="n">classdict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> 
+            <span class="n">minimum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">comment_fmt</span><span class="o">=</span><span class="s2">&quot;Q</span><span class="si">{n}</span><span class="s2"> (</span><span class="si">{s}</span><span class="s2">) (1 limited a lot - 3 not limited at all)&quot;</span><span class="p">,</span>
+            <span class="n">comment_strings</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;Vigorous activities&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Moderate activities&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Lifting or carrying groceries&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Climbing several flights of stairs&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Climbing one flight of stairs&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Bending, kneeling, or stooping&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Walking more than a mile&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Walking several blocks&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Walking one block&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Bathing or dressing yourself&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> 
+            <span class="n">minimum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">comment_fmt</span><span class="o">=</span><span class="s2">&quot;Q</span><span class="si">{n}</span><span class="s2"> (physical health: </span><span class="si">{s}</span><span class="s2">) (1 yes, 2 no)&quot;</span><span class="p">,</span>
+            <span class="n">comment_strings</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;Cut down work/other activities&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Accomplished less than would like&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Were limited in the kind of work or other activities&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Had difficulty performing the work or other activities&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> 
+            <span class="n">minimum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">comment_fmt</span><span class="o">=</span><span class="s2">&quot;Q</span><span class="si">{n}</span><span class="s2"> (emotional problems: </span><span class="si">{s}</span><span class="s2">) (1 yes, 2 no)&quot;</span><span class="p">,</span>
+            <span class="n">comment_strings</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;Cut down work/other activities&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Accomplished less than would like&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Didn&#39;t do work or other activities as carefully as usual&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Had difficulty performing the work or other activities&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> 
+            <span class="n">minimum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+            <span class="n">comment_fmt</span><span class="o">=</span><span class="s2">&quot;Q</span><span class="si">{n}</span><span class="s2"> (past 4 weeks: </span><span class="si">{s}</span><span class="s2">) (1 all of the time - &quot;</span>
+                        <span class="s2">&quot;6 none of the time)&quot;</span><span class="p">,</span>
+            <span class="n">comment_strings</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;Did you feel full of pep?&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Have you been a very nervous person?&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Have you felt so down in the dumps that nothing could cheer &quot;</span>
+                <span class="s2">&quot;you up?&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Have you felt calm and peaceful?&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Did you have a lot of energy?&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Have you felt downhearted and blue?&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Did you feel worn out?&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Have you been a happy person?&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Did you feel tired?&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">33</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> 
+            <span class="n">minimum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">comment_fmt</span><span class="o">=</span><span class="s2">&quot;Q</span><span class="si">{n}</span><span class="s2"> (how true/false: </span><span class="si">{s}</span><span class="s2">) (1 definitely true - &quot;</span>
+                        <span class="s2">&quot;5 definitely false)&quot;</span><span class="p">,</span>
+            <span class="n">comment_strings</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;I seem to get sick a little easier than other people&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;I am as healthy as anybody I know&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;I expect my health to get worse&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;My health is excellent&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">classdict</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Rand36"><a class="viewcode-back" href="../../../autodoc/tasks/rand36.html#camcops_server.tasks.rand36.Rand36">[docs]</a><span class="k">class</span> <span class="nc">Rand36</span><span class="p">(</span><span class="n">TaskHasPatientMixin</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span>
+             <span class="n">metaclass</span><span class="o">=</span><span class="n">Rand36Metaclass</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;rand36&quot;</span>
+    <span class="n">shortname</span> <span class="o">=</span> <span class="s2">&quot;RAND-36&quot;</span>
+    <span class="n">longname</span> <span class="o">=</span> <span class="s2">&quot;RAND 36-Item Short Form Health Survey 1.0&quot;</span>
+    <span class="n">provides_trackers</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">NQUESTIONS</span> <span class="o">=</span> <span class="mi">36</span>
+
+    <span class="n">q1</span> <span class="o">=</span> <span class="n">CamcopsColumn</span><span class="p">(</span>
+        <span class="s2">&quot;q1&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">permitted_value_checker</span><span class="o">=</span><span class="n">ONE_TO_FIVE_CHECKER</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Q1 (general health) (1 excellent - 5 poor)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">q2</span> <span class="o">=</span> <span class="n">CamcopsColumn</span><span class="p">(</span>
+        <span class="s2">&quot;q2&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">permitted_value_checker</span><span class="o">=</span><span class="n">ONE_TO_FIVE_CHECKER</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Q2 (health cf. 1y ago) (1 much better - 5 much worse)&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">q20</span> <span class="o">=</span> <span class="n">CamcopsColumn</span><span class="p">(</span>
+        <span class="s2">&quot;q20&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">permitted_value_checker</span><span class="o">=</span><span class="n">ONE_TO_FIVE_CHECKER</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Q20 (past 4 weeks, to what extent physical health/&quot;</span>
+                <span class="s2">&quot;emotional problems interfered with social activity) &quot;</span>
+                <span class="s2">&quot;(1 not at all - 5 extremely)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">q21</span> <span class="o">=</span> <span class="n">CamcopsColumn</span><span class="p">(</span>
+        <span class="s2">&quot;q21&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">permitted_value_checker</span><span class="o">=</span><span class="n">ONE_TO_SIX_CHECKER</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Q21 (past 4 weeks, how much pain (1 none - 6 very severe)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">q22</span> <span class="o">=</span> <span class="n">CamcopsColumn</span><span class="p">(</span>
+        <span class="s2">&quot;q22&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">permitted_value_checker</span><span class="o">=</span><span class="n">ONE_TO_FIVE_CHECKER</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Q22 (past 4 weeks, pain interfered with normal activity &quot;</span>
+                <span class="s2">&quot;(1 not at all - 5 extremely)&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">q32</span> <span class="o">=</span> <span class="n">CamcopsColumn</span><span class="p">(</span>
+        <span class="s2">&quot;q32&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">permitted_value_checker</span><span class="o">=</span><span class="n">ONE_TO_FIVE_CHECKER</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Q32 (past 4 weeks, how much of the time has physical &quot;</span>
+                <span class="s2">&quot;health/emotional problems interfered with social activities &quot;</span>
+                <span class="s2">&quot;(1 all of the time - 5 none of the time)&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># ... note Q32 extremely similar to Q20.</span>
+
+    <span class="n">TASK_FIELDS</span> <span class="o">=</span> <span class="n">strseq</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">NQUESTIONS</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Rand36.is_complete"><a class="viewcode-back" href="../../../autodoc/tasks/rand36.html#camcops_server.tasks.rand36.Rand36.is_complete">[docs]</a>    <span class="k">def</span> <span class="nf">is_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">are_all_fields_complete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TASK_FIELDS</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field_contents_valid</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">tracker_element</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">plot_label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TrackerInfo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">TrackerInfo</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">plot_label</span><span class="o">=</span><span class="s2">&quot;RAND-36: &quot;</span> <span class="o">+</span> <span class="n">plot_label</span><span class="p">,</span>
+            <span class="n">axis_label</span><span class="o">=</span><span class="s2">&quot;Scale score (out of 100)&quot;</span><span class="p">,</span>
+            <span class="n">axis_min</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">axis_max</span><span class="o">=</span><span class="mf">100.5</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Rand36.get_trackers"><a class="viewcode-back" href="../../../autodoc/tasks/rand36.html#camcops_server.tasks.rand36.Rand36.get_trackers">[docs]</a>    <span class="k">def</span> <span class="nf">get_trackers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TrackerInfo</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracker_element</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_overall</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_overall&quot;</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracker_element</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_physical_functioning</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_physical_functioning&quot;</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracker_element</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_role_limitations_physical</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_role_limitations_physical&quot;</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracker_element</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_role_limitations_emotional</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_role_limitations_emotional&quot;</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracker_element</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_energy</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_energy&quot;</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracker_element</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_emotional_wellbeing</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_emotional_wellbeing&quot;</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracker_element</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_social_functioning</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_social_functioning&quot;</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracker_element</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_pain</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_pain&quot;</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracker_element</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_general_health</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_general_health&quot;</span><span class="p">)),</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="Rand36.get_clinical_text"><a class="viewcode-back" href="../../../autodoc/tasks/rand36.html#camcops_server.tasks.rand36.Rand36.get_clinical_text">[docs]</a>    <span class="k">def</span> <span class="nf">get_clinical_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">CtvInfo</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_complete</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">CTV_INCOMPLETE</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">CtvInfo</span><span class="p">(</span>
+            <span class="n">content</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;RAND-36 (scores out of 100, 100 best): overall </span><span class="si">{ov}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;physical functioning </span><span class="si">{pf}</span><span class="s2">, physical role &quot;</span>
+                <span class="s2">&quot;limitations </span><span class="si">{prl}</span><span class="s2">, emotional role limitations </span><span class="si">{erl}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;energy </span><span class="si">{e}</span><span class="s2">, emotional wellbeing </span><span class="si">{ew}</span><span class="s2">, social &quot;</span>
+                <span class="s2">&quot;functioning </span><span class="si">{sf}</span><span class="s2">, pain </span><span class="si">{p}</span><span class="s2">, general health </span><span class="si">{gh}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">ov</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_overall</span><span class="p">(),</span>
+                    <span class="n">pf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_physical_functioning</span><span class="p">(),</span>
+                    <span class="n">prl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_role_limitations_physical</span><span class="p">(),</span>
+                    <span class="n">erl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_role_limitations_emotional</span><span class="p">(),</span>
+                    <span class="n">e</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_energy</span><span class="p">(),</span>
+                    <span class="n">ew</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_emotional_wellbeing</span><span class="p">(),</span>
+                    <span class="n">sf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_social_functioning</span><span class="p">(),</span>
+                    <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_pain</span><span class="p">(),</span>
+                    <span class="n">gh</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_general_health</span><span class="p">(),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Rand36.get_summaries"><a class="viewcode-back" href="../../../autodoc/tasks/rand36.html#camcops_server.tasks.rand36.Rand36.get_summaries">[docs]</a>    <span class="k">def</span> <span class="nf">get_summaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SummaryElement</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_task_summary_fields</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;overall&quot;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_overall</span><span class="p">(),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Overall mean score (0-100, higher better)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;physical_functioning&quot;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_physical_functioning</span><span class="p">(),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Physical functioning score (0-100, higher better)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;role_limitations_physical&quot;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_role_limitations_physical</span><span class="p">(),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Role limitations due to physical health score &quot;</span>
+                        <span class="s2">&quot;(0-100, higher better)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;role_limitations_emotional&quot;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_role_limitations_emotional</span><span class="p">(),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Role limitations due to emotional problems score &quot;</span>
+                        <span class="s2">&quot;(0-100, higher better)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;energy&quot;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_energy</span><span class="p">(),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Energy/fatigue score (0-100, higher better)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;emotional_wellbeing&quot;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_emotional_wellbeing</span><span class="p">(),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Emotional well-being score (0-100, higher better)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;social_functioning&quot;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_social_functioning</span><span class="p">(),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Social functioning score (0-100, higher better)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pain&quot;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_pain</span><span class="p">(),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Pain score (0-100, higher better)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;general_health&quot;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_general_health</span><span class="p">(),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;General health score (0-100, higher better)&quot;</span><span class="p">),</span>
+        <span class="p">]</span></div>
+
+    <span class="c1"># Scoring</span>
+    <span class="k">def</span> <span class="nf">recode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>  <span class="c1"># response</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="c1"># http://m.rand.org/content/dam/rand/www/external/health/</span>
+        <span class="c1">#        surveys_tools/mos/mos_core_36item_scoring.pdf</span>
+        <span class="k">if</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">20</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">22</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">34</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">36</span><span class="p">:</span>
+            <span class="c1"># 1 becomes 100, 2 =&gt; 75, 3 =&gt; 50, 4 =&gt;25, 5 =&gt; 0</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="mi">100</span> <span class="o">-</span> <span class="mi">25</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="mi">3</span> <span class="o">&lt;=</span> <span class="n">q</span> <span class="o">&lt;=</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="c1"># 1 =&gt; 0, 2 =&gt; 50, 3 =&gt; 100</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="mi">50</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="mi">13</span> <span class="o">&lt;=</span> <span class="n">q</span> <span class="o">&lt;=</span> <span class="mi">19</span><span class="p">:</span>
+            <span class="c1"># 1 =&gt; 0, 2 =&gt; 100</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">21</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">23</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">26</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">27</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">30</span><span class="p">:</span>
+            <span class="c1"># 1 =&gt; 100, 2 =&gt; 80, 3 =&gt; 60, 4 =&gt; 40, 5 =&gt; 20, 6 =&gt; 0</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="mi">100</span> <span class="o">-</span> <span class="mi">20</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">24</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">25</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">28</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">29</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">31</span><span class="p">:</span>
+            <span class="c1"># 1 =&gt; 0, 2 =&gt; 20, 3 =&gt; 40, 4 =&gt; 60, 5 =&gt; 80, 6 =&gt; 100</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="mi">20</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">32</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">33</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">35</span><span class="p">:</span>
+            <span class="c1"># 1 =&gt; 0, 2 =&gt; 25, 3 =&gt; 50, 4 =&gt; 75, 5 =&gt; 100</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="mi">25</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">score_physical_functioning</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">11</span><span class="p">),</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">12</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">score_role_limitations_physical</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">13</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">14</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">15</span><span class="p">),</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">16</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">score_role_limitations_emotional</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">17</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">18</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">19</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">score_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">23</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">27</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">29</span><span class="p">),</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">31</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">score_emotional_wellbeing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">24</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">26</span><span class="p">),</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">28</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">30</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">score_social_functioning</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">32</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">score_pain</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">21</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">22</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">score_general_health</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">33</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">34</span><span class="p">),</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">35</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="mi">36</span><span class="p">)])</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">format_float_for_display</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{:.1f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">score_overall</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NQUESTIONS</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">section_row_html</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tr_span_col</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">tr_class</span><span class="o">=</span><span class="s2">&quot;subheading&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">answer_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span>
+                    <span class="n">q</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="c1"># wxstring has its own validity checking, so we can do:</span>
+        <span class="k">if</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">20</span> <span class="o">&lt;=</span> <span class="n">q</span> <span class="o">&lt;=</span> <span class="mi">22</span><span class="p">)</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">32</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_option&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="mi">3</span> <span class="o">&lt;=</span> <span class="n">q</span> <span class="o">&lt;=</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;activities_option&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="mi">13</span> <span class="o">&lt;=</span> <span class="n">q</span> <span class="o">&lt;=</span> <span class="mi">19</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;yesno_option&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="mi">23</span> <span class="o">&lt;=</span> <span class="n">q</span> <span class="o">&lt;=</span> <span class="mi">31</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;last4weeks_option&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="mi">33</span> <span class="o">&lt;=</span> <span class="n">q</span> <span class="o">&lt;=</span> <span class="mi">36</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;q33to36_option&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">answer_row_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">qtext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+        <span class="n">atext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">answer_text</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recode</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tr</span><span class="p">(</span>
+            <span class="n">qtext</span><span class="p">,</span>
+            <span class="n">answer</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="n">answer</span><span class="p">(</span><span class="n">atext</span><span class="p">),</span>
+            <span class="n">answer</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">formatter_answer</span><span class="o">=</span><span class="n">identity</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">scoreline</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">footnote_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">score</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tr</span><span class="p">(</span>
+            <span class="n">text</span> <span class="o">+</span> <span class="s2">&quot; &lt;sup&gt;[</span><span class="si">{}</span><span class="s2">]&lt;/sup&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">footnote_num</span><span class="p">),</span>
+            <span class="n">answer</span><span class="p">(</span><span class="n">score</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; / 100&quot;</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Rand36.get_task_html"><a class="viewcode-back" href="../../../autodoc/tasks/rand36.html#camcops_server.tasks.rand36.Rand36.get_task_html">[docs]</a>    <span class="k">def</span> <span class="nf">get_task_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;div class=&quot;summary&quot;&gt;</span>
+<span class="s2">                &lt;table class=&quot;summary&quot;&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_is_complete_tr</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoreline</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_overall&quot;</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format_float_for_display</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score_overall</span><span class="p">()))</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoreline</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_physical_functioning&quot;</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format_float_for_display</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score_physical_functioning</span><span class="p">()))</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoreline</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_role_limitations_physical&quot;</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format_float_for_display</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_role_limitations_physical</span><span class="p">()))</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoreline</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_role_limitations_emotional&quot;</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format_float_for_display</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_role_limitations_emotional</span><span class="p">()))</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoreline</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_energy&quot;</span><span class="p">),</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format_float_for_display</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score_energy</span><span class="p">()))</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoreline</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_emotional_wellbeing&quot;</span><span class="p">),</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format_float_for_display</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score_emotional_wellbeing</span><span class="p">()))</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoreline</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_social_functioning&quot;</span><span class="p">),</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format_float_for_display</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score_social_functioning</span><span class="p">()))</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoreline</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_pain&quot;</span><span class="p">),</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format_float_for_display</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score_pain</span><span class="p">()))</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoreline</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;score_general_health&quot;</span><span class="p">),</span> <span class="mi">9</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format_float_for_display</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score_general_health</span><span class="p">()))</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                &lt;/table&gt;</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">            &lt;table class=&quot;taskdetail&quot;&gt;</span>
+<span class="s2">                &lt;tr&gt;</span>
+<span class="s2">                    &lt;th width=&quot;60%&quot;&gt;Question&lt;/th&gt;</span>
+<span class="s2">                    &lt;th width=&quot;30%&quot;&gt;Answer&lt;/th&gt;</span>
+<span class="s2">                    &lt;th width=&quot;10%&quot;&gt;Score&lt;/th&gt;</span>
+<span class="s2">                &lt;/tr&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">answer_row_html</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_row_html</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;activities_q&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">12</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">answer_row_html</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_row_html</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;work_activities_physical_q&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">16</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">answer_row_html</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_row_html</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;work_activities_emotional_q&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">19</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">answer_row_html</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_row_html</span><span class="p">(</span><span class="s2">&quot;&lt;br&gt;&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">answer_row_html</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_row_html</span><span class="p">(</span><span class="s2">&quot;&lt;br&gt;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">22</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">answer_row_html</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_row_html</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;last4weeks_q_a&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;last4weeks_q_b&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">answer_row_html</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_row_html</span><span class="p">(</span><span class="s2">&quot;&lt;br&gt;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">32</span><span class="p">]:</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">answer_row_html</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_row_html</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;q33to36stem&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">33</span><span class="p">,</span> <span class="mi">36</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">answer_row_html</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;/table&gt;</span>
+<span class="s2">            &lt;div class=&quot;copyright&quot;&gt;</span>
+<span class="s2">                The RAND 36-Item Short Form Health Survey was developed at RAND</span>
+<span class="s2">                as part of the Medical Outcomes Study. See</span>
+<span class="s2">            http://www.rand.org/health/surveys_tools/mos/mos_core_36item.html</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">            &lt;div class=&quot;footnotes&quot;&gt;</span>
+<span class="s2">                All questions are first transformed to a score in the range</span>
+<span class="s2">                0–100. Higher scores are always better. Then:</span>
+<span class="s2">                [1] Mean of all 36 questions.</span>
+<span class="s2">                [2] Mean of Q3–12 inclusive.</span>
+<span class="s2">                [3] Q13–16.</span>
+<span class="s2">                [4] Q17–19.</span>
+<span class="s2">                [5] Q23, 27, 29, 31.</span>
+<span class="s2">                [6] Q24, 25, 26, 28, 30.</span>
+<span class="s2">                [7] Q20, 32.</span>
+<span class="s2">                [8] Q21, 22.</span>
+<span class="s2">                [9] Q1, 33–36.</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">h</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,334 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.cc_modules.cc_filename &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.cc_modules.cc_filename</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/cc_modules/cc_filename.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.datetimefunc</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">format_datetime</span><span class="p">,</span>
+    <span class="n">get_now_localtz_pendulum</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.logs</span> <span class="k">import</span> <span class="n">BraceStyleAdapter</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.stringfunc</span> <span class="k">import</span> <span class="n">mangle_unicode_to_ascii</span>
+<span class="kn">from</span> <span class="nn">pendulum</span> <span class="k">import</span> <span class="n">Date</span><span class="p">,</span> <span class="n">Pendulum</span>
+
+<span class="kn">from</span> <span class="nn">.cc_constants</span> <span class="k">import</span> <span class="n">DateFormat</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.cc_patientidnum</span> <span class="k">import</span> <span class="n">PatientIdNum</span>
+    <span class="kn">from</span> <span class="nn">.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">BraceStyleAdapter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Ancillary functions for export filenames</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">class</span> <span class="nc">FileType</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">HTML</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span>
+    <span class="n">PDF</span> <span class="o">=</span> <span class="s2">&quot;pdf&quot;</span>
+    <span class="n">XML</span> <span class="o">=</span> <span class="s2">&quot;xml&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">PatientSpecElementForFilename</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">SURNAME</span> <span class="o">=</span> <span class="s2">&quot;surname&quot;</span>
+    <span class="n">FORENAME</span> <span class="o">=</span> <span class="s2">&quot;forename&quot;</span>
+    <span class="n">DOB</span> <span class="o">=</span> <span class="s2">&quot;dob&quot;</span>
+    <span class="n">SEX</span> <span class="o">=</span> <span class="s2">&quot;sex&quot;</span>
+    <span class="n">ALLIDNUMS</span> <span class="o">=</span> <span class="s2">&quot;allidnums&quot;</span>
+    <span class="n">IDSHORTDESC_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;idshortdesc&quot;</span>  <span class="c1"># special</span>
+    <span class="n">IDNUM_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;idnum&quot;</span>  <span class="c1"># special</span>
+
+
+<span class="k">class</span> <span class="nc">FilenameSpecElement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">PATIENT</span> <span class="o">=</span> <span class="s2">&quot;patient&quot;</span>
+    <span class="n">CREATED</span> <span class="o">=</span> <span class="s2">&quot;created&quot;</span>
+    <span class="n">NOW</span> <span class="o">=</span> <span class="s2">&quot;now&quot;</span>
+    <span class="n">TASKTYPE</span> <span class="o">=</span> <span class="s2">&quot;tasktype&quot;</span>
+    <span class="n">SERVERPK</span> <span class="o">=</span> <span class="s2">&quot;serverpk&quot;</span>
+    <span class="n">FILETYPE</span> <span class="o">=</span> <span class="s2">&quot;filetype&quot;</span>
+    <span class="n">ANONYMOUS</span> <span class="o">=</span> <span class="s2">&quot;anonymous&quot;</span>
+    <span class="c1"># ... plus all those from PatientSpecElementForFilename</span>
+
+
+<div class="viewcode-block" id="patient_spec_for_filename_is_valid"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_filename.html#camcops_server.cc_modules.cc_filename.patient_spec_for_filename_is_valid">[docs]</a><span class="k">def</span> <span class="nf">patient_spec_for_filename_is_valid</span><span class="p">(</span><span class="n">patient_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                                       <span class="n">valid_which_idnums</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns True if the patient_spec appears valid; otherwise False.&quot;&quot;&quot;</span>
+    <span class="n">pse</span> <span class="o">=</span> <span class="n">PatientSpecElementForFilename</span>
+    <span class="n">testdict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">SURNAME</span><span class="p">:</span> <span class="s2">&quot;surname&quot;</span><span class="p">,</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">FORENAME</span><span class="p">:</span> <span class="s2">&quot;forename&quot;</span><span class="p">,</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">DOB</span><span class="p">:</span> <span class="s2">&quot;dob&quot;</span><span class="p">,</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">SEX</span><span class="p">:</span> <span class="s2">&quot;sex&quot;</span><span class="p">,</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">ALLIDNUMS</span><span class="p">:</span> <span class="s2">&quot;allidnums&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">valid_which_idnums</span><span class="p">:</span>
+        <span class="n">nstr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">testdict</span><span class="p">[</span><span class="n">pse</span><span class="o">.</span><span class="n">IDSHORTDESC_PREFIX</span> <span class="o">+</span> <span class="n">nstr</span><span class="p">]</span> <span class="o">=</span> <span class="n">pse</span><span class="o">.</span><span class="n">IDSHORTDESC_PREFIX</span> <span class="o">+</span> <span class="n">nstr</span>
+        <span class="n">testdict</span><span class="p">[</span><span class="n">pse</span><span class="o">.</span><span class="n">IDNUM_PREFIX</span> <span class="o">+</span> <span class="n">nstr</span><span class="p">]</span> <span class="o">=</span> <span class="n">pse</span><span class="o">.</span><span class="n">IDNUM_PREFIX</span> <span class="o">+</span> <span class="n">nstr</span>
+    <span class="c1"># noinspection PyBroadException</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Legal substitutions only?</span>
+        <span class="n">patient_spec</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">testdict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span><span class="p">:</span>  <span class="c1"># duff patient_spec; details unimportant</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="filename_spec_is_valid"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_filename.html#camcops_server.cc_modules.cc_filename.filename_spec_is_valid">[docs]</a><span class="k">def</span> <span class="nf">filename_spec_is_valid</span><span class="p">(</span><span class="n">filename_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                           <span class="n">valid_which_idnums</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns True if the filename_spec appears valid; otherwise False.&quot;&quot;&quot;</span>
+    <span class="n">pse</span> <span class="o">=</span> <span class="n">PatientSpecElementForFilename</span>
+    <span class="n">fse</span> <span class="o">=</span> <span class="n">FilenameSpecElement</span>
+    <span class="n">testdict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># As above:</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">SURNAME</span><span class="p">:</span> <span class="s2">&quot;surname&quot;</span><span class="p">,</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">FORENAME</span><span class="p">:</span> <span class="s2">&quot;forename&quot;</span><span class="p">,</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">DOB</span><span class="p">:</span> <span class="s2">&quot;dob&quot;</span><span class="p">,</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">SEX</span><span class="p">:</span> <span class="s2">&quot;sex&quot;</span><span class="p">,</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">ALLIDNUMS</span><span class="p">:</span> <span class="s2">&quot;allidnums&quot;</span><span class="p">,</span>
+        <span class="c1"># Plus:</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">PATIENT</span><span class="p">:</span> <span class="s2">&quot;patient&quot;</span><span class="p">,</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">CREATED</span><span class="p">:</span> <span class="s2">&quot;created&quot;</span><span class="p">,</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">NOW</span><span class="p">:</span> <span class="s2">&quot;now&quot;</span><span class="p">,</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">TASKTYPE</span><span class="p">:</span> <span class="s2">&quot;tasktype&quot;</span><span class="p">,</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">SERVERPK</span><span class="p">:</span> <span class="s2">&quot;serverpk&quot;</span><span class="p">,</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">FILETYPE</span><span class="p">:</span> <span class="s2">&quot;filetype&quot;</span><span class="p">,</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">ANONYMOUS</span><span class="p">:</span> <span class="s2">&quot;anonymous&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">valid_which_idnums</span><span class="p">:</span>
+        <span class="n">nstr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">testdict</span><span class="p">[</span><span class="n">pse</span><span class="o">.</span><span class="n">IDSHORTDESC_PREFIX</span> <span class="o">+</span> <span class="n">nstr</span><span class="p">]</span> <span class="o">=</span> <span class="n">pse</span><span class="o">.</span><span class="n">IDSHORTDESC_PREFIX</span> <span class="o">+</span> <span class="n">nstr</span>
+        <span class="n">testdict</span><span class="p">[</span><span class="n">pse</span><span class="o">.</span><span class="n">IDNUM_PREFIX</span> <span class="o">+</span> <span class="n">nstr</span><span class="p">]</span> <span class="o">=</span> <span class="n">pse</span><span class="o">.</span><span class="n">IDNUM_PREFIX</span> <span class="o">+</span> <span class="n">nstr</span>
+    <span class="c1"># noinspection PyBroadException</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Legal substitutions only?</span>
+        <span class="n">filename_spec</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">testdict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span><span class="p">:</span>  <span class="c1"># duff filename_spec; details unimportant</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<span class="n">FORMAT_FAIL_EXCEPTIONS</span> <span class="o">=</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_export_filename"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_filename.html#camcops_server.cc_modules.cc_filename.get_export_filename">[docs]</a><span class="k">def</span> <span class="nf">get_export_filename</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+                        <span class="n">patient_spec_if_anonymous</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                        <span class="n">patient_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                        <span class="n">filename_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                        <span class="n">task_format</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                        <span class="n">is_anonymous</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                        <span class="n">surname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">forename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">dob</span><span class="p">:</span> <span class="n">Date</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">sex</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">idnum_objects</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s1">&#39;PatientIdNum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">creation_datetime</span><span class="p">:</span> <span class="n">Pendulum</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">basetable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">serverpk</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Get filename, for file exports/transfers.&quot;&quot;&quot;</span>
+    <span class="n">idnum_objects</span> <span class="o">=</span> <span class="n">idnum_objects</span> <span class="ow">or</span> <span class="p">[]</span>  <span class="c1"># type: List[&#39;PatientIdNum&#39;]</span>
+    <span class="n">pse</span> <span class="o">=</span> <span class="n">PatientSpecElementForFilename</span>
+    <span class="n">fse</span> <span class="o">=</span> <span class="n">FilenameSpecElement</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">SURNAME</span><span class="p">:</span> <span class="n">surname</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">FORENAME</span><span class="p">:</span> <span class="n">forename</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">DOB</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">format_datetime</span><span class="p">(</span><span class="n">dob</span><span class="p">,</span> <span class="n">DateFormat</span><span class="o">.</span><span class="n">FILENAME_DATE_ONLY</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dob</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">),</span>
+        <span class="n">pse</span><span class="o">.</span><span class="n">SEX</span><span class="p">:</span> <span class="n">sex</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">all_id_components</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idobj</span> <span class="ow">in</span> <span class="n">idnum_objects</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">idobj</span><span class="o">.</span><span class="n">which_idnum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nstr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">idobj</span><span class="o">.</span><span class="n">which_idnum</span><span class="p">)</span>
+            <span class="n">has_num</span> <span class="o">=</span> <span class="n">idobj</span><span class="o">.</span><span class="n">idnum_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">pse</span><span class="o">.</span><span class="n">IDNUM_PREFIX</span> <span class="o">+</span> <span class="n">nstr</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">idobj</span><span class="o">.</span><span class="n">idnum_value</span><span class="p">)</span> <span class="k">if</span> <span class="n">has_num</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># noqa</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">pse</span><span class="o">.</span><span class="n">IDSHORTDESC_PREFIX</span> <span class="o">+</span> <span class="n">nstr</span><span class="p">]</span> <span class="o">=</span> <span class="n">idobj</span><span class="o">.</span><span class="n">short_description</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># noqa</span>
+            <span class="k">if</span> <span class="n">has_num</span> <span class="ow">and</span> <span class="n">idobj</span><span class="o">.</span><span class="n">short_description</span><span class="p">(</span><span class="n">req</span><span class="p">):</span>
+                <span class="n">all_id_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idobj</span><span class="o">.</span><span class="n">get_filename_component</span><span class="p">(</span><span class="n">req</span><span class="p">))</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">pse</span><span class="o">.</span><span class="n">ALLIDNUMS</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">all_id_components</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_anonymous</span><span class="p">:</span>
+        <span class="n">patient</span> <span class="o">=</span> <span class="n">patient_spec_if_anonymous</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">patient</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">patient_spec</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">FORMAT_FAIL_EXCEPTIONS</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Bad patient_spec: </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">patient_spec</span><span class="p">)</span>
+            <span class="n">patient</span> <span class="o">=</span> <span class="s2">&quot;invalid_patient_spec&quot;</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">PATIENT</span><span class="p">:</span> <span class="n">patient</span><span class="p">,</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">CREATED</span><span class="p">:</span> <span class="n">format_datetime</span><span class="p">(</span><span class="n">creation_datetime</span><span class="p">,</span>
+                                     <span class="n">DateFormat</span><span class="o">.</span><span class="n">FILENAME</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">NOW</span><span class="p">:</span> <span class="n">format_datetime</span><span class="p">(</span><span class="n">get_now_localtz_pendulum</span><span class="p">(),</span>
+                                 <span class="n">DateFormat</span><span class="o">.</span><span class="n">FILENAME</span><span class="p">),</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">TASKTYPE</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">basetable</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">SERVERPK</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">serverpk</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">FILETYPE</span><span class="p">:</span> <span class="n">task_format</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="n">fse</span><span class="o">.</span><span class="n">ANONYMOUS</span><span class="p">:</span> <span class="n">patient_spec_if_anonymous</span> <span class="k">if</span> <span class="n">is_anonymous</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">formatted</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename_spec</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">FORMAT_FAIL_EXCEPTIONS</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Bad filename_spec: </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">filename_spec</span><span class="p">)</span>
+        <span class="n">formatted</span> <span class="o">=</span> <span class="s2">&quot;invalid_filename_spec&quot;</span>
+    <span class="k">return</span> <span class="n">convert_string_for_filename</span><span class="p">(</span><span class="n">formatted</span><span class="p">,</span> <span class="n">allow_paths</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="convert_string_for_filename"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_filename.html#camcops_server.cc_modules.cc_filename.convert_string_for_filename">[docs]</a><span class="k">def</span> <span class="nf">convert_string_for_filename</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">allow_paths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Remove characters that don&#39;t play nicely in filenames across multiple</span>
+<span class="sd">    operating systems.&quot;&quot;&quot;</span>
+    <span class="c1"># http://stackoverflow.com/questions/7406102</span>
+    <span class="c1"># ... modified</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">mangle_unicode_to_ascii</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="n">keepcharacters</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">allow_paths</span><span class="p">:</span>
+        <span class="n">keepcharacters</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">])</span>  <span class="c1"># &#39;/&#39; under UNIX; &#39;\&#39; under Windows</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="ow">or</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">keepcharacters</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="change_filename_ext"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_filename.html#camcops_server.cc_modules.cc_filename.change_filename_ext">[docs]</a><span class="k">def</span> <span class="nf">change_filename_ext</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">new_extension_with_dot</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Replaces the extension, i.e. the part of the filename after its last</span>
+<span class="sd">    &#39;.&#39;.&quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="c1"># ... converts &quot;blah.blah.txt&quot; to (&quot;blah.blah&quot;, &quot;.txt&quot;)</span>
+    <span class="k">return</span> <span class="n">root</span> <span class="o">+</span> <span class="n">new_extension_with_dot</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

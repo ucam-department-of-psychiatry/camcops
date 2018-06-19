@@ -1,0 +1,563 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.cc_modules.cc_recipdef &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.cc_modules.cc_recipdef</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/cc_modules/cc_recipdef.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.configfiles</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">get_config_parameter</span><span class="p">,</span>
+    <span class="n">get_config_parameter_boolean</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.datetimefunc</span> <span class="k">import</span> <span class="n">coerce_to_pendulum_date</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.logs</span> <span class="k">import</span> <span class="n">BraceStyleAdapter</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.reprfunc</span> <span class="k">import</span> <span class="n">simple_repr</span>
+<span class="kn">from</span> <span class="nn">pendulum</span> <span class="k">import</span> <span class="n">Pendulum</span>
+
+<span class="kn">from</span> <span class="nn">.cc_filename</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">filename_spec_is_valid</span><span class="p">,</span>
+    <span class="n">FileType</span><span class="p">,</span>
+    <span class="n">get_export_filename</span><span class="p">,</span>
+    <span class="n">patient_spec_for_filename_is_valid</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.cc_group</span> <span class="k">import</span> <span class="n">Group</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.cc_patientidnum</span> <span class="k">import</span> <span class="n">PatientIdNum</span>
+    <span class="kn">from</span> <span class="nn">.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">BraceStyleAdapter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Constants</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">DEFAULT_HL7_PORT</span> <span class="o">=</span> <span class="mi">2575</span>
+<span class="n">RIO_MAX_USER_LEN</span> <span class="o">=</span> <span class="mi">10</span>
+
+
+<span class="k">class</span> <span class="nc">Hl7RecipientType</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">HL7</span> <span class="o">=</span> <span class="s2">&quot;hl7&quot;</span>
+    <span class="n">FILE</span> <span class="o">=</span> <span class="s2">&quot;file&quot;</span>
+
+
+<span class="n">ALL_RECIPIENT_TYPES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Hl7RecipientType</span><span class="o">.</span><span class="n">HL7</span><span class="p">,</span>
+    <span class="n">Hl7RecipientType</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ConfigParamRecipient</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">DIVERT_TO_FILE</span> <span class="o">=</span> <span class="s2">&quot;DIVERT_TO_FILE&quot;</span>
+    <span class="n">END_DATE</span> <span class="o">=</span> <span class="s2">&quot;END_DATE&quot;</span>
+    <span class="n">FILENAME_SPEC</span> <span class="o">=</span> <span class="s2">&quot;FILENAME_SPEC&quot;</span>
+    <span class="n">FINALIZED_ONLY</span> <span class="o">=</span> <span class="s2">&quot;FINALIZED_ONLY&quot;</span>
+    <span class="n">GROUP_ID</span> <span class="o">=</span> <span class="s2">&quot;GROUP_ID&quot;</span>
+    <span class="n">HOST</span> <span class="o">=</span> <span class="s2">&quot;HOST&quot;</span>
+    <span class="n">IDNUM_AA_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;IDNUM_AA_&quot;</span>  <span class="c1"># unusual</span>
+    <span class="n">IDNUM_TYPE_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;IDNUM_TYPE_&quot;</span>  <span class="c1"># unusual</span>
+    <span class="n">INCLUDE_ANONYMOUS</span> <span class="o">=</span> <span class="s2">&quot;INCLUDE_ANONYMOUS&quot;</span>
+    <span class="n">KEEP_MESSAGE</span> <span class="o">=</span> <span class="s2">&quot;KEEP_MESSAGE&quot;</span>
+    <span class="n">KEEP_REPLY</span> <span class="o">=</span> <span class="s2">&quot;KEEP_REPLY&quot;</span>
+    <span class="n">MAKE_DIRECTORY</span> <span class="o">=</span> <span class="s2">&quot;MAKE_DIRECTORY&quot;</span>
+    <span class="n">NETWORK_TIMEOUT_MS</span> <span class="o">=</span> <span class="s2">&quot;NETWORK_TIMEOUT_MS&quot;</span>
+    <span class="n">OVERWRITE_FILES</span> <span class="o">=</span> <span class="s2">&quot;OVERWRITE_FILES&quot;</span>
+    <span class="n">PATIENT_SPEC</span> <span class="o">=</span> <span class="s2">&quot;PATIENT_SPEC&quot;</span>
+    <span class="n">PATIENT_SPEC_IF_ANONYMOUS</span> <span class="o">=</span> <span class="s2">&quot;PATIENT_SPEC_IF_ANONYMOUS&quot;</span>
+    <span class="n">PING_FIRST</span> <span class="o">=</span> <span class="s2">&quot;PING_FIRST&quot;</span>
+    <span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;PORT&quot;</span>
+    <span class="n">PRIMARY_IDNUM</span> <span class="o">=</span> <span class="s2">&quot;PRIMARY_IDNUM&quot;</span>
+    <span class="n">REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY</span> <span class="o">=</span> <span class="s2">&quot;REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY&quot;</span>  <span class="c1"># noqa</span>
+    <span class="n">RIO_DOCUMENT_TYPE</span> <span class="o">=</span> <span class="s2">&quot;RIO_DOCUMENT_TYPE&quot;</span>
+    <span class="n">RIO_IDNUM</span> <span class="o">=</span> <span class="s2">&quot;RIO_IDNUM&quot;</span>
+    <span class="n">RIO_METADATA</span> <span class="o">=</span> <span class="s2">&quot;RIO_METADATA&quot;</span>
+    <span class="n">RIO_UPLOADING_USER</span> <span class="o">=</span> <span class="s2">&quot;RIO_UPLOADING_USER&quot;</span>
+    <span class="n">SCRIPT_AFTER_FILE_EXPORT</span> <span class="o">=</span> <span class="s2">&quot;SCRIPT_AFTER_FILE_EXPORT&quot;</span>
+    <span class="n">START_DATE</span> <span class="o">=</span> <span class="s2">&quot;START_DATE&quot;</span>
+    <span class="n">TASK_FORMAT</span> <span class="o">=</span> <span class="s2">&quot;TASK_FORMAT&quot;</span>
+    <span class="n">TREAT_DIVERTED_AS_SENT</span> <span class="o">=</span> <span class="s2">&quot;TREAT_DIVERTED_AS_SENT&quot;</span>
+    <span class="n">TYPE</span> <span class="o">=</span> <span class="s2">&quot;TYPE&quot;</span>
+    <span class="n">XML_FIELD_COMMENTS</span> <span class="o">=</span> <span class="s2">&quot;XML_FIELD_COMMENTS&quot;</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># RecipientDefinition class</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="RecipientDefinition"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_recipdef.html#camcops_server.cc_modules.cc_recipdef.RecipientDefinition">[docs]</a><span class="k">class</span> <span class="nc">RecipientDefinition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class representing HL7/file recipient.</span>
+
+<span class="sd">    Full details of parameters are in the demonstration config file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">config</span><span class="p">:</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">section</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize. Possible methods:</span>
+
+<span class="sd">            RecipientDefinition()  # FOR TESTING ONLY</span>
+<span class="sd">            RecipientDefinition(config, section)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config: configparser INI file object</span>
+<span class="sd">            section: name of recipient and of INI file section</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Some attributes will be copied to HL7Run:</span>
+        <span class="c1"># ... common</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recipient</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">require_idnum_mandatory</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: Pendulum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: Pendulum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalized_only</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_format</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xml_field_comments</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># ... HL7</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">divert_to_file</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treat_diverted_as_sent</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># ... File</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_anonymous</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_files</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rio_metadata</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rio_idnum</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rio_uploading_user</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rio_document_type</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">script_after_file_export</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: str</span>
+
+        <span class="c1"># HL7 fields not copied to database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ping_first</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout_ms</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idnum_type_list</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: Dict[int, str]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idnum_aa_list</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: Dict[int, str]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_message</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_reply</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># File fields not copied to database (because actual filename stored):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec_if_anonymous</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename_spec</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_directory</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># Some default values we never want to be None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_anonymous</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Variable constructor...</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">section</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># dummy one</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">Hl7RecipientType</span><span class="o">.</span><span class="n">FILE</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">require_idnum_mandatory</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">finalized_only</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">task_format</span> <span class="o">=</span> <span class="n">FileType</span><span class="o">.</span><span class="n">XML</span>
+            <span class="c1"># File</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">include_anonymous</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec_if_anonymous</span> <span class="o">=</span> <span class="s2">&quot;anonymous&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{surname}</span><span class="s2">_</span><span class="si">{forename}</span><span class="s2">_</span><span class="si">{idshortdesc1}{idnum1}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filename_spec</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;/tmp/camcops_debug_testing/&quot;</span>
+                <span class="s2">&quot;TestCamCOPS_</span><span class="si">{patient}</span><span class="s2">_</span><span class="si">{created}</span><span class="s2">_</span><span class="si">{tasktype}</span><span class="s2">-</span><span class="si">{serverpk}</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;.</span><span class="si">{filetype}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_files</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">make_directory</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span>
+
+        <span class="k">assert</span> <span class="n">config</span> <span class="ow">and</span> <span class="n">section</span><span class="p">,</span> <span class="s2">&quot;RecipientDefinition: bad __init__ call&quot;</span>
+
+        <span class="c1"># Standard constructor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recipient</span> <span class="o">=</span> <span class="n">section</span>
+        <span class="n">cpr</span> <span class="o">=</span> <span class="n">ConfigParamRecipient</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">TYPE</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;hl7&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">GROUP_ID</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">PRIMARY_IDNUM</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">require_idnum_mandatory</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY</span><span class="p">,</span>
+                <span class="kc">True</span><span class="p">)</span>
+            <span class="n">sd</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">START_DATE</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">=</span> <span class="n">coerce_to_pendulum_date</span><span class="p">(</span><span class="n">sd</span><span class="p">)</span>
+            <span class="n">ed</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">END_DATE</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">=</span> <span class="n">coerce_to_pendulum_date</span><span class="p">(</span><span class="n">ed</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">finalized_only</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">FINALIZED_ONLY</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">task_format</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">TASK_FORMAT</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">FileType</span><span class="o">.</span><span class="n">PDF</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xml_field_comments</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">XML_FIELD_COMMENTS</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># HL7</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">using_hl7</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">HOST</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">PORT</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">DEFAULT_HL7_PORT</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ping_first</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">PING_FIRST</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout_ms</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">NETWORK_TIMEOUT_MS</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">keep_message</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">KEEP_MESSAGE</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">keep_reply</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">KEEP_REPLY</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">divert_to_file</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                    <span class="c1"># a filename:</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">DIVERT_TO_FILE</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">treat_diverted_as_sent</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">TREAT_DIVERTED_AS_SENT</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">divert_to_file</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ping_first</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout_ms</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">keep_reply</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">include_anonymous</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># File</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">using_file</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">include_anonymous</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">INCLUDE_ANONYMOUS</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec_if_anonymous</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">PATIENT_SPEC_IF_ANONYMOUS</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span>
+                    <span class="s2">&quot;anonymous&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">PATIENT_SPEC</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">filename_spec</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">FILENAME_SPEC</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_files</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">OVERWRITE_FILES</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">make_directory</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">MAKE_DIRECTORY</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rio_metadata</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">RIO_METADATA</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rio_idnum</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">RIO_IDNUM</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rio_uploading_user</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">RIO_UPLOADING_USER</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rio_document_type</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">RIO_DOCUMENT_TYPE</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">script_after_file_export</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cpr</span><span class="o">.</span><span class="n">SCRIPT_AFTER_FILE_EXPORT</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">configparser</span><span class="o">.</span><span class="n">NoSectionError</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Config file section missing: [</span><span class="si">{}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">report_error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;RecipientDefinition: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RecipientDefinition.valid"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_recipdef.html#camcops_server.cc_modules.cc_recipdef.RecipientDefinition.valid">[docs]</a>    <span class="k">def</span> <span class="nf">valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Is this definition valid?&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALL_RECIPIENT_TYPES</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span><span class="s2">&quot;missing/invalid type: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span><span class="s2">&quot;missing group_id&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">Group</span><span class="o">.</span><span class="n">get_group_by_id</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">dbsession</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">group</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span><span class="s2">&quot;invalid group_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group_id</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">using_hl7</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span><span class="s2">&quot;missing primary_idnum&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">valid_which_idnums</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">valid_which_idnums</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_which_idnums</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span><span class="s2">&quot;invalid primary_idnum: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">require_idnum_mandatory</span><span class="p">:</span>
+            <span class="c1"># (a) ID number must be mandatory in finalized records</span>
+            <span class="n">finalize_policy</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">tokenized_finalize_policy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">finalize_policy</span><span class="o">.</span><span class="n">is_idnum_mandatory_in_policy</span><span class="p">(</span>
+                    <span class="n">which_idnum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span><span class="p">,</span>
+                    <span class="n">valid_which_idnums</span><span class="o">=</span><span class="n">valid_which_idnums</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                    <span class="s2">&quot;primary_idnum (</span><span class="si">{}</span><span class="s2">) not mandatory in finalizing policy, &quot;</span>
+                    <span class="s2">&quot;but needs to be&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalized_only</span><span class="p">:</span>
+                <span class="c1"># (b) ID number must also be mandatory in uploaded,</span>
+                <span class="c1"># non-finalized records</span>
+                <span class="n">upload_policy</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">tokenized_upload_policy</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">upload_policy</span><span class="o">.</span><span class="n">is_idnum_mandatory_in_policy</span><span class="p">(</span>
+                        <span class="n">which_idnum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span><span class="p">,</span>
+                        <span class="n">valid_which_idnums</span><span class="o">=</span><span class="n">valid_which_idnums</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                        <span class="s2">&quot;primary_idnum (</span><span class="si">{}</span><span class="s2">) not mandatory in upload policy, &quot;</span>
+                        <span class="s2">&quot;but needs to be&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_format</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">FileType</span><span class="o">.</span><span class="n">HTML</span><span class="p">,</span>
+                                                            <span class="n">FileType</span><span class="o">.</span><span class="n">PDF</span><span class="p">,</span>
+                                                            <span class="n">FileType</span><span class="o">.</span><span class="n">XML</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                <span class="s2">&quot;missing/invalid task_format: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">task_format</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_format</span> <span class="o">==</span> <span class="n">FileType</span><span class="o">.</span><span class="n">XML</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xml_field_comments</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># HL7</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">Hl7RecipientType</span><span class="o">.</span><span class="n">HL7</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">divert_to_file</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span><span class="s2">&quot;missing host&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                        <span class="s2">&quot;missing/invalid port: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">idnum_type_list</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                    <span class="s2">&quot;missing IDNUM_TYPE_</span><span class="si">{}</span><span class="s2"> (for primary ID)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">primary_idnum</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># File</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">Hl7RecipientType</span><span class="o">.</span><span class="n">FILE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec_if_anonymous</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span><span class="s2">&quot;missing patient_spec_if_anonymous&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span><span class="s2">&quot;missing patient_spec&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">patient_spec_for_filename_is_valid</span><span class="p">(</span>
+                    <span class="n">patient_spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patient_spec</span><span class="p">,</span>
+                    <span class="n">valid_which_idnums</span><span class="o">=</span><span class="n">valid_which_idnums</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                    <span class="s2">&quot;invalid patient_spec: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">patient_spec</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename_spec</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span><span class="s2">&quot;missing filename_spec&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">filename_spec_is_valid</span><span class="p">(</span>
+                    <span class="n">filename_spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_spec</span><span class="p">,</span>
+                    <span class="n">valid_which_idnums</span><span class="o">=</span><span class="n">valid_which_idnums</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                    <span class="s2">&quot;invalid filename_spec: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_spec</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="c1"># RiO metadata</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rio_metadata</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rio_idnum</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_which_idnums</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                        <span class="s2">&quot;invalid rio_idnum: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rio_idnum</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">rio_uploading_user</span> <span class="ow">or</span>
+                        <span class="s2">&quot; &quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rio_uploading_user</span> <span class="ow">or</span>
+                        <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rio_uploading_user</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">RIO_MAX_USER_LEN</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                        <span class="s2">&quot;missing/invalid rio_uploading_user: </span><span class="si">{}</span><span class="s2"> (must be &quot;</span>
+                        <span class="s2">&quot;present, contain no spaces, and max length &quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">rio_uploading_user</span><span class="p">,</span>
+                            <span class="n">RIO_MAX_USER_LEN</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">rio_document_type</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span><span class="s2">&quot;missing rio_document_type&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># This section would be BETTER with a try/raise/except block, rather</span>
+        <span class="c1"># than a bunch of return statements.</span>
+
+        <span class="c1"># Done</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="RecipientDefinition.using_hl7"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_recipdef.html#camcops_server.cc_modules.cc_recipdef.RecipientDefinition.using_hl7">[docs]</a>    <span class="k">def</span> <span class="nf">using_hl7</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Is the recipient an HL7 recipient?&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">Hl7RecipientType</span><span class="o">.</span><span class="n">HL7</span></div>
+
+<div class="viewcode-block" id="RecipientDefinition.using_file"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_recipdef.html#camcops_server.cc_modules.cc_recipdef.RecipientDefinition.using_file">[docs]</a>    <span class="k">def</span> <span class="nf">using_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Is the recipient a filestore?&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">Hl7RecipientType</span><span class="o">.</span><span class="n">FILE</span></div>
+
+<div class="viewcode-block" id="RecipientDefinition.get_id_type"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_recipdef.html#camcops_server.cc_modules.cc_recipdef.RecipientDefinition.get_id_type">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_id_type</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span> <span class="n">which_idnum</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get HL7 ID type for a specific ID number.&quot;&quot;&quot;</span>
+        <span class="n">iddef</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">get_idnum_definition</span><span class="p">(</span><span class="n">which_idnum</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">iddef</span><span class="o">.</span><span class="n">hl7_id_type</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">iddef</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span></div>
+
+<div class="viewcode-block" id="RecipientDefinition.get_id_aa"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_recipdef.html#camcops_server.cc_modules.cc_recipdef.RecipientDefinition.get_id_aa">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_id_aa</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span> <span class="n">which_idnum</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get HL7 ID type for a specific ID number.&quot;&quot;&quot;</span>
+        <span class="n">iddef</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">get_idnum_definition</span><span class="p">(</span><span class="n">which_idnum</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">iddef</span><span class="o">.</span><span class="n">hl7_assigning_authority</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">iddef</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span></div>
+
+<div class="viewcode-block" id="RecipientDefinition.get_filename"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_recipdef.html#camcops_server.cc_modules.cc_recipdef.RecipientDefinition.get_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                     <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+                     <span class="n">is_anonymous</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                     <span class="n">surname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">forename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">dob</span><span class="p">:</span> <span class="n">Pendulum</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">sex</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">idnum_objects</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s1">&#39;PatientIdNum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">creation_datetime</span><span class="p">:</span> <span class="n">Pendulum</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">basetable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">serverpk</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get filename, for file transfers.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">get_export_filename</span><span class="p">(</span>
+            <span class="n">req</span><span class="o">=</span><span class="n">req</span><span class="p">,</span>
+            <span class="n">patient_spec_if_anonymous</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patient_spec_if_anonymous</span><span class="p">,</span>
+            <span class="n">patient_spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patient_spec</span><span class="p">,</span>
+            <span class="n">filename_spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_spec</span><span class="p">,</span>
+            <span class="n">task_format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_format</span><span class="p">,</span>
+            <span class="n">is_anonymous</span><span class="o">=</span><span class="n">is_anonymous</span><span class="p">,</span>
+            <span class="n">surname</span><span class="o">=</span><span class="n">surname</span><span class="p">,</span>
+            <span class="n">forename</span><span class="o">=</span><span class="n">forename</span><span class="p">,</span>
+            <span class="n">dob</span><span class="o">=</span><span class="n">dob</span><span class="p">,</span>
+            <span class="n">sex</span><span class="o">=</span><span class="n">sex</span><span class="p">,</span>
+            <span class="n">idnum_objects</span><span class="o">=</span><span class="n">idnum_objects</span><span class="p">,</span>
+            <span class="n">creation_datetime</span><span class="o">=</span><span class="n">creation_datetime</span><span class="p">,</span>
+            <span class="n">basetable</span><span class="o">=</span><span class="n">basetable</span><span class="p">,</span>
+            <span class="n">serverpk</span><span class="o">=</span><span class="n">serverpk</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
+        <span class="n">attrnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">simple_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrnames</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,398 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.cc_modules.cc_blob &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.cc_modules.cc_blob</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/cc_modules/cc_blob.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.httpconst</span> <span class="k">import</span> <span class="n">MimeType</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.logs</span> <span class="k">import</span> <span class="n">BraceStyleAdapter</span>
+<span class="kn">from</span> <span class="nn">pendulum</span> <span class="k">import</span> <span class="n">Pendulum</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="k">import</span> <span class="n">relationship</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="k">import</span> <span class="n">Session</span> <span class="k">as</span> <span class="n">SqlASession</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.relationships</span> <span class="k">import</span> <span class="n">RelationshipProperty</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.schema</span> <span class="k">import</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.sqltypes</span> <span class="k">import</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">Text</span>
+<span class="kn">import</span> <span class="nn">wand.image</span>
+
+<span class="kn">from</span> <span class="nn">.cc_db</span> <span class="k">import</span> <span class="n">GenericTabletRecordMixin</span>
+<span class="kn">from</span> <span class="nn">.cc_html</span> <span class="k">import</span> <span class="n">get_data_url</span><span class="p">,</span> <span class="n">get_embedded_img_tag</span>
+<span class="kn">from</span> <span class="nn">.cc_sqla_coltypes</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">MimeTypeColType</span><span class="p">,</span>
+    <span class="n">TableNameColType</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.cc_sqla_coltypes</span> <span class="k">import</span> <span class="n">LongBlob</span><span class="p">,</span> <span class="n">RelationshipInfo</span>
+<span class="kn">from</span> <span class="nn">.cc_sqlalchemy</span> <span class="k">import</span> <span class="n">Base</span>
+<span class="kn">from</span> <span class="nn">.cc_unittest</span> <span class="k">import</span> <span class="n">DemoDatabaseTestCase</span>
+<span class="kn">from</span> <span class="nn">.cc_xml</span> <span class="k">import</span> <span class="n">get_xml_blob_element</span><span class="p">,</span> <span class="n">XmlElement</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">BraceStyleAdapter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+<span class="c1"># ExactImage API documentation is a little hard to find. See:</span>
+<span class="c1">#   http://www.exactcode.com/site/open_source/exactimage</span>
+<span class="c1">#   man econvert # after sudo apt-get install exactimage</span>
+<span class="c1">#   https://exactcode.de/exact-image/trunk/api/api.hh &lt;-- THIS ONE</span>
+<span class="c1">#   http://fossies.org/linux/privat/exact-image-0.8.9.tar.gz:a/exact-image-0.8.9/examples/test.py  # noqa</span>
+<span class="c1">#   http://lickmychip.com/2012/07/26/playing-with-exactimage/</span>
+<span class="c1">#   https://github.com/romainneutron/ExactImage-PHP</span>
+<span class="c1"># Also, rotation is not simple!</span>
+<span class="c1"># Wand seems much better: http://docs.wand-py.org/en/0.3.5/</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Blob class</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="Blob"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_blob.html#camcops_server.cc_modules.cc_blob.Blob">[docs]</a><span class="k">class</span> <span class="nc">Blob</span><span class="p">(</span><span class="n">GenericTabletRecordMixin</span><span class="p">,</span> <span class="n">Base</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class representing a binary large object (BLOB).</span>
+
+<span class="sd">    Has helper functions for PNG image processing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;blobs&quot;</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;BLOB (binary large object) primary key on the source &quot;</span>
+                <span class="s2">&quot;tablet device&quot;</span>
+    <span class="p">)</span>
+    <span class="n">tablename</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;tablename&quot;</span><span class="p">,</span> <span class="n">TableNameColType</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Name of the table referring to this BLOB&quot;</span>
+    <span class="p">)</span>
+    <span class="n">tablepk</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;tablepk&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Client-perspective primary key (id field) of the row &quot;</span>
+                <span class="s2">&quot;referring to this BLOB&quot;</span>
+    <span class="p">)</span>
+    <span class="n">fieldname</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;fieldname&quot;</span><span class="p">,</span> <span class="n">TableNameColType</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Field name of the field referring to this BLOB by ID&quot;</span>
+    <span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="n">Text</span><span class="p">,</span>  <span class="c1"># Text is correct; filenames can be long</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Filename of the BLOB on the source tablet device (on &quot;</span>
+                <span class="s2">&quot;the source device, BLOBs are stored in files, not in &quot;</span>
+                <span class="s2">&quot;the database)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">mimetype</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;mimetype&quot;</span><span class="p">,</span> <span class="n">MimeTypeColType</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;MIME type of the BLOB&quot;</span>
+    <span class="p">)</span>
+    <span class="n">image_rotation_deg_cw</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;image_rotation_deg_cw&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;For images: rotation to be applied, clockwise, in degrees&quot;</span>
+    <span class="p">)</span>
+    <span class="n">theblob</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;theblob&quot;</span><span class="p">,</span> <span class="n">LongBlob</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;The BLOB itself, a binary object containing arbitrary &quot;</span>
+                <span class="s2">&quot;information (such as a picture)&quot;</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="Blob.get_current_blob_by_client_info"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_blob.html#camcops_server.cc_modules.cc_blob.Blob.get_current_blob_by_client_info">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_current_blob_by_client_info</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span>
+                                        <span class="n">dbsession</span><span class="p">:</span> <span class="n">SqlASession</span><span class="p">,</span>
+                                        <span class="n">device_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                                        <span class="n">clientpk</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                                        <span class="n">era</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Blob&#39;</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns the current Blob object, or None.&quot;&quot;&quot;</span>
+        <span class="n">blob</span> <span class="o">=</span> <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">clientpk</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_device_id</span> <span class="o">==</span> <span class="n">device_id</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_era</span> <span class="o">==</span> <span class="n">era</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_current</span> <span class="o">==</span> <span class="kc">True</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">first</span><span class="p">()</span>  <span class="c1"># type: Optional[Blob]  # noqa</span>
+        <span class="k">return</span> <span class="n">blob</span></div>
+
+<div class="viewcode-block" id="Blob.get_contemporaneous_blob_by_client_info"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_blob.html#camcops_server.cc_modules.cc_blob.Blob.get_contemporaneous_blob_by_client_info">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_contemporaneous_blob_by_client_info</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">dbsession</span><span class="p">:</span> <span class="n">SqlASession</span><span class="p">,</span>
+            <span class="n">device_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">clientpk</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">era</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">referrer_added_utc</span><span class="p">:</span> <span class="n">Pendulum</span><span class="p">,</span>
+            <span class="n">referrer_removed_utc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Pendulum</span><span class="p">])</span> \
+            <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Blob&#39;</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a contemporaneous Blob object, or None.</span>
+
+<span class="sd">        Use particularly to look up BLOBs matching old task records.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">blob</span> <span class="o">=</span> <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">clientpk</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_device_id</span> <span class="o">==</span> <span class="n">device_id</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_era</span> <span class="o">==</span> <span class="n">era</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_when_added_batch_utc</span> <span class="o">&lt;=</span> <span class="n">referrer_added_utc</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_when_removed_batch_utc</span> <span class="o">==</span> <span class="n">referrer_removed_utc</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">first</span><span class="p">()</span>  <span class="c1"># type: Optional[Blob]</span>
+        <span class="c1"># Note, for referrer_removed_utc: if this is None, then the comparison</span>
+        <span class="c1"># &quot;field == None&quot; is made; otherwise &quot;field == value&quot;.</span>
+        <span class="c1"># Since SQLAlchemy translates &quot;== None&quot; to &quot;IS NULL&quot;, we&#39;re OK.</span>
+        <span class="c1"># https://stackoverflow.com/questions/37445041/sqlalchemy-how-to-filter-column-which-contains-both-null-and-integer-values  # noqa</span>
+        <span class="k">return</span> <span class="n">blob</span></div>
+
+<div class="viewcode-block" id="Blob.get_rotated_image"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_blob.html#camcops_server.cc_modules.cc_blob.Blob.get_rotated_image">[docs]</a>    <span class="k">def</span> <span class="nf">get_rotated_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns a binary image, having rotated if necessary, or None.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">theblob</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">rotation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_rotation_deg_cw</span>
+        <span class="k">if</span> <span class="n">rotation</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">rotation</span> <span class="o">%</span> <span class="mi">360</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">theblob</span>
+        <span class="k">with</span> <span class="n">wand</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">blob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">theblob</span><span class="p">)</span> <span class="k">as</span> <span class="n">img</span><span class="p">:</span>
+            <span class="n">img</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">rotation</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">img</span><span class="o">.</span><span class="n">make_blob</span><span class="p">()</span></div>
+            <span class="c1"># ... no parameter =&gt; return in same format as supplied</span>
+
+<div class="viewcode-block" id="Blob.get_img_html"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_blob.html#camcops_server.cc_modules.cc_blob.Blob.get_img_html">[docs]</a>    <span class="k">def</span> <span class="nf">get_img_html</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns an HTML IMG tag encoding the BLOB, or &#39;&#39;.&quot;&quot;&quot;</span>
+        <span class="n">image_bits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rotated_image</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">image_bits</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">get_embedded_img_tag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mimetype</span> <span class="ow">or</span> <span class="n">MimeType</span><span class="o">.</span><span class="n">PNG</span><span class="p">,</span> <span class="n">image_bits</span><span class="p">)</span></div>
+        <span class="c1"># Historically, CamCOPS supported only PNG, so add this as a default</span>
+
+    <span class="k">def</span> <span class="nf">get_xml_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">XmlElement</span><span class="p">:</span>
+        <span class="n">branches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_xml_branches</span><span class="p">(</span>
+            <span class="n">req</span><span class="p">,</span>
+            <span class="n">skip_attrs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;theblob&quot;</span><span class="p">],</span>
+            <span class="n">include_plain_columns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">include_blobs</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">blobdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_xml_theblob_value_binary</span><span class="p">()</span>
+        <span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_xml_blob_element</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;theblob&quot;</span><span class="p">,</span>
+            <span class="n">blobdata</span><span class="o">=</span><span class="n">blobdata</span><span class="p">,</span>
+            <span class="n">comment</span><span class="o">=</span><span class="n">Blob</span><span class="o">.</span><span class="n">theblob</span><span class="o">.</span><span class="n">comment</span>
+        <span class="p">))</span>
+        <span class="k">return</span> <span class="n">XmlElement</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">branches</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_xml_theblob_value_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns a binary value for this object, to be encoded into XML.&quot;&quot;&quot;</span>
+        <span class="n">image_bits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rotated_image</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">image_bits</span>
+
+<div class="viewcode-block" id="Blob.get_data_url"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_blob.html#camcops_server.cc_modules.cc_blob.Blob.get_data_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_url</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns a data URL encapsulating the BLOB, or &#39;&#39;.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">theblob</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">get_data_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mimetype</span> <span class="ow">or</span> <span class="n">MimeType</span><span class="o">.</span><span class="n">PNG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">theblob</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Relationships</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="blob_relationship"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_blob.html#camcops_server.cc_modules.cc_blob.blob_relationship">[docs]</a><span class="k">def</span> <span class="nf">blob_relationship</span><span class="p">(</span><span class="n">classname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                      <span class="n">blob_id_col_attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                      <span class="n">read_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RelationshipProperty</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simplifies creation of BLOB relationships.</span>
+<span class="sd">    In a class definition, use like this:</span>
+
+<span class="sd">        class Something(Base):</span>
+
+<span class="sd">            photo_blobid = CamcopsColumn(</span>
+<span class="sd">                &quot;photo_blobid&quot;, Integer,</span>
+<span class="sd">                is_blob_id_field=True, blob_field_xml_name=&quot;photo_blob&quot;</span>
+<span class="sd">            )</span>
+
+<span class="sd">            photo = blob_relationship(&quot;Something&quot;, &quot;photo_blobid&quot;)</span>
+
+<span class="sd">            # ... can&#39;t use Something directly as it&#39;s not yet been fully</span>
+<span class="sd">            #     defined, but we want the convenience of defining this</span>
+<span class="sd">            #     relationship here without the need to use metaclasses.</span>
+<span class="sd">            # ... SQLAlchemy&#39;s primaryjoin uses Python-side names (class and</span>
+<span class="sd">            #     attribute), rather than SQL-side names (table and column),</span>
+<span class="sd">            #     at least for its fancier things:</span>
+<span class="sd">            # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">relationship</span><span class="p">(</span>
+        <span class="n">Blob</span><span class="p">,</span>
+        <span class="n">primaryjoin</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;and_(&quot;</span>
+            <span class="s2">&quot; remote(Blob.id) == foreign(</span><span class="si">{cls}</span><span class="s2">.</span><span class="si">{fk}</span><span class="s2">), &quot;</span>
+            <span class="s2">&quot; remote(Blob._device_id) == foreign(</span><span class="si">{cls}</span><span class="s2">._device_id), &quot;</span>
+            <span class="s2">&quot; remote(Blob._era) == foreign(</span><span class="si">{cls}</span><span class="s2">._era), &quot;</span>
+            <span class="s2">&quot; remote(Blob._current) == True &quot;</span>
+            <span class="s2">&quot;)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">cls</span><span class="o">=</span><span class="n">classname</span><span class="p">,</span>
+                <span class="n">fk</span><span class="o">=</span><span class="n">blob_id_col_attr_name</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="n">uselist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">viewonly</span><span class="o">=</span><span class="n">read_only</span><span class="p">,</span>
+        <span class="n">info</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">RelationshipInfo</span><span class="o">.</span><span class="n">IS_BLOB</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Unit tests</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="get_blob_img_html"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_blob.html#camcops_server.cc_modules.cc_blob.get_blob_img_html">[docs]</a><span class="k">def</span> <span class="nf">get_blob_img_html</span><span class="p">(</span><span class="n">blob</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Blob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Get HTML IMG tag with embedded data, or HTML error message.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">blob</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;i&gt;(No picture)&lt;/i&gt;&quot;</span>
+    <span class="k">return</span> <span class="n">blob</span><span class="o">.</span><span class="n">get_img_html</span><span class="p">()</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Unit tests</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="BlobTests"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_blob.html#camcops_server.cc_modules.cc_blob.BlobTests">[docs]</a><span class="k">class</span> <span class="nc">BlobTests</span><span class="p">(</span><span class="n">DemoDatabaseTestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">test_blob</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">announce</span><span class="p">(</span><span class="s2">&quot;test_blob&quot;</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Blob</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>  <span class="c1"># type: Blob</span>
+        <span class="k">assert</span> <span class="n">b</span><span class="p">,</span> <span class="s2">&quot;Missing BLOB in demo database!&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstanceOrNone</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">get_rotated_image</span><span class="p">(),</span> <span class="nb">bytes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">get_img_html</span><span class="p">(),</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">get_xml_element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">),</span> <span class="n">XmlElement</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">get_data_url</span><span class="p">(),</span> <span class="nb">str</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

@@ -270,6 +270,8 @@ F32% and F33%; exclude F30%, F31%, F50%):
 To view a report’s SQL in a formatted state, paste it into an online SQL
 formatter [#sqlformat]_.
 
+.. _introspection:
+
 Introspection
 -------------
 

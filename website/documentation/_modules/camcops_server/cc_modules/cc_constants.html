@@ -1,0 +1,347 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.cc_modules.cc_constants &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.cc_modules.cc_constants</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/cc_modules/cc_constants.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Helpful UTF-8 characters: ‘’ “” – — × • ≤ ≥ ≠ ± →</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">.cc_baseconstants</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">CAMCOPS_SERVER_DIRECTORY</span><span class="p">,</span>
+    <span class="n">STATIC_ROOT_DIR</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Number of ID numbers. Don&#39;t alter this lightly; influences database fields.</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">NUMBER_OF_IDNUMS_DEFUNCT</span> <span class="o">=</span> <span class="mi">8</span>  <span class="c1"># DEFUNCT BUT DO NOT REMOVE OR ALTER. EIGHT.</span>
+<span class="c1"># ... In older versions: determined number of ID number fields.</span>
+<span class="c1"># (Now this is arbitrary.) Still used to support old clients.</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Configuration</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">CONFIG_FILE_MAIN_SECTION</span> <span class="o">=</span> <span class="s2">&quot;server&quot;</span>
+<span class="n">CONFIG_FILE_RECIPIENTLIST_SECTION</span> <span class="o">=</span> <span class="s2">&quot;recipients&quot;</span>
+
+<span class="n">DEFAULT_DB_PORT</span> <span class="o">=</span> <span class="mi">3306</span>
+<span class="n">DEFAULT_DB_SERVER</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
+<span class="n">DEFAULT_LOCAL_INSTITUTION_URL</span> <span class="o">=</span> <span class="s2">&quot;http://www.camcops.org/&quot;</span>
+<span class="n">DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">DEFAULT_LOCKOUT_THRESHOLD</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># zero for never</span>
+
+<span class="n">DEFAULT_TIMEOUT_MINUTES</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">DEFAULT_PLOT_FONTSIZE</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="n">MINIMUM_PASSWORD_LENGTH</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># More filenames</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">DEFAULT_CAMCOPS_LOGO_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">STATIC_ROOT_DIR</span><span class="p">,</span> <span class="s2">&quot;logo_camcops.png&quot;</span><span class="p">)</span>
+<span class="n">DEFAULT_LOCAL_LOGO_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">STATIC_ROOT_DIR</span><span class="p">,</span> <span class="s2">&quot;logo_local.png&quot;</span><span class="p">)</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Introspection</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">INTROSPECTION_BASE_DIRECTORY</span> <span class="o">=</span> <span class="n">CAMCOPS_SERVER_DIRECTORY</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Webview constants</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">DEFAULT_ROWS_PER_PAGE</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="n">DEVICE_NAME_FOR_SERVER</span> <span class="o">=</span> <span class="s2">&quot;server&quot;</span>  <span class="c1"># Do not alter.</span>
+<span class="n">USER_NAME_FOR_SYSTEM</span> <span class="o">=</span> <span class="s2">&quot;system&quot;</span>  <span class="c1"># Do not alter.</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Date formats</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">class</span> <span class="nc">DateFormat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">SHORT_DATE</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b %Y&quot;</span>  <span class="c1"># e.g. 24 Jul 2013</span>
+    <span class="n">LONG_DATE</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %B %Y&quot;</span>  <span class="c1"># e.g. 24 July 2013</span>
+    <span class="n">LONG_DATE_WITH_DAY</span> <span class="o">=</span> <span class="s2">&quot;%a </span><span class="si">%d</span><span class="s2"> %B %Y&quot;</span>  <span class="c1"># e.g. Wed 24 July 2013</span>
+    <span class="n">LONG_DATETIME</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %B %Y, %H:%M %z&quot;</span>  <span class="c1"># ... e.g. 24 July 2013, 20:04 +0100</span>
+    <span class="n">LONG_DATETIME_WITH_DAY</span> <span class="o">=</span> <span class="s2">&quot;%a </span><span class="si">%d</span><span class="s2"> %B %Y, %H:%M %z&quot;</span>  <span class="c1"># ... e.g. Wed 24 July 2013, 20:04 +0100  # noqa</span>
+    <span class="n">LONG_DATETIME_WITH_DAY_NO_TZ</span> <span class="o">=</span> <span class="s2">&quot;%a </span><span class="si">%d</span><span class="s2"> %B %Y, %H:%M&quot;</span>  <span class="c1"># ... e.g. Wed 24 July 2013, 20:04  # noqa</span>
+    <span class="n">SHORT_DATETIME_WITH_DAY_NO_TZ</span> <span class="o">=</span> <span class="s2">&quot;%a </span><span class="si">%d</span><span class="s2"> %b %Y, %H:%M&quot;</span>  <span class="c1"># ... e.g. Wed 24 Jul 2013, 20:04  # noqa</span>
+    <span class="n">LONG_DATETIME_SECONDS</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %B %Y, %H:%M:%S %z&quot;</span>
+    <span class="n">SHORT_DATETIME</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b %Y, %H:%M %z&quot;</span>
+    <span class="n">SHORT_DATETIME_SECONDS</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b %Y, %H:%M:%S %z&quot;</span>
+    <span class="n">HOURS_MINUTES</span> <span class="o">=</span> <span class="s2">&quot;%H:%M&quot;</span>
+    <span class="n">ISO8601</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S%z&quot;</span>  <span class="c1"># e.g. 2013-07-24T20:04:07+0100</span>
+    <span class="n">ISO8601_DATE_ONLY</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span>  <span class="c1"># e.g. 2013-07-24</span>
+    <span class="n">FILENAME</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H%M&quot;</span>  <span class="c1"># e.g. 20130724T2004</span>
+    <span class="n">FILENAME_DATE_ONLY</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span>  <span class="c1"># e.g. 20130724</span>
+    <span class="n">HL7_DATETIME</span> <span class="o">=</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S%z&quot;</span>  <span class="c1"># e.g. 20130724200407+0100</span>
+    <span class="n">HL7_DATE</span> <span class="o">=</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span>  <span class="c1"># e.g. 20130724</span>
+    <span class="n">ERA</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span>  <span class="c1"># e.g. 2013-07-24T20:03:07Z</span>
+    <span class="c1"># http://www.hl7standards.com/blog/2008/07/25/hl7-time-zone-qualification/</span>
+    <span class="n">RIO_EXPORT_UK</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y %H:%M&quot;</span>  <span class="c1"># e.g. 01/12/2014 09:45</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Permitted values in fields: some common settings</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="PV"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_constants.html#camcops_server.cc_modules.cc_constants.PV">[docs]</a><span class="k">class</span> <span class="nc">PV</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collections of permitted values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">BIT</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span></div>
+
+
+<span class="n">NO_CHAR</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span>
+<span class="n">YES_CHAR</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Field names/specifications</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">PKNAME</span> <span class="o">=</span> <span class="s2">&quot;_pk&quot;</span>
+<span class="n">TABLET_ID_FIELD</span> <span class="o">=</span> <span class="s2">&quot;id&quot;</span>
+<span class="n">MOVE_OFF_TABLET_FIELD</span> <span class="o">=</span> <span class="s2">&quot;_move_off_tablet&quot;</span>
+<span class="n">CLIENT_DATE_FIELD</span> <span class="o">=</span> <span class="s2">&quot;when_last_modified&quot;</span>
+
+<span class="c1"># Used for old client support, and TSV field names etc.:</span>
+<span class="n">FP_ID_NUM</span> <span class="o">=</span> <span class="s2">&quot;idnum&quot;</span>
+<span class="n">FP_ID_DESC</span> <span class="o">=</span> <span class="s2">&quot;iddesc&quot;</span>
+<span class="n">FP_ID_SHORT_DESC</span> <span class="o">=</span> <span class="s2">&quot;idshortdesc&quot;</span>
+
+<span class="n">CRIS_CLUSTER_KEY_FIELDSPEC</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;_task_main_pk&quot;</span><span class="p">,</span> <span class="n">cctype</span><span class="o">=</span><span class="s2">&quot;INT_UNSIGNED&quot;</span><span class="p">,</span>
+    <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;(CRIS) Server primary key for task and linked records&quot;</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Other special values</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">CAMCOPS_URL</span> <span class="o">=</span> <span class="s2">&quot;http://www.camcops.org/&quot;</span>
+<span class="n">ERA_NOW</span> <span class="o">=</span> <span class="s2">&quot;NOW&quot;</span>  <span class="c1"># defines the current era in database records</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># PDF engine: now always &quot;pdfkit&quot;.</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1"># PDF_ENGINE = &quot;xhtml2pdf&quot;  # working</span>
+<span class="n">PDF_ENGINE</span> <span class="o">=</span> <span class="s2">&quot;pdfkit&quot;</span>  <span class="c1"># working</span>
+<span class="c1"># PDF_ENGINE = &quot;weasyprint&quot;  # working but table &lt;tr&gt; element bugs</span>
+<span class="c1"># ... must use double quotes; read by a Perl regex in MAKE_PACKAGE</span>
+<span class="c1"># ... value must be one of: xhtml2pdf, weasyprint, pdfkit</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Simple constants for HTML/plots/display</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">WHOLE_PANEL</span> <span class="o">=</span> <span class="mi">111</span>  <span class="c1"># as in: ax = fig.add_subplot(111)</span>
+
+<span class="n">DEFAULT_PLOT_DPI</span> <span class="o">=</span> <span class="mi">300</span>
+
+<span class="c1"># Debugging option</span>
+<span class="n">USE_SVG_IN_HTML</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># set to False for PNG debugging</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># CSS/HTML constants</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">CSS_PAGED_MEDIA</span> <span class="o">=</span> <span class="p">(</span><span class="n">PDF_ENGINE</span> <span class="o">!=</span> <span class="s2">&quot;pdfkit&quot;</span><span class="p">)</span>
+
+<span class="n">WKHTMLTOPDF_OPTIONS</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># dict for pdfkit</span>
+    <span class="s2">&quot;page-size&quot;</span><span class="p">:</span> <span class="s2">&quot;A4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;margin-left&quot;</span><span class="p">:</span> <span class="s2">&quot;20mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;margin-right&quot;</span><span class="p">:</span> <span class="s2">&quot;20mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;margin-top&quot;</span><span class="p">:</span> <span class="s2">&quot;21mm&quot;</span><span class="p">,</span>  <span class="c1"># from paper edge down to top of content?</span>
+    <span class="c1"># ... inaccurate</span>
+    <span class="s2">&quot;margin-bottom&quot;</span><span class="p">:</span> <span class="s2">&quot;24mm&quot;</span><span class="p">,</span>  <span class="c1"># from paper edge up to bottom of content?</span>
+    <span class="c1"># ... inaccurate</span>
+    <span class="s2">&quot;header-spacing&quot;</span><span class="p">:</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span>  <span class="c1"># mm, from content up to bottom of header</span>
+    <span class="s2">&quot;footer-spacing&quot;</span><span class="p">:</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span>  <span class="c1"># mm, from content down to top of footer</span>
+<span class="p">}</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Table names used by modules that would otherwise have an interdependency, or</span>
+<span class="c1"># are defined elsewhere</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">HL7MESSAGE_TABLENAME</span> <span class="o">=</span> <span class="s2">&quot;_hl7_message_log&quot;</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Task constants</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">ANON_PATIENT</span> <span class="o">=</span> <span class="s2">&quot;XXXX&quot;</span>
+<span class="n">DATA_COLLECTION_ONLY_DIV</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    &lt;div class=&quot;copyright&quot;&gt;</span>
+<span class="s2">        Reproduction of the original task/scale is not permitted.</span>
+<span class="s2">        This is a data collection tool only; use it only in conjunction with</span>
+<span class="s2">        a licensed copy of the original task.</span>
+<span class="s2">    &lt;/div&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">DATA_COLLECTION_UNLESS_UPGRADED_DIV</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    &lt;div class=&quot;copyright&quot;&gt;</span>
+<span class="s2">        Reproduction of the original task/scale is not permitted as part of</span>
+<span class="s2">        CamCOPS. This is a data collection tool only, unless the hosting</span>
+<span class="s2">        institution has supplied task text via its own permissions. &lt;b&gt;Any such</span>
+<span class="s2">        text, if shown here, is not part of CamCOPS, and copyright in</span>
+<span class="s2">        it belongs to the original task’s copyright holder.&lt;/b&gt; Use this data</span>
+<span class="s2">        collection tool only in conjunction with a licensed copy of the</span>
+<span class="s2">        original task.</span>
+<span class="s2">    &lt;/div&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">FULLWIDTH_PLOT_WIDTH</span> <span class="o">=</span> <span class="mf">6.7</span>  <span class="c1"># inches: full width is ~170mm</span>
+<span class="n">ICD10_COPYRIGHT_DIV</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    &lt;div class=&quot;copyright&quot;&gt;</span>
+<span class="s2">        ICD-10 criteria: Copyright © 1992 World Health Organization.</span>
+<span class="s2">        Used here with permission.</span>
+<span class="s2">    &lt;/div&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">INVALID_VALUE</span> <span class="o">=</span> <span class="s2">&quot;[invalid_value]&quot;</span>
+
+<span class="n">TSV_PATIENT_FIELD_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;_patient_&quot;</span>
+<span class="n">CRIS_PATIENT_COMMENT_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;(PATIENT) &quot;</span>
+<span class="n">CRIS_SUMMARY_COMMENT_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;(SUMMARY) &quot;</span>
+<span class="n">CRIS_TABLENAME_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;camcops_&quot;</span>
+
+<span class="n">QUESTION</span> <span class="o">=</span> <span class="s2">&quot;Question&quot;</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

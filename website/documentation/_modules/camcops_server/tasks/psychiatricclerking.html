@@ -1,0 +1,353 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.tasks.psychiatricclerking &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.tasks.psychiatricclerking</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/tasks/psychiatricclerking.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">cardinal_pythonlib.rnc_web</span> <span class="k">as</span> <span class="nn">ws</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.schema</span> <span class="k">import</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.sqltypes</span> <span class="k">import</span> <span class="n">UnicodeText</span>
+
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_ctvinfo</span> <span class="k">import</span> <span class="n">CtvInfo</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_sqlalchemy</span> <span class="k">import</span> <span class="n">Base</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_task</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">Task</span><span class="p">,</span>
+    <span class="n">TaskHasClinicianMixin</span><span class="p">,</span>
+    <span class="n">TaskHasPatientMixin</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># PsychiatricClerking</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="PsychiatricClerking"><a class="viewcode-back" href="../../../autodoc/tasks/psychiatricclerking.html#camcops_server.tasks.psychiatricclerking.PsychiatricClerking">[docs]</a><span class="k">class</span> <span class="nc">PsychiatricClerking</span><span class="p">(</span><span class="n">TaskHasPatientMixin</span><span class="p">,</span> <span class="n">TaskHasClinicianMixin</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> 
+                          <span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;psychiatricclerking&quot;</span>
+    <span class="n">shortname</span> <span class="o">=</span> <span class="s2">&quot;Clerking&quot;</span>
+    <span class="n">longname</span> <span class="o">=</span> <span class="s2">&quot;Psychiatric clerking&quot;</span>
+
+    <span class="c1"># FIELDSPEC_A = CLINICIAN_FIELDSPECS  # replaced by has_clinician, then by TaskHasClinicianMixin  # noqa</span>
+
+    <span class="n">location</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">contact_type</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;contact_type&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">reason_for_contact</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;reason_for_contact&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">presenting_issue</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;presenting_issue&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">systems_review</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;systems_review&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">collateral_history</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;collateral_history&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+
+    <span class="n">diagnoses_psychiatric</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;diagnoses_psychiatric&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">diagnoses_medical</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;diagnoses_medical&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">operations_procedures</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;operations_procedures&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">allergies_adverse_reactions</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;allergies_adverse_reactions&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">medications</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;medications&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">recreational_drug_use</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;recreational_drug_use&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">family_history</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;family_history&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">developmental_history</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;developmental_history&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">personal_history</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;personal_history&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">premorbid_personality</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;premorbid_personality&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">forensic_history</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;forensic_history&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">current_social_situation</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;current_social_situation&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+
+    <span class="n">mse_appearance_behaviour</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mse_appearance_behaviour&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mse_speech</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mse_speech&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mse_mood_subjective</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mse_mood_subjective&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mse_mood_objective</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mse_mood_objective&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mse_thought_form</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mse_thought_form&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mse_thought_content</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mse_thought_content&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mse_perception</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mse_perception&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mse_cognition</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mse_cognition&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mse_insight</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mse_insight&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+
+    <span class="n">physical_examination_general</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;physical_examination_general&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">physical_examination_cardiovascular</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;physical_examination_cardiovascular&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">physical_examination_respiratory</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;physical_examination_respiratory&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">physical_examination_abdominal</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;physical_examination_abdominal&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">physical_examination_neurological</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;physical_examination_neurological&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>  <span class="c1"># noqa</span>
+
+    <span class="n">assessment_scales</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;assessment_scales&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">investigations_results</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;investigations_results&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+
+    <span class="n">safety_alerts</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;safety_alerts&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">risk_assessment</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;risk_assessment&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">relevant_legal_information</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;relevant_legal_information&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>  <span class="c1"># noqa</span>
+
+    <span class="n">current_problems</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;current_problems&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">patient_carer_concerns</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;patient_carer_concerns&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">impression</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;impression&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">management_plan</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;management_plan&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">information_given</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;information_given&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    
+    <span class="n">FIELDS_B</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_type&quot;</span><span class="p">,</span> <span class="s2">&quot;reason_for_contact&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;presenting_issue&quot;</span><span class="p">,</span> <span class="s2">&quot;systems_review&quot;</span><span class="p">,</span> <span class="s2">&quot;collateral_history&quot;</span>
+    <span class="p">]</span>
+    <span class="n">FIELDS_C</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;diagnoses_psychiatric&quot;</span><span class="p">,</span> <span class="s2">&quot;diagnoses_medical&quot;</span><span class="p">,</span> <span class="s2">&quot;operations_procedures&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;allergies_adverse_reactions&quot;</span><span class="p">,</span> <span class="s2">&quot;medications&quot;</span><span class="p">,</span> <span class="s2">&quot;recreational_drug_use&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;family_history&quot;</span><span class="p">,</span> <span class="s2">&quot;developmental_history&quot;</span><span class="p">,</span> <span class="s2">&quot;personal_history&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;premorbid_personality&quot;</span><span class="p">,</span> <span class="s2">&quot;forensic_history&quot;</span><span class="p">,</span> <span class="s2">&quot;current_social_situation&quot;</span>
+    <span class="p">]</span>
+    <span class="n">FIELDS_MSE</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;mse_appearance_behaviour&quot;</span><span class="p">,</span> <span class="s2">&quot;mse_speech&quot;</span><span class="p">,</span> <span class="s2">&quot;mse_mood_subjective&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mse_mood_objective&quot;</span><span class="p">,</span> <span class="s2">&quot;mse_thought_form&quot;</span><span class="p">,</span> <span class="s2">&quot;mse_thought_content&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mse_perception&quot;</span><span class="p">,</span> <span class="s2">&quot;mse_cognition&quot;</span><span class="p">,</span> <span class="s2">&quot;mse_insight&quot;</span>
+    <span class="p">]</span>
+    <span class="n">FIELDS_PE</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;physical_examination_general&quot;</span><span class="p">,</span> <span class="s2">&quot;physical_examination_cardiovascular&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;physical_examination_respiratory&quot;</span><span class="p">,</span> <span class="s2">&quot;physical_examination_abdominal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;physical_examination_neurological&quot;</span>
+    <span class="p">]</span>
+    <span class="n">FIELDS_D</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;assessment_scales&quot;</span><span class="p">,</span> <span class="s2">&quot;investigations_results&quot;</span>
+    <span class="p">]</span>
+    <span class="n">FIELDS_E</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;safety_alerts&quot;</span><span class="p">,</span> <span class="s2">&quot;risk_assessment&quot;</span><span class="p">,</span> <span class="s2">&quot;relevant_legal_information&quot;</span>
+    <span class="p">]</span>
+    <span class="n">FIELDS_F</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;current_problems&quot;</span><span class="p">,</span> <span class="s2">&quot;patient_carer_concerns&quot;</span><span class="p">,</span> <span class="s2">&quot;impression&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;management_plan&quot;</span><span class="p">,</span> <span class="s2">&quot;information_given&quot;</span>
+    <span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">get_ctv_heading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span>
+                        <span class="n">wstringname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CtvInfo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CtvInfo</span><span class="p">(</span>
+            <span class="n">heading</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">wstringname</span><span class="p">),</span>
+            <span class="n">skip_if_no_content</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_ctv_subheading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span>
+                           <span class="n">wstringname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CtvInfo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CtvInfo</span><span class="p">(</span>
+            <span class="n">subheading</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">wstringname</span><span class="p">),</span>
+            <span class="n">skip_if_no_content</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_ctv_description_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span>
+                                    <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CtvInfo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CtvInfo</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span>
+            <span class="n">content</span><span class="o">=</span><span class="n">ws</span><span class="o">.</span><span class="n">webify</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="PsychiatricClerking.get_clinical_text"><a class="viewcode-back" href="../../../autodoc/tasks/psychiatricclerking.html#camcops_server.tasks.psychiatricclerking.PsychiatricClerking.get_clinical_text">[docs]</a>    <span class="k">def</span> <span class="nf">get_clinical_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">CtvInfo</span><span class="p">]:</span>
+        <span class="n">infolist</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_heading</span><span class="p">(</span>
+            <span class="n">req</span><span class="p">,</span> <span class="s2">&quot;heading_current_contact&quot;</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_B</span><span class="p">:</span>
+            <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_description_content</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_heading</span><span class="p">(</span>
+            <span class="n">req</span><span class="p">,</span> <span class="s2">&quot;heading_background&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_C</span><span class="p">:</span>
+            <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_description_content</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_heading</span><span class="p">(</span>
+            <span class="n">req</span><span class="p">,</span> <span class="s2">&quot;heading_examination_investigations&quot;</span><span class="p">))</span>
+        <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_subheading</span><span class="p">(</span>
+            <span class="n">req</span><span class="p">,</span> <span class="s2">&quot;mental_state_examination&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_MSE</span><span class="p">:</span>
+            <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_description_content</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_subheading</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;physical_examination&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_PE</span><span class="p">:</span>
+            <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_description_content</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_subheading</span><span class="p">(</span>
+            <span class="n">req</span><span class="p">,</span> <span class="s2">&quot;assessments_and_investigations&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_D</span><span class="p">:</span>
+            <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_description_content</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_heading</span><span class="p">(</span>
+            <span class="n">req</span><span class="p">,</span> <span class="s2">&quot;heading_risk_legal&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_E</span><span class="p">:</span>
+            <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_description_content</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_heading</span><span class="p">(</span>
+            <span class="n">req</span><span class="p">,</span> <span class="s2">&quot;heading_summary_plan&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_F</span><span class="p">:</span>
+            <span class="n">infolist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ctv_description_content</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">infolist</span></div>
+
+    <span class="c1"># noinspection PyMethodOverriding</span>
+<div class="viewcode-block" id="PsychiatricClerking.is_complete"><a class="viewcode-back" href="../../../autodoc/tasks/psychiatricclerking.html#camcops_server.tasks.psychiatricclerking.PsychiatricClerking.is_complete">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_complete</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="nf">heading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span> <span class="n">wstringname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;div class=&quot;heading&quot;&gt;</span><span class="si">{}</span><span class="s1">&lt;/div&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">wstringname</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">subheading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span> <span class="n">wstringname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;div class=&quot;subheading&quot;&gt;</span><span class="si">{}</span><span class="s1">&lt;/div&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">wstringname</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">subsubheading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span> <span class="n">wstringname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;div class=&quot;subsubheading&quot;&gt;</span><span class="si">{}</span><span class="s1">&lt;/div&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">wstringname</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">subhead_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span> <span class="n">fieldname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subheading</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">fieldname</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&lt;div&gt;&lt;b&gt;</span><span class="si">{}</span><span class="s1">&lt;/b&gt;&lt;/div&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">ws</span><span class="o">.</span><span class="n">webify</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fieldname</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">subsubhead_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">,</span> <span class="n">fieldname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">subsubheading</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">fieldname</span><span class="p">)</span> <span class="o">+</span>
+            <span class="s1">&#39;&lt;div&gt;&lt;b&gt;</span><span class="si">{}</span><span class="s1">&lt;/b&gt;&lt;/div&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ws</span><span class="o">.</span><span class="n">webify</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fieldname</span><span class="p">)))</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="PsychiatricClerking.get_task_html"><a class="viewcode-back" href="../../../autodoc/tasks/psychiatricclerking.html#camcops_server.tasks.psychiatricclerking.PsychiatricClerking.get_task_html">[docs]</a>    <span class="k">def</span> <span class="nf">get_task_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># Avoid tables - PDF generator crashes if text is too long.</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span>
+            <span class="n">req</span><span class="p">,</span> <span class="s2">&quot;heading_current_contact&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_B</span><span class="p">:</span>
+            <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subhead_text</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;heading_background&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_C</span><span class="p">:</span>
+            <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subhead_text</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span>
+            <span class="n">req</span><span class="p">,</span> <span class="s2">&quot;heading_examination_investigations&quot;</span><span class="p">)</span>
+        <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subheading</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;mental_state_examination&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_MSE</span><span class="p">:</span>
+            <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subsubhead_text</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subheading</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;physical_examination&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_PE</span><span class="p">:</span>
+            <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subsubhead_text</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_D</span><span class="p">:</span>
+            <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subhead_text</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;heading_risk_legal&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_E</span><span class="p">:</span>
+            <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subhead_text</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;heading_summary_plan&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS_F</span><span class="p">:</span>
+            <span class="n">html</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subhead_text</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">html</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

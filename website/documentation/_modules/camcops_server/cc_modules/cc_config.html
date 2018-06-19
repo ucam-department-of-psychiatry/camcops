@@ -1,0 +1,1604 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.cc_modules.cc_config &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.cc_modules.cc_config</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/cc_modules/cc_config.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># There are CONDITIONAL AND IN-FUNCTION IMPORTS HERE; see below. This is to</span>
+<span class="c1"># minimize the number of modules loaded when this is used in the context of the</span>
+<span class="c1"># client-side database script, rather than the webview.</span>
+
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.configfiles</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">get_config_parameter</span><span class="p">,</span>
+    <span class="n">get_config_parameter_boolean</span><span class="p">,</span>
+    <span class="n">get_config_parameter_loglevel</span><span class="p">,</span>
+    <span class="n">get_config_parameter_multiline</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.logs</span> <span class="k">import</span> <span class="n">BraceStyleAdapter</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.randomness</span> <span class="k">import</span> <span class="n">create_base64encoded_randomness</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.alembic_func</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">get_current_and_head_revision</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.engine_func</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">is_sqlserver</span><span class="p">,</span>
+    <span class="n">is_sqlserver_2008_or_later</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.logs</span> <span class="k">import</span> <span class="n">pre_disable_sqlalchemy_extra_echo_log</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.schema</span> <span class="k">import</span> <span class="n">get_table_names</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.session</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">get_safe_url_from_engine</span><span class="p">,</span>
+    <span class="n">make_mysql_url</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pendulum</span> <span class="k">import</span> <span class="n">Pendulum</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.engine</span> <span class="k">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">Engine</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="k">import</span> <span class="n">sessionmaker</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="k">import</span> <span class="n">Session</span> <span class="k">as</span> <span class="n">SqlASession</span>
+
+<span class="kn">from</span> <span class="nn">.cc_baseconstants</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">ALEMBIC_BASE_DIR</span><span class="p">,</span>
+    <span class="n">ALEMBIC_CONFIG_FILENAME</span><span class="p">,</span>
+    <span class="n">ALEMBIC_VERSION_TABLE</span><span class="p">,</span>
+    <span class="n">CAMCOPS_EXECUTABLE</span><span class="p">,</span>
+    <span class="n">CAMCOPS_SERVER_DIRECTORY</span><span class="p">,</span>
+    <span class="n">DEFAULT_EXTRA_STRINGS_DIR</span><span class="p">,</span>
+    <span class="n">ENVVAR_CONFIG_FILE</span><span class="p">,</span>
+    <span class="n">INTROSPECTABLE_EXTENSIONS</span><span class="p">,</span>
+    <span class="n">LINUX_DEFAULT_LOCK_DIR</span><span class="p">,</span>
+    <span class="n">LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR</span><span class="p">,</span>
+    <span class="n">STATIC_ROOT_DIR</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.cc_cache</span> <span class="k">import</span> <span class="n">cache_region_static</span><span class="p">,</span> <span class="n">fkg</span>
+<span class="kn">from</span> <span class="nn">.cc_constants</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">CONFIG_FILE_MAIN_SECTION</span><span class="p">,</span>
+    <span class="n">CONFIG_FILE_RECIPIENTLIST_SECTION</span><span class="p">,</span>
+    <span class="n">DEFAULT_CAMCOPS_LOGO_FILE</span><span class="p">,</span>
+    <span class="n">DEFAULT_LOCAL_INSTITUTION_URL</span><span class="p">,</span>
+    <span class="n">DEFAULT_LOCAL_LOGO_FILE</span><span class="p">,</span>
+    <span class="n">DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES</span><span class="p">,</span>
+    <span class="n">DEFAULT_LOCKOUT_THRESHOLD</span><span class="p">,</span>
+    <span class="n">DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS</span><span class="p">,</span>
+    <span class="n">DEFAULT_PLOT_FONTSIZE</span><span class="p">,</span>
+    <span class="n">DEFAULT_TIMEOUT_MINUTES</span><span class="p">,</span>
+    <span class="n">INTROSPECTION_BASE_DIRECTORY</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.cc_filename</span> <span class="k">import</span> <span class="n">FilenameSpecElement</span><span class="p">,</span> <span class="n">PatientSpecElementForFilename</span>
+<span class="kn">from</span> <span class="nn">.cc_pyramid</span> <span class="k">import</span> <span class="n">MASTER_ROUTE_CLIENT_API</span>
+<span class="kn">from</span> <span class="nn">.cc_simpleobjects</span> <span class="k">import</span> <span class="n">IntrospectionFileDetails</span>
+<span class="kn">from</span> <span class="nn">.cc_recipdef</span> <span class="k">import</span> <span class="n">ConfigParamRecipient</span><span class="p">,</span> <span class="n">RecipientDefinition</span>
+<span class="kn">from</span> <span class="nn">.cc_version_string</span> <span class="k">import</span> <span class="n">CAMCOPS_SERVER_VERSION_STRING</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">BraceStyleAdapter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+<span class="n">pre_disable_sqlalchemy_extra_echo_log</span><span class="p">()</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Demo config</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">DEFAULT_DB_NAME</span> <span class="o">=</span> <span class="s1">&#39;camcops&#39;</span>
+<span class="n">DEFAULT_DB_USER</span> <span class="o">=</span> <span class="s1">&#39;YYY_USERNAME_REPLACE_ME&#39;</span>
+<span class="n">DEFAULT_DB_PASSWORD</span> <span class="o">=</span> <span class="s1">&#39;ZZZ_PASSWORD_REPLACE_ME&#39;</span>
+<span class="n">DEFAULT_DB_READONLY_USER</span> <span class="o">=</span> <span class="s1">&#39;QQQ_USERNAME_REPLACE_ME&#39;</span>
+<span class="n">DEFAULT_DB_READONLY_PASSWORD</span> <span class="o">=</span> <span class="s1">&#39;PPP_PASSWORD_REPLACE_ME&#39;</span>
+<span class="n">DUMMY_INSTITUTION_URL</span> <span class="o">=</span> <span class="s1">&#39;http://www.mydomain/&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">ConfigParamMain</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">ALLOW_INSECURE_COOKIES</span> <span class="o">=</span> <span class="s2">&quot;ALLOW_INSECURE_COOKIES&quot;</span>
+    <span class="n">CAMCOPS_LOGO_FILE_ABSOLUTE</span> <span class="o">=</span> <span class="s2">&quot;CAMCOPS_LOGO_FILE_ABSOLUTE&quot;</span>
+    <span class="n">CLIENT_API_LOGLEVEL</span> <span class="o">=</span> <span class="s2">&quot;CLIENT_API_LOGLEVEL&quot;</span>
+    <span class="n">CTV_FILENAME_SPEC</span> <span class="o">=</span> <span class="s2">&quot;CTV_FILENAME_SPEC&quot;</span>
+    <span class="n">DB_URL</span> <span class="o">=</span> <span class="s2">&quot;DB_URL&quot;</span>
+    <span class="n">DB_ECHO</span> <span class="o">=</span> <span class="s2">&quot;DB_ECHO&quot;</span>
+    <span class="n">DISABLE_PASSWORD_AUTOCOMPLETE</span> <span class="o">=</span> <span class="s2">&quot;DISABLE_PASSWORD_AUTOCOMPLETE&quot;</span>
+    <span class="n">EXTRA_STRING_FILES</span> <span class="o">=</span> <span class="s2">&quot;EXTRA_STRING_FILES&quot;</span>
+    <span class="n">HL7_LOCKFILE</span> <span class="o">=</span> <span class="s2">&quot;HL7_LOCKFILE&quot;</span>
+    <span class="n">INTROSPECTION</span> <span class="o">=</span> <span class="s2">&quot;INTROSPECTION&quot;</span>
+    <span class="n">LOCAL_INSTITUTION_URL</span> <span class="o">=</span> <span class="s2">&quot;LOCAL_INSTITUTION_URL&quot;</span>
+    <span class="n">LOCAL_LOGO_FILE_ABSOLUTE</span> <span class="o">=</span> <span class="s2">&quot;LOCAL_LOGO_FILE_ABSOLUTE&quot;</span>
+    <span class="n">LOCKOUT_DURATION_INCREMENT_MINUTES</span> <span class="o">=</span> <span class="s2">&quot;LOCKOUT_DURATION_INCREMENT_MINUTES&quot;</span>
+    <span class="n">LOCKOUT_THRESHOLD</span> <span class="o">=</span> <span class="s2">&quot;LOCKOUT_THRESHOLD&quot;</span>
+    <span class="n">PASSWORD_CHANGE_FREQUENCY_DAYS</span> <span class="o">=</span> <span class="s2">&quot;PASSWORD_CHANGE_FREQUENCY_DAYS&quot;</span>
+    <span class="n">PATIENT_SPEC</span> <span class="o">=</span> <span class="s2">&quot;PATIENT_SPEC&quot;</span>
+    <span class="n">PATIENT_SPEC_IF_ANONYMOUS</span> <span class="o">=</span> <span class="s2">&quot;PATIENT_SPEC_IF_ANONYMOUS&quot;</span>
+    <span class="n">SESSION_COOKIE_SECRET</span> <span class="o">=</span> <span class="s2">&quot;SESSION_COOKIE_SECRET&quot;</span>
+    <span class="n">SESSION_TIMEOUT_MINUTES</span> <span class="o">=</span> <span class="s2">&quot;SESSION_TIMEOUT_MINUTES&quot;</span>
+    <span class="n">SUMMARY_TABLES_LOCKFILE</span> <span class="o">=</span> <span class="s2">&quot;SUMMARY_TABLES_LOCKFILE&quot;</span>
+    <span class="n">TASK_FILENAME_SPEC</span> <span class="o">=</span> <span class="s2">&quot;TASK_FILENAME_SPEC&quot;</span>
+    <span class="n">TRACKER_FILENAME_SPEC</span> <span class="o">=</span> <span class="s2">&quot;TRACKER_FILENAME_SPEC&quot;</span>
+    <span class="n">WEBVIEW_LOGLEVEL</span> <span class="o">=</span> <span class="s2">&quot;WEBVIEW_LOGLEVEL&quot;</span>
+    <span class="n">WKHTMLTOPDF_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;WKHTMLTOPDF_FILENAME&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">get_demo_config</span><span class="p">(</span><span class="n">extra_strings_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">lock_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">hl7_lockfile_stem</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">static_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">summary_table_lock_file_stem</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">db_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">db_echo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">extra_strings_dir</span> <span class="o">=</span> <span class="n">extra_strings_dir</span> <span class="ow">or</span> <span class="n">DEFAULT_EXTRA_STRINGS_DIR</span>
+    <span class="n">extra_strings_spec</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extra_strings_dir</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">)</span>
+    <span class="n">lock_dir</span> <span class="o">=</span> <span class="n">lock_dir</span> <span class="ow">or</span> <span class="n">LINUX_DEFAULT_LOCK_DIR</span>
+    <span class="n">hl7_lockfile_stem</span> <span class="o">=</span> <span class="n">hl7_lockfile_stem</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">lock_dir</span><span class="p">,</span> <span class="s1">&#39;camcops.hl7&#39;</span><span class="p">)</span>
+    <span class="n">static_dir</span> <span class="o">=</span> <span class="n">static_dir</span> <span class="ow">or</span> <span class="n">STATIC_ROOT_DIR</span>
+    <span class="n">summary_table_lock_file_stem</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">summary_table_lock_file_stem</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">lock_dir</span><span class="p">,</span> <span class="s1">&#39;camcops.summarytables&#39;</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># ...</span>
+    <span class="c1"># http://www.debian.org/doc/debian-policy/ch-opersys.html#s-writing-init</span>
+    <span class="c1"># https://people.canonical.com/~cjwatson/ubuntu-policy/policy.html/ch-opersys.html  # noqa</span>
+    <span class="n">session_cookie_secret</span> <span class="o">=</span> <span class="n">create_base64encoded_randomness</span><span class="p">(</span><span class="n">num_bytes</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">db_url</span><span class="p">:</span>
+        <span class="n">db_url</span> <span class="o">=</span> <span class="n">make_mysql_url</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">DEFAULT_DB_USER</span><span class="p">,</span>
+                                <span class="n">password</span><span class="o">=</span><span class="n">DEFAULT_DB_PASSWORD</span><span class="p">,</span>
+                                <span class="n">dbname</span><span class="o">=</span><span class="n">DEFAULT_DB_NAME</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2"># Demonstration CamCOPS configuration file.</span>
+<span class="s2"># Created by CamCOPS version </span><span class="si">{version}</span><span class="s2"> at </span><span class="si">{now}</span><span class="s2">.</span>
+
+<span class="s2"># =============================================================================</span>
+<span class="s2"># Format of the CamCOPS configuration file</span>
+<span class="s2"># =============================================================================</span>
+<span class="s2"># COMMENTS. Hashes (#) and semicolons (;) mark out comments.</span>
+<span class="s2"># SECTIONS. Sections are indicated with: [section]</span>
+<span class="s2"># NAME/VALUE (KEY/VALUE) PAIRS.</span>
+<span class="s2"># - The parser used is ConfigParser (Python).</span>
+<span class="s2"># - It allows &quot;name=value&quot; or &quot;name:value&quot;.</span>
+<span class="s2"># - BOOLEAN OPTIONS. For Boolean options, TRUE values are any of: 1, yes, true,</span>
+<span class="s2">#   on (case-insensitive). FALSE values are any of: 0, no, false, off.</span>
+<span class="s2"># - UTF-8 encoding. Use this. For ConfigParser, the file is explicitly opened</span>
+<span class="s2">#   in UTF-8 mode.</span>
+<span class="s2"># - Avoid indentation.</span>
+
+<span class="s2"># =============================================================================</span>
+<span class="s2"># Main section: [</span><span class="si">{CONFIG_FILE_MAIN_SECTION}</span><span class="s2">]</span>
+<span class="s2"># =============================================================================</span>
+
+<span class="s2">[</span><span class="si">{CONFIG_FILE_MAIN_SECTION}</span><span class="s2">]</span>
+
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2"># Database connection/tools</span>
+<span class="s2"># -----------------------------------------------------------------------------</span>
+
+<span class="s2"># </span><span class="si">{cp.DB_URL}</span><span class="s2">: SQLAlchemy connection URL.</span>
+<span class="s2"># See http://docs.sqlalchemy.org/en/latest/core/engines.html</span>
+<span class="s2"># Examples:</span>
+<span class="s2"># - MySQL under Linux via mysqlclient</span>
+<span class="s2">#   $$ pip install mysqlclient</span>
+<span class="s2">#   DB_URL = mysql+mysqldb://&lt;username&gt;:&lt;password&gt;@&lt;host&gt;:&lt;port&gt;/&lt;database&gt;?charset=utf8</span>
+<span class="s2">#</span>
+<span class="s2">#   (The default MySQL port is 3306, and &#39;localhost&#39; is often the right host.)</span>
+<span class="s2">#</span>
+<span class="s2"># - SQL Server under Windows via ODBC and username/password authentication</span>
+<span class="s2">#   C:\&gt; pip install pyodbc</span>
+<span class="s2">#   DB_URL = mssql+pyodbc://&lt;username&gt;:&lt;password&gt;@&lt;odbc_dsn_name&gt;</span>
+<span class="s2">#</span>
+<span class="s2"># - ... or via Windows authentication: </span>
+<span class="s2">#   DB_URL = mssql+pyodbc://@&lt;odbc_dsn_name&gt;</span>
+
+<span class="si">{cp.DB_URL}</span><span class="s2"> = </span><span class="si">{db_url}</span><span class="s2"></span>
+
+<span class="s2"># </span><span class="si">{cp.DB_ECHO}</span><span class="s2">: echo all SQL?</span>
+
+<span class="si">{cp.DB_ECHO}</span><span class="s2"> = </span><span class="si">{db_echo}</span><span class="s2"></span>
+
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2"># URLs and paths</span>
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2">#</span>
+<span class="s2"># A quick note on absolute and relative URLs, and how CamCOPS is mounted.</span>
+<span class="s2">#</span>
+<span class="s2"># Suppose your CamCOPS site is visible at</span>
+<span class="s2">#       https://www.somewhere.ac.uk/camcops_smith_lab/webview</span>
+<span class="s2">#       ^      ^^                 ^^                ^^      ^</span>
+<span class="s2">#       +------++-----------------++----------------++------+</span>
+<span class="s2">#       |       |                  |                 |</span>
+<span class="s2">#       1       2                  3                 4</span>
+<span class="s2">#</span>
+<span class="s2"># Part 1 is the protocol, and part 2 the machine name.</span>
+<span class="s2"># Part 3 is the mount point. The main server (e.g. Apache) knows where the</span>
+<span class="s2"># CamCOPS script is mounted (in this case /camcops_smith_lab). It does NOT</span>
+<span class="s2"># tell the script via the script&#39;s WSGI environment. Therefore, if the script</span>
+<span class="s2"># sends HTML including links, the script can operate only in relative mode.</span>
+<span class="s2"># For it to operate in absolute mode, it would need to know (3).</span>
+<span class="s2"># Part 4 is visible to the CamCOPS script.</span>
+<span class="s2">#</span>
+<span class="s2"># If CamCOPS emitted URLs starting with &#39;/&#39;, it would need to be told at least</span>
+<span class="s2"># part (3). To use absolute URLs, it would need to know all of (1), (2), (3).</span>
+<span class="s2"># We will follow others (e.g. http://stackoverflow.com/questions/2005079) and</span>
+<span class="s2"># use only relative URLs.</span>
+
+<span class="s2"># </span><span class="si">{cp.LOCAL_INSTITUTION_URL}</span><span class="s2">: Clicking on your institution&#39;s logo in the CamCOPS</span>
+<span class="s2"># menu will take you to this URL.</span>
+<span class="s2"># Edit the next line to point to your institution:</span>
+
+<span class="si">{cp.LOCAL_INSTITUTION_URL}</span><span class="s2"> = </span><span class="si">{DUMMY_INSTITUTION_URL}</span><span class="s2"></span>
+
+<span class="s2"># </span><span class="si">{cp.LOCAL_LOGO_FILE_ABSOLUTE}</span><span class="s2">: Specify the full path to your institution&#39;s logo</span>
+<span class="s2"># file, e.g. /var/www/logo_local_myinstitution.png . It&#39;s used for PDF</span>
+<span class="s2"># generation; HTML views use the fixed string &quot;static/logo_local.png&quot;, aliased</span>
+<span class="s2"># to your file via the Apache configuration file).</span>
+<span class="s2"># Edit the next line to point to your local institution&#39;s logo file:</span>
+
+<span class="si">{cp.LOCAL_LOGO_FILE_ABSOLUTE}</span><span class="s2"> = </span><span class="si">{static_dir}</span><span class="s2">/logo_local.png</span>
+
+<span class="s2"># </span><span class="si">{cp.CAMCOPS_LOGO_FILE_ABSOLUTE}</span><span class="s2">: similarly, but for the CamCOPS logo.</span>
+<span class="s2"># It&#39;s fine not to specify this.</span>
+
+<span class="s2"># </span><span class="si">{cp.CAMCOPS_LOGO_FILE_ABSOLUTE}</span><span class="s2"> = </span><span class="si">{static_dir}</span><span class="s2">/logo_camcops.png</span>
+
+<span class="s2"># </span><span class="si">{cp.EXTRA_STRING_FILES}</span><span class="s2">: multiline list of filenames (with absolute paths), read</span>
+<span class="s2"># by the server, and used as EXTRA STRING FILES. Should at the MINIMUM point</span>
+<span class="s2"># to the string file camcops.xml</span>
+<span class="s2"># May use &quot;glob&quot; pattern-matching (see</span>
+<span class="s2"># https://docs.python.org/3.5/library/glob.html).</span>
+
+<span class="si">{cp.EXTRA_STRING_FILES}</span><span class="s2"> = </span><span class="si">{extra_strings_spec}</span><span class="s2"></span>
+
+<span class="s2"># </span><span class="si">{cp.INTROSPECTION}</span><span class="s2">: permits the offering of CamCOPS source code files to the user,</span>
+<span class="s2"># allowing inspection of tasks&#39; internal calculating algorithms. Default is</span>
+<span class="s2"># true.</span>
+
+<span class="si">{cp.INTROSPECTION}</span><span class="s2"> = true</span>
+
+<span class="s2"># </span><span class="si">{cp.HL7_LOCKFILE}</span><span class="s2">: filename stem used for process locking for HL7 message</span>
+<span class="s2"># transmission. Default is </span><span class="si">{hl7_lockfile_stem}</span><span class="s2"></span>
+<span class="s2"># The actual lockfile will, in this case, be called</span>
+<span class="s2">#     </span><span class="si">{hl7_lockfile_stem}</span><span class="s2">.lock</span>
+<span class="s2"># and other process-specific files will be created in the same directory (so</span>
+<span class="s2"># the CamCOPS script must have permission from the operating system to do so).</span>
+<span class="s2"># The installation script will create the directory </span><span class="si">{lock_dir}</span><span class="s2"></span>
+
+<span class="si">{cp.HL7_LOCKFILE}</span><span class="s2"> = </span><span class="si">{hl7_lockfile_stem}</span><span class="s2"></span>
+
+<span class="s2"># </span><span class="si">{cp.SUMMARY_TABLES_LOCKFILE}</span><span class="s2">: file stem used for process locking for summary table</span>
+<span class="s2"># generation. Default is </span><span class="si">{summary_table_lock_file_stem}</span><span class="s2">.</span>
+<span class="s2"># The lockfile will, in this case, be called</span>
+<span class="s2">#     </span><span class="si">{summary_table_lock_file_stem}</span><span class="s2">.lock</span>
+<span class="s2"># and other process-specific files will be created in the same directory (so</span>
+<span class="s2"># the CamCOPS script must have permission from the operating system to do so).</span>
+<span class="s2"># The installation script will create the directory </span><span class="si">{lock_dir}</span><span class="s2"></span>
+
+<span class="si">{cp.SUMMARY_TABLES_LOCKFILE}</span><span class="s2"> = </span><span class="si">{summary_table_lock_file_stem}</span><span class="s2"></span>
+
+<span class="s2"># </span><span class="si">{cp.WKHTMLTOPDF_FILENAME}</span><span class="s2">: for the pdfkit PDF engine, specify a filename for</span>
+<span class="s2"># wkhtmltopdf that incorporates any need for an X Server (not the default</span>
+<span class="s2"># /usr/bin/wkhtmltopdf). See http://stackoverflow.com/questions/9604625/ .</span>
+<span class="s2"># A suitable one is bundled with CamCOPS, so you shouldn&#39;t have to alter this</span>
+<span class="s2"># default. Default is None, which usually ends up calling /usr/bin/wkhtmltopdf</span>
+
+<span class="si">{cp.WKHTMLTOPDF_FILENAME}</span><span class="s2"> =</span>
+
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2"># Login and session configuration</span>
+<span class="s2"># -----------------------------------------------------------------------------</span>
+
+<span class="s2"># </span><span class="si">{cp.SESSION_COOKIE_SECRET}</span><span class="s2">: Secret used for HTTP cookie signing via Pyramid.</span>
+<span class="s2"># Put something random in here and keep it secret.</span>
+<span class="s2"># (When you make a CamCOPS demo config, the value shown is fresh and random.)</span>
+
+<span class="si">{cp.SESSION_COOKIE_SECRET}</span><span class="s2"> = camcops_autogenerated_secret_</span><span class="si">{session_cookie_secret}</span><span class="s2"></span>
+
+<span class="s2"># </span><span class="si">{cp.SESSION_TIMEOUT_MINUTES}</span><span class="s2">: Time after which a session will expire (default 30).</span>
+
+<span class="si">{cp.SESSION_TIMEOUT_MINUTES}</span><span class="s2"> = 30</span>
+
+<span class="s2"># </span><span class="si">{cp.PASSWORD_CHANGE_FREQUENCY_DAYS}</span><span class="s2">: Force password changes (at webview login)</span>
+<span class="s2"># with this frequency (0 for never). Note that password expiry will not prevent</span>
+<span class="s2"># uploads from tablets, but when the user next logs on, a password change will</span>
+<span class="s2"># be forced before they can do anything else.</span>
+
+<span class="si">{cp.PASSWORD_CHANGE_FREQUENCY_DAYS}</span><span class="s2"> = 0</span>
+
+<span class="s2"># </span><span class="si">{cp.LOCKOUT_THRESHOLD}</span><span class="s2">: Lock user accounts after every n login failures (default</span>
+<span class="s2"># 10).</span>
+
+<span class="si">{cp.LOCKOUT_THRESHOLD}</span><span class="s2"> = 10</span>
+
+<span class="s2"># </span><span class="si">{cp.LOCKOUT_DURATION_INCREMENT_MINUTES}</span><span class="s2">: Account lockout time increment (default</span>
+<span class="s2"># 10).</span>
+<span class="s2"># Suppose </span><span class="si">{cp.LOCKOUT_THRESHOLD}</span><span class="s2"> = 10 and </span><span class="si">{cp.LOCKOUT_DURATION_INCREMENT_MINUTES}</span><span class="s2"> = 20.</span>
+<span class="s2"># After the first 10 failures, the account will be locked for 20 minutes.</span>
+<span class="s2"># After the next 10 failures, the account will be locked for 40 minutes.</span>
+<span class="s2"># After the next 10 failures, the account will be locked for 60 minutes, and so</span>
+<span class="s2"># on. Time and administrators can unlock accounts.</span>
+
+<span class="si">{cp.LOCKOUT_DURATION_INCREMENT_MINUTES}</span><span class="s2"> = 10</span>
+
+<span class="s2"># </span><span class="si">{cp.DISABLE_PASSWORD_AUTOCOMPLETE}</span><span class="s2">: if true, asks browsers not to autocomplete the</span>
+<span class="s2"># password field on the main login page. The correct setting for maximum</span>
+<span class="s2"># security is debated (don&#39;t cache passwords, versus allow a password manager</span>
+<span class="s2"># so that users can use better/unique passwords). Default: true.</span>
+<span class="s2"># Note that some browsers (e.g. Chrome v34 and up) may ignore this.</span>
+
+<span class="si">{cp.DISABLE_PASSWORD_AUTOCOMPLETE}</span><span class="s2"> = true</span>
+
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2"># Suggested filenames for saving PDFs from the web view</span>
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2"># Try with Chrome, Firefox. Internet Explorer may be less obliging.</span>
+
+<span class="s2"># </span><span class="si">{cp.PATIENT_SPEC_IF_ANONYMOUS}</span><span class="s2">: for anonymous tasks, this fixed string is </span>
+<span class="s2"># used as the patient descriptor (see also </span><span class="si">{cp.PATIENT_SPEC}</span><span class="s2"> below).</span>
+<span class="s2"># Typically &quot;anonymous&quot;.</span>
+
+<span class="si">{cp.PATIENT_SPEC_IF_ANONYMOUS}</span><span class="s2"> = anonymous</span>
+
+<span class="s2"># </span><span class="si">{cp.PATIENT_SPEC}</span><span class="s2">: string, into which substitutions will be made, that defines the</span>
+<span class="s2"># {{</span><span class="si">{fse.PATIENT}</span><span class="s2">}} element available for substitution into the *_FILENAME_SPEC</span>
+<span class="s2"># variables (see below). Possible substitutions:</span>
+<span class="s2">#</span>
+<span class="s2">#   {{</span><span class="si">{pse.SURNAME}</span><span class="s2">}}      : patient&#39;s surname in upper case</span>
+<span class="s2">#   {{</span><span class="si">{pse.FORENAME}</span><span class="s2">}}     : patient&#39;s forename in upper case</span>
+<span class="s2">#   {{</span><span class="si">{pse.DOB}</span><span class="s2">}}          : patient&#39;s date of birth (format &quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;, e.g.</span>
+<span class="s2">#                    2013-07-24)</span>
+<span class="s2">#   {{</span><span class="si">{pse.SEX}</span><span class="s2">}}          : patient&#39;s sex (M, F, X)</span>
+<span class="s2">#</span>
+<span class="s2">#   {{</span><span class="si">{pse.IDSHORTDESC_PREFIX}</span><span class="s2">1}} : short description of the relevant ID number, if that ID</span>
+<span class="s2">#   {{</span><span class="si">{pse.IDSHORTDESC_PREFIX}</span><span class="s2">2}}   number is not blank; otherwise blank</span>
+<span class="s2">#   ...</span>
+<span class="s2">#</span>
+<span class="s2">#   {{</span><span class="si">{pse.IDNUM_PREFIX}</span><span class="s2">1}}       : ID numbers</span>
+<span class="s2">#   {{</span><span class="si">{pse.IDNUM_PREFIX}</span><span class="s2">2}}</span>
+<span class="s2">#   ...</span>
+<span class="s2">#</span>
+<span class="s2">#   {{</span><span class="si">{pse.ALLIDNUMS}</span><span class="s2">}}    : all available ID numbers in &quot;shortdesc-value&quot; pairs joined</span>
+<span class="s2">#                    by &quot;_&quot;. For example, if ID numbers 1, 4, and 5 are</span>
+<span class="s2">#                    non-blank, this would have the format</span>
+<span class="s2">#                    </span><span class="si">{pse.IDSHORTDESC_PREFIX}</span><span class="s2">1-</span><span class="si">{pse.IDNUM_PREFIX}</span><span class="s2">1_</span><span class="si">{pse.IDSHORTDESC_PREFIX}</span><span class="s2">4-</span><span class="si">{pse.IDNUM_PREFIX}</span><span class="s2">4_</span><span class="si">{pse.IDSHORTDESC_PREFIX}</span><span class="s2">5-</span><span class="si">{pse.IDNUM_PREFIX}</span><span class="s2">5</span>
+
+<span class="si">{cp.PATIENT_SPEC}</span><span class="s2"> = {{</span><span class="si">{pse.SURNAME}</span><span class="s2">}}_{{</span><span class="si">{pse.FORENAME}</span><span class="s2">}}_{{</span><span class="si">{pse.ALLIDNUMS}</span><span class="s2">}}</span>
+
+<span class="s2"># </span><span class="si">{cp.TASK_FILENAME_SPEC}</span><span class="s2">:</span>
+<span class="s2"># </span><span class="si">{cp.TRACKER_FILENAME_SPEC}</span><span class="s2">:</span>
+<span class="s2"># </span><span class="si">{cp.CTV_FILENAME_SPEC}</span><span class="s2">:</span>
+<span class="s2"># Strings used for suggested filenames to save from the webview, for tasks,</span>
+<span class="s2"># trackers, and clinical text views. Substitutions will be made to determine</span>
+<span class="s2"># the filename to be used for each file. Possible substitutions:</span>
+<span class="s2">#</span>
+<span class="s2">#   {{</span><span class="si">{fse.PATIENT}</span><span class="s2">}}   : Patient string. If the task is anonymous, this is</span>
+<span class="s2">#                 </span><span class="si">{cp.PATIENT_SPEC_IF_ANONYMOUS}</span><span class="s2">; otherwise, it is defined by</span>
+<span class="s2">#                 </span><span class="si">{cp.PATIENT_SPEC}</span><span class="s2"> above.</span>
+<span class="s2">#   {{</span><span class="si">{fse.CREATED}</span><span class="s2">}}   : Date/time of task creation.  Dates/times are of the format</span>
+<span class="s2">#                 &quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H%M&quot;, e.g. 2013-07-24T2004. They are expressed in</span>
+<span class="s2">#                 the timezone of creation (but without the timezone</span>
+<span class="s2">#                 information for filename brevity).</span>
+<span class="s2">#   {{</span><span class="si">{fse.NOW}</span><span class="s2">}}       : Time of access/download (i.e. time now), in local timezone.</span>
+<span class="s2">#   {{</span><span class="si">{fse.TASKTYPE}</span><span class="s2">}}  : Base table name of the task (e.g. &quot;phq9&quot;). May contain an</span>
+<span class="s2">#                 underscore. Blank for to trackers/CTVs.</span>
+<span class="s2">#   {{</span><span class="si">{fse.SERVERPK}</span><span class="s2">}}  : Server&#39;s primary key. (In combination with tasktype, this</span>
+<span class="s2">#                 uniquely identifies not just a task but a version of that</span>
+<span class="s2">#                 task.) Blank for trackers/CTVs.</span>
+<span class="s2">#   {{</span><span class="si">{fse.FILETYPE}</span><span class="s2">}}  : e.g. &quot;pdf&quot;, &quot;html&quot;, &quot;xml&quot; (lower case)</span>
+<span class="s2">#   {{</span><span class="si">{fse.ANONYMOUS}</span><span class="s2">}} : evaluates to </span><span class="si">{cp.PATIENT_SPEC_IF_ANONYMOUS}</span><span class="s2"> if anonymous,</span>
+<span class="s2">#                 otherwise &quot;&quot;</span>
+<span class="s2">#   ... plus all those substitutions applicable to </span><span class="si">{cp.PATIENT_SPEC}</span><span class="s2"></span>
+<span class="s2">#</span>
+<span class="s2"># After these substitutions have been made, the entire filename is then</span>
+<span class="s2"># processed to ensure that only characters generally acceptable to filenames</span>
+<span class="s2"># are used (see convert_string_for_filename() in the CamCOPS source code).</span>
+<span class="s2"># Specifically:</span>
+<span class="s2">#</span>
+<span class="s2">#   - Unicode converted to 7-bit ASCII (will mangle, e.g. removing accents)</span>
+<span class="s2">#   - spaces converted to underscores</span>
+<span class="s2">#   - characters are removed unless they are one of the following: all</span>
+<span class="s2">#     alphanumeric characters (0-9, A-Z, a-z); &#39;-&#39;; &#39;_&#39;; &#39;.&#39;; and the</span>
+<span class="s2">#     operating-system-specific directory separator (Python&#39;s os.sep, a forward</span>
+<span class="s2">#     slash &#39;/&#39; on UNIX or a backslash &#39;</span><span class="se">\&#39;</span><span class="s2"> under Windows).</span>
+
+<span class="si">{cp.TASK_FILENAME_SPEC}</span><span class="s2"> = CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}</span>
+<span class="si">{cp.TRACKER_FILENAME_SPEC}</span><span class="s2"> = CamCOPS_{{patient}}_{{now}}_tracker.{{filetype}}</span>
+<span class="si">{cp.CTV_FILENAME_SPEC}</span><span class="s2"> = CamCOPS_{{patient}}_{{now}}_clinicaltextview.{{filetype}}</span>
+
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2"># Debugging options</span>
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2"># Possible log levels are (case-insensitive): &quot;debug&quot;, &quot;info&quot;, &quot;warn&quot;</span>
+<span class="s2"># (equivalent: &quot;warning&quot;), &quot;error&quot;, and &quot;critical&quot; (equivalent: &quot;fatal&quot;).</span>
+
+<span class="s2"># </span><span class="si">{cp.WEBVIEW_LOGLEVEL}</span><span class="s2">: Set the level of detail provided from the webview to the</span>
+<span class="s2"># Apache server log. (Loglevel option; see above.)</span>
+
+<span class="si">{cp.WEBVIEW_LOGLEVEL}</span><span class="s2"> = info</span>
+
+<span class="s2"># </span><span class="si">{cp.CLIENT_API_LOGLEVEL}</span><span class="s2">: Set the log level for the tablet client database access</span>
+<span class="s2"># script. (Loglevel option; see above.)</span>
+
+<span class="si">{cp.CLIENT_API_LOGLEVEL}</span><span class="s2"> = info</span>
+
+<span class="s2"># </span><span class="si">{cp.ALLOW_INSECURE_COOKIES}</span><span class="s2">: DANGEROUS option that removes the requirement that</span>
+<span class="s2"># cookies be HTTPS (SSL) only.</span>
+
+<span class="si">{cp.ALLOW_INSECURE_COOKIES}</span><span class="s2"> = false</span>
+
+<span class="s2"># =============================================================================</span>
+<span class="s2"># List of HL7/file recipients, and then details for each one</span>
+<span class="s2"># =============================================================================</span>
+<span class="s2"># This section defines a list of recipients to which Health Level Seven (HL7)</span>
+<span class="s2"># messages or raw files will be sent. Typically, you will send them by calling</span>
+<span class="s2"># &quot;camcops -7 CONFIGFILE&quot; regularly from the system&#39;s /etc/crontab or other</span>
+<span class="s2"># scheduling system. For example, a conventional /etc/crontab file has these</span>
+<span class="s2"># fields:</span>
+<span class="s2">#</span>
+<span class="s2">#   minutes, hours, day_of_month, month, day_of_week, user, command</span>
+<span class="s2">#</span>
+<span class="s2"># so you could add a line like this to /etc/crontab:</span>
+<span class="s2">#</span>
+<span class="s2">#   * * * * *  root  camcops -7 /etc/camcops/MYCONFIG.conf</span>
+<span class="s2">#</span>
+<span class="s2"># ... and CamCOPS would run its exports once per minute. See &quot;man 5 crontab&quot;</span>
+<span class="s2"># or http://en.wikipedia.org/wiki/Cron for more options.</span>
+<span class="s2">#</span>
+<span class="s2"># In this section, keys are ignored; values are section headings (one per</span>
+<span class="s2"># recipient).</span>
+
+<span class="s2">[</span><span class="si">{CONFIG_FILE_RECIPIENTLIST_SECTION}</span><span class="s2">]</span>
+
+<span class="s2"># Examples (commented out):</span>
+
+<span class="s2"># recipient=recipient_A</span>
+<span class="s2"># recipient=recipient_B</span>
+
+<span class="s2"># =============================================================================</span>
+<span class="s2"># Individual HL7/file recipient configurations</span>
+<span class="s2"># =============================================================================</span>
+<span class="s2"># Dates are YYYY-MM-DD, e.g. 2013-12-31, or blank</span>
+
+<span class="s2"># Example (disabled because it&#39;s not in the list above)</span>
+
+<span class="s2"># ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="s2"># First example</span>
+<span class="s2"># ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="s2">[recipient_A]</span>
+
+<span class="s2"># </span><span class="si">{cpr.TYPE}</span><span class="s2">: one of the following methods.</span>
+<span class="s2">#   hl7</span>
+<span class="s2">#       Sends HL7 messages across a TCP/IP network.</span>
+<span class="s2">#   file</span>
+<span class="s2">#       Writes files to a local filesystem.</span>
+
+<span class="si">{cpr.TYPE}</span><span class="s2"> = hl7</span>
+
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2"># Options applicable to HL7 messages and file transfers</span>
+<span class="s2"># -----------------------------------------------------------------------------</span>
+
+<span class="s2"># </span><span class="si">{cpr.GROUP_ID}</span><span class="s2">: CamCOPS group to export from.</span>
+<span class="s2"># HL7 messages are sent from one group at a time. Which group will this</span>
+<span class="s2"># recipient definition use? (Note that you can just duplicate a recipient</span>
+<span class="s2"># definition to export a second or subsequent group.)</span>
+<span class="s2"># This is an integer.</span>
+
+<span class="si">{cpr.GROUP_ID}</span><span class="s2"> = 1</span>
+
+<span class="s2"># </span><span class="si">{cpr.PRIMARY_IDNUM}</span><span class="s2">: which ID number (1-8) should be considered the &quot;internal&quot;</span>
+<span class="s2"># (primary) ID number? Must be specified for HL7 messages. May be blank for</span>
+<span class="s2"># file transmission.</span>
+
+<span class="si">{cpr.PRIMARY_IDNUM}</span><span class="s2"> = 1</span>
+
+<span class="s2"># </span><span class="si">{cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY}</span><span class="s2">: defines behaviour relating to the</span>
+<span class="s2"># primary ID number (as defined by PRIMARY_IDNUM).</span>
+<span class="s2"># - If true, no message sending will be attempted unless the </span><span class="si">{cpr.PRIMARY_IDNUM}</span><span class="s2"> is a</span>
+<span class="s2">#   mandatory part of the finalizing policy (and if </span><span class="si">{cpr.FINALIZED_ONLY}</span><span class="s2"> is false,</span>
+<span class="s2">#   also of the upload policy).</span>
+<span class="s2"># - If false, messages will be sent, but ONLY FROM TASKS FOR WHICH THE</span>
+<span class="s2">#   </span><span class="si">{cpr.PRIMARY_IDNUM}</span><span class="s2"> IS PRESENT; others will be ignored.</span>
+<span class="s2"># - For file sending only, this will be ignored if </span><span class="si">{cpr.PRIMARY_IDNUM}</span><span class="s2"> is blank.</span>
+<span class="s2"># - For file sending only, this setting does not apply to anonymous tasks,</span>
+<span class="s2">#   whose behaviour is controlled by </span><span class="si">{cpr.INCLUDE_ANONYMOUS}</span><span class="s2"> (see below).</span>
+
+<span class="si">{cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY}</span><span class="s2"> = true</span>
+
+<span class="s2"># </span><span class="si">{cpr.START_DATE}</span><span class="s2">: earliest date for which tasks will be sent. Assessed against the</span>
+<span class="s2"># task&#39;s &quot;when_created&quot; field, converted to Universal Coordinated Time (UTC) --</span>
+<span class="s2"># that is, this date is in UTC (beware if you are in a very different time</span>
+<span class="s2"># zone). Blank to apply no start date restriction.</span>
+
+<span class="si">{cpr.START_DATE}</span><span class="s2"> =</span>
+
+<span class="s2"># </span><span class="si">{cpr.END_DATE}</span><span class="s2">: latest date for which tasks will be sent. In UTC. Assessed against</span>
+<span class="s2"># the task&#39;s &quot;when_created&quot; field (converted to UTC). Blank to apply no end</span>
+<span class="s2"># date restriction.</span>
+
+<span class="si">{cpr.END_DATE}</span><span class="s2"> =</span>
+
+<span class="s2"># </span><span class="si">{cpr.FINALIZED_ONLY}</span><span class="s2">: if true, only send tasks that are finalized (moved off their</span>
+<span class="s2"># originating tablet and not susceptible to later modification). If false, also</span>
+<span class="s2"># send tasks that are uploaded but not yet finalized (they will then be sent</span>
+<span class="s2"># again if they are modified later).</span>
+
+<span class="si">{cpr.FINALIZED_ONLY}</span><span class="s2"> = true</span>
+
+<span class="s2"># </span><span class="si">{cpr.TASK_FORMAT}</span><span class="s2">: one of: pdf, html, xml</span>
+
+<span class="si">{cpr.TASK_FORMAT}</span><span class="s2"> = pdf</span>
+
+<span class="s2"># </span><span class="si">{cpr.XML_FIELD_COMMENTS}</span><span class="s2">: if </span><span class="si">{cpr.TASK_FORMAT}</span><span class="s2"> is xml, then </span><span class="si">{cpr.XML_FIELD_COMMENTS}</span><span class="s2"> determines</span>
+<span class="s2"># whether field comments are included. These describe the meaning of each field</span>
+<span class="s2"># so add to space requirements but provide more information for human readers.</span>
+<span class="s2"># (Default true.)</span>
+
+<span class="si">{cpr.XML_FIELD_COMMENTS}</span><span class="s2"> = true</span>
+
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2"># Options applicable to HL7 only (</span><span class="si">{cpr.TYPE}</span><span class="s2"> = hl7)</span>
+<span class="s2"># -----------------------------------------------------------------------------</span>
+
+<span class="s2"># </span><span class="si">{cpr.HOST}</span><span class="s2">: HL7 hostname or IP address</span>
+
+<span class="si">{cpr.HOST}</span><span class="s2"> = myhl7server.mydomain</span>
+
+<span class="s2"># </span><span class="si">{cpr.PORT}</span><span class="s2">: HL7 port (default 2575)</span>
+
+<span class="si">{cpr.PORT}</span><span class="s2"> = 2575</span>
+
+<span class="s2"># </span><span class="si">{cpr.PING_FIRST}</span><span class="s2">: if true, requires a successful ping to the server prior to</span>
+<span class="s2"># sending HL7 messages. (Note: this is a TCP/IP ping, and tests that the</span>
+<span class="s2"># machine is up, not that it is running an HL7 server.) Default: true.</span>
+
+<span class="si">{cpr.PING_FIRST}</span><span class="s2"> = true</span>
+
+<span class="s2"># </span><span class="si">{cpr.NETWORK_TIMEOUT_MS}</span><span class="s2">: network time (in milliseconds). Default: 10000.</span>
+
+<span class="si">{cpr.NETWORK_TIMEOUT_MS}</span><span class="s2"> = 10000</span>
+
+<span class="s2"># </span><span class="si">{cpr.KEEP_MESSAGE}</span><span class="s2">: keep a copy of the entire message in the databaase. Default is</span>
+<span class="s2"># false. WARNING: may consume significant space in the database.</span>
+
+<span class="si">{cpr.KEEP_MESSAGE}</span><span class="s2"> = false</span>
+
+<span class="s2"># </span><span class="si">{cpr.KEEP_REPLY}</span><span class="s2">: keep a copy of the reply (e.g. acknowledgement) message received</span>
+<span class="s2"># from the server. Default is false. WARNING: may consume significant space.</span>
+
+<span class="si">{cpr.KEEP_REPLY}</span><span class="s2"> = false</span>
+
+<span class="s2"># </span><span class="si">{cpr.DIVERT_TO_FILE}</span><span class="s2">: Override HOST/PORT options and send HL7 messages to this</span>
+<span class="s2"># (single) file instead. Each messages is appended to the file. Default is</span>
+<span class="s2"># blank (meaning network transmission will be used). This is a debugging</span>
+<span class="s2"># option, allowing you to redirect HL7 messages to a file and inspect them.</span>
+
+<span class="si">{cpr.DIVERT_TO_FILE}</span><span class="s2"> =</span>
+
+<span class="s2"># </span><span class="si">{cpr.TREAT_DIVERTED_AS_SENT}</span><span class="s2">: Any messages that are diverted to a file (using</span>
+<span class="s2"># </span><span class="si">{cpr.DIVERT_TO_FILE}</span><span class="s2">) are treated as having been sent (thus allowing the file to</span>
+<span class="s2"># mimic an HL7-receiving server that&#39;s accepting messages happily). If set to</span>
+<span class="s2"># false (the default), a diversion will allow you to preview messages for</span>
+<span class="s2"># debugging purposes without &quot;swallowing&quot; them. BEWARE, though: if you have</span>
+<span class="s2"># an automatically scheduled job (for example, to send messages every minute)</span>
+<span class="s2"># and you divert with this flag set to false, you will end up with a great many</span>
+<span class="s2"># message attempts!</span>
+
+<span class="si">{cpr.TREAT_DIVERTED_AS_SENT}</span><span class="s2"> = false</span>
+
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2"># Options applicable to file transfers only (TYPE = file)</span>
+<span class="s2"># -----------------------------------------------------------------------------</span>
+
+<span class="s2"># </span><span class="si">{cpr.INCLUDE_ANONYMOUS}</span><span class="s2">: include anonymous tasks.</span>
+<span class="s2"># - Note that anonymous tasks cannot be sent via HL7; the HL7 specification is</span>
+<span class="s2">#   heavily tied to identification.</span>
+<span class="s2"># - Note also that this setting operates independently of the</span>
+<span class="s2">#   </span><span class="si">{cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY}</span><span class="s2"> setting.</span>
+
+<span class="si">{cpr.INCLUDE_ANONYMOUS}</span><span class="s2"> = true</span>
+
+<span class="s2"># </span><span class="si">{cpr.PATIENT_SPEC_IF_ANONYMOUS}</span><span class="s2">: for anonymous tasks, this string is used as the</span>
+<span class="s2"># patient descriptor (see also </span><span class="si">{cpr.PATIENT_SPEC}</span><span class="s2">, </span><span class="si">{cpr.FILENAME_SPEC}</span><span class="s2"> below). Typically</span>
+<span class="s2"># &quot;anonymous&quot;.</span>
+
+<span class="si">{cpr.PATIENT_SPEC_IF_ANONYMOUS}</span><span class="s2"> = anonymous</span>
+
+<span class="s2"># </span><span class="si">{cpr.PATIENT_SPEC}</span><span class="s2">: string, into which substitutions will be made, that defines the</span>
+<span class="s2"># {{patient}} element available for substitution into the </span><span class="si">{cpr.FILENAME_SPEC}</span><span class="s2"> (see</span>
+<span class="s2"># below). Possible substitutions: as for </span><span class="si">{cpr.PATIENT_SPEC}</span><span class="s2"> in the main</span>
+<span class="s2"># &quot;[</span><span class="si">{CONFIG_FILE_MAIN_SECTION}</span><span class="s2">]&quot; section of the configuration file (see above).</span>
+
+<span class="si">{cpr.PATIENT_SPEC}</span><span class="s2"> = {{surname}}_{{forename}}_{{idshortdesc1}}{{idnum1}}</span>
+
+<span class="s2"># </span><span class="si">{cpr.FILENAME_SPEC}</span><span class="s2">: string into which substitutions will be made to determine the</span>
+<span class="s2"># filename to be used for each file. Possible substitutions: as for</span>
+<span class="s2"># </span><span class="si">{cp.PATIENT_SPEC}</span><span class="s2"> in the main &quot;[</span><span class="si">{CONFIG_FILE_MAIN_SECTION}</span><span class="s2">]&quot; section of the configuration</span>
+<span class="s2"># file (see above).</span>
+
+<span class="si">{cpr.FILENAME_SPEC}</span><span class="s2"> = /my_nfs_mount/mypath/CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}</span>
+
+<span class="s2"># </span><span class="si">{cpr.MAKE_DIRECTORY}</span><span class="s2">: make the directory if it doesn&#39;t already exist. Default is</span>
+<span class="s2"># false.</span>
+
+<span class="si">{cpr.MAKE_DIRECTORY}</span><span class="s2"> = true</span>
+
+<span class="s2"># </span><span class="si">{cpr.OVERWRITE_FILES}</span><span class="s2">: whether or not to attempt overwriting existing files of the</span>
+<span class="s2"># same name (default false). There is a DANGER of inadvertent data loss if you</span>
+<span class="s2"># set this to true. (Needing to overwrite a file suggests that your filenames</span>
+<span class="s2"># are not task-unique; try ensuring that both the {{tasktype}} and {{serverpk}}</span>
+<span class="s2"># attributes are used in the filename.)</span>
+
+<span class="si">{cpr.OVERWRITE_FILES}</span><span class="s2"> = false</span>
+
+<span class="s2"># </span><span class="si">{cpr.RIO_METADATA}</span><span class="s2">: whether or not to export a metadata file for Servelec&#39;s RiO</span>
+<span class="s2"># (default false).</span>
+<span class="s2"># Details of this file format are in cc_task.py / Task.get_rio_metadata().</span>
+<span class="s2"># The metadata filename is that of its associated file, but with the extension</span>
+<span class="s2"># replaced by &quot;.metadata&quot; (e.g. X.pdf is accompanied by X.metadata).</span>
+<span class="s2"># If </span><span class="si">{cpr.RIO_METADATA}</span><span class="s2"> is true, the following options also apply:</span>
+<span class="s2">#   </span><span class="si">{cpr.RIO_IDNUM}</span><span class="s2">: which of the ID numbers (as above) is the RiO ID?</span>
+<span class="s2">#   </span><span class="si">{cpr.RIO_UPLOADING_USER}</span><span class="s2">: username for the uploading user (maximum of 10</span>
+<span class="s2">#       characters)</span>
+<span class="s2">#   </span><span class="si">{cpr.RIO_DOCUMENT_TYPE}</span><span class="s2">: document type as defined in the receiving RiO system.</span>
+<span class="s2">#       This is a code that maps to a human-readable document type; for</span>
+<span class="s2">#       example, the code &quot;APT&quot; might map to &quot;Appointment Letter&quot;. Typically we</span>
+<span class="s2">#       might want a code that maps to &quot;Clinical Correspondence&quot;, but the code</span>
+<span class="s2">#       will be defined within the local RiO system configuration.</span>
+
+<span class="si">{cpr.RIO_METADATA}</span><span class="s2"> = false</span>
+<span class="si">{cpr.RIO_IDNUM}</span><span class="s2"> = 2</span>
+<span class="si">{cpr.RIO_UPLOADING_USER}</span><span class="s2"> = CamCOPS</span>
+<span class="si">{cpr.RIO_DOCUMENT_TYPE}</span><span class="s2"> = CC</span>
+
+<span class="s2"># </span><span class="si">{cpr.SCRIPT_AFTER_FILE_EXPORT}</span><span class="s2">: filename of a shell script or other executable to</span>
+<span class="s2"># run after file export is complete. You might use this script, for example, to</span>
+<span class="s2"># move the files to a different location (such as across a network). If the</span>
+<span class="s2"># parameter is blank, no script will be run. If no files are exported, the</span>
+<span class="s2"># script will not be run.</span>
+<span class="s2"># - Parameters passed to the script: a list of all the filenames exported.</span>
+<span class="s2">#   (This includes any RiO metadata filenames.)</span>
+<span class="s2"># - WARNING: the script will execute with the same permissions as the instance</span>
+<span class="s2">#   of CamCOPS that&#39;s doing the export (so, for example, if you run CamCOPS</span>
+<span class="s2">#   from your /etc/crontab as root, then this script will be run as root; that</span>
+<span class="s2">#   can pose a risk!).</span>
+<span class="s2"># - The script executes while the export lock is still held by CamCOPS (i.e.</span>
+<span class="s2">#   further HL7/file transfers won&#39;t be started until the script(s) is/are</span>
+<span class="s2">#   complete).</span>
+<span class="s2"># - If the script fails, an error message is recorded, but the file transfer is</span>
+<span class="s2">#   still considered to have been made (CamCOPS has done all it can and the</span>
+<span class="s2">#   responsibility now lies elsewhere).</span>
+<span class="s2"># - Example test script: suppose this is /usr/local/bin/print_arguments:</span>
+<span class="s2">#       #!/bin/bash</span>
+<span class="s2">#       for f in $$@</span>
+<span class="s2">#       do</span>
+<span class="s2">#           echo &quot;CamCOPS has just exported this file: $$f&quot;</span>
+<span class="s2">#       done</span>
+<span class="s2">#   ... then you could set:</span>
+<span class="s2">#       </span><span class="si">{cpr.SCRIPT_AFTER_FILE_EXPORT}</span><span class="s2"> = /usr/local/bin/print_arguments</span>
+
+<span class="si">{cpr.SCRIPT_AFTER_FILE_EXPORT}</span><span class="s2"> =</span>
+
+<span class="s2">    &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>  <span class="c1"># noqa</span>
+        <span class="n">cp</span><span class="o">=</span><span class="n">ConfigParamMain</span><span class="p">,</span>
+        <span class="n">cpr</span><span class="o">=</span><span class="n">ConfigParamRecipient</span><span class="p">,</span>
+        <span class="n">CONFIG_FILE_MAIN_SECTION</span><span class="o">=</span><span class="n">CONFIG_FILE_MAIN_SECTION</span><span class="p">,</span>
+        <span class="n">CONFIG_FILE_RECIPIENTLIST_SECTION</span><span class="o">=</span><span class="n">CONFIG_FILE_RECIPIENTLIST_SECTION</span><span class="p">,</span>
+        <span class="n">db_echo</span><span class="o">=</span><span class="n">db_echo</span><span class="p">,</span>
+        <span class="n">db_url</span><span class="o">=</span><span class="n">db_url</span><span class="p">,</span>
+        <span class="n">DEFAULT_DB_NAME</span><span class="o">=</span><span class="n">DEFAULT_DB_NAME</span><span class="p">,</span>
+        <span class="n">DEFAULT_DB_PASSWORD</span><span class="o">=</span><span class="n">DEFAULT_DB_PASSWORD</span><span class="p">,</span>
+        <span class="n">DEFAULT_DB_USER</span><span class="o">=</span><span class="n">DEFAULT_DB_USER</span><span class="p">,</span>
+        <span class="n">extra_strings_spec</span><span class="o">=</span><span class="n">extra_strings_spec</span><span class="p">,</span>
+        <span class="n">hl7_lockfile_stem</span><span class="o">=</span><span class="n">hl7_lockfile_stem</span><span class="p">,</span>
+        <span class="n">lock_dir</span><span class="o">=</span><span class="n">lock_dir</span><span class="p">,</span>
+        <span class="n">static_dir</span><span class="o">=</span><span class="n">static_dir</span><span class="p">,</span>
+        <span class="n">summary_table_lock_file_stem</span><span class="o">=</span><span class="n">summary_table_lock_file_stem</span><span class="p">,</span>
+        <span class="n">DUMMY_INSTITUTION_URL</span><span class="o">=</span><span class="n">DUMMY_INSTITUTION_URL</span><span class="p">,</span>
+        <span class="n">fse</span><span class="o">=</span><span class="n">FilenameSpecElement</span><span class="p">,</span>
+        <span class="n">now</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">Pendulum</span><span class="o">.</span><span class="n">now</span><span class="p">()),</span>
+        <span class="n">pse</span><span class="o">=</span><span class="n">PatientSpecElementForFilename</span><span class="p">,</span>
+        <span class="n">session_cookie_secret</span><span class="o">=</span><span class="n">session_cookie_secret</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">CAMCOPS_SERVER_VERSION_STRING</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Demo configuration files, other than the CamCOPS config file itself</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">DEFAULT_INTERNAL_PORT</span> <span class="o">=</span> <span class="mi">8000</span>
+<span class="n">DEFAULT_SOCKET_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;/tmp/.camcops.sock&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">get_demo_supervisor_config</span><span class="p">(</span>
+        <span class="n">specimen_internal_port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_INTERNAL_PORT</span><span class="p">,</span>
+        <span class="n">specimen_socket_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SOCKET_FILENAME</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2"># =============================================================================</span>
+<span class="s2"># Demonstration &#39;supervisor&#39; config file for CamCOPS.</span>
+<span class="s2"># Created by CamCOPS version </span><span class="si">{version}</span><span class="s2"> at </span><span class="si">{now}</span><span class="s2">.</span>
+<span class="s2"># =============================================================================</span>
+<span class="s2"># - Supervisor is a system for controlling background processes running on</span>
+<span class="s2">#   UNIX-like operating systems. See:</span>
+<span class="s2">#       http://supervisord.org</span>
+<span class="s2"># - On Ubuntu systems, you would typically install supervisor with</span>
+<span class="s2">#       sudo apt install supervisor</span>
+<span class="s2">#   and then save this file as</span>
+<span class="s2">#       /etc/supervisor/conf.d/camcops.conf</span>
+<span class="s2">#</span>
+<span class="s2"># - IF YOU EDIT THIS FILE, run:</span>
+<span class="s2">#       sudo service supervisor restart</span>
+<span class="s2"># - TO MONITOR SUPERVISOR, run:</span>
+<span class="s2">#       sudo supervisorctl status</span>
+<span class="s2">#   ... or just &quot;sudo supervisorctl&quot; for an interactive prompt.</span>
+<span class="s2">#</span>
+<span class="s2"># - TO ADD MORE CAMCOPS INSTANCES, first consider whether you wouldn&#39;t be </span>
+<span class="s2">#   better off just adding groups. If you decide you want a completely new</span>
+<span class="s2">#   instance, make a copy of the [program:camcops] section, renaming the copy, </span>
+<span class="s2">#   and change the following:</span>
+<span class="s2">#   - the --config switch;</span>
+<span class="s2">#   - the port or socket;</span>
+<span class="s2">#   - the log files.</span>
+<span class="s2">#   Then make the main web server point to the copy as well.</span>
+<span class="s2">#</span>
+<span class="s2"># NOTES ON THE SUPERVISOR CONFIG FILE AND ENVIRONMENT:</span>
+<span class="s2"># - Indented lines are treated as continuation (even in commands; no need for</span>
+<span class="s2">#   end-of-line backslashes or similar).</span>
+<span class="s2"># - The downside of that is that indented comment blocks can join onto your</span>
+<span class="s2">#   commands! Beware that.</span>
+<span class="s2"># - You can&#39;t put quotes around the directory variable</span>
+<span class="s2">#   http://stackoverflow.com/questions/10653590</span>
+<span class="s2"># - Python programs that are installed within a Python virtual environment </span>
+<span class="s2">#   automatically use the virtualenv&#39;s copy of Python via their shebang; you do</span>
+<span class="s2">#   not need to specify that by hand, nor the PYTHONPATH.</span>
+<span class="s2"># - The &quot;environment&quot; setting sets the OS environment. The &quot;--env&quot; parameter</span>
+<span class="s2">#   to gunicorn, if you use it, sets the WSGI environment.</span>
+
+<span class="s2">[program:camcops]</span>
+
+<span class="s2">command = </span><span class="si">{CAMCOPS_EXECUTABLE}</span><span class="s2"></span>
+<span class="s2">    serve_gunicorn</span>
+<span class="s2">    --config /etc/camcops/camcops.conf</span>
+<span class="s2">    --unix_domain_socket </span><span class="si">{specimen_socket_file}</span><span class="s2"></span>
+<span class="s2">    --trusted_proxy_headers </span>
+<span class="s2">        HTTP_X_FORWARDED_HOST </span>
+<span class="s2">        HTTP_X_FORWARDED_SERVER </span>
+<span class="s2">        HTTP_X_FORWARDED_PORT </span>
+<span class="s2">        HTTP_X_FORWARDED_PROTO </span>
+<span class="s2">        HTTP_X_SCRIPT_NAME</span>
+
+<span class="s2"># To run via a TCP socket, use e.g.:</span>
+<span class="s2">#   --host 127.0.0.1 --port </span><span class="si">{specimen_internal_port}</span><span class="s2"></span>
+<span class="s2"># To run via a UNIX domain socket, use e.g.</span>
+<span class="s2">#   --unix_domain_socket </span><span class="si">{specimen_socket_file}</span><span class="s2"> </span>
+
+<span class="s2">directory = </span><span class="si">{CAMCOPS_SERVER_DIRECTORY}</span><span class="s2"></span>
+
+<span class="s2">environment = MPLCONFIGDIR=&quot;</span><span class="si">{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}</span><span class="s2">&quot;</span>
+
+<span class="s2"># MPLCONFIGDIR specifies a cache directory for matplotlib, which greatly</span>
+<span class="s2"># speeds up its subsequent loading. </span>
+
+<span class="s2">user = www-data</span>
+
+<span class="s2"># ... Ubuntu: typically www-data</span>
+<span class="s2"># ... CentOS: typically apache</span>
+
+<span class="s2">stdout_logfile = /var/log/supervisor/camcops_out.log</span>
+<span class="s2">stderr_logfile = /var/log/supervisor/camcops_err.log</span>
+
+<span class="s2">autostart = true</span>
+<span class="s2">autorestart = true</span>
+<span class="s2">startsecs = 30</span>
+<span class="s2">stopwaitsecs = 60</span>
+
+<span class="s2">    &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">CAMCOPS_EXECUTABLE</span><span class="o">=</span><span class="n">CAMCOPS_EXECUTABLE</span><span class="p">,</span>
+        <span class="n">CAMCOPS_SERVER_DIRECTORY</span><span class="o">=</span><span class="n">CAMCOPS_SERVER_DIRECTORY</span><span class="p">,</span>
+        <span class="n">LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR</span><span class="o">=</span><span class="n">LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR</span><span class="p">,</span>
+        <span class="n">now</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">Pendulum</span><span class="o">.</span><span class="n">now</span><span class="p">()),</span>
+        <span class="n">specimen_internal_port</span><span class="o">=</span><span class="n">specimen_internal_port</span><span class="p">,</span>
+        <span class="n">specimen_socket_file</span><span class="o">=</span><span class="n">specimen_socket_file</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">CAMCOPS_SERVER_VERSION_STRING</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_demo_apache_config</span><span class="p">(</span>
+        <span class="n">urlbase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/camcops&quot;</span><span class="p">,</span>
+        <span class="n">specimen_internal_port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_INTERNAL_PORT</span><span class="p">,</span>
+        <span class="n">specimen_socket_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SOCKET_FILENAME</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    # Demonstration Apache config file section for CamCOPS.</span>
+<span class="s2">    # Created by CamCOPS version </span><span class="si">{version}</span><span class="s2"> at </span><span class="si">{now}</span><span class="s2">.</span>
+<span class="s2">    #</span>
+<span class="s2">    # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/</span>
+<span class="s2">    # Under CentOS, the Apache config will be somewhere in /etc/httpd/</span>
+<span class="s2">    #</span>
+<span class="s2">    # This section should go within the &lt;VirtualHost&gt; directive for the secure</span>
+<span class="s2">    # (SSL, HTTPS) part of the web site. </span>
+
+<span class="s2">&lt;VirtualHost *:443&gt;</span>
+<span class="s2">    # ...</span>
+
+<span class="s2">    # =========================================================================</span>
+<span class="s2">    # CamCOPS</span>
+<span class="s2">    # =========================================================================</span>
+<span class="s2">    # Apache operates on the principle that the first match wins. So, if we</span>
+<span class="s2">    # want to serve CamCOPS but then override some of its URLs to serve static</span>
+<span class="s2">    # files faster, we define the static stuff first.</span>
+
+<span class="s2">        # ---------------------------------------------------------------------</span>
+<span class="s2">        # 1. Serve static files</span>
+<span class="s2">        # ---------------------------------------------------------------------</span>
+<span class="s2">        # a) offer them at the appropriate URL</span>
+<span class="s2">        # b) provide permission</span>
+<span class="s2">        # c) disable ProxyPass for static files</span>
+
+<span class="s2">        # Change this: aim the alias at your own institutional logo.</span>
+<span class="s2">        </span>
+<span class="s2">    Alias </span><span class="si">{urlbase}</span><span class="s2">/static/logo_local.png </span><span class="si">{STATIC_ROOT_DIR}</span><span class="s2">/logo_local.png</span>
+<span class="s2">    </span>
+<span class="s2">        # We move from more specific to less specific aliases; the first match</span>
+<span class="s2">        # takes precedence. (Apache will warn about conflicting aliases if</span>
+<span class="s2">        # specified in a wrong, less-to-more-specific, order.)</span>
+
+<span class="s2">    Alias </span><span class="si">{urlbase}</span><span class="s2">/static/ </span><span class="si">{STATIC_ROOT_DIR}</span><span class="s2">/</span>
+
+<span class="s2">    &lt;Directory </span><span class="si">{STATIC_ROOT_DIR}</span><span class="s2">&gt;</span>
+<span class="s2">        Require all granted</span>
+<span class="s2">        </span>
+<span class="s2">        # ... for old Apache version (e.g. 2.2), use instead:</span>
+<span class="s2">        # Order allow,deny</span>
+<span class="s2">        # Allow from all</span>
+<span class="s2">    &lt;/Directory&gt;</span>
+<span class="s2">    </span>
+<span class="s2">        # Don&#39;t ProxyPass the static files; we&#39;ll serve them via Apache.</span>
+<span class="s2">        </span>
+<span class="s2">    ProxyPassMatch ^</span><span class="si">{urlbase}</span><span class="s2">/static/ !</span>
+
+<span class="s2">        # ---------------------------------------------------------------------</span>
+<span class="s2">        # 2. Proxy requests to the CamCOPS web server and back; allow access</span>
+<span class="s2">        # ---------------------------------------------------------------------</span>
+<span class="s2">        # ... either via an internal TCP/IP port (e.g. 1024 or higher, and NOT</span>
+<span class="s2">        #     accessible to users);</span>
+<span class="s2">        # ... or, better, via a Unix socket, e.g. /tmp/.camcops.sock</span>
+<span class="s2">        #</span>
+<span class="s2">        # NOTES</span>
+<span class="s2">        # - When you ProxyPass </span><span class="si">{urlbase}</span><span class="s2">, you should browse to</span>
+<span class="s2">        #       https://YOURSITE</span><span class="si">{urlbase}</span><span class="s2"></span>
+<span class="s2">        #   and point your tablet devices to</span>
+<span class="s2">        #       https://YOURSITE</span><span class="si">{urlbase}{MASTER_ROUTE_CLIENT_API}</span><span class="s2"></span>
+<span class="s2">        # - Don&#39;t specify trailing slashes for the ProxyPass and </span>
+<span class="s2">        #   ProxyPassReverse directives.</span>
+<span class="s2">        #   If you do, http://host/camcops will fail though</span>
+<span class="s2">        #              http://host/camcops/ will succeed.</span>
+<span class="s2">        # - Ensure that you put the CORRECT PROTOCOL (http, https) in the rules</span>
+<span class="s2">        #   below.</span>
+<span class="s2">        # - For ProxyPass options, see https://httpd.apache.org/docs/2.2/mod/mod_proxy.html#proxypass</span>
+<span class="s2">        #   ... including &quot;retry=0&quot; to stop Apache disabling the connection for</span>
+<span class="s2">        #       a while on failure.</span>
+<span class="s2">        # - Using a socket</span>
+<span class="s2">        #   - this requires Apache 2.4.9, and passes after the &#39;|&#39; character a</span>
+<span class="s2">        #     URL that determines the Host: value of the request; see</span>
+<span class="s2">        #     https://httpd.apache.org/docs/trunk/mod/mod_proxy.html#proxypass</span>
+<span class="s2">        # - CamCOPS MUST BE TOLD about its location and protocol, because that</span>
+<span class="s2">        #   information is critical for synthesizing URLs, but is stripped out</span>
+<span class="s2">        #   by the reverse proxy system. There are two ways:</span>
+<span class="s2">        #   (i)  specifying headers or WSGI environment variables, such as</span>
+<span class="s2">        #        the HTTP(S) headers X-Forwarded-Proto and X-Script-Name below</span>
+<span class="s2">        #        (CamCOPS is aware of these);</span>
+<span class="s2">        #   (ii) specifying options to &quot;camcops serve&quot;, including</span>
+<span class="s2">        #           --script_name</span>
+<span class="s2">        #           --scheme</span>
+<span class="s2">        #        and optionally</span>
+<span class="s2">        #           --server</span>
+<span class="s2">        #</span>
+<span class="s2">        # So:</span>
+<span class="s2">        #</span>
+<span class="s2">        # ~~~~~~~~~~~~~~~~~</span>
+<span class="s2">        # (a) Reverse proxy</span>
+<span class="s2">        # ~~~~~~~~~~~~~~~~~</span>
+<span class="s2">        #</span>
+<span class="s2">        # PORT METHOD</span>
+<span class="s2">        # Note the use of &quot;http&quot; (reflecting the backend), not https (like the</span>
+<span class="s2">        # front end).</span>
+<span class="s2">        </span>
+<span class="s2">    ProxyPass </span><span class="si">{urlbase}</span><span class="s2"> http://127.0.0.1:</span><span class="si">{specimen_internal_port}</span><span class="s2"> retry=0</span>
+<span class="s2">    ProxyPassReverse </span><span class="si">{urlbase}</span><span class="s2"> http://127.0.0.1:</span><span class="si">{specimen_internal_port}</span><span class="s2"> retry=0</span>
+
+<span class="s2">        # UNIX SOCKET METHOD (Apache 2.4.9 and higher)</span>
+<span class="s2">        #</span>
+<span class="s2">        # The general syntax is:</span>
+<span class="s2">        #   ProxyPass /URL_USER_SEES unix:SOCKETFILE|PROTOCOL://HOST/EXTRA_URL_FOR_BACKEND retry=0</span>
+<span class="s2">        # Note that:</span>
+<span class="s2">        #   - the protocol should be http, not https (Apache deals with the</span>
+<span class="s2">        #     HTTPS part and passes HTTP on)</span>
+<span class="s2">        #   - the EXTRA_URL_FOR_BACKEND needs to be (a) unique for each</span>
+<span class="s2">        #     instance or Apache will use a single worker for multiple</span>
+<span class="s2">        #     instances, and (b) blank for the backend&#39;s benefit. Since those</span>
+<span class="s2">        #     two conflict when there&#39;s &gt;1 instance, there&#39;s a problem.</span>
+<span class="s2">        #   - Normally, HOST is given as localhost. It may be that this problem</span>
+<span class="s2">        #     is solved by using a dummy unique value for HOST:</span>
+<span class="s2">        #     https://bz.apache.org/bugzilla/show_bug.cgi?id=54101#c1</span>
+<span class="s2">        #</span>
+<span class="s2">        # If your Apache version is too old, you will get the error</span>
+<span class="s2">        #   &quot;AH00526: Syntax error on line 56 of /etc/apache2/sites-enabled/SOMETHING:</span>
+<span class="s2">        #    ProxyPass URL must be absolute!&quot;</span>
+<span class="s2">        # On Ubuntu, if your Apache is too old, you could use</span>
+<span class="s2">        #   sudo add-apt-repository ppa:ondrej/apache2</span>
+<span class="s2">        # ... details at https://launchpad.net/~ondrej/+archive/ubuntu/apache2</span>
+<span class="s2">        #</span>
+<span class="s2">        # If you get this error:</span>
+<span class="s2">        #   AH01146: Ignoring parameter &#39;retry=0&#39; for worker &#39;unix:/tmp/.camcops_gunicorn.sock|https://localhost&#39; because of worker sharing</span>
+<span class="s2">        #   https://wiki.apache.org/httpd/ListOfErrors</span>
+<span class="s2">        # ... then your URLs are overlapping and should be redone or sorted:</span>
+<span class="s2">        #   http://httpd.apache.org/docs/2.4/mod/mod_proxy.html#workers</span>
+<span class="s2">        # The part that must be unique for each instance, with no part a</span>
+<span class="s2">        # leading substring of any other, is THIS_BIT in:</span>
+<span class="s2">        #   ProxyPass /URL_USER_SEES unix:SOCKETFILE|https://localhost/THIS_BIT retry=0</span>
+<span class="s2">        #</span>
+<span class="s2">        # If you get an error like this:</span>
+<span class="s2">        #   AH01144: No protocol handler was valid for the URL /SOMEWHERE. If you are using a DSO version of mod_proxy, make sure the proxy submodules are included in the configuration using LoadModule.</span>
+<span class="s2">        # Then do this:</span>
+<span class="s2">        #   sudo a2enmod proxy proxy_http</span>
+<span class="s2">        #   sudo apache2ctl restart</span>
+<span class="s2">        #</span>
+<span class="s2">        # If you get an error like this:</span>
+<span class="s2">        #   ... [proxy_http:error] [pid 32747] (103)Software caused connection abort: [client 109.151.49.173:56898] AH01102: error reading status line from remote server httpd-UDS:0</span>
+<span class="s2">        #       [proxy:error] [pid 32747] [client 109.151.49.173:56898] AH00898: Error reading from remote server returned by /camcops_bruhl/webview</span>
+<span class="s2">        # then check you are specifying http://, not https://, in the ProxyPass</span>
+<span class="s2">        #</span>
+<span class="s2">        # Other information sources:</span>
+<span class="s2">        #   https://emptyhammock.com/projects/info/pyweb/webconfig.html</span>
+
+<span class="s2">    # ProxyPass /camcops unix:</span><span class="si">{specimen_socket_file}</span><span class="s2">|https://dummy1/ retry=0</span>
+<span class="s2">    # ProxyPassReverse /camcops unix:</span><span class="si">{specimen_socket_file}</span><span class="s2">|https://dummy1/ retry=0</span>
+
+<span class="s2">        # ~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="s2">        # (b) Allow proxy over SSL.</span>
+<span class="s2">        # ~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="s2">        # Without this, you will get errors like:</span>
+<span class="s2">        #   ... SSL Proxy requested for wombat:443 but not enabled [Hint: SSLProxyEngine]</span>
+<span class="s2">        #   ... failed to enable ssl support for 0.0.0.0:0 (httpd-UDS)</span>
+<span class="s2">        </span>
+<span class="s2">    SSLProxyEngine on</span>
+
+<span class="s2">    &lt;Location /camcops&gt;</span>
+
+<span class="s2">            # ~~~~~~~~~~~~~~~~    </span>
+<span class="s2">            # (c) Allow access</span>
+<span class="s2">            # ~~~~~~~~~~~~~~~~</span>
+<span class="s2">            </span>
+<span class="s2">        Require all granted</span>
+
+<span class="s2">        # ... for old Apache version (e.g. 2.2), use instead:</span>
+<span class="s2">        # Order allow,deny</span>
+<span class="s2">        # Allow from all</span>
+
+<span class="s2">            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="s2">            # (d) Tell the proxied application that we are using HTTPS, and</span>
+<span class="s2">            #     where the application is installed</span>
+<span class="s2">            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="s2">            #     ... https://stackoverflow.com/questions/16042647</span>
+<span class="s2">            #</span>
+<span class="s2">            # EITHER enable mod_headers (e.g. &quot;sudo a2enmod headers&quot;) and set:</span>
+<span class="s2">            </span>
+<span class="s2">        RequestHeader set X-Forwarded-Proto https</span>
+<span class="s2">        RequestHeader set X-Script-Name </span><span class="si">{urlbase}</span><span class="s2"></span>
+<span class="s2">        </span>
+<span class="s2">            # and call CamCOPS like:</span>
+<span class="s2">            #</span>
+<span class="s2">            # camcops serve_gunicorn </span><span class="se">\\</span><span class="s2"></span>
+<span class="s2">            #       --config SOMECONFIG </span><span class="se">\\</span><span class="s2"></span>
+<span class="s2">            #       --trusted_proxy_headers </span><span class="se">\\</span><span class="s2"></span>
+<span class="s2">            #           HTTP_X_FORWARDED_HOST </span><span class="se">\\</span><span class="s2"></span>
+<span class="s2">            #           HTTP_X_FORWARDED_SERVER </span><span class="se">\\</span><span class="s2"></span>
+<span class="s2">            #           HTTP_X_FORWARDED_PORT </span><span class="se">\\</span><span class="s2"></span>
+<span class="s2">            #           HTTP_X_FORWARDED_PROTO </span><span class="se">\\</span><span class="s2"></span>
+<span class="s2">            #           HTTP_X_SCRIPT_NAME</span>
+<span class="s2">            #</span>
+<span class="s2">            # (X-Forwarded-For, X-Forwarded-Host, and X-Forwarded-Server are</span>
+<span class="s2">            # supplied by Apache automatically)</span>
+<span class="s2">            #</span>
+<span class="s2">            # ... OR specify those options by hand in the CamCOPS command.</span>
+<span class="s2">            </span>
+<span class="s2">    &lt;/Location&gt;</span>
+
+<span class="s2">        # ---------------------------------------------------------------------</span>
+<span class="s2">        # 3. For additional instances</span>
+<span class="s2">        # ---------------------------------------------------------------------</span>
+<span class="s2">        # (a) duplicate section 1 above, editing the base URL and CamCOPS</span>
+<span class="s2">        #     connection (socket/port);</span>
+<span class="s2">        # (b) you will also need to create an additional CamCOPS instance,</span>
+<span class="s2">        #     as above;</span>
+<span class="s2">        # (c) add additional static aliases (in section 2 above).</span>
+<span class="s2">        #</span>
+<span class="s2">        # HOWEVER, consider adding more CamCOPS groups, rather than creating</span>
+<span class="s2">        # additional instances; the former are *much* easier to administer!</span>
+
+
+<span class="s2">    #==========================================================================</span>
+<span class="s2">    # SSL security (for HTTPS)</span>
+<span class="s2">    #==========================================================================</span>
+
+<span class="s2">        # You will also need to install your SSL certificate; see the </span>
+<span class="s2">        # instructions that came with it. You get a certificate by creating a </span>
+<span class="s2">        # certificate signing request (CSR). You enter some details about your </span>
+<span class="s2">        # site, and a software tool makes (1) a private key, which you keep </span>
+<span class="s2">        # utterly private, and (2) a CSR, which you send to a Certificate </span>
+<span class="s2">        # Authority (CA) for signing. They send back a signed certificate, and </span>
+<span class="s2">        # a chain of certificates leading from yours to a trusted root CA.</span>
+<span class="s2">        #</span>
+<span class="s2">        # You can create your own (a &#39;snake-oil&#39; certificate), but your tablets</span>
+<span class="s2">        # and browsers will not trust it, so this is a bad idea.</span>
+<span class="s2">        #</span>
+<span class="s2">        # Once you have your certificate: edit and uncomment these lines:</span>
+
+<span class="s2">    # SSLEngine on</span>
+
+<span class="s2">    # SSLCertificateKeyFile /etc/ssl/private/my.private.key</span>
+
+<span class="s2">        # ... a private file that you made before creating the certificate</span>
+<span class="s2">        # request, and NEVER GAVE TO ANYBODY, and NEVER WILL (or your</span>
+<span class="s2">        # security is broken and you need a new certificate).</span>
+
+<span class="s2">    # SSLCertificateFile /etc/ssl/certs/my.public.cert</span>
+
+<span class="s2">        # ... signed and supplied to you by the certificate authority (CA),</span>
+<span class="s2">        # from the public certificate you sent to them.</span>
+
+<span class="s2">    # SSLCertificateChainFile /etc/ssl/certs/my-institution.ca-bundle</span>
+
+<span class="s2">        # ... made from additional certificates in a chain, supplied to you by</span>
+<span class="s2">        # the CA. For example, mine is univcam.ca-bundle, made with the</span>
+<span class="s2">        # command:</span>
+<span class="s2">        #</span>
+<span class="s2">        # cat TERENASSLCA.crt UTNAddTrustServer_CA.crt AddTrustExternalCARoot.crt &gt; univcam.ca-bundle</span>
+
+<span class="s2">&lt;/VirtualHost&gt;</span>
+
+<span class="s2">    &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>  <span class="c1"># noqa</span>
+        <span class="n">MASTER_ROUTE_CLIENT_API</span><span class="o">=</span><span class="n">MASTER_ROUTE_CLIENT_API</span><span class="p">,</span>
+        <span class="n">now</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">Pendulum</span><span class="o">.</span><span class="n">now</span><span class="p">()),</span>
+        <span class="n">specimen_internal_port</span><span class="o">=</span><span class="n">specimen_internal_port</span><span class="p">,</span>
+        <span class="n">specimen_socket_file</span><span class="o">=</span><span class="n">specimen_socket_file</span><span class="p">,</span>
+        <span class="n">STATIC_ROOT_DIR</span><span class="o">=</span><span class="n">STATIC_ROOT_DIR</span><span class="p">,</span>
+        <span class="n">urlbase</span><span class="o">=</span><span class="n">urlbase</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">CAMCOPS_SERVER_VERSION_STRING</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_demo_mysql_create_db</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2"># First, from the Linux command line, log in to MySQL as root:</span>
+
+<span class="s2">mysql --host=127.0.0.1 --port=3306 --user=root --password</span>
+<span class="s2"># ... or the usual short form: mysql -u root -p</span>
+
+<span class="s2"># Create the database:</span>
+
+<span class="s2">CREATE DATABASE </span><span class="si">{DEFAULT_DB_NAME}</span><span class="s2">;</span>
+
+<span class="s2"># Ideally, create another user that only has access to the CamCOPS database.</span>
+<span class="s2"># You should do this, so that you don’t use the root account unnecessarily.</span>
+
+<span class="s2">GRANT ALL PRIVILEGES ON </span><span class="si">{DEFAULT_DB_NAME}</span><span class="s2">.* TO &#39;</span><span class="si">{DEFAULT_DB_USER}</span><span class="s2">&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;</span><span class="si">{DEFAULT_DB_PASSWORD}</span><span class="s2">&#39;;</span>
+
+<span class="s2"># For future use: if you plan to explore your database directly for analysis,</span>
+<span class="s2"># you may want to create a read-only user. Though it may not be ideal (check:</span>
+<span class="s2"># are you happy the user can see the audit trail?), you can create a user with</span>
+<span class="s2"># read-only access to the entire database like this:</span>
+
+<span class="s2">GRANT SELECT </span><span class="si">{DEFAULT_DB_NAME}</span><span class="s2">.* TO &#39;</span><span class="si">{DEFAULT_DB_READONLY_USER}</span><span class="s2">&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;</span><span class="si">{DEFAULT_DB_READONLY_PASSWORD}</span><span class="s2">&#39;;</span>
+
+<span class="s2"># All done. Quit MySQL:</span>
+
+<span class="s2">exit</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>  <span class="c1"># noqa</span>
+        <span class="n">DEFAULT_DB_NAME</span><span class="o">=</span><span class="n">DEFAULT_DB_NAME</span><span class="p">,</span>
+        <span class="n">DEFAULT_DB_USER</span><span class="o">=</span><span class="n">DEFAULT_DB_USER</span><span class="p">,</span>
+        <span class="n">DEFAULT_DB_PASSWORD</span><span class="o">=</span><span class="n">DEFAULT_DB_PASSWORD</span><span class="p">,</span>
+        <span class="n">DEFAULT_DB_READONLY_USER</span><span class="o">=</span><span class="n">DEFAULT_DB_READONLY_USER</span><span class="p">,</span>
+        <span class="n">DEFAULT_DB_READONLY_PASSWORD</span><span class="o">=</span><span class="n">DEFAULT_DB_READONLY_PASSWORD</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_demo_mysql_dump_script</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;#!/bin/bash</span>
+
+<span class="s2"># Minimal simple script to dump all current MySQL databases.</span>
+<span class="s2"># This file must be READABLE ONLY BY ROOT (or equivalent, backup)!</span>
+<span class="s2"># The password is in cleartext.</span>
+<span class="s2"># Once you have copied this file and edited it, perform:</span>
+<span class="s2">#     sudo chown root:root &lt;filename&gt;</span>
+<span class="s2">#     sudo chmod 700 &lt;filename&gt;</span>
+<span class="s2"># Then you can add it to your /etc/crontab for regular execution.</span>
+
+<span class="s2">BACKUPDIR=&#39;/var/backups/mysql&#39;</span>
+<span class="s2">BACKUPFILE=&#39;all_my_mysql_databases.sql&#39;</span>
+<span class="s2">USERNAME=&#39;root&#39;  # MySQL username</span>
+<span class="s2">PASSWORD=&#39;PPPPPP_REPLACE_ME&#39;  # MySQL password</span>
+
+<span class="s2"># Make directory unless it exists already:</span>
+
+<span class="s2">mkdir -p $BACKUPDIR</span>
+
+<span class="s2"># Dump the database:</span>
+
+<span class="s2">mysqldump -u $USERNAME -p$PASSWORD --all-databases --force &gt; $BACKUPDIR/$BACKUPFILE</span>
+
+<span class="s2"># Make sure the backups (which may contain sensitive information) are only</span>
+<span class="s2"># readable by the &#39;backup&#39; user group:</span>
+
+<span class="s2">cd $BACKUPDIR</span>
+<span class="s2">chown -R backup:backup *</span>
+<span class="s2">chmod -R o-rwx *</span>
+<span class="s2">chmod -R ug+rw *</span>
+
+<span class="s2">    &quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Configuration class. (It gets cached on a per-process basis.)</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="CamcopsConfig"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_config.html#camcops_server.cc_modules.cc_config.CamcopsConfig">[docs]</a><span class="k">class</span> <span class="nc">CamcopsConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class representing the config.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialize from config file.&quot;&quot;&quot;</span>
+        <span class="n">cp</span> <span class="o">=</span> <span class="n">ConfigParamMain</span>
+
+        <span class="c1"># ---------------------------------------------------------------------</span>
+        <span class="c1"># Open config file</span>
+        <span class="c1"># ---------------------------------------------------------------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camcops_config_file</span> <span class="o">=</span> <span class="n">config_filename</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">camcops_config_file</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> not specified&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ENVVAR_CONFIG_FILE</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camcops_config_file</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">camcops_config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="c1"># ---------------------------------------------------------------------</span>
+        <span class="c1"># Read from the config file: 1. Most stuff, in alphabetical order</span>
+        <span class="c1"># ---------------------------------------------------------------------</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">CONFIG_FILE_MAIN_SECTION</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_insecure_cookies</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">ALLOW_INSECURE_COOKIES</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">camcops_logo_file_absolute</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">CAMCOPS_LOGO_FILE_ABSOLUTE</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">DEFAULT_CAMCOPS_LOGO_FILE</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctv_filename_spec</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">CTV_FILENAME_SPEC</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_url</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">DB_URL</span><span class="p">)</span>
+        <span class="c1"># ... no default: will fail if not provided</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_echo</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">DB_ECHO</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_api_loglevel</span> <span class="o">=</span> <span class="n">get_config_parameter_loglevel</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">CLIENT_API_LOGLEVEL</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;camcops_server.cc_modules.client_api&quot;</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client_api_loglevel</span><span class="p">)</span>
+        <span class="c1"># ... MUTABLE GLOBAL STATE (if relatively unimportant); *** fix</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable_password_autocomplete</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">DISABLE_PASSWORD_AUTOCOMPLETE</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_string_files</span> <span class="o">=</span> <span class="n">get_config_parameter_multiline</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">EXTRA_STRING_FILES</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hl7_lockfile</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">HL7_LOCKFILE</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">introspection</span> <span class="o">=</span> <span class="n">get_config_parameter_boolean</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">INTROSPECTION</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_institution_url</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">LOCAL_INSTITUTION_URL</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">,</span> <span class="n">DEFAULT_LOCAL_INSTITUTION_URL</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_logo_file_absolute</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">LOCAL_LOGO_FILE_ABSOLUTE</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">,</span> <span class="n">DEFAULT_LOCAL_LOGO_FILE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lockout_threshold</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">LOCKOUT_THRESHOLD</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">,</span> <span class="n">DEFAULT_LOCKOUT_THRESHOLD</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lockout_duration_increment_minutes</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">LOCKOUT_DURATION_INCREMENT_MINUTES</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">,</span> <span class="n">DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">password_change_frequency_days</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">PASSWORD_CHANGE_FREQUENCY_DAYS</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">,</span> <span class="n">DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec_if_anonymous</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">PATIENT_SPEC_IF_ANONYMOUS</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;anonymous&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">PATIENT_SPEC</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># currently not configurable, but easy to add in the future:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_fontsize</span> <span class="o">=</span> <span class="n">DEFAULT_PLOT_FONTSIZE</span>
+
+        <span class="c1"># self.send_analytics = get_config_parameter_boolean(</span>
+        <span class="c1">#     config, section, &quot;SEND_ANALYTICS&quot;, True)</span>
+        <span class="n">session_timeout_minutes</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">SESSION_TIMEOUT_MINUTES</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">,</span> <span class="n">DEFAULT_TIMEOUT_MINUTES</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session_cookie_secret</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">SESSION_COOKIE_SECRET</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session_timeout</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span>
+            <span class="n">minutes</span><span class="o">=</span><span class="n">session_timeout_minutes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">summary_tables_lockfile</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">SUMMARY_TABLES_LOCKFILE</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_filename_spec</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">TASK_FILENAME_SPEC</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker_filename_spec</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">TRACKER_FILENAME_SPEC</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">webview_loglevel</span> <span class="o">=</span> <span class="n">get_config_parameter_loglevel</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">WEBVIEW_LOGLEVEL</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">webview_loglevel</span><span class="p">)</span>  <span class="c1"># root logger</span>
+        <span class="c1"># ... MUTABLE GLOBAL STATE (if relatively unimportant) *** fix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wkhtmltopdf_filename</span> <span class="o">=</span> <span class="n">get_config_parameter</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">WKHTMLTOPDF_FILENAME</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># ---------------------------------------------------------------------</span>
+        <span class="c1"># Read from the config file: 2. HL7 section</span>
+        <span class="c1"># ---------------------------------------------------------------------</span>
+        <span class="c1"># http://stackoverflow.com/questions/335695/lists-in-configparser</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hl7_recipient_defs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[RecipientDefinition]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">hl7_items</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">CONFIG_FILE_RECIPIENTLIST_SECTION</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">recipientdef_name</span> <span class="ow">in</span> <span class="n">hl7_items</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;HL7 config: key=</span><span class="si">{}</span><span class="s2">, recipientdef_name=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+                          <span class="n">key</span><span class="p">,</span> <span class="n">recipientdef_name</span><span class="p">)</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">RecipientDefinition</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                                        <span class="n">section</span><span class="o">=</span><span class="n">recipientdef_name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hl7_recipient_defs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">configparser</span><span class="o">.</span><span class="n">NoSectionError</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No config file section [</span><span class="si">{}</span><span class="s2">]&quot;</span><span class="p">,</span>
+                     <span class="n">CONFIG_FILE_RECIPIENTLIST_SECTION</span><span class="p">)</span>
+
+        <span class="c1"># ---------------------------------------------------------------------</span>
+        <span class="c1"># Built from the preceding:</span>
+        <span class="c1"># ---------------------------------------------------------------------</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">introspection_files</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[IntrospectionFileDetails]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">introspection</span><span class="p">:</span>
+            <span class="c1"># All introspection starts at INTROSPECTION_BASE_DIRECTORY</span>
+            <span class="n">rootdir</span> <span class="o">=</span> <span class="n">INTROSPECTION_BASE_DIRECTORY</span>
+            <span class="k">for</span> <span class="n">dir_</span><span class="p">,</span> <span class="n">subdirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">rootdir</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">dir_</span> <span class="o">==</span> <span class="n">rootdir</span><span class="p">:</span>
+                    <span class="n">pretty_dir</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pretty_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">dir_</span><span class="p">,</span> <span class="n">rootdir</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="n">basename</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">ext</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">INTROSPECTABLE_EXTENSIONS</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">fullpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                    <span class="n">prettypath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pretty_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">introspection_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">IntrospectionFileDetails</span><span class="p">(</span>
+                            <span class="n">fullpath</span><span class="o">=</span><span class="n">fullpath</span><span class="p">,</span>
+                            <span class="n">prettypath</span><span class="o">=</span><span class="n">prettypath</span><span class="p">,</span>
+                            <span class="n">ext</span><span class="o">=</span><span class="n">ext</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">introspection_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">introspection_files</span><span class="p">,</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s2">&quot;prettypath&quot;</span><span class="p">))</span>
+
+        <span class="c1"># ---------------------------------------------------------------------</span>
+        <span class="c1"># More validity checks</span>
+        <span class="c1"># ---------------------------------------------------------------------</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec_if_anonymous</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Blank PATIENT_SPEC_IF_ANONYMOUS in [server] &quot;</span>
+                <span class="s2">&quot;section of config file&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">patient_spec</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Missing/blank PATIENT_SPEC in [server] section&quot;</span>
+                <span class="s2">&quot; of config file&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_cookie_secret</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid or missing SESSION_COOKIE_SECRET &quot;</span>
+                <span class="s2">&quot;setting in [server] section of config file&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_filename_spec</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing/blank TASK_FILENAME_SPEC in &quot;</span>
+                               <span class="s2">&quot;[server] section of config file&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker_filename_spec</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing/blank TRACKER_FILENAME_SPEC in &quot;</span>
+                               <span class="s2">&quot;[server] section of config file&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctv_filename_spec</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing/blank CTV_FILENAME_SPEC in &quot;</span>
+                               <span class="s2">&quot;[server] section of config file&quot;</span><span class="p">)</span>
+
+        <span class="c1"># ---------------------------------------------------------------------</span>
+        <span class="c1"># Other attributes</span>
+        <span class="c1"># ---------------------------------------------------------------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sqla_engine</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="CamcopsConfig.get_sqla_engine"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_config.html#camcops_server.cc_modules.cc_config.CamcopsConfig.get_sqla_engine">[docs]</a>    <span class="k">def</span> <span class="nf">get_sqla_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Engine</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        I was previously misinterpreting the appropriate scope of an Engine.</span>
+<span class="sd">        I thought: create one per request.</span>
+<span class="sd">        But the Engine represents the connection *pool*.</span>
+<span class="sd">        So if you create them all the time, you get e.g. a</span>
+<span class="sd">        &#39;Too many connections&#39; error.</span>
+
+<span class="sd">        &quot;The appropriate scope is once per [database] URL per application,</span>
+<span class="sd">        at the module level.&quot;</span>
+
+<span class="sd">        https://groups.google.com/forum/#!topic/sqlalchemy/ZtCo2DsHhS4</span>
+<span class="sd">        https://stackoverflow.com/questions/8645250/how-to-close-sqlalchemy-connection-in-mysql</span>
+
+<span class="sd">        Now, our CamcopsConfig instance is cached, so there should be one of</span>
+<span class="sd">        them overall. See get_config() below.</span>
+
+<span class="sd">        Therefore, making the engine a member of this class should do the</span>
+<span class="sd">        trick, whilst avoiding global variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sqla_engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sqla_engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">db_url</span><span class="p">,</span>
+                <span class="n">echo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_echo</span><span class="p">,</span>
+                <span class="n">pool_pre_ping</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="c1"># pool_size=0,  # no limit (for parallel testing, which failed)</span>
+            <span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Created SQLAlchemy engine for URL </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">get_safe_url_from_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sqla_engine</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sqla_engine</span></div>
+
+    <span class="nd">@property</span>
+    <span class="nd">@cache_region_static</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">fkg</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_all_table_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sqla_engine</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">get_table_names</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+
+    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+    <span class="k">def</span> <span class="nf">get_dbsession_context</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">SqlASession</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sqla_engine</span><span class="p">()</span>
+        <span class="n">maker</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">maker</span><span class="p">()</span>  <span class="c1"># type: SqlASession</span>
+        <span class="c1"># noinspection PyBroadException</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">dbsession</span>
+            <span class="n">dbsession</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">dbsession</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">dbsession</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_assert_valid_database_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Excluding invalid backend database types.</span>
+
+<span class="sd">        Specifically, SQL Server versions before 2008 don&#39;t support timezones</span>
+<span class="sd">        and we need that.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sqla_engine</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_sqlserver</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">assert</span> <span class="n">is_sqlserver_2008_or_later</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;If you use Microsoft SQL Server as the back-end database for a &quot;</span>
+            <span class="s2">&quot;CamCOPS server, it must be at least SQL Server 2008. Older &quot;</span>
+            <span class="s2">&quot;versions do not have time zone awareness.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_assert_database_is_at_head</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">current</span><span class="p">,</span> <span class="n">head</span> <span class="o">=</span> <span class="n">get_current_and_head_revision</span><span class="p">(</span>
+            <span class="n">database_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_url</span><span class="p">,</span>
+            <span class="n">alembic_config_filename</span><span class="o">=</span><span class="n">ALEMBIC_CONFIG_FILENAME</span><span class="p">,</span>
+            <span class="n">alembic_base_dir</span><span class="o">=</span><span class="n">ALEMBIC_BASE_DIR</span><span class="p">,</span>
+            <span class="n">version_table</span><span class="o">=</span><span class="n">ALEMBIC_VERSION_TABLE</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">current</span> <span class="o">==</span> <span class="n">head</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Database is at correct (head) revision of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">current</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Database structure is at version </span><span class="si">{}</span><span class="s2"> but should be at &quot;</span>
+                <span class="s2">&quot;version </span><span class="si">{}</span><span class="s2">. CamCOPS will not start. Please use the &quot;</span>
+                <span class="s2">&quot;&#39;upgrade_db&#39; command to fix this.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">head</span><span class="p">))</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">assert_database_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_valid_database_engine</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_database_is_at_head</span><span class="p">()</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Get config filename from an appropriate environment (WSGI or OS)</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span> <span class="nf">get_config_filename_from_os_env</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># We do NOT trust the WSGI environment for this.</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ENVVAR_CONFIG_FILE</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config_filename</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;OS environment did not provide the required &quot;</span>
+            <span class="s2">&quot;environment variable </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ENVVAR_CONFIG_FILE</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">config_filename</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Cached instances</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="nd">@cache_region_static</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">fkg</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="n">config_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CamcopsConfig</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">CamcopsConfig</span><span class="p">(</span><span class="n">config_filename</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Get default config</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span> <span class="nf">get_default_config_from_os_env</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">CamcopsConfig</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">get_config</span><span class="p">(</span><span class="n">get_config_filename_from_os_env</span><span class="p">())</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># NOTES</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">TO_BE_IMPLEMENTED_AS_COMMAND_LINE_SWITCH</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+
+<span class="s2"># -----------------------------------------------------------------------------</span>
+<span class="s2"># Export to a staging database for CRIS, CRATE, or similar anonymisation</span>
+<span class="s2"># software (anonymisation staging database; ANONSTAG)</span>
+<span class="s2"># -----------------------------------------------------------------------------</span>
+
+<span class="si">{cp.ANONSTAG_DB_URL}</span><span class="s2"> = </span><span class="si">{anonstag_db_url}</span><span class="s2"></span>
+<span class="si">{cp.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE}</span><span class="s2"> = /tmp/camcops_cris_dd_draft.tsv</span>
+
+<span class="s2">*** Note that we must check that the anonymisation staging database doesn&#39;t</span>
+<span class="s2">    have the same URL as the main one (or &quot;isn&#39;t the same one&quot; in a more</span>
+<span class="s2">    robust fashion)! Because this is so critical, probably best to:</span>
+<span class="s2">    - require a completely different database name</span>
+<span class="s2">    - ensure no table names overlap (e.g. add a prefix)</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

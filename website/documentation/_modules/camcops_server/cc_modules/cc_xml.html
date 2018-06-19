@@ -1,0 +1,491 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.cc_modules.cc_xml &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.cc_modules.cc_xml</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/cc_modules/cc_xml.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">xml.sax.saxutils</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.logs</span> <span class="k">import</span> <span class="n">BraceStyleAdapter</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.reprfunc</span> <span class="k">import</span> <span class="n">auto_repr</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.orm_inspect</span> <span class="k">import</span> <span class="n">gen_columns</span>
+<span class="kn">import</span> <span class="nn">pendulum</span>  <span class="c1"># avoid name confusion with Date</span>
+<span class="kn">from</span> <span class="nn">pendulum</span> <span class="k">import</span> <span class="n">Pendulum</span>
+<span class="kn">from</span> <span class="nn">semantic_version.base</span> <span class="k">import</span> <span class="n">Version</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.schema</span> <span class="k">import</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.type_api</span> <span class="k">import</span> <span class="n">TypeEngine</span>
+
+<span class="kn">from</span> <span class="nn">.cc_simpleobjects</span> <span class="k">import</span> <span class="n">XmlSimpleValue</span>
+<span class="kn">from</span> <span class="nn">.cc_sqla_coltypes</span> <span class="k">import</span> <span class="n">gen_camcops_blob_columns</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+    <span class="kn">from</span> <span class="nn">.cc_summaryelement</span> <span class="k">import</span> <span class="n">SummaryElement</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">BraceStyleAdapter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Constants</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">XML_COMMENT_ANCILLARY</span> <span class="o">=</span> <span class="s2">&quot;&lt;!-- Ancillary records --&gt;&quot;</span>
+<span class="n">XML_COMMENT_ANONYMOUS</span> <span class="o">=</span> <span class="s2">&quot;&lt;!-- Anonymous task; no patient info --&gt;&quot;</span>
+<span class="n">XML_COMMENT_BLOBS</span> <span class="o">=</span> <span class="s2">&quot;&lt;!-- Associated BLOBs --&gt;&quot;</span>
+<span class="n">XML_COMMENT_CALCULATED</span> <span class="o">=</span> <span class="s2">&quot;&lt;!-- Calculated fields --&gt;&quot;</span>
+<span class="n">XML_COMMENT_PATIENT</span> <span class="o">=</span> <span class="s2">&quot;&lt;!-- Associated patient details --&gt;&quot;</span>
+<span class="n">XML_COMMENT_SPECIAL_NOTES</span> <span class="o">=</span> <span class="s2">&quot;&lt;!-- Any special notes added --&gt;&quot;</span>
+<span class="n">XML_COMMENT_STORED</span> <span class="o">=</span> <span class="s2">&quot;&lt;!-- Stored fields --&gt;&quot;</span>
+
+<span class="n">XML_NAMESPACES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&#39;</span>
+    <span class="c1"># &#39; xmlns:dt=&quot;http://www.w3.org/2001/XMLSchema-datatypes&quot;&#39;</span>
+<span class="p">]</span>
+<span class="n">XML_IGNORE_NAMESPACES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;xmlns:mc=&quot;http://schemas.openxmlformats.org/markup-compatibility/2006&quot;&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;xmlns:ignore=&quot;http://www.camcops.org/ignore&quot;&#39;</span><span class="p">,</span>
+    <span class="c1"># ... actual URL unimportant</span>
+    <span class="s1">&#39;mc:Ignorable=&quot;ignore&quot;&#39;</span>
+<span class="p">]</span>
+<span class="c1"># http://www.w3.org/TR/xmlschema-1/</span>
+<span class="c1"># http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html</span>
+
+
+<span class="k">class</span> <span class="nc">XmlDataTypes</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">BASE64BINARY</span> <span class="o">=</span> <span class="s2">&quot;base64Binary&quot;</span>
+    <span class="n">BOOLEAN</span> <span class="o">=</span> <span class="s2">&quot;boolean&quot;</span>
+    <span class="n">DATE</span> <span class="o">=</span> <span class="s2">&quot;date&quot;</span>
+    <span class="n">DATETIME</span> <span class="o">=</span> <span class="s2">&quot;dateTime&quot;</span>
+    <span class="n">DOUBLE</span> <span class="o">=</span> <span class="s2">&quot;double&quot;</span>
+    <span class="n">INTEGER</span> <span class="o">=</span> <span class="s2">&quot;integer&quot;</span>
+    <span class="n">STRING</span> <span class="o">=</span> <span class="s2">&quot;string&quot;</span>
+    <span class="n">TIME</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># XML element</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="XmlElement"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_xml.html#camcops_server.cc_modules.cc_xml.XmlElement">[docs]</a><span class="k">class</span> <span class="nc">XmlElement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represents XML data in a tree. See functions in cc_xml.py&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">datatype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Special: boolean requires lower case &quot;true&quot;/&quot;false&quot; (or 0/1)</span>
+        <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="n">XmlDataTypes</span><span class="o">.</span><span class="n">BOOLEAN</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datatype</span> <span class="o">=</span> <span class="n">datatype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shows just this element.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">auto_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">with_addr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># XML processing</span>
+<span class="c1"># =============================================================================</span>
+<span class="c1"># The xml.etree.ElementTree and lxml libraries can both do this sort of thing.</span>
+<span class="c1"># However, they do look quite fiddly and we only want to create something</span>
+<span class="c1"># simple. Therefore, let&#39;s roll our own:</span>
+
+<div class="viewcode-block" id="make_xml_branches_from_columns"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_xml.html#camcops_server.cc_modules.cc_xml.make_xml_branches_from_columns">[docs]</a><span class="k">def</span> <span class="nf">make_xml_branches_from_columns</span><span class="p">(</span>
+        <span class="n">obj</span><span class="p">,</span>
+        <span class="n">skip_fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">XmlElement</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of XML branches, each an XmlElement, from an object,</span>
+<span class="sd">    using the list of SQLAlchemy Column objects that define/describe its</span>
+<span class="sd">    fields.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">skip_fields</span> <span class="o">=</span> <span class="n">skip_fields</span> <span class="ow">or</span> <span class="p">[]</span>  <span class="c1"># type: List[str]</span>
+    <span class="n">branches</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[XmlElement]</span>
+    <span class="k">for</span> <span class="n">attrname</span><span class="p">,</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">gen_columns</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="c1"># log.critical(&quot;make_xml_branches_from_columns: {!r}&quot;, attrname)</span>
+        <span class="n">colname</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">skip_fields</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XmlElement</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">colname</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrname</span><span class="p">),</span>
+            <span class="n">datatype</span><span class="o">=</span><span class="n">get_xml_datatype_from_sqla_column</span><span class="p">(</span><span class="n">column</span><span class="p">),</span>
+            <span class="n">comment</span><span class="o">=</span><span class="n">column</span><span class="o">.</span><span class="n">comment</span>
+        <span class="p">))</span>
+    <span class="k">return</span> <span class="n">branches</span></div>
+
+
+<div class="viewcode-block" id="make_xml_branches_from_summaries"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_xml.html#camcops_server.cc_modules.cc_xml.make_xml_branches_from_summaries">[docs]</a><span class="k">def</span> <span class="nf">make_xml_branches_from_summaries</span><span class="p">(</span>
+        <span class="n">summaries</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;SummaryElement&quot;</span><span class="p">],</span>
+        <span class="n">skip_fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sort_by_name</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">XmlElement</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list of XML branches, each an XmlElement, from a</span>
+<span class="sd">    list of summary data provided by a task.&quot;&quot;&quot;</span>
+    <span class="n">skip_fields</span> <span class="o">=</span> <span class="n">skip_fields</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">branches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">summaries</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">skip_fields</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XmlElement</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">datatype</span><span class="o">=</span><span class="n">get_xml_datatype_from_sqla_column_type</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">coltype</span><span class="p">),</span>
+            <span class="n">comment</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">comment</span>
+        <span class="p">))</span>
+    <span class="k">if</span> <span class="n">sort_by_name</span><span class="p">:</span>
+        <span class="n">branches</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">el</span><span class="p">:</span> <span class="n">el</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">branches</span></div>
+
+
+<span class="k">def</span> <span class="nf">make_xml_branches_from_blobs</span><span class="p">(</span>
+        <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+        <span class="n">obj</span><span class="p">,</span>
+        <span class="n">skip_fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">XmlElement</span><span class="p">]:</span>
+    <span class="n">skip_fields</span> <span class="o">=</span> <span class="n">skip_fields</span> <span class="ow">or</span> <span class="p">[]</span>  <span class="c1"># type: List[str]</span>
+    <span class="n">branches</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[XmlElement]</span>
+    <span class="k">for</span> <span class="n">id_attrname</span><span class="p">,</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">gen_camcops_blob_columns</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="n">colname</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">skip_fields</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">relationship_attr</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">blob_relationship_attr_name</span>
+        <span class="n">blob</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">relationship_attr</span><span class="p">)</span>
+        <span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XmlElement</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">relationship_attr</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">blob</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">blob</span><span class="o">.</span><span class="n">get_xml_element</span><span class="p">(</span><span class="n">req</span><span class="p">),</span>
+            <span class="n">comment</span><span class="o">=</span><span class="n">column</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
+        <span class="p">))</span>
+    <span class="k">return</span> <span class="n">branches</span>
+
+
+<div class="viewcode-block" id="xml_header"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_xml.html#camcops_server.cc_modules.cc_xml.xml_header">[docs]</a><span class="k">def</span> <span class="nf">xml_header</span><span class="p">(</span><span class="n">eol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;XML declaration header.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s1">&#39;&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><span class="si">{eol}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">eol</span><span class="o">=</span><span class="n">eol</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_xml_datatype_from_sqla_column_type"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_xml.html#camcops_server.cc_modules.cc_xml.get_xml_datatype_from_sqla_column_type">[docs]</a><span class="k">def</span> <span class="nf">get_xml_datatype_from_sqla_column_type</span><span class="p">(</span><span class="n">coltype</span><span class="p">:</span> <span class="n">TypeEngine</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the XML schema datatype from an SQLAlchemy column type,</span>
+<span class="sd">    such as Integer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># http://www.xml.dvint.com/docs/SchemaDataTypesQR-2.pdf</span>
+    <span class="c1"># http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html</span>
+    <span class="n">pt</span> <span class="o">=</span> <span class="n">coltype</span><span class="o">.</span><span class="n">python_type</span>
+    <span class="c1"># pt is a *type*, not an *instance* of that type, so we use issubclass:</span>
+    <span class="c1"># Watch the order. Move from more specific to less specific.</span>
+    <span class="c1"># For example, issubclass(bool, int) == True, so do bool first.</span>
+    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">Pendulum</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">XmlDataTypes</span><span class="o">.</span><span class="n">DATETIME</span>
+    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">pendulum</span><span class="o">.</span><span class="n">Date</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">XmlDataTypes</span><span class="o">.</span><span class="n">DATE</span>
+    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">pendulum</span><span class="o">.</span><span class="n">Time</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">XmlDataTypes</span><span class="o">.</span><span class="n">TIME</span>
+    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">XmlDataTypes</span><span class="o">.</span><span class="n">BOOLEAN</span>
+    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">XmlDataTypes</span><span class="o">.</span><span class="n">INTEGER</span>
+    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">XmlDataTypes</span><span class="o">.</span><span class="n">DOUBLE</span>
+    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">Version</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">XmlDataTypes</span><span class="o">.</span><span class="n">STRING</span>
+    <span class="c1"># BLOBs are handled separately.</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s2">&quot;Don&#39;t know XML type for SQLAlchemy type </span><span class="si">{!r}</span><span class="s2"> with Python &quot;</span>
+        <span class="s2">&quot;type </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coltype</span><span class="p">,</span> <span class="n">pt</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_xml_datatype_from_sqla_column"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_xml.html#camcops_server.cc_modules.cc_xml.get_xml_datatype_from_sqla_column">[docs]</a><span class="k">def</span> <span class="nf">get_xml_datatype_from_sqla_column</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="n">Column</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Returns the XML schema datatype from an SQLAlchemy Column.&quot;&quot;&quot;</span>
+    <span class="n">coltype</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">type</span>  <span class="c1"># type: TypeEngine</span>
+    <span class="k">return</span> <span class="n">get_xml_datatype_from_sqla_column_type</span><span class="p">(</span><span class="n">coltype</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_xml_blob_element"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_xml.html#camcops_server.cc_modules.cc_xml.get_xml_blob_element">[docs]</a><span class="k">def</span> <span class="nf">get_xml_blob_element</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                         <span class="n">blobdata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">],</span>
+                         <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">XmlElement</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns an XmlElement representing a base-64-encoded BLOB.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">blobdata</span><span class="p">:</span>
+        <span class="c1"># blobdata is raw binary</span>
+        <span class="n">b64bytes</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">blobdata</span><span class="p">)</span>
+        <span class="n">b64str</span> <span class="o">=</span> <span class="n">b64bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">b64str</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">XmlElement</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">datatype</span><span class="o">=</span><span class="n">XmlDataTypes</span><span class="o">.</span><span class="n">BASE64BINARY</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="n">comment</span>
+    <span class="p">)</span></div>
+    <span class="c1"># http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#base64Binary</span>
+
+
+<div class="viewcode-block" id="xml_escape_value"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_xml.html#camcops_server.cc_modules.cc_xml.xml_escape_value">[docs]</a><span class="k">def</span> <span class="nf">xml_escape_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Escape a value for XML.&quot;&quot;&quot;</span>
+    <span class="c1"># http://stackoverflow.com/questions/1091945/</span>
+    <span class="c1"># https://wiki.python.org/moin/EscapingXml</span>
+    <span class="k">return</span> <span class="n">xml</span><span class="o">.</span><span class="n">sax</span><span class="o">.</span><span class="n">saxutils</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="xml_quote_attribute"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_xml.html#camcops_server.cc_modules.cc_xml.xml_quote_attribute">[docs]</a><span class="k">def</span> <span class="nf">xml_quote_attribute</span><span class="p">(</span><span class="n">attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Escapes and quotes an attribute for XML.</span>
+
+<span class="sd">    More stringent than value escaping.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">xml</span><span class="o">.</span><span class="n">sax</span><span class="o">.</span><span class="n">saxutils</span><span class="o">.</span><span class="n">quoteattr</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_xml_tree"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_xml.html#camcops_server.cc_modules.cc_xml.get_xml_tree">[docs]</a><span class="k">def</span> <span class="nf">get_xml_tree</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">XmlElement</span><span class="p">,</span> <span class="n">XmlSimpleValue</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span>
+                                <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">XmlElement</span><span class="p">,</span> <span class="n">XmlSimpleValue</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]],</span>
+                 <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">indent_spaces</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+                 <span class="n">eol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
+                 <span class="n">include_comments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns an entire XML tree as text, given the root XmlElement.&quot;&quot;&quot;</span>
+    <span class="c1"># We will represent NULL values with xsi:nil, but this requires a</span>
+    <span class="c1"># namespace: http://stackoverflow.com/questions/774192</span>
+    <span class="c1"># http://books.xmlschemata.org/relaxng/relax-CHP-11-SECT-1.html</span>
+    <span class="c1"># Comments:</span>
+    <span class="c1"># - http://blog.galasoft.ch/posts/2010/02/quick-tip-commenting-out-properties-in-xaml/  # noqa</span>
+    <span class="c1"># - http://stackoverflow.com/questions/2073140/</span>
+    <span class="n">xmltext</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">level</span> <span class="o">*</span> <span class="n">indent_spaces</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">XmlElement</span><span class="p">):</span>
+
+        <span class="c1"># Attributes</span>
+        <span class="n">namespaces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># root</span>
+            <span class="c1"># Apply namespace to root element (will inherit):</span>
+            <span class="n">namespaces</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">XML_NAMESPACES</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">include_comments</span><span class="p">:</span>
+                <span class="n">namespaces</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">XML_IGNORE_NAMESPACES</span><span class="p">)</span>
+        <span class="n">namespace</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">namespaces</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">datatype</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="s1">&#39; xsi:type=&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">datatype</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># log.warning(&quot;XmlElement has no datatype: {!r}&quot;, element)</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">cmt</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">include_comments</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">comment</span><span class="p">:</span>
+            <span class="n">cmt</span> <span class="o">=</span> <span class="s1">&#39; ignore:comment=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">xml_quote_attribute</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">comment</span><span class="p">))</span>
+        <span class="n">attributes</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{ns}{dt}{cmt}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ns</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span> <span class="n">cmt</span><span class="o">=</span><span class="n">cmt</span><span class="p">)</span>
+
+        <span class="c1"># Assemble</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># NULL handling</span>
+            <span class="n">xmltext</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{pr}</span><span class="s1">&lt;</span><span class="si">{name}{attributes}</span><span class="s1"> xsi:nil=&quot;true&quot;/&gt;</span><span class="si">{eol}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">pr</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
+                <span class="n">eol</span><span class="o">=</span><span class="n">eol</span><span class="p">,</span>
+                <span class="n">attributes</span><span class="o">=</span><span class="n">attributes</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">complex_value</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">XmlElement</span><span class="p">)</span> \
+                <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+            <span class="n">value_to_recurse</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">complex_value</span> <span class="k">else</span> \
+                <span class="n">XmlSimpleValue</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="c1"># ... XmlSimpleValue is a marker that subsequently distinguishes</span>
+            <span class="c1"># things that were part of an XmlElement from user-inserted</span>
+            <span class="c1"># raw XML.</span>
+            <span class="n">nl</span> <span class="o">=</span> <span class="n">eol</span> <span class="k">if</span> <span class="n">complex_value</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">pr2</span> <span class="o">=</span> <span class="n">prefix</span> <span class="k">if</span> <span class="n">complex_value</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">xmltext</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">{pr}</span><span class="s1">&lt;</span><span class="si">{name}{attributes}</span><span class="s1">&gt;</span><span class="si">{nl}</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;</span><span class="si">{value}{pr2}</span><span class="s1">&lt;/</span><span class="si">{name}</span><span class="s1">&gt;</span><span class="si">{eol}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">pr</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
+                    <span class="n">eol</span><span class="o">=</span><span class="n">eol</span><span class="p">,</span>
+                    <span class="n">pr2</span><span class="o">=</span><span class="n">pr2</span><span class="p">,</span>
+                    <span class="n">nl</span><span class="o">=</span><span class="n">nl</span><span class="p">,</span>
+                    <span class="n">value</span><span class="o">=</span><span class="n">get_xml_tree</span><span class="p">(</span>
+                        <span class="n">value_to_recurse</span><span class="p">,</span>
+                        <span class="n">level</span><span class="o">=</span><span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="n">indent_spaces</span><span class="o">=</span><span class="n">indent_spaces</span><span class="p">,</span>
+                        <span class="n">eol</span><span class="o">=</span><span class="n">eol</span><span class="p">,</span>
+                        <span class="n">include_comments</span><span class="o">=</span><span class="n">include_comments</span>
+                    <span class="p">),</span>
+                    <span class="n">attributes</span><span class="o">=</span><span class="n">attributes</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">subelement</span> <span class="ow">in</span> <span class="n">element</span><span class="p">:</span>
+            <span class="n">xmltext</span> <span class="o">+=</span> <span class="n">get_xml_tree</span><span class="p">(</span><span class="n">subelement</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span>
+                                    <span class="n">indent_spaces</span><span class="o">=</span><span class="n">indent_spaces</span><span class="p">,</span>
+                                    <span class="n">eol</span><span class="o">=</span><span class="n">eol</span><span class="p">,</span>
+                                    <span class="n">include_comments</span><span class="o">=</span><span class="n">include_comments</span><span class="p">)</span>
+        <span class="c1"># recursive</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">XmlSimpleValue</span><span class="p">):</span>
+        <span class="c1"># The lowest-level thing a value. No extra indent.</span>
+        <span class="n">xmltext</span> <span class="o">+=</span> <span class="n">xml_escape_value</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+        <span class="c1"># Regarding newlines: no need to do anything special (although some</span>
+        <span class="c1"># browsers may fail to display them correctly -- e.g. Firefox, Chrome):</span>
+        <span class="c1"># http://stackoverflow.com/questions/2004386</span>
+        <span class="c1"># ... just try saving and inspecting the results with a text editor.</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># A user-inserted piece of XML. Insert, but indent.</span>
+        <span class="n">xmltext</span> <span class="o">+=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="o">+</span> <span class="n">eol</span>
+
+    <span class="k">return</span> <span class="n">xmltext</span></div>
+
+
+<div class="viewcode-block" id="get_xml_document"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_xml.html#camcops_server.cc_modules.cc_xml.get_xml_document">[docs]</a><span class="k">def</span> <span class="nf">get_xml_document</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">XmlElement</span><span class="p">,</span>
+                     <span class="n">indent_spaces</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+                     <span class="n">eol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
+                     <span class="n">include_comments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an entire XML document as text, given the root XmlElement.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">XmlElement</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;get_xml_document: root not an XmlElement; &quot;</span>
+                             <span class="s2">&quot;XML requires a single root&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">xml_header</span><span class="p">(</span><span class="n">eol</span><span class="p">)</span> <span class="o">+</span> <span class="n">get_xml_tree</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span>
+        <span class="n">indent_spaces</span><span class="o">=</span><span class="n">indent_spaces</span><span class="p">,</span>
+        <span class="n">eol</span><span class="o">=</span><span class="n">eol</span><span class="p">,</span>
+        <span class="n">include_comments</span><span class="o">=</span><span class="n">include_comments</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

@@ -681,7 +681,8 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
         if not req.user.superuser:
             # Restrict to accessible groups
             # group_ids already defined from above
-            wheres.append(edx_sets.c._group_id.in_(group_ids))
+            edx_wheres.append(edx_sets.c._group_id.in_(group_ids))
+            # ... bugfix 2018-06-19: "wheres" -> "edx_wheres"
         exclusion_select = (
             select(["*"])
             .select_from(edx_joined)

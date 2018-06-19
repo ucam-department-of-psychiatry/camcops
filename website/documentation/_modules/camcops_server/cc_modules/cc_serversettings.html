@@ -1,0 +1,301 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.cc_modules.cc_serversettings &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.cc_modules.cc_serversettings</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/cc_modules/cc_serversettings.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+
+<span class="sd">Previously, we had a key/value pair system, both for device stored variables</span>
+<span class="sd">(table &quot;storedvars&quot;) and server ones (&quot;_server_storedvars&quot;). We used a &quot;type&quot;</span>
+<span class="sd">column to indicate type, and then columns named &quot;valueInteger&quot;, &quot;valueText&quot;,</span>
+<span class="sd">&quot;valueReal&quot; for the actual values.</span>
+
+<span class="sd">Subsequently</span>
+<span class="sd">- There&#39;s no need for devices to upload their settings here, so that table</span>
+<span class="sd">  goes.</span>
+<span class="sd">- The server stored vars stored</span>
+
+<span class="sd">    idDescription1 - idDescription8             } now have their own table</span>
+<span class="sd">    idShortDescription1 - idShortDescription8   }</span>
+
+<span class="sd">    idPolicyUpload                              } now part of Group definition</span>
+<span class="sd">    idPolicyFinalize                            }</span>
+
+<span class="sd">    lastAnalyticsSentAt                         now unused</span>
+
+<span class="sd">    serverCamcopsVersion                        unnecessary (is in code)</span>
+
+<span class="sd">    databaseTitle                               still needed somehow</span>
+
+<span class="sd">So, two options:</span>
+
+<span class="sd">    https://stackoverflow.com/questions/2300356/using-a-single-row-configuration-table-in-sql-server-database-bad-idea  # noqa</span>
+
+<span class="sd">Let&#39;s use a single row, based on a fixed PK (of 1).</span>
+
+<span class="sd">On some databases, you can constrain the PK value to enforce &quot;one row only&quot;;</span>
+<span class="sd">MySQL isn&#39;t one of those.</span>
+
+<span class="sd">    http://docs.sqlalchemy.org/en/latest/core/constraints.html#check-constraint</span>
+<span class="sd">    https://stackoverflow.com/questions/3967372/sql-server-how-to-constrain-a-table-to-contain-a-single-row  # noqa</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.logs</span> <span class="k">import</span> <span class="n">BraceStyleAdapter</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.schema</span> <span class="k">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">,</span> <span class="n">Table</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.sqltypes</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">DateTime</span><span class="p">,</span> <span class="n">Float</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">.cc_sqla_coltypes</span> <span class="k">import</span> <span class="n">DatabaseTitleColType</span>
+<span class="kn">from</span> <span class="nn">.cc_sqlalchemy</span> <span class="k">import</span> <span class="n">Base</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">BraceStyleAdapter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># ServerStoredVars - defunct, but maintained for database imports</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">class</span> <span class="nc">StoredVarTypesDefunct</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="c1"># values for the &quot;type&quot; column</span>
+    <span class="n">TYPE_INTEGER</span> <span class="o">=</span> <span class="s2">&quot;integer&quot;</span>
+    <span class="n">TYPE_TEXT</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span>
+    <span class="n">TYPE_REAL</span> <span class="o">=</span> <span class="s2">&quot;real&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">ServerStoredVarNamesDefunct</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="c1"># values for the &quot;name&quot; column</span>
+    <span class="n">ID_POLICY_UPLOAD</span> <span class="o">=</span> <span class="s2">&quot;idPolicyUpload&quot;</span>  <span class="c1"># text</span>
+    <span class="n">ID_POLICY_FINALIZE</span> <span class="o">=</span> <span class="s2">&quot;idPolicyFinalize&quot;</span>  <span class="c1"># text</span>
+    <span class="n">SERVER_CAMCOPS_VERSION</span> <span class="o">=</span> <span class="s2">&quot;serverCamcopsVersion&quot;</span>  <span class="c1"># text</span>
+    <span class="n">DATABASE_TITLE</span> <span class="o">=</span> <span class="s2">&quot;databaseTitle&quot;</span>  <span class="c1"># text</span>
+    <span class="n">LAST_ANALYTICS_SENT_AT</span> <span class="o">=</span> <span class="s2">&quot;lastAnalyticsSentAt&quot;</span>  <span class="c1"># text</span>
+    <span class="n">ID_DESCRIPTION_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;idDescription&quot;</span>  <span class="c1"># text; apply suffixes 1-8</span>
+    <span class="n">ID_SHORT_DESCRIPTION_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;idShortDescription&quot;</span>  <span class="c1"># text; apply suffixes 1-8  # noqa</span>
+
+
+<span class="n">StoredVarNameColTypeDefunct</span> <span class="o">=</span> <span class="n">String</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+<span class="n">StoredVarTypeColTypeDefunct</span> <span class="o">=</span> <span class="n">String</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+<span class="n">_ssv_metadata</span> <span class="o">=</span> <span class="n">MetaData</span><span class="p">()</span>
+
+
+<span class="n">server_stored_var_table_defunct</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
+    <span class="s2">&quot;_server_storedvars&quot;</span><span class="p">,</span>  <span class="c1"># table name</span>
+    <span class="n">_ssv_metadata</span><span class="p">,</span>  <span class="c1"># metadata separate from everything else</span>
+    <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">StoredVarNameColTypeDefunct</span><span class="p">,</span>
+        <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Variable name&quot;</span>
+    <span class="p">),</span>
+    <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="n">StoredVarTypeColTypeDefunct</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Variable type (&#39;integer&#39;, &#39;real&#39;, &#39;text&#39;)&quot;</span>
+    <span class="p">),</span>
+    <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;valueInteger&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Value of an integer variable&quot;</span>
+    <span class="p">),</span>
+    <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;valueText&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Value of a text variable&quot;</span>
+    <span class="p">),</span>
+    <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;valueReal&quot;</span><span class="p">,</span> <span class="n">Float</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Value of a real (floating-point) variable&quot;</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># ServerSettings</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">SERVER_SETTINGS_SINGLETON_PK</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1"># CACHE_KEY_DATABASE_TITLE = &quot;database_title&quot;</span>
+
+
+<div class="viewcode-block" id="ServerSettings"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_serversettings.html#camcops_server.cc_modules.cc_serversettings.ServerSettings">[docs]</a><span class="k">class</span> <span class="nc">ServerSettings</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;_server_settings&quot;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;PK (arbitrary integer but only a value of </span><span class="si">{}</span><span class="s2"> is ever &quot;</span>
+                <span class="s2">&quot;used)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">SERVER_SETTINGS_SINGLETON_PK</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">database_title</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;database_title&quot;</span><span class="p">,</span> <span class="n">DatabaseTitleColType</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Database title&quot;</span>
+    <span class="p">)</span>
+    <span class="n">last_dummy_login_failure_clearance_at_utc</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;last_dummy_login_failure_clearance_at_utc&quot;</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Date/time (in UTC) when login failure records were cleared &quot;</span>
+                <span class="s2">&quot;for nonexistent users (security feature)&quot;</span>
+    <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">get_server_settings</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ServerSettings</span><span class="p">:</span>
+    <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+    <span class="n">server_settings</span> <span class="o">=</span> <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">ServerSettings</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ServerSettings</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">SERVER_SETTINGS_SINGLETON_PK</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">server_settings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">server_settings</span> <span class="o">=</span> <span class="n">ServerSettings</span><span class="p">()</span>
+        <span class="n">server_settings</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">SERVER_SETTINGS_SINGLETON_PK</span>
+        <span class="n">server_settings</span><span class="o">.</span><span class="n">database_title</span> <span class="o">=</span> <span class="s2">&quot;DATABASE_TITLE_UNSET&quot;</span>
+        <span class="n">dbsession</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">server_settings</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">server_settings</span>
+
+
+<span class="c1"># def get_database_title(req: &quot;CamcopsRequest&quot;) -&gt; str:</span>
+<span class="c1">#     def creator() -&gt; str:</span>
+<span class="c1">#         server_settings = get_server_settings(req)</span>
+<span class="c1">#         return server_settings.database_title or &quot;&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#     return cache_region_static.get_or_create(CACHE_KEY_DATABASE_TITLE, creator)  # noqa</span>
+
+
+<span class="c1"># def clear_database_title_cache() -&gt; None:</span>
+<span class="c1">#     cache_region_static.delete(CACHE_KEY_DATABASE_TITLE)</span>
+
+
+<span class="c1"># def set_database_title(req: &quot;CamcopsRequest&quot;, title: str) -&gt; None:</span>
+<span class="c1">#     server_settings = get_server_settings(req)</span>
+<span class="c1">#     server_settings.database_title = title</span>
+<span class="c1">#     clear_database_title_cache()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

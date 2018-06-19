@@ -1,0 +1,361 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.tasks.demoquestionnaire &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.tasks.demoquestionnaire</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/tasks/demoquestionnaire.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="k">import</span> <span class="n">DeclarativeMeta</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.schema</span> <span class="k">import</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.sqltypes</span> <span class="k">import</span> <span class="n">Date</span><span class="p">,</span> <span class="n">Float</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">Time</span><span class="p">,</span> <span class="n">UnicodeText</span>
+
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_blob</span> <span class="k">import</span> <span class="n">blob_relationship</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_db</span> <span class="k">import</span> <span class="n">add_multiple_columns</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_html</span> <span class="k">import</span> <span class="n">answer</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_sqla_coltypes</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">CamcopsColumn</span><span class="p">,</span>
+    <span class="n">PendulumDateTimeAsIsoTextColType</span><span class="p">,</span>
+    <span class="n">DiagnosticCodeColType</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_task</span> <span class="k">import</span> <span class="n">Task</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># TASKS: DEMO QUESTIONNAIRE</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">N_MCQ</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># 8 in v1; 10 in v2</span>
+<span class="n">N_MCQBOOL</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">N_MULTIPLERESPONSE</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">N_BOOLTEXT</span> <span class="o">=</span> <span class="mi">22</span>
+<span class="n">N_BOOLIMAGE</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">N_PICKER</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">N_SLIDER</span> <span class="o">=</span> <span class="mi">2</span>
+
+
+<span class="k">def</span> <span class="nf">divtest</span><span class="p">(</span><span class="n">divname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s1">&#39;&lt;div class=&quot;</span><span class="si">{d}</span><span class="s1">&quot;&gt;.</span><span class="si">{d}</span><span class="s1">&lt;/div&gt;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">divname</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">DemoQuestionnaireMetaclass</span><span class="p">(</span><span class="n">DeclarativeMeta</span><span class="p">):</span>
+    <span class="c1"># noinspection PyInitNewSignature</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s1">&#39;DemoQuestionnaire&#39;</span><span class="p">],</span>
+                 <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">bases</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+                 <span class="n">classdict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;mcq&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N_MCQ</span><span class="p">)</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;mcqbool&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N_MCQBOOL</span><span class="p">)</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;multipleresponse&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N_MULTIPLERESPONSE</span><span class="p">)</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;booltext&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N_BOOLTEXT</span><span class="p">)</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;boolimage&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N_BOOLIMAGE</span><span class="p">)</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;picker&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N_PICKER</span><span class="p">)</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;slider&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N_SLIDER</span><span class="p">,</span> <span class="n">Float</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">classdict</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DemoQuestionnaire"><a class="viewcode-back" href="../../../autodoc/tasks/demoquestionnaire.html#camcops_server.tasks.demoquestionnaire.DemoQuestionnaire">[docs]</a><span class="k">class</span> <span class="nc">DemoQuestionnaire</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span>
+                        <span class="n">metaclass</span><span class="o">=</span><span class="n">DemoQuestionnaireMetaclass</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;demoquestionnaire&quot;</span>
+    <span class="n">shortname</span> <span class="o">=</span> <span class="s2">&quot;Demo&quot;</span>
+    <span class="n">longname</span> <span class="o">=</span> <span class="s2">&quot;Demonstration Questionnaire&quot;</span>
+    <span class="n">is_anonymous</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">mcqtext_1a</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mcqtext_1a&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mcqtext_1b</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mcqtext_1b&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mcqtext_2a</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mcqtext_2a&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mcqtext_2b</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mcqtext_2b&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mcqtext_3a</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mcqtext_3a&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">mcqtext_3b</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;mcqtext_3b&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">typedvar_text</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;typedvar_text&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">typedvar_text_multiline</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;typedvar_text_multiline&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>
+    <span class="n">typedvar_text_rich</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;typedvar_text_rich&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">)</span>  <span class="c1"># v2</span>
+    <span class="n">typedvar_int</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;typedvar_int&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">)</span>
+    <span class="n">typedvar_real</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;typedvar_real&quot;</span><span class="p">,</span> <span class="n">Float</span><span class="p">)</span>
+    <span class="n">date_only</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;date_only&quot;</span><span class="p">,</span> <span class="n">Date</span><span class="p">)</span>
+    <span class="n">date_time</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;date_time&quot;</span><span class="p">,</span> <span class="n">PendulumDateTimeAsIsoTextColType</span><span class="p">)</span>
+    <span class="n">thermometer</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;thermometer&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">)</span>
+    <span class="n">diagnosticcode_code</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;diagnosticcode_code&quot;</span><span class="p">,</span> <span class="n">DiagnosticCodeColType</span><span class="p">)</span>
+    <span class="n">diagnosticcode_description</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;diagnosticcode_description&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span>
+    <span class="p">)</span>
+    <span class="n">diagnosticcode2_code</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;diagnosticcode2_code&quot;</span><span class="p">,</span> <span class="n">DiagnosticCodeColType</span>
+    <span class="p">)</span>  <span class="c1"># v2</span>
+    <span class="n">diagnosticcode2_description</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;diagnosticcode2_description&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span>
+    <span class="p">)</span>  <span class="c1"># v2</span>
+    <span class="n">photo_blobid</span> <span class="o">=</span> <span class="n">CamcopsColumn</span><span class="p">(</span>
+        <span class="s2">&quot;photo_blobid&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">is_blob_id_field</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blob_relationship_attr_name</span><span class="o">=</span><span class="s2">&quot;photo&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:</span>
+    <span class="n">photo_rotation</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;photo_rotation&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">)</span>  <span class="c1"># *** DEFUNCT as of v2.0.0  # noqa</span>
+    <span class="n">canvas_blobid</span> <span class="o">=</span> <span class="n">CamcopsColumn</span><span class="p">(</span>
+        <span class="s2">&quot;canvas_blobid&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">is_blob_id_field</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blob_relationship_attr_name</span><span class="o">=</span><span class="s2">&quot;canvas&quot;</span>
+    <span class="p">)</span>
+    <span class="n">canvas2_blobid</span> <span class="o">=</span> <span class="n">CamcopsColumn</span><span class="p">(</span>
+        <span class="s2">&quot;canvas2_blobid&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">is_blob_id_field</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blob_relationship_attr_name</span><span class="o">=</span><span class="s2">&quot;canvas2&quot;</span>
+    <span class="p">)</span>
+    <span class="n">spinbox_int</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;spinbox_int&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">)</span>  <span class="c1"># v2</span>
+    <span class="n">spinbox_real</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;spinbox_real&quot;</span><span class="p">,</span> <span class="n">Float</span><span class="p">)</span>  <span class="c1"># v2</span>
+    <span class="n">time_only</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;time_only&quot;</span><span class="p">,</span> <span class="n">Time</span><span class="p">)</span>  <span class="c1"># v2</span>
+
+    <span class="n">photo</span> <span class="o">=</span> <span class="n">blob_relationship</span><span class="p">(</span><span class="s2">&quot;DemoQuestionnaire&quot;</span><span class="p">,</span> <span class="s2">&quot;photo_blobid&quot;</span><span class="p">)</span>
+    <span class="n">canvas</span> <span class="o">=</span> <span class="n">blob_relationship</span><span class="p">(</span><span class="s2">&quot;DemoQuestionnaire&quot;</span><span class="p">,</span> <span class="s2">&quot;canvas_blobid&quot;</span><span class="p">)</span>
+    <span class="n">canvas2</span> <span class="o">=</span> <span class="n">blob_relationship</span><span class="p">(</span><span class="s2">&quot;DemoQuestionnaire&quot;</span><span class="p">,</span> <span class="s2">&quot;canvas2_blobid&quot;</span><span class="p">)</span>
+
+    <span class="c1"># noinspection PyMethodOverriding</span>
+<div class="viewcode-block" id="DemoQuestionnaire.is_complete"><a class="viewcode-back" href="../../../autodoc/tasks/demoquestionnaire.html#camcops_server.tasks.demoquestionnaire.DemoQuestionnaire.is_complete">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_complete</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DemoQuestionnaire.get_task_html"><a class="viewcode-back" href="../../../autodoc/tasks/demoquestionnaire.html#camcops_server.tasks.demoquestionnaire.DemoQuestionnaire.get_task_html">[docs]</a>    <span class="k">def</span> <span class="nf">get_task_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;div class=&quot;summary&quot;&gt;</span>
+<span class="s2">                &lt;table class=&quot;summary&quot;&gt;</span>
+<span class="s2">                    </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">                &lt;/table&gt;</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">            &lt;div class=&quot;explanation&quot;&gt;</span>
+<span class="s2">                This is a demo questionnaire, containing no genuine</span>
+<span class="s2">                information.</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">            &lt;table class=&quot;taskdetail&quot;&gt;</span>
+<span class="s2">                &lt;tr&gt;</span>
+<span class="s2">                    &lt;th width=&quot;50%&quot;&gt;Question&lt;/th&gt;</span>
+<span class="s2">                    &lt;th width=&quot;50%&quot;&gt;Answer&lt;/th&gt;</span>
+<span class="s2">                &lt;/tr&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_is_complete_tr</span><span class="p">(</span><span class="n">req</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_MCQ</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_val_row</span><span class="p">(</span><span class="s2">&quot;mcq&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_MCQBOOL</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_bool_row</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;mcqbool&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_MULTIPLERESPONSE</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_bool_row</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;multipleresponse&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_BOOLTEXT</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_bool_row</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;booltext&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_BOOLIMAGE</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_bool_row</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;boolimage&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_PICKER</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_val_row</span><span class="p">(</span><span class="s2">&quot;picker&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_SLIDER</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_val_row</span><span class="p">(</span><span class="s2">&quot;slider&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;mcqtext_1a&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;mcqtext_1b&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;mcqtext_2a&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;mcqtext_2b&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;mcqtext_3a&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;mcqtext_3b&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;typedvar_text&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;typedvar_text_multiline&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;typedvar_text_rich&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_val_row</span><span class="p">(</span><span class="s2">&quot;typedvar_int&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_val_row</span><span class="p">(</span><span class="s2">&quot;typedvar_real&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_val_row</span><span class="p">(</span><span class="s2">&quot;date_only&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_val_row</span><span class="p">(</span><span class="s2">&quot;date_time&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_val_row</span><span class="p">(</span><span class="s2">&quot;thermometer&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;diagnosticcode_code&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;diagnosticcode_description&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;diagnosticcode2_code&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_string_row</span><span class="p">(</span><span class="s2">&quot;diagnosticcode2_description&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_picture_row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="s2">&quot;photo&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_picture_row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="s2">&quot;canvas&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twocol_picture_row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas2</span><span class="p">,</span> <span class="s2">&quot;canvas2&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;/table&gt;</span>
+
+<span class="s2">            &lt;div&gt;</span>
+<span class="s2">                In addition to the data (above), this task demonstrates</span>
+<span class="s2">                HTML/CSS styles used in the CamCOPS views.</span>
+<span class="s2">            &lt;/div&gt;</span>
+
+<span class="s2">            &lt;h1&gt;Header 1&lt;/h1&gt;</span>
+<span class="s2">            &lt;h2&gt;Header 2&lt;/h2&gt;</span>
+<span class="s2">            &lt;h3&gt;Header 3&lt;/h3&gt;</span>
+
+<span class="s2">            &lt;div&gt;</span>
+<span class="s2">                Plain div with &lt;sup&gt;superscript&lt;/sup&gt; and &lt;sub&gt;subscript&lt;/sub&gt;.</span>
+<span class="s2">                &lt;br&gt;</span>
+<span class="s2">                Answers look like this: &quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">answer</span><span class="p">(</span><span class="s2">&quot;Answer&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;&lt;br&gt;</span>
+<span class="s2">                Missing answers look liks this: &quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">answer</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;&lt;br&gt;</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;badidpolicy_mild&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;badidpolicy_severe&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;clinician&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;copyright&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;explanation&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;footnotes&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;formtitle&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;green&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;heading&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;important&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;incomplete&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;indented&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;live_on_tablet&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;navigation&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;office&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;patient&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;respondent&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;smallprint&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;specialnote&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;subheading&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;summary&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;superuser&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;taskheader&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;trackerheader&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;tracker_all_consistent&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">divtest</span><span class="p">(</span><span class="s2">&quot;warning&quot;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;table&gt;</span>
+<span class="s2">                &lt;tr&gt;</span>
+<span class="s2">                    &lt;th&gt;Standard table heading; column 1&lt;/th&gt;&lt;th&gt;Column 2&lt;/th&gt;</span>
+<span class="s2">                &lt;/tr&gt;</span>
+<span class="s2">                &lt;tr&gt;</span>
+<span class="s2">                    &lt;td&gt;Standard table row; column 1&lt;/td&gt;&lt;td&gt;Column 2&lt;/td&gt;</span>
+<span class="s2">                &lt;/tr&gt;</span>
+<span class="s2">            &lt;/table&gt;</span>
+
+<span class="s2">            &lt;div&gt;Inlined &lt;code&gt;code looks like this&lt;/code&gt;.</span>
+
+<span class="s2">            &lt;div&gt;There are some others, too.&lt;/div&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">h</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

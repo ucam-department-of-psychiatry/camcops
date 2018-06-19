@@ -1,0 +1,876 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.cc_modules.merge_db &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.cc_modules.merge_db</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/tools/merge_db.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pformat</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.logs</span> <span class="k">import</span> <span class="n">BraceStyleAdapter</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.merge_db</span> <span class="k">import</span> <span class="n">merge_db</span><span class="p">,</span> <span class="n">TranslationContext</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.schema</span> <span class="k">import</span> <span class="n">get_table_names</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.session</span> <span class="k">import</span> <span class="n">get_safe_url_from_engine</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.table_identity</span> <span class="k">import</span> <span class="n">TableIdentity</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.engine</span> <span class="k">import</span> <span class="n">create_engine</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.engine.base</span> <span class="k">import</span> <span class="n">Engine</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.exc</span> <span class="k">import</span> <span class="n">MultipleResultsFound</span><span class="p">,</span> <span class="n">NoResultFound</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.session</span> <span class="k">import</span> <span class="n">Session</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.expression</span> <span class="k">import</span> <span class="n">column</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">select</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">text</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_audit</span> <span class="k">import</span> <span class="n">AuditEntry</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_constants</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">FP_ID_NUM</span><span class="p">,</span>
+    <span class="n">NUMBER_OF_IDNUMS_DEFUNCT</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_db</span> <span class="k">import</span> <span class="n">GenericTabletRecordMixin</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_device</span> <span class="k">import</span> <span class="n">Device</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_dirtytables</span> <span class="k">import</span> <span class="n">DirtyTable</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_group</span> <span class="k">import</span> <span class="n">Group</span><span class="p">,</span> <span class="n">group_group_table</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_hl7</span> <span class="k">import</span> <span class="n">HL7Message</span><span class="p">,</span> <span class="n">HL7Run</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_idnumdef</span> <span class="k">import</span> <span class="n">IdNumDefinition</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_membership</span> <span class="k">import</span> <span class="n">UserGroupMembership</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_patient</span> <span class="k">import</span> <span class="n">Patient</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_patientidnum</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">fake_tablet_id_for_patientidnum</span><span class="p">,</span>
+    <span class="n">PatientIdNum</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_request</span> <span class="k">import</span> <span class="n">get_command_line_request</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_session</span> <span class="k">import</span> <span class="n">CamcopsSession</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_serversettings</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">server_stored_var_table_defunct</span><span class="p">,</span>
+    <span class="n">ServerSettings</span><span class="p">,</span>
+    <span class="n">ServerStoredVarNamesDefunct</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_sqlalchemy</span> <span class="k">import</span> <span class="n">Base</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_user</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">SecurityAccountLockout</span><span class="p">,</span>
+    <span class="n">SecurityLoginFailure</span><span class="p">,</span>
+    <span class="n">User</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">sqlalchemy.engine.result</span> <span class="k">import</span> <span class="n">ResultProxy</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">BraceStyleAdapter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+<span class="n">DEBUG_VIA_PDB</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Preprocess</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span> <span class="nf">get_skip_tables</span><span class="p">(</span><span class="n">src_tables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TableIdentity</span><span class="p">]:</span>
+    <span class="n">skip_tables</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[TableIdentity]</span>
+
+    <span class="c1"># Check we have some core tables present in the sources</span>
+
+    <span class="k">for</span> <span class="n">tname</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Patient</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">,</span> <span class="n">User</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">tname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">src_tables</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot proceed; table </span><span class="si">{!r}</span><span class="s2"> missing from source; unlikely &quot;</span>
+                <span class="s2">&quot;that the source is any sort of old CamCOPS database!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">tname</span><span class="p">))</span>
+
+    <span class="c1"># In general, we allow missing source tables.</span>
+    <span class="c1"># However, we can&#39;t allow source tables to be missing if they are</span>
+    <span class="c1"># automatically eager-loaded by relationships. This is only true in</span>
+    <span class="c1"># CamCOPS for some high-performance queries: Patient, User,</span>
+    <span class="c1"># PatientIdNum. In the context of merges we&#39;re going to run, that means</span>
+    <span class="c1"># PatientIdNum.</span>
+
+    <span class="c1"># SKIP -- disable eager loading instead</span>
+    <span class="c1"># # Create patient ID number table in SOURCE database, because it&#39;s</span>
+    <span class="c1"># # eager-loaded</span>
+    <span class="c1"># if PatientIdNum.__tablename__ not in src_tables:</span>
+    <span class="c1">#     create_table_from_orm_class(engine=src_engine,</span>
+    <span class="c1">#                                 ormclass=PatientIdNum,</span>
+    <span class="c1">#                                 without_constraints=True)</span>
+
+    <span class="k">if</span> <span class="n">Group</span><span class="o">.</span><span class="n">__tablename__</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">src_tables</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Group information in source database; skipping source &quot;</span>
+                    <span class="s2">&quot;table </span><span class="si">{!r}</span><span class="s2">; will create a default group&quot;</span><span class="p">,</span>
+                    <span class="n">Group</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">)</span>
+        <span class="n">skip_tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TableIdentity</span><span class="p">(</span><span class="n">tablename</span><span class="o">=</span><span class="n">Group</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">skip_tables</span>
+
+
+<div class="viewcode-block" id="get_src_iddefs"><a class="viewcode-back" href="../../../autodoc/cc_modules/merge_db.html#camcops_server.cc_modules.merge_db.get_src_iddefs">[docs]</a><span class="k">def</span> <span class="nf">get_src_iddefs</span><span class="p">(</span><span class="n">src_engine</span><span class="p">:</span> <span class="n">Engine</span><span class="p">,</span>
+                   <span class="n">src_tables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">IdNumDefinition</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of IdNumDefinition options, not attached to any session.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">iddefs</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: Dict[int, IdNumDefinition]</span>
+    <span class="k">if</span> <span class="n">IdNumDefinition</span><span class="o">.</span><span class="n">__tablename__</span> <span class="ow">in</span> <span class="n">src_tables</span><span class="p">:</span>
+        <span class="c1"># Source is a more modern CamCOPS database, with an IdNumDefinition</span>
+        <span class="c1"># table.</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fetching source ID number definitions from </span><span class="si">{!r}</span><span class="s2"> table&quot;</span><span class="p">,</span>
+                 <span class="n">IdNumDefinition</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">)</span>
+        <span class="c1"># noinspection PyUnresolvedReferences</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">select</span><span class="p">([</span><span class="n">IdNumDefinition</span><span class="o">.</span><span class="n">which_idnum</span><span class="p">,</span>
+                    <span class="n">IdNumDefinition</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+                    <span class="n">IdNumDefinition</span><span class="o">.</span><span class="n">short_description</span><span class="p">])</span>\
+            <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">IdNumDefinition</span><span class="o">.</span><span class="n">__table__</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">IdNumDefinition</span><span class="o">.</span><span class="n">which_idnum</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">src_engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">which_idnum</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">iddefs</span><span class="p">[</span><span class="n">which_idnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">IdNumDefinition</span><span class="p">(</span>
+                <span class="n">which_idnum</span><span class="o">=</span><span class="n">which_idnum</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">short_description</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">server_stored_var_table_defunct</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">src_tables</span><span class="p">:</span>
+        <span class="c1"># Source is an older CamCOPS database.</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fetching source ID number definitions from </span><span class="si">{!r}</span><span class="s2"> table&quot;</span><span class="p">,</span>
+                 <span class="n">server_stored_var_table_defunct</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">which_idnum</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">NUMBER_OF_IDNUMS_DEFUNCT</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">nstr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">which_idnum</span><span class="p">)</span>
+            <span class="n">qd</span> <span class="o">=</span> <span class="n">select</span><span class="p">([</span><span class="n">server_stored_var_table_defunct</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">valueText</span><span class="p">])</span>\
+                <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">server_stored_var_table_defunct</span><span class="p">)</span>\
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">server_stored_var_table_defunct</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span>
+                       <span class="n">ServerStoredVarNamesDefunct</span><span class="o">.</span><span class="n">ID_DESCRIPTION_PREFIX</span>
+                       <span class="o">+</span> <span class="n">nstr</span><span class="p">)</span>
+            <span class="n">rd</span> <span class="o">=</span> <span class="n">src_engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qd</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="n">qs</span> <span class="o">=</span> <span class="n">select</span><span class="p">([</span><span class="n">server_stored_var_table_defunct</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">valueText</span><span class="p">])</span>\
+                <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">server_stored_var_table_defunct</span><span class="p">)</span>\
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">server_stored_var_table_defunct</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span>
+                       <span class="n">ServerStoredVarNamesDefunct</span><span class="o">.</span><span class="n">ID_SHORT_DESCRIPTION_PREFIX</span>
+                       <span class="o">+</span> <span class="n">nstr</span><span class="p">)</span>
+            <span class="n">rs</span> <span class="o">=</span> <span class="n">src_engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="n">iddefs</span><span class="p">[</span><span class="n">which_idnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">IdNumDefinition</span><span class="p">(</span>
+                <span class="n">which_idnum</span><span class="o">=</span><span class="n">which_idnum</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">rd</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">rd</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">short_description</span><span class="o">=</span><span class="n">rs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">rs</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No information available on source ID number &quot;</span>
+                    <span class="s2">&quot;descriptions&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">iddefs</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Extra translation to be applied to individual objects</span>
+<span class="c1"># =============================================================================</span>
+<span class="c1"># The extra logic for this database:</span>
+
+<span class="k">def</span> <span class="nf">flush_session</span><span class="p">(</span><span class="n">dst_session</span><span class="p">:</span> <span class="n">Session</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Flushing session&quot;</span><span class="p">)</span>
+    <span class="n">dst_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">group_exists</span><span class="p">(</span><span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dst_session</span><span class="p">:</span> <span class="n">Session</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Group</span><span class="o">.</span><span class="n">group_exists</span><span class="p">(</span><span class="n">dbsession</span><span class="o">=</span><span class="n">dst_session</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="n">group_id</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">fetch_group_id_by_name</span><span class="p">(</span><span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dst_session</span><span class="p">:</span> <span class="n">Session</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">dst_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Group</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">group_name</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">one</span><span class="p">()</span>  <span class="c1"># type: Group</span>
+        <span class="c1"># ... will fail if there are 0 or &gt;1 results</span>
+    <span class="k">except</span> <span class="n">MultipleResultsFound</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Nasty bug: can&#39;t have two groups with the same name! &quot;</span>
+                     <span class="s2">&quot;Group name was </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">group_name</span><span class="p">)</span>
+        <span class="k">raise</span>
+    <span class="k">except</span> <span class="n">NoResultFound</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating new group named </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">group_name</span><span class="p">)</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">Group</span><span class="p">()</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">group_name</span>
+        <span class="n">dst_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="n">flush_session</span><span class="p">(</span><span class="n">dst_session</span><span class="p">)</span>  <span class="c1"># creates the PK</span>
+        <span class="c1"># https://stackoverflow.com/questions/1316952/sqlalchemy-flush-and-get-inserted-id  # noqa</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;... new group has ID </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">group</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">group</span><span class="o">.</span><span class="n">id</span>
+
+
+<span class="k">def</span> <span class="nf">ensure_default_group_id</span><span class="p">(</span><span class="n">trcon</span><span class="p">:</span> <span class="n">TranslationContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">default_group_id</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;default_group_id&quot;</span><span class="p">]</span>  <span class="c1"># type: Optional[int]</span>
+    <span class="k">if</span> <span class="n">default_group_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># The user specified a group ID to use for records without one</span>
+        <span class="k">assert</span> <span class="n">group_exists</span><span class="p">(</span><span class="n">group_id</span><span class="o">=</span><span class="n">default_group_id</span><span class="p">,</span>
+                            <span class="n">dst_session</span><span class="o">=</span><span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span><span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;User specified default_group_id=</span><span class="si">{!r}</span><span class="s2">, and object </span><span class="si">{!r}</span><span class="s2"> needs &quot;</span>
+            <span class="s2">&quot;a _group_id (directly or indirectly), but that ID doesn&#39;t exist &quot;</span>
+            <span class="s2">&quot;in the </span><span class="si">{!r}</span><span class="s2"> table of the destination database&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">default_group_id</span><span class="p">,</span> <span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span><span class="p">,</span> <span class="n">Group</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">default_group_name</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;default_group_name&quot;</span><span class="p">]</span>  <span class="c1"># type: Optional[str]  # noqa</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">default_group_name</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;User specified neither default_group_id or &quot;</span>
+                <span class="s2">&quot;default_group_name, but object </span><span class="si">{!r}</span><span class="s2"> needs a &quot;</span>
+                <span class="s2">&quot;_group_id, directly or indirectly&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">default_group_id</span> <span class="o">=</span> <span class="n">fetch_group_id_by_name</span><span class="p">(</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="n">default_group_name</span><span class="p">,</span>
+            <span class="n">dst_session</span><span class="o">=</span><span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span>
+        <span class="p">)</span>
+        <span class="n">trcon</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;default_group_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_group_id</span>  <span class="c1"># for next time!</span>
+
+
+<span class="k">def</span> <span class="nf">get_dst_iddef</span><span class="p">(</span><span class="n">dst_session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
+                  <span class="n">which_idnum</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IdNumDefinition</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">dst_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">IdNumDefinition</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">IdNumDefinition</span><span class="o">.</span><span class="n">which_idnum</span> <span class="o">==</span> <span class="n">which_idnum</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">ensure_idnumdef</span><span class="p">(</span><span class="n">trcon</span><span class="p">:</span> <span class="n">TranslationContext</span><span class="p">,</span>
+                    <span class="n">which_idnum</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IdNumDefinition</span><span class="p">:</span>
+    <span class="n">dst_iddef</span> <span class="o">=</span> <span class="n">get_dst_iddef</span><span class="p">(</span><span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span><span class="p">,</span> <span class="n">which_idnum</span><span class="o">=</span><span class="n">which_idnum</span><span class="p">)</span>
+    <span class="n">src_iddefs</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;src_iddefs&#39;</span><span class="p">]</span>  <span class="c1"># type: Dict[int, IdNumDefinition]  # noqa</span>
+    <span class="k">if</span> <span class="n">dst_iddef</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">which_idnum</span> <span class="ow">in</span> <span class="n">src_iddefs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">src_iddef</span> <span class="o">=</span> <span class="n">src_iddefs</span><span class="p">[</span><span class="n">which_idnum</span><span class="p">]</span>
+            <span class="n">ensure_no_iddef_clash</span><span class="p">(</span><span class="n">src_iddef</span><span class="o">=</span><span class="n">src_iddef</span><span class="p">,</span> <span class="n">dst_iddef</span><span class="o">=</span><span class="n">dst_iddef</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dst_iddef</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">which_idnum</span> <span class="ow">in</span> <span class="n">src_iddefs</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="p">(</span>
+            <span class="s2">&quot;Descriptions for ID#</span><span class="si">{}</span><span class="s2"> are missing from the source &quot;</span>
+            <span class="s2">&quot;database!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">which_idnum</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">src_iddef</span> <span class="o">=</span> <span class="n">src_iddefs</span><span class="p">[</span><span class="n">which_idnum</span><span class="p">]</span>
+        <span class="n">new_iddef</span> <span class="o">=</span> <span class="n">IdNumDefinition</span><span class="p">(</span>
+            <span class="n">which_idnum</span><span class="o">=</span><span class="n">src_iddef</span><span class="o">.</span><span class="n">which_idnum</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">src_iddef</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">short_description</span><span class="o">=</span><span class="n">src_iddef</span><span class="o">.</span><span class="n">short_description</span>
+        <span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Adding ID number definition: </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">new_iddef</span><span class="p">)</span>
+        <span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_iddef</span><span class="p">)</span>
+        <span class="n">flush_session</span><span class="p">(</span><span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span><span class="p">)</span>  <span class="c1"># required, or database FK checks fail  # noqa</span>
+        <span class="k">return</span> <span class="n">new_iddef</span>
+
+
+<span class="k">def</span> <span class="nf">ensure_no_iddef_clash</span><span class="p">(</span><span class="n">src_iddef</span><span class="p">:</span> <span class="n">IdNumDefinition</span><span class="p">,</span>
+                          <span class="n">dst_iddef</span><span class="p">:</span> <span class="n">IdNumDefinition</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">src_iddef</span><span class="o">.</span><span class="n">which_idnum</span> <span class="o">==</span> <span class="n">dst_iddef</span><span class="o">.</span><span class="n">which_idnum</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;Bug: ensure_no_iddef_clash() called with IdNumDefinition objects&quot;</span>
+        <span class="s2">&quot;that don&#39;t share the same value for which_idnum (silly!).&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">src_iddef</span><span class="o">.</span><span class="n">description</span> <span class="o">!=</span> <span class="n">dst_iddef</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;ID description mismatch for ID#</span><span class="si">{}</span><span class="s2">: source </span><span class="si">{!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;destination </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">src_iddef</span><span class="o">.</span><span class="n">which_idnum</span><span class="p">,</span>
+                <span class="n">src_iddef</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+                <span class="n">dst_iddef</span><span class="o">.</span><span class="n">description</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">src_iddef</span><span class="o">.</span><span class="n">short_description</span> <span class="o">!=</span> <span class="n">dst_iddef</span><span class="o">.</span><span class="n">short_description</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;ID short_description mismatch for ID#</span><span class="si">{}</span><span class="s2">: source </span><span class="si">{!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;destination </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">src_iddef</span><span class="o">.</span><span class="n">which_idnum</span><span class="p">,</span>
+                <span class="n">src_iddef</span><span class="o">.</span><span class="n">short_description</span><span class="p">,</span>
+                <span class="n">dst_iddef</span><span class="o">.</span><span class="n">short_description</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+
+<span class="c1"># noinspection PyProtectedMember</span>
+<span class="k">def</span> <span class="nf">translate_fn</span><span class="p">(</span><span class="n">trcon</span><span class="p">:</span> <span class="n">TranslationContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Translating object from table: </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span><span class="p">)</span>
+    <span class="c1"># log.debug(&quot;Translating: {}&quot;, auto_repr(trcon.oldobj))</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Set _group_id, if it&#39;s blank</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span><span class="p">,</span> <span class="n">GenericTabletRecordMixin</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="p">(</span><span class="s2">&quot;_group_id&quot;</span> <span class="ow">in</span> <span class="n">trcon</span><span class="o">.</span><span class="n">missing_src_columns</span> <span class="ow">or</span>
+             <span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span><span class="o">.</span><span class="n">_group_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)):</span>
+        <span class="c1"># ... order that carefully; if the _group_id column is missing from the</span>
+        <span class="c1"># source, don&#39;t touch trcon.oldobj._group_id or it&#39;ll trigger a DB</span>
+        <span class="c1"># query that fails.</span>
+        <span class="n">ensure_default_group_id</span><span class="p">(</span><span class="n">trcon</span><span class="p">)</span>
+        <span class="n">default_group_id</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;default_group_id&quot;</span><span class="p">]</span>  <span class="c1"># type: int</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Assiging new _group_id of </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">default_group_id</span><span class="p">)</span>
+        <span class="n">trcon</span><span class="o">.</span><span class="n">newobj</span><span class="o">.</span><span class="n">_group_id</span> <span class="o">=</span> <span class="n">default_group_id</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># If an identical user is found, merge on it rather than creating a new</span>
+    <span class="c1"># one. Users with matching usernames are considered to be identical.</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="k">if</span> <span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span> <span class="o">==</span> <span class="n">User</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">:</span>
+        <span class="n">src_user</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span>  <span class="c1"># type: User</span>
+        <span class="n">src_username</span> <span class="o">=</span> <span class="n">src_user</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">matching_user</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">src_username</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">one_or_none</span><span class="p">()</span>  <span class="c1"># type: Optional[User]</span>
+        <span class="k">if</span> <span class="n">matching_user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Matching User (username </span><span class="si">{!r}</span><span class="s2">) found; merging&quot;</span><span class="p">,</span>
+                      <span class="n">matching_user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+            <span class="n">trcon</span><span class="o">.</span><span class="n">newobj</span> <span class="o">=</span> <span class="n">matching_user</span>  <span class="c1"># so that related records will work</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># If an identical device is found, merge on it rather than creating a</span>
+    <span class="c1"># new one. Devices with matching names are considered to be identical.</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="k">if</span> <span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span> <span class="o">==</span> <span class="n">Device</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">:</span>
+        <span class="n">src_device</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span>  <span class="c1"># type: Device</span>
+        <span class="n">src_devicename</span> <span class="o">=</span> <span class="n">src_device</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">matching_device</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Device</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Device</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">src_devicename</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">one_or_none</span><span class="p">()</span>  <span class="c1"># type: Optional[Device]</span>
+        <span class="k">if</span> <span class="n">matching_device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Matching Device (name </span><span class="si">{!r}</span><span class="s2">) found; merging&quot;</span><span class="p">,</span>
+                      <span class="n">matching_device</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">trcon</span><span class="o">.</span><span class="n">newobj</span> <span class="o">=</span> <span class="n">matching_device</span>
+
+        <span class="c1"># BUT BEWARE, BECAUSE IF YOU MERGE THE SAME DATABASE TWICE (even if</span>
+        <span class="c1"># that&#39;s a silly thing to do...), MERGING DEVICES WILL BREAK THE KEY</span>
+        <span class="c1"># RELATIONSHIPS. For example,</span>
+        <span class="c1">#   source:</span>
+        <span class="c1">#       pk = 1, id = 1, device = 100, era = &#39;NOW&#39;, current = 1</span>
+        <span class="c1">#   dest after first merge:</span>
+        <span class="c1">#       pk = 1, id = 1, device = 100, era = &#39;NOW&#39;, current = 1</span>
+        <span class="c1">#   dest after second merge:</span>
+        <span class="c1">#       pk = 1, id = 1, device = 100, era = &#39;NOW&#39;, current = 1</span>
+        <span class="c1">#       pk = 2, id = 1, device = 100, era = &#39;NOW&#39;, current = 1</span>
+        <span class="c1"># ... so you get a clash/duplicate.</span>
+        <span class="c1"># Mind you, that&#39;s fair, because there is a duplicate.</span>
+        <span class="c1"># SO WE DO SEPARATE DUPLICATE CHECKING, below.</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># If an identical group is found, merge on it rather than creating a</span>
+    <span class="c1"># new one. Groups with matching names are considered to be identical.</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="k">if</span> <span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span> <span class="o">==</span> <span class="n">Group</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">:</span>
+        <span class="n">src_group</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span>  <span class="c1"># type: Group</span>
+        <span class="n">src_groupname</span> <span class="o">=</span> <span class="n">src_group</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">matching_group</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Group</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">src_groupname</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">one_or_none</span><span class="p">()</span>  <span class="c1"># type: Optional[Group]</span>
+        <span class="k">if</span> <span class="n">matching_group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Matching Group (name </span><span class="si">{!r}</span><span class="s2">) found; merging&quot;</span><span class="p">,</span>
+                      <span class="n">matching_group</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">trcon</span><span class="o">.</span><span class="n">newobj</span> <span class="o">=</span> <span class="n">matching_group</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># If there are any patient numbers in the old format (as a set of</span>
+    <span class="c1"># columns in the Patient table) which were not properly converted</span>
+    <span class="c1"># to the new format (as individual records in the PatientIdNum</span>
+    <span class="c1"># table), create new entries.</span>
+    <span class="c1"># Only worth bothering with for _current entries.</span>
+    <span class="c1"># (More explicitly: do not create new PatientIdNum entries for non-current</span>
+    <span class="c1"># patients; it&#39;s very fiddly if there might be asynchrony between</span>
+    <span class="c1"># Patient and PatientIdNum objects for that patient.)</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="k">if</span> <span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span> <span class="o">==</span> <span class="n">Patient</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">:</span>
+        <span class="c1"># (a) Find old patient numbers</span>
+        <span class="n">old_patient</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span>  <span class="c1"># type: Patient</span>
+        <span class="c1"># noinspection PyUnresolvedReferences</span>
+        <span class="n">src_pt_query</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">select</span><span class="p">([</span><span class="n">text</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)])</span>
+            <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">table</span><span class="p">(</span><span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="n">Patient</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="n">Patient</span><span class="o">.</span><span class="n">_current</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="n">Patient</span><span class="o">.</span><span class="n">_device_id</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_device_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="n">Patient</span><span class="o">.</span><span class="n">_era</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_era</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># nopep8</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">src_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">src_pt_query</span><span class="p">)</span>  <span class="c1"># type: ResultProxy</span>
+        <span class="n">list_of_dicts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_of_dicts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;Failed to fetch old patient IDs correctly; bug?&quot;</span>
+        <span class="p">)</span>
+        <span class="n">old_patient_dict</span> <span class="o">=</span> <span class="n">list_of_dicts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># (b) If any don&#39;t exist in the new database, create them.</span>
+        <span class="c1"># -- no, that&#39;s not right; we will be processing Patient before</span>
+        <span class="c1"># PatientIdNum, so that should be: if any don&#39;t exist in the *source*</span>
+        <span class="c1"># database, create them.</span>
+        <span class="n">src_tables</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">src_table_names</span>
+        <span class="k">for</span> <span class="n">which_idnum</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">NUMBER_OF_IDNUMS_DEFUNCT</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">old_fieldname</span> <span class="o">=</span> <span class="n">FP_ID_NUM</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">which_idnum</span><span class="p">)</span>
+            <span class="n">idnum_value</span> <span class="o">=</span> <span class="n">old_patient_dict</span><span class="p">[</span><span class="n">old_fieldname</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">idnum_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Old Patient record didn&#39;t contain this ID number</span>
+                <span class="k">continue</span>
+            <span class="c1"># Old Patient record *did* contain the ID number...</span>
+            <span class="k">if</span> <span class="n">PatientIdNum</span><span class="o">.</span><span class="n">__tablename__</span> <span class="ow">in</span> <span class="n">src_tables</span><span class="p">:</span>
+                <span class="c1"># noinspection PyUnresolvedReferences</span>
+                <span class="n">src_idnum_query</span> <span class="o">=</span> <span class="n">select</span><span class="p">([</span><span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">()])</span>\
+                    <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">table</span><span class="p">(</span><span class="n">PatientIdNum</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">))</span>\
+                    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="n">PatientIdNum</span><span class="o">.</span><span class="n">patient_id</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span>
+                           <span class="n">old_patient</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="n">PatientIdNum</span><span class="o">.</span><span class="n">_current</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span>
+                           <span class="n">old_patient</span><span class="o">.</span><span class="n">_current</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="n">PatientIdNum</span><span class="o">.</span><span class="n">_device_id</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span>
+                           <span class="n">old_patient</span><span class="o">.</span><span class="n">_device_id</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="n">PatientIdNum</span><span class="o">.</span><span class="n">_era</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span>
+                           <span class="n">old_patient</span><span class="o">.</span><span class="n">_era</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="n">PatientIdNum</span><span class="o">.</span><span class="n">which_idnum</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span>
+                           <span class="n">which_idnum</span><span class="p">)</span>
+                <span class="n">n_present</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">src_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">src_idnum_query</span><span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+                <span class="c1">#                 ^^^</span>
+                <span class="c1">#                  !</span>
+                <span class="k">if</span> <span class="n">n_present</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># There was already a PatientIdNum for this which_idnum</span>
+                    <span class="k">continue</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">ensure_idnumdef</span><span class="p">(</span><span class="n">trcon</span><span class="p">,</span> <span class="n">which_idnum</span><span class="o">=</span><span class="n">which_idnum</span><span class="p">)</span>
+            <span class="n">pidnum</span> <span class="o">=</span> <span class="n">PatientIdNum</span><span class="p">()</span>
+            <span class="c1"># PatientIdNum fields:</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">fake_tablet_id_for_patientidnum</span><span class="p">(</span>
+                <span class="n">patient_id</span><span class="o">=</span><span class="n">old_patient</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">which_idnum</span><span class="o">=</span><span class="n">which_idnum</span><span class="p">)</span>
+            <span class="c1"># ... guarantees a pseudo client (tablet) PK</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">patient_id</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">id</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">which_idnum</span> <span class="o">=</span> <span class="n">which_idnum</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">idnum_value</span> <span class="o">=</span> <span class="n">idnum_value</span>
+            <span class="c1"># GenericTabletRecordMixin fields:</span>
+            <span class="c1"># _pk: autogenerated</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_device_id</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">trcon</span><span class="o">.</span><span class="n">objmap</span><span class="p">[</span><span class="n">old_patient</span><span class="o">.</span><span class="n">_device</span><span class="p">]</span><span class="o">.</span><span class="n">id</span>
+            <span class="p">)</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_era</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_era</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_current</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_when_added_exact</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_when_added_exact</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_when_added_batch_utc</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_when_added_batch_utc</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_adding_user_id</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">trcon</span><span class="o">.</span><span class="n">objmap</span><span class="p">[</span><span class="n">old_patient</span><span class="o">.</span><span class="n">_adding_user</span><span class="p">]</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">if</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_adding_user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_when_removed_exact</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_when_removed_exact</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_when_removed_batch_utc</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_when_removed_batch_utc</span>  <span class="c1"># noqa</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_removing_user_id</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">trcon</span><span class="o">.</span><span class="n">objmap</span><span class="p">[</span><span class="n">old_patient</span><span class="o">.</span><span class="n">_removing_user</span><span class="p">]</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">if</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_removing_user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_preserving_user_id</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">trcon</span><span class="o">.</span><span class="n">objmap</span><span class="p">[</span><span class="n">old_patient</span><span class="o">.</span><span class="n">_preserving_user</span><span class="p">]</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">if</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_preserving_user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_forcibly_preserved</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_forcibly_preserved</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_predecessor_pk</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Impossible to calculate properly</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_successor_pk</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Impossible to calculate properly</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_manually_erased</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_manually_erased</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_manually_erased_at</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_manually_erased_at</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_manually_erasing_user_id</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">trcon</span><span class="o">.</span><span class="n">objmap</span><span class="p">[</span><span class="n">old_patient</span><span class="o">.</span><span class="n">_manually_erasing_user</span><span class="p">]</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">if</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_manually_erasing_user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_camcops_version</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_camcops_version</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_addition_pending</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_addition_pending</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_removal_pending</span> <span class="o">=</span> <span class="n">old_patient</span><span class="o">.</span><span class="n">_removal_pending</span>
+            <span class="n">pidnum</span><span class="o">.</span><span class="n">_group_id</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">newobj</span><span class="o">.</span><span class="n">_group_id</span>
+            <span class="c1"># ... will have been set above if it was blank</span>
+
+            <span class="c1"># OK.</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Inserting new PatientIdNum: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pidnum</span><span class="p">)</span>
+            <span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pidnum</span><span class="p">)</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># If we&#39;re inserting a PatientIdNum, make sure there is a corresponding</span>
+    <span class="c1"># IdNumDefinition, and that it&#39;s valid</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="k">if</span> <span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span> <span class="o">==</span> <span class="n">PatientIdNum</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">:</span>
+        <span class="n">src_pidnum</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span>  <span class="c1"># type: PatientIdNum</span>
+        <span class="n">which_idnum</span> <span class="o">=</span> <span class="n">src_pidnum</span><span class="o">.</span><span class="n">which_idnum</span>
+        <span class="c1"># Is it valid?</span>
+        <span class="k">if</span> <span class="n">which_idnum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Bad PatientIdNum: </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">src_pidnum</span><span class="p">))</span>
+        <span class="c1"># Is there a corresponding IdNumDefinition, or shall we create one?</span>
+        <span class="n">ensure_idnumdef</span><span class="p">(</span><span class="n">trcon</span><span class="p">,</span> <span class="n">which_idnum</span><span class="o">=</span><span class="n">which_idnum</span><span class="p">)</span>
+        <span class="c1"># Ensure the new object has an appropriate FK (which will have been</span>
+        <span class="c1"># wiped)</span>
+        <span class="n">dst_pidnum</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">newobj</span>  <span class="c1"># type: PatientIdNum</span>
+        <span class="n">dst_pidnum</span><span class="o">.</span><span class="n">which_idnum</span> <span class="o">=</span> <span class="n">which_idnum</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># If we&#39;re merging from a more modern database with the IdNumDefinition</span>
+    <span class="c1"># table, check our ID number definitions don&#39;t conflict</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="k">if</span> <span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span> <span class="o">==</span> <span class="n">IdNumDefinition</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">:</span>
+        <span class="n">src_iddef</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span>  <span class="c1"># type: IdNumDefinition</span>
+        <span class="n">which_idnum</span> <span class="o">=</span> <span class="n">src_iddef</span><span class="o">.</span><span class="n">which_idnum</span>
+        <span class="n">dst_iddef</span> <span class="o">=</span> <span class="n">get_dst_iddef</span><span class="p">(</span><span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span><span class="p">,</span> <span class="n">which_idnum</span><span class="o">=</span><span class="n">which_idnum</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dst_iddef</span><span class="p">:</span>  <span class="c1"># there&#39;s an entry in the destination DB already</span>
+            <span class="n">ensure_no_iddef_clash</span><span class="p">(</span><span class="n">src_iddef</span><span class="o">=</span><span class="n">src_iddef</span><span class="p">,</span> <span class="n">dst_iddef</span><span class="o">=</span><span class="n">dst_iddef</span><span class="p">)</span>
+            <span class="n">trcon</span><span class="o">.</span><span class="n">newobj</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># don&#39;t bother inserting it again</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Check we&#39;re not creating duplicates for anything uploaded</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span><span class="p">,</span> <span class="n">GenericTabletRecordMixin</span><span class="p">):</span>
+        <span class="n">old_instance</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">oldobj</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">newobj</span><span class="o">.</span><span class="vm">__class__</span>  <span class="c1"># type: Type[GenericTabletRecordMixin]</span>
+        <span class="c1"># Records uploaded from tablets must be unique on the combination of:</span>
+        <span class="c1">#       id                  = table PK</span>
+        <span class="c1">#       _device_id          = device</span>
+        <span class="c1">#       _era                = device era</span>
+        <span class="c1">#       _when_removed_exact = removal date or NULL</span>
+        <span class="n">exists_query</span> <span class="o">=</span> <span class="n">select</span><span class="p">([</span><span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">()])</span>\
+            <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">table</span><span class="p">(</span><span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span><span class="p">))</span>\
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">old_instance</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_device_id</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span>
+                   <span class="n">trcon</span><span class="o">.</span><span class="n">objmap</span><span class="p">[</span><span class="n">old_instance</span><span class="o">.</span><span class="n">_device</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_era</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">old_instance</span><span class="o">.</span><span class="n">_era</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_when_removed_exact</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span>
+                   <span class="n">old_instance</span><span class="o">.</span><span class="n">_when_removed_exact</span><span class="p">)</span>
+        <span class="c1"># Note re NULLs... Although it&#39;s an inconvenient truth in SQL that</span>
+        <span class="c1">#   SELECT NULL = NULL; -&gt; NULL</span>
+        <span class="c1"># in this code we have a comparison of a column to a Python value.</span>
+        <span class="c1"># SQLAlchemy is clever and renders &quot;IS NULL&quot; if the Python value is</span>
+        <span class="c1"># None, or an &quot;=&quot; comparison otherwise.</span>
+        <span class="c1"># If we were comparing a column to another column, we&#39;d have to do</span>
+        <span class="c1"># more; e.g.</span>
+        <span class="c1">#</span>
+        <span class="c1"># WRONG one-to-one join to self:</span>
+        <span class="c1">#</span>
+        <span class="c1">#   SELECT a._pk, b._pk, a._when_removed_exact</span>
+        <span class="c1">#   FROM phq9 a</span>
+        <span class="c1">#   INNER JOIN phq9 b</span>
+        <span class="c1">#       ON a._pk = b._pk</span>
+        <span class="c1">#       AND a._when_removed_exact = b._when_removed_exact;</span>
+        <span class="c1">#</span>
+        <span class="c1">#   -- drops all rows</span>
+        <span class="c1">#</span>
+        <span class="c1"># CORRECT one-to-one join to self:</span>
+        <span class="c1">#</span>
+        <span class="c1">#   SELECT a._pk, b._pk, a._when_removed_exact</span>
+        <span class="c1">#   FROM phq9 a</span>
+        <span class="c1">#   INNER JOIN phq9 b</span>
+        <span class="c1">#       ON a._pk = b._pk</span>
+        <span class="c1">#       AND (a._when_removed_exact = b._when_removed_exact</span>
+        <span class="c1">#            OR (a._when_removed_exact IS NULL AND</span>
+        <span class="c1">#                b._when_removed_exact IS NULL));</span>
+        <span class="c1">#</span>
+        <span class="c1">#   -- returns all rows</span>
+        <span class="n">n_exists</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">exists_query</span><span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">n_exists</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">existing_rec_q</span> <span class="o">=</span> <span class="n">select</span><span class="p">([</span><span class="s1">&#39;*&#39;</span><span class="p">])</span>\
+                <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">table</span><span class="p">(</span><span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span><span class="p">))</span>\
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">old_instance</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>\
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_device_id</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span>
+                       <span class="n">trcon</span><span class="o">.</span><span class="n">objmap</span><span class="p">[</span><span class="n">old_instance</span><span class="o">.</span><span class="n">_device</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> \
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_era</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">old_instance</span><span class="o">.</span><span class="n">_era</span><span class="p">)</span>\
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_when_removed_exact</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span>
+                       <span class="n">old_instance</span><span class="o">.</span><span class="n">_when_removed_exact</span><span class="p">)</span>
+            <span class="n">resultproxy</span> <span class="o">=</span> <span class="n">trcon</span><span class="o">.</span><span class="n">dst_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">existing_rec_q</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="n">existing_rec</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">resultproxy</span><span class="p">]</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                <span class="s2">&quot;Source record, inheriting from GenericTabletRecordMixin and &quot;</span>
+                <span class="s2">&quot;shown below, already exists in destination database... &quot;</span>
+                <span class="s2">&quot;in table </span><span class="si">{t!r}</span><span class="s2">, clashing on: &quot;</span>
+                <span class="s2">&quot;id=</span><span class="si">{i!r}</span><span class="s2">, device_id=</span><span class="si">{d!r}</span><span class="s2">, era=</span><span class="si">{e!r}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;_when_removed_exact=</span><span class="si">{w!r}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;ARE YOU TRYING TO MERGE THE SAME DATABASE IN TWICE? &quot;</span>
+                <span class="s2">&quot;DON&#39;T.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">t</span><span class="o">=</span><span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span><span class="p">,</span>
+                    <span class="n">i</span><span class="o">=</span><span class="n">old_instance</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                    <span class="n">d</span><span class="o">=</span><span class="n">old_instance</span><span class="o">.</span><span class="n">_device_id</span><span class="p">,</span>
+                    <span class="n">e</span><span class="o">=</span><span class="n">old_instance</span><span class="o">.</span><span class="n">_era</span><span class="p">,</span>
+                    <span class="n">w</span><span class="o">=</span><span class="n">old_instance</span><span class="o">.</span><span class="n">_when_removed_exact</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span> <span class="o">==</span> <span class="n">PatientIdNum</span><span class="o">.</span><span class="n">__tablename__</span> <span class="ow">and</span>
+                    <span class="p">(</span><span class="n">old_instance</span><span class="o">.</span><span class="n">id</span> <span class="o">%</span> <span class="n">NUMBER_OF_IDNUMS_DEFUNCT</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)):</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                    <span class="s1">&#39;Since this error has occurred for table </span><span class="si">{t!r}</span><span class="s1"> &#39;</span>
+                    <span class="s1">&#39;(and for id % </span><span class="si">{n}</span><span class="s1"> == 0), &#39;</span>
+                    <span class="s1">&#39;this error may reflect a previous bug in the patient ID &#39;</span>
+                    <span class="s1">&#39;number fix for the database upload script, in which all &#39;</span>
+                    <span class="s1">&#39;ID numbers for patients with patient.id = n were given &#39;</span>
+                    <span class="s1">&#39;patient_idnum.id = n * </span><span class="si">{n}</span><span class="s1"> themselves (or possibly were &#39;</span>
+                    <span class="s1">&#39;all given patient_idnum.id = 0). &#39;</span>
+                    <span class="s1">&#39;Fix this by running, on the source database:</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+                    <span class="s1">&#39;    UPDATE patient_idnum SET id = _pk;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">t</span><span class="o">=</span><span class="n">trcon</span><span class="o">.</span><span class="n">tablename</span><span class="p">,</span>
+                        <span class="n">n</span><span class="o">=</span><span class="n">NUMBER_OF_IDNUMS_DEFUNCT</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="c1"># Print the actual instance last; accessing them via pformat can</span>
+            <span class="c1"># lead to crashes if there are missing source fields, as an</span>
+            <span class="c1"># on-demand SELECT is executed sometimes (e.g. when a PatientIdNum</span>
+            <span class="c1"># is printed, its Patient is selected, including the [user]</span>
+            <span class="c1"># &#39;fullname&#39; attribute that is absent in old databases).</span>
+            <span class="c1"># Not a breaking point, since we&#39;re going to crash anyway, but</span>
+            <span class="c1"># inelegant.</span>
+            <span class="c1"># Since lazy loading (etc.) is configured at query time, the best</span>
+            <span class="c1"># thing (as per Michael Bayer) is to detach the object from the</span>
+            <span class="c1"># session:</span>
+            <span class="c1"># https://groups.google.com/forum/#!topic/sqlalchemy/X_wA8K97smE</span>
+            <span class="n">trcon</span><span class="o">.</span><span class="n">src_session</span><span class="o">.</span><span class="n">expunge</span><span class="p">(</span><span class="n">old_instance</span><span class="p">)</span>  <span class="c1"># prevent implicit queries</span>
+            <span class="c1"># Then all should work:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                <span class="s2">&quot;Source was:</span><span class="se">\n\n</span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">pformat</span><span class="p">(</span><span class="n">old_instance</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">))</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                <span class="s2">&quot;Existing record(s) in destination DB was/were:</span><span class="se">\n\n</span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">pformat</span><span class="p">(</span><span class="n">existing_rec</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Attempt to insert duplicate record; see log &quot;</span>
+                             <span class="s2">&quot;message above.&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Postprocess</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1"># noinspection PyUnusedLocal</span>
+<span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="n">src_engine</span><span class="p">:</span> <span class="n">Engine</span><span class="p">,</span> <span class="n">dst_session</span><span class="p">:</span> <span class="n">Session</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;NOT IMPLEMENTED AUTOMATICALLY: copying user/group mapping &quot;</span>
+                <span class="s2">&quot;from table </span><span class="si">{!r}</span><span class="s2">; do this by hand.&quot;</span><span class="p">,</span>
+                <span class="n">UserGroupMembership</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;NOT IMPLEMENTED AUTOMATICALLY: copying group/group mapping &quot;</span>
+                <span class="s2">&quot;from table </span><span class="si">{!r}</span><span class="s2">; do this by hand.&quot;</span><span class="p">,</span> <span class="n">group_group_table</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Main</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="merge_camcops_db"><a class="viewcode-back" href="../../../autodoc/cc_modules/merge_db.html#camcops_server.cc_modules.merge_db.merge_camcops_db">[docs]</a><span class="k">def</span> <span class="nf">merge_camcops_db</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                     <span class="n">echo</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+                     <span class="n">report_every</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                     <span class="n">dummy_run</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+                     <span class="n">info_only</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+                     <span class="n">skip_hl7_logs</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+                     <span class="n">skip_audit_logs</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+                     <span class="n">default_group_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+                     <span class="n">default_group_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge an existing database (with a pre-v2 or later) structure into a</span>
+<span class="sd">    comtemporary CamCOPS database.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">req</span> <span class="o">=</span> <span class="n">get_command_line_request</span><span class="p">()</span>
+    <span class="n">src_engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="n">echo</span><span class="p">,</span> <span class="n">pool_pre_ping</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;SOURCE: &quot;</span> <span class="o">+</span> <span class="n">get_safe_url_from_engine</span><span class="p">(</span><span class="n">src_engine</span><span class="p">))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;DESTINATION: &quot;</span> <span class="o">+</span> <span class="n">get_safe_url_from_engine</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">engine</span><span class="p">))</span>
+
+    <span class="c1"># Delay the slow import until we&#39;ve checked our syntax</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading all models...&quot;</span><span class="p">)</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+    <span class="kn">import</span> <span class="nn">camcops_server.cc_modules.cc_all_models</span>  <span class="c1"># delayed import  # import side effects (ensure all models registered)  # noqa</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Models loaded.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Now, any special dependencies?</span>
+    <span class="c1"># From the point of view of translating any tablet-related fields, the</span>
+    <span class="c1"># actual (server) PK values are irrelevant; all relationships will be</span>
+    <span class="c1"># identical if you change any PK (not standard database practice, but</span>
+    <span class="c1"># convenient here).</span>
+    <span class="c1"># The dependencies that do matter are server-side things, like user_id</span>
+    <span class="c1"># variables.</span>
+
+    <span class="c1"># For debugging only, some junk:</span>
+    <span class="c1"># test_dependencies = [</span>
+    <span class="c1">#     TableDependency(parent_tablename=&quot;patient&quot;,</span>
+    <span class="c1">#                     child_tablename=&quot;_dirty_tables&quot;)</span>
+    <span class="c1"># ]</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Tables to skip</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+
+    <span class="n">skip_tables</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># Transient stuff we don&#39;t want to copy across, or wouldn&#39;t want to</span>
+        <span class="c1"># overwrite the destination with, or where the PK structure has</span>
+        <span class="c1"># changed and we don&#39;t care about old data:</span>
+        <span class="n">TableIdentity</span><span class="p">(</span><span class="n">tablename</span><span class="o">=</span><span class="n">CamcopsSession</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">),</span>
+        <span class="n">TableIdentity</span><span class="p">(</span><span class="n">tablename</span><span class="o">=</span><span class="n">DirtyTable</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">),</span>
+        <span class="n">TableIdentity</span><span class="p">(</span><span class="n">tablename</span><span class="o">=</span><span class="n">ServerSettings</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">),</span>
+        <span class="n">TableIdentity</span><span class="p">(</span><span class="n">tablename</span><span class="o">=</span><span class="n">SecurityAccountLockout</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">),</span>
+        <span class="n">TableIdentity</span><span class="p">(</span><span class="n">tablename</span><span class="o">=</span><span class="n">SecurityLoginFailure</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">),</span>
+        <span class="n">TableIdentity</span><span class="p">(</span><span class="n">tablename</span><span class="o">=</span><span class="n">UserGroupMembership</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Tedious and bulky stuff the user may want to skip:</span>
+    <span class="k">if</span> <span class="n">skip_hl7_logs</span><span class="p">:</span>
+        <span class="n">skip_tables</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="n">TableIdentity</span><span class="p">(</span><span class="n">tablename</span><span class="o">=</span><span class="n">HL7Message</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">),</span>
+            <span class="n">TableIdentity</span><span class="p">(</span><span class="n">tablename</span><span class="o">=</span><span class="n">HL7Run</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">),</span>
+        <span class="p">])</span>
+    <span class="k">if</span> <span class="n">skip_audit_logs</span><span class="p">:</span>
+        <span class="n">skip_tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TableIdentity</span><span class="p">(</span><span class="n">tablename</span><span class="o">=</span><span class="n">AuditEntry</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">))</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Initial operations on SOURCE database</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+
+    <span class="n">src_tables</span> <span class="o">=</span> <span class="n">get_table_names</span><span class="p">(</span><span class="n">src_engine</span><span class="p">)</span>
+    <span class="n">skip_tables</span> <span class="o">+=</span> <span class="n">get_skip_tables</span><span class="p">(</span><span class="n">src_tables</span><span class="o">=</span><span class="n">src_tables</span><span class="p">)</span>
+    <span class="n">src_iddefs</span> <span class="o">=</span> <span class="n">get_src_iddefs</span><span class="p">(</span><span class="n">src_engine</span><span class="p">,</span> <span class="n">src_tables</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Source ID number definitions: </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">src_iddefs</span><span class="p">)</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Initial operations on DESTINATION database</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="n">dst_session</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+    <span class="c1"># So that system users get the first ID (cosmetic!):</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">get_system_user</span><span class="p">(</span><span class="n">dbsession</span><span class="o">=</span><span class="n">dst_session</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">Device</span><span class="o">.</span><span class="n">get_server_device</span><span class="p">(</span><span class="n">dbsession</span><span class="o">=</span><span class="n">dst_session</span><span class="p">)</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Merge</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+
+    <span class="c1"># Merge! It&#39;s easy...</span>
+    <span class="n">trcon_info</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">default_group_id</span><span class="o">=</span><span class="n">default_group_id</span><span class="p">,</span>
+                      <span class="n">default_group_name</span><span class="o">=</span><span class="n">default_group_name</span><span class="p">,</span>
+                      <span class="n">src_iddefs</span><span class="o">=</span><span class="n">src_iddefs</span><span class="p">)</span>
+    <span class="n">merge_db</span><span class="p">(</span>
+        <span class="n">base_class</span><span class="o">=</span><span class="n">Base</span><span class="p">,</span>
+        <span class="n">src_engine</span><span class="o">=</span><span class="n">src_engine</span><span class="p">,</span>
+        <span class="n">dst_session</span><span class="o">=</span><span class="n">dst_session</span><span class="p">,</span>
+        <span class="n">allow_missing_src_tables</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">allow_missing_src_columns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">translate_fn</span><span class="o">=</span><span class="n">translate_fn</span><span class="p">,</span>
+        <span class="n">skip_tables</span><span class="o">=</span><span class="n">skip_tables</span><span class="p">,</span>
+        <span class="n">only_tables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tables_to_keep_pks_for</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># extra_table_dependencies=test_dependencies,</span>
+        <span class="n">extra_table_dependencies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dummy_run</span><span class="o">=</span><span class="n">dummy_run</span><span class="p">,</span>
+        <span class="n">info_only</span><span class="o">=</span><span class="n">info_only</span><span class="p">,</span>
+        <span class="n">report_every</span><span class="o">=</span><span class="n">report_every</span><span class="p">,</span>
+        <span class="n">flush_per_table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">flush_per_record</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">commit_with_flush</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">commit_at_end</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">prevent_eager_load</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">trcon_info</span><span class="o">=</span><span class="n">trcon_info</span>
+    <span class="p">)</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Postprocess</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+
+    <span class="n">postprocess</span><span class="p">(</span><span class="n">src_engine</span><span class="o">=</span><span class="n">src_engine</span><span class="p">,</span> <span class="n">dst_session</span><span class="o">=</span><span class="n">dst_session</span><span class="p">)</span>
+
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Done</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+
+    <span class="n">dst_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

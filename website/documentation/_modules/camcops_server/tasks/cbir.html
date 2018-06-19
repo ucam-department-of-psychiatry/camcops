@@ -1,0 +1,575 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.tasks.cbir &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.tasks.cbir</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/tasks/cbir.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.stringfunc</span> <span class="k">import</span> <span class="n">strseq</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="k">import</span> <span class="n">DeclarativeMeta</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.schema</span> <span class="k">import</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.sqltypes</span> <span class="k">import</span> <span class="n">Float</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">UnicodeText</span>
+
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_db</span> <span class="k">import</span> <span class="n">add_multiple_columns</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_html</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">answer</span><span class="p">,</span>
+    <span class="n">get_yes_no</span><span class="p">,</span>
+    <span class="n">subheading_spanning_three_columns</span><span class="p">,</span>
+    <span class="n">tr</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_sqla_coltypes</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">BIT_CHECKER</span><span class="p">,</span>
+    <span class="n">CamcopsColumn</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_summaryelement</span> <span class="k">import</span> <span class="n">SummaryElement</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_task</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">get_from_dict</span><span class="p">,</span>
+    <span class="n">Task</span><span class="p">,</span>
+    <span class="n">TaskHasPatientMixin</span><span class="p">,</span>
+    <span class="n">TaskHasRespondentMixin</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># CBI-R</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">QUESTION_SNIPPETS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;memory: poor day to day memory&quot;</span><span class="p">,</span>  <span class="c1"># 1</span>
+    <span class="s2">&quot;memory: asks same questions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;memory: loses things&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;memory: forgets familiar names&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;memory: forgets names of objects&quot;</span><span class="p">,</span>  <span class="c1"># 5</span>
+    <span class="s2">&quot;memory: poor concentration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;memory: forgets day&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;memory: confused in unusual surroundings&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;everyday: electrical appliances&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;everyday: writing&quot;</span><span class="p">,</span>  <span class="c1"># 10</span>
+    <span class="s2">&quot;everyday: using telephone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;everyday: making hot drink&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;everyday: money&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;self-care: grooming&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;self-care: dressing&quot;</span><span class="p">,</span>  <span class="c1"># 15</span>
+    <span class="s2">&quot;self-care: feeding&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;self-care: bathing&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;behaviour: inappropriate humour&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;behaviour: temper outbursts&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;behaviour: uncooperative&quot;</span><span class="p">,</span>  <span class="c1"># 20</span>
+    <span class="s2">&quot;behaviour: socially embarrassing&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;behaviour: tactless/suggestive&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;behaviour: impulsive&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mood: cries&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mood: sad/depressed&quot;</span><span class="p">,</span>  <span class="c1"># 25</span>
+    <span class="s2">&quot;mood: restless/agitated&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mood: irritable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;beliefs: visual hallucinations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;beliefs: auditory hallucinations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;beliefs: delusions&quot;</span><span class="p">,</span>  <span class="c1"># 30</span>
+    <span class="s2">&quot;eating: sweet tooth&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eating: repetitive&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eating: increased appetite&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eating: table manners&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sleep: disturbed at night&quot;</span><span class="p">,</span>  <span class="c1"># 35</span>
+    <span class="s2">&quot;sleep: daytime sleep increased&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;stereotypy/motor: rigid/fixed opinions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;stereotypy/motor: routines&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;stereotypy/motor: preoccupied with time&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;stereotypy/motor:  expression/catchphrase&quot;</span><span class="p">,</span>  <span class="c1"># 40</span>
+    <span class="s2">&quot;motivation: less enthusiasm in usual interests&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;motivation: no interest in new things&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;motivation: fails to contact friends/family&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;motivation: indifferent to family/friend concerns&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;motivation: reduced affection&quot;</span><span class="p">,</span>  <span class="c1"># 45</span>
+<span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">CbiRMetaclass</span><span class="p">(</span><span class="n">DeclarativeMeta</span><span class="p">):</span>
+    <span class="c1"># noinspection PyInitNewSignature</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s1">&#39;CbiR&#39;</span><span class="p">],</span>
+                 <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">bases</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+                 <span class="n">classdict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NQUESTIONS</span><span class="p">,</span>
+            <span class="n">comment_fmt</span><span class="o">=</span><span class="s2">&quot;Frequency Q</span><span class="si">{n}</span><span class="s2">, </span><span class="si">{s}</span><span class="s2"> (0-4, higher worse)&quot;</span><span class="p">,</span>
+            <span class="n">minimum</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">MIN_SCORE</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">MAX_SCORE</span><span class="p">,</span>
+            <span class="n">comment_strings</span><span class="o">=</span><span class="n">QUESTION_SNIPPETS</span>
+        <span class="p">)</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;distress&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NQUESTIONS</span><span class="p">,</span>
+            <span class="n">comment_fmt</span><span class="o">=</span><span class="s2">&quot;Distress Q</span><span class="si">{n}</span><span class="s2">, </span><span class="si">{s}</span><span class="s2"> (0-4, higher worse)&quot;</span><span class="p">,</span>
+            <span class="n">minimum</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">MIN_SCORE</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">MAX_SCORE</span><span class="p">,</span>
+            <span class="n">comment_strings</span><span class="o">=</span><span class="n">QUESTION_SNIPPETS</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">classdict</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CbiR"><a class="viewcode-back" href="../../../autodoc/tasks/cbir.html#camcops_server.tasks.cbir.CbiR">[docs]</a><span class="k">class</span> <span class="nc">CbiR</span><span class="p">(</span><span class="n">TaskHasPatientMixin</span><span class="p">,</span> <span class="n">TaskHasRespondentMixin</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span>
+           <span class="n">metaclass</span><span class="o">=</span><span class="n">CbiRMetaclass</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;cbir&quot;</span>
+    <span class="n">shortname</span> <span class="o">=</span> <span class="s2">&quot;CBI-R&quot;</span>
+    <span class="n">longname</span> <span class="o">=</span> <span class="s2">&quot;Cambridge Behavioural Inventory, Revised&quot;</span>
+
+    <span class="n">confirm_blanks</span> <span class="o">=</span> <span class="n">CamcopsColumn</span><span class="p">(</span>
+        <span class="s2">&quot;confirm_blanks&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">permitted_value_checker</span><span class="o">=</span><span class="n">BIT_CHECKER</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Respondent confirmed that blanks are deliberate (N/A) &quot;</span>
+                <span class="s2">&quot;(0/NULL no, 1 yes)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">comments</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;comments&quot;</span><span class="p">,</span> <span class="n">UnicodeText</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Additional comments&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">MIN_SCORE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">MAX_SCORE</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">QNUMS_MEMORY</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>  <span class="c1"># tuple: first, last</span>
+    <span class="n">QNUMS_EVERYDAY</span> <span class="o">=</span> <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+    <span class="n">QNUMS_SELF</span> <span class="o">=</span> <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span>
+    <span class="n">QNUMS_BEHAVIOUR</span> <span class="o">=</span> <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">23</span><span class="p">)</span>
+    <span class="n">QNUMS_MOOD</span> <span class="o">=</span> <span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">27</span><span class="p">)</span>
+    <span class="n">QNUMS_BELIEFS</span> <span class="o">=</span> <span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+    <span class="n">QNUMS_EATING</span> <span class="o">=</span> <span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="mi">34</span><span class="p">)</span>
+    <span class="n">QNUMS_SLEEP</span> <span class="o">=</span> <span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">36</span><span class="p">)</span>
+    <span class="n">QNUMS_STEREOTYPY</span> <span class="o">=</span> <span class="p">(</span><span class="mi">37</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="n">QNUMS_MOTIVATION</span> <span class="o">=</span> <span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="mi">45</span><span class="p">)</span>
+
+    <span class="n">NQUESTIONS</span> <span class="o">=</span> <span class="mi">45</span>
+    <span class="n">TASK_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="n">strseq</span><span class="p">(</span><span class="s2">&quot;frequency&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">NQUESTIONS</span><span class="p">)</span> <span class="o">+</span>
+                   <span class="n">strseq</span><span class="p">(</span><span class="s2">&quot;distress&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">NQUESTIONS</span><span class="p">))</span>
+
+<div class="viewcode-block" id="CbiR.get_summaries"><a class="viewcode-back" href="../../../autodoc/tasks/cbir.html#camcops_server.tasks.cbir.CbiR.get_summaries">[docs]</a>    <span class="k">def</span> <span class="nf">get_summaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SummaryElement</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_task_summary_fields</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;memory_frequency_pct&quot;</span><span class="p">,</span>
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MEMORY</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Memory/orientation: frequency score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;memory_distress_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MEMORY</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Memory/orientation: distress score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;everyday_frequency_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_EVERYDAY</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Everyday skills: frequency score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;everyday_distress_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_EVERYDAY</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Everyday skills: distress score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;selfcare_frequency_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_SELF</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Self-care: frequency score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;selfcare_distress_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_SELF</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Self-care: distress score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;behaviour_frequency_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_BEHAVIOUR</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Abnormal behaviour: frequency score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;behaviour_distress_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_BEHAVIOUR</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Abnormal behaviour: distress score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mood_frequency_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MOOD</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Mood: frequency score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mood_distress_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MOOD</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Mood: distress score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;beliefs_frequency_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_BELIEFS</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Beliefs: frequency score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;beliefs_distress_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_BELIEFS</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Beliefs: distress score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;eating_frequency_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_EATING</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Eating habits: frequency score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;eating_distress_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_EATING</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Eating habits: distress score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sleep_frequency_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_SLEEP</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Sleep: frequency score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sleep_distress_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_SLEEP</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Sleep: distress score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;stereotypic_frequency_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_STEREOTYPY</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Stereotypic and motor behaviours: frequency &quot;</span>
+                        <span class="s2">&quot;score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;stereotypic_distress_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_STEREOTYPY</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Stereotypic and motor behaviours: distress &quot;</span>
+                        <span class="s2">&quot;score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;motivation_frequency_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MOTIVATION</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Motivation: frequency score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+            <span class="n">SummaryElement</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;motivation_distress_pct&quot;</span><span class="p">,</span> 
+                <span class="n">coltype</span><span class="o">=</span><span class="n">Float</span><span class="p">(),</span>
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MOTIVATION</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Motivation: distress score (</span><span class="si">% o</span><span class="s2">f max)&quot;</span><span class="p">),</span>
+        <span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">subscore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">last</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">fieldprefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fieldprefix</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">+=</span> <span class="n">value</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_SCORE</span>
+                <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">score</span> <span class="o">/</span> <span class="n">n</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">frequency_subscore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">last</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subscore</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">distress_subscore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">last</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subscore</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">,</span> <span class="s2">&quot;distress&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CbiR.is_complete"><a class="viewcode-back" href="../../../autodoc/tasks/cbir.html#camcops_server.tasks.cbir.CbiR.is_complete">[docs]</a>    <span class="k">def</span> <span class="nf">is_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_contents_valid</span><span class="p">()</span> <span class="ow">or</span>
+                <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_respondent_complete</span><span class="p">()):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirm_blanks</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">are_all_fields_complete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TASK_FIELDS</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CbiR.get_task_html"><a class="viewcode-back" href="../../../autodoc/tasks/cbir.html#camcops_server.tasks.cbir.CbiR.get_task_html">[docs]</a>    <span class="k">def</span> <span class="nf">get_task_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">freq_dict</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="n">distress_dict</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MIN_SCORE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_SCORE</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">freq_dict</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+            <span class="n">distress_dict</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+
+        <span class="n">heading_memory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;h_memory&quot;</span><span class="p">)</span>
+        <span class="n">heading_everyday</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;h_everyday&quot;</span><span class="p">)</span>
+        <span class="n">heading_selfcare</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;h_selfcare&quot;</span><span class="p">)</span>
+        <span class="n">heading_behaviour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;h_abnormalbehaviour&quot;</span><span class="p">)</span>
+        <span class="n">heading_mood</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;h_mood&quot;</span><span class="p">)</span>
+        <span class="n">heading_beliefs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;h_beliefs&quot;</span><span class="p">)</span>
+        <span class="n">heading_eating</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;h_eating&quot;</span><span class="p">)</span>
+        <span class="n">heading_sleep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;h_sleep&quot;</span><span class="p">)</span>
+        <span class="n">heading_motor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;h_stereotypy_motor&quot;</span><span class="p">)</span>
+        <span class="n">heading_motivation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;h_motivation&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">get_question_rows</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">):</span>
+            <span class="n">html</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;distress&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+                <span class="n">fa</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">get_from_dict</span><span class="p">(</span><span class="n">freq_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+                      <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">da</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">get_from_dict</span><span class="p">(</span><span class="n">distress_dict</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+                      <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">html</span> <span class="o">+=</span> <span class="n">tr</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">)),</span>
+                    <span class="n">answer</span><span class="p">(</span><span class="n">fa</span><span class="p">),</span>
+                    <span class="n">answer</span><span class="p">(</span><span class="n">da</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">html</span>
+
+        <span class="n">h</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;div class=&quot;summary&quot;&gt;</span>
+<span class="s2">                &lt;table class=&quot;summary&quot;&gt;</span>
+<span class="s2">                    </span><span class="si">{complete_tr}</span><span class="s2"></span>
+<span class="s2">                &lt;/table&gt;</span>
+<span class="s2">                &lt;table class=&quot;summary&quot;&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;th&gt;Subscale&lt;/th&gt;</span>
+<span class="s2">                        &lt;th&gt;Frequency (</span><span class="si">% o</span><span class="s2">f max)&lt;/th&gt;</span>
+<span class="s2">                        &lt;th&gt;Distress (</span><span class="si">% o</span><span class="s2">f max)&lt;/th&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{heading_memory}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{mem_f}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{mem_d}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{heading_everyday}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{everyday_f}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{everyday_d}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{heading_selfcare}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{self_f}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{self_d}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{heading_behaviour}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{behav_f}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{behav_d}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{heading_mood}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{mood_f}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{mood_d}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{heading_beliefs}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{beliefs_f}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{beliefs_d}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{heading_eating}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{eating_f}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{eating_d}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{heading_sleep}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{sleep_f}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{sleep_d}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{heading_motor}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{motor_f}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{motor_d}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                    &lt;tr&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{heading_motivation}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{motivation_f}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                        &lt;td&gt;</span><span class="si">{motivation_d}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">                    &lt;/tr&gt;</span>
+<span class="s2">                &lt;/table&gt;</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">            &lt;table class=&quot;taskdetail&quot;&gt;</span>
+<span class="s2">                </span><span class="si">{tr_blanks}</span><span class="s2"></span>
+<span class="s2">                </span><span class="si">{tr_comments}</span><span class="s2"></span>
+<span class="s2">            &lt;/table&gt;</span>
+<span class="s2">            &lt;table class=&quot;taskdetail&quot;&gt;</span>
+<span class="s2">                &lt;tr&gt;</span>
+<span class="s2">                    &lt;th width=&quot;50%&quot;&gt;Question&lt;/th&gt;</span>
+<span class="s2">                    &lt;th width=&quot;25%&quot;&gt;Frequency (0–4)&lt;/th&gt;</span>
+<span class="s2">                    &lt;th width=&quot;25%&quot;&gt;Distress (0–4)&lt;/th&gt;</span>
+<span class="s2">                &lt;/tr&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">complete_tr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_is_complete_tr</span><span class="p">(</span><span class="n">req</span><span class="p">),</span>
+            <span class="n">heading_memory</span><span class="o">=</span><span class="n">heading_memory</span><span class="p">,</span>
+            <span class="n">mem_f</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MEMORY</span><span class="p">)),</span>
+            <span class="n">mem_d</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MEMORY</span><span class="p">)),</span>
+            <span class="n">heading_everyday</span><span class="o">=</span><span class="n">heading_everyday</span><span class="p">,</span>
+            <span class="n">everyday_f</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_EVERYDAY</span><span class="p">)),</span>
+            <span class="n">everyday_d</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_EVERYDAY</span><span class="p">)),</span>
+            <span class="n">heading_selfcare</span><span class="o">=</span><span class="n">heading_selfcare</span><span class="p">,</span>
+            <span class="n">self_f</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_SELF</span><span class="p">)),</span>
+            <span class="n">self_d</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_SELF</span><span class="p">)),</span>
+            <span class="n">heading_behaviour</span><span class="o">=</span><span class="n">heading_behaviour</span><span class="p">,</span>
+            <span class="n">behav_f</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_BEHAVIOUR</span><span class="p">)),</span>
+            <span class="n">behav_d</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_BEHAVIOUR</span><span class="p">)),</span>
+            <span class="n">heading_mood</span><span class="o">=</span><span class="n">heading_mood</span><span class="p">,</span>
+            <span class="n">mood_f</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MOOD</span><span class="p">)),</span>
+            <span class="n">mood_d</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MOOD</span><span class="p">)),</span>
+            <span class="n">heading_beliefs</span><span class="o">=</span><span class="n">heading_beliefs</span><span class="p">,</span>
+            <span class="n">beliefs_f</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_BELIEFS</span><span class="p">)),</span>
+            <span class="n">beliefs_d</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_BELIEFS</span><span class="p">)),</span>
+            <span class="n">heading_eating</span><span class="o">=</span><span class="n">heading_eating</span><span class="p">,</span>
+            <span class="n">eating_f</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_EATING</span><span class="p">)),</span>
+            <span class="n">eating_d</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_EATING</span><span class="p">)),</span>
+            <span class="n">heading_sleep</span><span class="o">=</span><span class="n">heading_sleep</span><span class="p">,</span>
+            <span class="n">sleep_f</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_SLEEP</span><span class="p">)),</span>
+            <span class="n">sleep_d</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_SLEEP</span><span class="p">)),</span>
+            <span class="n">heading_motor</span><span class="o">=</span><span class="n">heading_motor</span><span class="p">,</span>
+            <span class="n">motor_f</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_STEREOTYPY</span><span class="p">)),</span>
+            <span class="n">motor_d</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_STEREOTYPY</span><span class="p">)),</span>
+            <span class="n">heading_motivation</span><span class="o">=</span><span class="n">heading_motivation</span><span class="p">,</span>
+            <span class="n">motivation_f</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frequency_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MOTIVATION</span><span class="p">)),</span>
+            <span class="n">motivation_d</span><span class="o">=</span><span class="n">answer</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">distress_subscore</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MOTIVATION</span><span class="p">)),</span>
+            <span class="n">tr_blanks</span><span class="o">=</span><span class="n">tr</span><span class="p">(</span>
+                <span class="s2">&quot;Respondent confirmed that blanks are deliberate (N/A)&quot;</span><span class="p">,</span>
+                <span class="n">answer</span><span class="p">(</span><span class="n">get_yes_no</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirm_blanks</span><span class="p">))),</span>
+            <span class="n">tr_comments</span><span class="o">=</span><span class="n">tr</span><span class="p">(</span><span class="s2">&quot;Comments&quot;</span><span class="p">,</span>
+                           <span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comments</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">subheading_spanning_three_columns</span><span class="p">(</span><span class="n">heading_memory</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">get_question_rows</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MEMORY</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">subheading_spanning_three_columns</span><span class="p">(</span><span class="n">heading_everyday</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">get_question_rows</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_EVERYDAY</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">subheading_spanning_three_columns</span><span class="p">(</span><span class="n">heading_selfcare</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">get_question_rows</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_SELF</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">subheading_spanning_three_columns</span><span class="p">(</span><span class="n">heading_behaviour</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">get_question_rows</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_BEHAVIOUR</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">subheading_spanning_three_columns</span><span class="p">(</span><span class="n">heading_mood</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">get_question_rows</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MOOD</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">subheading_spanning_three_columns</span><span class="p">(</span><span class="n">heading_beliefs</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">get_question_rows</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_BELIEFS</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">subheading_spanning_three_columns</span><span class="p">(</span><span class="n">heading_eating</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">get_question_rows</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_EATING</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">subheading_spanning_three_columns</span><span class="p">(</span><span class="n">heading_sleep</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">get_question_rows</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_SLEEP</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">subheading_spanning_three_columns</span><span class="p">(</span><span class="n">heading_motor</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">get_question_rows</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_STEREOTYPY</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">subheading_spanning_three_columns</span><span class="p">(</span><span class="n">heading_motivation</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">get_question_rows</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">QNUMS_MOTIVATION</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;/table&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">h</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

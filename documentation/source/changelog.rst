@@ -1010,7 +1010,16 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - The problems looks to be in the data: there was an entry in the
     ``_security_user_group`` table with user_id = NULL (and group_id = 3).
 
-  - **Not yet sure where that duff value came from.**
+  - *Not yet sure where that duff value came from.* Template updated to cope
+    with the problem, regardless. (Perhaps the value came from an earlier
+    version of ``merge_db.py``?)
+
+**Server v2.2.2, 2018-06-19**
+
+- Fixed bug in Diagnosis report for non-superusers (see
+  :meth:`camcops_server.tasks.diagnosis.get_diagnosis_inc_exc_report_query`);
+  the exclusion "where" restriction was being applied wrongly and joining the
+  exclusion query to the main query, giving far too many rows.
 
 **Client v2.2.1 beta, 2018-08-06 [in progress]**
 

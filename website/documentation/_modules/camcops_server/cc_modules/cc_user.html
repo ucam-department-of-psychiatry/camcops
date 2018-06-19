@@ -1,0 +1,963 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.cc_modules.cc_user &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.cc_modules.cc_user</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/cc_modules/cc_user.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">import</span> <span class="nn">cardinal_pythonlib.crypto</span> <span class="k">as</span> <span class="nn">rnc_crypto</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.datetimefunc</span> <span class="k">import</span> <span class="n">convert_datetime_to_local</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.logs</span> <span class="k">import</span> <span class="n">BraceStyleAdapter</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.reprfunc</span> <span class="k">import</span> <span class="n">simple_repr</span>
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.orm_query</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">CountStarSpecializedQuery</span><span class="p">,</span>
+    <span class="n">exists_orm</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pendulum</span> <span class="k">import</span> <span class="n">Pendulum</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.associationproxy</span> <span class="k">import</span> <span class="n">association_proxy</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="k">import</span> <span class="n">relationship</span><span class="p">,</span> <span class="n">Session</span> <span class="k">as</span> <span class="n">SqlASession</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.functions</span> <span class="k">import</span> <span class="n">func</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.schema</span> <span class="k">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">ForeignKey</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.sqltypes</span> <span class="k">import</span> <span class="n">Boolean</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span> <span class="n">Integer</span>
+
+<span class="kn">from</span> <span class="nn">.cc_audit</span> <span class="k">import</span> <span class="n">audit</span>
+<span class="kn">from</span> <span class="nn">.cc_constants</span> <span class="k">import</span> <span class="n">USER_NAME_FOR_SYSTEM</span>
+<span class="kn">from</span> <span class="nn">.cc_group</span> <span class="k">import</span> <span class="n">Group</span>
+<span class="kn">from</span> <span class="nn">.cc_membership</span> <span class="k">import</span> <span class="n">UserGroupMembership</span>
+<span class="kn">from</span> <span class="nn">.cc_sqla_coltypes</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">EmailAddressColType</span><span class="p">,</span>
+    <span class="n">FullNameColType</span><span class="p">,</span>
+    <span class="n">HashedPasswordColType</span><span class="p">,</span>
+    <span class="n">PendulumDateTimeAsIsoTextColType</span><span class="p">,</span>
+    <span class="n">UserNameColType</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.cc_sqlalchemy</span> <span class="k">import</span> <span class="n">Base</span>
+<span class="kn">from</span> <span class="nn">.cc_unittest</span> <span class="k">import</span> <span class="n">DemoDatabaseTestCase</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">BraceStyleAdapter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Constants</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">VALID_USERNAME_REGEX</span> <span class="o">=</span> <span class="s2">&quot;^[A-Za-z0-9_-]+$&quot;</span>
+<span class="n">BCRYPT_DEFAULT_LOG_ROUNDS</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="c1"># Default is 12, but it does impact on the tablet upload speed (cost per</span>
+<span class="c1"># transaction). Time is expected to be proportional to 2^n, i.e. incrementing 1</span>
+<span class="c1"># increases time by a factor of 2.</span>
+<span class="c1"># Empirically, on egret:</span>
+<span class="c1">#   2^12 rounds takes around 400 ms</span>
+<span class="c1">#   2^8 rounds takes around 30 ms (as expected, 1/16 of the time as for 12)</span>
+<span class="c1">#   we&#39;d like around 8 ms; http://security.stackexchange.com/questions/17207</span>
+<span class="c1">#   ... so we should be using 12 + log(8/400)/log(2) = 6 rounds</span>
+
+<span class="n">CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">CLEAR_DUMMY_LOGIN_PERIOD</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span>
+    <span class="n">days</span><span class="o">=</span><span class="n">CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># SecurityAccountLockout</span>
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Note that we record login failures for non-existent users, and pretend</span>
+<span class="c1"># they&#39;re locked out (to prevent username discovery that way, by timing)</span>
+
+<div class="viewcode-block" id="SecurityAccountLockout"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityAccountLockout">[docs]</a><span class="k">class</span> <span class="nc">SecurityAccountLockout</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;_security_account_lockouts&quot;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="n">UserNameColType</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;User name (which may be a non-existent user, to prevent &quot;</span>
+                <span class="s2">&quot;subtle username discovery by careful timing)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">locked_until</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;locked_until&quot;</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Account is locked until (UTC)&quot;</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="SecurityAccountLockout.delete_old_account_lockouts"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityAccountLockout.delete_old_account_lockouts">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">delete_old_account_lockouts</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Delete all expired account lockouts.&quot;&quot;&quot;</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">now_utc</span>
+        <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">locked_until</span> <span class="o">&lt;=</span> <span class="n">now</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">synchronize_session</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">is_user_locked_out</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">now_utc</span>
+        <span class="k">return</span> <span class="n">exists_orm</span><span class="p">(</span><span class="n">dbsession</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span>
+                          <span class="bp">cls</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">username</span><span class="p">,</span>
+                          <span class="bp">cls</span><span class="o">.</span><span class="n">locked_until</span> <span class="o">&gt;</span> <span class="n">now</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SecurityAccountLockout.user_locked_out_until"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityAccountLockout.user_locked_out_until">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">user_locked_out_until</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+                              <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Pendulum</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        When is the user locked out until?</span>
+
+<span class="sd">        Returns datetime in local timezone (or None).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">now_utc</span>
+        <span class="n">locked_until_utc</span> <span class="o">=</span> <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">locked_until</span><span class="p">))</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">username</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">locked_until</span> <span class="o">&gt;</span> <span class="n">now</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">scalar</span><span class="p">()</span>  <span class="c1"># type: Optional[Pendulum]</span>
+        <span class="c1"># ... NOT first(), which returns (result,); we want just result</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">locked_until_utc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">convert_datetime_to_local</span><span class="p">(</span><span class="n">locked_until_utc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SecurityAccountLockout.lock_user_out"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityAccountLockout.lock_user_out">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">lock_user_out</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+                      <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lockout_minutes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lock user out for a specified number of minutes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">now_utc</span>
+        <span class="n">lock_until</span> <span class="o">=</span> <span class="n">now</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">lockout_minutes</span><span class="p">)</span>
+        <span class="n">lock</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">lock_until</span><span class="o">=</span><span class="n">lock_until</span><span class="p">)</span>
+        <span class="n">dbsession</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lock</span><span class="p">)</span>
+        <span class="n">audit</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;Account </span><span class="si">{}</span><span class="s2"> locked out for </span><span class="si">{}</span><span class="s2"> minutes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">username</span><span class="p">,</span> <span class="n">lockout_minutes</span><span class="p">))</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">unlock_user</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">username</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">synchronize_session</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># SecurityLoginFailure</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="SecurityLoginFailure"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityLoginFailure">[docs]</a><span class="k">class</span> <span class="nc">SecurityLoginFailure</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;_security_login_failures&quot;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="n">UserNameColType</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;User name (which may be a non-existent user, to prevent &quot;</span>
+                <span class="s2">&quot;subtle username discovery by careful timing)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">login_failure_at</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;login_failure_at&quot;</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Login failure occurred at (UTC)&quot;</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="SecurityLoginFailure.record_login_failure"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityLoginFailure.record_login_failure">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">record_login_failure</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+                             <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Record that a user has failed to log in.&quot;&quot;&quot;</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">now_utc</span>
+        <span class="n">failure</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">login_failure_at</span><span class="o">=</span><span class="n">now</span><span class="p">)</span>
+        <span class="n">dbsession</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">failure</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SecurityLoginFailure.act_on_login_failure"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityLoginFailure.act_on_login_failure">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">act_on_login_failure</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+                             <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Record login failure and lock out user if necessary.&quot;&quot;&quot;</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">audit</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;Failed login as user: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">username</span><span class="p">))</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">record_login_failure</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
+        <span class="n">nfailures</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">how_many_login_failures</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
+        <span class="n">nlockouts</span> <span class="o">=</span> <span class="n">nfailures</span> <span class="o">//</span> <span class="n">cfg</span><span class="o">.</span><span class="n">lockout_threshold</span>
+        <span class="n">nfailures_since_last_lockout</span> <span class="o">=</span> <span class="n">nfailures</span> <span class="o">%</span> <span class="n">cfg</span><span class="o">.</span><span class="n">lockout_threshold</span>
+        <span class="k">if</span> <span class="n">nlockouts</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">nfailures_since_last_lockout</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># new lockout required</span>
+            <span class="n">lockout_minutes</span> <span class="o">=</span> <span class="n">nlockouts</span> <span class="o">*</span> \
+                              <span class="n">cfg</span><span class="o">.</span><span class="n">lockout_duration_increment_minutes</span>
+            <span class="n">SecurityAccountLockout</span><span class="o">.</span><span class="n">lock_user_out</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span>
+                                                 <span class="n">lockout_minutes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SecurityLoginFailure.clear_login_failures"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityLoginFailure.clear_login_failures">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">clear_login_failures</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+                             <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Clear login failures for a user.&quot;&quot;&quot;</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">username</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">synchronize_session</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SecurityLoginFailure.how_many_login_failures"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityLoginFailure.how_many_login_failures">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">how_many_login_failures</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+                                <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;How many times has the user failed to log in (recently)?&quot;&quot;&quot;</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">CountStarSpecializedQuery</span><span class="p">([</span><span class="bp">cls</span><span class="p">],</span> <span class="n">session</span><span class="o">=</span><span class="n">dbsession</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">username</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">q</span><span class="o">.</span><span class="n">count_star</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SecurityLoginFailure.enable_user"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityLoginFailure.enable_user">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">enable_user</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Unlock user and clear login failures.&quot;&quot;&quot;</span>
+        <span class="n">SecurityAccountLockout</span><span class="o">.</span><span class="n">unlock_user</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">clear_login_failures</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
+        <span class="n">audit</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;User </span><span class="si">{}</span><span class="s2"> re-enabled&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">username</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="SecurityLoginFailure.clear_login_failures_for_nonexistent_users"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityLoginFailure.clear_login_failures_for_nonexistent_users">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">clear_login_failures_for_nonexistent_users</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clear login failures for nonexistent users.</span>
+
+<span class="sd">        Login failues are recorded for nonexistent users to mimic the lockout</span>
+<span class="sd">        seen for real users, i.e. to reduce the potential for username</span>
+<span class="sd">        discovery.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="n">all_user_names</span> <span class="o">=</span> <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+        <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">username</span><span class="o">.</span><span class="n">notin_</span><span class="p">(</span><span class="n">all_user_names</span><span class="p">))</span>\
+            <span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">synchronize_session</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="c1"># https://stackoverflow.com/questions/26182027/how-to-use-not-in-clause-in-sqlalchemy-orm-query  # noqa</span>
+
+<div class="viewcode-block" id="SecurityLoginFailure.clear_dummy_login_failures_if_necessary"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.SecurityLoginFailure.clear_dummy_login_failures_if_necessary">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">clear_dummy_login_failures_if_necessary</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span>
+                                                <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Clear dummy login failures if we haven&#39;t done so for a while.</span>
+
+<span class="sd">        Not too often! See CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">now_utc</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">server_settings</span>
+        <span class="k">if</span> <span class="n">ss</span><span class="o">.</span><span class="n">last_dummy_login_failure_clearance_at_utc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">elapsed</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">ss</span><span class="o">.</span><span class="n">last_dummy_login_failure_clearance_at_utc</span>
+            <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="n">CLEAR_DUMMY_LOGIN_PERIOD</span><span class="p">:</span>
+                <span class="c1"># We cleared it recently.</span>
+                <span class="k">return</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">clear_login_failures_for_nonexistent_users</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Dummy login failures cleared.&quot;</span><span class="p">)</span>
+        <span class="n">ss</span><span class="o">.</span><span class="n">last_dummy_login_failure_clearance_at_utc</span> <span class="o">=</span> <span class="n">now</span></div></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># User class</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="User"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User">[docs]</a><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class representing a user.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;_security_users&quot;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span>
+        <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;User ID&quot;</span>
+    <span class="p">)</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="n">UserNameColType</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;User name&quot;</span>
+    <span class="p">)</span>
+    <span class="n">fullname</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;fullname&quot;</span><span class="p">,</span> <span class="n">FullNameColType</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;User&#39;s full name&quot;</span>
+    <span class="p">)</span>
+    <span class="n">email</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">,</span> <span class="n">EmailAddressColType</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;User&#39;s e-mail address&quot;</span>
+    <span class="p">)</span>
+    <span class="n">hashedpw</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;hashedpw&quot;</span><span class="p">,</span> <span class="n">HashedPasswordColType</span><span class="p">,</span>
+        <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Password hash&quot;</span>
+    <span class="p">)</span>
+    <span class="n">last_login_at_utc</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;last_login_at_utc&quot;</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Date/time this user last logged in (UTC)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">last_password_change_utc</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;last_password_change_utc&quot;</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Date/time this user last changed their password (UTC)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">superuser</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;superuser&quot;</span><span class="p">,</span> <span class="n">Boolean</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Superuser?&quot;</span>
+    <span class="p">)</span>
+    <span class="n">must_change_password</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;must_change_password&quot;</span><span class="p">,</span> <span class="n">Boolean</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Must change password at next webview login&quot;</span>
+    <span class="p">)</span>
+    <span class="n">when_agreed_terms_of_use</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;when_agreed_terms_of_use&quot;</span><span class="p">,</span> <span class="n">PendulumDateTimeAsIsoTextColType</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Date/time this user acknowledged the Terms and &quot;</span>
+                <span class="s2">&quot;Conditions of Use (ISO 8601)&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">upload_group_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="s2">&quot;upload_group_id&quot;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;_security_groups.id&quot;</span><span class="p">),</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;ID of the group to which this user uploads at present&quot;</span><span class="p">,</span>
+        <span class="c1"># OK to be NULL in the database, but the user will not be able to</span>
+        <span class="c1"># upload while it is.</span>
+    <span class="p">)</span>
+
+    <span class="c1"># groups = relationship(</span>
+    <span class="c1">#     Group,</span>
+    <span class="c1">#     secondary=user_group_table,</span>
+    <span class="c1">#     back_populates=&quot;users&quot;  # see Group.users</span>
+    <span class="c1"># )</span>
+    <span class="n">user_group_memberships</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
+        <span class="s2">&quot;UserGroupMembership&quot;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">association_proxy</span><span class="p">(</span><span class="s2">&quot;user_group_memberships&quot;</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">)</span>
+
+    <span class="n">upload_group</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;Group&quot;</span><span class="p">,</span> <span class="n">foreign_keys</span><span class="o">=</span><span class="p">[</span><span class="n">upload_group_id</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">simple_repr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="s2">&quot;fullname&quot;</span><span class="p">],</span>
+            <span class="n">with_addr</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_user_by_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span>
+                       <span class="n">dbsession</span><span class="p">:</span> <span class="n">SqlASession</span><span class="p">,</span>
+                       <span class="n">user_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;User&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">user_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_user_by_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span>
+                         <span class="n">dbsession</span><span class="p">:</span> <span class="n">SqlASession</span><span class="p">,</span>
+                         <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;User&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">username</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">username</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">user_exists</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">username</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="k">return</span> <span class="n">exists_orm</span><span class="p">(</span><span class="n">dbsession</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">username</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_superuser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                         <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">username</span><span class="p">,</span> <span class="s2">&quot;Can&#39;t create superuser with no name&quot;</span>
+        <span class="k">assert</span> <span class="n">username</span> <span class="o">!=</span> <span class="n">USER_NAME_FOR_SYSTEM</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;Can&#39;t create user with name </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">USER_NAME_FOR_SYSTEM</span><span class="p">))</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_user_by_name</span><span class="p">(</span><span class="n">dbsession</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+            <span class="c1"># already exists!</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>  <span class="c1"># does work!</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">superuser</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">audit</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;SUPERUSER CREATED: &quot;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">from_console</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">set_password</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>  <span class="c1"># will audit</span>
+        <span class="n">dbsession</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_username_from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+                             <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="k">return</span> <span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">first</span><span class="p">()</span>\
+            <span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+
+<div class="viewcode-block" id="User.get_user_from_username_password"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.get_user_from_username_password">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_user_from_username_password</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+            <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">take_time_for_nonexistent_user</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;User&#39;</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a User object from the supplied username, if the password is</span>
+<span class="sd">        correct; otherwise, return None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_user_by_name</span><span class="p">(</span><span class="n">dbsession</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">take_time_for_nonexistent_user</span><span class="p">:</span>
+                <span class="c1"># If the user really existed, we&#39;d be running a somewhat</span>
+                <span class="c1"># time-consuming bcrypt operation. So that attackers can&#39;t</span>
+                <span class="c1"># identify fake users easily based on timing, we consume some</span>
+                <span class="c1"># time:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">take_some_time_mimicking_password_encryption</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">is_password_valid</span><span class="p">(</span><span class="n">password</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">user</span></div>
+
+<div class="viewcode-block" id="User.get_system_user"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.get_system_user">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_system_user</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dbsession</span><span class="p">:</span> <span class="n">SqlASession</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;User&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a user representing &quot;command-line access&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_user_by_name</span><span class="p">(</span><span class="n">dbsession</span><span class="p">,</span> <span class="n">USER_NAME_FOR_SYSTEM</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">USER_NAME_FOR_SYSTEM</span><span class="p">)</span>
+            <span class="n">dbsession</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">fullname</span> <span class="o">=</span> <span class="s2">&quot;CamCOPS system user&quot;</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">superuser</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">hashedpw</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>  <span class="c1"># because it&#39;s not nullable</span>
+        <span class="c1"># ... note that no password will hash to &#39;&#39;, in addition to the fact</span>
+        <span class="c1"># that the system will not allow logon attempts for this user!</span>
+        <span class="k">return</span> <span class="n">user</span></div>
+
+<div class="viewcode-block" id="User.is_username_permissible"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.is_username_permissible">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_username_permissible</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Is this a permissible username?</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">VALID_USERNAME_REGEX</span><span class="p">,</span> <span class="n">username</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="User.take_some_time_mimicking_password_encryption"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.take_some_time_mimicking_password_encryption">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">take_some_time_mimicking_password_encryption</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Waste some time. We use this when an attempt has been made to log in</span>
+<span class="sd">        with a nonexistent user; we know the user doesn&#39;t exist very quickly,</span>
+<span class="sd">        but we mimic the time it takes to check a real user&#39;s password.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rnc_crypto</span><span class="o">.</span><span class="n">hash_password</span><span class="p">(</span><span class="s2">&quot;dummy!&quot;</span><span class="p">,</span> <span class="n">BCRYPT_DEFAULT_LOG_ROUNDS</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="User.set_password"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.set_password">[docs]</a>    <span class="k">def</span> <span class="nf">set_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span> <span class="n">new_password</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a user&#39;s password.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hashedpw</span> <span class="o">=</span> <span class="n">rnc_crypto</span><span class="o">.</span><span class="n">hash_password</span><span class="p">(</span><span class="n">new_password</span><span class="p">,</span>
+                                                 <span class="n">BCRYPT_DEFAULT_LOG_ROUNDS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_password_change_utc</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">now_utc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">must_change_password</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">audit</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;Password changed for user &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="User.is_password_valid"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.is_password_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_password_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Is the supplied password valid?</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">rnc_crypto</span><span class="o">.</span><span class="n">is_password_valid</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hashedpw</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="User.force_password_change"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.force_password_change">[docs]</a>    <span class="k">def</span> <span class="nf">force_password_change</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make the user change their password at next login.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">must_change_password</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="User.login"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.login">[docs]</a>    <span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called when the framework has determined a successful login.</span>
+
+<span class="sd">        Clears any login failures.</span>
+<span class="sd">        Requires the user to change their password if policies say they should.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_login_failures</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_password_change_flag_if_necessary</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_login_at_utc</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">now_utc</span></div>
+
+<div class="viewcode-block" id="User.set_password_change_flag_if_necessary"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.set_password_change_flag_if_necessary">[docs]</a>    <span class="k">def</span> <span class="nf">set_password_change_flag_if_necessary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                              <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If we&#39;re requiring users to change their passwords, then check to</span>
+<span class="sd">        see if they must do so now.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">must_change_password</span><span class="p">:</span>
+            <span class="c1"># already required, pointless to check again</span>
+            <span class="k">return</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">password_change_frequency_days</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># changes never required</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_password_change_utc</span><span class="p">:</span>
+            <span class="c1"># we don&#39;t know when the last change was, so it&#39;s overdue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">force_password_change</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">now_utc</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_password_change_utc</span>
+        <span class="k">if</span> <span class="n">delta</span><span class="o">.</span><span class="n">days</span> <span class="o">&gt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">password_change_frequency_days</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">force_password_change</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">must_agree_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Does the user still need to agree the terms/conditions of use?&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">when_agreed_terms_of_use</span> <span class="ow">is</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="User.agree_terms"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.agree_terms">[docs]</a>    <span class="k">def</span> <span class="nf">agree_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Mark the user as having agreed to the terms/conditions of use</span>
+<span class="sd">        now.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">when_agreed_terms_of_use</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">now</span></div>
+
+<div class="viewcode-block" id="User.clear_login_failures"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.clear_login_failures">[docs]</a>    <span class="k">def</span> <span class="nf">clear_login_failures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Clear login failures.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">SecurityLoginFailure</span><span class="o">.</span><span class="n">clear_login_failures</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="User.is_locked_out"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.is_locked_out">[docs]</a>    <span class="k">def</span> <span class="nf">is_locked_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Is the user locked out because of multiple login failures?&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">SecurityAccountLockout</span><span class="o">.</span><span class="n">is_user_locked_out</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="User.locked_out_until"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.locked_out_until">[docs]</a>    <span class="k">def</span> <span class="nf">locked_out_until</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                         <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Pendulum</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        When is the user locked out until (or None)?</span>
+
+<span class="sd">        Returns datetime in local timezone (or None).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">SecurityAccountLockout</span><span class="o">.</span><span class="n">user_locked_out_until</span><span class="p">(</span><span class="n">req</span><span class="p">,</span>
+                                                            <span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="User.enable"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.User.enable">[docs]</a>    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Re-enables a user, unlocking them and clearing login failures.&quot;&quot;&quot;</span>
+        <span class="n">SecurityLoginFailure</span><span class="o">.</span><span class="n">enable_user</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">may_login_as_tablet</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">may_upload</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">may_register_devices</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">group_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">set_group_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dbsession</span> <span class="o">=</span> <span class="n">SqlASession</span><span class="o">.</span><span class="n">object_session</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">dbsession</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;User.set_group_ids() called on a User that&#39;s not &quot;</span>
+                           <span class="s2">&quot;yet in a session&quot;</span><span class="p">)</span>
+        <span class="c1"># groups = Group.get_groups_from_id_list(dbsession, group_ids)</span>
+
+        <span class="c1"># Remove groups that no longer apply</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group_ids</span><span class="p">:</span>
+                <span class="n">dbsession</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="c1"># Add new groups</span>
+        <span class="n">current_group_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group_id</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span><span class="p">]</span>
+        <span class="n">new_group_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">gid</span> <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">group_ids</span>
+                         <span class="k">if</span> <span class="n">gid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_group_ids</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">new_group_ids</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UserGroupMembership</span><span class="p">(</span>
+                <span class="n">user_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">group_id</span><span class="o">=</span><span class="n">gid</span><span class="p">,</span>
+            <span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ids_of_groups_user_may_see</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="c1"># Incidentally: &quot;list_a += list_b&quot; vs &quot;list_a.extend(list_b)&quot;:</span>
+        <span class="c1"># https://stackoverflow.com/questions/3653298/concatenating-two-lists-difference-between-and-extend  # noqa</span>
+        <span class="c1"># ... not much difference; perhaps += is slightly better (also clearer)</span>
+        <span class="c1"># And relevant set operations:</span>
+        <span class="c1"># https://stackoverflow.com/questions/4045403/python-how-to-add-the-contents-of-an-iterable-to-a-set  # noqa</span>
+        <span class="c1">#</span>
+        <span class="c1"># Process as a set rather than a list, to eliminate duplicates:</span>
+        <span class="n">group_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># type: Set[int]</span>
+        <span class="k">for</span> <span class="n">my_group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>  <span class="c1"># type: Group</span>
+            <span class="n">group_ids</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">my_group</span><span class="o">.</span><span class="n">ids_of_groups_group_may_see</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">group_ids</span><span class="p">)</span>
+        <span class="c1"># Return as a list rather than a set, because SQLAlchemy&#39;s in_()</span>
+        <span class="c1"># operator only likes lists and sets.</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ids_of_groups_user_may_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Group</span><span class="o">.</span><span class="n">all_group_ids</span><span class="p">(</span>
+                <span class="n">dbsession</span><span class="o">=</span><span class="n">SqlASession</span><span class="o">.</span><span class="n">object_session</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group_id</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">may_dump_data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ids_of_groups_user_may_report_on</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Group</span><span class="o">.</span><span class="n">all_group_ids</span><span class="p">(</span>
+                <span class="n">dbsession</span><span class="o">=</span><span class="n">SqlASession</span><span class="o">.</span><span class="n">object_session</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group_id</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">may_run_reports</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ids_of_groups_user_is_admin_for</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Group</span><span class="o">.</span><span class="n">all_group_ids</span><span class="p">(</span>
+                <span class="n">dbsession</span><span class="o">=</span><span class="n">SqlASession</span><span class="o">.</span><span class="n">object_session</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group_id</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">groupadmin</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">may_administer_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_of_groups_user_is_admin_for</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">groups_user_may_see</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Group</span><span class="p">]:</span>
+        <span class="c1"># A less efficient version, for visual display (see</span>
+        <span class="c1"># view_own_user_info.mako)</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">)</span>  <span class="c1"># type: Set[Group]</span>
+        <span class="k">for</span> <span class="n">my_group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>  <span class="c1"># type: Group</span>
+            <span class="n">groups</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">my_group</span><span class="o">.</span><span class="n">can_see_other_groups</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">groups</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">groups_user_may_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Group</span><span class="p">]:</span>
+        <span class="c1"># For visual display (see view_own_user_info.mako).</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">group</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">may_dump_data</span><span class="p">],</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">groups_user_may_report_on</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Group</span><span class="p">]:</span>
+        <span class="c1"># For visual display (see view_own_user_info.mako).</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">group</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">may_run_reports</span><span class="p">],</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">groups_user_may_upload_into</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Group</span><span class="p">]:</span>
+        <span class="c1"># For visual display (see view_own_user_info.mako).</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">group</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">may_upload</span><span class="p">],</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">groups_user_may_add_special_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Group</span><span class="p">]:</span>
+        <span class="c1"># For visual display (see view_own_user_info.mako).</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">group</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">may_add_notes</span><span class="p">],</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">groups_user_may_see_all_pts_when_unfiltered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Group</span><span class="p">]:</span>
+        <span class="c1"># For visual display (see view_own_user_info.mako).</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">group</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span>
+                       <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">view_all_patients_when_unfiltered</span><span class="p">],</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">groups_user_is_admin_for</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Group</span><span class="p">]:</span>
+        <span class="c1"># For visual display (see view_own_user_info.mako).</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">group</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">groupadmin</span><span class="p">],</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_a_groupadmin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">groupadmin</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">authorized_as_groupadmin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_a_groupadmin</span>
+
+    <span class="k">def</span> <span class="nf">membership_for_group_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UserGroupMembership</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group_id</span> <span class="o">==</span> <span class="n">group_id</span><span class="p">),</span>
+            <span class="kc">None</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">may_use_webviewer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">may_use_webviewer</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">authorized_to_add_special_note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">membership</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">membership_for_group_id</span><span class="p">(</span><span class="n">group_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">membership</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">membership</span><span class="o">.</span><span class="n">may_add_notes</span>
+
+    <span class="k">def</span> <span class="nf">authorized_to_erase_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">membership</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">membership_for_group_id</span><span class="p">(</span><span class="n">group_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">membership</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">membership</span><span class="o">.</span><span class="n">groupadmin</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">authorized_to_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Is the user authorized to dump data?&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">may_dump_data</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">authorized_for_reports</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Is the user authorized to run reports?&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">may_run_reports</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">may_view_all_patients_when_unfiltered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;May the user view all patients when no filters are applied?&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">view_all_patients_when_unfiltered</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">may_view_no_patients_when_unfiltered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;May the user view *no* patients when no filters are applied?&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="ow">not</span> <span class="n">m</span><span class="o">.</span><span class="n">view_all_patients_when_unfiltered</span>
+                   <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">group_ids_that_nonsuperuser_may_see_when_unfiltered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group_id</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span>
+                <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">view_all_patients_when_unfiltered</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">may_upload_to_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">may_upload</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group_id</span> <span class="o">==</span> <span class="n">group_id</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">may_upload</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload_group_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">may_upload_to_group</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">upload_group_id</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">may_register_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        You can register a device if your chosen upload groups allow you to do</span>
+<span class="sd">        so. (You have to have a chosen group -- even for superusers -- because</span>
+<span class="sd">        the tablet wants group ID policies at the moment of registration, so we</span>
+<span class="sd">        have to know which group.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload_group_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">memberships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_group_memberships</span>  <span class="c1"># type: List[UserGroupMembership]  # noqa</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">may_register_devices</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">memberships</span>
+                   <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload_group_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_password_directly"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.set_password_directly">[docs]</a><span class="k">def</span> <span class="nf">set_password_directly</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">,</span>
+                          <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    If the user exists, set its password. Returns Boolean success.</span>
+<span class="sd">    Used from the command line.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dbsession</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">dbsession</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">get_user_by_name</span><span class="p">(</span><span class="n">dbsession</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">user</span><span class="o">.</span><span class="n">set_password</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+    <span class="n">user</span><span class="o">.</span><span class="n">enable</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+    <span class="n">audit</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;Password changed for user &quot;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">from_console</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Unit testing</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="UserTests"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_user.html#camcops_server.cc_modules.cc_user.UserTests">[docs]</a><span class="k">class</span> <span class="nc">UserTests</span><span class="p">(</span><span class="n">DemoDatabaseTestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">test_user</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">announce</span><span class="p">(</span><span class="s2">&quot;test_user&quot;</span><span class="p">)</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">req</span>
+
+        <span class="n">SecurityAccountLockout</span><span class="o">.</span><span class="n">delete_old_account_lockouts</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span>
+            <span class="n">SecurityAccountLockout</span><span class="o">.</span><span class="n">is_user_locked_out</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;dummy_user&quot;</span><span class="p">),</span>
+            <span class="nb">bool</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstanceOrNone</span><span class="p">(</span>
+            <span class="n">SecurityAccountLockout</span><span class="o">.</span><span class="n">user_locked_out_until</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;dummy_user&quot;</span><span class="p">),</span>
+            <span class="n">Pendulum</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span>
+            <span class="n">SecurityLoginFailure</span><span class="o">.</span><span class="n">how_many_login_failures</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;dummy_user&quot;</span><span class="p">),</span>
+            <span class="nb">int</span>
+        <span class="p">)</span>
+        <span class="n">SecurityLoginFailure</span><span class="o">.</span><span class="n">clear_login_failures_for_nonexistent_users</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="n">SecurityLoginFailure</span><span class="o">.</span><span class="n">clear_dummy_login_failures_if_necessary</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">is_username_permissible</span><span class="p">(</span><span class="s2">&quot;some_user&quot;</span><span class="p">),</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="n">User</span><span class="o">.</span><span class="n">take_some_time_mimicking_password_encryption</span><span class="p">()</span>
+
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>  <span class="c1"># type: User</span>
+        <span class="k">assert</span> <span class="n">u</span><span class="p">,</span> <span class="s2">&quot;Missing user in demo database!&quot;</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbsession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>  <span class="c1"># type: Group</span>
+        <span class="k">assert</span> <span class="n">g</span><span class="p">,</span> <span class="s2">&quot;Missing group in demo database!&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">is_password_valid</span><span class="p">(</span><span class="s2">&quot;dummy_password&quot;</span><span class="p">),</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">must_agree_terms</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">agree_terms</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">clear_login_failures</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">is_locked_out</span><span class="p">(</span><span class="n">req</span><span class="p">),</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstanceOrNone</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">locked_out_until</span><span class="p">(</span><span class="n">req</span><span class="p">),</span> <span class="n">Pendulum</span><span class="p">)</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">enable</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">may_login_as_tablet</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="c1"># TODO: etc... could do more here</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">authorized_as_groupadmin</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">may_use_webviewer</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">authorized_to_add_special_note</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">authorized_to_erase_tasks</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">authorized_to_dump</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">authorized_for_reports</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">may_view_all_patients_when_unfiltered</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">may_view_no_patients_when_unfiltered</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">may_upload_to_group</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">may_upload</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">may_register_devices</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,278 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>camcops_server.tasks.bprse &#8212; CamCOPS 2.2.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for camcops_server.tasks.bprse</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># camcops_server/tasks/bprse.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of CamCOPS.</span>
+
+<span class="sd">    CamCOPS is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    CamCOPS is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with CamCOPS. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">from</span> <span class="nn">cardinal_pythonlib.stringfunc</span> <span class="k">import</span> <span class="n">strseq</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="k">import</span> <span class="n">DeclarativeMeta</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.sqltypes</span> <span class="k">import</span> <span class="n">Integer</span>
+
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_ctvinfo</span> <span class="k">import</span> <span class="n">CtvInfo</span><span class="p">,</span> <span class="n">CTV_INCOMPLETE</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_db</span> <span class="k">import</span> <span class="n">add_multiple_columns</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_html</span> <span class="k">import</span> <span class="n">answer</span><span class="p">,</span> <span class="n">tr</span><span class="p">,</span> <span class="n">tr_qa</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_request</span> <span class="k">import</span> <span class="n">CamcopsRequest</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_summaryelement</span> <span class="k">import</span> <span class="n">SummaryElement</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_task</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">get_from_dict</span><span class="p">,</span>
+    <span class="n">Task</span><span class="p">,</span>
+    <span class="n">TaskHasClinicianMixin</span><span class="p">,</span>
+    <span class="n">TaskHasPatientMixin</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">camcops_server.cc_modules.cc_trackerhelpers</span> <span class="k">import</span> <span class="n">TrackerInfo</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># BPRS-E</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">class</span> <span class="nc">BprseMetaclass</span><span class="p">(</span><span class="n">DeclarativeMeta</span><span class="p">):</span>
+    <span class="c1"># noinspection PyInitNewSignature</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s1">&#39;Bprse&#39;</span><span class="p">],</span>
+                 <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">bases</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+                 <span class="n">classdict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">add_multiple_columns</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NQUESTIONS</span><span class="p">,</span>
+            <span class="n">minimum</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+            <span class="n">comment_fmt</span><span class="o">=</span><span class="s2">&quot;Q</span><span class="si">{n}</span><span class="s2">, </span><span class="si">{s}</span><span class="s2"> (1-7, higher worse, or 0 for not assessed)&quot;</span><span class="p">,</span>
+            <span class="n">comment_strings</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;somatic concern&quot;</span><span class="p">,</span> <span class="s2">&quot;anxiety&quot;</span><span class="p">,</span> <span class="s2">&quot;depression&quot;</span><span class="p">,</span> <span class="s2">&quot;suicidality&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;guilt&quot;</span><span class="p">,</span> <span class="s2">&quot;hostility&quot;</span><span class="p">,</span> <span class="s2">&quot;elevated mood&quot;</span><span class="p">,</span> <span class="s2">&quot;grandiosity&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;suspiciousness&quot;</span><span class="p">,</span> <span class="s2">&quot;hallucinations&quot;</span><span class="p">,</span> <span class="s2">&quot;unusual thought content&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;bizarre behaviour&quot;</span><span class="p">,</span> <span class="s2">&quot;self-neglect&quot;</span><span class="p">,</span> <span class="s2">&quot;disorientation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;conceptual disorganisation&quot;</span><span class="p">,</span> <span class="s2">&quot;blunted affect&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emotional withdrawal&quot;</span><span class="p">,</span> <span class="s2">&quot;motor retardation&quot;</span><span class="p">,</span> <span class="s2">&quot;tension&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uncooperativeness&quot;</span><span class="p">,</span> <span class="s2">&quot;excitement&quot;</span><span class="p">,</span> <span class="s2">&quot;distractibility&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;motor hyperactivity&quot;</span><span class="p">,</span> <span class="s2">&quot;mannerisms and posturing&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">classdict</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Bprse"><a class="viewcode-back" href="../../../autodoc/tasks/bprse.html#camcops_server.tasks.bprse.Bprse">[docs]</a><span class="k">class</span> <span class="nc">Bprse</span><span class="p">(</span><span class="n">TaskHasPatientMixin</span><span class="p">,</span> <span class="n">TaskHasClinicianMixin</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span>
+            <span class="n">metaclass</span><span class="o">=</span><span class="n">BprseMetaclass</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;bprse&quot;</span>
+    <span class="n">shortname</span> <span class="o">=</span> <span class="s2">&quot;BPRS-E&quot;</span>
+    <span class="n">longname</span> <span class="o">=</span> <span class="s2">&quot;Brief Psychiatric Rating Scale, Expanded&quot;</span>
+    <span class="n">provides_trackers</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">NQUESTIONS</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="n">TASK_FIELDS</span> <span class="o">=</span> <span class="n">strseq</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">NQUESTIONS</span><span class="p">)</span>
+    <span class="n">MAX_SCORE</span> <span class="o">=</span> <span class="mi">168</span>
+
+<div class="viewcode-block" id="Bprse.get_trackers"><a class="viewcode-back" href="../../../autodoc/tasks/bprse.html#camcops_server.tasks.bprse.Bprse.get_trackers">[docs]</a>    <span class="k">def</span> <span class="nf">get_trackers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TrackerInfo</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">TrackerInfo</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">total_score</span><span class="p">(),</span>
+            <span class="n">plot_label</span><span class="o">=</span><span class="s2">&quot;BPRS-E total score&quot;</span><span class="p">,</span>
+            <span class="n">axis_label</span><span class="o">=</span><span class="s2">&quot;Total score (out of </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_SCORE</span><span class="p">),</span>
+            <span class="n">axis_min</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">axis_max</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_SCORE</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Bprse.get_clinical_text"><a class="viewcode-back" href="../../../autodoc/tasks/bprse.html#camcops_server.tasks.bprse.Bprse.get_clinical_text">[docs]</a>    <span class="k">def</span> <span class="nf">get_clinical_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">CtvInfo</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_complete</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">CTV_INCOMPLETE</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">CtvInfo</span><span class="p">(</span>
+            <span class="n">content</span><span class="o">=</span><span class="s2">&quot;BPRS-E total score </span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_score</span><span class="p">(),</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">MAX_SCORE</span><span class="p">)</span>
+        <span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Bprse.get_summaries"><a class="viewcode-back" href="../../../autodoc/tasks/bprse.html#camcops_server.tasks.bprse.Bprse.get_summaries">[docs]</a>    <span class="k">def</span> <span class="nf">get_summaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SummaryElement</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_task_summary_fields</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="n">SummaryElement</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;total&quot;</span><span class="p">,</span>
+                           <span class="n">coltype</span><span class="o">=</span><span class="n">Integer</span><span class="p">(),</span>
+                           <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">total_score</span><span class="p">(),</span>
+                           <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Total score (/</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_SCORE</span><span class="p">)),</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="Bprse.is_complete"><a class="viewcode-back" href="../../../autodoc/tasks/bprse.html#camcops_server.tasks.bprse.Bprse.is_complete">[docs]</a>    <span class="k">def</span> <span class="nf">is_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">are_all_fields_complete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TASK_FIELDS</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field_contents_valid</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">total_score</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_fields</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TASK_FIELDS</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Bprse.get_task_html"><a class="viewcode-back" href="../../../autodoc/tasks/bprse.html#camcops_server.tasks.bprse.Bprse.get_task_html">[docs]</a>    <span class="k">def</span> <span class="nf">get_task_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">bprs_string</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">req</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="s2">&quot;bprs&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="n">main_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="kc">None</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;0 — &quot;</span> <span class="o">+</span> <span class="n">bprs_string</span><span class="p">(</span><span class="s2">&quot;old_option0&quot;</span><span class="p">),</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;1 — &quot;</span> <span class="o">+</span> <span class="n">bprs_string</span><span class="p">(</span><span class="s2">&quot;old_option1&quot;</span><span class="p">),</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;2 — &quot;</span> <span class="o">+</span> <span class="n">bprs_string</span><span class="p">(</span><span class="s2">&quot;old_option2&quot;</span><span class="p">),</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;3 — &quot;</span> <span class="o">+</span> <span class="n">bprs_string</span><span class="p">(</span><span class="s2">&quot;old_option3&quot;</span><span class="p">),</span>
+            <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;4 — &quot;</span> <span class="o">+</span> <span class="n">bprs_string</span><span class="p">(</span><span class="s2">&quot;old_option4&quot;</span><span class="p">),</span>
+            <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;5 — &quot;</span> <span class="o">+</span> <span class="n">bprs_string</span><span class="p">(</span><span class="s2">&quot;old_option5&quot;</span><span class="p">),</span>
+            <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;6 — &quot;</span> <span class="o">+</span> <span class="n">bprs_string</span><span class="p">(</span><span class="s2">&quot;old_option6&quot;</span><span class="p">),</span>
+            <span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;7 — &quot;</span> <span class="o">+</span> <span class="n">bprs_string</span><span class="p">(</span><span class="s2">&quot;old_option7&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;div class=&quot;summary&quot;&gt;</span>
+<span class="s2">                &lt;table class=&quot;summary&quot;&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_is_complete_tr</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">tr</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">wappstring</span><span class="p">(</span><span class="s2">&quot;total_score&quot;</span><span class="p">)</span> <span class="o">+</span>
+                <span class="s2">&quot; (0–</span><span class="si">{maxscore}</span><span class="s2">; 24–</span><span class="si">{maxscore}</span><span class="s2"> if all &quot;</span>
+                <span class="s2">&quot;rated)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">maxscore</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_SCORE</span><span class="p">),</span>
+                <span class="n">answer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_score</span><span class="p">()))</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                &lt;/table&gt;</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">            &lt;div class=&quot;explanation&quot;&gt;</span>
+<span class="s2">                Each question has specific answer definitions (see e.g. tablet</span>
+<span class="s2">                app).</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">            &lt;table class=&quot;taskdetail&quot;&gt;</span>
+<span class="s2">                &lt;tr&gt;</span>
+<span class="s2">                    &lt;th width=&quot;60%&quot;&gt;Question&lt;/th&gt;</span>
+<span class="s2">                    &lt;th width=&quot;40%&quot;&gt;Answer &lt;sup&gt;[1]&lt;/sup&gt;&lt;/th&gt;</span>
+<span class="s2">                &lt;/tr&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NQUESTIONS</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="n">tr_qa</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wxstring</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_s&quot;</span><span class="p">),</span>
+                <span class="n">get_from_dict</span><span class="p">(</span><span class="n">main_dict</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+            <span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;/table&gt;</span>
+<span class="s2">            &lt;div class=&quot;footnotes&quot;&gt;</span>
+<span class="s2">                [1] All answers are in the range 1–7, or 0 (not assessed, for</span>
+<span class="s2">                    some).</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">h</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html">23. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/known_problems.html#known-problems-server">24. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/to_do.html">25. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>
