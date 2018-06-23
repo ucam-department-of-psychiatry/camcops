@@ -87,6 +87,8 @@
 #include "tasks/ifs.h"
 #include "tasks/irac.h"
 
+#include "tasks/khandaker1medicalhistory.h"
+
 #include "tasks/mast.h"
 #include "tasks/mdsupdrs.h"
 #include "tasks/moca.h"
@@ -199,6 +201,8 @@ void InitTasks(TaskFactory& factory)
     initializeIesr(factory);
     initializeIfs(factory);
     initializeIrac(factory);
+
+    initializeKhandaker1MedicalHistory(factory);
 
     initializeMast(factory);
     initializeMdsUpdrs(factory);

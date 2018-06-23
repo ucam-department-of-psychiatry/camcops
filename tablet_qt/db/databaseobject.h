@@ -92,8 +92,8 @@ public:
 
     QString prettyValue(const QString& fieldname, int dp = -1) const;
     bool valueIsNull(const QString& fieldname) const;
-    bool valueIsFalseNotNull(const QString &fieldname) const;
-    bool valueIsNullOrEmpty(const QString &fieldname) const;
+    bool valueIsFalseNotNull(const QString& fieldname) const;
+    bool valueIsNullOrEmpty(const QString& fieldname) const;
 
     bool valueBool(const QString& fieldname) const;
     int valueInt(const QString& fieldname) const;

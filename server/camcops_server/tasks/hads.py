@@ -3,6 +3,7 @@
 
 """
 ===============================================================================
+
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -19,6 +20,7 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
 ===============================================================================
 """
 
@@ -55,6 +57,8 @@ class HadsMetaclass(DeclarativeMeta):
 
     This works:
 
+    .. :code-block:: python
+
         class MyTaskMetaclass(DeclarativeMeta):
             def __init__(cls, name, bases, classdict):
                 # do useful stuff
@@ -67,6 +71,8 @@ class HadsMetaclass(DeclarativeMeta):
     it registers "cls" (in this case MyTask) with the SQLAlchemy class
     registry. In this example, that's fine, because MyTask wants to be
     registered. But here it fails:
+
+    .. :code-block:: python
 
         class OtherTaskMetaclass(DeclarativeMeta):
             def __init__(cls, name, bases, classdict):
@@ -84,6 +90,8 @@ class HadsMetaclass(DeclarativeMeta):
     So, it's clear that OtherTaskMetaclass shouldn't derive from
     DeclarativeMeta. But if we make it derive from "object" instead, we get
     the error
+
+    .. :code-block:: none
 
         TypeError: metaclass conflict: the metaclass of a derived class must
         be a (non-strict) subclass of the metaclasses of all its bases
@@ -103,7 +111,10 @@ class HadsMetaclass(DeclarativeMeta):
 
     Alternative solution 1: make a new metaclass that pretends to inherit
     from HadsMetaclass and DeclarativeMeta.
-        -- WENT WITH THIS ONE INITIALLY:
+
+    WENT WITH THIS ONE INITIALLY:
+
+    .. :code-block:: python
 
         class HadsMetaclass(type):                      # METACLASS
             def __init__(cls: Type['HadsBase'],
@@ -134,16 +145,21 @@ class HadsMetaclass(DeclarativeMeta):
     DeclarativeMeta, but add it in at the last stage.
 
     IGNORE THIS, NO LONGER TRUE:
-        ALL THIS SOMEWHAT REVISED to handle SQLAlchemy concrete inheritance
-        (q.v.), with the rule that "the only things that inherit from Task are
-        actual tasks"; Task then inherits from both AbstractConcreteBase and
-        Base.
+
+    - ALL THIS SOMEWHAT REVISED to handle SQLAlchemy concrete inheritance
+      (q.v.), with the rule that "the only things that inherit from Task are
+      actual tasks"; Task then inherits from both AbstractConcreteBase and
+      Base.
+
     SEE ALSO sqla_database_structure.txt
 
     FINAL ANSWER:
-        - classes inherit in a neat chain from Base -> [+/- Task -> ...]
-        - metaclasses inherit in a neat chain from DeclarativeMeta
-        - abstract intermediates mark themselves with "__abstract__ = True"
+
+    - classes inherit in a neat chain from Base -> [+/- Task -> ...]
+    - metaclasses inherit in a neat chain from DeclarativeMeta
+    - abstract intermediates mark themselves with "__abstract__ = True"
+
+    .. :code-block:: python
 
         class HadsMetaclass(DeclarativeMeta):           # METACLASS
             def __init__(cls: Type['HadsBase'],

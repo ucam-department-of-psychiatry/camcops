@@ -61,6 +61,9 @@ Client core
 Server
 ------
 
+- Superuser facility to list all users' e-mail addresses or provide ``mailto:``
+  URL.
+
 - Search for all ``‘***’`` and fix.
 
 - Implement (from command line) “export to anonymisation staging database” =

@@ -3,6 +3,7 @@
 
 """
 ===============================================================================
+
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -19,6 +20,7 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
 ===============================================================================
 """
 
@@ -77,6 +79,7 @@ from .ided3d import IDED3D
 from .iesr import Iesr
 from .ifs import Ifs
 from .irac import Irac
+from .khandaker_1_medicalhistory import Khandaker1MedicalHistory
 from .mast import Mast
 from .mds_updrs import MdsUpdrs
 from .moca import Moca

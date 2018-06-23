@@ -18,7 +18,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 camcops_server.tasks.icd10schizophrenia
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: camcops_server.tasks.icd10schizophrenia
     :members:

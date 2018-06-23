@@ -45,8 +45,8 @@ securely to your server.
     client/client_using.rst
     server/server_front_end_general.rst
 
-    tasks/tasks_by_category.rst
-    tasks/tasks_all.rst
+    tasks/_tasks_by_category.rst
+    tasks/_tasks_all.rst
 
     client/client_troubleshooting.rst
 
@@ -65,9 +65,9 @@ securely to your server.
     misc/design_notes.rst
     autodoc/_index.rst
     changelog.rst
-    misc/known_problems.rst
-    misc/to_do.rst
-    misc/wishlist.rst
+    known_problems.rst
+    to_do.rst
+    wishlist.rst
     misc/local_info.rst
 
 

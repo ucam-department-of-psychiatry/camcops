@@ -71,6 +71,7 @@
     iesr.rst
     ifs.rst
     irac.rst
+    khandaker_1_medicalhistory.rst
     mast.rst
     mds_updrs.rst
     moca.rst

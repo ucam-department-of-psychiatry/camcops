@@ -355,6 +355,12 @@ QString Deakin1HealthReview::menusubtitle() const
 }
 
 
+QString Deakin1HealthReview::infoFilenameStem() const
+{
+    return "deakin_1";
+}
+
+
 // ============================================================================
 // Instance info
 // ============================================================================
@@ -782,9 +788,9 @@ void Deakin1HealthReview::updateMandatory()
     fieldRef(HEALTH_ANYTHING_ELSE_DETAILS)->setMandatory(
                 valueBool(HEALTH_ANYTHING_ELSE));
 
-    bool recent_drugs = valueBool(RECREATIONAL_DRUG_IN_LAST_3_MONTHS);
-    bool heavy_drugs = valueBool(RECDRUG_PREVHEAVY);
-    bool drugs = recent_drugs || heavy_drugs;
+    const bool recent_drugs = valueBool(RECREATIONAL_DRUG_IN_LAST_3_MONTHS);
+    const bool heavy_drugs = valueBool(RECDRUG_PREVHEAVY);
+    const bool drugs = recent_drugs || heavy_drugs;
 
     fieldRef(RECDRUG_TOBACCO_FREQUENCY)->setMandatory(drugs);
     fieldRef(RECDRUG_TOBACCO_PREVHEAVY)->setMandatory(drugs);

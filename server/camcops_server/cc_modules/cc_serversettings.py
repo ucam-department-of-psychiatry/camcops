@@ -3,6 +3,7 @@
 
 """
 ===============================================================================
+
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -19,6 +20,7 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
 ===============================================================================
 
 Previously, we had a key/value pair system, both for device stored variables

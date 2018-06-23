@@ -3,6 +3,7 @@
 
 """
 ===============================================================================
+
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -19,20 +20,25 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
 ===============================================================================
 
 A few random notes:
 
 - SQLAlchemy will automatically warn about clashing columns:
 
-from sqlalchemy import Column, Integer
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
-class Thing(Base):
-    __tablename__ = "thing"
-    a = Column("a", Integer, primary_key=True)
-    b = Column("b", Integer)
-    c = Column("b", Integer)  # produces a warning:
+.. :code-block:: python
+
+    from sqlalchemy import Column, Integer
+    from sqlalchemy.ext.declarative import declarative_base
+
+    Base = declarative_base()
+
+    class Thing(Base):
+        __tablename__ = "thing"
+        a = Column("a", Integer, primary_key=True)
+        b = Column("b", Integer)
+        c = Column("b", Integer)  # produces a warning:
 
 SAWarning: On class 'Thing', Column object 'b' named directly multiple times,
 only one will be used: b, c. Consider using orm.synonym instead

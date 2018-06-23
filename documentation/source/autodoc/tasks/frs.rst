@@ -18,7 +18,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 camcops_server.tasks.frs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: camcops_server.tasks.frs
     :members:

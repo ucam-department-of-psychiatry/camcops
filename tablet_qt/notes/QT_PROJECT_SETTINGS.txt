@@ -140,6 +140,10 @@ Android:
     ... fixed APK name: https://forum.qt.io/topic/43329/qt-5-3-1-qtcreator-rename-qtapp-debug-apk-to-myapp
 ... which one can rename and then upload to Google Play, distribute, etc.
 
+Linux:
+    Under Build Settings / Build Environment:
+        LD_LIBRARY_PATH=/home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.0g/
+
 ===============================================================================
 Google Play Store settings
 ===============================================================================

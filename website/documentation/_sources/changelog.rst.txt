@@ -1021,8 +1021,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
   the exclusion "where" restriction was being applied wrongly and joining the
   exclusion query to the main query, giving far too many rows.
 
-**Client v2.2.1 beta, 2018-08-06 [in progress]**
+**Client v2.2.1 beta, 2018-08-06**
 
 - Background striping for the `QuMcqGrid*` classes.
 
 - Bugfix: `android:allowBackup="false"` added back to AndroidManifest.xml
+
+**Client v2.2.3, 2018-06-23**
+
+- :ref:`Khandaker/Insight medical history <khandaker_1>` task.
+
+- Requires server v2.2.3.

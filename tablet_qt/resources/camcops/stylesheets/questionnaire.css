@@ -462,16 +462,18 @@ AspectRatioPixmap {
     background-color: lightgray;
 }
 
-/* QuMCQGrid */
-#mcq_grid #option_background {
+/* Background colours */
+#option_background {
     background-color: lightgray;
 }
-#mcq_grid #stripe_background_even {
+#stripe_background_even {
     background-color: rgba(200, 200, 255, 50);
 }
-#mcq_grid #stripe_background_odd {
+#stripe_background_odd {
     background-color: rgba(255, 255, 255, 0);
 }
+
+/* QuMCQGrid */
 #mcq_grid #question {
     font-weight: bold;
     padding: 5px;

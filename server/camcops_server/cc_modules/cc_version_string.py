@@ -3,6 +3,7 @@
 
 """
 ===============================================================================
+
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -19,6 +20,7 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
 ===============================================================================
 """
 
@@ -29,6 +31,10 @@
 # Version constants and configuration variables read by shell scripts
 # =============================================================================
 
-CAMCOPS_SERVER_VERSION_STRING = "2.2.2"
-CAMCOPS_CHANGEDATE = "2018-06-19"
+# When you alter the server, it is normal to change these two:
+CAMCOPS_SERVER_VERSION_STRING = "2.2.3"
+CAMCOPS_CHANGEDATE = "2018-06-23"
+
+# BEWARE: it is not normal to have to change MINIMUM_TABLET_VERSION_STRING.
+# If you increase it, you may prevent old clients from uploading.
 MINIMUM_TABLET_VERSION_STRING = "1.14.0"

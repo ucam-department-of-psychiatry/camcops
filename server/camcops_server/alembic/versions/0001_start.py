@@ -11,6 +11,7 @@ Creation date: 2017-10-22 02:13:14.498367
 DATABASE REVISION SCRIPT
 
 ===============================================================================
+
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -27,6 +28,7 @@ DATABASE REVISION SCRIPT
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
 ===============================================================================
 """
 

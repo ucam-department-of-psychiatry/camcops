@@ -745,7 +745,10 @@ SOURCES += main.cpp \
     widgets/treeviewproxystyle.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
-    widgets/verticalscrollareaviewport.cpp
+    widgets/verticalscrollareaviewport.cpp \
+    menu/setmenukhandaker1.cpp \
+    tasks/khandaker1medicalhistory.cpp \
+    questionnairelib/qubackground.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1114,6 +1117,9 @@ HEADERS += \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
     widgets/verticalscrollareaviewport.h \
+    menu/setmenukhandaker1.h \
+    tasks/khandaker1medicalhistory.h \
+    questionnairelib/qubackground.h
 
 DISTFILES += \
     LICENSE.txt \

@@ -725,10 +725,11 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuLineEditDouble(fieldRef("typedvar_real"), -0.05, -0.09, 2),
         new QuHeading("Variables in a grid:"),
         questionnairefunc::defaultGridRawPointer({
-            {"label 1", new QuLineEdit(fieldRef("typedvar_text"))},
-            {"label 2", new QuLineEditInteger(fieldRef("typedvar_int"), 13, 19)},
+            {"label 1 (text)", new QuLineEdit(fieldRef("typedvar_text"))},
+            {"label 2 (int 13-19)", new QuLineEditInteger(fieldRef("typedvar_int"), 13, 19)},
             {"label 3", new QuHeading("Just a heading: " + lipsum2)},
             {"label 4", new QuDateTime(fieldRef("date_time"))},
+            {"label 5 (multiline text)", new QuTextEdit(fieldRef("typedvar_text"))},
         }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
     })
         ->setTitle("Editable variable including dates/times")

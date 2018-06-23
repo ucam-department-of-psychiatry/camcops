@@ -222,7 +222,7 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
         hbox->addStretch();
         widget->setLayout(hbox);
     }
-    for (auto c : m_cells) {
+    for (const QuGridCell& c : m_cells) {
         QuElementPtr e = c.element;
         QPointer<QWidget> w = e->widget(questionnaire);
 
@@ -254,8 +254,8 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
     QMapIterator<int, int> it(m_column_stretch);
     while (it.hasNext()) {
         it.next();
-        int column = it.key();
-        int stretch = it.value();
+        const int column = it.key();
+        const int stretch = it.value();
 #ifdef DEBUG_GRID_CREATION
         qDebug().nospace() << "... setColumnStretch(" << column
                            << "," << stretch << ")";

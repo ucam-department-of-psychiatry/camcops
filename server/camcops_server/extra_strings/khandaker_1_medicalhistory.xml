@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="khandaker_1_medicalhistory">
+    <!-- Khandaker: Medical history screening for Insight immunopsychiatry study -->
+
+    <string name="title">Medical history</string>
+    <string name="instruction">Please indicate if you have ever had (or still have) any of the conditions below and provide details of their occurrence.</string>
+    <string name="heading_condition">Condition</string>
+    <string name="heading_yn">Have had?</string>
+    <string name="heading_comment">Comment – details of disorder(s), if any</string>
+    <string name="comment_hint">Details</string>
+
+    <string name="heading_cancer">Cancers</string>
+    <string name="q_cancer">Cancer, leukaemia, Hodgkin’s disease, lymphoma, or melanoma</string>
+
+    <string name="heading_brain">Brain disorders</string>
+    <string name="q_epilepsy">Epilepsy</string>
+    <string name="q_cva_headinjury_braintumour">Stroke, brain haemorrhage, transient ischaemic attack (TIA), head injury causing loss of consciousness, or brain tumour</string>
+    <string name="q_ms_pd_dementia">Multiple sclerosis, Parkinson’s disease, Alzheimer’s disease or dementia</string>
+    <string name="q_cerebralpalsy_otherbrain">Cerebral palsy or other brain disorders</string>
+    <string name="q_visual_impairment">Blindness, blurred or disturbed vision, not fully corrected by glasses or contact lenses; e.g. optic neuritis or glaucoma</string>
+
+    <string name="heading_cardiovascular">Cardiac and vascular</string>
+    <string name="q_heart_disorder">Heart disorder, including heart attack, angina, cardiomyopathy, or heart murmur</string>
+
+    <string name="heading_respiratory">Respiratory</string>
+    <string name="q_respiratory">Asthma, bronchitis, or chronic obstructive airways disease</string>
+
+    <string name="heading_gastrointestinal">Gastrointestinal</string>
+    <string name="q_gastrointestinal">Disorder of the digestive system, liver, stomach, pancreas or bowel, including ulcers, hepatitis, colitis or Crohn’s disease, irritable bowel disease, ulcerative colitis</string>
+
+    <string name="heading_inflammatory">Inflammatory disease</string>
+    <string name="q_other_inflammatory">Rheumatoid arthritis, osteoarthritis, psoriasis, lupus (SLE), other inflammatory disease</string>
+
+    <string name="heading_musculoskeletal">Musculoskeletal</string>
+    <string name="q_musculoskeletal">Arthritis, or any muscle, bone or joint disorder, e.g. sciatica, back, neck, shoulder or knee pain, repetitive strain injury (RSI), or gout</string>
+
+    <string name="heading_renal_urinary">Renal and urinary</string>
+    <string name="q_renal_urinary">Any kidney, bladder or other genito-urinary disorder, including blood or protein in the urine, kidney cysts, or multiple urinary tract infections</string>
+
+    <string name="heading_dermatological">Dermatological</string>
+    <string name="q_dermatological">Any serious skin disorder or allergy, including psoriasis</string>
+
+    <string name="heading_endocrinological">Endocrine</string>
+    <string name="q_diabetes">Diabetes or sugar in the urine</string>
+    <string name="q_other_endocrinological">Thyroid problems or other endocrine disorders</string>
+
+    <string name="heading_haematological">Haematological</string>
+    <string name="q_haematological">Blood disorder or anaemia</string>
+
+    <string name="heading_infections">Infections (current or recent)</string>
+    <string name="q_infections">Colds and flu, recent injuries, TB, HIV, other chronic or current infections</string>
+
+  </task>
+</resources>
