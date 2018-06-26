@@ -65,55 +65,68 @@
 <span class="sd">Note these built-in SQLAlchemy types:</span>
 <span class="sd">http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types</span>
 
-<span class="sd">    BigInteger      -- MySQL: -9,223,372,036,854,775,808 to </span>
-<span class="sd">                               9,223,372,036,854,775,807 (64-bit)</span>
-<span class="sd">                       (compare NHS number: up to 9,999,999,999)</span>
+<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    SQLAlchemy type Comment</span>
+<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    BigInteger      MySQL: -9,223,372,036,854,775,808 to </span>
+<span class="sd">                            9,223,372,036,854,775,807 (64-bit)</span>
+<span class="sd">                    (compare NHS number: up to 9,999,999,999)</span>
 <span class="sd">    Boolean</span>
 <span class="sd">    Date</span>
 <span class="sd">    DateTime</span>
 <span class="sd">    Enum</span>
 <span class="sd">    Float</span>
-<span class="sd">    Integer         -- MySQL: -2,147,483,648 to 2,147,483,647 (32-bit)</span>
-<span class="sd">    Interval        -- for datetime.timedelta</span>
-<span class="sd">    LargeBinary     -- under MySQL, maps to BLOB</span>
-<span class="sd">    MatchType       -- for the return type of the MATCH operator</span>
-<span class="sd">    Numeric         -- for fixed-precision numbers like NUMERIC or DECIMAL</span>
+<span class="sd">    Integer         MySQL: -2,147,483,648 to 2,147,483,647 (32-bit)</span>
+<span class="sd">    Interval        for datetime.timedelta</span>
+<span class="sd">    LargeBinary     under MySQL, maps to BLOB</span>
+<span class="sd">    MatchType       for the return type of the MATCH operator</span>
+<span class="sd">    Numeric         for fixed-precision numbers like NUMERIC or DECIMAL</span>
 <span class="sd">    PickleType</span>
 <span class="sd">    SchemaType</span>
 <span class="sd">    SmallInteger</span>
-<span class="sd">    String          -- VARCHAR</span>
-<span class="sd">    Text            -- variably sized string type</span>
-<span class="sd">                        ... under MySQL, renders as TEXT</span>
+<span class="sd">    String          VARCHAR</span>
+<span class="sd">    Text            variably sized string type</span>
+<span class="sd">                    ... under MySQL, renders as TEXT</span>
 <span class="sd">    Time</span>
-<span class="sd">    Unicode         -- implies that the underlying column explicitly supports </span>
-<span class="sd">                       Unicode</span>
-<span class="sd">    UnicodeText     -- variably sized version of Unicode</span>
-<span class="sd">                        ... under MySQL, renders as TEXT too</span>
+<span class="sd">    Unicode         implies that the underlying column explicitly supports </span>
+<span class="sd">                    Unicode</span>
+<span class="sd">    UnicodeText     variably sized version of Unicode</span>
+<span class="sd">                    ... under MySQL, renders as TEXT too</span>
+<span class="sd">    --------------- -----------------------------------------------------------</span>
 <span class="sd">    </span>
 <span class="sd">Not supported across all platforms:</span>
 
-<span class="sd">    BIGINT UNSIGNED -- MySQL: 0 to 18,446,744,073,709,551,615 (64-bit)</span>
-<span class="sd">                    -- use sqlalchemy.dialects.mysql.BIGINT(unsigned=True)</span>
-<span class="sd">    INT UNSIGNED    -- MySQL: 0 to 4,294,967,295 (32-bit)</span>
-<span class="sd">                    -- use sqlalchemy.dialects.mysql.INTEGER(unsigned=True)</span>
+<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    SQL type        Comment</span>
+<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    BIGINT UNSIGNED MySQL: 0 to 18,446,744,073,709,551,615 (64-bit)</span>
+<span class="sd">                    ... use sqlalchemy.dialects.mysql.BIGINT(unsigned=True)</span>
+<span class="sd">    INT UNSIGNED    MySQL: 0 to 4,294,967,295 (32-bit)</span>
+<span class="sd">                    ... use sqlalchemy.dialects.mysql.INTEGER(unsigned=True)</span>
+<span class="sd">    --------------- -----------------------------------------------------------</span>
 
 <span class="sd">Other MySQL sizes:</span>
 
-<span class="sd">    TINYBLOB        -- 2^8 bytes = 256 bytes</span>
-<span class="sd">    BLOB            -- 2^16 bytes = 64 KiB</span>
-<span class="sd">    MEDIUMBLOB      -- 2^24 bytes = 16 MiB</span>
-<span class="sd">    LONGBLOB        -- 2^32 bytes = 4 GiB </span>
+<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    MySQL type      Comment</span>
+<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    TINYBLOB        2^8 bytes = 256 bytes</span>
+<span class="sd">    BLOB            2^16 bytes = 64 KiB</span>
+<span class="sd">    MEDIUMBLOB      2^24 bytes = 16 MiB</span>
+<span class="sd">    LONGBLOB        2^32 bytes = 4 GiB </span>
 
-<span class="sd">    TINYTEXT        -- 255 (2^8 - 1) bytes</span>
-<span class="sd">    TEXT            -- 65,535 bytes (2^16 - 1) = 64 KiB</span>
-<span class="sd">    MEDIUMTEXT      -- 16,777,215 (2^24 - 1) bytes = 16 MiB</span>
-<span class="sd">    LONGTEXT        -- 4,294,967,295 (2^32 - 1) bytes = 4 GiB</span>
-<span class="sd">        ... https://stackoverflow.com/questions/13932750/tinytext-text-mediumtext-and-longtext-maximum-storage-sizes</span>
+<span class="sd">    TINYTEXT        255 (2^8 - 1) bytes</span>
+<span class="sd">    TEXT            65,535 bytes (2^16 - 1) = 64 KiB</span>
+<span class="sd">    MEDIUMTEXT      16,777,215 (2^24 - 1) bytes = 16 MiB</span>
+<span class="sd">    LONGTEXT        4,294,967,295 (2^32 - 1) bytes = 4 GiB</span>
+<span class="sd">    --------------- -----------------------------------------------------------</span>
+
+<span class="sd">See https://stackoverflow.com/questions/13932750/tinytext-text-mediumtext-and-longtext-maximum-storage-sizes</span>
 
 <span class="sd">Also:</span>
 
-<span class="sd">    Columns may need their character set specified explicitly under MySQL:</span>
-<span class="sd">        https://stackoverflow.com/questions/2108824/mysql-incorrect-string-value-error-when-save-unicode-string-in-django</span>
+<span class="sd">    - Columns may need their character set specified explicitly under MySQL:</span>
+<span class="sd">      https://stackoverflow.com/questions/2108824/mysql-incorrect-string-value-error-when-save-unicode-string-in-django</span>
 
 <span class="sd">&quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
 
@@ -418,12 +431,15 @@
         <span class="n">compiler</span><span class="p">:</span> <span class="s2">&quot;SQLCompiler&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implementation of isotzdatetime_to_utcdatetime for MySQL.</span>
+<span class="sd">    </span>
 <span class="sd">    For format, see</span>
-<span class="sd">        https://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html#function_date-format  # noqa</span>
+<span class="sd">    https://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html#function_date-format</span>
+<span class="sd">    </span>
 <span class="sd">    Note the use of &quot;%i&quot; for minutes.</span>
+<span class="sd">    </span>
 <span class="sd">    Things after &quot;func.&quot; get passed to the database engine as literal SQL</span>
 <span class="sd">    functions; http://docs.sqlalchemy.org/en/latest/core/tutorial.html</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">fetch_processed_single_clause</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">compiler</span><span class="p">)</span>
 
     <span class="c1"># Let&#39;s do this in a clear way:</span>
@@ -485,45 +501,57 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implementation of isotzdatetime_to_utcdatetime for SQL Server.</span>
 
-<span class="sd">    Converting strings to DATETIME values:</span>
-<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
-<span class="sd">    CAST():     Part of ANSI SQL.</span>
-<span class="sd">    CONVERT():  Not part of ANSI SQL; has some extra formatting options.</span>
+<span class="sd">    **Converting strings to DATETIME values**</span>
+
+<span class="sd">    - CAST():     Part of ANSI SQL.</span>
+<span class="sd">    - CONVERT():  Not part of ANSI SQL; has some extra formatting options.</span>
 
 <span class="sd">    Both methods work:</span>
+
+<span class="sd">    .. code-block:: sql</span>
+
 <span class="sd">      SELECT CAST(&#39;2001-01-31T21:30:49.123&#39; AS DATETIME) AS via_cast,</span>
 <span class="sd">             CONVERT(DATETIME, &#39;2001-01-31T21:30:49.123&#39;) AS via_convert;</span>
+
 <span class="sd">    ... fine on SQL Server 2005, with milliseconds in both cases.</span>
 <span class="sd">    However, going beyond milliseconds doesn&#39;t fail gracefully, it causes an</span>
 <span class="sd">    error (e.g. &quot;...21:30.49.123456&quot;) both for CAST and CONVERT.</span>
 
 <span class="sd">    The DATETIME2 format accepts greater precision, but requires SQL Server</span>
 <span class="sd">    2008 or higher. Then this works:</span>
+
+<span class="sd">    .. code-block:: sql</span>
+
 <span class="sd">      SELECT CAST(&#39;2001-01-31T21:30:49.123456&#39; AS DATETIME2) AS via_cast,</span>
 <span class="sd">             CONVERT(DATETIME2, &#39;2001-01-31T21:30:49.123456&#39;) AS via_convert;</span>
 
 <span class="sd">    So as not to be too optimistic: CAST(x AS DATETIME2) ignores (silently) any</span>
 <span class="sd">    timezone information in the string. So does CONVERT(DATETIME2, x, {0 or 1}).</span>
 
-<span class="sd">    Converting between time zones:</span>
-<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    **Converting between time zones**</span>
+
 <span class="sd">    NO TIME ZONE SUPPORT in SQL Server 2005.</span>
 <span class="sd">    e.g. https://stackoverflow.com/questions/3200827/how-to-convert-timezones-in-sql-server-2005  # noqa</span>
 
-<span class="sd">    TODATETIMEOFFSET(expression, time_zone):</span>
-<span class="sd">          expression: something that evaluates to a DATETIME2 value</span>
-<span class="sd">          time_zone: integer minutes, or string hours/minutes e.g. &quot;+13.00&quot;</span>
-<span class="sd">      -&gt; produces a DATETIMEOFFSET value</span>
+<span class="sd">    .. code-block:: none</span>
+
+<span class="sd">        TODATETIMEOFFSET(expression, time_zone):</span>
+<span class="sd">              expression: something that evaluates to a DATETIME2 value</span>
+<span class="sd">              time_zone: integer minutes, or string hours/minutes e.g. &quot;+13.00&quot;</span>
+<span class="sd">          -&gt; produces a DATETIMEOFFSET value</span>
+
 <span class="sd">    Available from SQL Server 2008.</span>
 <span class="sd">    https://docs.microsoft.com/en-us/sql/t-sql/functions/todatetimeoffset-transact-sql  # noqa</span>
 
-<span class="sd">    SWITCHOFFSET</span>
-<span class="sd">      -&gt; converts one DATETIMEOFFSET value to another, preserving its UTC</span>
-<span class="sd">         time, but changing the displayed (local) time zone.</span>
+<span class="sd">    .. code-block:: none</span>
+
+<span class="sd">        SWITCHOFFSET</span>
+<span class="sd">          -&gt; converts one DATETIMEOFFSET value to another, preserving its UTC</span>
+<span class="sd">             time, but changing the displayed (local) time zone.</span>
 
 <span class="sd">    ... however, is that unnecessary? We want a plain DATETIME2 in UTC, and</span>
-<span class="sd">    conversion to UTC is automatically achieved by</span>
-<span class="sd">          CONVERT(DATETIME2, some_datetimeoffset, 1)</span>
+<span class="sd">        conversion to UTC is automatically achieved by</span>
+<span class="sd">        CONVERT(DATETIME2, some_datetimeoffset, 1)</span>
 <span class="sd">    ... https://stackoverflow.com/questions/4953903/how-can-i-convert-a-sql-server-2008-datetimeoffset-to-a-datetime  # noqa</span>
 <span class="sd">    ... but not by CAST(some_datetimeoffset AS DATETIME2), and not by</span>
 <span class="sd">        CONVERT(DATETIME2, some_datetimeoffset, 0)</span>
@@ -537,29 +565,29 @@
 <span class="sd">    From SQL Server 2016 only.</span>
 <span class="sd">    https://docs.microsoft.com/en-us/sql/t-sql/queries/at-time-zone-transact-sql?view=sql-server-2017</span>
 
-<span class="sd">    Therefore:</span>
-<span class="sd">    ~~~~~~~~~~</span>
+<span class="sd">    **Therefore**</span>
+
 <span class="sd">    - We need to require SQL Server 2008 or higher.</span>
 <span class="sd">    - Therefore we can use the DATETIME2 type.</span>
 <span class="sd">    - Note that LEN(), not LENGTH(), is ANSI SQL; SQL Server only supports</span>
 <span class="sd">      LEN.</span>
 
-<span class="sd">    Example (tested on SQL Server 2014)</span>
-<span class="sd">    ~~~~~~~</span>
+<span class="sd">    **Example (tested on SQL Server 2014)**</span>
 
-<span class="sd">    DECLARE @source AS VARCHAR(100) = &#39;2001-01-31T21:30:49.123456+07:00&#39;;</span>
+<span class="sd">    .. code-block:: sql</span>
 
-<span class="sd">    SELECT CAST(</span>
-<span class="sd">        SWITCHOFFSET(</span>
-<span class="sd">            TODATETIMEOFFSET(</span>
-<span class="sd">                CAST(LEFT(@source, LEN(@source) - 6) AS DATETIME2),</span>
-<span class="sd">                RIGHT(@source, 6)</span>
-<span class="sd">            ),</span>
-<span class="sd">            &#39;+00:00&#39;</span>
-<span class="sd">        )</span>
-<span class="sd">        AS DATETIME2</span>
-<span class="sd">    )  -- 2001-01-31 14:30:49.1234560</span>
+<span class="sd">        DECLARE @source AS VARCHAR(100) = &#39;2001-01-31T21:30:49.123456+07:00&#39;;</span>
 
+<span class="sd">        SELECT CAST(</span>
+<span class="sd">            SWITCHOFFSET(</span>
+<span class="sd">                TODATETIMEOFFSET(</span>
+<span class="sd">                    CAST(LEFT(@source, LEN(@source) - 6) AS DATETIME2),</span>
+<span class="sd">                    RIGHT(@source, 6)</span>
+<span class="sd">                ),</span>
+<span class="sd">                &#39;+00:00&#39;</span>
+<span class="sd">            )</span>
+<span class="sd">            AS DATETIME2</span>
+<span class="sd">        )  -- 2001-01-31 14:30:49.1234560</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">fetch_processed_single_clause</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">compiler</span><span class="p">)</span>
@@ -1384,18 +1412,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

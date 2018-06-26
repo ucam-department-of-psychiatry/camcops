@@ -1,4 +1,4 @@
-..  documentation/source/autodoc/merge_db.rst
+..  documentation/source/autodoc/cc_modules/merge_db.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .

@@ -139,9 +139,10 @@ class CamcopsRequest(Request):
     def __init__(self, *args, **kwargs):
         """
         This is called as the Pyramid request factory; see
-            config.set_request_factory(CamcopsRequest)
+        ``config.set_request_factory(CamcopsRequest)``
 
         What's the best way of handling the database client?
+
         - With Titanium, we were constrained not to use cookies. With Qt, we
           have the option.
         - But are cookies a good idea?
@@ -154,6 +155,7 @@ class CamcopsRequest(Request):
           password details with each request, and that is RESTful) but it
           does save authentication time to do so on calls after the first.
         - What we could try to do is:
+
           - look up a session here, at Request creation time;
           - add a new session if there wasn't one;
           - but allow the database API code to replace that session (BEFORE
@@ -237,7 +239,11 @@ class CamcopsRequest(Request):
         Return an SQLAlchemy session for the relevant request.
         The use of @reify makes this elegant. If and only if a view wants a
         database, it can say
+
+        .. code-block:: python
+
             dbsession = request.dbsession
+
         and if it requests that, the cleanup callbacks get installed.
         """
         session = self.get_bare_dbsession()
@@ -478,19 +484,26 @@ class CamcopsRequest(Request):
         parameters to pass.
 
         It does two things:
-            (1) convert all params to their str() form;
-            (2) allow you to pass parameters more easily using a string
-                parameter name.
+
+        (1) convert all params to their str() form;
+        (2) allow you to pass parameters more easily using a string
+            parameter name.
 
         The normal Pyramid Request use is:
+
+        .. code-block:: python
+
             Request.route_url(route_name, param1=value1, param2=value2)
 
         where "param1" is the literal name of the parameter, but here we can do
+
+        .. code-block:: python
 
             CamcopsRequest.route_url_params(route_name, {
                 PARAM1_NAME: value1_not_necessarily_str,
                 PARAM2_NAME: value2
             })
+
         """
         strparamdict = {k: str(v) for k, v in paramdict.items()}
         return self.route_url(route_name, **strparamdict)
@@ -902,12 +915,14 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
     for debugging.
 
     Notes:
+
     - The important base class is webob.request.BaseRequest.
     - self.params is a NestedMultiDict (see webob/multidict.py); these are
       intrinsically read-only.
     - self.params is also a read-only property. When read, it combines
       self.GET and self.POST.
     - What we do here is to manipulate the underlying GET/POST data.
+
     """
     _CACHE_KEY = "webob._parsed_query_vars"
     _QUERY_STRING_KEY = "QUERY_STRING"

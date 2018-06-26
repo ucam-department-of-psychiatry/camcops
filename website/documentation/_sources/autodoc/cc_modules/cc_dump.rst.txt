@@ -1,4 +1,4 @@
-..  documentation/source/autodoc/cc_dump.rst
+..  documentation/source/autodoc/cc_modules/cc_dump.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -22,4 +22,3 @@ camcops_server.cc_modules.cc_dump
 
 .. automodule:: camcops_server.cc_modules.cc_dump
     :members:
-

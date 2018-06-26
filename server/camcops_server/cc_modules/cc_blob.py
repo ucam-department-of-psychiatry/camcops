@@ -221,6 +221,8 @@ def blob_relationship(classname: str,
     Simplifies creation of BLOB relationships.
     In a class definition, use like this:
 
+    .. code-block:: python
+
         class Something(Base):
 
             photo_blobid = CamcopsColumn(

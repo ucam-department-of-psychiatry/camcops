@@ -61,15 +61,21 @@ def text_contents(e: Element, plain: bool = False, strip: bool = True) -> str:
     """
     A normal string looks like
 
-        <string name="stringname">words words words</string>
+        .. code-block:: xml
+
+            <string name="stringname">words words words</string>
 
     and we extract its contents ("words words words") with
 
-        e.text
+        .. code-block:: python
+
+            e.text
 
     However, for this:
 
-        <string name="stringname">words <b>bold words</b> words</string>
+        .. code-block:: xml
+
+            <string name="stringname">words <b>bold words</b> words</string>
 
     we want to extract "words <b>bold words</b> words" and that's a little
     trickier.
@@ -98,14 +104,20 @@ def all_extra_strings_as_dicts(
     Returns strings from the all the extra XML string files.
     Caching is now via a proper cache.
 
-    Returns a dictionary whose keys are tasknames,
-        and whose values are each a dictionary
-            whose keys are string names
-            and whose values are strings.
-    For example, result['phq9']['q5'] == "5. Poor appetite or overeating".
+    - Returns a dictionary whose keys are tasknames,
+
+        - and whose values are each a dictionary
+
+            - whose keys are string names
+            - and whose values are strings.
+
+    For example, ``result['phq9']['q5'] == "5. Poor appetite or overeating"``.
     There is also a top-level dictionary with the key APPSTRING_TASKNAME.
 
     The extra string files look like this:
+
+    .. code-block:: xml
+
         <?xml version="1.0" encoding="UTF-8"?>
         <resources>
             <task name="TASK_1">
@@ -115,6 +127,7 @@ def all_extra_strings_as_dicts(
             </task>
             <!-- ... -->
         </resources>
+
     """
     cfg = get_config(config_filename)
     assert cfg.extra_string_files is not None

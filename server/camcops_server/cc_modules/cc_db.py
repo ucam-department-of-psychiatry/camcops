@@ -726,26 +726,35 @@ def add_multiple_columns(
     Add a sequence of SQLAlchemy columns to a class.
     Called from a metaclass.
 
-    Args:
-        cls: class to which to add columns
-        prefix: Fieldname will be prefix + str(n), where n defined as below.
-        start: Start of range.
-        end: End of range. Thus:
-            ... i will range from 0 to (end - start) inclusive
-            ... n will range from start to end inclusive
-        coltype: SQLAlchemy column type, in either of these formats:
-                Integer     general type: Type[TypeEngine] ?
-                Integer()   general type: TypeEngine
-        colkwargs: SQLAlchemy column arguments
-            ... as in: Column(name, coltype, **colkwargs)
-        comment_fmt: Format string defining field comments. Substitutable
-            values are:
-                {n}     field number (from range)
-                {s}     comment_strings[i], or "" if out of range
-        comment_strings: see comment_fmt
-        minimum: minimum permitted value, or None
-        maximum: maximum permitted value, or None
-        pv: list of permitted values, or None
+    :param cls: class to which to add columns
+
+    :param prefix: Fieldname will be prefix + str(n), where n defined as below.
+
+    :param start: Start of range.
+
+    :param end: End of range. Thus: i will range from 0 to (end - start)
+        inclusive; n will range from start to end inclusive.
+
+    :param coltype: SQLAlchemy column type, in either of these formats: (a)
+        ``Integer`` (of general type ``Type[TypeEngine]``?); (b) ``Integer()``
+        (of general type ``TypeEngine``).
+
+    :param colkwargs: SQLAlchemy column arguments, as in
+        ``Column(name, coltype, **colkwargs)``
+
+    :param comment_fmt: Format string defining field comments. Substitutable
+        values are:
+        ``{n}``: field number (from range).
+        ``{s}``: comment_strings[i], or "" if out of range.
+
+    :param comment_strings: see comment_fmt
+
+    :param minimum: minimum permitted value, or None
+
+    :param maximum: maximum permitted value, or None
+
+    :param pv: list of permitted values, or None
+
     """
     colkwargs = {} if colkwargs is None else colkwargs  # type: Dict[str, Any]
     comment_strings = comment_strings or []

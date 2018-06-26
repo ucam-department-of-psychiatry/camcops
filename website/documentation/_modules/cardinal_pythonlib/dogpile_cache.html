@@ -1,0 +1,785 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>cardinal_pythonlib.dogpile_cache &#8212; CamCOPS 2.2.3 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cardinal_pythonlib.dogpile_cache</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># cardinal_pythonlib/dogpile_cache.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============================================================================</span>
+<span class="sd">    Copyright (C) 2009-2018 Rudolf Cardinal (rudolf@pobox.com).</span>
+
+<span class="sd">    This file is part of cardinal_pythonlib.</span>
+
+<span class="sd">    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">    you may not use this file except in compliance with the License.</span>
+<span class="sd">    You may obtain a copy of the License at</span>
+
+<span class="sd">        http://www.apache.org/licenses/LICENSE-2.0</span>
+
+<span class="sd">    Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">    distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">    See the License for the specific language governing permissions and</span>
+<span class="sd">    limitations under the License.</span>
+<span class="sd">===============================================================================</span>
+
+<span class="sd">1.  The basic cache objects.</span>
+
+<span class="sd">2.  FIX FOR DOGPILE.CACHE FOR DECORATED FUNCTIONS, 2017-07-28 (PLUS SOME OTHER</span>
+<span class="sd">    IMPROVEMENTS). SEE </span>
+<span class="sd">   </span>
+<span class="sd">        https://bitbucket.org/zzzeek/dogpile.cache/issues/96/error-in-python-35-with-use-of-deprecated</span>
+
+<span class="sd">    This fixes a crash using type-hinted functions under Python 3.5 with </span>
+<span class="sd">    dogpile.cache==0.6.4:</span>
+
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">          File &quot;/usr/lib/python3.5/runpy.py&quot;, line 184, in _run_module_as_main</span>
+<span class="sd">            &quot;__main__&quot;, mod_spec)</span>
+<span class="sd">          File &quot;/usr/lib/python3.5/runpy.py&quot;, line 85, in _run_code</span>
+<span class="sd">            exec(code, run_globals)</span>
+<span class="sd">          File &quot;/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_cache.py&quot;, line 64, in &lt;module&gt;</span>
+<span class="sd">            unit_test_cache()</span>
+<span class="sd">          File &quot;/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_cache.py&quot;, line 50, in unit_test_cache</span>
+<span class="sd">            def testfunc() -&gt; str:</span>
+<span class="sd">          File &quot;/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/dogpile/cache/region.py&quot;, line 1215, in decorator</span>
+<span class="sd">            key_generator = function_key_generator(namespace, fn)</span>
+<span class="sd">          File &quot;/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/dogpile/cache/util.py&quot;, line 31, in function_key_generator</span>
+<span class="sd">            args = inspect.getargspec(fn)</span>
+<span class="sd">          File &quot;/usr/lib/python3.5/inspect.py&quot;, line 1045, in getargspec</span>
+<span class="sd">            raise ValueError(&quot;Function has keyword-only arguments or annotations&quot;</span>
+<span class="sd">        ValueError: Function has keyword-only arguments or annotations, use getfullargspec() API which can support them</span>
+
+<span class="sd">3.  Other improvements include:</span>
+<span class="sd">    - the cache decorators operate as:</span>
+<span class="sd">        PER-INSTANCE caches for class instances, provided the first parameter </span>
+<span class="sd">            is named &quot;self&quot;; </span>
+<span class="sd">        PER-CLASS caches for classmethods, provided the first parameter is </span>
+<span class="sd">            named &quot;cls&quot;;</span>
+<span class="sd">        PER-FUNCTION caches for staticmethods and plain functions</span>
+<span class="sd">        </span>
+<span class="sd">    - keyword arguments are supported</span>
+<span class="sd">    </span>
+<span class="sd">    - properties are supported (the @property decorator must be ABOVE the</span>
+<span class="sd">      cache decorator)</span>
+<span class="sd">    </span>
+<span class="sd">    - Note that this sort of cache relies on the generation of a STRING KEY</span>
+<span class="sd">      from the function arguments. It uses the hex(id()) function for self/cls</span>
+<span class="sd">      arguments, and the to_str() function, passed as a parameter, for others</span>
+<span class="sd">      (for which the default is &quot;repr&quot;; see discussion below as to why &quot;repr&quot;</span>
+<span class="sd">      is suitable while &quot;str&quot; is not).</span>
+
+<span class="sd">&quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Imports; logging</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="c1"># noinspection PyPackageRequirements</span>
+<span class="kn">from</span> <span class="nn">dogpile.cache</span> <span class="k">import</span> <span class="n">make_region</span>
+<span class="c1"># from dogpile.util import compat  # repr used as the default instead of compat.to_str  # noqa</span>
+
+<span class="n">TESTING_VERBOSE</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">TESTING_USE_PRETTY_LOGS</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># False to make this standalone</span>
+<span class="k">if</span> <span class="n">TESTING_USE_PRETTY_LOGS</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">cardinal_pythonlib.logs</span> <span class="k">import</span> <span class="n">main_only_quicksetup_rootlogger</span>
+
+<span class="n">DEBUG_INTERNALS</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>  <span class="c1"># don&#39;t use BraceStyleAdapter; {} used</span>
+<span class="n">log</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Helper functions</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span> <span class="nf">repr_parameter</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s2">&quot;Parameter(name=</span><span class="si">{name}</span><span class="s2">, annotation=</span><span class="si">{annotation}</span><span class="s2">, kind=</span><span class="si">{kind}</span><span class="s2">, &quot;</span>
+        <span class="s2">&quot;default=</span><span class="si">{default}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">annotation</span><span class="o">=</span><span class="n">param</span><span class="o">.</span><span class="n">annotation</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">param</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_namespace</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># See hidden attributes with dir(fn)</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{module}</span><span class="s2">:</span><span class="si">{name}{extra}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">module</span><span class="o">=</span><span class="n">fn</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">fn</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span>  <span class="c1"># __qualname__ includes class name, if present</span>
+        <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;|</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span> <span class="k">if</span> <span class="n">namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># New function key generators</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span> <span class="nf">fkg_allowing_type_hints</span><span class="p">(</span>
+        <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+        <span class="n">to_str</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Replacement for dogpile.cache.util.function_key_generator that handles</span>
+<span class="sd">    type-hinted functions like</span>
+
+<span class="sd">            def testfunc(param: str) -&gt; str:</span>
+<span class="sd">                return param + &quot;hello&quot;</span>
+
+<span class="sd">        ... at which inspect.getargspec() balks</span>
+<span class="sd">        ... plus inspect.getargspec() is deprecated in Python 3</span>
+
+<span class="sd">    Return a function that generates a string key, based on a given function as</span>
+<span class="sd">    well as arguments to the returned function itself.</span>
+
+<span class="sd">    Also modified to make the cached function unique per INSTANCE for normal</span>
+<span class="sd">    methods of a class.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">namespace</span> <span class="o">=</span> <span class="n">get_namespace</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">argnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">POSITIONAL_OR_KEYWORD</span><span class="p">]</span>
+    <span class="n">has_self</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">argnames</span> <span class="ow">and</span> <span class="n">argnames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;cls&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">generate_key</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">kw</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This dogpile.cache key function generator, &quot;</span>
+                             <span class="s2">&quot;fkg_allowing_type_hints, &quot;</span>
+                             <span class="s2">&quot;does not accept keyword arguments.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">has_self</span><span class="p">:</span>
+            <span class="c1"># Unlike dogpile&#39;s default, make it instance- (or class-) specific</span>
+            <span class="c1"># by including a representation of the &quot;self&quot; or &quot;cls&quot; argument:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]))]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">namespace</span> <span class="o">+</span> <span class="s2">&quot;|&quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">to_str</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">DEBUG_INTERNALS</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fkg_allowing_type_hints.generate_key() -&gt; &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">key</span>
+
+    <span class="k">return</span> <span class="n">generate_key</span>
+
+
+<span class="k">def</span> <span class="nf">multikey_fkg_allowing_type_hints</span><span class="p">(</span>
+        <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+        <span class="n">to_str</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Equivalent of dogpile.cache function_multi_key_generator, but using</span>
+<span class="sd">    inspect.signature() instead.</span>
+
+<span class="sd">    Also modified to make the cached function unique per INSTANCE for normal</span>
+<span class="sd">    methods of a class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">namespace</span> <span class="o">=</span> <span class="n">get_namespace</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">argnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">POSITIONAL_OR_KEYWORD</span><span class="p">]</span>
+    <span class="n">has_self</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">argnames</span> <span class="ow">and</span> <span class="n">argnames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;cls&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">generate_keys</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">kw</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This dogpile.cache key function generator, &quot;</span>
+                             <span class="s2">&quot;multikey_fkg_allowing_type_hints, &quot;</span>
+                             <span class="s2">&quot;does not accept keyword arguments.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">has_self</span><span class="p">:</span>
+            <span class="c1"># Unlike dogpile&#39;s default, make it instance- (or class-) specific</span>
+            <span class="c1"># by including a representation of the &quot;self&quot; or &quot;cls&quot; argument:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]))]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">namespace</span> <span class="o">+</span> <span class="s2">&quot;|&quot;</span> <span class="o">+</span> <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">to_str</span><span class="p">,</span> <span class="n">args</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">DEBUG_INTERNALS</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;multikey_fkg_allowing_type_hints.generate_keys() -&gt; &quot;</span> <span class="o">+</span>
+                      <span class="nb">repr</span><span class="p">(</span><span class="n">keys</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">keys</span>
+
+    <span class="k">return</span> <span class="n">generate_keys</span>
+
+
+<span class="k">def</span> <span class="nf">kw_fkg_allowing_type_hints</span><span class="p">(</span>
+        <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+        <span class="n">to_str</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    As for fkg_allowing_type_hints, but allowing keyword arguments.</span>
+
+<span class="sd">    For kwargs passed in, we will build a dict of all argname (key) argvalue</span>
+<span class="sd">    (values) including default args from the argspec and then alphabetize the</span>
+<span class="sd">    list before generating the key.</span>
+
+<span class="sd">    NOTE ALSO that once we have keyword arguments, we should be using repr(),</span>
+<span class="sd">    because we need to distinguish</span>
+
+<span class="sd">        kwargs = {&#39;p&#39;: &#39;another&#39;, &#39;q&#39;: &#39;thing&#39;}</span>
+<span class="sd">        ... which compat.string_type will make into</span>
+<span class="sd">                p=another q=thing</span>
+<span class="sd">        ... from</span>
+<span class="sd">        kwargs = {&#39;p&#39;: &#39;another q=thing&#39;}</span>
+
+<span class="sd">    Also modified to make the cached function unique per INSTANCE for normal</span>
+<span class="sd">    methods of a class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">namespace</span> <span class="o">=</span> <span class="n">get_namespace</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>  <span class="c1"># convert from odict_values</span>
+    <span class="n">argnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">POSITIONAL_OR_KEYWORD</span><span class="p">]</span>
+    <span class="n">has_self</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">argnames</span> <span class="ow">and</span> <span class="n">argnames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;cls&#39;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">DEBUG_INTERNALS</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;At start of kw_fkg_allowing_type_hints: namespace=</span><span class="si">{namespace}</span><span class="s2">,&quot;</span>
+            <span class="s2">&quot;parameters=[</span><span class="si">{parameters}</span><span class="s2">], argnames=</span><span class="si">{argnames}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;has_self=</span><span class="si">{has_self}</span><span class="s2">, fn=</span><span class="si">{fn}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">repr_parameter</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">),</span>
+                <span class="n">argnames</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="n">argnames</span><span class="p">),</span>
+                <span class="n">has_self</span><span class="o">=</span><span class="n">has_self</span><span class="p">,</span>
+                <span class="n">fn</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="n">fn</span><span class="p">),</span>
+            <span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">generate_key</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">as_kwargs</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: Dict[str, Any]</span>
+        <span class="n">loose_args</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[Any]  # those captured by *args</span>
+        <span class="c1"># 1. args: get the name as well.</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">argnames</span><span class="p">):</span>
+                <span class="c1"># positional argument to be scooped up with *args</span>
+                <span class="n">loose_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># normal plain positional argument</span>
+                <span class="k">if</span> <span class="n">has_self</span> <span class="ow">and</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># &quot;self&quot; or &quot;cls&quot; initial argument</span>
+                    <span class="n">argvalue</span> <span class="o">=</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">argvalue</span> <span class="o">=</span> <span class="n">arg</span>
+                <span class="n">as_kwargs</span><span class="p">[</span><span class="n">argnames</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span> <span class="o">=</span> <span class="n">argvalue</span>
+        <span class="c1"># 1b. args with no name</span>
+        <span class="k">if</span> <span class="n">loose_args</span><span class="p">:</span>
+            <span class="n">as_kwargs</span><span class="p">[</span><span class="s1">&#39;*args&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loose_args</span>
+            <span class="c1"># &#39;*args&#39; is guaranteed not to be a parameter name in its own right</span>
+        <span class="c1"># 2. kwargs</span>
+        <span class="n">as_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># 3. default values</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">!=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">as_kwargs</span><span class="p">:</span>
+                    <span class="n">as_kwargs</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span>
+        <span class="c1"># 4. sorted by name</span>
+        <span class="c1">#    ... but also incorporating the name of the argument, because once</span>
+        <span class="c1">#    we allow the arbitrary **kwargs format, order is no longer</span>
+        <span class="c1">#    sufficient to discriminate</span>
+        <span class="c1">#       fn(p=&quot;another&quot;, q=&quot;thing&quot;)</span>
+        <span class="c1">#    from</span>
+        <span class="c1">#       fn(r=&quot;another&quot;, s=&quot;thing&quot;)</span>
+        <span class="n">argument_values</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{k}</span><span class="s2">=</span><span class="si">{v}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">v</span><span class="o">=</span><span class="n">to_str</span><span class="p">(</span><span class="n">as_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
+                           <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">as_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">namespace</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">argument_values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">DEBUG_INTERNALS</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;kw_fkg_allowing_type_hints.generate_key() -&gt; &quot;</span> <span class="o">+</span>
+                      <span class="nb">repr</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">key</span>
+
+    <span class="k">return</span> <span class="n">generate_key</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Default function key generator with a short name</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">fkg</span> <span class="o">=</span> <span class="n">kw_fkg_allowing_type_hints</span>
+
+<span class="c1"># Can now do:</span>
+<span class="c1">#</span>
+<span class="c1"># @mycache.cache_on_arguments(function_key_generator=fkg)</span>
+<span class="c1"># def myfunc():</span>
+<span class="c1">#     pass</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Unit tests</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span> <span class="nf">unit_test_cache</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">mycache</span> <span class="o">=</span> <span class="n">make_region</span><span class="p">()</span>
+    <span class="n">mycache</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;dogpile.cache.memory&#39;</span><span class="p">)</span>
+
+    <span class="n">plain_fkg</span> <span class="o">=</span> <span class="n">fkg_allowing_type_hints</span>
+    <span class="n">kw_fkg</span> <span class="o">=</span> <span class="n">kw_fkg_allowing_type_hints</span>
+    <span class="c1"># I&#39;m not sure what dogpile.cache.utils.function_multi_key_generator is</span>
+    <span class="c1"># used for, so haven&#39;t fully tested multikey_fkg_allowing_type_hints, but</span>
+    <span class="c1"># it works internally in the same way as fkg_allowing_type_hints.</span>
+
+    <span class="n">fn_was_called</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">should_call_fn</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">reset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">nonlocal</span> <span class="n">fn_was_called</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">fn_was_called</span> <span class="o">==</span> <span class="n">should_call_fn</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;fn_was_called=</span><span class="si">{}</span><span class="s2">, should_call_fn=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">fn_was_called</span><span class="p">,</span> <span class="n">should_call_fn</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
+            <span class="n">fn_was_called</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">fn_called</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">nonlocal</span> <span class="n">fn_was_called</span>
+        <span class="n">fn_was_called</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">no_params_dogpile_default_fkg</span><span class="p">():</span>  <span class="c1"># no type hints!</span>
+        <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION no_params_dogpile_default_fkg() CALLED&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;no_params_dogpile_default_fkg: hello&quot;</span>
+
+    <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">plain_fkg</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">noparams</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION noparams() CALLED&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;noparams: hello&quot;</span>
+
+    <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">plain_fkg</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">oneparam</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION oneparam() CALLED&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;oneparam: hello, &quot;</span> <span class="o">+</span> <span class="n">a</span>
+
+    <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">plain_fkg</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">twoparam_with_default_wrong_dec</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Zelda&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION twoparam_with_default_wrong_dec() CALLED&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;twoparam_with_default_wrong_dec: hello, &quot;</span> <span class="o">+</span> <span class="n">a</span> <span class="o">+</span>
+                <span class="s2">&quot;; this is &quot;</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+
+    <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">kw_fkg</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">twoparam_with_default_right_dec</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Zelda&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION twoparam_with_default_right_dec() CALLED&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;twoparam_with_default_right_dec: hello, &quot;</span> <span class="o">+</span> <span class="n">a</span> <span class="o">+</span>
+                <span class="s2">&quot;; this is &quot;</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+
+    <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">kw_fkg</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="s2">&quot;David&quot;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">&quot;Zelda&quot;</span><span class="p">):</span>
+        <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION twoparam_all_defaults_no_typehints() &quot;</span>
+                  <span class="s2">&quot;CALLED&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;twoparam_all_defaults_no_typehints: hello, &quot;</span> <span class="o">+</span> <span class="n">a</span> <span class="o">+</span>
+                <span class="s2">&quot;; this is &quot;</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+
+    <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">kw_fkg</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fn_args_kwargs</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION fn_args_kwargs() CALLED&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;fn_args_kwargs: args=</span><span class="si">{}</span><span class="s2">, kwargs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">args</span><span class="p">),</span>
+                                                            <span class="nb">repr</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)))</span>
+
+    <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">kw_fkg</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fn_all_possible</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;David&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION fn_all_possible() CALLED&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;fn_all_possible: a=</span><span class="si">{}</span><span class="s2">, b=</span><span class="si">{}</span><span class="s2">, args=</span><span class="si">{}</span><span class="s2">, d=</span><span class="si">{}</span><span class="s2">, kwargs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
+
+    <span class="k">class</span> <span class="nc">TestClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="mi">999</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">no_params_dogpile_default_fkg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># no type hints!</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION TestClass.&quot;</span>
+                      <span class="s2">&quot;no_params_dogpile_default_fkg() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;TestClass.no_params_dogpile_default_fkg: hello&quot;</span>
+
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">dogpile_default_test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># no type hints!</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION TestClass.&quot;</span>
+                      <span class="s2">&quot;dogpile_default_test_2() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;TestClass.dogpile_default_test_2: hello&quot;</span>
+
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">plain_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">noparams</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION TestClass.noparams() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;Testclass.noparams: hello; a=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">kw_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">no_params_instance_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;PER-INSTANCE-CACHED FUNCTION &quot;</span>
+                      <span class="s2">&quot;TestClass.no_params_instance_cache() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;TestClass.no_params_instance_cache: a=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="c1"># Decorator order is critical here:</span>
+        <span class="c1"># https://stackoverflow.com/questions/1987919/why-can-decorator-not-decorate-a-staticmethod-or-a-classmethod  # noqa</span>
+        <span class="nd">@classmethod</span>
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">plain_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">classy</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION TestClass.classy() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;TestClass.classy: hello; c=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+
+        <span class="nd">@staticmethod</span>
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">plain_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">static</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION TestClass.static() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;TestClass.static: hello&quot;</span>
+
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">plain_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">oneparam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION TestClass.oneparam() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;TestClass.oneparam: hello, &quot;</span> <span class="o">+</span> <span class="n">q</span>
+
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">kw_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">fn_all_possible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;David&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION TestClass.fn_all_possible() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;TestClass.fn_all_possible: a=</span><span class="si">{}</span><span class="s2">, b=</span><span class="si">{}</span><span class="s2">, args=</span><span class="si">{}</span><span class="s2">, d=</span><span class="si">{}</span><span class="s2">, &quot;</span>
+                    <span class="s2">&quot;kwargs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">d</span><span class="p">),</span>
+                                       <span class="nb">repr</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)))</span>
+
+        <span class="nd">@property</span>
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">kw_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">prop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED PROPERTY TestClass.prop() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;TestClass.prop: a=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">))</span>
+
+    <span class="k">class</span> <span class="nc">SecondTestClass</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="mi">5</span>
+
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">dogpile_default_test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># no type hints!</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION SecondTestClass.&quot;</span>
+                      <span class="s2">&quot;dogpile_default_test_2() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;SecondTestClass.dogpile_default_test_2: hello&quot;</span>
+
+    <span class="k">class</span> <span class="nc">Inherited</span><span class="p">(</span><span class="n">TestClass</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">101010</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">plain_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">noparams</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION Inherited.noparams() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;Inherited.noparams: hello; a=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">kw_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">no_params_instance_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;PER-INSTANCE-CACHED FUNCTION &quot;</span>
+                      <span class="s2">&quot;Inherited.no_params_instance_cache() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;Inherited.no_params_instance_cache: a=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="c1"># Decorator order is critical here:</span>
+        <span class="c1"># https://stackoverflow.com/questions/1987919/why-can-decorator-not-decorate-a-staticmethod-or-a-classmethod  # noqa</span>
+        <span class="nd">@classmethod</span>
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">plain_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">classy</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION Inherited.classy() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;Inherited.classy: hello; c=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+
+        <span class="nd">@staticmethod</span>
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">plain_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">static</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION Inherited.static() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;Inherited.static: hello&quot;</span>
+
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">plain_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">oneparam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED FUNCTION Inherited.oneparam() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;Inherited.oneparam: hello, &quot;</span> <span class="o">+</span> <span class="n">q</span>
+
+        <span class="c1"># BUT fn_all_possible IS NOT OVERRIDDEN</span>
+
+        <span class="nd">@property</span>
+        <span class="nd">@mycache</span><span class="o">.</span><span class="n">cache_on_arguments</span><span class="p">(</span><span class="n">function_key_generator</span><span class="o">=</span><span class="n">kw_fkg</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">prop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">fn_called</span><span class="p">(</span><span class="s2">&quot;CACHED PROPERTY Inherited.prop() CALLED&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;Inherited.prop: a=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">))</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Fetching cached information #1 (should call noparams())...&quot;</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">noparams</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Fetching cached information #2 (should not call noparams())...&quot;</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">noparams</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Testing functions with other signatures...&quot;</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Arthur&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Arthur&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_with_default_wrong_dec</span><span class="p">(</span><span class="s2">&quot;Celia&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_with_default_wrong_dec</span><span class="p">(</span><span class="s2">&quot;Celia&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_with_default_wrong_dec</span><span class="p">(</span><span class="s2">&quot;Celia&quot;</span><span class="p">,</span> <span class="s2">&quot;Yorick&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_with_default_wrong_dec</span><span class="p">(</span><span class="s2">&quot;Celia&quot;</span><span class="p">,</span> <span class="s2">&quot;Yorick&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Trying with keyword arguments and wrong key generator&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">twoparam_with_default_wrong_dec</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="s2">&quot;Celia&quot;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">&quot;Yorick&quot;</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;Inappropriate success with keyword arguments!&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Correct rejection of keyword arguments&quot;</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Trying with keyword arguments and right key generator&quot;</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_with_default_right_dec</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="s2">&quot;Celia&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_with_default_right_dec</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="s2">&quot;Celia&quot;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">&quot;Yorick&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_with_default_right_dec</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="s2">&quot;Yorick&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="s2">&quot;Celia&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_with_default_right_dec</span><span class="p">(</span><span class="s2">&quot;Celia&quot;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">&quot;Yorick&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="s2">&quot;Edith&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="s2">&quot;Edith&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="s2">&quot;Romeo&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="s2">&quot;Romeo&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="s2">&quot;Greta&quot;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">&quot;Romeo&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="s2">&quot;Greta&quot;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">&quot;Romeo&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="s2">&quot;Felicity&quot;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">&quot;Sigurd&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="s2">&quot;Felicity&quot;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">&quot;Sigurd&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="s2">&quot;Felicity&quot;</span><span class="p">,</span> <span class="s2">&quot;Sigurd&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="s2">&quot;Felicity&quot;</span><span class="p">,</span> <span class="s2">&quot;Sigurd&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="s2">&quot;Sigurd&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="s2">&quot;Felicity&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">twoparam_all_defaults_no_typehints</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="s2">&quot;Sigurd&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="s2">&quot;Felicity&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_args_kwargs</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;David&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="s2">&quot;Edgar&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_args_kwargs</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;David&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="s2">&quot;Edgar&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_args_kwargs</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_args_kwargs</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The next call MUST NOT go via the cache, i.e. func should be CALLED&quot;</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_args_kwargs</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="s2">&quot;another q=thing&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_args_kwargs</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="s2">&quot;another q=thing&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="s2">&quot;Iris&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="s2">&quot;Iris&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Testing class member functions&quot;</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">TestClass</span><span class="p">()</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">noparams</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">noparams</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">classy</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">classy</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">static</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">static</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Arthur&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Arthur&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="s2">&quot;Iris&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="s2">&quot;Iris&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">prop</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">prop</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Testing functions for another INSTANCE of the same class&quot;</span><span class="p">)</span>
+    <span class="n">t_other</span> <span class="o">=</span> <span class="n">TestClass</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">999</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">noparams</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">noparams</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">classy</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>  <span class="c1"># SAME CLASS as t; shouldn&#39;t be re-called</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">classy</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">static</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>  <span class="c1"># SAME CLASS as t; shouldn&#39;t be re-called</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">static</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Arthur&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Arthur&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="s2">&quot;Iris&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="s2">&quot;Iris&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">prop</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">prop</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">no_params_instance_cache</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">no_params_instance_cache</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">no_params_instance_cache</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_other</span><span class="o">.</span><span class="n">no_params_instance_cache</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Testing functions for instance of a derived class&quot;</span><span class="p">)</span>
+    <span class="n">t_inh</span> <span class="o">=</span> <span class="n">Inherited</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">777</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">noparams</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">noparams</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">classy</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">classy</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">static</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">static</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Arthur&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Arthur&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">oneparam</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="s2">&quot;Iris&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="s2">&quot;Iris&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">fn_all_possible</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s2">&quot;Horace&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="s2">&quot;another&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;thing&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">prop</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t_inh</span><span class="o">.</span><span class="n">prop</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">test</span><span class="p">(</span><span class="n">no_params_dogpile_default_fkg</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">no_params_dogpile_default_fkg</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">no_params_dogpile_default_fkg</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;dogpile.cache default FKG correctly distinguishing between &quot;</span>
+                 <span class="s2">&quot;plain and class-member function in same module&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Known dogpile.cache default FKG problem - conflates &quot;</span>
+                    <span class="s2">&quot;plain/class member function of same name (unless &quot;</span>
+                    <span class="s2">&quot;namespace is manually given)&quot;</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">no_params_dogpile_default_fkg</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">SecondTestClass</span><span class="p">()</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">dogpile_default_test_2</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">dogpile_default_test_2</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">test</span><span class="p">(</span><span class="n">t2</span><span class="o">.</span><span class="n">dogpile_default_test_2</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;dogpile.cache default FKG correctly distinguishing between &quot;</span>
+                 <span class="s2">&quot;member functions of two different classes with same name&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Known dogpile.cache default FKG problem - conflates &quot;</span>
+                    <span class="s2">&quot;member functions of two different classes where &quot;</span>
+                    <span class="s2">&quot;functions have same name (unless namespace is manually &quot;</span>
+                    <span class="s2">&quot;given)&quot;</span><span class="p">)</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">t2</span><span class="o">.</span><span class="n">dogpile_default_test_2</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Success!&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># TEST THIS WITH:</span>
+<span class="c1"># python -m cardinal_pythonlib.dogpile_cache</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="n">TESTING_VERBOSE</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+    <span class="k">if</span> <span class="n">TESTING_USE_PRETTY_LOGS</span><span class="p">:</span>
+        <span class="n">main_only_quicksetup_rootlogger</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span>
+    <span class="n">unit_test_cache</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks/_tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks/_tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/local_info.html">25. Local configuration information</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

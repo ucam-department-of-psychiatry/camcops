@@ -129,6 +129,8 @@ Server
 Documentation to-do list
 ------------------------
 
+- Move some of the internal client notes into the main documentation.
+
 - Consider autodocumentation for C++ code; see
   https://stackoverflow.com/questions/11246637/using-sphinx-apidoc-to-generate-documentation-from-c-code
 

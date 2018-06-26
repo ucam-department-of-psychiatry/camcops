@@ -17,7 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. include:: include_tabletdefs.rst
+.. include:: ../client/include_tabletdefs.rst
 
 Creating tasks
 ==============
@@ -56,6 +56,9 @@ These elements are primarily for static display (though, for example, the
 programmer can manipulate the contents of static text dynamically).
 
 - `QuAudioPlayer`. Allows sounds to be played.
+
+- `QuBackground`. Widget that is styled (via CSS) to have a colour. Used to
+  create striping background effects for custom tables (etc.).
 
 - `QuHeading`. Subclass of `QuText`; displays headings.
 

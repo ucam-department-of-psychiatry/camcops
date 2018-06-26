@@ -1153,21 +1153,14 @@ DISTFILES += \
     images/dt/dt_unsel_7.png \
     images/dt/dt_unsel_8.png \
     images/dt/dt_unsel_9.png \
-    notes/QT_PROJECT_SETTINGS.txt \
-    notes/blob_handling.txt \
-    notes/coding_conventions.txt \
     notes/compilation_android.txt \
     notes/compilation_linux.txt \
     notes/compilation_windows.txt \
     notes/database_performance.txt \
-    notes/hardware.txt \
-    notes/known_problems.txt \
     notes/layout_notes.txt \
     notes/overall_design.txt \
     notes/qt_notes.txt \
-    notes/rejected_ideas.txt \
     notes/string_formats.txt \
-    notes/to_do.txt \
     stylesheets/camcops.css \
     stylesheets/camcops_menu.css \
     stylesheets/camcops_questionnaire.css \

@@ -1,4 +1,4 @@
-..  documentation/source/autodoc/tasks/index.rst
+..  documentation/source/autodoc/tasks/_index.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .

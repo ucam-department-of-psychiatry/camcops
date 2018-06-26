@@ -77,6 +77,8 @@
 <span class="sd">    one from potentially several views. For example, a single route might be</span>
 <span class="sd">    associated with:</span>
 
+<span class="sd">    .. code-block:: python</span>
+
 <span class="sd">        @view_config(route_name=&quot;myroute&quot;)</span>
 <span class="sd">        def myroute_default(req: Request) -&gt; Response:</span>
 <span class="sd">            pass</span>
@@ -90,6 +92,8 @@
 <span class="sd">    views match, choose the one with the most specifiers.</span>
 
 <span class="sd">-   Specifiers include:</span>
+
+<span class="sd">    .. code-block:: none</span>
 
 <span class="sd">        route_name=ROUTENAME</span>
 
@@ -118,6 +122,8 @@
 
 <span class="sd">-   Getting parameters</span>
 
+<span class="sd">    .. code-block:: none</span>
+
 <span class="sd">        request.params</span>
 
 <span class="sd">            ... parameters from HTTP GET or POST, including both the query</span>
@@ -136,9 +142,13 @@
 <span class="sd">    likely a minor performance hit (relative to plain Python string rendering);</span>
 <span class="sd">    and a loss of type checking. The type checking is also why we prefer:</span>
 
+<span class="sd">    .. code-block:: python</span>
+
 <span class="sd">        html = &quot; ... {param_blah} ...&quot;.format(param_blah=PARAM.BLAH)</span>
 
 <span class="sd">    to</span>
+
+<span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        html = &quot; ... {PARAM.BLAH} ...&quot;.format(PARAM=PARAM)</span>
 
@@ -391,9 +401,17 @@
 <span class="k">def</span> <span class="nf">bad_request</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="n">CamcopsRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    NOTE that this view only gets used from</span>
+
+<span class="sd">    .. code-block:: python</span>
+
 <span class="sd">        raise HTTPBadRequest(&quot;message&quot;)</span>
+
 <span class="sd">    and not</span>
+
+<span class="sd">    .. code-block:: python</span>
+
 <span class="sd">        return HTTPBadRequest(&quot;message&quot;)</span>
+
 <span class="sd">    ... so always raise it.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">{}</span></div>
@@ -3197,18 +3215,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

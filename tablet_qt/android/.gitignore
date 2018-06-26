@@ -1,5 +1,8 @@
-build.gradle
 gradle/
+res/
+
+build.gradle
+gradle.properties
 gradlew
 gradlew.bat
-res/
+local.properties

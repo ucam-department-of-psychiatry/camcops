@@ -178,9 +178,10 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This is called as the Pyramid request factory; see</span>
-<span class="sd">            config.set_request_factory(CamcopsRequest)</span>
+<span class="sd">        ``config.set_request_factory(CamcopsRequest)``</span>
 
 <span class="sd">        What&#39;s the best way of handling the database client?</span>
+
 <span class="sd">        - With Titanium, we were constrained not to use cookies. With Qt, we</span>
 <span class="sd">          have the option.</span>
 <span class="sd">        - But are cookies a good idea?</span>
@@ -193,6 +194,7 @@
 <span class="sd">          password details with each request, and that is RESTful) but it</span>
 <span class="sd">          does save authentication time to do so on calls after the first.</span>
 <span class="sd">        - What we could try to do is:</span>
+
 <span class="sd">          - look up a session here, at Request creation time;</span>
 <span class="sd">          - add a new session if there wasn&#39;t one;</span>
 <span class="sd">          - but allow the database API code to replace that session (BEFORE</span>
@@ -276,7 +278,11 @@
 <span class="sd">        Return an SQLAlchemy session for the relevant request.</span>
 <span class="sd">        The use of @reify makes this elegant. If and only if a view wants a</span>
 <span class="sd">        database, it can say</span>
+
+<span class="sd">        .. code-block:: python</span>
+
 <span class="sd">            dbsession = request.dbsession</span>
+
 <span class="sd">        and if it requests that, the cleanup callbacks get installed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bare_dbsession</span><span class="p">()</span>
@@ -517,19 +523,26 @@
 <span class="sd">        parameters to pass.</span>
 
 <span class="sd">        It does two things:</span>
-<span class="sd">            (1) convert all params to their str() form;</span>
-<span class="sd">            (2) allow you to pass parameters more easily using a string</span>
-<span class="sd">                parameter name.</span>
+
+<span class="sd">        (1) convert all params to their str() form;</span>
+<span class="sd">        (2) allow you to pass parameters more easily using a string</span>
+<span class="sd">            parameter name.</span>
 
 <span class="sd">        The normal Pyramid Request use is:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
 <span class="sd">            Request.route_url(route_name, param1=value1, param2=value2)</span>
 
 <span class="sd">        where &quot;param1&quot; is the literal name of the parameter, but here we can do</span>
+
+<span class="sd">        .. code-block:: python</span>
 
 <span class="sd">            CamcopsRequest.route_url_params(route_name, {</span>
 <span class="sd">                PARAM1_NAME: value1_not_necessarily_str,</span>
 <span class="sd">                PARAM2_NAME: value2</span>
 <span class="sd">            })</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">strparamdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">paramdict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">route_url</span><span class="p">(</span><span class="n">route_name</span><span class="p">,</span> <span class="o">**</span><span class="n">strparamdict</span><span class="p">)</span></div>
@@ -941,12 +954,14 @@
 <span class="sd">    for debugging.</span>
 
 <span class="sd">    Notes:</span>
+
 <span class="sd">    - The important base class is webob.request.BaseRequest.</span>
 <span class="sd">    - self.params is a NestedMultiDict (see webob/multidict.py); these are</span>
 <span class="sd">      intrinsically read-only.</span>
 <span class="sd">    - self.params is also a read-only property. When read, it combines</span>
 <span class="sd">      self.GET and self.POST.</span>
 <span class="sd">    - What we do here is to manipulate the underlying GET/POST data.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_CACHE_KEY</span> <span class="o">=</span> <span class="s2">&quot;webob._parsed_query_vars&quot;</span>
     <span class="n">_QUERY_STRING_KEY</span> <span class="o">=</span> <span class="s2">&quot;QUERY_STRING&quot;</span>
@@ -1163,18 +1178,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

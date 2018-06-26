@@ -765,26 +765,35 @@
 <span class="sd">    Add a sequence of SQLAlchemy columns to a class.</span>
 <span class="sd">    Called from a metaclass.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        cls: class to which to add columns</span>
-<span class="sd">        prefix: Fieldname will be prefix + str(n), where n defined as below.</span>
-<span class="sd">        start: Start of range.</span>
-<span class="sd">        end: End of range. Thus:</span>
-<span class="sd">            ... i will range from 0 to (end - start) inclusive</span>
-<span class="sd">            ... n will range from start to end inclusive</span>
-<span class="sd">        coltype: SQLAlchemy column type, in either of these formats:</span>
-<span class="sd">                Integer     general type: Type[TypeEngine] ?</span>
-<span class="sd">                Integer()   general type: TypeEngine</span>
-<span class="sd">        colkwargs: SQLAlchemy column arguments</span>
-<span class="sd">            ... as in: Column(name, coltype, **colkwargs)</span>
-<span class="sd">        comment_fmt: Format string defining field comments. Substitutable</span>
-<span class="sd">            values are:</span>
-<span class="sd">                {n}     field number (from range)</span>
-<span class="sd">                {s}     comment_strings[i], or &quot;&quot; if out of range</span>
-<span class="sd">        comment_strings: see comment_fmt</span>
-<span class="sd">        minimum: minimum permitted value, or None</span>
-<span class="sd">        maximum: maximum permitted value, or None</span>
-<span class="sd">        pv: list of permitted values, or None</span>
+<span class="sd">    :param cls: class to which to add columns</span>
+
+<span class="sd">    :param prefix: Fieldname will be prefix + str(n), where n defined as below.</span>
+
+<span class="sd">    :param start: Start of range.</span>
+
+<span class="sd">    :param end: End of range. Thus: i will range from 0 to (end - start)</span>
+<span class="sd">        inclusive; n will range from start to end inclusive.</span>
+
+<span class="sd">    :param coltype: SQLAlchemy column type, in either of these formats: (a)</span>
+<span class="sd">        ``Integer`` (of general type ``Type[TypeEngine]``?); (b) ``Integer()``</span>
+<span class="sd">        (of general type ``TypeEngine``).</span>
+
+<span class="sd">    :param colkwargs: SQLAlchemy column arguments, as in</span>
+<span class="sd">        ``Column(name, coltype, **colkwargs)``</span>
+
+<span class="sd">    :param comment_fmt: Format string defining field comments. Substitutable</span>
+<span class="sd">        values are:</span>
+<span class="sd">        ``{n}``: field number (from range).</span>
+<span class="sd">        ``{s}``: comment_strings[i], or &quot;&quot; if out of range.</span>
+
+<span class="sd">    :param comment_strings: see comment_fmt</span>
+
+<span class="sd">    :param minimum: minimum permitted value, or None</span>
+
+<span class="sd">    :param maximum: maximum permitted value, or None</span>
+
+<span class="sd">    :param pv: list of permitted values, or None</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">colkwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">colkwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">colkwargs</span>  <span class="c1"># type: Dict[str, Any]</span>
     <span class="n">comment_strings</span> <span class="o">=</span> <span class="n">comment_strings</span> <span class="ow">or</span> <span class="p">[]</span>
@@ -831,18 +840,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

@@ -1,4 +1,4 @@
-..  documentation/source/autodoc/client_api.rst
+..  documentation/source/autodoc/cc_modules/client_api.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .

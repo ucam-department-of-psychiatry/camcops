@@ -1,4 +1,4 @@
-..  documentation/source/autodoc/webview.rst
+..  documentation/source/autodoc/cc_modules/webview.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .

@@ -82,25 +82,28 @@ def decode_single_value(v: str) -> Any:
     Takes a string representing an SQL value. Returns the value. Value
     types/examples:
 
-        int         35
-                    -12
-        float       7.23
-        str         'hello, here''s an apostrophe'
-            (starts and ends with a quote)
-        NULL        NULL
-            (case-insensitive)
-        BLOB        X'4D7953514C'
-            (hex-encoded; matches MySQL method;
-            http://dev.mysql.com/doc/refman/5.0/en/hexadecimal-literals.html)
-        BLOB        64'TXlTUUw='
-            (base-64-encoded; this notation is my invention)
+        ==========  ===========================================================
+        int         ``35``, ``-12``
+        float       ``7.23``
+        str         ``'hello, here''s an apostrophe'``
+                    (starts and ends with a quote)
+        NULL        ``NULL``
+                    (case-insensitive)
+        BLOB        ``X'4D7953514C'``
+                    (hex-encoded; matches MySQL method;
+                    http://dev.mysql.com/doc/refman/5.0/en/hexadecimal-literals.html)
+        BLOB        ``64'TXlTUUw='``
+                    (base-64-encoded; this notation is my invention)
+        ==========  ===========================================================
 
     But
-        - we use ISO-8601 text for dates/times
+
+    - we use ISO-8601 text for dates/times
 
     The client-side counterpart to this function is SQLite's QUOTE() function
     (see getRecordByPK_lowmem() in lib/dbsqlite.js), except in the case of
     BLOBs (when it's getEncodedBlob() in table/Blob.js); see lib/dbupload.js.
+
     """
 
     if not v:

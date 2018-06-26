@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>16. Creating tasks &#8212; CamCOPS 2.2.3 documentation</title>
+    <title>16.1. Creating tasks &#8212; CamCOPS 2.2.3 documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
@@ -16,8 +16,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="17. Development command-line tools" href="../misc/development_command_line.html" />
-    <link rel="prev" title="15. Licences" href="../licences/licences.html" /> 
+    <link rel="next" title="16.2. Building the CamCOPS client" href="../developer/building_client.html" />
+    <link rel="prev" title="16. Developer notes" href="../developer/index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,12 +29,13 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../misc/development_command_line.html" title="17. Development command-line tools"
+          <a href="../developer/building_client.html" title="16.2. Building the CamCOPS client"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../licences/licences.html" title="15. Licences"
+          <a href="../developer/index.html" title="16. Developer notes"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../developer/index.html" accesskey="U">16. Developer notes</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,7 +45,7 @@
           <div class="body" role="main">
             
   <div class="section" id="creating-tasks">
-<h1>16. Creating tasks<a class="headerlink" href="#creating-tasks" title="Permalink to this headline">¶</a></h1>
+<h1>16.1. Creating tasks<a class="headerlink" href="#creating-tasks" title="Permalink to this headline">¶</a></h1>
 <p>Tasks on the client (tablet, desktop) are written in C++. All client tasks are
 classes that inherit from the <cite>Task</cite> class, define their database structure,
 and implement an <cite>editor()</cite> function that implements the task itself.
@@ -63,16 +64,18 @@ PDF representations). More or less everything else is optional, but tasks may
 provide numerical summary information (for trackers) or customize their
 clinical text views.</p>
 <div class="section" id="questionnaire-elements">
-<h2>16.1. Questionnaire elements<a class="headerlink" href="#questionnaire-elements" title="Permalink to this headline">¶</a></h2>
+<h2>16.1.1. Questionnaire elements<a class="headerlink" href="#questionnaire-elements" title="Permalink to this headline">¶</a></h2>
 <p>Programmers can embed arbitrary logic in a task. Several elements are
 available; all inherit from <cite>QuElement</cite>. Elements are grouped into pages
 (<cite>QuPage</cite>).</p>
 <div class="section" id="display-sound">
-<h3>16.1.1. Display/sound<a class="headerlink" href="#display-sound" title="Permalink to this headline">¶</a></h3>
+<h3>16.1.1.1. Display/sound<a class="headerlink" href="#display-sound" title="Permalink to this headline">¶</a></h3>
 <p>These elements are primarily for static display (though, for example, the
 programmer can manipulate the contents of static text dynamically).</p>
 <ul class="simple">
 <li><cite>QuAudioPlayer</cite>. Allows sounds to be played.</li>
+<li><cite>QuBackground</cite>. Widget that is styled (via CSS) to have a colour. Used to
+create striping background effects for custom tables (etc.).</li>
 <li><cite>QuHeading</cite>. Subclass of <cite>QuText</cite>; displays headings.</li>
 <li><cite>QuHorizontalLine</cite>. A horizontal rule or line.</li>
 <li><cite>QuImage</cite>. A static image.</li>
@@ -81,7 +84,7 @@ programmer can manipulate the contents of static text dynamically).</p>
 </ul>
 </div>
 <div class="section" id="user-input">
-<h3>16.1.2. User input<a class="headerlink" href="#user-input" title="Permalink to this headline">¶</a></h3>
+<h3>16.1.1.2. User input<a class="headerlink" href="#user-input" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><cite>QuBoolean</cite>. An element to control a single boolean (0/1/NULL) field. It may
 display text or an image. The text may appear as a button or with an adjacent
@@ -147,7 +150,7 @@ integer entry.</li>
 </ul>
 </div>
 <div class="section" id="layout">
-<h3>16.1.3. Layout<a class="headerlink" href="#layout" title="Permalink to this headline">¶</a></h3>
+<h3>16.1.1.3. Layout<a class="headerlink" href="#layout" title="Permalink to this headline">¶</a></h3>
 <p>These elements are simply for layout:</p>
 <ul class="simple">
 <li><cite>QuFlowContainer</cite>. A container that flows its contents like a word processor
@@ -184,29 +187,31 @@ flows words.</li>
 <li class="toctree-l1"><a class="reference internal" href="../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">16. Creating tasks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#questionnaire-elements">16.1. Questionnaire elements</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../developer/index.html">16. Developer notes</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">16.1. Creating tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/building_client.html">16.2. Building the CamCOPS client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/cpp_code_style.html">16.3. C++ code style used</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/design_notes.html">16.4. Design notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/development_command_line.html">16.5. Development command-line tools</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../licences/licences.html"
-                        title="previous chapter">15. Licences</a></p>
+  <p class="topless"><a href="../developer/index.html"
+                        title="previous chapter">16. Developer notes</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../misc/development_command_line.html"
-                        title="next chapter">17. Development command-line tools</a></p>
+  <p class="topless"><a href="../developer/building_client.html"
+                        title="next chapter">16.2. Building the CamCOPS client</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -240,12 +245,13 @@ flows words.</li>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../misc/development_command_line.html" title="17. Development command-line tools"
+          <a href="../developer/building_client.html" title="16.2. Building the CamCOPS client"
              >next</a> |</li>
         <li class="right" >
-          <a href="../licences/licences.html" title="15. Licences"
+          <a href="../developer/index.html" title="16. Developer notes"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../developer/index.html" >16. Developer notes</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

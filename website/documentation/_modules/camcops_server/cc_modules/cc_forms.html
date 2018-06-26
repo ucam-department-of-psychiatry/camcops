@@ -63,6 +63,7 @@
 <span class="sd">===============================================================================</span>
 
 <span class="sd">COLANDER NODES, NULLS, AND VALIDATION</span>
+
 <span class="sd">- Surprisingly tricky.</span>
 <span class="sd">- Nodes must be validly intialized with NO USER-DEFINED PARAMETERS to __init__;</span>
 <span class="sd">  the Deform framework clones them.</span>
@@ -73,11 +74,16 @@
 <span class="sd">- In general, flexible inheritance is very hard to implement.</span>
 
 <span class="sd">- Note that this error:</span>
+
+<span class="sd">  .. code-block:: none</span>
+
 <span class="sd">    AttributeError: &#39;EditTaskFilterSchema&#39; object has no attribute &#39;typ&#39;</span>
+
 <span class="sd">  means you have failed to call super().__init__() properly from __init__().</span>
 
 <span class="sd">- When creating a schema, its members seem to have to be created in the class</span>
 <span class="sd">  declaration as class properties, not in __init__().</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -219,7 +225,7 @@
 
 <div class="viewcode-block" id="CSRFToken"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_forms.html#camcops_server.cc_modules.cc_forms.CSRFToken">[docs]</a><span class="k">class</span> <span class="nc">CSRFToken</span><span class="p">(</span><span class="n">SchemaNode</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    From http://deform2000.readthedocs.io/en/latest/basics.html :</span>
+<span class="sd">    From http://deform2000.readthedocs.io/en/latest/basics.html:</span>
 
 <span class="sd">    &quot;The default of a schema node indicates the value to be serialized if a</span>
 <span class="sd">    value for the schema node is not found in the input data during</span>
@@ -2094,18 +2100,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

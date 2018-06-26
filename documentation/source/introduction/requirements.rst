@@ -20,17 +20,22 @@
 Requirements and costs
 ======================
 
+.. _hardware_requirements_client:
+
 Android clients: hardware requirements
 --------------------------------------
 
-The minimum Android SDK version is 11, meaning Android 3.0 (Honeycomb; released
-in 2011). For development, we have used:
+The minimum Android SDK version is 16, meaning Android 4.1 (‘Jelly Bean’,
+released in 2012). For development, we have used:
 
-- Asus Transformer Prime TF201 (Android 4.1.1) — nice keyboard with an extra
-  battery in it, though WiFi only with no 3G connection.
+- Asus Transformer Prime TF201 (2011, running Android 4.1.1) — nice keyboard
+  with an extra battery in it, though WiFi only with no 3G connection.
+  (Its charger uses a non-standard USB specification that supplies 15V, rather
+  than the standard 5V, so it can fail to charge properly if you plug a random
+  USB charger into it! [#asus_charger]_
 
-- Sony Xperia Z2 tablet (available in WiFi and 3G versions), with Bluetooth
-  keyboard.
+- Sony Xperia Z2 tablet (2014; available in WiFi and 3G versions), with
+  Bluetooth keyboard.
 
 iOS clients: hardware requirements
 ----------------------------------
@@ -43,6 +48,14 @@ iOS clients: hardware requirements
 
 - Not much information is stored on the tablet (it’s shipped periodically to
   the server) so we think any model of iPad will do.
+
+Desktop clients: hardware requirements
+--------------------------------------
+
+There are no specific hardware requirements. The CamCOPS client runs on the
+following desktop operating systems: Linux, Windows, and Mac OS/X.
+
+.. _hardware_requirements_server:
 
 Server: hardware and software requirements
 ------------------------------------------
@@ -125,3 +138,8 @@ costs, in 2013, from those environments.
    * - Software (CamCOPS, LAMP stack)
      - **£0.**
      - **£0.**
+
+
+.. rubric:: Footnotes
+
+.. [#asus_charger] http://www.transformerforums.com/forum/asus-transformer-tf101-help/23451-solved-transformer-not-charging.html

@@ -62,17 +62,17 @@
 
 <span class="sd">===============================================================================</span>
 
-<span class="sd">NOTES:</span>
-<span class="sd">    Core export methods:</span>
-<span class="sd">    - HTML</span>
-<span class="sd">        ... the task in a user-friendly format</span>
-<span class="sd">    - PDF = essentially the HTML output</span>
-<span class="sd">    - XML</span>
-<span class="sd">        ... centres on the task with its subdata integrated</span>
-<span class="sd">    - TSV summary</span>
-<span class="sd">    - CRIS summary</span>
-<span class="sd">        ... table-based, but all records include patient ID</span>
-<span class="sd">    - classmethods to make summary tables</span>
+<span class="sd">Core task export methods:</span>
+
+<span class="sd">------  -----------------------------------------------------------------------</span>
+<span class="sd">Format  Comment</span>
+<span class="sd">------  -----------------------------------------------------------------------</span>
+<span class="sd">HTML    The task in a user-friendly format</span>
+<span class="sd">PDF     Essentially the HTML output</span>
+<span class="sd">XML     Centres on the task with its subdata integrated</span>
+<span class="sd">TSV     Tab-separated value format</span>
+<span class="sd">SQL     As part of an SQL or SQLite download</span>
+<span class="sd">------  -----------------------------------------------------------------------</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
@@ -1345,76 +1345,91 @@
                          <span class="n">which_idnum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                          <span class="n">uploading_user_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                          <span class="n">document_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Called by cc_hl7.send_to_filestore().</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called by cc_hl7.send_to_filestore().</span>
 
 <span class="sd">        From Servelec (Lee Meredith) to Rudolf Cardinal, 2014-12-04:</span>
 
-<span class="sd">        Batch Document Upload</span>
+<span class="sd">        .. code-block:: none</span>
 
-<span class="sd">        The RiO batch document upload function can be used to upload documents</span>
-<span class="sd">        in bulk automatically.  RiO includes a Batch Upload windows service</span>
-<span class="sd">        which monitors a designated folder for new files.  Each file which is</span>
-<span class="sd">        scanned must be placed in the designated folder along with a meta-data</span>
-<span class="sd">        file which describes the document.  So essentially if a document had</span>
-<span class="sd">        been scanned in and was called</span>
-<span class="sd">        ‘ThisIsANewReferralLetterForAPatient.pdf’ then there would also need to</span>
-<span class="sd">        be a meta file in the same folder called</span>
-<span class="sd">        ‘ThisIsANewReferralLetterForAPatient.metadata’.  The contents of the</span>
-<span class="sd">        meta file would need to include the following:</span>
+<span class="sd">            Batch Document Upload</span>
 
-<span class="sd">            Field Order; Field Name; Description; Data Mandatory (Y/N); Format</span>
+<span class="sd">            The RiO batch document upload function can be used to upload</span>
+<span class="sd">            documents in bulk automatically.  RiO includes a Batch Upload</span>
+<span class="sd">            windows service which monitors a designated folder for new files.</span>
+<span class="sd">            Each file which is scanned must be placed in the designated folder</span>
+<span class="sd">            along with a meta-data file which describes the document.  So</span>
+<span class="sd">            essentially if a document had been scanned in and was called</span>
+<span class="sd">            ‘ThisIsANewReferralLetterForAPatient.pdf’ then there would also</span>
+<span class="sd">            need to be a meta file in the same folder called</span>
+<span class="sd">            ‘ThisIsANewReferralLetterForAPatient.metadata’.  The contents of</span>
+<span class="sd">            the meta file would need to include the following:</span>
 
-<span class="sd">            1; ClientID; RiO Client ID which identifies the patient in RiO</span>
-<span class="sd">            against which the document will be uploaded.; Y; 15 Alphanumeric</span>
-<span class="sd">            Characters</span>
+<span class="sd">                Field Order; Field Name; Description; Data Mandatory (Y/N);</span>
+<span class="sd">                Format</span>
 
-<span class="sd">            2; UserID; User ID of the uploaded document, this is any user</span>
-<span class="sd">            defined within the RiO system and can be a single system user</span>
-<span class="sd">            called ‘AutomaticDocumentUploadUser’ for example.; Y; 10</span>
-<span class="sd">            Alphanumeric Characters</span>
+<span class="sd">                1; ClientID; RiO Client ID which identifies the patient in RiO</span>
+<span class="sd">                against which the document will be uploaded.; Y; 15</span>
+<span class="sd">                Alphanumeric Characters</span>
 
-<span class="sd">                [NB example longer than that!]</span>
+<span class="sd">                2; UserID; User ID of the uploaded document, this is any user</span>
+<span class="sd">                defined within the RiO system and can be a single system user</span>
+<span class="sd">                called ‘AutomaticDocumentUploadUser’ for example.; Y; 10</span>
+<span class="sd">                Alphanumeric Characters</span>
 
-<span class="sd">            3; DocumentType; The RiO defined document type eg: APT; Y; 80</span>
-<span class="sd">            Alphanumeric Characters</span>
+<span class="sd">                    [NB example longer than that!]</span>
 
-<span class="sd">            4; Title; The title of the document; N; 40 Alphanumeric Characters</span>
+<span class="sd">                3; DocumentType; The RiO defined document type eg: APT; Y; 80</span>
+<span class="sd">                Alphanumeric Characters</span>
 
-<span class="sd">            5; Description; The document description.; N; 500 Alphanumeric</span>
-<span class="sd">            Characters</span>
+<span class="sd">                4; Title; The title of the document; N; 40 Alphanumeric</span>
+<span class="sd">                Characters</span>
 
-<span class="sd">            6; Author; The author of the document; N; 80 Alphanumeric</span>
-<span class="sd">            Characters</span>
+<span class="sd">                5; Description; The document description.; N; 500 Alphanumeric</span>
+<span class="sd">                Characters</span>
 
-<span class="sd">            7; DocumentDate; The date of the document; N; dd/MM/yyyy HH:mm</span>
+<span class="sd">                6; Author; The author of the document; N; 80 Alphanumeric</span>
+<span class="sd">                Characters</span>
 
-<span class="sd">            8; FinalRevision; The revision values are 0 Draft or 1 Final,  this</span>
-<span class="sd">            is defaulted to 1 which is Final revision.; N; 0 or 1</span>
+<span class="sd">                7; DocumentDate; The date of the document; N; dd/MM/yyyy HH:mm</span>
 
-<span class="sd">        As an example, this is what would be needed in a meta file:</span>
+<span class="sd">                8; FinalRevision; The revision values are 0 Draft or 1 Final,</span>
+<span class="sd">                this is defaulted to 1 which is Final revision.; N; 0 or 1</span>
 
-<span class="sd">            “1000001”,”TRUST1”,”APT”,”A title”, “A description of the</span>
-<span class="sd">                document”, “An author”,”01/12/2012 09:45”,”1”</span>
+<span class="sd">            As an example, this is what would be needed in a meta file:</span>
 
-<span class="sd">        (on one line)</span>
+<span class="sd">                “1000001”,”TRUST1”,”APT”,”A title”, “A description of the</span>
+<span class="sd">                    document”, “An author”,”01/12/2012 09:45”,”1”</span>
+
+<span class="sd">            (on one line)</span>
 
 <span class="sd">        Clarification, from Lee Meredith to Rudolf Cardinal, 2015-02-18:</span>
 
-<span class="sd">            - metadata files must be plain ASCII, not UTF-8</span>
-<span class="sd">                ... here and cc_hl7.send_to_filestore()</span>
-<span class="sd">            - line terminator is &lt;CR&gt;</span>
-<span class="sd">                ... cc_hl7.send_to_filestore()</span>
-<span class="sd">            - user name limit is 10 characters, despite incorrect example</span>
-<span class="sd">                ... RecipientDefinition.check_valid()</span>
-<span class="sd">            - DocumentType is a code that maps to a human-readable document</span>
-<span class="sd">              type; for example, &quot;APT&quot; might map to &quot;Appointment Letter&quot;. These</span>
-<span class="sd">              mappings are specific to the local system. (We will probably want</span>
-<span class="sd">              one that maps to &quot;Clinical Correspondence&quot; in the absence of</span>
-<span class="sd">              anything more specific.)</span>
-<span class="sd">            - RiO will delete the files after it&#39;s processed them.</span>
-<span class="sd">            - Filenames should avoid spaces, but otherwise any other standard</span>
-<span class="sd">              ASCII code is fine within filenames.</span>
-<span class="sd">                ... cc_hl7.send_to_filestore()</span>
+<span class="sd">        - metadata files must be plain ASCII, not UTF-8</span>
+
+<span class="sd">            - ... here and cc_hl7.send_to_filestore()</span>
+
+<span class="sd">        - line terminator is &lt;CR&gt;</span>
+
+<span class="sd">            - ... cc_hl7.send_to_filestore()</span>
+
+<span class="sd">        - user name limit is 10 characters, despite incorrect example</span>
+
+<span class="sd">            - ... RecipientDefinition.check_valid()</span>
+
+<span class="sd">        - DocumentType is a code that maps to a human-readable document</span>
+<span class="sd">          type; for example, &quot;APT&quot; might map to &quot;Appointment Letter&quot;. These</span>
+<span class="sd">          mappings are specific to the local system. (We will probably want</span>
+<span class="sd">          one that maps to &quot;Clinical Correspondence&quot; in the absence of</span>
+<span class="sd">          anything more specific.)</span>
+
+<span class="sd">        - RiO will delete the files after it&#39;s processed them.</span>
+
+<span class="sd">        - Filenames should avoid spaces, but otherwise any other standard</span>
+<span class="sd">          ASCII code is fine within filenames.</span>
+
+<span class="sd">            - ... cc_hl7.send_to_filestore()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -1913,18 +1928,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

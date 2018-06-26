@@ -1,22 +1,7 @@
 <?xml version="1.0"?>
-<manifest
-        package="org.camcops.camcops"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:versionName="2.2.1"
-        android:versionCode="4"
-        android:installLocation="auto">
-    <application
-            android:hardwareAccelerated="true"
-            android:name="org.qtproject.qt5.android.bindings.QtApplication"
-            android:label="CamCOPS"
-            android:icon="@drawable/icon"
-            android:allowBackup="false">
-        <activity
-                android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation"
-                android:name="org.qtproject.qt5.android.bindings.QtActivity"
-                android:label="CamCOPS"
-                android:screenOrientation="unspecified"
-                android:launchMode="singleTop">
+<manifest package="org.camcops.camcops" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.2.3" android:versionCode="5" android:installLocation="auto">
+    <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="CamCOPS" android:icon="@drawable/icon" android:allowBackup="false">
+        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="CamCOPS" android:screenOrientation="unspecified" android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -64,12 +49,8 @@
             <!-- auto screen scale factor -->
         </activity>
     </application>
-    <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="23"/>
-    <supports-screens
-            android:largeScreens="true"
-            android:normalScreens="true"
-            android:anyDensity="true"
-            android:smallScreens="true"/>
+    <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="26"/>
+    <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
 
     <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
          Remove the comment if you do not require these default permissions. -->

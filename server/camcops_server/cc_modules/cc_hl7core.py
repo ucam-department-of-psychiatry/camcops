@@ -512,9 +512,13 @@ def make_dg1_segment(set_id: int,
                      clinician_assigning_facility: str = "",
                      attestation_datetime: Pendulum = None) \
         -> hl7.Segment:
-    """Creates an HL7 diagnosis (DG1) segment.
+    """
+    Creates an HL7 diagnosis (DG1) segment.
 
     Args:
+
+    .. code-block:: none
+
         set_id: Diagnosis sequence number, starting with 1 (use higher numbers
             for >1 diagnosis).
         diagnosis_datetime: Date/time diagnosis was made.
@@ -547,6 +551,7 @@ def make_dg1_segment(set_id: int,
         clinician_assigning_facility:     }
 
         attestation_datetime: Date/time the diagnosis was attested.
+
     """
     # -------------------------------------------------------------------------
     # Diagnosis segment (DG1)

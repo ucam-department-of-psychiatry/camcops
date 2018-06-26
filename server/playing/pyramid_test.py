@@ -249,14 +249,18 @@ def make_url_path(base: str, *args: UrlParam) -> str:
 # Class to collect constants together
 # See also http://xion.io/post/code/python-enums-are-ok.html
 class ViewParams(object):
-    # Used as parameter placeholders in URLs, and fetched from the matchdict.
+    """
+    Used as parameter placeholders in URLs, and fetched from the matchdict.
+    """
     PK = 'pk'
     PATIENT_ID = 'pid'
     QUERY = '_query'  # built in to Pyramid
 
 
 class QueryParams(object):
-    # Parameters for the request.GET dictionary, and in URL as '...?key=value'
+    """
+    Parameters for the request.GET dictionary, and in URL as '...?key=value'
+    """
     SORT = 'sort'
 
 
@@ -269,12 +273,14 @@ class CookieKeys:
 
 
 class RoutePath(object):
-    # - Pyramid route names are just strings used internally for convenience.
-    # - Pyramid URL paths are URL fragments, like '/thing', and can contain
-    #   placeholders, like '/thing/{bork_id}', which will result in the
-    #   request.matchdict object containing a 'bork_id' key. Those can be
-    #   further constrained by regular expressions, like '/thing/{bork_id:\d+}'
-    #   to restrict to digits.
+    """
+    - Pyramid route names are just strings used internally for convenience.
+    - Pyramid URL paths are URL fragments, like '/thing', and can contain
+      placeholders, like '/thing/{bork_id}', which will result in the
+      request.matchdict object containing a 'bork_id' key. Those can be
+      further constrained by regular expressions, like '/thing/{bork_id:\d+}'
+      to restrict to digits.
+    """
     def __init__(self, route: str, path: str) -> None:
         self.route = route
         self.path = path

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>17. Development command-line tools &#8212; CamCOPS 2.2.3 documentation</title>
+    <title>16.5. Development command-line tools &#8212; CamCOPS 2.2.3 documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
@@ -16,8 +16,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="18. Common relevant TCP/IP ports" href="tcpip_ports.html" />
-    <link rel="prev" title="16. Creating tasks" href="../client/creating_tasks.html" /> 
+    <link rel="next" title="17. Common relevant TCP/IP ports" href="../misc/tcpip_ports.html" />
+    <link rel="prev" title="16.4. Design notes" href="design_notes.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,12 +29,13 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="tcpip_ports.html" title="18. Common relevant TCP/IP ports"
+          <a href="../misc/tcpip_ports.html" title="17. Common relevant TCP/IP ports"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../client/creating_tasks.html" title="16. Creating tasks"
+          <a href="design_notes.html" title="16.4. Design notes"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">16. Developer notes</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,11 +45,11 @@
           <div class="body" role="main">
             
   <div class="section" id="development-command-line-tools">
-<span id="id1"></span><h1>17. Development command-line tools<a class="headerlink" href="#development-command-line-tools" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>16.5. Development command-line tools<a class="headerlink" href="#development-command-line-tools" title="Permalink to this headline">¶</a></h1>
 <p>If you are developing tasks for CamCOPS, be aware of these additional
 development tools.</p>
 <div class="section" id="build-qt-py">
-<h2>17.1. build_qt.py<a class="headerlink" href="#build-qt-py" title="Permalink to this headline">¶</a></h2>
+<span id="build-qt"></span><h2>16.5.1. build_qt.py<a class="headerlink" href="#build-qt-py" title="Permalink to this headline">¶</a></h2>
 <p>This program runs on a variety of platforms (including Linux, Windows, OS/X)
 and has the surprisingly tricky job of building the following libraries, from
 source:</p>
@@ -254,12 +255,12 @@ MXE:
 </div>
 </div>
 <div class="section" id="chord-py">
-<h2>17.2. chord.py<a class="headerlink" href="#chord-py" title="Permalink to this headline">¶</a></h2>
+<h2>16.5.2. chord.py<a class="headerlink" href="#chord-py" title="Permalink to this headline">¶</a></h2>
 <p>This generates musical chords as <a class="reference external" href="https://en.wikipedia.org/wiki/WAV">WAV</a> files. It’s not very generic but it
 generates specific sounds used by the CamCOPS client.</p>
 </div>
 <div class="section" id="decrypt-sqlcipher-py">
-<h2>17.3. decrypt_sqlcipher.py<a class="headerlink" href="#decrypt-sqlcipher-py" title="Permalink to this headline">¶</a></h2>
+<h2>16.5.3. decrypt_sqlcipher.py<a class="headerlink" href="#decrypt-sqlcipher-py" title="Permalink to this headline">¶</a></h2>
 <p>This tool requires an installed copy of <a class="reference external" href="https://www.zetetic.net/sqlcipher/">SQLCipher</a>. It creates a decrypted
 <a class="reference external" href="https://www.sqlite.org/">SQLite</a> database from an encrypted <a class="reference external" href="https://www.zetetic.net/sqlcipher/">SQLCipher</a> database, given the password.</p>
 <p>Here’s its help as of 2018-06-09:</p>
@@ -298,7 +299,7 @@ optional arguments:
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction/introduction.html">1. Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/download.html">2. Downloading CamCOPS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../client/client_installation.html">3. Installing and configuring the client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../client/client_using.html">4. Using the client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server/server_front_end_general.html">5. Web site: general use</a></li>
@@ -312,35 +313,35 @@ optional arguments:
 <li class="toctree-l1"><a class="reference internal" href="../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">17. Development command-line tools</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#build-qt-py">17.1. build_qt.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#chord-py">17.2. chord.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#decrypt-sqlcipher-py">17.3. decrypt_sqlcipher.py</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">16. Developer notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../client/creating_tasks.html">16.1. Creating tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building_client.html">16.2. Building the CamCOPS client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_code_style.html">16.3. C++ code style used</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design_notes.html">16.4. Design notes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">16.5. Development command-line tools</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../client/creating_tasks.html"
-                        title="previous chapter">16. Creating tasks</a></p>
+  <p class="topless"><a href="design_notes.html"
+                        title="previous chapter">16.4. Design notes</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="tcpip_ports.html"
-                        title="next chapter">18. Common relevant TCP/IP ports</a></p>
+  <p class="topless"><a href="../misc/tcpip_ports.html"
+                        title="next chapter">17. Common relevant TCP/IP ports</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/misc/development_command_line.rst.txt"
+      <li><a href="../_sources/developer/development_command_line.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -370,12 +371,13 @@ optional arguments:
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="tcpip_ports.html" title="18. Common relevant TCP/IP ports"
+          <a href="../misc/tcpip_ports.html" title="17. Common relevant TCP/IP ports"
              >next</a> |</li>
         <li class="right" >
-          <a href="../client/creating_tasks.html" title="16. Creating tasks"
+          <a href="design_notes.html" title="16.4. Design notes"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >16. Developer notes</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

@@ -121,25 +121,28 @@
 <span class="sd">    Takes a string representing an SQL value. Returns the value. Value</span>
 <span class="sd">    types/examples:</span>
 
-<span class="sd">        int         35</span>
-<span class="sd">                    -12</span>
-<span class="sd">        float       7.23</span>
-<span class="sd">        str         &#39;hello, here&#39;&#39;s an apostrophe&#39;</span>
-<span class="sd">            (starts and ends with a quote)</span>
-<span class="sd">        NULL        NULL</span>
-<span class="sd">            (case-insensitive)</span>
-<span class="sd">        BLOB        X&#39;4D7953514C&#39;</span>
-<span class="sd">            (hex-encoded; matches MySQL method;</span>
-<span class="sd">            http://dev.mysql.com/doc/refman/5.0/en/hexadecimal-literals.html)</span>
-<span class="sd">        BLOB        64&#39;TXlTUUw=&#39;</span>
-<span class="sd">            (base-64-encoded; this notation is my invention)</span>
+<span class="sd">        ==========  ===========================================================</span>
+<span class="sd">        int         ``35``, ``-12``</span>
+<span class="sd">        float       ``7.23``</span>
+<span class="sd">        str         ``&#39;hello, here&#39;&#39;s an apostrophe&#39;``</span>
+<span class="sd">                    (starts and ends with a quote)</span>
+<span class="sd">        NULL        ``NULL``</span>
+<span class="sd">                    (case-insensitive)</span>
+<span class="sd">        BLOB        ``X&#39;4D7953514C&#39;``</span>
+<span class="sd">                    (hex-encoded; matches MySQL method;</span>
+<span class="sd">                    http://dev.mysql.com/doc/refman/5.0/en/hexadecimal-literals.html)</span>
+<span class="sd">        BLOB        ``64&#39;TXlTUUw=&#39;``</span>
+<span class="sd">                    (base-64-encoded; this notation is my invention)</span>
+<span class="sd">        ==========  ===========================================================</span>
 
 <span class="sd">    But</span>
-<span class="sd">        - we use ISO-8601 text for dates/times</span>
+
+<span class="sd">    - we use ISO-8601 text for dates/times</span>
 
 <span class="sd">    The client-side counterpart to this function is SQLite&#39;s QUOTE() function</span>
 <span class="sd">    (see getRecordByPK_lowmem() in lib/dbsqlite.js), except in the case of</span>
 <span class="sd">    BLOBs (when it&#39;s getEncodedBlob() in table/Blob.js); see lib/dbupload.js.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span><span class="p">:</span>
@@ -267,18 +270,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

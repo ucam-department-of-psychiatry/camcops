@@ -192,6 +192,9 @@ def make_wsgi_app(debug_toolbar: bool = False,
     QUESTION: how do we access the WSGI environment (passed to the WSGI app)
     from within a Pyramid request?
     ANSWER:
+
+    .. code-block:: none
+
         Configurator.make_wsgi_app() calls Router.__init__()
         and returns: app = Router(...)
         The WSGI framework uses: response = app(environ, start_response)
@@ -210,6 +213,7 @@ def make_wsgi_app(debug_toolbar: bool = False,
               d['environ'] = environ
         so we should be able to use
               request.environ  # type: Dict[str, str]
+
     """
     log.debug("Creating WSGI app")
 
@@ -342,10 +346,13 @@ def serve_gunicorn(application: Router,
                    debug_show_gunicorn_options: bool = False) -> None:
     """
     Start Gunicorn server
+
     - Multiprocessing; this is a Good Thing particularly in Python; see e.g.
       https://eli.thegreenplace.net/2012/01/16/python-parallelizing-cpu-bound-tasks-with-multiprocessing/  # noqa
       http://www.dabeaz.com/python/UnderstandingGIL.pdf
+
     - UNIX only.
+
     - The Pyramid debug toolbar detects a multiprocessing web server and says
       "shan't, because I use global state".
     """

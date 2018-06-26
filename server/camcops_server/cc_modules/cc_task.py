@@ -23,17 +23,17 @@
 
 ===============================================================================
 
-NOTES:
-    Core export methods:
-    - HTML
-        ... the task in a user-friendly format
-    - PDF = essentially the HTML output
-    - XML
-        ... centres on the task with its subdata integrated
-    - TSV summary
-    - CRIS summary
-        ... table-based, but all records include patient ID
-    - classmethods to make summary tables
+Core task export methods:
+
+------  -----------------------------------------------------------------------
+Format  Comment
+------  -----------------------------------------------------------------------
+HTML    The task in a user-friendly format
+PDF     Essentially the HTML output
+XML     Centres on the task with its subdata integrated
+TSV     Tab-separated value format
+SQL     As part of an SQL or SQLite download
+------  -----------------------------------------------------------------------
 """
 
 import copy
@@ -1306,76 +1306,91 @@ class Task(GenericTabletRecordMixin, Base):
                          which_idnum: int,
                          uploading_user_id: str,
                          document_type: str) -> str:
-        """Called by cc_hl7.send_to_filestore().
+        """
+        Called by cc_hl7.send_to_filestore().
 
         From Servelec (Lee Meredith) to Rudolf Cardinal, 2014-12-04:
 
-        Batch Document Upload
+        .. code-block:: none
 
-        The RiO batch document upload function can be used to upload documents
-        in bulk automatically.  RiO includes a Batch Upload windows service
-        which monitors a designated folder for new files.  Each file which is
-        scanned must be placed in the designated folder along with a meta-data
-        file which describes the document.  So essentially if a document had
-        been scanned in and was called
-        ‘ThisIsANewReferralLetterForAPatient.pdf’ then there would also need to
-        be a meta file in the same folder called
-        ‘ThisIsANewReferralLetterForAPatient.metadata’.  The contents of the
-        meta file would need to include the following:
+            Batch Document Upload
 
-            Field Order; Field Name; Description; Data Mandatory (Y/N); Format
+            The RiO batch document upload function can be used to upload
+            documents in bulk automatically.  RiO includes a Batch Upload
+            windows service which monitors a designated folder for new files.
+            Each file which is scanned must be placed in the designated folder
+            along with a meta-data file which describes the document.  So
+            essentially if a document had been scanned in and was called
+            ‘ThisIsANewReferralLetterForAPatient.pdf’ then there would also
+            need to be a meta file in the same folder called
+            ‘ThisIsANewReferralLetterForAPatient.metadata’.  The contents of
+            the meta file would need to include the following:
 
-            1; ClientID; RiO Client ID which identifies the patient in RiO
-            against which the document will be uploaded.; Y; 15 Alphanumeric
-            Characters
+                Field Order; Field Name; Description; Data Mandatory (Y/N);
+                Format
 
-            2; UserID; User ID of the uploaded document, this is any user
-            defined within the RiO system and can be a single system user
-            called ‘AutomaticDocumentUploadUser’ for example.; Y; 10
-            Alphanumeric Characters
+                1; ClientID; RiO Client ID which identifies the patient in RiO
+                against which the document will be uploaded.; Y; 15
+                Alphanumeric Characters
 
-                [NB example longer than that!]
+                2; UserID; User ID of the uploaded document, this is any user
+                defined within the RiO system and can be a single system user
+                called ‘AutomaticDocumentUploadUser’ for example.; Y; 10
+                Alphanumeric Characters
 
-            3; DocumentType; The RiO defined document type eg: APT; Y; 80
-            Alphanumeric Characters
+                    [NB example longer than that!]
 
-            4; Title; The title of the document; N; 40 Alphanumeric Characters
+                3; DocumentType; The RiO defined document type eg: APT; Y; 80
+                Alphanumeric Characters
 
-            5; Description; The document description.; N; 500 Alphanumeric
-            Characters
+                4; Title; The title of the document; N; 40 Alphanumeric
+                Characters
 
-            6; Author; The author of the document; N; 80 Alphanumeric
-            Characters
+                5; Description; The document description.; N; 500 Alphanumeric
+                Characters
 
-            7; DocumentDate; The date of the document; N; dd/MM/yyyy HH:mm
+                6; Author; The author of the document; N; 80 Alphanumeric
+                Characters
 
-            8; FinalRevision; The revision values are 0 Draft or 1 Final,  this
-            is defaulted to 1 which is Final revision.; N; 0 or 1
+                7; DocumentDate; The date of the document; N; dd/MM/yyyy HH:mm
 
-        As an example, this is what would be needed in a meta file:
+                8; FinalRevision; The revision values are 0 Draft or 1 Final,
+                this is defaulted to 1 which is Final revision.; N; 0 or 1
 
-            “1000001”,”TRUST1”,”APT”,”A title”, “A description of the
-                document”, “An author”,”01/12/2012 09:45”,”1”
+            As an example, this is what would be needed in a meta file:
 
-        (on one line)
+                “1000001”,”TRUST1”,”APT”,”A title”, “A description of the
+                    document”, “An author”,”01/12/2012 09:45”,”1”
+
+            (on one line)
 
         Clarification, from Lee Meredith to Rudolf Cardinal, 2015-02-18:
 
-            - metadata files must be plain ASCII, not UTF-8
-                ... here and cc_hl7.send_to_filestore()
-            - line terminator is <CR>
-                ... cc_hl7.send_to_filestore()
-            - user name limit is 10 characters, despite incorrect example
-                ... RecipientDefinition.check_valid()
-            - DocumentType is a code that maps to a human-readable document
-              type; for example, "APT" might map to "Appointment Letter". These
-              mappings are specific to the local system. (We will probably want
-              one that maps to "Clinical Correspondence" in the absence of
-              anything more specific.)
-            - RiO will delete the files after it's processed them.
-            - Filenames should avoid spaces, but otherwise any other standard
-              ASCII code is fine within filenames.
-                ... cc_hl7.send_to_filestore()
+        - metadata files must be plain ASCII, not UTF-8
+
+            - ... here and cc_hl7.send_to_filestore()
+
+        - line terminator is <CR>
+
+            - ... cc_hl7.send_to_filestore()
+
+        - user name limit is 10 characters, despite incorrect example
+
+            - ... RecipientDefinition.check_valid()
+
+        - DocumentType is a code that maps to a human-readable document
+          type; for example, "APT" might map to "Appointment Letter". These
+          mappings are specific to the local system. (We will probably want
+          one that maps to "Clinical Correspondence" in the absence of
+          anything more specific.)
+
+        - RiO will delete the files after it's processed them.
+
+        - Filenames should avoid spaces, but otherwise any other standard
+          ASCII code is fine within filenames.
+
+            - ... cc_hl7.send_to_filestore()
+
         """
 
         try:

@@ -58,12 +58,14 @@ securely to your server.
     server/server_troubleshooting.rst
 
     licences/licences.rst
-    client/creating_tasks.rst
-    misc/development_command_line.rst
+
+    developer/index.rst
+
     misc/tcpip_ports.rst
     misc/linux_flavours.rst
-    misc/design_notes.rst
+
     autodoc/_index.rst
+
     changelog.rst
     known_problems.rst
     to_do.rst

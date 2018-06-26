@@ -47,37 +47,21 @@
 <h1>3. Installing and configuring the client<a class="headerlink" href="#installing-and-configuring-the-client" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="hardware-and-operating-system-requirements">
 <h2>3.1. Hardware and operating system requirements<a class="headerlink" href="#hardware-and-operating-system-requirements" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="desktop">
-<h3>3.1.1. Desktop<a class="headerlink" href="#desktop" title="Permalink to this headline">¶</a></h3>
-<p>There are no specific hardware requirements. The CamCOPS client runs on the
-following desktop operating systems: Linux, Windows, and Mac OS/X.</p>
-</div>
-<div class="section" id="android">
-<h3>3.1.2. Android<a class="headerlink" href="#android" title="Permalink to this headline">¶</a></h3>
-<p>The minimum Android SDK version is 16, meaning Android 4.1 (‘Jelly Bean’,
-released in 2012). For development, we have used:</p>
-<ul class="simple">
-<li>Asus Transformer Prime TF201 (2011, running Android 4.1.1) — nice keyboard
-with an extra battery in it, though WiFi only with no 3G connection.</li>
-<li>Sony Xperia Z2 tablet (2014; available in WiFi and 3G versions), with
-Bluetooth keyboard.</li>
-</ul>
-</div>
-<div class="section" id="ios">
-<h3>3.1.3. iOS<a class="headerlink" href="#ios" title="Permalink to this headline">¶</a></h3>
-<p>For iOS, we suggest an iPad or iPad mini; iPhones are probably just too small.
-CamCOPS has been tested on hardware as slow as an iPad 2 (2011) and works fine.
-A physical (e.g. Bluetooth) keyboard is useful if you plan on using the
-clinical clerking aspects or other tasks requiring significant typing. Not much
-information is stored on the tablet (it’s shipped periodically to the server)
-so we think any model of iPad will do.</p>
-</div>
+<p>See <a class="reference internal" href="../introduction/requirements.html#hardware-requirements-client"><span class="std std-ref">Android clients: hardware requirements</span></a>.</p>
 </div>
 <div class="section" id="camcops-client-installation">
 <span id="client-installation"></span><h2>3.2. CamCOPS client installation<a class="headerlink" href="#camcops-client-installation" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id1">
-<h3>3.2.1. Android<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<p>At present, you should use the following method:</p>
+<div class="section" id="android">
+<h3>3.2.1. Android<a class="headerlink" href="#android" title="Permalink to this headline">¶</a></h3>
+<p>Install the Android app directly from the Google Play Store:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://play.google.com/store/apps/details?id=org.camcops.camcops">https://play.google.com/store/apps/details?id=org.camcops.camcops</a></li>
+</ul>
+</div>
+<div class="section" id="android-manual-installation">
+<h3>3.2.2. Android: manual installation<a class="headerlink" href="#android-manual-installation" title="Permalink to this headline">¶</a></h3>
+<p><strong>This method is now deprecated. Use the Google Play Store method instead.</strong></p>
+<p>Manual installation of an Android package is possible like this:</p>
 <ol class="arabic simple">
 <li>Ensure your Android device permits the installation of third-party apps:
 e.g. <span class="menuselection">Settings ‣ Security ‣ Unknown sources (Allow
@@ -85,13 +69,9 @@ installation of apps from unknown sources)</span>.</li>
 <li>Download and install the CamCOPS client (see <a class="reference internal" href="../misc/download.html#download"><span class="std std-ref">download</span></a>) as
 an .APK (Android Package Kit) file.</li>
 </ol>
-<div class="admonition-todo admonition" id="index-0">
-<p class="first admonition-title">Todo</p>
-<p class="last">Submit CamCOPS to Google Play Store.</p>
 </div>
-</div>
-<div class="section" id="id2">
-<h3>3.2.2. iOS<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="ios">
+<h3>3.2.3. iOS<a class="headerlink" href="#ios" title="Permalink to this headline">¶</a></h3>
 <p>This is currently suboptimal because CamCOPS is not yet in the Apple App Store,
 and iOS makes it almost impossible to install third-party apps via other
 routes. The only way is via an Individual or Enterprise Developer Account.</p>
@@ -106,21 +86,21 @@ the iOS Developer Program Enterprise License Agreement). So the only way for
 other users to use source code is to (a) download the source code, register as
 Apple developers, and install the app to their own devices or distribute them
 within their own organization as above; or (b) wait for the App Store version.</p>
-<div class="admonition-todo admonition" id="index-1">
+<div class="admonition-todo admonition" id="index-0">
 <p class="first admonition-title">Todo</p>
 <p class="last">Submit CamCOPS to Apple App Store.</p>
 </div>
 </div>
 <div class="section" id="windows">
-<h3>3.2.3. Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
-<div class="admonition-todo admonition" id="index-2">
+<h3>3.2.4. Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
+<div class="admonition-todo admonition" id="index-1">
 <p class="first admonition-title">Todo</p>
 <p class="last">Package CamCOPS client for easier Windows distribution.</p>
 </div>
 </div>
 <div class="section" id="linux">
-<h3>3.2.4. Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h3>
-<div class="admonition-todo admonition" id="index-3">
+<h3>3.2.5. Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h3>
+<div class="admonition-todo admonition" id="index-2">
 <p class="first admonition-title">Todo</p>
 <p class="last">Package CamCOPS client for easier Linux distribution.</p>
 </div>
@@ -180,7 +160,7 @@ no patient-identifiable data, this may involve no work. But for a secure
 environment:<ul>
 <li><span class="menuselection">Home ‣ Settings  ‣  General ‣ Passcode Lock</span><ul>
 <li><span class="menuselection">… ‣ Simple passcode = OFF</span>. Why? Because 4-digit
-passcodes are weak; use a strong password <a class="footnote-reference" href="#passwordstrength" id="id3">[1]</a>, and don’t
+passcodes are weak; use a strong password <a class="footnote-reference" href="#passwordstrength" id="id1">[1]</a>, and don’t
 forget it! We’ll call this the TABLET PASSWORD.</li>
 <li><span class="menuselection">… ‣ Turn passcode on</span></li>
 <li><span class="menuselection">… ‣ Require passcode = immediately</span></li>
@@ -191,12 +171,12 @@ the iPad after 10 failed passcode attempts).</li>
 </ul>
 </li>
 <li>Setting a passcode lock automatically encrypts data on the iPad
-<a class="footnote-reference" href="#iossetpasswordencryptsdata" id="id4">[2]</a> <a class="footnote-reference" href="#ioskeychainvulnerable" id="id5">[3]</a>.</li>
+<a class="footnote-reference" href="#iossetpasswordencryptsdata" id="id2">[2]</a> <a class="footnote-reference" href="#ioskeychainvulnerable" id="id3">[3]</a>.</li>
 <li>Install CamCOPS; see <a class="reference internal" href="#client-installation"><span class="std std-ref">above</span></a>.</li>
 </ul>
 </div>
-<div class="section" id="id6">
-<h3>3.4.2. Android<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>3.4.2. Android<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Set up appropriate security on your tablet. For a research environment with
 no patient-identifiable data, this may involve no work. But for a secure
@@ -204,7 +184,7 @@ environment:<ul>
 <li>Plug in the tablet; charge its battery fully. (Encryption takes a while and
 requires a charged tablet that’s plugged in.)</li>
 <li><span class="menuselection">Settings ‣ Security ‣ Screen lock ‣ Password</span></li>
-<li>Enter a strong password <a class="footnote-reference" href="#passwordstrength" id="id7">[1]</a>, and don’t forget it! We’ll
+<li>Enter a strong password <a class="footnote-reference" href="#passwordstrength" id="id5">[1]</a>, and don’t forget it! We’ll
 call this the TABLET PASSWORD.</li>
 <li><span class="menuselection">Settings ‣ Security ‣ Encryption ‣ Encrypt tablet ‣
 Encrypt tablet</span> … which may take a while.</li>
@@ -292,7 +272,7 @@ tablet to your clinician.</li>
 <li>Touch the padlock to unlock. You will need your CAMCOPS APP PASSWORD,
 supplied to you by your administrator.</li>
 <li><span class="menuselection">Settings ‣ Change app password.</span> Change the password to a
-strong password that you like <a class="footnote-reference" href="#passwordstrength" id="id8">[1]</a>. Remember it.</li>
+strong password that you like <a class="footnote-reference" href="#passwordstrength" id="id6">[1]</a>. Remember it.</li>
 <li><span class="menuselection">Settings ‣ Intellectual property (IP) permissions.</span>
 Answer all the questions honestly and save your changes.</li>
 <li><span class="menuselection">Settings ‣ User settings.</span> Set these:<ul>
@@ -352,19 +332,19 @@ off.</li>
 <table class="docutils footnote" frame="void" id="passwordstrength" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id7">2</a>, <a class="fn-backref" href="#id8">3</a>)</em> xkcd <em>Password Strength:</em> <a class="reference external" href="http://xkcd.com/936/">http://xkcd.com/936/</a>.</td></tr>
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id5">2</a>, <a class="fn-backref" href="#id6">3</a>)</em> xkcd <em>Password Strength:</em> <a class="reference external" href="http://xkcd.com/936/">http://xkcd.com/936/</a>.</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="iossetpasswordencryptsdata" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><a class="reference external" href="http://support.apple.com/kb/ht4175">http://support.apple.com/kb/ht4175</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="http://support.apple.com/kb/ht4175">http://support.apple.com/kb/ht4175</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="ioskeychainvulnerable" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[3]</a></td><td>The iPad’s keychain is still vulnerable to attack: see summary at
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td>The iPad’s keychain is still vulnerable to attack: see summary at
 <a class="reference external" href="http://www.maravis.com/ios-device-encryption-not-effective/">http://www.maravis.com/ios-device-encryption-not-effective/</a>, or PDF at
 <a class="reference external" href="http://www.maravis.com/blog/wp-content/uploads/iOS-device-encryption-security.pdf">http://www.maravis.com/blog/wp-content/uploads/iOS-device-encryption-security.pdf</a>.
 However, CamCOPS does not store its passwords in the keychain, and app
@@ -408,18 +388,16 @@ storage is separate from the keychain.</td></tr>
 <li class="toctree-l1"><a class="reference internal" href="../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
   <h4>Previous topic</h4>

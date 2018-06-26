@@ -1,4 +1,4 @@
-..  documentation/source/autodoc/cc_sqla_coltypes.rst
+..  documentation/source/autodoc/cc_modules/cc_sqla_coltypes.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .

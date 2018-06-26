@@ -24,6 +24,7 @@
 ===============================================================================
 
 COLANDER NODES, NULLS, AND VALIDATION
+
 - Surprisingly tricky.
 - Nodes must be validly intialized with NO USER-DEFINED PARAMETERS to __init__;
   the Deform framework clones them.
@@ -34,11 +35,16 @@ COLANDER NODES, NULLS, AND VALIDATION
 - In general, flexible inheritance is very hard to implement.
 
 - Note that this error:
+
+  .. code-block:: none
+
     AttributeError: 'EditTaskFilterSchema' object has no attribute 'typ'
+
   means you have failed to call super().__init__() properly from __init__().
 
 - When creating a schema, its members seem to have to be created in the class
   declaration as class properties, not in __init__().
+
 """
 
 import logging
@@ -180,7 +186,7 @@ class Binding:
 
 class CSRFToken(SchemaNode):
     """
-    From http://deform2000.readthedocs.io/en/latest/basics.html :
+    From http://deform2000.readthedocs.io/en/latest/basics.html:
 
     "The default of a schema node indicates the value to be serialized if a
     value for the schema node is not found in the input data during

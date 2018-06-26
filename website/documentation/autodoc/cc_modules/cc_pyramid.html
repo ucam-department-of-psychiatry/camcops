@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>21.32. camcops_server.cc_modules.cc_pyramid &#8212; CamCOPS 2.2.3 documentation</title>
+    <title>19.32. camcops_server.cc_modules.cc_pyramid &#8212; CamCOPS 2.2.3 documentation</title>
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/camcops_docs.css" type="text/css" />
@@ -16,8 +16,8 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="21.33. camcops_server.cc_modules.cc_recipdef" href="cc_recipdef.html" />
-    <link rel="prev" title="21.31. camcops_server.cc_modules.cc_policy" href="cc_policy.html" /> 
+    <link rel="next" title="19.33. camcops_server.cc_modules.cc_recipdef" href="cc_recipdef.html" />
+    <link rel="prev" title="19.31. camcops_server.cc_modules.cc_policy" href="cc_policy.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,13 +29,13 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="cc_recipdef.html" title="21.33. camcops_server.cc_modules.cc_recipdef"
+          <a href="cc_recipdef.html" title="19.33. camcops_server.cc_modules.cc_recipdef"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="cc_policy.html" title="21.31. camcops_server.cc_modules.cc_policy"
+          <a href="cc_policy.html" title="19.31. camcops_server.cc_modules.cc_policy"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../_index.html" >21. Automatic documentation of core server source code</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../_index.html" >19. Automatic documentation of core server source code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="_index.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
       </ul>
     </div>  
@@ -46,7 +46,7 @@
           <div class="body" role="main">
             
   <div class="section" id="module-camcops_server.cc_modules.cc_pyramid">
-<span id="camcops-server-cc-modules-cc-pyramid"></span><h1>21.32. camcops_server.cc_modules.cc_pyramid<a class="headerlink" href="#module-camcops_server.cc_modules.cc_pyramid" title="Permalink to this headline">¶</a></h1>
+<span id="camcops-server-cc-modules-cc-pyramid"></span><h1>19.32. camcops_server.cc_modules.cc_pyramid<a class="headerlink" href="#module-camcops_server.cc_modules.cc_pyramid" title="Permalink to this headline">¶</a></h1>
 <hr class="docutils" />
 <blockquote>
 <div><p>Copyright (C) 2012-2018 Rudolf Cardinal (<a class="reference external" href="mailto:rudolf&#37;&#52;&#48;pobox&#46;com">rudolf<span>&#64;</span>pobox<span>&#46;</span>com</a>).</p>
@@ -78,111 +78,8 @@ along with CamCOPS. If not, see &lt;<a class="reference external" href="http://w
 <dd><dl class="method">
 <dt id="camcops_server.cc_modules.cc_pyramid.CamcopsPage.link_map">
 <code class="descname">link_map</code><span class="sig-paren">(</span><em>format: str = '~2~'</em>, <em>url: str = None</em>, <em>show_if_single_page: bool = False</em>, <em>separator: str = ' '</em>, <em>symbol_first: str = '&amp;lt;&amp;lt;'</em>, <em>symbol_last: str = '&amp;gt;&amp;gt;'</em>, <em>symbol_previous: str = '&amp;lt;'</em>, <em>symbol_next: str = '&amp;gt;'</em>, <em>link_attr: Dict[str</em>, <em>str] = None</em>, <em>curpage_attr: Dict[str</em>, <em>str] = None</em>, <em>dotdot_attr: Dict[str</em>, <em>str] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_pyramid.html#CamcopsPage.link_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_pyramid.CamcopsPage.link_map" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return map with links to other pages if default pager() function is not suitable solution.
-format:</p>
-<blockquote>
-<div><p>Format string that defines how the pager would be normally rendered rendered. Uses same arguments as pager()
-method, but returns a simple dictionary in form of:
-{‘current_page’: {‘attrs’: {},</p>
-<blockquote>
-<div><blockquote>
-<div>‘href’: ‘<a class="reference external" href="http://example.org/foo/page=1">http://example.org/foo/page=1</a>’,
-‘value’: 1},</div></blockquote>
-<dl class="docutils">
-<dt>‘first_page’: {‘attrs’: {},</dt>
-<dd>‘href’: ‘<a class="reference external" href="http://example.org/foo/page=1">http://example.org/foo/page=1</a>’,
-‘type’: ‘first_page’,
-‘value’: 1},</dd>
-<dt>‘last_page’: {‘attrs’: {},</dt>
-<dd>‘href’: ‘<a class="reference external" href="http://example.org/foo/page=8">http://example.org/foo/page=8</a>’,
-‘type’: ‘last_page’,
-‘value’: 8},</dd>
-</dl>
-<p>‘next_page’: {‘attrs’: {}, ‘href’: ‘HREF’, ‘type’: ‘next_page’, ‘value’: 2},
-‘previous_page’: None,
-‘range_pages’: [{‘attrs’: {},</p>
-<blockquote>
-<div><blockquote>
-<div>‘href’: ‘<a class="reference external" href="http://example.org/foo/page=1">http://example.org/foo/page=1</a>’,
-‘type’: ‘current_page’,
-‘value’: 1},
-….</div></blockquote>
-<p>{‘attrs’: {}, ‘href’: ‘’, ‘type’: ‘span’, ‘value’: ‘..’}]}</p>
-</div></blockquote>
-</div></blockquote>
-<p>The string can contain the following $-tokens that are substituted by the
-string.Template module:</p>
-<ul class="simple">
-<li>$first_page: number of first reachable page</li>
-<li>$last_page: number of last reachable page</li>
-<li>$page: number of currently selected page</li>
-<li>$page_count: number of reachable pages</li>
-<li>$items_per_page: maximal number of items per page</li>
-<li>$first_item: index of first item on the current page</li>
-<li>$last_item: index of last item on the current page</li>
-<li>$item_count: total number of items</li>
-<li>$link_first: link to first page (unless this is first page)</li>
-<li>$link_last: link to last page (unless this is last page)</li>
-<li>$link_previous: link to previous page (unless this is first page)</li>
-<li>$link_next: link to next page (unless this is last page)</li>
-</ul>
-<p>To render a range of pages the token ‘~3~’ can be used. The
-number sets the radius of pages around the current page.
-Example for a range with radius 3:</p>
-<p>‘1 .. 5 6 7 [8] 9 10 11 .. 50’</p>
-<p>Default: ‘~2~’</p>
-</div></blockquote>
-<dl class="docutils">
-<dt>url</dt>
-<dd>The URL that page links will point to. Make sure it contains the string
-$page which will be replaced by the actual page number.
-Must be given unless a url_maker is specified to __init__, in which
-case this parameter is ignored.</dd>
-<dt>symbol_first</dt>
-<dd><p class="first">String to be displayed as the text for the $link_first link above.</p>
-<p class="last">Default: ‘&amp;lt;&amp;lt;’ (&lt;&lt;)</p>
-</dd>
-<dt>symbol_last</dt>
-<dd><p class="first">String to be displayed as the text for the $link_last link above.</p>
-<p class="last">Default: ‘&amp;gt;&amp;gt;’ (&gt;&gt;)</p>
-</dd>
-<dt>symbol_previous</dt>
-<dd><p class="first">String to be displayed as the text for the $link_previous link above.</p>
-<p class="last">Default: ‘&amp;lt;’ (&lt;)</p>
-</dd>
-<dt>symbol_next</dt>
-<dd><p class="first">String to be displayed as the text for the $link_next link above.</p>
-<p class="last">Default: ‘&amp;gt;’ (&gt;)</p>
-</dd>
-<dt>separator:</dt>
-<dd><p class="first">String that is used to separate page links/numbers in the above range of pages.</p>
-<p class="last">Default: ‘ ‘</p>
-</dd>
-<dt>show_if_single_page:</dt>
-<dd><p class="first">if True the navigator will be shown even if there is only one page.</p>
-<p class="last">Default: False</p>
-</dd>
-<dt>link_attr (optional)</dt>
-<dd><p class="first">A dictionary of attributes that get added to A-HREF links pointing to other pages. Can
-be used to define a CSS style or class to customize the look of links.</p>
-<p class="last">Example: { ‘style’:’border: 1px solid green’ }
-Example: { ‘class’:’pager_link’ }</p>
-</dd>
-<dt>curpage_attr (optional)</dt>
-<dd><p class="first">A dictionary of attributes that get added to the current page number in the pager (which
-is obviously not a link). If this dictionary is not empty then the elements will be
-wrapped in a SPAN tag with the given attributes.</p>
-<p class="last">Example: { ‘style’:’border: 3px solid blue’ }
-Example: { ‘class’:’pager_curpage’ }</p>
-</dd>
-<dt>dotdot_attr (optional)</dt>
-<dd><p class="first">A dictionary of attributes that get added to the ‘..’ string in the pager (which is
-obviously not a link). If this dictionary is not empty then the elements will be wrapped
-in a SPAN tag with the given attributes.</p>
-<p class="last">Example: { ‘style’:’color: #808080’ }
-Example: { ‘class’:’pager_dotdot’ }</p>
-</dd>
-</dl>
+<dd><p>Fixes bugs (e.g. mutable default arguments) and nasties (e.g.
+enforcing “..” for the ellipsis) in the original.</p>
 </dd></dl>
 
 <dl class="method">
@@ -308,24 +205,26 @@ CamcopsRequest.route_url_params().</p>
 <dl class="class">
 <dt id="camcops_server.cc_modules.cc_pyramid.RoutePath">
 <em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_pyramid.</code><code class="descname">RoutePath</code><span class="sig-paren">(</span><em>route: str</em>, <em>path: str</em>, <em>ignore_in_all_routes: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_pyramid.html#RoutePath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_pyramid.RoutePath" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class to hold a route/path pair.
-- Pyramid route names are just strings used internally for convenience.
-- Pyramid URL paths are URL fragments, like ‘/thing’, and can contain</p>
-<blockquote>
-<div>placeholders, like ‘/thing/{bork_id}’, which will result in the
+<dd><p>Class to hold a route/path pair.</p>
+<ul class="simple">
+<li>Pyramid route names are just strings used internally for convenience.</li>
+<li>Pyramid URL paths are URL fragments, like ‘/thing’, and can contain
+placeholders, like ‘/thing/{bork_id}’, which will result in the
 request.matchdict object containing a ‘bork_id’ key. Those can be
 further constrained by regular expressions, like ‘/thing/{bork_id:d+}’
-to restrict to digits.</div></blockquote>
+to restrict to digits.</li>
+</ul>
 </dd></dl>
 
 <dl class="class">
 <dt id="camcops_server.cc_modules.cc_pyramid.Routes">
 <em class="property">class </em><code class="descclassname">camcops_server.cc_modules.cc_pyramid.</code><code class="descname">Routes</code><a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_pyramid.html#Routes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_pyramid.Routes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Names of Pyramid routes.
-- Used by the &#64;view_config(route_name=…) decorator.
-- Configured via RouteCollection / RoutePath to the Pyramid route</p>
-<blockquote>
-<div>configurator.</div></blockquote>
+<dd><p>Names of Pyramid routes.</p>
+<ul class="simple">
+<li>Used by the &#64;view_config(route_name=…) decorator.</li>
+<li>Configured via RouteCollection / RoutePath to the Pyramid route
+configurator.</li>
+</ul>
 </dd></dl>
 
 <dl class="class">
@@ -378,25 +277,26 @@ lookup.</p>
 
 <dl class="function">
 <dt id="camcops_server.cc_modules.cc_pyramid.get_session_factory">
-<code class="descclassname">camcops_server.cc_modules.cc_pyramid.</code><code class="descname">get_session_factory</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; &lt;function SignedCookieSessionFactory at 0x7ff6774780d0&gt;<a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_pyramid.html#get_session_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_pyramid.get_session_factory" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">camcops_server.cc_modules.cc_pyramid.</code><code class="descname">get_session_factory</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; &lt;function SignedCookieSessionFactory at 0x7f4cd9fde378&gt;<a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_pyramid.html#get_session_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_pyramid.get_session_factory" title="Permalink to this definition">¶</a></dt>
 <dd><p>We have to give a Pyramid request a way of making an HTTP session.
-We must return a session factory.
-- An example is an instance of SignedCookieSessionFactory().
-- A session factory has the signature [1]:</p>
-<blockquote>
-<div><blockquote>
-<div>sessionfactory(req: CamcopsRequest) -&gt; session_object</div></blockquote>
+We must return a session factory.</p>
+<ul>
+<li><p class="first">An example is an instance of SignedCookieSessionFactory().</p>
+</li>
+<li><p class="first">A session factory has the signature [1]:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sessionfactory(req: CamcopsRequest) -&gt; session_object
+</pre></div>
+</div>
 <p>… where session “is a namespace” [2]
-… but more concretely implementis the pyramid.interfaces.ISession</p>
-<blockquote>
-<div>interface</div></blockquote>
-<p>[1] <a class="reference external" href="https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory">https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory</a>
-[2] <a class="reference external" href="https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session">https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session</a></p>
-</div></blockquote>
-<ul class="simple">
-<li>We want to be able to make the session by reading the CamcopsConfig from
-the request.</li>
+… but more concretely, “implements the pyramid.interfaces.ISession
+interface”</p>
+</li>
+<li><p class="first">We want to be able to make the session by reading the CamcopsConfig from
+the request.</p>
+</li>
 </ul>
+<p>[1] <a class="reference external" href="https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory">https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory</a></p>
+<p>[2] <a class="reference external" href="https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session">https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session</a></p>
 </dd></dl>
 
 <dl class="function">
@@ -440,162 +340,160 @@ they’ll be in whatever order the dict iterates them.</p>
 <li class="toctree-l1"><a class="reference internal" href="../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../client/creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../_index.html">21. Automatic documentation of core server source code</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../camcops.html">21.1. camcops_server.camcops</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_alembic.html">21.2. camcops_server.cc_modules.cc_alembic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_all_models.html">21.3. camcops_server.cc_modules.cc_all_models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_analytics.html">21.4. camcops_server.cc_modules.cc_analytics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_baseconstants.html">21.5. camcops_server.cc_modules.cc_baseconstants</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_blob.html">21.6. camcops_server.cc_modules.cc_blob</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_cache.html">21.7. camcops_server.cc_modules.cc_cache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_client_api_core.html">21.8. camcops_server.cc_modules.cc_client_api_core</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_config.html">21.9. camcops_server.cc_modules.cc_config</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_constants.html">21.10. camcops_server.cc_modules.cc_constants</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_convert.html">21.11. camcops_server.cc_modules.cc_convert</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_ctvinfo.html">21.12. camcops_server.cc_modules.cc_ctvinfo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_db.html">21.13. camcops_server.cc_modules.cc_db</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_device.html">21.14. camcops_server.cc_modules.cc_device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_dirtytables.html">21.15. camcops_server.cc_modules.cc_dirtytables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_dump.html">21.16. camcops_server.cc_modules.cc_dump</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_filename.html">21.17. camcops_server.cc_modules.cc_filename</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_forms.html">21.18. camcops_server.cc_modules.cc_forms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_group.html">21.19. camcops_server.cc_modules.cc_group</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_hl7.html">21.20. camcops_server.cc_modules.cc_hl7</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_hl7core.html">21.21. camcops_server.cc_modules.cc_hl7core</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_html.html">21.22. camcops_server.cc_modules.cc_html</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_idnumdef.html">21.23. camcops_server.cc_modules.cc_idnumdef</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_membership.html">21.24. camcops_server.cc_modules.cc_membership</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_nhs.html">21.25. camcops_server.cc_modules.cc_nhs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_nlp.html">21.26. camcops_server.cc_modules.cc_nlp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_patient.html">21.27. camcops_server.cc_modules.cc_patient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_patientidnum.html">21.28. camcops_server.cc_modules.cc_patientidnum</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_pdf.html">21.29. camcops_server.cc_modules.cc_pdf</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_plot.html">21.30. camcops_server.cc_modules.cc_plot</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_policy.html">21.31. camcops_server.cc_modules.cc_policy</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">21.32. camcops_server.cc_modules.cc_pyramid</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_recipdef.html">21.33. camcops_server.cc_modules.cc_recipdef</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_report.html">21.34. camcops_server.cc_modules.cc_report</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_request.html">21.35. camcops_server.cc_modules.cc_request</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_serversettings.html">21.36. camcops_server.cc_modules.cc_serversettings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_session.html">21.37. camcops_server.cc_modules.cc_session</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_simpleobjects.html">21.38. camcops_server.cc_modules.cc_simpleobjects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_specialnote.html">21.39. camcops_server.cc_modules.cc_specialnote</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_sqla_coltypes.html">21.40. camcops_server.cc_modules.cc_sqla_coltypes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_sqlalchemy.html">21.41. camcops_server.cc_modules.cc_sqlalchemy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_string.html">21.42. camcops_server.cc_modules.cc_string</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_summaryelement.html">21.43. camcops_server.cc_modules.cc_summaryelement</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_tabletsession.html">21.44. camcops_server.cc_modules.cc_tabletsession</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_task.html">21.45. camcops_server.cc_modules.cc_task</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_taskfactory.html">21.46. camcops_server.cc_modules.cc_taskfactory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_taskfilter.html">21.47. camcops_server.cc_modules.cc_taskfilter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_tracker.html">21.48. camcops_server.cc_modules.cc_tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_trackerhelpers.html">21.49. camcops_server.cc_modules.cc_trackerhelpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_tsv.html">21.50. camcops_server.cc_modules.cc_tsv</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_unittest.html">21.51. camcops_server.cc_modules.cc_unittest</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_user.html">21.52. camcops_server.cc_modules.cc_user</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_version.html">21.53. camcops_server.cc_modules.cc_version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_version_string.html">21.54. camcops_server.cc_modules.cc_version_string</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cc_xml.html">21.55. camcops_server.cc_modules.cc_xml</a></li>
-<li class="toctree-l2"><a class="reference internal" href="client_api.html">21.56. camcops_server.cc_modules.client_api</a></li>
-<li class="toctree-l2"><a class="reference internal" href="merge_db.html">21.57. camcops_server.cc_modules.merge_db</a></li>
-<li class="toctree-l2"><a class="reference internal" href="webview.html">21.58. camcops_server.cc_modules.webview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/ace3.html">21.59. camcops_server.tasks.ace3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/aims.html">21.60. camcops_server.tasks.aims</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/audit.html">21.61. camcops_server.tasks.audit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/badls.html">21.62. camcops_server.tasks.badls</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/bdi.html">21.63. camcops_server.tasks.bdi</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/bmi.html">21.64. camcops_server.tasks.bmi</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/bprs.html">21.65. camcops_server.tasks.bprs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/bprse.html">21.66. camcops_server.tasks.bprse</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/cage.html">21.67. camcops_server.tasks.cage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/cape42.html">21.68. camcops_server.tasks.cape42</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/caps.html">21.69. camcops_server.tasks.caps</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/cardinal_expdetthreshold.html">21.70. camcops_server.tasks.cardinal_expdetthreshold</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/cardinal_expectationdetection.html">21.71. camcops_server.tasks.cardinal_expectationdetection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/cbir.html">21.72. camcops_server.tasks.cbir</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/ceca.html">21.73. camcops_server.tasks.ceca</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/cgi_task.html">21.74. camcops_server.tasks.cgi_task</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/cgisch.html">21.75. camcops_server.tasks.cgisch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/cisr.html">21.76. camcops_server.tasks.cisr</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/ciwa.html">21.77. camcops_server.tasks.ciwa</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/contactlog.html">21.78. camcops_server.tasks.contactlog</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/cope.html">21.79. camcops_server.tasks.cope</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/cpft_lps.html">21.80. camcops_server.tasks.cpft_lps</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/dad.html">21.81. camcops_server.tasks.dad</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/dast.html">21.82. camcops_server.tasks.dast</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/deakin_1_healthreview.html">21.83. camcops_server.tasks.deakin_1_healthreview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/demoquestionnaire.html">21.84. camcops_server.tasks.demoquestionnaire</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/demqol.html">21.85. camcops_server.tasks.demqol</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/diagnosis.html">21.86. camcops_server.tasks.diagnosis</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/distressthermometer.html">21.87. camcops_server.tasks.distressthermometer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/fast.html">21.88. camcops_server.tasks.fast</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/fft.html">21.89. camcops_server.tasks.fft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/frs.html">21.90. camcops_server.tasks.frs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/gad7.html">21.91. camcops_server.tasks.gad7</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/gaf.html">21.92. camcops_server.tasks.gaf</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/gds.html">21.93. camcops_server.tasks.gds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/gmcpq.html">21.94. camcops_server.tasks.gmcpq</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/hads.html">21.95. camcops_server.tasks.hads</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/hama.html">21.96. camcops_server.tasks.hama</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/hamd.html">21.97. camcops_server.tasks.hamd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/hamd7.html">21.98. camcops_server.tasks.hamd7</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/honos.html">21.99. camcops_server.tasks.honos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10depressive.html">21.100. camcops_server.tasks.icd10depressive</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10manic.html">21.101. camcops_server.tasks.icd10manic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10mixed.html">21.102. camcops_server.tasks.icd10mixed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10schizophrenia.html">21.103. camcops_server.tasks.icd10schizophrenia</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10schizotypal.html">21.104. camcops_server.tasks.icd10schizotypal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10specpd.html">21.105. camcops_server.tasks.icd10specpd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/ided3d.html">21.106. camcops_server.tasks.ided3d</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/iesr.html">21.107. camcops_server.tasks.iesr</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/ifs.html">21.108. camcops_server.tasks.ifs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/irac.html">21.109. camcops_server.tasks.irac</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/khandaker_1_medicalhistory.html">21.110. camcops_server.tasks.khandaker_1_medicalhistory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/mast.html">21.111. camcops_server.tasks.mast</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/mds_updrs.html">21.112. camcops_server.tasks.mds_updrs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/moca.html">21.113. camcops_server.tasks.moca</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/nart.html">21.114. camcops_server.tasks.nart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/npiq.html">21.115. camcops_server.tasks.npiq</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/panss.html">21.116. camcops_server.tasks.panss</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/pcl.html">21.117. camcops_server.tasks.pcl</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/pdss.html">21.118. camcops_server.tasks.pdss</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/photo.html">21.119. camcops_server.tasks.photo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/phq9.html">21.120. camcops_server.tasks.phq9</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/phq15.html">21.121. camcops_server.tasks.phq15</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/progressnote.html">21.122. camcops_server.tasks.progressnote</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/pswq.html">21.123. camcops_server.tasks.pswq</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/psychiatricclerking.html">21.124. camcops_server.tasks.psychiatricclerking</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/qolbasic.html">21.125. camcops_server.tasks.qolbasic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/qolsg.html">21.126. camcops_server.tasks.qolsg</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/rand36.html">21.127. camcops_server.tasks.rand36</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/service_satisfaction.html">21.128. camcops_server.tasks.service_satisfaction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/slums.html">21.129. camcops_server.tasks.slums</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/smast.html">21.130. camcops_server.tasks.smast</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/wemwbs.html">21.131. camcops_server.tasks.wemwbs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/wsas.html">21.132. camcops_server.tasks.wsas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/ybocs.html">21.133. camcops_server.tasks.ybocs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tasks/zbi.html">21.134. camcops_server.tasks.zbi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../_index.html">19. Automatic documentation of core server source code</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../camcops.html">19.1. camcops_server.camcops</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_alembic.html">19.2. camcops_server.cc_modules.cc_alembic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_all_models.html">19.3. camcops_server.cc_modules.cc_all_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_analytics.html">19.4. camcops_server.cc_modules.cc_analytics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_baseconstants.html">19.5. camcops_server.cc_modules.cc_baseconstants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_blob.html">19.6. camcops_server.cc_modules.cc_blob</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_cache.html">19.7. camcops_server.cc_modules.cc_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_client_api_core.html">19.8. camcops_server.cc_modules.cc_client_api_core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_config.html">19.9. camcops_server.cc_modules.cc_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_constants.html">19.10. camcops_server.cc_modules.cc_constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_convert.html">19.11. camcops_server.cc_modules.cc_convert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_ctvinfo.html">19.12. camcops_server.cc_modules.cc_ctvinfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_db.html">19.13. camcops_server.cc_modules.cc_db</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_device.html">19.14. camcops_server.cc_modules.cc_device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_dirtytables.html">19.15. camcops_server.cc_modules.cc_dirtytables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_dump.html">19.16. camcops_server.cc_modules.cc_dump</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_filename.html">19.17. camcops_server.cc_modules.cc_filename</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_forms.html">19.18. camcops_server.cc_modules.cc_forms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_group.html">19.19. camcops_server.cc_modules.cc_group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_hl7.html">19.20. camcops_server.cc_modules.cc_hl7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_hl7core.html">19.21. camcops_server.cc_modules.cc_hl7core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_html.html">19.22. camcops_server.cc_modules.cc_html</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_idnumdef.html">19.23. camcops_server.cc_modules.cc_idnumdef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_membership.html">19.24. camcops_server.cc_modules.cc_membership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_nhs.html">19.25. camcops_server.cc_modules.cc_nhs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_nlp.html">19.26. camcops_server.cc_modules.cc_nlp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_patient.html">19.27. camcops_server.cc_modules.cc_patient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_patientidnum.html">19.28. camcops_server.cc_modules.cc_patientidnum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_pdf.html">19.29. camcops_server.cc_modules.cc_pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_plot.html">19.30. camcops_server.cc_modules.cc_plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_policy.html">19.31. camcops_server.cc_modules.cc_policy</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">19.32. camcops_server.cc_modules.cc_pyramid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_recipdef.html">19.33. camcops_server.cc_modules.cc_recipdef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_report.html">19.34. camcops_server.cc_modules.cc_report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_request.html">19.35. camcops_server.cc_modules.cc_request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_serversettings.html">19.36. camcops_server.cc_modules.cc_serversettings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_session.html">19.37. camcops_server.cc_modules.cc_session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_simpleobjects.html">19.38. camcops_server.cc_modules.cc_simpleobjects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_specialnote.html">19.39. camcops_server.cc_modules.cc_specialnote</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_sqla_coltypes.html">19.40. camcops_server.cc_modules.cc_sqla_coltypes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_sqlalchemy.html">19.41. camcops_server.cc_modules.cc_sqlalchemy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_string.html">19.42. camcops_server.cc_modules.cc_string</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_summaryelement.html">19.43. camcops_server.cc_modules.cc_summaryelement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_tabletsession.html">19.44. camcops_server.cc_modules.cc_tabletsession</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_task.html">19.45. camcops_server.cc_modules.cc_task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_taskfactory.html">19.46. camcops_server.cc_modules.cc_taskfactory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_taskfilter.html">19.47. camcops_server.cc_modules.cc_taskfilter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_tracker.html">19.48. camcops_server.cc_modules.cc_tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_trackerhelpers.html">19.49. camcops_server.cc_modules.cc_trackerhelpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_tsv.html">19.50. camcops_server.cc_modules.cc_tsv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_unittest.html">19.51. camcops_server.cc_modules.cc_unittest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_user.html">19.52. camcops_server.cc_modules.cc_user</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_version.html">19.53. camcops_server.cc_modules.cc_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_version_string.html">19.54. camcops_server.cc_modules.cc_version_string</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cc_xml.html">19.55. camcops_server.cc_modules.cc_xml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client_api.html">19.56. camcops_server.cc_modules.client_api</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_db.html">19.57. camcops_server.cc_modules.merge_db</a></li>
+<li class="toctree-l2"><a class="reference internal" href="webview.html">19.58. camcops_server.cc_modules.webview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ace3.html">19.59. camcops_server.tasks.ace3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/aims.html">19.60. camcops_server.tasks.aims</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/audit.html">19.61. camcops_server.tasks.audit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/badls.html">19.62. camcops_server.tasks.badls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bdi.html">19.63. camcops_server.tasks.bdi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bmi.html">19.64. camcops_server.tasks.bmi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bprs.html">19.65. camcops_server.tasks.bprs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/bprse.html">19.66. camcops_server.tasks.bprse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cage.html">19.67. camcops_server.tasks.cage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cape42.html">19.68. camcops_server.tasks.cape42</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/caps.html">19.69. camcops_server.tasks.caps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cardinal_expdetthreshold.html">19.70. camcops_server.tasks.cardinal_expdetthreshold</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cardinal_expectationdetection.html">19.71. camcops_server.tasks.cardinal_expectationdetection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cbir.html">19.72. camcops_server.tasks.cbir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ceca.html">19.73. camcops_server.tasks.ceca</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cgi_task.html">19.74. camcops_server.tasks.cgi_task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cgisch.html">19.75. camcops_server.tasks.cgisch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cisr.html">19.76. camcops_server.tasks.cisr</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ciwa.html">19.77. camcops_server.tasks.ciwa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/contactlog.html">19.78. camcops_server.tasks.contactlog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cope.html">19.79. camcops_server.tasks.cope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/cpft_lps.html">19.80. camcops_server.tasks.cpft_lps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/dad.html">19.81. camcops_server.tasks.dad</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/dast.html">19.82. camcops_server.tasks.dast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/deakin_1_healthreview.html">19.83. camcops_server.tasks.deakin_1_healthreview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/demoquestionnaire.html">19.84. camcops_server.tasks.demoquestionnaire</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/demqol.html">19.85. camcops_server.tasks.demqol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/diagnosis.html">19.86. camcops_server.tasks.diagnosis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/distressthermometer.html">19.87. camcops_server.tasks.distressthermometer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/fast.html">19.88. camcops_server.tasks.fast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/fft.html">19.89. camcops_server.tasks.fft</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/frs.html">19.90. camcops_server.tasks.frs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gad7.html">19.91. camcops_server.tasks.gad7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gaf.html">19.92. camcops_server.tasks.gaf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gds.html">19.93. camcops_server.tasks.gds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/gmcpq.html">19.94. camcops_server.tasks.gmcpq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hads.html">19.95. camcops_server.tasks.hads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hama.html">19.96. camcops_server.tasks.hama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hamd.html">19.97. camcops_server.tasks.hamd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/hamd7.html">19.98. camcops_server.tasks.hamd7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/honos.html">19.99. camcops_server.tasks.honos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10depressive.html">19.100. camcops_server.tasks.icd10depressive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10manic.html">19.101. camcops_server.tasks.icd10manic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10mixed.html">19.102. camcops_server.tasks.icd10mixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10schizophrenia.html">19.103. camcops_server.tasks.icd10schizophrenia</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10schizotypal.html">19.104. camcops_server.tasks.icd10schizotypal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/icd10specpd.html">19.105. camcops_server.tasks.icd10specpd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ided3d.html">19.106. camcops_server.tasks.ided3d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/iesr.html">19.107. camcops_server.tasks.iesr</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ifs.html">19.108. camcops_server.tasks.ifs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/irac.html">19.109. camcops_server.tasks.irac</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/khandaker_1_medicalhistory.html">19.110. camcops_server.tasks.khandaker_1_medicalhistory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/mast.html">19.111. camcops_server.tasks.mast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/mds_updrs.html">19.112. camcops_server.tasks.mds_updrs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/moca.html">19.113. camcops_server.tasks.moca</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/nart.html">19.114. camcops_server.tasks.nart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/npiq.html">19.115. camcops_server.tasks.npiq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/panss.html">19.116. camcops_server.tasks.panss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/pcl.html">19.117. camcops_server.tasks.pcl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/pdss.html">19.118. camcops_server.tasks.pdss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/photo.html">19.119. camcops_server.tasks.photo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/phq9.html">19.120. camcops_server.tasks.phq9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/phq15.html">19.121. camcops_server.tasks.phq15</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/progressnote.html">19.122. camcops_server.tasks.progressnote</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/pswq.html">19.123. camcops_server.tasks.pswq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/psychiatricclerking.html">19.124. camcops_server.tasks.psychiatricclerking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/qolbasic.html">19.125. camcops_server.tasks.qolbasic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/qolsg.html">19.126. camcops_server.tasks.qolsg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/rand36.html">19.127. camcops_server.tasks.rand36</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/service_satisfaction.html">19.128. camcops_server.tasks.service_satisfaction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/slums.html">19.129. camcops_server.tasks.slums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/smast.html">19.130. camcops_server.tasks.smast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/wemwbs.html">19.131. camcops_server.tasks.wemwbs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/wsas.html">19.132. camcops_server.tasks.wsas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/ybocs.html">19.133. camcops_server.tasks.ybocs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tasks/zbi.html">19.134. camcops_server.tasks.zbi</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="cc_policy.html"
-                        title="previous chapter">21.31. camcops_server.cc_modules.cc_policy</a></p>
+                        title="previous chapter">19.31. camcops_server.cc_modules.cc_policy</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="cc_recipdef.html"
-                        title="next chapter">21.33. camcops_server.cc_modules.cc_recipdef</a></p>
+                        title="next chapter">19.33. camcops_server.cc_modules.cc_recipdef</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -629,13 +527,13 @@ they’ll be in whatever order the dict iterates them.</p>
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="cc_recipdef.html" title="21.33. camcops_server.cc_modules.cc_recipdef"
+          <a href="cc_recipdef.html" title="19.33. camcops_server.cc_modules.cc_recipdef"
              >next</a> |</li>
         <li class="right" >
-          <a href="cc_policy.html" title="21.31. camcops_server.cc_modules.cc_policy"
+          <a href="cc_policy.html" title="19.31. camcops_server.cc_modules.cc_policy"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../_index.html" >21. Automatic documentation of core server source code</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../_index.html" >19. Automatic documentation of core server source code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="_index.html" >&lt;no title&gt;</a> &#187;</li> 
       </ul>
     </div>

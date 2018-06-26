@@ -1,4 +1,4 @@
-..  documentation/source/autodoc/cc_all_models.rst
+..  documentation/source/autodoc/cc_modules/cc_all_models.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .

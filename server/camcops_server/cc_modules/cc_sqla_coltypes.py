@@ -26,55 +26,68 @@
 Note these built-in SQLAlchemy types:
 http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types
 
-    BigInteger      -- MySQL: -9,223,372,036,854,775,808 to 
-                               9,223,372,036,854,775,807 (64-bit)
-                       (compare NHS number: up to 9,999,999,999)
+    --------------- -----------------------------------------------------------
+    SQLAlchemy type Comment
+    --------------- -----------------------------------------------------------
+    BigInteger      MySQL: -9,223,372,036,854,775,808 to 
+                            9,223,372,036,854,775,807 (64-bit)
+                    (compare NHS number: up to 9,999,999,999)
     Boolean
     Date
     DateTime
     Enum
     Float
-    Integer         -- MySQL: -2,147,483,648 to 2,147,483,647 (32-bit)
-    Interval        -- for datetime.timedelta
-    LargeBinary     -- under MySQL, maps to BLOB
-    MatchType       -- for the return type of the MATCH operator
-    Numeric         -- for fixed-precision numbers like NUMERIC or DECIMAL
+    Integer         MySQL: -2,147,483,648 to 2,147,483,647 (32-bit)
+    Interval        for datetime.timedelta
+    LargeBinary     under MySQL, maps to BLOB
+    MatchType       for the return type of the MATCH operator
+    Numeric         for fixed-precision numbers like NUMERIC or DECIMAL
     PickleType
     SchemaType
     SmallInteger
-    String          -- VARCHAR
-    Text            -- variably sized string type
-                        ... under MySQL, renders as TEXT
+    String          VARCHAR
+    Text            variably sized string type
+                    ... under MySQL, renders as TEXT
     Time
-    Unicode         -- implies that the underlying column explicitly supports 
-                       Unicode
-    UnicodeText     -- variably sized version of Unicode
-                        ... under MySQL, renders as TEXT too
+    Unicode         implies that the underlying column explicitly supports 
+                    Unicode
+    UnicodeText     variably sized version of Unicode
+                    ... under MySQL, renders as TEXT too
+    --------------- -----------------------------------------------------------
     
 Not supported across all platforms:
 
-    BIGINT UNSIGNED -- MySQL: 0 to 18,446,744,073,709,551,615 (64-bit)
-                    -- use sqlalchemy.dialects.mysql.BIGINT(unsigned=True)
-    INT UNSIGNED    -- MySQL: 0 to 4,294,967,295 (32-bit)
-                    -- use sqlalchemy.dialects.mysql.INTEGER(unsigned=True)
+    --------------- -----------------------------------------------------------
+    SQL type        Comment
+    --------------- -----------------------------------------------------------
+    BIGINT UNSIGNED MySQL: 0 to 18,446,744,073,709,551,615 (64-bit)
+                    ... use sqlalchemy.dialects.mysql.BIGINT(unsigned=True)
+    INT UNSIGNED    MySQL: 0 to 4,294,967,295 (32-bit)
+                    ... use sqlalchemy.dialects.mysql.INTEGER(unsigned=True)
+    --------------- -----------------------------------------------------------
 
 Other MySQL sizes:
 
-    TINYBLOB        -- 2^8 bytes = 256 bytes
-    BLOB            -- 2^16 bytes = 64 KiB
-    MEDIUMBLOB      -- 2^24 bytes = 16 MiB
-    LONGBLOB        -- 2^32 bytes = 4 GiB 
+    --------------- -----------------------------------------------------------
+    MySQL type      Comment
+    --------------- -----------------------------------------------------------
+    TINYBLOB        2^8 bytes = 256 bytes
+    BLOB            2^16 bytes = 64 KiB
+    MEDIUMBLOB      2^24 bytes = 16 MiB
+    LONGBLOB        2^32 bytes = 4 GiB 
 
-    TINYTEXT        -- 255 (2^8 - 1) bytes
-    TEXT            -- 65,535 bytes (2^16 - 1) = 64 KiB
-    MEDIUMTEXT      -- 16,777,215 (2^24 - 1) bytes = 16 MiB
-    LONGTEXT        -- 4,294,967,295 (2^32 - 1) bytes = 4 GiB
-        ... https://stackoverflow.com/questions/13932750/tinytext-text-mediumtext-and-longtext-maximum-storage-sizes
+    TINYTEXT        255 (2^8 - 1) bytes
+    TEXT            65,535 bytes (2^16 - 1) = 64 KiB
+    MEDIUMTEXT      16,777,215 (2^24 - 1) bytes = 16 MiB
+    LONGTEXT        4,294,967,295 (2^32 - 1) bytes = 4 GiB
+    --------------- -----------------------------------------------------------
+
+See https://stackoverflow.com/questions/13932750/tinytext-text-mediumtext-and-longtext-maximum-storage-sizes
 
 Also:
 
-    Columns may need their character set specified explicitly under MySQL:
-        https://stackoverflow.com/questions/2108824/mysql-incorrect-string-value-error-when-save-unicode-string-in-django
+    - Columns may need their character set specified explicitly under MySQL:
+      https://stackoverflow.com/questions/2108824/mysql-incorrect-string-value-error-when-save-unicode-string-in-django
 
 """  # noqa
 
@@ -379,12 +392,15 @@ def isotzdatetime_to_utcdatetime_mysql(
         compiler: "SQLCompiler", **kw) -> str:
     """
     Implementation of isotzdatetime_to_utcdatetime for MySQL.
+    
     For format, see
-        https://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html#function_date-format  # noqa
+    https://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html#function_date-format
+    
     Note the use of "%i" for minutes.
+    
     Things after "func." get passed to the database engine as literal SQL
     functions; http://docs.sqlalchemy.org/en/latest/core/tutorial.html
-    """
+    """  # noqa
     x = fetch_processed_single_clause(element, compiler)
 
     # Let's do this in a clear way:
@@ -446,45 +462,57 @@ def isotzdatetime_to_utcdatetime_sqlserver(
     """
     Implementation of isotzdatetime_to_utcdatetime for SQL Server.
 
-    Converting strings to DATETIME values:
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    CAST():     Part of ANSI SQL.
-    CONVERT():  Not part of ANSI SQL; has some extra formatting options.
+    **Converting strings to DATETIME values**
+
+    - CAST():     Part of ANSI SQL.
+    - CONVERT():  Not part of ANSI SQL; has some extra formatting options.
 
     Both methods work:
+
+    .. code-block:: sql
+
       SELECT CAST('2001-01-31T21:30:49.123' AS DATETIME) AS via_cast,
              CONVERT(DATETIME, '2001-01-31T21:30:49.123') AS via_convert;
+
     ... fine on SQL Server 2005, with milliseconds in both cases.
     However, going beyond milliseconds doesn't fail gracefully, it causes an
     error (e.g. "...21:30.49.123456") both for CAST and CONVERT.
 
     The DATETIME2 format accepts greater precision, but requires SQL Server
     2008 or higher. Then this works:
+
+    .. code-block:: sql
+
       SELECT CAST('2001-01-31T21:30:49.123456' AS DATETIME2) AS via_cast,
              CONVERT(DATETIME2, '2001-01-31T21:30:49.123456') AS via_convert;
 
     So as not to be too optimistic: CAST(x AS DATETIME2) ignores (silently) any
     timezone information in the string. So does CONVERT(DATETIME2, x, {0 or 1}).
 
-    Converting between time zones:
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Converting between time zones**
+
     NO TIME ZONE SUPPORT in SQL Server 2005.
     e.g. https://stackoverflow.com/questions/3200827/how-to-convert-timezones-in-sql-server-2005  # noqa
 
-    TODATETIMEOFFSET(expression, time_zone):
-          expression: something that evaluates to a DATETIME2 value
-          time_zone: integer minutes, or string hours/minutes e.g. "+13.00"
-      -> produces a DATETIMEOFFSET value
+    .. code-block:: none
+
+        TODATETIMEOFFSET(expression, time_zone):
+              expression: something that evaluates to a DATETIME2 value
+              time_zone: integer minutes, or string hours/minutes e.g. "+13.00"
+          -> produces a DATETIMEOFFSET value
+
     Available from SQL Server 2008.
     https://docs.microsoft.com/en-us/sql/t-sql/functions/todatetimeoffset-transact-sql  # noqa
 
-    SWITCHOFFSET
-      -> converts one DATETIMEOFFSET value to another, preserving its UTC
-         time, but changing the displayed (local) time zone.
+    .. code-block:: none
+
+        SWITCHOFFSET
+          -> converts one DATETIMEOFFSET value to another, preserving its UTC
+             time, but changing the displayed (local) time zone.
 
     ... however, is that unnecessary? We want a plain DATETIME2 in UTC, and
-    conversion to UTC is automatically achieved by
-          CONVERT(DATETIME2, some_datetimeoffset, 1)
+        conversion to UTC is automatically achieved by
+        CONVERT(DATETIME2, some_datetimeoffset, 1)
     ... https://stackoverflow.com/questions/4953903/how-can-i-convert-a-sql-server-2008-datetimeoffset-to-a-datetime  # noqa
     ... but not by CAST(some_datetimeoffset AS DATETIME2), and not by
         CONVERT(DATETIME2, some_datetimeoffset, 0)
@@ -498,29 +526,29 @@ def isotzdatetime_to_utcdatetime_sqlserver(
     From SQL Server 2016 only.
     https://docs.microsoft.com/en-us/sql/t-sql/queries/at-time-zone-transact-sql?view=sql-server-2017
 
-    Therefore:
-    ~~~~~~~~~~
+    **Therefore**
+
     - We need to require SQL Server 2008 or higher.
     - Therefore we can use the DATETIME2 type.
     - Note that LEN(), not LENGTH(), is ANSI SQL; SQL Server only supports
       LEN.
 
-    Example (tested on SQL Server 2014)
-    ~~~~~~~
+    **Example (tested on SQL Server 2014)**
 
-    DECLARE @source AS VARCHAR(100) = '2001-01-31T21:30:49.123456+07:00';
+    .. code-block:: sql
 
-    SELECT CAST(
-        SWITCHOFFSET(
-            TODATETIMEOFFSET(
-                CAST(LEFT(@source, LEN(@source) - 6) AS DATETIME2),
-                RIGHT(@source, 6)
-            ),
-            '+00:00'
-        )
-        AS DATETIME2
-    )  -- 2001-01-31 14:30:49.1234560
+        DECLARE @source AS VARCHAR(100) = '2001-01-31T21:30:49.123456+07:00';
 
+        SELECT CAST(
+            SWITCHOFFSET(
+                TODATETIMEOFFSET(
+                    CAST(LEFT(@source, LEN(@source) - 6) AS DATETIME2),
+                    RIGHT(@source, 6)
+                ),
+                '+00:00'
+            )
+            AS DATETIME2
+        )  -- 2001-01-31 14:30:49.1234560
 
     """
     x = fetch_processed_single_clause(element, compiler)

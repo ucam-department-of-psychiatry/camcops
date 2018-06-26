@@ -29,9 +29,13 @@ column to indicate type, and then columns named "valueInteger", "valueText",
 "valueReal" for the actual values.
 
 Subsequently
+
 - There's no need for devices to upload their settings here, so that table
   goes.
+
 - The server stored vars stored
+
+.. code-block:: none
 
     idDescription1 - idDescription8             } now have their own table
     idShortDescription1 - idShortDescription8   }
@@ -46,16 +50,17 @@ Subsequently
     databaseTitle                               still needed somehow
 
 So, two options:
-
-    https://stackoverflow.com/questions/2300356/using-a-single-row-configuration-table-in-sql-server-database-bad-idea  # noqa
+https://stackoverflow.com/questions/2300356/using-a-single-row-configuration-table-in-sql-server-database-bad-idea  # noqa
 
 Let's use a single row, based on a fixed PK (of 1).
 
 On some databases, you can constrain the PK value to enforce "one row only";
 MySQL isn't one of those.
 
-    http://docs.sqlalchemy.org/en/latest/core/constraints.html#check-constraint
-    https://stackoverflow.com/questions/3967372/sql-server-how-to-constrain-a-table-to-contain-a-single-row  # noqa
+- http://docs.sqlalchemy.org/en/latest/core/constraints.html#check-constraint
+
+- https://stackoverflow.com/questions/3967372/sql-server-how-to-constrain-a-table-to-contain-a-single-row  # noqa
+
 """
 
 import logging

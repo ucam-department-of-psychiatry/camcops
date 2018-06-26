@@ -38,6 +38,8 @@ Quick tutorial on Pyramid views:
     one from potentially several views. For example, a single route might be
     associated with:
 
+    .. code-block:: python
+
         @view_config(route_name="myroute")
         def myroute_default(req: Request) -> Response:
             pass
@@ -51,6 +53,8 @@ Quick tutorial on Pyramid views:
     views match, choose the one with the most specifiers.
 
 -   Specifiers include:
+
+    .. code-block:: none
 
         route_name=ROUTENAME
 
@@ -79,6 +83,8 @@ Quick tutorial on Pyramid views:
 
 -   Getting parameters
 
+    .. code-block:: none
+
         request.params
 
             ... parameters from HTTP GET or POST, including both the query
@@ -97,9 +103,13 @@ Quick tutorial on Pyramid views:
     likely a minor performance hit (relative to plain Python string rendering);
     and a loss of type checking. The type checking is also why we prefer:
 
+    .. code-block:: python
+
         html = " ... {param_blah} ...".format(param_blah=PARAM.BLAH)
 
     to
+
+    .. code-block:: python
 
         html = " ... {PARAM.BLAH} ...".format(PARAM=PARAM)
 
@@ -352,9 +362,17 @@ def not_found(req: CamcopsRequest) -> Dict[str, Any]:
 def bad_request(req: CamcopsRequest) -> Dict[str, Any]:
     """
     NOTE that this view only gets used from
+
+    .. code-block:: python
+
         raise HTTPBadRequest("message")
+
     and not
+
+    .. code-block:: python
+
         return HTTPBadRequest("message")
+
     ... so always raise it.
     """
     return {}

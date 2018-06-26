@@ -22,7 +22,11 @@
 Downloading CamCOPS
 ===================
 
-Client downloads and server distributions are at
+The Android app is at
+
+- https://play.google.com/store/apps/details?id=org.camcops.camcops
+
+Other client downloads, and server distributions, are at
 
 - http://www.camcops.org/download/
 

@@ -377,6 +377,9 @@ def get_select_reply(fields: Sequence[str],
                      rows: Sequence[Sequence[Any]]) -> Dict[str, str]:
     """
     Return format:
+
+    .. code-block:: none
+
         nfields:X
         fields:X
         nrecords:X
@@ -712,7 +715,7 @@ def get_batch_details_start_if_needed(req: CamcopsRequest) \
 
     upload_batch_utc: the batchtime; UTC date/time of the current upload batch.
     currently_preserving: Boolean; whether preservation (shifting to an older
-        era) is currently taking place.
+    era) is currently taking place.
 
     SIDE EFFECT: if the username is different from the username that started
     a previous upload batch for this device, we restart the upload batch (thus

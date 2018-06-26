@@ -47,14 +47,17 @@
   <div class="section" id="requirements-and-costs">
 <h1>1.3. Requirements and costs<a class="headerlink" href="#requirements-and-costs" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="android-clients-hardware-requirements">
-<h2>1.3.1. Android clients: hardware requirements<a class="headerlink" href="#android-clients-hardware-requirements" title="Permalink to this headline">¶</a></h2>
-<p>The minimum Android SDK version is 11, meaning Android 3.0 (Honeycomb; released
-in 2011). For development, we have used:</p>
+<span id="hardware-requirements-client"></span><h2>1.3.1. Android clients: hardware requirements<a class="headerlink" href="#android-clients-hardware-requirements" title="Permalink to this headline">¶</a></h2>
+<p>The minimum Android SDK version is 16, meaning Android 4.1 (‘Jelly Bean’,
+released in 2012). For development, we have used:</p>
 <ul class="simple">
-<li>Asus Transformer Prime TF201 (Android 4.1.1) — nice keyboard with an extra
-battery in it, though WiFi only with no 3G connection.</li>
-<li>Sony Xperia Z2 tablet (available in WiFi and 3G versions), with Bluetooth
-keyboard.</li>
+<li>Asus Transformer Prime TF201 (2011, running Android 4.1.1) — nice keyboard
+with an extra battery in it, though WiFi only with no 3G connection.
+(Its charger uses a non-standard USB specification that supplies 15V, rather
+than the standard 5V, so it can fail to charge properly if you plug a random
+USB charger into it! <a class="footnote-reference" href="#asus-charger" id="id1">[1]</a></li>
+<li>Sony Xperia Z2 tablet (2014; available in WiFi and 3G versions), with
+Bluetooth keyboard.</li>
 </ul>
 </div>
 <div class="section" id="ios-clients-hardware-requirements">
@@ -68,8 +71,13 @@ clinical clerking aspects or other tasks requiring significant typing.</li>
 the server) so we think any model of iPad will do.</li>
 </ul>
 </div>
+<div class="section" id="desktop-clients-hardware-requirements">
+<h2>1.3.3. Desktop clients: hardware requirements<a class="headerlink" href="#desktop-clients-hardware-requirements" title="Permalink to this headline">¶</a></h2>
+<p>There are no specific hardware requirements. The CamCOPS client runs on the
+following desktop operating systems: Linux, Windows, and Mac OS/X.</p>
+</div>
 <div class="section" id="server-hardware-and-software-requirements">
-<h2>1.3.3. Server: hardware and software requirements<a class="headerlink" href="#server-hardware-and-software-requirements" title="Permalink to this headline">¶</a></h2>
+<span id="hardware-requirements-server"></span><h2>1.3.4. Server: hardware and software requirements<a class="headerlink" href="#server-hardware-and-software-requirements" title="Permalink to this headline">¶</a></h2>
 <p>There are no specific hardware requirements.</p>
 <p>Operating system:</p>
 <ul class="simple">
@@ -91,7 +99,7 @@ SQLite is for clients, not servers!).</li>
 </ul>
 </div>
 <div class="section" id="representative-costs">
-<h2>1.3.4. Representative costs<a class="headerlink" href="#representative-costs" title="Permalink to this headline">¶</a></h2>
+<h2>1.3.5. Representative costs<a class="headerlink" href="#representative-costs" title="Permalink to this headline">¶</a></h2>
 <p>We have set up CamCOPS in the low-cost environment of a research-active
 university that provides network support, with WiFi tablet access, and the
 high-cost environment of an NHS institution with a secure VPN (including 3G and
@@ -153,6 +161,13 @@ Annual support costs (inc. VAT).</td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="asus-charger" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="http://www.transformerforums.com/forum/asus-transformer-tf101-help/23451-solved-transformer-not-charging.html">http://www.transformerforums.com/forum/asus-transformer-tf101-help/23451-solved-transformer-not-charging.html</a></td></tr>
+</tbody>
+</table>
 </div>
 </div>
 
@@ -191,18 +206,16 @@ Annual support costs (inc. VAT).</td>
 <li class="toctree-l1"><a class="reference internal" href="../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
   <h4>Previous topic</h4>

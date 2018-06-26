@@ -1,4 +1,4 @@
-..  documentation/source/autodoc/cc_tracker.rst
+..  documentation/source/autodoc/cc_modules/cc_tracker.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .

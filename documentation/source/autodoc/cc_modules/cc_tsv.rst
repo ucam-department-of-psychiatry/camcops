@@ -1,4 +1,4 @@
-..  documentation/source/autodoc/cc_tsv.rst
+..  documentation/source/autodoc/cc_modules/cc_tsv.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .

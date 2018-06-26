@@ -1,4 +1,4 @@
-..  documentation/source/autodoc/cc_html.rst
+..  documentation/source/autodoc/cc_modules/cc_html.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .

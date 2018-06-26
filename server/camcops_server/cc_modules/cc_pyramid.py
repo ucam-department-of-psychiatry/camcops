@@ -430,6 +430,7 @@ def make_url_path(base: str, *args: UrlParam) -> str:
 class Routes(object):
     """
     Names of Pyramid routes.
+
     - Used by the @view_config(route_name=...) decorator.
     - Configured via RouteCollection / RoutePath to the Pyramid route
       configurator.
@@ -509,12 +510,14 @@ class Routes(object):
 class RoutePath(object):
     """
     Class to hold a route/path pair.
+
     - Pyramid route names are just strings used internally for convenience.
     - Pyramid URL paths are URL fragments, like '/thing', and can contain
       placeholders, like '/thing/{bork_id}', which will result in the
       request.matchdict object containing a 'bork_id' key. Those can be
       further constrained by regular expressions, like '/thing/{bork_id:\d+}'
       to restrict to digits.
+
     """
     def __init__(self, route: str, path: str,
                  ignore_in_all_routes: bool = False) -> None:
@@ -661,16 +664,24 @@ def get_session_factory() -> SignedCookieSessionFactory:
     """
     We have to give a Pyramid request a way of making an HTTP session.
     We must return a session factory.
+    
     - An example is an instance of SignedCookieSessionFactory().
     - A session factory has the signature [1]:
+    
+      .. code-block:: none
+      
             sessionfactory(req: CamcopsRequest) -> session_object
+
       ... where session "is a namespace" [2]
-      ... but more concretely implementis the pyramid.interfaces.ISession 
-          interface
-      [1] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory
-      [2] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session
+      ... but more concretely, "implements the pyramid.interfaces.ISession 
+      interface"
+
     - We want to be able to make the session by reading the CamcopsConfig from
       the request.
+
+    [1] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory
+    
+    [2] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session
     """  # noqa
     def factory(req: "CamcopsRequest") -> ISession:
         """
@@ -927,8 +938,10 @@ class CamcopsPage(Page):
                  link_attr: Dict[str, str] = None,
                  curpage_attr: Dict[str, str] = None,
                  dotdot_attr: Dict[str, str] = None):
-        # Fixes bugs (e.g. mutable default arguments) and nasties (e.g.
-        # enforcing ".." for the ellipsis) in the original.
+        """
+        Fixes bugs (e.g. mutable default arguments) and nasties (e.g.
+        enforcing ".." for the ellipsis) in the original.
+        """
         self.curpage_attr = curpage_attr or {}  # type: Dict[str, str]
         self.separator = separator
         self.link_attr = link_attr or {}  # type: Dict[str, str]
@@ -1082,7 +1095,8 @@ class SqlalchemyOrmPage(CamcopsPage):
 
 def make_page_url(path: str, params: Dict[str, str], page: int,
                   partial: bool = False, sort: bool = True) -> str:
-    """A helper function for URL generators.
+    """
+    A helper function for URL generators.
 
     I assemble a URL from its parts. I assume that a link to a certain page is
     done by overriding the 'page' query parameter.
@@ -1110,7 +1124,8 @@ def make_page_url(path: str, params: Dict[str, str], page: int,
 
 
 class PageUrl(object):
-    """A page URL generator for WebOb-compatible Request objects.
+    """
+    A page URL generator for WebOb-compatible Request objects.
 
     I derive new URLs based on the current URL but overriding the 'page'
     query parameter.

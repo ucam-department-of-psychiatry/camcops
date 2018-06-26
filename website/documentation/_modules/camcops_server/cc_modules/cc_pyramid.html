@@ -469,6 +469,7 @@
 <div class="viewcode-block" id="Routes"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_pyramid.html#camcops_server.cc_modules.cc_pyramid.Routes">[docs]</a><span class="k">class</span> <span class="nc">Routes</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Names of Pyramid routes.</span>
+
 <span class="sd">    - Used by the @view_config(route_name=...) decorator.</span>
 <span class="sd">    - Configured via RouteCollection / RoutePath to the Pyramid route</span>
 <span class="sd">      configurator.</span>
@@ -548,12 +549,14 @@
 <div class="viewcode-block" id="RoutePath"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_pyramid.html#camcops_server.cc_modules.cc_pyramid.RoutePath">[docs]</a><span class="k">class</span> <span class="nc">RoutePath</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to hold a route/path pair.</span>
+
 <span class="sd">    - Pyramid route names are just strings used internally for convenience.</span>
 <span class="sd">    - Pyramid URL paths are URL fragments, like &#39;/thing&#39;, and can contain</span>
 <span class="sd">      placeholders, like &#39;/thing/{bork_id}&#39;, which will result in the</span>
 <span class="sd">      request.matchdict object containing a &#39;bork_id&#39; key. Those can be</span>
 <span class="sd">      further constrained by regular expressions, like &#39;/thing/{bork_id:\d+}&#39;</span>
 <span class="sd">      to restrict to digits.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">route</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                  <span class="n">ignore_in_all_routes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -700,16 +703,24 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    We have to give a Pyramid request a way of making an HTTP session.</span>
 <span class="sd">    We must return a session factory.</span>
+<span class="sd">    </span>
 <span class="sd">    - An example is an instance of SignedCookieSessionFactory().</span>
 <span class="sd">    - A session factory has the signature [1]:</span>
+<span class="sd">    </span>
+<span class="sd">      .. code-block:: none</span>
+<span class="sd">      </span>
 <span class="sd">            sessionfactory(req: CamcopsRequest) -&gt; session_object</span>
+
 <span class="sd">      ... where session &quot;is a namespace&quot; [2]</span>
-<span class="sd">      ... but more concretely implementis the pyramid.interfaces.ISession </span>
-<span class="sd">          interface</span>
-<span class="sd">      [1] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory</span>
-<span class="sd">      [2] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session</span>
+<span class="sd">      ... but more concretely, &quot;implements the pyramid.interfaces.ISession </span>
+<span class="sd">      interface&quot;</span>
+
 <span class="sd">    - We want to be able to make the session by reading the CamcopsConfig from</span>
 <span class="sd">      the request.</span>
+
+<span class="sd">    [1] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory</span>
+<span class="sd">    </span>
+<span class="sd">    [2] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session</span>
 <span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
     <span class="k">def</span> <span class="nf">factory</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="s2">&quot;CamcopsRequest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ISession</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -966,8 +977,10 @@
                  <span class="n">link_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">curpage_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">dotdot_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="c1"># Fixes bugs (e.g. mutable default arguments) and nasties (e.g.</span>
-        <span class="c1"># enforcing &quot;..&quot; for the ellipsis) in the original.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fixes bugs (e.g. mutable default arguments) and nasties (e.g.</span>
+<span class="sd">        enforcing &quot;..&quot; for the ellipsis) in the original.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">curpage_attr</span> <span class="o">=</span> <span class="n">curpage_attr</span> <span class="ow">or</span> <span class="p">{}</span>  <span class="c1"># type: Dict[str, str]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">separator</span> <span class="o">=</span> <span class="n">separator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">link_attr</span> <span class="o">=</span> <span class="n">link_attr</span> <span class="ow">or</span> <span class="p">{}</span>  <span class="c1"># type: Dict[str, str]</span>
@@ -1121,7 +1134,8 @@
 
 <div class="viewcode-block" id="make_page_url"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_pyramid.html#camcops_server.cc_modules.cc_pyramid.make_page_url">[docs]</a><span class="k">def</span> <span class="nf">make_page_url</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">page</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                   <span class="n">partial</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;A helper function for URL generators.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A helper function for URL generators.</span>
 
 <span class="sd">    I assemble a URL from its parts. I assume that a link to a certain page is</span>
 <span class="sd">    done by overriding the &#39;page&#39; query parameter.</span>
@@ -1149,7 +1163,8 @@
 
 
 <div class="viewcode-block" id="PageUrl"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_pyramid.html#camcops_server.cc_modules.cc_pyramid.PageUrl">[docs]</a><span class="k">class</span> <span class="nc">PageUrl</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A page URL generator for WebOb-compatible Request objects.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A page URL generator for WebOb-compatible Request objects.</span>
 
 <span class="sd">    I derive new URLs based on the current URL but overriding the &#39;page&#39;</span>
 <span class="sd">    query parameter.</span>
@@ -1225,18 +1240,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../licences/licences.html">15. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../client/creating_tasks.html">16. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/development_command_line.html">17. Development command-line tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">19. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/design_notes.html">20. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">21. Automatic documentation of core server source code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">22. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">23. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">24. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">25. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">26. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">27. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">16. Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">25. Local configuration information</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

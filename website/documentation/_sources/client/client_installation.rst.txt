@@ -23,33 +23,8 @@ Installing and configuring the client
 Hardware and operating system requirements
 ------------------------------------------
 
-Desktop
-~~~~~~~
+See :ref:`hardware_requirements_client`.
 
-There are no specific hardware requirements. The CamCOPS client runs on the
-following desktop operating systems: Linux, Windows, and Mac OS/X.
-
-Android
-~~~~~~~
-
-The minimum Android SDK version is 16, meaning Android 4.1 (‘Jelly Bean’,
-released in 2012). For development, we have used:
-
-- Asus Transformer Prime TF201 (2011, running Android 4.1.1) — nice keyboard
-  with an extra battery in it, though WiFi only with no 3G connection.
-
-- Sony Xperia Z2 tablet (2014; available in WiFi and 3G versions), with
-  Bluetooth keyboard.
-
-iOS
-~~~
-
-For iOS, we suggest an iPad or iPad mini; iPhones are probably just too small.
-CamCOPS has been tested on hardware as slow as an iPad 2 (2011) and works fine.
-A physical (e.g. Bluetooth) keyboard is useful if you plan on using the
-clinical clerking aspects or other tasks requiring significant typing. Not much
-information is stored on the tablet (it’s shipped periodically to the server)
-so we think any model of iPad will do.
 
 .. _client_installation:
 
@@ -59,7 +34,16 @@ CamCOPS client installation
 Android
 ~~~~~~~
 
-At present, you should use the following method:
+Install the Android app directly from the Google Play Store:
+
+- https://play.google.com/store/apps/details?id=org.camcops.camcops
+
+Android: manual installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**This method is now deprecated. Use the Google Play Store method instead.**
+
+Manual installation of an Android package is possible like this:
 
 #. Ensure your Android device permits the installation of third-party apps:
    e.g. :menuselection:`Settings --> Security --> Unknown sources (Allow
@@ -67,8 +51,6 @@ At present, you should use the following method:
 
 #. Download and install the CamCOPS client (see :ref:`download <download>`) as
    an .APK (Android Package Kit) file.
-
-.. todo:: Submit CamCOPS to Google Play Store.
 
 iOS
 ~~~

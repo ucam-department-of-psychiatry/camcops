@@ -1,4 +1,4 @@
-..  documentation/source/server/server_command_line.rst
+..  documentation/source/developer/development_command_line.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -31,6 +31,8 @@ Development command-line tools
 
 If you are developing tasks for CamCOPS, be aware of these additional
 development tools.
+
+.. _build_qt:
 
 build_qt.py
 -----------

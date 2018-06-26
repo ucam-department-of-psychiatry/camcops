@@ -111,10 +111,11 @@ def tr(*args, tr_class: str = "", literal: bool = False) -> str:
     """
     Make simple HTML table data row.
 
-    *args: Set of columns data.
-    literal: Treat elements as literals with their own <td> ... </td>,
-        rather than things to be encapsulted.
-    tr_class: table row class
+    Args:
+        *args: Set of columns data.
+        literal: Treat elements as literals with their own <td> ... </td>,
+            rather than things to be encapsulted.
+        tr_class: table row class
     """
     if literal:
         elements = args

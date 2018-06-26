@@ -27,31 +27,30 @@
 
 2. FIX FOR DOGPILE.CACHE FOR DECORATED FUNCTIONS, 2017-07-28 (PLUS SOME OTHER
    IMPROVEMENTS). SEE 
-   
    https://bitbucket.org/zzzeek/dogpile.cache/issues/96/error-in-python-35-with-use-of-deprecated
 
 Crash using type-hinted functions under Python 3.5 with dogpile.cache==0.6.4:
 
-Traceback (most recent call last):
-  File "/usr/lib/python3.5/runpy.py", line 184, in _run_module_as_main
-    "__main__", mod_spec)
-  File "/usr/lib/python3.5/runpy.py", line 85, in _run_code
-    exec(code, run_globals)
-  File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_cache.py", line 64, in <module>
-    unit_test_cache()
-  File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_cache.py", line 50, in unit_test_cache
-    def testfunc() -> str:
-  File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/dogpile/cache/region.py", line 1215, in decorator
-    key_generator = function_key_generator(namespace, fn)
-  File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/dogpile/cache/util.py", line 31, in function_key_generator
-    args = inspect.getargspec(fn)
-  File "/usr/lib/python3.5/inspect.py", line 1045, in getargspec
-    raise ValueError("Function has keyword-only arguments or annotations"
-ValueError: Function has keyword-only arguments or annotations, use getfullargspec() API which can support them
+.. code-block:: none
 
--------------------------------------------------------------------------------
+    Traceback (most recent call last):
+      File "/usr/lib/python3.5/runpy.py", line 184, in _run_module_as_main
+        "__main__", mod_spec)
+      File "/usr/lib/python3.5/runpy.py", line 85, in _run_code
+        exec(code, run_globals)
+      File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_cache.py", line 64, in <module>
+        unit_test_cache()
+      File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_cache.py", line 50, in unit_test_cache
+        def testfunc() -> str:
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/dogpile/cache/region.py", line 1215, in decorator
+        key_generator = function_key_generator(namespace, fn)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/dogpile/cache/util.py", line 31, in function_key_generator
+        args = inspect.getargspec(fn)
+      File "/usr/lib/python3.5/inspect.py", line 1045, in getargspec
+        raise ValueError("Function has keyword-only arguments or annotations"
+    ValueError: Function has keyword-only arguments or annotations, use getfullargspec() API which can support them
+
 3. CACHING NOTES
--------------------------------------------------------------------------------
 
 - We currently use 'dogpile.cache.memory' as the backend.
   This means that for single-process (single-thread or multithreaded) servers,
@@ -102,7 +101,8 @@ ValueError: Function has keyword-only arguments or annotations, use getfullargsp
   - if it becomes a problem later, move to Redis
 
 - Therefore:
-    - there should be no calls to cache_region_static.delete
+
+  - there should be no calls to cache_region_static.delete
 
 """  # noqa
 
@@ -127,4 +127,5 @@ cache_region_static.configure(
 # Can now use:
 # @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 
-__all__ = [cache_region_static, fkg]  # prevents "Unused import statement"
+# https://stackoverflow.com/questions/44834/can-someone-explain-all-in-python
+__all__ = ['cache_region_static', 'fkg']  # prevents "Unused import statement"
