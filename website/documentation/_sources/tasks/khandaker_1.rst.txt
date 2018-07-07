@@ -22,12 +22,17 @@
 Khandaker G — 1 — Insight
 -------------------------
 
-Health review form, plus other tasks indexed elsewhere.
+Medical history form, plus other tasks indexed elsewhere.
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Copyright © 2018 G Khandaker, University of Cambridge
+- Copyright © 2018 GM Khandaker, University of Cambridge.
 
 - License: Creative Commons Attribution 3.0 Unported (CC BY 3.0);
   http://creativecommons.org/licenses/by/3.0/
+
+Source
+~~~~~~
+
+- Golam Khandaker, personal communication to Rudolf Cardinal (e.g. 2018-06-27).

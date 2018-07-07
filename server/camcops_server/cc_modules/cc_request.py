@@ -46,7 +46,7 @@ from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
-from pendulum import Date, Pendulum
+from pendulum import Date, DateTime as Pendulum
 from pendulum.parsing.exceptions import ParserError
 from pyramid.config import Configurator
 from pyramid.decorator import reify

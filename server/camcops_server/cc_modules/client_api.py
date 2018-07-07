@@ -54,7 +54,7 @@ from cardinal_pythonlib.sqlalchemy.core_query import (
     fetch_all_first_values,
 )
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
-from pendulum import Pendulum
+from pendulum import DateTime as Pendulum
 from pyramid.view import view_config
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED

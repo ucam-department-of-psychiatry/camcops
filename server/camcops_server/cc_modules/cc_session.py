@@ -31,7 +31,7 @@ from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
-from pendulum import Pendulum
+from pendulum import DateTime as Pendulum
 from pyramid.interfaces import ISession
 from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey

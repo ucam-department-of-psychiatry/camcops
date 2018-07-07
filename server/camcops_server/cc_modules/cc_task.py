@@ -57,7 +57,7 @@ from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.sqlalchemy.sqlfunc import extract_month, extract_year
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 import hl7
-from pendulum import Date, Pendulum
+from pendulum import Date, DateTime as Pendulum
 from pyramid.renderers import render
 from semantic_version import Version
 from sqlalchemy.ext.declarative import declared_attr
@@ -984,6 +984,9 @@ class Task(GenericTabletRecordMixin, Base):
 
     @classmethod
     def get_cris_dd_rows(cls, req: CamcopsRequest) -> List[Dict]:
+        """
+        .. todo:: fix get_cris_dd_rows
+        """
         if cls.is_anonymous:
             return []
         taskname = cls.shortname
@@ -1008,6 +1011,9 @@ class Task(GenericTabletRecordMixin, Base):
     @classmethod
     def make_cris_tables(cls, req: CamcopsRequest,
                          db: "DatabaseSupporter") -> None:
+        """
+        .. todo:: fix make_cris_tables
+        """
         # DO NOT CONFUSE pls.db and db. HERE WE ONLY USE db.
         log.info("Generating CRIS staging tables for: {}", cls.shortname)
         cc_db.set_db_to_utf8(db)

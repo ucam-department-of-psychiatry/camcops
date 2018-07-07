@@ -35,7 +35,7 @@ from cardinal_pythonlib.configfiles import (
 from cardinal_pythonlib.datetimefunc import coerce_to_pendulum_date
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
-from pendulum import Pendulum
+from pendulum import DateTime as Pendulum
 
 from .cc_filename import (
     filename_spec_is_valid,

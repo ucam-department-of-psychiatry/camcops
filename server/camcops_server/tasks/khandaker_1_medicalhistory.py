@@ -101,7 +101,7 @@ class Khandaker1MedicalHistory(TaskHasPatientMixin, Task,
                                metaclass=Khandaker1MedicalHistoryMetaclass):
     __tablename__ = "khandaker_1_medicalhistory"
     shortname = "Khandaker_1_MedicalHistory"
-    longname = "Khandaker G — 1 — Insight — Medical history"
+    longname = "Khandaker GM — 1 — Insight — Medical history"
 
     def is_complete(self) -> bool:
         for qinfo in QUESTIONS:

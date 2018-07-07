@@ -71,7 +71,7 @@ All tasks
     ifs.rst
     khandaker_1.rst
     mast.rst
-    mds.rst
+    mds_updrs.rst
     moca.rst
     nart.rst
     npiq.rst

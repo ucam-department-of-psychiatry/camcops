@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>19.45. camcops_server.cc_modules.cc_task &#8212; CamCOPS 2.2.3 documentation</title>
+    <title>19.45. camcops_server.cc_modules.cc_task &#8212; CamCOPS 2.2.4 documentation</title>
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/camcops_docs.css" type="text/css" />
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="cc_tabletsession.html" title="19.44. camcops_server.cc_modules.cc_tabletsession"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../_index.html" >19. Automatic documentation of core server source code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="_index.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
       </ul>
@@ -201,14 +201,23 @@ May be overridden by TaskHasClinicianMixin.</p>
 
 <dl class="method">
 <dt id="camcops_server.cc_modules.cc_task.Task.get_creation_datetime">
-<code class="descname">get_creation_datetime</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[pendulum.pendulum.Pendulum, NoneType]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_task.html#Task.get_creation_datetime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_task.Task.get_creation_datetime" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_creation_datetime</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[pendulum.datetime.DateTime, NoneType]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_task.html#Task.get_creation_datetime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_task.Task.get_creation_datetime" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creation datetime, or None.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="camcops_server.cc_modules.cc_task.Task.get_creation_datetime_utc">
-<code class="descname">get_creation_datetime_utc</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[pendulum.pendulum.Pendulum, NoneType]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_task.html#Task.get_creation_datetime_utc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_task.Task.get_creation_datetime_utc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_creation_datetime_utc</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[pendulum.datetime.DateTime, NoneType]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_task.html#Task.get_creation_datetime_utc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_task.Task.get_creation_datetime_utc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creation datetime in UTC, or None.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="camcops_server.cc_modules.cc_task.Task.get_cris_dd_rows">
+<em class="property">classmethod </em><code class="descname">get_cris_dd_rows</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; List[Dict]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_task.html#Task.get_cris_dd_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_task.Task.get_cris_dd_rows" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">fix get_cris_dd_rows</p>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -565,6 +574,15 @@ Must be overridden.</p>
 <dd><p>May be overridden by TaskHasRespondentMixin.</p>
 </dd></dl>
 
+<dl class="classmethod">
+<dt id="camcops_server.cc_modules.cc_task.Task.make_cris_tables">
+<em class="property">classmethod </em><code class="descname">make_cris_tables</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>db: DatabaseSupporter</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_task.html#Task.make_cris_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_task.Task.make_cris_tables" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">fix make_cris_tables</p>
+</div>
+</dd></dl>
+
 <dl class="method">
 <dt id="camcops_server.cc_modules.cc_task.Task.manually_erase">
 <code class="descname">manually_erase</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/camcops_server/cc_modules/cc_task.html#Task.manually_erase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.cc_task.Task.manually_erase" title="Permalink to this definition">¶</a></dt>
@@ -877,7 +895,7 @@ Must be to the LEFT of Task in the class’s base class list.</p>
         <li class="right" >
           <a href="cc_tabletsession.html" title="19.44. camcops_server.cc_modules.cc_tabletsession"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../_index.html" >19. Automatic documentation of core server source code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="_index.html" >&lt;no title&gt;</a> &#187;</li> 
       </ul>

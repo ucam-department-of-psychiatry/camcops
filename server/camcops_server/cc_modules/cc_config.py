@@ -58,8 +58,9 @@ from cardinal_pythonlib.sqlalchemy.session import (
     get_safe_url_from_engine,
     make_mysql_url,
 )
-from pendulum import Pendulum
-from sqlalchemy.engine import create_engine, Engine
+from pendulum import DateTime as Pendulum
+from sqlalchemy.engine import create_engine
+from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session as SqlASession
 

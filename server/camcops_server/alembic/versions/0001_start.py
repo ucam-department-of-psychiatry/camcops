@@ -66,8 +66,9 @@ def upgrade():
     sa.Column('hl7_id_type', sa.String(length=5), nullable=True),
     sa.Column('hl7_assigning_authority', sa.String(length=20), nullable=True),
     sa.PrimaryKeyConstraint('which_idnum', name=op.f('pk__idnum_definitions')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -79,8 +80,9 @@ def upgrade():
     sa.Column('username', sa.String(length=255), nullable=False),
     sa.Column('locked_until', sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__security_account_lockouts')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -95,8 +97,9 @@ def upgrade():
     sa.Column('upload_policy', sa.String(length=255), nullable=True),
     sa.Column('finalize_policy', sa.String(length=255), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__security_groups')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -109,8 +112,9 @@ def upgrade():
     sa.Column('username', sa.String(length=255), nullable=False),
     sa.Column('login_failure_at', sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__security_login_failures')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -123,8 +127,9 @@ def upgrade():
     sa.Column('database_title', sa.Unicode(length=255), nullable=True),
     sa.Column('last_dummy_login_failure_clearance_at_utc', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__server_settings')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -149,8 +154,9 @@ def upgrade():
     sa.Column('text_contents', cardinal_pythonlib.sqlalchemy.list_types.StringListType(), nullable=True),
     sa.Column('complete_only', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__task_filters')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -187,8 +193,9 @@ def upgrade():
     sa.Column('script_stderr', sa.UnicodeText(), nullable=True),
     sa.ForeignKeyConstraint(['group_id'], ['_security_groups.id'], name=op.f('fk__hl7_run_log_group_id')),
     sa.PrimaryKeyConstraint('run_id', name=op.f('pk__hl7_run_log')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -218,8 +225,9 @@ def upgrade():
     sa.Column('upload_group_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['upload_group_id'], ['_security_groups.id'], name=op.f('fk__security_users_upload_group_id')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__security_users')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -244,8 +252,9 @@ def upgrade():
     sa.Column('cancelled_at_utc', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['run_id'], ['_hl7_run_log.run_id'], name=op.f('fk__hl7_message_log_run_id')),
     sa.PrimaryKeyConstraint('msg_id', name=op.f('pk__hl7_message_log')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -267,8 +276,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['registered_by_user_id'], ['_security_users.id'], name=op.f('fk__security_devices_registered_by_user_id')),
     sa.ForeignKeyConstraint(['uploading_user_id'], ['_security_users.id'], name=op.f('fk__security_devices_uploading_user_id')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__security_devices')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -290,8 +300,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['group_id'], ['_security_groups.id'], name=op.f('fk__security_user_group_group_id')),
     sa.ForeignKeyConstraint(['user_id'], ['_security_users.id'], name=op.f('fk__security_user_group_user_id')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__security_user_group')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -306,8 +317,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['task_filter_id'], ['_task_filters.id'], name=op.f('fk__security_webviewer_sessions_task_filter_id')),
     sa.ForeignKeyConstraint(['user_id'], ['_security_users.id'], name=op.f('fk__security_webviewer_sessions_user_id'), ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__security_webviewer_sessions')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -325,8 +337,9 @@ def upgrade():
     sa.Column('note', sa.UnicodeText(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['_security_users.id'], name=op.f('fk__special_notes_user_id')),
     sa.PrimaryKeyConstraint('note_id', name=op.f('pk__special_notes')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -342,8 +355,9 @@ def upgrade():
     sa.Column('tablename', sa.String(length=128), nullable=True),
     sa.ForeignKeyConstraint(['device_id'], ['_security_devices.id'], name=op.f('fk__dirty_tables_device_id')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__dirty_tables')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -361,8 +375,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['device_id'], ['_security_devices.id'], name=op.f('fk__security_audit_device_id')),
     sa.ForeignKeyConstraint(['user_id'], ['_security_users.id'], name=op.f('fk__security_audit_user_id')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__security_audit')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -528,8 +543,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_ace3__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_ace3__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_ace3')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -599,8 +615,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_aims__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_aims__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_aims')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -662,8 +679,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_audit__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_audit__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_audit')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -718,8 +736,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_audit_c__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_audit_c__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_audit_c')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -793,8 +812,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_badls__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_badls__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_badls')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -868,8 +888,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_bdi__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_bdi__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_bdi')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -922,8 +943,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_blobs__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_blobs__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_blobs')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -976,8 +998,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_bmi__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_bmi__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_bmi')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -1055,8 +1078,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_bprs__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_bprs__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_bprs')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -1138,8 +1162,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_bprse__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_bprse__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_bprse')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -1195,8 +1220,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cage__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cage__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cage')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -1332,8 +1358,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cape42__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cape42__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cape42')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -1513,8 +1540,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_caps__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_caps__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_caps')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -1586,8 +1614,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cardinal_expdet__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cardinal_expdet__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cardinal_expdet')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -1640,8 +1669,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cardinal_expdet_trialgroupspec__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cardinal_expdet_trialgroupspec__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cardinal_expdet_trialgroupspec')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -1713,8 +1743,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cardinal_expdet_trials__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cardinal_expdet_trials__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cardinal_expdet_trials')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -1784,8 +1815,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cardinal_expdetthreshold__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cardinal_expdetthreshold__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cardinal_expdetthreshold')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -1845,8 +1877,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cardinal_expdetthreshold_trials__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cardinal_expdetthreshold_trials__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cardinal_expdetthreshold_trials')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -1991,8 +2024,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cbir__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cbir__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cbir')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -2271,8 +2305,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cecaq3__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cecaq3__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cecaq3'))],
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -2335,8 +2370,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cgi__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cgi__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cgi')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -2395,8 +2431,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cgi_i__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cgi_i__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cgi_i')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -2464,8 +2501,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cgisch__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cgisch__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cgisch')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -2538,8 +2576,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_ciwa__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_ciwa__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_ciwa')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -2604,8 +2643,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_contactlog__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_contactlog__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_contactlog')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -2689,8 +2729,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cope_brief__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cope_brief__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cope_brief')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -2818,8 +2859,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cpft_lps_discharge__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cpft_lps_discharge__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cpft_lps_discharge')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -2900,8 +2942,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cpft_lps_referral__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cpft_lps_referral__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cpft_lps_referral')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -2961,8 +3004,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_cpft_lps_resetresponseclock__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_cpft_lps_resetresponseclock__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_cpft_lps_resetresponseclock')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3062,8 +3106,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_dad__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_dad__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_dad')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3143,8 +3188,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_dast__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_dast__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_dast')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3295,8 +3341,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_deakin_1_healthreview__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_deakin_1_healthreview__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_deakin_1_healthreview')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3419,8 +3466,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_demoquestionnaire__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_demoquestionnaire__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_demoquestionnaire')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3506,8 +3554,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_demqol__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_demqol__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_demqol')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3599,8 +3648,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_demqolproxy__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_demqolproxy__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_demqolproxy')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3659,8 +3709,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_diagnosis_icd10__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_diagnosis_icd10__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_diagnosis_icd10')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3711,8 +3762,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_diagnosis_icd10_item__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_diagnosis_icd10_item__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_diagnosis_icd10_item')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3770,8 +3822,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_diagnosis_icd9cm__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_diagnosis_icd9cm__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_diagnosis_icd9cm')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3822,8 +3875,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_diagnosis_icd9cm_item__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_diagnosis_icd9cm_item__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_diagnosis_icd9cm_item')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3912,8 +3966,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_distressthermometer__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_distressthermometer__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_distressthermometer')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -3969,8 +4024,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_fast__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_fast__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_fast')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4024,8 +4080,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_fft__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_fft__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_fft')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4116,8 +4173,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_frs__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_frs__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_frs')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4176,8 +4234,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_gad7__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_gad7__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_gad7')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4236,8 +4295,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_gaf__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_gaf__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_gaf')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4304,8 +4364,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_gds15__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_gds15__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_gds15')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4383,8 +4444,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_gmcpq__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_gmcpq__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_gmcpq')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4449,8 +4511,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_hads__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_hads__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_hads')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4518,8 +4581,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_hads_respondent__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_hads_respondent__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_hads_respondent')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4591,8 +4655,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_hama__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_hama__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_hama')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4674,8 +4739,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_hamd__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_hamd__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_hamd')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4740,8 +4806,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_hamd7__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_hamd7__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_hamd7')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4814,8 +4881,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_honos__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_honos__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_honos')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4888,8 +4956,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_honos65__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_honos65__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_honos65')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -4963,8 +5032,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_honosca__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_honosca__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_honosca')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5049,8 +5119,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_icd10depressive__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_icd10depressive__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_icd10depressive')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5131,8 +5202,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_icd10manic__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_icd10manic__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_icd10manic')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5194,8 +5266,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_icd10mixed__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_icd10mixed__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_icd10mixed')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5285,8 +5358,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_icd10schizophrenia__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_icd10schizophrenia__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_icd10schizophrenia')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5356,8 +5430,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_icd10schizotypal__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_icd10schizotypal__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_icd10schizotypal')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5494,8 +5569,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_icd10specpd__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_icd10specpd__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_icd10specpd')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5564,8 +5640,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_ided3d__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_ided3d__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_ided3d')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5629,8 +5706,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_ided3d_stages__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_ided3d_stages__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_ided3d_stages')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5692,8 +5770,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_ided3d_trials__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_ided3d_trials__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_ided3d_trials')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5767,8 +5846,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_iesr__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_iesr__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_iesr')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5852,8 +5932,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_ifs__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_ifs__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_ifs')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5907,8 +5988,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_irac__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_irac__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_irac')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -5984,8 +6066,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_mast__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_mast__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_mast')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6117,8 +6200,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_mds_updrs__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_mds_updrs__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_mds_updrs')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6229,8 +6313,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_moca__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_moca__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_moca')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6338,8 +6423,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_nart__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_nart__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_nart')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6429,8 +6515,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_npiq__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_npiq__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_npiq')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6518,8 +6605,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_panss__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_panss__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_panss')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6572,8 +6660,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_patient__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_patient__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_patient')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6625,8 +6714,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_patient_idnum__removing_user_id')),
     sa.ForeignKeyConstraint(['which_idnum'], ['_idnum_definitions.which_idnum'], name=op.f('fk_patient_idnum_which_idnum')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_patient_idnum')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6693,8 +6783,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_pclc__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_pclc__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_pclc')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6763,8 +6854,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_pclm__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_pclm__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_pclm')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6835,8 +6927,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_pcls__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_pcls__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_pcls')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6895,8 +6988,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_pdss__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_pdss__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_pdss')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -6957,8 +7051,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_photo__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_photo__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_photo')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7017,8 +7112,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_photosequence__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_photosequence__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_photosequence')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7069,8 +7165,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_photosequence_photos__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_photosequence_photos__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_photosequence_photos')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7136,8 +7233,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_phq15__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_phq15__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_phq15')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7199,8 +7297,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_phq9__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_phq9__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_phq9')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7260,8 +7359,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_progressnote__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_progressnote__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_progressnote')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7329,8 +7429,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_pswq__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_pswq__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_pswq')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7430,8 +7531,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_psychiatricclerking__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_psychiatricclerking__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_psychiatricclerking')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7487,8 +7589,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_pt_satis__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_pt_satis__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_pt_satis')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7542,8 +7645,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_qolbasic__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_qolbasic__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_qolbasic')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7609,8 +7713,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_qolsg__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_qolsg__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_qolsg')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7698,8 +7803,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_rand36__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_rand36__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_rand36')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7754,8 +7860,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_ref_satis_gen__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_ref_satis_gen__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_ref_satis_gen')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7810,8 +7917,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_ref_satis_spec__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_ref_satis_spec__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_ref_satis_spec')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7895,8 +8003,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_slums__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_slums__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_slums')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -7961,8 +8070,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_smast__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_smast__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_smast')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -8021,8 +8131,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_swemwbs__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_swemwbs__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_swemwbs')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -8088,8 +8199,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_wemwbs__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_wemwbs__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_wemwbs')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -8147,8 +8259,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_wsas__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_wsas__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_wsas')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -8236,8 +8349,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_ybocs__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_ybocs__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_ybocs')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -8537,8 +8651,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_ybocssc__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_ybocssc__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_ybocssc'))],
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
@@ -8604,8 +8719,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_zbi12__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_zbi12__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_zbi12')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )

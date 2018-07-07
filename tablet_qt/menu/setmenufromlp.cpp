@@ -45,23 +45,24 @@ SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
                  "Psychiatry (FROM-LP)";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
+
         MenuItem(tr("GENERIC SCALES")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
         // CORE-10 -- copyright conditions prohibit
+        MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Irac::IRAC_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, app),
 
         MenuItem(tr("DISEASE-SPECIFIC SCALES")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(AuditC::AUDITC_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, app),
         // EPDS -- Royal College not currently permitting use
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(AuditC::AUDITC_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
         // *** EQ-5D-5L, if permitted?
     };
 }

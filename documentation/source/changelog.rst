@@ -22,8 +22,22 @@ Change log/history
 
 *Both client and server changes are described here.*
 
+Quick links:
+
+- :ref:`2013 <changelog_2013>`
+- :ref:`2014 <changelog_2014>`
+- :ref:`2015 <changelog_2015>`
+- :ref:`2016 <changelog_2016>`
+- :ref:`2017 <changelog_2017>`
+- :ref:`2018 <changelog_2018>`
+
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
 ----------------------------------------------------------------------------------------
+
+.. _changelog_2013:
+
+2013
+~~~~
 
 **Server v1.0, 2013-08-14**
 
@@ -75,6 +89,11 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   e.g. "#!/usr/bin/python2.7":
   http://lintian.debian.org/tags/python-script-but-no-python-dep.html
 - Clinical text view.
+
+.. _changelog_2014:
+
+2014
+~~~~
 
 **Client v1.03, 2014-01-10**
 
@@ -499,6 +518,11 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   ... upgraded to 3.5.0.RC (install SDK + change tiapp.xml)
   ... fixed. So a Titanium bug.
 
+.. _changelog_2015:
+
+2015
+~~~~
+
 **Server v1.22, 2015-01-07**
 
 - Improved audit search.
@@ -687,6 +711,11 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - boldPrompt option to QuestionTypedVariables
 - editing_time_s field as standard on all tasks
 
+.. _changelog_2016:
+
+2016
+~~~~
+
 **Server v1.40, 2016-01-28**
 
 - From May 2015 to 28 Jan 2016.
@@ -870,9 +899,13 @@ Indirectly:
 
 Human-readable details are shown in this file.
 
+.. _changelog_2017:
 
 Current C++/SQLite client, Python/SQLAlchemy server
 ---------------------------------------------------
+
+2017
+~~~~
 
 **Client v2.0.0 beta**
 
@@ -923,6 +956,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix: WSAS “is complete?” flag failed to recognize the “retired or work
   irrelevant for other reasons” flag.
+
+.. _changelog_2018:
+
+2018
+~~~~
 
 **Client v2.2.0 beta, 2018-01-04 to 2018-02-03**
 
@@ -1027,8 +1065,37 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix: `android:allowBackup="false"` added back to AndroidManifest.xml
 
-**Client v2.2.3, 2018-06-23**
+**Client v2.2.3, server v2.2.3, 2018-06-23**
 
 - :ref:`Khandaker/Insight medical history <khandaker_1>` task.
 
-- Requires server v2.2.3.
+- Client requires server v2.2.3.
+
+**Server v2.2.4, 2018-06-29, IN PROGRESS**
+
+- Update to libraries:
+
+  - alembic from 0.9.6 to 0.9.9
+  - cardinal_pythonlib from 1.0.16 to 1.0.18
+  - colorlog from 3.1.0 to 3.1.4
+  - CherryPy from 11.0.0 to 16.0.2
+  - deform from 2.0.4 to 2.0.5
+  - distro from 1.0.4 to 1.3.0
+  - dogpile.cache from 0.6.4 to 0.6.6
+  - gunicorn from 19.7.1 to 19.8.1
+  - matplotlib from 2.1.0 to 2.2.0
+  - mysqlclient from 1.3.12 to 1.3.13
+  - numpy from 1.13.3 to 1.14.5
+  - pendulum from 1.3.0 to 2.0.2
+  - pyramid from 1.9.1 to 1.9.2
+  - pyramid_debugtoolbar from 4.3 to 4.4
+  - python-dateutil from 2.6.1 to 2.7.3
+  - pytz from 2017.2 to 2018.5
+  - scipy from 1.0.0rc1 to 1.1.0
+  - sqlalchemy from 1.2.0b2 to 1.2.8
+  - typing from 3.6.2 to 3.6.4
+
+- Bugfix to SQLAlchemy/Alembic handling, such that tables are always created
+  with ``CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci`` rather than the erroneous
+  ``COLLATE utf8mb4_unicode_ci CHARSET utf8mb4``. See :ref:`MySQL: Illegal mix
+  of collations <mysql_illegal_mix_of_collations>`.

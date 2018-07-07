@@ -34,7 +34,7 @@ from cardinal_pythonlib.datetimefunc import (
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
-from pendulum import Date, Pendulum
+from pendulum import Date, DateTime as Pendulum
 
 from .cc_constants import DateFormat
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>14. Troubleshooting server problems &#8212; CamCOPS 2.2.3 documentation</title>
+    <title>14. Troubleshooting server problems &#8212; CamCOPS 2.2.4 documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="server_command_line.html" title="13. CamCOPS command-line tools"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -305,6 +305,17 @@ execute the following command to generate all the necessary SQL:</p>
 </pre></div>
 </div>
 <p>Then a quick bit of copying/pasting and you should be there.</p>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">2018-07-02: this happened again on the CPFT machine. Most tables had a
+collation of <code class="docutils literal notranslate"><span class="pre">utf8mb4_general_ci</span></code> except a new one
+(<code class="docutils literal notranslate"><span class="pre">khandaker_1_medicalhistory</span></code>). There is no reference to
+<code class="docutils literal notranslate"><span class="pre">utf8mb4_general_ci</span></code> in the code except here in the help. The DDL report
+looks right. Is there still a residual problem? Are upgrades messing with
+the collations somehow? As of 2018-07-02 (CamCOPS server version 2.2.3),
+all tables set back to <code class="docutils literal notranslate"><span class="pre">CHARACTER</span> <span class="pre">SET</span> <span class="pre">utf8mb4</span> <span class="pre">COLLATE</span>
+<span class="pre">utf8mb4_unicode_ci</span></code>; let’s see what happens.</p>
+</div>
 </div>
 </div>
 <div class="section" id="web-browser-reports-devtools-failed-to-parse-sourcemap">
@@ -504,7 +515,7 @@ instead, which is also faster.</p>
         <li class="right" >
           <a href="server_command_line.html" title="13. CamCOPS command-line tools"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

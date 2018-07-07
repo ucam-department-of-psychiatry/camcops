@@ -125,7 +125,7 @@ QString Khandaker1MedicalHistory::shortname() const
 
 QString Khandaker1MedicalHistory::longname() const
 {
-    return "Khandaker G — 1 — Insight — Medical history";
+    return "Khandaker GM — 1 — Insight — Medical history";
 }
 
 

@@ -37,7 +37,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
     CountStarSpecializedQuery,
     exists_orm,
 )
-from pendulum import Pendulum
+from pendulum import DateTime as Pendulum
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql.functions import func
@@ -151,6 +151,7 @@ class SecurityAccountLockout(Base):
         dbsession = req.dbsession
         now = req.now_utc
         lock_until = now + datetime.timedelta(minutes=lockout_minutes)
+        # noinspection PyArgumentList
         lock = cls(username=username, lock_until=lock_until)
         dbsession.add(lock)
         audit(req, "Account {} locked out for {} minutes".format(
@@ -190,6 +191,7 @@ class SecurityLoginFailure(Base):
         """Record that a user has failed to log in."""
         dbsession = req.dbsession
         now = req.now_utc
+        # noinspection PyArgumentList
         failure = cls(username=username, login_failure_at=now)
         dbsession.add(failure)
 
@@ -388,6 +390,7 @@ class User(Base):
         if user:
             # already exists!
             return False
+        # noinspection PyArgumentList
         user = cls(username=username)  # does work!
         user.superuser = True
         audit(req, "SUPERUSER CREATED: " + user.username, from_console=True)

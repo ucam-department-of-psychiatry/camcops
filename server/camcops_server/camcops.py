@@ -935,6 +935,12 @@ Use 'camcops <COMMAND> --help' for more detail on each command.""".format(
     upgradedb_parser.set_defaults(
         func=lambda args: upgrade_database_to_head())
 
+    show_upgrade_sql_parser = add_sub(
+        subparsers, "show_upgrade_sql", config_mandatory=True,
+        help="Show SQL for upgrading database (to stdout)")
+    show_upgrade_sql_parser.set_defaults(
+        func=lambda args: upgrade_database_to_head(as_sql=True))
+
     showdbtitle_parser = add_sub(
         subparsers, "show_db_title",
         help="Show database title")

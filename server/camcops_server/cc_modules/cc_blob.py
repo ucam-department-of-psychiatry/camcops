@@ -29,7 +29,7 @@ from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from pendulum import Pendulum
+from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty

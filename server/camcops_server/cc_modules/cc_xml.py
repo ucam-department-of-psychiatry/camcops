@@ -34,7 +34,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 import pendulum  # avoid name confusion with Date
-from pendulum import Pendulum
+from pendulum import DateTime as Pendulum
 from semantic_version.base import Version
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine

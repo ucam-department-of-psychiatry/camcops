@@ -27,7 +27,7 @@
 from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
-from pendulum import Pendulum
+from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Query, relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text

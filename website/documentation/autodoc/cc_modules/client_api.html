@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>19.56. camcops_server.cc_modules.client_api &#8212; CamCOPS 2.2.3 documentation</title>
+    <title>19.56. camcops_server.cc_modules.client_api &#8212; CamCOPS 2.2.4 documentation</title>
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/camcops_docs.css" type="text/css" />
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="cc_xml.html" title="19.55. camcops_server.cc_modules.cc_xml"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../_index.html" >19. Automatic documentation of core server source code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="_index.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
       </ul>
@@ -110,13 +110,13 @@ values for those that do.</p>
 
 <dl class="function">
 <dt id="camcops_server.cc_modules.client_api.commit_all">
-<code class="descclassname">camcops_server.cc_modules.client_api.</code><code class="descname">commit_all</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>batchtime: pendulum.pendulum.Pendulum</em>, <em>preserving: bool</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/camcops_server/cc_modules/client_api.html#commit_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.client_api.commit_all" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">camcops_server.cc_modules.client_api.</code><code class="descname">commit_all</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>batchtime: pendulum.datetime.DateTime</em>, <em>preserving: bool</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/camcops_server/cc_modules/client_api.html#commit_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.client_api.commit_all" title="Permalink to this definition">¶</a></dt>
 <dd><p>Commits additions, removals, and preservations for all tables.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="camcops_server.cc_modules.client_api.commit_table">
-<code class="descclassname">camcops_server.cc_modules.client_api.</code><code class="descname">commit_table</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>batchtime: pendulum.pendulum.Pendulum</em>, <em>preserving: bool</em>, <em>table: sqlalchemy.sql.schema.Table</em>, <em>clear_dirty: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int, int]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/client_api.html#commit_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.client_api.commit_table" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">camcops_server.cc_modules.client_api.</code><code class="descname">commit_table</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>batchtime: pendulum.datetime.DateTime</em>, <em>preserving: bool</em>, <em>table: sqlalchemy.sql.schema.Table</em>, <em>clear_dirty: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int, int]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/client_api.html#commit_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.client_api.commit_table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Commits additions, removals, and preservations for one table.</p>
 </dd></dl>
 
@@ -138,7 +138,7 @@ The new record NEEDS MODIFICATION by update_new_copy_of_record().</p>
 
 <dl class="function">
 <dt id="camcops_server.cc_modules.client_api.end_device_upload_batch">
-<code class="descclassname">camcops_server.cc_modules.client_api.</code><code class="descname">end_device_upload_batch</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>batchtime: pendulum.pendulum.Pendulum</em>, <em>preserving: bool</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/camcops_server/cc_modules/client_api.html#end_device_upload_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.client_api.end_device_upload_batch" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">camcops_server.cc_modules.client_api.</code><code class="descname">end_device_upload_batch</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>batchtime: pendulum.datetime.DateTime</em>, <em>preserving: bool</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/camcops_server/cc_modules/client_api.html#end_device_upload_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.client_api.end_device_upload_batch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ends an upload batch, committing all changes made thus far.</p>
 </dd></dl>
 
@@ -213,7 +213,7 @@ the minimum client (tablet) version that will be accepted for each table.
 
 <dl class="function">
 <dt id="camcops_server.cc_modules.client_api.get_batch_details_start_if_needed">
-<code class="descclassname">camcops_server.cc_modules.client_api.</code><code class="descname">get_batch_details_start_if_needed</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; Tuple[Union[pendulum.pendulum.Pendulum, NoneType], Union[bool, NoneType]]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/client_api.html#get_batch_details_start_if_needed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.client_api.get_batch_details_start_if_needed" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">camcops_server.cc_modules.client_api.</code><code class="descname">get_batch_details_start_if_needed</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em><span class="sig-paren">)</span> &#x2192; Tuple[Union[pendulum.datetime.DateTime, NoneType], Union[bool, NoneType]]<a class="reference internal" href="../../_modules/camcops_server/cc_modules/client_api.html#get_batch_details_start_if_needed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.client_api.get_batch_details_start_if_needed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets a (upload_batch_utc, currently_preserving) tuple.</p>
 <p>upload_batch_utc: the batchtime; UTC date/time of the current upload batch.
 currently_preserving: Boolean; whether preservation (shifting to an older
@@ -372,7 +372,7 @@ If exists is False, serverpk will be None.</p>
 
 <dl class="function">
 <dt id="camcops_server.cc_modules.client_api.record_identical_by_date">
-<code class="descclassname">camcops_server.cc_modules.client_api.</code><code class="descname">record_identical_by_date</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>table: sqlalchemy.sql.schema.Table</em>, <em>serverpk: int</em>, <em>client_date_value: pendulum.pendulum.Pendulum</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../../_modules/camcops_server/cc_modules/client_api.html#record_identical_by_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.client_api.record_identical_by_date" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">camcops_server.cc_modules.client_api.</code><code class="descname">record_identical_by_date</code><span class="sig-paren">(</span><em>req: camcops_server.cc_modules.cc_request.CamcopsRequest</em>, <em>table: sqlalchemy.sql.schema.Table</em>, <em>serverpk: int</em>, <em>client_date_value: pendulum.datetime.DateTime</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../../_modules/camcops_server/cc_modules/client_api.html#record_identical_by_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camcops_server.cc_modules.client_api.record_identical_by_date" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shortcut to detecting a record being identical. Returns true if the
 record (defined by its table/server PK) has a CLIENT_DATE_FIELD field
 that matches that of the incoming record. As long as the tablet always
@@ -708,7 +708,7 @@ send a lot of BLOBs.</p>
         <li class="right" >
           <a href="cc_xml.html" title="19.55. camcops_server.cc_modules.cc_xml"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CamCOPS 2.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../_index.html" >19. Automatic documentation of core server source code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="_index.html" >&lt;no title&gt;</a> &#187;</li> 
       </ul>

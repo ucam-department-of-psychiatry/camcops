@@ -41,7 +41,7 @@ from alembic.config import Config
 from cardinal_pythonlib.fileops import preserve_cwd
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.alembic_func import (
-    get_current_and_head_revision,
+    # get_current_and_head_revision,
     upgrade_database,
     stamp_allowing_unusual_version_table,
 )
@@ -65,14 +65,15 @@ def import_all_models():
     import camcops_server.cc_modules.cc_all_models  # delayed import  # import side effects (ensure all models registered)  # noqa
 
 
-def upgrade_database_to_head() -> None:
+def upgrade_database_to_head(as_sql: bool = True) -> None:
     """
     The primary upgrade method.
     """
     import_all_models()  # delayed, for command-line interfaces
     upgrade_database(alembic_base_dir=ALEMBIC_BASE_DIR,
                      alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
-                     version_table=ALEMBIC_VERSION_TABLE)
+                     version_table=ALEMBIC_VERSION_TABLE,
+                     as_sql=as_sql)
     # ... will get its config information from the OS environment; see
     # run_alembic() in alembic/env.py
 

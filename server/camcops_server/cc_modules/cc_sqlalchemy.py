@@ -52,7 +52,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.dump import dump_ddl
 from cardinal_pythonlib.sqlalchemy.session import SQLITE_MEMORY_URL
-from pendulum import Pendulum
+from pendulum import DateTime as Pendulum
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
@@ -108,14 +108,18 @@ Base.__table_args__ = {
     # We shouldn't compress everything by default; performance hit.
     'mysql_row_format': 'DYNAMIC',
 
+    # SEE server_troubleshooting.rst FOR BUG DISCUSSION
+
+    'mysql_charset': 'utf8mb4 COLLATE utf8mb4_unicode_ci',
+
     # Character set
-    'mysql_charset': 'utf8mb4',
+    # REPLACED # 'mysql_charset': 'utf8mb4',
     # https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html
 
     # Collation
     # Which collation for MySQL? See
     # - https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci  # noqa
-    'mysql_collate': 'utf8mb4_unicode_ci'
+    # REPLACED # 'mysql_collate': 'utf8mb4_unicode_ci'
     # Note that COLLATION rules are, from least to greatest precedence:
     #       Server collation
     #       Connection-specific collation

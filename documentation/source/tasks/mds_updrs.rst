@@ -1,4 +1,4 @@
-..  documentation/source/tasks/mds.rst
+..  documentation/source/tasks/mds_updrs.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,7 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _mds:
+.. _mdsupdrs:
 
 Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s Disease Rating Scale (MDS-UPDRS)
 --------------------------------------------------------------------------------------------------------

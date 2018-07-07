@@ -24,6 +24,8 @@ Hospital Anxiety and Depression Scale (HADS)
 
 .. include:: include_data_collection_plus_local_upgrade.rst
 
+CamCOPS provides a standard template task and a respondent template task.
+
 History and guide
 ~~~~~~~~~~~~~~~~~
 

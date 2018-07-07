@@ -50,8 +50,6 @@ Clinical notes and logs
 
 - :ref:`Referrer Satisfaction Scale (patient-specific version) <from_lp>`
 
-- :ref:`Referrer Satisfaction Scale (survey version) <from_lp>`
-
 Global function and multiple aspects of psychopathology
 -------------------------------------------------------
 
@@ -108,9 +106,9 @@ Cognitive assessment
 
 - :ref:`Montreal Cognitive Assessment (MoCA) <moca>`
 
-- :ref:`Saint Louis University Mental Status (SLUMS) Examination <slums>`
-
 - :ref:`National Adult Reading Test (NART) <nart>`
+
+- :ref:`Saint Louis University Mental Status (SLUMS) Examination <slums>`
 
 Affective (mood and anxiety) disorders
 --------------------------------------
@@ -131,6 +129,9 @@ Affective (mood and anxiety) disorders
 - :ref:`Hamilton Depression Rating Scale, 7-item version (HAMD-7) <hamd>`
 
 - :ref:`Hospital Anxiety and Depression Scale (HADS) <hads>`
+
+- :ref:`Hospital Anxiety and Depression Scale (HADS) (respondent version)
+  <hads>`
 
 - :ref:`ICD-10 criteria: depressive episode <icd>`
 
@@ -192,11 +193,11 @@ Psychosis
 
 - :ref:`Clinical Global Impression – Schizophrenia (CGI-SCH) <cgisch>`
 
-- :ref:`Positive and negative syndrome scale (PANSS) for schizophrenia <panss>`
-
 - :ref:`ICD-10 criteria: schizophrenia <icd>`
 
 - :ref:`ICD-10 criteria: schizotypal disorder <icd>`
+
+- :ref:`Positive and negative syndrome scale (PANSS) for schizophrenia <panss>`
 
 Catatonia and extrapyramidal side effects
 -----------------------------------------
@@ -204,19 +205,19 @@ Catatonia and extrapyramidal side effects
 - :ref:`Abnormal Involuntary Movement Scale (AIMS) <aims>`
 
 - :ref:`Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s
-  Disease Rating Scale (MDS-UPDRS) <mds>`
+  Disease Rating Scale (MDS-UPDRS) <mdsupdrs>`
 
 .. - Catatonia examination technique (info only)
 
 Personality and childhood experience
 ------------------------------------
 
-- :ref:`Childhood Experience of Care and Abuse Questionnaire (CECA-Q3)
-  <cecaq3>`
-
 - :ref:`ICD-10 criteria: specific personality disorders <icd>`
 
 - :ref:`ICD-10 criteria: schizotypal disorder <icd>` (as above)
+
+- :ref:`Childhood Experience of Care and Abuse Questionnaire (CECA-Q3)
+  <cecaq3>`
 
 Research tasks (experimental)
 -----------------------------
@@ -229,26 +230,76 @@ Research tasks (experimental)
 
 - :ref:`Deakin JB — 1 — Antibody-mediated psychosis study <deakin_1>`
 
-- :ref:`Three-dimensional intradimensional/extradimensional set-shifting task
-  (IDED-3D) <ided3d>`
-
 - :ref:`Diagnostic coding, ICD-9-CM codes (compatible with DSM-IV-TR) <icd>`
+
+- :ref:`Khandaker GM — 1 — Insight — Medical history <khandaker_1>`
 
 - :ref:`Quality of Life: time trade-off and rating scale <qol>`
 
 - :ref:`Quality of Life: standard gamble <qol>`
+
+- :ref:`Three-dimensional intradimensional/extradimensional set-shifting task
+  (IDED-3D) <ided3d>`
 
 .. - Demonstration of chained tasks
 
 Anonymous questionnaires
 ------------------------
 
+- :ref:`Referrer Satisfaction Scale (survey version) <from_lp>`
+
 - :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`
+
+Set menus for research
+----------------------
+
+Individual research projects may have specific menus of tasks created. As well
+as generic tasks listed above, there are some specific ones:
+
+- :ref:`Deakin JB — 1 — Antibody-mediated psychosis study — health review
+  <deakin_1>`
+
+- :ref:`Khandaker GM — 1 — Insight study — medical history <khandaker_1>`
+
+Set menus for clinical purposes
+-------------------------------
+
+Individual clinical services or contexts may have specific menus of tasks
+created. Amongst them:
+
+FROM-LP menu
+~~~~~~~~~~~~
+
+Generic:
+
+- :ref:`Clinical Global Impression – Improvement (CGI-I) <from_lp>`
+
+- :ref:`Friends and Family Test (FFT) <from_lp>`
+
+- :ref:`Identify and Rate the Aim of the Contact (IRAC) <from_lp>`
+
+- :ref:`Patient Satisfaction Scale (PSS) <from_lp>`
 
 - :ref:`Referrer Satisfaction Scale (survey version) <from_lp>`
 
-Other
------
+- :ref:`Referrer Satisfaction Scale (patient-specific version) <from_lp>`
+
+Disease-specific:
+
+- :ref:`Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) <ace3>`
+
+- :ref:`AUDIT Alcohol Consumption Questions (AUDIT-C) <audit>`
+
+- :ref:`Body mass index (BMI) <bmi>`
+
+- :ref:`Generalized Anxiety Disorder Assessment (GAD-7) <gad7>`
+
+- :ref:`Health of the Nation Outcome Scales: HoNOS <honos>`
+
+- :ref:`Patient Health Questionnaire-9 (PHQ-9) <phq9>`
+
+Demonstration task
+------------------
 
 - :ref:`Demonstration questionnaire <demoquestionnaire>`
 

@@ -29,7 +29,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from pendulum import Pendulum
+from pendulum import DateTime as Pendulum
 from pyramid.renderers import render
 
 from .cc_audit import audit

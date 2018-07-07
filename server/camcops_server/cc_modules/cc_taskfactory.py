@@ -32,7 +32,7 @@ from typing import Dict, List, Optional, Type, Union
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
-from pendulum import Pendulum
+from pendulum import DateTime as Pendulum
 import pyramid.httpexceptions as exc
 from sqlalchemy.orm import Query
 from sqlalchemy.orm.session import Session as SqlASession

@@ -30,10 +30,10 @@
 
 SetMenuKhandaker1::SetMenuKhandaker1(CamcopsApp& app) :
     MenuWindow(app,
-               tr("Khandaker G — 1 — Insight study"),
+               tr("Khandaker GM — 1 — Insight study"),
                uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
-    m_subtitle = "Khandaker G, University of Cambridge, UK — "
+    m_subtitle = "Khandaker GM, University of Cambridge, UK — "
                  "Insight immunopsychiatry study";
     m_items = {
         MAKE_CHANGE_PATIENT(app),

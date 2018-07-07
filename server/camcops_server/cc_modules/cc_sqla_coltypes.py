@@ -123,7 +123,7 @@ from cardinal_pythonlib.sqlalchemy.sqlfunc import (
     fail_unknown_dialect,
     fetch_processed_single_clause
 )
-from pendulum import Pendulum
+from pendulum import DateTime as Pendulum
 from pendulum.parsing.exceptions import ParserError
 from semantic_version import Version
 from sqlalchemy import util

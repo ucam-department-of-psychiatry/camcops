@@ -203,7 +203,7 @@ if getattr(our_args, EXTRAS_ARG):
     # print("Converting manual ({!r}) to PDF ({!r})".format(
     #     MANUAL_FILENAME_ODT, MANUAL_FILENAME_PDF))
     # try:
-    #     os.remove(MANUAL_FILENAME_PDF)  # don't delete the wrong one (again...)
+    #     os.remove(MANUAL_FILENAME_PDF)  # don't delete the wrong one (again...)  # noqa
     # except OSError:
     #     pass
     # with tempfile.TemporaryDirectory() as tmpdirname:
@@ -354,37 +354,37 @@ camcops_server
 
     install_requires=[
         # 'aenum==2.0.9',  # advanced enums
-        'alembic==0.9.6',  # database migrations
+        'alembic==0.9.9',  # database migrations
         # 'arrow==0.10.0',  # better datetime
-        'cardinal_pythonlib==1.0.16',  # RNC libraries
-        'colorlog==3.1.0',  # colour in logs
-        'CherryPy==11.0.0',  # web server
-        'deform==2.0.4',  # web forms
+        'cardinal_pythonlib==1.0.22',  # RNC libraries
+        'colorlog==3.1.4',  # colour in logs
+        'CherryPy==16.0.2',  # web server
+        'deform==2.0.5',  # web forms
         # 'deform-bootstrap==0.2.9',  # deform with layout made easier
-        'distro==1.0.4',  # detecting Linux distribution
-        'dogpile.cache==0.6.4',  # web caching
-        'gunicorn==19.7.1',  # Alternative 'internal' web server. Installs fine under Windows, but won't run (ImportError: No module named 'fcntl').  # noqa
+        'distro==1.3.0',  # detecting Linux distribution
+        'dogpile.cache==0.6.6',  # web caching
+        'gunicorn==19.8.1',  # Alternative 'internal' web server. Installs fine under Windows, but won't run (ImportError: No module named 'fcntl').  # noqa
         'hl7==0.3.4',  # For HL7 export
         'lockfile==0.12.2',  # File locking for background tasks
-        'matplotlib==2.1.0',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
-        'mysqlclient==1.3.12',  # for mysql+mysqldb://...
-        'numpy==1.13.3',  # Used by some tasks. SLOW INSTALLATION.
+        'matplotlib==2.2.0',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
+        'mysqlclient==1.3.13',  # for mysql+mysqldb://...
+        'numpy==1.14.5',  # Used by some tasks. SLOW INSTALLATION.
         'paginate==0.5.6',  # pagination for web server
-        'pendulum==1.3.0',  # better than Arrow
+        'pendulum==2.0.2',  # better than Arrow
         'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
         'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt
         'Pygments==2.2.0',  # Syntax highlighting for introspection
         'PyMySQL==0.7.1',  # for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may break Pendulum handling *** FIX THIS *** # noqa
         'PyPDF2==1.26.0',  # Used by rnc_pdf.py
-        'pyramid==1.9.1',  # web framework
-        'pyramid_debugtoolbar==4.3',  # debugging for Pyramid
-        'python-dateutil==2.6.1',  # Date/time extensions.
-        'pytz==2017.2',  # Timezone definitions, specifically UTC.
-        'scipy==1.0.0rc1',  # Used by some tasks. SLOW INSTALLATION.
+        'pyramid==1.9.2',  # web framework
+        'pyramid_debugtoolbar==4.4',  # debugging for Pyramid
+        'python-dateutil==2.7.3',  # Date/time extensions.
+        'pytz==2018.5',  # Timezone definitions, specifically UTC.
+        'scipy==1.1.0',  # Used by some tasks. SLOW INSTALLATION.
         'semantic_version==2.6.0',  # semantic versioning; better than semver
-        'sqlalchemy==1.2.0b2',  # database access
+        'sqlalchemy==1.2.8',  # database access
         # 'SQLAlchemy-Utils==0.32.16',  # extra column types
-        'typing==3.6.2',  # part of stdlib in Python 3.5, but not 3.4
+        'typing==3.6.4',  # part of stdlib in Python 3.5, but not 3.4
         'Wand==0.4.4',  # ImageMagick for Python; used e.g. for BLOB PNG display; may need "sudo apt-get install libmagickwand-dev"  # noqa
         # Incompatible with Python 3.5; use paginate instead # 'WebHelpers==1.3',  # e.g. paginator and other tools for Pyramid  # noqa
         # 'Werkzeug==0.11.3',  # Profiling middleware

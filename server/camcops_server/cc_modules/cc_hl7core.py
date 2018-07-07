@@ -29,7 +29,7 @@ from typing import List, Optional, Tuple, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 import hl7
-from pendulum import Date, Pendulum
+from pendulum import Date, DateTime as Pendulum
 
 from .cc_constants import DateFormat
 from .cc_filename import FileType

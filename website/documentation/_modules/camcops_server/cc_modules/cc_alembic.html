@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>camcops_server.cc_modules.cc_alembic &#8212; CamCOPS 2.2.3 documentation</title>
+    <title>camcops_server.cc_modules.cc_alembic &#8212; CamCOPS 2.2.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/camcops_docs.css" type="text/css" />
@@ -26,7 +26,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -80,7 +80,7 @@
 <span class="kn">from</span> <span class="nn">cardinal_pythonlib.fileops</span> <span class="k">import</span> <span class="n">preserve_cwd</span>
 <span class="kn">from</span> <span class="nn">cardinal_pythonlib.logs</span> <span class="k">import</span> <span class="n">BraceStyleAdapter</span>
 <span class="kn">from</span> <span class="nn">cardinal_pythonlib.sqlalchemy.alembic_func</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">get_current_and_head_revision</span><span class="p">,</span>
+    <span class="c1"># get_current_and_head_revision,</span>
     <span class="n">upgrade_database</span><span class="p">,</span>
     <span class="n">stamp_allowing_unusual_version_table</span><span class="p">,</span>
 <span class="p">)</span>
@@ -104,14 +104,15 @@
     <span class="kn">import</span> <span class="nn">camcops_server.cc_modules.cc_all_models</span>  <span class="c1"># delayed import  # import side effects (ensure all models registered)  # noqa</span>
 
 
-<div class="viewcode-block" id="upgrade_database_to_head"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_alembic.html#camcops_server.cc_modules.cc_alembic.upgrade_database_to_head">[docs]</a><span class="k">def</span> <span class="nf">upgrade_database_to_head</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="upgrade_database_to_head"><a class="viewcode-back" href="../../../autodoc/cc_modules/cc_alembic.html#camcops_server.cc_modules.cc_alembic.upgrade_database_to_head">[docs]</a><span class="k">def</span> <span class="nf">upgrade_database_to_head</span><span class="p">(</span><span class="n">as_sql</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The primary upgrade method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">import_all_models</span><span class="p">()</span>  <span class="c1"># delayed, for command-line interfaces</span>
     <span class="n">upgrade_database</span><span class="p">(</span><span class="n">alembic_base_dir</span><span class="o">=</span><span class="n">ALEMBIC_BASE_DIR</span><span class="p">,</span>
                      <span class="n">alembic_config_filename</span><span class="o">=</span><span class="n">ALEMBIC_CONFIG_FILENAME</span><span class="p">,</span>
-                     <span class="n">version_table</span><span class="o">=</span><span class="n">ALEMBIC_VERSION_TABLE</span><span class="p">)</span></div>
+                     <span class="n">version_table</span><span class="o">=</span><span class="n">ALEMBIC_VERSION_TABLE</span><span class="p">,</span>
+                     <span class="n">as_sql</span><span class="o">=</span><span class="n">as_sql</span><span class="p">)</span></div>
     <span class="c1"># ... will get its config information from the OS environment; see</span>
     <span class="c1"># run_alembic() in alembic/env.py</span>
 
@@ -210,7 +211,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CamCOPS 2.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>

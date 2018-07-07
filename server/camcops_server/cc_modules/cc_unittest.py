@@ -31,7 +31,8 @@ from typing import Type, TYPE_CHECKING
 
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from pendulum import Pendulum
+import pendulum
+from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Session as SqlASession
 
 from .cc_idnumdef import IdNumDefinition
@@ -110,7 +111,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
         Base.metadata.create_all(self.engine)
 
-        self.era_time = Pendulum.parse("2010-07-07T13:40+0100")
+        self.era_time = pendulum.parse("2010-07-07T13:40+0100")
         self.era_time_utc = convert_datetime_to_utc(self.era_time)
         self.era = format_datetime(self.era_time, DateFormat.ISO8601)
 
@@ -161,7 +162,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         self._apply_standard_db_fields(p1)
         p1.forename = "Forename1"
         p1.surname = "Surname1"
-        p1.dob = Pendulum.parse("1950-01-01")
+        p1.dob = pendulum.parse("1950-01-01")
         self.dbsession.add(p1)
         p1_idnum1 = PatientIdNum()
         p1_idnum1.id = 1
@@ -183,7 +184,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         self._apply_standard_db_fields(p2)
         p2.forename = "Forename2"
         p2.surname = "Surname2"
-        p2.dob = Pendulum.parse("1975-12-12")
+        p2.dob = pendulum.parse("1975-12-12")
         self.dbsession.add(p2)
         p2_idnum1 = PatientIdNum()
         p2_idnum1.id = 3

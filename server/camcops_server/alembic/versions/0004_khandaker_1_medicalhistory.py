@@ -129,8 +129,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['_preserving_user_id'], ['_security_users.id'], name=op.f('fk_khandaker_1_medicalhistory__preserving_user_id')),
     sa.ForeignKeyConstraint(['_removing_user_id'], ['_security_users.id'], name=op.f('fk_khandaker_1_medicalhistory__removing_user_id')),
     sa.PrimaryKeyConstraint('_pk', name=op.f('pk_khandaker_1_medicalhistory')),
-    mysql_charset='utf8mb4',
-    mysql_collate='utf8mb4_unicode_ci',
+    # mysql_charset='utf8mb4',
+    # mysql_collate='utf8mb4_unicode_ci',
+    mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
