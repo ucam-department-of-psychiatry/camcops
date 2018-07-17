@@ -1072,7 +1072,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Client requires server v2.2.3.
 
-**Client v2.2.4, 2018-07-23**
+**Client v2.2.4, 2018-07-18**
 
 - Bugfix to Android client for older Android versions.
 
