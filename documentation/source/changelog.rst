@@ -1085,169 +1085,169 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - Thoughts: see comments in ``changelog.rst``.
 
-.. Thoughts:
-  - We were adding ``libcrypto.so`` and ``libssl.so`` (as part of the Qt
-    Creator Build Settings). This used to work but now doesn't, presumably due
-    to a change in Qt Creator. (The files were being packaged; try copying the
-    ``.apk`` file and unzipping it.) The original files are symlinks to
-    ``libcrypto.so.1.1`` and ``libssl.so.1.1``. Adding the ``*.1.1`` files via
-    ``ANDROID_EXTRA_LIBS`` in ``camcops.pro`` is prohibited (the packaging
-    process complains about files that are not ``lib*.so``). In
-    ``libcamcops.so`` there are references to ``libcrypto.so.1.1``, but that
-    file is missing.
-..
-  - Others have noticed this or a similar problem:
-..
-    - https://forum.qt.io/topic/35847/qt5-2-androiddeployqt-openssl-library-versioning (2013)
-    - https://bugreports.qt.io/browse/QTCREATORBUG-11237
-    - https://bugreports.qt.io/browse/QTCREATORBUG-11062
-    - https://bugreports.qt.io/browse/QTBUG-47065
-..
-  - No change after manually deleting the build directory (not just cleaning)
-    and rebuilding.
-..
-  - So, another way round: why is ``libcamcops.so`` asking for a versioned
-    library? It turns out that the problem is that OpenSSL was built with
-    versioned libraries.
-..
-    Instructions at http://doc.qt.io/qt-5/opensslsupport.html suggest using
-    ``make CALC_VERSIONS="SHLIB_COMPAT=; SHLIB_SOVER=" build_libs`` when
-    building OpenSSL for Android, also as per
-    https://stackoverflow.com/questions/24204366/how-to-build-openssl-as-unversioned-shared-lib-for-android,
-    but that is for an older version of OpenSSL (e.g. 1.0.2d). Lots of things
-    failed, but I succeeded by automatically editing the Makefile in a hacky
-    way. See changes in ``build_qt.py``. We now have unversioned libraries for
-    Android.
-..
-  - I'm less clear what changed as it was working well beforehand!
-..
-    - In retrospect: may have been changing the Android API level from 23 to
-      28.
-..
-  - Then we got this crash: ``java.lang.UnsatisfiedLinkError: dlopen failed:
-    cannot locate symbol "EVP_MD_CTX_new" referenced by "libcamcops.so"...``.
-    Deleted ``qmake`` and rebuilt via
-    ``build_qt.py --build_android_arm_v7_32``. Didn't build for Android
-    (``undefined reference to WebPInitAlphaProcessingNEON``). Upgraded Qt to
-    5.11.1. Built fine (Linux, Android). Same crash. But as before,
-    libcrypto.so and libssl.so are being loaded.
-..
-  - We are using android-ndk-r11c (March 2016); Qt's preference is 10e (May
-    2015) (as per http://doc.qt.io/qt-5/androidgs.html). The current version
-    (as of 2018-07-04) is r17b (June 2018); see
-    https://developer.android.com/ndk/downloads/. Still, 11c has worked
-    throughout.
-..
-  - I suspect the root cause is approximately as follows.
-..
-    - At present, the Qt build uses dynamic linking to OpenSSL. (That's why
-      the Linux version needs to find libcrypto.so and libssl.so.)
-..
-    - In the Linux build of CamCOPS, OpenSSL is included statically. (That's
-      why direct calls from cryptofunc.cpp to EVP* calls work.)
-      (Certainly,
-      ``objdump -t build-camcops-CustomLinux-Debug/camcops | grep EVP`` shows a
-      bunch of stuff, and ``EVP_MD_CTX_new`` is present for ``objdump -T`` as
-      well as ``objdump -t``, as a real function.)
-..
-    - In the Android build, CamCOPS is built to a library, libcamcops.so.
-      Presumably that's why it can build without OpenSSL EVP* functions in it,
-      without complaining. But then it needs OpenSSL functions via DLL?
-      Certainly, ``objdump -t
-      build-camcops-Android_ARM-Release/android-build/libs/armeabi-v7a/libcamcops.so``
-      shows no symbols. However, ``strings`` shows EVP stuff, and ``objdump
-      -T`` shows ``EVP_MD_CTX_new`` as ``DF *UND* ... OPENSSL_1_1_0
-      EVP_MD_CTX_new``.
-..
-    - See also
-      https://stackoverflow.com/questions/32737355/elf-dynamic-symbol-table.
-..
-    - OK, so we need to deal with the DLL zone. Dealt with. Runs on Linux with
-      DLL mode and without; see OPENSSL_VIA_QLIBRARY.
-..
-  - No, perhaps I was wrong, because:
-..
-    - Now we get ``java.lang.UnsatisfiedLinkError: dlopen failed: cannot locate
-      symbol "HMAC_CTX_new" referenced by "libcamcops.so"``. So that's
-      progress. But ``HMAC_CTX_new`` isn't in my source code. If we do
-      ``objdump -T libcamcops.so | grep OPENSSL_1_1_0``, we get
-..
-      .. code-block::
-..
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 OBJ_nid2sn
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_CTX_new
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_iv_length
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_CTX_free
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CipherInit_ex
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_key_length
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_sha512
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 RAND_bytes
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_aes_256_cbc
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_nid
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_block_size
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CipherFinal_ex
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_CTX_new
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_Update
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 PKCS5_PBKDF2_HMAC_SHA1
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_Final
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_CTX_free
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_Init_ex
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_get_cipherbyname
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 RAND_add
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_sha1
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_CTX_set_padding
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CipherUpdate
-        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_MD_size
-..
-      So possibilities include that I'm calling some of these inadvertently by
-      using types within cryptofunc.cpp; but more likely that sqlcipher is
-      calling them. We're not going to get far this way; the explicit DLL
-      approach was probably silly. Instead, see
-      https://stackoverflow.com/questions/25147714/qt-openssl-android and note
-      that we may need to insert into ``AndroidManifest.xml`` the following:
-..
-      .. code-block:: xml
-..
-        <meta-data android:name="android.app.load_local_libs" android:value="-- %%INSERT_LOCAL_LIBS%% --:lib/libssl.so:lib/libcrypto.so"/>
-        Note this bit:                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-..
-      No, that didn't work. We ended up with two copies of the libraries, in
-      "...camcops" and "...camcops-1", but it didn't fix the problem. Perhaps
-      we need both static linkage (for CamCOPS internal calls to OpenSSL,
-      including SQLCipher) and dynamic linkage (for the parts of Qt that use
-      OpenSSL). Changes made to ``camcops.pro``. No, that didn't work either;
-      doesn't link (missing e.g. ``signal``). See
-      https://stackoverflow.com/questions/37122126/whats-the-exact-significance-of-android-ndk-platform-version-compared-to-api-le;
-      perhaps this is all down to a change in the Qt setting for Android NDK
-      level, from 23 to 26, without a change in the OpenSSL Android NDK build
-      level.
-..
-      Not yet explored:
-..
-      - https://github.com/openssl/openssl/issues/3826
-      - Note that SQLCipher may be moving from OpenSSL to mbedTLS:
-        https://github.com/praeclarum/sqlite-net/issues/597
-      - https://stackoverflow.com/questions/25049603/dlopen-failed-cannot-locate-symbol-signal?rq=1
-..
-      Trying NDK 10e (rather than 11c):
-..
-      - Download and unzip to ~/dev/
-      - Change ``build_qt.py`` default.
-      - In Qt Creator, change :menuselection:`Tools --> Options --> Devices --> Android --> Android Settings --> Android NDK location."
-      - ABANDONDED/REVERTED; see below.
-..
-      Aha. It's this, perhaps:
-..
-      - https://android-developers.googleblog.com/2016/06/android-changes-for-ndk-developers.html
-      - So, must be API 23 or lower, or dlopen() calls will fail, which is
-        exactly what we're seeing.
-..
-      The Sony tablet is Android 4.4.2 (API level 19), and fails; my Samsung
-      phone is Android 6.0.1 (API level 23) and works fine. So it is something
-      about the Android API. So, checking
-      https://wiki.qt.io/Qt_for_Android_known_issues: nothing obvious. But
-      upgrading the Sony Xperia Z2 tablet (to 6.0.1, the next available) made
-      the same binaries work.
+    .. Thoughts:
+      - We were adding ``libcrypto.so`` and ``libssl.so`` (as part of the Qt
+        Creator Build Settings). This used to work but now doesn't, presumably due
+        to a change in Qt Creator. (The files were being packaged; try copying the
+        ``.apk`` file and unzipping it.) The original files are symlinks to
+        ``libcrypto.so.1.1`` and ``libssl.so.1.1``. Adding the ``*.1.1`` files via
+        ``ANDROID_EXTRA_LIBS`` in ``camcops.pro`` is prohibited (the packaging
+        process complains about files that are not ``lib*.so``). In
+        ``libcamcops.so`` there are references to ``libcrypto.so.1.1``, but that
+        file is missing.
+    ..
+      - Others have noticed this or a similar problem:
+    ..
+        - https://forum.qt.io/topic/35847/qt5-2-androiddeployqt-openssl-library-versioning (2013)
+        - https://bugreports.qt.io/browse/QTCREATORBUG-11237
+        - https://bugreports.qt.io/browse/QTCREATORBUG-11062
+        - https://bugreports.qt.io/browse/QTBUG-47065
+    ..
+      - No change after manually deleting the build directory (not just cleaning)
+        and rebuilding.
+    ..
+      - So, another way round: why is ``libcamcops.so`` asking for a versioned
+        library? It turns out that the problem is that OpenSSL was built with
+        versioned libraries.
+    ..
+        Instructions at http://doc.qt.io/qt-5/opensslsupport.html suggest using
+        ``make CALC_VERSIONS="SHLIB_COMPAT=; SHLIB_SOVER=" build_libs`` when
+        building OpenSSL for Android, also as per
+        https://stackoverflow.com/questions/24204366/how-to-build-openssl-as-unversioned-shared-lib-for-android,
+        but that is for an older version of OpenSSL (e.g. 1.0.2d). Lots of things
+        failed, but I succeeded by automatically editing the Makefile in a hacky
+        way. See changes in ``build_qt.py``. We now have unversioned libraries for
+        Android.
+    ..
+      - I'm less clear what changed as it was working well beforehand!
+    ..
+        - In retrospect: may have been changing the Android API level from 23 to
+          28.
+    ..
+      - Then we got this crash: ``java.lang.UnsatisfiedLinkError: dlopen failed:
+        cannot locate symbol "EVP_MD_CTX_new" referenced by "libcamcops.so"...``.
+        Deleted ``qmake`` and rebuilt via
+        ``build_qt.py --build_android_arm_v7_32``. Didn't build for Android
+        (``undefined reference to WebPInitAlphaProcessingNEON``). Upgraded Qt to
+        5.11.1. Built fine (Linux, Android). Same crash. But as before,
+        libcrypto.so and libssl.so are being loaded.
+    ..
+      - We are using android-ndk-r11c (March 2016); Qt's preference is 10e (May
+        2015) (as per http://doc.qt.io/qt-5/androidgs.html). The current version
+        (as of 2018-07-04) is r17b (June 2018); see
+        https://developer.android.com/ndk/downloads/. Still, 11c has worked
+        throughout.
+    ..
+      - I suspect the root cause is approximately as follows.
+    ..
+        - At present, the Qt build uses dynamic linking to OpenSSL. (That's why
+          the Linux version needs to find libcrypto.so and libssl.so.)
+    ..
+        - In the Linux build of CamCOPS, OpenSSL is included statically. (That's
+          why direct calls from cryptofunc.cpp to EVP* calls work.)
+          (Certainly,
+          ``objdump -t build-camcops-CustomLinux-Debug/camcops | grep EVP`` shows a
+          bunch of stuff, and ``EVP_MD_CTX_new`` is present for ``objdump -T`` as
+          well as ``objdump -t``, as a real function.)
+    ..
+        - In the Android build, CamCOPS is built to a library, libcamcops.so.
+          Presumably that's why it can build without OpenSSL EVP* functions in it,
+          without complaining. But then it needs OpenSSL functions via DLL?
+          Certainly, ``objdump -t
+          build-camcops-Android_ARM-Release/android-build/libs/armeabi-v7a/libcamcops.so``
+          shows no symbols. However, ``strings`` shows EVP stuff, and ``objdump
+          -T`` shows ``EVP_MD_CTX_new`` as ``DF *UND* ... OPENSSL_1_1_0
+          EVP_MD_CTX_new``.
+    ..
+        - See also
+          https://stackoverflow.com/questions/32737355/elf-dynamic-symbol-table.
+    ..
+        - OK, so we need to deal with the DLL zone. Dealt with. Runs on Linux with
+          DLL mode and without; see OPENSSL_VIA_QLIBRARY.
+    ..
+      - No, perhaps I was wrong, because:
+    ..
+        - Now we get ``java.lang.UnsatisfiedLinkError: dlopen failed: cannot locate
+          symbol "HMAC_CTX_new" referenced by "libcamcops.so"``. So that's
+          progress. But ``HMAC_CTX_new`` isn't in my source code. If we do
+          ``objdump -T libcamcops.so | grep OPENSSL_1_1_0``, we get
+    ..
+          .. code-block::
+    ..
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 OBJ_nid2sn
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_CTX_new
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_iv_length
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_CTX_free
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CipherInit_ex
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_key_length
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_sha512
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 RAND_bytes
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_aes_256_cbc
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_nid
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_block_size
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CipherFinal_ex
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_CTX_new
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_Update
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 PKCS5_PBKDF2_HMAC_SHA1
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_Final
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_CTX_free
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_Init_ex
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_get_cipherbyname
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 RAND_add
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_sha1
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_CTX_set_padding
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CipherUpdate
+            00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_MD_size
+    ..
+          So possibilities include that I'm calling some of these inadvertently by
+          using types within cryptofunc.cpp; but more likely that sqlcipher is
+          calling them. We're not going to get far this way; the explicit DLL
+          approach was probably silly. Instead, see
+          https://stackoverflow.com/questions/25147714/qt-openssl-android and note
+          that we may need to insert into ``AndroidManifest.xml`` the following:
+    ..
+          .. code-block:: xml
+    ..
+            <meta-data android:name="android.app.load_local_libs" android:value="-- %%INSERT_LOCAL_LIBS%% --:lib/libssl.so:lib/libcrypto.so"/>
+            Note this bit:                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ..
+          No, that didn't work. We ended up with two copies of the libraries, in
+          "...camcops" and "...camcops-1", but it didn't fix the problem. Perhaps
+          we need both static linkage (for CamCOPS internal calls to OpenSSL,
+          including SQLCipher) and dynamic linkage (for the parts of Qt that use
+          OpenSSL). Changes made to ``camcops.pro``. No, that didn't work either;
+          doesn't link (missing e.g. ``signal``). See
+          https://stackoverflow.com/questions/37122126/whats-the-exact-significance-of-android-ndk-platform-version-compared-to-api-le;
+          perhaps this is all down to a change in the Qt setting for Android NDK
+          level, from 23 to 26, without a change in the OpenSSL Android NDK build
+          level.
+    ..
+          Not yet explored:
+    ..
+          - https://github.com/openssl/openssl/issues/3826
+          - Note that SQLCipher may be moving from OpenSSL to mbedTLS:
+            https://github.com/praeclarum/sqlite-net/issues/597
+          - https://stackoverflow.com/questions/25049603/dlopen-failed-cannot-locate-symbol-signal?rq=1
+    ..
+          Trying NDK 10e (rather than 11c):
+    ..
+          - Download and unzip to ~/dev/
+          - Change ``build_qt.py`` default.
+          - In Qt Creator, change :menuselection:`Tools --> Options --> Devices --> Android --> Android Settings --> Android NDK location."
+          - ABANDONDED/REVERTED; see below.
+    ..
+          Aha. It's this, perhaps:
+    ..
+          - https://android-developers.googleblog.com/2016/06/android-changes-for-ndk-developers.html
+          - So, must be API 23 or lower, or dlopen() calls will fail, which is
+            exactly what we're seeing.
+    ..
+          The Sony tablet is Android 4.4.2 (API level 19), and fails; my Samsung
+          phone is Android 6.0.1 (API level 23) and works fine. So it is something
+          about the Android API. So, checking
+          https://wiki.qt.io/Qt_for_Android_known_issues: nothing obvious. But
+          upgrading the Sony Xperia Z2 tablet (to 6.0.1, the next available) made
+          the same binaries work.
 
   - Upshot: Android API 19 (Android 4.4.x) no longer works. API level 23
     (Android 6.0.1) is fine; intermediates untested. It's a little unclear
