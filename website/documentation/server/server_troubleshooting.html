@@ -45,17 +45,13 @@
             
   <div class="section" id="troubleshooting-server-problems">
 <h1>14. Troubleshooting server problems<a class="headerlink" href="#troubleshooting-server-problems" title="Permalink to this headline">¶</a></h1>
-<div class="admonition-todo admonition" id="index-0">
-<p class="first admonition-title">Todo</p>
-<p class="last"><strong>check this file for “see above”</strong></p>
-</div>
 <div class="section" id="web-server-errors-from-apache">
 <h2>14.1. Web server errors from Apache<a class="headerlink" href="#web-server-errors-from-apache" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p class="first"><strong>Web server returns “permission denied”-type messages; Apache error log is
 full of file permission errors.</strong> Ownerships, permissions, or SELinux
 security settings on files in the <cite>DocumentRoot</cite> tree are probably wrong. See
-above.</p>
+<a class="reference internal" href="server_configuration.html#server-configuration"><span class="std std-ref">Server configuration</span></a>; <a class="reference internal" href="../misc/linux_flavours.html#linux-flavours"><span class="std std-ref">Linux flavours</span></a>.</p>
 </li>
 <li><p class="first"><strong>Operation (e.g. table upload) fails; Apache error log contains the message
 “client denied by server configuration”.</strong> The Apache configuration file
@@ -108,9 +104,9 @@ away’)”. Apache log contains “OperationalError: (2006, ‘MySQL server has
 away’)”.</strong> CamCOPS takes care to ping the database connection, so it’s
 unlikely that a connection has timed out. The probable cause is that the
 relevant <cite>max_allowed_packet</cite> parameter is set too small; MySQL also generates
-this error if the query is too big. You will need to edit the MySQL my.cnf
-configuration file; see above. The most probable time to see this error is
-when uploading the BLOB table (<cite>blobs</cite>).</p>
+this error if the query is too big. You will need to edit the MySQL <code class="docutils literal notranslate"><span class="pre">my.cnf</span></code>
+configuration file; see <a class="reference internal" href="../misc/linux_flavours.html#linux-mysql-setup"><span class="std std-ref">Setting up MySQL under Linux</span></a>. The most probable time to see this error is when
+uploading the BLOB table (<cite>blobs</cite>).</p>
 </div>
 <div class="section" id="read-timed-out">
 <h3>14.3.2. Read timed out<a class="headerlink" href="#read-timed-out" title="Permalink to this headline">¶</a></h3>
@@ -187,7 +183,7 @@ of threads, in excess of the MySQL limit, and then work the web server hard.</p>
 CamCOPS or by increasing the MySQL connection limit.</p>
 </div>
 <div class="section" id="mysql-illegal-mix-of-collations">
-<h2>14.5. MySQL: “Illegal mix of collations…”<a class="headerlink" href="#mysql-illegal-mix-of-collations" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2>14.5. MySQL: “Illegal mix of collations…”<a class="headerlink" href="#mysql-illegal-mix-of-collations" title="Permalink to this headline">¶</a></h2>
 <p>In full: MySQL reports: “Illegal mix of collations (utf8mb4_unicode_ci,IMPLICIT)
 and (utf8mb4_general_ci,IMPLICIT) for operation ‘=’”</p>
 <p>In summary, part of your database is out of date, and this is probably because
@@ -214,8 +210,8 @@ equal to A, å to be considered equal to Å, and so on.</p>
 you can define the character set and collation.</p>
 <p>Character sets are supported for these things: <em>literal</em>, <em>column</em>, <em>table</em>,
 <em>database</em>, <em>server</em> — plus <em>client</em>, <em>connection</em> (though I think that’s the
-same as ‘literal’), <em>filesystem</em>, <em>results</em>, <em>system</em> <a class="footnote-reference" href="#charset" id="id3">[2]</a>. (Some don’t
-change: system, for storing identifiers, always UTF8 <a class="footnote-reference" href="#sysvars" id="id4">[3]</a>. Some we don’t
+same as ‘literal’), <em>filesystem</em>, <em>results</em>, <em>system</em> <a class="footnote-reference" href="#charset" id="id4">[2]</a>. (Some don’t
+change: system, for storing identifiers, always UTF8 <a class="footnote-reference" href="#sysvars" id="id5">[3]</a>. Some we don’t
 need to care about: filesystem, for referring to filenames. The client one is
 for statements arriving from the client. The connection one is used for
 literals, and I have no idea why you might want this to be different from the
@@ -224,21 +220,36 @@ result sets or error messages. You can inspect some of these settings with
 <code class="docutils literal notranslate"><span class="pre">SHOW</span> <span class="pre">VARIABLES</span> <span class="pre">LIKE</span> <span class="pre">'char%'</span></code>, and table-specific settings using <cite>SHOW CREATE
 TABLE tablename</cite>.)</p>
 <p>Collations are supported for the following (from greatest to least precedence):
-<em>query</em>, <em>column</em>, <em>table</em>, <em>database</em>, <em>connection</em>, <em>server</em> <a class="footnote-reference" href="#collations" id="id5">[4]</a>.
-(The connection collation is applicable for the comparison of literal strings.
-You can inspect the database/connection/server collations using <code class="docutils literal notranslate"><span class="pre">SHOW</span>
-<span class="pre">VARIABLES</span> <span class="pre">LIKE</span> <span class="pre">'collation%'</span></code>, and table-specific settings using <code class="docutils literal notranslate"><span class="pre">SHOW</span> <span class="pre">CREATE</span>
-<span class="pre">TABLE</span> <span class="pre">tablename</span></code>.)</p>
+<em>query</em>, <em>column</em>, <em>table</em>, <em>database</em>, <em>connection</em>, <em>server</em> <a class="footnote-reference" href="#collations" id="id6">[4]</a>.
+(The connection collation is applicable for the comparison of literal strings.)</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>You can inspect the database/connection/server collations using</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SHOW</span> <span class="n">VARIABLES</span> <span class="k">LIKE</span> <span class="s1">&#39;collation%&#39;</span>
+</pre></div>
+</div>
+<p>and table-specific settings using</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SHOW</span> <span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">tablename</span>
+</pre></div>
+</div>
+<p>Inspect all table collations for a given database with</p>
+<div class="last highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">table_catalog</span><span class="p">,</span> <span class="n">table_schema</span><span class="p">,</span> <span class="k">table_name</span><span class="p">,</span> <span class="k">column_name</span><span class="p">,</span> <span class="k">character_set_name</span><span class="p">,</span> <span class="k">collation_name</span>
+<span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span> <span class="k">collation_name</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">table_schema</span> <span class="o">=</span> <span class="s1">&#39;camcops&#39;</span><span class="p">;</span>  <span class="c1">-- or whatever your database is named</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="how-camcops-configures-mysql-character-sets-and-collations">
 <h3>14.5.3. How CamCOPS configures MySQL character sets and collations<a class="headerlink" href="#how-camcops-configures-mysql-character-sets-and-collations" title="Permalink to this headline">¶</a></h3>
 <p>CamCOPS (via SQLAlchemy) creates all MySQL tables using the ‘utf8mb4’ character
 set. This is MySQL’s “proper” 4-byte UTF8 character set. (The MySQL ‘utf8’
 character set uses up to 3 bytes per character and can’t store all characters
-<a class="footnote-reference" href="#utf8" id="id6">[5]</a>.)</p>
+<a class="footnote-reference" href="#utf8" id="id7">[5]</a>.)</p>
 <p>CamCOPS uses the ‘utf8mb4_unicode_ci’ collation, which uses the ‘utf8mb4’
 character set and implements the Unicode standard for sorting
-<a class="footnote-reference" href="#utf8mb4unicodeci" id="id7">[6]</a>. The ‘_ci’ suffix means “case insensitive”. CamCOPS sets
+<a class="footnote-reference" href="#utf8mb4unicodeci" id="id8">[6]</a>. The ‘_ci’ suffix means “case insensitive”. CamCOPS sets
 the table collation when it creates tables, and then ignores collations for
 queries/columns.</p>
 <p>You can see what CamCOPS is doing easily from a running CamCOPS server, using
@@ -254,7 +265,7 @@ the “Inspect table definitions” view. You’ll see table definitions like:</
 <div class="section" id="the-problem-that-creates-this-error">
 <h3>14.5.4. The problem that creates this error<a class="headerlink" href="#the-problem-that-creates-this-error" title="Permalink to this headline">¶</a></h3>
 <p>The underlying reason: a string comparison is occurring between columns with
-different collations and MySQL cannot resolve the conflict <a class="footnote-reference" href="#mixofcollations" id="id8">[7]</a>.</p>
+different collations and MySQL cannot resolve the conflict <a class="footnote-reference" href="#mixofcollations" id="id9">[7]</a>.</p>
 <p>The CamCOPS reason: if you have a very old CamCOPS database, it might not have
 the table collations set properly. Pick some tables and use syntax like <code class="docutils literal notranslate"><span class="pre">SHOW</span>
 <span class="pre">CREATE</span> <span class="pre">TABLE</span> <span class="pre">phq9</span> <span class="pre">\\G</span></code>. (The <cite>\G</cite> is a special MySQL console suffix to show
@@ -293,7 +304,7 @@ the database collation (and character set, while we’re at it) like this:</p>
 <span class="k">SHOW</span> <span class="k">FULL</span> <span class="n">COLUMNS</span> <span class="k">FROM</span> <span class="n">patient</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>So you have to go through all tables. To automate this <a class="footnote-reference" href="#changecollation" id="id9">[8]</a>,
+<p>So you have to go through all tables. To automate this <a class="footnote-reference" href="#changecollation" id="id10">[8]</a>,
 execute the following command to generate all the necessary SQL:</p>
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">CONCAT</span><span class="p">(</span>
         <span class="s1">&#39;ALTER TABLE &#39;</span><span class="p">,</span> <span class="n">table_schema</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="k">table_name</span><span class="p">,</span>
@@ -305,9 +316,10 @@ execute the following command to generate all the necessary SQL:</p>
 </pre></div>
 </div>
 <p>Then a quick bit of copying/pasting and you should be there.</p>
-<div class="admonition-todo admonition" id="index-1">
-<p class="first admonition-title">Todo</p>
-<p class="last">2018-07-02: this happened again on the CPFT machine. Most tables had a
+</div>
+<div class="section" id="a-camcops-table-creation-bug-fixed">
+<h3>14.5.7. A CamCOPS table-creation bug, fixed<a class="headerlink" href="#a-camcops-table-creation-bug-fixed" title="Permalink to this headline">¶</a></h3>
+<p>2018-07-02: this happened again on the CPFT machine. Most tables had a
 collation of <code class="docutils literal notranslate"><span class="pre">utf8mb4_general_ci</span></code> except a new one
 (<code class="docutils literal notranslate"><span class="pre">khandaker_1_medicalhistory</span></code>). There is no reference to
 <code class="docutils literal notranslate"><span class="pre">utf8mb4_general_ci</span></code> in the code except here in the help. The DDL report
@@ -315,7 +327,59 @@ looks right. Is there still a residual problem? Are upgrades messing with
 the collations somehow? As of 2018-07-02 (CamCOPS server version 2.2.3),
 all tables set back to <code class="docutils literal notranslate"><span class="pre">CHARACTER</span> <span class="pre">SET</span> <span class="pre">utf8mb4</span> <span class="pre">COLLATE</span>
 <span class="pre">utf8mb4_unicode_ci</span></code>; let’s see what happens.</p>
+<p>In MySQL 5.7.22, this code:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">USE</span> <span class="n">testdb</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">testtable</span> <span class="p">(</span>
+    <span class="n">pk</span> <span class="nb">INTEGER</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+    <span class="n">sometext</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="p">)</span> <span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span> <span class="k">COLLATE</span> <span class="n">utf8mb4_unicode_ci</span><span class="p">;</span>
+</pre></div>
 </div>
+<p>successfully creates a table with the right collation. However, this
+does not:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">USE</span> <span class="n">testdb</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">testtable</span> <span class="p">(</span>
+    <span class="n">pk</span> <span class="nb">INTEGER</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+    <span class="n">sometext</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="p">)</span> <span class="k">COLLATE</span> <span class="n">utf8mb4_unicode_ci</span> <span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The second produces fields with the default collation (e.g.
+<code class="docutils literal notranslate"><span class="pre">uft8mb4_generai_ci</span></code>). So, the <code class="docutils literal notranslate"><span class="pre">CHARSET</span></code> command has to come before
+the <code class="docutils literal notranslate"><span class="pre">COLLATE</span></code> command.</p>
+<p>Now, in Alembic, these end up being passed as <code class="docutils literal notranslate"><span class="pre">mysql_charset</span></code> and
+<code class="docutils literal notranslate"><span class="pre">mysql_collate</span></code> parameters to the <code class="docutils literal notranslate"><span class="pre">op.create_table()</span></code> call. In
+Alembic 0.9.9, the wrong order is generated. Ultimately, CamCOPS sets these
+via <code class="docutils literal notranslate"><span class="pre">Base.__table_args__</span></code>. SQLAlchemy finds that via
+<code class="docutils literal notranslate"><span class="pre">ext/declarative/base.py</span></code> and copies it to <code class="docutils literal notranslate"><span class="pre">self.table_args</span></code>. Now, that
+looks like it can be a dict or a tuple, so potentially ordered. However, in
+Alembic, they are also passed as keyword arguments to
+<code class="docutils literal notranslate"><span class="pre">alembic.operations.ops.CreateTableOp.create_table</span></code>, so go into an
+unordered dict. The final result is typically <code class="docutils literal notranslate"><span class="pre">COLLATE</span> <span class="pre">utf8mb4_unicode_ci</span>
+<span class="pre">ROW_FORMAT=DYNAMIC</span> <span class="pre">ENGINE=InnoDB</span> <span class="pre">CHARSET=utf8mb4</span></code>, which doesn’t get the
+collation right.</p>
+<p>So maybe one hacky option is to replace</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Base</span><span class="o">.</span><span class="n">__table_args__</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;mysql_engine&#39;</span><span class="p">:</span> <span class="s1">&#39;InnoDB&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mysql_row_format&#39;</span><span class="p">:</span> <span class="s1">&#39;DYNAMIC&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mysql_charset&#39;</span><span class="p">:</span> <span class="s1">&#39;utf8mb4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mysql_collate&#39;</span><span class="p">:</span> <span class="s1">&#39;utf8mb4_unicode_ci&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>with</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Base</span><span class="o">.</span><span class="n">__table_args__</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;mysql_engine&#39;</span><span class="p">:</span> <span class="s1">&#39;InnoDB&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mysql_row_format&#39;</span><span class="p">:</span> <span class="s1">&#39;DYNAMIC&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mysql_charset&#39;</span><span class="p">:</span> <span class="s1">&#39;utf8mb4 COLLATE utf8mb4_unicode_ci&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>since the COLLATE part is really an argument to CHARSET (or CHARACTER SET); see
+<a class="reference external" href="https://dev.mysql.com/doc/refman/8.0/en/create-table.html">https://dev.mysql.com/doc/refman/8.0/en/create-table.html</a>.</p>
+<p>(Of course, Python dictionaries are becoming ordered too; see
+<a class="reference external" href="https://stackoverflow.com/questions/1867861/dictionaries-how-to-keep-keys-values-in-same-order-as-declared">https://stackoverflow.com/questions/1867861/dictionaries-how-to-keep-keys-values-in-same-order-as-declared</a>.)</p>
+<p>Yes, that works. Therefore: fixed as of 2018-07-08, v2.2.4.</p>
 </div>
 </div>
 <div class="section" id="web-browser-reports-devtools-failed-to-parse-sourcemap">
@@ -377,43 +441,43 @@ instead, which is also faster.</p>
 <table class="docutils footnote" frame="void" id="charset" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html">https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html">https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="sysvars" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html">https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id5">[3]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html">https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="collations" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[4]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation">https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id6">[4]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation">https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="utf8" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id6">[5]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html">https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id7">[5]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html">https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="utf8mb4unicodeci" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id7">[6]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci">https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id8">[6]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci">https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="mixofcollations" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id8">[7]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql">https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id9">[7]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql">https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="changecollation" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id9">[8]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation">https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation</a>;
+<tr><td class="label"><a class="fn-backref" href="#id10">[8]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation">https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation</a>;
 <a class="reference external" href="https://stackoverflow.com/questions/1294117/how-to-change-collation-of-database-table-column">https://stackoverflow.com/questions/1294117/how-to-change-collation-of-database-table-column</a></td></tr>
 </tbody>
 </table>
@@ -464,11 +528,10 @@ instead, which is also faster.</p>
 <li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html">21. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html#known-problems-server">22. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../to_do.html">23. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq_known_problems.html">21. FAQ and known problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../to_do.html">22. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">23. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">24. Local configuration information</a></li>
 </ul>
 
   <h4>Previous topic</h4>

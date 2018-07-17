@@ -43,9 +43,10 @@ Version::Version(const QString& version_string)
         setInvalid();
         return;
     }
-    int major, minor, patch;
     bool ok;
-    major = parts.at(0).toInt(&ok);
+    int major = parts.at(0).toInt(&ok);
+    int minor = 0;
+    int patch = 0;
     if (ok) {
         minor = parts.at(1).toInt(&ok);
     }

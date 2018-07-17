@@ -106,10 +106,10 @@ def all_extra_strings_as_dicts(
 
     - Returns a dictionary whose keys are tasknames,
 
-        - and whose values are each a dictionary
+      - and whose values are each a dictionary
 
-            - whose keys are string names
-            - and whose values are strings.
+        - whose keys are string names
+        - and whose values are strings.
 
     For example, ``result['phq9']['q5'] == "5. Poor appetite or overeating"``.
     There is also a top-level dictionary with the key APPSTRING_TASKNAME.

@@ -18,14 +18,14 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 
-Known problems: client
+FAQ and known problems
 ======================
 
-Problems directly relating to the CamCOPS client
-------------------------------------------------
+Known client problems relating directly to CamCOPS
+--------------------------------------------------
 
-Problems relating to third-party software
------------------------------------------
+Known client problems relating to third-party software
+------------------------------------------------------
 
 Qt: QLabel height
 ~~~~~~~~~~~~~~~~~
@@ -116,14 +116,12 @@ sometimes go away.)
 
 Update 2017-07-09: I think this is fixed now.
 
-Known problems: server
-=======================
 
-Problems directly relating to the CamCOPS server
-------------------------------------------------
+Known server problems relating directly to CamCOPS
+--------------------------------------------------
 
-Problems relating to the web server framework
----------------------------------------------
+Known server problems relating to the surrounding web server framework
+----------------------------------------------------------------------
 
 “Proxy error” or “Website unavailable” whilst downloading big files through Apache
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -143,8 +141,8 @@ configuration file to add e.g. `ProxyTimeout 300`.
 
 Then restart CamCOPS and Apache.
 
-Problems relating to other third-party software
------------------------------------------------
+Known server problems relating to other third-party software
+------------------------------------------------------------
 
 Warnings during “camcops merge_db” relating to the “mysqldb” driver and UTF-8
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -183,6 +181,7 @@ The problem goes away using “pymysql” rather than “mysqldb”, so try this
 
     DB_URL = mysql+pymysql://username:password@127.0.0.1:3306/database?charset=utf8mb4
 
+
 Missing file in Deform package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -206,3 +205,98 @@ to a manual view providing the file.
 
 There’s another bootstrap symbol debugging file missing, but I’ve not bothered
 with that one yet (I’m not sure exactly which version is required).
+
+
+Hardware FAQs: Sony Xperia Z2 tablet
+------------------------------------
+
+The charger doesn't work
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Plug the prongs of the "international" adapter (the one with the USB socket)
+sideways into the UK plug (i.e. into the neutral and live pins, not the earth).
+The prongs fit at least three ways, but only that way works.
+
+Where's the USB port?
+~~~~~~~~~~~~~~~~~~~~~
+
+If the tablet is facing you in landscape mode (with "Sony" visible at the top
+left), it's on top, under a cover (just to the right of the cover labelled
+"micro SD"). Lever it up with a fingernail.
+
+
+Android FAQs
+------------
+
+What API levels are offered by different Android versions?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As per https://source.android.com/setup/start/build-numbers and
+https://en.wikipedia.org/wiki/Android_version_history:
+
+    =========== =================== =========== =============== ===============================================
+    Version     Name                API level   Release date    CamCOPS status
+    =========== =================== =========== =============== ===============================================
+    4.1.x       Jelly Bean          16          2012-07-09      Lowest API theoretically supported by Qt
+                                                                [#qtandroiapi]_, though Qt 5.11 doesn't
+                                                                compile.
+                                                                Too old for CamCOPS (based on 4.4.x failure).
+    4.2.x       Jelly Bean          17          2012-11-13      Too old for CamCOPS (based on 4.4.x failure).
+    4.3.x       Jelly Bean          18          2013-07-24      Too old for CamCOPS (based on 4.4.x failure).
+    4.4.x       KitKat              19          2013-10-31      Fails as of 2018-07-16 (client v2.2.4).
+    5.0         Lollipop            21          2014-11-12      Untested.
+    5.1         Lollipop            22          2015-03-09      Untested.
+    6.0         Marshmallow         23          2015-10-05      Supported; tested 2018-07-16 (client v2.2.4).
+    7.0         Nougat              24          2016-08-22      Untested; should be fine.
+    7.1         Nougat              25          2016-10-04      Untested; should be fine.
+    8.0.0       Oreo                26          2017-08-21      Untested; should be fine.
+    8.1.0       Oreo                27          2017-12-05      Untested; should be fine.
+    =========== =================== =========== =============== ===============================================
+
+I can't find the beta version of CamCOPS on Google Play
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To refresh :menuselection:`Settings --> Apps --> Google Play services -->
+Manage space --> Clear all data`.
+
+How to remove a Google account from an Android device
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:menuselection:`Settings --> [Accounts] Google --> click the account --> Menu
+(⋮) --> Remove account`
+
+How to upgrade Android
+~~~~~~~~~~~~~~~~~~~~~~
+
+- On Android 4.4.2: :menuselection:`Settings --> About tablet --> Software
+  update --> System`.
+
+- On a Sony Xperia Z2 tablet (model SGP511) that's not offering an upgrade
+  (e.g. attempting to upgrade from Android 4.4.2 in 2018-07):
+
+  1. Check storage space is OK [#xperiaz2upgrade]_.
+  2. If that doesn't help, run Sony's "Xperia Companion" software
+     [#xperiacompanion]_ from a Windows/Mac PC (or virtual machine
+     [#virtualboxusb]_), and run a "Software update" from there. It may be
+     easier from a physical machine.
+
+
+.. rubric:: Footnotes
+
+.. [#xperiaz2upgrade]
+
+    https://support.sonymobile.com/global-en/xperiaz2tablet/kb/80193074525e2538015404fa9ee6007fea/
+
+.. [#xperiacompanion]
+
+    https://support.sonymobile.com/za/xperia-companion/
+
+.. [#virtualboxusb]
+
+    Check that your user is in the ``vboxusers`` group to access host USB
+    devices from a VirtualBox guest; see
+    https://unix.stackexchange.com/questions/129305/how-can-i-enable-access-to-usb-devices-within-virtualbox-guests
+
+.. [#qtandroiapi]
+
+    http://doc.qt.io/qt-5/android-support.html

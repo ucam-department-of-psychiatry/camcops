@@ -186,8 +186,9 @@ linux : !android {
     # -------------------------------------------------------------------------
     STATIC_LIB_EXT = ".a"
     DYNAMIC_LIB_EXT = ".so"
-    CAMCOPS_LINKAGE = "static"
-    # CAMCOPS_LINKAGE = "dynamic"
+    CAMCOPS_QT_LINKAGE = "static"
+    # CAMCOPS_QT_LINKAGE = "dynamic"
+    CAMCOPS_OPENSSL_LINKAGE = "static"
 
     # https://stackoverflow.com/questions/33117822
     # https://stackoverflow.com/questions/356666
@@ -205,7 +206,9 @@ android {
     # -------------------------------------------------------------------------
     STATIC_LIB_EXT = ".a"
     DYNAMIC_LIB_EXT = ".so"
-    CAMCOPS_LINKAGE = "dynamic"
+    CAMCOPS_QT_LINKAGE = "dynamic"
+    # CAMCOPS_OPENSSL_LINKAGE = "static"
+    CAMCOPS_OPENSSL_LINKAGE = "dynamic"
 
     contains(ANDROID_TARGET_ARCH, x86) {
         message("Building for Android/x86 (e.g. Android emulator)")
@@ -228,7 +231,8 @@ windows {
     STATIC_LIB_EXT = ".lib"
     DYNAMIC_LIB_EXT = ".dll"
     OBJ_EXT = ".obj"
-    CAMCOPS_LINKAGE = "static"
+    CAMCOPS_QT_LINKAGE = "static"
+    CAMCOPS_OPENSSL_LINKAGE = "static"
 
     # https://stackoverflow.com/questions/26373143
     # https://stackoverflow.com/questions/33117822
@@ -253,13 +257,21 @@ isEmpty(CAMCOPS_ARCH_TAG) {
 # To have the linker show its working:
 # LIBS += "-Wl,--verbose"
 
-equals(CAMCOPS_LINKAGE, "static") {  # http://doc.qt.io/qt-5/qmake-test-function-reference.html
-    message("Using static linkage")
+equals(CAMCOPS_QT_LINKAGE, "static") {  # http://doc.qt.io/qt-5/qmake-test-function-reference.html
+    message("Using static linkage from CamCOPS to Qt")
     CONFIG += static
-} else:equals(CAMCOPS_LINKAGE, "dynamic") {
-    message("Using dynamic linkage")
+} else:equals(CAMCOPS_QT_LINKAGE, "dynamic") {
+    message("Using dynamic linkage from CamCOPS to Qt")
 } else {
-    error("Linkage method not specified")
+    error("Linkage method from CamCOPS to Qt not specified")
+}
+
+equals(CAMCOPS_OPENSSL_LINKAGE, "static") {
+    message("Using static linkage from CamCOPS to OpenSSL")
+} else:equals(CAMCOPS_OPENSSL_LINKAGE, "dynamic") {
+    message("Using dynamic linkage from CamCOPS to OpenSSL")
+} else {
+    error("Linkage method from CamCOPS to OpenSSL not specified")
 }
 
 # Quick tutorial on linking, since I seem to need it:
@@ -351,7 +363,7 @@ OPENSSL_SUBDIR = openssl-$${OPENSSL_VERSION}
 OPENSSL_DIR = "$${QT_BASE_DIR}/openssl_$${CAMCOPS_ARCH_TAG}_build/$${OPENSSL_SUBDIR}"
 message("Using OpenSSL version $$OPENSSL_VERSION from $${OPENSSL_DIR}")
 INCLUDEPATH += "$${OPENSSL_DIR}/include"
-equals(CAMCOPS_LINKAGE, "static") {
+equals(CAMCOPS_OPENSSL_LINKAGE, "static") {
     LIBS += "-L$${OPENSSL_DIR}"  # path; shouldn't be necessary for static linkage! Residual problem.
     LIBS += "$${OPENSSL_DIR}/libcrypto$${STATIC_LIB_EXT}"  # raw filename, not -l
     LIBS += "$${OPENSSL_DIR}/libssl$${STATIC_LIB_EXT}"  # raw filename, not -l
@@ -359,9 +371,12 @@ equals(CAMCOPS_LINKAGE, "static") {
     LIBS += "-L$${OPENSSL_DIR}"  # path
     LIBS += "-lcrypto"
     LIBS += "-lssl"
-    ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"  # needed for Qt
-    ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
 }
+# Regardless of how *CamCOPS* talks to OpenSSL, under Android *Qt* talks to
+# it dynamically:
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"  # needed for Qt
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
+# ... must start "lib" and end ".so", otherwise Qt complains.
 
 # -----------------------------------------------------------------------------
 # SQLCipher
@@ -369,7 +384,7 @@ equals(CAMCOPS_LINKAGE, "static") {
 SQLCIPHER_DIR = "$${QT_BASE_DIR}/sqlcipher_$${CAMCOPS_ARCH_TAG}"
 message("Using SQLCipher from $${SQLCIPHER_DIR}")
 INCLUDEPATH += "$${SQLCIPHER_DIR}"  # from which: <sqlcipher/sqlite3.h>
-LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3$${OBJ_EXT}"
+LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3$${OBJ_EXT}"  # add .o file
 # ... if that causes the error "multiple definition of 'sqlite3_free'", etc.,
 #     then Qt is inappropriately linking in SQLite as well.
 
@@ -383,6 +398,9 @@ message("LIBS is now $${LIBS}")
 message("... qmake will add more to INCLUDEPATH and LIBS; see Makefile")
 # ... view the Makefile at the end; qmake will have added others
 # ... and run "ldd camcops" to view dynamic library dependencies
+android {
+    message("ANDROID_EXTRA_LIBS is now $${ANDROID_EXTRA_LIBS}")
+}
 
 # =============================================================================
 # Resources and source files

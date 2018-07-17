@@ -18,6 +18,9 @@
 */
 
 #pragma once
+
+// #define OPENSSL_VIA_QLIBRARY
+
 // #include <openssl/crypto.h>  // for OpenSSL_cleanse
 #include <QString>
 #include "secureqbytearray.h"
@@ -25,6 +28,14 @@
 
 
 namespace cryptofunc {
+
+// ============================================================================
+// DLL helpers
+// ============================================================================
+
+#ifdef OPENSSL_VIA_QLIBRARY
+void ensureAllCryptoFunctionsLoaded();
+#endif
 
 // ============================================================================
 // Simple calculations

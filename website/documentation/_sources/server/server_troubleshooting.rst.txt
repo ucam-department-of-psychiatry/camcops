@@ -20,15 +20,14 @@
 Troubleshooting server problems
 ===============================
 
-.. todo:: **check this file for "see above"**
-
 Web server errors from Apache
 -----------------------------
 
 - **Web server returns “permission denied”-type messages; Apache error log is
   full of file permission errors.** Ownerships, permissions, or SELinux
   security settings on files in the `DocumentRoot` tree are probably wrong. See
-  above.
+  :ref:`Server configuration <server_configuration>`; :ref:`Linux flavours
+  <linux_flavours>`.
 
 - **Operation (e.g. table upload) fails; Apache error log contains the message
   “client denied by server configuration”.** The Apache configuration file
@@ -81,9 +80,10 @@ away')”. Apache log contains “OperationalError: (2006, 'MySQL server has gon
 away')”.** CamCOPS takes care to ping the database connection, so it’s
 unlikely that a connection has timed out. The probable cause is that the
 relevant `max_allowed_packet` parameter is set too small; MySQL also generates
-this error if the query is too big. You will need to edit the MySQL my.cnf
-configuration file; see above. The most probable time to see this error is
-when uploading the BLOB table (`blobs`).
+this error if the query is too big. You will need to edit the MySQL ``my.cnf``
+configuration file; see :ref:`Setting up MySQL under Linux
+<linux_mysql_setup>`. The most probable time to see this error is when
+uploading the BLOB table (`blobs`).
 
 
 Read timed out
@@ -167,6 +167,8 @@ of threads, in excess of the MySQL limit, and then work the web server hard.
 Fix the problem by limiting the maximum number of threads/processes used by
 CamCOPS or by increasing the MySQL connection limit.
 
+.. _mysql_illegal_mix_of_collations:
+
 MySQL: “Illegal mix of collations...”
 -------------------------------------
 
@@ -215,10 +217,30 @@ TABLE tablename`.)
 
 Collations are supported for the following (from greatest to least precedence):
 *query*, *column*, *table*, *database*, *connection*, *server* [#collations]_.
-(The connection collation is applicable for the comparison of literal strings.
-You can inspect the database/connection/server collations using ``SHOW
-VARIABLES LIKE 'collation%'``, and table-specific settings using ``SHOW CREATE
-TABLE tablename``.)
+(The connection collation is applicable for the comparison of literal strings.)
+
+.. note::
+
+    You can inspect the database/connection/server collations using
+
+    .. code-block:: sql
+
+        SHOW VARIABLES LIKE 'collation%'
+
+    and table-specific settings using
+
+    .. code-block:: sql
+
+        SHOW CREATE TABLE tablename
+
+    Inspect all table collations for a given database with
+
+    .. code-block:: sql
+
+        SELECT table_catalog, table_schema, table_name, column_name, character_set_name, collation_name
+        FROM information_schema.columns
+        WHERE collation_name IS NOT NULL
+        AND table_schema = 'camcops';  -- or whatever your database is named
 
 How CamCOPS configures MySQL character sets and collations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -311,16 +333,83 @@ execute the following command to generate all the necessary SQL:
 
 Then a quick bit of copying/pasting and you should be there.
 
+A CamCOPS table-creation bug, fixed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo::
-    2018-07-02: this happened again on the CPFT machine. Most tables had a
-    collation of ``utf8mb4_general_ci`` except a new one
-    (``khandaker_1_medicalhistory``). There is no reference to
-    ``utf8mb4_general_ci`` in the code except here in the help. The DDL report
-    looks right. Is there still a residual problem? Are upgrades messing with
-    the collations somehow? As of 2018-07-02 (CamCOPS server version 2.2.3),
-    all tables set back to ``CHARACTER SET utf8mb4 COLLATE
-    utf8mb4_unicode_ci``; let's see what happens.
+2018-07-02: this happened again on the CPFT machine. Most tables had a
+collation of ``utf8mb4_general_ci`` except a new one
+(``khandaker_1_medicalhistory``). There is no reference to
+``utf8mb4_general_ci`` in the code except here in the help. The DDL report
+looks right. Is there still a residual problem? Are upgrades messing with
+the collations somehow? As of 2018-07-02 (CamCOPS server version 2.2.3),
+all tables set back to ``CHARACTER SET utf8mb4 COLLATE
+utf8mb4_unicode_ci``; let's see what happens.
+
+In MySQL 5.7.22, this code:
+
+.. code-block:: sql
+
+    USE testdb;
+    CREATE TABLE testtable (
+        pk INTEGER PRIMARY KEY AUTO_INCREMENT,
+        sometext VARCHAR(50)
+    ) CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+successfully creates a table with the right collation. However, this
+does not:
+
+.. code-block:: sql
+
+    USE testdb;
+    CREATE TABLE testtable (
+        pk INTEGER PRIMARY KEY AUTO_INCREMENT,
+        sometext VARCHAR(50)
+    ) COLLATE utf8mb4_unicode_ci CHARSET=utf8mb4;
+
+The second produces fields with the default collation (e.g.
+``uft8mb4_generai_ci``). So, the ``CHARSET`` command has to come before
+the ``COLLATE`` command.
+
+Now, in Alembic, these end up being passed as ``mysql_charset`` and
+``mysql_collate`` parameters to the ``op.create_table()`` call. In
+Alembic 0.9.9, the wrong order is generated. Ultimately, CamCOPS sets these
+via ``Base.__table_args__``. SQLAlchemy finds that via
+``ext/declarative/base.py`` and copies it to ``self.table_args``. Now, that
+looks like it can be a dict or a tuple, so potentially ordered. However, in
+Alembic, they are also passed as keyword arguments to
+``alembic.operations.ops.CreateTableOp.create_table``, so go into an
+unordered dict. The final result is typically ``COLLATE utf8mb4_unicode_ci
+ROW_FORMAT=DYNAMIC ENGINE=InnoDB CHARSET=utf8mb4``, which doesn't get the
+collation right.
+
+So maybe one hacky option is to replace
+
+.. code-block:: python
+
+    Base.__table_args__ = {
+        'mysql_engine': 'InnoDB',
+        'mysql_row_format': 'DYNAMIC',
+        'mysql_charset': 'utf8mb4',
+        'mysql_collate': 'utf8mb4_unicode_ci'
+    }
+
+with
+
+.. code-block:: python
+
+    Base.__table_args__ = {
+        'mysql_engine': 'InnoDB',
+        'mysql_row_format': 'DYNAMIC',
+        'mysql_charset': 'utf8mb4 COLLATE utf8mb4_unicode_ci',
+    }
+
+since the COLLATE part is really an argument to CHARSET (or CHARACTER SET); see
+https://dev.mysql.com/doc/refman/8.0/en/create-table.html.
+
+(Of course, Python dictionaries are becoming ordered too; see
+https://stackoverflow.com/questions/1867861/dictionaries-how-to-keep-keys-values-in-same-order-as-declared.)
+
+Yes, that works. Therefore: fixed as of 2018-07-08, v2.2.4.
 
 
 Web browser reports: “DevTools failed to parse SourceMap...”

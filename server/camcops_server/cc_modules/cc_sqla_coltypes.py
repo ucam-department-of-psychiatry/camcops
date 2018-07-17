@@ -26,11 +26,11 @@
 Note these built-in SQLAlchemy types:
 http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types
 
-    --------------- -----------------------------------------------------------
+    =============== ===========================================================
     SQLAlchemy type Comment
-    --------------- -----------------------------------------------------------
+    =============== ===========================================================
     BigInteger      MySQL: -9,223,372,036,854,775,808 to 
-                            9,223,372,036,854,775,807 (64-bit)
+                    9,223,372,036,854,775,807 (64-bit)
                     (compare NHS number: up to 9,999,999,999)
     Boolean
     Date
@@ -53,34 +53,33 @@ http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types
                     Unicode
     UnicodeText     variably sized version of Unicode
                     ... under MySQL, renders as TEXT too
-    --------------- -----------------------------------------------------------
+    =============== ===========================================================
     
 Not supported across all platforms:
 
-    --------------- -----------------------------------------------------------
+    =============== ===========================================================
     SQL type        Comment
-    --------------- -----------------------------------------------------------
+    =============== ===========================================================
     BIGINT UNSIGNED MySQL: 0 to 18,446,744,073,709,551,615 (64-bit)
                     ... use sqlalchemy.dialects.mysql.BIGINT(unsigned=True)
     INT UNSIGNED    MySQL: 0 to 4,294,967,295 (32-bit)
                     ... use sqlalchemy.dialects.mysql.INTEGER(unsigned=True)
-    --------------- -----------------------------------------------------------
+    =============== ===========================================================
 
 Other MySQL sizes:
 
-    --------------- -----------------------------------------------------------
+    =============== ===========================================================
     MySQL type      Comment
-    --------------- -----------------------------------------------------------
+    =============== ===========================================================
     TINYBLOB        2^8 bytes = 256 bytes
     BLOB            2^16 bytes = 64 KiB
     MEDIUMBLOB      2^24 bytes = 16 MiB
     LONGBLOB        2^32 bytes = 4 GiB 
-
     TINYTEXT        255 (2^8 - 1) bytes
     TEXT            65,535 bytes (2^16 - 1) = 64 KiB
     MEDIUMTEXT      16,777,215 (2^24 - 1) bytes = 16 MiB
     LONGTEXT        4,294,967,295 (2^32 - 1) bytes = 4 GiB
-    --------------- -----------------------------------------------------------
+    =============== ===========================================================
 
 See https://stackoverflow.com/questions/13932750/tinytext-text-mediumtext-and-longtext-maximum-storage-sizes
 
@@ -510,17 +509,21 @@ def isotzdatetime_to_utcdatetime_sqlserver(
           -> converts one DATETIMEOFFSET value to another, preserving its UTC
              time, but changing the displayed (local) time zone.
 
-    ... however, is that unnecessary? We want a plain DATETIME2 in UTC, and
-        conversion to UTC is automatically achieved by
-        CONVERT(DATETIME2, some_datetimeoffset, 1)
+    ... however, is that unnecessary? We want a plain ``DATETIME2`` in UTC, and
+    .conversion to UTC is automatically achieved by ``CONVERT(DATETIME2,
+    .some_datetimeoffset, 1)``
+
     ... https://stackoverflow.com/questions/4953903/how-can-i-convert-a-sql-server-2008-datetimeoffset-to-a-datetime  # noqa
-    ... but not by CAST(some_datetimeoffset AS DATETIME2), and not by
-        CONVERT(DATETIME2, some_datetimeoffset, 0)
+
+    ... but not by ``CAST(some_datetimeoffset AS DATETIME2)``, and not by
+    ``CONVERT(DATETIME2, some_datetimeoffset, 0)``
+
     ... and styles 0 and 1 are the only ones permissible from SQL Server 2012
-        and up, empirically and (documented for the reverse direction at:
-        https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-2017  # noqa
+    and up, empirically and (documented for the reverse direction at:
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-2017  # noqa
+
     ... this is not properly documented re UTC conversion, as far as I can
-        see. Let's use SWITCHOFFSET -> CAST to be explicit and clear.
+    see. Let's use SWITCHOFFSET -> CAST to be explicit and clear.
 
     AT TIME ZONE:
     From SQL Server 2016 only.
@@ -644,8 +647,7 @@ def unknown_field_to_utcdatetime_sqlserver(
 
     We should cope also with the possibility of a DATETIME2 field, not just
     DATETIME. It seems consistent that LEN(DATETIME2) = 27, with precision
-    tenth of a microsecond, e.g.
-        "2001-01-31 21:30:49.1234567" (27)
+    tenth of a microsecond, e.g. ``2001-01-31 21:30:49.1234567`` (27).
 
     So, if it looks like a DATETIME or a DATETIME2, then we leave it alone;
     otherwise we put it through our ISO-to-datetime function.
@@ -754,8 +756,12 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         to something else.
 
         We make this dialect-independent by calling functions like
+
+        .. code-block:: none
+
             unknown_field_to_utcdatetime
             isotzdatetime_to_utcdatetime
+
         ... which we then specialize for specific dialects.
         """
 
@@ -1159,8 +1165,7 @@ def gen_ancillary_relationships(obj) -> Generator[
         Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
         None, None]:
     """
-    Yields tuples of
-        (attrname, RelationshipProperty, related_class)
+    Yields tuples of ``(attrname, RelationshipProperty, related_class)``
     for all relationships that are marked as a CamCOPS ancillary relationship.
     """
     for attrname, rel_prop, related_class in gen_relationships(obj):
@@ -1172,8 +1177,7 @@ def gen_blob_relationships(obj) -> Generator[
         Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
         None, None]:
     """
-    Yields tuples of
-        (attrname, RelationshipProperty, related_class)
+    Yields tuples of ``(attrname, RelationshipProperty, related_class)``
     for all relationships that are marked as a CamCOPS BLOB relationship.
     """
     for attrname, rel_prop, related_class in gen_relationships(obj):

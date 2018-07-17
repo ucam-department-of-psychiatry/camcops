@@ -20,6 +20,9 @@
 Automatic documentation of core server source code
 ==================================================
 
+Server
+------
+
 .. There's no way to create >1 page except by starting with >1 file.
 
 .. DO NOT include:

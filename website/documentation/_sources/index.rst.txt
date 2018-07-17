@@ -67,7 +67,7 @@ securely to your server.
     autodoc/_index.rst
 
     changelog.rst
-    known_problems.rst
+    faq_known_problems.rst
     to_do.rst
     wishlist.rst
     misc/local_info.rst

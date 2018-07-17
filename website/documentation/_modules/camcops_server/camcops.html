@@ -975,8 +975,8 @@
         <span class="n">func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">args</span><span class="p">:</span> <span class="n">upgrade_database_to_head</span><span class="p">())</span>
 
     <span class="n">show_upgrade_sql_parser</span> <span class="o">=</span> <span class="n">add_sub</span><span class="p">(</span>
-        <span class="n">subparsers</span><span class="p">,</span> <span class="s2">&quot;show_upgrade_sql&quot;</span><span class="p">,</span> <span class="n">config_mandatory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Upgrade database to most recent version (via Alembic)&quot;</span><span class="p">)</span>
+        <span class="n">subparsers</span><span class="p">,</span> <span class="s2">&quot;show_upgrade_sql&quot;</span><span class="p">,</span> <span class="n">config_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show SQL for upgrading database (to stdout)&quot;</span><span class="p">)</span>
     <span class="n">show_upgrade_sql_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span>
         <span class="n">func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">args</span><span class="p">:</span> <span class="n">upgrade_database_to_head</span><span class="p">(</span><span class="n">as_sql</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
@@ -1378,11 +1378,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../misc/linux_flavours.html">18. Linux flavours</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog.html">20. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../known_problems.html">21. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../to_do.html">23. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../misc/local_info.html">25. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq_known_problems.html">21. FAQ and known problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../to_do.html">22. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wishlist.html">23. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/local_info.html">24. Local configuration information</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

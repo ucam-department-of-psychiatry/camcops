@@ -65,11 +65,11 @@
 <span class="sd">Note these built-in SQLAlchemy types:</span>
 <span class="sd">http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types</span>
 
-<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    =============== ===========================================================</span>
 <span class="sd">    SQLAlchemy type Comment</span>
-<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    =============== ===========================================================</span>
 <span class="sd">    BigInteger      MySQL: -9,223,372,036,854,775,808 to </span>
-<span class="sd">                            9,223,372,036,854,775,807 (64-bit)</span>
+<span class="sd">                    9,223,372,036,854,775,807 (64-bit)</span>
 <span class="sd">                    (compare NHS number: up to 9,999,999,999)</span>
 <span class="sd">    Boolean</span>
 <span class="sd">    Date</span>
@@ -92,34 +92,33 @@
 <span class="sd">                    Unicode</span>
 <span class="sd">    UnicodeText     variably sized version of Unicode</span>
 <span class="sd">                    ... under MySQL, renders as TEXT too</span>
-<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    =============== ===========================================================</span>
 <span class="sd">    </span>
 <span class="sd">Not supported across all platforms:</span>
 
-<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    =============== ===========================================================</span>
 <span class="sd">    SQL type        Comment</span>
-<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    =============== ===========================================================</span>
 <span class="sd">    BIGINT UNSIGNED MySQL: 0 to 18,446,744,073,709,551,615 (64-bit)</span>
 <span class="sd">                    ... use sqlalchemy.dialects.mysql.BIGINT(unsigned=True)</span>
 <span class="sd">    INT UNSIGNED    MySQL: 0 to 4,294,967,295 (32-bit)</span>
 <span class="sd">                    ... use sqlalchemy.dialects.mysql.INTEGER(unsigned=True)</span>
-<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    =============== ===========================================================</span>
 
 <span class="sd">Other MySQL sizes:</span>
 
-<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    =============== ===========================================================</span>
 <span class="sd">    MySQL type      Comment</span>
-<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    =============== ===========================================================</span>
 <span class="sd">    TINYBLOB        2^8 bytes = 256 bytes</span>
 <span class="sd">    BLOB            2^16 bytes = 64 KiB</span>
 <span class="sd">    MEDIUMBLOB      2^24 bytes = 16 MiB</span>
 <span class="sd">    LONGBLOB        2^32 bytes = 4 GiB </span>
-
 <span class="sd">    TINYTEXT        255 (2^8 - 1) bytes</span>
 <span class="sd">    TEXT            65,535 bytes (2^16 - 1) = 64 KiB</span>
 <span class="sd">    MEDIUMTEXT      16,777,215 (2^24 - 1) bytes = 16 MiB</span>
 <span class="sd">    LONGTEXT        4,294,967,295 (2^32 - 1) bytes = 4 GiB</span>
-<span class="sd">    --------------- -----------------------------------------------------------</span>
+<span class="sd">    =============== ===========================================================</span>
 
 <span class="sd">See https://stackoverflow.com/questions/13932750/tinytext-text-mediumtext-and-longtext-maximum-storage-sizes</span>
 
@@ -549,17 +548,21 @@
 <span class="sd">          -&gt; converts one DATETIMEOFFSET value to another, preserving its UTC</span>
 <span class="sd">             time, but changing the displayed (local) time zone.</span>
 
-<span class="sd">    ... however, is that unnecessary? We want a plain DATETIME2 in UTC, and</span>
-<span class="sd">        conversion to UTC is automatically achieved by</span>
-<span class="sd">        CONVERT(DATETIME2, some_datetimeoffset, 1)</span>
+<span class="sd">    ... however, is that unnecessary? We want a plain ``DATETIME2`` in UTC, and</span>
+<span class="sd">    .conversion to UTC is automatically achieved by ``CONVERT(DATETIME2,</span>
+<span class="sd">    .some_datetimeoffset, 1)``</span>
+
 <span class="sd">    ... https://stackoverflow.com/questions/4953903/how-can-i-convert-a-sql-server-2008-datetimeoffset-to-a-datetime  # noqa</span>
-<span class="sd">    ... but not by CAST(some_datetimeoffset AS DATETIME2), and not by</span>
-<span class="sd">        CONVERT(DATETIME2, some_datetimeoffset, 0)</span>
+
+<span class="sd">    ... but not by ``CAST(some_datetimeoffset AS DATETIME2)``, and not by</span>
+<span class="sd">    ``CONVERT(DATETIME2, some_datetimeoffset, 0)``</span>
+
 <span class="sd">    ... and styles 0 and 1 are the only ones permissible from SQL Server 2012</span>
-<span class="sd">        and up, empirically and (documented for the reverse direction at:</span>
-<span class="sd">        https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-2017  # noqa</span>
+<span class="sd">    and up, empirically and (documented for the reverse direction at:</span>
+<span class="sd">    https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-2017  # noqa</span>
+
 <span class="sd">    ... this is not properly documented re UTC conversion, as far as I can</span>
-<span class="sd">        see. Let&#39;s use SWITCHOFFSET -&gt; CAST to be explicit and clear.</span>
+<span class="sd">    see. Let&#39;s use SWITCHOFFSET -&gt; CAST to be explicit and clear.</span>
 
 <span class="sd">    AT TIME ZONE:</span>
 <span class="sd">    From SQL Server 2016 only.</span>
@@ -683,8 +686,7 @@
 
 <span class="sd">    We should cope also with the possibility of a DATETIME2 field, not just</span>
 <span class="sd">    DATETIME. It seems consistent that LEN(DATETIME2) = 27, with precision</span>
-<span class="sd">    tenth of a microsecond, e.g.</span>
-<span class="sd">        &quot;2001-01-31 21:30:49.1234567&quot; (27)</span>
+<span class="sd">    tenth of a microsecond, e.g. ``2001-01-31 21:30:49.1234567`` (27).</span>
 
 <span class="sd">    So, if it looks like a DATETIME or a DATETIME2, then we leave it alone;</span>
 <span class="sd">    otherwise we put it through our ISO-to-datetime function.</span>
@@ -793,8 +795,12 @@
 <span class="sd">        to something else.</span>
 
 <span class="sd">        We make this dialect-independent by calling functions like</span>
+
+<span class="sd">        .. code-block:: none</span>
+
 <span class="sd">            unknown_field_to_utcdatetime</span>
 <span class="sd">            isotzdatetime_to_utcdatetime</span>
+
 <span class="sd">        ... which we then specialize for specific dialects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1198,8 +1204,7 @@
         <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RelationshipProperty</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;GenericTabletRecordMixin&quot;</span><span class="p">]],</span>
         <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Yields tuples of</span>
-<span class="sd">        (attrname, RelationshipProperty, related_class)</span>
+<span class="sd">    Yields tuples of ``(attrname, RelationshipProperty, related_class)``</span>
 <span class="sd">    for all relationships that are marked as a CamCOPS ancillary relationship.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">attrname</span><span class="p">,</span> <span class="n">rel_prop</span><span class="p">,</span> <span class="n">related_class</span> <span class="ow">in</span> <span class="n">gen_relationships</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
@@ -1211,8 +1216,7 @@
         <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RelationshipProperty</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;GenericTabletRecordMixin&quot;</span><span class="p">]],</span>
         <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Yields tuples of</span>
-<span class="sd">        (attrname, RelationshipProperty, related_class)</span>
+<span class="sd">    Yields tuples of ``(attrname, RelationshipProperty, related_class)``</span>
 <span class="sd">    for all relationships that are marked as a CamCOPS BLOB relationship.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">attrname</span><span class="p">,</span> <span class="n">rel_prop</span><span class="p">,</span> <span class="n">related_class</span> <span class="ow">in</span> <span class="n">gen_relationships</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
@@ -1417,11 +1421,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../misc/linux_flavours.html">18. Linux flavours</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">20. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html">21. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../known_problems.html#known-problems-server">22. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">23. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">25. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq_known_problems.html">21. FAQ and known problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../to_do.html">22. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wishlist.html">23. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc/local_info.html">24. Local configuration information</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

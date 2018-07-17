@@ -22,7 +22,7 @@
 namespace camcopsversion {  // http://semver.org/
 
 // Increase this when the client is changed:
-const Version CAMCOPS_VERSION(2, 2, 3);
+const Version CAMCOPS_VERSION(2, 2, 4);
 
 // It is normal to have to increase this if you add a new task:
 const Version MINIMUM_SERVER_VERSION(2, 2, 3);

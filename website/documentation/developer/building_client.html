@@ -54,37 +54,42 @@ from source using the CamCOPS <a class="reference internal" href="development_co
 <div class="section" id="qt-versions">
 <h2>16.2.2. Qt versions<a class="headerlink" href="#qt-versions" title="Permalink to this headline">¶</a></h2>
 <p>Assuming you set your qt_local_build directory to <code class="docutils literal notranslate"><span class="pre">~/dev/qt_local_build</span></code>, the
-build_qt.py script should generate a series of <code class="docutils literal notranslate"><span class="pre">qmake</span></code> (or, under Windows,
-<code class="docutils literal notranslate"><span class="pre">qmake.exe</span></code>) files within that directory:</p>
+<code class="docutils literal notranslate"><span class="pre">build_qt.py</span></code> script should generate a series of <code class="docutils literal notranslate"><span class="pre">qmake</span></code> (or, under
+Windows, <code class="docutils literal notranslate"><span class="pre">qmake.exe</span></code>) files within that directory:</p>
 <blockquote>
 <div><table border="1" class="docutils">
 <colgroup>
 <col width="28%" />
 <col width="72%" />
 </colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Operating system</th>
+<th class="head">qmake</th>
+</tr>
+</thead>
 <tbody valign="top">
-<tr class="row-odd"><td>LINUX 64-bit</td>
+<tr class="row-even"><td>Linux 64-bit</td>
 <td>qt_linux_x86_64_install/bin/qmake</td>
 </tr>
-<tr class="row-even"><td>ANDROID</td>
+<tr class="row-odd"><td>Android (ARM)</td>
 <td>qt_android_armv7_install/bin/qmake</td>
 </tr>
-<tr class="row-odd"><td>ANDROID EMULATOR</td>
+<tr class="row-even"><td>Android emulator</td>
 <td>qt_android_x86_32_install/bin/qmake</td>
 </tr>
-<tr class="row-even"><td>MAC OS/X 64-bit</td>
+<tr class="row-odd"><td>Mac OS/X 64-bit</td>
 <td>qt_osx_x86_64_install/bin/qmake</td>
 </tr>
-<tr class="row-odd"><td>IOS</td>
+<tr class="row-even"><td>iOS (ARM)</td>
 <td>qt_ios_armv8_64_install/bin/qmake</td>
 </tr>
-<tr class="row-even"><td>IOS SIMULATOR</td>
+<tr class="row-odd"><td>iOS Simulator</td>
 <td>qt_ios_x86_64_install/bin/qmake</td>
 </tr>
-<tr class="row-odd"><td>WINDOWS 32-BIT</td>
+<tr class="row-even"><td>Windows 32-bit</td>
 <td>qt_windows_x86_32_install/bin/qmake</td>
 </tr>
-<tr class="row-even"><td>WINDOWS 64-BIT</td>
+<tr class="row-odd"><td>Windows 64-bit</td>
 <td>qt_windows_x86_64_install/bin/qmake</td>
 </tr>
 </tbody>
@@ -93,58 +98,64 @@ build_qt.py script should generate a series of <code class="docutils literal not
 </div>
 <div class="section" id="qt-kits">
 <h2>16.2.3. Qt kits<a class="headerlink" href="#qt-kits" title="Permalink to this headline">¶</a></h2>
-<p>Options last checked against Qt Creator 4.4.1</p>
+<p>Options last checked against Qt Creator 4.6.2 (built June 2018).</p>
 <p><strong>Custom_Linux_x86_64</strong></p>
 <blockquote>
 <div><table border="1" class="docutils">
 <colgroup>
-<col width="30%" />
-<col width="70%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
-<tr class="row-odd"><th class="head">Option</th>
+<tr class="row-odd"><th class="head stub">Option</th>
 <th class="head">Setting</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>Name</td>
+<tr class="row-even"><th class="stub">Name</th>
 <td><code class="docutils literal notranslate"><span class="pre">Custom_Linux_x86_64</span></code></td>
 </tr>
-<tr class="row-odd"><td>File system name</td>
+<tr class="row-odd"><th class="stub">File system name</th>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td>Device type</td>
+<tr class="row-even"><th class="stub">Device type</th>
 <td>Desktop</td>
 </tr>
-<tr class="row-odd"><td>Device</td>
+<tr class="row-odd"><th class="stub">Device</th>
 <td>Local PC (default for Desktop)</td>
 </tr>
-<tr class="row-even"><td>Sysroot</td>
+<tr class="row-even"><th class="stub">Sysroot</th>
 <td>&#160;</td>
 </tr>
-<tr class="row-odd"><td>Compiler</td>
+<tr class="row-odd"><th class="stub">Compiler: C</th>
+<td>GCC (C, x86 64bit in <code class="docutils literal notranslate"><span class="pre">/usr/bin</span></code>)</td>
+</tr>
+<tr class="row-even"><th class="stub">Compiler: C++</th>
 <td>GCC (x86 64bit in <code class="docutils literal notranslate"><span class="pre">/usr/bin</span></code>)</td>
 </tr>
-<tr class="row-even"><td>Environment</td>
+<tr class="row-odd"><th class="stub">Environment</th>
 <td>[not editable: “No changes to apply.”]</td>
 </tr>
-<tr class="row-odd"><td>Debugger</td>
+<tr class="row-even"><th class="stub">Debugger</th>
 <td>System GDB at <code class="docutils literal notranslate"><span class="pre">/usr/bin/gdb</span></code></td>
 </tr>
-<tr class="row-even"><td>Qt version</td>
-<td>THE “LINUX” ONE FROM QT VERSIONS, ABOVE</td>
+<tr class="row-odd"><th class="stub">Qt version</th>
+<td><strong>THE “LINUX 64-BIT” ONE FROM QT VERSIONS, ABOVE</strong></td>
 </tr>
-<tr class="row-odd"><td>Qt mkspec</td>
+<tr class="row-even"><th class="stub">Qt mkspec</th>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td>CMake Tool</td>
+<tr class="row-odd"><th class="stub">CMake Tool</th>
 <td>System CMake at <code class="docutils literal notranslate"><span class="pre">/usr/bin/cmake</span></code></td>
 </tr>
-<tr class="row-odd"><td>CMake Generator</td>
+<tr class="row-even"><th class="stub">CMake Generator</th>
 <td>CodeBlocks - Unix Makefiles</td>
 </tr>
-<tr class="row-even"><td>CMake Configuration</td>
+<tr class="row-odd"><th class="stub">CMake Configuration</th>
 <td>[not editable]</td>
+</tr>
+<tr class="row-even"><th class="stub">Additional Qbs Profile Settings</th>
+<td>&#160;</td>
 </tr>
 </tbody>
 </table>
@@ -153,56 +164,59 @@ build_qt.py script should generate a series of <code class="docutils literal not
 <blockquote>
 <div><table border="1" class="docutils">
 <colgroup>
-<col width="30%" />
-<col width="70%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
-<tr class="row-odd"><th class="head">Option</th>
+<tr class="row-odd"><th class="head stub">Option</th>
 <th class="head">Setting</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>Name</td>
+<tr class="row-even"><th class="stub">Name</th>
 <td><code class="docutils literal notranslate"><span class="pre">Custom_Android_ARM</span></code></td>
 </tr>
-<tr class="row-odd"><td>File system name</td>
+<tr class="row-odd"><th class="stub">File system name</th>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td>Device type</td>
+<tr class="row-even"><th class="stub">Device type</th>
 <td>Android Device</td>
 </tr>
-<tr class="row-odd"><td>Device</td>
+<tr class="row-odd"><th class="stub">Device</th>
 <td>Run on Android (default for Android)</td>
 </tr>
-<tr class="row-even"><td>Sysroot</td>
+<tr class="row-even"><th class="stub">Sysroot</th>
 <td>&#160;</td>
 </tr>
-<tr class="row-odd"><td>Compiler</td>
+<tr class="row-odd"><th class="stub">Compiler: C</th>
+<td>&lt;No compiler&gt;</td>
+</tr>
+<tr class="row-even"><th class="stub">Compiler: C++</th>
 <td>Android GCC (arm-4.9)</td>
 </tr>
-<tr class="row-even"><td>Environment</td>
+<tr class="row-odd"><th class="stub">Environment</th>
 <td>[not editable: “No changes to apply.”]</td>
 </tr>
-<tr class="row-odd"><td>Debugger</td>
+<tr class="row-even"><th class="stub">Debugger</th>
 <td>Android Debugger for Android GCC (arm-4.9)</td>
 </tr>
-<tr class="row-even"><td>Android GDB server</td>
-<td>[not editable]</td>
+<tr class="row-odd"><th class="stub">Qt version</th>
+<td><strong>THE “ANDROID” ONE FROM QT VERSIONS, ABOVE</strong></td>
 </tr>
-<tr class="row-odd"><td>Qt version</td>
-<td>THE “ANDROID” ONE FROM QT VERSIONS, ABOVE</td>
-</tr>
-<tr class="row-even"><td>Qt mkspec</td>
+<tr class="row-even"><th class="stub">Qt mkspec</th>
 <td>&#160;</td>
 </tr>
-<tr class="row-odd"><td>CMake Tool</td>
+<tr class="row-odd"><th class="stub">CMake Tool</th>
 <td>System CMake at <code class="docutils literal notranslate"><span class="pre">/usr/bin/cmake</span></code></td>
 </tr>
-<tr class="row-even"><td>CMake Generator</td>
+<tr class="row-even"><th class="stub">CMake Generator</th>
 <td>CodeBlocks - Unix Makefiles</td>
 </tr>
-<tr class="row-odd"><td>CMake Configuration</td>
+<tr class="row-odd"><th class="stub">CMake Configuration</th>
 <td>[not editable]</td>
+</tr>
+<tr class="row-even"><th class="stub">Additional Qbs Profile Settings</th>
+<td>&#160;</td>
 </tr>
 </tbody>
 </table>
@@ -211,56 +225,59 @@ build_qt.py script should generate a series of <code class="docutils literal not
 <blockquote>
 <div><table border="1" class="docutils">
 <colgroup>
-<col width="30%" />
-<col width="70%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
-<tr class="row-odd"><th class="head">Option</th>
+<tr class="row-odd"><th class="head stub">Option</th>
 <th class="head">Setting</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>Name:</td>
+<tr class="row-even"><th class="stub">Name</th>
 <td><code class="docutils literal notranslate"><span class="pre">Custom_Android_x86</span></code></td>
 </tr>
-<tr class="row-odd"><td>File system name:</td>
+<tr class="row-odd"><th class="stub">File system name</th>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td>Device type:</td>
+<tr class="row-even"><th class="stub">Device type</th>
 <td>Android Device</td>
 </tr>
-<tr class="row-odd"><td>Device:</td>
+<tr class="row-odd"><th class="stub">Device</th>
 <td>Run on Android (default for Android)</td>
 </tr>
-<tr class="row-even"><td>Sysroot:</td>
+<tr class="row-even"><th class="stub">Sysroot</th>
 <td>&#160;</td>
 </tr>
-<tr class="row-odd"><td>Compiler:</td>
+<tr class="row-odd"><th class="stub">Compiler: C</th>
+<td>&lt;No compiler&gt;</td>
+</tr>
+<tr class="row-even"><th class="stub">Compiler: C++</th>
 <td>Android GCC (i686-4.9)</td>
 </tr>
-<tr class="row-even"><td>Environment:</td>
+<tr class="row-odd"><th class="stub">Environment</th>
 <td>[not editable: “No changes to apply.”]</td>
 </tr>
-<tr class="row-odd"><td>Debugger:</td>
+<tr class="row-even"><th class="stub">Debugger</th>
 <td>Android Debugger for Android GCC (i686-4.9)</td>
 </tr>
-<tr class="row-even"><td>Android GDB server</td>
-<td>[not editable]</td>
+<tr class="row-odd"><th class="stub">Qt version</th>
+<td><strong>THE “ANDROID EMULATOR” ONE FROM QT VERSIONS, ABOVE</strong></td>
 </tr>
-<tr class="row-odd"><td>Qt version:</td>
-<td>THE “ANDROID EMULATOR” ONE FROM QT VERSIONS, ABOVE</td>
-</tr>
-<tr class="row-even"><td>Qt mkspec:</td>
+<tr class="row-even"><th class="stub">Qt mkspec</th>
 <td>&#160;</td>
 </tr>
-<tr class="row-odd"><td>CMake Tool:</td>
+<tr class="row-odd"><th class="stub">CMake Tool</th>
 <td>System CMake at <code class="docutils literal notranslate"><span class="pre">/usr/bin/cmake</span></code></td>
 </tr>
-<tr class="row-even"><td>CMake Generator:</td>
+<tr class="row-even"><th class="stub">CMake Generator</th>
 <td>CodeBlocks - Unix Makefiles</td>
 </tr>
-<tr class="row-odd"><td>CMake Configuration:</td>
+<tr class="row-odd"><th class="stub">CMake Configuration</th>
 <td>[not editable]</td>
+</tr>
+<tr class="row-even"><th class="stub">Additional Qbs Profile Settings</th>
+<td>&#160;</td>
 </tr>
 </tbody>
 </table>
@@ -269,58 +286,61 @@ build_qt.py script should generate a series of <code class="docutils literal not
 <blockquote>
 <div><table border="1" class="docutils">
 <colgroup>
-<col width="29%" />
-<col width="71%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
-<tr class="row-odd"><th class="head">Option</th>
+<tr class="row-odd"><th class="head stub">Option</th>
 <th class="head">Setting</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>Name</td>
+<tr class="row-even"><th class="stub">Name</th>
 <td><code class="docutils literal notranslate"><span class="pre">Custom_Windows_x86_64</span></code></td>
 </tr>
-<tr class="row-odd"><td>File system name</td>
+<tr class="row-odd"><th class="stub">File system name</th>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td>Device type</td>
+<tr class="row-even"><th class="stub">Device type</th>
 <td>Desktop</td>
 </tr>
-<tr class="row-odd"><td>Device</td>
+<tr class="row-odd"><th class="stub">Device</th>
 <td>Local PC (default for Desktop)</td>
 </tr>
-<tr class="row-even"><td>Sysroot</td>
+<tr class="row-even"><th class="stub">Sysroot</th>
 <td><code class="docutils literal notranslate"><span class="pre">[...]\qt_local_build\qt_windows_x86_64_install\bin</span></code></td>
 </tr>
-<tr class="row-odd"><td>Compiler: C</td>
+<tr class="row-odd"><th class="stub">Compiler: C</th>
 <td>Microsoft Visual C++ Compiler 14.0 (amd64)</td>
 </tr>
-<tr class="row-even"><td>Compiler: C++</td>
+<tr class="row-even"><th class="stub">Compiler: C++</th>
 <td>Microsoft Visual C++ Compiler 14.0 (amd64)</td>
 </tr>
-<tr class="row-odd"><td>Debugger</td>
+<tr class="row-odd"><th class="stub">Environment</th>
+<td>[not editable: “No changes to apply.”]</td>
+</tr>
+<tr class="row-even"><th class="stub">Debugger</th>
 <td>Auto-detected CDB at <code class="docutils literal notranslate"><span class="pre">C:\Program</span> <span class="pre">Files</span> <span class="pre">(x86)\Windows</span> <span class="pre">Kits\10\Debuggers\x64\cdb.exe</span></code></td>
 </tr>
-<tr class="row-even"><td>Qt version</td>
-<td>[YOUR CUSTOM ONE e.g.] Qt 5.10.0 (qt_windows_x86_64_install)</td>
+<tr class="row-odd"><th class="stub">Qt version</th>
+<td><strong>THE “WINDOWS 64-BIT” ONE FROM QT VERSIONS, ABOVE</strong></td>
 </tr>
-<tr class="row-odd"><td>Qt mkspec</td>
+<tr class="row-even"><th class="stub">Qt mkspec</th>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td>CMake tool</td>
+<tr class="row-odd"><th class="stub">CMake Tool</th>
 <td>System CMake at <code class="docutils literal notranslate"><span class="pre">C:\Program</span> <span class="pre">Files</span> <span class="pre">(x86)\CMake\bin\cmake.exe</span></code></td>
 </tr>
-<tr class="row-odd"><td>CMake generator</td>
+<tr class="row-even"><th class="stub">CMake Generator</th>
 <td>CodeBlocks - MinGW Makefiles, Platform: &lt;none&gt;, Toolset: &lt;none&gt;</td>
 </tr>
-<tr class="row-even"><td>CMake configuration</td>
+<tr class="row-odd"><th class="stub">CMake Configuration</th>
 <td><code class="docutils literal notranslate"><span class="pre">CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}</span></code>
 <code class="docutils literal notranslate"><span class="pre">CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}</span></code>
 <code class="docutils literal notranslate"><span class="pre">CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}</span></code>
 <code class="docutils literal notranslate"><span class="pre">QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}</span></code></td>
 </tr>
-<tr class="row-odd"><td>Additional Qbs Profile Settings:</td>
+<tr class="row-even"><th class="stub">Additional Qbs Profile Settings</th>
 <td>&#160;</td>
 </tr>
 </tbody>
@@ -329,109 +349,128 @@ build_qt.py script should generate a series of <code class="docutils literal not
 </div>
 <div class="section" id="build-settings">
 <h2>16.2.4. Build settings<a class="headerlink" href="#build-settings" title="Permalink to this headline">¶</a></h2>
-<p>… let’s put them in a camcops.pro.shared file:
+<p>… let’s put them in a <code class="docutils literal notranslate"><span class="pre">camcops.pro.shared</span></code> file:
 <a class="reference external" href="http://doc.qt.io/qtcreator/creator-sharing-project-settings.html">http://doc.qt.io/qtcreator/creator-sharing-project-settings.html</a></p>
 <div class="section" id="general">
 <h3>16.2.4.1. General<a class="headerlink" href="#general" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Use defaults, except everywhere you see “make arguments”, add <code class="docutils literal notranslate"><span class="pre">-j</span> <span class="pre">8</span></code> for an
-8-CPU machine to get it compiling in parallel. To save this effort,
-set <code class="docutils literal notranslate"><span class="pre">MAKEFLAGS=&quot;-j8&quot;</span></code> in your user environment (e.g. in <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>, or
-<code class="docutils literal notranslate"><span class="pre">~/.profile</span></code>); see
+<li>Use defaults, except everywhere you see <span class="menuselection">Build Settings ‣
+Build Steps ‣ Make ‣ Make arguments</span>, add <code class="docutils literal notranslate"><span class="pre">-j</span> <span class="pre">8</span></code> for an
+8-CPU machine to get it compiling in parallel.<ul>
+<li>To save this effort, set <code class="docutils literal notranslate"><span class="pre">MAKEFLAGS=&quot;-j8&quot;</span></code> in your user environment (e.g.
+in <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>, or <code class="docutils literal notranslate"><span class="pre">~/.profile</span></code>); see
 <a class="reference external" href="https://stackoverflow.com/questions/8860712/setting-default-make-options-for-qt-creator">https://stackoverflow.com/questions/8860712/setting-default-make-options-for-qt-creator</a>.
 HOWEVER, Qt Creator doesn’t seem to read that environment variable for me.
 Not sure why!</li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="section" id="android">
 <h3>16.2.4.2. Android<a class="headerlink" href="#android" title="Permalink to this headline">¶</a></h3>
 <p>Under <span class="menuselection">Build Settings ‣ Build Steps ‣ Build Android APK</span>:</p>
-<table border="1" class="docutils">
+<blockquote>
+<div><table border="1" class="docutils">
 <colgroup>
-<col width="21%" />
-<col width="79%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
-<tr class="row-odd"><th class="head">Option</th>
+<tr class="row-odd"><th class="head stub">Option</th>
 <th class="head">Setting</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>Android build SDK</td>
-<td>android-23 [= default]</td>
+<tr class="row-even"><th class="stub"><span class="menuselection">Application ‣ Android build SDK</span></th>
+<td><strong>PREVIOUSLY:</strong> android-23 [= default].
+<strong>NOW:</strong> android-28 [= default].</td>
 </tr>
-<tr class="row-odd"><td>Sign package:</td>
-<td>&#160;</td>
-</tr>
-<tr class="row-even"><td>Keystore</td>
+<tr class="row-odd"><th class="stub"><span class="menuselection">Sign package ‣ Keystore</span></th>
 <td><code class="docutils literal notranslate"><span class="pre">~/Documents/CamCOPS/android_keystore/CAMCOPS_ANDROID_KEYSTORE.keystore</span></code>
 [NB not part of published code, obviously!]</td>
 </tr>
-<tr class="row-odd"><td>Sign package</td>
-<td>Yes</td>
+<tr class="row-even"><th class="stub"><span class="menuselection">Sign package ‣ Sign package</span></th>
+<td>Yes (at least for release versions)</td>
 </tr>
-<tr class="row-even"><td>Qt deployment</td>
-<td>Bundle Qt libraries in APK [= default]
-[… has vanished as an option as of 2018-06-25]</td>
+<tr class="row-odd"><th class="stub"><span class="menuselection">Advanced actions ‣ Use Ministro service to
+install Qt</span></th>
+<td>Do NOT tick. (Formerly, before 2018-06-25, this was
+<span class="menuselection">Qt deployment ‣ Bundle Qt libraries in APK</span>. The
+objective remains to bundle Qt, not to install it via Ministro.)</td>
 </tr>
-<tr class="row-odd"><td>Additional libraries:</td>
-<td><code class="docutils literal notranslate"><span class="pre">~/dev/qt_local_build/openssl_android_armv7_build/openssl-1.0.2.h/libcrypto.so</span></code>
-<code class="docutils literal notranslate"><span class="pre">~/dev/qt_local_build/openssl_android_armv7_build/openssl-1.0.2.h/libssl.so</span></code>
-[… both of which were automatically added]</td>
+<tr class="row-even"><th class="stub">Additional libraries</th>
+<td><code class="docutils literal notranslate"><span class="pre">~/dev/qt_local_build/openssl_android_armv7_build/openssl-1.1.0g/libcrypto.so</span></code>
+<code class="docutils literal notranslate"><span class="pre">~/dev/qt_local_build/openssl_android_armv7_build/openssl-1.1.0g/libssl.so</span></code></td>
 </tr>
 </tbody>
 </table>
-<p>Then in the file AndroidManifest.xml (which Qt Creator has a custom editor for):</p>
-<table border="1" class="docutils">
+</div></blockquote>
+<p>Then in the file <code class="docutils literal notranslate"><span class="pre">AndroidManifest.xml</span></code> (which Qt Creator has a custom editor
+for):</p>
+<blockquote>
+<div><table border="1" class="docutils">
 <colgroup>
-<col width="36%" />
-<col width="64%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
-<tr class="row-odd"><th class="head">Option</th>
+<tr class="row-odd"><th class="head stub">Option</th>
 <th class="head">Setting</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>Package name</td>
+<tr class="row-even"><th class="stub">Package name</th>
 <td>org.camcops.camcops</td>
 </tr>
-<tr class="row-odd"><td>Version code</td>
+<tr class="row-odd"><th class="stub">Version code</th>
 <td>[integer; may as well use consecutive]</td>
 </tr>
-<tr class="row-even"><td>Version name</td>
+<tr class="row-even"><th class="stub">Version name</th>
 <td>[string]</td>
 </tr>
-<tr class="row-odd"><td>Minimum required SDK</td>
+<tr class="row-odd"><th class="stub">Minimum required SDK</th>
 <td>API 16: Android 4.1, 4.1.1 [default]</td>
 </tr>
-<tr class="row-even"><td>Target SDK</td>
-<td>WAS: API 23: Android 6.0 [default]
-AS OF 2018-06-25: API 26: Android 8.0 [Google Play Store requires this soon]</td>
+<tr class="row-even"><th class="stub">Target SDK</th>
+<td><strong>WAS:</strong> API 23: Android 6.0 [default].
+<strong>AS OF 2018-06-25:</strong> API 26: Android 8.0 [Google Play Store
+requires this soon].
+<strong>DOWNGRADED AGAIN 2018-07-16: OpenSSL problems.</strong> Probably because
+you have to rebuild OpenSSL for Android (see
+<code class="docutils literal notranslate"><span class="pre">DEFAULT_ANDROID_API_NUM</span></code> in <code class="docutils literal notranslate"><span class="pre">build_qt.py</span></code>).</td>
 </tr>
-<tr class="row-odd"><td>Application name</td>
+<tr class="row-odd"><th class="stub">Application name</th>
 <td>CamCOPS</td>
 </tr>
-<tr class="row-even"><td>Activity name</td>
+<tr class="row-even"><th class="stub">Activity name</th>
 <td>CamCOPS</td>
 </tr>
-<tr class="row-odd"><td>Run</td>
+<tr class="row-odd"><th class="stub">Run</th>
 <td>camcops</td>
 </tr>
-<tr class="row-even"><td>Application icon</td>
+<tr class="row-even"><th class="stub">Application icon</th>
 <td>[icon]</td>
 </tr>
-<tr class="row-odd"><td>Include default permissions for Qt modules</td>
+<tr class="row-odd"><th class="stub">Include default permissions for Qt modules</th>
 <td>[tick]</td>
 </tr>
-<tr class="row-even"><td>Include default features for Qt modules</td>
+<tr class="row-even"><th class="stub">Include default features for Qt modules</th>
 <td>[tick]</td>
 </tr>
-<tr class="row-odd"><td>[no other specific permission requested]</td>
-<td>&#160;</td>
+<tr class="row-odd"><th class="stub">Boxes for other permissions</th>
+<td>[no other specific permission requested]</td>
 </tr>
 </tbody>
 </table>
+<p>But then you must also edit <code class="docutils literal notranslate"><span class="pre">AndroidManifest.xml</span></code> manually to include the
+line:</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;meta-data android:name=&quot;android.app.load_local_libs&quot; android:value=&quot;-- %%INSERT_LOCAL_LIBS%% --:lib/libssl.so:lib/libcrypto.so&quot;/&gt;
+Note this bit:                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+</pre></div>
+</div>
+</div></blockquote>
+</div></blockquote>
 <p>For versions, see:</p>
 <ul class="simple">
 <li><a class="reference external" href="https://developer.android.com/guide/topics/manifest/manifest-element.html">https://developer.android.com/guide/topics/manifest/manifest-element.html</a></li>
@@ -458,8 +497,8 @@ etc.</p>
 </li>
 <li><p class="first">App category: “Utility/other”.</p>
 </li>
-<li><p class="first">Content rating: by its definitions, it hits criteria for references to
-illegal drugs (e.g. Deakin1HealthReview, and when strings are available,
+<li><p class="first">Content rating: by Google’s definitions, CamCOPS hits criteria for references
+to illegal drugs (e.g. Deakin1HealthReview, and when strings are available,
 the various drug abuse scoring scales). Did not meet Google Play’s criteria
 for sex, violence, etc.</p>
 </li>
@@ -494,20 +533,34 @@ see it at <a class="reference external" href="https://play.google.com/store">htt
 <h3>16.2.4.4. Google Play Store release history<a class="headerlink" href="#google-play-store-release-history" title="Permalink to this headline">¶</a></h3>
 <table border="1" class="docutils">
 <colgroup>
-<col width="19%" />
-<col width="24%" />
-<col width="24%" />
-<col width="20%" />
-<col width="13%" />
+<col width="17%" />
+<col width="21%" />
+<col width="21%" />
+<col width="18%" />
+<col width="12%" />
+<col width="11%" />
 </colgroup>
 <thead valign="bottom">
-<tr class="row-odd"><th class="head">CamCOPS version</th>
-<th class="head">AndroidManifest.xml
-version code</th>
-<th class="head">AndroidManifest.xml
-name</th>
+<tr class="row-odd"><th class="head">Google Play</th>
+<th class="head">AndroidManifest.xml</th>
+<th class="head">AndroidManifest.xml</th>
 <th class="head">To Play Store on</th>
-<th class="head">Target API</th>
+<th class="head">Minimum API</th>
+<th class="head">Target</th>
+</tr>
+<tr class="row-even"><th class="head">Store release</th>
+<th class="head">version code</th>
+<th class="head">name</th>
+<th class="head">&#160;</th>
+<th class="head">Android</th>
+<th class="head">Android</th>
+</tr>
+<tr class="row-odd"><th class="head">name</th>
+<th class="head">&#160;</th>
+<th class="head">&#160;</th>
+<th class="head">&#160;</th>
+<th class="head">API</th>
+<th class="head">API</th>
 </tr>
 </thead>
 <tbody valign="top">
@@ -515,18 +568,28 @@ name</th>
 <td>2</td>
 <td>2.0.1</td>
 <td>2017-08-04</td>
+<td>16</td>
 <td>23</td>
 </tr>
 <tr class="row-odd"><td>2.0.4 (beta)</td>
 <td>3</td>
 <td>2.0.4</td>
 <td>2017-10-22</td>
+<td>16</td>
 <td>23</td>
 </tr>
 <tr class="row-even"><td>2.2.3 (beta)</td>
 <td>5</td>
 <td>2.2.3</td>
 <td>2018-06-25</td>
+<td>16</td>
+<td>26</td>
+</tr>
+<tr class="row-odd"><td>2.2.4 (beta)</td>
+<td>6</td>
+<td>2.2.4</td>
+<td>2018-07-18</td>
+<td>23</td>
 <td>26</td>
 </tr>
 </tbody>
@@ -535,26 +598,62 @@ name</th>
 </div>
 <div class="section" id="notes">
 <h2>16.2.5. Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id1">
-<h3>16.2.5.1. Android<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="version-constraints-for-third-party-software">
+<h3>16.2.5.1. Version constraints for third-party software<a class="headerlink" href="#version-constraints-for-third-party-software" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>To build Android programs under Linux, also need:
-<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">openjdk-8-jdk</span></code></li>
-<li>Configure your Android SDK/NDK and Java JDK at:
-<span class="menuselection">Tools ‣ Options ‣ Android</span></li>
-<li>Above Android API 23, linking to non-public libraries is prohibited, possibly
-with exceptions for SSL/crypto.<ul>
+<li>OpenSSL 1.0.x has long-term support and 1.1.x is the current release.</li>
+<li>OpenSSL 1.0.2h didn’t compile under 64-bit Windows, whereas OpenSSL 1.1.x
+did.</li>
+<li>OpenSSL 1.1.x requires Qt 5.10 or higher
+(<a class="reference external" href="https://bugreports.qt.io/browse/QTBUG-52905">https://bugreports.qt.io/browse/QTBUG-52905</a>).</li>
+<li>SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
+(<a class="reference external" href="https://discuss.zetetic.net/t/sqlcipher-3-4-1-release/1962">https://discuss.zetetic.net/t/sqlcipher-3-4-1-release/1962</a>).</li>
+<li>Qt requires Android API ≥16 (<a class="reference external" href="http://doc.qt.io/qt-5/android-support.html">http://doc.qt.io/qt-5/android-support.html</a>).</li>
+<li>Qt 5.11.1 does not compile with the <code class="docutils literal notranslate"><span class="pre">android-16</span></code> toolchain (specifically
+its Bluetooth components). Qt looks for a Java package
+<code class="docutils literal notranslate"><span class="pre">android.bluetooth.le</span></code>, which is the Bluetooth Low Energy component that
+comes with Android SDK 18. So let’s try 18 as the minimum. That does compile.</li>
+<li>Android libraries should be compiled for the same SDK version as
+<code class="docutils literal notranslate"><span class="pre">minSdkVersion</span></code> in <code class="docutils literal notranslate"><span class="pre">AndroidManifest.xml</span></code> (see
+<a class="reference external" href="https://stackoverflow.com/questions/21888052/what-is-the-relation-between-app-platform-androidminsdkversion-and-androidtar/41079462#41079462">https://stackoverflow.com/questions/21888052/what-is-the-relation-between-app-platform-androidminsdkversion-and-androidtar/41079462#41079462</a>,
+and <a class="reference external" href="https://developer.android.com/ndk/guides/stable_apis">https://developer.android.com/ndk/guides/stable_apis</a>).</li>
+<li>For whatever reasons, CamCOPS (v2.2.3-2.2.4) doesn’t run on Android 4.4.x
+(API 18) but does run on 6.0 (API 23); intermediates untested.</li>
+<li>Google Play store will require <code class="docutils literal notranslate"><span class="pre">targetSdkVersion</span></code> to be at least 26 from
+2018-11-01
+(<a class="reference external" href="https://developer.android.com/distribute/best-practices/develop/target-sdk">https://developer.android.com/distribute/best-practices/develop/target-sdk</a>).</li>
+<li>Qt favour Android NDK r10e (the May 2015 release)
+(<a class="reference external" href="http://doc.qt.io/qt-5/androidgs.html">http://doc.qt.io/qt-5/androidgs.html</a>) but r11c also seems to work fine.</li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h3>16.2.5.2. Android<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first">To build Android programs under Linux, also need:
+<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">openjdk-8-jdk</span></code></p>
+</li>
+<li><p class="first">Configure your Android SDK/NDK and Java JDK at: <span class="menuselection">Tools ‣
+Options ‣ Android</span>, or in newer versions of Qt Creator,
+<span class="menuselection">Tools ‣ Options ‣ Devices ‣ Android ‣ Android
+Settings</span>.</p>
+</li>
+<li><p class="first">Above Android API 23, linking to non-public libraries is prohibited, possibly
+with exceptions for SSL/crypto.</p>
+<ul class="simple">
 <li><a class="reference external" href="https://android-developers.googleblog.com/2016/06/android-changes-for-ndk-developers.html">https://android-developers.googleblog.com/2016/06/android-changes-for-ndk-developers.html</a></li>
 <li><a class="reference external" href="https://developer.android.com/about/versions/nougat/android-7.0-changes#ndk">https://developer.android.com/about/versions/nougat/android-7.0-changes#ndk</a></li>
 </ul>
+<p>I think this caused fatal problems for CamCOPS in 2018-07; not sure, but this
+might explain it.</p>
 </li>
-<li><code class="docutils literal notranslate"><span class="pre">Error:</span> <span class="pre">&quot;unsupported_android_version&quot;</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">translated</span></code>: see
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">Error:</span> <span class="pre">&quot;unsupported_android_version&quot;</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">translated</span></code>: see
 <a class="reference external" href="https://bugreports.qt.io/browse/QTBUG-63952">https://bugreports.qt.io/browse/QTBUG-63952</a>. This error does not prevent you
-from continuing.</li>
+from continuing.</p>
+</li>
 </ul>
 </div>
 <div class="section" id="debugging">
-<h3>16.2.5.2. Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h3>
+<h3>16.2.5.3. Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p class="first">DON’T FORGET to set up both Debug and Release (+/- Profile) builds.</p>
 </li>
@@ -577,7 +676,7 @@ your build* directories.</p>
 </ul>
 </div>
 <div class="section" id="oddities">
-<h3>16.2.5.3. Oddities<a class="headerlink" href="#oddities" title="Permalink to this headline">¶</a></h3>
+<h3>16.2.5.4. Oddities<a class="headerlink" href="#oddities" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Sometimes you have to restart Qt creator after creating new build settings;
 it loses its .pro file and won’t show the project, or complains of a missing
@@ -628,11 +727,10 @@ which is not always removed by cleaning.</li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../autodoc/_index.html">19. Automatic documentation of core server source code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html">21. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../known_problems.html#known-problems-server">22. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../to_do.html">23. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq_known_problems.html">21. FAQ and known problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../to_do.html">22. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wishlist.html">23. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">24. Local configuration information</a></li>
 </ul>
 
   <h4>Previous topic</h4>

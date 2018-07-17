@@ -22,8 +22,22 @@ Change log/history
 
 *Both client and server changes are described here.*
 
+Quick links:
+
+- :ref:`2013 <changelog_2013>`
+- :ref:`2014 <changelog_2014>`
+- :ref:`2015 <changelog_2015>`
+- :ref:`2016 <changelog_2016>`
+- :ref:`2017 <changelog_2017>`
+- :ref:`2018 <changelog_2018>`
+
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
 ----------------------------------------------------------------------------------------
+
+.. _changelog_2013:
+
+2013
+~~~~
 
 **Server v1.0, 2013-08-14**
 
@@ -75,6 +89,11 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   e.g. "#!/usr/bin/python2.7":
   http://lintian.debian.org/tags/python-script-but-no-python-dep.html
 - Clinical text view.
+
+.. _changelog_2014:
+
+2014
+~~~~
 
 **Client v1.03, 2014-01-10**
 
@@ -499,6 +518,11 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   ... upgraded to 3.5.0.RC (install SDK + change tiapp.xml)
   ... fixed. So a Titanium bug.
 
+.. _changelog_2015:
+
+2015
+~~~~
+
 **Server v1.22, 2015-01-07**
 
 - Improved audit search.
@@ -687,6 +711,11 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - boldPrompt option to QuestionTypedVariables
 - editing_time_s field as standard on all tasks
 
+.. _changelog_2016:
+
+2016
+~~~~
+
 **Server v1.40, 2016-01-28**
 
 - From May 2015 to 28 Jan 2016.
@@ -870,9 +899,13 @@ Indirectly:
 
 Human-readable details are shown in this file.
 
+.. _changelog_2017:
 
 Current C++/SQLite client, Python/SQLAlchemy server
 ---------------------------------------------------
+
+2017
+~~~~
 
 **Client v2.0.0 beta**
 
@@ -916,13 +949,18 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client v2.0.5 beta, 2017-10-23**
 
-- Bugfix: if the server’s ID number definitions were consecutively numbered, the
-  client got confused and renumbered them from 1.
+- Bugfix: if the server’s ID number definitions were consecutively numbered,
+  the client got confused and renumbered them from 1.
 
 **Server v2.1.1 beta, 2017-10-23**
 
 - Bugfix: WSAS “is complete?” flag failed to recognize the “retired or work
   irrelevant for other reasons” flag.
+
+.. _changelog_2018:
+
+2018
+~~~~
 
 **Client v2.2.0 beta, 2018-01-04 to 2018-02-03**
 
@@ -936,7 +974,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   `ChoosePatientMenu::addPatient`; in fact, the patient name details changed
   without changing the underlying patient selection).
 
-- Bugfix: don’t think the patient ID number table was being made routinely (!?).
+- Bugfix: don’t think the patient ID number table was being made routinely
+  (!?).
 
 - New CIS-R task.
 
@@ -1033,6 +1072,210 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Client requires server v2.2.3.
 
+**Client v2.2.4, 2018-07-23**
+
+- Bugfix to Android client for older Android versions.
+
+  - On startup, CamCOPS was crashing with "Unfortunately, CamCOPS has stopped."
+    on older Android versions (e.g. 4.4.x).
+
+  - The USB debugging stream showed: ``java.lang.UnsatisfiedLinkError: dlopen
+    failed: could not load library "libcrypto.so.1.1" needed by
+    "libcamcops.so"; caused by library "libcrypto.so.1.1" not found``.
+
+  - Thoughts: see comments in ``changelog.rst``.
+
+.. Thoughts:
+  - We were adding ``libcrypto.so`` and ``libssl.so`` (as part of the Qt
+    Creator Build Settings). This used to work but now doesn't, presumably due
+    to a change in Qt Creator. (The files were being packaged; try copying the
+    ``.apk`` file and unzipping it.) The original files are symlinks to
+    ``libcrypto.so.1.1`` and ``libssl.so.1.1``. Adding the ``*.1.1`` files via
+    ``ANDROID_EXTRA_LIBS`` in ``camcops.pro`` is prohibited (the packaging
+    process complains about files that are not ``lib*.so``). In
+    ``libcamcops.so`` there are references to ``libcrypto.so.1.1``, but that
+    file is missing.
+..
+  - Others have noticed this or a similar problem:
+..
+    - https://forum.qt.io/topic/35847/qt5-2-androiddeployqt-openssl-library-versioning (2013)
+    - https://bugreports.qt.io/browse/QTCREATORBUG-11237
+    - https://bugreports.qt.io/browse/QTCREATORBUG-11062
+    - https://bugreports.qt.io/browse/QTBUG-47065
+..
+  - No change after manually deleting the build directory (not just cleaning)
+    and rebuilding.
+..
+  - So, another way round: why is ``libcamcops.so`` asking for a versioned
+    library? It turns out that the problem is that OpenSSL was built with
+    versioned libraries.
+..
+    Instructions at http://doc.qt.io/qt-5/opensslsupport.html suggest using
+    ``make CALC_VERSIONS="SHLIB_COMPAT=; SHLIB_SOVER=" build_libs`` when
+    building OpenSSL for Android, also as per
+    https://stackoverflow.com/questions/24204366/how-to-build-openssl-as-unversioned-shared-lib-for-android,
+    but that is for an older version of OpenSSL (e.g. 1.0.2d). Lots of things
+    failed, but I succeeded by automatically editing the Makefile in a hacky
+    way. See changes in ``build_qt.py``. We now have unversioned libraries for
+    Android.
+..
+  - I'm less clear what changed as it was working well beforehand!
+..
+    - In retrospect: may have been changing the Android API level from 23 to
+      28.
+..
+  - Then we got this crash: ``java.lang.UnsatisfiedLinkError: dlopen failed:
+    cannot locate symbol "EVP_MD_CTX_new" referenced by "libcamcops.so"...``.
+    Deleted ``qmake`` and rebuilt via
+    ``build_qt.py --build_android_arm_v7_32``. Didn't build for Android
+    (``undefined reference to WebPInitAlphaProcessingNEON``). Upgraded Qt to
+    5.11.1. Built fine (Linux, Android). Same crash. But as before,
+    libcrypto.so and libssl.so are being loaded.
+..
+  - We are using android-ndk-r11c (March 2016); Qt's preference is 10e (May
+    2015) (as per http://doc.qt.io/qt-5/androidgs.html). The current version
+    (as of 2018-07-04) is r17b (June 2018); see
+    https://developer.android.com/ndk/downloads/. Still, 11c has worked
+    throughout.
+..
+  - I suspect the root cause is approximately as follows.
+..
+    - At present, the Qt build uses dynamic linking to OpenSSL. (That's why
+      the Linux version needs to find libcrypto.so and libssl.so.)
+..
+    - In the Linux build of CamCOPS, OpenSSL is included statically. (That's
+      why direct calls from cryptofunc.cpp to EVP* calls work.)
+      (Certainly,
+      ``objdump -t build-camcops-CustomLinux-Debug/camcops | grep EVP`` shows a
+      bunch of stuff, and ``EVP_MD_CTX_new`` is present for ``objdump -T`` as
+      well as ``objdump -t``, as a real function.)
+..
+    - In the Android build, CamCOPS is built to a library, libcamcops.so.
+      Presumably that's why it can build without OpenSSL EVP* functions in it,
+      without complaining. But then it needs OpenSSL functions via DLL?
+      Certainly, ``objdump -t
+      build-camcops-Android_ARM-Release/android-build/libs/armeabi-v7a/libcamcops.so``
+      shows no symbols. However, ``strings`` shows EVP stuff, and ``objdump
+      -T`` shows ``EVP_MD_CTX_new`` as ``DF *UND* ... OPENSSL_1_1_0
+      EVP_MD_CTX_new``.
+..
+    - See also
+      https://stackoverflow.com/questions/32737355/elf-dynamic-symbol-table.
+..
+    - OK, so we need to deal with the DLL zone. Dealt with. Runs on Linux with
+      DLL mode and without; see OPENSSL_VIA_QLIBRARY.
+..
+  - No, perhaps I was wrong, because:
+..
+    - Now we get ``java.lang.UnsatisfiedLinkError: dlopen failed: cannot locate
+      symbol "HMAC_CTX_new" referenced by "libcamcops.so"``. So that's
+      progress. But ``HMAC_CTX_new`` isn't in my source code. If we do
+      ``objdump -T libcamcops.so | grep OPENSSL_1_1_0``, we get
+..
+      .. code-block::
+..
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 OBJ_nid2sn
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_CTX_new
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_iv_length
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_CTX_free
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CipherInit_ex
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_key_length
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_sha512
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 RAND_bytes
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_aes_256_cbc
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_nid
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_block_size
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CipherFinal_ex
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_CTX_new
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_Update
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 PKCS5_PBKDF2_HMAC_SHA1
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_Final
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_CTX_free
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 HMAC_Init_ex
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_get_cipherbyname
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 RAND_add
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_sha1
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CIPHER_CTX_set_padding
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_CipherUpdate
+        00000000      DF *UND*	00000000  OPENSSL_1_1_0 EVP_MD_size
+..
+      So possibilities include that I'm calling some of these inadvertently by
+      using types within cryptofunc.cpp; but more likely that sqlcipher is
+      calling them. We're not going to get far this way; the explicit DLL
+      approach was probably silly. Instead, see
+      https://stackoverflow.com/questions/25147714/qt-openssl-android and note
+      that we may need to insert into ``AndroidManifest.xml`` the following:
+..
+      .. code-block:: xml
+..
+        <meta-data android:name="android.app.load_local_libs" android:value="-- %%INSERT_LOCAL_LIBS%% --:lib/libssl.so:lib/libcrypto.so"/>
+        Note this bit:                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..
+      No, that didn't work. We ended up with two copies of the libraries, in
+      "...camcops" and "...camcops-1", but it didn't fix the problem. Perhaps
+      we need both static linkage (for CamCOPS internal calls to OpenSSL,
+      including SQLCipher) and dynamic linkage (for the parts of Qt that use
+      OpenSSL). Changes made to ``camcops.pro``. No, that didn't work either;
+      doesn't link (missing e.g. ``signal``). See
+      https://stackoverflow.com/questions/37122126/whats-the-exact-significance-of-android-ndk-platform-version-compared-to-api-le;
+      perhaps this is all down to a change in the Qt setting for Android NDK
+      level, from 23 to 26, without a change in the OpenSSL Android NDK build
+      level.
+..
+      Not yet explored:
+..
+      - https://github.com/openssl/openssl/issues/3826
+      - Note that SQLCipher may be moving from OpenSSL to mbedTLS:
+        https://github.com/praeclarum/sqlite-net/issues/597
+      - https://stackoverflow.com/questions/25049603/dlopen-failed-cannot-locate-symbol-signal?rq=1
+..
+      Trying NDK 10e (rather than 11c):
+..
+      - Download and unzip to ~/dev/
+      - Change ``build_qt.py`` default.
+      - In Qt Creator, change :menuselection:`Tools --> Options --> Devices --> Android --> Android Settings --> Android NDK location."
+      - ABANDONDED/REVERTED; see below.
+..
+      Aha. It's this, perhaps:
+..
+      - https://android-developers.googleblog.com/2016/06/android-changes-for-ndk-developers.html
+      - So, must be API 23 or lower, or dlopen() calls will fail, which is
+        exactly what we're seeing.
+..
+      The Sony tablet is Android 4.4.2 (API level 19), and fails; my Samsung
+      phone is Android 6.0.1 (API level 23) and works fine. So it is something
+      about the Android API. So, checking
+      https://wiki.qt.io/Qt_for_Android_known_issues: nothing obvious. But
+      upgrading the Sony Xperia Z2 tablet (to 6.0.1, the next available) made
+      the same binaries work.
+
+  - Upshot: Android API 19 (Android 4.4.x) no longer works. API level 23
+    (Android 6.0.1) is fine; intermediates untested. It's a little unclear
+    what's changed (unless I was just behind on testing for old versions of
+    Android and the problem had been there for a while). One possibility was
+    that the shared OpenSSL libraries were being compiled for ``android-23``
+    (as per ``build_qt.py``) and that was not the same as ``minSdkVersion`` in
+    ``AndroidManifest.xml``. The problems are explained well at
+    https://stackoverflow.com/questions/21888052/what-is-the-relation-between-app-platform-androidminsdkversion-and-androidtar/41079462#41079462,
+    where APP_PLATFORM is equivalent to the API version used by ``build_qt.py``
+    to compile OpenSSL etc.
+
+  - The upshot from that article is that libraries compiled with the Android
+    NDK (like OpenSSL in our case) must be compiled with for the same SDK
+    version (``APP_PLATFORM``) as ``minSdkVersion``.
+
+  - We were using ``minSdkVersion="16"``, so I tried setting
+    ``DEFAULT_ANDROID_API_NUM = 16`` in ``build_qt.py``, and recompiling for
+    Android using ``build_qt.py --build_android_arm_v7_32``, continuing to use
+    NDK r11c. I moved ``targetSdkVersion`` back to 26 (soon to be the Google
+    Play minimum). This works on Android 6.0.1 (API 23, using debug mode).
+    However, it still crashes (as above) with Android 4.4.x (API 18).
+    As of Feb 2018, about 58% of Android in the wild is API 23 or higher
+    (https://en.wikipedia.org/wiki/Android_version_history), and about 82% is
+    API 21 and higher. It is certainly better to fail to run than to crash, so
+    let's say that we will set API 23 (Android 6.0) as the minimum for now.
+
+
 **Server v2.2.4, 2018-06-29, IN PROGRESS**
 
 - Update to libraries:
@@ -1057,4 +1300,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - sqlalchemy from 1.2.0b2 to 1.2.8
   - typing from 3.6.2 to 3.6.4
 
+- Bugfix to SQLAlchemy/Alembic handling, such that tables are always created
+  with ``CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci`` rather than the erroneous
+  ``COLLATE utf8mb4_unicode_ci CHARSET utf8mb4``. See :ref:`MySQL: Illegal mix
+  of collations <mysql_illegal_mix_of_collations>`.
 

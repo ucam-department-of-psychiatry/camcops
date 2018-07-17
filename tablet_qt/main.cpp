@@ -26,22 +26,24 @@
 #include <QPushButton>
 #include <QStyleFactory>
 #include "core/camcopsapp.h"
+#include "crypto/cryptofunc.h"
 
 #ifdef FULL_LOG_FORMAT
-#ifdef QT_DEBUG
-const QString message_pattern(
-    "camcops[%{threadid}]: %{time yyyy-MM-ddTHH:mm:ss.zzz}"
-    ": %{type}: %{file}(%{line}): %{message}");
+    #ifdef QT_DEBUG
+        const QString message_pattern(
+            "camcops[%{threadid}]: %{time yyyy-MM-ddTHH:mm:ss.zzz}"
+            ": %{type}: %{file}(%{line}): %{message}");
+    #else
+        const QString message_pattern(
+            "camcops[%{threadid}]: %{time yyyy-MM-ddTHH:mm:ss.zzz}"
+            ": %{type}: %{message}");
+    #endif
 #else
-const QString message_pattern(
-    "camcops[%{threadid}]: %{time yyyy-MM-ddTHH:mm:ss.zzz}"
-    ": %{type}: %{message}");
-#endif
-#else
-const QString message_pattern("camcops: %{type}: %{message}");
+    const QString message_pattern("camcops: %{type}: %{message}");
 #endif
 
 
+#ifdef TEST_BASIC_QT_ONLY
 int runMinimalQtApp(int& argc, char* argv[])
 {
     QApplication app(argc, argv);
@@ -49,6 +51,7 @@ int runMinimalQtApp(int& argc, char* argv[])
     button.show();
     return app.exec();
 }
+#endif
 
 
 int main(int argc, char* argv[])
@@ -86,7 +89,11 @@ int main(int argc, char* argv[])
 
     qSetMessagePattern(message_pattern);
     // See also http://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output
+
     CamcopsApp app(argc, argv);
+#ifdef OPENSSL_VIA_QLIBRARY
+    cryptofunc::ensureAllCryptoFunctionsLoaded();
+#endif
     return app.run();
 #endif
 }

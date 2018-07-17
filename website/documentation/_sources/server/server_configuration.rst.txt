@@ -28,6 +28,7 @@
 .. _Supervisor: http://supervisord.org/
 .. _Ubuntu: http://www.ubuntu.com/
 
+.. _server_configuration:
 
 Configuring the server
 ======================

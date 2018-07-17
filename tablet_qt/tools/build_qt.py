@@ -278,29 +278,35 @@ ENVVAR_QT_BASE = "CAMCOPS_QT_BASE_DIR"
 # -----------------------------------------------------------------------------
 
 # Android
-DEFAULT_ANDROID_API_NUM = 23
+DEFAULT_ANDROID_API_NUM = 23  # see changelog.rst 2018-07-17
 DEFAULT_ROOT_DIR = join(USER_DIR, "dev", "qt_local_build")
 DEFAULT_ANDROID_SDK = join(USER_DIR, "dev", "android-sdk-linux")
 DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r11c")
+# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r10e")  # trying downgrade, 2018-07-16  # noqa
 DEFAULT_NDK_HOST = "linux-x86_64"
 DEFAULT_TOOLCHAIN_VERSION = "4.9"
 
 # Qt
 DEFAULT_QT_SRC_DIRNAME = "qt5"
 DEFAULT_QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
-DEFAULT_QT_GIT_BRANCH = "5.10.0"
-# previously "5.7.0", "5.9", "5.10" [= development branch]
+
+DEFAULT_QT_GIT_BRANCH = "5.11.1"
+# previously "5.7.0", "5.9", "5.10" [= development branch], "5.10.0"
 # I think in general one should use x.y.z not x.y versions, because the former
 # are the development chain and the latter get frozen.
 USING_QT_5_7 = False
-USING_QT_5_9 = True
+USING_QT_5_9 = False
 USING_QT_5_10 = False
+USING_QT_5_11 = True
 # ... to find out which are available: go into the local git directory and run
 # "git remote show origin"
 # 2017-12-01: 5.10 still too buggy (e.g. at CamcopsApp creation as QApplication
-# is initialized, crash in QXcbConnection::internAtom -- even with
-# ultraminimalist Qt app).
-# ... https://bugreports.qt.io/browse/QTBUG-64928
+#   is initialized, crash in QXcbConnection::internAtom -- even with
+#   ultraminimalist Qt app).
+#   ... https://bugreports.qt.io/browse/QTBUG-64928
+# However, OpenSSL 1.1 requires Qt 5.10.0 alpha:
+#   https://bugreports.qt.io/browse/QTBUG-52905
+
 DEFAULT_QT_GIT_COMMIT = HEAD
 DEFAULT_QT_USE_OPENSSL_STATICALLY = True
 FIX_QT_5_7_0_ANDROID_MAKE_INSTALL_BUG = USING_QT_5_7
@@ -2554,28 +2560,90 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # ---------------------------------------------------------------------
         # OpenSSL: Make
         # ---------------------------------------------------------------------
+        makefile = join(workdir, "Makefile")  # written to by Configure
+        extra_args = []  # type: List[str]
+
+        # A particular problem is that Android .so libraries must be
+        # UNVERSIONED, i.e. named "libcrypto.so" and "libssl.so", not e.g.
+        # "libcrypto.so.1.1" and "libssl.so.1.1". All references to the
+        # versions must be removed.
+        #
+        # In some OpenSSL versions, this can be achieved by setting the
+        # variable CALC_VERSIONS="SHLIB_COMPAT=; SHLIB_SOVER=", as an argument
+        # to make [1, 2], or as an environment variable [3].
+        #
+        # However, while that was true of OpenSSL 1.0.2d, it isn't true of
+        # OpenSSL 1.1.0g, in which the CALC_VERSIONS variable has vanished from
+        # Makefile.shared [4].
+        #
+        # The 1.1.0g Makefile.shared has things like SHLIBVERSION.
+        #
+        # [1] http://doc.qt.io/qt-5/opensslsupport.html, 2018-07-24
+        # [2] https://stackoverflow.com/questions/24204366/how-to-build-openssl-as-unversioned-shared-lib-for-android  # noqa
+        # [3] https://stackoverflow.com/questions/2826029/passing-additional-variables-from-command-line-to-make  # noqa
+        # [4] https://ftp.openssl.org/source/old/
+
+        make_unversioned_libraries = target_platform.android
+
+        if make_unversioned_libraries:
+            if OPENSSL_AT_LEAST_1_1:
+                # Work this out from the generated Makefile.
+                # Look for "all" as the main target.
+
+                # This doesn't work:
+                # - Try to avoid "--environment-overrides".
+                # - https://github.com/openssl/openssl/issues/3902
+                # extra_args.append("SHLIB_VERSION_NUMBER=")
+                # extra_args.append("SHLIB_EXT=.so")
+
+                # Homebrew version, 2018-07-14, which works:
+                replace_multiple_in_file(makefile, [
+                    ('SHLIBS=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR) libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',  # noqa
+                     'SHLIBS=libcrypto.so libssl.so'),
+                    ('SHLIB_INFO="libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libcrypto.so" "libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libssl.so"',  # noqa
+                     'SHLIB_INFO="libcrypto.so" "libssl.so"'),
+                    # ... also deals with INSTALL_SHLIBS, INSTALL_SHLIB_INFO
+                    #     which are identical
+                    ('SHLIBNAME_FULL=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',  # noqa
+                     'SHLIBNAME_FULL=libcrypto.so'),
+                    ('SHLIBNAME_FULL=libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',
+                     'SHLIBNAME_FULL=libssl.so'),
+                ])
+            else:
+                # This is one way:
+                # env["CALC_VERSIONS"] = "SHLIB_COMPAT=; SHLIB_SOVER="
+
+                # This is another:
+                # Remove version numbers from final library filenames,
+                # AFTER configure has run:
+                # http://doc.qt.io/qt-5/opensslsupport.html
+                replace_multiple_in_file(makefile, [
+                    ('LIBNAME=$$i LIBVERSION=$(SHLIB_MAJOR).$(SHLIB_MINOR)',
+                     'LIBNAME=$$i'),
+                    ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
+                ])
+
+        def runmake(command: str = "") -> None:
+            run(cfg.make_args(command=command, env=env,
+                              extra_args=extra_args), env)
+
         if OPENSSL_AT_LEAST_1_1:
             # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
-            run(cfg.make_args(env=env), env)
-            if not OPENSSL_FAILS_OWN_TESTS:
-                if target_platform.os == BUILD_PLATFORM.os:
-                    run(cfg.make_args(command="test", env=env), env)
-                    # can't really test e.g. Android code directly under Linux
-                # run(cfg.make_args(command="install", env=env), env)
-
+            runmake()
         else:
-            # Have to remove version numbers from final library filenames,
-            # AFTER configure has run:
-            # http://doc.qt.io/qt-5/opensslsupport.html
+            runmake("depend")
+            runmake("build_libs")
 
-            makefile = join(workdir, "Makefile")
-            replace_multiple_in_file(makefile, [
-                ('LIBNAME=$$i LIBVERSION=$(SHLIB_MAJOR).$(SHLIB_MINOR)',
-                    'LIBNAME=$$i'),
-                ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
-            ])
-            run(cfg.make_args(command="depend", env=env), env)
-            run(cfg.make_args(command="build_libs", env=env), env)
+        # ---------------------------------------------------------------------
+        # OpenSSL: Test
+        # ---------------------------------------------------------------------
+        test_openssl = (
+            (not OPENSSL_FAILS_OWN_TESTS)  and
+            target_platform.os == BUILD_PLATFORM.os
+            # can't really test e.g. Android code directly under Linux
+        )
+        if test_openssl:
+            runmake("test)")
 
     # -------------------------------------------------------------------------
     # OpenSSL: check libraries and/or copy libraries to their standard names.
@@ -3016,6 +3084,9 @@ Troubleshooting Qt 'make' failures
 Q.  If this is the first time you've had this error...
 A.  RE-RUN THE SCRIPT; sometimes Qt builds fail then pick themselves up the 
     next time.
+    
+Q.  If you can't see the error...
+A.  Try with the "--nparallel 1" option.
 """)  # noqa
             _ = """
 Q.  fatal error: uiviewsettingsinterop.h: No such file or directory
