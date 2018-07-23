@@ -32,8 +32,8 @@
 # =============================================================================
 
 # When you alter the server, it is normal to change these two:
-CAMCOPS_SERVER_VERSION_STRING = "2.2.4"
-CAMCOPS_CHANGEDATE = "2018-06-29"
+CAMCOPS_SERVER_VERSION_STRING = "2.2.5"
+CAMCOPS_CHANGEDATE = "2018-07-23"
 
 # BEWARE: it is not normal to have to change MINIMUM_TABLET_VERSION_STRING.
 # If you increase it, you may prevent old clients from uploading.

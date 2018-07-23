@@ -1276,7 +1276,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     let's say that we will set API 23 (Android 6.0) as the minimum for now.
 
 
-**Server v2.2.4, 2018-06-29, IN PROGRESS**
+**Server v2.2.4, 2018-06-29**
 
 - Update to libraries:
 
@@ -1305,3 +1305,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   ``COLLATE utf8mb4_unicode_ci CHARSET utf8mb4``. See :ref:`MySQL: Illegal mix
   of collations <mysql_illegal_mix_of_collations>`.
 
+**Server v2.2.5, 2018-07-23**
+
+- Python package: ``camcops-server``.

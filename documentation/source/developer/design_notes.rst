@@ -137,6 +137,8 @@ Why not code it all in Java?
 - SQLite would be via JDBC or similar
   http://stackoverflow.com/questions/41233/java-and-sqlite
 
+- Also, http://tech.jonathangardner.net/wiki/Why_Java_Sucks;
+  http://steve-yegge.blogspot.com/2006/03/execution-in-kingdom-of-nouns.html
 
 .. rubric:: Footnotes
 

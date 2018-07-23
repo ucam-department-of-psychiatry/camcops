@@ -1,1 +1,0 @@
-camcops_server project
