@@ -30,6 +30,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -110,25 +111,31 @@ class AbstractSatisfaction(object):
             r = None
         # noinspection PyUnresolvedReferences
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req) + """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """
-        # ... self.get_is_complete_tr() is from Task, and we are a mixin
-        h += tr_qa(req.wappstring("satis_service_being_rated"), self.service)
-        h += tr_qa("{} {}?".format(rating_q, self.service), r)
-        h += tr_qa(good_q, self.good)
-        h += tr_qa(bad_q, self.bad)
-        h += """
+                {service}
+                {rating}
+                {good}
+                {bad}
             </table>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            # ... self.get_is_complete_tr() is from Task, and we are a mixin
+            service=tr_qa(
+                req.wappstring("satis_service_being_rated"), self.service),
+            rating=tr_qa("{} {}?".format(rating_q, self.service), r),
+            good=tr_qa(good_q, self.good),
+            bad=tr_qa(bad_q, self.bad),
+        )
         return h
 
     def get_task_html(self, req: CamcopsRequest) -> str:

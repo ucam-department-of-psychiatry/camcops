@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
@@ -265,22 +266,7 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     continue
                 d[option] = self.wxstring(req, "" + q + "_option" + str(option))
             answer_dicts_dict[q] = d
-        h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
-                answer(score) + " / {}".format(MAX_SCORE))
-        h += tr_qa(self.wxstring(req, "severity") + " <sup>[2]</sup>", severity)
-        h += """
-                </table>
-            </div>
-            <table class="taskdetail">
-                <tr>
-                    <th width="40%">Question</th>
-                    <th width="60%">Answer</th>
-                </tr>
-        """
+        q_a = ""
         for q in task_field_list_for_display:
             if q == "whichq16":
                 qstr = self.wxstring(req, "whichq16_title")
@@ -294,11 +280,24 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                         col.permitted_value_checker.maximum
                     )
                 qstr = self.wxstring(req, "" + q + "_s") + rangestr
-            h += tr_qa(qstr, get_from_dict(answer_dicts_dict[q],
-                                           getattr(self, q)))
-        h += """
+            q_a += tr_qa(qstr, get_from_dict(answer_dicts_dict[q],
+                                             getattr(self, q)))
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {severity}
+                </table>
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="40%">Question</th>
+                    <th width="60%">Answer</th>
+                </tr>
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Only Q1–Q17 scored towards the total.
                     Re Q16: values of ‘3’ (‘not assessed’) are not actively
                     scored, after e.g. Guy W (1976) <i>ECDEU Assessment Manual
@@ -308,5 +307,17 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 [2] ≥23 very severe, ≥19 severe, ≥14 moderate,
                     ≥8 mild, &lt;8 none.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score") + " <sup>[1]</sup>",
+                answer(score) + " / {}".format(MAX_SCORE)
+            ),
+            severity=tr_qa(
+                self.wxstring(req, "severity") + " <sup>[2]</sup>",
+                severity
+            ),
+            q_a=q_a,
+        )
         return h

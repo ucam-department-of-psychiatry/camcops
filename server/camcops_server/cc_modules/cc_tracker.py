@@ -34,6 +34,7 @@ from pyramid.renderers import render
 
 from .cc_audit import audit
 from .cc_constants import (
+    CssClass,
     CSS_PAGED_MEDIA,
     DateFormat,
     FULLWIDTH_PLOT_WIDTH,
@@ -67,14 +68,14 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 TRACKER_DATEFORMAT = "%Y-%m-%d"
 WARNING_NO_PATIENT_FOUND = """
-    <div class="warning">
+    <div class="{CssClass.WARNING}">
     </div>
-"""
+""".format(CssClass=CssClass)
 WARNING_DENIED_INFORMATION = """
-    <div class="warning">
+    <div class="{CssClass.WARNING}">
         Other tasks exist for this patient that you do not have access to view.
     </div>
-"""
+""".format(CssClass=CssClass)
 
 DEBUG_TRACKER_TASK_INCLUSION = False  # should be False for production system
 

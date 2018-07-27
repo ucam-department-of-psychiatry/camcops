@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -97,9 +98,15 @@ class LshsA(TaskHasPatientMixin, Task,
         for option in range(0, 5):
             answer_dict[option] = (str(option) + " — " +
                                    self.wxstring(req, "a_option" + str(option)))
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+                self.wxstring(req, "a_q" + str(q) + "_question"),
+                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+            )
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     <tr>
                         <td>{total_score_str}</td>
@@ -107,25 +114,21 @@ class LshsA(TaskHasPatientMixin, Task,
                     </tr>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
                     <th width="40%">Answer</th>
                 </tr>
+                {q_a}
+            </table>
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,
             max_total=self.MAX_TOTAL,
+            q_a=q_a,
         )
-        for q in range(1, self.NQUESTIONS + 1):
-            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                self.wxstring(req, "a_q" + str(q) + "_question"),
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
-            )
-        h += """
-            </table>
-        """
         return h
 
 
@@ -169,9 +172,16 @@ class LshsLaroi2005(TaskHasPatientMixin, Task,
             answer_dict[option] = (
                 str(option) + " — " +
                 self.wxstring(req, "option" + str(option)))
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+                "Q" + str(q) + " – " +
+                self.wxstring(req, "q" + str(q) + "_question"),
+                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+            )
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     <tr>
                         <td>{total_score_str}</td>
@@ -179,24 +189,19 @@ class LshsLaroi2005(TaskHasPatientMixin, Task,
                     </tr>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
                     <th width="40%">Answer</th>
                 </tr>
+                {q_a}
+            </table>
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,
             max_total=self.MAX_TOTAL,
+            q_a=q_a,
         )
-        for q in range(1, self.NQUESTIONS + 1):
-            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                "Q" + str(q) + " – " +
-                self.wxstring(req, "q" + str(q) + "_question"),
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
-            )
-        h += """
-            </table>
-        """
         return h

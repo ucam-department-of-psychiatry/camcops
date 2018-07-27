@@ -30,6 +30,7 @@ from cardinal_pythonlib.maths_py import mean
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.sqltypes import Float
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import answer, identity, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -136,35 +137,44 @@ class QolBasic(TaskHasPatientMixin, Task):
         rs_qol = self.get_rs_qol()
         mean_qol = mean([tto_qol, rs_qol])
         h = """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr("Mean QoL", answer(ws.number_to_dp(mean_qol, DP, default=None),
-                                   formatter_answer=identity))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {mean_qol}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Quality of life (QoL) has anchor values of 0 (none) and 1
                 (perfect health), and can be asked about in several ways.
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="33%">Scale</th>
                     <th width="33%">Answer</th>
                     <td width="33%">Implied QoL</th>
                 </tr>
-        """
-        h += tr(self.wxstring(req, "tto_q_s"),
+                {tto}
+                {rs}
+            </table>
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            mean_qol=tr(
+                "Mean QoL",
+                answer(ws.number_to_dp(mean_qol, DP, default=None),
+                       formatter_answer=identity)
+            ),
+            tto=tr(
+                self.wxstring(req, "tto_q_s"),
                 answer(ws.number_to_dp(self.tto, DP, default=None)),
                 answer(ws.number_to_dp(tto_qol, DP, default=None),
-                       formatter_answer=identity))
-        h += tr(self.wxstring(req, "rs_q_s"),
+                       formatter_answer=identity)
+            ),
+            rs=tr(
+                self.wxstring(req, "rs_q_s"),
                 answer(ws.number_to_dp(self.rs, DP, default=None)),
                 answer(ws.number_to_dp(rs_qol, DP, default=None),
-                       formatter_answer=identity))
-        h += """
-            </table>
-        """
+                       formatter_answer=identity)
+            ),
+        )
         return h

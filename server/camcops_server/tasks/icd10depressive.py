@@ -32,6 +32,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
+    CssClass,
     DateFormat,
     ICD10_COPYRIGHT_DIV,
 )
@@ -481,41 +482,62 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             req, fieldname, self.wxstring(req, "" + fieldname))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = self.get_standard_clinician_comments_block(req, self.comments)
-        h += """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr_qa(req.wappstring("date_pertains_to"),
-                   format_datetime(self.date_pertains_to, DateFormat.LONG_DATE,
-                                   default=None))
-        h += tr_qa(req.wappstring("category") + " <sup>[1,2]</sup>",
-                   self.get_full_description(req))
-        h += tr(self.wxstring(req, "n_core"),
-                answer(self.n_core()) + " / 3")
-        h += tr(self.wxstring(req, "n_total"),
-                answer(self.n_total()) + " / 10")
-        h += tr(self.wxstring(req, "n_somatic"),
-                answer(self.n_somatic()) + " / 8")
-        h += tr(self.wxstring(req, "psychotic_symptoms_or_stupor") +
-                " <sup>[2]</sup>",
-                answer(get_present_absent_none(req,
-                                               self.is_psychotic_or_stupor())))
-        h += """
+        h = """
+            {clinician_comments}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {date_pertains_to}
+                    {category}
+                    {n_core}
+                    {n_total}
+                    {n_somatic}
+                    {psychotic_symptoms_or_stupor}
                 </table>
             </div>
-            <div class="explanation">
-        """
-        h += req.wappstring("icd10_symptomatic_disclaimer")
-        h += """
+            <div class="{CssClass.EXPLANATION}">
+                {icd10_symptomatic_disclaimer}
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="80%">Question</th>
                     <th width="20%">Answer</th>
                 </tr>
-        """
+        """.format(
+            clinician_comments=self.get_standard_clinician_comments_block(
+                req, self.comments),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            date_pertains_to=tr_qa(
+                req.wappstring("date_pertains_to"),
+                format_datetime(self.date_pertains_to, DateFormat.LONG_DATE,
+                                default=None)
+            ),
+            category=tr_qa(
+                req.wappstring("category") + " <sup>[1,2]</sup>",
+                self.get_full_description(req)
+            ),
+            n_core=tr(
+                self.wxstring(req, "n_core"),
+                answer(self.n_core()) + " / 3"
+            ),
+            n_total=tr(
+                self.wxstring(req, "n_total"),
+                answer(self.n_total()) + " / 10"
+            ),
+            n_somatic=tr(
+                self.wxstring(req, "n_somatic"),
+                answer(self.n_somatic()) + " / 8"
+            ),
+            psychotic_symptoms_or_stupor=tr(
+                self.wxstring(req, "psychotic_symptoms_or_stupor") +
+                " <sup>[2]</sup>",
+                answer(get_present_absent_none(
+                    req, self.is_psychotic_or_stupor()))
+            ),
+            icd10_symptomatic_disclaimer=req.wappstring(
+                "icd10_symptomatic_disclaimer"),
+        )
 
         h += self.text_row(req, "duration_text")
         h += self.row_true_false(req, "duration_at_least_2_weeks")
@@ -541,7 +563,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
         h += """
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Mild depression requires ≥2 core symptoms and ≥4 total
                 diagnostic symptoms.
                 Moderate depression requires ≥2 core and ≥6 total.
@@ -562,5 +584,5 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 Moreover, psychotic symptoms can occur in mild/moderate
                 depression (Maj M et al., 2007, PMID 17915981).
             </div>
-        """ + ICD10_COPYRIGHT_DIV
+        """.format(CssClass=CssClass) + ICD10_COPYRIGHT_DIV
         return h

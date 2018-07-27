@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import get_yes_no
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -114,9 +115,17 @@ class Epds(TaskHasPatientMixin, Task,
                     str(option) + " — " +
                     self.wxstring(req, "q" + str(q) + "_option" + str(option)))
             answer_dicts.append(d)
+
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+                self.wxstring(req, "q" + str(q) + "_question"),
+                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
+            )
+
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     <tr>
                         <td>{total_score_str}</td>
@@ -132,16 +141,24 @@ class Epds(TaskHasPatientMixin, Task,
                     </tr>
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Ratings are over the last week.
                 <b>{suicide}</b>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
+                {q_a}
+            </table>
+            <div class="{CssClass.FOOTNOTES}">
+                [1] &ge;10.
+                [2] &ge;13.
+                (Cox et al. 1987, PubMed ID 3651732.)
+            </div>
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,
@@ -150,19 +167,7 @@ class Epds(TaskHasPatientMixin, Task,
             above_cutoff_1=get_yes_no(req, above_cutoff_1),
             ac2str=self.wxstring(req, "above_cutoff_2"),
             above_cutoff_2=get_yes_no(req, above_cutoff_2),
-            suicide=self.wxstring(req, "always_look_at_suicide")
+            suicide=self.wxstring(req, "always_look_at_suicide"),
+            q_a=q_a,
         )
-        for q in range(1, self.NQUESTIONS + 1):
-            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                self.wxstring(req, "q" + str(q) + "_question"),
-                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
-            )
-        h += """
-            </table>
-            <div class="footnotes">
-                [1] &ge;10.
-                [2] &ge;13.
-                (Cox et al. 1987, PubMed ID 3651732.)
-            </div>
-        """
         return h

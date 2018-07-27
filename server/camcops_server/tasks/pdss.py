@@ -31,7 +31,10 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float, Integer
 
-from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV  # noqa
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
+)
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr
@@ -136,8 +139,8 @@ class Pdss(TaskHasPatientMixin, Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {complete_tr}
                     <tr>
                         <td>Total score</td>
@@ -149,12 +152,13 @@ class Pdss(TaskHasPatientMixin, Task,
                     </td>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
                     <th width="40%">Answer ({qmin}–{qmax})</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             complete_tr=self.get_is_complete_tr(req),
             total=answer(self.total_score()),
             tmax=self.MAX_TOTAL,

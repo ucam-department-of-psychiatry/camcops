@@ -35,7 +35,7 @@ from camcops_server.cc_modules.cc_blob import (
     blob_relationship,
     get_blob_img_html,
 )
-from camcops_server.cc_modules.cc_constants import PV
+from camcops_server.cc_modules.cc_constants import CssClass, PV
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -284,42 +284,49 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         totalscore = self.total_score()
         category = self.category(req)
 
-        h = self.get_standard_clinician_comments_block(req, self.comments)
-        h += """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(totalscore) + " / {}".format(self.MAX_SCORE))
-        h += tr_qa(self.wxstring(req, "category") + " <sup>[1]</sup>",
-                   category)
-        h += """
+        h = """
+            {clinician_comments}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {category}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="69%">Question</th>
                     <th width="31%">Score</th>
                 </tr>
-        """
+        """.format(
+            clinician_comments=self.get_standard_clinician_comments_block(
+                req, self.comments),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(totalscore) + " / {}".format(self.MAX_SCORE)
+            ),
+            category=tr_qa(self.wxstring(req, "category") + " <sup>[1]</sup>",
+                           category),
+        )
 
         h += tr(self.wxstring(req, "subscore_visuospatial"),
                 answer(vsp) + " / 5",
-                tr_class="subheading")
+                tr_class=CssClass.SUBHEADING)
         h += tr("Path, cube, clock/contour, clock/numbers, clock/hands",
                 ", ".join([answer(x) for x in [self.q1, self.q2, self.q3,
                                                self.q4, self.q5]]))
 
         h += tr(self.wxstring(req, "subscore_naming"),
                 answer(naming) + " / 3",
-                tr_class="subheading")
+                tr_class=CssClass.SUBHEADING)
         h += tr("Lion, rhino, camel",
                 ", ".join([answer(x) for x in [self.q6, self.q7, self.q8]]))
 
         h += tr(self.wxstring(req, "subscore_attention"),
                 answer(attention) + " / 6",
-                tr_class="subheading")
+                tr_class=CssClass.SUBHEADING)
         h += tr("5 digits forwards, 3 digits backwards, tapping, serial 7s "
                 "[<i>scores 3</i>]",
                 ", ".join([answer(x) for x in [self.q9, self.q10, self.q11,
@@ -327,19 +334,19 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
         h += tr(self.wxstring(req, "subscore_language"),
                 answer(language) + " / 3",
-                tr_class="subheading")
+                tr_class=CssClass.SUBHEADING)
         h += tr("Repeat sentence 1, repeat sentence 2, fluency to letter ‘F’",
                 ", ".join([answer(x) for x in [self.q13, self.q14, self.q15]]))
 
         h += tr(self.wxstring(req, "subscore_abstraction"),
                 answer(abstraction) + " / 2",
-                tr_class="subheading")
+                tr_class=CssClass.SUBHEADING)
         h += tr("Means of transportation, measuring instruments",
                 ", ".join([answer(x) for x in [self.q16, self.q17]]))
 
         h += tr(self.wxstring(req, "subscore_memory"),
                 answer(memory) + " / 5",
-                tr_class="subheading")
+                tr_class=CssClass.SUBHEADING)
         h += tr(
             "Registered on first trial [<i>not scored</i>]",
             ", ".join([
@@ -403,7 +410,7 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
         h += tr(self.wxstring(req, "subscore_orientation"),
                 answer(orientation) + " / 6",
-                tr_class="subheading")
+                tr_class=CssClass.SUBHEADING)
         h += tr(
             "Date, month, year, day, place, city",
             ", ".join([
@@ -417,34 +424,37 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         h += tr_qa("≤12 years’ education?", self.education12y_or_less)
         h += """
             </table>
-            <table class="taskdetail">
-        """
-        h += subheading_spanning_two_columns(
-            "Images of tests: trail, cube, clock",
-            th_not_td=True)
-        h += tr(
-            td(get_blob_img_html(self.trailpicture),
-               td_class="photo", td_width="50%"),
-            td(get_blob_img_html(self.cubepicture),
-               td_class="photo", td_width="50%"),
-            literal=True,
-        )
-        h += tr(
-            td(get_blob_img_html(self.trailpicture),
-               td_class="photo", td_width="50%"),
-            td("", td_class="subheading"),
-            literal=True,
-        )
-        h += """
+            <table class="{CssClass.TASKDETAIL}">
+                {tr_subhead_images}
+                {tr_images_1}
+                {tr_images_2}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Normal is ≥26 (Nasreddine et al. 2005, PubMed ID 15817019).
             </div>
-            <div class="copyright">
+            <div class="{CssClass.COPYRIGHT}">
                 MoCA: Copyright © Ziad Nasreddine.
                 May be reproduced without permission for CLINICAL and
                 EDUCATIONAL use. You must obtain permission from the copyright
                 holder for any other use.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_subhead_images=subheading_spanning_two_columns(
+                "Images of tests: trail, cube, clock",
+                th_not_td=True),
+            tr_images_1=tr(
+                td(get_blob_img_html(self.trailpicture),
+                   td_class=CssClass.PHOTO, td_width="50%"),
+                td(get_blob_img_html(self.cubepicture),
+                   td_class=CssClass.PHOTO, td_width="50%"),
+                literal=True,
+            ),
+            tr_images_2=tr(
+                td(get_blob_img_html(self.trailpicture),
+                   td_class=CssClass.PHOTO, td_width="50%"),
+                td("", td_class=CssClass.SUBHEADING),
+                literal=True,
+            ),
+        )
         return h

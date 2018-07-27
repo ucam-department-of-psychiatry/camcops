@@ -45,7 +45,7 @@ class CardinalExpDetThreshold : public Task
 public:
     CardinalExpDetThreshold(CamcopsApp& app, DatabaseManager& db,
                             int load_pk = dbconst::NONEXISTENT_PK);
-    ~CardinalExpDetThreshold();
+    ~CardinalExpDetThreshold() override;
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------

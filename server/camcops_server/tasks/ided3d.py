@@ -30,6 +30,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
     GenericTabletRecordMixin,
@@ -150,7 +151,7 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
     @classmethod
     def get_html_table_header(cls) -> str:
         return """
-            <table class="extradetail">
+            <table class="{CssClass.EXTRADETAIL}">
                 <tr>
                     <th>Trial</th>
                     <th>Stage</th>
@@ -169,7 +170,7 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
                     <th>Correct?</th>
                     <th>Incorrect?</th>
                 </tr>
-        """
+        """.format(CssClass=CssClass)
 
     def get_html_table_row(self) -> str:
         return tr(
@@ -285,7 +286,7 @@ class IDED3DStage(GenericTabletRecordMixin, Base):
     @classmethod
     def get_html_table_header(cls) -> str:
         return """
-            <table class="extradetail">
+            <table class="{CssClass.EXTRADETAIL}">
                 <tr>
                     <th>Stage#</th>
                     <th>Stage name</th>
@@ -305,7 +306,7 @@ class IDED3DStage(GenericTabletRecordMixin, Base):
                     <th>Passed?</th>
                     <th>Failed?</th>
                 </tr>
-        """
+        """.format(CssClass=CssClass)
 
     def get_html_table_row(self) -> str:
         return tr(
@@ -449,24 +450,25 @@ class IDED3D(TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
-                    {}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 1. Simple discrimination (SD), and 2. reversal (SDr);
                 3. compound discrimination (CD), and 4. reversal (CDr);
                 5. intradimensional shift (ID), and 6. reversal (IDr);
                 7. extradimensional shift (ED), and 8. reversal (EDr).
             </div>
-            <table class="taskconfig">
+            <table class="{CssClass.TASKCONFIG}">
                 <tr>
                     <th width="50%">Configuration variable</th>
                     <th width="50%">Value</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(req),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
         )
         h += tr_qa(self.wxstring(req, "last_stage"), self.last_stage)
         h += tr_qa(self.wxstring(req, "max_trials_per_stage"),
@@ -492,9 +494,9 @@ class IDED3D(TaskHasPatientMixin, Task):
                    ws.webify(self.shape_definitions_svg))
         h += """
             </table>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
-        """
+        """.format(CssClass=CssClass)
         h += tr_qa("Aborted?", get_yes_no_none(req, self.aborted))
         h += tr_qa("Finished?", get_yes_no_none(req, self.finished))
         h += tr_qa("Last trial completed", self.last_trial_completed)
@@ -507,7 +509,7 @@ class IDED3D(TaskHasPatientMixin, Task):
             "<div>Trial-by-trial results:</div>" +
             self.get_trial_html() +
             """
-                <div class="footnotes">
+                <div class="{CssClass.FOOTNOTES}">
                     [1] Counterbalancing of dimensions is as follows, with
                     notation X/Y indicating that X is the first relevant
                     dimension (for stages SD–IDr) and Y is the second relevant
@@ -519,6 +521,6 @@ class IDED3D(TaskHasPatientMixin, Task):
                     4: colour/shape.
                     5: number/colour.
                 </div>
-            """
+            """.format(CssClass=CssClass)
         )
         return h

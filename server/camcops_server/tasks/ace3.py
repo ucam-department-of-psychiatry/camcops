@@ -37,7 +37,11 @@ from camcops_server.cc_modules.cc_blob import (
     blob_relationship,
     get_blob_img_html,
 )
-from camcops_server.cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH, PV
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    FULLWIDTH_PLOT_WIDTH,
+    PV,
+)
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -541,14 +545,17 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return (
             self.get_standard_clinician_comments_block(req, self.comments) +
             """
-                <div class="summary">
-                    <table class="summary">
+                <div class="{CssClass.SUMMARY}">
+                    <table class="{CssClass.SUMMARY}">
                         <tr>
                             {is_complete}
-                            <td class="figure" rowspan="7">{figurehtml}</td>
+                            <td class="{CssClass.FIGURE}" rowspan="7">{figurehtml}</td>
                         </tr>
-            """.format(is_complete=self.get_is_complete_td_pair(req),
-                       figurehtml=figurehtml) +
+            """.format(  # noqa
+                CssClass=CssClass,
+                is_complete=self.get_is_complete_td_pair(req),
+                figurehtml=figurehtml
+            ) +
             tr("Total ACE-III score <sup>[1]</sup>", answer(t) + " / 100") +
             tr("Attention", answer(a) + " / {} ({}%)".format(
                 ATTN_MAX, percent(a, ATTN_MAX))) +
@@ -563,12 +570,12 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             """
                     </table>
                 </div>
-                <table class="taskdetail">
+                <table class="{CssClass.TASKDETAIL}">
                     <tr>
                         <th width="75%">Question</th>
                         <th width="25%">Answer/score</td>
                     </tr>
-            """ +
+            """.format(CssClass=CssClass) +
             tr_qa("Age on leaving full-time education",
                   self.age_at_leaving_full_time_education) +
             tr_qa("Occupation", ws.webify(self.occupation)) +
@@ -746,11 +753,13 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                                    self.mem_recognize_address5)) +
 
             subheading_spanning_two_columns("Photos of test sheet") +
-            tr_span_col(get_blob_img_html(self.picture1), td_class="photo") +
-            tr_span_col(get_blob_img_html(self.picture2), td_class="photo") +
+            tr_span_col(get_blob_img_html(self.picture1),
+                        td_class=CssClass.PHOTO) +
+            tr_span_col(get_blob_img_html(self.picture2),
+                        td_class=CssClass.PHOTO) +
             """
                 </table>
-                <div class="footnotes">
+                <div class="{CssClass.FOOTNOTES}">
                     [1] In the ACE-R (the predecessor of the ACE-III),
                     scores ≤82 had sensitivity 0.84 and specificity 1.0 for
                     dementia, and scores ≤88 had sensitivity 0.94 and
@@ -758,7 +767,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     with AlzD, FTD, LBD, MCI, and controls
                     (Mioshi et al., 2006, PMID 16977673).
                 </div>
-                <div class="copyright">
+                <div class="{CssClass.COPYRIGHT}">
                     ACE-III: Copyright © 2012, John Hodges.
                     “The ACE-III is available for free. The copyright is held
                     by Professor John Hodges who is happy for the test to be
@@ -767,5 +776,5 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     clinical practice.”
                     (ACE-III FAQ, 7 July 2013, www.neura.edu.au).
                 </div>
-            """
+            """.format(CssClass=CssClass)
         )

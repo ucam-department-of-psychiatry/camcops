@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -102,9 +103,9 @@ class Bars(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                     continue
                 d[option] = self.wxstring(req, q + "_option" + str(option))
             answer_dicts_dict[q] = d
-        h = self.get_standard_clinician_block() + """
-            <div class="summary">
-                <table class="summary">
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     <tr>
                         <td>{total_score_str}</td>
@@ -112,12 +113,13 @@ class Bars(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                     </tr>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="35%">Question</th>
                     <th width="65%">Answer</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,

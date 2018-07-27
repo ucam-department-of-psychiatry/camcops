@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
@@ -149,43 +150,51 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             6: self.wxstring(req, "q20_option6"),
             7: self.wxstring(req, "q20_option7")
         }
+
+        q_a = ""
+        for i in range(1, Bprs.NQUESTIONS - 1):  # only does 1-18
+            q_a += tr_qa(
+                self.wxstring(req, "q" + str(i) + "_title"),
+                get_from_dict(main_dict, getattr(self, "q" + str(i)))
+            )
+        q_a += tr_qa(self.wxstring(req, "q19_title"),
+                     get_from_dict(q19_dict, self.q19))
+        q_a += tr_qa(self.wxstring(req, "q20_title"),
+                     get_from_dict(q20_dict, self.q20))
+
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score") +
-                " (0–{maxscore}; 18–{maxscore} if all rated) "
-                "<sup>[1]</sup>".format(maxscore=self.MAX_SCORE),
-                answer(self.total_score()))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Ratings pertain to the past week, or behaviour during
                 interview. Each question has specific answer definitions (see
                 e.g. tablet app).
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
                     <th width="40%">Answer <sup>[2]</sup></th>
                 </tr>
-        """
-        for i in range(1, Bprs.NQUESTIONS - 1):  # only does 1-18
-            h += tr_qa(
-                self.wxstring(req, "q" + str(i) + "_title"),
-                get_from_dict(main_dict, getattr(self, "q" + str(i)))
-            )
-        h += tr_qa(self.wxstring(req, "q19_title"),
-                   get_from_dict(q19_dict, self.q19))
-        h += tr_qa(self.wxstring(req, "q20_title"),
-                   get_from_dict(q20_dict, self.q20))
-        h += """
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Only questions 1–18 are scored.
                 [2] All answers are in the range 1–7, or 0 (not assessed, for
                     some).
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score") +
+                " (0–{maxscore}; 18–{maxscore} if all rated) "
+                "<sup>[1]</sup>".format(maxscore=self.MAX_SCORE),
+                answer(self.total_score())
+            ),
+            q_a=q_a,
+        )
         return h

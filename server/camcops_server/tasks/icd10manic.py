@@ -33,6 +33,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
+    CssClass,
     DateFormat,
     ICD10_COPYRIGHT_DIV,
 )
@@ -399,34 +400,45 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             req, fieldname, self.wxstring(req, "" + fieldname))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = self.get_standard_clinician_comments_block(req, self.comments)
-        h += """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr_qa(req.wappstring("date_pertains_to"),
-                   format_datetime(self.date_pertains_to,
-                                   DateFormat.LONG_DATE, default=None))
-        h += tr_qa(req.wappstring("category") + " <sup>[1,2]</sup>",
-                   self.get_description(req))
-        h += tr_qa(
-            self.wxstring(req, "psychotic_symptoms") + " <sup>[2]</sup>",
-            get_present_absent_none(req, self.psychosis_present()))
-        h += """
+        h = """
+            {clinician_comments}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {date_pertains_to}
+                    {category}
+                    {psychotic_symptoms}
                 </table>
             </div>
-            <div class="explanation">
-        """
-        h += req.wappstring("icd10_symptomatic_disclaimer")
-        h += """
+            <div class="{CssClass.EXPLANATION}">
+                {icd10_symptomatic_disclaimer}
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="80%">Question</th>
                     <th width="20%">Answer</th>
                 </tr>
-        """
+        """.format(
+            clinician_comments=self.get_standard_clinician_comments_block(
+                req, self.comments),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            date_pertains_to=tr_qa(
+                req.wappstring("date_pertains_to"),
+                format_datetime(self.date_pertains_to,
+                                DateFormat.LONG_DATE, default=None)
+            ),
+            category=tr_qa(
+                req.wappstring("category") + " <sup>[1,2]</sup>",
+                self.get_description(req)
+            ),
+            psychotic_symptoms=tr_qa(
+                self.wxstring(req, "psychotic_symptoms") + " <sup>[2]</sup>",
+                get_present_absent_none(req, self.psychosis_present())
+            ),
+            icd10_symptomatic_disclaimer=req.wappstring(
+                "icd10_symptomatic_disclaimer"),
+        )
 
         h += self.text_row(req, "core")
         for x in self.CORE_NAMES:
@@ -450,7 +462,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
         h += """
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Hypomania:
                     elevated/irritable mood
                     + sustained for ≥4 days
@@ -472,5 +484,9 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 first-rank symptoms can occur in manic psychosis
                 (e.g. Conus P et al., 2004, PMID 15337330.).
             </div>
-        """ + ICD10_COPYRIGHT_DIV
+            {icd10_copyright_div}
+        """.format(
+            CssClass=CssClass,
+            icd10_copyright_div=ICD10_COPYRIGHT_DIV,
+        )
         return h

@@ -100,7 +100,7 @@ def text_contents(e: Element, plain: bool = False, strip: bool = True) -> str:
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def all_extra_strings_as_dicts(
         config_filename: str) -> Dict[str, Dict[str, str]]:
-    """
+    r"""
     Returns strings from the all the extra XML string files.
     Caching is now via a proper cache.
 

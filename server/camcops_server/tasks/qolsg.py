@@ -30,6 +30,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer, String
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import get_yes_no_none, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -146,22 +147,26 @@ class QolSG(TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr_qa("Utility", ws.number_to_dp(self.utility, DP, default=None))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {utility}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Quality of life (QoL) has anchor values of 0 (none) and 1
                 (perfect health). The Standard Gamble offers a trade-off to
                 determine utility (QoL).
                 Values &lt;0 and &gt;1 are possible with some gambles.
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            utility=tr_qa("Utility",
+                          ws.number_to_dp(self.utility, DP, default=None)),
+        )
         h += tr_qa("Category choice: start time", self.category_start_time)
         h += tr_qa("Category choice: responded?",
                    get_yes_no_none(req, self.category_responded))

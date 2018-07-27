@@ -77,6 +77,7 @@ from .cc_constants import (
     CRIS_PATIENT_COMMENT_PREFIX,
     CRIS_SUMMARY_COMMENT_PREFIX,
     CRIS_TABLENAME_PREFIX,
+    CssClass,
     CSS_PAGED_MEDIA,
     DateFormat,
     ERA_NOW,
@@ -991,7 +992,7 @@ class Task(GenericTabletRecordMixin, Base):
             return []
         taskname = cls.shortname
         tablename = CRIS_TABLENAME_PREFIX + cls.tablename
-        instance = cls(None)  # blank PK
+        instance = cls()  # blank PK
         common = instance.get_cris_common_fieldspecs_values()
         taskfieldspecs = instance.get_cris_fieldspecs_values(req, common)
         rows = get_cris_dd_rows_from_fieldspecs(taskname, tablename,
@@ -1448,7 +1449,7 @@ class Task(GenericTabletRecordMixin, Base):
         very obvious visually when it isn't."""
         c = self.is_complete()
         return """<td>Completed?</td>{}<b>{}</b></td>""".format(
-            "<td>" if c else """<td class="incomplete">""",
+            "<td>" if c else """<td class="{}">""".format(CssClass.INCOMPLETE),
             get_yes_no(req, c)
         )
 

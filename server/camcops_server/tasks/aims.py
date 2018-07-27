@@ -30,7 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from camcops_server.cc_modules.cc_constants import PV
+from camcops_server.cc_modules.cc_constants import CssClass, PV
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -130,37 +130,45 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 self.wxstring(req, "main_option" + str(option))
             q10_dict[option] = str(option) + " — " + \
                 self.wxstring(req, "q10_option" + str(option))
-        h = """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
-                answer(score) + " / 40")
-        h += """
-                </table>
-            </div>
-            <table class="taskdetail">
-                <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
-                </tr>
-        """
+
+        q_a = ""
         for q in range(1, 10):
-            h += tr_qa(self.wxstring(req, "q" + str(q) + "_s"),
-                       get_from_dict(main_dict, getattr(self, "q" + str(q))))
-        h += (
+            q_a += tr_qa(
+                self.wxstring(req, "q" + str(q) + "_s"),
+                get_from_dict(main_dict, getattr(self, "q" + str(q))))
+        q_a += (
             tr_qa(self.wxstring(req, "q10_s"),
                   get_from_dict(q10_dict, self.q10)) +
             tr_qa(self.wxstring(req, "q11_s"),
                   get_yes_no_none(req, self.q11)) +
             tr_qa(self.wxstring(req, "q12_s"),
-                  get_yes_no_none(req, self.q12)) +
-            """
+                  get_yes_no_none(req, self.q12))
+        )
+
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
                 </table>
-                <div class="footnotes">
-                    [1] Only Q1–10 are scored.
-                </div>
-            """
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="50%">Question</th>
+                    <th width="50%">Answer</th>
+                </tr>
+                {q_a}
+            </table>
+            <div class="{CssClass.FOOTNOTES}">
+                [1] Only Q1–10 are scored.
+            </div>
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score") + " <sup>[1]</sup>",
+                answer(score) + " / 40"
+            ),
+            q_a=q_a,
         )
         return h

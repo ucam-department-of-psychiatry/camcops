@@ -31,7 +31,10 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV  # noqa
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
+)
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
@@ -218,8 +221,8 @@ class Iesr(TaskHasPatientMixin, Task,
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
             option_dict[a] = req.wappstring("iesr_a" + str(a))
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {complete_tr}
                     <tr>
                         <td>Total score</td>
@@ -239,15 +242,16 @@ class Iesr(TaskHasPatientMixin, Task,
                     </td>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 {tr_event}
             </table>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="75%">Question</th>
                     <th width="25%">Answer (0–4)</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             complete_tr=self.get_is_complete_tr(req),
             total=answer(self.total_score()),
             maxtotal=self.MAX_TOTAL,

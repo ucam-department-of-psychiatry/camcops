@@ -29,6 +29,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -83,20 +84,23 @@ class Irac(TaskHasPatientMixin, Task):
         else:
             achieved = None
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req) + """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """
-        h += tr_qa(self.wxstring(req, "q_aim"), ws.webify(self.aim))
-        h += tr_qa(self.wxstring(req, "q_achieved"), achieved)
-        h += """
+                {aim}
+                {achieved}
             </table>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            aim=tr_qa(self.wxstring(req, "q_aim"), ws.webify(self.aim)),
+            achieved=tr_qa(self.wxstring(req, "q_achieved"), achieved),
+        )
         return h

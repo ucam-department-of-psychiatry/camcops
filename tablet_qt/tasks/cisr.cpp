@@ -125,6 +125,7 @@ FURTHER THOUGHTS: we'll implement a DynamicQuestionnaire class; q.v.
 
 #include "cisr.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/dynamicquestionnaire.h"
 #include "questionnairelib/namevalueoptions.h"
@@ -802,6 +803,27 @@ const int V_OVERALL_IMPAIRMENT_DIFFICULT = 2;
 const int V_OVERALL_IMPAIRMENT_STOP_1_ACTIVITY = 3;
 const int V_OVERALL_IMPAIRMENT_STOP_GT_1_ACTIVITY = 4;
 
+// Scoring constants:
+
+const int MAX_TOTAL = 57;
+
+const int MAX_SOMATIC = 4;
+const int MAX_HYPO = 4;
+const int MAX_IRRIT = 4;
+const int MAX_CONC = 4;
+const int MAX_FATIGUE = 4;
+const int MAX_SLEEP = 4;
+const int MAX_DEPR = 4;
+const int MAX_DEPTHTS = 5;
+const int MAX_PHOBIAS = 4;
+const int MAX_WORRY = 4;
+const int MAX_ANX = 4;
+const int MAX_PANIC = 4;
+const int MAX_COMP = 4;
+const int MAX_OBSESS = 4;
+const int MAX_DEPCRIT1 = 3;
+const int MAX_DEPCRIT2 = 7;
+const int MAX_DEPCRIT3 = 8;
 
 // ============================================================================
 // Task registration
@@ -1076,12 +1098,47 @@ OpenableWidget* Cisr::editor(const bool read_only)
 QStringList Cisr::summaryForResult(const Cisr::CisrResult& result) const
 {
     // Used so that we don't recalculate results again and again!
+    using mathfunc::scorePhrase;
+    using mathfunc::totalScorePhrase;
+    using stringfunc::bold;
+
     QStringList lines;
+
+    auto addLine = [&lines](const QString& q, const QString& a) -> void {
+        const QString line = QString("%1: %2.").arg(q, bold(a));
+        lines.append(line);
+    };
+    auto addScore = [this, &lines](const QString& xstringname, const int score,
+                                   const int max_score) -> void {
+        const QString line = scorePhrase(xstring(xstringname),
+                                         score, max_score);
+        lines.append(line);
+    };
+
     if (!result.incomplete) {
-        lines.append(QString("Probable primary diagnosis: %1.").arg(
-                         result.diagnosisName(result.diagnosis_1)));
-        lines.append(QString("Probable secondary diagnosis: %2.").arg(
-                         result.diagnosisName(result.diagnosis_2)));
+        addLine("Probable primary diagnosis",
+                result.diagnosisName(result.diagnosis_1));
+        addLine("Probable secondary diagnosis",
+                result.diagnosisName(result.diagnosis_1));
+
+        lines.append(totalScorePhrase(result.getScore(), MAX_TOTAL));
+        addLine(xstring("impair_label"), functionalImpairment(result));
+
+        addScore("somatic_label", result.somatic_symptoms, MAX_SOMATIC);
+        addScore("hypo_label", result.hypochondria, MAX_HYPO);
+        addScore("irrit_label", result.irritability, MAX_IRRIT);
+        addScore("conc_label", result.concentration_poor, MAX_CONC);
+        addScore("fatigue_label", result.fatigue, MAX_FATIGUE);
+        addScore("sleep_label", result.sleep_problems, MAX_SLEEP);
+        addScore("depr_label", result.depression, MAX_DEPR);
+        addScore("depthts_label", result.depressive_thoughts, MAX_DEPTHTS);
+        addScore("somatic_label", result.somatic_symptoms, MAX_SOMATIC);
+        addScore("phobias_label", result.phobias_score, MAX_PHOBIAS);
+        addScore("worry_label", result.worry, MAX_WORRY);
+        addScore("anx_label", result.anxiety, MAX_ANX);
+        addScore("panic_label", result.panic, MAX_PANIC);
+        addScore("comp_label", result.compulsions, MAX_COMP);
+        addScore("obsess_label", result.obsessions, MAX_OBSESS);
     }
     lines.append(QString("CIS-R suicide intent: %1.").arg(
                      suicideIntent(result)));
@@ -1415,7 +1472,7 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         // Otherwise:
         //      (1) THANKS_FINISHED - "All done."
         return r.needsImpairmentQuestion() ? CQ::OVERALL1_INFO_ONLY
-                                                : CQ::THANKS_FINISHED;
+                                           : CQ::THANKS_FINISHED;
     };
 
     QVariant var_q;
@@ -3131,6 +3188,48 @@ QVector<QString> Cisr::panicSymptomFieldnames() const
 }
 
 
+QString Cisr::diagnosisNameLong(int diagnosis_code) const
+{
+    QString xstring_name = QString("diag_%1_desc").arg(diagnosis_code);
+    return xstring(xstring_name);
+}
+
+
+QString Cisr::diagnosisReason(int diagnosis_code) const
+{
+    QString xstring_name = QString("diag_%1_explan").arg(diagnosis_code);
+    return xstring(xstring_name);
+}
+
+
+QString Cisr::suicideIntent(const Cisr::CisrResult& result,
+                            bool with_warning) const
+{
+    QString intent;
+    if (result.incomplete) {
+        intent = "TASK INCOMPLETE. SO FAR: ";
+    }
+    intent += xstring(QString("suicid_%1").arg(result.suicidality));
+    if (with_warning && result.suicidality >= SUICIDE_INTENT_LIFE_NOT_WORTH_LIVING) {
+        intent += QString(" <i>%1</i>").arg(xstring("suicid_instruction"));
+    }
+    if (result.suicidality != SUICIDE_INTENT_NONE) {
+        intent = stringfunc::bold(intent);
+    }
+    return intent;
+}
+
+
+
+QString Cisr::functionalImpairment(const Cisr::CisrResult& result) const
+{
+    const QString xstringname = QString("impair_%1").arg(
+                result.functional_impairment);
+    return xstring(xstringname);
+}
+
+
+
 // ============================================================================
 // CisrResult
 // ============================================================================
@@ -3548,36 +3647,4 @@ QString Cisr::CisrResult::diagnosisName(int diagnosis_code) const
     default:
         return "[INTERNAL ERROR: BAD DIAGNOSIS CODE]";
     }
-}
-
-
-QString Cisr::diagnosisNameLong(int diagnosis_code) const
-{
-    QString xstring_name = QString("diag_%1_desc").arg(diagnosis_code);
-    return xstring(xstring_name);
-}
-
-
-QString Cisr::diagnosisReason(int diagnosis_code) const
-{
-    QString xstring_name = QString("diag_%1_explan").arg(diagnosis_code);
-    return xstring(xstring_name);
-}
-
-
-QString Cisr::suicideIntent(const Cisr::CisrResult& result,
-                            bool with_warning) const
-{
-    QString intent;
-    if (result.incomplete) {
-        intent = "TASK INCOMPLETE. SO FAR: ";
-    }
-    intent += xstring(QString("suicid_%1").arg(result.suicidality));
-    if (with_warning && result.suicidality >= SUICIDE_INTENT_LIFE_NOT_WORTH_LIVING) {
-        intent += QString(" <i>%1</i>").arg(xstring("suicid_instruction"));
-    }
-    if (result.suicidality != SUICIDE_INTENT_NONE) {
-        intent = stringfunc::bold(intent);
-    }
-    return intent;
 }

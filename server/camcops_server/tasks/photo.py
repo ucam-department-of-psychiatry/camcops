@@ -36,6 +36,7 @@ from camcops_server.cc_modules.cc_blob import (
     blob_relationship,
     get_blob_img_html,
 )
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
@@ -93,17 +94,20 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         return """
-            <table class="taskdetail">
-                <tr class="subheading"><td>Description</td></tr>
-                <tr><td>{}</td></tr>
-                <tr class="subheading"><td>Photo</td></tr>
-                <tr><td>{}</td></tr>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr class="{CssClass.SUBHEADING}"><td>Description</td></tr>
+                <tr><td>{description}</td></tr>
+                <tr class="{CssClass.SUBHEADING}"><td>Photo</td></tr>
+                <tr><td>{photo}</td></tr>
             </table>
         """.format(
-            answer(ws.webify(self.description), default="(No description)",
-                   default_for_blank_strings=True),
+            CssClass=CssClass,
+            description=answer(
+                ws.webify(self.description), default="(No description)",
+                default_for_blank_strings=True
+            ),
             # ... xhtml2pdf crashes if the contents are empty...
-            get_blob_img_html(self.photo)
+            photo=get_blob_img_html(self.photo)
         )
 
 
@@ -142,11 +146,15 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
 
     def get_html_table_rows(self) -> str:
         return """
-            <tr class="subheading"><td>Photo {}: <b>{}</b></td></tr>
-            <tr><td>{}</td></tr>
+            <tr class="{CssClass.SUBHEADING}">
+                <td>Photo {num}: <b>{description}</b></td>
+            </tr>
+            <tr><td>{photo}</td></tr>
         """.format(
-            self.seqnum + 1, ws.webify(self.description),
-            get_blob_img_html(self.photo)
+            CssClass=CssClass,
+            num=self.seqnum + 1,
+            description=ws.webify(self.description),
+            photo=get_blob_img_html(self.photo)
         )
 
 
@@ -185,15 +193,16 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         html = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     {num_photos}
                     {description}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             num_photos=tr_qa("Number of photos", self.get_num_photos()),
             description=tr_qa("Description", self.sequence_description),

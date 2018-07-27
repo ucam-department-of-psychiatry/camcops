@@ -439,7 +439,8 @@ class User(Base):
         """
         user = cls.get_user_by_name(dbsession, USER_NAME_FOR_SYSTEM)
         if not user:
-            user = cls(username=USER_NAME_FOR_SYSTEM)
+            # noinspection PyArgumentList
+            user = cls(username=USER_NAME_FOR_SYSTEM)  # does work!
             dbsession.add(user)
         user.fullname = "CamCOPS system user"
         user.superuser = True

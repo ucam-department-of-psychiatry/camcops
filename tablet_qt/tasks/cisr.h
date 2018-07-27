@@ -419,6 +419,7 @@ protected:
     QString diagnosisReason(int diagnosis_code) const;
     QString suicideIntent(const Cisr::CisrResult& result,
                           bool with_warning = true) const;
+    QString functionalImpairment(const Cisr::CisrResult& result) const;
 
 protected:
     QPointer<DynamicQuestionnaire> m_questionnaire;

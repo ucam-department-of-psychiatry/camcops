@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import get_yes_no
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -113,9 +114,15 @@ class Fab(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     str(option) + " — " +
                     self.wxstring(req, "q" + str(q) + "_option" + str(option)))
             answer_dicts.append(d)
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+                self.wxstring(req, "q" + str(q) + "_title"),
+                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
+            )
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     <tr>
                         <td>{total_score_str}</td>
@@ -127,34 +134,30 @@ class Fab(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     </tr>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="40%">Question</th>
                     <th width="60%">Score</th>
                 </tr>
+                {q_a}
+            </table>
+            <div class="{CssClass.FOOTNOTES}">
+                [1] Cutoff is &le;12.
+                In patients with early dementia (MMSE > 24), a cutoff score of
+                FAB &le;12 (*) can differentiate frontotemporal dementia from
+                Alzheimer's disease (sensitivity for FTD 77%, specificy 87%;
+                Slachevksy et al. 2004, PubMed ID 15262742).
+                (*) I think; the phrase is "a cutoff of 12", which is somewhat
+                ambiguous!
+            </div>
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,
             max_total=self.MAX_TOTAL,
             cutoff_str=self.wxstring(req, "below_cutoff"),
             below_cutoff=get_yes_no(req, below_cutoff),
+            q_a=q_a,
         )
-        for q in range(1, self.NQUESTIONS + 1):
-            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                self.wxstring(req, "q" + str(q) + "_title"),
-                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
-            )
-        h += """
-            </table>
-            <div class="footnotes">
-                [1] Cutoff is &le;12.
-                In patients with early dementia (MMSE > 24), a cutoff score of
-                FAB &le;12 (*) can differentiate frontotemporal dementia from
-                Alzheimer's disease (sensitivity for FTD 77%, specificy 87%;
-                Slachevksy et al. 2004, PubMed ID 15262742).
-                (*) I think: the phrase is "a cutoff of 12", which is somewhat
-                ambiguous!
-            </div>
-        """
         return h

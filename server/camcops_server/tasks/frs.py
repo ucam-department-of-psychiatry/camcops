@@ -33,6 +33,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -321,9 +322,14 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         scoredict = self.get_score()
+        q_a = ""
+        for q in range(1, NQUESTIONS + 1):
+            qtext = self.wxstring(req, "q" + str(q) + "_q")
+            atext = self.get_answer(req, q)
+            q_a += tr_qa(qtext, atext)
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {complete_tr}
                     <tr>
                         <td>Total (0–n, higher better) <sup>1</sup></td>
@@ -347,26 +353,14 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
                     </td>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """.format(
-            complete_tr=self.get_is_complete_tr(req),
-            total=scoredict['total'],
-            n=scoredict['n'],
-            score=ws.number_to_dp(scoredict['score'], DP),
-            logit=ws.number_to_dp(scoredict['logit'], DP),
-            severity=scoredict['severity'],
-        )
-        for q in range(1, NQUESTIONS + 1):
-            qtext = self.wxstring(req, "q" + str(q) + "_q")
-            atext = self.get_answer(req, q)
-            h += tr_qa(qtext, atext)
-        h += """
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] ‘Never’ scores 1 and ‘sometimes’/‘always’ both score 0,
                 i.e. there is no scoring difference between ‘sometimes’ and
                 ‘always’.
@@ -389,5 +383,14 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
                 <i>Very severe:</i> –4.99 ≤ <i>x</i> &lt; –2.58.
                 <i>Profound:</i> <i>x</i> &lt; –4.99.
             </div>
-        """  # noqa
+        """.format(  # noqa
+            CssClass=CssClass,
+            complete_tr=self.get_is_complete_tr(req),
+            total=scoredict['total'],
+            n=scoredict['n'],
+            score=ws.number_to_dp(scoredict['score'], DP),
+            logit=ws.number_to_dp(scoredict['logit'], DP),
+            severity=scoredict['severity'],
+            q_a=q_a,
+        )
         return h

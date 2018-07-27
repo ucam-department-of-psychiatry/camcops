@@ -611,7 +611,7 @@ class CamcopsRequest(Request):
         self.use_svg = True
 
     @staticmethod
-    def create_figure(**kwargs) -> "Figure":
+    def create_figure(**kwargs) -> Figure:
         fig = Figure(**kwargs)
         # noinspection PyUnusedLocal
         canvas = FigureCanvas(fig)
@@ -690,7 +690,7 @@ class CamcopsRequest(Request):
             for ticklabel in axis.get_ticklabels(which='both'):  # type: Text  # I think!  # noqa
                 ticklabel.set_fontproperties(fp)
 
-    def get_html_from_pyplot_figure(self, fig: "Figure") -> str:
+    def get_html_from_pyplot_figure(self, fig: Figure) -> str:
         """Make HTML (as PNG or SVG) from pyplot figure."""
         if USE_SVG_IN_HTML and self.use_svg:
             return (

@@ -30,6 +30,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -257,9 +258,13 @@ class CopeBrief(TaskHasPatientMixin, Task,
                 str(option) + " — " + self.wxstring(req, "a" + str(option))
             )
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+        )
         h += tr_qa("Self-distraction (Q1, Q19)", self.self_distraction())
         h += tr_qa("Active coping (Q2, Q7)", self.active_coping())
         h += tr_qa("Denial (Q3, Q8)", self.denial())
@@ -280,19 +285,19 @@ class CopeBrief(TaskHasPatientMixin, Task,
         h += """
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Individual items are scored 0–3 (as in Carver 1997 PMID
                 16250744), not 1–4 (as in
                 http://www.psy.miami.edu/faculty/ccarver/sclBrCOPE.html).
                 Summaries, which are all
                 based on two items, are therefore scored 0–6.
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """
+        """.format(CssClass=CssClass)
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
                 "Q{}. {}".format(q, self.wxstring(req, "q" + str(q))),

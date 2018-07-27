@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import get_yes_no
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -113,9 +114,17 @@ class Bfcrs(TaskHasPatientMixin, Task,
                     continue
                 d[option] = self.wxstring(req, q + "_option" + str(option))
             answer_dicts_dict[q] = d
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+                "Q" + str(q) + " — " + self.wxstring(
+                    req, "q" + str(q) + "_title"),
+                get_from_dict(answer_dicts_dict["q" + str(q)],
+                              getattr(self, "q" + str(q)))
+            )
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     <tr>
                         <td>{total_score_str}</td>
@@ -131,12 +140,19 @@ class Bfcrs(TaskHasPatientMixin, Task,
                     </tr>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="35%">Question</th>
                     <th width="65%">Answer</th>
                 </tr>
+                {q_a}
+            </table>
+            <div class="{CssClass.FOOTNOTES}">
+                [1] Symptoms 1–14, counted as present if score >0.
+                [2] Number of CSI symptoms ≥2.
+            </div>
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,
@@ -144,20 +160,7 @@ class Bfcrs(TaskHasPatientMixin, Task,
             num_symptoms_present=self.wxstring(req, "num_symptoms_present"),
             n_csi_symptoms=n_csi_symptoms,
             catatonia_present=self.wxstring(req, "catatonia_present"),
-            csi_catatonia=get_yes_no(req, csi_catatonia)
+            csi_catatonia=get_yes_no(req, csi_catatonia),
+            q_a=q_a,
         )
-        for q in range(1, self.NQUESTIONS + 1):
-            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                "Q" + str(q) + " — " + self.wxstring(
-                    req, "q" + str(q) + "_title"),
-                get_from_dict(answer_dicts_dict["q" + str(q)],
-                              getattr(self, "q" + str(q)))
-            )
-        h += """
-            </table>
-            <div class="footnotes">
-                [1] Symptoms 1–14, counted as present if score >0.
-                [2] Number of CSI symptoms ≥2.
-            </div>
-        """
         return h

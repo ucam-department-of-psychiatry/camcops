@@ -31,6 +31,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float, Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -63,17 +64,17 @@ MISSING_VALUE = -99
 PERMITTED_VALUES = list(range(1, 4 + 1)) + [MISSING_VALUE]
 END_DIV = """
     </table>
-    <div class="footnotes">
+    <div class="{CssClass.FOOTNOTES}">
         [1] Extrapolated total scores are: total_for_responded_questions ×
         n_questions / n_responses.
     </div>
-"""
+""".format(CssClass=CssClass)
 COPYRIGHT_DIV = """
-    <div class="copyright">
+    <div class="{CssClass.COPYRIGHT}">
         DEMQOL/DEMQOL-Proxy: Copyright © Institute of Psychiatry, King’s
         College London. Reproduced with permission.
     </div>
-"""
+""".format(CssClass=CssClass)
 
 
 # =============================================================================
@@ -213,8 +214,8 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         # https://docs.python.org/2/library/stdtypes.html#mapping-types-dict
         # http://paltman.com/try-except-performance-in-python-a-simple-test/
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete_tr}
                     <tr>
                         <td>Total score ({min}–{max}), higher better</td>
@@ -227,12 +228,13 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     </tr>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             is_complete_tr=self.get_is_complete_tr(req),
             min=self.MIN_SCORE,
             max=self.MAX_SCORE,
@@ -390,8 +392,8 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
             32: self.wxstring(req, "proxy_instruction14"),
         }
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete_tr}
                     <tr>
                         <td>Total score ({min}–{max}), higher better</td>
@@ -404,12 +406,13 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
                     </tr>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             is_complete_tr=self.get_is_complete_tr(req),
             min=self.MIN_SCORE,
             max=self.MAX_SCORE,

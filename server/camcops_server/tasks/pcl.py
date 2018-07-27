@@ -31,6 +31,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -207,51 +208,61 @@ class PclCommon(TaskHasPatientMixin, Task,
         for option in range(1, 6):
             answer_dict[option] = str(option) + " – " + \
                 self.wxstring(req, "option" + str(option))
+        q_a = ""
+        if hasattr(self, "event") and hasattr(self, "eventdate"):
+            # PCL-S
+            q_a += tr_qa(self.wxstring(req, "s_event_s"), self.event)
+            q_a += tr_qa(self.wxstring(req, "s_eventdate_s"), self.eventdate)
+        for q in range(1, self.NQUESTIONS + 1):
+            if q == 1 or q == 6 or q == 13:
+                section = "B" if q == 1 else ("C" if q == 6 else "D")
+                q_a += subheading_spanning_two_columns(
+                    "DSM section {}".format(section)
+                )
+            q_a += tr_qa(
+                self.wxstring(req, "q" + str(q) + "_s"),
+                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+            )
         h = """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr_qa("{} (17–85)".format(req.wappstring("total_score")),
-                   score)
-        h += tr("Number symptomatic <sup>[1]</sup>: B, C, D (total)",
-                answer(num_symptomatic_b) + ", " +
-                answer(num_symptomatic_c) + ", " +
-                answer(num_symptomatic_d) +
-                " (" + answer(num_symptomatic) + ")")
-        h += tr_qa(self.wxstring(req, "dsm_criteria_met") + " <sup>[2]</sup>",
-                   get_yes_no(req, ptsd))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {num_symptomatic}
+                    {dsm_criteria_met}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="70%">Question</th>
                     <th width="30%">Answer</th>
                 </tr>
-        """
-        if hasattr(self, "event") and hasattr(self, "eventdate"):
-            # PCL-S
-            h += tr_qa(self.wxstring(req, "s_event_s"), self.event)
-            h += tr_qa(self.wxstring(req, "s_eventdate_s"), self.eventdate)
-        for q in range(1, self.NQUESTIONS + 1):
-            if q == 1 or q == 6 or q == 13:
-                section = "B" if q == 1 else ("C" if q == 6 else "D")
-                h += subheading_spanning_two_columns(
-                    "DSM section {}".format(section)
-                )
-            h += tr_qa(
-                self.wxstring(req, "q" + str(q) + "_s"),
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
-            )
-        h += """
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Questions with scores ≥3 are considered symptomatic.
                 [2] ≥1 ‘B’ symptoms and ≥3 ‘C’ symptoms and
                     ≥2 ‘D’ symptoms.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr_qa(
+                "{} (17–85)".format(req.wappstring("total_score")),
+                score
+            ),
+            num_symptomatic=tr(
+                "Number symptomatic <sup>[1]</sup>: B, C, D (total)",
+                answer(num_symptomatic_b) + ", " +
+                answer(num_symptomatic_c) + ", " +
+                answer(num_symptomatic_d) + " (" + answer(num_symptomatic) + ")"  # noqa
+            ),
+            dsm_criteria_met=tr_qa(
+                self.wxstring(req, "dsm_criteria_met") + " <sup>[2]</sup>",
+                get_yes_no(req, ptsd)
+            ),
+            q_a=q_a,
+        )
         return h
 
 

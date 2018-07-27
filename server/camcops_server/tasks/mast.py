@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
@@ -178,25 +179,9 @@ class Mast(TaskHasPatientMixin, Task,
             "Y": req.wappstring("yes"),
             "N": req.wappstring("no")
         }
-        h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.MAX_SCORE))
-        h += tr_qa(self.wxstring(req, "exceeds_threshold"),
-                   get_yes_no(req, exceeds_threshold))
-        h += """
-                </table>
-            </div>
-            <table class="taskdetail">
-                <tr>
-                    <th width="80%">Question</th>
-                    <th width="20%">Answer</th>
-                </tr>
-        """
+        q_a = ""
         for q in range(1, self.NQUESTIONS + 1):
-            h += tr(
+            q_a += tr(
                 self.wxstring(req, "q" + str(q)),
                 (
                     answer(get_from_dict(main_dict,
@@ -204,7 +189,32 @@ class Mast(TaskHasPatientMixin, Task,
                     answer(" — " + str(self.get_score(q)))
                 )
             )
-        h += """
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {exceeds_threshold}
+                </table>
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="80%">Question</th>
+                    <th width="20%">Answer</th>
+                </tr>
+                {q_a}
             </table>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE)
+            ),
+            exceeds_threshold=tr_qa(
+                self.wxstring(req, "exceeds_threshold"),
+                get_yes_no(req, exceeds_threshold)
+            ),
+            q_a=q_a,
+        )
         return h

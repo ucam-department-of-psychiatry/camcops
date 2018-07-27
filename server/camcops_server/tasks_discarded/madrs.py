@@ -31,6 +31,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -127,9 +128,15 @@ class Madrs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     d[option] = self.wxstring(req, "q" + str(q) + "_option" +
                                               str(option))
             answer_dicts.append(d)
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+                self.wxstring(req, "madrs_q" + str(q) + "_s"),
+                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
+            )
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     <tr>
                         <td>{total_score_str}</td>
@@ -141,10 +148,10 @@ class Madrs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     </tr>
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Ratings are from 0–6 (0 none, 6 extreme problem).
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="30%">Question</th>
                     <th width="70%">Answer</th>
@@ -153,7 +160,14 @@ class Madrs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <td>{q_period_rated}</td>
                     <td><b>{period_rated}</b></td>
                 </tr>
+                {q_a}
+            </table>
+            <div class="{CssClass.FOOTNOTES}">
+                [1] Total score &gt;34 severe, &ge;20 moderate, &ge;7 mild,
+                &lt;7 normal. (Hermann et al. 1998, PubMed ID 9506602.)
+            </div>
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,
@@ -162,17 +176,6 @@ class Madrs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             category=category,
             q_period_rated=self.wxstring(req, "q_period_rated"),
             period_rated=self.period_rated,
+            q_a=q_a,
         )
-        for q in range(1, self.NQUESTIONS + 1):
-            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                self.wxstring(req, "madrs_q" + str(q) + "_s"),
-                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
-            )
-        h += """
-            </table>
-            <div class="footnotes">
-                [1] Total score &gt;34 severe, &ge;20 moderate, &ge;7 mild,
-                &lt;7 normal. (Hermann et al. 1998, PubMed ID 9506602.)
-            </div>
-        """
         return h

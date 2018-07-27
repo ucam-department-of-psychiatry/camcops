@@ -31,7 +31,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import PV
+from camcops_server.cc_modules.cc_constants import CssClass, PV
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -134,24 +134,26 @@ class DistressThermometer(TaskHasPatientMixin, Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr_qa("Overall distress (0–10)", self.distress)
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {distress}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 All questions relate to distress/problems “in the past week,
                 including today” (yes = problem, no = no problem).
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            distress=tr_qa("Overall distress (0–10)", self.distress),
+        )
         h += tr_qa("Distress (0 no distress – 10 extreme distress)",
                    self.distress)
         h += subheading_spanning_two_columns("Practical problems")

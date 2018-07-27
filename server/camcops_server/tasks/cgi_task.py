@@ -28,6 +28,7 @@ from typing import Dict, List
 
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -165,45 +166,65 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
             4: self.wxstring(req, "q3s_option4"),
         }
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr("Total score <sup>[1]</sup>", answer(self.total_score()))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="30%">Question</th>
                     <th width="70%">Answer</th>
                 </tr>
-        """
-        h += tr_qa(self.wxstring(req, "q1_s") + " <sup>[2]</sup>",
-                   get_from_dict(q1_dict, self.q1))
-        h += tr_qa(self.wxstring(req, "q2_s") + " <sup>[2]</sup>",
-                   get_from_dict(q2_dict, self.q2))
-        h += tr_qa(self.wxstring(req, "q3t_s") + " <sup>[3]</sup>",
-                   get_from_dict(q3t_dict, self.q3t))
-        h += tr_qa(self.wxstring(req, "q3s_s") + " <sup>[3]</sup>",
-                   get_from_dict(q3s_dict, self.q3s))
-        h += tr(
-            """
-                {} <sup>[4]</sup>
-                <div class="smallprint">
-                    [(Q3T – 1) × 4 + Q3S]
-                </div>
-            """.format(self.wxstring(req, "q3_s")),
-            answer(self.q3, formatter_answer=italic)
-        )
-        h += """
+                {q1}
+                {q2}
+                {q3t}
+                {q3s}
+                {q3}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Total score: Q1 + Q2 + Q3. Range 3–30 when complete.
                 [2] Questions 1 and 2 are scored 1–7 (0 for not assessed).
                 [3] Questions 3T and 3S are scored 1–4 (0 for not assessed).
                 [4] Q3 is scored 1–16 if Q3T/Q3S complete.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                "Total score <sup>[1]</sup>",
+                answer(self.total_score())
+            ),
+            q1=tr_qa(
+                self.wxstring(req, "q1_s") + " <sup>[2]</sup>",
+                get_from_dict(q1_dict, self.q1)
+            ),
+            q2=tr_qa(
+                self.wxstring(req, "q2_s") + " <sup>[2]</sup>",
+                get_from_dict(q2_dict, self.q2)
+            ),
+            q3t=tr_qa(
+                self.wxstring(req, "q3t_s") + " <sup>[3]</sup>",
+                get_from_dict(q3t_dict, self.q3t)
+            ),
+            q3s=tr_qa(
+                self.wxstring(req, "q3s_s") + " <sup>[3]</sup>",
+                get_from_dict(q3s_dict, self.q3s)
+            ),
+            q3=tr(
+                """
+                    {q} <sup>[4]</sup>
+                    <div class="{CssClass.SMALLPRINT}">
+                        [(Q3T – 1) × 4 + Q3S]
+                    </div>
+                """.format(
+                    CssClass=CssClass,
+                    q=self.wxstring(req, "q3_s")
+                ),
+                answer(self.q3, formatter_answer=italic)
+            ),
+        )
         return h
 
 
@@ -255,19 +276,21 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req) + """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """
-        h += tr_qa(self.wxstring(req, "i_q"), self.get_rating_text(req))
-        h += """
+                {q_a}
             </table>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            q_a=tr_qa(self.wxstring(req, "i_q"), self.get_rating_text(req)),
+        )
         return h

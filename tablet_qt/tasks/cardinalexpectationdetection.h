@@ -46,7 +46,7 @@ class CardinalExpectationDetection : public Task
 public:
     CardinalExpectationDetection(CamcopsApp& app, DatabaseManager& db,
                                  int load_pk = dbconst::NONEXISTENT_PK);
-    ~CardinalExpectationDetection();
+    ~CardinalExpectationDetection() override;
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------

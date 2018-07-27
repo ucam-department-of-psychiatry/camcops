@@ -27,6 +27,7 @@
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, String, Text, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -319,17 +320,20 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
             return self.get_twocol_bool_row(req, fieldname)
         
         return """
-            <div class="summary">
-                <table class="summary">
-                    {}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """.format(self.get_is_complete_tr(req)) + (
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+        ) + (
             self.get_twocol_val_row("ethnicity") +
             self.get_twocol_string_row("ethnicity_text") +
             self.get_twocol_string_row("ethnicity_other_details") +

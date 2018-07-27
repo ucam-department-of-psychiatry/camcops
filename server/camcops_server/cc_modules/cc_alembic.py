@@ -65,7 +65,7 @@ def import_all_models():
     import camcops_server.cc_modules.cc_all_models  # delayed import  # import side effects (ensure all models registered)  # noqa
 
 
-def upgrade_database_to_head(as_sql: bool = True) -> None:
+def upgrade_database_to_head(show_sql_only: bool = False) -> None:
     """
     The primary upgrade method.
     """
@@ -73,7 +73,7 @@ def upgrade_database_to_head(as_sql: bool = True) -> None:
     upgrade_database(alembic_base_dir=ALEMBIC_BASE_DIR,
                      alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
                      version_table=ALEMBIC_VERSION_TABLE,
-                     as_sql=as_sql)
+                     as_sql=show_sql_only)
     # ... will get its config information from the OS environment; see
     # run_alembic() in alembic/env.py
 

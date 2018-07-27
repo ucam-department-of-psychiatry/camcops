@@ -34,6 +34,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer, Text, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
+    CssClass,
     FULLWIDTH_PLOT_WIDTH,
     WHOLE_PANEL,
 )
@@ -133,7 +134,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
     @classmethod
     def get_html_table_header(cls) -> str:
         return """
-            <table class="extradetail">
+            <table class="{CssClass.EXTRADETAIL}">
                 <tr>
                     <th>Trial</th>
                     <th>Trial (ignoring catch trials)</th>
@@ -149,7 +150,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
                     <th>Caught out (and reset)?</th>
                     <th>Trial# in calculation sequence</th>
                 </tr>
-        """
+        """.format(CssClass=CssClass)
 
     def get_html_table_row(self) -> str:
         return ("<tr>" + "<td>{}</td>" * 13 + "</th>").format(
@@ -409,15 +410,16 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
             req.set_figure_font_sizes(fitax)
 
         html += """
-            <table class="noborder">
+            <table class="{CssClass.NOBORDER}">
                 <tr>
-                    <td class="noborderphoto">{}</td>
-                    <td class="noborderphoto">{}</td>
+                    <td class="{CssClass.NOBORDERPHOTO}">{trialfig}</td>
+                    <td class="{CssClass.NOBORDERPHOTO}">{fitfig}</td>
                 </tr>
             </table>
         """.format(
-            req.get_html_from_pyplot_figure(trialfig),
-            req.get_html_from_pyplot_figure(fitfig)
+            CssClass=CssClass,
+            trialfig=req.get_html_from_pyplot_figure(trialfig),
+            fitfig=req.get_html_from_pyplot_figure(fitfig)
         )
 
         return html
@@ -436,24 +438,25 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         else:
             modality = None
         h = """
-            <div class="summary">
-                <table class="summary">
-                    {}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 The ExpDet-Threshold task measures visual and auditory
                 thresholds for stimuli on a noisy background, using a
                 single-interval up/down method. It is intended as a prequel to
                 the Expectation–Detection task.
             </div>
-            <table class="taskconfig">
+            <table class="{CssClass.TASKCONFIG}">
                 <tr>
                     <th width="50%">Configuration variable</th>
                     <th width="50%">Value</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(req),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
         )
         h += tr_qa("Modality", modality)
         h += tr_qa("Target number", self.target_number)
@@ -475,9 +478,9 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         h += tr_qa("Intertrial interval (ITI) (s)", self.iti_s)
         h += """
             </table>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
-        """
+        """.format(CssClass=CssClass)
         h += tr_qa("Finished?", get_yes_no_none(req, self.finished))
         h += tr_qa("Logistic intercept",
                    ws.number_to_dp(self.intercept,

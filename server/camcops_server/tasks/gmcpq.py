@@ -28,6 +28,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import (
     get_yes_no_none,
     subheading_spanning_two_columns,
@@ -242,20 +243,23 @@ class GMCPQ(Task):
             dict_q12[option] = self.wxstring(req,
                                              "ethnicity_option" + str(option))
         h = """
-            <div class="summary">
-                <table class="summary">
-                    {}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
                     <th width="40%">Answer</th>
                 </tr>
-        """.format(self.get_is_complete_tr(req))
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+        )
         ell = "&hellip; "  # horizontal ellipsis
         sep_row = subheading_spanning_two_columns("<br>")
-        blank_cell = td("", td_class="subheading")
+        blank_cell = td("", td_class=CssClass.SUBHEADING)
         h += tr_qa(self.wxstring(req, "q_doctor"), ws.webify(self.doctor))
         h += sep_row
         h += tr_qa(self.wxstring(req, "q1"), get_from_dict(dict_q1, self.q1))

@@ -30,6 +30,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
 from camcops_server.cc_modules.cc_constants import (
+    CssClass,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     INVALID_VALUE,
 )
@@ -268,43 +269,17 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         scoredict = self.get_score()
-        h = """
-            <div class="summary">
-                <table class="summary">
-                    {complete_tr}
-                    <tr>
-                        <td>Total (higher better)</td>
-                        <td>{total} / {tmax}</td>
-                    </td>
-                    <tr>
-                        <td>Working memory index <sup>1</sup></td>
-                        <td>{wm} / {wmax}</td>
-                    </td>
-                </table>
-            </div>
-            <table class="taskdetail">
-                <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
-                </tr>
-        """.format(
-            complete_tr=self.get_is_complete_tr(req),
-            total=answer(scoredict['total']),
-            tmax=self.MAX_TOTAL,
-            wm=answer(scoredict['wm']),
-            wmax=self.MAX_WM,
-        )
 
         # Q1
-        h += self.get_simple_tr_qa(req, "q1")
+        q_a = self.get_simple_tr_qa(req, "q1")
         # Q2
-        h += self.get_simple_tr_qa(req, "q2")
+        q_a += self.get_simple_tr_qa(req, "q2")
         # Q3
-        h += self.get_simple_tr_qa(req, "q3")
+        q_a += self.get_simple_tr_qa(req, "q3")
         # Q4
-        h += tr(td(self.wxstring(req, "q4_title")),
-                td("", td_class="subheading"),
-                literal=True)
+        q_a += tr(td(self.wxstring(req, "q4_title")),
+                  td("", td_class=CssClass.SUBHEADING),
+                  literal=True)
         required = True
         for n in self.Q4_DIGIT_LENGTHS:
             val1 = getattr(self, "q4_len{}_1".format(n))
@@ -323,19 +298,19 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 )
             else:
                 a = ""
-            h += tr(q, a)
+            q_a += tr(q, a)
             if not val1 and not val2:
                 required = False
         # Q5
-        h += self.get_simple_tr_qa(req, "q5")
+        q_a += self.get_simple_tr_qa(req, "q5")
         # Q6
-        h += tr(td(self.wxstring(req, "q6_title")),
-                td("", td_class="subheading"),
-                literal=True)
+        q_a += tr(td(self.wxstring(req, "q6_title")),
+                  td("", td_class=CssClass.SUBHEADING),
+                  literal=True)
         for n in self.Q6_SEQUENCE_NUMS:
             nstr = str(n)
             val = getattr(self, "q6_seq" + nstr)
-            h += tr_qa("… " + self.wxstring(req, "q6_seq" + nstr), val)
+            q_a += tr_qa("… " + self.wxstring(req, "q6_seq" + nstr), val)
         # Q7
         q7map = {
             None: None,
@@ -343,14 +318,14 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             0.5: self.wxstring(req, "q7_a_half"),
             0: self.wxstring(req, "q7_a_0"),
         }
-        h += tr(td(self.wxstring(req, "q7_title")),
-                td("", td_class="subheading"),
-                literal=True)
+        q_a += tr(td(self.wxstring(req, "q7_title")),
+                  td("", td_class=CssClass.SUBHEADING),
+                  literal=True)
         for n in self.Q7_PROVERB_NUMS:
             nstr = str(n)
             val = getattr(self, "q7_proverb" + nstr)
             a = q7map.get(val, INVALID_VALUE)
-            h += tr_qa("… " + self.wxstring(req, "q7_proverb" + nstr), a)
+            q_a += tr_qa("… " + self.wxstring(req, "q7_proverb" + nstr), a)
         # Q8
         q8map = {
             None: None,
@@ -358,19 +333,48 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             1: self.wxstring(req, "q8_a1"),
             0: self.wxstring(req, "q8_a0"),
         }
-        h += tr(td(self.wxstring(req, "q8_title")),
-                td("", td_class="subheading"),
-                literal=True)
+        q_a += tr(td(self.wxstring(req, "q8_title")),
+                  td("", td_class=CssClass.SUBHEADING),
+                  literal=True)
         for n in self.Q8_SENTENCE_NUMS:
             nstr = str(n)
             val = getattr(self, "q8_sentence" + nstr)
             a = q8map.get(val, INVALID_VALUE)
-            h += tr_qa("… " + self.wxstring(req, "q8_sentence_" + nstr), a)
+            q_a += tr_qa("… " + self.wxstring(req, "q8_sentence_" + nstr), a)
 
-        h += """
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {complete_tr}
+                    <tr>
+                        <td>Total (higher better)</td>
+                        <td>{total} / {tmax}</td>
+                    </td>
+                    <tr>
+                        <td>Working memory index <sup>1</sup></td>
+                        <td>{wm} / {wmax}</td>
+                    </td>
+                </table>
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="50%">Question</th>
+                    <th width="50%">Answer</th>
+                </tr>
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Sum of scores for Q4 + Q6.
             </div>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+            {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
+        """.format(
+            CssClass=CssClass,
+            complete_tr=self.get_is_complete_tr(req),
+            total=answer(scoredict['total']),
+            tmax=self.MAX_TOTAL,
+            wm=answer(scoredict['wm']),
+            wmax=self.MAX_WM,
+            q_a=q_a,
+            DATA_COLLECTION_UNLESS_UPGRADED_DIV=DATA_COLLECTION_UNLESS_UPGRADED_DIV,  # noqa
+        )
         return h

@@ -29,7 +29,10 @@ from typing import List
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
-from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DATA_COLLECTION_ONLY_DIV,
+)
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -387,25 +390,31 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req) + """
-                </table>
-            </div>
-            <table class="taskdetail">
-                <tr>
-                    <th width="70%">Question</th>
-                    <th width="30%">Answer</th>
-                </tr>
-        """
+        q_a = ""
         for attrname, column in gen_camcops_columns(self):
             if attrname.startswith("clinician_"):  # not the most elegant!
                 continue
             question = column.comment
             value = getattr(self, attrname)
-            h += tr_qa(question, value)
-        h += """
+            q_a += tr_qa(question, value)
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                </table>
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="70%">Question</th>
+                    <th width="30%">Answer</th>
+                </tr>
+                {q_a}
             </table>
-        """ + DATA_COLLECTION_ONLY_DIV
+            {DATA_COLLECTION_ONLY_DIV}
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            q_a=q_a,
+            DATA_COLLECTION_ONLY_DIV=DATA_COLLECTION_ONLY_DIV,
+        )
         return h

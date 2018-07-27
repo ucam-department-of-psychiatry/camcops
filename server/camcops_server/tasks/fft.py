@@ -27,6 +27,7 @@
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -81,20 +82,24 @@ class Fft(TaskHasPatientMixin, Task):
         else:
             r = None
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req) + """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """
-        h += tr_qa(req.wappstring("satis_service_being_rated"), self.service)
-        h += tr_qa(self.wxstring(req, "q"), r)
-        h += """
+                {service}
+                {rating}
             </table>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            service=tr_qa(req.wappstring("satis_service_being_rated"),
+                          self.service),
+            rating=tr_qa(self.wxstring(req, "q"), r),
+        )
         return h

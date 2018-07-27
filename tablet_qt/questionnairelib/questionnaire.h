@@ -127,7 +127,7 @@ protected:
     void pageClosing();
     // Signal handling
     bool event(QEvent* e) override;
-    void keyPressEvent(QKeyEvent* event);
+    void keyPressEvent(QKeyEvent* event) override;
     virtual void processNextClicked();
 protected slots:
     void cancelClicked();

@@ -31,6 +31,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import (
+    CssClass,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
 )
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -133,26 +134,7 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
-            <div class="summary">
-                <table class="summary">
-                    {complete_tr}
-                    <tr>
-                        <td>Total score (0–60, higher worse)</td>
-                        <td>{total}</td>
-                    </td>
-                </table>
-            </div>
-            <table class="taskdetail">
-                <tr>
-                    <th width="30%">Question</th>
-                    <th width="50%">Answer <sup>[1]</sup></th>
-                    <th width="20%">Score</th>
-                </tr>
-        """.format(
-            complete_tr=self.get_is_complete_tr(req),
-            total=answer(self.total_score()),
-        )
+        q_a = ""
         for q in range(1, self.NQUESTIONS + 1):
             fieldname = "q" + str(q)
             qtext = self.wxstring(req, fieldname)  # happens to be the same
@@ -160,11 +142,34 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
             atext = (self.wxstring(req, "q{}_{}".format(q, avalue))
                      if q is not None else None)
             score = self.score(fieldname)
-            h += tr(qtext, answer(atext), score)
-        h += """
+            q_a += tr(qtext, answer(atext), score)
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {complete_tr}
+                    <tr>
+                        <td>Total score (0–60, higher worse)</td>
+                        <td>{total}</td>
+                    </td>
+                </table>
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="30%">Question</th>
+                    <th width="50%">Answer <sup>[1]</sup></th>
+                    <th width="20%">Score</th>
+                </tr>
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Scored a = 0, b = 1, c = 2, d = 3, e = 0.
             </div>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+            {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
+        """.format(
+            CssClass=CssClass,
+            complete_tr=self.get_is_complete_tr(req),
+            total=answer(self.total_score()),
+            q_a=q_a,
+            DATA_COLLECTION_UNLESS_UPGRADED_DIV=DATA_COLLECTION_UNLESS_UPGRADED_DIV,  # noqa
+        )
         return h

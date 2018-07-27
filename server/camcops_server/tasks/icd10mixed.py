@@ -33,6 +33,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
+    CssClass,
     DateFormat,
     ICD10_COPYRIGHT_DIV,
 )
@@ -132,38 +133,47 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = self.get_standard_clinician_comments_block(req, self.comments)
-        h += """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr_qa(req.wappstring("date_pertains_to"),
-                   format_datetime(self.date_pertains_to, DateFormat.LONG_DATE,
-                                   default=None))
-        h += tr_qa(req.wappstring("meets_criteria"),
-                   get_true_false_none(req, self.meets_criteria()))
-        h += """
+        h = """
+            {clinician_comments}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {date_pertains_to}
+                    {meets_criteria}
                 </table>
             </div>
-            <div class="explanation">
-        """
-        h += req.wappstring("icd10_symptomatic_disclaimer")
-        h += """
+            <div class="{CssClass.EXPLANATION}">
+                {icd10_symptomatic_disclaimer}
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="80%">Question</th>
                     <th width="20%">Answer</th>
                 </tr>
-        """
-
-        h += self.get_twocol_bool_row_true_false(
-            req, "mixture_or_rapid_alternation", self.wxstring(req, "a"))
-        h += self.get_twocol_bool_row_true_false(
-            req, "duration_at_least_2_weeks", self.wxstring(req, "b"))
-
-        h += """
+                {mixture_or_rapid_alternation}
+                {duration_at_least_2_weeks}
             </table>
-        """ + ICD10_COPYRIGHT_DIV
+            {ICD10_COPYRIGHT_DIV}
+        """.format(
+            clinician_comments=self.get_standard_clinician_comments_block(
+                req, self.comments),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            date_pertains_to=tr_qa(
+                req.wappstring("date_pertains_to"),
+                format_datetime(self.date_pertains_to, DateFormat.LONG_DATE,
+                                default=None)
+            ),
+            meets_criteria=tr_qa(
+                req.wappstring("meets_criteria"),
+                get_true_false_none(req, self.meets_criteria())
+            ),
+            icd10_symptomatic_disclaimer=req.wappstring(
+                "icd10_symptomatic_disclaimer"),
+            mixture_or_rapid_alternation=self.get_twocol_bool_row_true_false(
+                req, "mixture_or_rapid_alternation", self.wxstring(req, "a")),
+            duration_at_least_2_weeks=self.get_twocol_bool_row_true_false(
+                req, "duration_at_least_2_weeks", self.wxstring(req, "b")),
+            ICD10_COPYRIGHT_DIV=ICD10_COPYRIGHT_DIV,
+        )
         return h

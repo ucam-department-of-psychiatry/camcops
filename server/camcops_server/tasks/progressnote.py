@@ -30,6 +30,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_html import answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -61,19 +62,20 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     def get_task_html(self, req: CamcopsRequest) -> str:
         # Avoid tables - PDF generator crashes if text is too long.
         h = """
-            <div class="heading">
+            <div class="{CssClass.HEADING}">
                 {heading_location}
             </div>
             <div>
                 {location}
             </div>
-            <div class="heading">
+            <div class="{CssClass.HEADING}">
                 {heading_note}
             </div>
             <div>
                 {note}
             </div>
         """.format(
+            CssClass=CssClass,
             heading_location=req.wappstring("location"),
             location=answer(ws.webify(self.location),
                             default_for_blank_strings=True),

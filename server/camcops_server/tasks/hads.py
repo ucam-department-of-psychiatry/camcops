@@ -31,7 +31,10 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV  # noqa
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
+)
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr_qa
@@ -274,8 +277,8 @@ class HadsBase(TaskHasPatientMixin, Task,
         a = self.anxiety_score()
         d = self.depression_score()
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete_tr}
                     <tr>
                         <td>{sa}</td><td>{a} / {maxa}</td>
@@ -285,16 +288,17 @@ class HadsBase(TaskHasPatientMixin, Task,
                     </tr>
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 All questions are scored from 0–3
                 (0 least symptomatic, 3 most symptomatic).
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             is_complete_tr=self.get_is_complete_tr(req),
             sa=req.wappstring("hads_anxiety_score"),
             a=answer(a),

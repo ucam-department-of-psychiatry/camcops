@@ -34,6 +34,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
+    CssClass,
     DateFormat,
     ICD10_COPYRIGHT_DIV,
     PV,
@@ -160,37 +161,48 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def text_row(self, req: CamcopsRequest, wstringname: str) -> str:
         return tr(td(self.wxstring(req, wstringname)),
-                  td("", td_class="subheading"),
+                  td("", td_class=CssClass.SUBHEADING),
                   literal=True)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = self.get_standard_clinician_comments_block(req, self.comments)
-        h += """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr_qa(req.wappstring("date_pertains_to"),
-                   format_datetime(self.date_pertains_to,
-                                   DateFormat.LONG_DATE, default=None))
-        h += tr_qa(req.wappstring("meets_criteria"),
-                   get_yes_no_none(req, self.meets_criteria()))
-        h += """
+        q_a = self.text_row(req, "a")
+        for i in range(1, self.N_A + 1):
+            q_a += self.get_twocol_bool_row_true_false(
+                req, "a" + str(i), self.wxstring(req, "a" + str(i)))
+        q_a += self.get_twocol_bool_row_true_false(
+            req, "b", self.wxstring(req, "b"))
+        h = """
+            {clinician_comments}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {date_pertains_to}
+                    {meets_criteria}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="80%">Question</th>
                     <th width="20%">Answer</th>
                 </tr>
-        """
-        h += self.text_row(req, "a")
-        for i in range(1, self.N_A + 1):
-            h += self.get_twocol_bool_row_true_false(
-                req, "a" + str(i), self.wxstring(req, "a" + str(i)))
-        h += self.get_twocol_bool_row_true_false(
-            req, "b", self.wxstring(req, "b"))
-        h += """
+                {q_a}
             </table>
-        """ + ICD10_COPYRIGHT_DIV
+            {ICD10_COPYRIGHT_DIV}
+        """.format(
+            clinician_comments=self.get_standard_clinician_comments_block(
+                req, self.comments),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            date_pertains_to=tr_qa(
+                req.wappstring("date_pertains_to"),
+                format_datetime(self.date_pertains_to,
+                                DateFormat.LONG_DATE, default=None)
+            ),
+            meets_criteria=tr_qa(
+                req.wappstring("meets_criteria"),
+                get_yes_no_none(req, self.meets_criteria())
+            ),
+            q_a=q_a,
+            ICD10_COPYRIGHT_DIV=ICD10_COPYRIGHT_DIV,
+        )
         return h

@@ -30,7 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from camcops_server.cc_modules.cc_constants import PV
+from camcops_server.cc_modules.cc_constants import CssClass, PV
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -192,45 +192,10 @@ class Caps(TaskHasPatientMixin, Task,
         distress = self.distress_score()
         intrusiveness = self.intrusiveness_score()
         frequency = self.frequency_score()
-        h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr_qa(
-            "{} <sup>[1]</sup> (0–32)".format(req.wappstring("total_score")),
-            total)
-        h += tr_qa("{} (0–160)".format(self.wxstring(req, "distress")),
-                   distress)
-        h += tr_qa("{} (0–160)".format(self.wxstring(req, "intrusiveness")),
-                   intrusiveness)
-        h += tr_qa("{} (0–160)".format(self.wxstring(req, "frequency")),
-                   frequency)
-        h += """
-                </table>
-            </div>
-            <div class="explanation">
-                Anchor points: DISTRESS {distress1}, {distress5}.
-                INTRUSIVENESS {intrusiveness1}, {intrusiveness5}.
-                FREQUENCY {frequency1}, {frequency5}.
-            </div>
-            <table class="taskdetail">
-                <tr>
-                    <th width="60%">Question</th>
-                    <th width="10%">Endorsed?</th>
-                    <th width="10%">Distress (1–5)</th>
-                    <th width="10%">Intrusiveness (1–5)</th>
-                    <th width="10%">Frequency (1–5)</th>
-                </tr>
-        """.format(
-            distress1=self.wxstring(req, "distress_option1"),
-            distress5=self.wxstring(req, "distress_option5"),
-            intrusiveness1=self.wxstring(req, "intrusiveness_option1"),
-            intrusiveness5=self.wxstring(req, "intrusiveness_option5"),
-            frequency1=self.wxstring(req, "frequency_option1"),
-            frequency5=self.wxstring(req, "frequency_option5"),
-        )
+
+        q_a = ""
         for q in range(1, Caps.NQUESTIONS + 1):
-            h += tr(
+            q_a += tr(
                 self.wxstring(req, "q" + str(q)),
                 answer(get_yes_no_none(req,
                                        getattr(self, "endorse" + str(q)))),
@@ -241,14 +206,37 @@ class Caps(TaskHasPatientMixin, Task,
                 answer(getattr(self, "frequency" + str(q))
                        if getattr(self, "endorse" + str(q)) else "")
             )
-        h += """
+
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {distress}
+                    {intrusiveness}
+                    {frequency}
+                </table>
+            </div>
+            <div class="{CssClass.EXPLANATION}">
+                Anchor points: DISTRESS {distress1}, {distress5}.
+                INTRUSIVENESS {intrusiveness1}, {intrusiveness5}.
+                FREQUENCY {frequency1}, {frequency5}.
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="60%">Question</th>
+                    <th width="10%">Endorsed?</th>
+                    <th width="10%">Distress (1–5)</th>
+                    <th width="10%">Intrusiveness (1–5)</th>
+                    <th width="10%">Frequency (1–5)</th>
+                </tr>
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Total score: sum of endorsements (yes = 1, no = 0).
                 Dimension scores: sum of ratings (0 if not endorsed).
                 (Bell et al. 2006, PubMed ID 16237200)
             </div>
-            <div class="copyright">
+            <div class="{CssClass.COPYRIGHT}">
                 CAPS: Copyright © 2005, Bell, Halligan & Ellis.
                 Original article:
                     Bell V, Halligan PW, Ellis HD (2006).
@@ -271,5 +259,31 @@ class Caps(TaskHasPatientMixin, Task,
                 <b>This is a derivative work (partial reproduction, viz. the
                 scale text).</b>
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr_qa(
+                "{} <sup>[1]</sup> (0–32)".format(
+                    req.wappstring("total_score")),
+                total
+            ),
+            distress=tr_qa(
+                "{} (0–160)".format(self.wxstring(req, "distress")),
+                distress
+            ),
+            intrusiveness=tr_qa(
+                "{} (0–160)".format(self.wxstring(req, "intrusiveness")),
+                intrusiveness
+            ),
+            frequency=tr_qa(
+                "{} (0–160)".format(self.wxstring(req, "frequency")),
+                frequency
+            ),
+            distress1=self.wxstring(req, "distress_option1"),
+            distress5=self.wxstring(req, "distress_option5"),
+            intrusiveness1=self.wxstring(req, "intrusiveness_option1"),
+            intrusiveness5=self.wxstring(req, "intrusiveness_option5"),
+            frequency1=self.wxstring(req, "frequency_option1"),
+            frequency5=self.wxstring(req, "frequency_option5"),
+        )
         return h

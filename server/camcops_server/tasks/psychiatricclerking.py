@@ -30,6 +30,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqlalchemy import Base
@@ -191,16 +192,22 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return True
 
     def heading(self, req: CamcopsRequest, wstringname: str) -> str:
-        return '<div class="heading">{}</div>'.format(
-            self.wxstring(req, wstringname))
+        return '<div class="{CssClass.HEADING}">{s}</div>'.format(
+            CssClass=CssClass,
+            s=self.wxstring(req, wstringname),
+        )
 
     def subheading(self, req: CamcopsRequest, wstringname: str) -> str:
-        return '<div class="subheading">{}</div>'.format(
-            self.wxstring(req, wstringname))
+        return '<div class="{CssClass.SUBHEADING}">{s}</div>'.format(
+            CssClass=CssClass,
+            s=self.wxstring(req, wstringname)
+        )
 
     def subsubheading(self, req: CamcopsRequest, wstringname: str) -> str:
-        return '<div class="subsubheading">{}</div>'.format(
-            self.wxstring(req, wstringname))
+        return '<div class="{CssClass.SUBSUBHEADING}">{s}</div>'.format(
+            CssClass=CssClass,
+            s=self.wxstring(req, wstringname)
+        )
 
     def subhead_text(self, req: CamcopsRequest, fieldname: str) -> str:
         return self.subheading(req, fieldname) + '<div><b>{}</b></div>'.format(

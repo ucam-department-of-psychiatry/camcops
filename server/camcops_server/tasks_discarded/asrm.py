@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import get_yes_no
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -104,9 +105,16 @@ class Asrm(TaskHasPatientMixin, Task,
                     str(option) + " — " +
                     self.wxstring(req, "q" + str(q) + "_option" + str(option)))
             answer_dicts.append(d)
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+                self.wxstring(req, "q" + str(q) + "_s"),
+                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
+            )
+
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     <tr>
                         <td>{total_score_str}</td>
@@ -118,33 +126,29 @@ class Asrm(TaskHasPatientMixin, Task,
                     </tr>
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Ratings are over the last week.
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="30%">Question</th>
                     <th width="70%">Answer</th>
                 </tr>
+                {q_a}
+            </table>
+            <div class="{CssClass.FOOTNOTES}">
+                [1] Cutoff is &ge;6. Scores of &ge;6 identify mania/hypomania
+                with sensitivity 85.5%, specificity 87.3% (Altman et al. 1997,
+                PubMed ID 9359982).
+            </div>
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,
             above_cutoff_str=self.wxstring(req, "above_cutoff"),
             above_cutoff=get_yes_no(req, above_cutoff),
             maxtotal=self.MAX_TOTAL,
+            q_a=q_a,
         )
-        for q in range(1, self.NQUESTIONS + 1):
-            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                self.wxstring(req, "q" + str(q) + "_s"),
-                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
-            )
-        h += """
-            </table>
-            <div class="footnotes">
-                [1] Cutoff is &ge;6. Scores of &ge;6 identify mania/hypomania
-                with sensitivity 85.5%, specificity 87.3% (Altman et al. 1997,
-                PubMed ID 9359982).
-            </div>
-        """
         return h

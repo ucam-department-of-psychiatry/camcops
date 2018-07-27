@@ -30,7 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer, String
 
-from camcops_server.cc_modules.cc_constants import NO_CHAR, YES_CHAR
+from camcops_server.cc_modules.cc_constants import CssClass, NO_CHAR, YES_CHAR
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
@@ -131,36 +131,43 @@ class Gds15(TaskHasPatientMixin, Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
+
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            suffix = " †" if q in self.SCORE_IF_YES else " *"
+            q_a += tr_qa(
+                str(q) + ". " + self.wxstring(req, "q" + str(q)) + suffix,
+                getattr(self, "q" + str(q))
+            )
+
         h = """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.MAX_SCORE))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Ratings are over the last 1 week.
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="70%">Question</th>
                     <th width="30%">Answer</th>
                 </tr>
-        """
-        for q in range(1, self.NQUESTIONS + 1):
-            suffix = " †" if q in self.SCORE_IF_YES else " *"
-            h += tr_qa(
-                str(q) + ". " + self.wxstring(req, "q" + str(q)) + suffix,
-                getattr(self, "q" + str(q))
-            )
-        h += """
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 (†) ‘Y’ scores 1; ‘N’ scores 0.
                 (*) ‘Y’ scores 0; ‘N’ scores 1.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE)
+            ),
+            q_a=q_a,
+        )
         return h

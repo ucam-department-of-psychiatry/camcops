@@ -31,7 +31,10 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV  # noqa
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
+)
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -207,9 +210,21 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
+        target_symptoms = ""
+        for col in self.TARGET_COLUMNS:
+            target_symptoms += tr(col.comment, answer(getattr(self, col.name)))
+        q_a = ""
+        for qi in self.QINFO:
+            fieldname = "q" + qi[0]
+            value = getattr(self, fieldname)
+            q_a += tr(
+                self.wxstring(req, fieldname + "_title"),
+                answer(self.wxstring(req, fieldname + "_a" + str(value), value)
+                       if value is not None else None)
+            )
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {complete_tr}
                     <tr>
                         <td>Total score</td>
@@ -225,12 +240,23 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                     </td>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Target symptom</th>
                     <th width="50%">Detail</th>
                 </tr>
+                {target_symptoms}
+            </table>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="50%">Question</th>
+                    <th width="50%">Answer</th>
+                </tr>
+                {q_a}
+            </table>
+            {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
         """.format(
+            CssClass=CssClass,
             complete_tr=self.get_is_complete_tr(req),
             total_score=answer(self.total_score()),
             mt=self.MAX_TOTAL,
@@ -238,28 +264,10 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             mo=self.MAX_OBS,
             compulsion_score=answer(self.compulsion_score()),
             mc=self.MAX_COM,
+            target_symptoms=target_symptoms,
+            q_a=q_a,
+            DATA_COLLECTION_UNLESS_UPGRADED_DIV=DATA_COLLECTION_UNLESS_UPGRADED_DIV,  # noqa
         )
-        for col in self.TARGET_COLUMNS:
-            h += tr(col.comment, answer(getattr(self, col.name)))
-        h += """
-            </table>
-            <table class="taskdetail">
-                <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
-                </tr>
-        """
-        for qi in self.QINFO:
-            fieldname = "q" + qi[0]
-            value = getattr(self, fieldname)
-            h += tr(
-                self.wxstring(req, fieldname + "_title"),
-                answer(self.wxstring(req, fieldname + "_a" + str(value), value)
-                       if value is not None else None)
-            )
-        h += """
-            </table>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h
 
 
@@ -465,14 +473,14 @@ class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="55%">Symptom</th>
                     <th width="15%">Current</th>
                     <th width="15%">Past</th>
                     <th width="15%">Principal</th>
                 </tr>
-        """
+        """.format(CssClass=CssClass)
         for group in self.GROUPS:
             h += subheading_spanning_four_columns(
                 self.wxstring(req, self.SC_PREFIX + group))

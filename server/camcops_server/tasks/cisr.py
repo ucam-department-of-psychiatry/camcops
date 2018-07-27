@@ -32,6 +32,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -374,7 +375,6 @@ V_OVERALL_IMPAIRMENT_DIFFICULT = 2
 V_OVERALL_IMPAIRMENT_STOP_1_ACTIVITY = 3
 V_OVERALL_IMPAIRMENT_STOP_GT_1_ACTIVITY = 4
 
-
 # -----------------------------------------------------------------------------
 # Internal coding, NOT answer values:
 # -----------------------------------------------------------------------------
@@ -465,6 +465,32 @@ V_MISSING = 0  # Integer value of a missing answer
 V_UNKNOWN = -1  # Dummy value, never used for answers
 
 SCORE_PREFIX = "... "
+
+# -----------------------------------------------------------------------------
+# Scoring constants:
+# -----------------------------------------------------------------------------
+
+MAX_TOTAL = 57
+
+MAX_SOMATIC = 4
+MAX_HYPO = 4
+MAX_IRRIT = 4
+MAX_CONC = 4
+MAX_FATIGUE = 4
+MAX_SLEEP = 4
+MAX_DEPR = 4
+MAX_DEPTHTS = 5
+MAX_PHOBIAS = 4
+MAX_WORRY = 4
+MAX_ANX = 4
+MAX_PANIC = 4
+MAX_COMP = 4
+MAX_OBSESS = 4
+MAX_DEPCRIT1 = 3
+MAX_DEPCRIT2 = 7
+MAX_DEPCRIT3 = 8
+
+SOMATIC_SYNDROME_CRITERION = 4  # number of symptoms
 
 # -----------------------------------------------------------------------------
 # Question numbers
@@ -1392,7 +1418,7 @@ class CisrResult(object):
         )
 
     def has_somatic_syndrome(self) -> bool:
-        return self.depr_crit_3_somatic_synd >= 4
+        return self.depr_crit_3_somatic_synd >= SOMATIC_SYNDROME_CRITERION
 
     def get_final_page(self) -> CisrQuestion:
         # see chooseFinalPage() in the C++ version
@@ -4062,7 +4088,7 @@ class Cisr(TaskHasPatientMixin, Task):
                 name="score_total",
                 coltype=Integer(),
                 value=result.get_score(),
-                comment="CIS-R total score (max. 57)"),
+                comment="CIS-R total score (max. {})".format(MAX_TOTAL)),
             # Functional impairment: directly encoded in data
 
             # Subscores
@@ -4287,6 +4313,9 @@ class Cisr(TaskHasPatientMixin, Task):
                    a_: Optional[str]) -> str:
             return tr("{}. {}".format(q_.value, qtext), answer(a_))
 
+        def max_text(maxval: int) -> str:
+            return " (max. {})".format(maxval)
+
         demographics_html_list = []  # type: List[str]
         question_html_list = []  # type: List[str]
         q = CQ.ETHNIC
@@ -4324,7 +4353,8 @@ class Cisr(TaskHasPatientMixin, Task):
 
         is_complete = not result.incomplete
         is_complete_html_td = """{}<b>{}</b></td>""".format(
-            "<td>" if is_complete else """<td class="incomplete">""",
+            "<td>" if is_complete
+            else """<td class="{}">""".format(CssClass.INCOMPLETE),
             get_yes_no(req, is_complete)
         )
 
@@ -4363,41 +4393,43 @@ class Cisr(TaskHasPatientMixin, Task):
 
             subheading_spanning_two_columns("Total score/overall impairment"),
 
-            tr("CIS-R total score (max. 57) <sup>[1]</sup>",
-               result.get_score()),
+            tr(
+                "CIS-R total score (max. {}) <sup>[1]</sup>".format(MAX_TOTAL),
+                result.get_score()
+            ),
             tr(self.wxstring(req, "impair_label"),
                self.get_impairment(req, result)),
 
             subheading_spanning_two_columns("Subscores contributing to total "
                                             "<sup>[2]</sup>"),
 
-            tr(self.wxstring(req, "somatic_label") + " (max. 4)",
+            tr(self.wxstring(req, "somatic_label") + max_text(MAX_SOMATIC),
                result.somatic_symptoms),
-            tr(self.wxstring(req, "hypo_label") + " (max. 4)",
+            tr(self.wxstring(req, "hypo_label") + max_text(MAX_HYPO),
                result.hypochondria),
-            tr(self.wxstring(req, "irrit_label") + " (max. 4)",
+            tr(self.wxstring(req, "irrit_label") + max_text(MAX_IRRIT),
                result.irritability),
-            tr(self.wxstring(req, "conc_label") + " (max. 4)",
+            tr(self.wxstring(req, "conc_label") + max_text(MAX_CONC),
                result.concentration_poor),
-            tr(self.wxstring(req, "fatigue_label") + " (max. 4)",
+            tr(self.wxstring(req, "fatigue_label") + max_text(MAX_FATIGUE),
                result.fatigue),
-            tr(self.wxstring(req, "sleep_label") + " (max. 4)",
+            tr(self.wxstring(req, "sleep_label") + max_text(MAX_SLEEP),
                result.sleep_problems),
-            tr(self.wxstring(req, "depr_label") + " (max. 4)",
+            tr(self.wxstring(req, "depr_label") + max_text(MAX_DEPR),
                result.depression),
-            tr(self.wxstring(req, "depthts_label") + " (max. 5)",
+            tr(self.wxstring(req, "depthts_label") + max_text(MAX_DEPTHTS),
                result.depressive_thoughts),
-            tr(self.wxstring(req, "phobias_label") + " (max. 4)",
+            tr(self.wxstring(req, "phobias_label") + max_text(MAX_PHOBIAS),
                result.phobias_score),
-            tr(self.wxstring(req, "worry_label") + " (max. 4)",
+            tr(self.wxstring(req, "worry_label") + max_text(MAX_WORRY),
                result.worry),
-            tr(self.wxstring(req, "anx_label") + " (max. 4)",
+            tr(self.wxstring(req, "anx_label") + max_text(MAX_ANX),
                result.anxiety),
-            tr(self.wxstring(req, "panic_label") + " (max. 4)",
+            tr(self.wxstring(req, "panic_label") + max_text(MAX_PANIC),
                result.panic),
-            tr(self.wxstring(req, "comp_label") + " (max. 4)",
+            tr(self.wxstring(req, "comp_label") + max_text(MAX_COMP),
                result.compulsions),
-            tr(self.wxstring(req, "obsess_label") + " (max. 4)",
+            tr(self.wxstring(req, "obsess_label") + max_text(MAX_OBSESS),
                result.obsessions),
 
             subheading_spanning_two_columns("Other"),
@@ -4425,10 +4457,10 @@ class Cisr(TaskHasPatientMixin, Task):
         ]
 
         html = """
-            <div class="heading">{results_heading}</div>
+            <div class="{CssClass.HEADING}">{results_heading}</div>
             <div>{results_caveat}</div>
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     <tr>
                         <td width="50%">Completed?</td>
                         {is_complete_html_td}
@@ -4437,15 +4469,15 @@ class Cisr(TaskHasPatientMixin, Task):
                 </table>
             </div>
             
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] {total_score_footnote}
                 [2] {symptom_score_note}
             </div>
             
-            <div class="heading">
+            <div class="{CssClass.HEADING}">
                 Preamble/demographics (not contributing to diagnosis)
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="75%">Page</th>
                     <th width="25%">Answer</td>
@@ -4453,11 +4485,11 @@ class Cisr(TaskHasPatientMixin, Task):
                 {demographics_html}
             </table>
             
-            <div class="heading">
+            <div class="{CssClass.HEADING}">
                 Data considered by algorithm (may be a subset of all data if
                 subject revised answers)
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="75%">Page</th>
                     <th width="25%">Answer</td>
@@ -4465,10 +4497,10 @@ class Cisr(TaskHasPatientMixin, Task):
                 {questions_html}
             </table>
             
-            <div class="heading">Decisions</div>
+            <div class="{CssClass.HEADING}">Decisions</div>
             <pre>{decisions_html}</pre>
             
-            <div class="copyright">
+            <div class="{CssClass.COPYRIGHT}">
                 • Original papers:
                 ▶ Lewis G, Pelosi AJ, Aray R, Dunn G (1992).
                 Measuring psychiatric disorder in the community: a standardized
@@ -4487,6 +4519,7 @@ class Cisr(TaskHasPatientMixin, Task):
                 27 Oct 2017.
             </div>
         """.format(  # noqa
+            CssClass=CssClass,
             is_complete_html_td=is_complete_html_td,
             summary_rows_html="".join(summary_rows),
             results_heading=self.wxstring(req, "results_1"),

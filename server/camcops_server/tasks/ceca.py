@@ -30,6 +30,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import (
     answer,
     get_yes_no,
@@ -1946,9 +1947,9 @@ class CecaQ3(TaskHasPatientMixin, Task):
         }
         html = (
             """
-                <div class="summary">
-                    <table class="summary">
-            """ +
+                <div class="{CssClass.SUMMARY}">
+                    <table class="{CssClass.SUMMARY}">
+            """.format(CssClass=CssClass) +
             self.get_is_complete_tr(req) +
             tr_qa("Parental loss risk factor? <sup>[1]</sup>",
                   get_yes_no(req, self.parental_loss_risk())) +
@@ -1985,8 +1986,8 @@ class CecaQ3(TaskHasPatientMixin, Task):
             """
                     </table>
                 </div>
-                <table class="taskdetail">
-            """ +
+                <table class="{CssClass.TASKDETAIL}">
+            """.format(CssClass=CssClass) +
 
             subheading_spanning_two_columns("1A: " +
                                             wxstring("1a_q")) +
@@ -2260,7 +2261,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
 
             """
                 </table>
-                <div class="footnotes">
+                <div class="{CssClass.FOOTNOTES}">
                     [1] Death of mother/father before age 17 or continuous
                         separation of ≥1 year.
                     [2] Reason for loss ‘abandonment’ or ‘other’.
@@ -2276,12 +2277,12 @@ class CecaQ3(TaskHasPatientMixin, Task):
                     [5] Role reversal: sum of scores from section 3C.
                     [6] Physical abuse (section 4): first question (screen
                         item) is scored 0/1. For each parent, score 1 for
-                        {&gt;1 occasion, {belt/stick/punch/kick}, injured,
-                        out-of-control}.
+                        {{&gt;1 occasion, {{belt/stick/punch/kick}}, injured,
+                        out-of-control}}.
                     [7] Sexual abuse (section 6): no=0, unsure=1, yes=1.
                     First three questions are the screen.
                 </div>
-            """
+            """.format(CssClass=CssClass)
         )
         return html
 
@@ -2295,7 +2296,11 @@ def subheading_from_string(s: str) -> str:
 
 
 def subsubheading_from_string(s: str) -> str:
-    return """<tr><td></td><td class="subheading">{}</td></tr>""".format(s)
+    return (
+        '<tr><td></td><td class="{CssClass.SUBHEADING}">{s}</td></tr>'.format(
+            CssClass=CssClass,
+            s=s)
+    )
 
 
 def row(label: str, value: Any, default: str = "") -> str:

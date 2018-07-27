@@ -28,7 +28,10 @@ from typing import List, Optional
 
 from sqlalchemy.sql.sqltypes import Integer
 
-from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DATA_COLLECTION_ONLY_DIV,
+)
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -92,12 +95,17 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("gaf_score"), answer(self.score))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {score}
                 </table>
             </div>
-        """ + DATA_COLLECTION_ONLY_DIV
+            {DATA_COLLECTION_ONLY_DIV}
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            score=tr(req.wappstring("gaf_score"), answer(self.score)),
+            DATA_COLLECTION_ONLY_DIV=DATA_COLLECTION_ONLY_DIV,
+        )
         return h

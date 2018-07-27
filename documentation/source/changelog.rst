@@ -1070,7 +1070,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - :ref:`Khandaker/Insight medical history <khandaker_1>` task.
 
-- Client requires server v2.2.3.
+- Client requires server v2.2.3. (Was a global requirement; should have been
+  task-specific. REVERTED to minimum server version 2.2.0 in client 2.2.6.)
 
 **Client v2.2.4, 2018-07-18**
 
@@ -1308,3 +1309,26 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Server v2.2.5, 2018-07-23**
 
 - Python package: ``camcops-server``.
+
+**Server and client v2.2.6, 2018-07-26**
+
+- Logic bugfix and improved clarity in client ``Task::isTaskUploadable``.
+
+- Client minimum server version returned to 2.2.0 (from 2.2.3); specific
+  Khandaker1MedicalHistory requirement of 2.2.3 added.
+
+- Fixed inadvertently broken server: the ``upgrade_db`` command defaulted to
+  showing SQL only, not doing the job!
+
+- BDI shows alert for non-zero suicidality question.
+
+- BDI shows custom somatic symptom score (Khandaker Insight study) for BDI-II.
+
+- BDI shows question topics (taken from freely available published work),
+  though no task content is present.
+
+- Added missing server string ``camcops/data_collection_only``.
+
+- ``CssClass`` constants.
+
+- CISR client now shows more detail in its summary view.

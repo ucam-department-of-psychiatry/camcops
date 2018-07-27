@@ -234,11 +234,18 @@ bool Task::isTaskUploadable(QString& why_not_uploadable) const
     bool server_has_table;
     Version min_client_version;
     Version min_server_version;
+    const Version overall_min_server_version = Task::minimumServerVersion();
     const Version server_version = m_app.serverVersion();
     const QString table = tablename();
     bool may_upload = m_app.mayUploadTable(
                 table, server_version,
                 server_has_table, min_client_version, min_server_version);
+    qDebug() << "table" << table
+             << "server_version" << server_version
+             << "may_upload" << may_upload
+             << "server_has_table" << server_has_table
+             << "min_client_version" << min_client_version
+             << "min_server_version" << min_server_version;
     if (may_upload) {
         why_not_uploadable = "Task uploadable";
     } else {
@@ -252,7 +259,13 @@ bool Task::isTaskUploadable(QString& why_not_uploadable) const
                     ).arg(min_client_version.toString(),
                           table,
                           camcopsversion::CAMCOPS_VERSION.toString());
-        } else if (server_version >= min_server_version) {
+        } else if (server_version < overall_min_server_version) {
+            why_not_uploadable = QString(
+                    "This client requires server version >=%1, "
+                    "but the server is only version %2."
+                    ).arg(overall_min_server_version.toString(),
+                          server_version.toString());
+        } else if (server_version < min_server_version) {
             why_not_uploadable = QString(
                     "This client requires server version >=%1 for table '%2', "
                     "but the server is only version %3."
@@ -260,7 +273,8 @@ bool Task::isTaskUploadable(QString& why_not_uploadable) const
                           table,
                           server_version.toString());
         } else {
-            why_not_uploadable = "? [bug in Task::isTaskUploadable]";
+            why_not_uploadable = "? [bug in Task::isTaskUploadable, "
+                                 "versus CamcopsApp::mayUploadTable]";
         }
     }
     return may_upload;

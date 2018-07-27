@@ -29,7 +29,10 @@ from typing import Any, Dict, Iterable, List, Tuple, Type
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV  # noqa
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
+)
 from camcops_server.cc_modules.cc_html import (
     answer,
     subheading_spanning_two_columns,
@@ -245,8 +248,8 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
     def get_task_html(self, req: CamcopsRequest) -> str:
         d = self.get_score_dict()
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {complete_tr}
                     <tr><td>Total</td><td>{total}</td></tr>
                     <tr><td>Activity: hygiene</td><td>{hygiene}</td></tr>
@@ -288,13 +291,14 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
                     </tr>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question (I = initiation, P = planning,
                         E = execution)</th>
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             complete_tr=self.get_is_complete_tr(req),
             total=self.report_score(d['total']),
             hygiene=self.report_score(d['hygiene']),

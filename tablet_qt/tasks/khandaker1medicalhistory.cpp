@@ -22,6 +22,7 @@
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/uifunc.h"
+#include "lib/version.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/qubackground.h"
 #include "questionnairelib/questionnaire.h"
@@ -92,6 +93,9 @@ const int STRETCH_Q = 40;
 const int STRETCH_YN = 20;
 const int STRETCH_COMMENT = 40;
 
+// This task requires server v2.2.3:
+const Version KHANDAKER1MEDICALHISTORY_MIN_SERVER_VERSION(2, 2, 3);
+
 
 void initializeKhandaker1MedicalHistory(TaskFactory& factory)
 {
@@ -138,6 +142,12 @@ QString Khandaker1MedicalHistory::menusubtitle() const
 QString Khandaker1MedicalHistory::infoFilenameStem() const
 {
     return "khandaker_1";
+}
+
+
+Version Khandaker1MedicalHistory::minimumServerVersion() const
+{
+    return KHANDAKER1MEDICALHISTORY_MIN_SERVER_VERSION;
 }
 
 

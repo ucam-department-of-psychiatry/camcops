@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
@@ -140,42 +141,49 @@ class Wemwbs(TaskHasPatientMixin, Task,
             4: "4 — " + self.wxstring(req, "wemwbs_a4"),
             5: "5 — " + self.wxstring(req, "wemwbs_a5")
         }
+        q_a = ""
+        for i in range(1, self.N_QUESTIONS + 1):
+            nstr = str(i)
+            q_a += tr_qa(self.wxstring(req, "wemwbs_q" + nstr),
+                         get_from_dict(main_dict, getattr(self, "q" + nstr)))
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(
-            req.wappstring("total_score"),
-            answer(self.total_score()) + " (range {}–{})".format(
-                self.MINTOTALSCORE,
-                self.MAXTOTALSCORE
-            )
-        )
-        h += """
+            <div class="{css_summary}">
+                <table class="{css_summary}">
+                    {tr_is_complete}
+                    {tr_total_score}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{css_explanation}">
                 Ratings are over the last 2 weeks.
             </div>
-            <table class="taskdetail">
+            <table class="{css_taskdetail}">
                 <tr>
                     <th width="60%">Question</th>
                     <th width="40%">Answer</th>
                 </tr>
-        """
-        for i in range(1, self.N_QUESTIONS + 1):
-            nstr = str(i)
-            h += tr_qa(self.wxstring(req, "wemwbs_q" + nstr),
-                       get_from_dict(main_dict, getattr(self, "q" + nstr)))
-        h += """
+                {q_a}
             </table>
-            <div class="copyright">
+            <div class="{css_copyright}">
                 WEMWBS: from Tennant et al. (2007), <i>Health and Quality of
                 Life Outcomes</i> 5:63, http://www.hqlo.com/content/5/1/63;
                 © 2007 Tennant et al.; distributed under the terms of the
                 Creative Commons Attribution License.
             </div>
-        """
+        """.format(
+            css_summary=CssClass.SUMMARY,
+            tr_is_complete=self.get_is_complete_tr(req),
+            tr_total_score=tr(
+                req.wappstring("total_score"),
+                answer(self.total_score()) + " (range {}–{})".format(
+                    self.MINTOTALSCORE,
+                    self.MAXTOTALSCORE
+                )
+            ),
+            css_explanation=CssClass.EXPLANATION,
+            css_taskdetail=CssClass.TASKDETAIL,
+            q_a=q_a,
+            css_copyright=CssClass.COPYRIGHT,
+        )
         return h
 
 
@@ -276,41 +284,46 @@ class Swemwbs(TaskHasPatientMixin, Task,
             4: "4 — " + self.wxstring(req, "wemwbs_a4"),
             5: "5 — " + self.wxstring(req, "wemwbs_a5")
         }
+        q_a = ""
+        for i in range(1, self.N_QUESTIONS + 1):
+            nstr = str(i)
+            q_a += tr_qa(self.wxstring(req, "swemwbs_q" + nstr),
+                         get_from_dict(main_dict, getattr(self, "q" + nstr)))
+
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(
-            req.wappstring("total_score"),
-            answer(self.total_score()) + " (range {}–{})".format(
-                self.MINTOTALSCORE,
-                self.MAXTOTALSCORE
-            )
-        )
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Ratings are over the last 2 weeks.
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
                     <th width="40%">Answer</th>
                 </tr>
-        """
-        for i in range(1, self.N_QUESTIONS + 1):
-            nstr = str(i)
-            h += tr_qa(self.wxstring(req, "swemwbs_q" + nstr),
-                       get_from_dict(main_dict, getattr(self, "q" + nstr)))
-        h += """
+                {q_a}
             </table>
-            <div class="copyright">
+            <div class="{CssClass.COPYRIGHT}">
                 SWEMWBS: from Stewart-Brown et al. (2009), <i>Health and
                 Quality of Life Outcomes</i> 7:15,
                 http://www.hqlo.com/content/7/1/15;
                 © 2009 Stewart-Brown et al.; distributed under the terms of the
                 Creative Commons Attribution License.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(self.total_score()) + " (range {}–{})".format(
+                    self.MINTOTALSCORE,
+                    self.MAXTOTALSCORE
+                )
+            ),
+            q_a=q_a,
+        )
         return h

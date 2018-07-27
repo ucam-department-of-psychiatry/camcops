@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
@@ -137,32 +138,40 @@ class Fast(TaskHasPatientMixin, Task,
             2: "2 — " + self.wxstring(req, "q4_option2"),
             4: "4 — " + self.wxstring(req, "q4_option4"),
         }
+        q_a = tr_qa(self.wxstring(req, "q1"), get_from_dict(main_dict, self.q1))  # noqa
+        q_a += tr_qa(self.wxstring(req, "q2"), get_from_dict(main_dict, self.q2))  # noqa
+        q_a += tr_qa(self.wxstring(req, "q3"), get_from_dict(main_dict, self.q3))  # noqa
+        q_a += tr_qa(self.wxstring(req, "q4"), get_from_dict(q4_dict, self.q4))
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
-        h += tr_qa(self.wxstring(req, "positive") + " <sup>[1]</sup>",
-                   get_yes_no(req, self.is_positive()))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {positive}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
                     <th width="40%">Answer</th>
                 </tr>
-        """
-        h += tr_qa(self.wxstring(req, "q1"), get_from_dict(main_dict, self.q1))
-        h += tr_qa(self.wxstring(req, "q2"), get_from_dict(main_dict, self.q2))
-        h += tr_qa(self.wxstring(req, "q3"), get_from_dict(main_dict, self.q3))
-        h += tr_qa(self.wxstring(req, "q4"), get_from_dict(q4_dict, self.q4))
-        h += """
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Negative if Q1 = 0. Positive if Q1 ≥ 3. Otherwise positive
                     if total score ≥ 3.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(self.total_score()) + " / {}".format(self.MAX_SCORE)
+            ),
+            positive=tr_qa(
+                self.wxstring(req, "positive") + " <sup>[1]</sup>",
+                get_yes_no(req, self.is_positive())
+            ),
+            q_a=q_a,
+        )
         return h

@@ -30,7 +30,10 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV  # noqa
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
+)
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr
@@ -118,8 +121,8 @@ class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
         for a in range(self.MIN_PER_Q, self.MAX_PER_Q + 1):
             option_dict[a] = req.wappstring("zbi_a" + str(a))
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {complete_tr}
                     <tr>
                         <td>Total score (/ {maxtotal})</td>
@@ -127,12 +130,13 @@ class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
                     </td>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="75%">Question</th>
                     <th width="25%">Answer ({minq}–{maxq})</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             complete_tr=self.get_is_complete_tr(req),
             total=answer(self.total_score()),
             maxtotal=self.MAX_TOTAL,

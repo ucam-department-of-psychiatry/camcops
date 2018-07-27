@@ -42,6 +42,7 @@ public:
     virtual QString menusubtitle() const override;
     QString infoFilenameStem() const override;
     virtual bool isCrippled() const override { return false; }
+    virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------

@@ -33,6 +33,7 @@ from camcops_server.cc_modules.cc_blob import (
     blob_relationship,
     get_blob_img_html,
 )
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -296,24 +297,34 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         category = self.category(req)
-        h = self.get_standard_clinician_comments_block(req, self.comments)
-        h += """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.MAX_SCORE))
-        h += tr_qa(req.wappstring("category") + " <sup>[1]</sup>", category)
-        h += """
+        h = """
+            {clinician_comments}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {category}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="80%">Question</th>
                     <th width="20%">Score</th>
                 </tr>
-        """
+        """.format(
+            clinician_comments=self.get_standard_clinician_comments_block(
+                req, self.comments),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE)
+            ),
+            category=tr_qa(
+                req.wappstring("category") + " <sup>[1]</sup>",
+                category
+            ),
+        )
         h += tr_qa(self.wxstring(req, "alert_s"),
                    get_yes_no_none(req, self.alert))
         h += tr_qa(self.wxstring(req, "highschool_s"),
@@ -342,19 +353,19 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                                                self.q11c, self.q11d]]))
         h += """
             </table>
-            <table class="taskdetail">
-        """
+            <table class="{CssClass.TASKDETAIL}">
+        """.format(CssClass=CssClass)
         h += subheading_spanning_two_columns("Images of tests: clock, shapes")
         h += tr(
             td(get_blob_img_html(self.clockpicture),
-               td_width="50%", td_class="photo"),
+               td_width="50%", td_class=CssClass.PHOTO),
             td(get_blob_img_html(self.shapespicture),
-               td_width="50%", td_class="photo"),
+               td_width="50%", td_class=CssClass.PHOTO),
             literal=True
         )
         h += """
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] With high school education:
                 ≥27 normal, ≥21 MCI, ≤20 dementia.
                 Without high school education:
@@ -362,5 +373,5 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 (Tariq et al. 2006, PubMed ID 17068312.)
                 [2] Q4 (learning the five words) isn’t scored.
             </div>
-        """
+        """.format(CssClass=CssClass)
         return h

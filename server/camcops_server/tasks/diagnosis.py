@@ -52,6 +52,7 @@ from sqlalchemy.sql.selectable import SelectBase
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
@@ -183,12 +184,12 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         html = """
-            <div class="summary">
-                <table class="summary">
-                    {}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="10%">Diagnosis #</th>
                     <th width="10%">Code</th>
@@ -196,7 +197,8 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                     <th width="40%">Comment</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(req),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
         )
         for item in self.items:
             html += item.get_html_table_row()

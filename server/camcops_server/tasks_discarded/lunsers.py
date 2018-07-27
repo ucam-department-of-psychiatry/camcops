@@ -29,6 +29,7 @@ from typing import Any, Dict, List, Tuple, Type
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -112,13 +113,14 @@ class Lunsers(TaskHasPatientMixin, Task,
     @staticmethod
     def get_subheading(subtitle: str, score: int, max_score: int) -> str:
         return """
-            <tr class="subheading">
-                <td>{}</td><td><i><b>{}</b> / {}</i></td>
+            <tr class="{CssClass.SUBHEADING}">
+                <td>{subtitle}</td><td><i><b>{score}</b> / {max_score}</i></td>
             </tr>
         """.format(
-            subtitle,
-            score,
-            max_score
+            CssClass=CssClass,
+            subtitle=subtitle,
+            score=score,
+            max_score=max_score
         )
 
     def get_row(self, req: CamcopsRequest, q: int, answer_dict: Dict) -> str:
@@ -151,8 +153,8 @@ class Lunsers(TaskHasPatientMixin, Task,
         for option in range(0, 5):
             answer_dict[option] = self.wxstring(req, "option" + str(option))
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     <tr>
                         <td>{total_score_str}</td>
@@ -160,15 +162,16 @@ class Lunsers(TaskHasPatientMixin, Task,
                     </tr>
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Ratings pertain to the past month.
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="70%">Question</th>
                     <th width="30%">Answer</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,

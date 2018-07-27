@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import (
@@ -116,27 +117,36 @@ class Cage(TaskHasPatientMixin, Task,
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         exceeds_cutoff = score >= 2
+        q_a = ""
+        for q in range(1, Cage.NQUESTIONS + 1):
+            q_a += tr_qa(str(q) + " — " + self.wxstring(req, "q" + str(q)),
+                         getattr(self, "q" + str(q)))  # answer is itself Y/N/NULL  # noqa
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.NQUESTIONS))
-        h += tr_qa(self.wxstring(req, "over_threshold"),
-                   get_yes_no(req, exceeds_cutoff))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {over_threshold}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="70%">Question</th>
                     <th width="30%">Answer</th>
                 </tr>
-        """
-        for q in range(1, Cage.NQUESTIONS + 1):
-            h += tr_qa(str(q) + " — " + self.wxstring(req, "q" + str(q)),
-                       getattr(self, "q" + str(q)))  # answer is itself Y/N/NULL  # noqa
-        h += """
+                {q_a}
             </table>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.NQUESTIONS)
+            ),
+            over_threshold=tr_qa(
+                self.wxstring(req, "over_threshold"),
+                get_yes_no(req, exceeds_cutoff)
+            ),
+            q_a=q_a,
+        )
         return h

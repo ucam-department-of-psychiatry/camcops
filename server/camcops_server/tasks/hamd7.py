@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
@@ -155,31 +156,43 @@ class Hamd7(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 d[option] = self.wxstring(req, "q" + str(q) + "_option" +
                                           str(option))
             answer_dicts.append(d)
+
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += tr_qa(
+                self.wxstring(req, "q" + str(q) + "_s"),
+                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
+            )
+
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.MAX_SCORE))
-        h += tr_qa(self.wxstring(req, "severity") + " <sup>[1]</sup>", severity)
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {severity}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="30%">Question</th>
                     <th width="70%">Answer</th>
                 </tr>
-        """
-        for q in range(1, self.NQUESTIONS + 1):
-            h += tr_qa(
-                self.wxstring(req, "q" + str(q) + "_s"),
-                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
-            )
-        h += """
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] ≥20 severe, ≥12 moderate, ≥4 mild, &lt;4 none.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE)
+            ),
+            severity=tr_qa(
+                self.wxstring(req, "severity") + " <sup>[1]</sup>",
+                severity
+            ),
+            q_a=q_a,
+        )
         return h

@@ -31,7 +31,10 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
-from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV  # noqa
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
+)
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_true_false, tr, tr_qa
@@ -136,9 +139,14 @@ class Wsas(TaskHasPatientMixin, Task,
         option_dict = {None: None}
         for a in range(self.MIN_PER_Q, self.MAX_PER_Q + 1):
             option_dict[a] = req.wappstring("wsas_a" + str(a))
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            a = getattr(self, "q" + str(q))
+            fa = get_from_dict(option_dict, a) if a is not None else None
+            q_a += tr(self.wxstring(req, "q" + str(q)), answer(fa))
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {complete_tr}
                     <tr>
                         <td>Total score</td>
@@ -146,29 +154,28 @@ class Wsas(TaskHasPatientMixin, Task,
                     </td>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="75%">Question</th>
                     <th width="25%">Answer</th>
                 </tr>
                 {retired_row}
             </table>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="75%">Question</th>
                     <th width="25%">Answer (0–8)</th>
                 </tr>
+                {q_a}
+            </table>
+            {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
         """.format(
+            CssClass=CssClass,
             complete_tr=self.get_is_complete_tr(req),
             total=answer(self.total_score()),
             retired_row=tr_qa(self.wxstring(req, "q_retired_etc"),
                               get_true_false(req, self.retired_etc)),
+            q_a=q_a,
+            DATA_COLLECTION_UNLESS_UPGRADED_DIV=DATA_COLLECTION_UNLESS_UPGRADED_DIV,  # noqa
         )
-        for q in range(1, self.NQUESTIONS + 1):
-            a = getattr(self, "q" + str(q))
-            fa = get_from_dict(option_dict, a) if a is not None else None
-            h += tr(self.wxstring(req, "q" + str(q)), answer(fa))
-        h += """
-            </table>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h

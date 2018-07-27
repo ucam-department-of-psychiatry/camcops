@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
@@ -150,34 +151,33 @@ class Gad7(TaskHasPatientMixin, Task,
             answer_dict[option] = (
                 str(option) + " — " + self.wxstring(req, "a" + str(option))
             )
+
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += tr_qa(
+                self.wxstring(req, "q" + str(q)),
+                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+            )
+
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.MAX_SCORE))
-        h += tr(self.wxstring(req, "anxiety_severity") + " <sup>[1]</sup>",
-                severity)
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {anxiety_severity}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Ratings are over the last 2 weeks.
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """
-        for q in range(1, self.NQUESTIONS + 1):
-            h += tr_qa(
-                self.wxstring(req, "q" + str(q)),
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
-            )
-        h += """
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] ≥15 severe, ≥10 moderate, ≥5 mild.
                 Score ≥10 identifies: generalized anxiety disorder with
                 sensitivity 89%, specificity 82% (Spitzer et al. 2006, PubMed
@@ -191,5 +191,17 @@ class Gad7(TaskHasPatientMixin, Task,
                 The majority of evidence contributing to these figures comes
                 from primary care screening studies.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE)
+            ),
+            anxiety_severity=tr(
+                self.wxstring(req, "anxiety_severity") + " <sup>[1]</sup>",
+                severity
+            ),
+            q_a=q_a,
+        )
         return h

@@ -31,6 +31,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_constants import (
+    CssClass,
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     PV,
 )
@@ -186,8 +187,8 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {complete_tr}
                     <tr>
                         <td>Endorsed</td>
@@ -203,7 +204,7 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                     </td>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="40%">Question</th>
                     <th width="20%">Endorsed</th>
@@ -211,6 +212,7 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                     <th width="20%">Distress (carer)</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             complete_tr=self.get_is_complete_tr(req),
             e=self.n_endorsed(),
             s=self.severity_score(),

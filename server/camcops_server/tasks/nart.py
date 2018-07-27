@@ -30,6 +30,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import answer, td, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -224,94 +225,62 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return e
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr_qa("Total errors", self.n_errors())
-        nelson = "; Nelson 1982 <sup>[1]</sup>"
-        nelson_willison = "; Nelson &amp; Willison 1991 <sup>[2]</sup>"
-        bright = "; Bright 2016 <sup>[3]</sup>"
-        h += tr_qa(
-            "Predicted WAIS full-scale IQ = 127.7 – 0.826 × errors" + nelson,
-            self.nelson_full_scale_iq()
-        )
-        h += tr_qa(
-            "Predicted WAIS verbal IQ = 129.0 – 0.919 × errors" + nelson,
-            self.nelson_verbal_iq()
-        )
-        h += tr_qa(
-            "Predicted WAIS performance IQ = 123.5 – 0.645 × errors" + nelson,
-            self.nelson_performance_iq()
-        )
-        h += tr_qa(
-            "Predicted WAIS-R full-scale IQ "
-            "= 130.6 – 1.24 × errors" + nelson_willison,
-            self.nelson_willison_full_scale_iq()
-        )
-        h += tr_qa(
-            "Predicted WAIS-IV full-scale IQ "
-            "= 126.41 – 0.9775 × errors" + bright,
-            self.bright_full_scale_iq()
-        )
-        h += tr_qa(
-            "Predicted WAIS-IV General Ability Index "
-            "= 126.5 – 0.9656 × errors" + bright,
-            self.bright_general_ability()
-        )
-        h += tr_qa(
-            "Predicted WAIS-IV Verbal Comprehension Index "
-            "= 126.81 – 1.0745 × errors" + bright,
-            self.bright_verbal_comprehension()
-        )
-        h += tr_qa(
-            "Predicted WAIS-IV Perceptual Reasoning Index "
-            "= 120.18 – 0.6242 × errors" + bright,
-            self.bright_perceptual_reasoning()
-        )
-        h += tr_qa(
-            "Predicted WAIS-IV Working Memory Index "
-            "= 120.53 – 0.7901 × errors" + bright,
-            self.bright_working_memory()
-        )
-        h += tr_qa(
-            "Predicted WAIS-IV Perceptual Speed Index "
-            "= 114.53 – 0.5285 × errors" + bright,
-            self.bright_perceptual_speed()
-        )
-        h += """
-                </table>
-            </div>
-            <div class="explanation">
-                Estimates premorbid IQ by pronunciation of irregular words.
-            </div>
-            <table class="taskdetail">
-                <tr>
-                    <th width="16%">Word</th><th width="16%">Correct?</th>
-                    <th width="16%">Word</th><th width="16%">Correct?</th>
-                    <th width="16%">Word</th><th width="16%">Correct?</th>
-                </tr>
-        """
+        # Table rows for individual words
+        q_a = ""
         nwords = len(WORDLIST)
         ncolumns = 3
         nrows = int(math.ceil(float(nwords)/float(ncolumns)))
-
         column = 0
         row = 0
         # x: word index (shown in top-to-bottom then left-to-right sequence)
         for unused_loopvar in range(nwords):
             x = (column * nrows) + row
             if column == 0:  # first column
-                h += "<tr>"
-            h += td(ACCENTED_WORDLIST[x])
-            h += td(answer(getattr(self, WORDLIST[x])))
+                q_a += "<tr>"
+            q_a += td(ACCENTED_WORDLIST[x])
+            q_a += td(answer(getattr(self, WORDLIST[x])))
             if column == (ncolumns - 1):  # last column
-                h += "</tr>"
+                q_a += "</tr>"
                 row += 1
             column = (column + 1) % ncolumns
-        h += """
+
+        # Annotations
+        nelson = "; Nelson 1982 <sup>[1]</sup>"
+        nelson_willison = "; Nelson &amp; Willison 1991 <sup>[2]</sup>"
+        bright = "; Bright 2016 <sup>[3]</sup>"
+
+        # HTML
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {tr_total_errors}
+                    
+                    {nelson_full_scale_iq}
+                    {nelson_verbal_iq}
+                    {nelson_performance_iq}
+                    {nelson_willison_full_scale_iq}
+                    
+                    {bright_full_scale_iq}
+                    {bright_general_ability}
+                    {bright_verbal_comprehension}
+                    {bright_perceptual_reasoning}
+                    {bright_working_memory}
+                    {bright_perceptual_speed}
+                </table>
+            </div>
+            <div class="{CssClass.EXPLANATION}">
+                Estimates premorbid IQ by pronunciation of irregular words.
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="16%">Word</th><th width="16%">Correct?</th>
+                    <th width="16%">Word</th><th width="16%">Correct?</th>
+                    <th width="16%">Word</th><th width="16%">Correct?</th>
+                </tr>
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Nelson HE (1982), <i>National Adult Reading Test (NART): 
                     For the Assessment of Premorbid Intelligence in Patients 
                     with Dementia: Test Manual</i>, NFER-Nelson, Windsor, UK.
@@ -324,10 +293,63 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <a href="https://www.ncbi.nlm.nih.gov/pubmed/27624393">PMID 
                     27624393</a>.
             </div>
-            <div class="copyright">
+            <div class="{CssClass.COPYRIGHT}">
                 NART: Copyright © Hazel E. Nelson. Used with permission.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            tr_total_errors=tr_qa("Total errors", self.n_errors()),
+            nelson_full_scale_iq=tr_qa(
+                "Predicted WAIS full-scale IQ = 127.7 – 0.826 × errors" + nelson,  # noqa
+                self.nelson_full_scale_iq()
+            ),
+            nelson_verbal_iq=tr_qa(
+                "Predicted WAIS verbal IQ = 129.0 – 0.919 × errors" + nelson,
+                self.nelson_verbal_iq()
+            ),
+            nelson_performance_iq=tr_qa(
+                "Predicted WAIS performance IQ = 123.5 – 0.645 × errors" +
+                nelson,
+                self.nelson_performance_iq()
+            ),
+            nelson_willison_full_scale_iq=tr_qa(
+                "Predicted WAIS-R full-scale IQ "
+                "= 130.6 – 1.24 × errors" + nelson_willison,
+                self.nelson_willison_full_scale_iq()
+            ),
+            bright_full_scale_iq=tr_qa(
+                "Predicted WAIS-IV full-scale IQ "
+                "= 126.41 – 0.9775 × errors" + bright,
+                self.bright_full_scale_iq()
+            ),
+            bright_general_ability=tr_qa(
+                "Predicted WAIS-IV General Ability Index "
+                "= 126.5 – 0.9656 × errors" + bright,
+                self.bright_general_ability()
+            ),
+            bright_verbal_comprehension=tr_qa(
+                "Predicted WAIS-IV Verbal Comprehension Index "
+                "= 126.81 – 1.0745 × errors" + bright,
+                self.bright_verbal_comprehension()
+            ),
+            bright_perceptual_reasoning=tr_qa(
+                "Predicted WAIS-IV Perceptual Reasoning Index "
+                "= 120.18 – 0.6242 × errors" + bright,
+                self.bright_perceptual_reasoning()
+            ),
+            bright_working_memory=tr_qa(
+                "Predicted WAIS-IV Working Memory Index "
+                "= 120.53 – 0.7901 × errors" + bright,
+                self.bright_working_memory()
+            ),
+            bright_perceptual_speed=tr_qa(
+                "Predicted WAIS-IV Perceptual Speed Index "
+                "= 114.53 – 0.5285 × errors" + bright,
+                self.bright_perceptual_speed()
+            ),
+            q_a=q_a,
+        )
         return h
 
     def predict(self, intercept: float, slope: float) -> Optional[float]:

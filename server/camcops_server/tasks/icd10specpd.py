@@ -35,6 +35,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
+    CssClass,
     DateFormat,
     ICD10_COPYRIGHT_DIV,
     PV,
@@ -507,8 +508,11 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def pd_heading(self, req: CamcopsRequest, wstringname: str) -> str:
         return """
-            <tr class="heading"><td colspan="2">{}</td></tr>
-        """.format(self.wxstring(req, wstringname))
+            <tr class="{CssClass.HEADING}"><td colspan="2">{s}</td></tr>
+        """.format(
+            CssClass=CssClass,
+            s=self.wxstring(req, wstringname)
+        )
 
     def pd_skiprow(self, req: CamcopsRequest, stem: str) -> str:
         return self.get_twocol_bool_row(
@@ -516,8 +520,11 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def pd_subheading(self, req: CamcopsRequest, wstringname: str) -> str:
         return """
-            <tr class="subheading"><td colspan="2">{}</td></tr>
-        """.format(self.wxstring(req, wstringname))
+            <tr class="{CssClass.SUBHEADING}"><td colspan="2">{s}</td></tr>
+        """.format(
+            CssClass=CssClass,
+            s=self.wxstring(req, wstringname)
+        )
 
     def pd_general_criteria_bits(self, req: CamcopsRequest) -> str:
         return """
@@ -529,8 +536,11 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def pd_b_text(self, req: CamcopsRequest, wstringname: str) -> str:
         return """
-            <tr><td>{}</td><td class="subheading"></td></tr>
-        """.format(self.wxstring(req, wstringname))
+            <tr><td>{s}</td><td class="{CssClass.SUBHEADING}"></td></tr>
+        """.format(
+            CssClass=CssClass,
+            s=self.wxstring(req, wstringname),
+        )
 
     def pd_basic_row(self, req: CamcopsRequest, stem: str, i: int) -> str:
         return self.get_twocol_bool_row_true_false(
@@ -548,9 +558,11 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = self.get_standard_clinician_comments_block(req, self.comments)
         h += """
-            <div class="summary">
-                <table class="summary">
-        """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+        """.format(
+            CssClass=CssClass,
+        )
         h += self.get_is_complete_tr(req)
         h += tr_qa(req.wappstring("date_pertains_to"),
                    format_datetime(self.date_pertains_to,
@@ -581,15 +593,18 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             </div>
             <div>
                 <p><i>Vignette:</i></p>
-                <p>{}</p>
+                <p>{vignette}</p>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="80%">Question</th>
                     <th width="20%">Answer</th>
                 </tr>
         """.format(
-            answer(ws.webify(self.vignette), default_for_blank_strings=True)
+            CssClass=CssClass,
+            vignette=answer(
+                ws.webify(self.vignette), default_for_blank_strings=True
+            ),
         )
 
         # General

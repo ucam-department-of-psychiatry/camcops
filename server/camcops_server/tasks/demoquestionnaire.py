@@ -31,6 +31,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Date, Float, Integer, Time, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import blob_relationship
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -135,22 +136,23 @@ class DemoQuestionnaire(Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
-                    {}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 This is a demo questionnaire, containing no genuine
                 information.
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(req),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
         )
         for i in range(1, N_MCQ + 1):
             h += self.get_twocol_val_row("mcq" + str(i))
@@ -206,33 +208,34 @@ class DemoQuestionnaire(Task,
                 Missing answers look liks this: """ + answer(None) + """<br>
             </div>
         """
-        h += divtest("badidpolicy_mild")
-        h += divtest("badidpolicy_severe")
-        h += divtest("clinician")
-        h += divtest("copyright")
-        h += divtest("error")
-        h += divtest("explanation")
-        h += divtest("footnotes")
-        h += divtest("formtitle")
-        h += divtest("green")
-        h += divtest("heading")
-        h += divtest("important")
-        h += divtest("incomplete")
-        h += divtest("indented")
-        h += divtest("live_on_tablet")
-        h += divtest("navigation")
-        h += divtest("office")
-        h += divtest("patient")
-        h += divtest("respondent")
-        h += divtest("smallprint")
-        h += divtest("specialnote")
-        h += divtest("subheading")
-        h += divtest("summary")
-        h += divtest("superuser")
-        h += divtest("taskheader")
-        h += divtest("trackerheader")
-        h += divtest("tracker_all_consistent")
-        h += divtest("warning")
+        h += divtest(CssClass.BAD_ID_POLICY_MILD)
+        h += divtest(CssClass.BAD_ID_POLICY_SEVERE)
+        h += divtest(CssClass.CLINICIAN)
+        h += divtest(CssClass.COPYRIGHT)
+        h += divtest(CssClass.ERROR)
+        h += divtest(CssClass.EXPLANATION)
+        h += divtest(CssClass.FOOTNOTES)
+        h += divtest(CssClass.FORMTITLE)
+        h += divtest(CssClass.GREEN)
+        h += divtest(CssClass.HEADING)
+        h += divtest(CssClass.IMPORTANT)
+        h += divtest(CssClass.INCOMPLETE)
+        h += divtest(CssClass.INDENTED)
+        h += divtest(CssClass.LIVE_ON_TABLET)
+        h += divtest(CssClass.NAVIGATION)
+        h += divtest(CssClass.OFFICE)
+        h += divtest(CssClass.PATIENT)
+        h += divtest(CssClass.RESPONDENT)
+        h += divtest(CssClass.SMALLPRINT)
+        h += divtest(CssClass.SPECIALNOTE)
+        h += divtest(CssClass.SUBHEADING)
+        h += divtest(CssClass.SUBSUBHEADING)
+        h += divtest(CssClass.SUMMARY)
+        h += divtest(CssClass.SUPERUSER)
+        h += divtest(CssClass.TASKHEADER)
+        h += divtest(CssClass.TRACKERHEADER)
+        h += divtest(CssClass.TRACKER_ALL_CONSISTENT)
+        h += divtest(CssClass.WARNING)
         h += """
             <table>
                 <tr>

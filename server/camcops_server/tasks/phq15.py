@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
@@ -176,42 +177,56 @@ class Phq15(TaskHasPatientMixin, Task,
         for option in range(0, 3):
             answer_dict[option] = str(option) + " – " + \
                 self.wxstring(req, "a" + str(option))
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += tr_qa(
+                self.wxstring(req, "q" + str(q)),
+                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+            )
         h = """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
-                answer(score) + " / {}".format(self.MAX_TOTAL))
-        h += tr_qa(self.wxstring(req, "n_severe_symptoms") + " <sup>[2]</sup>",
-                   nsevere)
-        h += tr_qa(
-            self.wxstring(req, "exceeds_somatoform_cutoff") + " <sup>[3]</sup>",
-            get_yes_no(req, somatoform_likely))
-        h += tr_qa(self.wxstring(req, "symptom_severity") + " <sup>[4]</sup>",
-                   severity)
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {n_severe_symptoms}
+                    {exceeds_somatoform_cutoff}
+                    {symptom_severity}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="70%">Question</th>
                     <th width="30%">Answer</th>
                 </tr>
-        """
-        for q in range(1, self.NQUESTIONS + 1):
-            h += tr_qa(
-                self.wxstring(req, "q" + str(q)),
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
-            )
-        h += """
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] In males, maximum score is actually 28.
                 [2] Questions with scores ≥2 are considered severe.
                 [3] ≥3 severe symptoms.
                 [4] Total score ≥15 severe, ≥10 moderate, ≥5 mild,
                     otherwise none.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score") + " <sup>[1]</sup>",
+                answer(score) + " / {}".format(self.MAX_TOTAL)
+            ),
+            n_severe_symptoms=tr_qa(
+                self.wxstring(req, "n_severe_symptoms") + " <sup>[2]</sup>",
+                nsevere
+            ),
+            exceeds_somatoform_cutoff=tr_qa(
+                self.wxstring(req, "exceeds_somatoform_cutoff") +
+                " <sup>[3]</sup>",
+                get_yes_no(req, somatoform_likely)
+            ),
+            symptom_severity=tr_qa(
+                self.wxstring(req, "symptom_severity") + " <sup>[4]</sup>",
+                severity
+            ),
+            q_a=q_a,
+        )
         return h

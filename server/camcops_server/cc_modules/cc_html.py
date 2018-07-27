@@ -29,6 +29,8 @@ from typing import Any, Callable, List, Optional, TYPE_CHECKING, Union
 
 import cardinal_pythonlib.rnc_web as ws
 
+from camcops_server.cc_modules.cc_constants import CssClass
+
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
 
@@ -114,7 +116,7 @@ def tr(*args, tr_class: str = "", literal: bool = False) -> str:
     Args:
         *args: Set of columns data.
         literal: Treat elements as literals with their own <td> ... </td>,
-            rather than things to be encapsulted.
+            rather than things to be encapsulated.
         tr_class: table row class
     """
     if literal:
@@ -157,22 +159,25 @@ def tr_qa(q: str,
 
 def heading_spanning_two_columns(s: str) -> str:
     """HTML table heading spanning 2 columns."""
-    return tr_span_col(s, cols=2, tr_class="heading")
+    return tr_span_col(s, cols=2, tr_class=CssClass.HEADING)
 
 
 def subheading_spanning_two_columns(s: str, th_not_td: bool = False) -> str:
     """HTML table subheading spanning 2 columns."""
-    return tr_span_col(s, cols=2, tr_class="subheading", th_not_td=th_not_td)
+    return tr_span_col(s, cols=2, tr_class=CssClass.SUBHEADING,
+                       th_not_td=th_not_td)
 
 
 def subheading_spanning_three_columns(s: str, th_not_td: bool = False) -> str:
     """HTML table subheading spanning 3 columns."""
-    return tr_span_col(s, cols=3, tr_class="subheading", th_not_td=th_not_td)
+    return tr_span_col(s, cols=3, tr_class=CssClass.SUBHEADING,
+                       th_not_td=th_not_td)
 
 
 def subheading_spanning_four_columns(s: str, th_not_td: bool = False) -> str:
     """HTML table subheading spanning 4 columns."""
-    return tr_span_col(s, cols=4, tr_class="subheading", th_not_td=th_not_td)
+    return tr_span_col(s, cols=4, tr_class=CssClass.SUBHEADING,
+                       th_not_td=th_not_td)
 
 
 def bold(x: str) -> str:

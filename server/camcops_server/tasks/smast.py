@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
@@ -172,35 +173,42 @@ class Smast(TaskHasPatientMixin, Task,
             "Y": req.wappstring("yes"),
             "N": req.wappstring("no")
         }
-        h = """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.NQUESTIONS))
-        h += tr_qa(
-            self.wxstring(req, "problem_likelihood") + " <sup>[1]</sup>",
-            likelihood)
-        h += """
-                </table>
-            </div>
-            <table class="taskdetail">
-                <tr>
-                    <th width="80%">Question</th>
-                    <th width="20%">Answer</th>
-                </tr>
-        """
+        q_a = ""
         for q in range(1, self.NQUESTIONS + 1):
-            h += tr(
+            q_a += tr(
                 self.wxstring(req, "q" + str(q)),
                 answer(get_from_dict(main_dict, getattr(self, "q" + str(q)))) +
                 " — " + str(self.get_score(q))
             )
-        h += """
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {problem_likelihood}
+                </table>
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="80%">Question</th>
+                    <th width="20%">Answer</th>
+                </tr>
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Total score ≥3 probable, ≥2 possible, 0–1 unlikely.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.NQUESTIONS)
+            ),
+            problem_likelihood=tr_qa(
+                self.wxstring(req, "problem_likelihood") + " <sup>[1]</sup>",
+                likelihood
+            ),
+            q_a=q_a,
+        )
         return h

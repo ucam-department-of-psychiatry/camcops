@@ -21,11 +21,21 @@
 
 namespace camcopsversion {  // http://semver.org/
 
+// CAMCOPS_VERSION:
 // Increase this when the client is changed:
-const Version CAMCOPS_VERSION(2, 2, 4);
 
-// It is normal to have to increase this if you add a new task:
-const Version MINIMUM_SERVER_VERSION(2, 2, 3);
+const Version CAMCOPS_VERSION(2, 2, 6);
+
+// MINIMUM_SERVER_VERSION:
+// It is NOT normal to have to increase this if you add a new task.
+// You should be overriding minimumServerVersion() for the new task instead.
+// Only change this if aspects of the core server tables or API change in a
+// breaking way.
+// (Why? Suppose you are running an old server, and your users download a newer
+// client; they should still be able to operate as long as they're not trying
+// to create/upload tasks that you don't yet support.)
+
+const Version MINIMUM_SERVER_VERSION(2, 2, 0);
 
 }  // namespace camcopsversion
 

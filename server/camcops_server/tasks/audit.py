@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -142,43 +143,52 @@ class Audit(TaskHasPatientMixin, Task,
             if option != 1 and option != 3:
                 q9_to_10_dict[option] = str(option) + " – " + \
                     self.wxstring(req, "q9to10_option" + str(option))
+
+        q_a = tr_qa(self.wxstring(req, "q1_s"),
+                    get_from_dict(q1_dict, self.q1))
+        q_a += tr_qa(self.wxstring(req, "q2_s"),
+                     get_from_dict(q2_dict, self.q2))
+        for q in range(3, 8 + 1):
+            q_a += tr_qa(
+                self.wxstring(req, "q" + str(q) + "_s"),
+                get_from_dict(q3_to_8_dict, getattr(self, "q" + str(q)))
+            )
+        q_a += tr_qa(self.wxstring(req, "q9_s"),
+                     get_from_dict(q9_to_10_dict, self.q9))
+        q_a += tr_qa(self.wxstring(req, "q10_s"),
+                     get_from_dict(q9_to_10_dict, self.q10))
+
         h = """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"), answer(score) + " / 40")
-        h += tr_qa(self.wxstring(req, "exceeds_standard_cutoff"),
-                   get_yes_no(req, exceeds_cutoff))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {exceeds_standard_cutoff}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """
-        h += tr_qa(self.wxstring(req, "q1_s"), get_from_dict(q1_dict, self.q1))
-        h += tr_qa(self.wxstring(req, "q2_s"), get_from_dict(q2_dict, self.q2))
-        for q in range(3, 8 + 1):
-            h += tr_qa(
-                self.wxstring(req, "q" + str(q) + "_s"),
-                get_from_dict(q3_to_8_dict, getattr(self, "q" + str(q)))
-            )
-        h += tr_qa(self.wxstring(req, "q9_s"),
-                   get_from_dict(q9_to_10_dict, self.q9))
-        h += tr_qa(self.wxstring(req, "q10_s"),
-                   get_from_dict(q9_to_10_dict, self.q10))
-        h += """
+                {q_a}
             </table>
-            <div class="copyright">
+            <div class="{CssClass.COPYRIGHT}">
                 AUDIT: Copyright © World Health Organization.
                 Reproduced here under the permissions granted for
                 NON-COMMERCIAL use only. You must obtain permission from the
                 copyright holder for any other use.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(req.wappstring("total_score"),
+                           answer(score) + " / 40"),
+            exceeds_standard_cutoff=tr_qa(
+                self.wxstring(req, "exceeds_standard_cutoff"),
+                get_yes_no(req, exceeds_cutoff)),
+            q_a=q_a,
+        )
         return h
 
 
@@ -259,30 +269,24 @@ class AuditC(TaskHasPatientMixin, Task,
                     self.wxstring(req, "q2_option" + str(option))
             q3_dict[option] = str(option) + " – " + \
                 self.wxstring(req, "q3to8_option" + str(option))
+
         h = """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"), answer(score) + " / 12")
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """
-        h += tr_qa(self.wxstring(req, "c_q1_question"),
-                   get_from_dict(q1_dict, self.q1))
-        h += tr_qa(self.wxstring(req, "c_q2_question"),
-                   get_from_dict(q2_dict, self.q2))
-        h += tr_qa(self.wxstring(req, "c_q3_question"),
-                   get_from_dict(q3_dict, self.q3))
-        h += """
+                {q1}
+                {q2}
+                {q3}
             </table>
-            <div class="copyright">
+            <div class="{CssClass.COPYRIGHT}">
                 AUDIT: Copyright © World Health Organization.
                 Reproduced here under the permissions granted for
                 NON-COMMERCIAL use only. You must obtain permission from the
@@ -290,5 +294,16 @@ class AuditC(TaskHasPatientMixin, Task,
 
                 AUDIT-C: presumed to have the same restrictions.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(req.wappstring("total_score"),
+                           answer(score) + " / 12"),
+            q1=tr_qa(self.wxstring(req, "c_q1_question"),
+                     get_from_dict(q1_dict, self.q1)),
+            q2=tr_qa(self.wxstring(req, "c_q2_question"),
+                     get_from_dict(q2_dict, self.q2)),
+            q3=tr_qa(self.wxstring(req, "c_q3_question"),
+                     get_from_dict(q3_dict, self.q3)),
+        )
         return h

@@ -29,6 +29,7 @@ from typing import Any, Dict, List, Tuple, Type
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -181,17 +182,20 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             9: self.wxstring(req, "ii_option9"),
         }
         h = """
-            <div class="summary">
-                <table class="summary">
-                    {}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="70%">Question</th>
                     <th width="30%">Answer <sup>[1]</sup></th>
                 </tr>
-        """.format(self.get_is_complete_tr(req))
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req)
+        )
         h += subheading_spanning_two_columns(self.wxstring(req, "i_title"))
         h += tr_span_col(self.wxstring(req, "i_question"), cols=2)
         h += tr_qa(self.wxstring(req, "q1"),
@@ -218,12 +222,13 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                    get_from_dict(change_dict, self.change5))
         h += """
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] All questions are scored 1–7, or 9 (not applicable, for
                 change questions).
                 {postscript}
             </div>
         """.format(
+            CssClass=CssClass,
             postscript=self.wxstring(req, "ii_postscript"),
         )
         return h

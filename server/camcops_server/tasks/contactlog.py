@@ -31,7 +31,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import (
     italic,
@@ -111,13 +111,14 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <td width="33%">Location:</td>
-                    <td width="67%"><b>{}</b></td>
+                    <td width="67%"><b>{loc}</b></td>
                 </tr>
         """.format(
-            ws.webify(self.location),
+            CssClass=CssClass,
+            loc=ws.webify(self.location),
         )
         h += tr_qa("Start:", format_datetime(self.start,
                                              DateFormat.SHORT_DATETIME,

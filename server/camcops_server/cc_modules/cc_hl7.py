@@ -416,11 +416,12 @@ class HL7Message(Base):
                  task: "Task" = None,
                  recipient_def: RecipientDefinition = None,
                  hl7run: HL7Run = None,
-                 show_queue_only: bool = False) -> None:
+                 show_queue_only: bool = False,
+                 *args, **kwargs) -> None:
         """
         Must support parameter-free construction, not least for merge_db().
         """
-        super().__init__()
+        super().__init__(*args, **kwargs)
         # Internal attributes
         self._host = None  # type: str
         self._port = None  # type: int

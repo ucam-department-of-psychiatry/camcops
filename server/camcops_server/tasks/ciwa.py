@@ -31,6 +31,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -188,39 +189,55 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     continue
                 d[option] = self.wxstring(req, q + "_option" + str(option))
             answer_dicts_dict[q] = d
-        h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.MAX_SCORE))
-        h += tr_qa(self.wxstring(req, "severity") + " <sup>[1]</sup>", severity)
-        h += """
-                </table>
-            </div>
-            <table class="taskdetail">
-                <tr>
-                    <th width="35%">Question</th>
-                    <th width="65%">Answer</th>
-                </tr>
-        """
+        q_a = ""
         for q in range(1, Ciwa.NSCOREDQUESTIONS + 1):
-            h += tr_qa(
+            q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_s"),
                 get_from_dict(answer_dicts_dict["q" + str(q)],
                               getattr(self, "q" + str(q)))
             )
-        h += subheading_spanning_two_columns(self.wxstring(req, "vitals_title"))
-        h += tr_qa(self.wxstring(req, "t"), self.t)
-        h += tr_qa(self.wxstring(req, "hr"), self.hr)
-        h += tr(self.wxstring(req, "bp"),
-                answer(self.sbp) + " / " + answer(self.dbp))
-        h += tr_qa(self.wxstring(req, "rr"), self.rr)
-        h += """
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {severity}
+                </table>
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="35%">Question</th>
+                    <th width="65%">Answer</th>
+                </tr>
+                {q_a}
+                {subhead_vitals}
+                {t}
+                {hr}
+                {bp}
+                {rr}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Total score ≥15 severe, ≥8 moderate, otherwise
                     mild/minimal.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE)
+            ),
+            severity=tr_qa(
+                self.wxstring(req, "severity") + " <sup>[1]</sup>",
+                severity
+            ),
+            q_a=q_a,
+            subhead_vitals=subheading_spanning_two_columns(
+                self.wxstring(req, "vitals_title")),
+            t=tr_qa(self.wxstring(req, "t"), self.t),
+            hr=tr_qa(self.wxstring(req, "hr"), self.hr),
+            bp=tr(self.wxstring(req, "bp"),
+                  answer(self.sbp) + " / " + answer(self.dbp)),
+            rr=tr_qa(self.wxstring(req, "rr"), self.rr),
+        )
         return h

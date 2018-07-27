@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
@@ -238,48 +239,36 @@ class Phq9(TaskHasPatientMixin, Task,
             2: "2 — " + self.wxstring(req, "fa2"),
             3: "3 — " + self.wxstring(req, "fa3")
         }
+        q_a = ""
+        for i in range(1, self.N_MAIN_QUESTIONS + 1):
+            nstr = str(i)
+            q_a += tr_qa(self.wxstring(req, "q" + nstr),
+                         get_from_dict(main_dict, getattr(self, "q" + nstr)))
+        q_a += tr_qa("10. " + self.wxstring(req, "finalq"),
+                     get_from_dict(q10_dict, self.q10))
+
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
-                answer(self.total_score()) +
-                " / {}".format(self.MAX_SCORE_MAIN))
-        h += tr_qa(self.wxstring(req, "depression_severity") +
-                   " <sup>[2]</sup>",
-                   self.severity(req))
-        h += tr(
-            "Number of symptoms: core <sup>[3]</sup>, other <sup>[4]</sup>, "
-            "total",
-            answer(self.n_core()) + "/2, " +
-            answer(self.n_other()) + "/7, " +
-            answer(self.n_total()) + "/9"
-        )
-        h += tr_qa(self.wxstring(req, "mds") + " <sup>[5]</sup>",
-                   get_yes_no(req, self.is_mds()))
-        h += tr_qa(self.wxstring(req, "ods") + " <sup>[6]</sup>",
-                   get_yes_no(req, self.is_ods()))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {depression_severity}
+                    {n_symptoms}
+                    {mds}
+                    {ods}
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Ratings are over the last 2 weeks.
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
                     <th width="40%">Answer</th>
                 </tr>
-        """
-        for i in range(1, self.N_MAIN_QUESTIONS + 1):
-            nstr = str(i)
-            h += tr_qa(self.wxstring(req, "q" + nstr),
-                       get_from_dict(main_dict, getattr(self, "q" + nstr)))
-        h += tr_qa("10. " + self.wxstring(req, "finalq"),
-                   get_from_dict(q10_dict, self.q10))
-        h += """
+                {q_a}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Sum for questions 1–9.
                 [2] Total score ≥20 severe, ≥15 moderately severe,
                     ≥10 moderate, ≥5 mild, &lt;5 none.
@@ -291,5 +280,33 @@ class Phq9(TaskHasPatientMixin, Task,
                 [6] ≥1 core symptom and 2–4 total symptoms (as per
                     DSM-IV-TR page 775).
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score") + " <sup>[1]</sup>",
+                answer(self.total_score()) +
+                " / {}".format(self.MAX_SCORE_MAIN)
+            ),
+            depression_severity=tr_qa(
+                self.wxstring(req, "depression_severity") + " <sup>[2]</sup>",
+                self.severity(req)
+            ),
+            n_symptoms=tr(
+                "Number of symptoms: core <sup>[3]</sup>, other "
+                "<sup>[4]</sup>, total",
+                answer(self.n_core()) + "/2, " +
+                answer(self.n_other()) + "/7, " +
+                answer(self.n_total()) + "/9"
+            ),
+            mds=tr_qa(
+                self.wxstring(req, "mds") + " <sup>[5]</sup>",
+                get_yes_no(req, self.is_mds())
+            ),
+            ods=tr_qa(
+                self.wxstring(req, "ods") + " <sup>[6]</sup>",
+                get_yes_no(req, self.is_ods())
+            ),
+            q_a=q_a,
+        )
         return h

@@ -18,12 +18,14 @@
 */
 
 #pragma once
+#include <QPointer>
 #include <QString>
 #include "tasklib/task.h"
 
 class CamcopsApp;
-class TaskFactory;
 class OpenableWidget;
+class QuMcqGrid;
+class TaskFactory;
 
 void initializeBdi(TaskFactory& factory);
 
@@ -40,7 +42,7 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
-    virtual bool isCrippled() const { return true; }
+    virtual bool isCrippled() const override { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -52,6 +54,20 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
+protected:
+    bool isBdiII() const;
+    // ------------------------------------------------------------------------
+    // Signal handlers
+    // ------------------------------------------------------------------------
+public slots:
+    void scaleChanged();
+    // ------------------------------------------------------------------------
+    // Data
+    // ------------------------------------------------------------------------
+protected:
+    QPointer<QuMcqGrid> m_grid_i;
+    QPointer<QuMcqGrid> m_grid_ia;
+    QPointer<QuMcqGrid> m_grid_ii;
 public:
     static const QString BDI_TABLENAME;
 };

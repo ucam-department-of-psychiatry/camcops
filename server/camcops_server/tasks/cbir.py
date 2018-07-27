@@ -31,6 +31,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -326,11 +327,11 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
             return html
 
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {complete_tr}
                 </table>
-                <table class="summary">
+                <table class="{CssClass.SUMMARY}">
                     <tr>
                         <th>Subscale</th>
                         <th>Frequency (% of max)</th>
@@ -388,17 +389,18 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                     </tr>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 {tr_blanks}
                 {tr_comments}
             </table>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="25%">Frequency (0–4)</th>
                     <th width="25%">Distress (0–4)</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             complete_tr=self.get_is_complete_tr(req),
             heading_memory=heading_memory,
             mem_f=answer(self.frequency_subscore(*self.QNUMS_MEMORY)),

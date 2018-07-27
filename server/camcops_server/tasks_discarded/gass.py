@@ -31,6 +31,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import get_yes_no
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -126,14 +127,15 @@ class Gass(TaskHasPatientMixin, Task,
     @staticmethod
     def get_subheading(subtitle: str, score: int, max_score: int) -> str:
         return """
-            <tr class="subheading">
-                <td>{}</td>
-                <td colspan="2"><i><b>{}</b> / {}</i></td>
+            <tr class="{CssClass.SUBHEADING}">
+                <td>{subtitle}</td>
+                <td colspan="2"><i><b>{score}</b> / {max_score}</i></td>
             </tr>
         """.format(
-            subtitle,
-            score,
-            max_score
+            CssClass=CssClass,
+            subtitle=subtitle,
+            score=score,
+            max_score=max_score,
         )
 
     def get_row(self, req: CamcopsRequest, q: int, answer_dict: Dict) -> str:
@@ -166,8 +168,8 @@ class Gass(TaskHasPatientMixin, Task,
                 self.wxstring(req, "option" + str(option))
             )
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     <tr>
                         <td>{total_score_str}</td>
@@ -175,16 +177,17 @@ class Gass(TaskHasPatientMixin, Task,
                     </tr>
                 </table>
             </div>
-            <div class="explanation">
+            <div class="{CssClass.EXPLANATION}">
                 Ratings pertain to the past week.
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="65%">Question</th>
                     <th width="20%">Answer</th>
-                    <th width="15%">Distressing?</th><
-                /tr>
+                    <th width="15%">Distressing?</th>
+                </tr>
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,
@@ -233,11 +236,14 @@ class Gass(TaskHasPatientMixin, Task,
                                  self.wxstring(req, "group_weightgain"),
                                  answer_dict)
         h += """
-                <tr class="subheading"><td colspan="3">{}</td></tr>
-                <tr><td colspan="3">{}</td></tr>
+                <tr class="{CssClass.SUBHEADING}">
+                    <td colspan="3">{medication_hint}</td>
+                </tr>
+                <tr><td colspan="3">{medication}</td></tr>
             </table>
         """.format(
-            self.wxstring(req, "medication_hint"),
-            ws.webify(self.medication)
+            CssClass=CssClass,
+            medication_hint=self.wxstring(req, "medication_hint"),
+            medication=ws.webify(self.medication)
         )
         return h

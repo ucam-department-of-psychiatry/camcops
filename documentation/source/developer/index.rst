@@ -23,7 +23,7 @@ Developer notes
 ..  toctree::
     :maxdepth: 1
 
-    ../client/creating_tasks.rst
+    creating_tasks.rst
     building_client.rst
     cpp_code_style.rst
     design_notes.rst

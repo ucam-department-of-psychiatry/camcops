@@ -30,6 +30,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -189,24 +190,19 @@ class Bmi(TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr_qa("BMI (kg/m<sup>2</sup>)",
-                   ws.number_to_dp(self.bmi(), BMI_DP))
-        h += tr_qa("Category <sup>[1]</sup>", self.category(req))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {bmi}
+                    {category}
                 </table>
             </div>
-            <table class="taskdetail">
-        """
-        h += tr_qa("Mass (kg)", ws.number_to_dp(self.mass_kg, KG_DP))
-        h += tr_qa("Height (m)", ws.number_to_dp(self.height_m, M_DP))
-        h += tr_qa("Comment", ws.webify(self.comment))
-        h += """
+            <table class="{CssClass.TASKDETAIL}">
+                {mass}
+                {height}
+                {comment}
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] Categorization <b>for adults</b> (square brackets
                 inclusive, parentheses exclusive; AN anorexia nervosa):
 
@@ -284,5 +280,16 @@ class Bmi(TaskHasPatientMixin, Task):
                     pp. 11, 15, 20, 56).</li>
                 </ul>
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            bmi=tr_qa(
+                "BMI (kg/m<sup>2</sup>)",
+                ws.number_to_dp(self.bmi(), BMI_DP)
+            ),
+            category=tr_qa("Category <sup>[1]</sup>", self.category(req)),
+            mass=tr_qa("Mass (kg)", ws.number_to_dp(self.mass_kg, KG_DP)),
+            height=tr_qa("Height (m)", ws.number_to_dp(self.height_m, M_DP)),
+            comment=tr_qa("Comment", ws.webify(self.comment)),
+        )
         return h

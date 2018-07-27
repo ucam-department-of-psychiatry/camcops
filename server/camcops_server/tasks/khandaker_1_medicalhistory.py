@@ -31,6 +31,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import (
     bold,
     get_yes_no_none,
@@ -116,18 +117,19 @@ class Khandaker1MedicalHistory(TaskHasPatientMixin, Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         html = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete_tr}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="40%">{condition}</th>
                     <th width="20%">{yn}</th>
                     <th width="40%">{comment}</th>
                 </tr>
         """.format(
+            CssClass=CssClass,
             is_complete_tr=self.get_is_complete_tr(req),
             condition=self.xstring(req, X_HEADING_CONDITION),
             yn=self.xstring(req, X_HEADING_YN),
@@ -139,7 +141,7 @@ class Khandaker1MedicalHistory(TaskHasPatientMixin, Task,
                 html += tr_span_col(
                     self.xstring(req, qinfo.heading_xmlstr),
                     cols=3,
-                    tr_class="subheading",
+                    tr_class=CssClass.SUBHEADING,
                 )
             yn_value = getattr(self, qinfo.fieldname_yn)
             yn_str = get_yes_no_none(req, yn_value)

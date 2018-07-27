@@ -510,7 +510,7 @@ def main() -> None:
     web_image_dir = join(args.base_dir, "website", "images")
     docs_image_dir = join(args.base_dir, "docs_sphinx", "source", "images")
     docs_appicon_image_dir = join(args.base_dir, "docs_sphinx", "source",
-                                  "client", "app_icons")
+                                  "_app_icons")
     all_tablet_icon_dirs = [tablet_icon_dir, docs_appicon_image_dir]
 
     # =============================================================================

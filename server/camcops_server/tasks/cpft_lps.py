@@ -38,7 +38,11 @@ from sqlalchemy.sql.selectable import SelectBase
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import DateFormat, INVALID_VALUE
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DateFormat,
+    INVALID_VALUE,
+)
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_forms import (
     LinkingIdNumSelector,
@@ -173,13 +177,13 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
         person_marital_status = get_nhs_dd_person_marital_status(req)
         ethnic_category_code = get_nhs_dd_ethnic_category_code(req)
         if self.lps_division == "G":
-            banner_class = "banner_referral_general_adult"
+            banner_class = CssClass.BANNER_REFERRAL_GENERAL_ADULT
             division_name = self.wxstring(req, "service_G")
         elif self.lps_division == "O":
-            banner_class = "banner_referral_old_age"
+            banner_class = CssClass.BANNER_REFERRAL_OLD_AGE
             division_name = self.wxstring(req, "service_O")
         elif self.lps_division == "S":
-            banner_class = "banner_referral_substance_misuse"
+            banner_class = CssClass.BANNER_REFERRAL_SUBSTANCE_MISUSE
             division_name = self.wxstring(req, "service_S")
         else:
             banner_class = ""
@@ -210,38 +214,47 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
                 admission_reasons.append(self.wxstring(req, "f_" + r))
 
         h = """
-            <div class="banner {}">{} referral at {}</div>
-            <div class="summary">
-                <table class="summary">
-                    {}
+            <div class="{CssClass.BANNER} {banner_class}">{division_name} 
+                referral at {when}</div>
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <col width="25%">
                 <col width="25%">
                 <col width="25%">
                 <col width="25%">
         """.format(
-            banner_class,
-            answer(division_name, default_for_blank_strings=True),
-            answer(format_datetime(self.referral_date_time,
-                                   DateFormat.SHORT_DATETIME_WITH_DAY_NO_TZ,
-                                   default=None)),
-            self.get_is_complete_tr(req),
+            CssClass=CssClass,
+            banner_class=banner_class,
+            division_name=answer(division_name, default_for_blank_strings=True),
+            when=answer(
+                format_datetime(self.referral_date_time,
+                                DateFormat.SHORT_DATETIME_WITH_DAY_NO_TZ,
+                                default=None)
+            ),
+            tr_is_complete=self.get_is_complete_tr(req),
         )
         h += subheading_spanning_four_columns(
             self.wxstring(req, "t_about_referral"))
         h += """
             <tr>
-                <td>{}</td><td>{}</td>
-                <td>{}</td><td class="highlight">{}</td>
+                <td>{q_method}</td>
+                <td>{a_method}</td>
+                <td>{q_priority}</td>
+                <td class="{CssClass.HIGHLIGHT}">{a_priority}</td>
             </tr>
         """.format(
-            self.wxstring(req, "f_referral_method"),
-            answer(self.referral_method),
-            self.wxstring(req, "f_referral_priority"),
-            answer(self.referral_priority, default_for_blank_strings=True) +
-            ": " + answer(priority_name)
+            CssClass=CssClass,
+            q_method=self.wxstring(req, "f_referral_method"),
+            a_method=answer(self.referral_method),
+            q_priority=self.wxstring(req, "f_referral_priority"),
+            a_priority=(
+                answer(self.referral_priority, default_for_blank_strings=True) +  # noqa
+                ": " + answer(priority_name)
+            )
         )
         h += self.four_column_row(
             self.wxstring(req, "f_referrer_name"),
@@ -265,15 +278,19 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
             self.wxstring(req, "t_patient"))
         h += """
             <tr>
-                <td>{}</td><td>{}</td>
-                <td>{}</td><td class="highlight">{}</td>
+                <td>{q_when}</td>
+                <td>{a_when}</td>
+                <td>{q_where}</td>
+                <td class="{CssClass.HIGHLIGHT}">{a_where}</td>
             </tr>
         """.format(
-            self.wxstring(req, "f_admission_date"),
-            answer(format_datetime(self.admission_date, DateFormat.LONG_DATE,
-                                   default=None), ""),
-            self.wxstring(req, "f_patient_location"),
-            answer(self.patient_location)
+            CssClass=CssClass,
+            q_when=self.wxstring(req, "f_admission_date"),
+            a_when=answer(
+                format_datetime(self.admission_date, DateFormat.LONG_DATE,
+                                default=None), ""),
+            q_where=self.wxstring(req, "f_patient_location"),
+            a_where=answer(self.patient_location),
         )
         h += self.four_column_row(
             self.wxstring(req, "f_estimated_discharge_date"),
@@ -344,16 +361,17 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
-                    {}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <col width="25%">
                 <col width="75%">
         """.format(
-            self.get_is_complete_tr(req),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
         )
         h += tr_qa(
             self.wxstring(req, "to"),
@@ -657,16 +675,17 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
-                    {}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <col width="40%">
                 <col width="60%">
         """.format(
-            self.get_is_complete_tr(req),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
         )
         h += tr_qa(self.wxstring(req, "discharge_date"),
                    format_datetime(self.discharge_date,

@@ -933,13 +933,13 @@ Use 'camcops <COMMAND> --help' for more detail on each command.""".format(
         subparsers, "upgrade_db", config_mandatory=True,
         help="Upgrade database to most recent version (via Alembic)")
     upgradedb_parser.set_defaults(
-        func=lambda args: upgrade_database_to_head())
+        func=lambda args: upgrade_database_to_head(show_sql_only=False))
 
     show_upgrade_sql_parser = add_sub(
         subparsers, "show_upgrade_sql", config_mandatory=True,
         help="Show SQL for upgrading database (to stdout)")
     show_upgrade_sql_parser.set_defaults(
-        func=lambda args: upgrade_database_to_head(as_sql=True))
+        func=lambda args: upgrade_database_to_head(show_sql_only=True))
 
     showdbtitle_parser = add_sub(
         subparsers, "show_db_title",

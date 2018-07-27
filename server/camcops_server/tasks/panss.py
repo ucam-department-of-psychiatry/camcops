@@ -30,7 +30,10 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DATA_COLLECTION_ONLY_DIV,
+)
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa
@@ -262,41 +265,60 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             6: self.wxstring(req, "option6"),
             7: self.wxstring(req, "option7"),
         }
+        q_a = ""
+        for q in self.TASK_FIELDS:
+            q_a += tr_qa(
+                self.wxstring(req, "" + q + "_s"),
+                get_from_dict(answers, getattr(self, q))
+            )
         h = """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr_qa("{} ({}–{})".format(req.wappstring("total_score"),
-                                       self.MIN_TOTAL, self.MAX_TOTAL),
-                   total)
-        h += tr_qa("{} ({}–{})".format(self.wxstring(req, "p"),
-                                       self.MIN_P, self.MAX_P),
-                   p)
-        h += tr_qa("{} ({}–{})".format(self.wxstring(req, "n"),
-                                       self.MIN_N, self.MAX_N),
-                   n)
-        h += tr_qa("{} ({}–{})".format(self.wxstring(req, "g"),
-                                       self.MIN_G, self.MAX_G),
-                   g)
-        h += tr_qa("{} ({}–{})".format(self.wxstring(req, "composite"),
-                                       self.MIN_P_MINUS_N, self.MAX_P_MINUS_N),
-                   composite)
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
+                    {p}
+                    {n}
+                    {g}
+                    {composite}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="40%">Question</th>
                     <th width="60%">Answer</th>
                 </tr>
-        """
-        for q in self.TASK_FIELDS:
-            h += tr_qa(
-                self.wxstring(req, "" + q + "_s"),
-                get_from_dict(answers, getattr(self, q))
-            )
-        h += """
+                {q_a}
             </table>
-        """ + DATA_COLLECTION_ONLY_DIV
+            {DATA_COLLECTION_ONLY_DIV}
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr_qa(
+                "{} ({}–{})".format(req.wappstring("total_score"),
+                                    self.MIN_TOTAL, self.MAX_TOTAL),
+                total
+            ),
+            p=tr_qa(
+                "{} ({}–{})".format(self.wxstring(req, "p"),
+                                    self.MIN_P, self.MAX_P),
+                p
+            ),
+            n=tr_qa(
+                "{} ({}–{})".format(self.wxstring(req, "n"),
+                                    self.MIN_N, self.MAX_N),
+                n
+            ),
+            g=tr_qa(
+                "{} ({}–{})".format(self.wxstring(req, "g"),
+                                    self.MIN_G, self.MAX_G),
+                g
+            ),
+            composite=tr_qa(
+                "{} ({}–{})".format(self.wxstring(req, "composite"),
+                                    self.MIN_P_MINUS_N, self.MAX_P_MINUS_N),
+                composite
+            ),
+            q_a=q_a,
+            DATA_COLLECTION_ONLY_DIV=DATA_COLLECTION_ONLY_DIV,
+        )
         return h

@@ -33,6 +33,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
+    CssClass,
     DateFormat,
     ICD10_COPYRIGHT_DIV,
 )
@@ -402,32 +403,39 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             req, fieldname, self.wxstring(req, fieldname))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = self.get_standard_clinician_comments_block(req, self.comments)
-        h += """
-            <div class="summary">
-                <table class="summary">
-        """
-        h += self.get_is_complete_tr(req)
-        h += tr_qa(req.wappstring("date_pertains_to"),
-                   format_datetime(self.date_pertains_to,
-                                   DateFormat.LONG_DATE, default=None))
-        h += tr_qa(
-            self.wxstring(req, "meets_general_criteria") + " <sup>[1]</sup>",
-            get_true_false_none(req, self.meets_general_criteria()))
-        h += """
+        h = """
+            {clinician_comments}
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {date_pertains_to}
+                    {meets_general_criteria}
                 </table>
             </div>
-            <div class="explanation">
-        """
-        h += self.wxstring(req, "comments")
-        h += """
+            <div class="{CssClass.EXPLANATION}">
+                {comments}
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="80%">Question</th>
                     <th width="20%">Answer</th>
                 </tr>
-        """
+        """.format(
+            clinician_comments=self.get_standard_clinician_comments_block(
+                req, self.comments),
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            date_pertains_to=tr_qa(
+                req.wappstring("date_pertains_to"),
+                format_datetime(self.date_pertains_to,
+                                DateFormat.LONG_DATE, default=None)
+            ),
+            meets_general_criteria=tr_qa(
+                self.wxstring(req, "meets_general_criteria") + " <sup>[1]</sup>",  # noqa
+                get_true_false_none(req, self.meets_general_criteria())
+            ),
+            comments=self.wxstring(req, "comments"),
+        )
 
         h += self.heading_row(req, "core", " <sup>[2]</sup>")
         for x in Icd10Schizophrenia.A_NAMES:
@@ -461,7 +469,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
         h += """
             </table>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 [1] All of:
                     (a) at least one core symptom, or at least two of the other
                         positive or negative symptoms;
@@ -476,5 +484,5 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                         edition, Saunders, Elsevier, Edinburgh.
                     (b) Pawar AV &amp; Spence SA (2003), PMID 14519605.
             </div>
-        """ + ICD10_COPYRIGHT_DIV
+        """.format(CssClass=CssClass) + ICD10_COPYRIGHT_DIV
         return h

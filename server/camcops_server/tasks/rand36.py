@@ -31,6 +31,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float, Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, identity, tr, tr_span_col
@@ -373,7 +374,7 @@ class Rand36(TaskHasPatientMixin, Task,
 
     @staticmethod
     def section_row_html(text: str) -> str:
-        return tr_span_col(text, cols=3, tr_class="subheading")
+        return tr_span_col(text, cols=3, tr_class=CssClass.SUBHEADING)
 
     def answer_text(self, req: CamcopsRequest,
                     q: int, v: Any) -> Optional[str]:
@@ -413,9 +414,13 @@ class Rand36(TaskHasPatientMixin, Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+        )
         h += self.scoreline(
             self.wxstring(req, "score_overall"), 1,
             self.format_float_for_display(self.score_overall()))
@@ -448,13 +453,15 @@ class Rand36(TaskHasPatientMixin, Task,
         h += """
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
                     <th width="30%">Answer</th>
                     <th width="10%">Score</th>
                 </tr>
-        """
+        """.format(
+            CssClass=CssClass,
+        )
         for q in range(1, 2 + 1):
             h += self.answer_row_html(req, q)
         h += self.section_row_html(self.wxstring(req, "activities_q"))
@@ -485,12 +492,12 @@ class Rand36(TaskHasPatientMixin, Task,
             h += self.answer_row_html(req, q)
         h += """
             </table>
-            <div class="copyright">
+            <div class="{CssClass.COPYRIGHT}">
                 The RAND 36-Item Short Form Health Survey was developed at RAND
                 as part of the Medical Outcomes Study. See
             http://www.rand.org/health/surveys_tools/mos/mos_core_36item.html
             </div>
-            <div class="footnotes">
+            <div class="{CssClass.FOOTNOTES}">
                 All questions are first transformed to a score in the range
                 0–100. Higher scores are always better. Then:
                 [1] Mean of all 36 questions.
@@ -503,5 +510,7 @@ class Rand36(TaskHasPatientMixin, Task,
                 [8] Q21, 22.
                 [9] Q1, 33–36.
             </div>
-        """
+        """.format(
+            CssClass=CssClass,
+        )
         return h

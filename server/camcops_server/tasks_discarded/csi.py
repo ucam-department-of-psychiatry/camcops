@@ -30,6 +30,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import get_yes_no, get_yes_no_unknown
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -97,9 +98,16 @@ class Csi(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def get_task_html(self, req: CamcopsRequest) -> str:
         n_csi_symptoms = self.total_score()
         csi_catatonia = n_csi_symptoms >= 2
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+                "Q" + str(q) + " — " +
+                self.wxstring(req, "q" + str(q) + "_title"),
+                get_yes_no_unknown(req, getattr(self, "q" + str(q)))
+            )
         h = """
-            <div class="summary">
-                <table class="summary">
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
                     {is_complete}
                     <tr>
                         <td>{num_sx_str}</td>
@@ -111,29 +119,24 @@ class Csi(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     </tr>
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Present?</th>
                 </tr>
+                {q_a}
+            </table>
+            <div class="{CssClass.FOOTNOTES}">
+                [1] Number of CSI symptoms ≥2.
+            </div>
         """.format(
+            CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
             num_sx_str=self.wxstring(req, "num_symptoms_present"),
             n_csi_symptoms=n_csi_symptoms,
             max_total=self.NQUESTIONS,
             catatonia_str=self.wxstring(req, "catatonia_present"),
-            csi_catatonia=get_yes_no(req, csi_catatonia)
+            csi_catatonia=get_yes_no(req, csi_catatonia),
+            q_a=q_a,
         )
-        for q in range(1, self.NQUESTIONS + 1):
-            h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                "Q" + str(q) + " — " +
-                self.wxstring(req, "q" + str(q) + "_title"),
-                get_yes_no_unknown(req, getattr(self, "q" + str(q)))
-            )
-        h += """
-            </table>
-            <div class="footnotes">
-                [1] Number of CSI symptoms ≥2.
-            </div>
-        """
         return h

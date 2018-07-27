@@ -31,6 +31,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -58,6 +59,15 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 PV_MAIN = [0, 1, 2, 3, 4, 9]
 PV_PROBLEMTYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
+FOOTNOTE_SCORING = """
+    [1] 0 = no problem;
+    1 = minor problem requiring no action;
+    2 = mild problem but definitely present;
+    3 = moderately severe problem;
+    4 = severe to very severe problem;
+    9 = not known.
+"""
+
 
 # =============================================================================
 # HoNOS abstract base class
@@ -74,12 +84,14 @@ class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     )
 
     COPYRIGHT_DIV = """
-        <div class="copyright">
+        <div class="{css_copyright}">
             Health of the Nation Outcome Scales:
             Copyright © Royal College of Psychiatrists.
             Used here with permission.
         </div>
-    """
+    """.format(
+        css_copyright=CssClass.COPYRIGHT,
+    )
 
     QFIELDS = None  # type: List[str]  # must be overridden
     MAX_SCORE = None  # type: int  # must be overridden
@@ -211,47 +223,63 @@ class Honos(HonosBase,
             "I": self.wxstring(req, "q8problemtype_option_i"),
             "J": self.wxstring(req, "q8problemtype_option_j"),
         }
+        one_to_eight = ""
+        for i in range(1, 8 + 1):
+            one_to_eight += tr_qa(
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
+            )
+        nine_onwards = ""
+        for i in range(9, self.NQUESTIONS + 1):
+            nine_onwards += tr_qa(
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
+            )
+
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer <sup>[1]</sup></th>
                 </tr>
-        """
-        h += tr_qa(self.wxstring(req, "period_rated"), self.period_rated)
-        for i in range(1, 8 + 1):
-            h += tr_qa(
-                self.get_q(req, i),
-                self.get_answer(req, i, getattr(self, "q" + str(i)))
-            )
-        h += tr_qa(self.wxstring(req, "q8problemtype_s"),
-                   get_from_dict(q8_problem_type_dict, self.q8problemtype))
-        h += tr_qa(self.wxstring(req, "q8otherproblem_s"),
-                   self.q8otherproblem)
-        for i in range(9, self.NQUESTIONS + 1):
-            h += tr_qa(
-                self.get_q(req, i),
-                self.get_answer(req, i, getattr(self, "q" + str(i)))
-            )
-        h += """
+                {period_rated}
+                {one_to_eight}
+                {q8problemtype}
+                {q8otherproblem}
+                {nine_onwards}
             </table>
-            <div class="footnotes">
-                [1] 0 = no problem;
-                1 = minor problem requiring no action;
-                2 = mild problem but definitely present;
-                3 = moderately severe problem;
-                4 = severe to very severe problem;
-                9 = not known.
+            <div class="{CssClass.FOOTNOTES}">
+                {FOOTNOTE_SCORING}
             </div>
-        """ + self.COPYRIGHT_DIV
+            {copyright_div}
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(self.total_score()) + " / {}".format(self.MAX_SCORE)
+            ),
+            period_rated=tr_qa(self.wxstring(req, "period_rated"),
+                               self.period_rated),
+            one_to_eight=one_to_eight,
+            q8problemtype=tr_qa(
+                self.wxstring(req, "q8problemtype_s"),
+                get_from_dict(q8_problem_type_dict, self.q8problemtype)
+            ),
+            q8otherproblem=tr_qa(
+                self.wxstring(req, "q8otherproblem_s"),
+                self.q8otherproblem
+            ),
+            nine_onwards=nine_onwards,
+            FOOTNOTE_SCORING=FOOTNOTE_SCORING,
+            copyright_div=self.COPYRIGHT_DIV,
+        )
         return h
 
 
@@ -337,47 +365,63 @@ class Honos65(HonosBase,
             "I": self.wxstring(req, "q8problemtype_option_i"),
             "J": self.wxstring(req, "q8problemtype_option_j"),
         }
+        one_to_eight = ""
+        for i in range(1, 8 + 1):
+            one_to_eight += tr_qa(
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
+            )
+        nine_onwards = ""
+        for i in range(9, Honos.NQUESTIONS + 1):
+            nine_onwards += tr_qa(
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
+            )
+
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer <sup>[1]</sup></th>
                 </tr>
-        """
-        h += tr_qa(self.wxstring(req, "period_rated"), self.period_rated)
-        for i in range(1, 8 + 1):
-            h += tr_qa(
-                self.get_q(req, i),
-                self.get_answer(req, i, getattr(self, "q" + str(i)))
-            )
-        h += tr_qa(self.wxstring(req, "q8problemtype_s"),
-                   get_from_dict(q8_problem_type_dict, self.q8problemtype))
-        h += tr_qa(self.wxstring(req, "q8otherproblem_s"),
-                   self.q8otherproblem)
-        for i in range(9, Honos.NQUESTIONS + 1):
-            h += tr_qa(
-                self.get_q(req, i),
-                self.get_answer(req, i, getattr(self, "q" + str(i)))
-            )
-        h += """
+                {period_rated}
+                {one_to_eight}
+                {q8problemtype}
+                {q8otherproblem}
+                {nine_onwards}
             </table>
-            <div class="footnotes">
-                [1] 0 = no problem;
-                1 = minor problem requiring no action;
-                2 = mild problem but definitely present;
-                3 = moderately severe problem;
-                4 = severe to very severe problem;
-                9 = not known.
+            <div class="{CssClass.FOOTNOTES}">
+                {FOOTNOTE_SCORING}
             </div>
-        """ + self.COPYRIGHT_DIV
+            {copyright_div}
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(self.total_score()) + " / {}".format(self.MAX_SCORE)
+            ),
+            period_rated=tr_qa(self.wxstring(req, "period_rated"),
+                               self.period_rated),
+            one_to_eight=one_to_eight,
+            q8problemtype=tr_qa(
+                self.wxstring(req, "q8problemtype_s"),
+                get_from_dict(q8_problem_type_dict, self.q8problemtype)
+            ),
+            q8otherproblem=tr_qa(
+                self.wxstring(req, "q8otherproblem_s"),
+                self.q8otherproblem
+            ),
+            nine_onwards=nine_onwards,
+            FOOTNOTE_SCORING=FOOTNOTE_SCORING,
+            copyright_div=self.COPYRIGHT_DIV,
+        )
         return h
 
 
@@ -434,45 +478,57 @@ class Honosca(HonosBase,
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
+        section_a = ""
+        for i in range(1, 13 + 1):
+            section_a += tr_qa(
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
+            )
+        section_b = ""
+        for i in range(14, self.NQUESTIONS + 1):
+            section_b += tr_qa(
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
+            )
+
         h = """
-            <div class="summary">
-                <table class="summary">
-        """ + self.get_is_complete_tr(req)
-        h += tr(req.wappstring("total_score"),
-                answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
-        h += """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {total_score}
                 </table>
             </div>
-            <table class="taskdetail">
+            <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="50%">Question</th>
                     <th width="50%">Answer <sup>[1]</sup></th>
                 </tr>
-        """
-        h += tr_qa(self.wxstring(req, "period_rated"), self.period_rated)
-        h += subheading_spanning_two_columns(
-            self.wxstring(req, "section_a_title"))
-        for i in range(1, 13 + 1):
-            h += tr_qa(
-                self.get_q(req, i),
-                self.get_answer(req, i, getattr(self, "q" + str(i)))
-            )
-        h += subheading_spanning_two_columns(
-            self.wxstring(req, "section_b_title"))
-        for i in range(14, self.NQUESTIONS + 1):
-            h += tr_qa(
-                self.get_q(req, i),
-                self.get_answer(req, i, getattr(self, "q" + str(i)))
-            )
-        h += """
+                {period_rated}
+                {section_a_subhead}
+                {section_a}
+                {section_b_subhead}
+                {section_b}
             </table>
-            <div class="footnotes">
-                [1] 0 = no problem;
-                1 = minor problem requiring no action;
-                2 = mild problem but definitely present;
-                3 = moderately severe problem;
-                4 = severe to very severe problem;
-                9 = not known.
+            <div class="{CssClass.FOOTNOTES}">
+                {FOOTNOTE_SCORING}
             </div>
-        """ + self.COPYRIGHT_DIV
+            {copyright_div}
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(self.total_score()) + " / {}".format(self.MAX_SCORE)
+            ),
+            period_rated=tr_qa(self.wxstring(req, "period_rated"),
+                               self.period_rated),
+            section_a_subhead=subheading_spanning_two_columns(
+                self.wxstring(req, "section_a_title")),
+            section_a=section_a,
+            section_b_subhead=subheading_spanning_two_columns(
+                self.wxstring(req, "section_b_title")),
+            section_b=section_b,
+            FOOTNOTE_SCORING=FOOTNOTE_SCORING,
+            copyright_div=self.COPYRIGHT_DIV,
+        )
         return h
