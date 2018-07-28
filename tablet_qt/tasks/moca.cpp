@@ -226,7 +226,7 @@ OpenableWidget* Moca::editor(const bool read_only)
     const QString correct_date = "     " + datetime::nowDate().toString(datetime::LONG_DATE_FORMAT);
     const QString recalled = xstring("recalled");
 
-    auto addpage = [this, &pages]
+    auto addpage = [&pages]
             (const QString& title,
             std::initializer_list<QuElement*> elements,
             QuPage::PageType type = QuPage::PageType::Inherit,
@@ -245,7 +245,7 @@ OpenableWidget* Moca::editor(const bool read_only)
     auto boldtext = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold();
     };
-    auto italic = [this](const QString& text) -> QuElement* {
+    auto italic = [](const QString& text) -> QuElement* {
         return (new QuText(text))->setItalic(true);
     };
     auto mcq = [this](const QString& fieldname,

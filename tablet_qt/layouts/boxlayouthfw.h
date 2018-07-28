@@ -137,7 +137,7 @@ public:
 public:
     explicit BoxLayoutHfw(Direction, QWidget* parent = nullptr);
 
-    ~BoxLayoutHfw();
+    ~BoxLayoutHfw() override;
 
     Direction direction() const;
     void setDirection(Direction);

@@ -61,7 +61,7 @@ public:
     void resizeImages(double factor);
 protected:
     void commonConstructor(const QSize& size);
-    virtual void paintEvent(QPaintEvent* e);
+    virtual void paintEvent(QPaintEvent* e) override;
     void rescale(QPixmap& pm);
     void resizeIfNoSize();
 protected:

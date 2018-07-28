@@ -46,8 +46,7 @@ QuDiagnosticCode::QuDiagnosticCode(DiagnosticCodeSetPtr codeset,
     m_offer_null_button(true),
     m_missing_indicator(nullptr),
     m_label_code(nullptr),
-    m_label_description(nullptr),
-    m_widget(nullptr)
+    m_label_description(nullptr)
 {
     Q_ASSERT(m_codeset);
     Q_ASSERT(m_fieldref_code);

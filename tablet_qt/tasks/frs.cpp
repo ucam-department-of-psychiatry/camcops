@@ -202,8 +202,8 @@ OpenableWidget* Frs::editor(const bool read_only)
             new QuMcq(fieldRef(strnum(QPREFIX, q)), options),
         };
     };
-    auto makeqgroup = [this, &makeqelements](int start,
-                                             int end) -> QVector<QuElement*> {
+    auto makeqgroup = [&makeqelements](int start,
+                                       int end) -> QVector<QuElement*> {
         QVector<QuElement*> elements;
         for (int q = start; q <= end; ++q) {
             elements += makeqelements(q);

@@ -33,16 +33,16 @@
 #ifdef USE_NUMERIC_DATES
 const QString DEFAULT_DATETIME_FORMAT("yyyy MM dd HH:mm");
 const QString DEFAULT_DATE_FORMAT("yyyy MM dd");
-Qt::InputMethodHints DATETIME_IMH = Qt::ImhPreferNumbers;
-Qt::InputMethodHints DATE_IMH = Qt::ImhPreferNumbers;
+const Qt::InputMethodHints DATETIME_IMH = Qt::ImhPreferNumbers;
+const Qt::InputMethodHints DATE_IMH = Qt::ImhPreferNumbers;
 #else
 const QString DEFAULT_DATETIME_FORMAT("dd MMM yyyy HH:mm");
 const QString DEFAULT_DATE_FORMAT("dd MMM yyyy");
-Qt::InputMethodHints DATETIME_IMH = Qt::ImhNone;
-Qt::InputMethodHints DATE_IMH = Qt::ImhNone;
+const Qt::InputMethodHints DATETIME_IMH = Qt::ImhNone;
+const Qt::InputMethodHints DATE_IMH = Qt::ImhNone;
 #endif
 const QString DEFAULT_TIME_FORMAT("HH:mm");
-Qt::InputMethodHints TIME_IMH = Qt::ImhPreferNumbers;
+const Qt::InputMethodHints TIME_IMH = Qt::ImhPreferNumbers;
 // Default pseudo-null date (what's display when nothing is selected):
 // - 14 Sep 1752 is usual minimum (Gregorian calendar), but is a long way from now
 // - 01 Jan 2000 is an option, but is too plausible

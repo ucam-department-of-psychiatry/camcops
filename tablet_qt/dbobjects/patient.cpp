@@ -280,7 +280,7 @@ QVariant Patient::idnumVariant(const int which_idnum) const
 
 qlonglong Patient::idnumInteger(const int which_idnum) const
 {
-    return idnumVariant(which_idnum).toULongLong();  // 0 in case of failure
+    return idnumVariant(which_idnum).toLongLong();  // 0 in case of failure
 }
 
 

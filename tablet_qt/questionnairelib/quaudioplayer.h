@@ -33,12 +33,12 @@ class QuAudioPlayer : public QuElement
     Q_OBJECT
 public:
     QuAudioPlayer(const QString& url);
-    virtual ~QuAudioPlayer();
+    virtual ~QuAudioPlayer() override;
     QuAudioPlayer* setVolume(int volume);
     QuAudioPlayer* setOfferVolumeControl(bool offer_volume_control = true);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
-    virtual void closing();
+    virtual void closing() override;
 protected slots:
     void play();
     void stop();

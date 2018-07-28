@@ -76,7 +76,7 @@ public:
     QVector<int> whichIdnumsPresent() const;
     QVector<int> whichIdnumsHaveEntries() const;
     QVariant idnumVariant(int which_idnum) const;
-    qlonglong idnumInteger(int which_idnum) const;
+    qlonglong idnumInteger(int which_idnum) const;  // 64-bit signed integer: up to 2^63 - 1 = 9,223,372,036,854,775,807
     AttributesType policyAttributes() const;
     bool compliesWith(const IdPolicy& policy) const;
     bool compliesWithUpload() const;

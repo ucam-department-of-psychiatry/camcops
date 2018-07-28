@@ -43,7 +43,7 @@ class BaseWidget : public QWidget
     Q_OBJECT
 public:
     BaseWidget(QWidget* parent = nullptr);
-    virtual ~BaseWidget();
+    virtual ~BaseWidget() override;
 #ifdef GUI_USE_RESIZE_FOR_HEIGHT
     virtual void resizeEvent(QResizeEvent* event) override;
 #endif

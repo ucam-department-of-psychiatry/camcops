@@ -87,7 +87,7 @@ class SQLCipherDriver : public QSqlDriver
 public:
     explicit SQLCipherDriver(QObject* parent = nullptr);
     explicit SQLCipherDriver(sqlite3* connection, QObject* parent = nullptr);
-    ~SQLCipherDriver();
+    ~SQLCipherDriver() override;
     bool hasFeature(DriverFeature f) const override;
     bool open(const QString& db,
               const QString& user,

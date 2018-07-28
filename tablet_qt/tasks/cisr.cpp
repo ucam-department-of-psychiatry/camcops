@@ -563,8 +563,8 @@ const QVector<CQ> QUESTIONS_NO_SOMETIMES_OFTEN{
 // greater than or equal to.
 
 // Number of response values (numbered from 1 to N)
-const int N_ETHNIC = 7;  // RNC: 6 in original; added "prefer not to say"
-const int N_MARRIED = 6;  // RNC: 5 in original; added "prefer not to say"
+// const int N_ETHNIC = 7;  // RNC: 6 in original; added "prefer not to say"
+// const int N_MARRIED = 6;  // RNC: 5 in original; added "prefer not to say"
 const int N_DURATIONS = 5;
 const int N_OPTIONS_DAYS_PER_WEEK = 3;
 const int N_OPTIONS_NIGHTS_PER_WEEK = 3;
@@ -577,11 +577,11 @@ const int NUM_PANIC_SYMPTOMS = 13;  // from a to m
 // Actual response values
 
 // For e.g. SOMATIC_DUR, etc.: "How long have you..."
-const int V_DURATION_LT_2W = 1;
+// const int V_DURATION_LT_2W = 1;
 const int V_DURATION_2W_6M = 2;
-const int V_DURATION_6M_1Y = 3;
-const int V_DURATION_1Y_2Y = 4;
-const int V_DURATION_GE_2Y = 5;
+// const int V_DURATION_6M_1Y = 3;
+// const int V_DURATION_1Y_2Y = 4;
+// const int V_DURATION_GE_2Y = 5;
 
 // For quite a few: "on how many days in the past week...?"
 const int V_DAYS_IN_PAST_WEEK_0 = 1;
@@ -589,36 +589,36 @@ const int V_DAYS_IN_PAST_WEEK_1_TO_3 = 2;
 const int V_DAYS_IN_PAST_WEEK_4_OR_MORE = 3;
 
 const int V_NIGHTS_IN_PAST_WEEK_0 = 1;
-const int V_NIGHTS_IN_PAST_WEEK_1_TO_3 = 2;
+// const int V_NIGHTS_IN_PAST_WEEK_1_TO_3 = 2;
 const int V_NIGHTS_IN_PAST_WEEK_4_OR_MORE = 3;
 
-const int V_HOW_UNPLEASANT_NOT_AT_ALL = 1;
-const int V_HOW_UNPLEASANT_A_LITTLE = 2;
+// const int V_HOW_UNPLEASANT_NOT_AT_ALL = 1;
+// const int V_HOW_UNPLEASANT_A_LITTLE = 2;
 const int V_HOW_UNPLEASANT_UNPLEASANT = 3;
-const int V_HOW_UNPLEASANT_VERY = 4;
+// const int V_HOW_UNPLEASANT_VERY = 4;
 
-const int V_FATIGUE_CAUSE_SLEEP = 1;
-const int V_FATIGUE_CAUSE_MEDICATION = 2;
-const int V_FATIGUE_CAUSE_PHYSICAL_ILLNESS = 3;
-const int V_FATIGUE_CAUSE_OVERWORK = 4;
-const int V_FATIGUE_CAUSE_PSYCHOLOGICAL = 5;
+// const int V_FATIGUE_CAUSE_SLEEP = 1;
+// const int V_FATIGUE_CAUSE_MEDICATION = 2;
+// const int V_FATIGUE_CAUSE_PHYSICAL_ILLNESS = 3;
+// const int V_FATIGUE_CAUSE_OVERWORK = 4;
+// const int V_FATIGUE_CAUSE_PSYCHOLOGICAL = 5;
 const int V_FATIGUE_CAUSE_EXERCISE = 6;
-const int V_FATIGUE_CAUSE_OTHER = 7;
-const int V_FATIGUE_CAUSE_DONT_KNOW = 8;
+// const int V_FATIGUE_CAUSE_OTHER = 7;
+// const int V_FATIGUE_CAUSE_DONT_KNOW = 8;
 
-const int V_STRESSOR_FAMILY = 1;
-const int V_STRESSOR_FRIENDS_COLLEAGUES = 2;
-const int V_STRESSOR_HOUSING = 3;
-const int V_STRESSOR_MONEY = 4;
-const int V_STRESSOR_PHYSICAL_HEALTH = 5;
-const int V_STRESSOR_MENTAL_HEALTH = 6;
-const int V_STRESSOR_WORK = 7;
-const int V_STRESSOR_LEGAL = 8;
-const int V_STRESSOR_POLITICAL_NEWS = 9;
+// const int V_STRESSOR_FAMILY = 1;
+// const int V_STRESSOR_FRIENDS_COLLEAGUES = 2;
+// const int V_STRESSOR_HOUSING = 3;
+// const int V_STRESSOR_MONEY = 4;
+// const int V_STRESSOR_PHYSICAL_HEALTH = 5;
+// const int V_STRESSOR_MENTAL_HEALTH = 6;
+// const int V_STRESSOR_WORK = 7;
+// const int V_STRESSOR_LEGAL = 8;
+// const int V_STRESSOR_POLITICAL_NEWS = 9;
 
 const int V_NSO_NO = 1;
 const int V_NSO_SOMETIMES = 2;
-const int V_NSO_OFTEN = 3;
+// const int V_NSO_OFTEN = 3;
 
 const int V_SLEEP_CHANGE_LT_15_MIN = 1;
 const int V_SLEEP_CHANGE_15_MIN_TO_1_H = 2;
@@ -627,149 +627,149 @@ const int V_SLEEP_CHANGE_GT_3_H = 4;
 
 const int V_ANHEDONIA_ENJOYING_NORMALLY = 1;
 const int V_ANHEDONIA_ENJOYING_LESS = 2;
-const int V_ANHEDONIA_NOT_ENJOYING = 3;
+// const int V_ANHEDONIA_NOT_ENJOYING = 3;
 
 // Specific other question values:
 
-const int V_EMPSTAT_FT = 1;
-const int V_EMPSTAT_PT = 2;
-const int V_EMPSTAT_STUDENT = 3;
-const int V_EMPSTAT_RETIRED = 4;
-const int V_EMPSTAT_HOUSEPERSON = 5;
-const int V_EMPSTAT_UNEMPJOBSEEKER = 6;
-const int V_EMPSTAT_UNEMPILLHEALTH = 7;
+// const int V_EMPSTAT_FT = 1;
+// const int V_EMPSTAT_PT = 2;
+// const int V_EMPSTAT_STUDENT = 3;
+// const int V_EMPSTAT_RETIRED = 4;
+// const int V_EMPSTAT_HOUSEPERSON = 5;
+// const int V_EMPSTAT_UNEMPJOBSEEKER = 6;
+// const int V_EMPSTAT_UNEMPILLHEALTH = 7;
 
-const int V_EMPTYPE_SELFEMPWITHEMPLOYEES = 1;
-const int V_EMPTYPE_SELFEMPNOEMPLOYEES = 2;
-const int V_EMPTYPE_EMPLOYEE = 3;
-const int V_EMPTYPE_SUPERVISOR = 4;
-const int V_EMPTYPE_MANAGER = 5;
-const int V_EMPTYPE_NOT_APPLICABLE = 6;
+// const int V_EMPTYPE_SELFEMPWITHEMPLOYEES = 1;
+// const int V_EMPTYPE_SELFEMPNOEMPLOYEES = 2;
+// const int V_EMPTYPE_EMPLOYEE = 3;
+// const int V_EMPTYPE_SUPERVISOR = 4;
+// const int V_EMPTYPE_MANAGER = 5;
+// const int V_EMPTYPE_NOT_APPLICABLE = 6;
 // ... the last one: added by RNC, in case pt never employed. (Mentioned to
 // Glyn Lewis 2017-12-04. Not, in any case, part of the important bits of the
 // CIS-R.)
 
-const int V_HOME_OWNER = 1;
-const int V_HOME_TENANT = 2;
-const int V_HOME_RELATIVEFRIEND = 3;
-const int V_HOME_HOSTELCAREHOME = 4;
-const int V_HOME_HOMELESS = 5;
-const int V_HOME_OTHER = 6;
+// const int V_HOME_OWNER = 1;
+// const int V_HOME_TENANT = 2;
+// const int V_HOME_RELATIVEFRIEND = 3;
+// const int V_HOME_HOSTELCAREHOME = 4;
+// const int V_HOME_HOMELESS = 5;
+// const int V_HOME_OTHER = 6;
 
 const int V_WEIGHT2_WTLOSS_NOTTRYING = 1;
 const int V_WEIGHT2_WTLOSS_TRYING = 2;
 
 const int V_WEIGHT3_WTLOSS_GE_HALF_STONE = 1;
-const int V_WEIGHT3_WTLOSS_LT_HALF_STONE = 2;
+// const int V_WEIGHT3_WTLOSS_LT_HALF_STONE = 2;
 
-const int V_WEIGHT4_WTGAIN_YES_PREGNANT = 3;
+// const int V_WEIGHT4_WTGAIN_YES_PREGNANT = 3;
 
 const int V_WEIGHT5_WTGAIN_GE_HALF_STONE = 1;
-const int V_WEIGHT5_WTGAIN_LT_HALF_STONE = 2;
+// const int V_WEIGHT5_WTGAIN_LT_HALF_STONE = 2;
 
-const int V_GPYEAR_NONE = 0;
-const int V_GPYEAR_1_2 = 1;
-const int V_GPYEAR_3_5 = 2;
-const int V_GPYEAR_6_10 = 3;
-const int V_GPYEAR_GT_10 = 4;
+// const int V_GPYEAR_NONE = 0;
+// const int V_GPYEAR_1_2 = 1;
+// const int V_GPYEAR_3_5 = 2;
+// const int V_GPYEAR_6_10 = 3;
+// const int V_GPYEAR_GT_10 = 4;
 
-const int V_ILLNESS_DIABETES = 1;
-const int V_ILLNESS_ASTHMA = 2;
-const int V_ILLNESS_ARTHRITIS = 3;
-const int V_ILLNESS_HEART_DISEASE = 4;
-const int V_ILLNESS_HYPERTENSION = 5;
-const int V_ILLNESS_LUNG_DISEASE = 6;
-const int V_ILLNESS_MORE_THAN_ONE = 7;
-const int V_ILLNESS_NONE = 8;
+// const int V_ILLNESS_DIABETES = 1;
+// const int V_ILLNESS_ASTHMA = 2;
+// const int V_ILLNESS_ARTHRITIS = 3;
+// const int V_ILLNESS_HEART_DISEASE = 4;
+// const int V_ILLNESS_HYPERTENSION = 5;
+// const int V_ILLNESS_LUNG_DISEASE = 6;
+// const int V_ILLNESS_MORE_THAN_ONE = 7;
+// const int V_ILLNESS_NONE = 8;
 
 const int V_SOMATIC_PAIN1_NEVER = 1;
-const int V_SOMATIC_PAIN1_SOMETIMES = 2;
-const int V_SOMATIC_PAIN1_ALWAYS = 3;
+// const int V_SOMATIC_PAIN1_SOMETIMES = 2;
+// const int V_SOMATIC_PAIN1_ALWAYS = 3;
 
-const int V_SOMATIC_PAIN3_LT_3H = 1;
-const int V_SOMATIC_PAIN3_GT_3H = 2;
+// const int V_SOMATIC_PAIN3_LT_3H = 1;
+// const int V_SOMATIC_PAIN3_GT_3H = 2;
 
-const int V_SOMATIC_PAIN4_NOT_AT_ALL = 1;
-const int V_SOMATIC_PAIN4_LITTLE_UNPLEASANT = 2;
-const int V_SOMATIC_PAIN4_UNPLEASANT = 3;
-const int V_SOMATIC_PAIN4_VERY_UNPLEASANT = 4;
+// const int V_SOMATIC_PAIN4_NOT_AT_ALL = 1;
+// const int V_SOMATIC_PAIN4_LITTLE_UNPLEASANT = 2;
+// const int V_SOMATIC_PAIN4_UNPLEASANT = 3;
+// const int V_SOMATIC_PAIN4_VERY_UNPLEASANT = 4;
 
-const int V_SOMATIC_PAIN5_NO = 1;
-const int V_SOMATIC_PAIN5_YES = 2;
-const int V_SOMATIC_PAIN5_NOT_DONE_ANYTHING_INTERESTING = 3;
+// const int V_SOMATIC_PAIN5_NO = 1;
+// const int V_SOMATIC_PAIN5_YES = 2;
+// const int V_SOMATIC_PAIN5_NOT_DONE_ANYTHING_INTERESTING = 3;
 
-const int V_SOMATIC_MAND2_NO = 1;
-const int V_SOMATIC_MAND2_YES = 2;
+// const int V_SOMATIC_MAND2_NO = 1;
+// const int V_SOMATIC_MAND2_YES = 2;
 
 const int V_SOMATIC_DIS1_NEVER = 1;
-const int V_SOMATIC_DIS1_SOMETIMES = 2;
-const int V_SOMATIC_DIS1_ALWAYS = 3;
+// const int V_SOMATIC_DIS1_SOMETIMES = 2;
+// const int V_SOMATIC_DIS1_ALWAYS = 3;
 
-const int V_SOMATIC_DIS2_NONE = 1;
-const int V_SOMATIC_DIS2_1_TO_3_DAYS = 2;
-const int V_SOMATIC_DIS2_4_OR_MORE_DAYS = 3;
+// const int V_SOMATIC_DIS2_NONE = 1;
+// const int V_SOMATIC_DIS2_1_TO_3_DAYS = 2;
+// const int V_SOMATIC_DIS2_4_OR_MORE_DAYS = 3;
 
-const int V_SOMATIC_DIS3_LT_3H = 1;
-const int V_SOMATIC_DIS3_GT_3H = 2;
+// const int V_SOMATIC_DIS3_LT_3H = 1;
+// const int V_SOMATIC_DIS3_GT_3H = 2;
 
-const int V_SOMATIC_DIS4_NOT_AT_ALL = 1;
-const int V_SOMATIC_DIS4_LITTLE_UNPLEASANT = 2;
-const int V_SOMATIC_DIS4_UNPLEASANT = 3;
-const int V_SOMATIC_DIS4_VERY_UNPLEASANT = 4;
+// const int V_SOMATIC_DIS4_NOT_AT_ALL = 1;
+// const int V_SOMATIC_DIS4_LITTLE_UNPLEASANT = 2;
+// const int V_SOMATIC_DIS4_UNPLEASANT = 3;
+// const int V_SOMATIC_DIS4_VERY_UNPLEASANT = 4;
 
-const int V_SOMATIC_DIS5_NO = 1;
-const int V_SOMATIC_DIS5_YES = 2;
-const int V_SOMATIC_DIS5_NOT_DONE_ANYTHING_INTERESTING = 3;
+// const int V_SOMATIC_DIS5_NO = 1;
+// const int V_SOMATIC_DIS5_YES = 2;
+// const int V_SOMATIC_DIS5_NOT_DONE_ANYTHING_INTERESTING = 3;
 
 const int V_SLEEP_MAND2_NO = 1;
 const int V_SLEEP_MAND2_YES_BUT_NOT_A_PROBLEM = 2;
-const int V_SLEEP_MAND2_YES = 3;
+// const int V_SLEEP_MAND2_YES = 3;
 
 const int V_IRRIT_MAND2_NO = 1;
-const int V_IRRIT_MAND2_SOMETIMES = 2;
-const int V_IRRIT_MAND2_YES = 3;
+// const int V_IRRIT_MAND2_SOMETIMES = 2;
+// const int V_IRRIT_MAND2_YES = 3;
 
-const int V_IRRIT3_SHOUTING_NO = 1;
+// const int V_IRRIT3_SHOUTING_NO = 1;
 const int V_IRRIT3_SHOUTING_WANTED_TO = 2;
-const int V_IRRIT3_SHOUTING_DID = 3;
+// const int V_IRRIT3_SHOUTING_DID = 3;
 
-const int V_IRRIT4_ARGUMENTS_NO = 1;
-const int V_IRRIT4_ARGUMENTS_YES_JUSTIFIED = 2;
+// const int V_IRRIT4_ARGUMENTS_NO = 1;
+// const int V_IRRIT4_ARGUMENTS_YES_JUSTIFIED = 2;
 const int V_IRRIT4_ARGUMENTS_YES_UNJUSTIFIED = 3;
 
-const int V_DEPR5_COULD_CHEER_UP_YES = 1;
+// const int V_DEPR5_COULD_CHEER_UP_YES = 1;
 const int V_DEPR5_COULD_CHEER_UP_SOMETIMES = 2;
-const int V_DEPR5_COULD_CHEER_UP_NO = 3;
+// const int V_DEPR5_COULD_CHEER_UP_NO = 3;
 
 const int V_DEPTH1_DMV_WORSE_MORNING = 1;
 const int V_DEPTH1_DMV_WORSE_EVENING = 2;
-const int V_DEPTH1_DMV_VARIES = 3;
-const int V_DEPTH1_DMV_NONE = 4;
+// const int V_DEPTH1_DMV_VARIES = 3;
+// const int V_DEPTH1_DMV_NONE = 4;
 
-const int V_DEPTH2_LIBIDO_NA = 1;
-const int V_DEPTH2_LIBIDO_NO_CHANGE = 2;
-const int V_DEPTH2_LIBIDO_INCREASED = 3;
+// const int V_DEPTH2_LIBIDO_NA = 1;
+// const int V_DEPTH2_LIBIDO_NO_CHANGE = 2;
+// const int V_DEPTH2_LIBIDO_INCREASED = 3;
 const int V_DEPTH2_LIBIDO_DECREASED = 4;
 
-const int V_DEPTH5_GUILT_NEVER = 1;
-const int V_DEPTH5_GUILT_WHEN_AT_FAULT = 2;
+// const int V_DEPTH5_GUILT_NEVER = 1;
+// const int V_DEPTH5_GUILT_WHEN_AT_FAULT = 2;
 const int V_DEPTH5_GUILT_SOMETIMES = 3;
-const int V_DEPTH5_GUILT_OFTEN = 4;
+// const int V_DEPTH5_GUILT_OFTEN = 4;
 
 const int V_DEPTH8_LNWL_NO = 1;
 const int V_DEPTH8_LNWL_SOMETIMES = 2;
-const int V_DEPTH8_LNWL_ALWAYS = 3;
+// const int V_DEPTH8_LNWL_ALWAYS = 3;
 
 const int V_DEPTH9_SUICIDAL_THOUGHTS_NO = 1;
 const int V_DEPTH9_SUICIDAL_THOUGHTS_YES_BUT_NEVER_WOULD = 2;
 const int V_DEPTH9_SUICIDAL_THOUGHTS_YES = 3;
 
 const int V_DOCTOR_YES = 1;
-const int V_DOCTOR_NO_BUT_OTHERS = 2;
-const int V_DOCTOR_NO = 3;
+// const int V_DOCTOR_NO_BUT_OTHERS = 2;
+// const int V_DOCTOR_NO = 3;
 
 const int V_ANX_PHOBIA2_ALWAYS_SPECIFIC = 1;
-const int V_ANX_PHOBIA2_SOMETIMES_GENERAL = 2;
+// const int V_ANX_PHOBIA2_SOMETIMES_GENERAL = 2;
 
 const int V_PHOBIAS_TYPE1_ALONE_PUBLIC_TRANSPORT = 1;
 const int V_PHOBIAS_TYPE1_FAR_FROM_HOME = 2;
@@ -785,23 +785,23 @@ const int V_PANIC1_N_PANICS_PAST_WEEK_0 = 1;
 const int V_PANIC1_N_PANICS_PAST_WEEK_1 = 2;
 const int V_PANIC1_N_PANICS_PAST_WEEK_GT_1 = 3;
 
-const int V_PANIC3_WORST_LT_10_MIN = 1;
+// const int V_PANIC3_WORST_LT_10_MIN = 1;
 const int V_PANIC3_WORST_GE_10_MIN = 2;
 
-const int V_COMP4_MAX_N_REPEATS_1 = 1;
-const int V_COMP4_MAX_N_REPEATS_2 = 2;
+// const int V_COMP4_MAX_N_REPEATS_1 = 1;
+// const int V_COMP4_MAX_N_REPEATS_2 = 2;
 const int V_COMP4_MAX_N_REPEATS_GE_3 = 3;
 
-const int V_OBSESS_MAND1_SAME_THOUGHTS_REPEATED = 1;
+// const int V_OBSESS_MAND1_SAME_THOUGHTS_REPEATED = 1;
 const int V_OBSESS_MAND1_GENERAL_WORRIES = 2;
 
-const int V_OBSESS4_LT_15_MIN = 1;
+// const int V_OBSESS4_LT_15_MIN = 1;
 const int V_OBSESS4_GE_15_MIN = 2;
 
-const int V_OVERALL_IMPAIRMENT_NONE = 1;
-const int V_OVERALL_IMPAIRMENT_DIFFICULT = 2;
-const int V_OVERALL_IMPAIRMENT_STOP_1_ACTIVITY = 3;
-const int V_OVERALL_IMPAIRMENT_STOP_GT_1_ACTIVITY = 4;
+// const int V_OVERALL_IMPAIRMENT_NONE = 1;
+// const int V_OVERALL_IMPAIRMENT_DIFFICULT = 2;
+// const int V_OVERALL_IMPAIRMENT_STOP_1_ACTIVITY = 3;
+// const int V_OVERALL_IMPAIRMENT_STOP_GT_1_ACTIVITY = 4;
 
 // Scoring constants:
 
@@ -821,9 +821,10 @@ const int MAX_ANX = 4;
 const int MAX_PANIC = 4;
 const int MAX_COMP = 4;
 const int MAX_OBSESS = 4;
-const int MAX_DEPCRIT1 = 3;
-const int MAX_DEPCRIT2 = 7;
-const int MAX_DEPCRIT3 = 8;
+// const int MAX_DEPCRIT1 = 3;
+// const int MAX_DEPCRIT2 = 7;
+// const int MAX_DEPCRIT3 = 8;
+
 
 // ============================================================================
 // Task registration
@@ -1890,6 +1891,7 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
                      "activity. Incrementing concentration_poor.");
             r.concentration_poor += 1;
         }
+        break;
 
     case CQ::CONC_DUR:
         if (answerIsNo(CQ::CONC_MAND2_FORGETFUL_PAST_MONTH)) {
@@ -2988,7 +2990,11 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
     };
 
     // Page makers
-    auto promptPage = [this, &title, &prompttext, &addTag]
+    auto promptPage = [&title, &prompttext
+#ifdef DEBUG_SHOW_PAGE_TAGS
+                                          , &addTag
+#endif
+                                                   ]
             (const QString& prompt_xstringname) -> QuPagePtr {
         QuPage* p = new QuPage();
         p->addElement(prompttext(prompt_xstringname));
@@ -2998,7 +3004,11 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
 #endif
         return QuPagePtr(p);
     };
-    auto qPage = [this, &q, &title, &question, &addTag]
+    auto qPage = [&title, &question
+        #ifdef DEBUG_SHOW_PAGE_TAGS
+                                   , &addTag
+        #endif
+                                           ]
             (const QString& question_xstringname, QuElement* element,
              QuElement* extra_between_q_and_element = nullptr)
             -> QuPagePtr {
@@ -3020,41 +3030,45 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
         const QString xstring_q = fieldname + XSTRING_QUESTION_SUFFIX;
         return qPage(xstring_q, mcq(fieldname, options));
     };
-    auto overallDuration = [this, &standardOptionsQPage, &makeOptions]
+    auto overallDuration = [&standardOptionsQPage, &makeOptions]
             () -> QuPagePtr {
         return standardOptionsQPage(makeOptions("duration_a", N_DURATIONS));
     };
-    auto daysPerWeek = [this, &standardOptionsQPage, &makeOptions]
+    auto daysPerWeek = [&standardOptionsQPage, &makeOptions]
             () -> QuPagePtr {
         return standardOptionsQPage(
                     makeOptions("dpw_a", N_OPTIONS_DAYS_PER_WEEK));
     };
-    auto nightsPerWeek = [this, &standardOptionsQPage, &makeOptions]
+    auto nightsPerWeek = [&standardOptionsQPage, &makeOptions]
             () -> QuPagePtr {
         return standardOptionsQPage(
                     makeOptions("npw_a", N_OPTIONS_NIGHTS_PER_WEEK));
     };
-    auto howUnpleasantStandard = [this, &standardOptionsQPage, &makeOptions]
+    auto howUnpleasantStandard = [&standardOptionsQPage, &makeOptions]
             () -> QuPagePtr {
         return standardOptionsQPage(
                     makeOptions("how_unpleasant_a", N_OPTIONS_HOW_UNPLEASANT));
     };
-    auto fatigueCauses = [this, &standardOptionsQPage, &makeOptions]
+    auto fatigueCauses = [&standardOptionsQPage, &makeOptions]
             () -> QuPagePtr {
         return standardOptionsQPage(
                     makeOptions("fatigue_causes_a", N_OPTIONS_FATIGUE_CAUSES));
     };
-    auto stressors = [this, &standardOptionsQPage, &makeOptions]
+    auto stressors = [&standardOptionsQPage, &makeOptions]
             () -> QuPagePtr {
         return standardOptionsQPage(
                     makeOptions("stressors_a", N_OPTIONS_STRESSORS));
     };
-    auto noSometimesOften = [this, &standardOptionsQPage, &makeOptions]
+    auto noSometimesOften = [&standardOptionsQPage, &makeOptions]
             () -> QuPagePtr {
         return standardOptionsQPage(
                     makeOptions("nso_a", N_OPTIONS_NO_SOMETIMES_OFTEN));
     };
-    auto notImplemented = [this, &title, &q, &intq, &addTag]() -> QuPagePtr {
+    auto notImplemented = [this, &title, &q, &intq
+#ifdef DEBUG_SHOW_PAGE_TAGS
+                                                  , &addTag
+#endif
+                                                           ]() -> QuPagePtr {
         qCritical() << "CISR question not implemented:"
                     << intq << tagForQuestion(q);
         QuPage* p = new QuPage();

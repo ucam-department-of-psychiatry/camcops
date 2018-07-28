@@ -89,7 +89,7 @@ const QStringList WORDLIST{
     "labile",
     "campanile",
 };
-QStringList ACCENTED_WORDLIST;
+static QStringList ACCENTED_WORDLIST;
 const int DP = 1;
 const QString NART_INSTRUCTION(
     "Give the subject a piece of paper with the NART word list "

@@ -213,7 +213,8 @@ void CanvasWidget::resizeEvent(QResizeEvent* event)
     // Store the ratio in a format that allows the most common operations to
     // use multiplication, not division:
     // http://stackoverflow.com/questions/4125033/floating-point-division-vs-floating-point-multiplication
-    m_image_to_display_ratio = (double)imageSize().width() / (double)displaysize.width();
+    m_image_to_display_ratio = static_cast<double>(imageSize().width()) /
+                               static_cast<double>(displaysize.width());
 
 #ifdef DEBUG_TRANSLATIONS
     qDebug().nospace()
@@ -297,8 +298,8 @@ QPoint CanvasWidget::transformDisplayToImageCoords(QPoint point) const
         return point;
     }
     QPoint result = QPoint(
-        qRound((double)point.x() * m_image_to_display_ratio),
-        qRound((double)point.y() * m_image_to_display_ratio)
+        qRound(static_cast<double>(point.x()) * m_image_to_display_ratio),
+        qRound(static_cast<double>(point.y()) * m_image_to_display_ratio)
     );
 #ifdef DEBUG_TRANSLATIONS
     qDebug() << Q_FUNC_INFO << point << "->" << result;

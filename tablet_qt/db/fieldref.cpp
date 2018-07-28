@@ -440,7 +440,8 @@ bool FieldRef::isBlob() const
 // should use BlobFieldRefPtr, which provides faster overrides.
 
 
-const char* LOW_PERFORMANCE("Use of low-performance function! Use BlobFieldRef instead");
+static const char* LOW_PERFORMANCE =
+        "Use of low-performance function! Use BlobFieldRef instead";
 
 QImage FieldRef::image(bool* p_loaded) const
 {

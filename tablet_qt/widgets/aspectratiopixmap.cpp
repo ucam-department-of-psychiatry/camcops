@@ -64,7 +64,8 @@ int AspectRatioPixmap::heightForWidth(const int width) const
     // Step 1: calculate an answer that's right for our image's aspect ratio
     int h = m_pixmap.isNull()
             ? 0  // a bit arbitrary! width()? 0? 1?
-            : ((qreal)m_pixmap.height() * width) / m_pixmap.width();
+            : static_cast<int>((static_cast<qreal>(m_pixmap.height()) * width) /
+                               m_pixmap.width());
 
     // Step 2: never give an answer that is greater than our maximum height,
     // or the framework may allocate too much space for it (and then display

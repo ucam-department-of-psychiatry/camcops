@@ -974,7 +974,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     g3->setColumnStretch(0, 1);
     g3->setColumnStretch(1, 1);
     row = 0;
-#if OLD_STYLE_ID_DESCRIPTIONS
+#ifdef OLD_STYLE_ID_DESCRIPTIONS
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         const QString desc = convert::prettyValue(
                     app.var(dbconst::IDDESC_FIELD_FORMAT.arg(n)));

@@ -382,7 +382,7 @@ OpenableWidget* CardinalExpectationDetection::editor(const bool read_only)
     // ------------------------------------------------------------------------
     // Configure the task using a Questionnaire
     // ------------------------------------------------------------------------
-    auto boldtext = [this](const QString& text) -> QuElement* {
+    auto boldtext = [](const QString& text) -> QuElement* {
         return new QuText(text);
     };
 

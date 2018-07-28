@@ -90,7 +90,7 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
 
     m_button_box = new QDialogButtonBox();
     m_button_box->setCenterButtons(style()->styleHint(
-                                QStyle::SH_MessageBox_CenterButtons, 0, this));
+                    QStyle::SH_MessageBox_CenterButtons, nullptr, this));
     QObject::connect(m_button_box, &QDialogButtonBox::clicked,
                      this, &ScrollMessageBox::handleButtonClicked);
 
@@ -194,20 +194,21 @@ void ScrollMessageBox::setIcon(const QMessageBox::Icon icon)
 QPixmap ScrollMessageBox::standardIcon(const QMessageBox::Icon icon)
 {
     QStyle* style = this->style();
-    const int icon_size = style->pixelMetric(QStyle::PM_MessageBoxIconSize, 0, this);
+    const int icon_size = style->pixelMetric(QStyle::PM_MessageBoxIconSize, nullptr, this);
     QIcon tmp_icon;
     switch (icon) {
     case QMessageBox::Information:
-        tmp_icon = style->standardIcon(QStyle::SP_MessageBoxInformation, 0, this);
+        tmp_icon = style->standardIcon(QStyle::SP_MessageBoxInformation, nullptr, this);
         break;
     case QMessageBox::Warning:
-        tmp_icon = style->standardIcon(QStyle::SP_MessageBoxWarning, 0, this);
+        tmp_icon = style->standardIcon(QStyle::SP_MessageBoxWarning, nullptr, this);
         break;
     case QMessageBox::Critical:
-        tmp_icon = style->standardIcon(QStyle::SP_MessageBoxCritical, 0, this);
+        tmp_icon = style->standardIcon(QStyle::SP_MessageBoxCritical, nullptr, this);
         break;
     case QMessageBox::Question:
-        tmp_icon = style->standardIcon(QStyle::SP_MessageBoxQuestion, 0, this);
+        tmp_icon = style->standardIcon(QStyle::SP_MessageBoxQuestion, nullptr, this);
+        break;
     case QMessageBox::NoIcon:
     default:
         break;

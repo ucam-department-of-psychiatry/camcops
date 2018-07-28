@@ -18,6 +18,8 @@
 */
 
 #pragma once
+#include <limits>  // for std::numeric_limits
+#include <new>  // for std::bad_alloc
 
 template <typename T>
 struct zallocator
@@ -34,7 +36,8 @@ public:
     pointer address (reference v) const {return &v;}
     const_pointer address (const_reference v) const {return &v;}
 
-    pointer allocate (size_type n, const void* hint = 0) {
+    pointer allocate (size_type n, const void* hint = nullptr) {
+        Q_UNUSED(hint);
         if (n > std::numeric_limits<size_type>::max() / sizeof(T))
             throw std::bad_alloc();
         return static_cast<pointer> (::operator new (n * sizeof (value_type)));

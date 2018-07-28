@@ -30,14 +30,16 @@ DqrlsResult Cdqrls(const MatrixXd& x,  // n,p
 {
     // Solves XB = Y, for B (B will have dimensions p,ny)
     DqrlsResult result;
-    const int n = x.rows();  // number of observations
-    // const int p = x.cols();  // number of predictors
-    // const int ny = y.cols();  // number of dependent variables
+    const Index n = x.rows();  // number of observations
+    // const Index p = x.cols();  // number of predictors
+    // const Index ny = y.cols();  // number of dependent variables
     if (check) {
         if (y.rows() != n) {
             result.errors.append(QString(
                 "Y vector has %1 rows but this should match the number of "
-                "observations (number of X rows), %2").arg(y.rows(), n));
+                "observations (number of X rows), %2").arg(
+                    QString::number(y.rows()),
+                    QString::number(n)));
             return result;
         }
     }

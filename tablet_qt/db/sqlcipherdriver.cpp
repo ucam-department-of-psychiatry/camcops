@@ -226,7 +226,7 @@ bool SQLCipherDriver::open(const QString& db, const QString& user,
     sqlite3_enable_shared_cache(shared_cache);
 
     if (sqlite3_open_v2(db.toUtf8().constData(), &m_access, open_mode,
-                        NULL) == SQLITE_OK) {
+                        nullptr) == SQLITE_OK) {
         sqlite3_busy_timeout(m_access, time_out);
         setOpen(true);
         setOpenError(false);

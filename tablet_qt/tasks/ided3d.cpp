@@ -139,7 +139,7 @@ const QColor BUTTON_BACKGROUND(QCOLOR_BLUE);
 const QColor TEXT_COLOUR(QCOLOR_WHITE);
 const QColor BUTTON_PRESSED_BACKGROUND(QCOLOR_OLIVE);
 const QColor ABORT_BUTTON_BACKGROUND(QCOLOR_DARKRED);
-const qreal TEXT_SIZE_PX = 20;  // will be scaled
+const int TEXT_SIZE_PX = 20;  // will be scaled
 const int BUTTON_RADIUS = 5;
 const int PADDING = 5;
 const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
@@ -193,7 +193,7 @@ const ButtonConfig EMPTYBOX_BUTTON_CONFIG(
         QCOLOR_TRANSPARENT, QCOLOR_TRANSPARENT,
         BORDER_PEN, BUTTON_RADIUS);
 const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
-                                  SCENE_WIDTH, TEXT_ALIGN);
+                                  static_cast<int>(SCENE_WIDTH), TEXT_ALIGN);
 
 const qreal BOXWIDTH = SCENE_WIDTH * 0.45;  // use 90%
 const qreal BOXHEIGHT = SCENE_HEIGHT * 0.3;  // use 90%

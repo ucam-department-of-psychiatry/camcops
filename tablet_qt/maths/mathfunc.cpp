@@ -515,7 +515,7 @@ QString describeAsRanges(QVector<int> numbers,
     const int n = numbers.size();
     QString result;
     bool in_range = false;
-    int previous;  // value is arbitrary
+    int previous = 0;  // value is arbitrary; removes a linter warning
     for (int i = 0; i < n; ++i) {
         const int current = numbers.at(i);
         if (i == n - 1) {

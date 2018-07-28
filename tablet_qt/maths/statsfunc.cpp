@@ -220,7 +220,7 @@ double gaussianAIC(const ArrayXd& y,
     // R: gaussian()$aic
     Q_UNUSED(n);
     Q_UNUSED(mu);
-    const int nobs = y.size();
+    const Index nobs = y.size();
     return nobs * (std::log(dev / nobs * 2 * PI) + 1) + 2 - wt.log().sum();
 }
 
@@ -317,8 +317,8 @@ bool binomialInitialize(QStringList& errors,
     Q_UNUSED(start);
     Q_UNUSED(etastart);
 
-    const int ncol_y = y.cols();
-    const int nobs = y.size();
+    const Index ncol_y = y.cols();
+    const Index nobs = y.size();
 
     if (ncol_y == 1) {
         // NOT HANDLED: factors
@@ -378,7 +378,7 @@ bool gaussianInitialize(QStringList& errors,
 
     // NOT IMPLEMENTED: some other options for inverse/log links; q.v.
 
-    const int nobs = y.size();
+    const Index nobs = y.size();
     n = ArrayXd::Ones(nobs);
     mustart = y;
 

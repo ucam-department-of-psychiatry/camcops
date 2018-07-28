@@ -240,12 +240,14 @@ bool Task::isTaskUploadable(QString& why_not_uploadable) const
     bool may_upload = m_app.mayUploadTable(
                 table, server_version,
                 server_has_table, min_client_version, min_server_version);
+#if 0
     qDebug() << "table" << table
              << "server_version" << server_version
              << "may_upload" << may_upload
              << "server_has_table" << server_has_table
              << "min_client_version" << min_client_version
              << "min_server_version" << min_server_version;
+#endif
     if (may_upload) {
         why_not_uploadable = "Task uploadable";
     } else {

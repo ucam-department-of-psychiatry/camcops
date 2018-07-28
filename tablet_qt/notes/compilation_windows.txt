@@ -132,4 +132,12 @@ PROBLEM:
 PROBLEM
 
     *** won't exit after running QolSG
+        ... via an OpenableWidget containing a ScreenLikeGraphicsView
+        ... to CamcopsApp::open(widget, task)
+    ... similarly in HTML fullscreen test, via a HtmlInfoWindow (which is an
+        OpenableWidget) to CamcopsApp::open()
+    ... it's the fullscreen display that screws it up (confirmed via the
+        TestMenu).
 
+    The mouse wheel continues to work (as does the keyboard), but clicks don't,
+    including to the window top icons (app icon, minimize, maximize, close).

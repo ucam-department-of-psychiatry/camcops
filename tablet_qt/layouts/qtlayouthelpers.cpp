@@ -198,13 +198,15 @@ typedef qint64 Fixed64;
 
 static inline Fixed64 toFixed(const int i)
 {
-    return (Fixed64)i * 256;
+    return static_cast<Fixed64>(i * 256);
 }
 
 
 static inline int fRound(const Fixed64 i)
 {
-    return (i % 256 < 128) ? (i / 256) : (1 + i / 256);
+    return (i % 256 < 128)
+            ? static_cast<int>(i / 256)
+            : static_cast<int>(1 + i / 256);
 }
 
 

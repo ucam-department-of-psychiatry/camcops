@@ -158,9 +158,9 @@ void drawText(QPainter& painter, const QPointF& point, const QString& text,
               const QFont& font, Qt::Alignment align);
 // Drawing text with alignment at a point (not a rectangle):
 void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
-              const QString& text, QRectF* boundingRect = 0);
+              const QString& text, QRectF* boundingRect = nullptr);
 void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
-              const QString& text, QRectF* boundingRect = 0);
+              const QString& text, QRectF* boundingRect = nullptr);
 
 // ============================================================================
 // Creating QGraphicsScene objects

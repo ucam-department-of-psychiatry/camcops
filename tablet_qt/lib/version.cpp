@@ -44,14 +44,14 @@ Version::Version(const QString& version_string)
         return;
     }
     bool ok;
-    int major = parts.at(0).toInt(&ok);
-    int minor = 0;
-    int patch = 0;
+    unsigned int major = parts.at(0).toUInt(&ok);
+    unsigned int minor = 0;
+    unsigned int patch = 0;
     if (ok) {
-        minor = parts.at(1).toInt(&ok);
+        minor = parts.at(1).toUInt(&ok);
     }
     if (ok) {
-        patch = parts.at(2).toInt(&ok);
+        patch = parts.at(2).toUInt(&ok);
     }
     if (!ok) {
         setInvalid();
@@ -114,7 +114,9 @@ QString Version::toString() const
 double Version::toFloat() const
 {
     // Will be zero (the lowest possible value) for an invalid version.
-    return m_major + (double)m_minor / 100 + (double)m_patch / 10000;
+    return m_major +
+            static_cast<double>(m_minor) / 100 +
+            static_cast<double>(m_patch) / 10000;
 }
 
 
@@ -177,10 +179,10 @@ Version Version::fromString(const QString& s)
     if (nparts == 0 || nparts > 3) {
         return makeInvalidVersion();
     }
-    QVector<int> numbers(3, 0);
+    QVector<unsigned int> numbers(3, 0);
     bool ok = true;
     for (int i = 0; i < nparts; ++i) {
-        numbers[i] = stringparts.at(i).toInt(&ok);
+        numbers[i] = stringparts.at(i).toUInt(&ok);
         if (!ok) {  // Not numeric
             return makeInvalidVersion();
         }

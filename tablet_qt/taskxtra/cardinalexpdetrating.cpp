@@ -50,7 +50,8 @@ CardinalExpDetRating::CardinalExpDetRating(
 
     rect = getRatingButtonRect(pos, N_RATINGS);
     label = TX_OPTIONS.at(rating);
-    points_multiplier = qAbs(rating_double - centre_rating) * POINTS_PER_RATING;
+    points_multiplier = static_cast<int>(
+                qAbs(rating_double - centre_rating) * POINTS_PER_RATING);
     // ... e.g. 5 ratings:         (2 ,1, 0, 1, 2) * POINTS_PER_RATING;
     //          6 ratings: (2.5, 1.5, 0.5, 0.5, 1.5, 2.5) * POINTS_PER_RATING
     means_yes = rating_double > centre_rating;

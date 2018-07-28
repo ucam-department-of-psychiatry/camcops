@@ -1440,16 +1440,16 @@ int CamcopsApp::fontSizePt(uiconst::FontSize fontsize,
 
     switch (fontsize) {
     case uiconst::FontSize::Normal:
-        return factor * 12;
+        return static_cast<int>(factor * 12);
     case uiconst::FontSize::Big:
-        return factor * 14;
+        return static_cast<int>(factor * 14);
     case uiconst::FontSize::Heading:
-        return factor * 16;
+        return static_cast<int>(factor * 16);
     case uiconst::FontSize::Title:
-        return factor * 16;
+        return static_cast<int>(factor * 16);
     case uiconst::FontSize::Menus:
     default:
-        return factor * 12;
+        return static_cast<int>(factor * 12);
     }
 }
 

@@ -426,10 +426,10 @@ OpenableWidget* Deakin1HealthReview::editor(const bool read_only)
         {"Postgraduate qualification — PhD", "postgrad_phd"},
     };
 
-    auto text = [this](const QString& text) -> QuElement* {
+    auto text = [](const QString& text) -> QuElement* {
         return new QuText(text);
     };
-    auto boldtext = [this](const QString& text) -> QuElement* {
+    auto boldtext = [](const QString& text) -> QuElement* {
         return (new QuText(text))->setBold();
     };
     auto mcq = [this](const QString& fieldname,

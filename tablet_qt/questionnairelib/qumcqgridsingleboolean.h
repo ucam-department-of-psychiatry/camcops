@@ -47,7 +47,7 @@ public:
     QuMcqGridSingleBoolean(const QVector<QuestionWithTwoFields>& questions_with_fields,
                            const NameValueOptions& mcq_options,
                            const QString& boolean_text);
-    virtual ~QuMcqGridSingleBoolean();
+    virtual ~QuMcqGridSingleBoolean() override;
     QuMcqGridSingleBoolean* setBooleanLeft(bool boolean_left);
     QuMcqGridSingleBoolean* setWidth(int question_width,
                                      const QVector<int>& mcq_option_widths,

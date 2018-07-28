@@ -26,9 +26,9 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 
-const int FIRST_Q = 1;
-const int N_QUESTIONS = 24;
-const int MAX_SCORE = 168;
+// const int FIRST_Q = 1;
+// const int N_QUESTIONS = 24;
+// const int MAX_SCORE = 168;
 const QString QPREFIX("q");
 
 const QString Gaf::GAF_TABLENAME("gaf");

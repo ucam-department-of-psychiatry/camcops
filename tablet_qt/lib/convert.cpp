@@ -259,7 +259,7 @@ QString toSqlLiteral(const QVariant& value)
         return NULL_STR;
 
     default:
-        uifunc::stopApp("toSqlLiteral: Unknown user type: " + variant_type);
+        uifunc::stopApp(QString("toSqlLiteral: Unknown user type: %1").arg(variant_type));
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
     }
@@ -439,7 +439,7 @@ QString unquotedCppLiteralToString(const QString& escaped)
                     escape_digits.append(c);
                     // Octal numbers have a fixed number of digits.
                     if (escape_digits.length() >= OCTAL_NUM_DIGITS) {
-                        ushort code = escape_digits.toInt(&ok, BASE_OCTAL);
+                        ushort code = escape_digits.toUShort(&ok, BASE_OCTAL);
                         if (ok) {
                             // our octal code has finished
                             raw += QChar(code);
@@ -457,7 +457,7 @@ QString unquotedCppLiteralToString(const QString& escaped)
                 if (ok) {
                     escape_digits += c;
                     if (escape_digits.length() >= HEX_NUM_DIGITS) {
-                        ushort code = escape_digits.toInt(&ok, BASE_HEX);
+                        ushort code = escape_digits.toUShort(&ok, BASE_HEX);
                         if (ok) {
                             raw += QChar(code);
                             in_escape = false;
@@ -690,6 +690,7 @@ QString prettyValue(const QVariant& variant,
             return intVectorToCsvString(intvec);
         }
         uifunc::stopApp("prettyValue: Unknown user type");
+        return "";  // will never get here; for clang-tidy
     default:
         return variant.toString();
     }
@@ -717,7 +718,7 @@ QString prettySize(const double num, const bool space, const bool binary,
             : (longform ? PREFIXES_LONG_DECIMAL : PREFIXES_SHORT_DECIMAL);
     const QString optional_space = space ? " " : "";
     const double base = binary ? 1024 : 1000;
-    int exponent = (int)(qLn(num) / qLn(base));
+    int exponent = static_cast<int>(qLn(num) / qLn(base));
     exponent = qBound(0, exponent, prefixes.length() - 1);
     const QString prefix = prefixes.at(exponent);
     const double converted_num = num / pow(base, exponent);
@@ -733,7 +734,7 @@ QString prettySize(const double num, const bool space, const bool binary,
 QString prettyPointer(const void* pointer)
 {
     // http://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
-    return QString("0x%1").arg((quintptr)pointer,
+    return QString("0x%1").arg(reinterpret_cast<quintptr>(pointer),
                                QT_POINTER_SIZE * 2, 16, QChar('0'));
 }
 
@@ -1035,7 +1036,7 @@ double metresFromFeetInches(const double feet, const double inches)
 void feetInchesFromMetres(const double metres, int& feet, double& inches)
 {
     const double total_inches = metres * CM_PER_M / CM_PER_INCH;
-    feet = mathfunc::trunc(total_inches / INCHES_PER_FOOT);
+    feet = static_cast<int>(mathfunc::trunc(total_inches / INCHES_PER_FOOT));
     inches = std::fmod(total_inches, INCHES_PER_FOOT);
 #ifdef DEBUG_UNIT_CONVERSION
     qDebug() << UNIT_CONVERSION
@@ -1066,7 +1067,7 @@ void stonesPoundsFromKilograms(const double kilograms,
                                int& stones, double& pounds)
 {
     const double total_pounds = kilograms * POUNDS_PER_KG;
-    stones = mathfunc::trunc(total_pounds / POUNDS_PER_STONE);
+    stones = static_cast<int>(mathfunc::trunc(total_pounds / POUNDS_PER_STONE));
     pounds = std::fmod(total_pounds, POUNDS_PER_STONE);
 #ifdef DEBUG_UNIT_CONVERSION
     qDebug() << UNIT_CONVERSION
@@ -1079,9 +1080,9 @@ void stonesPoundsOuncesFromKilograms(const double kilograms,
                                      int& stones, int& pounds, double& ounces)
 {
     const double total_pounds = kilograms * POUNDS_PER_KG;
-    stones = mathfunc::trunc(total_pounds / POUNDS_PER_STONE);
+    stones = static_cast<int>(mathfunc::trunc(total_pounds / POUNDS_PER_STONE));
     const double float_pounds = std::fmod(total_pounds, POUNDS_PER_STONE);
-    pounds = mathfunc::trunc(float_pounds);
+    pounds = static_cast<int>(mathfunc::trunc(float_pounds));
     ounces = (float_pounds - pounds) * OUNCES_PER_POUND;
 #ifdef DEBUG_UNIT_CONVERSION
     qDebug() << UNIT_CONVERSION << kilograms << "kg ->"

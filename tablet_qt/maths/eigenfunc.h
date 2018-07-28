@@ -440,7 +440,7 @@ inline void calcRowColFromIndex(Eigen::Index idx,
     // "row" and "col".
 
     idx = normalizeIndex(idx, size);
-    std::ldiv_t division = std::ldiv(idx, n_rows);
+    std::lldiv_t division = std::lldiv(idx, n_rows);
     col = division.quot;
     row = division.rem;
 }

@@ -72,23 +72,23 @@ public:
     void setCentreLabelColour(const QColor& colour);
 
     // Radius of the sectors:
-    void setSectorRadius(int radius);
+    void setSectorRadius(qreal radius);
 
     // Radii for the inner and outer circles defining the cursors:
-    void setCursorRadius(int inner_radius, int outer_radius);
+    void setCursorRadius(qreal inner_radius, qreal outer_radius);
 
     // Angle that each cursor (itself a sector shape) subtends:
     void setCursorAngle(qreal degrees);
 
     // Radius for the labels (typically, for autorotating labels, the bottom
     // of the text):
-    void setLabelStartRadius(int radius);
+    void setLabelStartRadius(qreal radius);
 
     // Radius of the whole widget:
-    void setOverallRadius(int radius);
+    void setOverallRadius(qreal radius);
 
     // Rotation of the pie:
-    void setBaseCompassHeading(int degrees);  // 0 is up, 180 is down, default 180
+    void setBaseCompassHeading(qreal degrees);  // 0 is up, 180 is down, default 180
 
     // Delay (ms) between movement and event generation:
     void setReportingDelay(int delay_ms);
@@ -151,14 +151,14 @@ protected:
     QFont m_outer_label_font;
     QFont m_centre_label_font;
     QColor m_centre_label_colour;
-    int m_sector_radius;
-    int m_cursor_inner_radius;
-    int m_cursor_outer_radius;
+    qreal m_sector_radius;
+    qreal m_cursor_inner_radius;
+    qreal m_cursor_outer_radius;
     qreal m_cursor_angle_degrees;
-    int m_label_start_radius;
+    qreal m_label_start_radius;
     QString m_centre_label;
-    int m_overall_radius;
-    int m_base_compass_heading_deg;
+    qreal m_overall_radius;
+    qreal m_base_compass_heading_deg;
     int m_reporting_delay_ms;
     // Dynamic:
     QVector<qreal> m_cursor_props_cum;  // n - 1

@@ -261,13 +261,13 @@ OpenableWidget* Icd10SpecPD::editor(const bool read_only)
                 ->setExpand(true)
                 ->setWidth(n, v);
     };
-    auto grid = [this, &options, &gridbase]
+    auto grid = [&gridbase]
             (const QString& prefix, int end, int start = 1) -> QuElement* {
         // Assumes the xstring name matches the fieldname (as it does)
         const QStringList field_xstring_names = strseq(prefix, start, end);
         return gridbase(field_xstring_names, field_xstring_names);
     };
-    auto generalpage = [this, &text, &boldtext, &gridbase]() -> QuPagePtr {
+    auto generalpage = [this, &text, &gridbase]() -> QuPagePtr {
         QuPage* page = new QuPage();
         page->setTitle(xstring("general"));
         page->addElement(text("general"));
@@ -302,7 +302,7 @@ OpenableWidget* Icd10SpecPD::editor(const bool read_only)
         }
         return QuPagePtr(page);
     };
-    auto eupdpage = [this, &grid, &text, &boldtext, &heading]() -> QuPagePtr {
+    auto eupdpage = [this, &grid, &text, &heading]() -> QuPagePtr {
         QuPage* page = new QuPage();
         page->setTitle(xstring("eu_pd_title"));
         page->addElement(

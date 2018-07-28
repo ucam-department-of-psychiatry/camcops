@@ -765,7 +765,7 @@ void NetworkManager::storeServerIdentificationInfo()
     m_app.setVar(varconst::ID_POLICY_FINALIZE, m_reply_dict[KEY_ID_POLICY_FINALIZE]);
 
     m_app.deleteAllIdDescriptions();
-    for (const QString keydesc : m_reply_dict.keys()) {
+    for (const QString& keydesc : m_reply_dict.keys()) {
         if (keydesc.startsWith(KEYPREFIX_ID_DESCRIPTION)) {
             const QString number = keydesc.right(keydesc.length() -
                                                  KEYPREFIX_ID_DESCRIPTION.length());

@@ -177,5 +177,5 @@ int ContactLog::timeTakenMinutes() const
     if (start.isNull() || end.isNull()) {
         return 0;
     }
-    return start.toDateTime().secsTo(end.toDateTime()) / 60;
+    return static_cast<int>(start.toDateTime().secsTo(end.toDateTime()) / 60);
 }

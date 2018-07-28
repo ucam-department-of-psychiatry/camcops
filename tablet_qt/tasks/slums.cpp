@@ -220,13 +220,13 @@ OpenableWidget* Slums::editor(const bool read_only)
         }
         return new QuMcqGrid(qfields, options);
     };
-    auto textRaw = [this](const QString& string) -> QuElement* {
+    auto textRaw = [](const QString& string) -> QuElement* {
         return new QuText(string);
     };
     auto text = [this, textRaw](const QString& stringname) -> QuElement* {
         return textRaw(xstring(stringname));
     };
-    auto textRawItalic = [this](const QString& string) -> QuElement* {
+    auto textRawItalic = [](const QString& string) -> QuElement* {
         return (new QuText(string))->setItalic();
     };
     auto textItalic = [this, textRawItalic](const QString& stringname) -> QuElement* {

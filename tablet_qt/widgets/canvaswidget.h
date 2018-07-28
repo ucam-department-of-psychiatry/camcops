@@ -43,7 +43,7 @@ public:
     CanvasWidget(const QSize& size,
                  QImage::Format format = QImage::Format_RGB32,
                  QWidget* parent = nullptr);
-    ~CanvasWidget();
+    ~CanvasWidget() override;
     void setImageSizeAndClearImage(const QSize& size);
     void setAllowShrink(bool allow_shrink);
     void setMinimumShrinkHeight(int height);  // applicable if we can shrink

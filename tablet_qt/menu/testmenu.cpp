@@ -96,6 +96,13 @@ TestMenu::TestMenu(CamcopsApp& app)
         ),
 #endif
         MenuItem(
+            tr("Test HTML display (not fullscreen)"),
+            HtmlMenuItem("Example HTML: this window should NOT be full-screen",
+                         uifunc::resourceFilename("camcops/html/test.html"),
+                         "", false),
+            spanner
+        ),
+        MenuItem(
             tr("Test HTML display, and fullscreen display"),
             HtmlMenuItem("Example HTML: this window should be full-screen",
                          uifunc::resourceFilename("camcops/html/test.html"),

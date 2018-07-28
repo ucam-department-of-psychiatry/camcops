@@ -39,7 +39,7 @@ const QString Icd10::XSTRING_TASKNAME("icd10");
 Icd10::Icd10(CamcopsApp& app, QObject* parent) :
     DiagnosticCodeSet(app, XSTRING_TASKNAME, tr("ICD-10"), parent)
 {
-    m_creation_stack.push(DepthItemPair(0, 0));  // root: depth 0, index 0
+    m_creation_stack.push(DepthItemPair(0, nullptr));  // root: depth 0, no parent
     addIcd10Codes(BASE_CODES);
 }
 

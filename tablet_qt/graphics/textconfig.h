@@ -34,15 +34,15 @@ struct TextConfig {
 public:
     TextConfig(int font_size_px,
                const QColor& colour,
-               qreal width = -1,
+               int width = -1,
                Qt::Alignment alignment = Qt::AlignCenter);
     TextConfig& setFontSize(int font_size_px);
     TextConfig& setColour(const QColor& colour);
-    TextConfig& setWidth(qreal width);
+    TextConfig& setWidth(int width);
     TextConfig& setAlignment(Qt::Alignment alignment);
 public:
     int font_size_px;
     QColor colour;
-    qreal width;
+    int width;
     Qt::Alignment alignment;
 };

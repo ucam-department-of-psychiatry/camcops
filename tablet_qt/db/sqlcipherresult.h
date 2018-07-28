@@ -70,7 +70,7 @@ class SQLCipherResult : public SqlCachedResult
 
 public:
     explicit SQLCipherResult(const SQLCipherDriver* drv);
-    ~SQLCipherResult();
+    ~SQLCipherResult() override;
     QVariant handle() const override;
 
 protected:

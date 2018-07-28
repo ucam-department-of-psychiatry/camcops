@@ -35,6 +35,7 @@ class TaskProxy
 {
 public:
     TaskProxy(TaskFactory& factory);  // Registers itself with the factory.
+    virtual ~TaskProxy() = default;
     // We do want to create instances...
     virtual TaskPtr create(CamcopsApp& app,
                            DatabaseManager& db,

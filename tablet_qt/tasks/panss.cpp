@@ -151,7 +151,7 @@ OpenableWidget* Panss::editor(const bool read_only)
                       xstring(xstringprefix + QString::number(q) + "_s"),
                       fieldRef(strnum(fieldprefix, q))));
     };
-    auto boldtext = [this](const QString& text) -> QuElement* {
+    auto boldtext = [](const QString& text) -> QuElement* {
         return (new QuText(text))->setBold(true);
     };
 

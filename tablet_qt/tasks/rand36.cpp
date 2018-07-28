@@ -218,7 +218,7 @@ OpenableWidget* Rand36::editor(const bool read_only)
     auto boldtext = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold();
     };
-    auto q = [this, &boldtext](int question) -> QuElement* {
+    auto q = [&boldtext](int question) -> QuElement* {
         return boldtext(strnum("q", question));
     };
     auto mcq = [this](int question,

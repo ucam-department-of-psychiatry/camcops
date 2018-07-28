@@ -36,7 +36,7 @@ public:
     virtual QSize sizeHint() const override;
     virtual bool hasHeightForWidth() const override;
     virtual int heightForWidth(int width) const override;
-    virtual void paintEvent(QPaintEvent* event);
+    virtual void paintEvent(QPaintEvent* event) override;
 protected:
     int m_area;
     int m_preferred_width;

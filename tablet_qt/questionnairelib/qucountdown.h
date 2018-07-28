@@ -35,7 +35,7 @@ class QuCountdown : public QuElement
     Q_OBJECT
 public:
     QuCountdown(int time_s);
-    virtual ~QuCountdown();
+    virtual ~QuCountdown() override;
     QuCountdown* setVolume(int volume);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;

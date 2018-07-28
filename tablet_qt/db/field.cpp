@@ -301,8 +301,8 @@ QString Field::sqlColumnType() const
     default:
         break;
     }
-    uifunc::stopApp("Field::sqlColumnType: Unknown field type: " +
-                    m_type);
+    uifunc::stopApp(
+        QString("Field::sqlColumnType: Unknown field type: %1").arg(m_type));
     return "";
 }
 
@@ -324,6 +324,7 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
         break;
     case QVariant::StringList:
         m_value = QVariant(convert::csvStringToQStringList(db_value.toString()));
+        break;
     case QVariant::UserType:
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             m_value.setValue(convert::csvStringToIntVector(

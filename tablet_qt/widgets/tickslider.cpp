@@ -269,15 +269,15 @@ void TickSlider::paintEvent(QPaintEvent* ev)
                 }
             }
             const int q = m_reverse_horizontal_labels ? (maximum() - i) : i;
-            const int x = round(
-                (double)(
-                    (double)(
-                        (double)(q - this->minimum()) /
-                        (double)(this->maximum() - this->minimum())
-                    ) * (double)(this->width() - handle.width()) +
-                    (double)(handle.width() / 2.0)
+            const int x = static_cast<int>(round(
+                static_cast<double>(
+                    static_cast<double>(
+                        static_cast<double>(q - this->minimum()) /
+                        static_cast<double>(this->maximum() - this->minimum())
+                    ) * static_cast<double>(this->width() - handle.width()) +
+                    static_cast<double>(handle.width() / 2.0)
                 )
-            ) - 1;
+            )) - 1;
             const bool has_label = m_tick_labels.contains(i);
             QString label_text;
             if (has_label) {
@@ -323,15 +323,15 @@ void TickSlider::paintEvent(QPaintEvent* ev)
         for (int i = minimum(); i <= maximum(); i += interval) {
             Qt::Alignment valign = Qt::AlignVCenter;
             const int q = m_reverse_vertical_labels ? (maximum() - i) : i;
-            const int y = round(
-                (double)(
-                    (double)(
-                        (double)(q - this->minimum()) /
-                        (double)(this->maximum() - this->minimum())
-                    ) * (double)(this->height() - handle.height()) +
-                    (double)(handle.height() / 2.0)
+            const int y = static_cast<int>(round(
+                static_cast<double>(
+                    static_cast<double>(
+                        static_cast<double>(q - this->minimum()) /
+                        static_cast<double>(this->maximum() - this->minimum())
+                    ) * static_cast<double>(this->height() - handle.height()) +
+                    static_cast<double>(handle.height() / 2.0)
                 )
-            ) - 1;
+            )) - 1;
             const bool has_label = m_tick_labels.contains(i);
             QString label_text;
             if (has_label) {

@@ -62,10 +62,10 @@ using graphicsfunc::textRectF;
 // Constants
 // ============================================================================
 
-PenBrush DEFAULT_SECTOR_PENBRUSH(QCOLOR_BLACK, QCOLOR_GREEN);
-PenBrush DEFAULT_CURSOR_PENBRUSH(QCOLOR_BLACK, QCOLOR_RED);
-PenBrush DEFAULT_CURSOR_ACTIVE_PENBRUSH(QCOLOR_BLUE, QCOLOR_YELLOW);
-QColor DEFAULT_LABEL_COLOUR(QCOLOR_DARKBLUE);
+const PenBrush DEFAULT_SECTOR_PENBRUSH(QCOLOR_BLACK, QCOLOR_GREEN);
+const PenBrush DEFAULT_CURSOR_PENBRUSH(QCOLOR_BLACK, QCOLOR_RED);
+const PenBrush DEFAULT_CURSOR_ACTIVE_PENBRUSH(QCOLOR_BLUE, QCOLOR_YELLOW);
+const QColor DEFAULT_LABEL_COLOUR(QCOLOR_DARKBLUE);
 
 // ============================================================================
 // #defines
@@ -238,14 +238,14 @@ void AdjustablePie::setOuterLabelFont(const QFont& font)
 }
 
 
-void AdjustablePie::setSectorRadius(const int radius)
+void AdjustablePie::setSectorRadius(const qreal radius)
 {
     m_sector_radius = radius;
     updateGeometry();
 }
 
 
-void AdjustablePie::setCursorRadius(int inner_radius, int outer_radius)
+void AdjustablePie::setCursorRadius(qreal inner_radius, qreal outer_radius)
 {
     if (inner_radius > outer_radius) {
         std::swap(inner_radius, outer_radius);
@@ -263,7 +263,7 @@ void AdjustablePie::setCursorAngle(const qreal degrees)
 }
 
 
-void AdjustablePie::setLabelStartRadius(const int radius)
+void AdjustablePie::setLabelStartRadius(const qreal radius)
 {
     m_label_start_radius = radius;
 }
@@ -290,13 +290,13 @@ void AdjustablePie::setCentreLabelColour(const QColor& colour)
 }
 
 
-void AdjustablePie::setOverallRadius(const int radius)
+void AdjustablePie::setOverallRadius(const qreal radius)
 {
     m_overall_radius = radius;
 }
 
 
-void AdjustablePie::setBaseCompassHeading(const int degrees)
+void AdjustablePie::setBaseCompassHeading(const qreal degrees)
 {
     m_base_compass_heading_deg = degrees;
 }
@@ -404,7 +404,8 @@ qreal AdjustablePie::sectorProportionCumulative(const int sector_index) const
 
 QSize AdjustablePie::sizeHint() const
 {
-    return QSize(m_overall_radius * 2, m_overall_radius * 2);
+    const int diameter = static_cast<int>(m_overall_radius * 2);
+    return QSize(diameter, diameter);
 }
 
 
@@ -446,7 +447,7 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
         const qreal prop = sectorProportionCumulative(i);
         sector_end_angle = prop * DEG_360;
     };
-    auto endLoop = [this, &sector_start_angle, &sector_end_angle] () -> void {
+    auto endLoop = [&sector_start_angle, &sector_end_angle] () -> void {
         sector_start_angle = sector_end_angle;  // for the next one
     };
 
