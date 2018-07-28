@@ -102,7 +102,7 @@ int centile(const qreal x, const qreal minimum, const qreal maximum)
     if (!qIsFinite(centile)) {
         return -1;
     }
-    return centile;  // truncates to int, which is what we want
+    return static_cast<int>(centile);  // truncates to int, which is what we want
 }
 
 
@@ -500,6 +500,56 @@ QVector<int> range(const int n)
     return range(0, n);
 }
 
+
+// ============================================================================
+// Range description (cosmetic)
+// ============================================================================
+
+QString describeAsRanges(QVector<int> numbers,
+                         const QString& element_prefix,
+                         const QString& element_separator,
+                         const QString& range_separator)
+{
+    // Converts e.g. 1, 2, 3, 5, 6, 7, 10 to "1-3, 5-7, 10"
+    qSort(numbers.begin(), numbers.end());
+    const int n = numbers.size();
+    QString result;
+    bool in_range = false;
+    int previous;  // value is arbitrary
+    for (int i = 0; i < n; ++i) {
+        const int current = numbers.at(i);
+        if (i == n - 1) {
+            // Last number. Must print it.
+            if (in_range) {
+                result += range_separator;
+            } else if (i > 0) {
+                result += element_separator;
+            }
+            result += element_prefix + QString::number(current);
+        }
+        else if (i != 0 && current == previous + 1) {
+            // Current number is the continuation of a range. Don't print it.
+            in_range = true;
+        } else {
+            // Current number is not a continuation of a range, or is the last
+            // number. Print it somehow.
+            if (in_range) {
+                // Finishing a previous range.
+                result += range_separator + element_prefix + QString::number(previous)
+                        + element_separator + element_prefix + QString::number(current);
+                in_range = false;
+            } else {
+                // Starting a new standalone number (or the start of a range).
+                if (i > 0) {
+                    result += element_separator;
+                }
+                result += element_prefix + QString::number(current);
+            }
+        }
+        previous = current;
+    }
+    return result;
+}
 
 // ============================================================================
 // Spacing things out

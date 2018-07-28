@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <QtAlgorithms>  // for qsort()
 #include <QVariant>
 #include <QVector>
 
@@ -189,6 +190,15 @@ QVector<T> rep(const QVector<T>& values, int each, int times)
     return result;
 }
 
+
+// ============================================================================
+// Range description (cosmetic)
+// ============================================================================
+
+QString describeAsRanges(QVector<int> numbers,
+                         const QString& element_prefix = "",
+                         const QString& element_separator = ", ",
+                         const QString& range_separator = "–");
 
 // ============================================================================
 // Spacing things out

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3.5
+# tablet_qt/tools/build_qt.py
 
 """
 ===============================================================================
@@ -499,7 +500,7 @@ PERL = "perl"
 READELF = "readelf"  # read ELF-format library files
 SED = "sed"  # stream editor
 TAR = "tar"  # manipulate tar files
-TCLSH = "tclsh"
+TCLSH = "tclsh"  # used by SQLCipher build process
 VCVARSALL = "vcvarsall.bat"  # sets environment variables for VC++
 XCODE_SELECT = "xcode-select"  # OS/X tool to find paths for XCode
 XCRUN = "xcrun"  # OS/X XCode tool
@@ -1927,12 +1928,7 @@ WINDOWS_PACKAGE_HELP = r"""
 Windows                                                                 Cygwin
                                                                         package
 -------------------------------------------------------------------------------
-bash        Install Cygwin; part of the default installation            -
-cmake       Install the Cygwin package "cmake"                          cmake
-ld          Install the Cygwin package "gcc-g++"                        gcc-g++
-make        Install the Cygwin package "make"                           make
-tar         Install Cygwin; part of the default installation            -
-
+cmake       Install from https://cmake.org/
 git         Install from https://git-scm.com/
 nasm        Install from http://www.nasm.us/
 tclsh       Install TCL from https://www.activestate.com/activetcl
@@ -1940,6 +1936,13 @@ vcvarsall.bat    Install Microsoft Visual Studio/VC++, e.g. the free Community
             edition from https://www.visualstudio.com/; download and run the
             installer; tick at least "Desktop development with C++"
 perl        Install from https://www.activestate.com/activeperl
+
+bash        Install Cygwin; part of the default installation            -
+cmake       Install the Cygwin package "cmake"                          cmake
+            OR (preferable) install CMake as above
+ld          Install the Cygwin package "gcc-g++"                        gcc-g++
+make        Install the Cygwin package "make"                           make
+tar         Install Cygwin; part of the default installation            -
 
 Don't forget to add the tools to your PATH, such as:
     C:\Perl64\bin

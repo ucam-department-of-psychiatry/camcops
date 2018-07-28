@@ -42,7 +42,8 @@ const QString QPREFIX("q");
 const int SUICIDALITY_QNUM = 9;  // Q9 in all versions of the BDI (I, IA, II)
 const QString SUICIDALITY_FN = "q9";  // fieldname
 
-const QVector<int> CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS{4, 15, 16, 18, 19, 20, 21};
+const QVector<int> CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS{
+    4, 15, 16, 18, 19, 20, 21};
 
 const QString Bdi::BDI_TABLENAME("bdi");
 const QString FN_BDI_SCALE("bdi_scale");
@@ -191,6 +192,7 @@ bool Bdi::isBdiII() const
 
 QStringList Bdi::summary() const
 {
+    using mathfunc::describeAsRanges;
     using stringfunc::bold;
     using stringfunc::strnumlist;
 
@@ -207,8 +209,6 @@ QStringList Bdi::summary() const
     }
 
     // Custom somatic score for Khandaker Insight study:
-    const QStringList somatic_qnum_strings = strnumlist(
-                "Q", CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS);
     QString somatic_text;
     if (isBdiII()) {
         const QStringList somatic_fieldnames = strnumlist(
@@ -253,7 +253,7 @@ QStringList Bdi::summary() const
                 bold(suicide_description)),
         QString("Custom somatic score for Insight study "
                 "(sum of scores for questions %1 for BDI-II only): %2.").arg(
-                somatic_qnum_strings.join(", "),
+                describeAsRanges(CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS),
                 bold(somatic_text)),
     };
 }

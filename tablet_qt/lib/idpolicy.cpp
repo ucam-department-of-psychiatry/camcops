@@ -270,7 +270,6 @@ IdPolicy::ChunkValue IdPolicy::idPolicyChunk(
                 processing_or = true;
                 break;
             case OperatorValue::None:
-            default:
                 reportSyntaxError("missing operator");
                 return ChunkValue::SyntaxError;
             }

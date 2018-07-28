@@ -17,23 +17,217 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _Android NDK: https://developer.android.com/ndk/
+.. _Android SDK: https://developer.android.com/studio/
+.. _CMake: https://cmake.org/
+.. _Cygwin: https://www.cygwin.com/
+.. _Debugging Tools for Windows: https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/
+.. _Git: https://git-scm.com/
+.. _jom: https://wiki.qt.io/Jom
+.. _NASM: http://www.nasm.us/
+.. _Perl: https://www.activestate.com/activeperl
+.. _Python: https://www.python.org/
 .. _Qt: https://www.qt.io/
+.. _TCL: https://www.activestate.com/activetcl
 .. _Valgrind: http://valgrind.org/
+.. _Visual Studio: https://visualstudio.microsoft.com/
+.. _Windows SDK: https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 
 Building the CamCOPS client
 ===========================
 
+The CamCOPS client is written in C++11 using the Qt_ cross-platform framework.
+
 Prerequisites
 -------------
 
-You will need Qt_ (with Qt Creator) and you will need to build a copy of Qt
-from source using the CamCOPS :ref:`build_qt` tool.
+Linux
+~~~~~
+
+- Linux should come with Python and the necessary build tools.
+
+- To build Android programs under Linux, you will also need a Java development
+  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-8-jdk``
+
+Windows
+~~~~~~~
+
+- Install a recent version of Python_. Make sure it's on your ``PATH``.
+
+- Install a Microsoft Visual C++ compiler. A free one is `Visual Studio`_
+  Community. As you install Visual Studio, don't forget to tick the C++
+  options.
+
+- Install these other tools:
+
+  - CMake_. (We'll use this version of cmake to build CamCOPS.)
+
+  - Cygwin_ and its packages ``cmake``, ``gcc-g++``, and ``make``. (If you missed
+    them out during initial installation, just re-run the Cygwin setup program,
+    such as ``setup-x86_64.exe``. SQLCipher requires ``make``.)
+
+  - NASM_, the Netwide Assembler for x86-family processors.
+
+  - ActiveState TCL_. (SQLCipher requires ``tclsh``.)
+
+  - ActiveState Perl_. (OpenSSL requires ``perl``.)
+
+  - Optionally, `Debugging Tools for Windows`_, such as from the
+    `Windows SDK`_.
+
+- Add everything to the ``PATH``.
+
+  - In Windows 10, persistent environment variable settings are accessible by
+    searching the Start menu for "environment variables", or
+    :menuselection:`Start --> Control Panel --> System and Security --> System
+    --> Advanced System Settings --> Environment Variables`.
+
+  - You can use either the User or the System settings, as you see fit.
+
+  - PATH elements are separated with semicolons, if you edit the path manually.
+
+  - For example, you may want these:
+
+    .. code-block:: none
+
+        C:\cygwin64\bin
+        C:\Program Files\NASM
+        C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
+
+        -- These are usually added automatically by installers:
+
+        C:\Program Files\Git\cmd
+        C:\ActiveTcl\bin
+        C:\Perl64\bin
+
+  - Do make sure that the ``PATH`` doesn't have an unquoted ampersand in; this
+    is technically legal but it causes no end of trouble (see ``build_qt.py``).
+    (The usual culprit is MySQL.) The ``build_qt.py`` script will check this.
+
+- Tested in July 2018 with:
+
+  .. code-block:: none
+
+    ActivePerl 5.24.3 build 2404 (64-bit)
+    ActiveTcl 8.6.7 build 0 (64-bit)
+    CMake 3.12.0 (64-bit)
+    Cygwin Setup 2.889 (64-bit)
+    Microsoft Visual Studio Community 2017
+    NASM 2.13.03 (64-bit)
+    Python 3.6
+    Qt Creator 4.7.0
+    Windows 10 (64-bit)
+
+All operating systems
+~~~~~~~~~~~~~~~~~~~~~
+
+- Install the open-source edition of Qt_, with Qt Creator. (You only really
+  need the Tools component. We will fetch Qt separately.)
+
+- Make sure you have Git_ installed.
+
+- Set some environment variables, so we can be consistent in these
+  instructions. Specimen values:
+
+  +---------------------+--------------------------+--------------------------------------+-----------------------------+
+  | Environment         | Example value (Linux)    | Example value (Windows)              | Notes                       |
+  | variable            |                          |                                      |                             |
+  +=====================+==========================+======================================+=============================+
+  | CAMCOPS_QT_BASE_DIR | ``~/dev/qt_local_build`` | ``%USERPROFILE%\dev\qt_local_build`` | Read by ``build_qt.py``.    |
+  +---------------------+--------------------------+--------------------------------------+-----------------------------+
+  | CAMCOPS_SOURCE_DIR  | ``~/dev/camcops``        | ``%USERPROFILE%\dev\camcops``        | Used in these instructions. |
+  +---------------------+--------------------------+--------------------------------------+-----------------------------+
+  | CAMCOPS_VENV        | ``~/dev/camcops_venv``   | ``%USERPROFILE%\dev\camcops_venv``   | Used in these instructions. |
+  +---------------------+--------------------------+--------------------------------------+-----------------------------+
+
+- Fetch CamCOPS. For example, for the GitHub version:
+
+  .. code-block:: bash
+
+    # Linux
+    git clone https://github.com/RudolfCardinal/camcops $CAMCOPS_SOURCE_DIR
+
+  .. code-block:: bat
+
+    REM Windows
+    git clone https://github.com/RudolfCardinal/camcops %CAMCOPS_SOURCE_DIR%
+
+- Create a virtual environment and install some Python tools:
+
+  .. code-block:: bash
+
+    # Linux
+    python3 -m virtualenv $CAMCOPS_VENV
+    . $CAMCOPS_VENV/bin/activate
+    pip install cardinal_pythonlib==1.0.23
+
+  .. code-block:: bat
+
+    REM Windows
+    python -m virtualenv %CAMCOPS_VENV%
+    %CAMCOPS_VENV%\Scripts\activate
+    pip install cardinal_pythonlib==1.0.23
+
+Build OpenSSL, SQLCipher, Qt
+----------------------------
+
+Build a copy of Qt and supporting tools (OpenSSL, SQLCipher) from source using
+the CamCOPS :ref:`build_qt` tool (q.v.). For example:
+
+.. code-block:: bash
+
+    # Linux
+    $CAMCOPS_SOURCE_DIR/tablet_qt/tools/build_qt.py --build_all
+
+.. code-block:: bat
+
+    REM Windows
+    python %CAMCOPS_SOURCE_DIR%/tablet_qt/tools/build_qt.py --build_all
+
+Troubleshooting
+~~~~~~~~~~~~~~~
+
+**Problem (Windows):** ``fatal error C1041: cannot open program database
+'...\openssl-1.1.0g\app.pdb'; if multiple CL.EXE write to the same .PDB file,
+please use /FS``
+
+... even when ``-FS`` is in use via jom_.
+
+**Solution:** just run ``build_qt.py`` again; this error usually goes away.
+Presumably the Qt jom_ tool doesn't always get things quite right with Visual
+C++, and this error reflects parallel compilation processes clashing
+occasionally. It's definitely worth persisting, because Jom saves no end of
+time.
+
+If it fails repeatedly, add the ``--nparallel 1`` option. (It seems to be the
+OpenSSL build that's prone to failing; you can always interrupt the program
+after OpenSSL has finished, and use the full number of CPU cores for the much
+longer Qt build.)
+
+
+Run and set up Qt Creator
+-------------------------
+
+- **Run Qt Creator.**
+
+- If you are compiling for Android:
+
+  - Install the `Android SDK`_ and the `Android NDK`_.
+
+  - Configure your Android SDK/NDK and Java JDK at: :menuselection:`Tools -->
+    Options --> Android`, or in newer versions of Qt Creator,
+    :menuselection:`Tools --> Options --> Devices --> Android --> Android
+    Settings`.
+
+- Proceed with the instructions below.
 
 Qt versions
 -----------
 
+See :menuselection:`Tools --> Options --> Kits --> Qt Versions`.
+
 Assuming you set your qt_local_build directory to ``~/dev/qt_local_build``, the
-``build_qt.py`` script should generate a series of ``qmake`` (or, under
+``build_qt.py`` script should have generated a series of ``qmake`` (or, under
 Windows, ``qmake.exe``) files within that directory:
 
     ==================  ==============================================
@@ -53,7 +247,17 @@ Windows, ``qmake.exe``) files within that directory:
 Qt kits
 -------
 
+See :menuselection:`Tools --> Options --> Kits --> Kits`.
+
 Options last checked against Qt Creator 4.6.2 (built June 2018).
+
+.. note::
+
+    If you did not install a version of Qt with Qt Creator, pick one of your
+    own kits and choose "Make Default". Otherwise you will get the error
+    ``Could not find qmake spec 'default'.`` (e.g. in the General Messages tab
+    when you open your application) and the ``..pro`` (project) file will not
+    parse. See https://stackoverflow.com/questions/27524680.
 
 **Custom_Linux_x86_64**
 
@@ -223,6 +427,10 @@ http://doc.qt.io/qtcreator/creator-sharing-project-settings.html
 General
 ~~~~~~~
 
+- Open the ``camcops.pro`` project file in Qt Creator.
+
+- Add your chosen kit(s) to the CamCOPS project.
+
 - Use defaults, except everywhere you see :menuselection:`Build Settings -->
   Build Steps --> Make --> Make arguments`, add ``-j 8`` for an
   8-CPU machine to get it compiling in parallel.
@@ -232,6 +440,8 @@ General
     https://stackoverflow.com/questions/8860712/setting-default-make-options-for-qt-creator.
     HOWEVER, Qt Creator doesn't seem to read that environment variable for me.
     Not sure why!
+
+- Build.
 
 Android
 ~~~~~~~
@@ -328,13 +538,13 @@ Linux
 Under :menuselection:`Build Settings --> Build Environment``, set e.g.
 ``LD_LIBRARY_PATH=/home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.0g/``
 
-===============================================================================
+
 Google Play Store settings
-===============================================================================
+--------------------------
 
 - Developer URL is https://play.google.com/apps/publish
-  --> pick your application
-  --> e.g. Release management / App releases
+  :menuselection:`--> pick your application
+  --> e.g. Release management / App releases`
 
 - App category: "Utility/other".
 
@@ -354,7 +564,8 @@ Google Play Store settings
   The Google Developer site will check the version codes.
   Failed uploads can sometimes block that version number.
 
-- You upload a new version with "App releases" / "Create Release".
+- You upload a new version with :menuselection:`App releases --> Create
+  Release`.
 
 - Note also that if you try to install the .apk directly to a device that's
   had an installation from Google Play Store, you'll get the error
@@ -368,18 +579,21 @@ Google Play Store settings
   10 minutes to the main web site?
 
 Google Play Store release history
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------
 
-===============  ===================  ===================  ================  ===========  ==========
-Google Play      AndroidManifest.xml  AndroidManifest.xml  To Play Store on  Minimum API  Target
-Store release    version code         name                                   Android      Android
-name                                                                         API          API
-===============  ===================  ===================  ================  ===========  ==========
-2.0.1 (beta)     2                    2.0.1                2017-08-04        16           23
-2.0.4 (beta)     3                    2.0.4                2017-10-22        16           23
-2.2.3 (beta)     5                    2.2.3                2018-06-25        16           26
-2.2.4 (beta)     6                    2.2.4                2018-07-18        23           26
-===============  ===================  ===================  ================  ===========  ==========
++---------------+---------------------+---------------------+------------------+---------+---------+
+| Google Play   | AndroidManifest.xml | AndroidManifest.xml | To Play Store on | Minimum | Target  |
+| Store release | version code        | name                |                  | Android | Android |
+| name          |                     |                     |                  | API     | API     |
++===============+=====================+=====================+==================+=========+=========+
+| 2.0.1 (beta)  | 2                   | 2.0.1               | 2017-08-04       | 16      | 23      |
++---------------+---------------------+---------------------+------------------+---------+---------+
+| 2.0.4 (beta)  | 3                   | 2.0.4               | 2017-10-22       | 16      | 23      |
++---------------+---------------------+---------------------+------------------+---------+---------+
+| 2.2.3 (beta)  | 5                   | 2.2.3               | 2018-06-25       | 16      | 26      |
++---------------+---------------------+---------------------+------------------+---------+---------+
+| 2.2.4 (beta)  | 6                   | 2.2.4               | 2018-07-18       | 23      | 26      |
++---------------+---------------------+---------------------+------------------+---------+---------+
 
 
 Notes
@@ -423,14 +637,6 @@ Version constraints for third-party software
 
 Android
 ~~~~~~~
-
-- To build Android programs under Linux, also need:
-  ``sudo apt install openjdk-8-jdk``
-
-- Configure your Android SDK/NDK and Java JDK at: :menuselection:`Tools -->
-  Options --> Android`, or in newer versions of Qt Creator,
-  :menuselection:`Tools --> Options --> Devices --> Android --> Android
-  Settings`.
 
 - Above Android API 23, linking to non-public libraries is prohibited, possibly
   with exceptions for SSL/crypto.

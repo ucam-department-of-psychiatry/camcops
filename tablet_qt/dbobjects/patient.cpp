@@ -20,6 +20,7 @@
 #include "patient.h"
 #include <limits>
 #include <QDebug>
+#include <QtAlgorithms>  // for qsort()
 #include "core/camcopsapp.h"
 #include "common/dbconst.h"
 #include "common/design_defines.h"
