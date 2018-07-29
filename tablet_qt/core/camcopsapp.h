@@ -120,9 +120,9 @@ protected:
     // Opening/closing windows
     // ------------------------------------------------------------------------
 public:
-    void open(OpenableWidget* widget, TaskPtr task = TaskPtr(nullptr),
-              bool may_alter_task = false,
-              PatientPtr patient = PatientPtr(nullptr));
+    void openSubWindow(OpenableWidget* widget, TaskPtr task = TaskPtr(nullptr),
+                       bool may_alter_task = false,
+                       PatientPtr patient = PatientPtr(nullptr));
     SlowGuiGuard getSlowGuiGuard(const QString& text = "Opening...",
                                  const QString& title = textconst::PLEASE_WAIT,
                                  int minimum_duration_ms = 100);
@@ -130,7 +130,7 @@ public:
 signals:
     void taskAlterationFinished(TaskPtr task);
 public slots:
-    void close();
+    void closeSubWindow();
     void enterFullscreen();
     void leaveFullscreen();
 
