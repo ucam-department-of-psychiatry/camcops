@@ -108,6 +108,7 @@ void ClickableLabelNoWrap::setPixmap(const QPixmap& pixmap)
 QSize ClickableLabelNoWrap::sizeHint() const
 {
     Q_ASSERT(m_label);
+    ensurePolished();
     QStyleOptionButton opt;
     initStyleOption(&opt);  // protected
     const QSize base_size = m_label->sizeHint();

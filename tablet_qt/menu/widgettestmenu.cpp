@@ -826,7 +826,7 @@ void WidgetTestMenu::testQuestionnaire(const bool long_title,
                               : "Reasonably long title with several words");
     Questionnaire* widget = new Questionnaire(m_app, {page});
     if (as_openable_widget) {
-        m_app.open(widget);
+        m_app.openSubWindow(widget);
     } else {
         widget->build();
         debugfunc::debugWidget(widget, false, false);

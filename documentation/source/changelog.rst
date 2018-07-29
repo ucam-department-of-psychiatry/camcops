@@ -1332,3 +1332,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``CssClass`` constants.
 
 - CISR client now shows more detail in its summary view.
+
+- Client returns to maximized mode after returning from fullscreen, if it was
+  maximized before.
+  
+- Client calls ``ensurePolished()`` for ``sizeHint()`` functions of widgets
+  containing text, which should make initial sizing more accurate.

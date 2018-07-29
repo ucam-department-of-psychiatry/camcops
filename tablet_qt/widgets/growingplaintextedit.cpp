@@ -65,6 +65,7 @@ void GrowingPlainTextEdit::setAutoResize(const bool auto_resize)
 
 QSize GrowingPlainTextEdit::sizeHint() const
 {
+    ensurePolished();
     QSize size_hint;
     if (m_auto_resize) {
         // https://stackoverflow.com/questions/9506586/qtextedit-resize-to-fit

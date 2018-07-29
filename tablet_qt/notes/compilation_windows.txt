@@ -141,3 +141,11 @@ PROBLEM
 
     The mouse wheel continues to work (as does the keyboard), but clicks don't,
     including to the window top icons (app icon, minimize, maximize, close).
+
+    Just entering and leaving fullscreen mode doesn't cause problems (added to
+    TestMenu). It does flag up the difference between "leaving fullscreen"
+    and showNormal(), which also de-maximizes. Note the setVisibility()
+    function, which chooses between showNormal(), showFullscreen(), and others;
+    also the visibility() function, which reads current state. The docs
+    describe this as a convenience function combining the "visible"
+    and "windowStates" APIs.

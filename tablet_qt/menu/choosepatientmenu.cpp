@@ -115,7 +115,7 @@ void ChoosePatientMenu::addPatient()
     // newly-created patient's name.
     m_app.setSelectedPatient(patient->id());
     OpenableWidget* widget = patient->editor(false);
-    m_app.open(widget, TaskPtr(nullptr), false, patient);
+    m_app.openSubWindow(widget, TaskPtr(nullptr), false, patient);
 }
 
 
@@ -130,7 +130,7 @@ void ChoosePatientMenu::editPatient(const bool read_only)
         return;
     }
     OpenableWidget* widget = patient->editor(read_only);
-    m_app.open(widget, TaskPtr(nullptr), false, patient);
+    m_app.openSubWindow(widget, TaskPtr(nullptr), false, patient);
 }
 
 

@@ -362,6 +362,7 @@ void TickSlider::paintEvent(QPaintEvent* ev)
 
 QSize TickSlider::sizeHint() const
 {
+    ensurePolished();
     QSize size = QSlider::sizeHint();
     const bool using_labels = tickLabelPosition() != NoTicks;
     const QSize label = using_labels ? biggestLabel() : QSize();

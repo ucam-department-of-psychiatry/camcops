@@ -105,6 +105,7 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_p_main_window(nullptr),
     m_p_window_stack(nullptr),
     m_p_hidden_stack(nullptr),
+    m_maximized_before_fullscreen(false),
     m_patient(nullptr),
     m_netmgr(nullptr),
     m_dpi(uiconst::DEFAULT_DPI)
@@ -786,7 +787,7 @@ void CamcopsApp::openMainWindow()
 #endif
 
     MainMenu* menu = new MainMenu(*this);
-    open(menu);
+    openSubWindow(menu);
 }
 
 
@@ -834,8 +835,8 @@ SlowGuiGuard CamcopsApp::getSlowGuiGuard(const QString& text,
 }
 
 
-void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
-                      const bool may_alter_task, PatientPtr patient)
+void CamcopsApp::openSubWindow(OpenableWidget* widget, TaskPtr task,
+                               const bool may_alter_task, PatientPtr patient)
 {
     if (!widget) {
         qCritical() << Q_FUNC_INFO << "- attempt to open nullptr";
@@ -892,7 +893,7 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
     connect(widget, &OpenableWidget::leaveFullscreen,
             this, &CamcopsApp::leaveFullscreen);
     connect(widget, &OpenableWidget::finished,
-            this, &CamcopsApp::close);
+            this, &CamcopsApp::closeSubWindow);
 
     // ------------------------------------------------------------------------
     // Save information and manage ownership of associated things
@@ -905,7 +906,7 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
 }
 
 
-void CamcopsApp::close()
+void CamcopsApp::closeSubWindow()
 {
     // ------------------------------------------------------------------------
     // All done?
@@ -1006,13 +1007,56 @@ void CamcopsApp::close()
 
 void CamcopsApp::enterFullscreen()
 {
+    // QWidget::showFullScreen does this:
+    //
+    // ensurePolished();
+    // setWindowState((windowState() & ~(Qt::WindowMinimized | Qt::WindowMaximized))
+    //               | Qt::WindowFullScreen);
+    // setVisible(true);
+    // activateWindow();
+
+    // In other words, it clears the maximized flag. So we want this:
+    // qDebug() << Q_FUNC_INFO << "old state:" << m_p_main_window->windowState();
+    Qt::WindowStates old_state = m_p_main_window->windowState();
+    if (old_state & Qt::WindowFullScreen) {
+        return;  // already fullscreen
+    }
+    m_maximized_before_fullscreen = old_state & Qt::WindowMaximized;
     m_p_main_window->showFullScreen();
+    // qDebug() << Q_FUNC_INFO << "new state:" << m_p_main_window->windowState();
 }
 
 
 void CamcopsApp::leaveFullscreen()
 {
-    m_p_main_window->showNormal();
+    // m_p_main_window->showNormal();
+    //
+    // The docs say: "To return from full-screen mode, call showNormal()."
+    // That's true, but incomplete. Both showFullscreen() and showNormal() turn
+    // off any maximized state. QWidget::showNormal() does this:
+    //
+    // ensurePolished();
+    // setWindowState(windowState() & ~(Qt::WindowMinimized
+    //                                  | Qt::WindowMaximized
+    //                                  | Qt::WindowFullScreen));
+    // setVisible(true);
+    //
+    // We want this:
+    // qDebug() << Q_FUNC_INFO << "old state:" << m_p_main_window->windowState();
+    Qt::WindowStates old_state = m_p_main_window->windowState();
+    if (!(old_state & Qt::WindowFullScreen)) {
+        return;  // wasn't fullscreen
+    }
+    m_p_main_window->ensurePolished();
+    Qt::WindowStates new_state = (
+        old_state &
+        ~(Qt::WindowMinimized | Qt::WindowMaximized | Qt::WindowFullScreen) |
+        (m_maximized_before_fullscreen ? Qt::WindowMaximized : Qt::WindowNoState)
+    );
+    // qDebug() << Q_FUNC_INFO << "setting state to:" << new_state;
+    m_p_main_window->setWindowState(new_state);
+    m_p_main_window->setVisible(true);
+    // qDebug() << Q_FUNC_INFO << "new state:" << m_p_main_window->windowState();
 }
 
 

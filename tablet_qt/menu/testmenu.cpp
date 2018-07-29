@@ -110,6 +110,16 @@ TestMenu::TestMenu(CamcopsApp& app)
             spanner
         ),
         MenuItem(
+            tr("Enter fullscreen"),
+            std::bind(&TestMenu::enterFullscreen, this),
+            spanner
+        ),
+        MenuItem(
+            tr("Leave fullscreen"),
+            std::bind(&TestMenu::leaveFullscreen, this),
+            spanner
+        ),
+        MenuItem(
             tr("Test progress dialog"),
             std::bind(&TestMenu::testProgress, this),
             spanner

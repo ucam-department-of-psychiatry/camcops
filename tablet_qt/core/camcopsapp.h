@@ -331,6 +331,7 @@ protected:
     QPointer<QMainWindow> m_p_main_window;
     QPointer<QStackedWidget> m_p_window_stack;
     QSharedPointer<QStackedWidget> m_p_hidden_stack;  // we own it entirely, so QSharedPointer
+    bool m_maximized_before_fullscreen;
     PatientPtr m_patient;
     QStack<OpenableInfo> m_info_stack;
     QMap<QString, StoredVarPtr> m_storedvars;
