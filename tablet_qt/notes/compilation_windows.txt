@@ -149,3 +149,16 @@ PROBLEM
     also the visibility() function, which reads current state. The docs
     describe this as a convenience function combining the "visible"
     and "windowStates" APIs.
+
+    The problem goes away if the restoration of the previous window state is
+    commented out from CamcopsApp::closeSubWindow() [formerly ::close()].
+
+    It does *not* go away if that call to setWindowState() is just moved
+    earlier.
+
+    If the call to leaveFullscreen() is removed from closeSubWindow(), the
+    problem appears at the moment leaveFullscreen() is called from the test
+    menu. This feels like a Qt Windows bug.
+
+    *** try for minimal reproducible example
+        ... with widget that reports keyboard/mouse activity

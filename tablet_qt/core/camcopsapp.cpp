@@ -863,6 +863,13 @@ void CamcopsApp::openSubWindow(OpenableWidget* widget, TaskPtr task,
         }
     }
 
+    // ------------------------------------------------------------------------
+    // Set the fullscreen state (before we build, for efficiency)
+    // ------------------------------------------------------------------------
+    bool wants_fullscreen = widget->wantsFullscreen();
+    if (wants_fullscreen) {
+        enterFullscreen();
+    }
 
     // ------------------------------------------------------------------------
     // Add new thing to visible (one-item) "stack"
@@ -878,12 +885,9 @@ void CamcopsApp::openSubWindow(OpenableWidget* widget, TaskPtr task,
     // qDebug() << Q_FUNC_INFO << "Build complete, about to show";
 
     // ------------------------------------------------------------------------
-    // Make it visible; set the fullscreen state
+    // Make it visible
     // ------------------------------------------------------------------------
     m_p_window_stack->setCurrentIndex(index);
-    if (widget->wantsFullscreen()) {
-        enterFullscreen();
-    }
 
     // ------------------------------------------------------------------------
     // Signals
@@ -898,7 +902,8 @@ void CamcopsApp::openSubWindow(OpenableWidget* widget, TaskPtr task,
     // ------------------------------------------------------------------------
     // Save information and manage ownership of associated things
     // ------------------------------------------------------------------------
-    m_info_stack.push(OpenableInfo(guarded_widget, task, prev_window_state,
+    m_info_stack.push(OpenableInfo(guarded_widget, task,
+                                   prev_window_state, wants_fullscreen,
                                    may_alter_task, patient));
     // This stores a QSharedPointer to the task (if supplied), so keeping that
     // keeps the task "alive" whilst its widget is doing things.
@@ -923,6 +928,24 @@ void CamcopsApp::closeSubWindow()
     // (... and similarly any patient)
 
     // ------------------------------------------------------------------------
+    // Restore fullscreen state
+    // ------------------------------------------------------------------------
+    // m_p_main_window->setWindowState(info.prev_window_state);
+    //
+    // If a window earlier in the stack has asked for fullscreen, we will
+    // stay fullscreen.
+    bool want_fullscreen = false;
+    for (const OpenableInfo& info : m_info_stack) {
+        if (info.wants_fullscreen) {
+            want_fullscreen = true;
+            break;
+        }
+    }
+    if (!want_fullscreen) {
+        // leaveFullscreen();  // will do nothing if we're not fullscreen now
+    }
+
+    // ------------------------------------------------------------------------
     // Get rid of the widget that's closing from the visible stack
     // ------------------------------------------------------------------------
     QWidget* top = m_p_window_stack->currentWidget();
@@ -943,6 +966,7 @@ void CamcopsApp::closeSubWindow()
     //      Note: Parent object and parent widget of widget will remain the
     //      QStackedWidget. If the application wants to reuse the removed
     //      widget, then it is recommended to re-parent it.
+    //   ... same for Qt 5.11.
     // - Also:
     //   https://stackoverflow.com/questions/2506625/how-to-delete-a-widget-from-a-stacked-widget-in-qt
     // But this should work regardless:
@@ -956,11 +980,6 @@ void CamcopsApp::closeSubWindow()
     m_p_hidden_stack->removeWidget(w);  // m_p_hidden_stack still owns w
     int index = m_p_window_stack->addWidget(w);  // m_p_window_stack now owns w
     m_p_window_stack->setCurrentIndex(index);
-
-    // ------------------------------------------------------------------------
-    // Restore fullscreen state
-    // ------------------------------------------------------------------------
-    m_p_main_window->setWindowState(info.prev_window_state);
 
     // ------------------------------------------------------------------------
     // Update objects that care as to changes that may have been wrought

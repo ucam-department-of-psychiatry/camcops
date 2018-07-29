@@ -61,11 +61,12 @@ public:
         OpenableInfo()
         {}
         OpenableInfo(QPointer<OpenableWidget> widget, TaskPtr task,
-                     Qt::WindowStates prev_window_state, bool may_alter_task,
-                     PatientPtr patient) :
+                     Qt::WindowStates prev_window_state, bool wants_fullscreen,
+                     bool may_alter_task, PatientPtr patient) :
             widget(widget),
             task(task),
             prev_window_state(prev_window_state),
+            wants_fullscreen(wants_fullscreen),
             may_alter_task(may_alter_task),
             patient(patient)
         {}
@@ -73,6 +74,7 @@ public:
         QPointer<OpenableWidget> widget;
         TaskPtr task;
         Qt::WindowStates prev_window_state;
+        bool wants_fullscreen;
         bool may_alter_task;
         PatientPtr patient;
     };
