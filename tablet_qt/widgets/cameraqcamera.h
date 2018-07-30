@@ -56,7 +56,6 @@ class QLabel;
 class QQuickWidget;
 class QPushButton;
 class QStatusBar;
-class QStackedWidget;
 class QVideoFrame;
 
 #ifndef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
