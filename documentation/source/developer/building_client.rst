@@ -72,8 +72,8 @@ Windows
 
   - ActiveState Perl_. (OpenSSL requires ``perl``.)
 
-  - Optionally, `Debugging Tools for Windows`_, such as from the
-    `Windows SDK`_.
+  - Optionally, `Debugging Tools for Windows`_ (including CDB), such as from
+    the `Windows SDK`_.
 
 - Add everything to the ``PATH``.
 

@@ -1332,3 +1332,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``CssClass`` constants.
 
 - CISR client now shows more detail in its summary view.
+
+- Bugfix to CISR client logic; code fallthrough for
+  CONC3_CONC_PREVENTED_ACTIVITIES.
