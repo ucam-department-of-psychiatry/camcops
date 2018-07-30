@@ -45,7 +45,7 @@ class QuMcqGrid : public QuElement
 public:
     QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
               const NameValueOptions& options);
-    virtual ~QuMcqGrid();
+    virtual ~QuMcqGrid() override;
     QuMcqGrid* setWidth(int question_width, const QVector<int>& option_widths);
     QuMcqGrid* setTitle(const QString& title);
     QuMcqGrid* setSubtitles(const QVector<McqGridSubtitle>& subtitles);

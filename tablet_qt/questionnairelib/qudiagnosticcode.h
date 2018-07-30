@@ -61,5 +61,4 @@ protected:
     QPointer<QLabel> m_missing_indicator;
     QPointer<LabelWordWrapWide> m_label_code;
     QPointer<LabelWordWrapWide> m_label_description;
-    QPointer<QWidget> m_widget;
 };

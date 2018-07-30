@@ -117,6 +117,7 @@ QSize ClickableLabelWordWrapWide::translateSize(const QSize& size) const
 QSize ClickableLabelWordWrapWide::sizeHint() const
 {
     Q_ASSERT(m_label);
+    ensurePolished();
     QSize result = translateSize(m_label->sizeHint());
 #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO << "->" << result;

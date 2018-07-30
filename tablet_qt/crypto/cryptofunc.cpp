@@ -160,14 +160,14 @@
             qCritical() << msg;
             exit(EXIT_FAILURE);
         }
-#ifdef DEBUG_LOAD_CRYPTO_DLL
+    #ifdef DEBUG_LOAD_CRYPTO_DLL
         else {
             const QString msg = QString(
                         "Loaded %1 from crypto library %2")
                     .arg(funcname, lib_crypto.fileName());
             qDebug().noquote() << msg;
         }
-#endif
+    #endif
     }
 
     // ------------------------------------------------------------------------
@@ -286,7 +286,7 @@
 // Constants
 // ============================================================================
 
-const int BCRYPT_LOG_ROUNDS = 6;
+// const int BCRYPT_LOG_ROUNDS = 6;
 // because tablets are pretty slow; see
 // http://security.stackexchange.com/questions/3959/
 
@@ -305,7 +305,7 @@ int cryptofunc::base64Length(const int nbytes)
 {
     // http://stackoverflow.com/questions/13378815/base64-length-calculation
     double d = nbytes;
-    int len = ceil(4 * (d / 3));
+    int len = static_cast<int>(ceil(4 * (d / 3)));
     // Round up to a multiple of 4:
     while (len % 4 != 0) {
         ++len;
@@ -337,7 +337,7 @@ void cryptofunc::aesEncrypt(const QByteArray& key_bytes,
     int retcode = crypto_EVP_EncryptInit_ex(
                 ctx.get(),  // EVP_CIPHER_CTX* ctx
                 crypto_EVP_aes_256_cbc(), // const EVP_CIPHER* type
-                NULL,  // ENGINE* impl: implementation
+                nullptr,  // ENGINE* impl: implementation
                 keydata, // unsigned char* key
                 ivdata);  // unsigned char* iv
     if (retcode != 1) {
@@ -389,7 +389,7 @@ void cryptofunc::aesDecrypt(const QByteArray& key_bytes,
 
     EVP_CIPHER_CTX_ptr ctx(crypto_EVP_CIPHER_CTX_new(),
                            crypto_EVP_CIPHER_CTX_free);
-    int retcode = crypto_EVP_DecryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL,
+    int retcode = crypto_EVP_DecryptInit_ex(ctx.get(), EVP_aes_256_cbc(), nullptr,
                                             keydata, ivdata);
     if (retcode != 1) {
         throw std::runtime_error("EVP_DecryptInit_ex failed");
@@ -433,7 +433,7 @@ SecureQByteArray cryptofunc::hashBytes(const QByteArray& plaintext_bytes)
 {
     EVP_MD_CTX_ptr context(crypto_EVP_MD_CTX_new(),
                            crypto_EVP_MD_CTX_free);
-    int retcode = crypto_EVP_DigestInit_ex(context.get(), EVP_sha512(), NULL);
+    int retcode = crypto_EVP_DigestInit_ex(context.get(), EVP_sha512(), nullptr);
     if (retcode != 1) {
         throw std::runtime_error("EVP_DigestInit_ex failed");
     }

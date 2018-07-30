@@ -396,7 +396,7 @@ OpenableWidget* MdsUpdrs::editor(const bool read_only)
                 .arg(textconst::PART)
                 .arg(roman::romanize(partnum));
     };
-    auto text = [this](const QString& text) -> QuElement* {
+    auto text = [](const QString& text) -> QuElement* {
         return (new QuText(text))->setBold();
     };
     auto mcq = [this](const QString& fieldname,

@@ -65,7 +65,7 @@ class GridLayoutHfw : public QLayout
 public:
     explicit GridLayoutHfw(QWidget* parent = nullptr);
 
-    ~GridLayoutHfw();
+    ~GridLayoutHfw() override;
 
     QSize sizeHint() const override;
     QSize minimumSize() const override;

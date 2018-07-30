@@ -21,7 +21,7 @@
 
 TextConfig::TextConfig(int font_size_px,
                        const QColor& colour,
-                       const qreal width,
+                       const int width,
                        const Qt::Alignment alignment) :
     font_size_px(font_size_px),
     colour(colour),
@@ -46,7 +46,7 @@ TextConfig& TextConfig::setColour(const QColor& colour_)
 }
 
 
-TextConfig& TextConfig::setWidth(const qreal width_)
+TextConfig& TextConfig::setWidth(const int width_)
 {
     width = width_;
     return *this;

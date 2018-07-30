@@ -417,6 +417,7 @@ bool LabelWordWrapWide::event(QEvent* e)
 
 QSize LabelWordWrapWide::sizeHint() const
 {
+    ensurePolished();
     const QSize text_size = sizeOfTextWithoutWrap();
     // QSize w_smallest_word_h_unclear = QLabel::minimumSizeHint();
     // text_size.rheight() = heightForWidth(w_smallest_word_h_unclear.width());

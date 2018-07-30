@@ -136,7 +136,7 @@ const QColor BUTTON_BACKGROUND(QCOLOR_BLUE);
 const QColor TEXT_COLOUR(QCOLOR_WHITE);
 const QColor BUTTON_PRESSED_BACKGROUND(QCOLOR_OLIVE);
 const QColor BACK_BUTTON_BACKGROUND(QCOLOR_DARKRED);
-const qreal TEXT_SIZE_PX = 20;  // will be scaled
+const int TEXT_SIZE_PX = 20;  // will be scaled
 const int BUTTON_RADIUS = 5;
 const int PADDING = 5;
 const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
@@ -164,7 +164,7 @@ const ButtonConfig BASE_BUTTON_CONFIG(PADDING,
                                       BORDER_PEN,
                                       BUTTON_RADIUS);
 const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
-                                  SCENE_WIDTH, TEXT_ALIGN);
+                                  static_cast<int>(SCENE_WIDTH), TEXT_ALIGN);
 // YOU CANNOT INSTANTIATE A STATIC QFont() OBJECT BEFORE QT IS FULLY
 // FIRED UP; QFont::QFont() calls QFontPrivate::QFontPrivate()) calls
 // QGuiApplication::primaryScreen() which causes a segmentation fault.
@@ -189,9 +189,9 @@ const qreal LABEL_CURSOR_GAP_FRAC = 0.05;
 const int PIE_CURSOR_ANGLE = 60;
 const int PIE_REPORTING_DELAY_MS = 10;
 const int PIE_BASE_HEADING = 180;
-PenBrush CURSOR_PENBRUSH(QPen(Qt::NoPen), QBrush(QCOLOR_RED));
-PenBrush CURSOR_ACTIVE_PENBRUSH(QPen(QBrush(QCOLOR_ORANGE), 3.0),
-                                QBrush(QCOLOR_RED));
+const PenBrush CURSOR_PENBRUSH(QPen(Qt::NoPen), QBrush(QCOLOR_RED));
+const PenBrush CURSOR_ACTIVE_PENBRUSH(QPen(QBrush(QCOLOR_ORANGE), 3.0),
+                                      QBrush(QCOLOR_RED));
 const QPen SECTOR_PEN(QBrush(QCOLOR_WHITE), 3.0);
 
 }  // namespace qolsgconst

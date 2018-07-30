@@ -1335,3 +1335,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix to CISR client logic; code fallthrough for
   CONC3_CONC_PREVENTED_ACTIVITIES.
+
+- Client returns to maximized mode after returning from fullscreen, if it was
+  maximized before.
+  
+- Client calls ``ensurePolished()`` for ``sizeHint()`` functions of widgets
+  containing text, which should make initial sizing more accurate.
+
+- Fix to fullscreen modes under Windows (see ``compilation_windows.txt``).

@@ -285,7 +285,7 @@ bool SQLCipherResult::fetchNext(SqlCachedResult::ValueCache& values,
         setAt(QSql::AfterLastRow);
         return false;
     }
-    return false;
+    // will never get here: return false;
 }
 
 
@@ -339,7 +339,7 @@ bool SQLCipherResult::prepare(const QString& query)
 
     setSelect(false);
 
-    const void* pzTail = NULL;
+    const void* pzTail = nullptr;
 
 #if (SQLITE_VERSION_NUMBER >= 3003011)
     int res = sqlite3_prepare16_v2(

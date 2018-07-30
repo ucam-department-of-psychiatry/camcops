@@ -53,7 +53,7 @@ class IDED3D : public Task
 public:
     IDED3D(CamcopsApp& app, DatabaseManager& db,
            int load_pk = dbconst::NONEXISTENT_PK);
-    ~IDED3D();
+    ~IDED3D() override;
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------

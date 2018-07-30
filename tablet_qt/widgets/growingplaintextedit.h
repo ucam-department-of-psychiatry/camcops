@@ -29,7 +29,7 @@ class GrowingPlainTextEdit : public QPlainTextEdit
 public:
     GrowingPlainTextEdit(QWidget* parent = nullptr);
     GrowingPlainTextEdit(const QString& text, QWidget* parent = nullptr);
-    virtual ~GrowingPlainTextEdit();
+    virtual ~GrowingPlainTextEdit() override;
     void setAutoResize(bool auto_resize);
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;

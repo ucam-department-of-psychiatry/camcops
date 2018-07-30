@@ -132,4 +132,68 @@ PROBLEM:
 PROBLEM
 
     *** won't exit after running QolSG
+        ... via an OpenableWidget containing a ScreenLikeGraphicsView
+        ... to CamcopsApp::open(widget, task)
+    ... similarly in HTML fullscreen test, via a HtmlInfoWindow (which is an
+        OpenableWidget) to CamcopsApp::open()
+    ... it's the fullscreen display that screws it up (confirmed via the
+        TestMenu).
 
+    The mouse wheel continues to work (as does the keyboard), but clicks don't,
+    including to the window top icons (app icon, minimize, maximize, close).
+
+    Just entering and leaving fullscreen mode doesn't cause problems (added to
+    TestMenu). It does flag up the difference between "leaving fullscreen"
+    and showNormal(), which also de-maximizes. Note the setVisibility()
+    function, which chooses between showNormal(), showFullscreen(), and others;
+    also the visibility() function, which reads current state. The docs
+    describe this as a convenience function combining the "visible"
+    and "windowStates" APIs.
+
+    The problem goes away if the restoration of the previous window state is
+    commented out from CamcopsApp::closeSubWindow() [formerly ::close()].
+
+    It does *not* go away if that call to setWindowState() is just moved
+    earlier.
+
+    If the call to leaveFullscreen() is removed from closeSubWindow(), the
+    problem appears at the moment leaveFullscreen() is called from the test
+    menu. This feels like a Qt Windows bug.
+
+    Methods:
+    - fullscreen subwindow, auto-return to normal: MOUSE LOST
+    - manual fullscreen, manual normal: OK
+    - manual fullscreen, normal subwindow open, subwindow close, manual normal: OK
+    - fullscreen subwindow, subwindow close (without normal window return),
+      manual normal: MOUSE LOST
+
+    Doesn't go away if top->deleteLater() call removed.
+    Stripping leaveFullscreen() back to the setWindowState() call: no change.
+
+    Try for minimal reproducible example
+        ... with widget that reports keyboard/mouse activity
+        ... problem NOT seen in test_fullscreen.pro.
+    So is it a problem with my "visible stack + hidden stack" concept?
+    What was that for again?
+    I think it was to deal with transparent widgets in a stack; was that right?
+    No, can't have been that; QStackedWidget only shows one at a time.
+    See "July 2017: questionnaire overflowing to right on small phone screens"
+    in layout_notes.txt; that was it.
+    OK, so let's put the hidden stack concept into our test framework.
+    Still works.
+
+    AHA! The thing that screws it up is this call in CamcopsApp::openSubWindow:
+        SlowGuiGuard guard = getSlowGuiGuard();
+    ALSO, it affects whether the app starts "properly maximized"; removing
+    that call makes it start "notionally maximized but actually a small window",
+    meaning that you have to un-maximize then maximize in order to get it
+    properly maximized.
+
+    Moving getSlowGuiGuard() to a more restricted block fixes the problem.
+
+    Then, initial duff-maximization thing fixed by moving the showMaximized()
+    call to the end of CamcopsApp::openMainWindow().
+
+    *** retest under Linux; check that's not broken
+
+- Later: consider Wix for installation; http://wixtoolset.org/

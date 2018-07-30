@@ -171,8 +171,8 @@ int QuSlider::sliderValueFromField(const QVariant& field_value) const
     const double field_from_left = field_value.toDouble() - m_field_minimum;
     const double slider_range = m_maximum - m_minimum;
     const double field_range = m_field_maximum - m_field_minimum;
-    const int slider_pos = (field_from_left * slider_range / field_range) +
-            m_minimum;
+    const int slider_pos = static_cast<int>(
+                field_from_left * slider_range / field_range) + m_minimum;
     return slider_pos;
 }
 

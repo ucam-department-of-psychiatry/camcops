@@ -31,7 +31,7 @@ class DiagnosticCodeSet : public QAbstractItemModel
 public:
     DiagnosticCodeSet(CamcopsApp& app, const QString& setname,
                       const QString& title, QObject* parent = nullptr);
-    ~DiagnosticCodeSet();
+    ~DiagnosticCodeSet() override;
 
     QVariant data(const QModelIndex& index, int role) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;

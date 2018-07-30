@@ -63,7 +63,7 @@ Item {
 
     CameraButton {
         anchors.fill: parent
-        text: popup.currentItem != null ? popup.currentItem.displayName : ""
+        text: popup.currentItem !== null ? popup.currentItem.displayName : ""
 
         onClicked: popup.toggle()
     }

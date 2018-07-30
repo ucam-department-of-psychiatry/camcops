@@ -158,8 +158,8 @@ void Glm::fit(const MatrixXd& predictors,
 
     // Validate input
     bool ok = true;
-    const int n_predictors = nPredictors();
-    const int n_observations = nObservations();
+    const Eigen::Index n_predictors = nPredictors();
+    const Eigen::Index n_observations = nObservations();
     addInfo(QString("Number of observations: %1").arg(n_observations));
     addInfo(QString("Number of predictors: %1").arg(n_predictors));
     if (m_predictors.rows() != n_observations) {  // n
@@ -279,13 +279,13 @@ Eigen::VectorXd* Glm::getWeightsPointer() const
 }
 
 
-int Glm::nObservations() const
+Eigen::Index Glm::nObservations() const
 {
     return m_dependent_variable.rows();
 }
 
 
-int Glm::nPredictors() const
+Eigen::Index Glm::nPredictors() const
 {
     return m_predictors.cols();
 }
@@ -482,7 +482,7 @@ void Glm::fitIRLSKaneLewis()
     const MatrixXd& A = m_predictors;   // n,k
     const ArrayXXd& b = m_dependent_variable.array();  // n,1
     const LinkFunctionFamily& family = m_link_fn_family;
-    const int n_predictors = nPredictors();
+    const Eigen::Index n_predictors = nPredictors();
     using statsfunc::svdSolve;
 
     VectorXd x = VectorXd::Zero(n_predictors);  // k,1
@@ -554,9 +554,9 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
     MatrixXd A = m_predictors;  // nobs,npred
     const ArrayXXd& b = m_dependent_variable.array();  // nobs,1
     const LinkFunctionFamily& family = m_link_fn_family;
-    const int n_predictors = nPredictors();  // = npred
-    const int m = nObservations();  // n (sigh...) = nobs
-    const int& n = n_predictors;  // = npred
+    const Eigen::Index n_predictors = nPredictors();  // = npred
+    const Eigen::Index m = nObservations();  // n (sigh...) = nobs
+    const Eigen::Index& n = n_predictors;  // = npred
     using namespace eigenfunc;
 
     ArrayXd weights(m);  // nobs,1
@@ -570,7 +570,9 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
     if (weights.rows() != m) {
         addError(QString(
                      "'weights' is of length %1, but should match number of "
-                     "observations, %2").arg(weights.rows(), m));
+                     "observations, %2").arg(
+                     QString::number(weights.rows()),
+                     QString::number(m)));
         return;
     }
 
@@ -596,7 +598,7 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
     }
     IndexArray select_pred_indices = indexSeq(0, n_predictors - 1);
     ArrayXb tiny_singular_values = S_d / S_d(0) < m_tolerance;
-    int k = tiny_singular_values.cast<int>().sum();  // number of tiny singular values; ntiny
+    Eigen::Index k = tiny_singular_values.cast<Eigen::Index>().sum();  // number of tiny singular values; ntiny
     if (k > 0) {
         addInfo("Numerically rank-deficient model matrix");
         switch (m_rank_deficiency_method) {
@@ -742,7 +744,7 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
 }
 
 
-eigenfunc::IndexArray Glm::svdsubsel(const MatrixXd& A, int k)
+eigenfunc::IndexArray Glm::svdsubsel(const MatrixXd& A, Eigen::Index k)
 {
     // As per http://bwlewis.github.io/GLM/svdss.html
     // Input:
@@ -760,7 +762,7 @@ eigenfunc::IndexArray Glm::svdsubsel(const MatrixXd& A, int k)
     Q_ASSERT(A.rows() >= A.cols());
     // ... we will force k, as below
 
-    int index_k = k - 1;
+    Eigen::Index index_k = k - 1;
     if (index_k < 0 || index_k >= A.cols()) {
         index_k = A.cols() - 1;
     }
@@ -806,8 +808,8 @@ void Glm::fitIRLSRglmfit()
     using namespace eigenfunc;
 
     // Input parameters and naming
-    const int nobs = nObservations();
-    const int nvars = nPredictors();
+    const Eigen::Index nobs = nObservations();
+    const Eigen::Index nvars = nPredictors();
     const MatrixXd& x = m_predictors;  // nobs,nvars
     ArrayXd y = m_dependent_variable.array();  // nobs,1
     ArrayXd weights(nobs);  // nobs,1

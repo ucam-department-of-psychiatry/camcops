@@ -34,7 +34,7 @@ class GrowingTextEdit : public QTextEdit
 public:
     GrowingTextEdit(QWidget* parent = nullptr);
     GrowingTextEdit(const QString& text, QWidget* parent = nullptr);
-    virtual ~GrowingTextEdit();
+    virtual ~GrowingTextEdit() override;
     void setAutoResize(bool auto_resize);
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;

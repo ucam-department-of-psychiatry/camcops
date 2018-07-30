@@ -133,7 +133,7 @@ QStringList testRandom()
 
     // https://stackoverflow.com/questions/16839658/printf-width-specifier-to-maintain-precision-of-floating-point-value
     auto fullFloat = [](float f) -> QString {
-        return QString::number(f, 'g', 9);
+        return QString::number(static_cast<double>(f), 'g', 9);
     };
     auto fullDouble = [](double d) -> QString {
         return QString::number(d, 'g', 17);

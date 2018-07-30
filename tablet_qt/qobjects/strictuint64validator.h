@@ -31,7 +31,7 @@ public:
     StrictUInt64Validator(quint64 bottom, quint64 top,
                           bool allow_empty = false,
                           QObject* parent = nullptr);
-    virtual ~StrictUInt64Validator();
+    virtual ~StrictUInt64Validator() override;
 
     QValidator::State validate(QString& input, int& pos) const override;
 

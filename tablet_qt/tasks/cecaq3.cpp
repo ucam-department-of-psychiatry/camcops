@@ -730,7 +730,7 @@ OpenableWidget* CecaQ3::editor(const bool read_only)
         }
         return e;
     };
-    auto yn = [this, &connectedfr, &options_yesno]
+    auto yn = [&connectedfr, &options_yesno]
             (CallbackFn callback, const QString& fieldname,
              bool mandatory = false) -> QuElement* {
         return (new QuMcq(connectedfr(callback, fieldname, mandatory),
@@ -739,7 +739,7 @@ OpenableWidget* CecaQ3::editor(const bool read_only)
     auto horizline = []() -> QuElement* {
         return new QuHorizontalLine();
     };
-    auto mcq = [this, &connectedfr]
+    auto mcq = [&connectedfr]
             (CallbackFn callback,
             const QString& fieldname,
             const NameValueOptions& options,

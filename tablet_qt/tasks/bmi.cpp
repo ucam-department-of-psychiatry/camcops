@@ -43,7 +43,7 @@ const QString TAG_MASS_METRIC("mass_metric");
 const QString TAG_MASS_IMPERIAL("mass_imperial");
 const QString TAG_HEIGHT_METRIC("height_metric");
 const QString TAG_HEIGHT_IMPERIAL("height_imperial");
-const int BMI_DP = 2;
+// const int BMI_DP = 2;
 const int METRIC = 0;
 const int IMPERIAL = 1;
 const int BOTH = 2;
@@ -137,8 +137,8 @@ OpenableWidget* Bmi::editor(const bool read_only)
     auto heading = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold(true);
     };
-    auto choose_units = [this](FieldRefPtr fieldref,
-                               const NameValueOptions& options) -> QuElement* {
+    auto choose_units = [](FieldRefPtr fieldref,
+                           const NameValueOptions& options) -> QuElement* {
         return (new QuMcq(fieldref, options))
                 ->setHorizontal(true)
                 ->setAsTextButton(true);

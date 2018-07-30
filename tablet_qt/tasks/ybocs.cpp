@@ -172,7 +172,7 @@ OpenableWidget* Ybocs::editor(const bool read_only)
     auto boldtext = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold(true);
     };
-    auto boldtextRaw = [this](const QString& text) -> QuElement* {
+    auto boldtextRaw = [](const QString& text) -> QuElement* {
         return (new QuText(text))->setBold(true);
     };
 

@@ -32,7 +32,6 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QModelIndex>
-#include <QStackedWidget>
 #include <QStandardItemModel>
 #include <QTreeView>
 #include <QVBoxLayout>

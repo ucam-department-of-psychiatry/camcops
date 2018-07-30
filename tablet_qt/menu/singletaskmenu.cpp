@@ -180,7 +180,7 @@ void SingleTaskMenu::showTaskStatus() const
     QStringList info;
     QString why_not_permissible;
     QString why_not_uploadable;
-    auto add = [this, &info](const char* desc, const QString& value) -> void {
+    auto add = [&info](const char* desc, const QString& value) -> void {
         info.append(QString("%1: %2")
                     .arg(tr(desc),
                          stringfunc::bold(value)));

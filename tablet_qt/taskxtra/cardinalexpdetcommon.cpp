@@ -120,7 +120,7 @@ const QColor BUTTON_BACKGROUND(QCOLOR_MEDIUMBLUE);
 const QColor TEXT_COLOUR(QCOLOR_WHITE);
 const QColor BUTTON_PRESSED_BACKGROUND(QCOLOR_OLIVE);
 const QColor ABORT_BUTTON_BACKGROUND(QCOLOR_DARKRED);
-const qreal TEXT_SIZE_PX = 20;  // will be scaled
+const int TEXT_SIZE_PX = 20;  // will be scaled
 const int BUTTON_RADIUS = 5;
 const int PADDING = 5;
 const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
@@ -138,7 +138,7 @@ const ButtonConfig BASE_BUTTON_CONFIG(
 const ButtonConfig ABORT_BUTTON_CONFIG = BASE_BUTTON_CONFIG.clone()
         .setBackgroundColour(ABORT_BUTTON_BACKGROUND);
 const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
-                                  SCENE_WIDTH, TEXT_ALIGN);
+                                  static_cast<int>(SCENE_WIDTH), TEXT_ALIGN);
 const QColor CONTINUE_BUTTON_BACKGROUND(QCOLOR_DARKGREEN);
 const ButtonConfig CONTINUE_BUTTON_CONFIG = BASE_BUTTON_CONFIG.clone()
         .setBackgroundColour(CONTINUE_BUTTON_BACKGROUND);

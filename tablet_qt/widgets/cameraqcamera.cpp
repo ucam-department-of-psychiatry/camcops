@@ -74,7 +74,6 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QPushButton>
-#include <QStackedWidget>
 #include <QStatusBar>
 #include <QTimer>
 #include <QtQml/QQmlEngine>

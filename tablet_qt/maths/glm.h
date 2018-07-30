@@ -83,8 +83,8 @@ public:
     Eigen::VectorXd getDependentVariable() const;
     Eigen::MatrixXd getPredictors() const;
     Eigen::VectorXd* getWeightsPointer() const;
-    int nObservations() const;
-    int nPredictors() const;
+    Eigen::Index nObservations() const;
+    Eigen::Index nPredictors() const;
 
     // Fit
     void fit(const Eigen::MatrixXd& predictors,  // model matrix (predictors), n_observations x n_predictors
@@ -124,7 +124,7 @@ protected:
     void fitIRLSRglmfit();
 #endif
     Eigen::Array<Eigen::Index, Eigen::Dynamic, 1> svdsubsel(
-            const Eigen::MatrixXd& A, int k);
+            const Eigen::MatrixXd& A, Eigen::Index k);
 
 protected:
     // Config:

@@ -116,7 +116,7 @@ protected:
 
     // New:
     void trimFromCurrentPositionOnwards();
-    void addFirstDynamicPage();
+    void addFirstDynamicPage() override;
     void addAllAccessibleDynamicPages() override;
     bool mayProgress(QuPage* page) const;
 

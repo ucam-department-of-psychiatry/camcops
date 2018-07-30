@@ -34,7 +34,7 @@ struct DqrlsResult {
     Eigen::MatrixXd coefficients;
     // Eigen::ArrayXXd residuals;
     // Eigen::ArrayXXd effects;
-    int rank;
+    Eigen::Index rank;
     // Eigen::ArrayXi pivot;  // INDICES, 0-based here, 1-based in R
     // Eigen::ArrayXd qraux;
     double tol;

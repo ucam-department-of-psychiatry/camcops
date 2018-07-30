@@ -68,7 +68,7 @@ public:
                            int h_spacing = -1, int v_spacing = -1);
     explicit FlowLayoutHfw(int margin = -1,
                            int h_spacing = -1, int v_spacing = -1);
-    ~FlowLayoutHfw();
+    ~FlowLayoutHfw() override;
 
     // QLayout supplies: void addWidget(QWidget* w);  // no alignment option
     // QVBoxLayout/QHBoxLayout supply:

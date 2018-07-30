@@ -58,6 +58,7 @@ void GrowingTextEdit::setAutoResize(const bool auto_resize)
 
 QSize GrowingTextEdit::sizeHint() const
 {
+    ensurePolished();
     QSize size_hint;
     if (m_auto_resize) {
         size_hint = document()->size().toSize();

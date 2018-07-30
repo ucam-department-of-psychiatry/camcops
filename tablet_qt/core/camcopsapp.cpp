@@ -105,6 +105,7 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_p_main_window(nullptr),
     m_p_window_stack(nullptr),
     m_p_hidden_stack(nullptr),
+    m_maximized_before_fullscreen(true),  // true because openMainWindow() goes maximized
     m_patient(nullptr),
     m_netmgr(nullptr),
     m_dpi(uiconst::DEFAULT_DPI)
@@ -772,8 +773,10 @@ void CamcopsApp::initGuiTwoStylesheet()
 
 void CamcopsApp::openMainWindow()
 {
+#ifdef DEBUG_SCREEN_STACK
+    qDebug() << Q_FUNC_INFO;
+#endif
     m_p_main_window = new QMainWindow();
-    m_p_main_window->showMaximized();
     m_p_window_stack = new QStackedWidget(m_p_main_window);
     m_p_hidden_stack = QSharedPointer<QStackedWidget>(new QStackedWidget());
 #if 0  // doesn't work
@@ -786,7 +789,9 @@ void CamcopsApp::openMainWindow()
 #endif
 
     MainMenu* menu = new MainMenu(*this);
-    open(menu);
+    openSubWindow(menu);
+
+    m_p_main_window->showMaximized();
 }
 
 
@@ -834,15 +839,13 @@ SlowGuiGuard CamcopsApp::getSlowGuiGuard(const QString& text,
 }
 
 
-void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
-                      const bool may_alter_task, PatientPtr patient)
+void CamcopsApp::openSubWindow(OpenableWidget* widget, TaskPtr task,
+                               const bool may_alter_task, PatientPtr patient)
 {
     if (!widget) {
         qCritical() << Q_FUNC_INFO << "- attempt to open nullptr";
         return;
     }
-
-    SlowGuiGuard guard = getSlowGuiGuard();
 
     Qt::WindowStates prev_window_state = m_p_main_window->windowState();
     QPointer<OpenableWidget> guarded_widget = widget;
@@ -862,6 +865,13 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
         }
     }
 
+    // ------------------------------------------------------------------------
+    // Set the fullscreen state (before we build, for efficiency)
+    // ------------------------------------------------------------------------
+    bool wants_fullscreen = widget->wantsFullscreen();
+    if (wants_fullscreen) {
+        enterFullscreen();
+    }
 
     // ------------------------------------------------------------------------
     // Add new thing to visible (one-item) "stack"
@@ -872,17 +882,21 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
     // ------------------------------------------------------------------------
     // Build, if the OpenableWidget wants to be built
     // ------------------------------------------------------------------------
-    // qDebug() << Q_FUNC_INFO << "About to build";
-    widget->build();
-    // qDebug() << Q_FUNC_INFO << "Build complete, about to show";
+    {
+        // BEWARE where you put getSlowGuiGuard(); under Windows it can
+        // interfere with entry/exit from fullscreen mode (and screw up mouse
+        // responsiveness afterwards); see compilation_windows.txt
+        SlowGuiGuard guard = getSlowGuiGuard();
+
+        // qDebug() << Q_FUNC_INFO << "About to build";
+        widget->build();
+        // qDebug() << Q_FUNC_INFO << "Build complete, about to show";
+    }
 
     // ------------------------------------------------------------------------
-    // Make it visible; set the fullscreen state
+    // Make it visible
     // ------------------------------------------------------------------------
     m_p_window_stack->setCurrentIndex(index);
-    if (widget->wantsFullscreen()) {
-        enterFullscreen();
-    }
 
     // ------------------------------------------------------------------------
     // Signals
@@ -892,12 +906,13 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
     connect(widget, &OpenableWidget::leaveFullscreen,
             this, &CamcopsApp::leaveFullscreen);
     connect(widget, &OpenableWidget::finished,
-            this, &CamcopsApp::close);
+            this, &CamcopsApp::closeSubWindow);
 
     // ------------------------------------------------------------------------
     // Save information and manage ownership of associated things
     // ------------------------------------------------------------------------
-    m_info_stack.push(OpenableInfo(guarded_widget, task, prev_window_state,
+    m_info_stack.push(OpenableInfo(guarded_widget, task,
+                                   prev_window_state, wants_fullscreen,
                                    may_alter_task, patient));
     // This stores a QSharedPointer to the task (if supplied), so keeping that
     // keeps the task "alive" whilst its widget is doing things.
@@ -905,7 +920,7 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
 }
 
 
-void CamcopsApp::close()
+void CamcopsApp::closeSubWindow()
 {
     // ------------------------------------------------------------------------
     // All done?
@@ -920,6 +935,19 @@ void CamcopsApp::close()
     OpenableInfo info = m_info_stack.pop();
     // on function exit, will delete the task if it's the last pointer to it
     // (... and similarly any patient)
+
+    // ------------------------------------------------------------------------
+    // Determine next fullscreen state
+    // ------------------------------------------------------------------------
+    // If a window earlier in the stack has asked for fullscreen, we will
+    // stay fullscreen.
+    bool want_fullscreen = false;
+    for (const OpenableInfo& info : m_info_stack) {
+        if (info.wants_fullscreen) {
+            want_fullscreen = true;
+            break;
+        }
+    }
 
     // ------------------------------------------------------------------------
     // Get rid of the widget that's closing from the visible stack
@@ -942,6 +970,7 @@ void CamcopsApp::close()
     //      Note: Parent object and parent widget of widget will remain the
     //      QStackedWidget. If the application wants to reuse the removed
     //      widget, then it is recommended to re-parent it.
+    //   ... same for Qt 5.11.
     // - Also:
     //   https://stackoverflow.com/questions/2506625/how-to-delete-a-widget-from-a-stacked-widget-in-qt
     // But this should work regardless:
@@ -953,13 +982,15 @@ void CamcopsApp::close()
     Q_ASSERT(m_p_hidden_stack->count() > 0);  // the m_info_stack.isEmpty() check should exclude this
     QWidget* w = m_p_hidden_stack->widget(m_p_hidden_stack->count() - 1);
     m_p_hidden_stack->removeWidget(w);  // m_p_hidden_stack still owns w
-    int index = m_p_window_stack->addWidget(w);  // m_p_window_stack now owns w
+    const int index = m_p_window_stack->addWidget(w);  // m_p_window_stack now owns w
     m_p_window_stack->setCurrentIndex(index);
 
     // ------------------------------------------------------------------------
-    // Restore fullscreen state
+    // Set next fullscreen state
     // ------------------------------------------------------------------------
-    m_p_main_window->setWindowState(info.prev_window_state);
+    if (!want_fullscreen) {
+        leaveFullscreen();  // will do nothing if we're not fullscreen now
+    }
 
     // ------------------------------------------------------------------------
     // Update objects that care as to changes that may have been wrought
@@ -1006,13 +1037,71 @@ void CamcopsApp::close()
 
 void CamcopsApp::enterFullscreen()
 {
+    // QWidget::showFullScreen does this:
+    //
+    // ensurePolished();
+    // setWindowState((windowState() & ~(Qt::WindowMinimized | Qt::WindowMaximized))
+    //               | Qt::WindowFullScreen);
+    // setVisible(true);
+    // activateWindow();
+
+    // In other words, it clears the maximized flag. So we want this:
+#ifdef DEBUG_SCREEN_STACK
+    qDebug() << Q_FUNC_INFO << "old windowState():" << m_p_main_window->windowState();
+#endif
+    Qt::WindowStates old_state = m_p_main_window->windowState();
+    if (old_state & Qt::WindowFullScreen) {
+        return;  // already fullscreen
+    }
+    m_maximized_before_fullscreen = old_state & Qt::WindowMaximized;
+#ifdef DEBUG_SCREEN_STACK
+    qDebug() << Q_FUNC_INFO
+             << "calling showFullScreen(); m_maximized_before_fullscreen ="
+             << m_maximized_before_fullscreen;
+#endif
     m_p_main_window->showFullScreen();
+#ifdef DEBUG_SCREEN_STACK
+    qDebug() << Q_FUNC_INFO << "new windowState():" << m_p_main_window->windowState();
+#endif
 }
 
 
 void CamcopsApp::leaveFullscreen()
 {
-    m_p_main_window->showNormal();
+    // m_p_main_window->showNormal();
+    //
+    // The docs say: "To return from full-screen mode, call showNormal()."
+    // That's true, but incomplete. Both showFullscreen() and showNormal() turn
+    // off any maximized state. QWidget::showNormal() does this:
+    //
+    // ensurePolished();
+    // setWindowState(windowState() & ~(Qt::WindowMinimized
+    //                                  | Qt::WindowMaximized
+    //                                  | Qt::WindowFullScreen));
+    // setVisible(true);
+    //
+    // We want this:
+#ifdef DEBUG_SCREEN_STACK
+    qDebug() << Q_FUNC_INFO << "old windowState():" << m_p_main_window->windowState();
+#endif
+    Qt::WindowStates old_state = m_p_main_window->windowState();
+    if (!(old_state & Qt::WindowFullScreen)) {
+        return;  // wasn't fullscreen
+    }
+    m_p_main_window->ensurePolished();
+    Qt::WindowStates new_state = (
+        old_state &
+        ~(Qt::WindowMinimized | Qt::WindowMaximized | Qt::WindowFullScreen) |
+        (m_maximized_before_fullscreen ? Qt::WindowMaximized : Qt::WindowNoState)
+    );
+#ifdef DEBUG_SCREEN_STACK
+    qDebug() << Q_FUNC_INFO << "calling setWindowState() with:" << new_state;
+#endif
+    m_p_main_window->setWindowState(new_state);
+    m_p_main_window->setVisible(true);
+#ifdef DEBUG_SCREEN_STACK
+    qDebug() << Q_FUNC_INFO << "new windowState():" << m_p_main_window->windowState();
+#endif
 }
 
 
@@ -1440,16 +1529,16 @@ int CamcopsApp::fontSizePt(uiconst::FontSize fontsize,
 
     switch (fontsize) {
     case uiconst::FontSize::Normal:
-        return factor * 12;
+        return static_cast<int>(factor * 12);
     case uiconst::FontSize::Big:
-        return factor * 14;
+        return static_cast<int>(factor * 14);
     case uiconst::FontSize::Heading:
-        return factor * 16;
+        return static_cast<int>(factor * 16);
     case uiconst::FontSize::Title:
-        return factor * 16;
+        return static_cast<int>(factor * 16);
     case uiconst::FontSize::Menus:
     default:
-        return factor * 12;
+        return static_cast<int>(factor * 12);
     }
 }
 

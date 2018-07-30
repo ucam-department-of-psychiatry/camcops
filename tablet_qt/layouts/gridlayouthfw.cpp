@@ -304,7 +304,7 @@ QSize GridLayoutHfw::findSize(const GeomInfo& gi,
 
 void GridLayoutHfw::setSize(const int r, const int c)
 {
-    if ((int)m_r_stretches.size() < r) {
+    if (static_cast<int>(m_r_stretches.size()) < r) {
         int new_r = qMax(r, m_nrow * 2);
         m_r_stretches.resize(new_r);
         m_r_min_heights.resize(new_r);
@@ -313,7 +313,7 @@ void GridLayoutHfw::setSize(const int r, const int c)
             m_r_min_heights[i] = 0;
         }
     }
-    if ((int)m_c_stretches.size() < c) {
+    if (static_cast<int>(m_c_stretches.size()) < c) {
         int new_c = qMax(c, m_ncol * 2);
         m_c_stretches.resize(new_c);
         m_c_min_widths.resize(new_c);
@@ -570,7 +570,7 @@ void GridLayoutHfw::setupSpacings(QVector<QLayoutStruct>& chain,
     }
 
     for (int c = 0; c < num_columns; ++c) {
-        QQGridBox* previous_box = 0;
+        QQGridBox* previous_box = nullptr;
         int previous_row = -1;       // previous *non-empty* row
 
         for (int r = 0; r < num_rows; ++r) {
@@ -791,9 +791,9 @@ void GridLayoutHfw::distribute(const QRect& layout_rect)
 QLayoutItem* GridLayoutHfw::replaceAt(int index, QLayoutItem* newitem)
 {
     if (!newitem) {
-        return 0;
+        return nullptr;
     }
-    QLayoutItem* item = 0;
+    QLayoutItem* item = nullptr;
     QQGridBox* b = m_things.value(index);
     if (b) {
         item = b->takeItem();

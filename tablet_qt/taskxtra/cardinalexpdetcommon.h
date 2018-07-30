@@ -82,7 +82,7 @@ extern const QColor BUTTON_BACKGROUND;
 extern const QColor TEXT_COLOUR;
 extern const QColor BUTTON_PRESSED_BACKGROUND;
 extern const QColor ABORT_BUTTON_BACKGROUND;
-extern const qreal TEXT_SIZE_PX;
+extern const int TEXT_SIZE_PX;
 extern const int BUTTON_RADIUS;
 extern const int PADDING;
 extern const Qt::Alignment BUTTON_TEXT_ALIGN;

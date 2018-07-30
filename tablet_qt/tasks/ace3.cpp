@@ -304,7 +304,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         return xstring("title_prefix") + QString(" %1").arg(pagenum++) + ": "
                 + tr(title);
     };
-    auto textRaw = [this](const QString& string) -> QuElement* {
+    auto textRaw = [](const QString& string) -> QuElement* {
         return new QuText(string);
     };
     auto text = [this, textRaw](const QString& stringname) -> QuElement* {
@@ -319,7 +319,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
     auto subheading = [this](const QString& stringname) -> QuElement* {
         return (new QuText(xstring(stringname)))->setBold()->setBig();
     };
-    auto instructionRaw = [this](const QString& string) -> QuElement* {
+    auto instructionRaw = [](const QString& string) -> QuElement* {
         return (new QuText(string))->setBold();
     };
     auto instruction = [this, instructionRaw](const QString& stringname) -> QuElement* {
@@ -336,7 +336,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         return new QuBoolean(uifunc::resourceFilename(filenamestem), QSize(),
                              fieldRef(fieldname, mandatory));
     };
-    auto warning = [this](const QString& string) -> QuElement* {
+    auto warning = [](const QString& string) -> QuElement* {
         return (new QuText(string))->setWarning();
     };
 

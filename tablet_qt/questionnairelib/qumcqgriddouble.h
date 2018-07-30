@@ -45,7 +45,7 @@ public:
     QuMcqGridDouble(const QVector<QuestionWithTwoFields>& questions_with_fields,
                     const NameValueOptions& options1,
                     const NameValueOptions& options2);
-    virtual ~QuMcqGridDouble();
+    virtual ~QuMcqGridDouble() override;
     QuMcqGridDouble* setWidth(int question_width,
                               const QVector<int>& option1_widths,
                               const QVector<int>& option2_widths);

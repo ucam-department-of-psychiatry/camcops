@@ -57,7 +57,6 @@ class QLabel;
 class QQuickWidget;
 class QPushButton;
 class QStatusBar;
-class QStackedWidget;
 class QVideoFrame;
 
 

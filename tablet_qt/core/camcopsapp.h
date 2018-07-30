@@ -61,11 +61,12 @@ public:
         OpenableInfo()
         {}
         OpenableInfo(QPointer<OpenableWidget> widget, TaskPtr task,
-                     Qt::WindowStates prev_window_state, bool may_alter_task,
-                     PatientPtr patient) :
+                     Qt::WindowStates prev_window_state, bool wants_fullscreen,
+                     bool may_alter_task, PatientPtr patient) :
             widget(widget),
             task(task),
             prev_window_state(prev_window_state),
+            wants_fullscreen(wants_fullscreen),
             may_alter_task(may_alter_task),
             patient(patient)
         {}
@@ -73,6 +74,7 @@ public:
         QPointer<OpenableWidget> widget;
         TaskPtr task;
         Qt::WindowStates prev_window_state;
+        bool wants_fullscreen;
         bool may_alter_task;
         PatientPtr patient;
     };
@@ -120,9 +122,9 @@ protected:
     // Opening/closing windows
     // ------------------------------------------------------------------------
 public:
-    void open(OpenableWidget* widget, TaskPtr task = TaskPtr(nullptr),
-              bool may_alter_task = false,
-              PatientPtr patient = PatientPtr(nullptr));
+    void openSubWindow(OpenableWidget* widget, TaskPtr task = TaskPtr(nullptr),
+                       bool may_alter_task = false,
+                       PatientPtr patient = PatientPtr(nullptr));
     SlowGuiGuard getSlowGuiGuard(const QString& text = "Opening...",
                                  const QString& title = textconst::PLEASE_WAIT,
                                  int minimum_duration_ms = 100);
@@ -130,7 +132,7 @@ public:
 signals:
     void taskAlterationFinished(TaskPtr task);
 public slots:
-    void close();
+    void closeSubWindow();
     void enterFullscreen();
     void leaveFullscreen();
 
@@ -331,6 +333,7 @@ protected:
     QPointer<QMainWindow> m_p_main_window;
     QPointer<QStackedWidget> m_p_window_stack;
     QSharedPointer<QStackedWidget> m_p_hidden_stack;  // we own it entirely, so QSharedPointer
+    bool m_maximized_before_fullscreen;
     PatientPtr m_patient;
     QStack<OpenableInfo> m_info_stack;
     QMap<QString, StoredVarPtr> m_storedvars;

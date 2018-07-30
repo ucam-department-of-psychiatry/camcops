@@ -60,7 +60,7 @@ bool FixedAreaHfwTestWidget::hasHeightForWidth() const
 
 int FixedAreaHfwTestWidget::heightForWidth(const int width) const
 {
-    return qRound((double)m_area / (double)width);
+    return qRound(static_cast<double>(m_area) / static_cast<double>(width));
     // http://stackoverflow.com/questions/13663545/does-one-double-promote-every-int-in-the-equation-to-double
     // http://stackoverflow.com/questions/5563000/implicit-type-conversion-rules-in-c-operators
 }

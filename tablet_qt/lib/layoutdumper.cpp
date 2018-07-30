@@ -137,7 +137,7 @@ QString getWidgetDescriptor(const QWidget* w)
     }
     return QString("%1<%2 '%3'>")
             .arg(w->metaObject()->className(),
-                 toString((void*)w),
+                 toString(reinterpret_cast<const void*>(w)),
                  w->objectName());
 }
 

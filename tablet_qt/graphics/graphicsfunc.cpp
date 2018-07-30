@@ -375,7 +375,7 @@ void drawText(QPainter& painter, const QPointF& point, const QString& text,
     }
 
     painter.setFont(font);
-    painter.drawText(x, y, text);
+    painter.drawText(static_cast<int>(x), static_cast<int>(y), text);
 }
 
 

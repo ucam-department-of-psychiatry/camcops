@@ -546,7 +546,7 @@ void MenuItem::act(CamcopsApp& app) const
     // ========================================================================
     if (m_p_menuproxy) {
         MenuWindow* pWindow = m_p_menuproxy->create(app);
-        app.open(pWindow);
+        app.openSubWindow(pWindow);
         return;
     }
     if (m_func) {
@@ -555,19 +555,19 @@ void MenuItem::act(CamcopsApp& app) const
     }
     if (m_openable_widget_maker) {
         OpenableWidget* widget = m_openable_widget_maker(app);
-        app.open(widget);
+        app.openSubWindow(widget);
         return;
     }
     if (!m_task_tablename.isEmpty()) {
         SingleTaskMenu* pWindow = new SingleTaskMenu(m_task_tablename, app);
-        app.open(pWindow);
+        app.openSubWindow(pWindow);
         return;
     }
     if (!m_html_item.filename.isEmpty()) {
         HtmlInfoWindow* pWindow = new HtmlInfoWindow(
             app, m_html_item.title, m_html_item.filename,
             m_html_item.icon, m_html_item.fullscreen);
-        app.open(pWindow);
+        app.openSubWindow(pWindow);
         return;
     }
     if (!m_url_item.url.isEmpty()) {

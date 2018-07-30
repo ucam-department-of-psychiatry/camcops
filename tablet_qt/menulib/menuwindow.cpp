@@ -415,7 +415,7 @@ void MenuWindow::viewTask()
             complainTaskNotOfferingEditor();
             return;
         }
-        m_app.open(widget, task);
+        m_app.openSubWindow(widget, task);
 
     } else if (reply == detail) {
         qInfo() << "View detail:" << instance_title;
@@ -473,7 +473,7 @@ void MenuWindow::editTaskConfirmed(const TaskPtr& task)
         return;
     }
     connectQuestionnaireToTask(widget, task.data());
-    m_app.open(widget, task, true);
+    m_app.openSubWindow(widget, task, true);
 }
 
 

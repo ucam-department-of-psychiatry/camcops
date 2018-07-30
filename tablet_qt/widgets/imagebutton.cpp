@@ -153,8 +153,8 @@ void ImageButton::resizeIfNoSize()
 void ImageButton::resizeImages(const double factor)
 {
     m_image_size = QSize(
-        factor * m_normal_pixmap.size().width(),
-        factor * m_normal_pixmap.size().height()
+        static_cast<int>(factor * static_cast<double>(m_normal_pixmap.size().width())),
+        static_cast<int>(factor * static_cast<double>(m_normal_pixmap.size().height()))
     );
     rescale(m_normal_pixmap);
     rescale(m_pressed_pixmap);
