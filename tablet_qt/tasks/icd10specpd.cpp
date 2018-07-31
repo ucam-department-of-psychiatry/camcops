@@ -238,9 +238,11 @@ OpenableWidget* Icd10SpecPD::editor(const bool read_only)
     auto text = [this](const QString& xstringname) -> QuElement* {
         return new QuText(xstring(xstringname));
     };
+#if 0
     auto boldtext = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold();
     };
+#endif
     auto heading = [this](const QString& xstringname) -> QuElement* {
         return new QuHeading(xstring(xstringname));
     };

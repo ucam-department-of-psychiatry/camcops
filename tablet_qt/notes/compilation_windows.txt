@@ -194,6 +194,7 @@ PROBLEM
     Then, initial duff-maximization thing fixed by moving the showMaximized()
     call to the end of CamcopsApp::openMainWindow().
 
-    *** retest under Linux; check that's not broken
+    Then further tweaks to CamcopsApp::leaveFullscreen() because the Windows
+    approach didn't work. Platform-specific choice of code.
 
 - Later: consider Wix for installation; http://wixtoolset.org/

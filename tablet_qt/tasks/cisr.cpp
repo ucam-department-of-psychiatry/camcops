@@ -2980,6 +2980,7 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
                       const NameValueOptions& options) -> QuElement* {
         return new QuMcq(fieldRef(fieldname), options);
     };
+#ifdef DEBUG_SHOW_PAGE_TAGS
     auto addTag = [this, &q](QuPage* p) {
         const QString tag = tagForQuestion(q);
         const QString text = QString("Debugging tags on: %1 (q%2)").arg(
@@ -2988,6 +2989,7 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
         element->setWarning(true);
         p->addElement(element);
     };
+#endif
 
     // Page makers
     auto promptPage = [&title, &prompttext
