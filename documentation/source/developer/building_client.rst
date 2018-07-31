@@ -446,7 +446,8 @@ General
 Android
 ~~~~~~~
 
-Under :menuselection:`Build Settings --> Build Steps --> Build Android APK`:
+Under :menuselection:`Project --> Build Settings --> Build Steps --> Build
+Android APK`:
 
     .. list-table::
         :header-rows: 1
@@ -594,6 +595,8 @@ Google Play Store release history
 +---------------+---------------------+---------------------+------------------+---------+---------+
 | 2.2.4 (beta)  | 6                   | 2.2.4               | 2018-07-18       | 23      | 26      |
 +---------------+---------------------+---------------------+------------------+---------+---------+
+| 2.2.6 (beta)  | 7                   | 2.2.6               | 2018-07-31       | 23      | 26      |
++---------------+---------------------+---------------------+------------------+---------+---------+
 
 
 Notes
@@ -659,6 +662,14 @@ Debugging
 - Phone USB debugging negotiation sometimes takes a while. On the Samsung
   Galaxy phone, the alert light goes red when in Debug mode.
 
+- If a USB Android device appears not to connect (via ``adb devices``), appears
+  then disappears as you connect it (via ``lsusb | wc``), and gives the
+  ``dmesg`` error ``device descriptor read/64, error -71`` or similar, try a
+  different cable (see
+  https://stackoverflow.com/questions/9544557/debian-device-descriptor-read-64-error-71);
+  try also plugging it directly into the computer's USB ports rather than
+  through a hub.
+
 - If you lose the debugger windows in Qt Creator midway through a debug
   session, press Ctrl-4.
 
@@ -683,6 +694,9 @@ Oddities
 
 - The first build can be very slow as it compiles all the resources; this
   usually looks like a process stuck compiling qrc_camcops.cpp to qrc_camcops.o
+
+- If builds are very slow, you may have forgotten to use all your CPU cores;
+  try e.g. ``-j 8`` (for 8 cores) as an argument to make, as above.
 
 - If an Android build fails for a bizarre reason (like garbage in a .java file
   that looks like it's been pre-supplied), delete the whole build directory,

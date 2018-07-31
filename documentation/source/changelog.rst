@@ -1343,3 +1343,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   containing text, which should make initial sizing more accurate.
 
 - Fix to fullscreen modes under Windows (see ``compilation_windows.txt``).
+
+**Server v2.2.7, 2018-07-31**
+
+- Bugfix relating to offset-naive versus offset-aware datetimes in
+  ``cc_user.SecurityLoginFailure.clear_dummy_login_failures_if_necessary``.

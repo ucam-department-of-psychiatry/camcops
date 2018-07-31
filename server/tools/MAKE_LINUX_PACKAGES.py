@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# camcops/server/tools/MAKE_PACKAGE.py
+# camcops/server/tools/MAKE_LINUX_PACKAGES.py
 
 """
 For CentOS, you need to get Python 3 installed. For Centos 6, 64-bit:
@@ -182,10 +182,7 @@ RPMTOPDIR = join(TMPDIR, 'rpmbuild')
 
 SRCSERVERDIR = join(PROJECT_BASE_DIR, 'server')
 DOCROOTDIR = join(PROJECT_BASE_DIR, 'documentation')
-WEBDOCSDIR = join(PROJECT_BASE_DIR, 'website', 'documentation')
 PACKAGEDIR = join(SRCSERVERDIR, 'packagebuild')
-
-# WEB_VERSION_FILES_DIR = join(WEBDOCSDIR, 'version')
 
 DSTDOCDIR = join('/usr/share/doc', PACKAGE)
 WRKDOCDIR = workpath(WRKDIR, DSTDOCDIR)
@@ -341,9 +338,6 @@ parser = argparse.ArgumentParser(
   * The package is checked with Lintian.
 
   * An RPM is built from the .deb package.
-
-  * [Additionally: some files are copied around for the CamCOPS web site. This
-    is suboptimal and to be fixed; see WEBDOCSDIR in MAKE_PACKAGE.py.]
 
 - The user then installs the DEB or RPM file. In addition to installing 
   standard things like man pages, this then:

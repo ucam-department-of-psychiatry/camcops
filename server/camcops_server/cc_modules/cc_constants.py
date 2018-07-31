@@ -157,7 +157,6 @@ ERA_NOW = "NOW"  # defines the current era in database records
 # PDF_ENGINE = "xhtml2pdf"  # working
 PDF_ENGINE = "pdfkit"  # working
 # PDF_ENGINE = "weasyprint"  # working but table <tr> element bugs
-# ... must use double quotes; read by a Perl regex in MAKE_PACKAGE
 # ... value must be one of: xhtml2pdf, weasyprint, pdfkit
 
 # =============================================================================

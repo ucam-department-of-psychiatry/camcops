@@ -411,39 +411,26 @@ Eigen::MatrixXd addOnesAsFirstColumn(const Eigen::MatrixXd& m);
 // Subsetting Eigen arrays and matrices
 // ============================================================================
 
-inline Eigen::Index normalizeIndex(Eigen::Index idx, Eigen::Index size)
-{
-    // Takes an index idx, makes sure it fits within size (cycling if need be),
-    // and returns it.
-    while (idx < 0) {
-        idx += size;
-    }  // because (negative % positive) gives negative
-    return idx % size;
-}
+// Takes an index idx, makes sure it fits within size (cycling if need be),
+// and returns it.
+Eigen::Index normalizeIndex(Eigen::Index idx, Eigen::Index size);
 
 
-inline void calcRowColFromIndex(Eigen::Index idx,
-                                Eigen::Index& row,
-                                Eigen::Index& col,
-                                Eigen::Index n_rows,
-                                Eigen::Index size)
-{
-    // Take an index idx; treat it using R's matrix approach, where the index
-    // increases down columns, then across rows, i.e. COLUMN-MAJOR ORDER:
-    //
-    //      0 3 6
-    //      1 4 7
-    //      2 5 8
-    //
-    // (which is like R except zero-based). Calculate the row and column
-    // indices (also zero-based), using "size" and "n_rows". Return them in
-    // "row" and "col".
-
-    idx = normalizeIndex(idx, size);
-    std::lldiv_t division = std::lldiv(idx, n_rows);
-    col = division.quot;
-    row = division.rem;
-}
+// Take an index idx; treat it using R's matrix approach, where the index
+// increases down columns, then across rows, i.e. COLUMN-MAJOR ORDER:
+//
+//      0 3 6
+//      1 4 7
+//      2 5 8
+//
+// (which is like R except zero-based). Calculate the row and column
+// indices (also zero-based), using "size" and "n_rows". Return them in
+// "row" and "col".
+void calcRowColFromIndex(Eigen::Index idx,
+                         Eigen::Index& row,
+                         Eigen::Index& col,
+                         Eigen::Index n_rows,
+                         Eigen::Index size);
 
 
 template<typename Derived>

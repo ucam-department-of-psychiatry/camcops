@@ -64,9 +64,11 @@ MySQL isn't one of those.
 """
 
 import logging
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+import pendulum
+from pendulum import DateTime as Pendulum
 from sqlalchemy.sql.schema import Column, MetaData, Table
 from sqlalchemy.sql.sqltypes import (
     DateTime, Float, Integer, String, UnicodeText,
@@ -76,6 +78,7 @@ from .cc_sqla_coltypes import DatabaseTitleColType
 from .cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
+    from datetime import datetime
     from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -162,6 +165,17 @@ class ServerSettings(Base):
         comment="Date/time (in UTC) when login failure records were cleared "
                 "for nonexistent users (security feature)"
     )
+
+    def get_last_dummy_login_failure_clearance_pendulum(self) \
+            -> Optional[Pendulum]:
+        """
+        Produces an offset-aware (timezone-aware) version of the raw UTC
+        DATETIME from the database.
+        """
+        dt = self.last_dummy_login_failure_clearance_at_utc  # type: Optional[datetime]  # noqa
+        if dt is None:
+            return None
+        return pendulum.instance(dt, tz=pendulum.UTC)
 
 
 def get_server_settings(req: "CamcopsRequest") -> ServerSettings:

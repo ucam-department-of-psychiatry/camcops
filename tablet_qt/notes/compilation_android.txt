@@ -19,6 +19,9 @@ A. Replace it with custom constructs; see floatbits.h
    - https://stackoverflow.com/questions/16335992/alternative-to-c11s-stdnextafter-and-stdnexttoward-for-c03
    - https://randomascii.wordpress.com/2012/01/23/stupid-float-tricks-2/
 
+Q. 'lldiv_t' is not a member of 'std'
+A. Use std::ldiv()...
+
 -------------------------------------------------------------------------------
 Phase 2: not building/linking
 -------------------------------------------------------------------------------

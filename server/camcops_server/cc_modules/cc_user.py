@@ -263,8 +263,9 @@ class SecurityLoginFailure(Base):
         """
         now = req.now_utc
         ss = req.server_settings
-        if ss.last_dummy_login_failure_clearance_at_utc is not None:
-            elapsed = now - ss.last_dummy_login_failure_clearance_at_utc
+        last_dummy_login_failure_clearance = ss.get_last_dummy_login_failure_clearance_pendulum()  # noqa
+        if last_dummy_login_failure_clearance is not None:
+            elapsed = now - last_dummy_login_failure_clearance
             if elapsed < CLEAR_DUMMY_LOGIN_PERIOD:
                 # We cleared it recently.
                 return
@@ -824,6 +825,9 @@ class UserTests(DemoDatabaseTestCase):
         )
         SecurityLoginFailure.clear_login_failures_for_nonexistent_users(req)
         SecurityLoginFailure.clear_dummy_login_failures_if_necessary(req)
+        SecurityLoginFailure.clear_dummy_login_failures_if_necessary(req)
+        # ... do it twice (we had a bug relating to offset-aware vs
+        # offset-naive date/time objects).
 
         self.assertIsInstance(User.is_username_permissible("some_user"), bool)
         User.take_some_time_mimicking_password_encryption()
