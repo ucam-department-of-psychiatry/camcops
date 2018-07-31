@@ -11,3 +11,4 @@ tablet_qt/camcops_tablet.pro.user
 server/camcops_server.egg-info
 working/*
 
+*.pro.user
