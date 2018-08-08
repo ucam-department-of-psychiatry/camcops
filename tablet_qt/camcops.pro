@@ -766,7 +766,15 @@ SOURCES += main.cpp \
     widgets/verticalscrollareaviewport.cpp \
     menu/setmenukhandaker1.cpp \
     tasks/khandaker1medicalhistory.cpp \
-    questionnairelib/qubackground.cpp
+    questionnairelib/qubackground.cpp \
+    whisker/whiskermanager.cpp \
+    whisker/whiskerapi.cpp \
+    whisker/whiskerconstants.cpp \
+    whisker/whiskercallbackdefinition.cpp \
+    whisker/whiskerworker.cpp \
+    whisker/whiskeroutboundcommand.cpp \
+    whisker/whiskerconnectionstate.cpp \
+    whisker/whiskerinboundmessage.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1137,7 +1145,15 @@ HEADERS += \
     widgets/verticalscrollareaviewport.h \
     menu/setmenukhandaker1.h \
     tasks/khandaker1medicalhistory.h \
-    questionnairelib/qubackground.h
+    questionnairelib/qubackground.h \
+    whisker/whiskermanager.h \
+    whisker/whiskerapi.h \
+    whisker/whiskerconstants.h \
+    whisker/whiskercallbackdefinition.h \
+    whisker/whiskerworker.h \
+    whisker/whiskerconnectionstate.h \
+    whisker/whiskeroutboundcommand.h \
+    whisker/whiskerinboundmessage.h
 
 DISTFILES += \
     LICENSE.txt \

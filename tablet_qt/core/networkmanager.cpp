@@ -135,7 +135,7 @@ NetworkManager::NetworkManager(CamcopsApp& app,
     m_offer_cancel(true),
     m_silent(parent == nullptr),
     m_logbox(nullptr),
-    m_mgr(new QNetworkAccessManager(this))
+    m_mgr(new QNetworkAccessManager(this))  // will be autodeleted by QObject
 {
 }
 

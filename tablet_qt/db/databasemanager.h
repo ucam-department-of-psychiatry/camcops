@@ -39,33 +39,33 @@ class DatabaseManager
 {
     /*
 
-     Called by the main (GUI) thread.
-     Owns and operates a worker thread which handles ALL database comms for
-     a single database, if multithreading mode is used.
+    Called by the main (GUI) thread.
+    Owns and operates a worker thread which handles ALL database comms for
+    a single database, if multithreading mode is used.
 
-     See database_performance.txt
+    See database_performance.txt
 
-     In terms of the number of threads: threads are cheap when they're
-     waiting and we don't really want a single thread having to wait both
-     for "open" requests and for query requests. The thread has to own its
-     database connection fully. So: one thread per database, and one
-     DatabaseManager per database. There should be no file-level crosstalk
-     between the databases (it all goes via CamCOPS) so there is no
-     requirement to synchronize mutexes across >1 database.
+    In terms of the number of threads: threads are cheap when they're
+    waiting and we don't really want a single thread having to wait both
+    for "open" requests and for query requests. The thread has to own its
+    database connection fully. So: one thread per database, and one
+    DatabaseManager per database. There should be no file-level crosstalk
+    between the databases (it all goes via CamCOPS) so there is no
+    requirement to synchronize mutexes across >1 database.
 
-     In terms of the thread control mechanism:
+    In terms of the thread control mechanism:
 
-     There are several ways to operate with QThread:
-     - QThread (owned by creator thread) running a thread with a worker
-       QObject (living in the new, QThread, thread) -- this model has the
-       QThread running an event loop, and allows the worker QThread to
-       receive signals;
-     - subclassing QThread and overriding run(), for when you don't care
-       about event loops or signals.
-     The latter is tempting. However, we do have to deal with waiting for
-     both an exit signal (e.g. an atomic bool), and database events to
-     arrive. In a run() loop, we don't want to "spin" needlessly in what
-     becomes a while(1) loop, like this:
+    There are several ways to operate with QThread:
+    - QThread (owned by creator thread) running a thread with a worker
+      QObject (living in the new, QThread, thread) -- this model has the
+      QThread running an event loop, and allows the worker QThread to
+      receive signals;
+    - subclassing QThread and overriding run(), for when you don't care
+      about event loops or signals.
+    The latter is tempting (and it's what we end up doing). However, we do
+    have to deal with waiting for both an exit signal (e.g. an atomic bool),
+    and database events to arrive. In a run() loop, we don't want to "spin"
+    needlessly in what becomes a while(1) loop, like this:
 
         while (!exit_flag) {
             if (stuff_waiting) {
@@ -74,14 +74,14 @@ class DatabaseManager
             // otherwise loop around and around
         }
 
-      but we can't do this:
+    but we can't do this:
 
         while (!exit_flag) {
             wait_for_stuff_to_arrive_eg_mutex_signal();  // WON'T NOTICE EXIT SIGNAL HERE
             process_stuff();
         }
 
-      so the correct solution may be:
+    so the correct solution may be:
 
         event loop
         -> signal "quit" [well, just QThread::quit()]

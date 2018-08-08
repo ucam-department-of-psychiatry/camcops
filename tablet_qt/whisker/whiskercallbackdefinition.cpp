@@ -17,20 +17,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include "menulib/menuwindow.h"
+#include "whiskercallbackdefinition.h"
 
-
-class WhiskerMenu : public MenuWindow
+WhiskerCallbackDefinition::WhiskerCallbackDefinition()
 {
-    Q_OBJECT
-public:
-    WhiskerMenu(CamcopsApp& app);
-protected:
-    OpenableWidget* configureWhisker(CamcopsApp& app);
-    QString makeTitle(const QString& part1, const QString& part2) const;
-    QString makeHint(const QString& part1, const QString& part2) const;
-    void connectWhisker();
-    void disconnectWhisker();
-    void testWhiskerNetworkLatency();
-};
+
+}

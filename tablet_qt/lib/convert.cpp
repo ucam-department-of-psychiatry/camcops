@@ -40,6 +40,9 @@
 #include "lib/stringfunc.h"
 #include "maths/floatingpoint.h"
 #include "maths/mathfunc.h"
+#include "whisker/whiskerconnectionstate.h"
+#include "whisker/whiskerinboundmessage.h"
+#include "whisker/whiskeroutboundcommand.h"
 
 namespace convert {
 
@@ -65,7 +68,6 @@ const ushort UNICODE_TAB = TAB.unicode();
 const ushort UNICODE_BACKSLASH = BACKSLASH.unicode();
 const ushort UNICODE_SPACE = SPACE.unicode();
 const ushort UNICODE_ZERO = ZERO.unicode();
-
 
 // ============================================================================
 // SQL literals
@@ -749,10 +751,10 @@ QMap<QString, QString> getReplyDict(const QByteArray& data)
     const QList<QByteArray> lines = data.split('\n');
     QMap<QString, QString> dict;
     for (const QByteArray& line : lines) {
-        QRegularExpressionMatch match = RECORD_RE.match(line);
+        const QRegularExpressionMatch match = RECORD_RE.match(line);
         if (match.hasMatch()) {
-            QString key = match.captured(1);
-            QString value = match.captured(2);
+            const QString key = match.captured(1);
+            const QString value = match.captured(2);
             dict[key] = value;
         }
     }
@@ -966,6 +968,18 @@ void registerTypesForQVariant()
 }
 
 
+void registerOtherTypesForSignalsSlots()
+{
+    // Types that need to be registered with qRegisterMetaType() but are not
+    // stored in QVariants, so don't need externally visible type names:
+
+    qRegisterMetaType<WhiskerConnectionState>("WhiskerConnectionState");
+    qRegisterMetaType<WhiskerInboundMessage>("WhiskerInboundMessage");
+    // qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
+    qRegisterMetaType<WhiskerOutboundCommand>("WhiskerOutboundCommand");
+}
+
+
 bool isQVariantOfUserType(const QVariant& v, const QString& type_name)
 {
     // "Is this QVariant one of the user-defined QVariant types?"
@@ -1088,6 +1102,12 @@ void stonesPoundsOuncesFromKilograms(const double kilograms,
     qDebug() << UNIT_CONVERSION << kilograms << "kg ->"
              << stones << "st" << pounds << "lb" << ounces << "oz";
 #endif
+}
+
+
+int msFromMin(const qreal minutes)
+{
+    return qRound(minutes * 60000);
 }
 
 

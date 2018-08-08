@@ -18,6 +18,7 @@
 */
 
 #pragma once
+#include <QAbstractSocket>
 #include <QDebug>
 #include <QMap>
 #include <QSsl>
@@ -148,6 +149,7 @@ QStringList csvStringToQStringList(const QString& str);
 extern const char* TYPENAME_QVECTOR_INT;
 extern const char* TYPENAME_VERSION;
 void registerTypesForQVariant();
+void registerOtherTypesForSignalsSlots();
 bool isQVariantOfUserType(const QVariant& v, const QString& type_name);
 QVector<int> qVariantToIntVector(const QVariant& v);
 
@@ -180,7 +182,8 @@ void stonesPoundsFromKilograms(
 void stonesPoundsOuncesFromKilograms(
         double kilograms, int& stones, int& pounds, double& ounces);
 
-int msFromSec(qreal seconds);
+int msFromMin(qreal minutes);  // max 32-bit signed int is +2,147,483,647 ms = 35,791.39 minutes = 24.8 days
+int msFromSec(qreal seconds);  // ditto
 
 
 // ============================================================================
@@ -213,3 +216,18 @@ void testConversions();
 // ============================================================================
 
 Q_DECLARE_METATYPE(QVector<int>)
+
+// Other signal/slot registrations for Qt core types:
+
+// Q_DECLARE_METATYPE(QAbstractSocket::SocketError)
+//
+// ... Docs at http://doc.qt.io/qt-5/qabstractsocket.html#signals say that
+// "QAbstractSocket::SocketError is not a registered metatype, so for queued
+// connections, you will have to register it with Q_DECLARE_METATYPE() and
+// qRegisterMetaType()" -- however, using
+// Q_DECLARE_METATYPE(QAbstractSocket::SocketError) causes
+// "error: redefinition of ‘struct QMetaTypeId<QAbstractSocket::SocketError>’
+//
+// And indeed, there is "Q_DECLARE_METATYPE(QAbstractSocket::SocketError)"
+// in qabstractsocket.h. See also
+// https://forum.qt.io/topic/61394/qabstractsocket-error-signal-not-emitted/8

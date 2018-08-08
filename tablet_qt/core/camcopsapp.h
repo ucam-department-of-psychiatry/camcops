@@ -40,6 +40,7 @@ class QStackedWidget;
 class QTextStream;
 class SlowGuiGuard;
 class Version;
+class WhiskerManager;
 
 
 class CamcopsApp : public QApplication
@@ -183,7 +184,7 @@ signals:
     // ------------------------------------------------------------------------
 public:
     bool whiskerConnected() const;
-    void setWhiskerConnected(bool connected);
+    WhiskerManager* whiskerManager();
 signals:
     void whiskerConnectionStateChanged(bool connected);
 
@@ -329,7 +330,6 @@ protected:
     TaskFactoryPtr m_p_task_factory;
     void setLockState(LockState lockstate);
     LockState m_lockstate;
-    bool m_whisker_connected;
     QPointer<QMainWindow> m_p_main_window;
     QPointer<QStackedWidget> m_p_window_stack;
     QSharedPointer<QStackedWidget> m_p_hidden_stack;  // we own it entirely, so QSharedPointer
@@ -338,6 +338,7 @@ protected:
     QStack<OpenableInfo> m_info_stack;
     QMap<QString, StoredVarPtr> m_storedvars;
     QSharedPointer<NetworkManager> m_netmgr;
+    WhiskerManager* m_whiskermgr;
     mutable QMap<QString, QVariant> m_cachedvars;
     qreal m_dpi;
 };

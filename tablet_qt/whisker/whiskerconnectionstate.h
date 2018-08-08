@@ -18,19 +18,20 @@
 */
 
 #pragma once
-#include "menulib/menuwindow.h"
+#include <QMetaType>
+#include <QString>
 
 
-class WhiskerMenu : public MenuWindow
-{
-    Q_OBJECT
-public:
-    WhiskerMenu(CamcopsApp& app);
-protected:
-    OpenableWidget* configureWhisker(CamcopsApp& app);
-    QString makeTitle(const QString& part1, const QString& part2) const;
-    QString makeHint(const QString& part1, const QString& part2) const;
-    void connectWhisker();
-    void disconnectWhisker();
-    void testWhiskerNetworkLatency();
+enum class WhiskerConnectionState {
+    A_Disconnected,
+    B_RequestingMain,
+    C_MainConnectedAwaitingImmPort,
+    D_MainConnectedAwaitingCode,
+    E_MainConnectedRequestingImmediate,
+    F_BothConnectedAwaitingLink,
+    G_FullyConnected,
 };
+
+Q_DECLARE_METATYPE(WhiskerConnectionState)
+
+QString whiskerConnectionStateDescription(WhiskerConnectionState state);

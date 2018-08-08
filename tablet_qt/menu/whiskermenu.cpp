@@ -27,6 +27,8 @@
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qupage.h"
+#include "whisker/whiskerconstants.h"
+#include "whisker/whiskermanager.h"
 
 
 WhiskerMenu::WhiskerMenu(CamcopsApp& app) :
@@ -34,9 +36,12 @@ WhiskerMenu::WhiskerMenu(CamcopsApp& app) :
                uifunc::iconFilename(uiconst::ICON_WHISKER))
 {
     m_items = {
-        MenuItem(tr("Connect to Whisker server")),  // ***
-        MenuItem(tr("Disconnect from Whisker server")),  // ***
-        MenuItem(tr("Test network latency to Whisker server")),  // ***
+        MenuItem(tr("Connect to Whisker server"),
+                 std::bind(&WhiskerMenu::connectWhisker, this)),
+        MenuItem(tr("Disconnect from Whisker server"),
+                 std::bind(&WhiskerMenu::disconnectWhisker, this)),
+        MenuItem(tr("Test network latency to Whisker server"),
+                 std::bind(&WhiskerMenu::testWhiskerNetworkLatency, this)),
         MenuItem(
             tr("Configure Whisker"),
             MenuItem::OpenableWidgetMaker(
@@ -45,6 +50,34 @@ WhiskerMenu::WhiskerMenu(CamcopsApp& app) :
             )
         ),
     };
+}
+
+
+void WhiskerMenu::connectWhisker()
+{
+    WhiskerManager* whisker = m_app.whiskerManager();
+    whisker->connectToServer();
+}
+
+
+void WhiskerMenu::disconnectWhisker()
+{
+    WhiskerManager* whisker = m_app.whiskerManager();
+    whisker->disconnectFromServer();
+}
+
+
+void WhiskerMenu::testWhiskerNetworkLatency()
+{
+    WhiskerManager* whisker = m_app.whiskerManager();
+    if (!whisker->isConnected()) {
+        uifunc::alert("Not connected!", whiskerconstants::WHISKER_ALERT_TITLE);
+        return;
+    }
+    int latency_ms = whisker->getNetworkLatencyMs();
+    uifunc::alert(
+                QString("Network latency: %1 ms").arg(latency_ms),
+                whiskerconstants::WHISKER_ALERT_TITLE);
 }
 
 
