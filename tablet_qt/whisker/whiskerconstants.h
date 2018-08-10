@@ -145,6 +145,7 @@ extern const int WHISKER_DEFAULT_TIMEOUT_MS;
 // Interface basics
 // ----------------------------------------------------------------------------
 
+extern const QString SPACE;
 extern const QString EOL;  // Whisker sends (and accepts) LF between responses.
 
 // Remember: C++ raw strings are R"(content)" for "content"
@@ -179,10 +180,12 @@ extern const QString SYNTAX_ERROR_PREFIX;
 extern const QString ERROR_PREFIX;
 
 extern const QString MSG_AUTHENTICATE_CHALLENGE;
-extern const QString MSG_SIZE;
+extern const QString MSG_DURATION;
 extern const QString MSG_EXTENT;
 extern const QString MSG_KEYEVENT_UP;
 extern const QString MSG_KEYEVENT_DOWN;
+extern const QString MSG_SIZE;
+extern const QString MSG_VIDEO_TIME;
 
 // ----------------------------------------------------------------------------
 // Client -> server
@@ -339,6 +342,7 @@ extern const QString VAL_ANALOGUE_EVENTTYPE_ALL;
 extern const QString VAL_ANALOGUE_EVENTTYPE_BELOW;
 extern const QString VAL_ANALOGUE_EVENTTYPE_RANGE;
 extern const QString VAL_BOTH;
+extern const int VAL_BROADCAST_TO_ALL_CLIENTS;
 extern const QString VAL_BRUSH_HATCH_BDIAGONAL;
 extern const QString VAL_BRUSH_HATCH_CROSS;
 extern const QString VAL_BRUSH_HATCH_DIAGCROSS;
@@ -389,6 +393,7 @@ extern const QMap<VideoPlayMode, QString> VIDEO_PLAYMODE_FLAGS;
 extern const QMap<VerticalAlign, QString> VALIGN_FLAGS;
 extern const QMap<HorizontalAlign, QString> HALIGN_FLAGS;
 extern const QMap<TextVerticalAlign, QString> TEXT_VALIGN_FLAGS;
+extern const QMap<TextHorizontalAlign, QString> TEXT_HALIGN_FLAGS;
 extern const QMap<ResetState, QString> LINE_RESET_FLAGS;
 extern const QMap<ToneType, QString> AUDIO_TONE_TYPES;
 extern const QMap<SafetyState, QString> LINE_SAFETY_STATES;

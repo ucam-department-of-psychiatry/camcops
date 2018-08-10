@@ -32,16 +32,46 @@ public:
                           const QDateTime& timestamp = QDateTime(),
                           bool has_server_timestamp = false,
                           qulonglong server_timestamp_ms = 0);
-    void splitServerTimestamp();
+    QString message() const;
+    bool fromImmediateSocket() const;
+    QString causalCommand() const;
     void setCausalCommand(const QString& causal_command);
     bool immediateReplySucceeded() const;
-public:
+    QDateTime timestamp() const;
+    bool hasServerTimestamp() const;
+    qulonglong serverTimestampMs() const;
+    void parseMainSocketMessages();
+    bool isEvent() const;
+    QString event() const;
+    bool isKeyEvent() const;
+    QString keyEvent() const;
+    bool isClientMessage() const;
+    int clientMessageSourceClientNum() const;
+    QString clientMessage() const;
+    bool isWarning() const;
+    bool isSyntaxError() const;
+    bool isError() const;
+    bool isPingAck() const;
+protected:
+    void splitServerTimestamp();
+protected:
     QString m_msg;
     bool m_immediate_socket;
+    QString m_causal_command;
     QDateTime m_timestamp;
     bool m_has_server_timestamp;
     qulonglong m_server_timestamp_ms;
-    QString m_causal_command;
+    bool m_is_event = false;
+    QString m_event;
+    bool m_is_key_event = false;
+    QString m_key_event;
+    bool m_is_client_message = false;
+    int m_client_message_source_clientnum = -1;
+    QString m_client_message;
+    bool m_is_warning = false;
+    bool m_is_syntax_error = false;
+    bool m_is_error = false;
+    bool m_is_ping_ack = false;
 public:
     friend QDebug operator<<(QDebug debug, const WhiskerInboundMessage& s);
 };

@@ -18,10 +18,32 @@
 */
 
 #pragma once
+#include <functional>
+#include <QString>
 
 
 class WhiskerCallbackDefinition
 {
 public:
-    WhiskerCallbackDefinition();
+    using CallbackFunction = std::function<void()>;
+    // ... a function that is called with no parameters and returns void
+public:
+    WhiskerCallbackDefinition(const QString& event,
+                              const CallbackFunction& callback,
+                              const QString& name = "",
+                              int target_n_calls = 0,
+                              bool swallow_event = false);
+    WhiskerCallbackDefinition();  // for QVector
+    QString event() const;
+    QString name() const;
+    bool isDefunct() const;
+    bool swallowEvent() const;
+    void call();
+protected:
+    QString m_event;
+    CallbackFunction m_callback;
+    QString m_name;
+    int m_target_n_calls;
+    bool m_swallow_event;
+    int m_n_calls;
 };

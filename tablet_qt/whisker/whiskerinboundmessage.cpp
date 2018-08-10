@@ -19,6 +19,7 @@
 
 #include "whiskerinboundmessage.h"
 #include "whisker/whiskerconstants.h"
+using namespace whiskerconstants;
 
 
 WhiskerInboundMessage::WhiskerInboundMessage(const QString& msg,
@@ -32,12 +33,14 @@ WhiskerInboundMessage::WhiskerInboundMessage(const QString& msg,
     m_has_server_timestamp(has_timestamp),
     m_server_timestamp_ms(timestamp_ms)
 {
+    splitServerTimestamp();
+    parseMainSocketMessages();
 }
 
 
 void WhiskerInboundMessage::splitServerTimestamp()
 {
-    QRegularExpressionMatch match = whiskerconstants::TIMESTAMP_REGEX.match(m_msg);
+    QRegularExpressionMatch match = TIMESTAMP_REGEX.match(m_msg);
     if (match.hasMatch()) {
         const QString msg = match.captured(1);
         const QString timestamp_str = match.captured(2);
@@ -55,6 +58,24 @@ void WhiskerInboundMessage::splitServerTimestamp()
 }
 
 
+QString WhiskerInboundMessage::message() const
+{
+    return m_msg;
+}
+
+
+bool WhiskerInboundMessage::fromImmediateSocket() const
+{
+    return m_immediate_socket;
+}
+
+
+QString WhiskerInboundMessage::causalCommand() const
+{
+    return m_causal_command;
+}
+
+
 void WhiskerInboundMessage::setCausalCommand(const QString& causal_command)
 {
     m_causal_command = causal_command;
@@ -63,7 +84,144 @@ void WhiskerInboundMessage::setCausalCommand(const QString& causal_command)
 
 bool WhiskerInboundMessage::immediateReplySucceeded() const
 {
-    return m_msg == whiskerconstants::RESPONSE_SUCCESS;
+    return m_msg == RESPONSE_SUCCESS;
+}
+
+
+QDateTime WhiskerInboundMessage::timestamp() const
+{
+    return m_timestamp;
+}
+
+
+bool WhiskerInboundMessage::hasServerTimestamp() const
+{
+    return m_has_server_timestamp;
+}
+
+
+qulonglong WhiskerInboundMessage::serverTimestampMs() const
+{
+    return m_server_timestamp_ms;
+}
+
+
+void WhiskerInboundMessage::parseMainSocketMessages()
+{
+    if (m_immediate_socket) {
+        return;
+    }
+
+    QRegularExpressionMatch event_match = EVENT_REGEX.match(m_msg);
+    if (event_match.hasMatch()) {
+        m_is_event = true;
+        m_event = event_match.captured(1);
+        return;
+    }
+
+    QRegularExpressionMatch key_event_match = KEY_EVENT_REGEX.match(m_msg);
+    if (key_event_match.hasMatch()) {
+        m_is_key_event = true;
+        m_key_event = key_event_match.captured(1);
+        return;
+    }
+
+    QRegularExpressionMatch client_msg_match = CLIENT_MESSAGE_REGEX.match(m_msg);
+    if (client_msg_match.hasMatch()) {
+        m_is_client_message = true;
+        m_client_message_source_clientnum = client_msg_match.captured(1).toInt();
+        m_client_message = client_msg_match.captured(2);
+        return;
+    }
+
+    QRegularExpressionMatch warning_match = WARNING_REGEX.match(m_msg);
+    if (warning_match.hasMatch()) {
+        m_is_warning = true;
+        return;
+    }
+
+    QRegularExpressionMatch syntax_error_match = SYNTAX_ERROR_REGEX.match(m_msg);
+    if (syntax_error_match.hasMatch()) {
+        m_is_syntax_error = true;
+        return;
+    }
+
+    QRegularExpressionMatch error_match = ERROR_REGEX.match(m_msg);
+    if (error_match.hasMatch()) {
+        m_is_error = true;
+        return;
+    }
+
+    if (m_msg == PING_ACK) {
+        m_is_ping_ack = true;
+        return;
+    }
+}
+
+
+bool WhiskerInboundMessage::isEvent() const
+{
+    return m_is_event;
+}
+
+
+QString WhiskerInboundMessage::event() const
+{
+    return m_event;
+}
+
+
+bool WhiskerInboundMessage::isKeyEvent() const
+{
+    return m_is_key_event;
+}
+
+
+QString WhiskerInboundMessage::keyEvent() const
+{
+    return m_key_event;
+}
+
+
+bool WhiskerInboundMessage::isClientMessage() const
+{
+    return m_is_client_message;
+}
+
+
+int WhiskerInboundMessage::clientMessageSourceClientNum() const
+{
+    return m_client_message_source_clientnum;
+}
+
+
+QString WhiskerInboundMessage::clientMessage() const
+{
+    return m_client_message;
+}
+
+
+bool WhiskerInboundMessage::isWarning() const
+{
+    return m_is_warning;
+}
+
+
+bool WhiskerInboundMessage::isSyntaxError() const
+{
+    return m_is_syntax_error;
+}
+
+
+bool WhiskerInboundMessage::isError() const
+{
+    return m_is_error;
+}
+
+
+bool WhiskerInboundMessage::isPingAck() const
+{
+    return m_is_ping_ack;
 }
 
 

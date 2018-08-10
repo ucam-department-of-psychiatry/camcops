@@ -18,8 +18,56 @@
 */
 
 #include "whiskercallbackdefinition.h"
+#include <QDebug>
+
+
+WhiskerCallbackDefinition::WhiskerCallbackDefinition(
+        const QString& event, const CallbackFunction& callback,
+        const QString& name, int target_n_calls, bool swallow_event) :
+    m_event(event),
+    m_callback(callback),
+    m_name(name),
+    m_target_n_calls(target_n_calls),
+    m_swallow_event(swallow_event),
+    m_n_calls(0)
+{
+}
+
 
 WhiskerCallbackDefinition::WhiskerCallbackDefinition()
 {
+    // nasty default constructor used by QVector; UNSAFE
+    // See http://doc.qt.io/qt-5/containers.html#default-constructed-value
+    qWarning() << "Unsafe use of WhiskerCallbackDefinition::WhiskerCallbackDefinition()";
+}
 
+
+QString WhiskerCallbackDefinition::event() const
+{
+    return m_event;
+}
+
+
+QString WhiskerCallbackDefinition::name() const
+{
+    return m_name;
+}
+
+
+bool WhiskerCallbackDefinition::isDefunct() const
+{
+    return m_target_n_calls > 0 && m_n_calls >= m_target_n_calls;
+}
+
+
+bool WhiskerCallbackDefinition::swallowEvent() const
+{
+    return m_swallow_event;
+}
+
+
+void WhiskerCallbackDefinition::call()
+{
+    ++m_n_calls;
+    m_callback();
 }

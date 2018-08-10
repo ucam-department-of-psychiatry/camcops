@@ -38,6 +38,7 @@ const int WHISKER_DEFAULT_TIMEOUT_MS = 5000;
 // Interface basics
 // ----------------------------------------------------------------------------
 
+const QString SPACE(" ");
 const QString EOL("\n");  // Whisker sends (and accepts) LF between responses.
 
 // Remember: C++ raw strings are R"(content)" for "content"
@@ -72,10 +73,12 @@ const QString SYNTAX_ERROR_PREFIX("SyntaxError: ");
 const QString ERROR_PREFIX("Error: ");
 
 const QString MSG_AUTHENTICATE_CHALLENGE("AuthenticateChallenge");
-const QString MSG_SIZE("Size");
+const QString MSG_DURATION("Duration");
 const QString MSG_EXTENT("Extent");
 const QString MSG_KEYEVENT_UP("up");
 const QString MSG_KEYEVENT_DOWN("down");
+const QString MSG_SIZE("Size");
+const QString MSG_VIDEO_TIME("VideoTime");
 
 // ----------------------------------------------------------------------------
 // Client -> server
@@ -232,6 +235,7 @@ const QString VAL_ANALOGUE_EVENTTYPE_ALL("all");
 const QString VAL_ANALOGUE_EVENTTYPE_BELOW("below");
 const QString VAL_ANALOGUE_EVENTTYPE_RANGE("range");
 const QString VAL_BOTH("both");
+const int VAL_BROADCAST_TO_ALL_CLIENTS = -1;
 const QString VAL_BRUSH_HATCH_BDIAGONAL("bdiagonal");
 const QString VAL_BRUSH_HATCH_CROSS("cross");
 const QString VAL_BRUSH_HATCH_DIAGCROSS("diagcross");

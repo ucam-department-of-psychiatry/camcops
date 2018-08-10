@@ -774,7 +774,9 @@ SOURCES += main.cpp \
     whisker/whiskerworker.cpp \
     whisker/whiskeroutboundcommand.cpp \
     whisker/whiskerconnectionstate.cpp \
-    whisker/whiskerinboundmessage.cpp
+    whisker/whiskerinboundmessage.cpp \
+    whisker/whiskerdisplaycachewrapper.cpp \
+    whisker/whiskercallbackhandler.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1153,7 +1155,9 @@ HEADERS += \
     whisker/whiskerworker.h \
     whisker/whiskerconnectionstate.h \
     whisker/whiskeroutboundcommand.h \
-    whisker/whiskerinboundmessage.h
+    whisker/whiskerinboundmessage.h \
+    whisker/whiskerdisplaycachewrapper.h \
+    whisker/whiskercallbackhandler.h
 
 DISTFILES += \
     LICENSE.txt \

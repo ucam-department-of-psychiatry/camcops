@@ -64,7 +64,10 @@ GENERAL THREADING APPROACH FOR WHISKER CLIENT
 
 #include <QObject>
 #include <QPointer>
+#include <QSize>
 #include <QThread>
+#include "whisker/whiskerapi.h"
+#include "whisker/whiskerconstants.h"
 #include "whisker/whiskerconnectionstate.h"
 
 class CamcopsApp;
@@ -77,22 +80,32 @@ class WhiskerManager : public QObject
 {
     Q_OBJECT
 public:
-    WhiskerManager(CamcopsApp& app);
+    WhiskerManager(CamcopsApp& app, const QString& sysevent_prefix = "sys_");
     ~WhiskerManager();
     void sendMain(const QString& command);
     void sendMain(const QStringList& args);
     void sendMain(std::initializer_list<QString> args);
-    void sendImmediateNoReply(const QString& command);
+    void sendImmediateIgnoreReply(const QString& command);
     WhiskerInboundMessage sendImmediateGetReply(const QString& command);
-    bool immBool(const QString& command);
-    bool immBool(const QStringList& args);
-    bool immBool(std::initializer_list<QString> args);
+    QString immResp(const QString& command);
+    QString immResp(const QStringList& args);
+    QString immResp(std::initializer_list<QString> args);
+    bool immBool(const QString& command, bool ignore_reply = false);
+    bool immBool(const QStringList& args, bool ignore_reply = false);
+    bool immBool(std::initializer_list<QString> args, bool ignore_reply = false);
     void connectToServer();
     bool isConnected() const;
-    int getNetworkLatencyMs();  // whiskerconstants::FAILURE_INT for failure
 signals:
     void disconnectFromServer();
     void connectionStateChanged(bool connected);
+    void messageReceived(const WhiskerInboundMessage& msg);
+    void eventReceived(const WhiskerInboundMessage& msg);
+    void keyEventReceived(const WhiskerInboundMessage& msg);
+    void clientMessageReceived(const WhiskerInboundMessage& msg);
+    void warningReceived(const WhiskerInboundMessage& msg);
+    void syntaxErrorReceived(const WhiskerInboundMessage& msg);
+    void errorReceived(const WhiskerInboundMessage& msg);
+    void pingAckReceived(const WhiskerInboundMessage& msg);
     void internalConnectToServer(const QString& host, quint16 port,
                                  int timeout_ms);
     void internalSend(const WhiskerOutboundCommand& cmd);
@@ -104,4 +117,236 @@ protected:
     CamcopsApp& m_app;
     QThread m_worker_thread;
     QPointer<WhiskerWorker> m_worker;
+    QString m_sysevent_prefix;
+    int m_sysevent_counter;
+
+    // ========================================================================
+    // Whisker API
+    // ========================================================================
+public:
+
+    // ------------------------------------------------------------------------
+    // Whisker command set: comms, misc
+    // ------------------------------------------------------------------------
+    bool setTimestamps(bool on, bool ignore_reply = false);
+    bool resetClock(bool ignore_reply = false);
+    QString getServerVersion();
+    float getServerVersionNumeric();
+    unsigned int getServerTimeMs();
+    int getClientNumber();
+    bool permitClientMessages(bool permit, bool ignore_reply = false);
+    bool sendToClient(int clientNum, const QString& message, bool ignore_reply = false);
+    bool setMediaDirectory(const QString& directory, bool ignore_reply = false);
+    bool reportName(const QString& name, bool ignore_reply = false);
+    bool reportStatus(const QString& status, bool ignore_reply = false);
+    bool reportComment(const QString& comment, bool ignore_reply = false);
+    int getNetworkLatencyMs();  // whiskerconstants::FAILURE_INT for failure
+    bool ping();
+    bool shutdown(bool ignore_reply = false);
+    QString authenticateGetChallenge(const QString& package, const QString& client_name);
+    bool authenticateProvideResponse(const QString& response, bool ignore_reply = false);
+
+    // ------------------------------------------------------------------------
+    // Whisker command set: logs
+    // ------------------------------------------------------------------------
+    bool logOpen(const QString& filename, bool ignore_reply = false);
+    bool logSetOptions(const whiskerapi::LogOptions& options, bool ignore_reply = false);
+    bool logPause(bool ignore_reply = false);
+    bool logResume(bool ignore_reply = false);
+    bool logWrite(const QString& msg, bool ignore_reply = false);
+    bool logClose(bool ignore_reply = false);
+
+    // ------------------------------------------------------------------------
+    // Whisker command set: timers
+    // ------------------------------------------------------------------------
+    bool timerSetEvent(const QString& event, unsigned int duration_ms,
+                       int reload_count = 0, bool ignore_reply = false);
+    bool timerClearEvent(const QString& event, bool ignore_reply = false);
+    bool timerClearAllEvents(bool ignore_reply = false);
+
+    // ------------------------------------------------------------------------
+    // Whisker command set: claiming, relinquishing
+    // ------------------------------------------------------------------------
+    bool claimGroup(const QString& group, const QString& prefix = "",
+                    const QString& suffix = "");
+    bool claimLine(
+            unsigned int line_number,
+            bool output,
+            const QString& alias = "",
+            whiskerconstants::ResetState reset_state = whiskerconstants::ResetState::Leave);
+    bool claimLine(
+            const QString& group,
+            const QString& device,
+            bool output,
+            const QString& alias = "",
+            whiskerconstants::ResetState reset_state = whiskerconstants::ResetState::Leave);
+    bool relinquishAllLines(bool ignore_reply = false);
+    bool lineSetAlias(unsigned int line_number, const QString& alias,
+                      bool ignore_reply = false);
+    bool lineSetAlias(const QString& existing_alias, const QString& new_alias,
+                      bool ignore_reply = false);
+    bool claimAudio(unsigned int device_number,  const QString& alias = "");
+    bool claimAudio(const QString& group, const QString& device,
+                    const QString& alias = "");
+    bool audioSetAlias(unsigned int device_number, const QString& alias,
+                       bool ignore_reply = false);
+    bool audioSetAlias(const QString& existing_alias, const QString& new_alias,
+                       bool ignore_reply = false);
+    bool relinquishAllAudio(bool ignore_reply = false);
+    bool claimDisplay(unsigned int display_number, const QString& alias = "");
+    bool claimDisplay(const QString& group, const QString& device,
+                      const QString& alias = "");
+    bool displaySetAlias(unsigned int display_number, const QString& alias,
+                         bool ignore_reply = false);
+    bool displaySetAlias(const QString& existing_alias,
+                         const QString& new_alias, bool ignore_reply = false);
+    bool relinquishAllDisplays(bool ignore_reply = false);
+    bool displayCreateDevice(const QString& name,
+                             whiskerapi::DisplayCreationOptions options);
+    bool displayDeleteDevice(const QString& device, bool ignore_reply = false);
+
+    // ------------------------------------------------------------------------
+    // Whisker command set: lines
+    // ------------------------------------------------------------------------
+    bool lineSetState(const QString& line, bool on, bool ignore_reply = false);
+    bool lineReadState(const QString& line, bool* ok = nullptr);
+    bool lineSetEvent(
+            const QString& line, const QString& event,
+            whiskerconstants::LineEventType event_type = whiskerconstants::LineEventType::On,
+            bool ignore_reply = false);
+    bool lineClearEvent(const QString& event, bool ignore_reply);
+    bool lineClearEventByLine(const QString& line,
+                              whiskerconstants::LineEventType event_type,
+                              bool ignore_reply = false);
+    bool lineClearAllEvents(bool ignore_reply = false);
+    bool lineSetSafetyTimer(const QString& line,
+                            unsigned int time_ms,
+                            whiskerconstants::SafetyState safety_state,
+                            bool ignore_reply = false);
+    bool lineClearSafetyTimer(const QString& line, bool ignore_reply = false);
+
+    // ------------------------------------------------------------------------
+    // Whisker command set: audio
+    // ------------------------------------------------------------------------
+    bool audioPlayWav(const QString& device, const QString& filename,
+                      bool ignore_reply = false);
+    bool audioLoadTone(const QString& device, const QString& sound_name,
+                       unsigned int frequency_hz,
+                       whiskerconstants::ToneType tone_type,
+                       unsigned int duration_ms,
+                       bool ignore_reply = false);
+    bool audioLoadWav(const QString& device, const QString& sound_name,
+                      const QString& filename, bool ignore_reply = false);
+    bool audioPlaySound(const QString& device, const QString& sound_name,
+                        bool loop = false, bool ignore_reply = false);
+    bool audioUnloadSound(const QString& device, const QString& sound_name,
+                          bool ignore_reply = false);
+    bool audioStopSound(const QString& device, const QString& sound_name,
+                        bool ignore_reply = false);
+    bool audioSilenceDevice(const QString& device, bool ignore_reply = false);
+    bool audioUnloadAll(const QString& device, bool ignore_reply = false);
+    bool audioSetSoundVolume(const QString& device, const QString& sound_name,
+                             unsigned int volume, bool ignore_reply = false);
+    bool audioSilenceAllDevices(bool ignore_reply = false);
+    unsigned int audioGetSoundDurationMs(const QString& device,
+                                         const QString& sound_name,
+                                         bool* ok = nullptr);
+
+    // ------------------------------------------------------------------------
+    // Whisker command set: display: display operations
+    // ------------------------------------------------------------------------
+    QSize displayGetSize(const QString& device);
+    bool displayScaleDocuments(const QString& device, bool scale = true,
+                               bool ignore_reply = false);
+    bool displayShowDocument(const QString& device, const QString& doc,
+                             bool ignore_reply = false);
+    bool displayBlank(const QString& device, bool ignore_reply = false);
+
+    // ------------------------------------------------------------------------
+    // Whisker command set: display: document operations
+    // ------------------------------------------------------------------------
+    bool displayCreateDocument(const QString& doc, bool ignore_reply = false);
+    bool displayDeleteDocument(const QString& doc, bool ignore_reply = false);
+    bool displaySetDocumentSize(const QString& doc, const QSize& size,
+                                bool ignore_reply = false);
+    bool displaySetBackgroundColour(const QString& doc, const QColor& colour,
+                                    bool ignore_reply = false);
+    bool displayDeleteObject(const QString& doc, const QString& obj,
+                             bool ignore_reply = false);
+    bool displayAddObject(
+            const QString& doc, const QString& obj,
+            const whiskerapi::DisplayObject& object_definition,
+            bool ignore_reply = false);
+    // ... can be used with any derived class too, e.g. TextObject
+    bool displaySetEvent(
+            const QString& doc, const QString& obj,
+            const QString& event,
+            whiskerconstants::DocEventType event_type = whiskerconstants::DocEventType::TouchDown,
+            bool ignore_reply = false);
+    bool displayClearEvent(
+            const QString& doc, const QString& obj,
+            whiskerconstants::DocEventType event_type = whiskerconstants::DocEventType::TouchDown,
+            bool ignore_reply = false);
+    bool displaySetObjectEventTransparency(
+            const QString& doc, const QString& obj,
+            bool transparent, bool ignore_reply = false);
+    bool displayEventCoords(bool on, bool ignore_reply = false);
+    bool displayBringToFront(const QString& doc, const QString& obj,
+                             bool ignore_reply = false);
+    bool displaySendToBack(const QString& doc, const QString& obj,
+                           bool ignore_reply = false);
+    bool displayKeyboardEvents(
+            const QString& doc,
+            whiskerconstants::KeyEventType key_event_type = whiskerconstants::KeyEventType::Down,
+            bool ignore_reply = false);
+    bool displayCacheChanges(const QString& doc, bool ignore_reply = false);
+    bool displayShowChanges(const QString& doc, bool ignore_reply = false);
+    QSize displayGetDocumentSize(const QString& doc);
+    QRect displayGetObjectExtent(const QString& doc, const QString& obj);
+    bool displaySetBackgroundEvent(
+            const QString& doc, const QString& event,
+            whiskerconstants::DocEventType event_type = whiskerconstants::DocEventType::TouchDown,
+            bool ignore_reply = false);
+    bool displayClearBackgroundEvent(
+            const QString& doc,
+            whiskerconstants::DocEventType event_type = whiskerconstants::DocEventType::TouchDown,
+            bool ignore_reply = false);
+
+    // ------------------------------------------------------------------------
+    // Whisker command set: display: specific object creation
+    // ------------------------------------------------------------------------
+    // ... all superseded by calls to displayAddObject().
+
+    // ------------------------------------------------------------------------
+    // Whisker command set: display: video extras
+    // ------------------------------------------------------------------------
+    bool displaySetAudioDevice(const QString& display_device,
+                               const QString& audio_device,
+                               bool ignore_reply = false);
+    bool videoPlay(const QString& doc, const QString& video,
+                   bool ignore_reply = false);
+    bool videoPause(const QString& doc, const QString& video,
+                    bool ignore_reply = false);
+    bool videoStop(const QString& doc, const QString& video,
+                   bool ignore_reply = false);
+    bool videoTimestamps(bool on, bool ignore_reply = false);
+    unsigned int videoGetTimeMs(const QString& doc, const QString& video,
+                                bool* ok = nullptr);
+    unsigned int videoGetDurationMs(const QString& doc, const QString& video,
+                                    bool* ok = nullptr);
+    bool videoSeekRelative(const QString& doc, const QString& video,
+                           int relative_time_ms, bool ignore_reply = false);
+    bool videoSeekAbsolute(const QString& doc, const QString& video,
+                           unsigned int absolute_time_ms,
+                           bool ignore_reply = false);
+    bool videoSetVolume(const QString& doc, const QString& video,
+                        unsigned int volume, bool ignore_reply = false);
+
+    // ------------------------------------------------------------------------
+    // Shortcuts to Whisker commands
+    // ------------------------------------------------------------------------
+    bool lineOn(const QString& line, bool ignore_reply = false);
+    bool lineOff(const QString& line, bool ignore_reply = false);
+    bool broadcast(const QString& message, bool ignore_reply = false);
+
 };

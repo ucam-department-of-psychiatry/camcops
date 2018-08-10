@@ -28,6 +28,7 @@
 #include "whisker/whiskerapi.h"
 #include "whisker/whiskermanager.h"
 using whiskerapi::msgFromArgs;
+using namespace whiskerconstants;
 
 
 // ============================================================================
@@ -202,7 +203,7 @@ void WhiskerWorker::onImmSocketConnected()
 #endif
     setConnectionState(WhiskerConnectionState::F_BothConnectedAwaitingLink);
     // Special command follows! See pushImmediateReply()
-    WhiskerOutboundCommand cmd({whiskerconstants::CMD_LINK, m_code}, true, true);
+    WhiskerOutboundCommand cmd({CMD_LINK, m_code}, true, true);
     sendToServer(cmd);  // will send only when we quit back to the event loop
 }
 
@@ -267,9 +268,9 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
     qDebug() << Q_FUNC_INFO << msg;
 #endif
 
-    const QString& line = msg.m_msg;
+    const QString& line = msg.message();
 
-    const QRegularExpressionMatch immport_match = whiskerconstants::IMMPORT_REGEX.match(line);
+    const QRegularExpressionMatch immport_match = IMMPORT_REGEX.match(line);
     if (immport_match.hasMatch()) {
         if (m_connection_state != WhiskerConnectionState::C_MainConnectedAwaitingImmPort) {
             qWarning("ImmPort message received at wrong stage");
@@ -284,7 +285,7 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
         return;
     }
 
-    const QRegularExpressionMatch code_match = whiskerconstants::CODE_REGEX.match(line);
+    const QRegularExpressionMatch code_match = CODE_REGEX.match(line);
     if (code_match.hasMatch()) {
         if (m_connection_state != WhiskerConnectionState::D_MainConnectedAwaitingCode) {
             qWarning("Code message received at wrong stage");
@@ -303,8 +304,8 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
         return;
     }
 
-    if (line == whiskerconstants::PING) {
-        WhiskerOutboundCommand cmd(whiskerconstants::PING_ACK, false);
+    if (line == PING) {
+        WhiskerOutboundCommand cmd(PING_ACK, false);
         sendToServer(cmd);
         return;
     }
@@ -325,7 +326,7 @@ void WhiskerWorker::pushImmediateReply(WhiskerInboundMessage& msg)
             return;
         } else {
             qWarning() << "Failed to execute Link command; reply was"
-                       << msg.m_msg;
+                       << msg.message();
             disconnectFromServer();
             return;
         }
@@ -386,7 +387,7 @@ QVector<WhiskerInboundMessage> WhiskerWorker::getIncomingMessagesFromSocket(
 QVector<WhiskerInboundMessage> WhiskerWorker::getIncomingMessagesFromBuffer(
         QString& buffer, bool via_immediate_socket, const QDateTime& timestamp)
 {
-    QStringList strings = buffer.split(whiskerconstants::EOL);
+    QStringList strings = buffer.split(EOL);
     // If the buffer contains complete responses, the last string will be
     // empty. In all cases, the last string is the residual.
     const int length = strings.length();
@@ -396,7 +397,6 @@ QVector<WhiskerInboundMessage> WhiskerWorker::getIncomingMessagesFromBuffer(
     for (int i = 0; i < length - 1; ++i) {  // the messages
         const QString& content = strings.at(i);
         WhiskerInboundMessage msg(content, via_immediate_socket, timestamp);
-        msg.splitServerTimestamp();
         messages.append(msg);
     }
     return messages;
