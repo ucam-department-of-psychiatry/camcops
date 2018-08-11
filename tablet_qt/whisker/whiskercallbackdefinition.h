@@ -19,31 +19,53 @@
 
 #pragma once
 #include <functional>
+#include <QDateTime>
 #include <QString>
+class WhiskerInboundMessage;
 
 
 class WhiskerCallbackDefinition
 {
 public:
-    using CallbackFunction = std::function<void()>;
-    // ... a function that is called with no parameters and returns void
+    using CallbackFunction = std::function<void(const WhiskerInboundMessage&)>;
+    // ... a function that is called with one parameter, a
+    // const WhiskerInboundMessage&, and returns void.
+    //
+    // To pass other arguments, use std::bind to bind them before passing here.
+    //
+    // Note that the function doesn't even need to accept the
+    // WhiskerInboundMessage, if called via std::bind.
+    // See https://stackoverflow.com/questions/29159140/why-stdbind-can-be-assigned-to-argument-mismatched-stdfunction.
+
+    enum class ExpiryType {
+        Infinite,
+        Count,
+        Time,
+        TimeOrCount
+    };
 public:
     WhiskerCallbackDefinition(const QString& event,
                               const CallbackFunction& callback,
                               const QString& name = "",
+                              ExpiryType how_expires = ExpiryType::Infinite,
                               int target_n_calls = 0,
+                              qint64 lifetime_ms = 0,
                               bool swallow_event = false);
     WhiskerCallbackDefinition();  // for QVector
     QString event() const;
     QString name() const;
-    bool isDefunct() const;
+    bool hasExpired(const QDateTime& now) const;
     bool swallowEvent() const;
-    void call();
+    void call(const WhiskerInboundMessage& msg);
 protected:
     QString m_event;
     CallbackFunction m_callback;
     QString m_name;
+    ExpiryType m_how_expires;
     int m_target_n_calls;
+    qint64 m_lifetime_ms;
+    QDateTime m_when_created;
+    QDateTime m_when_expires;
     bool m_swallow_event;
     int m_n_calls;
 };

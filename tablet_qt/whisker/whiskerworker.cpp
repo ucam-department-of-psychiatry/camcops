@@ -103,7 +103,7 @@ void WhiskerWorker::connectToServer(const QString& host, quint16 main_port,
     m_main_socket->connectToHost(host, main_port);
     setConnectionState(WhiskerConnectionState::B_RequestingMain);
 
-    Q_UNUSED(timeout_ms); // *** fix
+    Q_UNUSED(timeout_ms); // *** implement Whisker network timeout(s), or remove
 }
 
 

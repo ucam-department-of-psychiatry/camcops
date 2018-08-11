@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_IS_COMPLETE
+
 #include "photo.h"
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
@@ -86,8 +88,10 @@ QString Photo::infoFilenameStem() const
 
 bool Photo::isComplete() const
 {
-    qDebug() << "valueIsNullOrEmpty(DESCRIPTION)" << valueIsNullOrEmpty(DESCRIPTION);  // ***
-    qDebug() << "valueIsNull(PHOTO_BLOBID)" << valueIsNull(PHOTO_BLOBID);  // ***
+#ifdef DEBUG_IS_COMPLETE
+    qDebug() << "valueIsNullOrEmpty(DESCRIPTION)" << valueIsNullOrEmpty(DESCRIPTION);
+    qDebug() << "valueIsNull(PHOTO_BLOBID)" << valueIsNull(PHOTO_BLOBID);
+#endif
     return !valueIsNullOrEmpty(DESCRIPTION) && !valueIsNull(PHOTO_BLOBID);
 }
 

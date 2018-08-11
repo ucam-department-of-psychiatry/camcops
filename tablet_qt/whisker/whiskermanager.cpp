@@ -196,8 +196,10 @@ void WhiskerManager::internalReceiveFromMainSocket(
 
     // Send the message to specific-purpose receivers
     if (msg.isEvent()) {
-        // *** check for system events +/- bin out
-        emit eventReceived(msg);
+        const bool swallowed = m_internal_callback_handler.processEvent(msg);
+        if (!swallowed && !msg.event().startsWith(m_sysevent_prefix)) {
+            emit eventReceived(msg);
+        }
     } else if (msg.isKeyEvent()) {
         emit keyEventReceived(msg);
     } else if (msg.isClientMessage()) {
@@ -228,126 +230,55 @@ void WhiskerManager::onSocketError(const QString& msg)
 
 
 // ============================================================================
-// API
+// Internals for piped events etc.
 // ============================================================================
 
-/*
+QString WhiskerManager::getNewSysEvent(const QString& suffix)
+{
+    ++m_sysevent_counter;
+    QString event(QString("%1_%2_%3").arg(m_sysevent_prefix,
+                                          QString::number(m_sysevent_counter),
+                                          suffix));
+    return event;
+}
 
 
-***
-
-    # -------------------------------------------------------------------------
-    # Custom event handling, e.g. for line flashing
-    # -------------------------------------------------------------------------
-
-    def get_new_sysevent(self, *args) -> str:
-        self.sysevent_counter += 1
-        return self.sysevent_prefix + "_".join(
-            str(x) for x in [self.sysevent_counter] + list(args)
-        ).replace(" ", "")
-
-    def process_backend_event(self, event: str) -> bool:
-        """Returns True if the backend API has dealt with the event and it
-        doesn't need to go to the main behavioural task."""
-        n_called, swallow_event = self.callback_handler.process_event(event)
-        return (
-            (n_called > 0 and swallow_event) or
-            event.startswith(self.sysevent_prefix)
-        )
-
-    def send_after_delay(self, delay_ms: int, msg: str,
-                         event: str = '') -> None:
-        event = event or self.get_new_sysevent("send", msg)
-        self.timer_set_event(event, delay_ms)
-        self.callback_handler.add_single(event, self._immsend_get_reply, [msg])
-
-    def call_after_delay(self,
-                         delay_ms: int,
-                         callback: Callable[..., None],
-                         args: List[Any] = None,
-                         kwargs: List[Any] = None,
-                         event: str = '') -> None:
-        args = args or []
-        kwargs = kwargs or {}
-        event = event or self.get_new_sysevent("call")
-        self.timer_set_event(event, delay_ms)
-        self.callback_handler.add_single(event, callback, args, kwargs)
-
-    def call_on_event(self,
-                      event: str,
-                      callback: Callable[..., None],
-                      args: List[Any] = None,
-                      kwargs: List[Any] = None,
-                      swallow_event: bool = False) -> None:
-        args = args or []
-        kwargs = kwargs or {}
-        self.callback_handler.add_persistent(event, callback, args, kwargs,
-                                             swallow_event=swallow_event)
-
-    def clear_event_callback(self,
-                             event: str,
-                             callback: Callable[..., None] = None) -> None:
-        self.callback_handler.remove(event, callback=callback)
-
-    def clear_all_callbacks(self) -> None:
-        self.callback_handler.clear()
-
-    def debug_callbacks(self) -> None:
-        self.callback_handler.debug()
-
-    # -------------------------------------------------------------------------
-    # Line flashing
-    # -------------------------------------------------------------------------
-
-    def flash_line_pulses(self,
-                          line: str,
-                          count: int,
-                          on_ms: int,
-                          off_ms: int,
-                          on_at_rest: bool = False) -> int:
-        assert count > 0
-        # Generally better to ping-pong the events, rather than line them up
-        # in advance, in case the user specifies very rapid oscillation that
-        # exceeds the network bandwidth, or something; better to be slow than
-        # to garbage up the sequence.
-        if on_at_rest:
-            # Currently at rest = on.
-            # For 4 flashes:
-            # OFF .. ON .... OFF .. ON .... OFF .. ON .... OFF .. ON
-            on_now = False
-            timing_sequence = [off_ms] + (count - 1) * [on_ms, off_ms]
-        else:
-            # Currently at rest = off.
-            # For 4 flashes:
-            # ON .... OFF .. ON .... OFF .. ON .... OFF .. ON .... OFF
-            on_now = True
-            timing_sequence = [on_ms] + (count - 1) * [off_ms, on_ms]
-        total_duration_ms = sum(timing_sequence)
-        self.flash_line_ping_pong(line, on_now, timing_sequence)
-        return total_duration_ms
-
-    def flash_line_ping_pong(self,
-                             line: str,
-                             on_now: bool,
-                             timing_sequence: List[int]) -> None:
-        """
-        line: line number/name
-        on_now: switch it on or off now?
-        timing_sequence: array of times (in ms) for the next things
-        """
-        self.line_on(line) if on_now else self.line_off(line)
-        if not timing_sequence:
-            return
-        delay_ms = timing_sequence[0]
-        timing_sequence = timing_sequence[1:]
-        event = self.get_new_sysevent(line, "off" if on_now else "on")
-        self.call_after_delay(delay_ms, self.flash_line_ping_pong,
-                              args=[line, not on_now, timing_sequence],
-                              event=event)
+void WhiskerManager::clearAllCallbacks()
+{
+    m_internal_callback_handler.clearEvents();
+}
 
 
-                           */
+void WhiskerManager::sendAfterDelay(unsigned int delay_ms,
+                                    const QString& msg,
+                                    QString event)
+{
+    if (event.isEmpty()) {
+        event = getNewSysEvent(QString("send_%1").arg(msg));
+    }
+    timerSetEvent(event, delay_ms, 0, true);
+    WhiskerCallbackDefinition::CallbackFunction callback =
+            std::bind(&WhiskerManager::sendImmediateIgnoreReply, this, msg);
+    m_internal_callback_handler.addSingle(event, callback);
+}
 
+
+void WhiskerManager::callAfterDelay(
+        unsigned int delay_ms,
+        const WhiskerCallbackDefinition::CallbackFunction& callback,
+        QString event)
+{
+    if (event.isEmpty()) {
+        event = getNewSysEvent("callback");
+    }
+    timerSetEvent(event, delay_ms, 0, true);
+    m_internal_callback_handler.addSingle(event, callback);
+}
+
+
+// ============================================================================
+// API
+// ============================================================================
 
 // ----------------------------------------------------------------------------
 // Whisker command set: comms, misc
@@ -1381,4 +1312,90 @@ bool WhiskerManager::lineOff(const QString& line, bool ignore_reply)
 bool WhiskerManager::broadcast(const QString& message, bool ignore_reply)
 {
     return sendToClient(VAL_BROADCAST_TO_ALL_CLIENTS, message, ignore_reply);
+}
+
+
+// ----------------------------------------------------------------------------
+// Line flashing
+// ----------------------------------------------------------------------------
+
+unsigned int WhiskerManager::flashLinePulses(const QString& line,
+                                             int count,
+                                             unsigned int on_ms,
+                                             unsigned int off_ms,
+                                             bool on_at_rest)
+{
+    // Returns the total estimated time.
+    //
+    // This method uses Whisker timers in a ping-pong fashion.
+    // ALTERNATIVES:
+    // - use Whisker and line up the events in advance
+    //   ... but a risk if the user specifies very rapid oscillation that
+    //       exceeds the network bandwidth, or something; better to be slow
+    //       than to garbage up the sequence.
+    // - use Qt QTimer calls internally
+    //   ... definitely a possibility, but we built Whisker to be particularly
+    //       aggressive about accurate timing; it's a tradeoff between that and
+    //       network delays; a toss-up here.
+
+    if (count == 0) {
+        qWarning() << Q_FUNC_INFO << "count == 0; daft";
+        return 0;
+    }
+
+    if (on_at_rest) {
+        // Assumed to be currently at rest = on.
+        // For 4 flashes:
+        // OFF .. ON .... OFF .. ON .... OFF .. ON .... OFF .. ON
+        //                                                     | time stops
+        flashLinePulsesOff(line, count, on_ms, off_ms, on_at_rest);
+        return count * off_ms + (count - 1) * on_ms;
+    } else {
+        // Assumed to be currently at rest = off.
+        // For 4 flashes:
+        // ON .... OFF .. ON .... OFF .. ON .... OFF .. ON .... OFF
+        //                                                      | time stops
+        flashLinePulsesOn(line, count, on_ms, off_ms, on_at_rest);
+        return count * on_ms + (count - 1) * off_ms;
+    }
+}
+
+
+void WhiskerManager::flashLinePulsesOn(const QString& line,
+                                       int count,
+                                       unsigned int on_ms,
+                                       unsigned int off_ms,
+                                       bool on_at_rest)
+{
+    lineOn(line);
+    if (on_at_rest) {  // cycle complete
+        --count;
+        if (count <= 0) {
+            return;
+        }
+    }
+    WhiskerCallbackDefinition::CallbackFunction callback =
+            std::bind(&WhiskerManager::flashLinePulsesOff, this,
+                      line, count, on_ms, off_ms, on_at_rest);
+    callAfterDelay(on_ms, callback);
+}
+
+
+void WhiskerManager::flashLinePulsesOff(const QString& line,
+                                        int count,
+                                        unsigned int on_ms,
+                                        unsigned int off_ms,
+                                        bool on_at_rest)
+{
+    lineOff(line);
+    if (!on_at_rest) {  // cycle complete
+        --count;
+        if (count <= 0) {
+            return;
+        }
+    }
+    WhiskerCallbackDefinition::CallbackFunction callback =
+            std::bind(&WhiskerManager::flashLinePulsesOn, this,
+                      line, count, on_ms, off_ms, on_at_rest);
+    callAfterDelay(off_ms, callback);
 }

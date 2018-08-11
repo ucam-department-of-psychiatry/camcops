@@ -19,18 +19,28 @@
 
 #include "whiskercallbackdefinition.h"
 #include <QDebug>
+#include "whisker/whiskerinboundmessage.h"
 
 
 WhiskerCallbackDefinition::WhiskerCallbackDefinition(
-        const QString& event, const CallbackFunction& callback,
-        const QString& name, int target_n_calls, bool swallow_event) :
+        const QString& event,
+        const CallbackFunction& callback,
+        const QString& name,
+        ExpiryType how_expires,
+        int target_n_calls,
+        qint64 lifetime_ms,
+        bool swallow_event) :
     m_event(event),
     m_callback(callback),
     m_name(name),
+    m_how_expires(how_expires),
     m_target_n_calls(target_n_calls),
+    m_lifetime_ms(lifetime_ms),
+    m_when_created(QDateTime::currentDateTime()),
     m_swallow_event(swallow_event),
     m_n_calls(0)
 {
+    m_when_expires = m_when_created.addMSecs(lifetime_ms);
 }
 
 
@@ -54,9 +64,20 @@ QString WhiskerCallbackDefinition::name() const
 }
 
 
-bool WhiskerCallbackDefinition::isDefunct() const
+bool WhiskerCallbackDefinition::hasExpired(const QDateTime& now) const
 {
-    return m_target_n_calls > 0 && m_n_calls >= m_target_n_calls;
+    switch (m_how_expires) {
+    case ExpiryType::Infinite:
+        return false;
+    case ExpiryType::Count:
+        return m_n_calls >= m_target_n_calls;
+    case ExpiryType::Time:
+        return now > m_when_expires;
+    case ExpiryType::TimeOrCount:
+        return m_n_calls >= m_target_n_calls || now > m_when_expires;
+    default:
+        return true;  // a bug, so we may as well delete it!
+    }
 }
 
 
@@ -66,8 +87,8 @@ bool WhiskerCallbackDefinition::swallowEvent() const
 }
 
 
-void WhiskerCallbackDefinition::call()
+void WhiskerCallbackDefinition::call(const WhiskerInboundMessage& msg)
 {
     ++m_n_calls;
-    m_callback();
+    m_callback(msg);
 }

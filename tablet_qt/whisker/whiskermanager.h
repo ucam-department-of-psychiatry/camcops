@@ -67,6 +67,7 @@ GENERAL THREADING APPROACH FOR WHISKER CLIENT
 #include <QSize>
 #include <QThread>
 #include "whisker/whiskerapi.h"
+#include "whisker/whiskercallbackhandler.h"
 #include "whisker/whiskerconstants.h"
 #include "whisker/whiskerconnectionstate.h"
 
@@ -114,11 +115,21 @@ public slots:
     void internalReceiveFromMainSocket(const WhiskerInboundMessage& msg);
     void onSocketError(const QString& msg);
 protected:
+    QString getNewSysEvent(const QString& suffix = "");
+    void clearAllCallbacks();
+    void sendAfterDelay(unsigned int delay_ms, const QString& msg,
+                        QString event = "");
+    void callAfterDelay(
+            unsigned int delay_ms,
+            const WhiskerCallbackDefinition::CallbackFunction& callback,
+            QString event = "");
+protected:
     CamcopsApp& m_app;
     QThread m_worker_thread;
     QPointer<WhiskerWorker> m_worker;
     QString m_sysevent_prefix;
-    int m_sysevent_counter;
+    qulonglong m_sysevent_counter;
+    WhiskerCallbackHandler m_internal_callback_handler;
 
     // ========================================================================
     // Whisker API
@@ -349,4 +360,23 @@ public:
     bool lineOff(const QString& line, bool ignore_reply = false);
     bool broadcast(const QString& message, bool ignore_reply = false);
 
+    // ------------------------------------------------------------------------
+    // Line flashing
+    // ------------------------------------------------------------------------
+    unsigned int flashLinePulses(const QString& line,
+                                 int count,
+                                 unsigned int on_ms,
+                                 unsigned int off_ms,
+                                 bool on_at_rest = false);
+protected:
+    void flashLinePulsesOn(const QString& line,
+                           int count,
+                           unsigned int on_ms,
+                           unsigned int off_ms,
+                           bool on_at_rest);
+    void flashLinePulsesOff(const QString& line,
+                            int count,
+                            unsigned int on_ms,
+                            unsigned int off_ms,
+                            bool on_at_rest);
 };

@@ -131,7 +131,7 @@ PROBLEM:
 
 PROBLEM
 
-    *** won't exit after running QolSG
+    won't exit after running QolSG
         ... via an OpenableWidget containing a ScreenLikeGraphicsView
         ... to CamcopsApp::open(widget, task)
     ... similarly in HTML fullscreen test, via a HtmlInfoWindow (which is an

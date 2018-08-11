@@ -20,6 +20,7 @@
 #pragma once
 #include <QVector>
 #include "whisker/whiskercallbackdefinition.h"
+class WhiskerInboundMessage;
 
 
 class WhiskerCallbackHandler
@@ -27,10 +28,12 @@ class WhiskerCallbackHandler
 public:
     WhiskerCallbackHandler();
     void add(
-            int target_n_calls,
             const QString& event,
             const WhiskerCallbackDefinition::CallbackFunction& callback,
             const QString& name = "",
+            WhiskerCallbackDefinition::ExpiryType how_expires = WhiskerCallbackDefinition::ExpiryType::Infinite,
+            int target_n_calls = 0,
+            qint64 lifetime_ms = 0,
             bool swallow_event = true);
     void addSingle(
             const QString& event,
@@ -44,8 +47,11 @@ public:
             bool swallow_event = true);
     void removeByEvent(const QString& event);
     void removeByName(const QString& name);
-    void clear();
-    int processEvent(const QString& event, bool& swallowed);
+    void removeByEventAndName(const QString& event, const QString& name);
+    void clearEvents();
+    bool processEvent(const WhiskerInboundMessage& msg);
+protected:
+    void removeExpiredCallbacks(const QDateTime& now);
 protected:
     QVector<WhiskerCallbackDefinition> m_callbacks;
 };
