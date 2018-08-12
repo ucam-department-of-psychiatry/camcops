@@ -103,7 +103,7 @@ public:
 public:
     static const QString TABLENAME;
 protected:
-    void buildPage();
+    void buildPage(bool read_only);
     void addIdNum();
     void deleteIdNum(int which_idnum);
     void sortIdNums();

@@ -47,8 +47,11 @@ signals:
 public slots:
     void connectToServer(
             const QString& host,
-            quint16 main_port = whiskerconstants::WHISKER_DEFAULT_PORT,
-            int timeout_ms = whiskerconstants::WHISKER_DEFAULT_TIMEOUT_MS);
+            quint16 main_port = whiskerconstants::WHISKER_DEFAULT_PORT
+#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
+            , int timeout_ms = whiskerconstants::WHISKER_DEFAULT_TIMEOUT_MS
+#endif
+        );
     void disconnectFromServer();
     void sendToServer(const WhiskerOutboundCommand& cmd);  // from WhiskerManager
 protected slots:

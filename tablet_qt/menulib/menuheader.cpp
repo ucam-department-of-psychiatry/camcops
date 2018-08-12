@@ -61,6 +61,8 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Main row
     // ------------------------------------------------------------------------
+
+    // Left
     m_top_bar = new BaseWidget();
     HBoxLayout* toprowlayout = new HBoxLayout();
     m_top_bar->setLayout(toprowlayout);
@@ -69,7 +71,7 @@ MenuHeader::MenuHeader(QWidget* parent,
     const Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
     const Qt::Alignment text_align = Qt::AlignLeft | Qt::AlignVCenter;
 
-    // Back button (unless top)
+    // - Back button (unless top)
     if (!top) {
         QAbstractButton* back = new ImageButton(uiconst::CBS_BACK);
         toprowlayout->addWidget(back, 0, button_align);
@@ -78,13 +80,30 @@ MenuHeader::MenuHeader(QWidget* parent,
                 Qt::UniqueConnection);
     }
 
-    // Icon
+    // - Info icons
+    FlowLayoutHfw* info_icons = new FlowLayoutHfw();
+    toprowlayout->addLayout(info_icons);
+    info_icons->setHorizontalAlignmentOfContents(Qt::AlignLeft);
+
+    // ... Whisker
+    m_icon_whisker_connected = uifunc::iconWidget(
+        uifunc::iconFilename(uiconst::ICON_WHISKER), this);
+    info_icons->addWidget(m_icon_whisker_connected);
+    info_icons->setAlignment(m_icon_whisker_connected, button_align);
+    whiskerConnectionStateChanged(m_app.whiskerConnected());
+
+    // Spacing
+    toprowlayout->addStretch();
+
+    // Centre
+
+    // - Icon for current menu
     if (!icon_filename.isEmpty()) {
         QLabel* icon = uifunc::iconWidget(icon_filename, this);
         toprowlayout->addWidget(icon, 0, button_align);
     }
 
-    // Title
+    // - Title
     m_title_label = new LabelWordWrapWide(title);
     m_title_label->setAlignment(text_align);
     m_title_label->setObjectName(cssconst::MENU_WINDOW_TITLE);
@@ -93,7 +112,7 @@ MenuHeader::MenuHeader(QWidget* parent,
     // Spacing
     toprowlayout->addStretch();
 
-    // Right-hand icons
+    // Right-hand icons ("verbs")
     FlowLayoutHfw* rh_icons = new FlowLayoutHfw();
     toprowlayout->addLayout(rh_icons);
     rh_icons->setHorizontalAlignmentOfContents(Qt::AlignRight);
@@ -132,14 +151,7 @@ MenuHeader::MenuHeader(QWidget* parent,
     connect(m_button_add, &QAbstractButton::clicked,
             this, &MenuHeader::addClicked);
 
-    // - Whisker
-    m_icon_whisker_connected = uifunc::iconWidget(
-        uifunc::iconFilename(uiconst::ICON_WHISKER), this);
-    rh_icons->addWidget(m_icon_whisker_connected);
-    rh_icons->setAlignment(m_icon_whisker_connected, button_align);
-    whiskerConnectionStateChanged(m_app.whiskerConnected());
-
-    // - Needs upload
+    // - Needs upload ("upload")
     m_button_needs_upload = new ImageButton(uiconst::ICON_UPLOAD);
     rh_icons->addWidget(m_button_needs_upload, button_align);
     needsUploadChanged(m_app.needsUpload());

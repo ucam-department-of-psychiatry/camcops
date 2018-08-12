@@ -71,7 +71,7 @@ void WhiskerMenu::testWhiskerNetworkLatency()
 {
     WhiskerManager* whisker = m_app.whiskerManager();
     if (!whisker->isConnected()) {
-        uifunc::alert("Not connected!", whiskerconstants::WHISKER_ALERT_TITLE);
+        whisker->alertNotConnected();
         return;
     }
     int latency_ms = whisker->getNetworkLatencyMs();
@@ -90,12 +90,14 @@ OpenableWidget* WhiskerMenu::configureWhisker(CamcopsApp& app)
     const QString address_h = tr("host name or IP address; default: localhost");
 
     FieldRefPtr port_fr = app.storedVarFieldRef(varconst::WHISKER_PORT);
-    const QString port_t = tr("Whisker port");
+    const QString port_t = tr("Whisker main port");
     const QString port_h = tr("default 3233");
 
+#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
     FieldRefPtr timeout_fr = app.storedVarFieldRef(varconst::WHISKER_TIMEOUT_MS);
     const QString timeout_t = tr("Network timeout (ms)");
     const QString timeout_h = tr("e.g. 5000");
+#endif
 
     QuPagePtr page(new QuPage{
         questionnairefunc::defaultGridRawPointer({
@@ -109,12 +111,14 @@ OpenableWidget* WhiskerMenu::configureWhisker(CamcopsApp& app)
                 new QuLineEditInteger(port_fr,
                     uiconst::IP_PORT_MIN, uiconst::IP_PORT_MAX)
             },
+#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
             {
                 makeTitle(timeout_t, timeout_h),
                 new QuLineEditInteger(timeout_fr,
                     uiconst::NETWORK_TIMEOUT_MS_MIN,
                     uiconst::NETWORK_TIMEOUT_MS_MAX)
             },
+#endif
         }, 1, 1),
     });
     page->setTitle(tr("Configure Whisker"));

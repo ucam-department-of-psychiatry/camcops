@@ -659,7 +659,7 @@ QString Patient::oneLineHtmlDetailString() const
 
 OpenableWidget* Patient::editor(const bool read_only)
 {
-    buildPage();
+    buildPage(read_only);
     m_questionnaire = new Questionnaire(m_app, {m_page});
     m_questionnaire->setReadOnly(read_only);
     updateQuestionnaireIndicators();
@@ -667,7 +667,7 @@ OpenableWidget* Patient::editor(const bool read_only)
 }
 
 
-void Patient::buildPage()
+void Patient::buildPage(bool read_only)
 {
     auto addIcon = [this](const QString& name, const QString& tag) {
         QuImage* image = new QuImage(uifunc::iconFilename(name),
@@ -682,7 +682,7 @@ void Patient::buildPage()
     } else {
         m_page->clearElements();
     }
-    m_page->setTitle(tr("Edit patient"));
+    m_page->setTitle(read_only ? tr("View patient") : tr("Edit patient"));
 
     QuGridContainer* grid = new QuGridContainer();
     grid->setColumnStretch(0, 1);
@@ -951,7 +951,7 @@ void Patient::sortIdNums()
 {
     qSort(m_idnums.begin(), m_idnums.end(), PatientIdNumSorter());
     if (m_questionnaire) {
-        buildPage();
+        buildPage(m_questionnaire->readOnly());
         updateQuestionnaireIndicators();
         m_questionnaire->refreshCurrentPage();
     }

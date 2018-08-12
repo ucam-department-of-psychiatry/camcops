@@ -21,7 +21,7 @@
 // debugging #defines
 // ============================================================================
 
-#define DEBUG_WHISKER_MESSAGES
+// #define WHISKERMGR_DEBUG_MESSAGES
 
 // ============================================================================
 // #includes
@@ -82,14 +82,28 @@ void WhiskerManager::connectToServer()
 {
     const QString host = m_app.varString(varconst::WHISKER_HOST);
     const quint16 port = m_app.varInt(varconst::WHISKER_PORT);
+#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
     const int timeout_ms = m_app.varInt(varconst::WHISKER_TIMEOUT_MS);
-    emit internalConnectToServer(host, port, timeout_ms);
+#endif
+    emit internalConnectToServer(
+                host, port
+#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
+                , timeout_ms
+#endif
+    );
 }
 
 
 bool WhiskerManager::isConnected() const
 {
     return m_worker->isImmediateConnected();
+}
+
+
+void WhiskerManager::alertNotConnected() const
+{
+    uifunc::alert(whiskerconstants::NOT_CONNECTED,
+                  whiskerconstants::WHISKER_ALERT_TITLE);
 }
 
 
@@ -114,7 +128,7 @@ void WhiskerManager::sendMain(std::initializer_list<QString> args)
 
 void WhiskerManager::sendImmediateIgnoreReply(const QString& command)
 {
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERMGR_DEBUG_MESSAGES
     qDebug() << "Sending immediate-socket command (for no reply):" << command;
 #endif
     WhiskerOutboundCommand cmd(command, true, true);
@@ -125,16 +139,16 @@ void WhiskerManager::sendImmediateIgnoreReply(const QString& command)
 WhiskerInboundMessage WhiskerManager::sendImmediateGetReply(
         const QString& command)
 {
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERMGR_DEBUG_MESSAGES
     qDebug() << "Sending immediate-socket command:" << command;
 #endif
     WhiskerOutboundCommand cmd(command, true, false);
     emit internalSend(cmd);  // transfer send command to our worker on its socket thread
     WhiskerInboundMessage msg = m_worker->getPendingImmediateReply();
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERMGR_DEBUG_MESSAGES
         qDebug()
-                << "Immediate-socket command" << msg.m_causal_command
-                << "-> reply" << msg.m_msg;
+                << "Immediate-socket command" << msg.causalCommand()
+                << "-> reply" << msg.message();
 #endif
     return msg;
 }
@@ -187,7 +201,7 @@ bool WhiskerManager::immBool(std::initializer_list<QString> args,
 void WhiskerManager::internalReceiveFromMainSocket(
         const WhiskerInboundMessage& msg)
 {
-#ifdef DEBUG_WHISKER_MESSAGES
+#ifdef WHISKERMGR_DEBUG_MESSAGES
     qDebug() << "Received Whisker main-socket message:" << msg;
 #endif
 
@@ -205,10 +219,13 @@ void WhiskerManager::internalReceiveFromMainSocket(
     } else if (msg.isClientMessage()) {
         emit clientMessageReceived(msg);
     } else if (msg.isWarning()) {
+        qWarning().noquote() << WHISKER_SAYS << msg.message();
         emit warningReceived(msg);
     } else if (msg.isSyntaxError()) {
+        qWarning().noquote() << WHISKER_SAYS << msg.message();
         emit syntaxErrorReceived(msg);
     } else if (msg.isError()) {
+        qWarning().noquote() << WHISKER_SAYS << msg.message();
         emit errorReceived(msg);
     } else if (msg.isPingAck()) {
         emit pingAckReceived(msg);
@@ -471,7 +488,7 @@ bool WhiskerManager::timerSetEvent(const QString& event,
 {
     return immBool({
         CMD_TIMER_SET_EVENT,
-        event,
+        quote(event),
         QString::number(duration_ms),
         QString::number(reload_count),
     }, ignore_reply);
@@ -508,7 +525,7 @@ bool WhiskerManager::claimGroup(const QString& group,
 }
 
 
-bool WhiskerManager::claimLine(unsigned int line_number, bool output,
+bool WhiskerManager::lineClaim(unsigned int line_number, bool output,
                                const QString& alias, ResetState reset_state)
 {
     QStringList args{
@@ -524,7 +541,7 @@ bool WhiskerManager::claimLine(unsigned int line_number, bool output,
 }
 
 
-bool WhiskerManager::claimLine(const QString& group, const QString& device,
+bool WhiskerManager::lineClaim(const QString& group, const QString& device,
                                bool output, const QString& alias,
                                ResetState reset_state)
 {
@@ -542,7 +559,7 @@ bool WhiskerManager::claimLine(const QString& group, const QString& device,
 }
 
 
-bool WhiskerManager::relinquishAllLines(bool ignore_reply)
+bool WhiskerManager::lineRelinquishAll(bool ignore_reply)
 {
     return immBool(CMD_LINE_RELINQUISH_ALL, ignore_reply);
 }
@@ -565,7 +582,7 @@ bool WhiskerManager::lineSetAlias(const QString& existing_alias,
 
 
 
-bool WhiskerManager::claimAudio(unsigned int device_number,
+bool WhiskerManager::audioClaim(unsigned int device_number,
                                 const QString& alias)
 {
     QStringList args{
@@ -579,7 +596,7 @@ bool WhiskerManager::claimAudio(unsigned int device_number,
 }
 
 
-bool WhiskerManager::claimAudio(const QString& group, const QString& device,
+bool WhiskerManager::audioClaim(const QString& group, const QString& device,
                                 const QString& alias)
 {
     QStringList args{
@@ -612,13 +629,13 @@ bool WhiskerManager::audioSetAlias(const QString& existing_alias,
 }
 
 
-bool WhiskerManager::relinquishAllAudio(bool ignore_reply)
+bool WhiskerManager::audioRelinquishAll(bool ignore_reply)
 {
     return immBool(CMD_AUDIO_RELINQUISH_ALL, ignore_reply);
 }
 
 
-bool WhiskerManager::claimDisplay(unsigned int display_number,
+bool WhiskerManager::displayClaim(unsigned int display_number,
                                   const QString& alias)
 {
     // Autocreating debug views not supported (see C++ WhiskerClientLib).
@@ -633,7 +650,7 @@ bool WhiskerManager::claimDisplay(unsigned int display_number,
 }
 
 
-bool WhiskerManager::claimDisplay(const QString& group, const QString& device,
+bool WhiskerManager::displayClaim(const QString& group, const QString& device,
                                   const QString& alias)
 {
     // Autocreating debug views not supported (see C++ WhiskerClientLib).
@@ -667,7 +684,7 @@ bool WhiskerManager::displaySetAlias(const QString& existing_alias,
 }
 
 
-bool WhiskerManager::relinquishAllDisplays(bool ignore_reply)
+bool WhiskerManager::displayRelinquishAll(bool ignore_reply)
 {
     return immBool(CMD_DISPLAY_RELINQUISH_ALL, ignore_reply);
 }
@@ -745,7 +762,7 @@ bool WhiskerManager::lineSetEvent(const QString& line, const QString& event,
                                   LineEventType event_type, bool ignore_reply)
 {
     return immBool({
-        CMD_LINE_SET_EVENT, line, LINE_EVENT_TYPES[event_type], event
+        CMD_LINE_SET_EVENT, line, LINE_EVENT_TYPES[event_type], quote(event)
     }, ignore_reply);
 }
 
@@ -1011,8 +1028,8 @@ bool WhiskerManager::displayAddObject(
 
 bool WhiskerManager::displaySetEvent(const QString& doc,
                                      const QString& obj,
-                                     const QString& event,
                                      DocEventType event_type,
+                                     const QString& event,
                                      bool ignore_reply)
 {
     return immBool({
@@ -1155,8 +1172,8 @@ QRect WhiskerManager::displayGetObjectExtent(const QString& doc,
 
 
 bool WhiskerManager::displaySetBackgroundEvent(const QString& doc,
-                                               const QString& event,
                                                DocEventType event_type,
+                                               const QString& event,
                                                bool ignore_reply)
 {
     return immBool({
@@ -1398,4 +1415,59 @@ void WhiskerManager::flashLinePulsesOff(const QString& line,
             std::bind(&WhiskerManager::flashLinePulsesOn, this,
                       line, count, on_ms, off_ms, on_at_rest);
     callAfterDelay(off_ms, callback);
+}
+
+
+void WhiskerManager::disconnectServerAndSignals(QObject* receiver)
+{
+    disconnectAllWhiskerSignals(receiver);
+    emit disconnectFromServer();
+}
+
+
+void WhiskerManager::disconnectAllWhiskerSignals(QObject* receiver)
+{
+    // Boilerplate function to disconnect all signals coming from this
+    // (WhiskerManager) object to any of the receiver's slots.
+
+    disconnect(receiver, nullptr);
+
+    /*
+
+    Internally, this is the sequence:
+
+    [qobject.h]
+
+    inline bool disconnect(const QObject *receiver, const char *member = nullptr) const
+        { return disconnect(this, nullptr, receiver, member); }
+
+    [qobject.cpp]
+
+    bool QObject::disconnect(const QObject *sender, const char *signal,
+                             const QObject *receiver, const char *method)
+    {
+        // ...
+            if (!method) {
+                res |= QMetaObjectPrivate::disconnect(sender, signal_index, smeta, receiver, -1, 0);
+                // i.e. method_index == -1
+        // ...
+    }
+
+    bool QMetaObjectPrivate::disconnect(...)
+    {
+        // ... calls disconnectHelper(), passes along method_index
+    }
+
+    bool QMetaObjectPrivate::disconnectHelper(QObjectPrivate::Connection *c,
+                                              const QObject *receiver, int method_index, void **slot,
+                                              QMutex *senderMutex, DisconnectType disconnectType)
+    {
+        while (c) {
+            if (c->receiver
+                && (receiver == 0 || (c->receiver == receiver
+                               && (method_index < 0 ...
+        // ...
+    }
+
+    */
 }

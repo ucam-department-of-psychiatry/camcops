@@ -129,9 +129,9 @@ void Icd9cm::addSubcodes(const QString& basecode,
                          const QVector<CodeDescriptionPair>& level1)
 {
     for (auto extra1 : level1) {
-        const QString code = QString("%1%2").arg(basecode).arg(extra1.first);
-        const QString desc = QString("%1, %2").arg(basedesc)
-                .arg(xstring(extra1.second));
+        const QString code = QString("%1%2").arg(basecode, extra1.first);
+        const QString desc = QString("%1, %2").arg(
+                    basedesc, xstring(extra1.second));
         addIndividualIcd9cmCode(code, desc);
     }
 }

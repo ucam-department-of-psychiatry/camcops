@@ -123,9 +123,9 @@ void Icd10::addSubcodes(const QString& basecode,
                         const QVector<CodeDescriptionPair>& level1)
 {
     for (auto extra1 : level1) {
-        const QString code = QString("%1%2").arg(basecode).arg(extra1.first);
-        const QString desc = QString("%1: %2").arg(basedesc)
-                .arg(xstring(extra1.second));
+        const QString code = QString("%1%2").arg(basecode, extra1.first);
+        const QString desc = QString("%1: %2").arg(
+                    basedesc, xstring(extra1.second));
         addIndividualIcd10Code(code, desc);
     }
 }
@@ -137,14 +137,14 @@ void Icd10::addSubcodes(const QString& basecode,
                         const QVector<CodeDescriptionPair>& level2)
 {
     for (auto extra1 : level1) {
-        const QString l1code = QString("%1%2").arg(basecode).arg(extra1.first);
-        const QString l1desc = QString("%1: %2").arg(basedesc)
-                .arg(xstring(extra1.second));
+        const QString l1code = QString("%1%2").arg(basecode, extra1.first);
+        const QString l1desc = QString("%1: %2").arg(
+                    basedesc, xstring(extra1.second));
         addIndividualIcd10Code(l1code, l1desc);
         for (auto extra2 : level2) {
-            const QString l2code = QString("%1%2").arg(l1code).arg(extra2.first);
-            const QString l2desc = QString("%1: %2").arg(l1desc)
-                    .arg(xstring(extra2.second));
+            const QString l2code = QString("%1%2").arg(l1code, extra2.first);
+            const QString l2desc = QString("%1: %2").arg(
+                        l1desc, xstring(extra2.second));
             addIndividualIcd10Code(l2code, l2desc);
         }
     }
@@ -245,8 +245,8 @@ void Icd10::addSubstance(const QString& basecode, const QString& basedesc)
         if (alcohol && subcode == ".26") {
             subdesc += xstring("substance_26_alcohol_suffix");
         }
-        const QString code = QString("%1%2").arg(basecode).arg(subcode);
-        const QString desc = QString("%1: %2").arg(basedesc).arg(subdesc);
+        const QString code = QString("%1%2").arg(basecode, subcode);
+        const QString desc = QString("%1: %2").arg(basedesc, subdesc);
         addIndividualIcd10Code(code, desc);
     }
 }

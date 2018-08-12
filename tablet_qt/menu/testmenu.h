@@ -20,8 +20,8 @@
 #pragma once
 #include <QSharedPointer>
 #include "menulib/menuwindow.h"
-
 class QMediaPlayer;
+class WhiskerInboundMessage;
 
 
 class TestMenu : public MenuWindow
@@ -49,6 +49,11 @@ protected:
     void testEigenFunctions();
     void testRandom();
     void testLogisticRegression();
+    void configureDemoWhiskerTask();
+    void runDemoWhiskerTask();
+
+protected slots:
+    void whiskerEventReceived(const WhiskerInboundMessage& msg);
 
 protected:
     QSharedPointer<QMediaPlayer> m_player;

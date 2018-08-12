@@ -19,6 +19,8 @@
 
 #pragma once
 
+// #define WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
+
 #include <QColor>
 #include <QMap>
 #include <QRegularExpression>
@@ -411,5 +413,7 @@ extern const QMap<BrushHatchStyle, QString> BRUSH_HATCH_VALUES;
 extern const int FAILURE_INT;
 
 extern const QString WHISKER_ALERT_TITLE;
+extern const QString NOT_CONNECTED;
+extern const QString WHISKER_SAYS;
 
 }  // namespace whiskerconstants

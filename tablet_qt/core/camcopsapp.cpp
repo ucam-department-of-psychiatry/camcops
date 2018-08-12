@@ -579,7 +579,9 @@ void CamcopsApp::createStoredVars()
     // Whisker
     createVar(varconst::WHISKER_HOST, QVariant::String, whiskerconstants::WHISKER_DEFAULT_HOST);
     createVar(varconst::WHISKER_PORT, QVariant::Int, whiskerconstants::WHISKER_DEFAULT_PORT);
+#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
     createVar(varconst::WHISKER_TIMEOUT_MS, QVariant::Int, whiskerconstants::WHISKER_DEFAULT_TIMEOUT_MS);
+#endif
 
     // Terms and conditions
     createVar(varconst::AGREED_TERMS_AT, QVariant::DateTime);

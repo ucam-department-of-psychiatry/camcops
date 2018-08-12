@@ -753,9 +753,9 @@ QString SettingsMenu::makeTitle(const QString& part1,
 {
     QString result;
     if (part2.isEmpty()) {
-        result = QString("<b>%1%2</b>").arg(part1).arg(colon ? ":" : "");
+        result = QString("<b>%1%2</b>").arg(part1, colon ? ":" : "");
     } else {
-        result = QString("<b>%1</b> (%2)").arg(part1).arg(part2);
+        result = QString("<b>%1</b> (%2)").arg(part1, part2);
         if (colon) {
             result += ":";
         }

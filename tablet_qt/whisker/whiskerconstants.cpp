@@ -374,5 +374,7 @@ const QMap<BrushHatchStyle, QString> BRUSH_HATCH_VALUES{
 const int FAILURE_INT = -1;
 
 const QString WHISKER_ALERT_TITLE("Whisker");
+const QString NOT_CONNECTED("Not connected");
+const QString WHISKER_SAYS("Whisker says:");
 
 }  // namespace whiskerconstants

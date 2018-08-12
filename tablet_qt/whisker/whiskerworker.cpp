@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_SOCKETS
+// #define WHISKERWORKER_DEBUG_SOCKETS
 #define ONLY_ONE_IMM_COMMAND_AT_A_TIME
 
 #include "whiskerworker.h"
@@ -53,7 +53,7 @@ WhiskerWorker::WhiskerWorker(WhiskerManager* manager) :
     m_main_socket(new QTcpSocket(this)),  // will be autodeleted by QObject
     m_immediate_socket(new QTcpSocket(this))  // will be autodeleted by QObject
 {
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
 #endif
     Q_ASSERT(manager);
@@ -86,10 +86,13 @@ WhiskerWorker::WhiskerWorker(WhiskerManager* manager) :
 }
 
 
-void WhiskerWorker::connectToServer(const QString& host, quint16 main_port,
-                                    int timeout_ms)
+void WhiskerWorker::connectToServer(const QString& host, quint16 main_port
+#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
+                                    , int timeout_ms
+#endif
+                                    )
 {
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
 #endif
     qInfo().nospace()
@@ -103,7 +106,9 @@ void WhiskerWorker::connectToServer(const QString& host, quint16 main_port,
     m_main_socket->connectToHost(host, main_port);
     setConnectionState(WhiskerConnectionState::B_RequestingMain);
 
-    Q_UNUSED(timeout_ms); // *** implement Whisker network timeout(s), or remove
+#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
+    Q_UNUSED(timeout_ms); // implement Whisker network timeout(s), or remove
+#endif
 }
 
 
@@ -112,7 +117,7 @@ void WhiskerWorker::disconnectFromServer()
     // This function may be called directly and triggered by sockets closing,
     // including as a result of what we do here, so make sure it's happy with
     // recursive/multiple calls.
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
 #endif
     if (m_immediate_socket->state() != QTcpSocket::UnconnectedState) {
@@ -121,13 +126,16 @@ void WhiskerWorker::disconnectFromServer()
     if (m_main_socket->state() != QTcpSocket::UnconnectedState) {
         m_main_socket->disconnectFromHost();
     }
+    if (m_connection_state != WhiskerConnectionState::A_Disconnected) {
+        qInfo() << "Disconnecting from Whisker server";
+    }
     setConnectionState(WhiskerConnectionState::A_Disconnected);
 }
 
 
 void WhiskerWorker::sendToServer(const WhiskerOutboundCommand& cmd)
 {
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO << cmd;
 #endif
     if (cmd.m_immediate_socket) {
@@ -143,7 +151,7 @@ void WhiskerWorker::sendToServer(const WhiskerOutboundCommand& cmd)
             m_imm_commands_awaiting_reply.push_back(cmd);
             m_mutex_imm.unlock();
         }
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO << "Writing to immediate socket:" << cmd.bytes();
 #endif
         m_immediate_socket->write(cmd.bytes());
@@ -152,7 +160,7 @@ void WhiskerWorker::sendToServer(const WhiskerOutboundCommand& cmd)
             qWarning() << Q_FUNC_INFO << "Attempt to write to closed main socket";
             return;
         }
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO << "Writing to main socket:" << cmd.bytes();
 #endif
         m_main_socket->write(cmd.bytes());
@@ -162,12 +170,12 @@ void WhiskerWorker::sendToServer(const WhiskerOutboundCommand& cmd)
 
 void WhiskerWorker::setConnectionState(WhiskerConnectionState state)
 {
-#ifdef DEBUG_SOCKETS
-    qDebug().noquote() << Q_FUNC_INFO << whiskerConnectionStateDescription(state);
-#endif
     if (state == m_connection_state) {
         return;
     }
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
+    qDebug() << "New Whisker connection state:" << whiskerConnectionStateDescription(state);
+#endif
     m_connection_state = state;
     emit connectionStateChanged(state);
 }
@@ -189,7 +197,7 @@ bool WhiskerWorker::isImmediateConnected() const
 
 void WhiskerWorker::onMainSocketConnected()
 {
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
 #endif
     setConnectionState(WhiskerConnectionState::C_MainConnectedAwaitingImmPort);
@@ -198,7 +206,7 @@ void WhiskerWorker::onMainSocketConnected()
 
 void WhiskerWorker::onImmSocketConnected()
 {
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
 #endif
     setConnectionState(WhiskerConnectionState::F_BothConnectedAwaitingLink);
@@ -210,7 +218,7 @@ void WhiskerWorker::onImmSocketConnected()
 
 void WhiskerWorker::onAnySocketDisconnected()
 {
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
 #endif
     disconnectFromServer();
@@ -264,7 +272,7 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
     // Handle the low-level connection messages, and pass anything else on
     // via our signals.
 
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO << msg;
 #endif
 
@@ -278,7 +286,7 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
             return;
         }
         m_imm_port = immport_match.captured(1).toInt();
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
         qDebug() << "Whisker server offers immediate port" << m_imm_port;
 #endif
         setConnectionState(WhiskerConnectionState::D_MainConnectedAwaitingCode);
@@ -293,7 +301,7 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
             return;
         }
         m_code = code_match.captured(1);
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
         qDebug() << "Whisker server has provided code for immediate port";
 #endif
         qInfo().nospace()
@@ -316,12 +324,16 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
 
 void WhiskerWorker::pushImmediateReply(WhiskerInboundMessage& msg)
 {
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
 #endif
     if (m_connection_state == WhiskerConnectionState::F_BothConnectedAwaitingLink) {
         // Special!
         if (msg.immediateReplySucceeded()) {
+            qInfo().nospace()
+                    << "Fully connected to Whisker server: host " << m_host
+                    << ", main port " << m_main_port
+                    << ", immediate port " << m_imm_port;
             setConnectionState(WhiskerConnectionState::G_FullyConnected);
             return;
         } else {
@@ -348,19 +360,19 @@ void WhiskerWorker::pushImmediateReply(WhiskerInboundMessage& msg)
 WhiskerInboundMessage WhiskerWorker::getPendingImmediateReply()
 {
     // CALLED FROM A DIFFERENT THREAD
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
 #endif
     m_mutex_imm.lock();
     if (m_imm_replies_awaiting_collection.isEmpty()) {  // must hold mutex to read this
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
         qDebug() << Q_FUNC_INFO << "waiting for a reply...";
 #endif
         m_immediate_reply_arrived.wait(&m_mutex_imm);  // woken by: pushImmediateReply()
         // ... this mutex is UNLOCKED as we go to sleep, and LOCKED
         //     as we wake: http://doc.qt.io/qt-5/qwaitcondition.html#wait
         Q_ASSERT(!m_imm_replies_awaiting_collection.isEmpty());
-#ifdef DEBUG_SOCKETS
+#ifdef WHISKERWORKER_DEBUG_SOCKETS
         qDebug() << Q_FUNC_INFO << "... reply ready";
 #endif
     }

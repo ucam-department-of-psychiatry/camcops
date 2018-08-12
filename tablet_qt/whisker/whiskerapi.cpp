@@ -108,25 +108,63 @@ QString DisplayObject::optionString() const
 }
 
 
-QStringList Text::options() const
+Arc::Arc(const QRect& rect, const QPoint& start, const QPoint& end,
+         const Pen& pen) :
+    rect(rect),
+    start(start),
+    end(end),
+    pen(pen)
 {
-    QStringList args{
-        VAL_OBJTYPE_TEXT,
-        pointCoordinates(pos),
-        FLAG_HEIGHT, QString::number(height),
-        FLAG_TEXT_WEIGHT, QString::number(weight),
-        italic ? FLAG_TEXT_ITALIC : "",
-        underline ? FLAG_TEXT_UNDERLINE : "",
-        opaque ? FLAG_TEXT_OPAQUE : "",
-        FLAG_TEXT_COLOUR, rgbFromColour(colour),
-        FLAG_BACKCOLOUR, rgbFromColour(bg_colour),
-        TEXT_HALIGN_FLAGS[halign],
-        TEXT_VALIGN_FLAGS[valign],
+}
+
+
+QStringList Arc::options() const
+{
+    return QStringList{
+        VAL_OBJTYPE_ARC,
+        rectCoordinates(rect),
+        pointCoordinates(start),
+        pointCoordinates(end),
+        pen.whiskerOptionString(),
     };
-    if (!font.isEmpty()) {
-        args.append({FLAG_FONT, quote(font)});
-    }
-    return args;
+}
+
+
+Bezier::Bezier(const QPoint& start, const QPoint& control1,
+               const QPoint& control2, const QPoint& end, const Pen& pen) :
+    start(start),
+    control1(control1),
+    control2(control2),
+    end(end),
+    pen(pen)
+{
+}
+
+
+QStringList Bezier::options() const
+{
+    return QStringList{
+        VAL_OBJTYPE_BEZIER,
+        pointCoordinates(start),
+        pointCoordinates(control1),
+        pointCoordinates(control2),
+        pointCoordinates(end),
+        pen.whiskerOptionString(),
+    };
+}
+
+
+Bitmap::Bitmap(const QPoint& pos, const QString& filename,
+               bool stretch, int height, int width,
+               VerticalAlign valign, HorizontalAlign halign) :
+    pos(pos),
+    filename(filename),
+    stretch(stretch),
+    height(height),
+    width(width),
+    valign(valign),
+    halign(halign)
+{
 }
 
 
@@ -145,39 +183,76 @@ QStringList Bitmap::options() const
 }
 
 
-QStringList Line::options() const
+CamcogQuadPattern::CamcogQuadPattern(const QPoint& pos,
+                                     const QSize& pixel_size,
+                                     const QVector<uint8_t>& top_left_patterns,
+                                     const QVector<uint8_t>& top_right_patterns,
+                                     const QVector<uint8_t>& bottom_left_patterns,
+                                     const QVector<uint8_t>& bottom_right_patterns,
+                                     const QColor& top_left_colour,
+                                     const QColor& top_right_colour,
+                                     const QColor& bottom_left_colour,
+                                     const QColor& bottom_right_colour,
+                                     const QColor& bg_colour) :
+    pos(pos),
+    pixel_size(pixel_size),
+    top_left_patterns(top_left_patterns),
+    top_right_patterns(top_right_patterns),
+    bottom_left_patterns(bottom_left_patterns),
+    bottom_right_patterns(bottom_right_patterns),
+    top_left_colour(top_left_colour),
+    top_right_colour(top_right_colour),
+    bottom_left_colour(bottom_left_colour),
+    bottom_right_colour(bottom_right_colour),
+    bg_colour(bg_colour)
 {
+}
+
+
+QStringList CamcogQuadPattern::options() const
+{
+    const int required_size = 8;
+    if (top_left_patterns.size() != required_size ||
+            top_right_patterns.size() != required_size ||
+            bottom_left_patterns.size() != required_size ||
+            bottom_right_patterns.size() != required_size) {
+        qWarning("Whisker CamcogQuadPattern used with wrong vector size; will fail");
+        return QStringList();
+    }
+
+    auto vectorPattern = [](const QVector<uint8_t>& v) -> QString {
+        QStringList numbers;
+        for (const uint8_t n : v) {
+            numbers.append(QString::number(n));
+        }
+        return numbers.join(SPACE);
+    };
+
     return QStringList{
-        VAL_OBJTYPE_LINE,
-        pointCoordinates(start),
-        pointCoordinates(end),
-        pen.whiskerOptionString(),
+        VAL_OBJTYPE_CAMCOGQUADPATTERN,
+        pointCoordinates(pos),
+        sizeCoordinates(pixel_size),
+        vectorPattern(top_left_patterns),
+        vectorPattern(top_right_patterns),
+        vectorPattern(bottom_left_patterns),
+        vectorPattern(bottom_right_patterns),
+        rgbFromColour(top_left_colour),
+        rgbFromColour(top_right_colour),
+        rgbFromColour(bottom_left_colour),
+        rgbFromColour(bottom_right_colour),
+        rgbFromColour(bg_colour),
     };
 }
 
 
-QStringList Arc::options() const
+Chord::Chord(const QRect& rect, const QPoint& line_start,
+             const QPoint& line_end, const Pen& pen, const Brush& brush) :
+    rect(rect),
+    line_start(line_start),
+    line_end(line_end),
+    pen(pen),
+    brush(brush)
 {
-    return QStringList{
-        VAL_OBJTYPE_ARC,
-        rectCoordinates(rect),
-        pointCoordinates(start),
-        pointCoordinates(end),
-        pen.whiskerOptionString(),
-    };
-}
-
-
-QStringList Bezier::options() const
-{
-    return QStringList{
-        VAL_OBJTYPE_BEZIER,
-        pointCoordinates(start),
-        pointCoordinates(control1),
-        pointCoordinates(control2),
-        pointCoordinates(end),
-        pen.whiskerOptionString(),
-    };
 }
 
 
@@ -194,6 +269,14 @@ QStringList Chord::options() const
 }
 
 
+Ellipse::Ellipse(const QRect& rect, const Pen& pen, const Brush& brush) :
+    rect(rect),
+    pen(pen),
+    brush(brush)
+{
+}
+
+
 QStringList Ellipse::options() const
 {
     return QStringList{
@@ -202,6 +285,36 @@ QStringList Ellipse::options() const
         pen.whiskerOptionString(),
         brush.whiskerOptionString(),
     };
+}
+
+
+Line::Line(const QPoint& start, const QPoint& end, const Pen& pen) :
+    start(start),
+    end(end),
+    pen(pen)
+{
+}
+
+
+QStringList Line::options() const
+{
+    return QStringList{
+        VAL_OBJTYPE_LINE,
+        pointCoordinates(start),
+        pointCoordinates(end),
+        pen.whiskerOptionString(),
+    };
+}
+
+
+Pie::Pie(const QRect& rect, const QPoint& arc_start, const QPoint& arc_end,
+         const Pen& pen, const Brush& brush) :
+    rect(rect),
+    arc_start(arc_start),
+    arc_end(arc_end),
+    pen(pen),
+    brush(brush)
+{
 }
 
 
@@ -215,6 +328,16 @@ QStringList Pie::options() const
         pen.whiskerOptionString(),
         brush.whiskerOptionString(),
     };
+}
+
+
+Polygon::Polygon(const QVector<QPoint>& points,
+                 const Pen& pen, const Brush& brush, bool alternate) :
+    points(points),
+    pen(pen),
+    brush(brush),
+    alternate(alternate)
+{
 }
 
 
@@ -240,6 +363,14 @@ QStringList Polygon::options() const
 }
 
 
+Rectangle::Rectangle(const QRect& rect, const Pen& pen, const Brush& brush) :
+    rect(rect),
+    pen(pen),
+    brush(brush)
+{
+}
+
+
 QStringList Rectangle::options() const
 {
     return QStringList{
@@ -248,6 +379,16 @@ QStringList Rectangle::options() const
         pen.whiskerOptionString(),
         brush.whiskerOptionString(),
     };
+}
+
+
+RoundRect::RoundRect(const QRect& rect, const QSize& ellipse_size,
+                     const Pen& pen, const Brush& brush) :
+    rect(rect),
+    ellipse_size(ellipse_size),
+    pen(pen),
+    brush(brush)
+{
 }
 
 
@@ -263,40 +404,50 @@ QStringList RoundRect::options() const
 }
 
 
-QStringList CamcogQuadPattern::options() const
+Text::Text(const QPoint& pos, const QString& text, int height,
+           const QString& font) :
+    pos(pos),
+    text(text),
+    height(height),
+    font(font)
 {
-    const int required_size = 8;
-    if (top_left_patterns.size() != required_size ||
-            top_right_patterns.size() != required_size ||
-            bottom_left_patterns.size() != required_size ||
-            bottom_right_patterns.size() != required_size) {
-        qWarning("Whisker CamcogQuadPattern used with wrong vector size; will fail");
-        return QStringList();
-    }
-
-    auto vectorPattern = [](const QVector<int>& v) -> QString {
-        QStringList numbers;
-        for (const int n : v) {
-            numbers.append(QString::number(n));
-        }
-        return numbers.join(SPACE);
-    };
-
-    return QStringList{
-        VAL_OBJTYPE_CAMCOGQUADPATTERN,
-        pointCoordinates(pos),
-        sizeCoordinates(pixel_size),
-        vectorPattern(top_left_patterns),
-        vectorPattern(top_right_patterns),
-        vectorPattern(bottom_left_patterns),
-        vectorPattern(bottom_right_patterns),
-        rgbFromColour(top_left_colour),
-        rgbFromColour(top_right_colour),
-        rgbFromColour(bottom_left_colour),
-        rgbFromColour(bottom_right_colour),
-        rgbFromColour(bg_colour),
-    };
 }
+
+
+QStringList Text::options() const
+{
+    QStringList args{
+        VAL_OBJTYPE_TEXT,
+        pointCoordinates(pos),
+        quote(text),
+        FLAG_HEIGHT, QString::number(height),
+        FLAG_TEXT_WEIGHT, QString::number(weight),
+        italic ? FLAG_TEXT_ITALIC : "",
+        underline ? FLAG_TEXT_UNDERLINE : "",
+        opaque ? FLAG_TEXT_OPAQUE : "",
+        FLAG_TEXT_COLOUR, rgbFromColour(colour),
+        FLAG_BACKCOLOUR, rgbFromColour(bg_colour),
+        TEXT_HALIGN_FLAGS[halign],
+        TEXT_VALIGN_FLAGS[valign],
+    };
+    if (!font.isEmpty()) {
+        args.append({FLAG_FONT, quote(font)});
+    }
+    return args;
+}
+
+
+Video::Video(const QPoint& pos, const QString& filename, bool loop,
+             VideoPlayMode playmode, int width, int height) :
+    pos(pos),
+    filename(filename),
+    loop(loop),
+    playmode(playmode),
+    width(width),
+    height(height)
+{
+}
+
 
 
 QStringList Video::options() const
@@ -348,13 +499,18 @@ QString msgFromArgs(const QStringList& args)
 
 QString rgbFromColour(const QColor& colour)
 {
-    return QString("%1 %2 %3").arg(colour.red(), colour.green(), colour.blue());
+    return QString("%1 %2 %3").arg(
+                QString::number(colour.red()),
+                QString::number(colour.green()),
+                QString::number(colour.blue()));
 }
 
 
 QString pointCoordinates(const QPoint& point)
 {
-    return QString("%1 %2").arg(point.x(), point.y());
+    return QString("%1 %2").arg(
+                QString::number(point.x()),
+                QString::number(point.y()));
 }
 
 
@@ -371,7 +527,9 @@ QString rectCoordinates(const QRect& rect)
 
 QString sizeCoordinates(const QSize& size)
 {
-    return QString("%1 %2").arg(size.width(), size.height());
+    return QString("%1 %2").arg(
+                QString::number(size.width()),
+                QString::number(size.height()));
 }
 
 

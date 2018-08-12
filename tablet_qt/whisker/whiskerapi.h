@@ -94,27 +94,39 @@ public:
 };
 
 
-class Text : public DisplayObject {
+class Arc : public DisplayObject {
 public:
+    Arc(const QRect& rect, const QPoint& start, const QPoint& end,
+        const Pen& pen = Pen());
     virtual QStringList options() const override;
 
-    QPoint pos;
-    QString text;
-    int height = 0;
-    QString font;
-    bool italic = false;
-    bool underline = false;
-    int weight = 0;
-    QColor colour = whiskerconstants::WHITE;
-    bool opaque = false;
-    QColor bg_colour = whiskerconstants::BLACK;
-    whiskerconstants::TextVerticalAlign valign = whiskerconstants::TextVerticalAlign::Top;
-    whiskerconstants::TextHorizontalAlign halign = whiskerconstants::TextHorizontalAlign::Left;
+    QRect rect;  // The arc fits into the rect.
+    QPoint start;
+    QPoint end;
+    Pen pen;
+};
+
+
+class Bezier : public DisplayObject {
+public:
+    Bezier(const QPoint& start, const QPoint& control1, const QPoint& control2,
+           const QPoint& end, const Pen& pen = Pen());
+    virtual QStringList options() const override;
+
+    QPoint start;
+    QPoint control1;  // The control points "pull" the curve.
+    QPoint control2;
+    QPoint end;
+    Pen pen;
 };
 
 
 class Bitmap : public DisplayObject {
 public:
+    Bitmap(const QPoint& pos, const QString& filename,
+           bool stretch = false, int height = -1, int width = -1,
+           whiskerconstants::VerticalAlign valign = whiskerconstants::VerticalAlign::Top,
+           whiskerconstants::HorizontalAlign halign = whiskerconstants::HorizontalAlign::Left);
     virtual QStringList options() const override;
 
     QPoint pos;
@@ -127,41 +139,39 @@ public:
 };
 
 
-class Line : public DisplayObject {
+class CamcogQuadPattern : public DisplayObject {
 public:
+    CamcogQuadPattern(const QPoint& pos, const QSize& pixel_size,
+                      const QVector<uint8_t>& top_left_patterns,
+                      const QVector<uint8_t>& top_right_patterns,
+                      const QVector<uint8_t>& bottom_left_patterns,
+                      const QVector<uint8_t>& bottom_right_patterns,
+                      const QColor& top_left_colour,
+                      const QColor& top_right_colour,
+                      const QColor& bottom_left_colour,
+                      const QColor& bottom_right_colour,
+                      const QColor& bg_colour);
     virtual QStringList options() const override;
 
-    QPoint start;
-    QPoint end;
-    Pen pen;
-};
-
-
-class Arc : public DisplayObject {
-public:
-    virtual QStringList options() const override;
-
-    QRect rect;  // The arc fits into the rect.
-    QPoint start;
-    QPoint end;
-    Pen pen;
-};
-
-
-class Bezier : public DisplayObject {
-public:
-    virtual QStringList options() const override;
-
-    QPoint start;
-    QPoint control1;  // The control points "pull" the curve.
-    QPoint control2;
-    QPoint end;
-    Pen pen;
+    // See Whisker docs.
+    QPoint pos;
+    QSize pixel_size;
+    QVector<uint8_t> top_left_patterns;
+    QVector<uint8_t> top_right_patterns;
+    QVector<uint8_t> bottom_left_patterns;
+    QVector<uint8_t> bottom_right_patterns;
+    QColor top_left_colour;
+    QColor top_right_colour;
+    QColor bottom_left_colour;
+    QColor bottom_right_colour;
+    QColor bg_colour;
 };
 
 
 class Chord : public DisplayObject {
 public:
+    Chord(const QRect& rect, const QPoint& line_start, const QPoint& line_end,
+          const Pen& pen = Pen(), const Brush& brush = Brush());
     virtual QStringList options() const override;
 
     // The chord is the intersection of an ellipse (defined by the rect)
@@ -176,6 +186,8 @@ public:
 
 class Ellipse : public DisplayObject {
 public:
+    Ellipse(const QRect& rect,
+            const Pen& pen = Pen(), const Brush& brush = Brush());
     virtual QStringList options() const override;
 
     // The ellipse fits into the rectangle (and its centre is at the centre
@@ -186,8 +198,21 @@ public:
 };
 
 
+class Line : public DisplayObject {
+public:
+    Line(const QPoint& start, const QPoint& end, const Pen& pen = Pen());
+    virtual QStringList options() const override;
+
+    QPoint start;
+    QPoint end;
+    Pen pen;
+};
+
+
 class Pie : public DisplayObject {
 public:
+    Pie(const QRect& rect, const QPoint& arc_start, const QPoint& arc_end,
+        const Pen& pen = Pen(), const Brush& brush = Brush());
     virtual QStringList options() const override;
 
     // See Whisker docs.
@@ -201,6 +226,9 @@ public:
 
 class Polygon : public DisplayObject {
 public:
+    Polygon(const QVector<QPoint>& points,
+            const Pen& pen = Pen(), const Brush& brush = Brush(),
+            bool alternate = false);
     virtual QStringList options() const override;
 
     // See Whisker docs.
@@ -213,6 +241,8 @@ public:
 
 class Rectangle : public DisplayObject {
 public:
+    Rectangle(const QRect& rect,
+              const Pen& pen = Pen(), const Brush& brush = Brush());
     virtual QStringList options() const override;
 
     // See Whisker docs.
@@ -224,6 +254,8 @@ public:
 
 class RoundRect : public DisplayObject {
 public:
+    RoundRect(const QRect& rect, const QSize& ellipse_size,
+              const Pen& pen = Pen(), const Brush& brush = Brush());
     virtual QStringList options() const override;
 
     // See Whisker docs.
@@ -234,27 +266,32 @@ public:
 };
 
 
-class CamcogQuadPattern : public DisplayObject {
+class Text : public DisplayObject {
 public:
+    Text(const QPoint& pos, const QString& text, int height = 0,
+         const QString& font = "");
     virtual QStringList options() const override;
 
-    // See Whisker docs.
     QPoint pos;
-    QSize pixel_size;
-    QVector<int> top_left_patterns;
-    QVector<int> top_right_patterns;
-    QVector<int> bottom_left_patterns;
-    QVector<int> bottom_right_patterns;
-    QColor top_left_colour;
-    QColor top_right_colour;
-    QColor bottom_left_colour;
-    QColor bottom_right_colour;
-    QColor bg_colour;
+    QString text;
+    int height = 0;  // 0 means some vaguely sensible default
+    QString font;  // empty gives a system font
+    bool italic = false;
+    bool underline = false;
+    int weight = 0;  // 0 for default weight
+    QColor colour = whiskerconstants::WHITE;
+    bool opaque = false;
+    QColor bg_colour = whiskerconstants::BLACK;
+    whiskerconstants::TextVerticalAlign valign = whiskerconstants::TextVerticalAlign::Top;
+    whiskerconstants::TextHorizontalAlign halign = whiskerconstants::TextHorizontalAlign::Left;
 };
 
 
 class Video : public DisplayObject {
 public:
+    Video(const QPoint& pos, const QString& filename, bool loop = false,
+          whiskerconstants::VideoPlayMode playmode = whiskerconstants::VideoPlayMode::Wait,
+          int width = -1, int height = -1);
     virtual QStringList options() const override;
 
     // See Whisker docs.

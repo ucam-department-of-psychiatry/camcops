@@ -96,6 +96,9 @@ public:
     bool immBool(std::initializer_list<QString> args, bool ignore_reply = false);
     void connectToServer();
     bool isConnected() const;
+    void alertNotConnected() const;
+    void disconnectServerAndSignals(QObject* receiver);
+    void disconnectAllWhiskerSignals(QObject* receiver);
 signals:
     void disconnectFromServer();
     void connectionStateChanged(bool connected);
@@ -107,8 +110,12 @@ signals:
     void syntaxErrorReceived(const WhiskerInboundMessage& msg);
     void errorReceived(const WhiskerInboundMessage& msg);
     void pingAckReceived(const WhiskerInboundMessage& msg);
-    void internalConnectToServer(const QString& host, quint16 port,
-                                 int timeout_ms);
+    void internalConnectToServer(
+            const QString& host, quint16 port
+#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
+            , int timeout_ms
+#endif
+    );
     void internalSend(const WhiskerOutboundCommand& cmd);
 public slots:
     void internalConnectionStateChanged(WhiskerConnectionState state);
@@ -180,38 +187,38 @@ public:
     // ------------------------------------------------------------------------
     bool claimGroup(const QString& group, const QString& prefix = "",
                     const QString& suffix = "");
-    bool claimLine(
+    bool lineClaim(
             unsigned int line_number,
             bool output,
             const QString& alias = "",
             whiskerconstants::ResetState reset_state = whiskerconstants::ResetState::Leave);
-    bool claimLine(
+    bool lineClaim(
             const QString& group,
             const QString& device,
             bool output,
             const QString& alias = "",
             whiskerconstants::ResetState reset_state = whiskerconstants::ResetState::Leave);
-    bool relinquishAllLines(bool ignore_reply = false);
+    bool lineRelinquishAll(bool ignore_reply = false);
     bool lineSetAlias(unsigned int line_number, const QString& alias,
                       bool ignore_reply = false);
     bool lineSetAlias(const QString& existing_alias, const QString& new_alias,
                       bool ignore_reply = false);
-    bool claimAudio(unsigned int device_number,  const QString& alias = "");
-    bool claimAudio(const QString& group, const QString& device,
+    bool audioClaim(unsigned int device_number,  const QString& alias = "");
+    bool audioClaim(const QString& group, const QString& device,
                     const QString& alias = "");
     bool audioSetAlias(unsigned int device_number, const QString& alias,
                        bool ignore_reply = false);
     bool audioSetAlias(const QString& existing_alias, const QString& new_alias,
                        bool ignore_reply = false);
-    bool relinquishAllAudio(bool ignore_reply = false);
-    bool claimDisplay(unsigned int display_number, const QString& alias = "");
-    bool claimDisplay(const QString& group, const QString& device,
+    bool audioRelinquishAll(bool ignore_reply = false);
+    bool displayClaim(unsigned int display_number, const QString& alias = "");
+    bool displayClaim(const QString& group, const QString& device,
                       const QString& alias = "");
     bool displaySetAlias(unsigned int display_number, const QString& alias,
                          bool ignore_reply = false);
     bool displaySetAlias(const QString& existing_alias,
                          const QString& new_alias, bool ignore_reply = false);
-    bool relinquishAllDisplays(bool ignore_reply = false);
+    bool displayRelinquishAll(bool ignore_reply = false);
     bool displayCreateDevice(const QString& name,
                              whiskerapi::DisplayCreationOptions options);
     bool displayDeleteDevice(const QString& device, bool ignore_reply = false);
@@ -291,12 +298,12 @@ public:
     // ... can be used with any derived class too, e.g. TextObject
     bool displaySetEvent(
             const QString& doc, const QString& obj,
+            whiskerconstants::DocEventType event_type,
             const QString& event,
-            whiskerconstants::DocEventType event_type = whiskerconstants::DocEventType::TouchDown,
             bool ignore_reply = false);
     bool displayClearEvent(
             const QString& doc, const QString& obj,
-            whiskerconstants::DocEventType event_type = whiskerconstants::DocEventType::TouchDown,
+            whiskerconstants::DocEventType event_type,
             bool ignore_reply = false);
     bool displaySetObjectEventTransparency(
             const QString& doc, const QString& obj,
@@ -315,12 +322,13 @@ public:
     QSize displayGetDocumentSize(const QString& doc);
     QRect displayGetObjectExtent(const QString& doc, const QString& obj);
     bool displaySetBackgroundEvent(
-            const QString& doc, const QString& event,
-            whiskerconstants::DocEventType event_type = whiskerconstants::DocEventType::TouchDown,
+            const QString& doc,
+            whiskerconstants::DocEventType event_type,
+            const QString& event,
             bool ignore_reply = false);
     bool displayClearBackgroundEvent(
             const QString& doc,
-            whiskerconstants::DocEventType event_type = whiskerconstants::DocEventType::TouchDown,
+            whiskerconstants::DocEventType event_type,
             bool ignore_reply = false);
 
     // ------------------------------------------------------------------------
