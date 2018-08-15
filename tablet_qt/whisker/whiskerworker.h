@@ -39,19 +39,18 @@ public:
     WhiskerInboundMessage getPendingImmediateReply();  // called from OTHER THREADS
     bool isMainConnected() const;
     bool isImmediateConnected() const;
+    bool isFullyConnected() const;
+    bool isFullyDisconnected() const;
 signals:
     void connectionStateChanged(WhiskerConnectionState state);
+    void onFullyConnected();
     void receivedFromServerMainSocket(const WhiskerInboundMessage& msg);  // to WhiskerManager
     void socketError(const QString& msg);
     void internalSend(const WhiskerOutboundCommand& cmd);
 public slots:
     void connectToServer(
             const QString& host,
-            quint16 main_port = whiskerconstants::WHISKER_DEFAULT_PORT
-#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
-            , int timeout_ms = whiskerconstants::WHISKER_DEFAULT_TIMEOUT_MS
-#endif
-        );
+            quint16 main_port = whiskerconstants::WHISKER_DEFAULT_PORT);
     void disconnectFromServer();
     void sendToServer(const WhiskerOutboundCommand& cmd);  // from WhiskerManager
 protected slots:

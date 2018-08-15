@@ -81,7 +81,8 @@ class WhiskerManager : public QObject
 {
     Q_OBJECT
 public:
-    WhiskerManager(CamcopsApp& app, const QString& sysevent_prefix = "sys_");
+    WhiskerManager(QObject* parent = nullptr,
+                   const QString& sysevent_prefix = "sys");
     ~WhiskerManager();
     void sendMain(const QString& command);
     void sendMain(const QStringList& args);
@@ -94,14 +95,16 @@ public:
     bool immBool(const QString& command, bool ignore_reply = false);
     bool immBool(const QStringList& args, bool ignore_reply = false);
     bool immBool(std::initializer_list<QString> args, bool ignore_reply = false);
-    void connectToServer();
+    void connectToServer(const QString& host, quint16 main_port);
     bool isConnected() const;
+    bool isFullyDisconnected() const;
     void alertNotConnected() const;
     void disconnectServerAndSignals(QObject* receiver);
     void disconnectAllWhiskerSignals(QObject* receiver);
 signals:
     void disconnectFromServer();
-    void connectionStateChanged(bool connected);
+    void connectionStateChanged(WhiskerConnectionState state);
+    void onFullyConnected();
     void messageReceived(const WhiskerInboundMessage& msg);
     void eventReceived(const WhiskerInboundMessage& msg);
     void keyEventReceived(const WhiskerInboundMessage& msg);
@@ -110,15 +113,9 @@ signals:
     void syntaxErrorReceived(const WhiskerInboundMessage& msg);
     void errorReceived(const WhiskerInboundMessage& msg);
     void pingAckReceived(const WhiskerInboundMessage& msg);
-    void internalConnectToServer(
-            const QString& host, quint16 port
-#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
-            , int timeout_ms
-#endif
-    );
+    void internalConnectToServer(const QString& host, quint16 main_port);
     void internalSend(const WhiskerOutboundCommand& cmd);
 public slots:
-    void internalConnectionStateChanged(WhiskerConnectionState state);
     void internalReceiveFromMainSocket(const WhiskerInboundMessage& msg);
     void onSocketError(const QString& msg);
 protected:
@@ -131,7 +128,6 @@ protected:
             const WhiskerCallbackDefinition::CallbackFunction& callback,
             QString event = "");
 protected:
-    CamcopsApp& m_app;
     QThread m_worker_thread;
     QPointer<WhiskerWorker> m_worker;
     QString m_sysevent_prefix;

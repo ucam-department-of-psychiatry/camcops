@@ -57,7 +57,7 @@ const QString PING("Ping");
 const QString PING_ACK("PingAcknowledged");
 
 const QRegularExpression EVENT_REGEX("^Event: (.*)$");
-const QRegularExpression KEY_EVENT_REGEX("^KeyEvent: (.*)$");
+const QRegularExpression KEY_EVENT_REGEX(R"(^KeyEvent: (\d+) (\w+) (.*)$)");
 const QRegularExpression CLIENT_MESSAGE_REGEX(R"(^ClientMessage: (\d+) (.*)$)");
 const QRegularExpression INFO_REGEX("^Info: (.*)$");
 const QRegularExpression WARNING_REGEX("Warning: (.*)$");
@@ -271,6 +271,7 @@ const QString VAL_PEN_DOT("dot");
 const QString VAL_PEN_INSIDE_FRAME("insideframe");
 const QString VAL_PEN_NULL("null");
 const QString VAL_PEN_SOLID("solid");
+const int VAL_TIMER_INFINITE_RELOADS = -1;
 const QString VAL_TONE_SAWTOOTH("sawtooth");
 const QString VAL_TONE_SINE("sine");
 const QString VAL_TONE_SQUARE("square");

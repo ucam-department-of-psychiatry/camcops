@@ -84,8 +84,6 @@
 #include "questionnairelib/questionnaire.h"
 #include "tasklib/inittasks.h"
 #include "version/camcopsversion.h"
-#include "whisker/whiskerconstants.h"
-#include "whisker/whiskermanager.h"
 
 #ifdef USE_SQLCIPHER
 #include "db/sqlcipherdriver.h"
@@ -110,7 +108,6 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_maximized_before_fullscreen(true),  // true because openMainWindow() goes maximized
     m_patient(nullptr),
     m_netmgr(nullptr),
-    m_whiskermgr(new WhiskerManager(*this)),
     m_dpi(uiconst::DEFAULT_DPI)
 {
     setApplicationName(APP_NAME);
@@ -119,8 +116,6 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
 #ifdef DEBUG_ALL_APPLICATION_EVENTS
     new DebugEventWatcher(this, DebugEventWatcher::All);
 #endif
-    connect(m_whiskermgr, &WhiskerManager::connectionStateChanged,
-            this, &CamcopsApp::whiskerConnectionStateChanged);
 }
 
 
@@ -575,13 +570,6 @@ void CamcopsApp::createStoredVars()
 
     // Uploading "dirty" flag
     createVar(varconst::NEEDS_UPLOAD, QVariant::Bool, false);
-
-    // Whisker
-    createVar(varconst::WHISKER_HOST, QVariant::String, whiskerconstants::WHISKER_DEFAULT_HOST);
-    createVar(varconst::WHISKER_PORT, QVariant::Int, whiskerconstants::WHISKER_DEFAULT_PORT);
-#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
-    createVar(varconst::WHISKER_TIMEOUT_MS, QVariant::Int, whiskerconstants::WHISKER_DEFAULT_TIMEOUT_MS);
-#endif
 
     // Terms and conditions
     createVar(varconst::AGREED_TERMS_AT, QVariant::DateTime);
@@ -1401,22 +1389,6 @@ void CamcopsApp::setNeedsUpload(const bool needs_upload)
 #endif
         emit needsUploadChanged(needs_upload);
     }
-}
-
-
-// ============================================================================
-// Whisker
-// ============================================================================
-
-bool CamcopsApp::whiskerConnected() const
-{
-    return m_whiskermgr->isConnected();
-}
-
-
-WhiskerManager* CamcopsApp::whiskerManager()
-{
-    return m_whiskermgr;
 }
 
 

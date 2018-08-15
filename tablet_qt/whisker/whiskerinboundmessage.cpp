@@ -122,8 +122,12 @@ void WhiskerInboundMessage::parseMainSocketMessages()
     QRegularExpressionMatch key_event_match = KEY_EVENT_REGEX.match(m_msg);
     if (key_event_match.hasMatch()) {
         m_is_key_event = true;
-        m_key_event = key_event_match.captured(1);
+        m_key_code = key_event_match.captured(1).toInt();
+        m_key_down = key_event_match.captured(2) == VAL_KEYEVENT_DOWN;
+        m_key_up = key_event_match.captured(2) == VAL_KEYEVENT_UP;
+        m_key_doc = key_event_match.captured(3);
         return;
+        // *** fix Whisker docs (or Whisker): up/down is "up"/"down", not 0/1
     }
 
     QRegularExpressionMatch client_msg_match = CLIENT_MESSAGE_REGEX.match(m_msg);
@@ -177,9 +181,27 @@ bool WhiskerInboundMessage::isKeyEvent() const
 }
 
 
-QString WhiskerInboundMessage::keyEvent() const
+int WhiskerInboundMessage::keyEventCode() const
 {
-    return m_key_event;
+    return m_key_code;
+}
+
+
+bool WhiskerInboundMessage::keyEventDown() const
+{
+    return m_key_down;
+}
+
+
+bool WhiskerInboundMessage::keyEventUp() const
+{
+    return m_key_up;
+}
+
+
+QString WhiskerInboundMessage::keyEventDoc() const
+{
+    return m_key_doc;
 }
 
 

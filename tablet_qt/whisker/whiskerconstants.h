@@ -19,8 +19,6 @@
 
 #pragma once
 
-// #define WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
-
 #include <QColor>
 #include <QMap>
 #include <QRegularExpression>
@@ -380,6 +378,7 @@ extern const QString VAL_PEN_DOT;
 extern const QString VAL_PEN_INSIDE_FRAME;
 extern const QString VAL_PEN_NULL;
 extern const QString VAL_PEN_SOLID;
+extern const int VAL_TIMER_INFINITE_RELOADS;
 extern const QString VAL_TONE_SAWTOOTH;
 extern const QString VAL_TONE_SINE;
 extern const QString VAL_TONE_SQUARE;

@@ -40,7 +40,6 @@ class QStackedWidget;
 class QTextStream;
 class SlowGuiGuard;
 class Version;
-class WhiskerManager;
 
 
 class CamcopsApp : public QApplication
@@ -178,15 +177,6 @@ protected:
     void makeNetManager();
 signals:
     void needsUploadChanged(bool needs_upload);
-
-    // ------------------------------------------------------------------------
-    // Whisker
-    // ------------------------------------------------------------------------
-public:
-    bool whiskerConnected() const;
-    WhiskerManager* whiskerManager();
-signals:
-    void whiskerConnectionStateChanged(bool connected);
 
     // ------------------------------------------------------------------------
     // Patient
@@ -338,7 +328,6 @@ protected:
     QStack<OpenableInfo> m_info_stack;
     QMap<QString, StoredVarPtr> m_storedvars;
     QSharedPointer<NetworkManager> m_netmgr;
-    WhiskerManager* m_whiskermgr;
     mutable QMap<QString, QVariant> m_cachedvars;
     qreal m_dpi;
 };

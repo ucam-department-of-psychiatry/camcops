@@ -44,7 +44,10 @@ public:
     bool isEvent() const;
     QString event() const;
     bool isKeyEvent() const;
-    QString keyEvent() const;
+    int keyEventCode() const;
+    bool keyEventDown() const;
+    bool keyEventUp() const;
+    QString keyEventDoc() const;
     bool isClientMessage() const;
     int clientMessageSourceClientNum() const;
     QString clientMessage() const;
@@ -64,7 +67,10 @@ protected:
     bool m_is_event = false;
     QString m_event;
     bool m_is_key_event = false;
-    QString m_key_event;
+    int m_key_code = 0;
+    bool m_key_down = false;
+    bool m_key_up = false;
+    QString m_key_doc;
     bool m_is_client_message = false;
     int m_client_message_source_clientnum = -1;
     QString m_client_message;

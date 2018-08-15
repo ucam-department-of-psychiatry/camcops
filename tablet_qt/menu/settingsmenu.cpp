@@ -37,7 +37,6 @@
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 #include "menu/testmenu.h"
-#include "menu/whiskermenu.h"
 #include "menulib/menuitem.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/qubutton.h"
@@ -131,7 +130,6 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
             tr("Re-fetch extra task strings from the server"),
             std::bind(&SettingsMenu::fetchExtraStrings, this)
         ).setNotIfLocked(),
-        MAKE_MENU_MENU_ITEM(WhiskerMenu, app).setNotIfLocked(),
         MAKE_MENU_MENU_ITEM(TestMenu, app),
         MenuItem(
             tr("Set privileged mode (for items marked †)"),

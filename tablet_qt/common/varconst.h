@@ -45,11 +45,6 @@ extern const QString SEND_ANALYTICS;
 // Uploading flag
 extern const QString NEEDS_UPLOAD;
 
-// Whisker
-extern const QString WHISKER_HOST;
-extern const QString WHISKER_PORT;
-extern const QString WHISKER_TIMEOUT_MS;
-
 // Terms and conditions
 extern const QString AGREED_TERMS_AT;
 

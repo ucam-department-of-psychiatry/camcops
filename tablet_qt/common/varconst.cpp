@@ -43,11 +43,6 @@ const QString SEND_ANALYTICS("sendAnalytics");
 // Uploading flag
 const QString NEEDS_UPLOAD("needsUpload");
 
-// Whisker
-const QString WHISKER_HOST("whiskerHost");
-const QString WHISKER_PORT("whiskerPort");
-const QString WHISKER_TIMEOUT_MS("whiskerTimeoutMs");
-
 // Terms and conditions
 const QString AGREED_TERMS_AT("agreedTermsOfUseAt");
 

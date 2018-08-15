@@ -30,7 +30,6 @@
 #include "whiskermanager.h"
 #include <QRegularExpression>
 #include "common/varconst.h"
-#include "core/camcopsapp.h"
 #include "lib/uifunc.h"
 #include "whisker/whiskerapi.h"
 #include "whisker/whiskerconstants.h"
@@ -43,8 +42,9 @@ using namespace whiskerconstants;
 // WhiskerManager
 // ============================================================================
 
-WhiskerManager::WhiskerManager(CamcopsApp& app, const QString& sysevent_prefix) :
-    m_app(app),
+WhiskerManager::WhiskerManager(QObject* parent,
+                               const QString& sysevent_prefix) :
+    QObject(parent),
     m_worker(new WhiskerWorker(this)),
     m_sysevent_prefix(sysevent_prefix),
     m_sysevent_counter(0)
@@ -63,7 +63,9 @@ WhiskerManager::WhiskerManager(CamcopsApp& app, const QString& sysevent_prefix) 
             m_worker, &WhiskerWorker::sendToServer);
 
     connect(m_worker, &WhiskerWorker::connectionStateChanged,
-            this, &WhiskerManager::internalConnectionStateChanged);
+            this, &WhiskerManager::connectionStateChanged);
+    connect(m_worker, &WhiskerWorker::onFullyConnected,
+            this, &WhiskerManager::onFullyConnected);
     connect(m_worker, &WhiskerWorker::receivedFromServerMainSocket,
             this, &WhiskerManager::internalReceiveFromMainSocket);
 
@@ -78,25 +80,21 @@ WhiskerManager::~WhiskerManager()
 }
 
 
-void WhiskerManager::connectToServer()
+void WhiskerManager::connectToServer(const QString& host, quint16 main_port)
 {
-    const QString host = m_app.varString(varconst::WHISKER_HOST);
-    const quint16 port = m_app.varInt(varconst::WHISKER_PORT);
-#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
-    const int timeout_ms = m_app.varInt(varconst::WHISKER_TIMEOUT_MS);
-#endif
-    emit internalConnectToServer(
-                host, port
-#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
-                , timeout_ms
-#endif
-    );
+    emit internalConnectToServer(host, main_port);
 }
 
 
 bool WhiskerManager::isConnected() const
 {
-    return m_worker->isImmediateConnected();
+    return m_worker->isFullyConnected();
+}
+
+
+bool WhiskerManager::isFullyDisconnected() const
+{
+    return m_worker->isFullyDisconnected();
 }
 
 
@@ -230,13 +228,6 @@ void WhiskerManager::internalReceiveFromMainSocket(
     } else if (msg.isPingAck()) {
         emit pingAckReceived(msg);
     }
-}
-
-
-void WhiskerManager::internalConnectionStateChanged(
-        WhiskerConnectionState state)
-{
-    emit connectionStateChanged(state == WhiskerConnectionState::G_FullyConnected);
 }
 
 
@@ -488,9 +479,9 @@ bool WhiskerManager::timerSetEvent(const QString& event,
 {
     return immBool({
         CMD_TIMER_SET_EVENT,
-        quote(event),
         QString::number(duration_ms),
         QString::number(reload_count),
+        quote(event),
     }, ignore_reply);
 }
 

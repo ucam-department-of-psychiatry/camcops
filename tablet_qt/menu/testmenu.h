@@ -49,11 +49,6 @@ protected:
     void testEigenFunctions();
     void testRandom();
     void testLogisticRegression();
-    void configureDemoWhiskerTask();
-    void runDemoWhiskerTask();
-
-protected slots:
-    void whiskerEventReceived(const WhiskerInboundMessage& msg);
 
 protected:
     QSharedPointer<QMediaPlayer> m_player;

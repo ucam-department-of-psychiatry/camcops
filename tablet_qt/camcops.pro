@@ -546,7 +546,6 @@ SOURCES += main.cpp \
     menu/settingsmenu.cpp \
     menu/singletaskmenu.cpp \
     menu/testmenu.cpp \
-    menu/whiskermenu.cpp \
     menu/widgettestmenu.cpp \
     menulib/choosepatientmenuitem.cpp \
     menulib/htmlinfowindow.cpp \
@@ -776,7 +775,8 @@ SOURCES += main.cpp \
     whisker/whiskerconnectionstate.cpp \
     whisker/whiskerinboundmessage.cpp \
     whisker/whiskerdisplaycachewrapper.cpp \
-    whisker/whiskercallbackhandler.cpp
+    whisker/whiskercallbackhandler.cpp \
+    menu/whiskertestmenu.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -926,7 +926,6 @@ HEADERS += \
     menu/settingsmenu.h \
     menu/singletaskmenu.h \
     menu/testmenu.h \
-    menu/whiskermenu.h \
     menu/widgettestmenu.h \
     menulib/choosepatientmenuitem.h \
     menulib/htmlinfowindow.h \
@@ -1157,7 +1156,8 @@ HEADERS += \
     whisker/whiskeroutboundcommand.h \
     whisker/whiskerinboundmessage.h \
     whisker/whiskerdisplaycachewrapper.h \
-    whisker/whiskercallbackhandler.h
+    whisker/whiskercallbackhandler.h \
+    menu/whiskertestmenu.h
 
 DISTFILES += \
     LICENSE.txt \

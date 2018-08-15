@@ -18,7 +18,6 @@
 */
 
 // #define WHISKERWORKER_DEBUG_SOCKETS
-#define ONLY_ONE_IMM_COMMAND_AT_A_TIME
 
 #include "whiskerworker.h"
 #include <QDebug>
@@ -86,11 +85,7 @@ WhiskerWorker::WhiskerWorker(WhiskerManager* manager) :
 }
 
 
-void WhiskerWorker::connectToServer(const QString& host, quint16 main_port
-#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
-                                    , int timeout_ms
-#endif
-                                    )
+void WhiskerWorker::connectToServer(const QString& host, quint16 main_port)
 {
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
@@ -105,10 +100,6 @@ void WhiskerWorker::connectToServer(const QString& host, quint16 main_port
     m_main_port = main_port;
     m_main_socket->connectToHost(host, main_port);
     setConnectionState(WhiskerConnectionState::B_RequestingMain);
-
-#ifdef WHISKER_NETWORK_TIMEOUT_CONFIGURABLE
-    Q_UNUSED(timeout_ms); // implement Whisker network timeout(s), or remove
-#endif
 }
 
 
@@ -143,16 +134,13 @@ void WhiskerWorker::sendToServer(const WhiskerOutboundCommand& cmd)
             qWarning() << Q_FUNC_INFO << "Attempt to write to closed immediate socket";
             return;
         }
-        if (!cmd.m_immediate_ignore_reply) {
-            m_mutex_imm.lock();
-#ifdef ONLY_ONE_IMM_COMMAND_AT_A_TIME
-            Q_ASSERT(m_imm_commands_awaiting_reply.isEmpty());
-#endif
-            m_imm_commands_awaiting_reply.push_back(cmd);
-            m_mutex_imm.unlock();
-        }
+        // WHETHER OR NOT we want the reply, we push the command.
+        // (We throw away the result later if we didn't want it.)
+        m_mutex_imm.lock();
+        m_imm_commands_awaiting_reply.push_back(cmd);
+        m_mutex_imm.unlock();
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
-    qDebug() << Q_FUNC_INFO << "Writing to immediate socket:" << cmd.bytes();
+        qDebug() << Q_FUNC_INFO << "Writing to immediate socket:" << cmd.bytes();
 #endif
         m_immediate_socket->write(cmd.bytes());
     } else {
@@ -161,7 +149,7 @@ void WhiskerWorker::sendToServer(const WhiskerOutboundCommand& cmd)
             return;
         }
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
-    qDebug() << Q_FUNC_INFO << "Writing to main socket:" << cmd.bytes();
+        qDebug() << Q_FUNC_INFO << "Writing to main socket:" << cmd.bytes();
 #endif
         m_main_socket->write(cmd.bytes());
     }
@@ -178,6 +166,9 @@ void WhiskerWorker::setConnectionState(WhiskerConnectionState state)
 #endif
     m_connection_state = state;
     emit connectionStateChanged(state);
+    if (state == WhiskerConnectionState::G_FullyConnected) {
+        emit onFullyConnected();
+    }
 }
 
 
@@ -192,6 +183,18 @@ bool WhiskerWorker::isImmediateConnected() const
 {
     return m_connection_state == WhiskerConnectionState::F_BothConnectedAwaitingLink ||
             m_connection_state == WhiskerConnectionState::G_FullyConnected;
+}
+
+
+bool WhiskerWorker::isFullyConnected() const
+{
+    return m_connection_state == WhiskerConnectionState::G_FullyConnected;
+}
+
+
+bool WhiskerWorker::isFullyDisconnected() const
+{
+    return m_connection_state == WhiskerConnectionState::A_Disconnected;
 }
 
 
@@ -327,6 +330,20 @@ void WhiskerWorker::pushImmediateReply(WhiskerInboundMessage& msg)
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
 #endif
+
+    bool wake = false;
+
+    m_mutex_imm.lock();
+    Q_ASSERT(!m_imm_commands_awaiting_reply.isEmpty());
+    const WhiskerOutboundCommand& cmd = m_imm_commands_awaiting_reply.front();
+    if (!cmd.m_immediate_ignore_reply) {
+        msg.setCausalCommand(cmd.m_command);
+        m_imm_replies_awaiting_collection.push_back(msg);
+        wake = true;
+    }
+    m_imm_commands_awaiting_reply.pop_front();
+    m_mutex_imm.unlock();
+
     if (m_connection_state == WhiskerConnectionState::F_BothConnectedAwaitingLink) {
         // Special!
         if (msg.immediateReplySucceeded()) {
@@ -335,25 +352,17 @@ void WhiskerWorker::pushImmediateReply(WhiskerInboundMessage& msg)
                     << ", main port " << m_main_port
                     << ", immediate port " << m_imm_port;
             setConnectionState(WhiskerConnectionState::G_FullyConnected);
-            return;
         } else {
             qWarning() << "Failed to execute Link command; reply was"
                        << msg.message();
             disconnectFromServer();
-            return;
         }
+        return;
     }
 
-    m_mutex_imm.lock();
-    Q_ASSERT(!m_imm_commands_awaiting_reply.isEmpty());
-    const WhiskerOutboundCommand& cmd = m_imm_commands_awaiting_reply.front();
-    if (!cmd.m_immediate_ignore_reply) {
-        msg.setCausalCommand(cmd.m_command);
-        m_imm_replies_awaiting_collection.push_back(msg);
+    if (wake) {
+        m_immediate_reply_arrived.wakeAll();  // wakes: waitForImmediateReply()
     }
-    m_imm_commands_awaiting_reply.pop_front();
-    m_mutex_imm.unlock();
-    m_immediate_reply_arrived.wakeAll();  // wakes: waitForImmediateReply()
 }
 
 

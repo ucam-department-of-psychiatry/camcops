@@ -57,7 +57,6 @@ public slots:
     void offerAdd(bool offer_add = false);
     void offerFinishFlag(bool offer_finish_flag = false);
     void lockStateChanged(CamcopsApp::LockState lockstate);
-    void whiskerConnectionStateChanged(bool connected);
     void needsUploadChanged(bool needs_upload);
     void selectedPatientChanged(const Patient* patient);
     void selectedPatientDetailsChanged(const Patient* patient);
@@ -69,7 +68,6 @@ protected:
     CamcopsApp& m_app;
     QPointer<BaseWidget> m_top_bar;
     QPointer<LabelWordWrapWide> m_title_label;
-    QPointer<QLabel> m_icon_whisker_connected;
     QPointer<QAbstractButton> m_button_needs_upload;
     QPointer<QPushButton> m_button_debug;
     QPointer<QAbstractButton> m_button_finish_flag;

@@ -42,7 +42,6 @@ MenuHeader::MenuHeader(QWidget* parent,
                        const bool debug_allowed)
     : QWidget(parent),
       m_app(app),
-      m_icon_whisker_connected(nullptr),
       m_button_needs_upload(nullptr),
       m_button_debug(nullptr),
       m_button_view(nullptr),
@@ -79,18 +78,6 @@ MenuHeader::MenuHeader(QWidget* parent,
                 this, &MenuHeader::backClicked,
                 Qt::UniqueConnection);
     }
-
-    // - Info icons
-    FlowLayoutHfw* info_icons = new FlowLayoutHfw();
-    toprowlayout->addLayout(info_icons);
-    info_icons->setHorizontalAlignmentOfContents(Qt::AlignLeft);
-
-    // ... Whisker
-    m_icon_whisker_connected = uifunc::iconWidget(
-        uifunc::iconFilename(uiconst::ICON_WHISKER), this);
-    info_icons->addWidget(m_icon_whisker_connected);
-    info_icons->setAlignment(m_icon_whisker_connected, button_align);
-    whiskerConnectionStateChanged(m_app.whiskerConnected());
 
     // Spacing
     toprowlayout->addStretch();
@@ -198,9 +185,6 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ========================================================================
     // Incoming signals
     // ========================================================================
-    connect(&m_app, &CamcopsApp::whiskerConnectionStateChanged,
-            this, &MenuHeader::whiskerConnectionStateChanged,
-            Qt::UniqueConnection);
     connect(&m_app, &CamcopsApp::lockStateChanged,
             this, &MenuHeader::lockStateChanged,
             Qt::UniqueConnection);
@@ -239,12 +223,6 @@ void MenuHeader::lockStateChanged(const CamcopsApp::LockState lockstate)
     m_button_locked->setVisible(lockstate == CamcopsApp::LockState::Locked);
     m_button_unlocked->setVisible(lockstate == CamcopsApp::LockState::Unlocked);
     m_button_privileged->setVisible(lockstate == CamcopsApp::LockState::Privileged);
-}
-
-
-void MenuHeader::whiskerConnectionStateChanged(const bool connected)
-{
-    m_icon_whisker_connected->setVisible(connected);
 }
 
 
