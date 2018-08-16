@@ -288,7 +288,7 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
             disconnectFromServer();
             return;
         }
-        m_imm_port = immport_match.captured(1).toInt();
+        m_imm_port = static_cast<quint16>(immport_match.captured(1).toUInt());
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
         qDebug() << "Whisker server offers immediate port" << m_imm_port;
 #endif

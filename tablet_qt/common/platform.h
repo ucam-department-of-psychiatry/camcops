@@ -27,4 +27,7 @@ extern const bool PLATFORM_LINUX;
 extern const bool PLATFORM_WINDOWS;
 extern const bool PLATFORM_TABLET;
 
+bool isHost64Bit();
+bool isBuild64Bit();
+
 }  // namespace platform

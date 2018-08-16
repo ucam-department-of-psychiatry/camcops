@@ -36,6 +36,7 @@ LogBox::LogBox(QWidget* parent,
                const bool scroll_to_end_on_insert,
                const bool word_wrap) :
     QDialog(parent),
+    m_use_wait_cursor(true),
     m_editor(nullptr),
     m_ok(nullptr),
     m_cancel(nullptr),
@@ -101,11 +102,19 @@ LogBox::~LogBox()
 }
 
 
+void LogBox::useWaitCursor(bool use_wait_cursor)
+{
+    m_use_wait_cursor = use_wait_cursor;
+}
+
+
 void LogBox::open()
 {
     // qDebug() << Q_FUNC_INFO;
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    m_wait_cursor_on = true;
+    if (m_use_wait_cursor) {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        m_wait_cursor_on = true;
+    }
     QDialog::open();
 }
 

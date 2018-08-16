@@ -18,6 +18,8 @@
 */
 
 #include "platform.h"
+#include <QString>
+#include <QSysInfo>
 #include <QtGlobal>
 
 namespace platform {
@@ -51,5 +53,22 @@ const bool PLATFORM_TABLET = true;
 #else
 const bool PLATFORM_TABLET = false;
 #endif
+
+
+// https://stackoverflow.com/questions/36649393/qt-check-if-current-process-is-32-or-64-bit/41863992
+
+bool isHost64Bit()
+{
+    static bool h = QSysInfo::currentCpuArchitecture().contains(QLatin1String("64"));
+    return h;
+}
+
+
+bool isBuild64Bit()
+{
+    static bool b = QSysInfo::buildCpuArchitecture().contains(QLatin1String("64"));
+    return b;
+}
+
 
 }  // namespace platform

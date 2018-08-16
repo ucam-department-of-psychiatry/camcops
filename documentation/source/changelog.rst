@@ -1344,6 +1344,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Fix to fullscreen modes under Windows (see ``compilation_windows.txt``).
 
+- Whisker test task (2018-08-15).
+
+- Windows distribution (2018-08-16).
+
 **Server v2.2.7, 2018-07-31**
 
 - Bugfix relating to offset-naive versus offset-aware datetimes in

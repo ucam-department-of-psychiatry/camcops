@@ -368,18 +368,18 @@ public:
     // Line flashing
     // ------------------------------------------------------------------------
     unsigned int flashLinePulses(const QString& line,
-                                 int count,
+                                 unsigned int count,
                                  unsigned int on_ms,
                                  unsigned int off_ms,
                                  bool on_at_rest = false);
 protected:
     void flashLinePulsesOn(const QString& line,
-                           int count,
+                           unsigned int count,
                            unsigned int on_ms,
                            unsigned int off_ms,
                            bool on_at_rest);
     void flashLinePulsesOff(const QString& line,
-                            int count,
+                            unsigned int count,
                             unsigned int on_ms,
                             unsigned int off_ms,
                             bool on_at_rest);

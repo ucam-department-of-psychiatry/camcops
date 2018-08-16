@@ -59,14 +59,15 @@ import argparse
 import logging
 import os
 from os.path import join
+import platform
 import shutil
 import subprocess
 import sys
 import tempfile
 from typing import Tuple
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 
 # =============================================================================
@@ -84,6 +85,10 @@ TABLET_ICON_PDF = join(THIS_DIR, "camcops_icons.pdf")
 SERVER_DIAGRAM_PDF = join(THIS_DIR, "camcops_server_diagram.pdf")
 SCALING_LOGOS_PDF = join(THIS_DIR, "camcops_scaling_logos.pdf")
 
+CONVERT = "convert"
+GREP = "grep"
+IDENTIFY = "identify"
+
 
 # =============================================================================
 # Support functions
@@ -100,9 +105,9 @@ def get_pdf_print_size_inches(filename: str,
         fd, tmpfname = tempfile.mkstemp('.pdf')
         os.close(fd)
         try:
-            logger.debug("Measuring autocropped PDF")
+            log.debug("Measuring autocropped PDF")
             args = [
-                'convert',
+                CONVERT,
                 # '-verbose',
                 '-trim',
                 filename,
@@ -110,16 +115,16 @@ def get_pdf_print_size_inches(filename: str,
                 tmpfname
             ]
             # Note that the output PDF is rasterized, not vector
-            logger.debug(args)
+            log.debug(args)
             subprocess.check_call(args)
             return get_pdf_print_size_inches(tmpfname, autocrop=False)
         except:
             raise
         finally:
             os.remove(tmpfname)
-    p1 = subprocess.Popen(['identify', '-verbose', filename],
+    p1 = subprocess.Popen([IDENTIFY, '-verbose', filename],
                           stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(['grep', 'Print size: '],
+    p2 = subprocess.Popen([GREP, 'Print size: '],
                           stdin=p1.stdout, stdout=subprocess.PIPE)
     p1.stdout.close()
     output = p2.communicate()[0].decode("utf-8").strip()
@@ -170,7 +175,8 @@ def crop_pdf(src_filename: str,
              img_tb: ProportionPair = None,
              density_dpi: int = None,
              density_default_multiplier: int = 2,
-             transparent: bool = None) -> None:
+             transparent: bool = None,
+             windows_multires_icon: bool = False) -> None:
     """
     Takes a chunk out of a PDF.
     Source:
@@ -200,19 +206,19 @@ def crop_pdf(src_filename: str,
     img_tb.validate()
     final_img_lr = active_lr * img_lr
     final_img_tb = active_tb * img_tb
-    logger.debug("Starting point: left=0, right=1; top=0, bottom=1")
-    logger.debug("After removing margins: left={l}, right={r}; top={t}, "
+    log.debug("Starting point: left=0, right=1; top=0, bottom=1")
+    log.debug("After removing margins: left={l}, right={r}; top={t}, "
                  "bottom={b}".format(l=active_lr.a,
                                      r=active_lr.b,
                                      t=active_tb.a,
                                      b=active_tb.b))
-    logger.debug(
+    log.debug(
         "With what's left, take image: left={l}, right={r}; top={t}, "
         "bottom={b}".format(l=img_lr.a,
                             r=img_lr.b,
                             t=img_tb.a,
                             b=img_tb.b))
-    logger.debug("Final image to be taken: left={l}, right={r}; top={t}, "
+    log.debug("Final image to be taken: left={l}, right={r}; top={t}, "
                  "bottom={b}".format(l=final_img_lr.a,
                                      r=final_img_lr.b,
                                      t=final_img_tb.a,
@@ -224,7 +230,7 @@ def crop_pdf(src_filename: str,
     # First, we get its size.
     (src_width_inches,
      src_height_inches) = get_pdf_print_size_inches(src_filename, autocrop)
-    logger.debug("Source PDF size: {} inches W x {} inches H".format(
+    log.debug("Source PDF size: {} inches W x {} inches H".format(
         src_width_inches, src_height_inches))
 
     img_aspect_ratio = (
@@ -235,13 +241,13 @@ def crop_pdf(src_filename: str,
     # Infer width or height from aspect ratio?
     if dest_width_px is None:
         dest_width_px = round(img_aspect_ratio * dest_height_px)
-        logger.debug(
+        log.debug(
             "Autocalculating: dest_width_px = img_aspect_ratio * "
             "dest_height_px = {} * {} = {}".format(
                 img_aspect_ratio, dest_height_px, dest_width_px))
     elif dest_height_px is None:
         dest_height_px = round(dest_width_px / img_aspect_ratio)
-        logger.debug(
+        log.debug(
             "Autocalculating: dest_height_px = dest_width_px / "
             "img_aspect_ratio = {} / {} = {}".format(
                 dest_width_px, img_aspect_ratio, dest_height_px))
@@ -270,13 +276,13 @@ def crop_pdf(src_filename: str,
     img_bottom_px = round(final_img_tb.b * src_height_px)
     img_height_px = img_bottom_px - img_top_px
 
-    logger.info("Making {f} at {w}x{h}".format(
+    log.info("Making {f} at {w}x{h}".format(
         f=dest_filename, w=dest_width_px, h=dest_height_px))
     directory = os.path.dirname(dest_filename)
     if directory:
         mkdirp(directory)
     args = [
-        'convert',
+        CONVERT,
         # '-verbose',
     ]
     if autocrop:
@@ -300,8 +306,11 @@ def crop_pdf(src_filename: str,
         #     http://www.imagemagick.org/Usage/resize/
         dest_filename
     ])
-    logger.debug(args)
+    log.debug(args)
     subprocess.check_call(args)
+
+*** windows_multires_icon
+# https://stackoverflow.com/questions/4354617/how-to-make-get-a-multi-size-ico-file
 
 
 def tile_pdf(src_filename: str,
@@ -313,20 +322,20 @@ def tile_pdf(src_filename: str,
              autocrop: bool = True,
              density_multiplier: int = 4,
              transparent: str = None) -> None:
-    logger.debug("Tiling {} -> {}".format(src_filename, dest_filename_format))
+    log.debug("Tiling {} -> {}".format(src_filename, dest_filename_format))
     if tile_width_px is None and tile_height_px is None:
         raise AssertionError("Must specify width/height/both")
 
     # Get source size
     (src_width_inches,
      src_height_inches) = get_pdf_print_size_inches(src_filename, autocrop)
-    logger.debug("Source PDF size: {} inches W x {} inches H".format(
+    log.debug("Source PDF size: {} inches W x {} inches H".format(
         src_width_inches, src_height_inches))
 
     src_tile_width_inches = src_width_inches / n_wide
     src_tile_height_inches = src_height_inches / n_high
     src_tile_aspect_ratio = src_tile_width_inches / src_tile_height_inches
-    logger.debug(
+    log.debug(
         "Source PDF tile size: {} inches W x {} inches H "
         "(aspect ratio {})".format(
             src_tile_width_inches, src_tile_height_inches,
@@ -334,13 +343,13 @@ def tile_pdf(src_filename: str,
 
     if tile_width_px is None:
         tile_width_px = round(src_tile_aspect_ratio * tile_height_px)
-        logger.debug(
+        log.debug(
             "Autocalculating: tile_width_px = src_tile_aspect_ratio * "
             "tile_height_px = {} * {} = {}".format(
                 src_tile_aspect_ratio, tile_height_px, tile_width_px))
     elif tile_height_px is None:
         tile_height_px = round(tile_width_px / src_tile_aspect_ratio)
-        logger.debug(
+        log.debug(
             "Autocalculating: tile_height_px = tile_width_px / "
             "src_tile_aspect_ratio = {} / {} = {}".format(
                 tile_width_px, src_tile_aspect_ratio, tile_height_px))
@@ -354,7 +363,7 @@ def tile_pdf(src_filename: str,
 
     # Off we go
     args = [
-        'convert',
+        CONVERT,
         # '-verbose',
     ]
     if autocrop:
@@ -393,11 +402,12 @@ def tile_pdf(src_filename: str,
         '-resize', '{w}x{h}'.format(w=tile_width_px, h=tile_height_px),
         dest_filename_format
     ])
-    logger.debug(args)
+    log.debug(args)
     subprocess.check_call(args)
 
 
-def make_appicon(filename: str, side_px: int) -> None:
+def make_appicon(filename: str, side_px: int,
+                 windows_multires_icon: bool = False) -> None:
     # Imagine the source PDF as a 3x3 grid; we want the middle square.
     # Appicons are square.
     crop_pdf(
@@ -406,7 +416,8 @@ def make_appicon(filename: str, side_px: int) -> None:
         img_tb=ProportionPair(1/3, 2/3),
         dest_filename=filename,
         dest_width_px=side_px,
-        dest_height_px=side_px
+        dest_height_px=side_px,
+        windows_multires_icon=windows_multires_icon
     )
 
 
@@ -428,8 +439,8 @@ def make_splashscreen(filename: str,
     src_width_in, src_height_in = get_pdf_print_size_inches(SPLASHSCREEN_PDF)
     src_aspect_ratio = src_width_in / src_height_in
     dest_aspect_ratio = width_px / height_px
-    logger.debug("source aspect ratio: {}".format(src_aspect_ratio))
-    logger.debug("destination aspect ratio: {}".format(dest_aspect_ratio))
+    log.debug("source aspect ratio: {}".format(src_aspect_ratio))
+    log.debug("destination aspect ratio: {}".format(dest_aspect_ratio))
     if dest_aspect_ratio == src_aspect_ratio:
         img_lr = ProportionPair(0, 1)
         img_tb = ProportionPair(0, 1)
@@ -478,6 +489,14 @@ def main() -> None:
     parser.add_argument("-v", "--verbose", action='store_true', help="Verbose")
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
+
+    if platform.system() == "Windows":
+        log.critical("This program doesn't yet support running on Windows; "
+                     "for the future, will need to check the CONVERT command "
+                     "as this is a FAT-to-NTFS converter under Windows and "
+                     "ImageMagick under Linux (and we want the latter).")
+        sys.exit(1)
+
     if args.all:
         args.android = True
         args.googleplay = True
@@ -485,7 +504,7 @@ def main() -> None:
         args.server = True
         args.tablet = True
         args.windows = True
-    logger.info("Using base directory: {}".format(args.base_dir))
+    log.info("Using base directory: {}".format(args.base_dir))
 
     google_play_dir = join(args.base_dir, "working", "google_play_images")
 
@@ -496,15 +515,16 @@ def main() -> None:
         android_res_dir = join(args.base_dir, "working", "dummy_image_android_res_dir")  # !!! # noqa
         android_plt_res = join(args.base_dir, "tablet_qt", "android", "res")
         ios_dir = join(args.base_dir, "working", "dummy_image_ios_dir")  # !!! # noqa
-        windows_dir = join(args.base_dir, "working", "dummy_image_windows_dir")  # !!! # noqa
+        windows_dir = join(args.base_dir, "tablet_qt", "windows")
     else:
-        tablet_icon_dir = join(args.base_dir, "tablet_qt", "Resources",
-                               "images", "camcops")
-        android_res_dir = join(args.base_dir, "tablet", "Resources", "android")
-        android_plt_res = join(args.base_dir,
-                               "tablet", "platform", "android", "res")
-        ios_dir = join(args.base_dir, "tablet", "Resources", "iphone")
-        windows_dir = join(args.base_dir, "tablet", "Resources", "windows")
+        raise Exception("Titanium version no longer supported")
+        # tablet_icon_dir = join(args.base_dir, "tablet_qt", "Resources",
+        #                        "images", "camcops")
+        # android_res_dir = join(args.base_dir, "tablet", "Resources", "android")  # noqa
+        # android_plt_res = join(args.base_dir,
+        #                        "tablet", "platform", "android", "res")
+        # ios_dir = join(args.base_dir, "tablet", "Resources", "iphone")
+        # windows_dir = join(args.base_dir, "tablet", "Resources", "windows")
 
     server_static_dir = join(args.base_dir, "server", "static")
     web_image_dir = join(args.base_dir, "website", "images")
@@ -521,7 +541,7 @@ def main() -> None:
         return join(ios_dir, filename)
 
     if args.ios:
-        logger.info("--- iOS")
+        log.info("--- iOS")
         make_appicon(ios("appicon.png"), 57)
         make_appicon(ios("appicon@2x.png"), 114)
         make_appicon(ios("appicon-72.png"), 72)
@@ -559,7 +579,7 @@ def main() -> None:
     # =============================================================================
 
     if args.android:
-        logger.info("--- Android")
+        log.info("--- Android")
         make_appicon(join(android_res_dir, "appicon.png"), 128)
         make_appicon(join(android_plt_res, "drawable-ldpi", "appicon.png"), 36)
         make_appicon(join(android_plt_res, "drawable-mdpi", "appicon.png"), 48)
@@ -578,7 +598,7 @@ def main() -> None:
             480, 800)
 
     if args.googleplay:
-        logger.info("--- Google Play Store")
+        log.info("--- Google Play Store")
         make_appicon(join(google_play_dir, "hi_res_icon.png"), 512)
         make_feature_graphic(join(google_play_dir, "feature_graphic.png"),
                              1024, 500)
@@ -594,13 +614,17 @@ def main() -> None:
     # =============================================================================
 
     if args.windows:
-        logger.info("--- Windows")
+        log.info("--- Windows")
         make_appicon(join(windows_dir, "Logo.png"), 150)
         make_appicon(join(windows_dir, "SmallLogo.png"), 30)
         make_appicon(join(windows_dir, "StoreLogo.png"), 50)
         make_appicon(join(windows_dir, "Square150x150Logo.png"), 150)
         make_appicon(join(windows_dir, "Square71x71Logo.png"), 71)
         make_appicon(join(windows_dir, "Square44x44Logo.png"), 44)
+
+        # https://docs.microsoft.com/en-gb/windows/desktop/uxguide/vis-icons
+        make_appicon(join(windows_dir, "camcops.ico"), 256,
+                     windows_multires_icon=True)
 
         make_splashscreen(join(windows_dir, "SplashScreen.png"), 620, 300)
         make_splashscreen(
@@ -613,7 +637,7 @@ def main() -> None:
     # =============================================================================
 
     if args.server:
-        logger.info("--- Server")
+        log.info("--- Server")
         make_appicon(join(server_static_dir, "favicon_camcops.png"), 32)
         make_appicon(join(web_image_dir, "camcops.png"), 96)
         make_appicon(join(web_image_dir, "favicon.png"), 32)
@@ -716,8 +740,8 @@ def main() -> None:
     ]
 
     if args.tablet:
-        logger.info("--- Tablet")
-        logger.info("Slicing icons...")
+        log.info("--- Tablet")
+        log.info("Slicing icons...")
         for icondir in all_tablet_icon_dirs:
             mkdirp(icondir)
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -733,7 +757,7 @@ def main() -> None:
                     if propername is not None:
                         for destdir in all_tablet_icon_dirs:
                             fullpath = join(destdir, propername)
-                            logger.info("Creating {}".format(fullpath))
+                            log.info("Creating {}".format(fullpath))
                             shutil.copy(tilename, fullpath)
                         os.remove(tilename)
                     tilenum += 1
@@ -741,17 +765,17 @@ def main() -> None:
         for destdir in all_tablet_icon_dirs:
             # Special: resize hasChild
             has_child = join(destdir, 'hasChild.png')
-            logger.info("Resizing " + has_child)
-            args = ['convert', has_child, '-resize', '24x24', has_child]
-            logger.debug(args)
-            subprocess.check_call(args)
+            log.info("Resizing " + has_child)
+            cmdargs = [CONVERT, has_child, '-resize', '24x24', has_child]
+            log.debug(cmdargs)
+            subprocess.check_call(cmdargs)
 
             # Special: make hasParent
             has_parent = join(destdir, 'hasParent.png')
-            logger.info("Making " + has_parent)
-            args = ['convert', has_child, '-flop', has_parent]
-            logger.debug(args)
-            subprocess.check_call(args)
+            log.info("Making " + has_parent)
+            cmdargs = [CONVERT, has_child, '-flop', has_parent]
+            log.debug(cmdargs)
+            subprocess.check_call(cmdargs)
 
 
 if __name__ == '__main__':

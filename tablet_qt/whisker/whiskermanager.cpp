@@ -1328,7 +1328,7 @@ bool WhiskerManager::broadcast(const QString& message, bool ignore_reply)
 // ----------------------------------------------------------------------------
 
 unsigned int WhiskerManager::flashLinePulses(const QString& line,
-                                             int count,
+                                             unsigned int count,
                                              unsigned int on_ms,
                                              unsigned int off_ms,
                                              bool on_at_rest)
@@ -1370,7 +1370,7 @@ unsigned int WhiskerManager::flashLinePulses(const QString& line,
 
 
 void WhiskerManager::flashLinePulsesOn(const QString& line,
-                                       int count,
+                                       unsigned int count,
                                        unsigned int on_ms,
                                        unsigned int off_ms,
                                        bool on_at_rest)
@@ -1390,7 +1390,7 @@ void WhiskerManager::flashLinePulsesOn(const QString& line,
 
 
 void WhiskerManager::flashLinePulsesOff(const QString& line,
-                                        int count,
+                                        unsigned int count,
                                         unsigned int on_ms,
                                         unsigned int off_ms,
                                         bool on_at_rest)

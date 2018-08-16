@@ -22,6 +22,7 @@
 #include <QtNetwork/QSslSocket>
 #include <QSqlDriver>
 #include <QtSql/QtSqlVersion>
+#include "common/platform.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/urlconst.h"
@@ -87,6 +88,15 @@ void HelpMenu::softwareVersions() const
     // ------------------------------------------------------------------------
     versions.append(QString("<b>CamCOPS tablet version:</b> %1").arg(
                         camcopsversion::CAMCOPS_VERSION.toString()));
+    versions.append(newline);
+
+    // ------------------------------------------------------------------------
+    // Architecture
+    // ------------------------------------------------------------------------
+    const bool host64 = platform::isHost64Bit();
+    const bool build64 = platform::isBuild64Bit();
+    versions.append(QString("Current computer is %1-bit").arg(host64 ? "64" : "32"));
+    versions.append(QString("CamCOPS executable is %1-bit").arg(build64 ? "64" : "32"));
     versions.append(newline);
 
     // ------------------------------------------------------------------------

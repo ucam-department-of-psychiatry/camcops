@@ -418,6 +418,64 @@ Options last checked against Qt Creator 4.6.2 (built June 2018).
         * - Additional Qbs Profile Settings
           -
 
+**Custom_Windows_x86_32**
+
+    .. list-table::
+        :header-rows: 1
+        :stub-columns: 1
+
+        * - Option
+          - Setting
+        * - Name
+          - ``Custom_Windows_x86_32``
+        * - File system name
+          -
+        * - Device type
+          - Desktop
+        * - Device
+          - Local PC (default for Desktop)
+        * - Sysroot
+          - ``[...]\qt_local_build\qt_windows_x86_32_install\bin``
+        * - Compiler: C
+          - Microsoft Visual C++ Compiler 14.0 (amd64_x86)
+        * - Compiler: C++
+          - Microsoft Visual C++ Compiler 14.0 (amd64_x86)
+        * - Environment
+          - [not editable: "No changes to apply."]
+        * - Debugger
+          - None
+        * - Qt version
+          - **THE "WINDOWS 32-BIT" ONE FROM QT VERSIONS, ABOVE**
+        * - Qt mkspec
+          -
+        * - CMake Tool
+          - System CMake at ``C:\Program Files (x86)\CMake\bin\cmake.exe``
+        * - CMake Generator
+          - CodeBlocks - MinGW Makefiles, Platform: <none>, Toolset: <none>
+        * - CMake Configuration
+          - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
+            ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
+            ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
+            ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
+        * - Additional Qbs Profile Settings
+          -
+
+.. note::
+
+    For the Microsoft Visual C++ compiler, ``amd64`` means 64-bit and ``x86``
+    means 32-bit. Then the two-part options are cross-compilers, in which the
+    first part is the type of the host machine (the one running the compiler)
+    and the second part is the type of the destination machine (the one that
+    will run the compiled executable). Therefore, in full, ``x86`` produces
+    32-bit output using a 32-bit compiler; ``amd64`` produces 64-bit output
+    using a 64-bit compiler (i.e. requiring a 64-bit computer to do the
+    compiling); ``x86_amd64`` produces 64-bit output using a 32-bit compiler
+    (so you can build for 64-bit machines using a 32-bit machine), and
+    ``amd64_x86`` produces 32-bit output using a 64-bit compiler. So, if you
+    have a 64-bit machine, you probably want to use ``amd64_x86`` and
+    ``amd64``; if you have a 32-bit machine, you definitely want to use ``x86``
+    and ``x86_amd64``.
+
 Build settings
 --------------
 

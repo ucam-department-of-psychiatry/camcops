@@ -98,12 +98,12 @@ const QString event_counted_tick("1Hz_tick_5count");
 const QString event_input_on("digital_input_on");
 const QString event_input_off("digital_input_off");
 // Timings
-const int n_counted_ticks = 5;
+const unsigned int n_counted_ticks = 5;
 const unsigned int single_tick_period_ms = 500;
 const unsigned int infinite_tick_period_ms = 5000;
 const unsigned int counted_tick_period_ms = 1000;
 const int FIVE_SEC = 5000;
-const int n_flashes = 10;
+const unsigned int n_flashes = 10;
 const unsigned int flash_on_ms = 300;
 const unsigned int flash_off_ms = 700;
 // Other
@@ -161,7 +161,8 @@ void WhiskerTestMenu::ensureWhiskerManager()
 void WhiskerTestMenu::connectWhisker()
 {
     ensureWhiskerManager();
-    m_whisker->connectToServer(m_host.toString(), m_main_port.toUInt());
+    m_whisker->connectToServer(m_host.toString(),
+                               static_cast<quint16>(m_main_port.toUInt()));
 }
 
 
@@ -369,10 +370,13 @@ OpenableWidget* WhiskerTestMenu::configureWhisker(CamcopsApp& app)
 
 void WhiskerTestMenu::runDemoWhiskerTask()
 {
+    status("Starting demo Whisker task");  // ensures modal logbox
     ensureWhiskerManager();
     if (m_whisker->isConnected()) {
+        status("Whisker server already connected.");
         demoWhiskerTaskMain();
     } else {
+        status("Connecting to Whisker server...");
         connect(m_whisker.data(), &WhiskerManager::onFullyConnected,
                 this, &WhiskerTestMenu::demoWhiskerTaskMain,
                 Qt::UniqueConnection);
@@ -414,11 +418,21 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
     // Additional constants
     // ------------------------------------------------------------------------
     const bool ignore_reply = true;
+    const QColor black(0, 0, 0);
+    const QColor red(255, 0, 0);
+    const QColor green(0, 255, 0);
+    const QColor blue(0, 0, 255);
+    const QColor yellow(255, 255, 0);
+    const QColor palergreen(0, 200, 0);
+    const QColor darkred(100, 0, 0);
+    const QColor darkcyan(0, 100, 100);
+    const QColor darkyellow(100, 100, 0);
+    const QColor vdarkgrey(50, 50, 50);
 
     // ------------------------------------------------------------------------
     // Variables
     // ------------------------------------------------------------------------
-    const int display_num = m_display_num.toInt();
+    const unsigned int display_num = m_display_num.toUInt();
     const bool use_video = m_use_video.toBool();
     const bool use_two_videos = m_use_two_videos.toBool();
     const QString media_directory = m_media_directory.toString();
@@ -426,8 +440,8 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
     const QString bmp_filename_2 = m_bmp_filename_2.toString();
     const QString video_filename_1 = m_video_filename_1.toString();
     const QString video_filename_2 = m_video_filename_2.toString();
-    const int input_line_num = m_input_line_num.toInt();
-    const int output_line_num = m_output_line_num.toInt();
+    const unsigned int input_line_num = m_input_line_num.toUInt();
+    const unsigned int output_line_num = m_output_line_num.toUInt();
 
     // ------------------------------------------------------------------------
     // Setup
@@ -445,15 +459,15 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
     }
     w->displayCreateDocument(doc, ignore_reply);
     w->displaySetDocumentSize(doc, QSize(1600, 1200), ignore_reply);
-    w->displaySetBackgroundColour(doc, QColor(100, 0, 0), ignore_reply);
+    w->displaySetBackgroundColour(doc, darkred, ignore_reply);
 
     // ------------------------------------------------------------------------
     // Simple objects
     // ------------------------------------------------------------------------
 
     status("Creating simple display objects");
-    Pen pen(1, QColor(255, 255, 0), PenStyle::Solid);
-    Brush brush(QColor(0, 0, 255), QColor(0, 100, 100), true,
+    Pen pen(1, yellow, PenStyle::Solid);
+    Brush brush(blue, darkcyan, true,
                 BrushStyle::Solid, BrushHatchStyle::BDiagonal);
 
     w->displayAddObject(
@@ -479,7 +493,7 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
                       QPoint(300, 350), QPoint(500, 350), pen, brush),
                 ignore_reply);
 
-    brush.colour = QColor(0, 200, 0);
+    brush.colour = palergreen;
 
     w->displayAddObject(
                 doc, ellipse_obj,
@@ -505,7 +519,7 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
                 ignore_reply);
 
     brush.hatch_style = BrushHatchStyle::FDiagonal;
-    brush.bg_colour = QColor(100, 100, 0);
+    brush.bg_colour = darkyellow;
 
     w->displayAddObject(
                 doc, polygon_obj_1,
@@ -549,11 +563,11 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
                     QVector<uint8_t>{9, 10, 11, 12, 13, 14, 15, 16},
                     QVector<uint8_t>{255, 254, 253, 252, 251, 250, 249, 248},
                     QVector<uint8_t>{247, 246, 245, 244, 243, 242, 241, 240},
-                    QColor(255, 0, 0),
-                    QColor(0, 255, 0),
-                    QColor(0, 0, 255),
-                    QColor(255, 255, 0),
-                    QColor(50, 50, 50)
+                    red,
+                    green,
+                    blue,
+                    yellow,
+                    vdarkgrey
                 ),
                 ignore_reply);
 
@@ -612,7 +626,7 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
         const QString strFwdObj(prefix + "fwd");
 
         brush.style = BrushStyle::Solid;
-        brush.colour = QColor(0, 0, 255);
+        brush.colour = blue;
         w->displayAddObject(
                     doc, strPlayObj,
                     Polygon(QVector<QPoint>{QPoint(800, top),
@@ -621,12 +635,12 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
                             pen, brush),
                     ignore_reply);
 
-        brush.colour = QColor(0, 0, 0);
+        brush.colour = black;
         w->displayAddObject(
                     doc, strPauseObj,
                     Rectangle(QRect(900, top, 50, 50), pen, brush),
                     ignore_reply);
-        brush.colour = QColor(0, 255, 0);
+        brush.colour = green;
         w->displayAddObject(
                     doc, strPauseObj,
                     Rectangle(QRect(900, top, 15, 50), pen, brush),
@@ -636,19 +650,19 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
                     Rectangle(QRect(935, top, 15, 50), pen, brush),
                     ignore_reply);
 
-        brush.colour = QColor(255, 0, 0);
+        brush.colour = red;
         w->displayAddObject(
                     doc, strStopObj,
                     Rectangle(QRect(1000, top, 50, 50), pen, brush),
                     ignore_reply);
 
-        brush.colour = QColor(0, 0, 0);
+        brush.colour = black;
         w->displayAddObject(
                     doc, strBackObj,
                     Rectangle(QRect(1100, top, 50, 50), pen, brush),
                     ignore_reply);
 
-        brush.colour = QColor(0, 0, 0);
+        brush.colour = black;
         w->displayAddObject(
                     doc, strBackObj,
                     Polygon(QVector<QPoint>{QPoint(1125, top),
@@ -664,12 +678,12 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
                             pen, brush),
                     ignore_reply);
 
-        brush.colour = QColor(0, 0, 0);
+        brush.colour = black;
         w->displayAddObject(
                     doc, strFwdObj,
                     Rectangle(QRect(1200, top, 50, 50), pen, brush),
                     ignore_reply);
-        brush.colour = QColor(255, 255, 0);
+        brush.colour = yellow;
         w->displayAddObject(
                     doc, strFwdObj,
                     Polygon(QVector<QPoint>{QPoint(1200, top),
@@ -898,6 +912,7 @@ void WhiskerTestMenu::ensureLogBox()
         m_logbox = new LogBox(this, "Whisker test task", true);
         m_logbox->setStyleSheet(
                     m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MAIN));
+        m_logbox->useWaitCursor(false);
         connect(m_logbox.data(), &LogBox::rejected,
                 this, &WhiskerTestMenu::taskCancelled,
                 Qt::UniqueConnection);

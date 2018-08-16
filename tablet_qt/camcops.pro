@@ -244,6 +244,8 @@ windows {
         message("Building for Windows/x86_32 architecture")
         CAMCOPS_ARCH_TAG = "windows_x86_32"
     }
+
+    RC_FILE = windows/camcops.rc
 }
 
 isEmpty(CAMCOPS_ARCH_TAG) {
@@ -1207,6 +1209,7 @@ DISTFILES += \
     tools/build_qt.py \
     tools/chord.py \
     tools/cppclean_all.sh \
-    tools/decrypt_sqlcipher.py
+    tools/decrypt_sqlcipher.py \
+    windows/camcops.rc
 
 message("--- CamCOPS qmake finishing.")
