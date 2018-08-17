@@ -109,7 +109,7 @@ double firstDigitsDouble(const double number,
     const bool sign_present = number < 0;
     const QString left = formatted.left(sign_present ? n_digits + 1 : n_digits);
     const double result = left.toDouble();
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
     qDebug() << Q_FUNC_INFO << "- formatted" << formatted
              << "n_digits" << n_digits
              << "left" << left
@@ -124,7 +124,7 @@ bool isValidStartToDouble(const double number,
                           const double top)
 {
     if (extendedDoubleMustBeLessThan(number, bottom, top)) {
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be less than bottom value of"
                  << bottom << "=> fail";
@@ -132,14 +132,14 @@ bool isValidStartToDouble(const double number,
         return false;
     }
     if (extendedDoubleMustExceed(number, bottom, top)) {
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be more than top value of"
                  << top << "=> fail";
 #endif
         return false;
     }
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
     qDebug() << Q_FUNC_INFO << number << "is OK for bottom"
              << bottom << "top" << top;
 #endif

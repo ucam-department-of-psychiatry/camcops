@@ -18,26 +18,15 @@
 */
 
 #pragma once
-#include <QString>
-#include "menulib/menuwindow.h"
-class Patient;
+#include <QValidator>
 
 
-class SingleTaskMenu : public MenuWindow
+class NHSNumberValidator : public QValidator
 {
-    // This is the menu class that serves all tasks.
-
     Q_OBJECT
 public:
-    SingleTaskMenu(const QString& tablename, CamcopsApp& app);
-    virtual void build() override;
-public slots:  // http://stackoverflow.com/questions/19129133/qt-signals-and-slots-permissions
-    void addTask();
-    void selectedPatientChanged(const Patient* patient);
-    void taskFinished();
-protected:
-    void showTaskStatus() const;
-protected:
-    QString m_tablename;
-    bool m_anonymous;
+    NHSNumberValidator(bool allow_empty = false, QObject* parent = nullptr);
+    QValidator::State validate(QString& input, int& pos) const override;
+private:
+    bool m_allow_empty;
 };

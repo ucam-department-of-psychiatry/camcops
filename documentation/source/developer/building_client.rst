@@ -23,6 +23,8 @@
 .. _Cygwin: https://www.cygwin.com/
 .. _Debugging Tools for Windows: https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/
 .. _Git: https://git-scm.com/
+.. _ImageMagick: https://www.imagemagick.org/
+.. _Inno Setup: http://www.jrsoftware.org/isinfo.php
 .. _jom: https://wiki.qt.io/Jom
 .. _NASM: http://www.nasm.us/
 .. _Perl: https://www.activestate.com/activeperl
@@ -74,6 +76,10 @@ Windows
 
   - Optionally, `Debugging Tools for Windows`_ (including CDB), such as from
     the `Windows SDK`_.
+
+  - ImageMagick_; make sure you also install the C/C++ development headers
+    (see
+    http://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows).
 
 - Add everything to the ``PATH``.
 
@@ -129,16 +135,33 @@ All operating systems
 - Set some environment variables, so we can be consistent in these
   instructions. Specimen values:
 
-  +---------------------+--------------------------+--------------------------------------+-----------------------------+
-  | Environment         | Example value (Linux)    | Example value (Windows)              | Notes                       |
-  | variable            |                          |                                      |                             |
-  +=====================+==========================+======================================+=============================+
-  | CAMCOPS_QT_BASE_DIR | ``~/dev/qt_local_build`` | ``%USERPROFILE%\dev\qt_local_build`` | Read by ``build_qt.py``.    |
-  +---------------------+--------------------------+--------------------------------------+-----------------------------+
-  | CAMCOPS_SOURCE_DIR  | ``~/dev/camcops``        | ``%USERPROFILE%\dev\camcops``        | Used in these instructions. |
-  +---------------------+--------------------------+--------------------------------------+-----------------------------+
-  | CAMCOPS_VENV        | ``~/dev/camcops_venv``   | ``%USERPROFILE%\dev\camcops_venv``   | Used in these instructions. |
-  +---------------------+--------------------------+--------------------------------------+-----------------------------+
+    .. list-table::
+        :header-rows: 1
+
+        * - Environment variable
+          - Example value (Linux)
+          - Example value (Windows)
+          - Notes
+
+        * - CAMCOPS_QT_BASE_DIR
+          - ``~/dev/qt_local_build``
+          - ``%USERPROFILE%\dev\qt_local_build``
+          - Read by ``build_qt.py``.
+
+        * - CAMCOPS_SOURCE_DIR
+          - ``~/dev/camcops``
+          - ``%USERPROFILE%\dev\camcops``
+          - Used in these instructions and by the Windows Inno Setup script.
+
+        * - CAMCOPS_VENV
+          - ``~/dev/camcops_venv``
+          - ``%USERPROFILE%\dev\camcops_venv``
+          - Used in these instructions.
+
+        * - CAMCOPS_VISUAL_STUDIO_REDIST_ROOT
+          - N/A.
+          - ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.14.26405``
+          - Used by the Windows Inno Setup script.
 
 - Fetch CamCOPS. For example, for the GitHub version:
 
@@ -479,28 +502,6 @@ Options last checked against Qt Creator 4.6.2 (built June 2018).
 Build settings
 --------------
 
-... let's put them in a ``camcops.pro.shared`` file:
-http://doc.qt.io/qtcreator/creator-sharing-project-settings.html
-
-General
-~~~~~~~
-
-- Open the ``camcops.pro`` project file in Qt Creator.
-
-- Add your chosen kit(s) to the CamCOPS project.
-
-- Use defaults, except everywhere you see :menuselection:`Build Settings -->
-  Build Steps --> Make --> Make arguments`, add ``-j 8`` for an
-  8-CPU machine to get it compiling in parallel.
-
-  - To save this effort, set ``MAKEFLAGS="-j8"`` in your user environment (e.g.
-    in ``~/.bashrc``, or ``~/.profile``); see
-    https://stackoverflow.com/questions/8860712/setting-default-make-options-for-qt-creator.
-    HOWEVER, Qt Creator doesn't seem to read that environment variable for me.
-    Not sure why!
-
-- Build.
-
 Android
 ~~~~~~~
 
@@ -598,8 +599,34 @@ Under :menuselection:`Build Settings --> Build Environment``, set e.g.
 ``LD_LIBRARY_PATH=/home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.0g/``
 
 
+General
+~~~~~~~
+
+(I'd like to put general settings in a ``camcops.pro.shared`` file, as per
+http://doc.qt.io/qtcreator/creator-sharing-project-settings.html, but this
+isn't working well at present.)
+
+- Open the ``camcops.pro`` project file in Qt Creator.
+
+- Add your chosen kit(s) to the CamCOPS project.
+
+- Use defaults, except everywhere you see :menuselection:`Build Settings -->
+  Build Steps --> Make --> Make arguments`, add ``-j 8`` for an
+  8-CPU machine to get it compiling in parallel.
+
+  - To save this effort, set ``MAKEFLAGS="-j8"`` in your user environment (e.g.
+    in ``~/.bashrc``, or ``~/.profile``); see
+    https://stackoverflow.com/questions/8860712/setting-default-make-options-for-qt-creator.
+    HOWEVER, Qt Creator doesn't seem to read that environment variable for me.
+    Not sure why!
+
+- Build.
+
+Distributing the Whisker client
+-------------------------------
+
 Google Play Store settings
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Developer URL is https://play.google.com/apps/publish
   :menuselection:`--> pick your application
@@ -638,7 +665,7 @@ Google Play Store settings
   10 minutes to the main web site?
 
 Google Play Store release history
----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +---------------+---------------------+---------------------+------------------+---------+---------+
 | Google Play   | AndroidManifest.xml | AndroidManifest.xml | To Play Store on | Minimum | Target  |
@@ -655,7 +682,14 @@ Google Play Store release history
 +---------------+---------------------+---------------------+------------------+---------+---------+
 | 2.2.6 (beta)  | 7                   | 2.2.6               | 2018-07-31       | 23      | 26      |
 +---------------+---------------------+---------------------+------------------+---------+---------+
+| 2.2.7         | 8                   | 2.2.7               |                  | 23      | 26      |
++---------------+---------------------+---------------------+------------------+---------+---------+
 
+Windows client packaging
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+This can be done automatically via the ``camcops_windows_innosetup.iss``
+script, which runs under `Inno Setup`_.
 
 Notes
 -----

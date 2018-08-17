@@ -778,7 +778,9 @@ SOURCES += main.cpp \
     whisker/whiskerinboundmessage.cpp \
     whisker/whiskerdisplaycachewrapper.cpp \
     whisker/whiskercallbackhandler.cpp \
-    menu/whiskertestmenu.cpp
+    menu/whiskertestmenu.cpp \
+    questionnairelib/qulineeditnhsnumber.cpp \
+    qobjects/nhsnumbervalidator.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1159,7 +1161,9 @@ HEADERS += \
     whisker/whiskerinboundmessage.h \
     whisker/whiskerdisplaycachewrapper.h \
     whisker/whiskercallbackhandler.h \
-    menu/whiskertestmenu.h
+    menu/whiskertestmenu.h \
+    questionnairelib/qulineeditnhsnumber.h \
+    qobjects/nhsnumbervalidator.h
 
 DISTFILES += \
     LICENSE.txt \

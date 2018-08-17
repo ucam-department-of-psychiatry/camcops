@@ -18,26 +18,16 @@
 */
 
 #pragma once
-#include <QString>
-#include "menulib/menuwindow.h"
-class Patient;
+#include "questionnairelib/qulineeditlonglong.h"
 
 
-class SingleTaskMenu : public MenuWindow
+class QuLineEditNHSNumber : public QuLineEditLongLong
 {
-    // This is the menu class that serves all tasks.
-
     Q_OBJECT
 public:
-    SingleTaskMenu(const QString& tablename, CamcopsApp& app);
-    virtual void build() override;
-public slots:  // http://stackoverflow.com/questions/19129133/qt-signals-and-slots-permissions
-    void addTask();
-    void selectedPatientChanged(const Patient* patient);
-    void taskFinished();
+    QuLineEditNHSNumber(FieldRefPtr fieldref, bool allow_empty = true);
+    QuLineEditNHSNumber(FieldRefPtr fieldref, int minimum, int maximum,
+                        bool allow_empty) = delete;
 protected:
-    void showTaskStatus() const;
-protected:
-    QString m_tablename;
-    bool m_anonymous;
+    virtual void extraLineEditCreation(QLineEdit* editor) override;
 };

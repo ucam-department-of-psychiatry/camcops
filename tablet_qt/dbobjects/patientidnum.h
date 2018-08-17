@@ -32,6 +32,9 @@ public:
     int whichIdNum() const;
     QVariant idnumAsVariant() const;
     qlonglong idnumAsInteger() const;
+    // 64-bit signed integer; therefore up to +9,223,372,036,854,775,807
+    // NOTE that SQLite3 can't handle unsigned 64-bit integers in plain types;
+    // see https://www.sqlite.org/datatype3.html
     QString idnumAsString() const;
     bool idnumIsPresent() const;
     bool setIdnumValue(qlonglong idnum_value, bool save_to_db = true);

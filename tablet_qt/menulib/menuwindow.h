@@ -22,6 +22,10 @@
 #define MENUWINDOW_USE_HFW_LISTWIDGET  // good
 // #define MENUWINDOW_USE_HFW_LAYOUT  // bad; window contains scroll area, which gets too short
 
+#if defined(MENUWINDOW_USE_HFW_LISTWIDGET) == defined(MENUWINDOW_USE_HFW_LAYOUT)
+#error Define MENUWINDOW_USE_HFW_LISTWIDGET xor MENUWINDOW_USE_HFW_LAYOUT
+#endif
+
 #include <QPointer>
 #include <QSharedPointer>
 #include <QVector>
@@ -34,6 +38,7 @@
 
 class MenuHeader;
 class Questionnaire;
+class QLineEdit;
 class QListWidget;
 class QListWidgetItem;
 
@@ -44,7 +49,8 @@ class MenuWindow : public OpenableWidget
 
 public:
     MenuWindow(CamcopsApp& app, const QString& title,
-               const QString& icon = "", bool top = false);
+               const QString& icon = "", bool top = false,
+               bool offer_search = false);
     // Derived constructors should be LIGHTWEIGHT, as
     // MenuItem::MenuItem(MenuProxyPtr, CamcopsApp&) will create an INSTANCE
     // to get the title/subtitle.
@@ -90,6 +96,9 @@ public slots:
     virtual void deleteItem();
     void debugLayout();
 
+protected slots:
+    void searchTextChanged(const QString& text);
+
 protected:
     void viewTask();
     void editTask();
@@ -105,6 +114,7 @@ protected:
     QString m_subtitle;
     QString m_icon;
     bool m_top;
+    bool m_offer_search;
     QVector<MenuItem> m_items;
 #ifdef MENUWINDOW_USE_HFW_LAYOUT
     QPointer<VBoxLayout> m_mainlayout;
@@ -112,6 +122,7 @@ protected:
     QPointer<QVBoxLayout> m_mainlayout;
 #endif
     QPointer<MenuHeader> m_p_header;
+    QPointer<QLineEdit> m_search_box;
 #ifdef MENUWINDOW_USE_HFW_LISTWIDGET
     QPointer<HeightForWidthListWidget> m_p_listwidget;
 #else

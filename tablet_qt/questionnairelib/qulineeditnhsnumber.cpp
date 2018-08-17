@@ -17,27 +17,21 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include <QString>
-#include "menulib/menuwindow.h"
-class Patient;
+#include "qulineeditnhsnumber.h"
+#include <QLineEdit>
+#include "qobjects/nhsnumbervalidator.h"
 
 
-class SingleTaskMenu : public MenuWindow
+QuLineEditNHSNumber::QuLineEditNHSNumber(FieldRefPtr fieldref,
+                                         bool allow_empty) :
+    QuLineEditLongLong(fieldref, allow_empty)
 {
-    // This is the menu class that serves all tasks.
+    setHint("NHS number (10-digit integer with checksum)");
+}
 
-    Q_OBJECT
-public:
-    SingleTaskMenu(const QString& tablename, CamcopsApp& app);
-    virtual void build() override;
-public slots:  // http://stackoverflow.com/questions/19129133/qt-signals-and-slots-permissions
-    void addTask();
-    void selectedPatientChanged(const Patient* patient);
-    void taskFinished();
-protected:
-    void showTaskStatus() const;
-protected:
-    QString m_tablename;
-    bool m_anonymous;
-};
+
+void QuLineEditNHSNumber::extraLineEditCreation(QLineEdit* editor)
+{
+    editor->setValidator(new NHSNumberValidator(m_allow_empty, this));
+    editor->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
+}

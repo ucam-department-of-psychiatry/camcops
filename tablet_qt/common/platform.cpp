@@ -26,24 +26,28 @@ namespace platform {
 
 #ifdef Q_OS_ANDROID
 const bool PLATFORM_ANDROID = true;
+const QString OS_CLASS("Android");
 #else
 const bool PLATFORM_ANDROID = false;
 #endif
 
 #ifdef Q_OS_IOS
 const bool PLATFORM_IOS = true;
+const QString OS_CLASS("iOS");
 #else
 const bool PLATFORM_IOS = false;
 #endif
 
 #ifdef Q_OS_LINUX
 const bool PLATFORM_LINUX = true;
+const QString OS_CLASS("Linux");
 #else
 const bool PLATFORM_LINUX = false;
 #endif
 
 #ifdef Q_OS_WIN
 const bool PLATFORM_WINDOWS = true;
+const QString OS_CLASS("Windows");
 #else
 const bool PLATFORM_WINDOWS = false;
 #endif
@@ -59,14 +63,14 @@ const bool PLATFORM_TABLET = false;
 
 bool isHost64Bit()
 {
-    static bool h = QSysInfo::currentCpuArchitecture().contains(QLatin1String("64"));
+    static const bool h = QSysInfo::currentCpuArchitecture().contains(QLatin1String("64"));
     return h;
 }
 
 
 bool isBuild64Bit()
 {
-    static bool b = QSysInfo::buildCpuArchitecture().contains(QLatin1String("64"));
+    static const bool b = QSysInfo::buildCpuArchitecture().contains(QLatin1String("64"));
     return b;
 }
 

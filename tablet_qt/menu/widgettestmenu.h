@@ -110,6 +110,7 @@ protected:
     void testQuLineEditDouble();
     void testQuLineEditInteger();
     void testQuLineEditLongLong();
+    void testQuLineEditNHSNumber();
     void testQuLineEditULongLong();  // deprecated as SQLite3 can't cope
     void testQuMCQ(bool horizontal, bool long_text, bool as_text_button);
     void testQuMCQGrid(bool expand, int example);

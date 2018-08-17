@@ -25,8 +25,11 @@
 
 
 AllTasksMenu::AllTasksMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("All tasks, listed alphabetically"),
-               uifunc::iconFilename(uiconst::ICON_ALLTASKS))
+    MenuWindow(app,
+               tr("Search all tasks"),
+               uifunc::iconFilename(uiconst::ICON_ALLTASKS),
+               false,  // top
+               true)  // offer_search
 {
     TaskFactory* factory = app.taskFactory();
     // Sort by what you see:

@@ -49,6 +49,7 @@
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qulineeditlonglong.h"
+#include "questionnairelib/qulineeditnhsnumber.h"
 #include "questionnairelib/qulineeditulonglong.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/qumcq.h"
@@ -324,6 +325,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app) :
                  std::bind(&WidgetTestMenu::testQuLineEditInteger, this)),
         MenuItem("QuLineEditLongLong",
                  std::bind(&WidgetTestMenu::testQuLineEditLongLong, this)),
+        MenuItem("QuLineEditNHSNumber",
+                 std::bind(&WidgetTestMenu::testQuLineEditNHSNumber, this)),
         MenuItem("QuLineEditULongLong",
                  std::bind(&WidgetTestMenu::testQuLineEditULongLong, this)),
         MenuItem("QuMCQ (horizontal=false, short text)",
@@ -947,6 +950,13 @@ void WidgetTestMenu::testQuLineEditInteger()
 void WidgetTestMenu::testQuLineEditLongLong()
 {
     QuLineEditLongLong element(m_fieldref_1);
+    testQuestionnaireElement(&element);
+}
+
+
+void WidgetTestMenu::testQuLineEditNHSNumber()
+{
+    QuLineEditNHSNumber element(m_fieldref_1);
     testQuestionnaireElement(&element);
 }
 

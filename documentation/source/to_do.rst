@@ -31,23 +31,17 @@ Tasks
 Client core
 ~~~~~~~~~~~
 
-- Windows build.
-
-- OS/X build.
+- Google Play Store general release.
 
 - iOS build.
 
-- Google Play Store general release.
-
 - Apple App Store.
 
-- Ability to search for tasks in the master task list.
+- OS/X build.
 
 - Consider a “chain of tasks” concept again (see e.g. ResearchMenu.js;
   MenuTableRow.js; QuestionnaireHeader.js...)... or is that pointless relative
   to a “set of tasks” concept?
-
-- Whisker framework.
 
 - Desktop-style menu for desktop clients. (Faster to navigate around.)
 
@@ -128,8 +122,6 @@ Server
 
 Documentation to-do list
 ------------------------
-
-- Move some of the internal client notes into the main documentation.
 
 - Consider autodocumentation for C++ code; see
   https://stackoverflow.com/questions/11246637/using-sphinx-apidoc-to-generate-documentation-from-c-code

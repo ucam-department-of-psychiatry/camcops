@@ -908,6 +908,7 @@ Cisr::Cisr(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
         FN_SLEEP_MAND2,
         FN_SLEEP_GAIN1,
         FN_SLEEP_GAIN2,
+        FN_SLEEP_GAIN3,
         FN_SLEEP_DUR,
 
         FN_IRRIT_MAND1,

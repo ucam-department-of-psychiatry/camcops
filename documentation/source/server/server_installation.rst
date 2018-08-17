@@ -79,8 +79,21 @@ You should be able to type ``camcops`` and see something relevant.
 Installation for any OS
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: upload to PyPI; write description of how to install via Pip
+- Create and activate a Python 3.5+ virtual environment:
 
+    .. code-block:: bash
+
+        export CAMCOPS_VENV=~/dev/camcops_venv
+        python3 -m virtualenv $CAMCOPS_VENV
+        . $CAMCOPS_VENV/bin/activate
+
+- Install the CamCOPS server package:
+
+    .. code-block:: bash
+
+        pip install camcops-server
+
+.. todo:: sort out MySQL dependencies and/or provide database driver advice
 .. todo:: implement Windows service
 
 Installing other prerequisites

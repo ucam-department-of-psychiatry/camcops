@@ -103,7 +103,7 @@ Tasks
 From the main menu, you can go to the :tabletmenu:`|patient_summary| Patient
 summary`. This shows all tasks on the tablet for the current patient. You can
 also browse the menu to find specific tasks. If you have trouble finding one,
-try :tabletmenu:`|alltasks| All tasks, listed alphabetically`.
+try :tabletmenu:`|alltasks| Search all tasks`.
 
 At any task menu, task summaries are displayed.
 

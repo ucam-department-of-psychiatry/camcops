@@ -68,6 +68,7 @@ public:
     MenuItem(PatientPtr p_patient);
 
     QString title() const;
+    QString subtitle() const;
     TaskPtr task() const;
     PatientPtr patient() const;
 
@@ -84,6 +85,7 @@ public:
     bool isImplemented() const;
 
     QString info() const;
+    bool matchesSearch(const QString& search_text_lower) const;
 
 protected:
     QString m_title;
@@ -92,7 +94,6 @@ protected:
     bool m_arrow_on_right;
     bool m_chain;
     bool m_copyright_details_pending;
-    // bool m_crippled;
     bool m_implemented;
     bool m_label_only;
     bool m_needs_privilege;
@@ -108,8 +109,6 @@ protected:
     PatientPtr m_p_patient;
     HtmlMenuItem m_html_item;
     UrlMenuItem m_url_item;
-//    SOMETHING m_event; // ***
-//    SOMETHING m_chainList; // ***
 
 private:
     void setDefaults();

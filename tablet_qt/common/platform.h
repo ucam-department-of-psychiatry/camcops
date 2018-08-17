@@ -18,6 +18,7 @@
 */
 
 #pragma once
+#include <QString>
 
 namespace platform {
 
@@ -26,6 +27,7 @@ extern const bool PLATFORM_IOS;
 extern const bool PLATFORM_LINUX;
 extern const bool PLATFORM_WINDOWS;
 extern const bool PLATFORM_TABLET;
+extern const QString OS_CLASS;
 
 bool isHost64Bit();
 bool isBuild64Bit();

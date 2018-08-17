@@ -31,10 +31,23 @@
 # Version constants and configuration variables read by shell scripts
 # =============================================================================
 
+# -----------------------------------------------------------------------------
+# CamCOPS server version/date
+# -----------------------------------------------------------------------------
 # When you alter the server, it is normal to change these two:
-CAMCOPS_SERVER_VERSION_STRING = "2.2.7"
-CAMCOPS_CHANGEDATE = "2018-07-31"
 
+CAMCOPS_SERVER_VERSION_STRING = "2.2.7"
+CAMCOPS_SERVER_CHANGEDATE = "2018-07-31"
+
+# +++ NOW ALSO UPDATE: +++
+#
+#       documentation/source/changelog.rst
+
+
+# -----------------------------------------------------------------------------
+# Minimum tablet version permitted to upload
+# -----------------------------------------------------------------------------
 # BEWARE: it is not normal to have to change MINIMUM_TABLET_VERSION_STRING.
 # If you increase it, you may prevent old clients from uploading.
+
 MINIMUM_TABLET_VERSION_STRING = "1.14.0"

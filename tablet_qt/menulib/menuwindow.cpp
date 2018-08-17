@@ -22,6 +22,8 @@
 
 #include "menuwindow.h"
 #include <QDebug>
+#include <QLabel>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QPushButton>
@@ -40,24 +42,28 @@
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "tasklib/task.h"
+#include "widgets/horizontalline.h"
 
 const int BAD_INDEX = -1;
 
 
 MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
-                       const QString& icon, const bool top) :
+                       const QString& icon, const bool top,
+                       const bool offer_search) :
     OpenableWidget(),
     m_app(app),
     m_title(title),
     m_subtitle(""),
     m_icon(icon),
     m_top(top),
+    m_offer_search(offer_search),
 #ifdef MENUWINDOW_USE_HFW_LAYOUT
     m_mainlayout(new VBoxLayout()),
 #else
     m_mainlayout(new QVBoxLayout()),
 #endif
     m_p_header(nullptr),
+    m_search_box(nullptr),
     m_p_listwidget(nullptr)
 {
     /*
@@ -158,6 +164,25 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
             Qt::UniqueConnection);
 
     // ------------------------------------------------------------------------
+    // Search box
+    // ------------------------------------------------------------------------
+    // Given that we are working with a QListWidget or derivative, searching
+    // is a bit less intuitive. However...
+    // [See also https://stackoverflow.com/questions/2695878/creating-a-qlineedit-search-field-for-items-displayed-in-a-qlistview]
+
+    if (m_offer_search) {
+        // Label
+        QLabel* searchlabel = new QLabel(tr("Type to filter:"));
+        m_mainlayout->addWidget(searchlabel);
+        // Search box
+        m_search_box = new QLineEdit();
+        m_mainlayout->addWidget(m_search_box);
+        // Signals
+        connect(m_search_box.data(), &QLineEdit::textChanged,
+                this, &MenuWindow::searchTextChanged);
+    };
+
+    // ------------------------------------------------------------------------
     // List
     // ------------------------------------------------------------------------
 
@@ -252,6 +277,8 @@ void MenuWindow::build()
     if (preselected) {
         m_p_listwidget->setFocus();
         // http://stackoverflow.com/questions/23065151/how-to-set-an-item-in-a-qlistwidget-as-initially-highlighted
+    } else if (m_search_box) {
+        m_search_box->setFocus();
     }
 
     // Method 2: QListView, QStandardItemModel, custom delegate
@@ -593,4 +620,19 @@ PatientPtr MenuWindow::currentPatient() const
 void MenuWindow::debugLayout()
 {
     layoutdumper::dumpWidgetHierarchy(this);
+}
+
+
+void MenuWindow::searchTextChanged(const QString& text)
+{
+    qDebug() << "Search text:" << text;
+    const bool search_empty = text.isEmpty();
+    const QString search_text_lower = text.toLower();
+    const int n_items = m_items.size();
+    for (int i = 0; i < n_items; ++i) {
+        const bool show = search_empty ||
+                m_items.at(i).matchesSearch(search_text_lower);
+        QListWidgetItem* item = m_p_listwidget->item(i);
+        item->setHidden(!show);
+    }
 }

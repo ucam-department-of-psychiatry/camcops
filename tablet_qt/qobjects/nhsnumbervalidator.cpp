@@ -17,27 +17,20 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include <QString>
-#include "menulib/menuwindow.h"
-class Patient;
+#include "nhsnumbervalidator.h"
+#include "lib/nhs.h"
 
 
-class SingleTaskMenu : public MenuWindow
+NHSNumberValidator::NHSNumberValidator(const bool allow_empty,
+                                       QObject* parent) :
+    QValidator(parent),
+    m_allow_empty(allow_empty)
 {
-    // This is the menu class that serves all tasks.
+}
 
-    Q_OBJECT
-public:
-    SingleTaskMenu(const QString& tablename, CamcopsApp& app);
-    virtual void build() override;
-public slots:  // http://stackoverflow.com/questions/19129133/qt-signals-and-slots-permissions
-    void addTask();
-    void selectedPatientChanged(const Patient* patient);
-    void taskFinished();
-protected:
-    void showTaskStatus() const;
-protected:
-    QString m_tablename;
-    bool m_anonymous;
-};
+
+QValidator::State NHSNumberValidator::validate(QString& input, int& pos) const
+{
+    Q_UNUSED(pos);
+    return nhs::validateNhsNumber<qlonglong>(input, m_allow_empty);
+}

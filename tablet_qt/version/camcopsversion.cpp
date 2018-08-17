@@ -21,12 +21,25 @@
 
 namespace camcopsversion {  // http://semver.org/
 
-// CAMCOPS_VERSION:
+// ----------------------------------------------------------------------------
+// CamCOPS client version/date
+// ----------------------------------------------------------------------------
 // Increase this when the client is changed:
 
-const Version CAMCOPS_VERSION(2, 2, 6);
+const Version CAMCOPS_CLIENT_VERSION(2, 2, 7);
+const QDate CAMCOPS_CLIENT_CHANGEDATE(2018, 8, 17);
 
-// MINIMUM_SERVER_VERSION:
+// +++ NOW ALSO UPDATE: +++
+//
+//      documentation/source/changelog.rst
+//      documentation/source/developer/building_client.rst
+//      tablet_qt/android/AndroidManifest.xml (version code + version name)
+//      tablet_qt/camcops_windows_innosetup.iss (CamcopsClientVersion)
+
+
+// ----------------------------------------------------------------------------
+// Minimum server version that the client will upload to
+// ----------------------------------------------------------------------------
 // It is NOT normal to have to increase this if you add a new task.
 // You should be overriding minimumServerVersion() for the new task instead.
 // Only change this if aspects of the core server tables or API change in a

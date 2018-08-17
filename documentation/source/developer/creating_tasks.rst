@@ -17,6 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _NHS number: http://www.datadictionary.nhs.uk/version2/data_dictionary/data_field_notes/n/nhs_number_de.asp
+
 .. include:: ../client/include_tabletdefs.rst
 
 Creating tasks
@@ -103,14 +105,19 @@ User input
 - `QuLineEditDouble`. A one-line editor for a floating-point number, allowing
   constraints.
 
-- `QuLineEditInteger`. A one-line editor for an integer (C++ int), allowing
-  constraints.
+- `QuLineEditInteger`. A one-line editor for an integer (C++ 32-bit int),
+  allowing constraints.
 
-- `QuLineEditLongLong`. A one-line editor for a large signed integer, allowing
-  constraints.
+- `QuLineEditLongLong`. A one-line editor for a large (64-bit) signed integer,
+  allowing constraints.
+
+- `QuLineEditNHSNumber`. A one-line editor for an `NHS number`_, with
+  validation.
 
 - `QuLineEditULongLong`. A one-line editor for a large unsigned integer,
-  allowing constraints.
+  allowing constraints. (**Note** that the CamCOPS client generally avoids
+  unsigned 64-bit integers, because SQLite3 doesn't have it as one of its core
+  data types; see https://www.sqlite.org/datatype3.html.)
 
 - `QuMcq`. A simple 1-from-many or multiple-choice question (MCQ), with a range
   of layout and visual options.

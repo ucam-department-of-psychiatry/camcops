@@ -349,7 +349,7 @@ void NetworkManager::serverPost(Dict dict, ReplyFuncPtr reply_func,
 
     // Complete the dictionary
     // dict[KEY_CAMCOPS_VERSION] = camcopsversion::CAMCOPS_VERSION.toFloatString();  // outdated
-    dict[KEY_CAMCOPS_VERSION] = camcopsversion::CAMCOPS_VERSION.toString();  // server copes as of v2.0.0
+    dict[KEY_CAMCOPS_VERSION] = camcopsversion::CAMCOPS_CLIENT_VERSION.toString();  // server copes as of v2.0.0
     dict[KEY_DEVICE] = m_app.deviceId();
     if (include_user) {
         QString user = m_app.varString(varconst::SERVER_USERNAME);
@@ -1646,7 +1646,7 @@ bool NetworkManager::catalogueTablesForUpload()
                             "on the server but the server requires client "
                             "version >=%2; you are using version %3'"
                         ).arg(table, min_client_version.toString(),
-                              camcopsversion::CAMCOPS_VERSION.toString()));
+                              camcopsversion::CAMCOPS_CLIENT_VERSION.toString()));
                         return false;
                     } else {
                         statusMessage(QString(
@@ -1655,7 +1655,7 @@ bool NetworkManager::catalogueTablesForUpload()
                             "using version %3; proceeding ONLY BECAUSE THIS "
                             "TABLE IS EMPTY."
                         ).arg(table, min_client_version.toString(),
-                              camcopsversion::CAMCOPS_VERSION.toString()));
+                              camcopsversion::CAMCOPS_CLIENT_VERSION.toString()));
                     }
                 }
             } else {

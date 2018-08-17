@@ -19,11 +19,13 @@
 
 #pragma once
 #include "lib/version.h"
+#include <QDate>
 
 
 namespace camcopsversion {
 
-extern const Version CAMCOPS_VERSION;
+extern const Version CAMCOPS_CLIENT_VERSION;
+extern const QDate CAMCOPS_CLIENT_CHANGEDATE;
 extern const Version MINIMUM_SERVER_VERSION;
 
 }  // namespace camcopsversion

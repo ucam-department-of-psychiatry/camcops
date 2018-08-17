@@ -7,59 +7,93 @@
 ; For simultaneous 32/64-bit use, see
 ; https://stackoverflow.com/questions/4833831/inno-setup-32bit-and-64bit-in-one
 
-#define MyAppName "CamCOPS"
-#define MyAppNameLowerCase "camcops"
-#define MyAppVersion "2.2.6"
-#define MyAppPublisher "Rudolf Cardinal"
-#define MyAppURL "http://www.camcops.org/"
-#define SrcBaseDir "D:\dev\camcops"
-#define QtBuildDir "D:\dev\qt_local_build"
+; =============================================================================
+; VERSION-DEPENDENT VALUES
+; =============================================================================
+
+#define CamcopsClientVersion "2.2.7"
+
 #define OpenSSLVersion "1.1.0g"
 #define OpenSSLMajorVersionUnderscores "1_1"
-#define VisualStudioRedistRoot "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.14.26405"
+
+; =============================================================================
+; VALUES DEPENDING ON THE DEVELOPER'S BUILD ENVIRONMENT
+; =============================================================================
+
+#define CamcopsSourceDir GetEnv("CAMCOPS_SOURCE_DIR")
+#if CamcopsSourceDir == ""
+    #error "Must define environment variable CAMCOPS_SOURCE_DIR; e.g. D:\dev\camcops"
+#endif
+
+#define CamcopsQtBaseDir GetEnv("CAMCOPS_QT_BASE_DIR")
+#if CamcopsQtBaseDir == ""
+    #error "Must define environment variable CAMCOPS_QT_BASE_DIR; e.g. D:\dev\qt_local_build"
+#endif
+
+#define VisualStudioRedistRoot GetEnv("CAMCOPS_VISUAL_STUDIO_REDIST_ROOT")
+#if VisualStudioRedistRoot == ""
+    #error "Must define environment variable CAMCOPS_VISUAL_STUDIO_REDIST_ROOT; e.g. C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.14.26405"
+#endif
+
+; =============================================================================
+; Constants
+; =============================================================================
+
+#define CamcopsAppName "CamCOPS"
+#define CamcopsAppNameLowerCase "camcops"
+#define CamcopsPublisher "Rudolf Cardinal"
+#define CamcopsURL "http://www.camcops.org/"
+
+; =============================================================================
+; Derived variables
+; =============================================================================
 
 ; It looks like ISPP can't do a #define involving an existing #define...
 ; ... but you can define macros and compositions.
-; So this fails: #define MyAppExeName "{#MyAppNameLowerCase}.exe"
-; But this works: #define MyAppExeName MyAppNameLowerCase + ".exe"
+; So this fails: #define MyAppExeName "{#CamcopsAppNameLowerCase}.exe"
+; But this works: #define MyAppExeName CamcopsAppNameLowerCase + ".exe"
 
-#define MyAppExeName MyAppNameLowerCase + ".exe"
-#define InstallableOutputDir SrcBaseDir + "\distributables"
-#define SrcTabletDir SrcBaseDir + "\tablet_qt"
-#define SrcBuild32Dir SrcBaseDir + "\build-camcops-Custom_Windows_x86_32-Release\release"
-#define SrcBuild64Dir SrcBaseDir + "\build-camcops-Custom_Windows_x86_64-Release\release"
-#define SrcExe32 SrcBuild32Dir + "\" + MyAppNameLowerCase + ".exe"
-#define SrcExe64 SrcBuild64Dir + "\" + MyAppNameLowerCase + ".exe"
-#define LibCrypto32 QtBuildDir + "\openssl_windows_x86_32_build\openssl-" + OpenSSLVersion + "\libcrypto-" + OpenSSLMajorVersionUnderscores + ".dll"
-#define LibCrypto64 QtBuildDir + "\openssl_windows_x86_64_build\openssl-" + OpenSSLVersion + "\libcrypto-" + OpenSSLMajorVersionUnderscores + "-x64.dll"
-#define LibSSL32 QtBuildDir + "\openssl_windows_x86_32_build\openssl-" + OpenSSLVersion + "\libssl-" + OpenSSLMajorVersionUnderscores + ".dll"
-#define LibSSL64 QtBuildDir + "\openssl_windows_x86_64_build\openssl-" + OpenSSLVersion + "\libssl-" + OpenSSLMajorVersionUnderscores + "-x64.dll"
-#define IconName MyAppNameLowerCase + ".ico"
+#define MyAppExeName CamcopsAppNameLowerCase + ".exe"
+#define InstallableOutputDir CamcopsSourceDir + "\distributables"
+#define SrcTabletDir CamcopsSourceDir + "\tablet_qt"
+; Note that the next two lines presuppose that you have used the suggested name
+; for the Qt kits.
+#define SrcBuild32Dir CamcopsSourceDir + "\build-camcops-Custom_Windows_x86_32-Release\release"
+#define SrcBuild64Dir CamcopsSourceDir + "\build-camcops-Custom_Windows_x86_64-Release\release"
+#define SrcExe32 SrcBuild32Dir + "\" + CamcopsAppNameLowerCase + ".exe"
+#define SrcExe64 SrcBuild64Dir + "\" + CamcopsAppNameLowerCase + ".exe"
+#define LibCrypto32 CamcopsQtBaseDir + "\openssl_windows_x86_32_build\openssl-" + OpenSSLVersion + "\libcrypto-" + OpenSSLMajorVersionUnderscores + ".dll"
+#define LibCrypto64 CamcopsQtBaseDir + "\openssl_windows_x86_64_build\openssl-" + OpenSSLVersion + "\libcrypto-" + OpenSSLMajorVersionUnderscores + "-x64.dll"
+#define LibSSL32 CamcopsQtBaseDir + "\openssl_windows_x86_32_build\openssl-" + OpenSSLVersion + "\libssl-" + OpenSSLMajorVersionUnderscores + ".dll"
+#define LibSSL64 CamcopsQtBaseDir + "\openssl_windows_x86_64_build\openssl-" + OpenSSLVersion + "\libssl-" + OpenSSLMajorVersionUnderscores + "-x64.dll"
+#define IconName CamcopsAppNameLowerCase + ".ico"
 #define SrcIconFilename SrcTabletDir + "\windows\" + IconName
 #define VCRedist32Name "vcredist_x86.exe"
 #define VCRedist64Name "vcredist_x64.exe"
 #define SrcVCRedist32 VisualStudioRedistRoot + "\" + VCRedist32Name
 #define SrcVCRedist64 VisualStudioRedistRoot + "\" + VCRedist64Name
 
+; =============================================================================
 [Setup]
+; =============================================================================
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{29B3F489-C33C-4915-A3DB-DEA9F53E2E79}
-AppName={#MyAppName}
-AppVersion={#MyAppVersion}
-AppVerName={#MyAppName} {#MyAppVersion}
-AppPublisher={#MyAppPublisher}
-AppPublisherURL={#MyAppURL}
-AppSupportURL={#MyAppURL}
-AppUpdatesURL={#MyAppURL}
+AppName={#CamcopsAppName}
+AppVersion={#CamcopsClientVersion}
+AppVerName={#CamcopsAppName} {#CamcopsClientVersion}
+AppPublisher={#CamcopsPublisher}
+AppPublisherURL={#CamcopsURL}
+AppSupportURL={#CamcopsURL}
+AppUpdatesURL={#CamcopsURL}
 Compression=lzma
-DefaultDirName={pf}\{#MyAppName}
-DefaultGroupName={#MyAppName}
+DefaultDirName={pf}\{#CamcopsAppName}
+DefaultGroupName={#CamcopsAppName}
 DisableProgramGroupPage=yes
-LicenseFile={#SrcBaseDir}\LICENSE.txt
+LicenseFile={#CamcopsSourceDir}\LICENSE.txt
 OutputDir={#InstallableOutputDir}
-OutputBaseFilename={#MyAppNameLowerCase}_{#MyAppVersion}_windows
+OutputBaseFilename={#CamcopsAppNameLowerCase}_{#CamcopsClientVersion}_windows
 SetupIconFile={#SrcIconFilename}
 SolidCompression=yes
 UninstallDisplayIcon={app}\{#IconName}
@@ -73,21 +107,20 @@ ArchitecturesInstallIn64BitMode=x64
 ; installation to run on all architectures (including Itanium,
 ; since it's capable of running 32-bit code too).
 
-; https://stackoverflow.com/questions/11187022/inno-script-how-to-make-i-accept-the-agreement-radio-button-on-eula-page-sel
-; [Code]
-; procedure InitializeWizard;
-; begin
-;   WizardForm.LicenseAcceptedRadio.Checked := True;
-; end;
-
+; =============================================================================
 [Languages]
+; =============================================================================
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+; =============================================================================
 [Tasks]
+; =============================================================================
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 ; ... use "Flags: unchecked" to disable by default
 
+; =============================================================================
 [Files]
+; =============================================================================
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 ; Main executable.
@@ -102,21 +135,25 @@ Source: "{#LibSSL32}"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64Bi
 Source: "{#LibSSL64}"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 
 ; We also need VCRUNTIME140.DLL, and presumably the version of the Visual C++ redistributable is the one from our compiler.
-Source: "{#SrcVCRedist32}"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: not Is64BitInstallMode
-Source: "{#SrcVCRedist64}"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: Is64BitInstallMode
+Source: "{#SrcVCRedist32}"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: VCRedist32NeedsInstall
+Source: "{#SrcVCRedist64}"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: VCRedist64NeedsInstall
 
 ; Other files:
 Source: "{#SrcIconFilename}"; DestDir: "{app}"; DestName: "{#IconName}"
 ; Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
+; =============================================================================
 [Icons]
+; =============================================================================
 ; The "[Icons]" section means "shortcuts".
-Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#IconName}"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#IconName}"; Tasks: desktopicon
+Name: "{commonprograms}\{#CamcopsAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#IconName}"
+Name: "{commondesktop}\{#CamcopsAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#IconName}"; Tasks: desktopicon
 
+; =============================================================================
 [Run]
+; =============================================================================
 Filename: "{app}\{#MyAppExeName}"; \
-    Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; \
+    Description: "{cm:LaunchProgram,{#StringChange(CamcopsAppName, '&', '&&')}}"; \
     Flags: nowait postinstall skipifsilent
 
 ; https://stackoverflow.com/questions/24574035/how-to-install-microsoft-vc-redistributables-silently-in-inno-setup
@@ -130,10 +167,12 @@ Filename: "{tmp}\{#VCRedist64Name}"; \
     Check: VCRedist64NeedsInstall; \
     StatusMsg: "Installing Visual C++ 2017 64-bit redistributables..."
 
-; https://stackoverflow.com/questions/11137424/how-to-make-vcredist-x86-reinstall-only-if-not-yet-installed/11172939#11172939
-; https://pingfu.net/how-to-detect-which-version-of-visual-c-runtime-is-installed
-; https://stackoverflow.com/questions/12206314/detect-if-visual-c-redistributable-for-visual-studio-2012-is-installed
+// ============================================================================
 [Code]
+// ============================================================================
+// https://stackoverflow.com/questions/11137424/how-to-make-vcredist-x86-reinstall-only-if-not-yet-installed/11172939#11172939
+// https://pingfu.net/how-to-detect-which-version-of-visual-c-runtime-is-installed
+// https://stackoverflow.com/questions/12206314/detect-if-visual-c-redistributable-for-visual-studio-2012-is-installed
 #IFDEF UNICODE
   #DEFINE AW "W"
 #ELSE
@@ -200,3 +239,9 @@ function VCRedist64NeedsInstall: Boolean;
 begin
   Result := Is64BitInstallMode and (not VCVersionInstalled(VC_2017_REDIST_14_14_26405_X64_MINIMUM_RUNTIME));
 end;
+
+// https://stackoverflow.com/questions/11187022/inno-script-how-to-make-i-accept-the-agreement-radio-button-on-eula-page-sel
+// procedure InitializeWizard;
+// begin
+//   WizardForm.LicenseAcceptedRadio.Checked := True;
+// end;

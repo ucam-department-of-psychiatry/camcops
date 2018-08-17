@@ -112,7 +112,7 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
 {
     setApplicationName(APP_NAME);
     setApplicationDisplayName(APP_PRETTY_NAME);
-    setApplicationVersion(camcopsversion::CAMCOPS_VERSION.toString());
+    setApplicationVersion(camcopsversion::CAMCOPS_CLIENT_VERSION.toString());
 #ifdef DEBUG_ALL_APPLICATION_EVENTS
     new DebugEventWatcher(this, DebugEventWatcher::All);
 #endif
@@ -305,7 +305,7 @@ void CamcopsApp::announceStartup()
             << qUtf8Printable(datetime::datetimeToIsoMs(dt));
     qInfo() << "CamCOPS starting at UTC time:"
             << qUtf8Printable(datetime::datetimeToIsoMsUtc(dt));
-    qInfo() << "CamCOPS version:" << camcopsversion::CAMCOPS_VERSION;
+    qInfo() << "CamCOPS version:" << camcopsversion::CAMCOPS_CLIENT_VERSION;
 #if defined __GNUC__
     qDebug().nospace()
             << "Compiled with GNU C++ compiler version "
@@ -549,7 +549,7 @@ void CamcopsApp::createStoredVars()
 
     // Version
     createVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, QVariant::String,
-              camcopsversion::CAMCOPS_VERSION.toString());
+              camcopsversion::CAMCOPS_CLIENT_VERSION.toString());
 
     // Questionnaire
     createVar(varconst::QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
@@ -623,7 +623,7 @@ void CamcopsApp::createStoredVars()
 Version CamcopsApp::upgradeDatabaseBeforeTablesMade()
 {
     const Version old_version(varString(varconst::CAMCOPS_TABLET_VERSION_AS_STRING));
-    const Version new_version = camcopsversion::CAMCOPS_VERSION;
+    const Version new_version = camcopsversion::CAMCOPS_CLIENT_VERSION;
     if (old_version == new_version) {
         qInfo() << "Database is current; no special upgrade steps required";
         return old_version;
@@ -652,7 +652,7 @@ void CamcopsApp::upgradeDatabaseAfterTasksRegistered(const Version& old_version)
     // ------------------------------------------------------------------------
     // Any database upgrade required? STEP 2: INDIVIDUAL TASKS.
     // ------------------------------------------------------------------------
-    const Version new_version = camcopsversion::CAMCOPS_VERSION;
+    const Version new_version = camcopsversion::CAMCOPS_CLIENT_VERSION;
     if (old_version == new_version) {
         // User message will have appeared above.
         return;
@@ -1805,7 +1805,7 @@ bool CamcopsApp::mayUploadTable(const QString& tablename,
     } else {
         min_client_version = allowedtable.minClientVersion();
     }
-    return camcopsversion::CAMCOPS_VERSION >= min_client_version &&
+    return camcopsversion::CAMCOPS_CLIENT_VERSION >= min_client_version &&
             server_version >= min_server_version;
 }
 

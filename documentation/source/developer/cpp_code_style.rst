@@ -99,7 +99,9 @@ C++ code style used
         // NOT: int memberVariable;  // helpful to have some indicator of membership
         // NOT: int member_;  // I hate this.
 
-        char* pointer;  // space AFTER the *; see Stroustrup
+        char* m_pointedto;  // space AFTER the *; see Stroustrup
+        char* m_p_pointedto;  // alternative notation; "_p_" for pointer
+            // ... not usually necessary.
 
     };
 

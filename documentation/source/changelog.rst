@@ -1352,3 +1352,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix relating to offset-naive versus offset-aware datetimes in
   ``cc_user.SecurityLoginFailure.clear_dummy_login_failures_if_necessary``.
+
+**Client v2.2.7, 2018-08-17**
+
+- Bugfix to CISR: field ``sleep_gain3`` was missing from field list.
+
+- Search facility for all-tasks list.
+
+- OS information.

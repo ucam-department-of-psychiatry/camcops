@@ -81,28 +81,45 @@ HelpMenu::HelpMenu(CamcopsApp& app) :
 void HelpMenu::softwareVersions() const
 {
     QStringList versions;
-    QString newline = "";
+    const QString newline = "";
+    const bool host64 = platform::isHost64Bit();
+    const bool build64 = platform::isBuild64Bit();
 
     // ------------------------------------------------------------------------
     // CamCOPS
     // ------------------------------------------------------------------------
-    versions.append(QString("<b>CamCOPS tablet version:</b> %1").arg(
-                        camcopsversion::CAMCOPS_VERSION.toString()));
+    versions.append(QString("<b>CamCOPS client version:</b> %1").arg(
+                        camcopsversion::CAMCOPS_CLIENT_VERSION.toString()));
+    versions.append(QString("CamCOPS client change date: %1").arg(
+                        camcopsversion::CAMCOPS_CLIENT_CHANGEDATE.toString(Qt::ISODate)));
+    versions.append(QString("CamCOPS executable is %1-bit").arg(build64 ? "64" : "32"));
     versions.append(newline);
 
     // ------------------------------------------------------------------------
     // Architecture
     // ------------------------------------------------------------------------
-    const bool host64 = platform::isHost64Bit();
-    const bool build64 = platform::isBuild64Bit();
-    versions.append(QString("Current computer is %1-bit").arg(host64 ? "64" : "32"));
-    versions.append(QString("CamCOPS executable is %1-bit").arg(build64 ? "64" : "32"));
+    versions.append(QString("<b>Current computer (host)</b> is %1-bit").arg(
+                        host64 ? "64" : "32"));
+    versions.append(QString("Host operating system: %1").arg(
+                        platform::OS_CLASS));
+    versions.append(QString("Host computer type: %1").arg(
+                        QSysInfo::prettyProductName()));
+    versions.append(QString("Host CPU architecture: %1").arg(
+                        QSysInfo::currentCpuArchitecture()));
+    versions.append(QString("Host kernel type: %1").arg(
+                        QSysInfo::kernelType()));
+    versions.append(QString("Host kernel version: %1").arg(
+                        QSysInfo::kernelVersion()));
+    versions.append(QString("Host name: %1").arg(
+                        QSysInfo::machineHostName()));
     versions.append(newline);
 
     // ------------------------------------------------------------------------
     // Qt
     // ------------------------------------------------------------------------
     versions.append(QString("<b>Qt version:</b> %1").arg(QT_VERSION_STR));
+    versions.append(QString("Qt build architecture: %1").arg(
+                        QSysInfo::buildAbi()));
     versions.append(newline);
 
     // ------------------------------------------------------------------------

@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_baseconstants import (
 )
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
-    CAMCOPS_CHANGEDATE,
+    CAMCOPS_SERVER_CHANGEDATE,
 )
 
 log = logging.getLogger(__name__)
@@ -262,7 +262,7 @@ DST_CAMCOPS_META_LAUNCHER = join(DSTVENVBIN, 'camcops_meta')
 # =============================================================================
 
 MAINVERSION = CAMCOPS_SERVER_VERSION_STRING
-CHANGEDATE = CAMCOPS_CHANGEDATE
+CHANGEDATE = CAMCOPS_SERVER_CHANGEDATE
 
 DEBVERSION = MAINVERSION + '-1'
 PACKAGENAME = join(

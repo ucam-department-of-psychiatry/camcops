@@ -19,13 +19,13 @@
 
 #pragma once
 
-// #define DEBUG_VALIDATOR
+// #define NUMERICFUNC_DEBUG_VALIDATOR
 
-#include <QString>
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
 #include <QDebug>
 #endif
 #include <QLocale>
+#include <QString>
 #include <QValidator>
 
 namespace numeric {
@@ -72,7 +72,7 @@ template<typename T>
 bool isValidStartToInteger(const T& number, const T& bottom, const T& top);
 
 template<typename T>
-QValidator::State validateInteger(QString& s, const QLocale& locale,
+QValidator::State validateInteger(const QString& s, const QLocale& locale,
                                   const T& bottom, const T& top,
                                   bool allow_empty);
 
@@ -241,7 +241,7 @@ bool numeric::isValidStartToInteger(const T& number, const T& bottom,
     */
 
     if (extendedIntegerMustBeLessThanBottom(number, bottom, top)) {
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be less than bottom value of"
                  << bottom << "=> fail";
@@ -249,14 +249,14 @@ bool numeric::isValidStartToInteger(const T& number, const T& bottom,
         return false;
     }
     if (extendedIntegerMustExceedTop(number, bottom, top)) {
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be more than top value of"
                  << top << "=> fail";
 #endif
         return false;
     }
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
     qDebug() << Q_FUNC_INFO << number << "is OK for bottom"
              << bottom << "top" << top;
 #endif
@@ -264,57 +264,58 @@ bool numeric::isValidStartToInteger(const T& number, const T& bottom,
 }
 
 template<typename T>
-QValidator::State numeric::validateInteger(QString& s, const QLocale& locale,
-                                           const T& bottom, const T& top,
-                                           bool allow_empty)
+QValidator::State numeric::validateInteger(
+        const QString& s, const QLocale& locale,
+        const T& bottom, const T& top,
+        bool allow_empty)
 {
     if (s.isEmpty()) {
         if (allow_empty) {
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
             qDebug() << Q_FUNC_INFO << "empty -> Acceptable (as allow_empty)";
 #endif
             return QValidator::Acceptable;
         }
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "empty -> Intermediate";
 #endif
         return QValidator::Intermediate;
     }
 
-    QChar decimalPoint = locale.decimalPoint();
+    const QChar decimalPoint = locale.decimalPoint();
     if (s.indexOf(decimalPoint) != -1) {
         // Containing a decimal point: not OK
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "decimal point -> Invalid";
 #endif
         return QValidator::Invalid;
     }
 
     if ((bottom < 0 || top < 0) && s == "-") {
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "plain -, negatives OK -> Intermediate";
 #endif
         return QValidator::Intermediate;
     }
     if ((bottom > 0 || top > 0) && s == "+") {
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "plain +, positives OK -> Intermediate";
 #endif
         return QValidator::Intermediate;
     }
 
     bool ok = true;
-    T type_dummy = 0;
-    T i = localeStrToNumber(s, ok, locale, type_dummy);  // NB: ok modified
+    const T type_dummy = 0;
+    const T i = localeStrToNumber(s, ok, locale, type_dummy);  // NB: ok modified
     if (!ok) {  // Not an integer.
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "not an integer -> Invalid";
 #endif
         return QValidator::Invalid;
     }
 
     if (i >= bottom && i <= top) {  // Perfect.
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "in range -> Acceptable";
 #endif
         return QValidator::Acceptable;
@@ -326,7 +327,7 @@ QValidator::State numeric::validateInteger(QString& s, const QLocale& locale,
     // specially.
     if (s.startsWith("-") && i == 0) {
         // If we get here, we already know that negative numbers are OK.
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "negative zero -> Intermediate";
 #endif
         return QValidator::Intermediate;
@@ -335,14 +336,14 @@ QValidator::State numeric::validateInteger(QString& s, const QLocale& locale,
     // Is the number on its way to being something valid, or is it already
     // outside the permissible range?
     if (numeric::isValidStartToInteger(i, bottom, top)) {
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO
                  << "within range for number of digits -> Intermediate;"
                  << "s" << s;
 #endif
         return QValidator::Intermediate;
     }
-#ifdef DEBUG_VALIDATOR
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
     qDebug() << Q_FUNC_INFO << "end of function -> Invalid;"
              << "s" << s;
 #endif
