@@ -62,9 +62,11 @@ from os.path import join
 import platform
 import shutil
 import subprocess
-import sys
+# import sys
 import tempfile
-from typing import Tuple
+from typing import List, Tuple
+
+from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -73,6 +75,8 @@ log.addHandler(logging.NullHandler())
 # =============================================================================
 # Constants
 # =============================================================================
+
+WINDOWS = platform.system() == "Windows"
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_BASE_DIR = os.path.abspath(join(THIS_DIR, os.pardir, os.pardir))
@@ -85,46 +89,60 @@ TABLET_ICON_PDF = join(THIS_DIR, "camcops_icons.pdf")
 SERVER_DIAGRAM_PDF = join(THIS_DIR, "camcops_server_diagram.pdf")
 SCALING_LOGOS_PDF = join(THIS_DIR, "camcops_scaling_logos.pdf")
 
-CONVERT = "convert"
-GREP = "grep"
-IDENTIFY = "identify"
+CONVERT = ["magick", "convert"] if WINDOWS else ["convert"]
+GHOSTSCRIPT_WINDOWS = "gswin32c.exe"
+GREP = ["grep"]
+IDENTIFY = ["magick", "identify"] if WINDOWS else ["identify"]
 
 
 # =============================================================================
 # Support functions
 # =============================================================================
 
+def require(executable: str) -> None:
+    if not shutil.which(executable):
+        raise RuntimeError("Missing executable: " + repr(executable))
+
+
+def run(args: List[str]) -> None:
+    log.debug(args)
+    subprocess.check_call(args)
+
+
 def mkdirp(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
 def get_pdf_print_size_inches(filename: str,
-                              autocrop: bool = False) -> Tuple[float, float]:
+                              autocrop: bool = False,
+                              verbose: bool = False) -> Tuple[float, float]:
     if autocrop:
         # Create a temporary, trimmed, PDF, and measure that instead.
         fd, tmpfname = tempfile.mkstemp('.pdf')
         os.close(fd)
+        # noinspection PyPep8
         try:
             log.debug("Measuring autocropped PDF")
-            args = [
-                CONVERT,
-                # '-verbose',
+            args = CONVERT
+            if verbose:
+                args += ["-verbose"]
+            args += [
                 '-trim',
                 filename,
                 '+repage',
                 tmpfname
             ]
             # Note that the output PDF is rasterized, not vector
-            log.debug(args)
-            subprocess.check_call(args)
-            return get_pdf_print_size_inches(tmpfname, autocrop=False)
+            run(args)
+            return get_pdf_print_size_inches(tmpfname, autocrop=False,
+                                             verbose=verbose)
         except:
             raise
         finally:
             os.remove(tmpfname)
-    p1 = subprocess.Popen([IDENTIFY, '-verbose', filename],
+    p1 = subprocess.Popen(IDENTIFY + ['-verbose', filename],
                           stdout=subprocess.PIPE)
-    p2 = subprocess.Popen([GREP, 'Print size: '],
+    p2 = subprocess.Popen(GREP + ['Print size: '],
                           stdin=p1.stdout, stdout=subprocess.PIPE)
     p1.stdout.close()
     output = p2.communicate()[0].decode("utf-8").strip()
@@ -176,7 +194,8 @@ def crop_pdf(src_filename: str,
              density_dpi: int = None,
              density_default_multiplier: int = 2,
              transparent: bool = None,
-             windows_multires_icon: bool = False) -> None:
+             windows_multires_icon: bool = False,
+             verbose: bool = False) -> None:
     """
     Takes a chunk out of a PDF.
     Source:
@@ -207,29 +226,35 @@ def crop_pdf(src_filename: str,
     final_img_lr = active_lr * img_lr
     final_img_tb = active_tb * img_tb
     log.debug("Starting point: left=0, right=1; top=0, bottom=1")
-    log.debug("After removing margins: left={l}, right={r}; top={t}, "
-                 "bottom={b}".format(l=active_lr.a,
-                                     r=active_lr.b,
-                                     t=active_tb.a,
-                                     b=active_tb.b))
     log.debug(
-        "With what's left, take image: left={l}, right={r}; top={t}, "
-        "bottom={b}".format(l=img_lr.a,
-                            r=img_lr.b,
-                            t=img_tb.a,
-                            b=img_tb.b))
-    log.debug("Final image to be taken: left={l}, right={r}; top={t}, "
-                 "bottom={b}".format(l=final_img_lr.a,
-                                     r=final_img_lr.b,
-                                     t=final_img_tb.a,
-                                     b=final_img_tb.b))
+        "After removing margins: left={left}, right={r}; top={t}, "
+        "bottom={b}".format(
+            left=active_lr.a,
+            r=active_lr.b,
+            t=active_tb.a,
+            b=active_tb.b))
+    log.debug(
+        "With what's left, take image: left={left}, right={r}; top={t}, "
+        "bottom={b}".format(
+            left=img_lr.a,
+            r=img_lr.b,
+            t=img_tb.a,
+            b=img_tb.b))
+    log.debug(
+        "Final image to be taken: left={left}, right={r}; top={t}, "
+        "bottom={b}".format(
+            left=final_img_lr.a,
+            r=final_img_lr.b,
+            t=final_img_tb.a,
+            b=final_img_tb.b))
 
     # The PDF knows its physical size (and notional density, which we
     # don't care about). ImageMagick will convert it to a different
     # density for us, at which point we can refer to it in terms of pixels.
     # First, we get its size.
     (src_width_inches,
-     src_height_inches) = get_pdf_print_size_inches(src_filename, autocrop)
+     src_height_inches) = get_pdf_print_size_inches(src_filename, autocrop,
+                                                    verbose=verbose)
     log.debug("Source PDF size: {} inches W x {} inches H".format(
         src_width_inches, src_height_inches))
 
@@ -281,10 +306,9 @@ def crop_pdf(src_filename: str,
     directory = os.path.dirname(dest_filename)
     if directory:
         mkdirp(directory)
-    args = [
-        CONVERT,
-        # '-verbose',
-    ]
+    args = CONVERT
+    if verbose:
+        args += ["-verbose"]
     if autocrop:
         args.append('-trim')
     args.extend([
@@ -296,21 +320,49 @@ def crop_pdf(src_filename: str,
     if transparent:
         args.extend(['-transparent', transparent])
     args.extend([
-        '-crop', '{w}x{h}+{l}+{t}'.format(w=img_width_px,
-                                          h=img_height_px,
-                                          l=img_left_px,
-                                          t=img_top_px),
+        '-crop',
+        '{w}x{h}+{left}+{t}'.format(
+            w=img_width_px, h=img_height_px,
+            left=img_left_px, t=img_top_px),
         '+repage',
-        '-resize', '{w}x{h}!'.format(w=dest_width_px, h=dest_height_px),
-        # ... the ! forces it to ignore aspect ratio:
-        #     http://www.imagemagick.org/Usage/resize/
-        dest_filename
     ])
-    log.debug(args)
-    subprocess.check_call(args)
+    if windows_multires_icon:
+        # https://stackoverflow.com/questions/4354617/how-to-make-get-a-multi-size-ico-file  # noqa
+        # args.extend([
+        #     "(", "-clone", "0", "-resize", "16x16", ")",
+        #     "(", "-clone", "0", "-resize", "32x32", ")",
+        #     "(", "-clone", "0", "-resize", "48x48", ")",
+        #     "(", "-clone", "0", "-resize", "64x64", ")",
+        #     "(", "-clone", "0", "-resize", "256x256", ")",
+        #     "-delete", "0",
+        #     # "-alpha", "off",
+        #     "-colors", "256",
+        # ])
 
-*** windows_multires_icon
-# https://stackoverflow.com/questions/4354617/how-to-make-get-a-multi-size-ico-file
+        # https://www.imagemagick.org/discourse-server/viewtopic.php?t=26252
+        args.extend([
+            "-define", "icon:auto-resize=256,64,48,32,16",
+        ])
+        # Note that 256x256 icons are stored as PNG (and smaller ones as BMP)
+        # within the multi-resolution .ICO file. This seems to be correct; see
+        # https://en.wikipedia.org/wiki/ICO_(file_format).
+        # (The simplest way to know what's happened is to have Qt Creator build
+        # a .RES file, from the .ICO file and a .RC file, and view the .RES
+        # [resource] file with Visual Studio.)
+        #
+        # Can inspect resources in an .EXE file with Resource Hacker;
+        # http://www.angusj.com/resourcehacker/#download
+        #
+        # It all looks fine, and yet the largest icon isn't displayed for the
+        # final camcops.exe in Windows. Not sure why.
+    else:
+        args.extend([
+            '-resize', '{w}x{h}!'.format(w=dest_width_px, h=dest_height_px),
+            # ... the ! forces it to ignore aspect ratio:
+            #     http://www.imagemagick.org/Usage/resize/
+        ])
+    args.append(dest_filename)
+    run(args)
 
 
 def tile_pdf(src_filename: str,
@@ -321,14 +373,16 @@ def tile_pdf(src_filename: str,
              tile_height_px: int = None,
              autocrop: bool = True,
              density_multiplier: int = 4,
-             transparent: str = None) -> None:
+             transparent: str = None,
+             verbose: bool = False) -> None:
     log.debug("Tiling {} -> {}".format(src_filename, dest_filename_format))
     if tile_width_px is None and tile_height_px is None:
         raise AssertionError("Must specify width/height/both")
 
     # Get source size
     (src_width_inches,
-     src_height_inches) = get_pdf_print_size_inches(src_filename, autocrop)
+     src_height_inches) = get_pdf_print_size_inches(src_filename, autocrop,
+                                                    verbose=verbose)
     log.debug("Source PDF size: {} inches W x {} inches H".format(
         src_width_inches, src_height_inches))
 
@@ -362,10 +416,9 @@ def tile_pdf(src_filename: str,
     density_dpi = round(src_width_px / src_width_inches)
 
     # Off we go
-    args = [
-        CONVERT,
-        # '-verbose',
-    ]
+    args = CONVERT
+    if verbose:
+        args += ["-verbose"]
     if autocrop:
         args.append('-trim')
     args.extend([
@@ -402,12 +455,12 @@ def tile_pdf(src_filename: str,
         '-resize', '{w}x{h}'.format(w=tile_width_px, h=tile_height_px),
         dest_filename_format
     ])
-    log.debug(args)
-    subprocess.check_call(args)
+    run(args)
 
 
 def make_appicon(filename: str, side_px: int,
-                 windows_multires_icon: bool = False) -> None:
+                 windows_multires_icon: bool = False,
+                 verbose: bool = False) -> None:
     # Imagine the source PDF as a 3x3 grid; we want the middle square.
     # Appicons are square.
     crop_pdf(
@@ -417,26 +470,31 @@ def make_appicon(filename: str, side_px: int,
         dest_filename=filename,
         dest_width_px=side_px,
         dest_height_px=side_px,
-        windows_multires_icon=windows_multires_icon
+        windows_multires_icon=windows_multires_icon,
+        verbose=verbose,
     )
 
 
-def make_feature_graphic(filename: str, width_px: int, height_px: int) -> None:
+def make_feature_graphic(filename: str, width_px: int, height_px: int,
+                         verbose: bool = False) -> None:
     crop_pdf(
         src_filename=SPLASHSCREEN_PDF,
         img_lr=ProportionPair(0.26, 0.74),
         img_tb=ProportionPair(0.4, 0.6),
         dest_filename=filename,
         dest_width_px=width_px,
-        dest_height_px=height_px
+        dest_height_px=height_px,
+        verbose=verbose,
     )
 
 
 def make_splashscreen(filename: str,
                       width_px: int,
                       height_px: int,
-                      trim_margin_frac: float = 0.05) -> None:
-    src_width_in, src_height_in = get_pdf_print_size_inches(SPLASHSCREEN_PDF)
+                      trim_margin_frac: float = 0.05,
+                      verbose: bool = False) -> None:
+    src_width_in, src_height_in = get_pdf_print_size_inches(SPLASHSCREEN_PDF,
+                                                            verbose=verbose)
     src_aspect_ratio = src_width_in / src_height_in
     dest_aspect_ratio = width_px / height_px
     log.debug("source aspect ratio: {}".format(src_aspect_ratio))
@@ -462,7 +520,8 @@ def make_splashscreen(filename: str,
         img_tb=img_tb,
         dest_filename=filename,
         dest_width_px=width_px,
-        dest_height_px=height_px
+        dest_height_px=height_px,
+        verbose=verbose,
     )
 
 
@@ -488,14 +547,14 @@ def main() -> None:
     parser.add_argument("--all", action='store_true', help="Process everything")
     parser.add_argument("-v", "--verbose", action='store_true', help="Verbose")
     args = parser.parse_args()
-    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
+    main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
+                                    else logging.INFO)
 
-    if platform.system() == "Windows":
-        log.critical("This program doesn't yet support running on Windows; "
-                     "for the future, will need to check the CONVERT command "
-                     "as this is a FAT-to-NTFS converter under Windows and "
-                     "ImageMagick under Linux (and we want the latter).")
-        sys.exit(1)
+    require(CONVERT[0])
+    require(GREP[0])
+    require(IDENTIFY[0])
+    if WINDOWS:
+        require(GHOSTSCRIPT_WINDOWS)    
 
     if args.all:
         args.android = True
@@ -532,76 +591,93 @@ def main() -> None:
     docs_appicon_image_dir = join(args.base_dir, "docs_sphinx", "source",
                                   "_app_icons")
     all_tablet_icon_dirs = [tablet_icon_dir, docs_appicon_image_dir]
+    
+    def mk_appicon(filename: str, side_px: int,
+                   windows_multires_icon: bool = False) -> None:
+        make_appicon(filename, side_px, verbose=args.verbose,
+                     windows_multires_icon=windows_multires_icon)
 
-    # =============================================================================
+    def mk_splashscreen(filename: str, width_px: int, height_px: int) -> None:
+        make_splashscreen(filename, width_px, height_px, verbose=args.verbose)
+
+    def mk_feature_graphic(filename: str, width_px: int, 
+                           height_px: int) -> None:
+        make_feature_graphic(filename, width_px, height_px, 
+                             verbose=args.verbose)
+        
+    def servercrop(source: str, dest: str, dest_width_px: int) -> None:
+        crop_pdf(source, dest, dest_width_px=dest_width_px, autocrop=True,
+                 verbose=args.verbose)
+
+    # =========================================================================
     # iOS
-    # =============================================================================
+    # =========================================================================
 
     def ios(filename):
         return join(ios_dir, filename)
 
     if args.ios:
         log.info("--- iOS")
-        make_appicon(ios("appicon.png"), 57)
-        make_appicon(ios("appicon@2x.png"), 114)
-        make_appicon(ios("appicon-72.png"), 72)
-        make_appicon(ios("appicon-72@2x.png"), 144)
-        make_appicon(ios("appicon-Small-50.png"), 50)
-        make_appicon(ios("appicon-Small-50@2x.png"), 100)
-        make_appicon(ios("appicon-60@2x.png"), 120)
-        make_appicon(ios("appicon-60@3x.png"), 180)
-        make_appicon(ios("appicon-76.png"), 76)
-        make_appicon(ios("appicon-76@2x.png"), 152)
-        make_appicon(ios("appicon-Small-40.png"), 40)
-        make_appicon(ios("appicon-Small-40@2x.png"), 80)
-        make_appicon(ios("appicon-Small-40@3x.png"), 120)
-        make_appicon(ios("appicon-Small.png"), 29)
-        make_appicon(ios("appicon-Small@2x.png"), 58)
-        make_appicon(ios("appicon-Small@3x.png"), 87)
+        mk_appicon(ios("appicon.png"), 57)
+        mk_appicon(ios("appicon@2x.png"), 114)
+        mk_appicon(ios("appicon-72.png"), 72)
+        mk_appicon(ios("appicon-72@2x.png"), 144)
+        mk_appicon(ios("appicon-Small-50.png"), 50)
+        mk_appicon(ios("appicon-Small-50@2x.png"), 100)
+        mk_appicon(ios("appicon-60@2x.png"), 120)
+        mk_appicon(ios("appicon-60@3x.png"), 180)
+        mk_appicon(ios("appicon-76.png"), 76)
+        mk_appicon(ios("appicon-76@2x.png"), 152)
+        mk_appicon(ios("appicon-Small-40.png"), 40)
+        mk_appicon(ios("appicon-Small-40@2x.png"), 80)
+        mk_appicon(ios("appicon-Small-40@3x.png"), 120)
+        mk_appicon(ios("appicon-Small.png"), 29)
+        mk_appicon(ios("appicon-Small@2x.png"), 58)
+        mk_appicon(ios("appicon-Small@3x.png"), 87)
 
-        make_splashscreen(ios("Default.png"), 320, 480)
-        make_splashscreen(ios("Default@2x.png"), 640, 690)
-        make_splashscreen(ios("Default-568h@2x.png"), 640, 1136)
-        make_splashscreen(ios("Default-667h@2x.png"), 750, 1334)
-        make_splashscreen(ios("Default-Landscape-736h@3x.png"), 2208, 1242)
-        make_splashscreen(ios("Default-Portrait-736h@3x.png"), 1242, 2208)
-        make_splashscreen(ios("Default-Landscape.png"), 1024, 768)
-        make_splashscreen(ios("Default-Portrait.png"), 768, 1024)
-        make_splashscreen(ios("Default-Landscape@2x.png"), 2048, 1536)
-        make_splashscreen(ios("Default-Portrait@2x.png"), 1536, 2048)
+        mk_splashscreen(ios("Default.png"), 320, 480)
+        mk_splashscreen(ios("Default@2x.png"), 640, 690)
+        mk_splashscreen(ios("Default-568h@2x.png"), 640, 1136)
+        mk_splashscreen(ios("Default-667h@2x.png"), 750, 1334)
+        mk_splashscreen(ios("Default-Landscape-736h@3x.png"), 2208, 1242)
+        mk_splashscreen(ios("Default-Portrait-736h@3x.png"), 1242, 2208)
+        mk_splashscreen(ios("Default-Landscape.png"), 1024, 768)
+        mk_splashscreen(ios("Default-Portrait.png"), 768, 1024)
+        mk_splashscreen(ios("Default-Landscape@2x.png"), 2048, 1536)
+        mk_splashscreen(ios("Default-Portrait@2x.png"), 1536, 2048)
 
         # Artwork for app list in iTunes:
         # iTunesArtwork (no extension), 512 x 512
         # iTunesArtwork@2x (no extension), 1024 x 1024
 
-    # =============================================================================
+    # =========================================================================
     # Android
-    # =============================================================================
+    # =========================================================================
 
     if args.android:
         log.info("--- Android")
-        make_appicon(join(android_res_dir, "appicon.png"), 128)
-        make_appicon(join(android_plt_res, "drawable-ldpi", "appicon.png"), 36)
-        make_appicon(join(android_plt_res, "drawable-mdpi", "appicon.png"), 48)
-        make_appicon(join(android_plt_res, "drawable-hdpi", "appicon.png"), 72)
-        make_appicon(
+        mk_appicon(join(android_res_dir, "appicon.png"), 128)
+        mk_appicon(join(android_plt_res, "drawable-ldpi", "appicon.png"), 36)
+        mk_appicon(join(android_plt_res, "drawable-mdpi", "appicon.png"), 48)
+        mk_appicon(join(android_plt_res, "drawable-hdpi", "appicon.png"), 72)
+        mk_appicon(
             join(android_plt_res, "drawable-xhdpi", "appicon.png"), 96)
-        make_appicon(
+        mk_appicon(
             join(android_plt_res, "drawable-xxhdpi", "appicon.png"), 144)
 
         # There might be better ways. But as a start:
-        make_splashscreen(
+        mk_splashscreen(
             join(android_res_dir, "images", "res-land", "default.png"),
             800, 480)
-        make_splashscreen(
+        mk_splashscreen(
             join(android_res_dir, "images", "res-port", "default.png"),
             480, 800)
 
     if args.googleplay:
         log.info("--- Google Play Store")
-        make_appicon(join(google_play_dir, "hi_res_icon.png"), 512)
-        make_feature_graphic(join(google_play_dir, "feature_graphic.png"),
-                             1024, 500)
+        mk_appicon(join(google_play_dir, "hi_res_icon.png"), 512)
+        mk_feature_graphic(join(google_play_dir, "feature_graphic.png"),
+                           1024, 500)
         # ALSO NEED:
         # - 7" tablet screenshot, meaning 1024x600
         # - 10" tablet screenshot, meaning 1280x800
@@ -609,54 +685,65 @@ def main() -> None:
         # - wmctrl -l
         # - wmctrl -i -r ID_FROM_LIST -e 0,100,100,1024,600
 
-    # =============================================================================
+    # =========================================================================
     # Windows
-    # =============================================================================
+    # =========================================================================
 
     if args.windows:
         log.info("--- Windows")
-        make_appicon(join(windows_dir, "Logo.png"), 150)
-        make_appicon(join(windows_dir, "SmallLogo.png"), 30)
-        make_appicon(join(windows_dir, "StoreLogo.png"), 50)
-        make_appicon(join(windows_dir, "Square150x150Logo.png"), 150)
-        make_appicon(join(windows_dir, "Square71x71Logo.png"), 71)
-        make_appicon(join(windows_dir, "Square44x44Logo.png"), 44)
+
+        # For embedding icons into our .EXE and for all the InnoSetup icons:
 
         # https://docs.microsoft.com/en-gb/windows/desktop/uxguide/vis-icons
-        make_appicon(join(windows_dir, "camcops.ico"), 256,
-                     windows_multires_icon=True)
+        mk_appicon(join(windows_dir, "camcops.ico"), 256,
+                   windows_multires_icon=True)
 
-        make_splashscreen(join(windows_dir, "SplashScreen.png"), 620, 300)
-        make_splashscreen(
-            join(windows_dir, "SplashScreen480x800.png"), 480, 800)
-        make_splashscreen(
-            join(windows_dir, "SplashScreen480x800.scale-240.png"), 1152, 1920)
+        # Potential other things for Windows Store work:
 
-    # =============================================================================
+        # mk_appicon(join(windows_dir, "Logo.png"), 150)
+        # mk_appicon(join(windows_dir, "SmallLogo.png"), 30)
+        # mk_appicon(join(windows_dir, "StoreLogo.png"), 50)
+        # mk_appicon(join(windows_dir, "Square150x150Logo.png"), 150)
+        # mk_appicon(join(windows_dir, "Square71x71Logo.png"), 71)
+        # mk_appicon(join(windows_dir, "Square44x44Logo.png"), 44)
+
+        # mk_splashscreen(join(windows_dir, "SplashScreen.png"), 620, 300)
+        # mk_splashscreen(
+        #     join(windows_dir, "SplashScreen480x800.png"), 480, 800)
+        # mk_splashscreen(
+        #     join(windows_dir, "SplashScreen480x800.scale-240.png"),
+        #     1152, 1920)
+
+    # =========================================================================
     # Web site, CamCOPS server
-    # =============================================================================
+    # =========================================================================
 
     if args.server:
         log.info("--- Server")
-        make_appicon(join(server_static_dir, "favicon_camcops.png"), 32)
-        make_appicon(join(web_image_dir, "camcops.png"), 96)
-        make_appicon(join(web_image_dir, "favicon.png"), 32)
-        make_appicon(join(web_image_dir, "camcops_icon_500.png"), 500)
-        make_appicon(join(docs_image_dir, "camcops_icon_500.png"), 500)
-        crop_pdf(CAMCOPS_LOGO_PDF, join(server_static_dir, "logo_camcops.png"),
-                 dest_width_px=1000, autocrop=True)
-        crop_pdf(BLANK_LOGO_PDF, join(server_static_dir, "logo_local.png"),
-                 dest_width_px=1000, autocrop=True)
-        crop_pdf(BLANK_LOGO_PDF, join(server_static_dir, "logo_local.png"),
-                 dest_width_px=1000, autocrop=True)
-        crop_pdf(SERVER_DIAGRAM_PDF, join(web_image_dir, "server_diagram.png"),
-                 dest_width_px=600, autocrop=True)
-        crop_pdf(SCALING_LOGOS_PDF, join(web_image_dir, "scaling_logos.png"),
-                 dest_width_px=600, autocrop=True)
+        mk_appicon(join(server_static_dir, "favicon_camcops.png"), 32)
+        mk_appicon(join(web_image_dir, "camcops.png"), 96)
+        mk_appicon(join(web_image_dir, "favicon.png"), 32)
+        mk_appicon(join(web_image_dir, "camcops_icon_500.png"), 500)
+        mk_appicon(join(docs_image_dir, "camcops_icon_500.png"), 500)
+        servercrop(CAMCOPS_LOGO_PDF,
+                   join(server_static_dir, "logo_camcops.png"),
+                   dest_width_px=1000)
+        servercrop(BLANK_LOGO_PDF,
+                   join(server_static_dir, "logo_local.png"),
+                   dest_width_px=1000)
+        servercrop(BLANK_LOGO_PDF,
+                   join(server_static_dir, "logo_local.png"),
+                   dest_width_px=1000)
+        servercrop(SERVER_DIAGRAM_PDF,
+                   join(web_image_dir, "server_diagram.png"),
+                   dest_width_px=600)
+        servercrop(SCALING_LOGOS_PDF,
+                   join(web_image_dir, "scaling_logos.png"),
+                   dest_width_px=600)
 
-    # =============================================================================
+    # =========================================================================
     # Tablet
-    # =============================================================================
+    # =========================================================================
 
     """
     If transparency is not working, try:
@@ -748,7 +835,9 @@ def main() -> None:
             tile_pdf(TABLET_ICON_PDF, join(tmpdir, "tile-%d.png"),
                      n_wide=ncol, n_high=nrow, tile_width_px=96,
                      tile_height_px=96,
-                     autocrop=False, transparent="rgb(240,240,200)")
+                     autocrop=False,
+                     transparent="rgb(240,240,200)",
+                     verbose=args.verbose)
             tilenum = 0
             for r in range(nrow):
                 for c in range(ncol):
@@ -766,16 +855,14 @@ def main() -> None:
             # Special: resize hasChild
             has_child = join(destdir, 'hasChild.png')
             log.info("Resizing " + has_child)
-            cmdargs = [CONVERT, has_child, '-resize', '24x24', has_child]
-            log.debug(cmdargs)
-            subprocess.check_call(cmdargs)
+            cmdargs = CONVERT + [has_child, '-resize', '24x24', has_child]
+            run(cmdargs)
 
             # Special: make hasParent
             has_parent = join(destdir, 'hasParent.png')
             log.info("Making " + has_parent)
-            cmdargs = [CONVERT, has_child, '-flop', has_parent]
-            log.debug(cmdargs)
-            subprocess.check_call(cmdargs)
+            cmdargs = CONVERT + [has_child, '-flop', has_parent]
+            run(cmdargs)
 
 
 if __name__ == '__main__':

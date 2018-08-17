@@ -16,6 +16,7 @@
 #define QtBuildDir "D:\dev\qt_local_build"
 #define OpenSSLVersion "1.1.0g"
 #define OpenSSLMajorVersionUnderscores "1_1"
+#define VisualStudioRedistRoot "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.14.26405"
 
 ; It looks like ISPP can't do a #define involving an existing #define...
 ; ... but you can define macros and compositions.
@@ -35,6 +36,10 @@
 #define LibSSL64 QtBuildDir + "\openssl_windows_x86_64_build\openssl-" + OpenSSLVersion + "\libssl-" + OpenSSLMajorVersionUnderscores + "-x64.dll"
 #define IconName MyAppNameLowerCase + ".ico"
 #define SrcIconFilename SrcTabletDir + "\windows\" + IconName
+#define VCRedist32Name "vcredist_x86.exe"
+#define VCRedist64Name "vcredist_x64.exe"
+#define SrcVCRedist32 VisualStudioRedistRoot + "\" + VCRedist32Name
+#define SrcVCRedist64 VisualStudioRedistRoot + "\" + VCRedist64Name
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -68,11 +73,19 @@ ArchitecturesInstallIn64BitMode=x64
 ; installation to run on all architectures (including Itanium,
 ; since it's capable of running 32-bit code too).
 
+; https://stackoverflow.com/questions/11187022/inno-script-how-to-make-i-accept-the-agreement-radio-button-on-eula-page-sel
+; [Code]
+; procedure InitializeWizard;
+; begin
+;   WizardForm.LicenseAcceptedRadio.Checked := True;
+; end;
+
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
+; ... use "Flags: unchecked" to disable by default
 
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -88,6 +101,10 @@ Source: "{#LibCrypto64}"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64Bit
 Source: "{#LibSSL32}"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
 Source: "{#LibSSL64}"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 
+; We also need VCRUNTIME140.DLL, and presumably the version of the Visual C++ redistributable is the one from our compiler.
+Source: "{#SrcVCRedist32}"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: not Is64BitInstallMode
+Source: "{#SrcVCRedist64}"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: Is64BitInstallMode
+
 ; Other files:
 Source: "{#SrcIconFilename}"; DestDir: "{app}"; DestName: "{#IconName}"
 ; Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
@@ -98,5 +115,88 @@ Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFi
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#IconName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; \
+    Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; \
+    Flags: nowait postinstall skipifsilent
 
+; https://stackoverflow.com/questions/24574035/how-to-install-microsoft-vc-redistributables-silently-in-inno-setup
+; http://asawicki.info/news_1597_installing_visual_c_redistributable_package_from_command_line.html
+Filename: "{tmp}\{#VCRedist32Name}"; \
+    Parameters: "/install /passive /norestart"; \
+    Check: VCRedist32NeedsInstall; \
+    StatusMsg: "Installing Visual C++ 2017 32-bit redistributables..."
+Filename: "{tmp}\{#VCRedist64Name}"; \
+    Parameters: "/install /passive /norestart"; \
+    Check: VCRedist64NeedsInstall; \
+    StatusMsg: "Installing Visual C++ 2017 64-bit redistributables..."
+
+; https://stackoverflow.com/questions/11137424/how-to-make-vcredist-x86-reinstall-only-if-not-yet-installed/11172939#11172939
+; https://pingfu.net/how-to-detect-which-version-of-visual-c-runtime-is-installed
+; https://stackoverflow.com/questions/12206314/detect-if-visual-c-redistributable-for-visual-studio-2012-is-installed
+[Code]
+#IFDEF UNICODE
+  #DEFINE AW "W"
+#ELSE
+  #DEFINE AW "A"
+#ENDIF
+type
+  INSTALLSTATE = Longint;
+const
+  INSTALLSTATE_INVALIDARG = -2;  // An invalid parameter was passed to the function.
+  INSTALLSTATE_UNKNOWN = -1;     // The product is neither advertised or installed.
+  INSTALLSTATE_ADVERTISED = 1;   // The product is advertised but not installed.
+  INSTALLSTATE_ABSENT = 2;       // The product is installed for a different user.
+  INSTALLSTATE_DEFAULT = 5;      // The product is installed for the current user.
+
+  // RNC:
+  // Visual C++ 2017 Redistributable 14.14.26405.0
+  VC_2017_REDIST_14_14_26405_X86_MINIMUM_RUNTIME = '{ec9c2282-a836-48a6-9e41-c2f0bf8d678b}';
+  // ... value taken from the installation log
+  // ... also from "Add or remove programs" -> "Microsoft Visual C++ 2017 Redistributable
+  //     (x86) - 14.14.26405 / 14.14.26405.0" -> "Modify" -> "Show more details".
+  // ... NOT SURE IF THIS ONE IS WORKING; problem may be the use of a 64-bit installer
+  //     (thus maybe calling a 64-bit msi.dll and getting a different answer??).
+  // Worst case is that the redistributable gets installed twice, though.
+  VC_2017_REDIST_14_14_26405_X64_MINIMUM_RUNTIME = '{BCA8F863-9BAB-3398-B8E4-E1D0959D0943}';
+  // ... value taken from the installation log
+
+function MsiQueryProductState(szProduct: string): INSTALLSTATE; 
+  external 'MsiQueryProductState{#AW}@msi.dll stdcall';
+
+function VCVersionInstalled(const ProductID: string): Boolean;
+begin
+  Result := MsiQueryProductState(ProductID) = INSTALLSTATE_DEFAULT;
+end;
+
+function deactivated_InitializeSetup: Boolean;
+// When named InitializeSetup, this overrides an Inno Setup built-in function.
+// Return False to abort setup, True otherwise.
+// Rename it to deactivate.
+var
+  S: string;
+  State: INSTALLSTATE;
+begin
+  Result := False;
+  State := MsiQueryProductState(VC_2017_REDIST_14_14_26405_X86_MINIMUM_RUNTIME);
+  // State := MsiQueryProductState(VC_2017_REDIST_14_14_26405_X64_MINIMUM_RUNTIME);
+  case State of
+    INSTALLSTATE_INVALIDARG: S := 'INSTALLSTATE_INVALIDARG: An invalid parameter was passed to the function.';
+    INSTALLSTATE_UNKNOWN: S := 'INSTALLSTATE_UNKNOWN: The product is neither advertised or installed.';
+    INSTALLSTATE_ADVERTISED: S := 'INSTALLSTATE_ADVERTISED: The product is advertised but not installed.';
+    INSTALLSTATE_ABSENT: S := 'INSTALLSTATE_ABSENT: The product is installed for a different user.';
+    INSTALLSTATE_DEFAULT: S := 'INSTALLSTATE_DEFAULT: The product is installed for the current user.';
+  else
+    S := IntToStr(State) + 'Unexpected result';
+  end;
+  MsgBox(S, mbInformation, MB_OK);
+end;
+
+function VCRedist32NeedsInstall: Boolean;
+begin
+  Result := (not Is64BitInstallMode) and (not VCVersionInstalled(VC_2017_REDIST_14_14_26405_X86_MINIMUM_RUNTIME));
+end;
+
+function VCRedist64NeedsInstall: Boolean;
+begin
+  Result := Is64BitInstallMode and (not VCVersionInstalled(VC_2017_REDIST_14_14_26405_X64_MINIMUM_RUNTIME));
+end;

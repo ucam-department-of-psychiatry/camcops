@@ -1,14 +1,18 @@
+# Mac OS/X
 .DS_Store
 
+# Qt
 build-*/
-# ... Qt
+*.pro.user
 
+# Temporary
 *~
-# ... temporary
 
-tablet_qt/camcops_tablet.pro.user
+# PyCharm
 .idea/*
+
+# Other
+distributables/
 server/camcops_server.egg-info
 working/*
 
-*.pro.user
