@@ -25,37 +25,39 @@
 namespace platform {
 
 #ifdef Q_OS_ANDROID
-const bool PLATFORM_ANDROID = true;
-const QString OS_CLASS("Android");
+    const bool PLATFORM_ANDROID = true;
+    const QString OS_CLASS("Android");
 #else
-const bool PLATFORM_ANDROID = false;
+    const bool PLATFORM_ANDROID = false;
 #endif
 
 #ifdef Q_OS_IOS
-const bool PLATFORM_IOS = true;
-const QString OS_CLASS("iOS");
+    const bool PLATFORM_IOS = true;
+    const QString OS_CLASS("iOS");
 #else
-const bool PLATFORM_IOS = false;
+    const bool PLATFORM_IOS = false;
 #endif
 
 #ifdef Q_OS_LINUX
-const bool PLATFORM_LINUX = true;
-const QString OS_CLASS("Linux");
+    const bool PLATFORM_LINUX = true;
+    #ifndef Q_OS_ANDROID
+        const QString OS_CLASS("Linux");
+    #endif
 #else
-const bool PLATFORM_LINUX = false;
+    const bool PLATFORM_LINUX = false;
 #endif
 
 #ifdef Q_OS_WIN
-const bool PLATFORM_WINDOWS = true;
-const QString OS_CLASS("Windows");
+    const bool PLATFORM_WINDOWS = true;
+    const QString OS_CLASS("Windows");
 #else
-const bool PLATFORM_WINDOWS = false;
+    const bool PLATFORM_WINDOWS = false;
 #endif
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-const bool PLATFORM_TABLET = true;
+    const bool PLATFORM_TABLET = true;
 #else
-const bool PLATFORM_TABLET = false;
+    const bool PLATFORM_TABLET = false;
 #endif
 
 
