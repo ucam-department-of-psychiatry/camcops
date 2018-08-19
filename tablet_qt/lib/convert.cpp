@@ -75,8 +75,8 @@ const ushort UNICODE_ZERO = ZERO.unicode();
 
 const QString NULL_STR("NULL");
 
-const QString RECORD_RE_STR("^([\\S]+?):\\s*([\\s\\S]*)");
-// double-backslashes for C++ escaping
+const QString RECORD_RE_STR(R"(^([\S]+?):\s*([\s\S]*))");
+// double-backslashes for C++ escaping, or C++ raw string R"(...)"
 // \s whitespace, \S non-whitespace
 // ? makes the + lazy, not greedy
 // ... thus: (lazy-non-whitespace) : whitespace (anything)
@@ -362,7 +362,7 @@ QVector<QVariant> csvSqlLiteralsToValues(const QString& csv)
 QString valuesToCsvSqlLiterals(const QVector<QVariant>& values)
 {
     QStringList literals;
-    for (auto value : values) {
+    for (const QVariant& value : values) {
         literals.append(toSqlLiteral(value));
     }
     return literals.join(COMMA);
@@ -517,9 +517,8 @@ QString cppLiteralToString(const QString& escaped)
     if (len >= 2 && escaped.at(0) == DQUOTE && escaped.at(len - 1) == DQUOTE) {
         // quoted string
         return unquotedCppLiteralToString(escaped.mid(1, len - 2));
-    } else {
-        return unquotedCppLiteralToString(escaped);
     }
+    return unquotedCppLiteralToString(escaped);
 }
 
 
@@ -720,9 +719,9 @@ QString prettySize(const double num, const bool space, const bool binary,
             : (longform ? PREFIXES_LONG_DECIMAL : PREFIXES_SHORT_DECIMAL);
     const QString optional_space = space ? " " : "";
     const double base = binary ? 1024 : 1000;
-    int exponent = static_cast<int>(qLn(num) / qLn(base));
+    auto exponent = static_cast<int>(qLn(num) / qLn(base));
     exponent = qBound(0, exponent, prefixes.length() - 1);
-    const QString prefix = prefixes.at(exponent);
+    const QString& prefix = prefixes.at(exponent);
     const double converted_num = num / pow(base, exponent);
     const int precision = (exponent == 0) ? 0 : 1;  // decimals, for 'f'
     return QString("%1%2%3%4")
@@ -896,7 +895,7 @@ QVector<int> csvStringToIntVector(const QString& str)
 QString qStringListToCsvString(const QStringList& vec)
 {
     QStringList words;
-    for (QString word : vec) {
+    for (const QString& word : vec) {
         words.append(stringToCppLiteral(word));
     }
     return words.join(COMMA);
@@ -909,7 +908,7 @@ QStringList csvStringToQStringList(const QString& str)
     QString word;
     bool in_quote = false;
     bool in_escape = false;
-    for (QChar c : str) {
+    for (const QChar& c : str) {
         const ushort u = c.unicode();
         if (in_escape) {
             // We don't have to be concerned with sophisticated escaping.

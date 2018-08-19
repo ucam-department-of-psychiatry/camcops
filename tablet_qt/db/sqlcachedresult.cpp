@@ -80,7 +80,7 @@ static const uint initial_cache_size = 128;
 
 static bool qIsAlnum(const QChar ch)
 {
-    const uint u = uint(ch.unicode());
+    const auto u = uint(ch.unicode());
     // matches [a-zA-Z0-9_]
     return u - 'a' < 26 || u - 'A' < 26 || u - '0' < 10 || u == '_';
 }
@@ -122,7 +122,7 @@ QString SqlCachedResult::holderAt(const int index) const
 QString SqlCachedResult::fieldSerial(int i) const
 {
     ushort arr[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    ushort* end = &arr[(sizeof(arr)/sizeof(*arr))];
+    ushort* end = &arr[(sizeof(arr) / sizeof(*arr))];
     ushort* ptr = end;
 
     while (i > 0) {
@@ -431,9 +431,8 @@ bool SqlCachedResult::fetchLast()
     if (m_at_end) {
         if (m_forward_only) {
             return false;
-        } else {
-            return fetch(cacheCount() - 1);
         }
+        return fetch(cacheCount() - 1);
     }
 
     int i = at();
@@ -443,9 +442,8 @@ bool SqlCachedResult::fetchLast()
     if (m_forward_only && at() == QSql::AfterLastRow) {
         setAt(i);
         return true;
-    } else {
-        return fetch(i);
     }
+    return fetch(i);
 }
 
 

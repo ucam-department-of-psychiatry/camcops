@@ -116,7 +116,7 @@ QuPage* QuPage::addElement(QuElement* element)  // takes ownership
 
 QuPage* QuPage::addElements(const QVector<QuElementPtr>& elements)
 {
-    for (auto e : elements) {
+    for (const QuElementPtr& e : elements) {
         addElement(e);
     }
     return this;
@@ -125,7 +125,7 @@ QuPage* QuPage::addElements(const QVector<QuElementPtr>& elements)
 
 QuPage* QuPage::addElements(const QVector<QuElement*>& elements)
 {
-    for (auto e : elements) {
+    for (QuElement* e : elements) {
         addElement(e);
     }
     return this;
@@ -188,11 +188,11 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
 {
     QPointer<QWidget> pagewidget(new BaseWidget());
 
-    VBoxLayout* pagelayout = new VBoxLayout();
+    auto pagelayout = new VBoxLayout();
 
     pagewidget->setLayout(pagelayout);
     // Add widgets that we own directly
-    for (QuElementPtr e : m_elements) {
+    for (const QuElementPtr& e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);
         pagelayout->addWidget(w);  // takes ownership
         w->setVisible(e->visible());  // only AFTER the widget is owned,
@@ -214,7 +214,7 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
 QVector<QuElement*> QuPage::allElements() const
 {
     QVector<QuElement*> elements;
-    for (QuElementPtr e : m_elements) {
+    for (const QuElementPtr& e : m_elements) {
         elements.append(e.data());
         elements.append(e->subelementsWithChildrenFlattenedRaw());
     }
@@ -225,7 +225,7 @@ QVector<QuElement*> QuPage::allElements() const
 QVector<QuElement*> QuPage::elementsWithTag(const QString& tag)
 {
     QVector<QuElement*> matching_elements;
-    for (auto e : allElements()) {
+    for (QuElement* e : allElements()) {
         if (e->hasTag(tag)) {
             matching_elements.append(e);
         }

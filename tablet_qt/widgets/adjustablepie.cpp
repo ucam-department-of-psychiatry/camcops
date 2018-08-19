@@ -23,7 +23,7 @@
 // #define DEBUG_MOVE
 
 #include "adjustablepie.h"
-#include <math.h>  // for std::fmod
+#include <cmath>  // for std::fmod
 #include <QDebug>
 #include <QFrame>
 #include <QMouseEvent>
@@ -48,7 +48,6 @@ using geometry::distanceBetween;
 using geometry::headingInRange;
 using geometry::headingNearlyEq;
 using geometry::headingToPolarTheta;
-using geometry::lineCrossesHeadingWithinRadius;
 using geometry::lineFromPointInHeadingWithRadius;
 using geometry::normalizeHeading;
 using geometry::polarToCartesian;
@@ -56,7 +55,6 @@ using geometry::polarTheta;
 using geometry::polarThetaToHeading;
 using graphicsfunc::drawSector;
 using graphicsfunc::drawText;
-using graphicsfunc::textRectF;
 
 // ============================================================================
 // Constants
@@ -72,24 +70,24 @@ const QColor DEFAULT_LABEL_COLOUR(QCOLOR_DARKBLUE);
 // ============================================================================
 
 #define ENSURE_SECTOR_INDEX_OK_OR_RETURN(sector_index) \
-    if (sector_index < 0 || sector_index >= m_n_sectors) { \
-        qWarning() << Q_FUNC_INFO << "Bad sector index:" << sector_index; \
+    if ((sector_index) < 0 || (sector_index) >= m_n_sectors) { \
+        qWarning() << Q_FUNC_INFO << "Bad sector index:" << (sector_index); \
         return; \
     }
 #define ENSURE_CURSOR_INDEX_OK_OR_RETURN(cursor_index) \
-    if (cursor_index < 0 || cursor_index >= m_n_sectors - 1) { \
-        qWarning() << Q_FUNC_INFO << "Bad cursor index:" << cursor_index; \
+    if ((cursor_index) < 0 || (cursor_index) >= m_n_sectors - 1) { \
+        qWarning() << Q_FUNC_INFO << "Bad cursor index:" << (cursor_index); \
         return; \
     }
 #define ENSURE_VECTOR_SIZE_MATCHES_SECTORS(vec) \
-    if (vec.size() != m_n_sectors) { \
-        qWarning() << Q_FUNC_INFO << "Bad vector size:" << vec.size() \
+    if ((vec).size() != m_n_sectors) { \
+        qWarning() << Q_FUNC_INFO << "Bad vector size:" << (vec).size() \
                    << "- should match #sectors of" << m_n_sectors; \
         return; \
     }
 #define ENSURE_VECTOR_SIZE_MATCHES_CURSORS(vec) \
-    if (vec.size() != m_n_sectors - 1) { \
-        qWarning() << Q_FUNC_INFO << "Bad vector size:" << vec.size() \
+    if ((vec).size() != m_n_sectors - 1) { \
+        qWarning() << Q_FUNC_INFO << "Bad vector size:" << (vec).size() \
                    << "- should match #cursors of" << m_n_sectors - 1; \
         return; \
     }
@@ -404,7 +402,7 @@ qreal AdjustablePie::sectorProportionCumulative(const int sector_index) const
 
 QSize AdjustablePie::sizeHint() const
 {
-    const int diameter = static_cast<int>(m_overall_radius * 2);
+    auto diameter = static_cast<const int>(m_overall_radius * 2);
     return QSize(diameter, diameter);
 }
 

@@ -20,10 +20,7 @@
 #include "cardinalexpdetrating.h"
 #include "maths/mathfunc.h"
 #include "taskxtra/cardinalexpdetcommon.h"
-using cardinalexpdetcommon::SCENE_HEIGHT;
-using cardinalexpdetcommon::SCENE_WIDTH;
 
-const int N_RATINGS = 5;
 const double POINTS_PER_RATING = 10.0;
 
 const QStringList TX_OPTIONS{

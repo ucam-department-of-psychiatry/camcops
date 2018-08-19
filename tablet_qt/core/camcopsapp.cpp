@@ -190,11 +190,13 @@ int CamcopsApp::run()
 
     // Do the rest of the database configuration, task registration, etc.,
     // with a "please wait" dialog.
-    SlowNonGuiFunctionCaller(
-        std::bind(&CamcopsApp::backgroundStartup, this),
-        m_p_main_window,
-        "Configuring internal database",
-        "Please wait");
+    {
+        SlowNonGuiFunctionCaller slow_gui_caller(
+            std::bind(&CamcopsApp::backgroundStartup, this),
+            m_p_main_window,
+            "Configuring internal database",
+            "Please wait");
+    }
 
     openMainWindow();  // uses HelpMenu etc. and so must be AFTER TASK REGISTRATION
     makeNetManager();  // needs to be after main window created, and on GUI thread
@@ -777,14 +779,14 @@ void CamcopsApp::openMainWindow()
     m_p_hidden_stack = QSharedPointer<QStackedWidget>(new QStackedWidget());
 #if 0  // doesn't work
     // We want to stay height-for-width all the way to the top:
-    VBoxLayout* master_layout = new VBoxLayout();
+    auto master_layout = new VBoxLayout();
     m_p_main_window->setLayout(master_layout);
     master_layout->addWidget(m_p_window_stack);
 #else
     m_p_main_window->setCentralWidget(m_p_window_stack);
 #endif
 
-    MainMenu* menu = new MainMenu(*this);
+    auto menu = new MainMenu(*this);
     openSubWindow(menu);
 
     m_p_main_window->showMaximized();
@@ -1553,7 +1555,7 @@ int CamcopsApp::fontSizePt(uiconst::FontSize fontsize,
 
 Version CamcopsApp::serverVersion() const
 {
-    return Version(varString(varconst::SERVER_CAMCOPS_VERSION));
+    return {varString(varconst::SERVER_CAMCOPS_VERSION)};
 }
 
 
@@ -1647,7 +1649,7 @@ QVector<IdNumDescriptionPtr> CamcopsApp::getAllIdDescriptions()
 QVector<int> CamcopsApp::whichIdNumsAvailable()
 {
     QVector<int> which_available;
-    for (IdNumDescriptionPtr iddesc : getAllIdDescriptions()) {
+    for (const IdNumDescriptionPtr& iddesc : getAllIdDescriptions()) {
         which_available.append(iddesc->whichIdNum());
     }
     return which_available;
@@ -1668,14 +1670,12 @@ QString CamcopsApp::xstringDirect(const QString& taskname,
         QString result = extrastring.value();
         stringfunc::toHtmlLinebreaks(result);
         return result;
-    } else {
-        if (default_str.isEmpty()) {
-            return QString("[string not downloaded: %1/%2]")
-                    .arg(taskname, stringname);
-        } else {
-            return default_str;
-        }
     }
+    if (default_str.isEmpty()) {
+        return QString("[string not downloaded: %1/%2]")
+                .arg(taskname, stringname);
+    }
+    return default_str;
 }
 
 
@@ -1802,9 +1802,8 @@ bool CamcopsApp::mayUploadTable(const QString& tablename,
     if (!server_has_table) {
         min_client_version = Version::makeInvalidVersion();
         return false;
-    } else {
-        min_client_version = allowedtable.minClientVersion();
     }
+    min_client_version = allowedtable.minClientVersion();
     return camcopsversion::CAMCOPS_CLIENT_VERSION >= min_client_version &&
             server_version >= min_server_version;
 }

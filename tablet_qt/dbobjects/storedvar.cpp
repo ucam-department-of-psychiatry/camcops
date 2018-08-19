@@ -123,11 +123,6 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
 }
 
 
-StoredVar::~StoredVar()
-{
-}
-
-
 bool StoredVar::setValue(const QVariant& value, const bool save_to_db)
 {
 #ifdef DEBUG_SET_VALUE

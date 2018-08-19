@@ -170,7 +170,7 @@ OpenableWidget* QolBasic::editor(const bool read_only)
          rs_slider,
     })->setTitle(xstring("rs_title")));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page1, page2});
+    auto questionnaire = new Questionnaire(m_app, {page1, page2});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

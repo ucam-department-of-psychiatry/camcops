@@ -40,7 +40,7 @@ LogMessageBox::LogMessageBox(QWidget* parent,
     setMinimumWidth(MIN_WIDTH);
     setMinimumHeight(MIN_HEIGHT);
 
-    QVBoxLayout* mainlayout = new QVBoxLayout();
+    auto mainlayout = new QVBoxLayout();
     setLayout(mainlayout);
 
     m_editor = new QPlainTextEdit();
@@ -57,14 +57,14 @@ LogMessageBox::LogMessageBox(QWidget* parent,
         m_editor->appendPlainText(text);
     }
 
-    QHBoxLayout* buttonlayout = new QHBoxLayout();
-    QPushButton* copybutton = new QPushButton(tr("Copy"));
+    auto buttonlayout = new QHBoxLayout();
+    auto copybutton = new QPushButton(tr("Copy"));
     buttonlayout->addWidget(copybutton);
     connect(copybutton, &QPushButton::clicked, this, &LogMessageBox::copyClicked);
 
     buttonlayout->addStretch();
 
-    QPushButton* okbutton = new QPushButton(tr("OK"));
+    auto okbutton = new QPushButton(tr("OK"));
     buttonlayout->addWidget(okbutton);
     connect(okbutton, &QPushButton::clicked, this, &LogMessageBox::accept);
 

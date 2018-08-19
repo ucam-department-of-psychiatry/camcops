@@ -42,7 +42,7 @@ Icd9cm::Icd9cm(CamcopsApp& app) :
 void Icd9cm::addIcd9cmCodes(const QStringList& codes)
 {
     // Conceptually: as for Icd10.
-    for (auto c : codes) {
+    for (const QString& c : codes) {
         const QString desc = xstring(c);
 
         const bool show_code_in_full_name = !c.startsWith(RANGE_PREFIX);

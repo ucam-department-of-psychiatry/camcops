@@ -49,19 +49,18 @@ int PagePickerDialog::choose(int* new_page_number)
     m_new_page_number = new_page_number;
     setWindowTitle(m_title);
 
-    QWidget* contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
-    VBoxLayout* contentlayout = new VBoxLayout();
+    auto contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
+    auto contentlayout = new VBoxLayout();
     contentwidget->setLayout(contentlayout);
     for (int i = 0; i < m_pages.size(); ++i) {
         const PagePickerItem& page = m_pages.at(i);
-        HBoxLayout* itemlayout = new HBoxLayout();
+        auto itemlayout = new HBoxLayout();
 
-        ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(
-                    page.text());
+        auto label = new ClickableLabelWordWrapWide(page.text());
         label->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
         itemlayout->addWidget(label);
 
-        ImageButton* icon = new ImageButton(page.iconFilename());
+        auto icon = new ImageButton(page.iconFilename());
         itemlayout->addWidget(icon);
 
         contentlayout->addLayout(itemlayout);
@@ -73,18 +72,17 @@ int PagePickerDialog::choose(int* new_page_number)
                 std::bind(&PagePickerDialog::itemClicked, this, i));
     }
 
-    VerticalScrollArea* scroll = new VerticalScrollArea();
+    auto scroll = new VerticalScrollArea();
     scroll->setWidget(contentwidget);
 
-    QVBoxLayout* mainlayout = new QVBoxLayout();  // does not need to adjust height to contents; contains scroll area
+    auto mainlayout = new QVBoxLayout();  // does not need to adjust height to contents; contains scroll area
     mainlayout->addWidget(scroll);
     setLayout(mainlayout);
 
     mainlayout->addStretch();
 
     // Offer a cancel button
-    QDialogButtonBox* standard_buttons = new QDialogButtonBox(
-                QDialogButtonBox::Cancel);
+    auto standard_buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);
     connect(standard_buttons, &QDialogButtonBox::rejected,
             this, &PagePickerDialog::reject);
     mainlayout->addWidget(standard_buttons);

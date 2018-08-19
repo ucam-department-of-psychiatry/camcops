@@ -230,7 +230,7 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         // --------------------------------------------------------------------
         // Horizontal
         // --------------------------------------------------------------------
-        QVBoxLayout* layout = new QVBoxLayout();
+        auto layout = new QVBoxLayout();
         layout->setContentsMargins(uiconst::NO_MARGINS);
         if (m_value_label) {
             layout->addWidget(m_value_label, 0,
@@ -246,12 +246,12 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         // --------------------------------------------------------------------
         // Vertical
         // --------------------------------------------------------------------
-        QHBoxLayout* outerlayout = new QHBoxLayout();
+        auto outerlayout = new QHBoxLayout();
         outerlayout->setContentsMargins(uiconst::NO_MARGINS);
         // Even for a vertical slider, have the numerical label above it,
         // or as it changes from "9" to "10" and its width changes, the
         // slider jiggles.
-        QVBoxLayout* innerlayout = new QVBoxLayout();
+        auto innerlayout = new QVBoxLayout();
         innerlayout->setContentsMargins(uiconst::NO_MARGINS);
         if (m_value_label) {
             innerlayout->addWidget(m_value_label, 0,

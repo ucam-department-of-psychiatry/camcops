@@ -26,9 +26,6 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
-using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
@@ -158,7 +155,7 @@ OpenableWidget* CgiSch::editor(const bool read_only)
         new QuText(xstring("ii_postscript"))
     })->setTitle(xstring("ii_title")));
 
-    Questionnaire* questionnaire = new Questionnaire(
+    auto questionnaire = new Questionnaire(
                 m_app, {page1, page2, page3});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);

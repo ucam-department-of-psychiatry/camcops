@@ -28,7 +28,6 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::noneNull;
 
 const QString Photo::PHOTO_TABLENAME("photo");
 
@@ -117,7 +116,7 @@ OpenableWidget* Photo::editor(const bool read_only)
         new QuPhoto(blobFieldRef(PHOTO_BLOBID, false)),
     })->setTitle(textconst::PHOTO_TITLE));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

@@ -689,7 +689,7 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
         }
         s_old = s;
 
-        const MatrixXd S_u = S.matrixU();  // nobs,npred
+        const MatrixXd& S_u = S.matrixU();  // nobs,npred
         const ArrayXXd S_u_good = subsetByRowBoolean(S_u, good);  // nobs_where_ngood,npred
         // Note that mat[boolvec] gives a 1-d result, whereas
         // mat[boolvec,] gives a 2-d result.
@@ -911,10 +911,9 @@ void Glm::fitIRLSRglmfit()
                                  "length of 'start' should equal %1 and "
                                  "correspond to initial coefs...").arg(nvars));
                     return;
-                } else {
-                    coefold = start;
-                    eta = offset + (x * start.matrix()).array();
                 }
+                coefold = start;
+                eta = offset + (x * start.matrix()).array();
             } else {
                 eta = linkfun(mustart);
             }
@@ -1076,12 +1075,10 @@ void Glm::fitIRLSRglmfit()
                 conv = true;
                 coef = start;
                 break;
-            } else {
-                devold = dev;
-                coef = start;
-                coefold = start;
             }
-
+            devold = dev;
+            coef = start;
+            coefold = start;
         }
 
         if (!conv) {

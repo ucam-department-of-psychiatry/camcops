@@ -39,9 +39,6 @@
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using stringfunc::bold;
-using stringfunc::strnum;
-using stringfunc::strseq;
 
 
 const QString CPFTLPSDischarge::CPFTLPSDISCHARGE_TABLENAME("cpft_lps_discharge");
@@ -481,7 +478,7 @@ OpenableWidget* CPFTLPSDischarge::editor(const bool read_only)
 
     })->setTitle(longname()));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

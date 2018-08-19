@@ -17,26 +17,16 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _clinical:
+.. _CPFT: http://www.cpft.nhs.uk
+.. _CUH: https://www.cuh.nhs.uk
 
-Clinical clerkings, notes, contact logs, photographs
-----------------------------------------------------
+.. _clerking:
 
-Simple forms for:
+Clinical: clerking
+------------------
 
-- psychiatric clerking;
+Simple form for psychiatric clerking.
 
-- short clinical notes;
-
-- contact logs;
-
-- clinical photographs;
-
-plus
-
-- some specific tools for `CPFT <http://www.cpft.nhs.uk>`_’s Liaison
-  Psychiatry Service (referral, response clock, discharge), made redundant by
-  electronic records upgrades at `CUH <https://www.cuh.nhs.uk>`_.
 
 Sources
 ~~~~~~~
@@ -46,3 +36,74 @@ Sources
 - Royal College of Physicians (December 2012) *Core clinical headings for
   electronic health records*,
   http://www.rcplondon.ac.uk/sites/default/files/core_clinical_headings_for_electronic_health_records.pdf.
+
+
+.. _progress_note:
+
+Clinical: Progress notes
+------------------------
+
+Short clinical note.
+
+Source: *de novo*.
+
+
+.. _contact_log:
+
+Clinical: Contact log
+---------------------
+
+Record of clinical contact with times.
+
+Source: *de novo*.
+
+
+.. _photo:
+
+Clinical: Photograph
+--------------------
+
+Photograph, with accompanying detail.
+
+Source: *de novo*.
+
+
+.. _photosequence:
+
+Clinical: Photograph sequence
+-----------------------------
+
+Sequence of photographs, with accompanying detail. Suitable for use as an
+ad-hoc photocopier.
+
+Source: *de novo*.
+
+
+.. _cpft_lps_referral:
+
+CPFT/CUH Liaison Psychiatry Service: referral
+---------------------------------------------
+
+Experimental data capture tool for CPFT_'s Liaison Psychiatry service in CUH_.
+
+Source: *de novo*.
+
+
+.. _cpft_lps_response_clock:
+
+CPFT/CUH Liaison Psychiatry Service: response clock
+---------------------------------------------------
+
+Experimental data capture tool for CPFT_'s Liaison Psychiatry service in CUH_.
+
+Source: *de novo*.
+
+
+.. _cpft_lps_discharge:
+
+CPFT/CUH Liaison Psychiatry Service: discharge
+----------------------------------------------
+
+Experimental data capture tool for CPFT_'s Liaison Psychiatry service in CUH_.
+
+Source: *de novo*.

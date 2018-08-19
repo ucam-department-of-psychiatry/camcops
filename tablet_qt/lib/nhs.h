@@ -31,7 +31,7 @@
 
 namespace nhs {
 
-int nhsCheckDigit(const QVector<int> ninedigits, int failure_code = -1);
+int nhsCheckDigit(const QVector<int>& ninedigits, int failure_code = -1);
 
 template<typename T>
 QValidator::State validateNhsNumber(const QString& s, bool allow_empty = false);

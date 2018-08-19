@@ -142,7 +142,7 @@ IDED3DExemplars::IDED3DExemplars()
 
 
 IDED3DExemplars::IDED3DExemplars(const QStringList& dimensions,
-                                 const QVector<QVector<int>> indices) :
+                                 const QVector<QVector<int>>& indices) :
     dimensions(dimensions),
     indices(indices)
 {

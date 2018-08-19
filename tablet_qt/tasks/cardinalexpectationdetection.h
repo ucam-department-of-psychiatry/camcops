@@ -90,7 +90,7 @@ protected:
     void reportCounterbalancing() const;
     QVector<CardinalExpDetTrialPtr> makeTrialGroup(
             int block, int groupnum,
-            CardinalExpDetTrialGroupSpecPtr groupspec) const;
+            const CardinalExpDetTrialGroupSpecPtr& groupspec) const;
     void createTrials();
     void estimateRemaining(int& n_trials_left, double& time_min) const;
     void clearScene();

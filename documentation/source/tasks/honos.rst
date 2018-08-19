@@ -19,8 +19,8 @@
 
 .. _honos:
 
-Health of the Nation Outcome Scales (HoNOS, HoNOS 65+, HoNOSCA)
----------------------------------------------------------------
+Health of the Nation Outcome Scale for working age adults (HoNOS)
+-----------------------------------------------------------------
 
 .. include:: include_from_lp_specific.rst
 
@@ -87,3 +87,19 @@ Copyright © Royal College of Psychiatrists; reproduced with permission.
       way. Would it therefore be OK to include the HoNOS, citing RCPsych
       copyright and that we were including it with your permission?” (personal
       communication, Rudolf Cardinal to Mick James, 2012-09-21)
+
+
+.. _honos65:
+
+Health of the Nation Outcome Scale for 65+-year-olds (HoNOS 65+)
+----------------------------------------------------------------
+
+See `HoNOS <honos>`.
+
+
+.. _honosca:
+
+Health of the Nation Outcome Scale for Children and Adolescents (HoNOSCA)
+-------------------------------------------------------------------------
+
+See `HoNOS <honos>`.

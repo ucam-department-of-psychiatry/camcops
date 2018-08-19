@@ -66,7 +66,7 @@ QModelIndex FlatProxyModel::mapFromSource(
         const QModelIndex& src_index) const
 {
     if (!m_row_from_src_index.contains(src_index)) {
-        return QModelIndex();
+        return {};
     }
     return createIndex(m_row_from_src_index[src_index], src_index.column());
 }
@@ -77,7 +77,7 @@ QModelIndex FlatProxyModel::mapToSource(
 {
     if (!proxy_index.isValid() ||
             !m_src_index_from_row.contains(proxy_index.row())) {
-        return QModelIndex();
+        return {};
     }
     return m_src_index_from_row[proxy_index.row()];
 }
@@ -108,7 +108,7 @@ QModelIndex FlatProxyModel::index(const int proxy_row, const int proxy_column,
 QModelIndex FlatProxyModel::parent(const QModelIndex& proxy_child) const
 {
     Q_UNUSED(proxy_child);
-    return QModelIndex();
+    return {};
 }
 
 
@@ -117,8 +117,7 @@ bool FlatProxyModel::hasChildren(const QModelIndex& proxy_parent) const
     if (proxy_parent.isValid()) {
         // Not the root; therefore, no children
         return false;
-    } else {
-        // The root, so children if we're not empty
-        return m_row_from_src_index.size() > 0;
     }
+    // The root, so children if we're not empty
+    return !m_row_from_src_index.empty();
 }

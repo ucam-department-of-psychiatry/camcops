@@ -17,10 +17,10 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _pcl:
+.. _pcl_c:
 
-PTSD Checklist (PCL)
---------------------
+PTSD Checklist: Civilian version (PCL-C)
+----------------------------------------
 
 History and guide
 ~~~~~~~~~~~~~~~~~
@@ -55,3 +55,19 @@ Public domain.
 Work of the US Government: “This is a Government document in the public
 domain.” (http://www.mirecc.va.gov/docs/visn6/3_PTSD_CheckList_and_Scoring.pdf,
 accessed 2012-09-20.
+
+
+.. _pcl_s:
+
+PTSD Checklist: Military version (PCL-S)
+----------------------------------------
+
+See the `PCL-C <pcl_c>`.
+
+
+.. _pcl_m:
+
+PTSD Checklist: specific stressor version (PCL-S)
+-------------------------------------------------
+
+See the `PCL-C <pcl_c>`.

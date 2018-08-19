@@ -19,14 +19,11 @@
 
 .. _demqol:
 
-Dementia Quality of Life measure (DEMQOL, DEMQOL-Proxy)
--------------------------------------------------------
+Dementia Quality of Life measure (DEMQOL)
+-----------------------------------------
 
 DEMQOL: 28-item interviewer-administered questionnaire answered by the person
 with dementia.
-
-DEMQOL-Proxy: 31-item interviewer-administered questionnaire answered by a
-caregiver.
 
 History and guide
 ~~~~~~~~~~~~~~~~~
@@ -66,3 +63,14 @@ Sube Banerjee (author and principal investigator) to Rudolf Cardinal,
        monograph which are available freely on our website.
     5. You can generate your own electronic format but we would not cede
        copyright on the instrument."
+
+
+.. _demqol_proxy:
+
+Dementia Quality of Life measure, proxy version (DEMQOL-Proxy)
+--------------------------------------------------------------
+
+DEMQOL-Proxy: 31-item interviewer-administered questionnaire answered by a
+caregiver.
+
+See `DEMQOL <demqol>`.

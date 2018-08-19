@@ -59,3 +59,12 @@ Intellectual property rights
 Public domain.
 
 “The HAM-D is in the public domain.” (NINDS CDE on HAM-D, accessed 2012-09-07.)
+
+
+
+.. _hamd7:
+
+Hamilton Depression Rating Scale, 7-item version (HAMD-7)
+---------------------------------------------------------
+
+See the `HAMD <hamd>`.

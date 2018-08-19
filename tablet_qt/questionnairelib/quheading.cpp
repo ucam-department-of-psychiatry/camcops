@@ -55,7 +55,7 @@ QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
     // Add background:
 
     m_container = new BaseWidget();
-    HBoxLayout* layout = new HBoxLayout();
+    auto layout = new HBoxLayout();
     m_container->setObjectName(cssconst::QUHEADING);
     m_container->setLayout(layout);
     layout->addWidget(m_label, 0, Qt::AlignLeft | Qt::AlignTop);

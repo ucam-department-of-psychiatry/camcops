@@ -91,14 +91,14 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
 
     Qt::Alignment widget_align = Qt::AlignTop;
 
-    HBoxLayout* textlayout = new HBoxLayout();
+    auto textlayout = new HBoxLayout();
     textlayout->setContentsMargins(uiconst::NO_MARGINS);
     textlayout->addWidget(m_missing_indicator, 0, widget_align);
     textlayout->addWidget(m_label_code, 0, widget_align);
     textlayout->addWidget(m_label_description, 0, widget_align);
     textlayout->addStretch();
 
-    ClickableLabelWordWrapWide* button = new ClickableLabelWordWrapWide(tr("Set diagnosis"));
+    auto button = new ClickableLabelWordWrapWide(tr("Set diagnosis"));
     button->setObjectName(cssconst::DIAGNOSTIC_CODE);
     // button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     button->setEnabled(!read_only);
@@ -107,12 +107,12 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
                 this, &QuDiagnosticCode::setButtonClicked);
     }
 
-    HBoxLayout* buttonlayout = new HBoxLayout();
+    auto buttonlayout = new HBoxLayout();
     buttonlayout->setContentsMargins(uiconst::NO_MARGINS);
     buttonlayout->addWidget(button, 0, widget_align);
 
     if (m_offer_null_button) {
-        ClickableLabelWordWrapWide* null_button = new ClickableLabelWordWrapWide(tr("Clear"));
+        auto null_button = new ClickableLabelWordWrapWide(tr("Clear"));
         null_button->setObjectName(cssconst::DIAGNOSTIC_CODE);
         // null_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         null_button->setEnabled(!read_only);
@@ -124,7 +124,7 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     }
     buttonlayout->addStretch();
 
-    VBoxLayout* toplayout = new VBoxLayout();
+    auto toplayout = new VBoxLayout();
     toplayout->setContentsMargins(uiconst::NO_MARGINS);
     toplayout->addLayout(textlayout);
     toplayout->addLayout(buttonlayout);
@@ -146,7 +146,7 @@ void QuDiagnosticCode::setButtonClicked()
         qWarning() << Q_FUNC_INFO << "m_questionnaire missing";
         return;
     }
-    SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
+    // SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
     const QString code = m_fieldref_code->valueString();
     const QModelIndex selected = m_codeset->firstMatchCode(code);
     const QString stylesheet = m_questionnaire->getSubstitutedCss(
@@ -154,8 +154,7 @@ void QuDiagnosticCode::setButtonClicked()
 #ifdef DEBUG_DX_SELECTOR_SPEED
     qDebug() << Q_FUNC_INFO << "Making DiagnosticCodeSelector...";
 #endif
-    DiagnosticCodeSelector* selector = new DiagnosticCodeSelector(
-                stylesheet, m_codeset, selected);
+    auto selector = new DiagnosticCodeSelector(stylesheet, m_codeset, selected);
 #ifdef DEBUG_DX_SELECTOR_SPEED
     qDebug() << Q_FUNC_INFO << "... done";
 #endif

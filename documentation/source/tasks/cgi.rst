@@ -19,8 +19,8 @@
 
 .. _cgi:
 
-Clinical Global Impressions scale (CGI, CGI-I)
-----------------------------------------------
+Clinical Global Impressions scale (CGI)
+---------------------------------------
 
 The CGI rates illness severity, global improvement, and the
 efficacy/side-effect balance of treatment. The CGI-I is a subset with just the
@@ -57,3 +57,11 @@ Work of the US federal government.
 
 See http://www.cendi.gov/publications/04-8copyright.html#311;
 https://en.wikipedia.org/wiki/Copyright_status_of_work_by_the_U.S._government.
+
+
+.. _cgi_i:
+
+Clinical Global Impressions – Improvements scale (CGI-I)
+--------------------------------------------------------
+
+This is a subset of the `CGI <cgi>`.

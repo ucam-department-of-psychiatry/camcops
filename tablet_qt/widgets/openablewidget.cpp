@@ -41,7 +41,7 @@ OpenableWidget::OpenableWidget(QWidget* parent) :
     m_escape_aborts_without_confirmation(false)
 {
 #ifdef DEBUG_OPENABLE_WIDGET_LAYOUT
-    ShowWatcher* showwatcher = new ShowWatcher(this, true);
+    auto showwatcher = new ShowWatcher(this, true);
     Q_UNUSED(showwatcher);
 #endif
 }
@@ -50,7 +50,7 @@ OpenableWidget::OpenableWidget(QWidget* parent) :
 void OpenableWidget::build()
 {
     QWidget* widget = m_subwidget.data();
-    OpenableWidget* openable_widget = dynamic_cast<OpenableWidget*>(widget);
+    auto openable_widget = dynamic_cast<OpenableWidget*>(widget);
     if (openable_widget) {
         openable_widget->build();
     }
@@ -81,7 +81,7 @@ void OpenableWidget::setWidgetAsOnlyContents(QWidget* widget,
     // https://stackoverflow.com/questions/7528680/how-to-delete-an-already-existing-layout-on-a-widget
     // https://stackoverflow.com/questions/6731331/is-it-still-safe-to-delete-nullptr-in-c0x
 
-    QVBoxLayout* vl = new QVBoxLayout(this);
+    auto vl = new QVBoxLayout(this);
     setLayout(vl);
     vl->setMargin(margin);
     vl->addWidget(widget);

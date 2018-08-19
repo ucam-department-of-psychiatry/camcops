@@ -50,11 +50,11 @@ QuPhoto::QuPhoto(BlobFieldRefPtr fieldref) :
     m_have_camera = QCameraInfo::availableCameras().count() > 0;
     // qDebug() << "m_have_camera:" << m_have_camera;
     if (!m_fieldref) {
-        qCritical("Null fieldref pointer to QuPhoto");
+        qCritical() << "Null fieldref pointer to QuPhoto";
     }
     if (m_fieldref->mandatory()) {
-        qWarning("You have set a QuPhoto to be mandatory, but not all devices "
-                 "will support cameras!");
+        qWarning() << "You have set a QuPhoto to be mandatory, but not all "
+                      "devices will support cameras!";
     }
 
     connect(m_fieldref.data(), &FieldRef::valueChanged,
@@ -97,30 +97,28 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
         no_camera = new QLabel(tr("No camera"));
     }
 
-    QAbstractButton* button_reset = new ImageButton(uiconst::CBS_DELETE);
+    auto button_reset = new ImageButton(uiconst::CBS_DELETE);
     button_reset->setEnabled(!read_only);
     if (!read_only) {
         connect(button_reset, &QAbstractButton::clicked,
                 this, &QuPhoto::resetFieldToNull);
     }
 
-    QAbstractButton* button_rot_left = new ImageButton(
-                uiconst::CBS_ROTATE_ANTICLOCKWISE);
+    auto button_rot_left = new ImageButton(uiconst::CBS_ROTATE_ANTICLOCKWISE);
     button_rot_left->setEnabled(!read_only);
     if (!read_only) {
         connect(button_rot_left, &QAbstractButton::clicked,
                 this, &QuPhoto::rotateLeft);
     }
 
-    QAbstractButton* button_rot_right = new ImageButton(
-                uiconst::CBS_ROTATE_CLOCKWISE);
+    auto button_rot_right = new ImageButton(uiconst::CBS_ROTATE_CLOCKWISE);
     button_rot_right->setEnabled(!read_only);
     if (!read_only) {
         connect(button_rot_right, &QAbstractButton::clicked,
                 this, &QuPhoto::rotateRight);
     }
 
-    QVBoxLayout* button_layout = new QVBoxLayout();
+    auto button_layout = new QVBoxLayout();
     button_layout->setContentsMargins(uiconst::NO_MARGINS);
     if (m_have_camera) {
         button_layout->addWidget(button_open_camera, 0, align);
@@ -132,7 +130,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     button_layout->addWidget(button_reset, 0, align);
     button_layout->addStretch();
 
-    QWidget* button_widget = new QWidget();
+    auto button_widget = new QWidget();
     button_widget->setLayout(button_layout);
 
     m_incomplete_optional_label = uifunc::iconWidget(
@@ -143,7 +141,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
                 uifunc::iconFilename(uiconst::ICON_FIELD_PROBLEM));
     m_image_widget = new AspectRatioPixmap();
 
-    QVBoxLayout* image_layout = new QVBoxLayout();
+    auto image_layout = new QVBoxLayout();
     image_layout->setContentsMargins(uiconst::NO_MARGINS);
     image_layout->addWidget(m_incomplete_optional_label, 0, align);
     image_layout->addWidget(m_incomplete_mandatory_label, 0, align);
@@ -151,12 +149,12 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     image_layout->addWidget(m_image_widget, 0, align);
     // image_layout->addStretch();
 
-    QWidget* image_and_marker_widget = new QWidget();
+    auto image_and_marker_widget = new QWidget();
     image_and_marker_widget->setLayout(image_layout);
     image_and_marker_widget->setSizePolicy(QSizePolicy::Expanding,
                                            QSizePolicy::Maximum);
 
-    QHBoxLayout* top_layout = new QHBoxLayout();
+    auto top_layout = new QHBoxLayout();
     top_layout->setContentsMargins(uiconst::NO_MARGINS);
     top_layout->addWidget(button_widget, 0, align);
     top_layout->addWidget(image_and_marker_widget, 0, align);
@@ -226,7 +224,7 @@ void QuPhoto::takePhoto()
         return;
     }
 
-    SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
+    // SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
 
 #ifdef QUPHOTO_USE_CAMERA_QML
     m_camera = new CameraQml();
@@ -366,10 +364,12 @@ void QuPhoto::rotate(const int angle_degrees_clockwise)
 #ifdef DEBUG_ROTATION
     qDebug() << "QuPhoto: rotating...";
 #endif
-    SlowNonGuiFunctionCaller(
+    {
+        SlowNonGuiFunctionCaller slow_gui_caller(
                 std::bind(&QuPhoto::rotateWorker, this, angle_degrees_clockwise),
                 m_main_widget,
                 "Rotating...");
+    }
 #ifdef DEBUG_ROTATION
     qDebug() << "QuPhoto: ... rotation finished.";
 #endif

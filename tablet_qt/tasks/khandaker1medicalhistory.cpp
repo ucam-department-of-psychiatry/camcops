@@ -206,7 +206,7 @@ OpenableWidget* Khandaker1MedicalHistory::editor(const bool read_only)
     page->addElement(new QuHeading(xstring(X_TITLE)));
     page->addElement(new QuText(xstring(X_INSTRUCTION)));
 
-    QuGridContainer* grid = new QuGridContainer;
+    auto grid = new QuGridContainer;
     int row = 0;
 
     // Column headings
@@ -276,7 +276,7 @@ OpenableWidget* Khandaker1MedicalHistory::editor(const bool read_only)
 
     updateMandatory();
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

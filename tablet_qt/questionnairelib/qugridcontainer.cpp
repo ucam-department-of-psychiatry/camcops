@@ -63,8 +63,8 @@ What does not work properly:
     policy Maximum, and the right-hand cells have Expanding; then the
     widgets' policies override our desired grid setColumnStretch()
     parameters.
-        QWidget* cell_widget = new QWidget();
-        QHBoxLayout* cell_layout = new QHBoxLayout();
+        auto cell_widget = new QWidget();
+        auto cell_layout = new QHBoxLayout();
         cell_layout->setContentsMargins(UiConst::NO_MARGINS);
         cell_widget->setLayout(cell_layout);
         QPointer<QWidget> w = e->widget(questionnaire);
@@ -120,7 +120,7 @@ QuGridContainer::QuGridContainer(std::initializer_list<QuGridCell> cells) :
 #define CONSTRUCT_FROM_ELEMENTLIST(elements) \
     int column = 0; \
     int row = 0; \
-    for (auto e : elements) { \
+    for (auto e : (elements)) { \
         QuGridCell cell(e, row, column, 1, 1, Qt::AlignLeft | Qt::AlignTop); \
         column = (column + 1) % n_columns; \
         if (column == 0) { \
@@ -212,12 +212,12 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
     qDebug() << "... m_fixed_grid =" << m_fixed_grid;
     widget->setObjectName(CssConst::DEBUG_GREEN);
 #endif
-    GridLayout* grid = new GridLayout();
+    auto grid = new GridLayout();
     grid->setContentsMargins(uiconst::NO_MARGINS);
     if (m_expand) {
         widget->setLayout(grid);
     } else {
-        HBoxLayout* hbox = new HBoxLayout();
+        auto hbox = new HBoxLayout();
         hbox->addLayout(grid);
         hbox->addStretch();
         widget->setLayout(hbox);

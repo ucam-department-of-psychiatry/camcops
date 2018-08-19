@@ -176,10 +176,9 @@ bool WhiskerManager::immBool(const QString& command, bool ignore_reply)
     if (ignore_reply) {
         sendImmediateIgnoreReply(command);
         return true;
-    } else {
-        const WhiskerInboundMessage msg = sendImmediateGetReply(command);
-        return msg.immediateReplySucceeded();
     }
+    const WhiskerInboundMessage msg = sendImmediateGetReply(command);
+    return msg.immediateReplySucceeded();
 }
 
 
@@ -733,19 +732,19 @@ bool WhiskerManager::lineReadState(const QString& line, bool* ok)
             *ok = true;
         }
         return true;
-    } else if (msg == VAL_OFF) {
+    }
+    if (msg == VAL_OFF) {
         // Line is off
         if (ok) {
             *ok = true;
         }
         return false;
-    } else {
-        // Something went wrong
-        if (ok) {
-            *ok = false;
-        }
-        return false;
     }
+    // Something went wrong
+    if (ok) {
+        *ok = false;
+    }
+    return false;
 }
 
 
@@ -1358,14 +1357,14 @@ unsigned int WhiskerManager::flashLinePulses(const QString& line,
         //                                                     | time stops
         flashLinePulsesOff(line, count, on_ms, off_ms, on_at_rest);
         return count * off_ms + (count - 1) * on_ms;
-    } else {
-        // Assumed to be currently at rest = off.
-        // For 4 flashes:
-        // ON .... OFF .. ON .... OFF .. ON .... OFF .. ON .... OFF
-        //                                                      | time stops
-        flashLinePulsesOn(line, count, on_ms, off_ms, on_at_rest);
-        return count * on_ms + (count - 1) * off_ms;
     }
+
+    // Assumed to be currently at rest = off.
+    // For 4 flashes:
+    // ON .... OFF .. ON .... OFF .. ON .... OFF .. ON .... OFF
+    //                                                      | time stops
+    flashLinePulsesOn(line, count, on_ms, off_ms, on_at_rest);
+    return count * on_ms + (count - 1) * off_ms;
 }
 
 

@@ -165,18 +165,17 @@ bool SvgTransform::active() const
 // ============================================================================
 
 QString xmlElement(const QString& tag, const QString& contents,
-                   const QMap<QString, QString> attributes)
+                   const QMap<QString, QString>& attributes)
 {
     const QString attr = xmlAttributes(attributes);
     if (contents.isEmpty()) {
         return QString("<%1%2 />").arg(tag, attr);
-    } else {
-        return QString("<%1%2>%3</%4>").arg(tag, attr, contents, tag);
     }
+    return QString("<%1%2>%3</%4>").arg(tag, attr, contents, tag);
 }
 
 
-QString xmlAttributes(const QMap<QString, QString> attributes)
+QString xmlAttributes(const QMap<QString, QString>& attributes)
 {
     if (attributes.isEmpty()) {
         return "";
@@ -427,7 +426,7 @@ void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
 
 // http://falsinsoft.blogspot.co.uk/2015/11/qt-snippet-rounded-corners-qpushbutton.html
 /*
-QPushButton* pButtonWidget = new QPushButton();
+auto pButtonWidget = new QPushButton();
 pButtonWidget->setGeometry(QRect(0, 0, 150, 100));
 pButtonWidget->setText("Test");
 pButtonWidget->setFlat(true);
@@ -525,7 +524,7 @@ ButtonAndProxy makeTextButton(QGraphicsScene* scene,  // button is added to scen
     // ... METHOD 2 of switching off the inner (dotted) focus rectangle
 
     if (!text.isEmpty()) {
-        QLabel* label = new QLabel(result.button);
+        auto label = new QLabel(result.button);
         label->setStyleSheet(label_css);
         font.setPixelSize(config.font_size_px);
         label->setFont(font);
@@ -535,7 +534,7 @@ ButtonAndProxy makeTextButton(QGraphicsScene* scene,  // button is added to scen
         label->setMouseTracking(false);
         label->setTextInteractionFlags(Qt::NoTextInteraction);
 
-        QVBoxLayout* layout = new QVBoxLayout();
+        auto layout = new QVBoxLayout();
         layout->setMargin(0);
         layout->addWidget(label);
 
@@ -674,8 +673,7 @@ QGraphicsPixmapItem* makeImage(
                                                     transformation_mode_1);
     QGraphicsPixmapItem* img;
     if (opacity < 1.0) {
-        GraphicsPixmapItemWithOpacity* opacity_img =
-                new GraphicsPixmapItemWithOpacity(pixmap_scaled);
+        auto opacity_img = new GraphicsPixmapItemWithOpacity(pixmap_scaled);
         opacity_img->setOpacity(opacity);
         img = opacity_img;
         scene->addItem(img);  // the scene takes ownership: http://doc.qt.io/qt-5/qgraphicsscene.html#addItem

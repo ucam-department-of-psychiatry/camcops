@@ -169,7 +169,7 @@ OpenableWidget* Phq9::editor(const bool read_only)
         new QuMcq(fieldRef("q10"), options_q10),
     })->setTitle(xstring("title_main")));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
@@ -188,7 +188,7 @@ int Phq9::totalScore() const
 int Phq9::nCoreSymptoms() const
 {
     int n = 0;
-    for (auto fieldname : strseq(QPREFIX, 1, 2)) {
+    for (const QString& fieldname : strseq(QPREFIX, 1, 2)) {
         if (valueInt(fieldname) >= 2) {
             n += 1;
         }
@@ -200,7 +200,7 @@ int Phq9::nCoreSymptoms() const
 int Phq9::nOtherSymptoms() const
 {
     int n = 0;
-    for (auto fieldname : strseq(QPREFIX, 3, 8)) {
+    for (const QString& fieldname : strseq(QPREFIX, 3, 8)) {
         if (valueInt(fieldname) >= 2) {
             n += 1;
         }

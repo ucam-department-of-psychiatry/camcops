@@ -19,8 +19,8 @@
 
 .. _mast:
 
-Michigan Alcohol Screening Test (MAST); Short MAST (SMAST)
-----------------------------------------------------------
+Michigan Alcohol Screening Test (MAST)
+--------------------------------------
 
 History and guide
 ~~~~~~~~~~~~~~~~~
@@ -57,3 +57,11 @@ Public domain.
 
 “... a public-domain screening tool” (Michigan 24th District Court,
 http://www.24thdiscourt.org/MAST.htm, accessed 2012-09-06, 2018-06-04.)
+
+
+.. _smast:
+
+Short Michigan Alcohol Screening Test (SMAST)
+---------------------------------------------
+
+See the `MAST <mast>`.

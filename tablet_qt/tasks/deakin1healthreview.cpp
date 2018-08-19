@@ -37,11 +37,6 @@
 #include "tasklib/taskfactory.h"
 #include "tasks/gmcpq.h"  // for ethnicity options
 using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
-using mathfunc::totalScorePhrase;
-using stringfunc::strnum;
-using stringfunc::strseq;
 
 const QString Deakin1HealthReview::DEAKIN1HEALTHREVIEW_TABLENAME("deakin_1_healthreview");
 
@@ -744,7 +739,7 @@ OpenableWidget* Deakin1HealthReview::editor(const bool read_only)
 
     updateMandatory();
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

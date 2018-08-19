@@ -259,7 +259,7 @@ QVector<DatabaseObjectPtr> CardinalExpDetThreshold::getAncillarySpecimens() cons
 QVector<DatabaseObjectPtr> CardinalExpDetThreshold::getAllAncillary() const
 {
     QVector<DatabaseObjectPtr> ancillaries;
-    for (auto trial : m_trials) {
+    for (const CardinalExpDetThresholdTrialPtr& trial : m_trials) {
         ancillaries.append(trial);
     }
     return ancillaries;
@@ -293,7 +293,7 @@ QStringList CardinalExpDetThreshold::detail() const
     lines += recordSummaryLines();
     lines.append("\n");
     lines.append("Trials:");
-    for (CardinalExpDetThresholdTrialPtr trial : m_trials) {
+    for (const CardinalExpDetThresholdTrialPtr& trial : m_trials) {
         lines.append(trial->recordSummaryCSVString());
     }
     lines.append("\n");
@@ -467,14 +467,14 @@ void CardinalExpDetThreshold::validateQuestionnaire()
 
 // MUST USE Qt::QueuedConnection - see comments in clearScene()
 #define CONNECT_BUTTON(b, funcname) \
-    connect(b.button, &QPushButton::clicked, \
+    connect((b).button, &QPushButton::clicked, \
             this, &CardinalExpDetThreshold::funcname, \
             Qt::QueuedConnection)
 // To use a Qt::ConnectionType parameter with a functor, we need a context
 // See http://doc.qt.io/qt-5/qobject.html#connect-5
 // That's the reason for the extra "this":
 #define CONNECT_BUTTON_PARAM(b, funcname, param) \
-    connect(b.button, &QPushButton::clicked, \
+    connect((b).button, &QPushButton::clicked, \
             this, std::bind(&CardinalExpDetThreshold::funcname, this, param), \
             Qt::QueuedConnection)
 
@@ -489,9 +489,11 @@ QString CardinalExpDetThreshold::getDescriptiveModality() const
     // can't use external constants in a switch statement
     if (modality.isNull()) {
         return textconst::UNKNOWN;
-    } else if (modality.toInt() == MODALITY_AUDITORY) {
+    }
+    if (modality.toInt() == MODALITY_AUDITORY) {
         return TX_AUDITORY;
-    } else if (modality.toInt() == MODALITY_VISUAL) {
+    }
+    if (modality.toInt() == MODALITY_VISUAL) {
         return TX_VISUAL;
     }
     return textconst::UNKNOWN;
@@ -718,8 +720,7 @@ LogisticDescriptives CardinalExpDetThreshold::calculateFit() const
 {
     QVector<double> intensity;  // predictor
     QVector<int> choice;  // dependent variable
-    for (int i = 0; i < m_trials.size(); ++i) {
-        CardinalExpDetThresholdTrialPtr tp = m_trials.at(i);
+    for (const CardinalExpDetThresholdTrialPtr& tp : m_trials) {
         if (tp->isInCalculationSeq()) {
             intensity.append(tp->intensity());
             choice.append(tp->yes() ? 1 : 0);

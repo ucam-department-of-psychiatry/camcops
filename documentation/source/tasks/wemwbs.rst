@@ -19,8 +19,8 @@
 
 .. _wemwbs:
 
-Warwick–Edinburgh Mental Well-Being Scale (WEMWBS) and Short WEMWBS (SWEMWBS)
------------------------------------------------------------------------------
+Warwick–Edinburgh Mental Well-Being Scale (WEMWBS)
+--------------------------------------------------
 
 History and guide
 ~~~~~~~~~~~~~~~~~
@@ -85,3 +85,11 @@ doi:10.1186/1477-7525-7-15, http://www.hqlo.com/content/7/1/15.
     gaining access to the internet itself. BioMed Central encourages the use of
     fully open formats wherever possible.”
     (http://www.hqlo.com/about/access/#opendata)
+
+
+.. _swemwbs:
+
+Short Warwick–Edinburgh Mental Well-Being Scale (SWEMWBS)
+---------------------------------------------------------
+
+See the `WEMWBS <wemwbs>`.

@@ -37,7 +37,7 @@ bool ShowWatcher::eventFilter(QObject* obj, QEvent* event)
     if (event->type() == QEvent::Show) {
         emit showing();
         if (m_debug_layout) {
-            QWidget* w = dynamic_cast<QWidget*>(obj);
+            auto w = dynamic_cast<QWidget*>(obj);
             if (w) {
                 layoutdumper::dumpWidgetHierarchy(w);
             }

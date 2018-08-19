@@ -51,7 +51,7 @@ void loadAncillary(QVector<AncillaryPtrType>& ancillaries,
     QueryResult result = db.query(sqlargs);
     int nrows = result.nRows();
     for (int row = 0; row < nrows; ++row) {
-        AncillaryType* raw_ptr_ancillary = new AncillaryType(
+        auto raw_ptr_ancillary = new AncillaryType(
                     app, db, dbconst::NONEXISTENT_PK);
         raw_ptr_ancillary->setFromQuery(result, row, true);
         AncillaryPtrType ancillary(raw_ptr_ancillary);
@@ -74,7 +74,7 @@ void loadAllRecords(QVector<PtrType>& objects,
     QueryResult result = db.query(sqlargs);
     int nrows = result.nRows();
     for (int row = 0; row < nrows; ++row) {
-        Type* raw_ptr = new Type(app, db, dbconst::NONEXISTENT_PK);
+        auto raw_ptr = new Type(app, db, dbconst::NONEXISTENT_PK);
         raw_ptr->setFromQuery(result, row, true);
         PtrType object(raw_ptr);
         objects.append(object);

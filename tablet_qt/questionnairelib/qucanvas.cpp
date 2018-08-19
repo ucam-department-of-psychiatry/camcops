@@ -163,7 +163,7 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
                 this, &QuCanvas::imageChanged);
     }
 
-    QAbstractButton* button_reset = new ImageButton(uiconst::CBS_DELETE);
+    auto button_reset = new ImageButton(uiconst::CBS_DELETE);
     button_reset->setEnabled(!read_only);
     if (!read_only) {
         connect(button_reset, &QAbstractButton::clicked,
@@ -172,20 +172,20 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
     m_missing_indicator = uifunc::iconWidget(
                 uifunc::iconFilename(uiconst::ICON_WARNING));
     m_no_missing_indicator = QPointer<Spacer>(new Spacer(uiconst::ICONSIZE));
-    QVBoxLayout* button_layout = new QVBoxLayout();
+    auto button_layout = new QVBoxLayout();
     button_layout->setContentsMargins(uiconst::NO_MARGINS);
     button_layout->addWidget(button_reset, 0, align);
     button_layout->addWidget(m_missing_indicator, 0, align);
     button_layout->addWidget(m_no_missing_indicator, 0, align);
-    QWidget* button_widget = new QWidget();
+    auto button_widget = new QWidget();
     button_widget->setLayout(button_layout);
 
-    QHBoxLayout* top_layout = new QHBoxLayout();
+    auto top_layout = new QHBoxLayout();
     top_layout->setContentsMargins(uiconst::NO_MARGINS);
     top_layout->addWidget(button_widget, 0, align);
     top_layout->addWidget(m_canvas, 0, align);
 
-    QWidget* widget = new QWidget();
+    auto widget = new QWidget();
     if (m_allow_shrink) {
         widget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     } else {

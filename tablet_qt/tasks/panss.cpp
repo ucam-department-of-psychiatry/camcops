@@ -186,7 +186,7 @@ OpenableWidget* Panss::editor(const bool read_only)
         new QuMcqGrid(g_qfields, panss_options),
     })->setTitle(longname() + " (G)")));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

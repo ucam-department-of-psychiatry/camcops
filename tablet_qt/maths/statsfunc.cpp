@@ -18,7 +18,7 @@
 */
 
 #include "statsfunc.h"
-#include <math.h>
+#include <cmath>
 #include <limits>
 #include "maths/eigenfunc.h"
 using namespace Eigen;

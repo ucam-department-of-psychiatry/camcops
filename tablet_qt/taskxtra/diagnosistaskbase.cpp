@@ -63,10 +63,10 @@ bool DiagnosisTaskBase::isComplete() const
     if (valueIsNull(RELATES_TO_DATE)) {
         return false;
     }
-    if (m_items.size() == 0) {
+    if (m_items.empty()) {
         return false;
     }
-    for (DiagnosisItemBasePtr item : m_items) {
+    for (const DiagnosisItemBasePtr& item : m_items) {
         if (item->isEmpty()) {
             return false;
         }
@@ -79,7 +79,7 @@ QStringList DiagnosisTaskBase::summary() const
 {
     QStringList lines;
     lines.append(tr("Relates to: ") + bold(prettyValue(RELATES_TO_DATE)) + ".");
-    for (auto item : m_items) {
+    for (const DiagnosisItemBasePtr& item : m_items) {
         lines.append(QString("%1: <b>%2 – %3</b>.").arg(
                          QString::number(item->seqnum()),
                          item->code(),
@@ -132,7 +132,7 @@ OpenableWidget* DiagnosisTaskBase::editor(const bool read_only)
 QVector<DatabaseObjectPtr> DiagnosisTaskBase::getAllAncillary() const
 {
     QVector<DatabaseObjectPtr> ancillaries;
-    for (auto item : m_items) {
+    for (const DiagnosisItemBasePtr& item : m_items) {
         ancillaries.append(item);
     }
     return ancillaries;
@@ -146,7 +146,7 @@ QVector<DatabaseObjectPtr> DiagnosisTaskBase::getAllAncillary() const
 void DiagnosisTaskBase::addItem()
 {
     bool one_is_empty = false;
-    for (DiagnosisItemBasePtr item : m_items) {
+    for (const DiagnosisItemBasePtr& item : m_items) {
         if (item->valueIsNullOrEmpty(DiagnosisItemBase::CODE)) {
             one_is_empty = true;
             break;
@@ -311,7 +311,7 @@ void DiagnosisTaskBase::rebuildPage(QuPage* page)
         FieldRefPtr fr_desc = FieldRefPtr(new FieldRef(get_desc, set_desc, true));
         FieldRefPtr fr_comment = FieldRefPtr(new FieldRef(get_comment, set_comment, false));
 
-        QuFlowContainer* buttons = new QuFlowContainer({
+        auto buttons = new QuFlowContainer({
             new QuButton(
                 textconst::DELETE,
                 std::bind(&DiagnosisTaskBase::deleteItem, this, i)
@@ -326,11 +326,11 @@ void DiagnosisTaskBase::rebuildPage(QuPage* page)
             ))->setActive(!last),
         }, widget_align);
 
-        QuDiagnosticCode* dx = new QuDiagnosticCode(m_codeset, fr_code, fr_desc);
-        QuText* comment_label = new QuText(textconst::COMMENT + ":");
-        QuLineEdit* comment_edit = new QuLineEdit(fr_comment);
+        auto dx = new QuDiagnosticCode(m_codeset, fr_code, fr_desc);
+        auto comment_label = new QuText(textconst::COMMENT + ":");
+        auto comment_edit = new QuLineEdit(fr_comment);
 
-        QuGridContainer* maingrid = new QuGridContainer();
+        auto maingrid = new QuGridContainer();
         const int row_span = 1;
         const int col_span = 1;
         const int button_width = 2;

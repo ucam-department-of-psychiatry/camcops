@@ -27,7 +27,6 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::scoreString;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::standardResult;
@@ -139,7 +138,7 @@ OpenableWidget* HamA::editor(const bool read_only)
         addpage(n);
     }
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

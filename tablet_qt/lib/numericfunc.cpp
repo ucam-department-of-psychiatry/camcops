@@ -169,17 +169,16 @@ bool extendedDoubleMustExceed(const double number,
             }
         }
         return true;
-    } else {
-        // Both negative. Extend with nines.
-        const int nd_bottom = numDigitsDouble(bottom);
-        for (int i = 0; i < nd_bottom - nd_number; ++i) {
-            str_number += "9";
-            if (str_number.toDouble() <= top) {
-                return false;
-            }
-        }
-        return true;
     }
+    // Both negative. Extend with nines.
+    const int nd_bottom = numDigitsDouble(bottom);
+    for (int i = 0; i < nd_bottom - nd_number; ++i) {
+        str_number += "9";
+        if (str_number.toDouble() <= top) {
+            return false;
+        }
+    }
+    return true;
 }
 
 
@@ -205,17 +204,16 @@ bool extendedDoubleMustBeLessThan(const double number,
             }
         }
         return true;
-    } else {
-        // Both negative. Extend with zeros, to length of bottom
-        const int nd_bottom = numDigitsDouble(bottom);
-        for (int i = 0; i < nd_bottom - nd_number; ++i) {
-            str_number += "0";
-            if (str_number.toDouble() >= bottom) {
-                return false;
-            }
-        }
-        return true;
     }
+    // Both negative. Extend with zeros, to length of bottom
+    const int nd_bottom = numDigitsDouble(bottom);
+    for (int i = 0; i < nd_bottom - nd_number; ++i) {
+        str_number += "0";
+        if (str_number.toDouble() >= bottom) {
+            return false;
+        }
+    }
+    return true;
 }
 
 

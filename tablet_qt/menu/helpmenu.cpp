@@ -64,7 +64,7 @@ HelpMenu::HelpMenu(CamcopsApp& app) :
                  UrlMenuItem(urlconst:: CAMCOPS_URL),
                  fname_camcopsicon),
         MAKE_TASK_MENU_ITEM(DemoQuestionnaire::DEMOQUESTIONNAIRE_TABLENAME, app),
-        MenuItem(tr("Show software versions"),
+        MenuItem(tr("Show software versions and computer information"),
                  std::bind(&HelpMenu::softwareVersions, this)),
         MenuItem(tr("About Qt"),
                  std::bind(&HelpMenu::aboutQt, this)),
@@ -96,7 +96,7 @@ void HelpMenu::softwareVersions() const
     versions.append(newline);
 
     // ------------------------------------------------------------------------
-    // Architecture
+    // Host
     // ------------------------------------------------------------------------
     versions.append(QString("<b>Current computer (host)</b> is %1-bit").arg(
                         host64 ? "64" : "32"));
@@ -112,6 +112,8 @@ void HelpMenu::softwareVersions() const
                         QSysInfo::kernelVersion()));
     versions.append(QString("Host name: %1").arg(
                         QSysInfo::machineHostName()));
+    versions.append(QString("Dots per inch (DPI): %1").arg(
+                        m_app.dotsPerInch()));
     versions.append(newline);
 
     // ------------------------------------------------------------------------
@@ -195,7 +197,6 @@ void HelpMenu::showDeviceIdAndDbDetails() const
 {
     QStringList lines{
         QString("<b>Device ID:</b> %1").arg(m_app.deviceId()),
-        QString("<b>Dots per inch (DPI):</b> %1").arg(m_app.dotsPerInch()),
         QString("<b>Main database:</b> %1").arg(
             m_app.dbFullPath(dbfunc::DATA_DATABASE_FILENAME)),
         QString("<b>System database:</b> %1").arg(

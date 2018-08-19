@@ -26,8 +26,6 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
@@ -126,7 +124,7 @@ OpenableWidget* Gds15::editor(const bool read_only)
         new QuMcqGrid(qfields, options),
     })->setTitle(shortname()));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

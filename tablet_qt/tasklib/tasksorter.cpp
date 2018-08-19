@@ -38,9 +38,8 @@ bool TaskSorter::operator()(const TaskPtr& left, const TaskPtr& right) const
         dbconst::CREATION_TIMESTAMP_FIELDNAME);
     if (l_when != r_when) {
         return l_when > r_when;  // descending
-    } else {
-        const QString l_name = left->shortname();
-        const QString r_name = right->shortname();
-        return l_name < r_name; // ascending
     }
+    const QString l_name = left->shortname();
+    const QString r_name = right->shortname();
+    return l_name < r_name; // ascending
 }

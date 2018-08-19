@@ -62,7 +62,7 @@ QuElement* defaultGridRawPointer(const QVector<GridRowDefinition>& deflist,
         cells.append(main_cell);
         ++row;
     }
-    QuGridContainer* grid = new QuGridContainer(cells);
+    auto grid = new QuGridContainer(cells);
     grid->setColumnStretch(left_col, left_column_span);
     grid->setColumnStretch(right_col, right_column_span);
     return grid;

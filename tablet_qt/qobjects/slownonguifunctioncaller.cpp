@@ -26,7 +26,6 @@ SlowNonGuiFunctionCaller::SlowNonGuiFunctionCaller(
         QWidget* parent,
         const QString& text,
         const QString& title) :
-    m_worker_thread(),
     m_worker(new ThreadWorker(func)),
     m_waitbox(parent, text, title)
 {

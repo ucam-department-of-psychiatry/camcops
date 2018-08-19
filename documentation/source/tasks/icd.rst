@@ -17,31 +17,10 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _icd:
+.. _diagnosis_icd9cm:
 
-International Classification of Diseases: codes and diagnostic criteria
------------------------------------------------------------------------
-
-.. include:: include_requires_institutional_permission.rst
-
-Tasks
-~~~~~
-
-- Diagnostic coding, ICD-9-CM codes (compatible with DSM-IV-TR)
-
-- Diagnostic coding, ICD-10 codes
-
-- ICD-10 criteria: depressive episode
-
-- ICD-10 criteria: manic/hypomanic episode
-
-- ICD-10 criteria: mixed affective episode
-
-- ICD-10 criteria: schizophrenia
-
-- ICD-10 criteria: schizotypal disorder
-
-- ICD-10 criteria: specific personality disorders
+ICD-9-CM diagnostic coding (compatible with DSM-IV-TR)
+------------------------------------------------------
 
 History and guide
 ~~~~~~~~~~~~~~~~~
@@ -71,6 +50,22 @@ Intellectual property rights for ICD-9-CM
 “ICD-9 is in the **public domain** so there are no copyright restrictions over
 its use.” (http://www.who.int/about/licensing/Internettext_FAQ.pdf, accessed
 2014-05-09)
+
+
+
+.. _diagnosis_icd10:
+
+ICD-10 diagnostic coding
+------------------------
+
+**International Classification of Diseases: codes and diagnostic criteria**
+
+.. include:: include_requires_institutional_permission.rst
+
+History and guide
+~~~~~~~~~~~~~~~~~
+
+See http://www.who.int/classifications/icd/en/.
 
 Sources for ICD-10
 ~~~~~~~~~~~~~~~~~~
@@ -213,3 +208,51 @@ Further detail:
     another product, will require authorization from WHO.”
 
     (Carla Abou Mrad, for WHO, to Rudolf Cardinal, 2014-04-15.)
+
+
+.. _icd10_depression:
+
+ICD-10 criteria: depressive episode
+-----------------------------------
+
+See `ICD-10 codes <diagnosis_icd10>`.
+
+
+.. _icd10_mania:
+
+ICD-10 criteria: manic/hypomanic episode
+----------------------------------------
+
+See `ICD-10 codes <diagnosis_icd10>`.
+
+
+.. _icd10_mixed:
+
+ICD-10 criteria: mixed affective episode
+----------------------------------------
+
+See `ICD-10 codes <diagnosis_icd10>`.
+
+
+.. _icd10_schizophrenia:
+
+ICD-10 criteria: schizophrenia
+------------------------------
+
+See `ICD-10 codes <diagnosis_icd10>`.
+
+
+.. _icd10_schizotypal:
+
+ICD-10 criteria: schizotypal disorder
+-------------------------------------
+
+See `ICD-10 codes <diagnosis_icd10>`.
+
+
+.. _icd10_personality:
+
+ICD-10 criteria: specific personality disorders
+-----------------------------------------------
+
+See `ICD-10 codes <diagnosis_icd10>`.

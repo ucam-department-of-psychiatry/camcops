@@ -82,7 +82,7 @@
 
 DiagnosticCodeSelector::DiagnosticCodeSelector(
         const QString& stylesheet,
-        DiagnosticCodeSetPtr codeset,
+        const DiagnosticCodeSetPtr& codeset,
         const QModelIndex& selected,
         QWidget* parent) :
     OpenableWidget(parent),
@@ -116,12 +116,12 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     const Qt::Alignment text_align = Qt::AlignHCenter | Qt::AlignVCenter;
 
     // Cancel button
-    QAbstractButton* cancel = new ImageButton(uiconst::CBS_CANCEL);
+    auto cancel = new ImageButton(uiconst::CBS_CANCEL);
     connect(cancel, &QAbstractButton::clicked,
             this, &DiagnosticCodeSelector::finished);
 
     // Title
-    LabelWordWrapWide* title_label = new LabelWordWrapWide(m_codeset->title());
+    auto title_label = new LabelWordWrapWide(m_codeset->title());
     title_label->setAlignment(text_align);
     title_label->setObjectName(cssconst::TITLE);
 
@@ -133,13 +133,13 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     connect(m_tree_button.data(), &QAbstractButton::clicked,
             this, &DiagnosticCodeSelector::goToTree);
 
-    HBoxLayout* header_toprowlayout = new HBoxLayout();
+    auto header_toprowlayout = new HBoxLayout();
     header_toprowlayout->addWidget(cancel, 0, button_align);
     header_toprowlayout->addStretch();
     header_toprowlayout->addWidget(title_label, 0, text_align);  // default alignment fills whole cell; this is better
     header_toprowlayout->addStretch();
 #ifdef OFFER_LAYOUT_DEBUG_BUTTON
-    QPushButton* button_debug = new QPushButton("Dump layout");
+    auto button_debug = new QPushButton("Dump layout");
     connect(button_debug, &QAbstractButton::clicked,
             this, &DiagnosticCodeSelector::debugLayout);
     header_toprowlayout->addWidget(button_debug, 0, text_align);
@@ -150,16 +150,16 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ------------------------------------------------------------------------
     // Horizontal line
     // ------------------------------------------------------------------------
-    HorizontalLine* horizline = new HorizontalLine(uiconst::HEADER_HLINE_WIDTH);
+    auto horizline = new HorizontalLine(uiconst::HEADER_HLINE_WIDTH);
     horizline->setObjectName(cssconst::HEADER_HORIZONTAL_LINE);
 
     // ------------------------------------------------------------------------
     // Header assembly
     // ------------------------------------------------------------------------
-    VBoxLayout* header_mainlayout = new VBoxLayout();
+    auto header_mainlayout = new VBoxLayout();
     header_mainlayout->addLayout(header_toprowlayout);
     header_mainlayout->addWidget(horizline);
-    BaseWidget* header = new BaseWidget();
+    auto header = new BaseWidget();
     header->setLayout(header_mainlayout);
 
     // ========================================================================
@@ -300,7 +300,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // Final assembly (with "this" as main widget)
     // ========================================================================
 
-    QVBoxLayout* mainlayout = new QVBoxLayout();  // not HFW
+    auto mainlayout = new QVBoxLayout();  // not HFW
     mainlayout->addWidget(header);
     mainlayout->addWidget(m_heading_tree);
     mainlayout->addWidget(m_treeview);
@@ -309,12 +309,12 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     mainlayout->addWidget(m_flatview);
     // mainlayout->addStretch();
 
-    QWidget* topwidget = new QWidget();
+    auto topwidget = new QWidget();
     topwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     topwidget->setObjectName(cssconst::MENU_WINDOW_BACKGROUND);
     topwidget->setLayout(mainlayout);
 
-    QVBoxLayout* toplayout = new QVBoxLayout();  // not HFW
+    auto toplayout = new QVBoxLayout();  // not HFW
     toplayout->setContentsMargins(uiconst::NO_MARGINS);
     toplayout->addWidget(topwidget);
 
@@ -436,6 +436,10 @@ void DiagnosticCodeSelector::setSearchAppearance()
     m_flatview->setVisible(m_searching);
     m_flatview->setVisible(m_searching);
     m_heading_search->setVisible(m_searching);
+
+    if (m_searching) {
+        m_search_lineedit->setFocus();
+    }
 
     update();
 }

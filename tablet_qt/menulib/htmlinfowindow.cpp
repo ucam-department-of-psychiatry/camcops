@@ -40,18 +40,18 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
     setObjectName(cssconst::MENU_WINDOW_OUTER_OBJECT);
 
     // Layouts
-    QVBoxLayout* mainlayout = new QVBoxLayout();
+    auto mainlayout = new QVBoxLayout();
 
-    QVBoxLayout* dummy_layout = new QVBoxLayout();
+    auto dummy_layout = new QVBoxLayout();
     dummy_layout->setContentsMargins(uiconst::NO_MARGINS);
     setLayout(dummy_layout);
-    QWidget* dummy_widget = new QWidget();
+    auto dummy_widget = new QWidget();
     dummy_widget->setObjectName(cssconst::MENU_WINDOW_BACKGROUND);
     dummy_layout->addWidget(dummy_widget);
     dummy_widget->setLayout(mainlayout);
 
     // Header
-    MenuHeader* header = new MenuHeader(this, m_app, false, title, icon);
+    auto header = new MenuHeader(this, m_app, false, title, icon);
     mainlayout->addWidget(header);
     connect(header, &MenuHeader::backClicked,
             this, &HtmlInfoWindow::finished);
@@ -59,7 +59,7 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
     // HTML
     if (filefunc::fileExists(filename)) {
         const QString html = filefunc::textfileContents(filename);
-        QTextBrowser* browser = new QTextBrowser();
+        auto browser = new QTextBrowser();
         browser->setHtml(html);
         browser->setOpenExternalLinks(true);
         mainlayout->addWidget(browser);

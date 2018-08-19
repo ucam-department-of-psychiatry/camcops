@@ -31,11 +31,9 @@
 #include "tasklib/taskfactory.h"
 #include "widgets/adjustablepie.h"
 #include "widgets/openablewidget.h"
-using ccrandom::coin;
 using datetime::now;
 using graphicsfunc::AdjustablePieAndProxy;
 using graphicsfunc::ButtonAndProxy;
-using graphicsfunc::LabelAndProxy;
 using graphicsfunc::makeAdjustablePie;
 using graphicsfunc::makeText;
 using graphicsfunc::makeTextButton;
@@ -209,7 +207,9 @@ void initializeQolSG(TaskFactory& factory)
 
 
 QolSG::QolSG(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, QOLSG_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, QOLSG_TABLENAME, false, false, false),  // ... anon, clin, resp
+    m_pie_touched_at_least_once(false),
+    m_last_p(0)
 {
     addField(FN_CATEGORY_START_TIME, QVariant::DateTime);
     addField(FN_CATEGORY_RESPONDED, QVariant::Bool);
@@ -304,14 +304,14 @@ OpenableWidget* QolSG::editor(const bool read_only)
 
 // MUST USE Qt::QueuedConnection - see comments in clearScene()
 #define CONNECT_BUTTON(b, funcname) \
-    connect(b.button, &QPushButton::clicked, \
+    connect((b).button, &QPushButton::clicked, \
             this, &QolSG::funcname, \
             Qt::QueuedConnection)
 // To use a Qt::ConnectionType parameter with a functor, we need a context
 // See http://doc.qt.io/qt-5/qobject.html#connect-5
 // That's the reason for the extra "this":
 #define CONNECT_BUTTON_PARAM(b, funcname, param) \
-    connect(b.button, &QPushButton::clicked, this, \
+    connect((b).button, &QPushButton::clicked, this, \
             std::bind(&QolSG::funcname, this, param), \
             Qt::QueuedConnection)
 

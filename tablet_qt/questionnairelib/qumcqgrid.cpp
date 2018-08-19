@@ -41,7 +41,7 @@ QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
     for (int qi = 0; qi < m_question_field_pairs.size(); ++qi) {
         FieldRefPtr fieldref = m_question_field_pairs.at(qi).fieldref();
         // DANGEROUS OBJECT LIFESPAN SIGNAL: do not use std::bind
-        QuMcqGridSignaller* sig = new QuMcqGridSignaller(this, qi);
+        auto sig = new QuMcqGridSignaller(this, qi);
         m_signallers.append(sig);
         connect(fieldref.data(), &FieldRef::valueChanged,
                 sig, &QuMcqGridSignaller::valueOrMandatoryChanged);
@@ -137,7 +137,7 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
     - And top alignment for the main title.
     */
 
-    GridLayout* grid = new GridLayout();
+    auto grid = new GridLayout();
     grid->setContentsMargins(uiconst::NO_MARGINS);
     grid->setHorizontalSpacing(uiconst::MCQGRID_HSPACING);
     grid->setVerticalSpacing(uiconst::MCQGRID_VSPACING);
@@ -234,7 +234,7 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
 FieldRefPtrList QuMcqGrid::fieldrefs() const
 {
     FieldRefPtrList refs;
-    for (auto q : m_question_field_pairs) {
+    for (const QuestionWithOneField& q : m_question_field_pairs) {
         refs.append(q.fieldref());
     }
     return refs;

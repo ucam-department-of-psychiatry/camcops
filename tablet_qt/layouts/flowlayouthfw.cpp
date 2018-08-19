@@ -145,9 +145,8 @@ int FlowLayoutHfw::horizontalSpacing() const
 {
     if (m_h_space >= 0) {
         return m_h_space;
-    } else {
-        return smartSpacing(QStyle::PM_LayoutHorizontalSpacing);
     }
+    return smartSpacing(QStyle::PM_LayoutHorizontalSpacing);
 }
 
 
@@ -155,9 +154,8 @@ int FlowLayoutHfw::verticalSpacing() const
 {
     if (m_v_space >= 0) {
         return m_v_space;
-    } else {
-        return smartSpacing(QStyle::PM_LayoutVerticalSpacing);
     }
+    return smartSpacing(QStyle::PM_LayoutVerticalSpacing);
 }
 
 
@@ -178,9 +176,8 @@ QLayoutItem* FlowLayoutHfw::takeAt(const int index)
     if (index >= 0 && index < m_item_list.size()) {
         return m_item_list.takeAt(index);
         // http://doc.qt.io/qt-5/qlist.html#takeAt
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 
@@ -440,12 +437,12 @@ int FlowLayoutHfw::smartSpacing(const QStyle::PixelMetric pm) const
     QObject* parent = this->parent();
     if (!parent) {
         return -1;
-    } else if (parent->isWidgetType()) {
-        QWidget* pw = static_cast<QWidget*>(parent);
-        return pw->style()->pixelMetric(pm, nullptr, pw);
-    } else {
-        return static_cast<QLayout*>(parent)->spacing();
     }
+    if (parent->isWidgetType()) {
+        auto pw = static_cast<QWidget*>(parent);
+        return pw->style()->pixelMetric(pm, nullptr, pw);
+    }
+    return static_cast<QLayout*>(parent)->spacing();
 }
 
 
@@ -456,11 +453,11 @@ int FlowLayoutHfw::itemTop(const int row_top,
 {
     if (valignment & Qt::AlignVCenter) {
         return row_top + (row_height - item_height) / 2;
-    } else if (valignment & Qt::AlignBottom) {
-        return row_top + (row_height - item_height);
-    } else {
-        return row_top;
     }
+    if (valignment & Qt::AlignBottom) {
+        return row_top + (row_height - item_height);
+    }
+    return row_top;
 }
 
 
@@ -469,9 +466,9 @@ int FlowLayoutHfw::rowShiftToRight(const int layout_width,
 {
     if (m_halign & Qt::AlignCenter) {
         return (layout_width - width_of_all_items) / 2;
-    } else if (m_halign & Qt::AlignRight) {
-        return layout_width - width_of_all_items;
-    } else {
-        return 0;
     }
+    if (m_halign & Qt::AlignRight) {
+        return layout_width - width_of_all_items;
+    }
+    return 0;
 }

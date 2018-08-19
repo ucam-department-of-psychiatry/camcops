@@ -104,7 +104,7 @@ QPointer<QWidget> QuVerticalContainer::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> widget(new BaseWidget());
     widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
 
-    VBoxLayout* layout = new VBoxLayout();
+    auto layout = new VBoxLayout();
 
     // widget->setObjectName(CssConst::DEBUG_YELLOW);
     layout->setContentsMargins(uiconst::NO_MARGINS);

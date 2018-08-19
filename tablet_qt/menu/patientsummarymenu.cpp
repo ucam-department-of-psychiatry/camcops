@@ -55,7 +55,7 @@ void PatientSummaryMenu::build()
     // Task items
     const TaskPtrList tasklist = factory->fetch();
     qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "task(s)";
-    for (auto task : tasklist) {
+    for (const TaskPtr& task : tasklist) {
         m_items.append(MenuItem(task, true, false));
     }
 

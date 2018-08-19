@@ -75,9 +75,8 @@ QVariant mean(const QVector<QVariant>& values, const bool ignore_null)
         if (v.isNull()) {
             if (ignore_null) {
                 continue;
-            } else {
-                return QVariant();  // mean of something including null is null
             }
+            return QVariant();  // mean of something including null is null
         }
         n += 1;
         total += v.toDouble();

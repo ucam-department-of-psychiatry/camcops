@@ -229,7 +229,7 @@ NameValueOptions CommonOptions::optionsCopyingDescriptions(
         const QStringList& descriptions)
 {
     NameValueOptions options;
-    for (auto desc : descriptions) {
+    for (const QString& desc : descriptions) {
         options.append(NameValuePair(desc, desc));
     }
     return options;

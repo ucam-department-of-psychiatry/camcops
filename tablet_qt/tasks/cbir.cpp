@@ -30,9 +30,6 @@
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
-using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
@@ -190,7 +187,7 @@ OpenableWidget* CbiR::editor(const bool read_only)
         (new QuText(xstring("thanks")))->setBold(),
     })->setTitle(basetitle + " (3/3)"));
 
-    Questionnaire* questionnaire = new Questionnaire(
+    auto questionnaire = new Questionnaire(
                 m_app, {page1, page2, page3});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
@@ -224,7 +221,7 @@ void CbiR::confirmationChanged()
 {
     Q_ASSERT(m_confirmation_fr);
     const bool need_data = !m_confirmation_fr->valueBool();
-    for (auto fr : m_data_frs) {
+    for (const FieldRefPtr& fr : m_data_frs) {
         fr->setMandatory(need_data);
     }
 }
@@ -232,7 +229,7 @@ void CbiR::confirmationChanged()
 
 bool CbiR::dataComplete() const
 {
-    for (auto fr : m_data_frs) {
+    for (const FieldRefPtr& fr : m_data_frs) {
         if (!fr->complete()) {
             return false;
         }

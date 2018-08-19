@@ -117,7 +117,7 @@ QVector<DatabaseObjectPtr> PhotoSequence::getAncillarySpecimens() const
 QVector<DatabaseObjectPtr> PhotoSequence::getAllAncillary() const
 {
     QVector<DatabaseObjectPtr> ancillaries;
-    for (auto photo : m_photos) {
+    for (const PhotoSequencePhotoPtr& photo : m_photos) {
         ancillaries.append(photo);
     }
     return ancillaries;
@@ -210,7 +210,7 @@ void PhotoSequence::refreshQuestionnaire()
 
 void PhotoSequence::addPage(const int page_index)
 {
-    QuPage* page = new QuPage();
+    auto page = new QuPage();
     rebuildPage(page, page_index);
     m_questionnaire->addPage(QuPagePtr(page));
 }
@@ -241,16 +241,12 @@ void PhotoSequence::rebuildPage(QuPage* page, const int page_index)
                 std::bind(&PhotoSequence::movePhotoForwards, this, page_index);
         const bool is_first = page_index == 0;
         const bool is_last = page_index == m_photos.length() - 1;
-        QuButton* add = new QuButton(textconst::PHOTOSEQUENCE_ADD,
-                                     callback_add);
+        auto add = new QuButton(textconst::PHOTOSEQUENCE_ADD, callback_add);
         add->setActive(is_last);
-        QuButton* del = new QuButton(textconst::PHOTOSEQUENCE_DELETE,
-                                     callback_del);
-        QuButton* back = new QuButton(textconst::PHOTOSEQUENCE_MOVE_BACK,
-                                      callback_back);
+        auto del = new QuButton(textconst::PHOTOSEQUENCE_DELETE, callback_del);
+        auto back = new QuButton(textconst::PHOTOSEQUENCE_MOVE_BACK, callback_back);
         back->setActive(!is_first);
-        QuButton* fwd = new QuButton(textconst::PHOTOSEQUENCE_MOVE_FORWARDS,
-                                     callback_fwd);
+        auto fwd = new QuButton(textconst::PHOTOSEQUENCE_MOVE_FORWARDS, callback_fwd);
         fwd->setActive(!is_last);
         elements.append(new QuFlowContainer({add, del, back, fwd}));
         elements.append(new QuText(textconst::PHOTOSEQUENCE_PHOTO_DESCRIPTION));
@@ -285,7 +281,7 @@ void PhotoSequence::renumberPhotos()
 void PhotoSequence::addPhoto()
 {
     bool one_is_empty = false;
-    for (auto photo : m_photos) {
+    for (const PhotoSequencePhotoPtr& photo : m_photos) {
         if (photo->valueIsNull(PhotoSequencePhoto::PHOTO_BLOBID)) {
             one_is_empty = true;
             break;

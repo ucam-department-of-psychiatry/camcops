@@ -27,9 +27,6 @@
 #include "questionnairelib/qulineedit.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
-using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
@@ -201,7 +198,7 @@ OpenableWidget* Honos65::editor(const bool read_only)
 
     updateMandatory(nullptr, nullptr);
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

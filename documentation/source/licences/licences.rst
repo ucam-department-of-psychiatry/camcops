@@ -75,14 +75,15 @@ Qt uses OpenSSL for its cryptography. See https://www.openssl.org/.
 This product includes software developed by the OpenSSL Project for use in the
 OpenSSL Toolkit (http://www.openssl.org/).
 
-License issues
-~~~~~~~~~~~~~~
+.. code-block:: none
 
-The OpenSSL toolkit stays under a dual license, i.e. both the conditions of
-the OpenSSL License and the original SSLeay license apply to the toolkit.
-See below for the actual license texts. Actually both licenses are BSD-style
-Open Source licenses. In case of any license issues related to OpenSSL
-please contact openssl-core@openssl.org.
+    License issues
+
+    The OpenSSL toolkit stays under a dual license, i.e. both the conditions of
+    the OpenSSL License and the original SSLeay license apply to the toolkit.
+    See below for the actual license texts. Actually both licenses are
+    BSD-style Open Source licenses. In case of any license issues related to
+    OpenSSL please contact openssl-core@openssl.org.
 
 OpenSSL License
 ~~~~~~~~~~~~~~~

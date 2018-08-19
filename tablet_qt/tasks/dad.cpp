@@ -125,7 +125,7 @@ void initializeDad(TaskFactory& factory)
 Dad::Dad(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DAD_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
-    for (auto item : ITEMS) {
+    for (const QString& item : ITEMS) {
         addField(item, QVariant::Int);
     }
 
@@ -216,15 +216,15 @@ OpenableWidget* Dad::editor(const bool read_only)
                     getPatientName() + " " +
                     xstring("instruction_2")))->setBold(),
     };
-    for (QString groupname : GROUPS) {
+    for (const QString& groupname : GROUPS) {
         elements.append((new QuText(xstring(groupname)))
                         ->setBold()
                         ->setItalic());
-        QuGridContainer* grid = new QuGridContainer();
+        auto grid = new QuGridContainer();
         int row = 0;
         grid->setColumnStretch(0, LEFTCOL_STRETCH);
         grid->setColumnStretch(1, RIGHTCOL_STRETCH);
-        for (QString itemname : getItemsActivity(groupname)) {
+        for (const QString& itemname : getItemsActivity(groupname)) {
             grid->addCell(QuGridCell(new QuText(xstring(itemname)), row, 0));
             grid->addCell(QuGridCell(
                 (new QuMcq(fieldRef(itemname),
@@ -237,7 +237,7 @@ OpenableWidget* Dad::editor(const bool read_only)
 
     QuPagePtr page2((new QuPage(elements))->setTitle(longname()));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page1, page2});
+    auto questionnaire = new Questionnaire(m_app, {page1, page2});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

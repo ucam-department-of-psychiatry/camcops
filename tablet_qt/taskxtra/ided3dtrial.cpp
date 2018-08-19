@@ -56,6 +56,7 @@ const QString FN_INCORRECT("incorrect");
 IDED3DTrial::IDED3DTrial(CamcopsApp& app, DatabaseManager& db,
                          const int load_pk) :
     DatabaseObject(app, db, TRIAL_TABLENAME),
+    m_stage_num_zero_based(-1),
     m_trial_num_zero_based(-1)
 {
     addField(FN_FK_TO_TASK, QVariant::Int);

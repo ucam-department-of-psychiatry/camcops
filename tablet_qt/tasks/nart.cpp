@@ -169,8 +169,8 @@ QStringList Nart::detail() const
     const int errors = numErrors();
     QStringList wordresults{"Words correct?"};
     for (int i = 0; i < ACCENTED_WORDLIST.length(); ++i) {
-        const QString fieldname = WORDLIST.at(i);
-        const QString word = ACCENTED_WORDLIST.at(i);
+        const QString& fieldname = WORDLIST.at(i);
+        const QString& word = ACCENTED_WORDLIST.at(i);
         wordresults.append(stringfunc::standardResult(word,
                                                       prettyValue(fieldname)));
     }
@@ -204,11 +204,11 @@ OpenableWidget* Nart::editor(const bool read_only)
     const Qt::Alignment align = Qt::AlignLeft | Qt::AlignVCenter;
     int row = 0;
     for (int i = 0; i < ACCENTED_WORDLIST.length(); ++i) {
-        const QString fieldname = WORDLIST.at(i);
-        const QString word = ACCENTED_WORDLIST.at(i).toUpper();
-        QuText* el_word = new QuText(word);
+        const QString& fieldname = WORDLIST.at(i);
+        const QString& word = ACCENTED_WORDLIST.at(i).toUpper();
+        auto el_word = new QuText(word);
         el_word->setBold();
-        QuMcq* el_mcq = new QuMcq(fieldRef(fieldname), options);
+        auto el_mcq = new QuMcq(fieldRef(fieldname), options);
         el_mcq->setHorizontal(true);
         cells.append(QuGridCell(el_word, row, 0, row_span, col_span, align));
         cells.append(QuGridCell(el_mcq, row, 1, row_span, col_span, align));
@@ -224,7 +224,7 @@ OpenableWidget* Nart::editor(const bool read_only)
     });
     page->setTitle(longname());
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
@@ -244,7 +244,7 @@ int Nart::numErrors() const
 const QString NELSON_1982("Nelson 1982");
 const QString NELSON_WILLISON_1991("Nelson & Willison 1991");
 const QString BRIGHT_2016("Bright 2016, PMID 27624393");
-#define IF_COMPLETE(complete, x) (complete ? (x) : QVariant())
+#define IF_COMPLETE(complete, x) ((complete) ? (x) : QVariant())
 
 
 Nart::NartIQ Nart::nelsonFullScaleIQ(const bool complete,

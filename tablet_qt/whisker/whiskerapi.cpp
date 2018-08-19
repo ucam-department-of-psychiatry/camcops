@@ -216,7 +216,7 @@ QStringList CamcogQuadPattern::options() const
             top_right_patterns.size() != required_size ||
             bottom_left_patterns.size() != required_size ||
             bottom_right_patterns.size() != required_size) {
-        qWarning("Whisker CamcogQuadPattern used with wrong vector size; will fail");
+        qWarning() << "Whisker CamcogQuadPattern used with wrong vector size; will fail";
         return QStringList();
     }
 
@@ -344,7 +344,7 @@ Polygon::Polygon(const QVector<QPoint>& points,
 QStringList Polygon::options() const
 {
     if (points.size() < 3) {
-        qWarning("Whisker polygon used with fewer than 3 points; will fail");
+        qWarning() << "Whisker polygon used with fewer than 3 points; will fail";
         return QStringList();
     }
     QStringList args{

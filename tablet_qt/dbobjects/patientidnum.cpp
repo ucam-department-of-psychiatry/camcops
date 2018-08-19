@@ -75,9 +75,8 @@ QString PatientIdNum::idnumAsString() const
     const QVariant var = idnumAsVariant();
     if (var.isNull()) {
         return "?";
-    } else {
-        return QString::number(var.toULongLong());
     }
+    return QString::number(var.toULongLong());
 }
 
 

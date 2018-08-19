@@ -33,13 +33,9 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
 using mathfunc::falseNotNull;
-using mathfunc::noneNull;
-using mathfunc::sumInt;
 using mathfunc::scorePhrase;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
-using stringfunc::strnumlist;
-using stringfunc::strseq;
 
 const QString Ifs::IFS_TABLENAME("ifs");
 

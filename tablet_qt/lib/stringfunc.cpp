@@ -65,7 +65,7 @@ QStringList strseq(const QString& prefix, const int first, const int last,
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
     for (int i = first; i <= last; ++i) {
-        for (auto suffix : suffixes) {
+        for (const QString& suffix : suffixes) {
             list.append(strnum(prefix, i, suffix));
         }
     }
@@ -90,7 +90,7 @@ QStringList strseq(const QStringList& prefixes,
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
-    for (auto prefix : prefixes) {
+    for (const QString& prefix : prefixes) {
         for (int i = first; i <= last; ++i) {
             list.append(strnum(prefix, i));
         }
@@ -105,9 +105,9 @@ QStringList strseq(const QStringList& prefixes,
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
-    for (auto prefix : prefixes) {
+    for (const QString& prefix : prefixes) {
         for (int i = first; i <= last; ++i) {
-            for (auto suffix : suffixes) {
+            for (const QString& suffix : suffixes) {
                 list.append(strnum(prefix, i, suffix));
             }
         }

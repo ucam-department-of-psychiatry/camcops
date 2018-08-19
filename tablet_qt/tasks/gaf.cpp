@@ -105,7 +105,7 @@ OpenableWidget* Gaf::editor(const bool read_only)
         new QuLineEditInteger(fieldRef(SCORE), 0, 100),
     })->setTitle(longname()));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

@@ -233,11 +233,10 @@ Eigen::MatrixXd chol(const Eigen::MatrixXd& x, const bool pivot)
         // Eigen's LDLT: "Robust Cholesky decomposition of a matrix with pivoting"
         LDLT<MatrixXd> c(x);
         return c.matrixU();  // upper triangular
-    } else {
-        // Eigen's LLT: "Standard Cholesky decomposition (LL^T) of a matrix..."
-        LLT<MatrixXd> c(x);
-        return c.matrixU();
     }
+    // Eigen's LLT: "Standard Cholesky decomposition (LL^T) of a matrix..."
+    LLT<MatrixXd> c(x);
+    return c.matrixU();
 }
 
 
@@ -310,9 +309,8 @@ Eigen::MatrixXd forwardOrBackSolve(Eigen::MatrixXd lr,
     // qDebug() << Q_FUNC_INFO << "lr:" << qStringFromEigenMatrixOrArray(lr);
     if (upper_tri) {
         return lr.triangularView<Upper>().solve(x);
-    } else {
-        return lr.triangularView<Lower>().solve(x);
     }
+    return lr.triangularView<Lower>().solve(x);
 }
 
 

@@ -399,6 +399,8 @@ QT_CONFIG_COMMON_ARGS = [
     # debug v. release
     # -------------------------------------------------------------------------
     # Now decided manually (2017-12-04); occasionally we need a debug build.
+    # We can't in general create a "simultaneously debug and release" build;
+    # see https://forum.qt.io/topic/75056/configuring-qt-what-replaces-debug-and-release/7 .  # noqa
 
     # -------------------------------------------------------------------------
     # static v. shared
@@ -2952,6 +2954,7 @@ define $(PKG)_BUILD
         # ... release is default in 5.7 (as per "configure -h")
         # ... check with "readelf --debug-dump=decodedline <LIBRARY.so>"
         # ... http://stackoverflow.com/questions/1999654
+        # ... https://forum.qt.io/topic/75056/configuring-qt-what-replaces-debug-and-release/7  # noqa
 
     # OpenSSL linkage?
     # For testing a new OpenSSL build, have cfg.qt_openssl_static=False, or you

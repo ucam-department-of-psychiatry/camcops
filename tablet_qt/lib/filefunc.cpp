@@ -47,11 +47,10 @@ QString textfileContents(const QString& filename)
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         qCritical() << Q_FUNC_INFO << "FAILED TO OPEN FILE:" << filename;
         return "";
-    } else {
-#ifdef DEBUG_READ_FILE
-        qDebug() << "Reading file:" << filename;
-#endif
     }
+#ifdef DEBUG_READ_FILE
+    qDebug() << "Reading file:" << filename;
+#endif
     QTextStream in(&file);
     in.setCodec("UTF-8");
     const QString text = in.readAll();

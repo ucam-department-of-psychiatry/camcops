@@ -73,12 +73,9 @@ Comments
 #include "widgets/adjustablepie.h"
 #include "widgets/svgwidgetclickable.h"
 #include "widgets/openablewidget.h"
-using ccrandom::coin;
 using ccrandom::dwor;
-using datetime::now;
 using graphicsfunc::ButtonAndProxy;
 using graphicsfunc::centredRect;
-using graphicsfunc::LabelAndProxy;
 using graphicsfunc::makeSvg;
 using graphicsfunc::makeText;
 using graphicsfunc::makeTextButton;
@@ -359,10 +356,10 @@ QVector<DatabaseObjectPtr> IDED3D::getAncillarySpecimens() const
 QVector<DatabaseObjectPtr> IDED3D::getAllAncillary() const
 {
     QVector<DatabaseObjectPtr> ancillaries;
-    for (auto stage : m_stages) {
+    for (const IDED3DStagePtr& stage : m_stages) {
         ancillaries.append(stage);
     }
-    for (auto trial : m_trials) {
+    for (const IDED3DTrialPtr& trial : m_trials) {
         ancillaries.append(trial);
     }
     return ancillaries;
@@ -401,12 +398,12 @@ QStringList IDED3D::detail() const
     QStringList lines = completenessInfo() + recordSummaryLines();
     lines.append("\n");
     lines.append("Stages:");
-    for (IDED3DStagePtr stage : m_stages) {
+    for (const IDED3DStagePtr& stage : m_stages) {
         lines.append(stage->recordSummaryCSVString());
     }
     lines.append("\n");
     lines.append("Trials:");
-    for (IDED3DTrialPtr trial : m_trials) {
+    for (const IDED3DTrialPtr& trial : m_trials) {
         lines.append(trial->recordSummaryCSVString());
     }
     return lines;
@@ -545,19 +542,19 @@ void IDED3D::validateQuestionnaire()
 
 // MUST USE Qt::QueuedConnection - see comments in clearScene()
 #define CONNECT_BUTTON(b, funcname) \
-    connect(b.button, &QPushButton::clicked, \
+    connect((b).button, &QPushButton::clicked, \
             this, &IDED3D::funcname, \
             Qt::QueuedConnection)
 // To use a Qt::ConnectionType parameter with a functor, we need a context
 // See http://doc.qt.io/qt-5/qobject.html#connect-5
 // That's the reason for the extra "this":
 #define CONNECT_BUTTON_PARAM(b, funcname, param) \
-    connect(b.button, &QPushButton::clicked, \
+    connect((b).button, &QPushButton::clicked, \
             this, std::bind(&IDED3D::funcname, this, param), \
             Qt::QueuedConnection)
 // For debugging:
 #define CONNECT_SVG_CLICKED(svg, funcname) \
-    connect(svg.widget, &SvgWidgetClickable::clicked, \
+    connect((svg).widget, &SvgWidgetClickable::clicked, \
             this, &IDED3D::funcname, \
             Qt::QueuedConnection)
     // ... svg is an SvgItemAndRenderer
@@ -697,8 +694,8 @@ void IDED3D::makeStages()
                                                ed_irrelevant_exemplars_third_dim});
 
     // Stages
-    const QString first_dim_name = poss_dimensions.at(first_dim_index);
-    const QString second_dim_name = poss_dimensions.at(second_dim_index);
+    const QString& first_dim_name = poss_dimensions.at(first_dim_index);
+    const QString& second_dim_name = poss_dimensions.at(second_dim_index);
     int stage = 0;  // zero-based stage number
     m_stages.clear();
     // ... use QVector<IDED3DStagePtr>; don't use QVector<Stage>;

@@ -26,7 +26,6 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::scoreString;
 using mathfunc::scorePhrase;
 using mathfunc::sumInt;
 using stringfunc::strnum;
@@ -141,7 +140,7 @@ OpenableWidget* Bprs::editor(const bool read_only)
         addpage(n, include_na);
     }
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

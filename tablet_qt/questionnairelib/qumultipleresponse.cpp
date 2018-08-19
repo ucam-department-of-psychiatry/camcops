@@ -104,7 +104,7 @@ QuMultipleResponse* QuMultipleResponse::setMaximumAnswers(int maximum_answers)
 
 void QuMultipleResponse::minOrMaxChanged()
 {
-    if (m_widgets.size() > 0) {
+    if (!m_widgets.empty()) {
         // we're live
         if (m_show_instruction && m_instruction_label &&
                 m_instruction.isEmpty()) {
@@ -209,7 +209,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
             mainlayout->setAlignment(w, Qt::AlignTop);
         } else {
             // cf. QuMCQ
-            QWidget* itemwidget = new QWidget();
+            auto itemwidget = new QWidget();
             ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(item.text());
             namelabel->setEnabled(!read_only);
             const int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
@@ -221,7 +221,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,
                         std::bind(&QuMultipleResponse::clicked, this, i));
             }
-            HBoxLayout* itemlayout = new HBoxLayout();
+            auto itemlayout = new HBoxLayout();
             itemlayout->setContentsMargins(uiconst::NO_MARGINS);
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w, 0, Qt::AlignTop);
@@ -256,7 +256,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> final_widget;
     if (m_show_instruction) {
         // Higher-level widget containing {instructions, actual MCQ}
-        VBoxLayout* layout_w_instr = new VBoxLayout();
+        auto layout_w_instr = new VBoxLayout();
         layout_w_instr->setContentsMargins(uiconst::NO_MARGINS);
         QString instruction = m_instruction.isEmpty() ? defaultInstruction()
                                                       : m_instruction;
@@ -347,7 +347,7 @@ void QuMultipleResponse::fieldValueChanged()
 FieldRefPtrList QuMultipleResponse::fieldrefs() const
 {
     FieldRefPtrList fieldrefs;
-    for (auto item : m_items) {
+    for (const QuestionWithOneField& item : m_items) {
         fieldrefs.append(item.fieldref());
     }
     return fieldrefs;
@@ -395,7 +395,7 @@ bool QuMultipleResponse::validIndex(const int index)
 int QuMultipleResponse::nTrueAnswers() const
 {
     int n = 0;
-    for (auto item : m_items) {
+    for (const QuestionWithOneField& item : m_items) {
         const QVariant value = item.fieldref()->value();
         if (!value.isNull() && value.toBool()) {
             n += 1;

@@ -98,7 +98,7 @@ User input
 - `QuDateTime`. Date/time input method.
 
 - `QuDiagnosticCode`. Allows searching and selection of diagnostic codes using
-  a recognized system (e.g. :ref:`ICD-10 <icd>`).
+  a recognized system (e.g. :ref:`ICD-10 <diagnosis_icd10>`).
 
 - `QuLineEdit`. One-line text editor. (For a bigger version, see `QuTextEdit`.)
 

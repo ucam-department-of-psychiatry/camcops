@@ -27,11 +27,8 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
 using mathfunc::scorePhrase;
-using mathfunc::scoreString;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
-using stringfunc::strnum;
-using stringfunc::strseq;
 
 const QString Cgi::CGI_TABLENAME("cgi");
 
@@ -155,7 +152,7 @@ OpenableWidget* Cgi::editor(const bool read_only)
     addpage(Q3T, 4, true);
     addpage(Q3S, 4, true);
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

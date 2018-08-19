@@ -35,9 +35,9 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     m_editor_new2(nullptr)
 {
     setWindowTitle(title);
-    QVBoxLayout* mainlayout = new QVBoxLayout();
+    auto mainlayout = new QVBoxLayout();
 
-    QLabel* prompt = new QLabel(text);
+    auto prompt = new QLabel(text);
     mainlayout->addWidget(prompt);
 
     if (require_old_password) {
@@ -56,7 +56,7 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     m_editor_new2->setEchoMode(QLineEdit::Password);
     mainlayout->addWidget(m_editor_new2);
 
-    QDialogButtonBox* buttonbox = new QDialogButtonBox(
+    auto buttonbox = new QDialogButtonBox(
                 QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttonbox, &QDialogButtonBox::accepted,
             this, &PasswordChangeDialog::okClicked);

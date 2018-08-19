@@ -27,6 +27,15 @@
 #include "graphics/buttonconfig.h"
 #include "graphics/textconfig.h"
 
+// For the next two, we initialize const variables in multiple compilation
+// units on the basis of these. The Clang-tidy warning is
+// "initializing non-local variable with non-const expression depending on
+// uninitialized non-local variable 'SCENE_WIDTH'
+// [cppcoreguidelines-interfaces-global-init]"
+#define SCENE_WIDTH 1000
+#define SCENE_HEIGHT 750  // 4:3 aspect ratio
+
+
 namespace cardinalexpdetcommon
 {
 
@@ -59,8 +68,6 @@ extern const QString TX_VISUAL_TARGET_0_SHORT;
 extern const QString TX_VISUAL_TARGET_1;
 extern const QString TX_VISUAL_TARGET_1_SHORT;
 
-extern const qreal SCENE_WIDTH;
-extern const qreal SCENE_HEIGHT;
 extern const QRectF SCENE_RECT;
 extern const QPointF SCENE_CENTRE;
 extern const qreal STIM_SIDE;

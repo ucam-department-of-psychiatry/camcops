@@ -212,3 +212,29 @@ Note other popular coding standards:
 
     SomeClass, some_function,
     some_variable, "_" prefix for "private" members
+
+**Disabling compiler/linter warnings inline**
+
+- For example, compilers disagree on when a ``default:`` label should be
+  included in a ``switch`` statement
+  (https://github.com/quinoacomputing/quinoa/issues/158).
+
+- For the Visual C++ compiler, an example is:
+
+  .. code-block:: cpp
+
+    #ifdef _MSC_VER  // Compiling under Microsoft Visual C++
+    #pragma warning(push)
+    #pragma warning(disable: 4100)  // C4100: 'app': unreferenced formal parameter
+    #endif
+
+    // problematic code here
+
+    // ... and if we want to resume warnings for this compilation unit:
+    #ifdef _MSC_VER  // Compiling under Microsoft Visual C++
+    #pragma warning(pop)
+    #endif
+
+- For Qt Creator's Clang-Tidy and Clazy, use :menuselection:`Tools --> Options
+  --> Analyzer", copy a starting configuration such as "Clang-Tidy and Clazy
+  preselected checks [built-in]", and edit it.

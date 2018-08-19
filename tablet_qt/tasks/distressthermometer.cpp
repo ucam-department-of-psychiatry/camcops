@@ -178,7 +178,7 @@ OpenableWidget* DistressThermometer::editor(const bool read_only)
         new QuTextEdit(fieldRef(OTHER, false)),
     })->setTitle(xstring("section3_title"))));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

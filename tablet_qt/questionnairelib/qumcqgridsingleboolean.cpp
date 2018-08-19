@@ -46,8 +46,7 @@ QuMcqGridSingleBoolean::QuMcqGridSingleBoolean(
     for (int qi = 0; qi < m_questions_with_fields.size(); ++qi) {
         FieldRefPtr mcq_fieldref = m_questions_with_fields.at(qi).firstFieldRef();
         // DANGEROUS OBJECT LIFESPAN SIGNAL: do not use std::bind
-        QuMcqGridSingleBooleanSignaller* sig =
-                new QuMcqGridSingleBooleanSignaller(this, qi);
+        auto sig = new QuMcqGridSingleBooleanSignaller(this, qi);
         m_signallers.append(sig);
 
         connect(mcq_fieldref.data(), &FieldRef::valueChanged,
@@ -169,7 +168,7 @@ QPointer<QWidget> QuMcqGridSingleBoolean::makeWidget(Questionnaire* questionnair
     m_mcq_widgets.clear();
     m_boolean_widgets.clear();
 
-    GridLayout* grid = new GridLayout();
+    auto grid = new GridLayout();
     grid->setContentsMargins(uiconst::NO_MARGINS);
     grid->setHorizontalSpacing(uiconst::MCQGRID_HSPACING);
     grid->setVerticalSpacing(uiconst::MCQGRID_VSPACING);
@@ -276,7 +275,7 @@ QPointer<QWidget> QuMcqGridSingleBoolean::makeWidget(Questionnaire* questionnair
 FieldRefPtrList QuMcqGridSingleBoolean::fieldrefs() const
 {
     FieldRefPtrList refs;
-    for (auto q : m_questions_with_fields) {
+    for (const QuestionWithTwoFields& q : m_questions_with_fields) {
         refs.append(q.firstFieldRef());
         refs.append(q.secondFieldRef());
     }

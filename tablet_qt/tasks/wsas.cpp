@@ -28,7 +28,6 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::scoreString;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;

@@ -18,10 +18,10 @@
 */
 
 #include "layoutdumper.h"
+#include <cstdio>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <stdio.h>
 #include <QDebug>
 #include <QScrollArea>
 #include <QString>
@@ -392,7 +392,7 @@ QString getDynamicProperties(const QWidget* w)
         const QString name(arr);
         const QVariant value = w->property(arr);
         const QString value_string = uifunc::escapeString(value.toString());
-        elements.append(QString("%1=%2").arg(name).arg(value_string));
+        elements.append(QString("%1=%2").arg(name, value_string));
     }
     return elements.join(", ");
 }
@@ -490,8 +490,8 @@ QString getSpacerInfo(QSpacerItem* si)
                     .arg(toString(si->sizePolicy())));
     elements.append(QString("constraint %1 [alignment %2]")
                     .arg(si_layout ? toString(si_layout->sizeConstraint())
-                                   : "<no_layout>")
-                    .arg(toString(si->alignment())));
+                                   : "<no_layout>",
+                         toString(si->alignment())));
     return elements.join(", ");
 }
 
@@ -513,7 +513,7 @@ QVector<const QWidget*> dumpLayoutAndChildren(QDebug& os,
 
     os << padding << "Layout: " << getLayoutInfo(layout);
 
-    const QBoxLayout* box_layout = dynamic_cast<const QBoxLayout*>(layout);
+    auto box_layout = dynamic_cast<const QBoxLayout*>(layout);
     if (box_layout) {
         os << ", spacing " <<  box_layout->spacing();
     }
@@ -526,8 +526,8 @@ QVector<const QWidget*> dumpLayoutAndChildren(QDebug& os,
         for (int i = 0; i < num_items; i++) {
             QLayoutItem* layout_item = layout->itemAt(i);
             QLayout* child_layout = layout_item->layout();
-            QWidgetItem* wi = dynamic_cast<QWidgetItem*>(layout_item);
-            QSpacerItem* si = dynamic_cast<QSpacerItem*>(layout_item);
+            auto wi = dynamic_cast<QWidgetItem*>(layout_item);
+            auto si = dynamic_cast<QSpacerItem*>(layout_item);
             if (wi && wi->widget()) {
                 QString alignment = QString(" [alignment from layout: %1]")
                         .arg(toString(wi->alignment()));
@@ -572,7 +572,7 @@ QVector<const QWidget*> dumpWidgetAndChildren(QDebug& os,
 
     // Scroll areas contain but aren't necessarily the parents of their widgets
     // However, they contain a 'qt_scrollarea_viewport' widget that is.
-    const QScrollArea* scroll = dynamic_cast<const QScrollArea*>(w);
+    auto scroll = dynamic_cast<const QScrollArea*>(w);
     if (scroll) {
         dumped_children.append(
             dumpWidgetAndChildren(os, scroll->viewport(), level + 1, "",

@@ -317,10 +317,10 @@ QVector<DatabaseObjectPtr> CardinalExpectationDetection::getAncillarySpecimens()
 QVector<DatabaseObjectPtr> CardinalExpectationDetection::getAllAncillary() const
 {
     QVector<DatabaseObjectPtr> ancillaries;
-    for (auto group : m_groups) {
+    for (const CardinalExpDetTrialGroupSpecPtr& group : m_groups) {
         ancillaries.append(group);
     }
-    for (auto trial : m_trials) {
+    for (const CardinalExpDetTrialPtr& trial : m_trials) {
         ancillaries.append(trial);
     }
     return ancillaries;
@@ -357,12 +357,12 @@ QStringList CardinalExpectationDetection::detail() const
     QStringList lines = completenessInfo() + recordSummaryLines();
     lines.append("\n");
     lines.append("Group specifications:");
-    for (CardinalExpDetTrialGroupSpecPtr group : m_groups) {
+    for (const CardinalExpDetTrialGroupSpecPtr& group : m_groups) {
         lines.append(group->recordSummaryCSVString());
     }
     lines.append("\n");
     lines.append("Trials:");
-    for (CardinalExpDetTrialPtr trial : m_trials) {
+    for (const CardinalExpDetTrialPtr& trial : m_trials) {
         lines.append(trial->recordSummaryCSVString());
     }
     return lines;
@@ -489,14 +489,14 @@ OpenableWidget* CardinalExpectationDetection::editor(const bool read_only)
 
 // MUST USE Qt::QueuedConnection - see comments in clearScene()
 #define CONNECT_BUTTON(b, funcname) \
-    connect(b.button, &QPushButton::clicked, \
+    connect((b).button, &QPushButton::clicked, \
             this, &CardinalExpectationDetection::funcname, \
             Qt::QueuedConnection)
 // To use a Qt::ConnectionType parameter with a functor, we need a context
 // See http://doc.qt.io/qt-5/qobject.html#connect-5
 // That's the reason for the extra "this":
 #define CONNECT_BUTTON_PARAM(b, funcname, param) \
-    connect(b.button, &QPushButton::clicked, \
+    connect((b).button, &QPushButton::clicked, \
             this, std::bind(&CardinalExpectationDetection::funcname, this, param), \
             Qt::QueuedConnection)
 
@@ -633,7 +633,7 @@ void CardinalExpectationDetection::reportCounterbalancing() const
 
 QVector<CardinalExpDetTrialPtr> CardinalExpectationDetection::makeTrialGroup(
         const int block, const int groupnum,
-        CardinalExpDetTrialGroupSpecPtr groupspec) const
+        const CardinalExpDetTrialGroupSpecPtr& groupspec) const
 {
     QVector<CardinalExpDetTrialPtr> trials;
     const int cue = groupspec->cue();

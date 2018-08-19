@@ -241,7 +241,7 @@ OpenableWidget* Ybocs::editor(const bool read_only)
         text("closing_3"),
     })->setTitle(tr("End matter"))));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

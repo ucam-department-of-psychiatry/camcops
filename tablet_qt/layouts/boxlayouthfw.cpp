@@ -106,43 +106,38 @@ struct BoxLayoutHfwItem
         if (item->hasHeightForWidth()) {
             w = boundWidth(w);  // RNC
             return item->heightForWidth(w);
-        } else {
-            return item->sizeHint().height();
         }
+        return item->sizeHint().height();
     }
     int minhfw(int w) const  // was mhfw
     {
         if (item->hasHeightForWidth()) {
             w = boundWidth(w);  // RNC
             return item->heightForWidth(w);
-        } else {
-            return item->minimumSize().height();
         }
+        return item->minimumSize().height();
     }
     int maxhfw(int w) const  // RNC
     {
         if (item->hasHeightForWidth()) {
             w = boundWidth(w);  // RNC
             return item->heightForWidth(w);
-        } else {
-            return item->maximumSize().height();
         }
+        return item->maximumSize().height();
     }
     int hStretch() const
     {
         if (stretch == 0 && item->widget()) {
             return item->widget()->sizePolicy().horizontalStretch();
-        } else {
-            return stretch;
         }
+        return stretch;
     }
     int vStretch() const
     {
         if (stretch == 0 && item->widget()) {
             return item->widget()->sizePolicy().verticalStretch();
-        } else {
-            return stretch;
         }
+        return stretch;
     }
     int boundWidth(int w) const  // RNC
     {
@@ -278,7 +273,7 @@ void BoxLayoutHfw::setSpacing(const int spacing)
 
 void BoxLayoutHfw::addItem(QLayoutItem* item)
 {
-    BoxLayoutHfwItem* it = new BoxLayoutHfwItem(item);
+    auto it = new BoxLayoutHfwItem(item);
     m_list.append(it);
     invalidate();
 }
@@ -290,7 +285,7 @@ void BoxLayoutHfw::insertItem(int index, QLayoutItem* item)
         index = m_list.count();
     }
 
-    BoxLayoutHfwItem* it = new BoxLayoutHfwItem(item);
+    auto it = new BoxLayoutHfwItem(item);
     m_list.insert(index, it);
     invalidate();
 }
@@ -312,7 +307,7 @@ void BoxLayoutHfw::insertSpacing(int index, const int size)
     }
 
     try {
-        BoxLayoutHfwItem* it = new BoxLayoutHfwItem(b);
+        auto it = new BoxLayoutHfwItem(b);
         it->magic = true;
         m_list.insert(index, it);
 
@@ -339,7 +334,7 @@ void BoxLayoutHfw::insertStretch(int index, const int stretch)
                              QSizePolicy::Minimum, QSizePolicy::Expanding);
     }
 
-    BoxLayoutHfwItem* it = new BoxLayoutHfwItem(b, stretch);
+    auto it = new BoxLayoutHfwItem(b, stretch);
     it->magic = true;
     m_list.insert(index, it);
     invalidate();
@@ -352,7 +347,7 @@ void BoxLayoutHfw::insertSpacerItem(int index, QSpacerItem* spacerItem)
         index = m_list.count();
     }
 
-    BoxLayoutHfwItem* it = new BoxLayoutHfwItem(spacerItem);
+    auto it = new BoxLayoutHfwItem(spacerItem);
     it->magic = true;
     m_list.insert(index, it);
     invalidate();
@@ -371,7 +366,7 @@ void BoxLayoutHfw::insertLayout(int index, QLayout* layout,
     if (index < 0) {  // append
         index = m_list.count();
     }
-    BoxLayoutHfwItem* it = new BoxLayoutHfwItem(layout, stretch);
+    auto it = new BoxLayoutHfwItem(layout, stretch);
     m_list.insert(index, it);
     invalidate();
 }
@@ -456,7 +451,7 @@ void BoxLayoutHfw::addStrut(const int size)
                              QSizePolicy::Minimum, QSizePolicy::Fixed);
     }
 
-    BoxLayoutHfwItem* it = new BoxLayoutHfwItem(b);
+    auto it = new BoxLayoutHfwItem(b);
     it->magic = true;
     m_list.append(it);
     invalidate();
@@ -468,8 +463,7 @@ bool BoxLayoutHfw::setStretchFactor(QWidget* widget, const int stretch)
     if (!widget) {
         return false;
     }
-    for (int i = 0; i < m_list.size(); ++i) {
-        BoxLayoutHfwItem* box = m_list.at(i);
+    for (BoxLayoutHfwItem* box : m_list) {
         if (box->item->widget() == widget) {
             box->stretch = stretch;
             invalidate();
@@ -482,8 +476,7 @@ bool BoxLayoutHfw::setStretchFactor(QWidget* widget, const int stretch)
 
 bool BoxLayoutHfw::setStretchFactor(QLayout* layout, const int stretch)
 {
-    for (int i = 0; i < m_list.size(); ++i) {
-        BoxLayoutHfwItem* box = m_list.at(i);
+    for (BoxLayoutHfwItem* box : m_list) {
         if (box->item->layout() == layout) {
             if (box->stretch != stretch) {
                 box->stretch = stretch;
@@ -540,8 +533,7 @@ void BoxLayoutHfw::setDirection(const Direction direction)
         //#### a bit yucky, knows too much.
         //#### probably best to add access functions to spacerItem
         //#### or even a QSpacerItem::flip()
-        for (int i = 0; i < m_list.size(); ++i) {
-            BoxLayoutHfwItem* box = m_list.at(i);
+        for (BoxLayoutHfwItem* box : m_list) {
             if (box->magic) {
                 QSpacerItem* sp = box->item->spacerItem();
                 if (sp) {
@@ -579,12 +571,11 @@ int BoxLayoutHfw::spacing() const
 {
     if (m_spacing >= 0) {
         return m_spacing;
-    } else {
-        return qSmartSpacing(this,
-                             m_dir == LeftToRight || m_dir == RightToLeft
-                                ? QStyle::PM_LayoutHorizontalSpacing
-                                : QStyle::PM_LayoutVerticalSpacing);
     }
+    return qSmartSpacing(this,
+                         m_dir == LeftToRight || m_dir == RightToLeft
+                            ? QStyle::PM_LayoutHorizontalSpacing
+                            : QStyle::PM_LayoutVerticalSpacing);
 }
 
 

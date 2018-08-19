@@ -38,7 +38,6 @@
 using datetime::shortDate;
 using mathfunc::allTrue;
 using mathfunc::anyFalse;
-using mathfunc::anyNull;
 using mathfunc::countTrue;
 using mathfunc::noneNull;
 using stringfunc::standardResult;
@@ -270,7 +269,7 @@ OpenableWidget* Icd10SpecPD::editor(const bool read_only)
         return gridbase(field_xstring_names, field_xstring_names);
     };
     auto generalpage = [this, &text, &gridbase]() -> QuPagePtr {
-        QuPage* page = new QuPage();
+        auto page = new QuPage();
         page->setTitle(xstring("general"));
         page->addElement(text("general"));
         page->addElement(gridbase({strnum(G_PREFIX, 1)}, {"G1"}));
@@ -290,7 +289,7 @@ OpenableWidget* Icd10SpecPD::editor(const bool read_only)
              const QString& title_xstring,
              const QString& q_xstring,
              const QString& comment_xstring = "") -> QuPagePtr {
-        QuPage* page = new QuPage();
+        auto page = new QuPage();
         page->setTitle(xstring(title_xstring));
         page->addElement(
             (new QuBoolean(xstring("skip_this_pd"),
@@ -305,7 +304,7 @@ OpenableWidget* Icd10SpecPD::editor(const bool read_only)
         return QuPagePtr(page);
     };
     auto eupdpage = [this, &grid, &text, &heading]() -> QuPagePtr {
-        QuPage* page = new QuPage();
+        auto page = new QuPage();
         page->setTitle(xstring("eu_pd_title"));
         page->addElement(
             (new QuBoolean(xstring("skip_this_pd"),
@@ -373,13 +372,13 @@ OpenableWidget* Icd10SpecPD::editor(const bool read_only)
                 SKIP_DEPENDENT,
                 OTHER_PD_PRESENT,
             };
-    for (auto fieldname : connected_fields) {
+    for (const QString& fieldname : connected_fields) {
         connect(fieldRef(fieldname).data(), &FieldRef::valueChanged,
                 this, &Icd10SpecPD::updateMandatory);
     }
     updateMandatory();
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
@@ -598,7 +597,7 @@ QVariant Icd10SpecPD::hasDependentPD() const
 void Icd10SpecPD::updateMandatory()
 {
     auto set = [this](const QString& prefix, int n, bool mandatory) -> void {
-        for (auto fieldname : strseq(prefix, 1, n)) {
+        for (const QString& fieldname : strseq(prefix, 1, n)) {
             fieldRef(fieldname)->setMandatory(mandatory);
         }
     };

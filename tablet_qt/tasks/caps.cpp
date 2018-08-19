@@ -30,10 +30,7 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::countTrue;
-using mathfunc::noneNull;
 using mathfunc::scorePhrase;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::bold;
 using stringfunc::strnum;

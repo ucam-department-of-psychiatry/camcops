@@ -186,7 +186,7 @@ void QuTextEdit::fieldValueChanged(const FieldRef* fieldref,
             ? static_cast<QWidget*>(m_rich_editor.data())
             : static_cast<QWidget*>(m_plain_editor.data());
 #else
-    QWidget* pwidget = static_cast<QWidget*>(m_rich_editor.data());
+    auto pwidget = static_cast<QWidget*>(m_rich_editor.data());
 #endif
     if (!pwidget) {
         return;

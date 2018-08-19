@@ -400,7 +400,7 @@ void TestMenu::testLogisticRegression()
     const QVector<double> x_q{0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50, 4.00, 4.25, 4.50, 4.75, 5.00, 5.50};
     const QVector<int> y_q{0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1};
     const LogisticDescriptives ld1(x_q, y_q, true);
-    const QString result1 = QString(R"(
+    results.append(QString(R"(
 # Example from: https://en.wikipedia.org/wiki/Logistic_regression
 # R code:
 
@@ -417,7 +417,7 @@ summary(model)
 # (as per Wikipedia also)
 
 Our results: intercept = %1, slope = %2)
-        )").arg(ld1.intercept()).arg(ld1.slope());
+        )").arg(ld1.intercept()).arg(ld1.slope()));
 
     qInfo() << Q_FUNC_INFO
             << "1b. A more detailed look: LogisticRegression(), IRLS";
@@ -465,6 +465,7 @@ OUT time to fit (ms): %10
             .arg(qStringFromEigenMatrixOrArray(coeffs1c))
             .arg(QString::number(lr1c.nIterations()))
             .arg(QString::number(lr1c.timeToFitMs())));
+    // ... QString multi-arg goes up to 9 arguments.
 
     const VectorXd test_x = eigenColumnVectorFromInitList<double>({0.8, 1.6, 2.4, 3.2});
     const VectorXd predicted_p = lr1a.predictProb(test_x);
@@ -495,10 +496,10 @@ predicted_p: %2
 retrieved_x [SHOULD MATCH test_x]: %3
 crosscheck_x (via LogisticDescriptives()) [SHOULD MATCH test_x]: %4
         )")
-            .arg(qStringFromEigenMatrixOrArray(test_x))
-            .arg(qStringFromEigenMatrixOrArray(predicted_p))
-            .arg(qStringFromEigenMatrixOrArray(retrieved_x))
-            .arg(qStringFromEigenMatrixOrArray(crosscheck_x)));
+            .arg(qStringFromEigenMatrixOrArray(test_x),
+                 qStringFromEigenMatrixOrArray(predicted_p),
+                 qStringFromEigenMatrixOrArray(retrieved_x),
+                 qStringFromEigenMatrixOrArray(crosscheck_x)));
 
     // ========================================================================
     // Data set 2
@@ -554,8 +555,8 @@ m2 <- glm(yes ~ intensity, family=binomial(link='logit'), data=d2)
 CamCOPS: coefficients: IRLS: %1
 CamCOPS: coefficients: IRLS-SVD-Newton: %2
 )")
-            .arg(qStringFromEigenMatrixOrArray(coeffs2a))
-            .arg(qStringFromEigenMatrixOrArray(coeffs2b)));
+            .arg(qStringFromEigenMatrixOrArray(coeffs2a),
+                 qStringFromEigenMatrixOrArray(coeffs2b)));
 
 #ifdef GLM_OFFER_R_GLM_FIT
     qInfo() << Q_FUNC_INFO << "2c. And again with the R glm.fit method.";

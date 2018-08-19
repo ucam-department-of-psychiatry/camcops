@@ -82,8 +82,7 @@ int NameValueOptions::indexFromValue(const QVariant& value) const
 void NameValueOptions::validateOrDie()
 {
     QVector<QVariant> values;
-    for (int i = 0; i < m_options.size(); ++i) {
-        const NameValuePair& nvp = m_options.at(i);
+    for (const NameValuePair& nvp : m_options) {
         const QVariant& v = nvp.value();
         if (values.contains(v)) {
             QString error = QString("NameValueOptions::validateOrDie: "
@@ -174,7 +173,7 @@ QDebug operator<<(QDebug debug, const NameValueOptions& nvo)
     QDebug& d = debug.nospace();
     d << "NameValueOptions{";
     bool first = true;
-    for (auto nvp : nvo.m_options) {
+    for (const NameValuePair& nvp : nvo.m_options) {
         if (!first) {
             d << ", ";
         } else {

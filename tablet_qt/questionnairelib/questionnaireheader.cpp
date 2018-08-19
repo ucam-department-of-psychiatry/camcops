@@ -64,20 +64,20 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     setSizePolicy(sizehelpers::expandingFixedHFWPolicy());  // if deriving from QWidget
 #endif
 
-    VBoxLayout* mainlayout = new VBoxLayout();
+    auto mainlayout = new VBoxLayout();
     setLayout(mainlayout);
 
     // ------------------------------------------------------------------------
     // Main row
     // ------------------------------------------------------------------------
-    HBoxLayout* toprowlayout = new HBoxLayout();
+    auto toprowlayout = new HBoxLayout();
     mainlayout->addLayout(toprowlayout);
 
     const Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
     const Qt::Alignment text_align = Qt::AlignHCenter | Qt::AlignVCenter;
 
     // Cancel button
-    QAbstractButton* cancel = new ImageButton(uiconst::CBS_CANCEL);
+    auto cancel = new ImageButton(uiconst::CBS_CANCEL);
     toprowlayout->addWidget(cancel, 0, button_align);
     connect(cancel, &QAbstractButton::clicked,
             this, &QuestionnaireHeader::cancelClicked);
@@ -93,7 +93,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     toprowlayout->addStretch();
 
     // Title
-    LabelWordWrapWide* title_label = new LabelWordWrapWide(title);
+    auto title_label = new LabelWordWrapWide(title);
     title_label->setAlignment(text_align);
     toprowlayout->addWidget(title_label, 0, text_align);
     // default alignment fills whole cell, but that looks better
@@ -144,7 +144,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Horizontal line
     // ------------------------------------------------------------------------
-    HorizontalLine* horizline = new HorizontalLine(uiconst::HEADER_HLINE_WIDTH);
+    auto horizline = new HorizontalLine(uiconst::HEADER_HLINE_WIDTH);
     horizline->setObjectName(cssconst::QUESTIONNAIRE_HORIZONTAL_LINE);
     mainlayout->addWidget(horizline);
 

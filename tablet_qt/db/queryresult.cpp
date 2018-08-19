@@ -71,6 +71,7 @@ QueryResult::QueryResult(QSqlQuery& query,
 
 
 QueryResult::QueryResult() :
+    m_success(false),
     m_n_cols(0),
     m_n_rows(0)
 {
@@ -185,8 +186,9 @@ QVariant QueryResult::lastInsertId() const
 QString QueryResult::csvHeader(const char sep) const
 {
     if (m_column_names.length() < nCols()) {
-        qCritical("Column names were discarded from the QueryResult but are "
-                  "now being requested for a CSV header!");
+        qCritical() <<
+                "Column names were discarded from the QueryResult but are "
+                "now being requested for a CSV header!";
     }
     return m_column_names.join(sep);
 }

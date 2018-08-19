@@ -109,7 +109,7 @@ QPointer<QWidget> QuFlowContainer::makeWidget(
     QPointer<QWidget> widget(new BaseWidget());
     // NO, THIS BREAKS HFW: // widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
 
-    FlowLayoutHfw* layout = new FlowLayoutHfw();
+    auto layout = new FlowLayoutHfw();
 #ifdef DEBUG_LAYOUT
     widget->setObjectName(cssconst::DEBUG_YELLOW);
 #endif

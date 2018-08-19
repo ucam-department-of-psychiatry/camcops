@@ -29,9 +29,6 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
-using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
@@ -205,7 +202,7 @@ OpenableWidget* DemqolProxy::editor(const bool read_only)
         new QuMcq(fieldRef(strnum(QPREFIX, 32)), qol_options),
     })->setTitle(title(5))));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

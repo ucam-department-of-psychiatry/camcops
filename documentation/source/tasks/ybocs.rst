@@ -19,8 +19,8 @@
 
 .. _ybocs:
 
-Yale–Brown Obsessive Compulsive Scale (Y-BOCS) and Y-BOCS Symptom Checklist (Y-BOCS-SC)
----------------------------------------------------------------------------------------
+Yale–Brown Obsessive Compulsive Scale (Y-BOCS)
+----------------------------------------------
 
 .. include:: include_data_collection_plus_local_upgrade.rst
 
@@ -39,3 +39,11 @@ Copyright
 - Distribution of the YBOCS is not permitted without specific authorization;
   see in particular point 3 of
   http://www.mountsinai.org/patient-care/service-areas/psychiatry/areas-of-care/obsessive-compulsive-disorder/rating-scales
+
+
+.. _ybocs_sc:
+
+Y-BOCS Symptom Checklist (Y-BOCS-SC)
+------------------------------------
+
+See the `Y-BOCS <ybocs>`.

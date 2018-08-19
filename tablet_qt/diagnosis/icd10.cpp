@@ -54,7 +54,7 @@ void Icd10::addIcd10Codes(const QStringList& codes)
     // - So that's a general rule: insert as a parent of the first predecessor
     //   that is shorter than it. (And ensure that the root code is shorter
     //   than anything!)
-    for (auto c : codes) {
+    for (const QString& c : codes) {
         const QString desc = xstring(c);
         const int length = c.length();
 

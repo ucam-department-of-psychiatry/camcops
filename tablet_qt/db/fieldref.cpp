@@ -109,7 +109,6 @@ FieldRef::FieldRef(const GetterFunction& getterfunc,
     m_mandatory = mandatory;
     m_getterfunc = getterfunc;
     m_setterfunc = setterfunc;
-    QVariant temp = m_getterfunc();
 }
 
 

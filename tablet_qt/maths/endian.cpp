@@ -25,7 +25,7 @@
 Endian endianByteOrder()
 {
     const short int word = 0x0001;
-    const char* byte = reinterpret_cast<const char*>(&word);
+    auto byte = reinterpret_cast<const char*>(&word);
 
     // A big-endian machine stores 0x1234 as 0x12, 0x34.
     // A little-endian machine stores it as 0x34, 0x12.

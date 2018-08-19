@@ -41,11 +41,7 @@
 using mathfunc::anyNull;
 using mathfunc::anyTrue;
 using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
-using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
-using stringfunc::strseq;
 
 const QString CecaQ3::CECAQ3_TABLENAME("cecaq3");
 
@@ -1815,7 +1811,7 @@ void CecaQ3::dataChangedDummy()
 void CecaQ3::setMandatory(const bool mandatory,
                           const QStringList& fieldnames)
 {
-    for (auto fieldname : fieldnames) {
+    for (const QString& fieldname : fieldnames) {
         fieldRef(fieldname)->setMandatory(mandatory);
     }
 }
@@ -1829,7 +1825,7 @@ void CecaQ3::setMultipleResponseMinAnswers(const QString& tag,
     }
     QVector<QuElement*> elements = m_questionnaire->getElementsByTag(tag, false);
     for (auto e : elements) {
-        QuMultipleResponse* mr = dynamic_cast<QuMultipleResponse*>(e);
+        auto mr = dynamic_cast<QuMultipleResponse*>(e);
         if (!mr) {
             continue;
         }

@@ -88,8 +88,6 @@ TR(TX_VISUAL_TARGET_1_SHORT, "word");
 
 
 // Graphics: positioning
-const qreal SCENE_WIDTH = 1000;
-const qreal SCENE_HEIGHT = 750;  // 4:3 aspect ratio
 const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
 const QPointF SCENE_CENTRE(SCENE_WIDTH * 0.5, SCENE_HEIGHT * 0.5);
 const qreal STIM_SIDE = 400;

@@ -252,7 +252,7 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     // Viewport: change from the default
     // ------------------------------------------------------------------------
 #ifdef USE_CUSTOM_VIEWPORT
-    VerticalScrollAreaViewport* vp = new VerticalScrollAreaViewport();
+    auto vp = new VerticalScrollAreaViewport();
 #ifdef USE_STRETCH
     vp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 #endif
@@ -331,8 +331,8 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
 void VerticalScrollArea::setWidget(QWidget* widget)  // hides parent version
 {
 #ifdef USE_STRETCH
-    BaseWidget* bw = new BaseWidget();
-    VBoxLayout* layout = new VBoxLayout();
+    auto bw = new BaseWidget();
+    auto layout = new VBoxLayout();
     bw->setLayout(layout);
     layout->addWidget(widget);
     layout->addStretch();
@@ -377,7 +377,7 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
     // widget.
 
     if (o && o == widget() && e && e->type() == QEvent::Resize) {
-        QWidget* w = dynamic_cast<QWidget*>(o);
+        auto w = dynamic_cast<QWidget*>(o);
 #ifdef DEBUG_LAYOUT
         qDebug() << Q_FUNC_INFO << "- Child is resizing to" << w->geometry();
 #endif
@@ -385,6 +385,7 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
                 w->size() == m_widget_size_back_2;
         m_widget_size_back_2 = m_widget_size_back_1;
         m_widget_size_back_1 = w->size();
+
         if (skip) {
 #ifdef DEBUG_LAYOUT
             qDebug() << "Size matches 1-back or 2-back; stopping";
@@ -411,30 +412,30 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
 #else
         return QScrollArea::eventFilter(o, e);
 #endif
-    } else {
-#ifdef DEBUG_IRRELEVANT_EVENTS
-        // Beware this almost-infinite loop (read from bottom to top):
-        //
-        //#29 0x00000000005b6b6c in VerticalScrollArea::eventFilter (this=0x33e54d0,
-        //    o=0x3345140, e=0x7fffffffaac0)
-        //    at ../tablet_qt/widgets/verticalscrollarea.cpp:321
-        //#30 0x000000000140f7d2 in QCoreApplicationPrivate::sendThroughObjectEventFilters(QObject*, QEvent*) ()
-        //#31 0x0000000000837e35 in QApplicationPrivate::notify_helper(QObject*, QEvent*)
-        //    ()
-        //#32 0x000000000083f45c in QApplication::notify(QObject*, QEvent*) ()
-        //#33 0x000000000140faf8 in QCoreApplication::notifyInternal2(QObject*, QEvent*)
-        //    ()
-        //#34 0x0000000000867a47 in QWidgetPrivate::setGeometry_sys(int, int, int, int, bool) ()
-        //#35 0x0000000000867f34 in QWidget::resize(QSize const&) ()
-        //#36 0x0000000000979244 in QScrollAreaPrivate::updateScrollBars() ()
-        //#37 0x0000000000979e19 in QScrollArea::eventFilter(QObject*, QEvent*) ()
-        //#38 0x00000000005b6b6c in VerticalScrollArea::eventFilter (this=0x33e54d0,
-        //    o=0x3345140, e=0x7fffffffaf10)
-        //    at ../tablet_qt/widgets/verticalscrollarea.cpp:321
-        qDebug() << Q_FUNC_INFO << "- event type:" << e->type();
-#endif
-        return QScrollArea::eventFilter(o, e);
     }
+
+#ifdef DEBUG_IRRELEVANT_EVENTS
+    // Beware this almost-infinite loop (read from bottom to top):
+    //
+    //#29 0x00000000005b6b6c in VerticalScrollArea::eventFilter (this=0x33e54d0,
+    //    o=0x3345140, e=0x7fffffffaac0)
+    //    at ../tablet_qt/widgets/verticalscrollarea.cpp:321
+    //#30 0x000000000140f7d2 in QCoreApplicationPrivate::sendThroughObjectEventFilters(QObject*, QEvent*) ()
+    //#31 0x0000000000837e35 in QApplicationPrivate::notify_helper(QObject*, QEvent*)
+    //    ()
+    //#32 0x000000000083f45c in QApplication::notify(QObject*, QEvent*) ()
+    //#33 0x000000000140faf8 in QCoreApplication::notifyInternal2(QObject*, QEvent*)
+    //    ()
+    //#34 0x0000000000867a47 in QWidgetPrivate::setGeometry_sys(int, int, int, int, bool) ()
+    //#35 0x0000000000867f34 in QWidget::resize(QSize const&) ()
+    //#36 0x0000000000979244 in QScrollAreaPrivate::updateScrollBars() ()
+    //#37 0x0000000000979e19 in QScrollArea::eventFilter(QObject*, QEvent*) ()
+    //#38 0x00000000005b6b6c in VerticalScrollArea::eventFilter (this=0x33e54d0,
+    //    o=0x3345140, e=0x7fffffffaf10)
+    //    at ../tablet_qt/widgets/verticalscrollarea.cpp:321
+    qDebug() << Q_FUNC_INFO << "- event type:" << e->type();
+#endif
+    return QScrollArea::eventFilter(o, e);
 }
 
 

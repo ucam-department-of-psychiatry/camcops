@@ -86,11 +86,6 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
 }
 
 
-DatabaseObject::~DatabaseObject()
-{
-}
-
-
 // ============================================================================
 // Adding fields
 // ============================================================================
@@ -135,7 +130,7 @@ void DatabaseObject::addFields(const QStringList& fieldnames,
                                const QVariant::Type type,
                                const bool mandatory)
 {
-    for (auto fieldname : fieldnames) {
+    for (const QString& fieldname : fieldnames) {
         addField(fieldname, type, mandatory);
     }
 }
@@ -336,7 +331,7 @@ QVector<int> DatabaseObject::valueVectorInt(const QString& fieldname) const
 QVector<QVariant> DatabaseObject::values(const QStringList& fieldnames) const
 {
     QVector<QVariant> values;
-    for (auto fieldname : fieldnames) {
+    for (const QString& fieldname : fieldnames) {
         values.append(value(fieldname));
     }
     return values;
@@ -752,7 +747,7 @@ void DatabaseObject::deleteFromDatabase()
     //      - during load of T1, T1 wishes to load A1a, A1b, A1c
     //          - will the ancillary query fail?
     //          - If not, will the top-level query proceed to T2?
-    for (auto ancillary : getAllAncillary()) {
+    for (const DatabaseObjectPtr& ancillary : getAllAncillary()) {
         ancillary->deleteFromDatabase();
     }
 
@@ -805,7 +800,7 @@ void DatabaseObject::setMoveOffTablet(const bool move_off)
     setValue(dbconst::MOVE_OFF_TABLET_FIELDNAME, move_off, false);
     save();
 
-    for (auto ancillary : getAllAncillary()) {
+    for (const DatabaseObjectPtr& ancillary : getAllAncillary()) {
         ancillary->setMoveOffTablet(move_off);
     }
 }
@@ -855,7 +850,7 @@ int DatabaseObject::pkvalueInt() const
 void DatabaseObject::makeTable()
 {
     m_db.createTable(m_tablename, fieldsOrdered());
-    for (auto specimen : getAncillarySpecimens()) {
+    for (const DatabaseObjectPtr& specimen : getAncillarySpecimens()) {
         specimen->makeTable();
     }
 }

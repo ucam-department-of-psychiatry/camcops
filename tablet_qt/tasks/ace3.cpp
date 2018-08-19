@@ -44,12 +44,9 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::eq;
 using mathfunc::noneNull;
-using mathfunc::percent;
 using mathfunc::sumInt;
-using mathfunc::scoreString;
 using mathfunc::scoreStringWithPercent;
 using mathfunc::totalScorePhrase;
-using stringfunc::bold;
 using stringfunc::strnum;
 using stringfunc::strseq;
 

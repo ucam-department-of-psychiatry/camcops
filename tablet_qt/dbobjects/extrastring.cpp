@@ -89,11 +89,6 @@ void ExtraString::commonConstructor()
 }
 
 
-ExtraString::~ExtraString()
-{
-}
-
-
 QString ExtraString::value() const
 {
     return valueString(VALUE_FIELD);

@@ -44,7 +44,12 @@ WhiskerCallbackDefinition::WhiskerCallbackDefinition(
 }
 
 
-WhiskerCallbackDefinition::WhiskerCallbackDefinition()
+WhiskerCallbackDefinition::WhiskerCallbackDefinition() :
+    m_how_expires(ExpiryType::Infinite),
+    m_target_n_calls(0),
+    m_lifetime_ms(0),
+    m_swallow_event(false),
+    m_n_calls(0)
 {
     // nasty default constructor used by QVector; UNSAFE
     // See http://doc.qt.io/qt-5/containers.html#default-constructed-value

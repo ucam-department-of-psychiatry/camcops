@@ -132,9 +132,8 @@ bool DatabaseManager::openDatabase()
             m_mutex_requests.unlock();
         }
         return m_opened_database;
-    } else {
-        return openDatabaseActual();
     }
+    return openDatabaseActual();
 }
 
 
@@ -254,12 +253,12 @@ QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
 
         // 3. Read the result
         return popResult();
-    } else {
-        QSqlQuery query(m_db);
-        bool success = dbfunc::execQuery(query, sqlargs, suppress_errors);
-        QueryResult result(query, success, fetch_mode, store_column_names);
-        return result;
     }
+
+    QSqlQuery query(m_db);
+    bool success = dbfunc::execQuery(query, sqlargs, suppress_errors);
+    QueryResult result(query, success, fetch_mode, store_column_names);
+    return result;
 }
 
 
@@ -734,9 +733,9 @@ void DatabaseManager::renameColumns(
                         dummytable);
     }
     int n_changes = 0;
-    for (int i = 0; i < from_to.size(); ++i) {  // For each rename...
-        const QString from = from_to.at(i).first;
-        const QString to = from_to.at(i).second;
+    for (const QPair<QString, QString>& pair : from_to) {  // For each rename...
+        const QString& from = pair.first;
+        const QString& to = pair.second;
         if (from == to) {
             continue;
         }
@@ -887,8 +886,7 @@ void DatabaseManager::createTable(const QString& tablename,
     //    will add (unless later it turns out they exist already).
     QVector<FieldCreationPlan> planlist;
     QStringList goodfieldlist;
-    for (int i = 0; i < fieldlist.size(); ++i) {
-        const Field& field = fieldlist.at(i);
+    for (const Field& field : fieldlist) {
         FieldCreationPlan p;
         p.name = field.name();
         p.intended_field = &field;
@@ -904,11 +902,9 @@ void DatabaseManager::createTable(const QString& tablename,
     // - If they're not in our "desired" list, then they're superfluous, so
     //   aim to drop them.
     const QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(tablename);
-    for (int i = 0; i < infolist.size(); ++i) {
-        const SqlitePragmaInfoField& info = infolist.at(i);
+    for (const SqlitePragmaInfoField& info : infolist) {
         bool existing_is_superfluous = true;
-        for (int j = 0; j < planlist.size(); ++j) {
-            FieldCreationPlan& plan = planlist[j];
+        for (FieldCreationPlan& plan : planlist) {
             const Field* intended_field = plan.intended_field;
             if (!intended_field) {
                 // This shouldn't happen!
@@ -941,8 +937,7 @@ void DatabaseManager::createTable(const QString& tablename,
     //    For any that require dropping or altering, make a note for the
     //    complex step.
     bool drop_or_change_mods_required = false;
-    for (int i = 0; i < planlist.size(); ++i) {
-        const FieldCreationPlan& plan = planlist.at(i);
+    for (const FieldCreationPlan& plan : planlist) {
         if (plan.add && plan.intended_field) {
             if (plan.intended_field->isPk()) {
                 uifunc::stopApp(QString(

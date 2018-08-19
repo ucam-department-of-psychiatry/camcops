@@ -236,7 +236,7 @@ OpenableWidget* Icd10Manic::editor(const bool read_only)
                        bool mandatory) -> QuElement* {
         // Assumes the xstring name matches the fieldname (as it does)
         QVector<QuestionWithOneField> qfields;
-        for (auto fieldname : fields_xstrings) {
+        for (const QString& fieldname : fields_xstrings) {
             qfields.append(
                         QuestionWithOneField(xstring(fieldname),
                                              fieldRef(fieldname, mandatory)));
@@ -269,14 +269,14 @@ OpenableWidget* Icd10Manic::editor(const bool read_only)
         new QuTextEdit(fieldRef(COMMENTS, false)),
     })->setTitle(longname()));
 
-    for (auto fieldname : INFORMATIVE) {
+    for (const QString& fieldname : INFORMATIVE) {
         connect(fieldRef(fieldname).data(), &FieldRef::valueChanged,
                 this, &Icd10Manic::updateMandatory);
     }
 
     updateMandatory();
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
@@ -452,7 +452,7 @@ QString Icd10Manic::getDescription() const
 QStringList Icd10Manic::detailGroup(const QStringList& fieldnames) const
 {
     QStringList lines;
-    for (auto f : fieldnames) {
+    for (const QString& f : fieldnames) {
         lines.append(fieldSummary(f, f));
     }
     return lines;
@@ -472,7 +472,7 @@ void Icd10Manic::updateMandatory()
             meetsCriteriaManiaPsychoticIcd().toBool() ||
             meetsCriteriaManiaPsychoticSchizophrenic().toBool();
     const bool need = !known;
-    for (auto fieldname : INFORMATIVE) {
+    for (const QString& fieldname : INFORMATIVE) {
         fieldRef(fieldname)->setMandatory(need, this);
     }
 }

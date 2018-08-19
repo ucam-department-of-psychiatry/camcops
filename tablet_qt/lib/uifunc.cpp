@@ -115,7 +115,7 @@ QLabel* iconWidget(const QString& filename, QWidget* parent,
         size = uiconst::ICONSIZE;
     }
     QPixmap iconimage = getPixmap(filename, size);
-    QLabel* iconlabel = new QLabel(parent);
+    auto iconlabel = new QLabel(parent);
     iconlabel->setFixedSize(iconimage.size());
     iconlabel->setPixmap(iconimage);
     return iconlabel;
@@ -173,7 +173,7 @@ QLabel* blankIcon(QWidget* parent)
 {
     QPixmap iconimage(uiconst::ICONSIZE);
     iconimage.fill(QCOLOR_TRANSPARENT);
-    QLabel* iconlabel = new QLabel(parent);
+    auto iconlabel = new QLabel(parent);
     iconlabel->setFixedSize(uiconst::ICONSIZE);
     iconlabel->setPixmap(iconimage);
     return iconlabel;
@@ -226,7 +226,7 @@ QAbstractButton* iconButton(const QString& normal_filename,
                             const QString& pressed_filename,
                             QWidget* parent)
 {
-    QToolButton* button = new QToolButton(parent);
+    auto button = new QToolButton(parent);
     button->setIconSize(uiconst::ICONSIZE);
     // Impossible to do this without stylesheets!
     // But you can do stylesheets in code...
@@ -773,7 +773,7 @@ void applyScrollGestures(QWidget* widget)
 void makeItemViewScrollSmoothly(QObject* object)
 {
     // Nasty hacks:
-    QAbstractItemView* itemview = dynamic_cast<QAbstractItemView*>(object);
+    auto itemview = dynamic_cast<QAbstractItemView*>(object);
     if (itemview) {
 #ifdef DEBUG_SCROLL_GESTURES
         qDebug() << Q_FUNC_INFO

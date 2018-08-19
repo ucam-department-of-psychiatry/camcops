@@ -231,17 +231,16 @@ bool SQLCipherDriver::open(const QString& db, const QString& user,
         setOpen(true);
         setOpenError(false);
         return true;
-    } else {
-        if (m_access) {
-            sqlite3_close(m_access);
-            m_access = nullptr;
-        }
-
-        setLastError(qMakeError(m_access, tr("Error opening database"),
-                     QSqlError::ConnectionError));
-        setOpenError(true);
-        return false;
     }
+    if (m_access) {
+        sqlite3_close(m_access);
+        m_access = nullptr;
+    }
+
+    setLastError(qMakeError(m_access, tr("Error opening database"),
+                 QSqlError::ConnectionError));
+    setOpenError(true);
+    return false;
 }
 
 

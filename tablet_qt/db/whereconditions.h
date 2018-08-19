@@ -28,7 +28,7 @@ struct SqlArgs;
 class WhereConditions
 {
 public:
-    WhereConditions();
+    WhereConditions() = default;
     void add(const QString& column, const QVariant& value);  // op: "="
     void add(const QString& column, const QString& op,
              const QVariant& value);

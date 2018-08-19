@@ -50,7 +50,6 @@ const int BAD_INDEX = -1;
 MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
                        const QString& icon, const bool top,
                        const bool offer_search) :
-    OpenableWidget(),
     m_app(app),
     m_title(title),
     m_subtitle(""),
@@ -95,13 +94,13 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     setObjectName(cssconst::MENU_WINDOW_OUTER_OBJECT);
 
 #ifdef MENUWINDOW_USE_HFW_LAYOUT
-    VBoxLayout* dummy_layout = new VBoxLayout();
+    auto dummy_layout = new VBoxLayout();
 #else
-    QVBoxLayout* dummy_layout = new QVBoxLayout();
+    auto dummy_layout = new QVBoxLayout();
 #endif
     dummy_layout->setContentsMargins(uiconst::NO_MARGINS);
     setLayout(dummy_layout);
-    QWidget* dummy_widget = new QWidget();  // doesn't need to be BaseWidget; contains scrolling list
+    auto dummy_widget = new QWidget();  // doesn't need to be BaseWidget; contains scrolling list
     dummy_widget->setObjectName(cssconst::MENU_WINDOW_BACKGROUND);
     dummy_layout->addWidget(dummy_widget);
 
@@ -172,7 +171,7 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
 
     if (m_offer_search) {
         // Label
-        QLabel* searchlabel = new QLabel(tr("Type to filter:"));
+        auto searchlabel = new QLabel(tr("Type to filter:"));
         m_mainlayout->addWidget(searchlabel);
         // Search box
         m_search_box = new QLineEdit();
@@ -250,7 +249,7 @@ void MenuWindow::build()
     for (int i = 0; i < m_items.size(); ++i) {
         MenuItem item = m_items.at(i);
         QWidget* row = item.rowWidget(m_app);
-        QListWidgetItem* listitem = new QListWidgetItem("", m_p_listwidget);
+        auto listitem = new QListWidgetItem("", m_p_listwidget);
         listitem->setData(Qt::UserRole, QVariant(i));
 #ifdef MENUWINDOW_USE_HFW_LISTWIDGET
         listitem->setSizeHint(m_p_listwidget->widgetSizeHint(row));
@@ -517,7 +516,7 @@ void MenuWindow::connectQuestionnaireToTask(OpenableWidget* widget, Task* task)
         qWarning() << Q_FUNC_INFO << "null widget or null task";
         return;
     }
-    Questionnaire* questionnaire = dynamic_cast<Questionnaire*>(widget);
+    auto questionnaire = dynamic_cast<Questionnaire*>(widget);
     if (!questionnaire) {
         return;
     }

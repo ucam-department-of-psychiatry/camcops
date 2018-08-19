@@ -49,7 +49,7 @@ void VerticalScrollAreaViewport::checkChildSize() const
         return;
     }
     QObject* child_object = children_list.at(0);
-    QWidget* child = dynamic_cast<QWidget*>(child_object);
+    auto child = dynamic_cast<QWidget*>(child_object);
     if (!child) {
         qWarning() << Q_FUNC_INFO << "- child is not a QWidget!";
         return;

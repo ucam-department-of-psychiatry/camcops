@@ -76,7 +76,7 @@ bool DebugEventWatcher::eventFilter(QObject* obj, QEvent* event)
 template<typename EventSubType>
 void reportSubtype(QDebug& debug, QEvent* event)
 {
-    if (EventSubType* sub = dynamic_cast<EventSubType*>(event)) {
+    if (auto sub = dynamic_cast<EventSubType*>(event)) {
         debug << ": " << sub;
     }
 }

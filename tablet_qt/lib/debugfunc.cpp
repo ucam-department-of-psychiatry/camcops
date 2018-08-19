@@ -118,9 +118,9 @@ void debugWidget(QWidget* widget,
         } else {
             vboxlayout->addWidget(widget, 0, align);
         }
-        ShowWatcher* showwatcher = new ShowWatcher(&dlg, true);
+        auto showwatcher = new ShowWatcher(&dlg, true);
         Q_UNUSED(showwatcher);
-        KeyPressWatcher* keywatcher = new KeyPressWatcher(&dlg);
+        auto keywatcher = new KeyPressWatcher(&dlg);
         // keywatcher becomes child of dlg,
         // and LayoutDumper is a namespace, so:
         // Safe object lifespan signal: can use std::bind

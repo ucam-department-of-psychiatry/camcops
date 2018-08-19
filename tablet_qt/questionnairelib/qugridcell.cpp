@@ -21,7 +21,7 @@
 #include <QDebug>
 
 
-QuGridCell::QuGridCell(const QuElementPtr element,
+QuGridCell::QuGridCell(const QuElementPtr& element,
                        const int row,
                        const int column,
                        const int row_span,

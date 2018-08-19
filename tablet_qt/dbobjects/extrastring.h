@@ -36,7 +36,7 @@ public:
                 const QString& task,
                 const QString& name,
                 const QString& value);
-    virtual ~ExtraString();
+    virtual ~ExtraString() = default;
     QString value() const;
     bool exists() const;
     bool anyExist(const QString& task) const;  // sort-of static function

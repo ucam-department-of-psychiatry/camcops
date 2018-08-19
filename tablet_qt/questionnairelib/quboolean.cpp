@@ -140,7 +140,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> widget(new BaseWidget());
     widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    HBoxLayout* layout = new HBoxLayout();
+    auto layout = new HBoxLayout();
     // ... allow the HFW layouts, so our owner can put us in a flow layout
     layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
@@ -156,12 +156,12 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
         // Text label
         // --------------------------------------------------------------------
         if (!read_only && m_content_clickable) {
-            ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(m_text);
+            auto label = new ClickableLabelWordWrapWide(m_text);
             connect(label, &ClickableLabelWordWrapWide::clicked,
                     this, &QuBoolean::clicked);
             labelwidget = label;
         } else {
-            LabelWordWrapWide* label = new LabelWordWrapWide(m_text);
+            auto label = new LabelWordWrapWide(m_text);
             labelwidget = label;
         }
         const int fontsize = questionnaire->fontSizePt(
@@ -177,7 +177,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
         if (m_adjust_image_for_dpi) {
             image = image.scaled(convert::convertSizeByDpi(image.size()));
         }
-        AspectRatioPixmap* label = new AspectRatioPixmap();
+        auto label = new AspectRatioPixmap();
         label->setPixmap(image);
         if (!read_only && m_content_clickable) {
             connect(label, &AspectRatioPixmap::clicked,

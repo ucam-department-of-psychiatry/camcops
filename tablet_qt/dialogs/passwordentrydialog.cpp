@@ -31,19 +31,19 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
 {
     setWindowTitle(title);
 
-    QLabel* prompt = new QLabel(text);
+    auto prompt = new QLabel(text);
 
     m_editor = new QLineEdit();
     m_editor->setEchoMode(QLineEdit::Password);
 
-    QDialogButtonBox* buttonbox = new QDialogButtonBox(
+    auto buttonbox = new QDialogButtonBox(
                 QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttonbox, &QDialogButtonBox::accepted,
             this, &PasswordEntryDialog::accept);
     connect(buttonbox, &QDialogButtonBox::rejected,
             this, &PasswordEntryDialog::reject);
 
-    QVBoxLayout* mainlayout = new QVBoxLayout();
+    auto mainlayout = new QVBoxLayout();
     mainlayout->addWidget(prompt);
     mainlayout->addWidget(m_editor);
     mainlayout->addWidget(buttonbox);

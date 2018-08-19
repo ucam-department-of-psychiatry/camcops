@@ -67,7 +67,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget = new QWidget();
     widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    QHBoxLayout* layout = new QHBoxLayout();
+    auto layout = new QHBoxLayout();
     layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
 

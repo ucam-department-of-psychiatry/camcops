@@ -19,8 +19,8 @@
 
 .. _cape:
 
-Community Assessment of Psychic Experiences (CAPE)
---------------------------------------------------
+Community Assessment of Psychic Experiences (CAPE-42)
+-----------------------------------------------------
 
 History and guide
 ~~~~~~~~~~~~~~~~~

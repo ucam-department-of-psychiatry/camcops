@@ -25,12 +25,9 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::anyNull;
 using mathfunc::scorePhrase;
-using mathfunc::scoreString;
 using stringfunc::standardResult;
 using stringfunc::strnum;
-using stringfunc::strseq;
 
 const int N_SCORED_QUESTIONS = 17;
 const int MAX_SCORE = 52;
@@ -191,7 +188,7 @@ OpenableWidget* HamD::editor(const bool read_only)
     };
 
     pages.append(getClinicianDetailsPage());
-    for (auto info : QLIST) {
+    for (const HamdQInfo& info : QLIST) {
         addpage(info);
     }
 

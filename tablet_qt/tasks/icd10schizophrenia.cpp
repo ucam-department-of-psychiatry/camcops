@@ -213,8 +213,8 @@ QStringList Icd10Schizophrenia::detail() const
     lines.append(fieldSummary(COMMENTS,
                               textconst::EXAMINER_COMMENTS));
     lines.append("");
-    for (auto fieldname : (A_NAMES + B_NAMES + C_NAMES + D_NAMES +
-                           E_NAMES + F_NAMES + G_NAMES + H_NAMES)) {
+    for (const QString& fieldname : (A_NAMES + B_NAMES + C_NAMES + D_NAMES +
+                                     E_NAMES + F_NAMES + G_NAMES + H_NAMES)) {
         lines.append(fieldSummary(fieldname, xstring(fieldname)));
     }
     lines.append("");
@@ -243,7 +243,7 @@ OpenableWidget* Icd10Schizophrenia::editor(const bool read_only)
                 ? present_absent_options
                 : true_false_options;
         QVector<QuestionWithOneField> qfields;
-        for (auto fieldname : fields_xstrings) {
+        for (const QString& fieldname : fields_xstrings) {
             qfields.append(QuestionWithOneField(xstring(fieldname),
                                                 fieldRef(fieldname, false)));
         }
@@ -281,14 +281,14 @@ OpenableWidget* Icd10Schizophrenia::editor(const bool read_only)
         new QuTextEdit(fieldRef(COMMENTS, false)),
     })->setTitle(longname()));
 
-    for (auto fieldname : INFORMATIVE) {
+    for (const QString& fieldname : INFORMATIVE) {
         connect(fieldRef(fieldname).data(), &FieldRef::valueChanged,
                 this, &Icd10Schizophrenia::updateMandatory);
     }
 
     updateMandatory();
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
@@ -351,7 +351,7 @@ void Icd10Schizophrenia::updateMandatory()
 {
     const bool known = !meetsGeneralCriteria().isNull();
     const bool need = !known;
-    for (auto fieldname : INFORMATIVE) {
+    for (const QString& fieldname : INFORMATIVE) {
         fieldRef(fieldname)->setMandatory(need, this);
     }
 }

@@ -71,9 +71,9 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     m_text_label->setOpenExternalLinks(true);
 
 #ifdef USE_CUSTOM_HFW
-    VerticalScrollArea* scroll = new VerticalScrollArea(this);
+    auto scroll = new VerticalScrollArea(this);
 #else
-    QScrollArea* scroll = new QScrollArea(this);
+    auto scroll = new QScrollArea(this);
 #endif
     scroll->setWidget(m_text_label);
     scroll->setWidgetResizable(true);
@@ -95,9 +95,9 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
                      this, &ScrollMessageBox::handleButtonClicked);
 
 #ifdef USE_CUSTOM_HFW
-    GridLayoutHfw* grid = new GridLayoutHfw();
+    auto grid = new GridLayoutHfw();
 #else
-    QGridLayout* grid = new QGridLayout();
+    auto grid = new QGridLayout();
 #endif
 
     /*
@@ -148,7 +148,7 @@ QPushButton* ScrollMessageBox::addButton(
         const QString& text,
         const QDialogButtonBox::ButtonRole role)
 {
-    QPushButton* pushbutton = new QPushButton(text);
+    auto pushbutton = new QPushButton(text);
     addButton(pushbutton, role);
     return pushbutton;
 }

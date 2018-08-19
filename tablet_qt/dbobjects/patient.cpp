@@ -153,7 +153,7 @@ QVector<DatabaseObjectPtr> Patient::getAllAncillary() const
 {
     QVector<DatabaseObjectPtr> ancillaries;
 #ifndef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
-    for (auto idnum : m_idnums) {
+    for (const PatientIdNumPtr& idnum : m_idnums) {
         ancillaries.append(idnum);
     }
 #endif
@@ -238,7 +238,7 @@ QVector<int> Patient::whichIdnumsPresent() const
         }
     }
 #else
-    for (PatientIdNumPtr idnum : m_idnums) {
+    for (const PatientIdNumPtr& idnum : m_idnums) {
         if (idnum->idnumIsPresent()) {
             which.append(idnum->whichIdNum());
         }
@@ -252,7 +252,7 @@ QVector<int> Patient::whichIdnumsHaveEntries() const
 {
     QVector<int> which;
 #ifndef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
-    for (PatientIdNumPtr idnum : m_idnums) {
+    for (const PatientIdNumPtr& idnum : m_idnums) {
         which.append(idnum->whichIdNum());
     }
 #endif
@@ -268,7 +268,7 @@ QVariant Patient::idnumVariant(const int which_idnum) const
 #ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     return value(IDNUM_FIELD_FORMAT.arg(which_idnum));
 #else
-    for (PatientIdNumPtr idnum : m_idnums) {
+    for (const PatientIdNumPtr& idnum : m_idnums) {
         if (idnum->whichIdNum() == which_idnum) {
             return idnum->idnumAsVariant();
         }
@@ -323,7 +323,7 @@ Patient::AttributesType Patient::policyAttributes() const
         any_idnum = any_idnum || present;
     }
 #else
-    for (PatientIdNumPtr idnum : m_idnums) {
+    for (const PatientIdNumPtr& idnum : m_idnums) {
         const bool present = idnum->idnumIsPresent();
         map[IDNUM_FIELD_FORMAT.arg(idnum->whichIdNum())] = present;
         any_idnum = any_idnum || present;
@@ -364,10 +364,10 @@ QString Patient::shortIdnumSummary() const
         }
     }
 #else
-    for (PatientIdNumPtr idnum : m_idnums) {
+    for (const PatientIdNumPtr& idnum : m_idnums) {
         details.append(QString("%1 %2")
-                       .arg(m_app.idShortDescription(idnum->whichIdNum()))
-                       .arg(idnum->idnumAsString()));
+                       .arg(m_app.idShortDescription(idnum->whichIdNum()),
+                            idnum->idnumAsString()));
     }
 #endif
     if (details.isEmpty()) {
@@ -400,7 +400,7 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
         fieldRef(IDNUM_FIELD_FORMAT.arg(n))->setMandatory(!tablet_ok);
     }
 #else
-    for (PatientIdNumPtr idnum : m_idnums) {
+    for (const PatientIdNumPtr& idnum : m_idnums) {
         idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(!tablet_ok);
     }
 #endif
@@ -429,7 +429,7 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
     m_questionnaire->setVisibleByTag(TAG_IDCLASH_FAIL, !id_ok);
     QuElement* element = m_questionnaire->getFirstElementByTag(
                 TAG_IDCLASH_DETAIL, false);
-    QuText* textelement = dynamic_cast<QuText*>(element);
+    auto textelement = dynamic_cast<QuText*>(element);
     if (textelement) {
         textelement->setText(idclash_text);
     }
@@ -528,7 +528,7 @@ int Patient::numTasks() const
         return 0;
     }
     TaskFactory* factory = m_app.taskFactory();
-    for (auto p_specimen : factory->allSpecimensExceptAnonymous()) {
+    for (const TaskPtr& p_specimen : factory->allSpecimensExceptAnonymous()) {
         n += p_specimen->countForPatient(patient_id);  // copes with anonymous
     }
     return n;
@@ -544,7 +544,7 @@ void Patient::deleteFromDatabase()
     }
     DbNestableTransaction trans(m_db);
     TaskFactory* factory = m_app.taskFactory();
-    for (auto p_task : factory->fetchAllForPatient(patient_id)) {
+    for (const TaskPtr& p_task : factory->fetchAllForPatient(patient_id)) {
         p_task->deleteFromDatabase();
     }
     // Delete ourself
@@ -580,7 +580,7 @@ bool Patient::matchesForMerge(const Patient* other) const
         }
     }
 #else
-    for (PatientIdNumPtr this_id : m_idnums) {
+    for (const PatientIdNumPtr& this_id : m_idnums) {
         const int which_idnum = this_id->whichIdNum();
         if (this_id->idnumIsPresent() &&
                 other->hasIdnum(which_idnum) &&
@@ -670,8 +670,8 @@ OpenableWidget* Patient::editor(const bool read_only)
 void Patient::buildPage(bool read_only)
 {
     auto addIcon = [this](const QString& name, const QString& tag) {
-        QuImage* image = new QuImage(uifunc::iconFilename(name),
-                                     uiconst::ICONSIZE);
+        auto image = new QuImage(uifunc::iconFilename(name),
+                                 uiconst::ICONSIZE);
         image->setAdjustForDpi(false);  // uiconst::ICONSIZE already corrects for this
         image->addTag(tag);
         m_page->addElement(image);
@@ -684,7 +684,7 @@ void Patient::buildPage(bool read_only)
     }
     m_page->setTitle(read_only ? tr("View patient") : tr("Edit patient"));
 
-    QuGridContainer* grid = new QuGridContainer();
+    auto grid = new QuGridContainer();
     grid->setColumnStretch(0, 1);
     grid->setColumnStretch(1, 2);
     int row = 0;
@@ -732,7 +732,7 @@ void Patient::buildPage(bool read_only)
         QString idfield = IDNUM_FIELD_FORMAT.arg(n);
         grid->addCell(QuGridCell(new QuText(iddesc),
                                  row, 0, rowspan, colspan, ralign));
-        QuLineEditLongLong* num_editor = new QuLineEditLongLong(
+        auto num_editor = new QuLineEditLongLong(
                     fieldRef(idfield, false),
                     MIN_ID_NUM_VALUE,
                     MAX_ID_NUM_VALUE);
@@ -741,28 +741,28 @@ void Patient::buildPage(bool read_only)
     m_page->addElement(grid);
 #else
     m_page->addElement(grid);
-    QuGridContainer* idgrid = new QuGridContainer();
+    auto idgrid = new QuGridContainer();
     idgrid->setColumnStretch(0, 1);
     idgrid->setColumnStretch(1, 1);
     idgrid->setColumnStretch(2, 4);
     row = 0;
-    for (PatientIdNumPtr idnum : m_idnums) {
+    for (const PatientIdNumPtr& idnum : m_idnums) {
         const int which_idnum = idnum->whichIdNum();
-        QuButton* delete_id = new QuButton(
+        auto delete_id = new QuButton(
                 DELETE_ID_NUM + " " + QString::number(which_idnum),
                 std::bind(&Patient::deleteIdNum, this, which_idnum));
         idgrid->addCell(QuGridCell(delete_id,
                                    row, 0, rowspan, colspan, lalign));
-        QuText* id_label = new QuText(m_app.idDescription(which_idnum));
+        auto id_label = new QuText(m_app.idDescription(which_idnum));
         idgrid->addCell(QuGridCell(id_label,
                                    row, 1, rowspan, colspan, ralign));
-        QuLineEditLongLong* num_editor = new QuLineEditLongLong(
+        auto num_editor = new QuLineEditLongLong(
                     idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE, false),
                     MIN_ID_NUM_VALUE,
                     MAX_ID_NUM_VALUE);
         idgrid->addCell(QuGridCell(num_editor, row++, 2));
     }
-    QuButton* add_id = new QuButton(
+    auto add_id = new QuButton(
                 tr("Add ID number"),
                 std::bind(&Patient::addIdNum, this));
     idgrid->addCell(QuGridCell(add_id,
@@ -802,7 +802,7 @@ void Patient::buildPage(bool read_only)
                 this, &Patient::updateQuestionnaireIndicators);
     }
 #ifndef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
-    for (PatientIdNumPtr idnum : m_idnums) {
+    for (const PatientIdNumPtr& idnum : m_idnums) {
         FieldRefPtr fr = idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE);
         connect(fr.data(), &FieldRef::valueChanged,
                 this, &Patient::updateQuestionnaireIndicators);
@@ -836,12 +836,12 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
     }
 #else
     bool please_sort = false;
-    for (PatientIdNumPtr other_id : other->m_idnums) {
+    for (const PatientIdNumPtr& other_id : other->m_idnums) {
         if (other_id->idnumIsPresent()) {
             const int which_idnum = other_id->whichIdNum();
             const qlonglong other_idnum_value = other_id->idnumAsInteger();
             bool found = false;
-            for (PatientIdNumPtr this_id : m_idnums) {
+            for (const PatientIdNumPtr& this_id : m_idnums) {
                 if (this_id->whichIdNum() == which_idnum) {
                     found = true;
                     if (this_id->idnumIsPresent() &&
@@ -883,7 +883,7 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
     qInfo() << Q_FUNC_INFO << "Moving tasks from patient" << other_pk
             << "to patient" << this_pk;
     TaskFactory* factory = m_app.taskFactory();
-    for (TaskPtr p_task : factory->fetchAllForPatient(other_pk)) {
+    for (const TaskPtr& p_task : factory->fetchAllForPatient(other_pk)) {
         p_task->moveToPatient(this_pk);
         p_task->save();
     }

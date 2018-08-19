@@ -83,9 +83,9 @@ QString penCss(const QPen& pen)
         return "none";
     }
     return QString("%1 %2 %3")
-            .arg(pixelCss(pen.width()))
-            .arg(penStyleCss(pen))
-            .arg(colourCss(pen.color()));
+            .arg(pixelCss(pen.width()),
+                 penStyleCss(pen),
+                 colourCss(pen.color()));
 }
 
 

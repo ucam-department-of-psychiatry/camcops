@@ -52,7 +52,7 @@ public:
                    bool has_creation_timestamp = false,
                    bool has_move_off_tablet_field = true,
                    bool triggers_need_upload = true);
-    virtual ~DatabaseObject();
+    virtual ~DatabaseObject() = default;
 
     // ========================================================================
     // Adding fields

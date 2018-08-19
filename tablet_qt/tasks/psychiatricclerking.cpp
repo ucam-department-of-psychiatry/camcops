@@ -210,7 +210,7 @@ QStringList PsychiatricClerking::detail() const
     QStringList lines = completenessInfo() + clinicianDetails();
 
     auto add = [this, &lines](const QStringList& fields) -> void {
-        for (auto field : fields) {
+        for (const QString& field : fields) {
             lines.append(fieldSummary(field, xstring(field), ": "));
         }
     };
@@ -231,7 +231,7 @@ OpenableWidget* PsychiatricClerking::editor(const bool read_only)
     QVector<QuElement*> elements{getClinicianQuestionnaireBlockRawPointer()};
 
     auto addGroup = [this, &elements](const QStringList& fields) -> void {
-        for (auto field : fields) {
+        for (const QString& field : fields) {
             elements.append(new QuText(xstring(field)));
             QuTextEdit* edit = new QuTextEdit(fieldRef(field, false));
             edit->setHint("");
@@ -267,7 +267,7 @@ OpenableWidget* PsychiatricClerking::editor(const bool read_only)
 
     QuPagePtr page((new QuPage(elements))->setTitle(xstring("title")));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

@@ -24,11 +24,6 @@
 #include "lib/convert.h"
 
 
-WhereConditions::WhereConditions()
-{
-}
-
-
 void WhereConditions::add(const QString& column, const QVariant& value)
 {
     m_columns.append(column);

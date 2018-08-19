@@ -135,7 +135,13 @@ NetworkManager::NetworkManager(CamcopsApp& app,
     m_offer_cancel(true),
     m_silent(parent == nullptr),
     m_logbox(nullptr),
-    m_mgr(new QNetworkAccessManager(this))  // will be autodeleted by QObject
+    m_mgr(new QNetworkAccessManager(this)),  // will be autodeleted by QObject
+    m_upload_method(UploadMethod::Copy),
+    m_upload_next_stage(NextUploadStage::Invalid),
+    m_upload_current_record_index(0),
+    m_recordwise_prune_req_sent(false),
+    m_recordwise_pks_pruned(false),
+    m_upload_n_records(0)
 {
 }
 
@@ -208,7 +214,7 @@ void NetworkManager::statusMessage(const QString& msg)
     }
     ensureLogBox();
     m_logbox->statusMessage(
-                QString("%1: %2").arg(datetime::nowTimestamp()).arg(msg));
+                QString("%1: %2").arg(datetime::nowTimestamp(), msg));
 }
 
 
@@ -403,33 +409,31 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
         return false;
     }
     reply->deleteLater();
-    if (reply->error() == QNetworkReply::NoError) {
-        m_reply_data = reply->readAll();  // can probably do this only once
-        statusMessage("... received " + sizeBytes(m_reply_data.length()));
-#ifdef DEBUG_NETWORK_REPLIES
-        qDebug() << "Network reply (raw): " << m_reply_data;
-#endif
-        m_reply_dict = convert::getReplyDict(m_reply_data);
-#ifdef DEBUG_NETWORK_REPLIES
-        qInfo() << "Network reply (dictionary): " << m_reply_dict;
-#endif
-        m_tmp_session_id = m_reply_dict[KEY_SESSION_ID];
-        m_tmp_session_token = m_reply_dict[KEY_SESSION_TOKEN];
-        if (replyReportsSuccess()) {
-            return true;
-        } else {
-            // If the server's reporting success=0, it should provide an
-            // error too:
-            statusMessage("Server reported an error: " +
-                          m_reply_dict[KEY_ERROR]);
-            fail();
-            return false;
-        }
-    } else {
+    if (reply->error() != QNetworkReply::NoError) {
         statusMessage("Network failure: " + reply->errorString());
         fail();
         return false;
     }
+    m_reply_data = reply->readAll();  // can probably do this only once
+    statusMessage("... received " + sizeBytes(m_reply_data.length()));
+#ifdef DEBUG_NETWORK_REPLIES
+    qDebug() << "Network reply (raw): " << m_reply_data;
+#endif
+    m_reply_dict = convert::getReplyDict(m_reply_data);
+#ifdef DEBUG_NETWORK_REPLIES
+        qInfo() << "Network reply (dictionary): " << m_reply_dict;
+#endif
+    m_tmp_session_id = m_reply_dict[KEY_SESSION_ID];
+    m_tmp_session_token = m_reply_dict[KEY_SESSION_TOKEN];
+    if (replyReportsSuccess()) {
+        return true;
+    }
+    // If the server's reporting success=0, it should provide an
+    // error too:
+    statusMessage("Server reported an error: " +
+                  m_reply_dict[KEY_ERROR]);
+    fail();
+    return false;
 }
 
 
@@ -559,7 +563,7 @@ void NetworkManager::sslIgnoringErrorHandler(QNetworkReply* reply,
 {
     // Error handle that ignores SSL certificate errors and continues
     statusMessage(QString("+++ Ignoring %1 SSL error(s):").arg(errlist.length()));
-    for (auto err : errlist) {
+    for (const QSslError& err : errlist) {
         statusMessage("    " + err.errorString());
     }
     reply->ignoreSslErrors();
@@ -1333,7 +1337,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
     // Step 1: clear all move-off flags, except in the source tables (being:
     // patient tables and anonymous task primary tables).
     // ========================================================================
-    for (auto specimen : m_p_task_factory->allSpecimens()) {
+    for (const TaskPtr& specimen : m_p_task_factory->allSpecimens()) {
         if (specimen->isAnonymous()) {
             // anonymous task: clear the ancillary tables
             for (const QString& tablename : specimen->ancillaryTables()) {
@@ -1387,7 +1391,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
 #endif
 
         // Task tables
-        for (auto specimen : m_p_task_factory->allSpecimens()) {
+        for (const TaskPtr& specimen : m_p_task_factory->allSpecimens()) {
             if (specimen->isAnonymous()) {
                 continue;
             }
@@ -1451,7 +1455,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
     // Step 3: Apply flags from anonymous tasks to their ancillary tables.
     // ========================================================================
 
-    for (auto specimen : m_p_task_factory->allSpecimens()) {
+    for (const TaskPtr& specimen : m_p_task_factory->allSpecimens()) {
         if (!specimen->isAnonymous()) {
             continue;
         }
@@ -1630,15 +1634,14 @@ bool NetworkManager::catalogueTablesForUpload()
                         ).arg(table, min_server_version.toString(),
                               server_version.toString()));
                         return false;
-                    } else {
-                        statusMessage(QString(
-                            "WARNING: Table '%1' is present on the server but "
-                            "the client requires server version >=%2; the "
-                            "server is version %3; proceeding ONLY BECAUSE "
-                            "THIS TABLE IS EMPTY."
-                        ).arg(table, min_server_version.toString(),
-                              server_version.toString()));
                     }
+                    statusMessage(QString(
+                        "WARNING: Table '%1' is present on the server but "
+                        "the client requires server version >=%2; the "
+                        "server is version %3; proceeding ONLY BECAUSE "
+                        "THIS TABLE IS EMPTY."
+                    ).arg(table, min_server_version.toString(),
+                          server_version.toString()));
                 } else {
                     if (n_records != 0) {
                         statusMessage(QString(
@@ -1648,15 +1651,14 @@ bool NetworkManager::catalogueTablesForUpload()
                         ).arg(table, min_client_version.toString(),
                               camcopsversion::CAMCOPS_CLIENT_VERSION.toString()));
                         return false;
-                    } else {
-                        statusMessage(QString(
-                            "WARNING: Table '%1' is present on the server but "
-                            "the server requires client version >=%2; you are "
-                            "using version %3; proceeding ONLY BECAUSE THIS "
-                            "TABLE IS EMPTY."
-                        ).arg(table, min_client_version.toString(),
-                              camcopsversion::CAMCOPS_CLIENT_VERSION.toString()));
                     }
+                    statusMessage(QString(
+                        "WARNING: Table '%1' is present on the server but "
+                        "the server requires client version >=%2; you are "
+                        "using version %3; proceeding ONLY BECAUSE THIS "
+                        "TABLE IS EMPTY."
+                    ).arg(table, min_client_version.toString(),
+                          camcopsversion::CAMCOPS_CLIENT_VERSION.toString()));
                 }
             } else {
                 // The table isn't on the server.
@@ -1667,14 +1669,13 @@ bool NetworkManager::catalogueTablesForUpload()
                         "(Once you have upgraded the server, re-register with "
                         "it.)").arg(table));
                     return false;
-                } else {
-                    statusMessage(QString(
-                        "WARNING: Table '%1' is absent on the server. You "
-                        "probably need a newer server version. (Once you have "
-                        "upgraded the server, re-register with it.) "
-                        "Proceeding ONLY BECAUSE THIS TABLE IS EMPTY."
-                    ).arg(table));
                 }
+                statusMessage(QString(
+                    "WARNING: Table '%1' is absent on the server. You "
+                    "probably need a newer server version. (Once you have "
+                    "upgraded the server, re-register with it.) "
+                    "Proceeding ONLY BECAUSE THIS TABLE IS EMPTY."
+                ).arg(table));
             }
         }
         // How to upload?
@@ -1780,7 +1781,7 @@ bool NetworkManager::areDescriptionsOK()
         const QString local_shortdesc = m_app.varString(varname_shortdesc);
 #else
     QVector<IdNumDescriptionPtr> iddescriptions = m_app.getAllIdDescriptions();
-    for (IdNumDescriptionPtr iddesc : iddescriptions) {
+    for (const IdNumDescriptionPtr& iddesc : iddescriptions) {
         const int n = iddesc->whichIdNum();
         const QString local_desc = iddesc->description();
         const QString local_shortdesc = iddesc->shortDescription();

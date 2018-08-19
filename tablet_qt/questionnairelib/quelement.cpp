@@ -72,7 +72,7 @@ QVector<QuElementPtr> QuElement::subelements() const
 QVector<QuElement*> QuElement::subelementsRaw() const
 {
     QVector<QuElement*> raw;
-    for (auto e : subelements()) {
+    for (const QuElementPtr& e : subelements()) {
         raw.append(e.data());
     }
     return raw;
@@ -83,7 +83,7 @@ QVector<QuElementPtr> QuElement::subelementsWithChildrenFlattened() const
 {
     QVector<QuElementPtr> all_children;
     const QVector<QuElementPtr> sub = subelements();
-    for (auto e : sub) {
+    for (const QuElementPtr& e : sub) {
         all_children.append(e);
         all_children.append(e->subelementsWithChildrenFlattened());
     }
@@ -94,7 +94,7 @@ QVector<QuElementPtr> QuElement::subelementsWithChildrenFlattened() const
 QVector<QuElement*> QuElement::subelementsWithChildrenFlattenedRaw() const
 {
     QVector<QuElement*> raw;
-    for (auto e : subelementsWithChildrenFlattened()) {
+    for (const QuElementPtr& e : subelementsWithChildrenFlattened()) {
         raw.append(e.data());
     }
     return raw;
@@ -104,7 +104,7 @@ QVector<QuElement*> QuElement::subelementsWithChildrenFlattenedRaw() const
 bool QuElement::missingInput() const
 {
     const FieldRefPtrList frefs = fieldrefs();
-    for (FieldRefPtr f : frefs) {
+    for (const FieldRefPtr& f : frefs) {
         if (f->missingInput()) {
             return true;
         }

@@ -17,21 +17,25 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _qol:
+.. _qol_basic:
 
-Quality of Life
----------------
+Quality of Life: rating scale and time trade-off (QOL-Basic)
+------------------------------------------------------------
+
+The QOL-Basic task provides a rating scale and a time trade-off measure.
+
+For more detail, see `QOL-SG <qol_sg>`.
+
+
+.. _qol_sg:
+
+Quality of Life: standard gamble (QOL-SG)
+-----------------------------------------
+
+The QOL-SG task provides a standard gamble.
 
 .. include:: include_under_development.rst
 
-(Standard Gamble version under development.)
-
-Tasks
-~~~~~
-
-- The QOL-Basic task provides a rating scale and a time trade-off measure.
-
-- The QOL-SG task provides a standard gamble.
 
 History and guide
 ~~~~~~~~~~~~~~~~~

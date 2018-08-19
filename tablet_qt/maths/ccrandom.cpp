@@ -18,7 +18,7 @@
 */
 
 #include "ccrandom.h"
-#include <float.h>
+#include <cfloat>
 #include <QDebug>
 #include <QMultiMap>
 #include "maths/countingcontainer.h"
@@ -84,10 +84,9 @@ float nextFloatAbove(const float x)
             ++brf.i;
         }
         return brf.f;
-    } else {
-        qFatal("nextFloatAbove: machine/compiler not using IEC559 (IEEE 754) "
-               "for float");
     }
+    qFatal("nextFloatAbove: machine/compiler not using IEC559 (IEEE 754) "
+           "for float");
 }
 
 
@@ -99,10 +98,9 @@ double nextDoubleAboveManual(const double x)
             ++brd.i;
         }
         return brd.d;
-    } else {
-        qFatal("nextDoubleAbove: machine/compiler not using IEC559 (IEEE 754) "
-               "for double");
     }
+    qFatal("nextDoubleAbove: machine/compiler not using IEC559 (IEEE 754) "
+           "for double");
 }
 
 

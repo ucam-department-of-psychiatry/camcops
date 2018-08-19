@@ -370,13 +370,12 @@ IdPolicy::ChunkValue IdPolicy::idPolicyElement(const AttributesType& attributes,
             return ChunkValue::Unknown;
         }
         return attributes[name] ? ChunkValue::True : ChunkValue::False;
-    } else {
-        if (attributes.contains(name)) {
-            return attributes[name] ? ChunkValue::True : ChunkValue::False;
-        }
-        // But if it's absent, that's just a missing ID, not a syntax error:
-        return ChunkValue::False;
     }
+    if (attributes.contains(name)) {
+        return attributes[name] ? ChunkValue::True : ChunkValue::False;
+    }
+    // But if it's absent, that's just a missing ID, not a syntax error:
+    return ChunkValue::False;
 }
 
 

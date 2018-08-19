@@ -29,12 +29,6 @@
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::noneNull;
-using mathfunc::sumInt;
-using mathfunc::scorePhrase;
-using mathfunc::totalScorePhrase;
-using stringfunc::strnum;
-using stringfunc::strseq;
 
 const QString YbocsSc::YBOCSSC_TABLENAME("ybocssc");
 
@@ -288,7 +282,7 @@ OpenableWidget* YbocsSc::editor(const bool read_only)
             }
         }
     }
-    QuGridContainer* container = new QuGridContainer(cells);
+    auto container = new QuGridContainer(cells);
     container->setColumnStretch(0, 2);
     container->setColumnStretch(1, 3);
     container->setColumnStretch(2, 1);
@@ -303,7 +297,7 @@ OpenableWidget* YbocsSc::editor(const bool read_only)
     pages.append(QuPagePtr((new QuPage(elements))
                            ->setTitle(xstring("sc_title"))));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

@@ -62,3 +62,11 @@ Intellectual property rights
   http://www.gl-assessment.co.uk/products/hospital-anxiety-and-depression-scale-0.
 
 - Fees appear payable.
+
+
+.. _hads_respondent:
+
+Hospital Anxiety and Depression Scale (HADS), respondent version
+----------------------------------------------------------------
+
+See `HADS <hads>`.

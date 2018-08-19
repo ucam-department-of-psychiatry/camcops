@@ -137,9 +137,8 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
             // MCQ option label
             // Even in a horizontal layout, encapsulating widget/label pairs
             // prevents them being split apart.
-            QWidget* itemwidget = new QWidget();
-            ClickableLabelWordWrapWide* namelabel =
-                    new ClickableLabelWordWrapWide(nvp.name());
+            auto itemwidget = new QWidget();
+            auto namelabel = new ClickableLabelWordWrapWide(nvp.name());
             namelabel->setEnabled(!read_only);
             const int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
             const bool italic = false;
@@ -151,7 +150,7 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,
                         std::bind(&QuMcq::clicked, this, i));
             }
-            HBoxLayout* itemlayout = new HBoxLayout();
+            auto itemlayout = new HBoxLayout();
             itemlayout->setContentsMargins(uiconst::NO_MARGINS);
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w, 0, Qt::AlignTop);
@@ -169,9 +168,9 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
     QPointer<QWidget> final_widget;
     if (m_show_instruction) {
         // Higher-level widget containing {instructions, actual MCQ}
-        VBoxLayout* layout_w_instr = new VBoxLayout();
+        auto layout_w_instr = new VBoxLayout();
         layout_w_instr->setContentsMargins(uiconst::NO_MARGINS);
-        LabelWordWrapWide* instructions = new LabelWordWrapWide(tr("Pick one:"));
+        auto instructions = new LabelWordWrapWide(tr("Pick one:"));
         instructions->setObjectName(cssconst::MCQ_INSTRUCTION);
         layout_w_instr->addWidget(instructions);
         layout_w_instr->addWidget(mainwidget);

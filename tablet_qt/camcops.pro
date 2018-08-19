@@ -411,7 +411,7 @@ android {
 RESOURCES += \
     camcops.qrc
 
-SOURCES += main.cpp \
+SOURCES += \
     common/appstrings.cpp \
     common/cssconst.cpp \
     common/dbconst.cpp \
@@ -511,6 +511,7 @@ SOURCES += main.cpp \
     lib/timerfunc.cpp \
     lib/uifunc.cpp \
     lib/version.cpp \
+    main.cpp \
     maths/ccrandom.cpp \
     maths/countingcontainer.cpp \
     maths/dqrls.cpp \
@@ -544,10 +545,12 @@ SOURCES += main.cpp \
     menu/setmenucpftaffective1.cpp \
     menu/setmenudeakin1.cpp \
     menu/setmenufromlp.cpp \
+    menu/setmenukhandaker1.cpp \
     menu/setmenuobrien1.cpp \
     menu/settingsmenu.cpp \
     menu/singletaskmenu.cpp \
     menu/testmenu.cpp \
+    menu/whiskertestmenu.cpp \
     menu/widgettestmenu.cpp \
     menulib/choosepatientmenuitem.cpp \
     menulib/htmlinfowindow.cpp \
@@ -562,6 +565,7 @@ SOURCES += main.cpp \
     qobjects/flickcharm.cpp \
     qobjects/focuswatcher.cpp \
     qobjects/keypresswatcher.cpp \
+    qobjects/nhsnumbervalidator.cpp \
     qobjects/shootabug.cpp \
     qobjects/showwatcher.cpp \
     qobjects/slownonguifunctioncaller.cpp \
@@ -579,6 +583,7 @@ SOURCES += main.cpp \
     questionnairelib/namevaluepair.cpp \
     questionnairelib/pagepickeritem.cpp \
     questionnairelib/quaudioplayer.cpp \
+    questionnairelib/qubackground.cpp \
     questionnairelib/quboolean.cpp \
     questionnairelib/qubutton.cpp \
     questionnairelib/qucanvas.cpp \
@@ -602,6 +607,7 @@ SOURCES += main.cpp \
     questionnairelib/qulineeditdouble.cpp \
     questionnairelib/qulineeditinteger.cpp \
     questionnairelib/qulineeditlonglong.cpp \
+    questionnairelib/qulineeditnhsnumber.cpp \
     questionnairelib/qulineeditulonglong.cpp \
     questionnairelib/qumcq.cpp \
     questionnairelib/qumcqgrid.cpp \
@@ -690,6 +696,7 @@ SOURCES += main.cpp \
     tasks/iesr.cpp \
     tasks/ifs.cpp \
     tasks/irac.cpp \
+    tasks/khandaker1medicalhistory.cpp \
     tasks/mast.cpp \
     tasks/mdsupdrs.cpp \
     tasks/moca.cpp \
@@ -737,6 +744,16 @@ SOURCES += main.cpp \
     taskxtra/photosequencephoto.cpp \
     taskxtra/satisfactioncommon.cpp \
     version/camcopsversion.cpp \
+    whisker/whiskerapi.cpp \
+    whisker/whiskercallbackdefinition.cpp \
+    whisker/whiskercallbackhandler.cpp \
+    whisker/whiskerconnectionstate.cpp \
+    whisker/whiskerconstants.cpp \
+    whisker/whiskerdisplaycachewrapper.cpp \
+    whisker/whiskerinboundmessage.cpp \
+    whisker/whiskermanager.cpp \
+    whisker/whiskeroutboundcommand.cpp \
+    whisker/whiskerworker.cpp \
     widgets/adjustablepie.cpp \
     widgets/aspectratiopixmap.cpp \
     widgets/basewidget.cpp \
@@ -764,23 +781,7 @@ SOURCES += main.cpp \
     widgets/treeviewproxystyle.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
-    widgets/verticalscrollareaviewport.cpp \
-    menu/setmenukhandaker1.cpp \
-    tasks/khandaker1medicalhistory.cpp \
-    questionnairelib/qubackground.cpp \
-    whisker/whiskermanager.cpp \
-    whisker/whiskerapi.cpp \
-    whisker/whiskerconstants.cpp \
-    whisker/whiskercallbackdefinition.cpp \
-    whisker/whiskerworker.cpp \
-    whisker/whiskeroutboundcommand.cpp \
-    whisker/whiskerconnectionstate.cpp \
-    whisker/whiskerinboundmessage.cpp \
-    whisker/whiskerdisplaycachewrapper.cpp \
-    whisker/whiskercallbackhandler.cpp \
-    menu/whiskertestmenu.cpp \
-    questionnairelib/qulineeditnhsnumber.cpp \
-    qobjects/nhsnumbervalidator.cpp
+    widgets/verticalscrollareaviewport.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -926,10 +927,12 @@ HEADERS += \
     menu/setmenucpftaffective1.h \
     menu/setmenudeakin1.h \
     menu/setmenufromlp.h \
+    menu/setmenukhandaker1.h \
     menu/setmenuobrien1.h \
     menu/settingsmenu.h \
     menu/singletaskmenu.h \
     menu/testmenu.h \
+    menu/whiskertestmenu.h \
     menu/widgettestmenu.h \
     menulib/choosepatientmenuitem.h \
     menulib/htmlinfowindow.h \
@@ -945,6 +948,7 @@ HEADERS += \
     qobjects/flickcharm.h \
     qobjects/focuswatcher.h \
     qobjects/keypresswatcher.h \
+    qobjects/nhsnumbervalidator.h \
     qobjects/shootabug.h \
     qobjects/showwatcher.h \
     qobjects/slownonguifunctioncaller.h \
@@ -962,6 +966,7 @@ HEADERS += \
     questionnairelib/namevaluepair.h \
     questionnairelib/pagepickeritem.h \
     questionnairelib/quaudioplayer.h \
+    questionnairelib/qubackground.h \
     questionnairelib/quboolean.h \
     questionnairelib/qubutton.h \
     questionnairelib/qucanvas.h \
@@ -985,6 +990,7 @@ HEADERS += \
     questionnairelib/qulineeditdouble.h \
     questionnairelib/qulineeditinteger.h \
     questionnairelib/qulineeditlonglong.h \
+    questionnairelib/qulineeditnhsnumber.h \
     questionnairelib/qulineeditulonglong.h \
     questionnairelib/qumcq.h \
     questionnairelib/qumcqgrid.h \
@@ -1073,6 +1079,7 @@ HEADERS += \
     tasks/iesr.h \
     tasks/ifs.h \
     tasks/irac.h \
+    tasks/khandaker1medicalhistory.h \
     tasks/mast.h \
     tasks/mdsupdrs.h \
     tasks/moca.h \
@@ -1120,6 +1127,16 @@ HEADERS += \
     taskxtra/photosequencephoto.h \
     taskxtra/satisfactioncommon.h \
     version/camcopsversion.h \
+    whisker/whiskerapi.h \
+    whisker/whiskercallbackdefinition.h \
+    whisker/whiskercallbackhandler.h \
+    whisker/whiskerconnectionstate.h \
+    whisker/whiskerconstants.h \
+    whisker/whiskerdisplaycachewrapper.h \
+    whisker/whiskerinboundmessage.h \
+    whisker/whiskermanager.h \
+    whisker/whiskeroutboundcommand.h \
+    whisker/whiskerworker.h \
     widgets/adjustablepie.h \
     widgets/aspectratiopixmap.h \
     widgets/basewidget.h \
@@ -1147,23 +1164,7 @@ HEADERS += \
     widgets/treeviewproxystyle.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
-    widgets/verticalscrollareaviewport.h \
-    menu/setmenukhandaker1.h \
-    tasks/khandaker1medicalhistory.h \
-    questionnairelib/qubackground.h \
-    whisker/whiskermanager.h \
-    whisker/whiskerapi.h \
-    whisker/whiskerconstants.h \
-    whisker/whiskercallbackdefinition.h \
-    whisker/whiskerworker.h \
-    whisker/whiskerconnectionstate.h \
-    whisker/whiskeroutboundcommand.h \
-    whisker/whiskerinboundmessage.h \
-    whisker/whiskerdisplaycachewrapper.h \
-    whisker/whiskercallbackhandler.h \
-    menu/whiskertestmenu.h \
-    questionnairelib/qulineeditnhsnumber.h \
-    qobjects/nhsnumbervalidator.h
+    widgets/verticalscrollareaviewport.h
 
 DISTFILES += \
     LICENSE.txt \

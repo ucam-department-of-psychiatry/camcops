@@ -1177,8 +1177,8 @@ bool Cisr::morePagesToGo(const int current_qnum) const
 
 Cisr::CisrQuestion Cisr::intToEnum(int qi) const
 {
-    const int start = static_cast<int>(CisrQuestion::START_MARKER);
-    const int end = static_cast<int>(CisrQuestion::END_MARKER);
+    auto start = static_cast<const int>(CisrQuestion::START_MARKER);
+    auto end = static_cast<const int>(CisrQuestion::END_MARKER);
     Q_ASSERT(qi >= start && qi <= end);
     return static_cast<CisrQuestion>(qi);
 }
@@ -2966,9 +2966,8 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
             // Show title tags on facsimile (read-only) version
             return QString("CISR page %1 (%2)").arg(
                         QString::number(enumToInt(q)), tagForQuestion(q));
-        } else {
-            return QString("CISR page %1").arg(enumToInt(q));
         }
+        return QString("CISR page %1").arg(enumToInt(q));
 #endif
     };
     auto prompttext = [this](const QString& xstringname) -> QuElement* {
@@ -2999,7 +2998,7 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
 #endif
                                                    ]
             (const QString& prompt_xstringname) -> QuPagePtr {
-        QuPage* p = new QuPage();
+        auto p = new QuPage();
         p->addElement(prompttext(prompt_xstringname));
         p->setTitle(title());
 #ifdef DEBUG_SHOW_PAGE_TAGS
@@ -3015,7 +3014,7 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
             (const QString& question_xstringname, QuElement* element,
              QuElement* extra_between_q_and_element = nullptr)
             -> QuPagePtr {
-        QuPage* p = new QuPage();
+        auto p = new QuPage();
         p->addElement(question(question_xstringname));
         if (extra_between_q_and_element) {
             p->addElement(extra_between_q_and_element);
@@ -3074,7 +3073,7 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
                                                            ]() -> QuPagePtr {
         qCritical() << "CISR question not implemented:"
                     << intq << tagForQuestion(q);
-        QuPage* p = new QuPage();
+        auto p = new QuPage();
         p->addElement(new QuText(QString("Question %1 not implemented yet!")
                                  .arg(intq)));
         p->setTitle(title());
@@ -3143,7 +3142,7 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
             FieldRefPtr fr = fieldRef(fieldname);
             q_field_pairs.append(QuestionWithOneField(stemtext, fr));
         }
-        QuMcqGrid* grid = new QuMcqGrid(q_field_pairs, options);
+        auto grid = new QuMcqGrid(q_field_pairs, options);
         return qPage("pansym_q_prefix", grid);
     };
 

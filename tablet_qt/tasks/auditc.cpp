@@ -26,7 +26,6 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::anyNull;
 using mathfunc::noneNull;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
@@ -159,7 +158,7 @@ OpenableWidget* AuditC::editor(const bool read_only)
         new QuMcq(fieldRef("q3"), options3),
     })->setType(QuPage::PageType::Clinician)->setTitle(qprefix + " 3"));
 
-    Questionnaire* questionnaire = new Questionnaire(
+    auto questionnaire = new Questionnaire(
                 m_app, {page1, page2, page3, page4});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);

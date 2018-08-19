@@ -23,7 +23,7 @@ const QVector<int> NHS_DIGIT_WEIGHTINGS{10, 9, 8, 7, 6, 5, 4, 3, 2};
 
 namespace nhs {
 
-int nhsCheckDigit(const QVector<int> ninedigits, int failure_code)
+int nhsCheckDigit(const QVector<int>& ninedigits, int failure_code)
 {
     // Calculates an NHS number check digit.
     //

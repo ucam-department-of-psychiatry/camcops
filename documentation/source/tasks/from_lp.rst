@@ -17,17 +17,21 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _from_lp:
+.. _irac:
 
-FROM-LP additional scales (CGI-I, IRAC, PSS, FFT, RSS)
-------------------------------------------------------
+Identify and Rate the Aim of the Contact (IRAC)
+-----------------------------------------------
+
+This is part of the FROM-LP framework.
 
 .. include:: include_from_lp_generic.rst
 
+.. _from_lp:
+
 The FROM-LP generic measures include:
 
-- CGI-I: Clinical Global Impression – Improvement scale (Guy W, 1976); see
-  :ref:`CGI <cgi>`.
+- CGI-I: Clinical Global Impression – Improvement scale; see :ref:`CGI-I
+  <cgi_i>`.
 
 - CORE-10 — but while paper copies are free, electronic reproduction is not:
   see http://www.coreims.co.uk/copyright.pdf; therefore, not part of CamCOPS.
@@ -79,3 +83,43 @@ Intellectual property rights
   Trigwell, clinical lead for FROM-LP, to Rudolf Cardinal 2015-06-01.
 
 - However, the CORE-10 isn’t, in an electronic context, as noted above.
+
+
+.. _fft:
+
+Friends and Family Test (FFT)
+-----------------------------
+
+.. include:: include_from_lp_generic.rst
+
+See `FROM-LP <from_lp>`.
+
+
+.. _pss:
+
+Patient Satisfaction Scale (PSS)
+--------------------------------
+
+.. include:: include_from_lp_generic.rst
+
+See `FROM-LP <from_lp>`.
+
+
+.. _rss_patient_specific:
+
+Referrer Satisfaction Scale (RSS): patient-specific version
+-----------------------------------------------------------
+
+.. include:: include_from_lp_generic.rst
+
+See `FROM-LP <from_lp>`.
+
+
+.. _rss_survey:
+
+Referrer Satisfaction Scale (RSS): survey version
+-------------------------------------------------
+
+.. include:: include_from_lp_generic.rst
+
+See `FROM-LP <from_lp>`.

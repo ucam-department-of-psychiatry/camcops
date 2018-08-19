@@ -19,8 +19,8 @@
 
 .. _audit:
 
-Alcohol Use Disorders Identification Test (AUDIT and AUDIT-C)
--------------------------------------------------------------
+Alcohol Use Disorders Identification Test (AUDIT)
+-------------------------------------------------
 
 .. include:: include_permission_contextual.rst
 
@@ -75,3 +75,10 @@ conjunction with commercial purposes.”
 “AUDIT-C is available for use in the public domain”;
 http://www.integration.samhsa.gov/images/res/tool_auditc.pdf, accessed
 2015-06-04.
+
+.. _audit_c:
+
+Alcohol Use Disorders Identification Test (AUDIT-C)
+---------------------------------------------------
+
+See `AUDIT <audit>` above.

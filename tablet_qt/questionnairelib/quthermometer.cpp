@@ -76,7 +76,7 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
     const bool read_only = questionnaire->readOnly();
     m_main_widget = new QWidget();
     m_main_widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    GridLayout* grid = new GridLayout();
+    auto grid = new GridLayout();
     grid->setContentsMargins(uiconst::NO_MARGINS);
     grid->setSpacing(0);
     m_main_widget->setLayout(grid);
@@ -97,7 +97,7 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
         if (m_rescale) {
             inactive->resizeImages(m_rescale_factor);
         }
-        QLabel* label = new QLabel(item.text());
+        auto label = new QLabel(item.text());
         grid->addWidget(active.data(), row, 0);
         grid->addWidget(inactive.data(), row, 0);
         grid->addWidget(label, row, 1);

@@ -28,8 +28,6 @@
 #include "questionnairelib/qumcqgrid.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
@@ -146,7 +144,7 @@ OpenableWidget* Dast::editor(const bool read_only)
                         ->setSubtitles(subtitles),
     })->setTitle(xstring("title")));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

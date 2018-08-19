@@ -128,7 +128,7 @@ OpenableWidget* Mast::editor(const bool read_only)
         (new QuMcqGrid(qfields, CommonOptions::yesNoChar()))->setSubtitles(sub),
     })->setTitle(xstring("title")));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

@@ -26,10 +26,6 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
-using mathfunc::totalScorePhrase;
 using stringfunc::bold;
 using stringfunc::strnum;
 using stringfunc::strseq;
@@ -136,13 +132,13 @@ QStringList Cape42::summary() const
         const int max_score = MAX_SCORE_PER_Q * n;
         lines.append(
             QString("%1: frequency %2 (%3–%4), distress %5 (%6–%7).")
-                    .arg(name)
-                    .arg(bold(QString::number(frequencyScore(questions))))
-                    .arg(min_score)
-                    .arg(max_score)
-                    .arg(bold(QString::number(distressScore(questions))))
-                    .arg(min_score)
-                    .arg(max_score));
+                    .arg(name,
+                         bold(QString::number(frequencyScore(questions))),
+                         QString::number(min_score),
+                         QString::number(max_score),
+                         bold(QString::number(distressScore(questions))),
+                         QString::number(min_score),
+                         QString::number(max_score)));
     };
     addbit(ALL, "ALL");
     addbit(POSITIVE, "POSITIVE");

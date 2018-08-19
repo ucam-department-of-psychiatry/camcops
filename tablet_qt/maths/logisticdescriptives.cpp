@@ -64,7 +64,7 @@ LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& x,
         qCritical("Size-mismatched data set passed to LogisticDescriptives");
         return;
     }
-    if (x.size() == 0) {
+    if (x.empty()) {
         qWarning("Empty data set passed to LogisticDescriptives");
         return;
     }

@@ -193,7 +193,7 @@ QSize qtlayouthelpers::WidgetItemHfw::minimumSize() const
 // ============================================================================
 // from qlayoutengine_p.h
 
-typedef qint64 Fixed64;
+using Fixed64 = qint64;
 
 
 static inline Fixed64 toFixed(const int i)
@@ -632,12 +632,12 @@ int qtlayouthelpers::qSmartSpacing(const QLayout* layout,
     QObject* parent = layout->parent();
     if (!parent) {
         return -1;
-    } else if (parent->isWidgetType()) {
-        QWidget* pw = static_cast<QWidget*>(parent);
-        return pw->style()->pixelMetric(pm, nullptr, pw);
-    } else {
-        return static_cast<QLayout*>(parent)->spacing();
     }
+    if (parent->isWidgetType()) {
+        auto pw = static_cast<QWidget*>(parent);
+        return pw->style()->pixelMetric(pm, nullptr, pw);
+    }
+    return static_cast<QLayout*>(parent)->spacing();
 }
 
 
@@ -699,9 +699,8 @@ QWidgetItem* qtlayouthelpers::createWidgetItem(const QLayout* layout,
     */
     if (use_hfw_capable_item) {
         return new WidgetItemHfw(widget);
-    } else {
-        return new QWidgetItemV2(widget);
     }
+    return new QWidgetItemV2(widget);
 }
 
 

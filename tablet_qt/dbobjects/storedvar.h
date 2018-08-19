@@ -30,7 +30,7 @@ public:
               const QString& name = "",  // empty for a specimen
               QVariant::Type type = QVariant::Int,
               const QVariant& default_value = QVariant());
-    virtual ~StoredVar();
+    virtual ~StoredVar() = default;
     bool setValue(const QVariant& value, bool save_to_db = true);
     QVariant value() const;
     QString name() const;

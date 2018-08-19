@@ -144,7 +144,7 @@ QString DiagnosticCode::description() const
 QString DiagnosticCode::fullname() const
 {
     if (m_show_code_in_full_name) {
-        return QString("%1: %2").arg(m_code).arg(m_description);
+        return QString("%1: %2").arg(m_code, m_description);
     }
     return m_description;
 }

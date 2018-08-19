@@ -25,12 +25,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
-using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
-using stringfunc::strseq;
 
 const QString CgiI::CGI_I_TABLENAME("cgi_i");
 
@@ -124,7 +119,7 @@ OpenableWidget* CgiI::editor(const bool read_only)
         new QuMcq(fieldRef(Q), options),
     })->setTitle(shortname())));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

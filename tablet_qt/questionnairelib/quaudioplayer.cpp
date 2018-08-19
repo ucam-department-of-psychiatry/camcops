@@ -76,7 +76,7 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
     // http://stackoverflow.com/questions/620137/do-the-parentheses-after-the-type-name-make-a-difference-with-new
     QPointer<QWidget> widget = new QWidget();
     widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    QHBoxLayout* layout = new QHBoxLayout();
+    auto layout = new QHBoxLayout();
     layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
 
@@ -92,7 +92,7 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
     m_button_speaker_playing->hide();
 
     if (m_offer_volume_control) {
-        QDial* dial = new QDial();
+        auto dial = new QDial();
         dial->setFixedSize(uiconst::DIAL_DIAMETER_PX,
                            uiconst::DIAL_DIAMETER_PX);
         dial->setNotchesVisible(true);

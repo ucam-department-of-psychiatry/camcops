@@ -28,7 +28,7 @@ class IDED3DExemplars {
 public:
     IDED3DExemplars();
     IDED3DExemplars(const QStringList& dimensions,
-                    const QVector<QVector<int>> indices);
+                    const QVector<QVector<int>>& indices);
     QStringList dimensions;
     QVector<QVector<int>> indices;
     QVector<int> getExemplars(const QString& dim_name) const;

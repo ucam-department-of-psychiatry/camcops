@@ -31,11 +31,7 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
-using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
-using stringfunc::strseq;
 #define TR(stringname, text) const QString stringname(QObject::tr(text))
 
 const QString MdsUpdrs::MDS_UPDRS_TABLENAME("mds_updrs");
@@ -355,7 +351,7 @@ QStringList MdsUpdrs::summary() const
 QStringList MdsUpdrs::detail() const
 {
     QStringList lines = completenessInfo();
-    for (auto fieldname : EXTRAFIELDS) {
+    for (const QString& fieldname : EXTRAFIELDS) {
         lines.append(fieldSummary(fieldname, fieldname));
     }
     return lines;
@@ -392,9 +388,9 @@ OpenableWidget* MdsUpdrs::editor(const bool read_only)
 
     auto pagetitle = [this](int partnum) -> QString {
         return QString("%1 %2: %3")
-                .arg(shortname())
-                .arg(textconst::PART)
-                .arg(roman::romanize(partnum));
+                .arg(shortname(),
+                     textconst::PART,
+                     roman::romanize(partnum));
     };
     auto text = [](const QString& text) -> QuElement* {
         return (new QuText(text))->setBold();
@@ -432,7 +428,7 @@ OpenableWidget* MdsUpdrs::editor(const bool read_only)
         };
         const bool mandatory = true;
         QVector<QuestionWithOneField> qfields;
-        for (auto suffix : part3bits) {
+        for (const QString& suffix : part3bits) {
             qfields.append(QuestionWithOneField(
                 fieldRef(fieldname_prefix + suffix, mandatory),
                 question_prefix + suffix
@@ -488,7 +484,7 @@ OpenableWidget* MdsUpdrs::editor(const bool read_only)
     connect(fieldRef(Q3C).data(), &FieldRef::valueChanged,
             this, &MdsUpdrs::levodopaChanged);
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

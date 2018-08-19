@@ -54,7 +54,7 @@ MenuHeader::MenuHeader(QWidget* parent,
       m_patient_info(nullptr),
       m_no_patient(nullptr)
 {
-    VBoxLayout* mainlayout = new VBoxLayout();
+    auto mainlayout = new VBoxLayout();
     setLayout(mainlayout);
 
     // ------------------------------------------------------------------------
@@ -63,7 +63,7 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     // Left
     m_top_bar = new BaseWidget();
-    HBoxLayout* toprowlayout = new HBoxLayout();
+    auto toprowlayout = new HBoxLayout();
     m_top_bar->setLayout(toprowlayout);
     mainlayout->addWidget(m_top_bar);
 
@@ -100,7 +100,7 @@ MenuHeader::MenuHeader(QWidget* parent,
     toprowlayout->addStretch();
 
     // Right-hand icons ("verbs")
-    FlowLayoutHfw* rh_icons = new FlowLayoutHfw();
+    auto rh_icons = new FlowLayoutHfw();
     toprowlayout->addLayout(rh_icons);
     rh_icons->setHorizontalAlignmentOfContents(Qt::AlignRight);
 
@@ -163,7 +163,7 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Horizontal line
     // ------------------------------------------------------------------------
-    HorizontalLine* horizline = new HorizontalLine(uiconst::HEADER_HLINE_WIDTH);
+    auto horizline = new HorizontalLine(uiconst::HEADER_HLINE_WIDTH);
     horizline->setObjectName(cssconst::HEADER_HORIZONTAL_LINE);
     mainlayout->addWidget(horizline);
 

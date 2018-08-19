@@ -47,6 +47,7 @@ securely to your server.
 
     tasks/_tasks_by_category.rst
     tasks/_tasks_all.rst
+    tasks/_tasks_missing.rst
 
     client/client_troubleshooting.rst
 

@@ -49,8 +49,7 @@ void TaskFactory::registerTask(ProxyType proxy)
 
 void TaskFactory::finishRegistration()
 {
-    for (int i = 0; i < m_initial_proxy_list.size(); ++i) {
-        ProxyType proxy = m_initial_proxy_list.at(i);
+    for (const ProxyType& proxy : m_initial_proxy_list) {
         TaskPtr p_task = proxy->create(m_app, m_app.db());
         TaskCache cache;
         cache.tablename = p_task->tablename();
@@ -277,7 +276,7 @@ void TaskFactory::upgradeDatabase(const Version& old_version,
                                   const Version& new_version)
 {
     TaskPtrList specimens = allSpecimens();
-    for (auto t : specimens) {
+    for (const TaskPtr& t : specimens) {
         t->upgradeDatabase(old_version, new_version);
     }
 }
@@ -299,7 +298,7 @@ Version TaskFactory::minimumServerVersion(const QString& tablename) const
     }
     // Otherwise, it's an ancillary.
     TaskPtrList specimens = allSpecimens();
-    for (TaskPtr specimen : specimens) {
+    for (const TaskPtr& specimen : specimens) {
         const QStringList task_tables = specimen->allTables();
         if (task_tables.contains(tablename)) {
             return specimen->minimumServerVersion();

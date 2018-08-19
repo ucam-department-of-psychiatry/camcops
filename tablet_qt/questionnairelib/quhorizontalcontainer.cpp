@@ -126,7 +126,7 @@ QPointer<QWidget> QuHorizontalContainer::makeWidget(
     QPointer<QWidget> widget(new BaseWidget());
     widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
 
-    HBoxLayout* layout = new HBoxLayout();
+    auto layout = new HBoxLayout();
 
     // widget->setObjectName(CssConst::DEBUG_YELLOW);
     layout->setContentsMargins(uiconst::NO_MARGINS);

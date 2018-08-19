@@ -218,14 +218,14 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     const Qt::Alignment centre = Qt::AlignHCenter | Qt::AlignVCenter;
     const Qt::Alignment topright = Qt::AlignRight | Qt::AlignTop;
 
-    QuHorizontalContainer* horiz1 = new QuHorizontalContainer();
+    auto horiz1 = new QuHorizontalContainer();
     horiz1->addElement((new QuText("Text 1 (right/top)"))->setAlignment(topright), topright);
     horiz1->addElement((new QuText("Text 2 (centre/vcentre)"))->setAlignment(centre), centre);
     horiz1->addElement((new QuText("Text 3 (left/bottom)"))->setAlignment(bottomleft), bottomleft);
     horiz1->addElement(new QuText("Text 4: " + longtext));
     horiz1->setAddStretchRight(false);
 
-    QuVerticalContainer* vert1 = new QuVerticalContainer;
+    auto vert1 = new QuVerticalContainer;
     vert1->addElement((new QuText("Text 1 (right/top)"))->setAlignment(topright), topright);
     vert1->addElement((new QuText("Text 2 (centre/vcentre)"))->setAlignment(centre), centre);
     vert1->addElement((new QuText("Text 3 (left/bottom)"))->setAlignment(bottomleft), bottomleft);
@@ -842,7 +842,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     // Questionnaire
     // ------------------------------------------------------------------------
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {
+    auto questionnaire = new Questionnaire(m_app, {
         page_text,
 #ifdef DEBUG_BIG_HEADER_ONLY_PAGE
         page_text_header_only,

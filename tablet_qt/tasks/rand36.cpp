@@ -297,7 +297,7 @@ OpenableWidget* Rand36::editor(const bool read_only)
         mcqgrid(33, 36, q33to36_options),
     })->setTitle(title(pagenum++))));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

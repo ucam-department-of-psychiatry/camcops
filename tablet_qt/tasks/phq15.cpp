@@ -144,7 +144,7 @@ OpenableWidget* Phq15::editor(const bool read_only)
         new QuMcqGrid(qfields, options),
     })->setTitle(xstring("title")));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
@@ -194,7 +194,7 @@ int Phq15::maxScore() const
 int Phq15::nSevereSymptoms() const
 {
     int n = 0;
-    for (auto fieldname : applicableQuestionFieldNames()) {
+    for (const QString& fieldname : applicableQuestionFieldNames()) {
         n += valueInt(fieldname) >= 2;
     }
     return n;

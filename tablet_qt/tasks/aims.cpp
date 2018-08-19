@@ -181,7 +181,7 @@ OpenableWidget* Aims::editor(const bool read_only)
         ),
     })->setTitle(xstring("section4_title")));
 
-    Questionnaire* questionnaire = new Questionnaire(
+    auto questionnaire = new Questionnaire(
             m_app, {page1, page2, page3, page4, page5});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);

@@ -97,7 +97,7 @@ void SingleTaskMenu::build()
     qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "tasks";
     const bool show_patient_name = specimen->isAnonymous() ||
             !m_app.isPatientSelected();
-    for (auto task : tasklist) {
+    for (const TaskPtr& task : tasklist) {
         m_items.append(MenuItem(task, false, show_patient_name));
     }
 

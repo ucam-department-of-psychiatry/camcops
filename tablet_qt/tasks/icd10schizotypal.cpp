@@ -142,7 +142,7 @@ OpenableWidget* Icd10Schizotypal::editor(const bool read_only)
             (const QStringList& fields_xstrings) -> QuElement* {
         // Assumes the xstring name matches the fieldname (as it does)
         QVector<QuestionWithOneField> qfields;
-        for (auto fieldname : fields_xstrings) {
+        for (const QString& fieldname : fields_xstrings) {
             qfields.append(QuestionWithOneField(xstring(fieldname),
                                                 fieldRef(fieldname, true)));
         }
@@ -167,7 +167,7 @@ OpenableWidget* Icd10Schizotypal::editor(const bool read_only)
         new QuTextEdit(fieldRef(COMMENTS, false)),
     })->setTitle(longname()));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

@@ -351,7 +351,7 @@ OpenableWidget* CPFTLPSReferral::editor(const bool read_only)
 
     })->setTitle(longname()));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

@@ -199,10 +199,10 @@ void WhiskerTestMenu::testWhiskerNetworkLatency()
 OpenableWidget* WhiskerTestMenu::configureWhisker(CamcopsApp& app)
 {
     auto makeTitle = [](const QString& part1, const QString& part2) -> QString {
-        return QString("<b>%1</b> (%2):").arg(part1).arg(part2);
+        return QString("<b>%1</b> (%2):").arg(part1, part2);
     };
     auto makeHint = [](const QString& part1, const QString& part2) -> QString {
-        return QString("%1 (%2)").arg(part1).arg(part2);
+        return QString("%1 (%2)").arg(part1, part2);
     };
 
     app.clearCachedVars();  // ... in case any are left over
@@ -359,7 +359,7 @@ OpenableWidget* WhiskerTestMenu::configureWhisker(CamcopsApp& app)
     page->setTitle(tr("Configure Whisker demo task"));
     page->setType(QuPage::PageType::Config);
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     connect(questionnaire, &Questionnaire::completed,
             &app, &CamcopsApp::saveCachedVars);
     connect(questionnaire, &Questionnaire::cancelled,
@@ -935,7 +935,7 @@ void WhiskerTestMenu::status(const QString& msg)
 {
     ensureLogBox();
     m_logbox->statusMessage(
-                QString("%1: %2").arg(datetime::nowTimestamp()).arg(msg));
+                QString("%1: %2").arg(datetime::nowTimestamp(), msg));
 }
 
 

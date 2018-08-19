@@ -46,8 +46,7 @@ QuMcqGridDouble::QuMcqGridDouble(
         for (int qi = 0; qi < m_questions_with_fields.size(); ++qi) {
             FieldRefPtr fieldref = m_questions_with_fields.at(qi).fieldref(first);
             // DANGEROUS OBJECT LIFESPAN SIGNAL: do not use std::bind
-            QuMcqGridDoubleSignaller* sig = new QuMcqGridDoubleSignaller(
-                        this, qi, first);
+            auto sig = new QuMcqGridDoubleSignaller(this, qi, first);
             m_signallers.append(sig);
             connect(fieldref.data(), &FieldRef::valueChanged,
                     sig, &QuMcqGridDoubleSignaller::valueOrMandatoryChanged);
@@ -170,7 +169,7 @@ QPointer<QWidget> QuMcqGridDouble::makeWidget(Questionnaire* questionnaire)
 
     // As per QuMCQGrid
 
-    GridLayout* grid = new GridLayout();
+    auto grid = new GridLayout();
     grid->setContentsMargins(uiconst::NO_MARGINS);
     grid->setHorizontalSpacing(uiconst::MCQGRID_HSPACING);
     grid->setVerticalSpacing(uiconst::MCQGRID_VSPACING);
@@ -301,7 +300,7 @@ QPointer<QWidget> QuMcqGridDouble::makeWidget(Questionnaire* questionnaire)
 FieldRefPtrList QuMcqGridDouble::fieldrefs() const
 {
     FieldRefPtrList refs;
-    for (auto q : m_questions_with_fields) {
+    for (const QuestionWithTwoFields& q : m_questions_with_fields) {
         refs.append(q.firstFieldRef());
         refs.append(q.secondFieldRef());
     }

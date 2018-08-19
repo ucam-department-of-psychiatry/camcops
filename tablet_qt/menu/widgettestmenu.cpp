@@ -450,7 +450,7 @@ void WidgetTestMenu::testQuestionnaireElement(QuElement* element)
 void WidgetTestMenu::testQLabel(const QSizePolicy& policy,
                                 const bool long_text, const bool word_wrap)
 {
-    QLabel* widget = new QLabel(sampleText(long_text));
+    auto widget = new QLabel(sampleText(long_text));
     widget->setWordWrap(word_wrap);
     widget->setSizePolicy(policy);
     debugfunc::debugWidget(widget);
@@ -459,7 +459,7 @@ void WidgetTestMenu::testQLabel(const QSizePolicy& policy,
 
 void WidgetTestMenu::testQPushButton(const QSizePolicy& policy)
 {
-    QPushButton* widget = new QPushButton("Hello");
+    auto widget = new QPushButton("Hello");
     widget->setSizePolicy(policy);
     // http://stackoverflow.com/questions/21367260/qt-making-a-qpushbutton-fill-layout-cell
     connect(widget, &QPushButton::clicked,
@@ -474,7 +474,7 @@ void WidgetTestMenu::testQPushButton(const QSizePolicy& policy)
 
 void WidgetTestMenu::testAdjustablePie(const int n, const bool rotate_labels)
 {
-    AdjustablePie* pie = new AdjustablePie(n);
+    auto pie = new AdjustablePie(n);
     const qreal prop = 1.0 / n;
     const QVector<qreal> proportions(n, prop);
     pie->setProportions(proportions);
@@ -491,7 +491,7 @@ void WidgetTestMenu::testAdjustablePie(const int n, const bool rotate_labels)
 
 void WidgetTestMenu::testAspectRatioPixmap()
 {
-    AspectRatioPixmap* widget = new AspectRatioPixmap();
+    auto widget = new AspectRatioPixmap();
     const QPixmap pixmap = uifunc::getPixmap(uifunc::iconFilename(uiconst::ICON_CAMCOPS));
     widget->setPixmap(pixmap);
     debugfunc::debugWidget(widget);
@@ -502,7 +502,7 @@ void WidgetTestMenu::testBooleanWidget(
         const BooleanWidget::Appearance appearance,
         const bool long_text)
 {
-    BooleanWidget* widget = new BooleanWidget();
+    auto widget = new BooleanWidget();
     const bool big = true;
     const bool as_text_button = (appearance == BooleanWidget::Appearance::Text);
     widget->setAppearance(appearance);
@@ -518,7 +518,7 @@ void WidgetTestMenu::testBooleanWidget(
 void WidgetTestMenu::testCanvasWidget(const bool allow_shrink)
 {
     const QSize size(400, 400);
-    CanvasWidget* widget = new CanvasWidget(size);
+    auto widget = new CanvasWidget(size);
     const QImage img(size, QImage::Format_RGB32);
     widget->setImage(img);
     widget->setAllowShrink(allow_shrink);
@@ -529,7 +529,7 @@ void WidgetTestMenu::testCanvasWidget(const bool allow_shrink)
 
 void WidgetTestMenu::testClickableLabelNoWrap(const bool long_text)
 {
-    ClickableLabelNoWrap* widget = new ClickableLabelNoWrap(sampleText(long_text));
+    auto widget = new ClickableLabelNoWrap(sampleText(long_text));
     connect(widget, &QAbstractButton::clicked,
             this, &WidgetTestMenu::dummyAction);
     debugfunc::debugWidget(widget);
@@ -538,7 +538,7 @@ void WidgetTestMenu::testClickableLabelNoWrap(const bool long_text)
 
 void WidgetTestMenu::testClickableLabelWordWrapWide(const bool long_text)
 {
-    ClickableLabelWordWrapWide* widget = new ClickableLabelWordWrapWide(sampleText(long_text));
+    auto widget = new ClickableLabelWordWrapWide(sampleText(long_text));
     connect(widget, &QAbstractButton::clicked,
             this, &WidgetTestMenu::dummyAction);
     debugfunc::debugWidget(widget);
@@ -547,7 +547,7 @@ void WidgetTestMenu::testClickableLabelWordWrapWide(const bool long_text)
 
 void WidgetTestMenu::testFixedAreaHfwTestWidget()
 {
-    FixedAreaHfwTestWidget* widget = new FixedAreaHfwTestWidget();
+    auto widget = new FixedAreaHfwTestWidget();
     debugfunc::debugWidget(widget);
 }
 
@@ -555,7 +555,7 @@ void WidgetTestMenu::testFixedAreaHfwTestWidget()
 void WidgetTestMenu::testHorizontalLine()
 {
     const int width = 4;
-    HorizontalLine* widget = new HorizontalLine(width);
+    auto widget = new HorizontalLine(width);
     widget->setStyleSheet("background-color: black;");
     debugfunc::debugWidget(widget);
 }
@@ -563,7 +563,7 @@ void WidgetTestMenu::testHorizontalLine()
 
 void WidgetTestMenu::testImageButton()
 {
-    ImageButton* widget = new ImageButton(uiconst::CBS_ADD);
+    auto widget = new ImageButton(uiconst::CBS_ADD);
     debugfunc::debugWidget(widget);
 }
 
@@ -572,11 +572,11 @@ void WidgetTestMenu::testLabelWordWrapWide(
         const bool long_text, const bool use_hfw_layout,
         const bool with_icons)
 {
-    LabelWordWrapWide* label = new LabelWordWrapWide(sampleText(long_text));
+    auto label = new LabelWordWrapWide(sampleText(long_text));
     QWidget* widget;
     if (with_icons) {
         widget = new QWidget();
-        HBoxLayout* layout = new HBoxLayout(widget);
+        auto layout = new HBoxLayout(widget);
         layout->addWidget(new ImageButton(uiconst::CBS_ADD));
         layout->addWidget(label);
         layout->addWidget(new ImageButton(uiconst::CBS_ADD));
@@ -595,7 +595,7 @@ void WidgetTestMenu::testLabelWordWrapWide(
 
 void WidgetTestMenu::testSvgWidgetClickable()
 {
-    SvgWidgetClickable* widget = new SvgWidgetClickable();
+    auto widget = new SvgWidgetClickable();
     widget->setSvgFromString(graphicsfunc::TEST_SVG);
     debugfunc::debugWidget(widget);
 }
@@ -604,7 +604,7 @@ void WidgetTestMenu::testSvgWidgetClickable()
 void WidgetTestMenu::testVerticalLine()
 {
     const int width = 4;
-    VerticalLine* widget = new VerticalLine(width);
+    auto widget = new VerticalLine(width);
     widget->setStyleSheet("background-color: black;");
     debugfunc::debugWidget(widget);
 }
@@ -612,8 +612,8 @@ void WidgetTestMenu::testVerticalLine()
 
 void WidgetTestMenu::testVBoxLayout(const bool long_text)
 {
-    QWidget* widget = new QWidget();
-    VBoxLayout* layout = new VBoxLayout();
+    auto widget = new QWidget();
+    auto layout = new VBoxLayout();
     widget->setLayout(layout);
     layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
     layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
@@ -623,8 +623,8 @@ void WidgetTestMenu::testVBoxLayout(const bool long_text)
 
 void WidgetTestMenu::testGridLayoutHfw(const int example)
 {
-    QWidget* widget = new QWidget();
-    GridLayoutHfw* grid = new GridLayoutHfw();
+    auto widget = new QWidget();
+    auto grid = new GridLayoutHfw();
     widget->setLayout(grid);
     switch (example) {
     case 1:
@@ -685,15 +685,15 @@ void WidgetTestMenu::testGridLayoutHfw(const int example)
 void WidgetTestMenu::testVerticalScrollAreaSimple()
 {
     // QVBoxLayout and three simple fixed-size icons
-    QWidget* contentwidget = new QWidget();
-    QVBoxLayout* layout = new QVBoxLayout();  // simpler than VBoxLayoutHfw
+    auto contentwidget = new QWidget();
+    auto layout = new QVBoxLayout();  // simpler than VBoxLayoutHfw
     contentwidget->setLayout(layout);
 
     layout->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)));
     layout->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)));
     layout->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)));
 
-    VerticalScrollArea* scrollwidget = new VerticalScrollArea();
+    auto scrollwidget = new VerticalScrollArea();
     scrollwidget->setWidget(contentwidget);
     debugfunc::debugWidget(scrollwidget);
 }
@@ -702,14 +702,14 @@ void WidgetTestMenu::testVerticalScrollAreaSimple()
 void WidgetTestMenu::testVerticalScrollAreaComplex(const bool long_text)
 {
     // VBoxLayout (i.e. likely VBoxLayoutHfw) and two word-wrapping labels
-    BaseWidget* contentwidget = new BaseWidget();
-    VBoxLayout* layout = new VBoxLayout();
+    auto contentwidget = new BaseWidget();
+    auto layout = new VBoxLayout();
     contentwidget->setLayout(layout);
 
     layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
     layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
 
-    VerticalScrollArea* scrollwidget = new VerticalScrollArea();
+    auto scrollwidget = new VerticalScrollArea();
     scrollwidget->setWidget(contentwidget);
     debugfunc::debugWidget(scrollwidget);
 }
@@ -717,9 +717,9 @@ void WidgetTestMenu::testVerticalScrollAreaComplex(const bool long_text)
 
 void WidgetTestMenu::testVerticalScrollAreaFixedAreaHfwWidget()
 {
-    FixedAreaHfwTestWidget* contentwidget = new FixedAreaHfwTestWidget();
+    auto contentwidget = new FixedAreaHfwTestWidget();
 
-    VerticalScrollArea* scrollwidget = new VerticalScrollArea();
+    auto scrollwidget = new VerticalScrollArea();
     scrollwidget->setWidget(contentwidget);
     debugfunc::debugWidget(scrollwidget);
 }
@@ -727,11 +727,11 @@ void WidgetTestMenu::testVerticalScrollAreaFixedAreaHfwWidget()
 
 void WidgetTestMenu::testVerticalScrollAreaAspectRatioPixmap()
 {
-    AspectRatioPixmap* contentwidget = new AspectRatioPixmap();
+    auto contentwidget = new AspectRatioPixmap();
     QPixmap pixmap = uifunc::getPixmap(uifunc::iconFilename(uiconst::ICON_CAMCOPS));
     contentwidget->setPixmap(pixmap);
 
-    VerticalScrollArea* scrollwidget = new VerticalScrollArea();
+    auto scrollwidget = new VerticalScrollArea();
     scrollwidget->setWidget(contentwidget);
     debugfunc::debugWidget(scrollwidget);
 }
@@ -739,8 +739,8 @@ void WidgetTestMenu::testVerticalScrollAreaAspectRatioPixmap()
 
 void WidgetTestMenu::testVerticalScrollGridLayout()
 {
-    BaseWidget* contentwidget = new BaseWidget();
-    GridLayoutHfw* layout = new GridLayoutHfw();
+    auto contentwidget = new BaseWidget();
+    auto layout = new GridLayoutHfw();
     contentwidget->setLayout(layout);
 
     const bool long_text = true;
@@ -755,7 +755,7 @@ void WidgetTestMenu::testVerticalScrollGridLayout()
     layout->addWidget(new AspectRatioPixmap(&pixmap), 2, 1);
     layout->addWidget(new AspectRatioPixmap(&pixmap), 2, 2);
 
-    VerticalScrollArea* scrollwidget = new VerticalScrollArea();
+    auto scrollwidget = new VerticalScrollArea();
     scrollwidget->setWidget(contentwidget);
     debugfunc::debugWidget(scrollwidget);
 }
@@ -768,8 +768,8 @@ void WidgetTestMenu::testVerticalScrollGridLayout()
 void WidgetTestMenu::testFlowLayout(const int n_icons, const bool text,
                                     const Qt::Alignment halign)
 {
-    QWidget* widget = new QWidget();
-    FlowLayoutHfw* layout = new FlowLayoutHfw();
+    auto widget = new QWidget();
+    auto layout = new FlowLayoutHfw();
     layout->setHorizontalAlignmentOfContents(halign);
     widget->setLayout(layout);
     for (int i = 0; i < n_icons; ++i) {
@@ -786,13 +786,13 @@ void WidgetTestMenu::testFlowLayout(const int n_icons, const bool text,
 
 void WidgetTestMenu::testBaseWidget(const bool long_text)
 {
-    FlowLayoutHfw* layout = new FlowLayoutHfw();
+    auto layout = new FlowLayoutHfw();
     layout->addWidget(new LabelWordWrapWide("Option Z1"));
     QString option2 = long_text ? "Option Z2 " + textconst::LOREM_IPSUM_2
                                 : "Option Z2";
     layout->addWidget(new LabelWordWrapWide(option2));
     layout->addWidget(new LabelWordWrapWide("Option Z3"));
-    BaseWidget* widget = new BaseWidget();
+    auto widget = new BaseWidget();
     widget->setLayout(layout);
     debugfunc::debugWidget(widget);
 }
@@ -812,7 +812,7 @@ void WidgetTestMenu::testMenuItem()
 
 void WidgetTestMenu::testQuestionnaireHeader()
 {
-    QuestionnaireHeader* widget = new QuestionnaireHeader(
+    auto widget = new QuestionnaireHeader(
                 nullptr, textconst::LOREM_IPSUM_1,
                 false, true, false, cssconst::QUESTIONNAIRE_BACKGROUND_CONFIG);
     widget->setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
@@ -827,7 +827,7 @@ void WidgetTestMenu::testQuestionnaire(const bool long_title,
     page->addElement(new QuText(textconst::LOREM_IPSUM_1));
     page->setTitle(long_title ? textconst::LOREM_IPSUM_1
                               : "Reasonably long title with several words");
-    Questionnaire* widget = new Questionnaire(m_app, {page});
+    auto widget = new Questionnaire(m_app, {page});
     if (as_openable_widget) {
         m_app.openSubWindow(widget);
     } else {

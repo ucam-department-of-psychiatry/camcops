@@ -72,7 +72,7 @@ QString delimit(const QString& identifier)
 QString selectColumns(const QStringList& columns, const QString& table)
 {
     QStringList delimited_columns;
-    for (auto column : columns) {
+    for (const QString& column : columns) {
         delimited_columns.append(delimit(column));
     }
     return QString("SELECT %1 FROM %2").arg(delimited_columns.join(","),
@@ -284,8 +284,7 @@ QString sqlCreateTable(const QString& tablename,
                        const QVector<Field>& fieldlist)
 {
     QStringList coldefs;
-    for (int i = 0; i < fieldlist.size(); ++i) {
-        const Field& field = fieldlist.at(i);
+    for (const Field& field : fieldlist) {
         const QString coltype = field.sqlColumnDef();
         coldefs << QString("%1 %2").arg(delimit(field.name()), coltype);
     }

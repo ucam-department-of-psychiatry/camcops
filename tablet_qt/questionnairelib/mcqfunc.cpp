@@ -87,7 +87,7 @@ const Qt::Alignment stem_widget_align = Qt::AlignHCenter | Qt::AlignBottom;
 
 void addVerticalLine(GridLayout* grid, const int col, const int n_rows)
 {
-    VerticalLine* vline = new VerticalLine(uiconst::MCQGRID_VLINE_WIDTH);
+    auto vline = new VerticalLine(uiconst::MCQGRID_VLINE_WIDTH);
     vline->setObjectName(cssconst::VLINE);
     grid->addWidget(vline, 0, col, n_rows, 1);
 }
@@ -95,7 +95,7 @@ void addVerticalLine(GridLayout* grid, const int col, const int n_rows)
 
 void addQuestion(GridLayout* grid, const int row, const QString& question)
 {
-    LabelWordWrapWide* q = new LabelWordWrapWide(question);
+    auto q = new LabelWordWrapWide(question);
     q->setAlignment(question_text_align);
     q->setObjectName(cssconst::QUESTION);
     grid->addWidget(q, row, 0, question_widget_align);
@@ -105,7 +105,7 @@ void addQuestion(GridLayout* grid, const int row, const QString& question)
 void addTitle(GridLayout* grid, const int row, const QString& title)
 {
     if (!title.isEmpty()) {
-        LabelWordWrapWide* w = new LabelWordWrapWide(title);
+        auto w = new LabelWordWrapWide(title);
         w->setAlignment(title_text_align);
         w->setObjectName(cssconst::TITLE);
         grid->addWidget(w, row, 0, title_widget_align);
@@ -116,7 +116,7 @@ void addTitle(GridLayout* grid, const int row, const QString& title)
 void addSubtitle(GridLayout* grid, const int row, const QString& subtitle)
 {
     if (!subtitle.isEmpty()) {
-        LabelWordWrapWide* w = new LabelWordWrapWide(subtitle);
+        auto w = new LabelWordWrapWide(subtitle);
         w->setAlignment(title_text_align);
         w->setObjectName(cssconst::SUBTITLE);
         grid->addWidget(w, row, 0, title_widget_align);
@@ -128,7 +128,7 @@ void addStem(GridLayout* grid, const int row, const int firstcol,
              const int colspan, const QString& stem)
 {
     if (!stem.isEmpty()) {
-        LabelWordWrapWide* w = new LabelWordWrapWide(stem);
+        auto w = new LabelWordWrapWide(stem);
         w->setAlignment(stem_text_align);
         w->setObjectName(cssconst::STEM);
         grid->addWidget(w, row, firstcol, 1, colspan, stem_widget_align);
@@ -139,7 +139,7 @@ void addStem(GridLayout* grid, const int row, const int firstcol,
 void addOption(GridLayout* grid, const int row, const int col,
                const QString& option)
 {
-    LabelWordWrapWide* w = new LabelWordWrapWide(option);
+    auto w = new LabelWordWrapWide(option);
     w->setAlignment(option_text_align);
     w->setObjectName(cssconst::OPTION);
     grid->addWidget(w, row, col, option_widget_align);
@@ -149,7 +149,7 @@ void addOption(GridLayout* grid, const int row, const int col,
 void addOptionBackground(GridLayout* grid, const int row, const int firstcol,
                          const int ncols, const int nrows)
 {
-    QWidget* bg = new QWidget();
+    auto bg = new QWidget();
     bg->setObjectName(cssconst::OPTION_BACKGROUND);
     grid->addWidget(bg, row, firstcol, nrows, ncols);
 }
@@ -159,7 +159,7 @@ void addStripeBackground(GridLayout* grid, const int row, const int firstcol,
                          const int ncols, const int nrows)
 {
     const bool even = row % 2 == 0;
-    QWidget* bg = new QWidget();
+    auto bg = new QWidget();
     bg->setObjectName(even ? cssconst::STRIPE_BACKGROUND_EVEN
                            : cssconst::STRIPE_BACKGROUND_ODD);
     grid->addWidget(bg, row, firstcol, nrows, ncols);

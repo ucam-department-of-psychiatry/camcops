@@ -46,7 +46,7 @@ QModelIndex DiagnosticCodeSet::index(const int row, const int column,
                                      const QModelIndex& parent_index) const
 {
     if (!hasIndex(row, column, parent_index)) {
-        return QModelIndex();
+        return {};
     }
 
     DiagnosticCode* parent_item;
@@ -60,20 +60,18 @@ QModelIndex DiagnosticCodeSet::index(const int row, const int column,
     DiagnosticCode* child_item = parent_item->child(row);
     if (child_item) {
         return createIndex(row, column, child_item);
-    } else {
-        return QModelIndex();
     }
+    return {};
 }
 
 
 QModelIndex DiagnosticCodeSet::parent(const QModelIndex& index) const
 {
     if (!index.isValid()) {
-        return QModelIndex();
+        return {};
     }
 
-    DiagnosticCode* child_item = static_cast<DiagnosticCode*>(
-                index.internalPointer());
+    auto child_item = static_cast<DiagnosticCode*>(index.internalPointer());
     DiagnosticCode* parent_item = child_item->parent();
 
     if (!parent_item || parent_item == m_root_item) {
@@ -107,9 +105,8 @@ int DiagnosticCodeSet::columnCount(const QModelIndex& parent_index) const
     if (parent_index.isValid()) {
         return static_cast<DiagnosticCode*>(
                     parent_index.internalPointer())->columnCount();
-    } else {
-        return m_root_item->columnCount();
     }
+    return m_root_item->columnCount();
 }
 
 
@@ -124,8 +121,7 @@ QVariant DiagnosticCodeSet::data(const QModelIndex &index,
         return QVariant();
     }
 
-    DiagnosticCode* item = static_cast<DiagnosticCode*>(
-                index.internalPointer());
+    auto item = static_cast<DiagnosticCode*>(index.internalPointer());
 
     return item->data(index.column());
 }
@@ -137,8 +133,7 @@ Qt::ItemFlags DiagnosticCodeSet::flags(const QModelIndex& index) const
         return 0;
     }
     // return QAbstractItemModel::flags(index);
-    DiagnosticCode* item = static_cast<DiagnosticCode*>(
-                index.internalPointer());
+    auto item = static_cast<DiagnosticCode*>(index.internalPointer());
     Qt::ItemFlags flags = Qt::ItemIsEnabled;
     if (item->selectable()) {
         flags |= Qt::ItemIsSelectable;
@@ -228,7 +223,7 @@ DiagnosticCode* DiagnosticCodeSet::addCode(
     if (parent == nullptr) {
         parent = m_root_item;
     }
-    DiagnosticCode* c = new DiagnosticCode(
+    auto c = new DiagnosticCode(
                 code, description,
                 parent, parent->depth() + 1, selectable,
                 show_code_in_full_name);

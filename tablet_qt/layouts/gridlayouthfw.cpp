@@ -368,10 +368,10 @@ void GridLayoutHfw::add(QQGridBox* box,
                         const int col1, int col2)
 {
     if (Q_UNLIKELY(row2 >= 0 && row2 < row1)) {
-        qWarning("QGridLayout: Multi-cell from-row greater than to-row");
+        qWarning() << "QGridLayout: Multi-cell from-row greater than to-row";
     }
     if (Q_UNLIKELY(col2 >= 0 && col2 < col1)) {
-        qWarning("QGridLayout: Multi-cell from-col greater than to-col");
+        qWarning() << "QGridLayout: Multi-cell from-col greater than to-col";
     }
     if (row1 == row2 && col1 == col2) {
         add(box, row1, col1);
@@ -599,7 +599,7 @@ void GridLayoutHfw::setupSpacings(QVector<QLayoutStruct>& chain,
                     if (style) {
                         spacing = style->combinedLayoutSpacing(
                                     controlTypes1, controlTypes2,
-                                    orientation, 0, parentWidget());
+                                    orientation, nullptr, parentWidget());
                     }
                 } else {
                     if (orientation == Qt::Vertical) {
@@ -872,9 +872,8 @@ int GridLayoutHfw::horizontalSpacing() const
 {
     if (m_horizontal_spacing >= 0) {
         return m_horizontal_spacing;
-    } else {
-        return qSmartSpacing(this, QStyle::PM_LayoutHorizontalSpacing);
     }
+    return qSmartSpacing(this, QStyle::PM_LayoutHorizontalSpacing);
 }
 
 
@@ -889,9 +888,8 @@ int GridLayoutHfw::verticalSpacing() const
 {
     if (m_vertical_spacing >= 0) {
         return m_vertical_spacing;
-    } else {
-        return qSmartSpacing(this, QStyle::PM_LayoutVerticalSpacing);
     }
+    return qSmartSpacing(this, QStyle::PM_LayoutVerticalSpacing);
 }
 
 
@@ -907,9 +905,8 @@ int GridLayoutHfw::spacing() const
     int h_spacing = horizontalSpacing();
     if (h_spacing == verticalSpacing()) {
         return h_spacing;
-    } else {
-        return -1;
     }
+    return -1;
 }
 
 
@@ -1033,9 +1030,8 @@ QLayoutItem* GridLayoutHfw::itemAt(int index) const
 {
     if (index < m_things.count()) {
         return m_things.at(index)->item();
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 
@@ -1267,7 +1263,7 @@ void GridLayoutHfw::addItem(QLayoutItem* item, int row, int column,
                             int row_span, int column_span,
                             Qt::Alignment alignment)
 {
-    QQGridBox* b = new QQGridBox(item);
+    auto b = new QQGridBox(item);
     b->setAlignment(alignment);
     add(b,
         row, (row_span < 0) ? -1 : row + row_span - 1,
@@ -1306,7 +1302,7 @@ void GridLayoutHfw::addWidget(QWidget* widget, int from_row, int from_column,
     int toRow = (row_span < 0) ? -1 : from_row + row_span - 1;
     int toColumn = (column_span < 0) ? -1 : from_column + column_span - 1;
     addChildWidget(widget);
-    QQGridBox* b = new QQGridBox(this, widget);
+    auto b = new QQGridBox(this, widget);
     b->setAlignment(alignment);
     add(b, from_row, toRow, from_column, toColumn);
     invalidate();
@@ -1322,7 +1318,7 @@ void GridLayoutHfw::addLayout(QLayout* layout, int row, int column,
     if (!adoptLayout(layout)) {
         return;
     }
-    QQGridBox* b = new QQGridBox(layout);
+    auto b = new QQGridBox(layout);
     b->setAlignment(alignment);
     add(b, row, column);
 }
@@ -1338,7 +1334,7 @@ void GridLayoutHfw::addLayout(QLayout* layout, int row, int column,
     if (!adoptLayout(layout)) {
         return;
     }
-    QQGridBox* b = new QQGridBox(layout);
+    auto b = new QQGridBox(layout);
     b->setAlignment(alignment);
     add(b,
         row, (row_span < 0) ? -1 : row + row_span - 1,
@@ -1430,9 +1426,8 @@ Qt::Corner GridLayoutHfw::originCorner() const
 {
     if (horReversed()) {
         return verReversed() ? Qt::BottomRightCorner : Qt::TopRightCorner;
-    } else {
-        return verReversed() ? Qt::BottomLeftCorner : Qt::TopLeftCorner;
     }
+    return verReversed() ? Qt::BottomLeftCorner : Qt::TopLeftCorner;
 }
 
 
@@ -1661,8 +1656,7 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
     
         for (int pass = 0; pass < 2; ++pass) {
             // Two passes used to calculate for items that cover >1 box.
-            for (int i = 0; i < m_things.size(); ++i) {
-                QQGridBox* box = m_things.at(i);
+            for (QQGridBox* box : m_things) {
                 int r1 = box->row;
                 int c1 = box->col;
                 int r2 = box->toRow(m_nrow);

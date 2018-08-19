@@ -122,7 +122,7 @@ BUT:
     m_qml_view->setSource(uifunc::resourceUrl(CAMERA_QML));
 #endif
 
-    QVBoxLayout* top_layout = new QVBoxLayout();
+    auto top_layout = new QVBoxLayout();
     top_layout->addWidget(m_qml_view);
     setLayout(top_layout);
 }

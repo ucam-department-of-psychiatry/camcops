@@ -65,7 +65,7 @@ void ChoosePatientMenu::build()
         MenuItem(tr("Patients")).setLabelOnly(),
     };
     // qDebug() << Q_FUNC_INFO << "-" << patients.size() << "patient(s)";
-    for (auto patient : patients) {
+    for (const PatientPtr& patient : patients) {
         m_items.append(MenuItem(patient));
     }
 

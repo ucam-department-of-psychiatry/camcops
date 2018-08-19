@@ -151,13 +151,12 @@ QString Task::instanceTitle() const
         return QString("%1; %2").arg(
             shortname(),
             whenCreated().toString(datetime::SHORT_DATETIME_FORMAT));
-    } else {
-        Patient* pt = patient();
-        return QString("%1; %2; %3").arg(
-            shortname(),
-            pt ? pt->surnameUpperForename() : tr("MISSING PATIENT"),
-            whenCreated().toString(datetime::SHORT_DATETIME_FORMAT));
     }
+    Patient* pt = patient();
+    return QString("%1; %2; %3").arg(
+        shortname(),
+        pt ? pt->surnameUpperForename() : tr("MISSING PATIENT"),
+        whenCreated().toString(datetime::SHORT_DATETIME_FORMAT));
 }
 
 
@@ -426,8 +425,8 @@ QStringList Task::fieldSummaries(const QString& xstringprefix,
     const QStringList fieldnames = strseq(fieldprefix, first, last);
     QStringList list;
     for (int i = 0; i < fieldnames.length(); ++i) {
-        const QString fieldname = fieldnames.at(i);
-        const QString xstringname = xstringnames.at(i);
+        const QString& fieldname = fieldnames.at(i);
+        const QString& xstringname = xstringnames.at(i);
         list.append(fieldSummary(fieldname, xstring(xstringname),
                                  spacer, suffix));
     }
@@ -449,8 +448,8 @@ QStringList Task::fieldSummariesYesNo(const QString& xstringprefix,
     const QStringList fieldnames = strseq(fieldprefix, first, last);
     QStringList list;
     for (int i = 0; i < fieldnames.length(); ++i) {
-        const QString fieldname = fieldnames.at(i);
-        const QString xstringname = xstringnames.at(i);
+        const QString& fieldname = fieldnames.at(i);
+        const QString& xstringname = xstringnames.at(i);
         list.append(fieldSummaryYesNo(fieldname, xstring(xstringname),
                                       spacer, suffix));
     }
@@ -522,9 +521,9 @@ OpenableWidget* Task::makeGraphicsWidget(
         const bool fullscreen,
         const bool esc_can_abort)
 {
-    ScreenLikeGraphicsView* view = new ScreenLikeGraphicsView(scene);
+    auto view = new ScreenLikeGraphicsView(scene);
     view->setBackgroundColour(background_colour);
-    OpenableWidget* widget = new OpenableWidget();
+    auto widget = new OpenableWidget();
     widget->setWidgetAsOnlyContents(view, 0, fullscreen, esc_can_abort);
     return widget;
 }

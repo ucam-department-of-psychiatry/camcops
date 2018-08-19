@@ -47,7 +47,7 @@ class DiagnosticCodeSelector : public OpenableWidget
     Q_OBJECT
 public:
     DiagnosticCodeSelector(const QString& stylesheet,
-                           DiagnosticCodeSetPtr codeset,
+                           const DiagnosticCodeSetPtr& codeset,
                            const QModelIndex& selected = QModelIndex(),
                            QWidget* parent = nullptr);
 signals:

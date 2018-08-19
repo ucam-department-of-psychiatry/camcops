@@ -26,7 +26,6 @@
 #include "lib/datetime.h"
 #include "whisker/whiskerapi.h"
 #include "whisker/whiskermanager.h"
-using whiskerapi::msgFromArgs;
 using namespace whiskerconstants;
 
 
@@ -284,7 +283,7 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
     const QRegularExpressionMatch immport_match = IMMPORT_REGEX.match(line);
     if (immport_match.hasMatch()) {
         if (m_connection_state != WhiskerConnectionState::C_MainConnectedAwaitingImmPort) {
-            qWarning("ImmPort message received at wrong stage");
+            qWarning() << "ImmPort message received at wrong stage";
             disconnectFromServer();
             return;
         }
@@ -299,7 +298,7 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
     const QRegularExpressionMatch code_match = CODE_REGEX.match(line);
     if (code_match.hasMatch()) {
         if (m_connection_state != WhiskerConnectionState::D_MainConnectedAwaitingCode) {
-            qWarning("Code message received at wrong stage");
+            qWarning() << "Code message received at wrong stage";
             disconnectFromServer();
             return;
         }

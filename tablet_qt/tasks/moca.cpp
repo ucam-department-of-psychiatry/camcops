@@ -36,7 +36,6 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
 using mathfunc::scorePhrase;
-using mathfunc::scoreString;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::standardResult;
@@ -231,7 +230,7 @@ OpenableWidget* Moca::editor(const bool read_only)
             std::initializer_list<QuElement*> elements,
             QuPage::PageType type = QuPage::PageType::Inherit,
             bool allow_scroll = true) -> void {
-        QuPage* p = new QuPage(elements);
+        auto p = new QuPage(elements);
         p->setTitle(title);
         p->setType(type);
         if (!allow_scroll) {
@@ -266,7 +265,7 @@ OpenableWidget* Moca::editor(const bool read_only)
                 xstring(strnum(question_prefix, i))
             ));
         }
-        Q_ASSERT(qfields.size() > 0);
+        Q_ASSERT(!qfields.empty());
         return new QuMcqGrid(qfields, options);
     };
     auto grid2 = [this](const QString& fieldname_prefix,
@@ -284,7 +283,7 @@ OpenableWidget* Moca::editor(const bool read_only)
                                xstring(strnum(xstring_prefix, i))
             ));
         }
-        Q_ASSERT(qfields.size() > 0);
+        Q_ASSERT(!qfields.empty());
         return new QuMcqGrid(qfields, options);
     };
     auto viewblob = [this](const QString& blob_id_fieldname) -> QuElement* {

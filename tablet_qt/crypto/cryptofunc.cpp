@@ -39,7 +39,7 @@
 #define DEBUG_LOAD_CRYPTO_DLL
 
 #include "cryptofunc.h"
-#include <math.h>  // for ceil
+#include <cmath>  // for ceil
 #include <memory>  // for std::unique_ptr
 #include <openssl/evp.h>
 #include <openssl/rand.h>
@@ -290,9 +290,9 @@
 // because tablets are pretty slow; see
 // http://security.stackexchange.com/questions/3959/
 
-const unsigned int AES_256BIT_KEY_SIZE = 256 / 8;
-const unsigned int AES_BLOCK_SIZE_BYTES = 16;  // AES is 128 bits = 16 bytes
-const unsigned int SALT_LENGTH_BYTES = 64;
+const int AES_256BIT_KEY_SIZE = 256 / 8;
+const int AES_BLOCK_SIZE_BYTES = 16;  // AES is 128 bits = 16 bytes
+const int SALT_LENGTH_BYTES = 64;
 // ... https://www.owasp.org/index.php/Password_Storage_Cheat_Sheet
 const int SALT_LENGTH_TEXT = cryptofunc::base64Length(SALT_LENGTH_BYTES);
 
@@ -305,7 +305,7 @@ int cryptofunc::base64Length(const int nbytes)
 {
     // http://stackoverflow.com/questions/13378815/base64-length-calculation
     double d = nbytes;
-    int len = static_cast<int>(ceil(4 * (d / 3)));
+    auto len = static_cast<int>(ceil(4 * (d / 3)));
     // Round up to a multiple of 4:
     while (len % 4 != 0) {
         ++len;
@@ -328,8 +328,11 @@ void cryptofunc::aesEncrypt(const QByteArray& key_bytes,
     qDebug() << "iv_bytes" << iv_bytes;
     qDebug() << "plaintext_bytes" << plaintext_bytes;
 #endif
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto keydata = reinterpret_cast<const unsigned char*>(key_bytes.constData());
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto ivdata = reinterpret_cast<const unsigned char*>(iv_bytes.constData());
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto ptextdata = reinterpret_cast<const unsigned char*>(plaintext_bytes.constData());
 
     EVP_CIPHER_CTX_ptr ctx(crypto_EVP_CIPHER_CTX_new(),
@@ -348,8 +351,9 @@ void cryptofunc::aesEncrypt(const QByteArray& key_bytes,
     ciphertext_bytes.resize(plaintext_bytes.size() + AES_BLOCK_SIZE_BYTES);
     // Set the pointer (ctextdata) AFTER the resize; it's likely that the
     // resize invalidates any previous pointers to the data.
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto ctextdata = reinterpret_cast<unsigned char*>(ciphertext_bytes.data());
-    int out_len1 = (int)ciphertext_bytes.size();
+    int out_len1 = ciphertext_bytes.size();
 
     retcode = crypto_EVP_EncryptUpdate(ctx.get(), ctextdata, &out_len1,
                                        ptextdata, plaintext_bytes.size());
@@ -383,9 +387,12 @@ void cryptofunc::aesDecrypt(const QByteArray& key_bytes,
     qDebug() << "iv_bytes" << iv_bytes;
     qDebug() << "ciphertext_bytes" << ciphertext_bytes;
 #endif
-    const unsigned char* keydata = reinterpret_cast<const unsigned char*>(key_bytes.constData());
-    const unsigned char* ivdata = reinterpret_cast<const unsigned char*>(iv_bytes.constData());
-    const unsigned char* ctextdata = reinterpret_cast<const unsigned char*>(ciphertext_bytes.constData());
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    auto keydata = reinterpret_cast<const unsigned char*>(key_bytes.constData());
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    auto ivdata = reinterpret_cast<const unsigned char*>(iv_bytes.constData());
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    auto ctextdata = reinterpret_cast<const unsigned char*>(ciphertext_bytes.constData());
 
     EVP_CIPHER_CTX_ptr ctx(crypto_EVP_CIPHER_CTX_new(),
                            crypto_EVP_CIPHER_CTX_free);
@@ -399,8 +406,9 @@ void cryptofunc::aesDecrypt(const QByteArray& key_bytes,
     recoveredtext_bytes.resize(ciphertext_bytes.size());
     // Set the pointer (ptextdata) AFTER the resize; it's likely that the
     // resize invalidates any previous pointers to the data.
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto ptextdata = reinterpret_cast<unsigned char*>(recoveredtext_bytes.data());
-    int out_len1 = (int)recoveredtext_bytes.size();
+    int out_len1 = recoveredtext_bytes.size();
 
     retcode = crypto_EVP_DecryptUpdate(ctx.get(), ptextdata, &out_len1,
                                        ctextdata, ciphertext_bytes.size());
@@ -411,7 +419,7 @@ void cryptofunc::aesDecrypt(const QByteArray& key_bytes,
         return;
     }
 
-    int out_len2 = (int)recoveredtext_bytes.size() - out_len1;
+    int out_len2 = recoveredtext_bytes.size() - out_len1;
     retcode = crypto_EVP_DecryptFinal_ex(
                 ctx.get(), ptextdata + out_len1, &out_len2);
     if (retcode != 1) {
@@ -437,14 +445,17 @@ SecureQByteArray cryptofunc::hashBytes(const QByteArray& plaintext_bytes)
     if (retcode != 1) {
         throw std::runtime_error("EVP_DigestInit_ex failed");
     }
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto msgdata = reinterpret_cast<const unsigned char*>(plaintext_bytes.constData());
     int msglen = plaintext_bytes.size();
-    retcode = crypto_EVP_DigestUpdate(context.get(), msgdata, msglen);
+    retcode = crypto_EVP_DigestUpdate(context.get(), msgdata,
+                                      static_cast<size_t>(msglen));
     if (retcode != 1) {
         qWarning() << "HASHING FAILED (EVP_DigestUpdate failed)";
         return QByteArray();
     }
     QByteArray result(EVP_MAX_MD_SIZE, 0);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto resultdata = reinterpret_cast<unsigned char*>(result.data());
     unsigned int digestlen;
     retcode = crypto_EVP_DigestFinal_ex(context.get(), resultdata, &digestlen);
@@ -452,7 +463,7 @@ SecureQByteArray cryptofunc::hashBytes(const QByteArray& plaintext_bytes)
         qWarning() << "HASHING FAILED (EVP_DigestUpdate failed)";
         return QByteArray();
     }
-    result.resize(digestlen);
+    result.resize(static_cast<int>(digestlen));
     return result;
 }
 
@@ -460,6 +471,7 @@ SecureQByteArray cryptofunc::hashBytes(const QByteArray& plaintext_bytes)
 SecureQByteArray cryptofunc::makeAesIV()
 {
     SecureQByteArray iv(AES_BLOCK_SIZE_BYTES, 0);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto ivdata = reinterpret_cast<unsigned char*>(iv.data());
     RAND_bytes(ivdata, AES_BLOCK_SIZE_BYTES);
     return iv;
@@ -539,6 +551,7 @@ bool cryptofunc::isValidAesIV(const QString& iv_b64)
 SecureQByteArray cryptofunc::randomBytes(const int n)
 {
     SecureQByteArray array(n, 0);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto ptr = reinterpret_cast<unsigned char*>(array.data());
     int retcode = RAND_bytes(ptr, n);
     if (retcode == -1) {  // failure; see rand_lib.c

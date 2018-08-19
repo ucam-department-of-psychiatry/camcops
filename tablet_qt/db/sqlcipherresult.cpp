@@ -366,7 +366,8 @@ bool SQLCipherResult::prepare(const QString& query)
                          res));
         finalize();
         return false;
-    } else if (pzTail && !QString(reinterpret_cast<const QChar*>(pzTail)).trimmed().isEmpty()) {
+    }
+    if (pzTail && !QString(reinterpret_cast<const QChar*>(pzTail)).trimmed().isEmpty()) {
         setLastError(qMakeError(
                          cipherDriver()->m_access,
                          QCoreApplication::translate("SQLCipherResult",
@@ -405,7 +406,7 @@ bool SQLCipherResult::exec()
     if (param_count == values.count()) {
         for (int i = 0; i < param_count; ++i) {
             res = SQLITE_OK;
-            const QVariant value = values.at(i);
+            const QVariant& value = values.at(i);
 
             if (value.isNull()) {
                 res = sqlite3_bind_null(m_stmt, i + 1);
@@ -413,7 +414,7 @@ bool SQLCipherResult::exec()
                 switch (value.type()) {
                 case QVariant::ByteArray:
                 {
-                    const QByteArray* ba = static_cast<const QByteArray*>(value.constData());
+                    auto ba = static_cast<const QByteArray*>(value.constData());
                     res = sqlite3_bind_blob(m_stmt, i + 1, ba->constData(),
                                             ba->size(), SQLITE_STATIC);
                     break;
@@ -448,7 +449,7 @@ bool SQLCipherResult::exec()
                 case QVariant::String:
                 {
                     // lifetime of string == lifetime of its qvariant
-                    const QString* str = static_cast<const QString*>(value.constData());
+                    auto str = static_cast<const QString*>(value.constData());
                     res = sqlite3_bind_text16(m_stmt, i + 1, str->utf16(),
                                               (str->size()) * sizeof(QChar), SQLITE_STATIC);
                     break;

@@ -119,8 +119,8 @@ protected:
 // ============================================================================
 
 QString xmlElement(const QString& tag, const QString& contents,
-                   const QMap<QString, QString> attributes = QMap<QString, QString>());
-QString xmlAttributes(const QMap<QString, QString> attributes);
+                   const QMap<QString, QString>& attributes = QMap<QString, QString>());
+QString xmlAttributes(const QMap<QString, QString>& attributes);
 QString svg(const QStringList& elements);
 QString svgPath(const QString& contents,
                 const QColor& stroke, int stroke_width,

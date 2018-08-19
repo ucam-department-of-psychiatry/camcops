@@ -252,8 +252,8 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
     Qt::Alignment text_align = Qt::AlignLeft | Qt::AlignVCenter;
     QSizePolicy sp_icon(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    BaseWidget* row = new BaseWidget();
-    HBoxLayout* rowlayout = new HBoxLayout();
+    auto row = new BaseWidget();
+    auto rowlayout = new HBoxLayout();
     row->setLayout(rowlayout);
 
     if (m_p_task) {
@@ -299,8 +299,8 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         // Taskname OR patient
         if (m_task_shows_taskname || m_task_shows_patient) {
-            BaseWidget* col1_widget = new BaseWidget();
-            QHBoxLayout* col1_hbox = new QHBoxLayout();
+            auto col1_widget = new BaseWidget();
+            auto col1_hbox = new QHBoxLayout();
             col1_widget->setLayout(col1_hbox);
 
             int firstcol_stretch = STRETCH_3COL_WTASKNAME_TASKNAME;
@@ -338,8 +338,8 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         }
 
         // Timestamp
-        BaseWidget* col2_widget = new BaseWidget();
-        QHBoxLayout* col2_hbox = new QHBoxLayout();
+        auto col2_widget = new BaseWidget();
+        auto col2_hbox = new QHBoxLayout();
         col2_widget->setLayout(col2_hbox);
 
         QLabel* timestamp = new LabelWordWrapWide(
@@ -358,8 +358,8 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         rowlayout->addWidget(col2_widget);
 
         // Summary
-        BaseWidget* col3_widget = new BaseWidget();
-        QHBoxLayout* col3_hbox = new QHBoxLayout();
+        auto col3_widget = new BaseWidget();
+        auto col3_hbox = new QHBoxLayout();
         col3_widget->setLayout(col3_hbox);
 
         QLabel* summary = new LabelWordWrapWide(
@@ -386,16 +386,13 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // ICON | ICON | - ID numbers
 
         // Title/subtitle style
-        VBoxLayout* textlayout = new VBoxLayout();
+        auto textlayout = new VBoxLayout();
 
         const QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-        LabelWordWrapWide* title = new LabelWordWrapWide(
-                    m_p_patient->surnameUpperForename());
-        LabelWordWrapWide* subtitle1 = new LabelWordWrapWide(
-                    m_p_patient->sexAgeDob());
-        LabelWordWrapWide* subtitle2 = new LabelWordWrapWide(
-                    m_p_patient->shortIdnumSummary());
+        auto title = new LabelWordWrapWide(m_p_patient->surnameUpperForename());
+        auto subtitle1 = new LabelWordWrapWide(m_p_patient->sexAgeDob());
+        auto subtitle2 = new LabelWordWrapWide(m_p_patient->shortIdnumSummary());
 
         title->setAlignment(text_align);
         subtitle1->setAlignment(text_align);
@@ -465,14 +462,14 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         }
 
         // Title/subtitle
-        VBoxLayout* textlayout = new VBoxLayout();
+        auto textlayout = new VBoxLayout();
 
-        QLabel* title = new LabelWordWrapWide(m_title);
+        auto title = new LabelWordWrapWide(m_title);
         title->setAlignment(text_align);
         title->setObjectName(cssconst::MENU_ITEM_TITLE);
         textlayout->addWidget(title);
         if (!m_subtitle.isEmpty()) {
-            QLabel* subtitle = new LabelWordWrapWide(m_subtitle);
+            auto subtitle = new LabelWordWrapWide(m_subtitle);
             subtitle->setAlignment(text_align);
             subtitle->setObjectName(cssconst::MENU_ITEM_SUBTITLE);
             textlayout->addWidget(subtitle);
@@ -563,12 +560,12 @@ void MenuItem::act(CamcopsApp& app) const
         return;
     }
     if (!m_task_tablename.isEmpty()) {
-        SingleTaskMenu* pWindow = new SingleTaskMenu(m_task_tablename, app);
+        auto pWindow = new SingleTaskMenu(m_task_tablename, app);
         app.openSubWindow(pWindow);
         return;
     }
     if (!m_html_item.filename.isEmpty()) {
-        HtmlInfoWindow* pWindow = new HtmlInfoWindow(
+        auto pWindow = new HtmlInfoWindow(
             app, m_html_item.title, m_html_item.filename,
             m_html_item.icon, m_html_item.fullscreen);
         app.openSubWindow(pWindow);

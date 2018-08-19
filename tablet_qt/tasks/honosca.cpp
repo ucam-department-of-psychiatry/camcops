@@ -26,10 +26,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qulineedit.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::anyNull;
 using mathfunc::noneNull;
-using mathfunc::scoreString;
-using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::standardResult;
 using stringfunc::strnum;
@@ -174,7 +171,7 @@ OpenableWidget* Honosca::editor(const bool read_only)
         addpage(n, xstring("section_b_title_prefix"));
     }
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

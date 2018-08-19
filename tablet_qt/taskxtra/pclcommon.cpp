@@ -146,7 +146,7 @@ OpenableWidget* PclCommon::editor(const bool read_only)
     QVector<QuElement*> elements;
     auto addtext = [this, &elements](const QString& xstringname,
                                      bool bold = false) -> void {
-        QuText* text = new QuText(xstring(xstringname));
+        auto text = new QuText(xstring(xstringname));
         if (bold) {
             text->setBold(true);
         }
@@ -175,7 +175,7 @@ OpenableWidget* PclCommon::editor(const bool read_only)
     QuPagePtr page((new QuPage(elements))
                    ->setTitle(xstring(m_xstring_prefix + "_title")));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

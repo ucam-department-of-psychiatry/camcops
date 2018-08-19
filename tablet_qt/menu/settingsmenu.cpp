@@ -344,7 +344,7 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
     page->setTitle(tr("Configure server settings"));
     page->setType(QuPage::PageType::Config);
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setFinishButtonIconToTick();
     connect(questionnaire, &Questionnaire::completed,
             this, &SettingsMenu::serverSettingsSaved);
@@ -498,7 +498,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     const QString clin_contact_t = tr("Default clinician’s contact details");
     const QString clin_contact_h = tr("e.g. “x2167”");
 
-    QuGridContainer* g = new QuGridContainer();
+    auto g = new QuGridContainer();
     g->setColumnStretch(0, 1);
     g->setColumnStretch(1, 1);
     int row = 0;
@@ -584,7 +584,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     page->setTitle(tr("User settings"));
     page->setType(QuPage::PageType::Config);
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setFinishButtonIconToTick();
     connect(questionnaire, &Questionnaire::completed,
             this, &SettingsMenu::userSettingsSaved);
@@ -765,7 +765,7 @@ QString SettingsMenu::makeTitle(const QString& part1,
 QString SettingsMenu::makeHint(const QString& part1,
                                const QString& part2) const
 {
-    return QString("%1 (%2)").arg(part1).arg(part2);
+    return QString("%1 (%2)").arg(part1, part2);
 }
 
 
@@ -908,7 +908,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     const Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
     const Qt::Alignment dataalign = Qt::AlignLeft | Qt::AlignTop;
 
-    QuGridContainer* g1 = new QuGridContainer();
+    auto g1 = new QuGridContainer();
     g1->setColumnStretch(0, 1);
     g1->setColumnStretch(1, 1);
     int row = 0;
@@ -933,7 +933,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
                            ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
 
-    QuGridContainer* g2 = new QuGridContainer();
+    auto g2 = new QuGridContainer();
     g2->setColumnStretch(0, 1);
     g2->setColumnStretch(1, 1);
     row = 0;
@@ -968,7 +968,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
                            ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
 
-    QuGridContainer* g3 = new QuGridContainer();
+    auto g3 = new QuGridContainer();
     g3->setColumnStretch(0, 1);
     g3->setColumnStretch(1, 1);
     row = 0;
@@ -980,7 +980,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
                     app.var(dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n)));
 #else
     QVector<IdNumDescriptionPtr> descriptions = m_app.getAllIdDescriptions();
-    for (IdNumDescriptionPtr description : descriptions) {
+    for (const IdNumDescriptionPtr& description : descriptions) {
         const int n = description->whichIdNum();
         const QString desc = description->description();
         const QString shortdesc = description->shortDescription();
@@ -1014,7 +1014,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     page->setTitle(tr("Show server information"));
     page->setType(QuPage::PageType::Config);
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setFinishButtonIconToTick();
     questionnaire->setReadOnly(true);
     return questionnaire;

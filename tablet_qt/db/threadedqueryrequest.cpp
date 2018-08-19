@@ -35,6 +35,7 @@ ThreadedQueryRequest::ThreadedQueryRequest(
 
 
 ThreadedQueryRequest::ThreadedQueryRequest() :
+    fetch_mode(QueryResult::FetchMode::NoAnswer),
     store_column_names(false),
     suppress_errors(false),
     thread_abort_request_not_query(false)

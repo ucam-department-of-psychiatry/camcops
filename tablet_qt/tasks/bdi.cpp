@@ -220,9 +220,8 @@ QStringList Bdi::summary() const
             if (v.isNull()) {
                 somatic_missing = true;
                 break;
-            } else {
-                somatic_score += v.toInt();
             }
+            somatic_score += v.toInt();
         }
         somatic_text = somatic_missing
                 ? "incomplete"
@@ -330,7 +329,7 @@ OpenableWidget* Bdi::editor(const bool read_only)
         m_grid_ii,
     }))->setTitle(shortname()));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

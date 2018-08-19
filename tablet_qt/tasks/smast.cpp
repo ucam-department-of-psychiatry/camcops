@@ -143,7 +143,7 @@ OpenableWidget* Smast::editor(const bool read_only)
         (new QuMcqGrid(qfields, CommonOptions::yesNoChar()))->setSubtitles(sub),
     })->setTitle(xstring("title")));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
@@ -163,9 +163,8 @@ int Smast::score(const int question) const
     const bool yes = v.toString() == CommonOptions::YES_CHAR;
     if (REVERSE_SCORED_Q.contains(question)) {
         return yes ? 0 : 1;
-    } else {
-        return yes ? 1 : 0;
     }
+    return yes ? 1 : 0;
 }
 
 

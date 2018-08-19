@@ -36,13 +36,11 @@ bool PatientSorter::operator()(const PatientPtr& left,
     const QString r_surname = right->surname().toUpper();
     if (l_surname != r_surname) {
         return l_surname < r_surname;  // ascending
-    } else {
-        const QString l_forename = left->forename().toUpper();
-        const QString r_forename = right->forename().toUpper();
-        if (l_forename != r_forename) {
-            return l_forename < r_forename;  // ascending
-        } else {
-            return left->dob() < right->dob();  // ascending
-        }
     }
+    const QString l_forename = left->forename().toUpper();
+    const QString r_forename = right->forename().toUpper();
+    if (l_forename != r_forename) {
+        return l_forename < r_forename;  // ascending
+    }
+    return left->dob() < right->dob();  // ascending
 }

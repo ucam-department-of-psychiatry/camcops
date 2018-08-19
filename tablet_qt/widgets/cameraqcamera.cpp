@@ -188,12 +188,12 @@ void CameraQCamera::commonConstructor(const QString& stylesheet)
 
     m_lock_button = new QPushButton("lock button");
 
-    QVBoxLayout* button_layout = new QVBoxLayout();
+    auto button_layout = new QVBoxLayout();
     button_layout->addWidget(m_button_take, 0, align);
     button_layout->addWidget(m_lock_button, 0, align);
     button_layout->addWidget(m_button_cancel, 0, align);
     button_layout->addStretch();
-    QWidget* button_widget = new QWidget();
+    auto button_widget = new QWidget();
     button_widget->setLayout(button_layout);
 
 #ifdef CAMERA_QCAMERA_USE_QCAMERAVIEWFINDER
@@ -204,7 +204,7 @@ void CameraQCamera::commonConstructor(const QString& stylesheet)
     m_label_viewfinder = new QLabel();
 #endif
 
-    QHBoxLayout* middle_layout = new QHBoxLayout();
+    auto middle_layout = new QHBoxLayout();
     middle_layout->addWidget(button_widget, 0, align);
 #ifdef CAMERA_QCAMERA_USE_QCAMERAVIEWFINDER
     middle_layout->addWidget(m_viewfinder, 0, align);
@@ -216,7 +216,7 @@ void CameraQCamera::commonConstructor(const QString& stylesheet)
 
     m_status_bar = new QStatusBar();
 
-    QVBoxLayout* top_layout = new QVBoxLayout();
+    auto top_layout = new QVBoxLayout();
     top_layout->addLayout(middle_layout);
     top_layout->addStretch();
     top_layout->addWidget(m_status_bar);
@@ -225,12 +225,12 @@ void CameraQCamera::commonConstructor(const QString& stylesheet)
 
     // Now, since the CSS of the outermost object is ignored within a
     // QStackedWidget...
-    QWidget* inner_widget = new QWidget();
+    auto inner_widget = new QWidget();
     inner_widget->setObjectName(cssconst::CAMERA_INNER_OBJECT);
     inner_widget->setLayout(top_layout);
 
     // ... we need an outer layout too.
-    QVBoxLayout* outer_layout = new QVBoxLayout();
+    auto outer_layout = new QVBoxLayout();
     outer_layout->setContentsMargins(uiconst::NO_MARGINS);
     outer_layout->addWidget(inner_widget);
     setLayout(outer_layout);

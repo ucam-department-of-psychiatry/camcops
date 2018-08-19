@@ -164,7 +164,7 @@ void Questionnaire::build()
     //                      W pagewidget = QWidget
 
     // For dynamic questionnaires:
-    if (m_pages.size() == 0) {
+    if (m_pages.empty()) {
         addFirstDynamicPage();
     }
 
@@ -240,7 +240,7 @@ void Questionnaire::build()
     // Content
     QWidget* pagewidget = page->widget(this);  // adds the content
 #ifdef DEBUG_PAGE_LAYOUT_ON_OPEN
-    ShowWatcher* showwatcher = new ShowWatcher(pagewidget, true);
+    auto showwatcher = new ShowWatcher(pagewidget, true);
     Q_UNUSED(showwatcher);
 #endif
     connect(page, &QuPage::elementValueChanged,
@@ -260,7 +260,7 @@ void Questionnaire::build()
         // The QScrollArea (a) makes text word wrap, by setting a horizontal
         // size limit (I presume), and (b) deals with the vertical. But it
         // doesn't get the horizontal widths right. So we use a substitute.
-        VerticalScrollArea* scroll = new VerticalScrollArea();
+        auto scroll = new VerticalScrollArea();
         scroll->setObjectName(background_css_name);
         scroll->setWidget(pagewidget);
         m_mainlayout->addWidget(scroll);
@@ -684,7 +684,7 @@ QVector<QuPage*> Questionnaire::getPages(const bool current_page_only,
             pages.append(page);
         }
     } else {
-        for (auto p : m_pages) {
+        for (const QuPagePtr& p : m_pages) {
             if (page_tag.isEmpty() || p->hasTag(page_tag)) {
                 pages.append(p.data());
             }

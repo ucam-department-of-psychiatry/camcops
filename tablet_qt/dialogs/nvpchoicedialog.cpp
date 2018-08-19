@@ -47,13 +47,12 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     m_new_value = new_value;
     setWindowTitle(m_title);
 
-    QWidget* contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
-    VBoxLayout* contentlayout = new VBoxLayout();
+    auto contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
+    auto contentlayout = new VBoxLayout();
     contentwidget->setLayout(contentlayout);
     for (int i = 0; i < m_options.size(); ++i) {
         const NameValuePair& nvp = m_options.at(i);
-        ClickableLabelWordWrapWide* label = new ClickableLabelWordWrapWide(
-                    nvp.name());
+        auto label = new ClickableLabelWordWrapWide(nvp.name());
         label->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
         contentlayout->addWidget(label);
         // Safe object lifespan signal: can use std::bind
@@ -61,18 +60,17 @@ int NvpChoiceDialog::choose(QVariant* new_value)
                 std::bind(&NvpChoiceDialog::itemClicked, this, i));
     }
 
-    VerticalScrollArea* scroll = new VerticalScrollArea();
+    auto scroll = new VerticalScrollArea();
     scroll->setWidget(contentwidget);
 
-    VBoxLayout* mainlayout = new VBoxLayout();
+    auto mainlayout = new VBoxLayout();
     mainlayout->addWidget(scroll);
     setLayout(mainlayout);
 
     mainlayout->addStretch();
 
     // Offer a cancel button
-    QDialogButtonBox* standard_buttons = new QDialogButtonBox(
-                QDialogButtonBox::Cancel);
+    auto standard_buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);
     connect(standard_buttons, &QDialogButtonBox::rejected,
             this, &NvpChoiceDialog::reject);
     mainlayout->addWidget(standard_buttons);

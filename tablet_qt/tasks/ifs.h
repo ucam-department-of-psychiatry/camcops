@@ -54,8 +54,8 @@ public:
     // ------------------------------------------------------------------------
 protected:
     struct IfsScore {
-        double total;
-        int wm;  // working memory
+        double total = 0;
+        int wm = 0;  // working memory
     };
     IfsScore getScore() const;
     QVariant q4FirstVal(int seqlen) const;

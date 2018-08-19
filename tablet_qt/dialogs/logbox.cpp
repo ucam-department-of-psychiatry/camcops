@@ -41,13 +41,14 @@ LogBox::LogBox(QWidget* parent,
     m_ok(nullptr),
     m_cancel(nullptr),
     m_ack_fail(nullptr),
+    m_wait_cursor_on(false),
     m_scroll_to_end_on_insert(scroll_to_end_on_insert)
 {
     // qDebug() << Q_FUNC_INFO;
     setWindowTitle(title);
     setMinimumSize(MIN_SIZE);
 
-    QVBoxLayout* mainlayout = new QVBoxLayout();
+    auto mainlayout = new QVBoxLayout();
     setLayout(mainlayout);
 
     m_editor = new QPlainTextEdit();
@@ -63,8 +64,8 @@ LogBox::LogBox(QWidget* parent,
     uifunc::applyScrollGestures(m_editor->viewport());
     // ... https://stackoverflow.com/questions/23675845/qt-conflict-between-qscroller-and-qscrollbar
 
-    QHBoxLayout* buttonlayout = new QHBoxLayout();
-    QPushButton* copybutton = new QPushButton(tr("Copy"));
+    auto buttonlayout = new QHBoxLayout();
+    auto copybutton = new QPushButton(tr("Copy"));
     buttonlayout->addWidget(copybutton);
     connect(copybutton, &QPushButton::clicked, this, &LogBox::copyClicked);
 

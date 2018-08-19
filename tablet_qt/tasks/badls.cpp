@@ -27,7 +27,7 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::sumInt;
+// using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::strseq;
 
@@ -136,7 +136,7 @@ OpenableWidget* Badls::editor(const bool read_only)
 
     QuPagePtr page((new QuPage(elements))->setTitle(shortname()));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, {page});
+    auto* questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;

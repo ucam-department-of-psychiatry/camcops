@@ -35,12 +35,9 @@
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
-using mathfunc::scoreString;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::standardResult;
-using stringfunc::strnum;
-using stringfunc::strseq;
 
 const QString Slums::SLUMS_TABLENAME("slums");
 
@@ -186,7 +183,7 @@ QStringList Slums::detail() const
     lines.append(fieldSummaryYesNoNull(ALERT, xstring("alert_s")));
     lines.append(fieldSummaryYesNoNull(HIGHSCHOOLEDUCATION,
                                        xstring("highschool_s")));
-    for (auto q : QLIST) {
+    for (const QString& q : QLIST) {
         lines.append(fieldSummary(q, xstring(q)));
     }
     lines.append("");
@@ -342,7 +339,7 @@ OpenableWidget* Slums::editor(const bool read_only)
             ->setHint(textconst::EXAMINER_COMMENTS_PROMPT),
     })->setTitle(singular + " 12")));
 
-    Questionnaire* questionnaire = new Questionnaire(m_app, pages);
+    auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
