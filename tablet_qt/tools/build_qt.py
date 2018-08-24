@@ -91,8 +91,8 @@ THEREFORE:
                             Android, x86, 32-bit (for emulator)
                             Android, ARM, 32-bit (for Android devices)
 
-    OS/X, x86, 64-bit       OS/X, x86, 64-bit
-                            iOS, x86 (for emulator)
+    macOS (OS X), x86,      macOS, x86, 64-bit
+        64-bit              iOS, x86 (for emulator)
                             iOS, ARM, 32-bit (for iPad etc.)
                             iOS, ARM, 64-bit (for iPad etc.)
 
@@ -208,9 +208,9 @@ from cardinal_pythonlib.buildfunc import (
     download_if_not_exists,
     fetch,
     git_clone,
-    run,
     untar_to_directory,
 )
+from cardinal_pythonlib.buildfunc import run as run2
 from cardinal_pythonlib.file_io import (
     add_line_if_absent,
     # convert_line_endings,
@@ -486,11 +486,11 @@ OPENSSL_COMMON_OPTIONS = [
 ANT = "ant"  # for Android builds
 BASH = "bash"
 CL = "cl"  # Visual C++ compiler
-CLANG = "clang"  # OS/X XCode compiler
+CLANG = "clang"  # macOS XCode compiler
 CMAKE = "cmake"
 GCC = "gcc"
 GIT = "git"
-GOBJDUMP = "gobjdump"  # OS/X equivalent of readelf
+GOBJDUMP = "gobjdump"  # macOS equivalent of readelf
 JAVAC = "javac"  # for Android builds
 LD = "ld"
 MAKE = "make"
@@ -504,8 +504,8 @@ SED = "sed"  # stream editor
 TAR = "tar"  # manipulate tar files
 TCLSH = "tclsh"  # used by SQLCipher build process
 VCVARSALL = "vcvarsall.bat"  # sets environment variables for VC++
-XCODE_SELECT = "xcode-select"  # OS/X tool to find paths for XCode
-XCRUN = "xcrun"  # OS/X XCode tool
+XCODE_SELECT = "xcode-select"  # macOS tool to find paths for XCode
+XCRUN = "xcrun"  # macOS XCode tool
 
 # -----------------------------------------------------------------------------
 # Logging
@@ -540,9 +540,24 @@ QT_POSSIBLE_BUILD_TYPES = [QT_BUILD_DEBUG,
                            QT_BUILD_RELEASE_WITH_SYMBOLS]
 
 
-# -----------------------------------------------------------------------------
+# =============================================================================
+# Helper functions
+# =============================================================================
+
+DEBUG_SHOW_ENV = True
+
+
+def run(*args, **kwargs) -> Tuple[str, str]:
+    """
+    Uses our library command-running tool, but forces the debug_show_env
+    parameter.
+    """
+    run2(*args, **kwargs, debug_show_env=DEBUG_SHOW_ENV)
+
+
+# =============================================================================
 # Classes to collect constants
-# -----------------------------------------------------------------------------
+# =============================================================================
 
 class Os(object):
     """
@@ -553,7 +568,7 @@ class Os(object):
     ANDROID = "Android"
     LINUX = "Linux"
     WINDOWS = "Windows"
-    OSX = "OS/X"
+    OSX = "macOS"  # Mac OS X, then OS X, then macOS
     IOS = "iOS"
 
 
@@ -633,7 +648,7 @@ class Platform(object):
         elif self.os == Os.WINDOWS:
             return "windows"
         elif self.os == Os.OSX:
-            return "osx"
+            return "macos"
         elif self.os == Os.IOS:
             return "ios"
         else:
@@ -1057,6 +1072,8 @@ class Platform(object):
         """
         Generates the name of a platform to be passed to SQLCipher's configure
         tool (either build or target).
+
+        Within SQLCipher, the program that parses these is config.sub
         """
         # See config.guess in SQLCipher source.
         # (You can run or source it to see its answer.)
@@ -1086,10 +1103,21 @@ class Platform(object):
             elif self.cpu_x86_32bit_family:
                 return "i686-unknown-windows"  # guess, but it compiles
         elif self.ios:
+            # config.sub does not recognize "ios" as an OS, nor "iphoneos"
             if self.cpu == Cpu.ARM_V8_64:
-                return "arm64-apple-darwin"  # guess, but it compiles
+                return "armv8-apple-darwin"  # guess, but it compiles
             elif self.cpu == Cpu.ARM_V7_32:
                 return "arm-apple-darwin"  # guess, but it compiles
+            elif self.cpu_x86_32bit_family:  # iOS simulator
+                return "i386-apple-darwin"
+                # guess as per https://jira.appcelerator.org/browse/TIMOB-23652
+            elif self.cpu_x86_64bit_family:  # iOS simulator
+                pass  # this one doesn't work; raise an error
+                # return "x86_64-apple-darwin"
+                # ... gives:
+                # "configure: error: cannot run C compiled programs.
+                #  If you meant to cross compile, use `--host'."
+                # ... despite using --host!
         raise NotImplementedError("Don't know how to support SQLCipher for "
                                   "{}".format(self))
 
@@ -1136,7 +1164,7 @@ class Config(object):
         self.build_android_x86_32 = args.build_android_x86_32  # type: bool
         self.build_android_arm_v7_32 = args.build_android_arm_v7_32  # type: bool  # noqa
         self.build_linux_x86_64 = args.build_linux_x86_64  # type: bool
-        self.build_osx_x86_64 = args.build_osx_x86_64  # type: bool
+        self.build_osx_x86_64 = args.build_macos_x86_64  # type: bool
         self.build_windows_x86_64 = args.build_windows_x86_64  # type: bool
         self.build_windows_x86_32 = args.build_windows_x86_32  # type: bool
         self.build_ios_arm_v7_32 = args.build_ios_arm_v7_32  # type: bool
@@ -1157,7 +1185,7 @@ class Config(object):
                 self.build_ios_arm_v7_32 = True
                 self.build_osx_x86_64 = True
                 self.build_ios_arm_v8_64 = True
-                self.build_ios_simulator_x86_64 = True
+                # NOT WORKING # self.build_ios_simulator_x86_64 = True
             elif BUILD_PLATFORM.windows:
                 self.build_windows_x86_32 = True
                 self.build_windows_x86_64 = True
@@ -1202,8 +1230,8 @@ class Config(object):
         self.ios_sdk = args.ios_sdk  # type: str
         self.ios_min_version = args.ios_min_version  # type: str
 
-        # OS/X
-        self.osx_min_version = args.osx_min_version  # type: str
+        # macOS
+        self.osx_min_version = args.macos_min_version  # type: str
 
         # OpenSSL
         # - download tar file to src/openssl
@@ -1448,12 +1476,12 @@ class Config(object):
     def _set_osx_env(self, env: Dict[str, str],
                      target_platform: Platform) -> None:
         """
-        Implementation of set_compile_env() for OS/X targets.
+        Implementation of set_compile_env() for macOS targets.
         """
         # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
         require(CLANG)
         env["BUILD_TOOLS"] = env.get("BUILD_TOOLS", self._xcode_developer_path)
-        # This bit breaks SQLCipher compilation for OS/X, which wants to
+        # This bit breaks SQLCipher compilation for macOS, which wants to
         # autodiscover gcc:
         # env["CC"] = (
         #     "{clang} -mmacosx-version-min={min_osx_version}".format(
@@ -1504,15 +1532,17 @@ class Config(object):
         else:
             env["CC"] = fetch([XCRUN, "-sdk", sdk_name_lower,
                                "-find", CLANG]).strip()
-        env["CFLAGS"] = (
-            "-arch {arch} -isysroot {sysroot} "
-            "-m{platform}-version-min={sdk_version}".format(
-                arch=arch,
-                sysroot=escaped_sysroot,
+
+        cflags = [
+            "-arch {}".format(arch),
+            "-isysroot {}".format(escaped_sysroot),
+            "-m{platform}-version-min={ios_min_version}".format(
                 platform=xcode_platform.lower(),
-                sdk_version=sdk_version,
-            )
-        )
+                ios_min_version=self.ios_min_version,
+            ),  # ... likely to be "-miphoneos-version-min"
+            # "--sysroot={}".format(sysroot),
+        ]
+        env["CFLAGS"] = " ".join(cflags)
         env["CPP"] = env["CC"] + " -E"
         env["CPPFLAGS"] = env["CFLAGS"]
         env["CROSS_TOP"] = self._xcode_platform_dev_path(
@@ -1525,11 +1555,14 @@ class Config(object):
         env["PLATFORM"] = xcode_platform
         env["RANLIB"] = fetch([XCRUN, "-sdk", sdk_name_lower, "-find",
                                "ranlib"]).strip()
+        # env["SYSROOT"] = sysroot
+        # ... see https://forums.developer.apple.com/thread/100545
+        # ... but the problem we have is the makefile from OpenSSL configure
 
     @property
     def _xcode_developer_path(self) -> str:
         """
-        Find XCode (the compiler suite under OS/X).
+        Find XCode (the compiler suite under macOS).
         """
         if not self._cached_xcode_developer_path:
             self._cached_xcode_developer_path = fetch(
@@ -1878,7 +1911,7 @@ def get_starting_env(plain: bool = False) -> Dict[str, str]:
     # variables needed for Visual C++ compiler, or you get "cannot 
     # create temporary il file" errors. Not sure which, though; 
     # APPDATA, TEMP and TMP are not sufficient.
-    # 2. Beware "plain" under OS/X; complains about missing "HOME"
+    # 2. Beware "plain" under macOS; complains about missing "HOME"
     # variable.
     if plain:
         env = {}  # type: Dict[str, str]
@@ -1919,7 +1952,7 @@ Linux (Ubuntu) (DEFUNCT)
 """
 
 OS_X_PACKAGE_HELP = """
-OS/X
+macOS (OS X)
 -------------------------------------------------------------------------------
 clang       Install XCode
 cmake       brew update && brew install cmake
@@ -2510,28 +2543,6 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
                         "install: all install_docs install_sw",
                         "install: install_docs install_sw")
 
-    if target_platform.ios:
-        # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
-        # add -isysroot to CC=
-        run([
-            SED,
-            "-ie",
-            (
-                "s"
-                "!"
-                "^CFLAG="
-                "!"
-                "CFLAG=-isysroot {cross_top}/SDKs/{cross_sdk}"
-                " -mios-version-min={min_ios_version} "
-                "!".format(
-                    cross_top=env["CROSS_TOP"],
-                    cross_sdk=env["CROSS_SDK"],
-                    min_ios_version=cfg.ios_min_version,
-                )
-            ),
-            join(workdir, "Makefile")
-        ])
-
     # if BUILD_PLATFORM.windows:
     #     # https://github.com/openssl/openssl/issues/174
     #     convert_line_endings(join(workdir, "Makefile.org"), to_unix=True)
@@ -2566,6 +2577,34 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # OpenSSL: Make
         # ---------------------------------------------------------------------
         makefile = join(workdir, "Makefile")  # written to by Configure
+
+
+        if target_platform.ios:
+            # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
+            # add -isysroot to CC=
+            run([
+                SED,
+                "-i",  # in place
+                "-e",  # execute the script expression that follows
+                (
+                    "s"  # s/regexp/replacement/
+                    "!"  # use '!' not '/' to delineate regex
+                    "^CFLAGS="
+                    "!"
+                    "CFLAGS=-isysroot {cross_top}/SDKs/{cross_sdk}"
+                    " -mios-version-min={min_ios_version}"
+                    " -miphoneos-version-min={min_ios_version} "
+                    "!".format(
+                        cross_top=env["CROSS_TOP"],
+                        cross_sdk=env["CROSS_SDK"],
+                        min_ios_version=cfg.ios_min_version,
+                    )
+                ),
+                makefile
+            ])
+            # 2018-08-24: was CFLAG=, now CFLAGS=
+            # 2018-08-24: makefile was modified before Configure called; daft
+
         extra_args = []  # type: List[str]
 
         # A particular problem is that Android .so libraries must be
@@ -2698,7 +2737,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # iOS:
     #       http://doc.qt.io/qt-5/building-from-source-ios.html
     #       http://doc.qt.io/qt-5/ios-support.html
-    # OS/X:
+    # macOS:
     #       http://doc.qt.io/qt-5/osx.html
 
     log.info("Building Qt for {}...".format(target_platform))
@@ -3093,6 +3132,17 @@ A.  RE-RUN THE SCRIPT; sometimes Qt builds fail then pick themselves up the
     
 Q.  If you can't see the error...
 A.  Try with the "--nparallel 1" option.
+
+Q.  (macOS) Errors like:
+        "fatal error: 'os/log.h' file not found"
+    or
+        "error: use of undeclared identifier 'NSEventTypeMouseMoved';
+        did you mean 'kEventMouseMoved'?"
+A.  Standard header files like os/log.h should live within
+    /Applications/Xcode.app. If they're missing:
+    - Upgrade Xcode. (Xcode 7 is too old on macOS 10.13. Try Xcode 9.4.1.)
+      That should install SDKs for iOS 11.4 and macOS 10.13.4.
+
 """)  # noqa
             _ = """
 Q.  fatal error: uiviewsettingsinterop.h: No such file or directory
@@ -3279,6 +3329,9 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             "-I{}".format(openssl_include_dir),
             # ... sqlite.c does e.g. "#include <openssl/rand.h>"
         ]
+        if "CFLAGS" in env:
+            # inherit this too; 2018-08-24
+            cflags.append(env["CFLAGS"])
         gccflags = [
             "-Wfatal-errors",  # all errors are fatal
         ]
@@ -3737,7 +3790,7 @@ def master_builder(args) -> None:
     if cfg.build_linux_x86_64:  # for 64-bit Linux
         build_for(Os.LINUX, Cpu.X86_64)
 
-    if cfg.build_osx_x86_64:  # for 64-bit Intel Mac OS/X
+    if cfg.build_osx_x86_64:  # for 64-bit Intel macOS
         build_for(Os.OSX, Cpu.X86_64)
 
     if cfg.build_windows_x86_64:  # for 64-bit Windows
@@ -3766,10 +3819,10 @@ Compiler bug is:
 
     # *** build_qt: also to build for iOS 32-bit, and "fat binary" with 32- and 64-bit versions?  # noqa
 
-    if cfg.build_ios_simulator_x86_32:  # 32-bit iOS simulator under Intel Mac OS/X  # noqa
+    if cfg.build_ios_simulator_x86_32:  # 32-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_32)
 
-    if cfg.build_ios_simulator_x86_64:  # 64-bit iOS simulator under Intel Mac OS/X  # noqa
+    if cfg.build_ios_simulator_x86_64:  # 64-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_64)
 
     if not installdirs and not done_extra:
@@ -3851,8 +3904,8 @@ def main() -> None:
         help="An architecture target (native Linux with a 64-bit Intel/AMD "
              "CPU; check with 'lscpu' and 'uname -a'")
     archgroup.add_argument(
-        "--build_osx_x86_64", action="store_true",
-        help="An architecture target (Mac OS/X under an Intel 64-bit CPU; "
+        "--build_macos_x86_64", action="store_true",
+        help="An architecture target (macOS under an Intel 64-bit CPU; "
              "check with 'sysctl -a|grep cpu', and see "
              "https://support.apple.com/en-gb/HT201948 )")
     archgroup.add_argument(
@@ -3945,10 +3998,10 @@ def main() -> None:
         help="Minimum target iOS version"
     )
 
-    osx = parser.add_argument_group("OS/X", "OS/X options")
+    osx = parser.add_argument_group("macOS", "macOS (OS X) options")
     osx.add_argument(
-        "--osx_min_version", default=DEFAULT_MIN_OSX_VERSION,
-        help="Minimum target OS/X version"
+        "--macos_min_version", default=DEFAULT_MIN_OSX_VERSION,
+        help="Minimum target macOS version"
     )
 
     # OpenSSL
@@ -4078,6 +4131,13 @@ def main() -> None:
                 master_builder(args)
     else:
         master_builder(args)
+
+    # =========================================================================
+    # Some other bits of verbosity
+    # =========================================================================
+    if args.verbose >= 2:
+        global DEBUG_SHOW_ENV
+        DEBUG_SHOW_ENV = True
 
 
 if __name__ == '__main__':

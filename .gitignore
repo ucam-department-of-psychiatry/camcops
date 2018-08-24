@@ -11,6 +11,9 @@ build-*/
 # PyCharm
 .idea/*
 
+# Python
+__pycache__/
+
 # Other
 distributables/
 server/camcops_server.egg-info
