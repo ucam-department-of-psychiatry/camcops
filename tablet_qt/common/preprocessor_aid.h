@@ -18,23 +18,11 @@
 */
 
 #pragma once
-#include <QString>
-class DatabaseManager;
 
-
-class DbNestableTransaction
-{
-    // https://www.sqlite.org/lang_savepoint.html
-public:
-    DbNestableTransaction(DatabaseManager& db);
-    ~DbNestableTransaction();
-    void fail();
-    void succeed();
-protected:
-    DatabaseManager& m_db;
-    bool m_fail;
-    QString m_name;
-
-    static int s_count;  // used for savepoint name; continuously increments
-    static int s_level;  // current depth within savepoint stack
-};
+#ifdef __GNUC__  // gcc
+    #if __GNUC__ >= 7  // gcc >= 7.0
+        // https://www.gnu.org/software/gcc/gcc-7/changes.html
+        #define GCC_AT_LEAST_7
+        #define GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
+    #endif
+#endif

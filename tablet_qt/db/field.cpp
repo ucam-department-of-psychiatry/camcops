@@ -265,21 +265,24 @@ QString Field::sqlColumnType() const
     // Qt types: http://doc.qt.io/qt-5/qtglobal.html
     //      - qint8, qint16, qint32, qint64...
     //      - standard int is int32
-    //        32-bit signed: up to
+    //        32-bit signed: up to +2,147,483,647 = 2147483647
     //      - qlonglong is the same as qint64
     //        64-bit signed: up to +9,223,372,036,854,775,807 = 9223372036854775807
     //      - qulonglong
     //        64-bit unsigned: 0 to +18,446,744,073,709,551,615 = 18446744073709551615
     // C++ type name: QVariant::typeToName(m_type);
     switch (m_type) {
+
     case QVariant::Bool:
     case QVariant::Int:  // normally 32-bit
     case QVariant::LongLong:  // 64-bit
     case QVariant::UInt:  // normally 32-bit
     case QVariant::ULongLong:  // 64-bit
         return SQLITE_TYPE_INTEGER;
+
     case QVariant::Double:
         return SQLITE_TYPE_REAL;
+
     case QVariant::Char:
     case QVariant::Date:
     case QVariant::DateTime:
@@ -288,8 +291,10 @@ QString Field::sqlColumnType() const
     case QVariant::Time:
     case QVariant::Uuid:
         return SQLITE_TYPE_TEXT;
+
     case QVariant::ByteArray:
         return SQLITE_TYPE_BLOB;
+
     case QVariant::UserType:
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             return SQLITE_TYPE_TEXT;

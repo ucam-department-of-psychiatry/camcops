@@ -37,7 +37,7 @@ development tools.
 build_qt.py
 -----------
 
-This program runs on a variety of platforms (including Linux, Windows, OS/X)
+This program runs on a variety of platforms (including Linux, Windows, macOS)
 and has the surprisingly tricky job of building the following libraries, from
 source:
 
@@ -47,11 +47,11 @@ source:
 
 for the following platforms, using a variety of CPUs:
 
-- Android (ARM, x86 emulator) (compile under Linux)
-- iOS (ARM, x86 simulators) (compile under OS/X)
-- Linux (x86)
-- OS/X
-- Windows
+- Android (32-bit ARM, 64-bit x86 emulator) (compile under Linux)
+- iOS (32-bit ARM, 64-bit ARM, 64-bit x86 simulator) (compile under macOS)
+- Linux (64-bit x86)
+- macOS (64-bit x86)
+- Windows (32-bit x86, 64-bit x86)
 
 It will fetch source code and do all the work. Once built, you should have a Qt
 environment that you can point Qt Creator to, and you should be able to compile

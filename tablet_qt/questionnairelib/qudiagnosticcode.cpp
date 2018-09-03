@@ -146,7 +146,7 @@ void QuDiagnosticCode::setButtonClicked()
         qWarning() << Q_FUNC_INFO << "m_questionnaire missing";
         return;
     }
-    // SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
+    SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
     const QString code = m_fieldref_code->valueString();
     const QModelIndex selected = m_codeset->firstMatchCode(code);
     const QString stylesheet = m_questionnaire->getSubstitutedCss(

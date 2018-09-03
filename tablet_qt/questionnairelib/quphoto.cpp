@@ -224,7 +224,7 @@ void QuPhoto::takePhoto()
         return;
     }
 
-    // SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
+    SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
 
 #ifdef QUPHOTO_USE_CAMERA_QML
     m_camera = new CameraQml();

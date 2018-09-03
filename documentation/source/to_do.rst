@@ -31,8 +31,6 @@ Tasks
 Client core
 ~~~~~~~~~~~
 
-- Google Play Store general release.
-
 - iOS build.
 
 - Apple App Store.
@@ -47,10 +45,21 @@ Client core
 
 - Search for ``“// ***”``
 
-- Think about a web-based client, e.g. via VNC.
+- Think about a web-based client, e.g. via VNC (but this is complex and loads
+  servers/networks considerably). Potentially more promising is Qt for
+  WebAssembly (in preview May 2018), which compiles to a variety of portable
+  quasi-assembly language; the browser downloads and runs it. However, at
+  present there is no threading or DNS lookup
+  (http://blog.qt.io/blog/2018/05/22/qt-for-webassembly/).
 
 - Validator options, e.g. the server says "ID type 72 uses the 'NHS number'
-  validator", so checksums are checked.
+  validator", so checksums are checked. An NHS number validator is built.
+
+- Current Android back button behaviour may not be optimal.
+
+- Maybe implement pinch zoom for some subclasses of OpenableWidget, e.g.
+  MenuWindow and Questionaire. See
+  http://doc.qt.io/qt-5/qtwidgets-gestures-imagegestures-example.html
 
 Server
 ------
@@ -119,6 +128,13 @@ Server
   to be able to download CamCOPS and complete a set of tasks for you, how could
   you organize so that would be simplest for them? The minimum would that you’d
   create login details for them, and give them a URL, username, and password.
+
+- Rename server master tool from camcops to camcops_server. Rename package,
+  too. This is so we can use "camcops" for the client (on the basis that the
+  client should be the simplest for users).
+
+- What's the optimal packaging method for the server? Is it DEB/RPM for Linux,
+  and PyInstaller + Inno Setup (or just Inno Setup) for Windows?
 
 Documentation to-do list
 ------------------------

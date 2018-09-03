@@ -1164,7 +1164,8 @@ HEADERS += \
     widgets/treeviewproxystyle.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
-    widgets/verticalscrollareaviewport.h
+    widgets/verticalscrollareaviewport.h \
+    common/preprocessor_aid.h
 
 DISTFILES += \
     LICENSE.txt \

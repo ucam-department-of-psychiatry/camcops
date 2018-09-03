@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_TASK_MENU_CREATION
+
 #include "singletaskmenu.h"
 #include <QPushButton>
 #include "common/uiconst.h"
@@ -94,7 +96,9 @@ void SingleTaskMenu::build()
 
     // Task items
     TaskPtrList tasklist = factory->fetch(m_tablename);
+#ifdef DEBUG_TASK_MENU_CREATION
     qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "tasks";
+#endif
     const bool show_patient_name = specimen->isAnonymous() ||
             !m_app.isPatientSelected();
     for (const TaskPtr& task : tasklist) {

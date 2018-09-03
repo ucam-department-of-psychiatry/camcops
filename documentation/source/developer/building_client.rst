@@ -40,6 +40,7 @@ Building the CamCOPS client
 
 The CamCOPS client is written in C++11 using the Qt_ cross-platform framework.
 
+
 Prerequisites
 -------------
 
@@ -49,7 +50,14 @@ Linux
 - Linux should come with Python and the necessary build tools.
 
 - To build Android programs under Linux, you will also need a Java development
-  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-8-jdk``
+  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-8-jdk``.
+
+- Tested in Aug 2018 with:
+
+  .. code-block:: none
+
+    Ubuntu 16.04
+    Ubuntu 18.04 / gcc 7.3.0
 
 Windows
 ~~~~~~~
@@ -123,6 +131,26 @@ Windows
     Python 3.6
     Qt Creator 4.7.0
     Windows 10 (64-bit)
+
+macOS (formerly OS X)
+~~~~~~~~~~~~~~~~~~~~~
+
+- Tested in July 2018 with:
+
+  .. code-block:: none
+
+    macOS 10.13.4
+    Xcode 9.4.1 (macOS SDK 10.13; iOS SDK 11.4)
+    *** IN PROGRESS
+        *** build_qt:
+            --build_macos_x86_64
+            --build_ios_arm_v7_32
+            --build_ios_arm_v8_64
+            --build_ios_simulator_x86_32)
+            --build_ios_simulator_x86_64 *** can't build SQLCipher
+
+        *** redo build_qt command-line help
+
 
 All operating systems
 ~~~~~~~~~~~~~~~~~~~~~
@@ -207,8 +235,8 @@ the CamCOPS :ref:`build_qt` tool (q.v.). For example:
     REM Windows
     python %CAMCOPS_SOURCE_DIR%/tablet_qt/tools/build_qt.py --build_all
 
-Troubleshooting
-~~~~~~~~~~~~~~~
+Troubleshooting build_qt
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Problem (Windows):** ``fatal error C1041: cannot open program database
 '...\openssl-1.1.0g\app.pdb'; if multiple CL.EXE write to the same .PDB file,
@@ -778,8 +806,8 @@ Debugging
 
 - For debugging, consider install Valgrind_: ``sudo apt install valgrind``
 
-Oddities
-~~~~~~~~
+Troubleshooting qmake/compilation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Sometimes you have to restart Qt creator after creating new build settings;
   it loses its .pro file and won't show the project, or complains of a missing
@@ -794,3 +822,47 @@ Oddities
 - If an Android build fails for a bizarre reason (like garbage in a .java file
   that looks like it's been pre-supplied), delete the whole build directory,
   which is not always removed by cleaning.
+
+- This error whilst building CamCOPS:
+
+  .. code-block:: none
+
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_install/bin/qmlimportscanner: error while loading shared libraries: libicui18n.so.55: cannot open shared object file: No such file or directory
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_install/mkspecs/features/qt.prf:312: Error parsing JSON at 1:1: illegal value
+    Project ERROR: Failed to parse qmlimportscanner output.
+
+  ... occurred after an upgrade from Ubuntu 16.04 to 18.04; the problem relates
+  to missing OS libraries (``libicu``); the easiest thing is to rebuild Qt.
+
+Troubleshooting running CamCOPS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- This error whilst running CamCOPS (Ubuntu 18.04):
+
+  .. code-block:: none
+
+    01:04:22: Starting /home/rudolf/Documents/code/camcops/build-camcops-Linux_x86_64-Release/camcops...
+    /home/rudolf/Documents/code/camcops/build-camcops-Linux_x86_64-Release/camcops: error while loading shared libraries: libOpenVG.so.1: cannot open shared object file: No such file or directory
+    01:04:22: /home/rudolf/Documents/code/camcops/build-camcops-Linux_x86_64-Release/camcops exited with code 127
+
+    # Which files have similar names?
+
+    $ find -L / -type f -name "libOpenVG.so*" 2>/dev/null
+    /usr/lib/x86_64-linux-gnu/mesa-egl/libOpenVG.so.1       # symlink to libOpenVG.so.1.0.0
+    /usr/lib/x86_64-linux-gnu/mesa-egl/libOpenVG.so.1.0.0   # actual file
+    /usr/lib/x86_64-linux-gnu/mesa-egl/libOpenVG.so         # symlink to libOpenVG.so.1.0.0
+    /usr/lib/x86_64-linux-gnu/libOpenVG.so                  # symlink to mesa-egl/libOpenVG.so
+
+    # Which packages provide these files?
+
+    $ dpkg --search libOpenVG
+    libopenvg1-mesa:amd64: /usr/lib/x86_64-linux-gnu/mesa-egl/libOpenVG.so.1.0.0
+    libopenvg1-mesa-dev: /usr/lib/x86_64-linux-gnu/libOpenVG.so
+    libopenvg1-mesa-dev: /usr/lib/x86_64-linux-gnu/mesa-egl/libOpenVG.so
+    libopenvg1-mesa:amd64: /usr/lib/x86_64-linux-gnu/mesa-egl/libOpenVG.so.1
+
+    # Ergo, the problem can be solved with:
+
+    $ sudo ln -s /usr/lib/x86_64-linux-gnu/mesa-egl/libOpenVG.so.1 /usr/lib/x86_64-linux-gnu/libOpenVG.so.1
+
+    # Yup, that fixes it.

@@ -21,6 +21,11 @@
 #include <QDebug>
 #include <QString>
 
+// https://stackoverflow.com/questions/22240973/major-and-minor-macros-defined-in-sys-sysmacros-h-pulled-in-by-iterator
+#pragma push_macro("major")
+#pragma push_macro("minor")
+#undef major
+#undef minor
 
 class Version {
     // For semantic versioning: http://semver.org/
@@ -60,4 +65,9 @@ protected:
     unsigned int m_patch;
 };
 
+#pragma pop_macro("minor")
+#pragma pop_macro("major")
+
 Q_DECLARE_METATYPE(Version)
+
+

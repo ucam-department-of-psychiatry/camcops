@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <cmath>  // for std::floor, etc.
 #include <QtAlgorithms>  // for qsort()
 #include <QVariant>
 #include <QVector>

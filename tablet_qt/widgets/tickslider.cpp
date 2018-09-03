@@ -18,6 +18,7 @@
 */
 
 #include "tickslider.h"
+#include <cmath>  // for round()
 #include <QDebug>
 #include <QKeyEvent>
 #include <QMouseEvent>
