@@ -123,11 +123,16 @@ void WhiskerInboundMessage::parseMainSocketMessages()
     if (key_event_match.hasMatch()) {
         m_is_key_event = true;
         m_key_code = key_event_match.captured(1).toInt();
-        m_key_down = key_event_match.captured(2) == VAL_KEYEVENT_DOWN;
-        m_key_up = key_event_match.captured(2) == VAL_KEYEVENT_UP;
+        const QString updown = key_event_match.captured(2);
+        m_key_down = updown == VAL_KEYEVENT_DOWN;
+        m_key_up = updown == VAL_KEYEVENT_UP;
         m_key_doc = key_event_match.captured(3);
         return;
-        // *** fix Whisker docs (or Whisker): up/down is "up"/"down", not 0/1
+        // Whisker docs had an error in prior to 2018-09-04, and claimed "1"
+        // for key depressed and "0" for key released, but is actually "down"
+        // for key depressed and "up" for key released.
+        // In the server source these are WS_VAL_UP, WS_VAL_DOWN
+        // (in whiskermessages.h).
     }
 
     QRegularExpressionMatch client_msg_match = CLIENT_MESSAGE_REGEX.match(m_msg);

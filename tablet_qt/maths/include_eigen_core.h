@@ -19,35 +19,17 @@
 
 #pragma once
 
-#include <QStringList>
-#include "maths/include_eigen_dense.h"
+// Eigen 3.3.3 doesn't compile with gcc 7 with "-Wall", so we disable the
+// warning that it fails with:
 
-// See:
-// - http://adv-r.had.co.nz/C-interface.html
-// - R's lm.c
+#include "common/preprocessor_aid.h"
 
-namespace dqrls {
+#ifdef GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
+    #pragma GCC diagnostic ignored "-Wint-in-bool-context"
+#endif
 
+#include <Eigen/Core>
 
-struct DqrlsResult {
-    bool success = false;
-    Eigen::FullPivHouseholderQR<Eigen::MatrixXd> qr;
-    Eigen::MatrixXd coefficients;
-    // Eigen::ArrayXXd residuals;
-    // Eigen::ArrayXXd effects;
-    Eigen::Index rank;
-    // Eigen::ArrayXi pivot;  // INDICES, 0-based here, 1-based in R
-    // Eigen::ArrayXd qraux;
-    double tol;
-    bool pivoted;
-    QStringList errors;
-};
-
-
-DqrlsResult Cdqrls(const Eigen::MatrixXd& x,
-                   const Eigen::MatrixXd& y,
-                   double tol,
-                   bool check = true);
-
-
-}  // namespace dqrls
+#ifdef GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
+    #pragma GCC diagnostic pop
+#endif

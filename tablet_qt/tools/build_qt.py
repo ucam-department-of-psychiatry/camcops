@@ -335,11 +335,16 @@ DEFAULT_OPENSSL_ANDROID_SCRIPT_URL = \
 
 # SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
 DEFAULT_SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
-DEFAULT_SQLCIPHER_GIT_COMMIT = HEAD
-# ... note that there's another URL for the Android binary packages
-# ... SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
+# DEFAULT_SQLCIPHER_GIT_COMMIT = HEAD
+DEFAULT_SQLCIPHER_GIT_COMMIT = "c6f709fca81c910ba133aaf6330c28e01ccfe5f8"  # SQLCipher version 3.4.2, 21 Dec 2017  # noqa
+# - Note that there's another URL for the Android binary packages
+# - SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
+# - To find the Git commit identifier (hash) of a cloned repository, use
+#   "git show -s --format=%H" (and omit the --format parameter to see more
+#   info).
+# - For SQLCipher, see also https://github.com/sqlcipher/sqlcipher/releases.
 
-# Boost
+# Boost (NO LONGER IN USE)
 DEFAULT_BOOST_VERSION = "1.64.0"
 DEFAULT_BOOST_SRC_URL = (
     "https://dl.bintray.com/boostorg/"
@@ -352,24 +357,24 @@ DEFAULT_BOOST_SRC_URL = (
     # but the URL only works if you remove it.
 )
 
-# Armadillo
+# Armadillo (NO LONGER IN USE)
 DEFAULT_ARMA_VERSION = "7.950.0"
 DEFAULT_ARMA_SRC_URL = (
     "http://sourceforge.net/projects/arma/files/"
     "armadillo-{}.tar.xz".format(
         DEFAULT_ARMA_VERSION))
 
-# MLPACK; http://mlpack.org/
+# MLPACK; http://mlpack.org/ (NO LONGER IN USE)
 DEFAULT_MLPACK_GIT_URL = "https://github.com/mlpack/mlpack"
 DEFAULT_MLPACK_GIT_COMMIT = HEAD
 
 # Eigen
 DEFAULT_EIGEN_VERSION = "3.3.3"
 
-# jom
+# jom (now comes with Qt Creator; no need to download)
 # DEFAULT_JOM_GIT_URL = "git://code.qt.io/qt-labs/jom.git"
 
-# MXE
+# MXE (NO LONGER IN USE)
 DEFAULT_MXE_GIT_URL = "https://github.com/mxe/mxe.git"
 MXE_HAS_GCC_WITH_I386_BUG = True  # True as of 2017-11-19
 
@@ -723,11 +728,11 @@ class Platform(object):
     @property
     def cpu_x86_family(self) -> bool:
         return self.cpu in [Cpu.X86_32, Cpu.X86_64, Cpu.AMD_64]
-    
+
     @property
     def cpu_64bit(self) -> bool:
         return self.cpu in [Cpu.X86_64, Cpu.AMD_64, Cpu.ARM_V8_64]
-    
+
     @property
     def cpu_x86_64bit_family(self) -> bool:
         return self.cpu_x86_family and self.cpu_64bit
@@ -770,7 +775,7 @@ class Platform(object):
             return ".lib"
         else:
             return ".a"
-        
+
     @property
     def obj_ext(self):
         """
@@ -1729,7 +1734,7 @@ class Config(object):
             # match the object format of OpenSSL that we previously created
             # using cl, so the configuration step will fail. We have to use cl
             # throughout.
-            
+
             # Sanity checks
             if contains_unquoted_ampersand_dangerous_to_windows(env["PATH"]):
                 fail(BAD_WINDOWS_PATH_MSG + env["PATH"])
@@ -1868,14 +1873,14 @@ def escape_literal_for_shell(x: str) -> str:
     """
     Double-quote a path if it has spaces or quotes in, for use particularly
     with:
-    
+
         somecommand --cflags="--someflag --sysroot=SOMETHING"
-        
+
     ... where that will eventually be passed (via configure) to ANOTHER command
     as
-    
+
         compiler --someflag --sysroot=SOMETHING
-    
+
     and we might have spaces in SOMETHING.
 
     I'm not certain this is particularly generic, so haven't moved it to
@@ -1908,8 +1913,8 @@ def get_starting_env(plain: bool = False) -> Dict[str, str]:
     that.
     """
     # 1. Beware "plain" under Windows. Some other parent environment
-    # variables needed for Visual C++ compiler, or you get "cannot 
-    # create temporary il file" errors. Not sure which, though; 
+    # variables needed for Visual C++ compiler, or you get "cannot
+    # create temporary il file" errors. Not sure which, though;
     # APPDATA, TEMP and TMP are not sufficient.
     # 2. Beware "plain" under macOS; complains about missing "HOME"
     # variable.
@@ -1984,7 +1989,7 @@ Don't forget to add the tools to your PATH, such as:
     C:\cygwin64\bin
     C:\Program Files\NASM
     C:\Program Files\Git\cmd
-    
+
 and for vcvarsall.bat (and via it, cl.exe, nmake.exe, etc.), something like one
 of:
     C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
@@ -2034,9 +2039,9 @@ def ensure_first_perl_is_not_cygwin() -> None:
     r"""
     For Windows: ensure that the Perl we get when we call "perl" isn't a Cygwin
     version.
-    
+
     Why?
-    
+
     ===============================================================================
     WORKING DIRECTORY: C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g
     COMMAND: perl C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure VC-WIN64A shared no-ssl3
@@ -2064,31 +2069,31 @@ def ensure_first_perl_is_not_cygwin() -> None:
         no-zlib         [default]
         no-zlib-dynamic [default]
     Configuring for VC-WIN64A
-    
+
     ------------------------------------------------------------------------------
     This perl implementation doesn't produce Windows like paths (with backward
     slash directory separators).  Please use an implementation that matches your
     building platform.
-    
+
     This Perl version: 5.26.1 for x86_64-cygwin-threads-multi
     ------------------------------------------------------------------------------
-    
+
     $ which perl
     /usr/bin/perl
-    
+
     >>> shutil.which("perl")
     'C:\\cygwin64\\bin\\perl.EXE'
-    
+
     # Then after installing ActiveState Perl:
-    
+
     $ which perl
     /cygdrive/c/Perl64/bin/perl
-    
+
     >>> shutil.which("perl")
     'C:\\Perl64\\bin\\perl.EXE'
-    
+
     # ... and then it works.
-    
+
     """  # noqa
     require(PERL)
     which = shutil.which(PERL)
@@ -2104,13 +2109,13 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
     If you use a Unix version of TCL to build SQLCipher under Windows, it will
     fail because it misinterprets paths. We need to be certain that the TCL
     shell is of the correct kind, i.e. built for Windows.
-    
+
     First note that TCL needs backslashes escaped as \\ in literal strings.
-    
+
     If you have a Windows file \tmp\test.tcl and run it from a DIFFERENT
     directory using "tclsh \tmp\test.tcl", you will get this output from a Unix
     tclsh (e.g. Ubuntu, Cygwin):
-    
+
         puts [info patchlevel]      ;# may help to discriminate two versions! 8.6.8 for Cygwin for me today
         puts [file dirname "/some/path/filename.txt"]       ;# /some/path
         puts [file dirname "\\some\\path\\filename.txt"]    ;# .        -- DISCRIMINATIVE
@@ -2130,12 +2135,12 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
         puts [info script]                                  ;# \tmp\test.tcl
         puts [file dirname [info script]]                   ;# /tmp     -- DISCRIMINATIVE
         puts [file nativename [info script]]                ;# \tmp\test.tcl
-    
+
     Since "info script" requires an actual script to be created (not just
     stdin), the simplest discriminatory command is
-    
+
         puts [file dirname "\\some\\path\\filename.txt"]
-    
+
     """  # noqa
     tcl_cmd = r'puts -nonewline [file dirname "\\some\\path\\filename.txt"]'
     correct = r'/some/path'
@@ -2438,7 +2443,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         join(workdir, "libcrypto{}{}".format(fname_extra, dynamic_lib_ext)),
         join(workdir, "libcrypto{}".format(static_lib_ext)),
     ]
-    
+
     # Now, also: Linux likes to use "-lcrypto" and have that mean "look at
     # libcrypto.so", whereas under Windows we seem to have to use
     # "-llibcrypto" instead. However, some things, like SQLCipher,
@@ -2458,7 +2463,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     if not cfg.force and all(isfile(x) for x in targets):
         report_all_targets_exist("OpenSSL", targets)
         return
-    
+
     # -------------------------------------------------------------------------
     # OpenSSL: Unpack source
     # -------------------------------------------------------------------------
@@ -2779,7 +2784,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # No need to clean anything in the source directory, as long as you don't
     # build there.
     # https://stackoverflow.com/questions/24261974 (comments)
-    
+
     # rmtree(builddir)
     # rmtree(installdir)
     # ... do this if something goes wrong, but it is slow; maybe not routinely
@@ -2827,7 +2832,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         qt_config_args.append("-static")
         # makes a static Qt library (cf. default of "-shared")
         # ... NB ALSO NEEDS "CONFIG += static" in the .pro file
-        
+
     # In Qt 5.10 (as of 2017-11-21), "configure --list-features" does not
     # show "printing-and-pdf", unlike e.g. https://blog.basyskom.com/2017/qt-lite,  # noqa
     # but something in "configure" knows about it because it crashes when
@@ -3127,9 +3132,9 @@ Troubleshooting Qt 'make' failures
 ===============================================================================
 
 Q.  If this is the first time you've had this error...
-A.  RE-RUN THE SCRIPT; sometimes Qt builds fail then pick themselves up the 
+A.  RE-RUN THE SCRIPT; sometimes Qt builds fail then pick themselves up the
     next time.
-    
+
 Q.  If you can't see the error...
 A.  Try with the "--nparallel 1" option.
 
@@ -3212,15 +3217,15 @@ def fetch_sqlcipher(cfg: Config) -> None:
               run_func=run)
     # We must have LF endings, not CR+LF, because we're going to use Unix tools
     # even under Windows.
-    
-    
+
+
 def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     """
     Builds SQLCipher, an open-source encrypted version of SQLite.
     Our source is the public version; our destination is an "amalgamation"
     .h and .c file (equivalent to the amalgamation sqlite3.h and sqlite3.c
     of SQLite itself). Actually, they have the same names, too.
-    
+
     CROSS-COMPILATION OF SQLITE/SQLCIPHER:
     [1] https://vicente-hernando.appspot.com/sqlite3-cross-compile-arm-howto
     [2] https://discuss.zetetic.net/t/cross-compile-sqlicipher-for-arm/2104
@@ -3288,13 +3293,13 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
 
                     # ("SQLITE3EXEPDB = \n", "SQLITE3EXEPDB = /pdb:sqlciphersh.pdb\n"),  # noqa
                     # ("SQLITE3EXEPDB = /pdb:sqlite3sh.pdb", "SQLITE3EXEPDB = /pdb:sqlciphersh.pdb"),  # noqa
-                    
+
                     ("TCC = $(TCC) -DSQLITE_TEMP_STORE=1",
                      "TCC = $(TCC) -DSQLITE_TEMP_STORE=2 " + extra_tcc_rcc),
-                    
+
                     ("RCC = $(RCC) -DSQLITE_TEMP_STORE=1",
                      "RCC = $(RCC) -DSQLITE_TEMP_STORE=2 " + extra_tcc_rcc),
-                    
+
                     # ("sqlite3.def", "sqlcipher.def"),
                 ]
             )
@@ -3313,7 +3318,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             # the compiler with the -Fo switch);
             # https://docs.microsoft.com/en-gb/cpp/build/reference/fo-object-file-name  # noqa
             shutil.copyfile("sqlite3.lo", target_o)
-        
+
     else:
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # SQLCipher/Unix: something other than Windows
@@ -3322,7 +3327,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         # ---------------------------------------------------------------------
         # SQLCipher/Unix: configure args
         # ---------------------------------------------------------------------
-       
+
         # Compiler:
         cflags = [
             "-DSQLITE_HAS_CODEC",
@@ -3338,7 +3343,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
 
         # Linker:
         ldflags = ["-L{}".format(openssl_workdir)]
-    
+
         link_openssl_statically = target_platform.desktop
         # ... try for dynamic linking on Android
         if link_openssl_statically:
@@ -3360,11 +3365,11 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             ldflags.append('-lcrypto')
         # Note that "--with-crypto-lib" isn't helpful here:
         # https://www.zetetic.net/blog/2013/6/27/sqlcipher-220-release.html
-    
+
         trace_include = False
         if trace_include:
             cflags.append("-H")
-    
+
         cflags.append("--sysroot={}".format(
             escape_literal_for_shell(cfg.sysroot(target_platform, env))))
         # ... or, for Android, configure will call ld which will say:
@@ -3382,7 +3387,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         ]
         # By default, SQLCipher compiles with "-O2" optimizations under gcc;
         # see its "configure" script.
-    
+
         # Platform-specific tweaks; cross-compilation.
         # The CROSS_COMPILE prefix doesn't appear in any files, so is
         # presumably not supported, but "--build" and "--host" are used (where
@@ -3400,7 +3405,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         # ---------------------------------------------------------------------
         with pushd(destdir):
             run(config_args, env)
-    
+
         # ---------------------------------------------------------------------
         # SQLCipher/Unix: make
         # ---------------------------------------------------------------------
@@ -3418,7 +3423,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
                 run([MAKE, "sqlite3" + target_platform.obj_ext], env)  # for static linking  # noqa
             if want_exe and not isfile(target_exe):
                 run([MAKE, "sqlcipher"], env)  # the command-line executable
-    
+
         # -------------------------------------------------------------------------
         # SQLCipher/Unix: Check and report
         # -------------------------------------------------------------------------
@@ -3501,9 +3506,9 @@ def fetch_mlpack(cfg: Config) -> None:
 def build_mlpack(cfg: Config) -> None:
     """
     Without building, there is no <mlpack/mlpack_export.hpp>
-    
+
     We run cmake for MLPACK, telling it where Armadillo lives.
-    
+
     If you get this:
         CMake Error at CMake/NewCXX11.cmake:4 (target_compile_features):
         target_compile_features no known features for CXX compiler
@@ -3519,7 +3524,7 @@ def build_mlpack(cfg: Config) -> None:
         ... no backports to xenial
         ... "pinning"
         ... or just manually install .deb files:
-        
+
         sudo dpkg --install \
             cmake_3.7.2-1_amd64.deb \
             cmake-data_3.7.2-1_all.deb \
@@ -3528,7 +3533,7 @@ def build_mlpack(cfg: Config) -> None:
         from
             https://launchpad.net/ubuntu/+source/cmake
             https://packages.ubuntu.com/zesty/libjsoncpp1
-            
+
     ... no, still get error; aha:
         https://github.com/mlpack/mlpack/issues/796
     ... see CMAKE_CXX_FLAGS below
@@ -3683,11 +3688,11 @@ A.  Debian:
             libtool-bin libltdl-dev libssl-dev libxml-parser-perl make \
             openssl p7zip-full patch perl pkg-config python ruby scons \
             sed unzip wget xz-utils
-        
+
     Debian 64-bit:
-    
+
         apt-get install g++-multilib libc6-dev-i386
-        
+
     See http://mxe.cc/#requirements
 
 """)
@@ -3806,7 +3811,7 @@ Compiler bug is:
     https://sourceforge.net/p/mingw-w64/bugs/544/
     ... due to: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71864
 
-... needs MXE to support a more recent version of mingw-w64 and in turn a more 
+... needs MXE to support a more recent version of mingw-w64 and in turn a more
     recent version of gcc
 """)  # noqa
         build_for(Os.WINDOWS, Cpu.X86_32)
@@ -4020,7 +4025,7 @@ def main() -> None:
         default=DEFAULT_OPENSSL_ANDROID_SCRIPT_URL,
         help="OpenSSL Android script source (URL) (not really unused)"
     )
-    
+
     # SQLCipher
     sqlcipher = parser.add_argument_group(
         "SQLCipher",
@@ -4089,7 +4094,7 @@ def main() -> None:
         "--jom_executable", default=r"C:\Qt\Tools\QtCreator\bin\jom.exe",
         help="jom executable (typically installed with QtCreator)"
     )
-    
+
     # windows = parser.add_argument_group(
     #     "Windows",
     #     "Options for Windows"

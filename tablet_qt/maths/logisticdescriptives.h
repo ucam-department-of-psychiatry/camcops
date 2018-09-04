@@ -18,17 +18,9 @@
 */
 
 #pragma once
+
 #include <QVector>
-
-#include "common/preprocessor_aid.h"
-
-#ifdef GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
-    #pragma GCC diagnostic ignored "-Wint-in-bool-context"
-#endif
-#include <Eigen/Dense>
-#ifdef GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
-    #pragma GCC diagnostic pop
-#endif
+#include "maths/include_eigen_dense.h"
 
 
 class LogisticDescriptives

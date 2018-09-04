@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# cppclean is a linter for C++; see https://pypi.org/project/cppclean/
+
 if ! which cppclean >/dev/null; then
     echo 'Install cppclean with "pip install cppclean"; see https://pypi.python.org/pypi/cppclean'
     exit 1

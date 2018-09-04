@@ -1165,7 +1165,9 @@ HEADERS += \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
     widgets/verticalscrollareaviewport.h \
-    common/preprocessor_aid.h
+    common/preprocessor_aid.h \
+    maths/include_eigen_core.h \
+    maths/include_eigen_dense.h
 
 DISTFILES += \
     LICENSE.txt \

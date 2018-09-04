@@ -21,18 +21,9 @@
 
 #define GLM_OFFER_R_GLM_FIT  // Success!
 
-#include "common/preprocessor_aid.h"
-
-#ifdef GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
-    #pragma GCC diagnostic ignored "-Wint-in-bool-context"
-#endif
-#include <Eigen/Dense>
-#ifdef GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
-    #pragma GCC diagnostic pop
-#endif
-
 #include <QDateTime>
 #include <QStringList>
+#include "maths/include_eigen_dense.h"
 #include "maths/linkfunctionfamily.h"
 
 const int GLM_DEFAULT_MAX_ITERATIONS = 25;

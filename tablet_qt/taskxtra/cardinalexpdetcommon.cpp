@@ -112,7 +112,7 @@ const QRectF THANKS_BUTTON_RECT(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
                                 0.4 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
 
 // Graphics: other
-const QColor SCENE_BACKGROUND(QCOLOR_BLACK);  // try salmon
+const QColor SCENE_BACKGROUND(QCOLOR_BLACK);  // try QCOLOR_LIGHTSALMON
 const int BORDER_WIDTH_PX = 3;
 const QColor BUTTON_BACKGROUND(QCOLOR_MEDIUMBLUE);
 const QColor TEXT_COLOUR(QCOLOR_WHITE);

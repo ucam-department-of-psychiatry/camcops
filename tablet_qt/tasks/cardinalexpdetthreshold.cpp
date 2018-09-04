@@ -419,7 +419,7 @@ OpenableWidget* CardinalExpDetThreshold::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     m_scene = new QGraphicsScene(SCENE_RECT);
-    m_scene->setBackgroundBrush(QBrush(SCENE_BACKGROUND)); // *** not working
+    m_scene->setBackgroundBrush(QBrush(SCENE_BACKGROUND));
     m_graphics_widget = makeGraphicsWidget(m_scene, SCENE_BACKGROUND,
                                            true, true);
     connect(m_graphics_widget.data(), &OpenableWidget::aborting,

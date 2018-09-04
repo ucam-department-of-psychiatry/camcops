@@ -63,6 +63,6 @@ SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
-        // *** EQ-5D-5L, if permitted?
+        // *** new task: EQ-5D-5L, if permitted?
     };
 }

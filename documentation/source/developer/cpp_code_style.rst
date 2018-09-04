@@ -236,5 +236,5 @@ Note other popular coding standards:
     #endif
 
 - For Qt Creator's Clang-Tidy and Clazy, use :menuselection:`Tools --> Options
-  --> Analyzer", copy a starting configuration such as "Clang-Tidy and Clazy
+  --> Analyzer`, copy a starting configuration such as "Clang-Tidy and Clazy
   preselected checks [built-in]", and edit it.

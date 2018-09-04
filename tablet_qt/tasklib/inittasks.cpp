@@ -244,9 +244,9 @@ void InitTasks(TaskFactory& factory)
 
     initializeZbi12(factory);
 
-    // *** new: mini-ACE
-    // *** new: Andy Foster / eating disorders; e-mail of 24/5/16
-    // *** AQ10 autistic spectrum screening
+    // *** new task: mini-ACE
+    // *** new task: Andy Foster / eating disorders; e-mail of 24/5/16
+    // *** new task: AQ10 autistic spectrum screening
 
     // *** discarded tasks - revitalize: ASRM
     // *** discarded tasks - revitalize: BARS

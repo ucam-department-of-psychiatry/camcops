@@ -21,23 +21,13 @@
 
 #include <algorithm>
 #include <cstdlib>
-
-#include "common/preprocessor_aid.h"
-
-#ifdef GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
-    #pragma GCC diagnostic ignored "-Wint-in-bool-context"
-#endif
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#ifdef GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
-    #pragma GCC diagnostic pop
-#endif
-
 #include <functional>
 #include <QDebug>
 #include <QStringList>
 #include <QVector>
 #include <vector>
+#include "maths/include_eigen_core.h"
+#include "maths/include_eigen_dense.h"
 
 namespace eigenfunc
 {

@@ -129,7 +129,7 @@ const qreal SCENE_WIDTH = 1000;
 const qreal SCENE_HEIGHT = 750;  // 4:3 aspect ratio
 const int BORDER_WIDTH_PX = 3;
 const QColor EDGE_COLOUR(QCOLOR_WHITE);
-const QColor SCENE_BACKGROUND(QCOLOR_BLACK);  // try also salmon
+const QColor SCENE_BACKGROUND(QCOLOR_BLACK);  // try also QCOLOR_LIGHTSALMON
 const QColor BUTTON_BACKGROUND(QCOLOR_BLUE);
 const QColor TEXT_COLOUR(QCOLOR_WHITE);
 const QColor BUTTON_PRESSED_BACKGROUND(QCOLOR_OLIVE);
@@ -289,7 +289,7 @@ OpenableWidget* QolSG::editor(const bool read_only)
     }
 
     m_scene = new QGraphicsScene(SCENE_RECT);
-    m_scene->setBackgroundBrush(QBrush(SCENE_BACKGROUND)); // *** not working
+    m_scene->setBackgroundBrush(QBrush(SCENE_BACKGROUND));
     m_widget = makeGraphicsWidgetForImmediateEditing(m_scene, SCENE_BACKGROUND);
 
     startTask();

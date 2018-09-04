@@ -824,8 +824,10 @@ bool WhiskerManager::audioLoadTone(const QString& device,
         sound_name,
         QString::number(frequency_hz),
         AUDIO_TONE_TYPES[tone_type],
-        QString::number(duration_ms),  // *** add to Whisker docs about the duration_ms option; see whiskerserver/client.cpp
+        QString::number(duration_ms),
     }, ignore_reply);
+    // 2018-09-04: Whisker docs fixed (optional duration_ms parameter wasn't
+    // mentioned).
 }
 
 

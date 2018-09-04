@@ -19,10 +19,12 @@
 
 #pragma once
 
-#ifdef __GNUC__  // gcc
-    #if __GNUC__ >= 7  // gcc >= 7.0
-        // https://www.gnu.org/software/gcc/gcc-7/changes.html
-        #define GCC_AT_LEAST_7
-        #define GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
-    #endif
+#if __GNUC__ >= 7  // gcc >= 7.0
+    // https://www.gnu.org/software/gcc/gcc-7/changes.html
+    #define GCC_AT_LEAST_7
+    #define GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
 #endif
+
+// No need to test "#ifdef __GNUC__" first; an undefined preprocessor constant
+// evalutes to 0 when tested with "#if";
+// https://stackoverflow.com/questions/5085392/what-is-the-value-of-an-undefined-constant-used-in-if

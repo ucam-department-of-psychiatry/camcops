@@ -1117,7 +1117,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
         https://stackoverflow.com/questions/24204366/how-to-build-openssl-as-unversioned-shared-lib-for-android,
         but that is for an older version of OpenSSL (e.g. 1.0.2d). Lots of things
         failed, but I succeeded by automatically editing the Makefile in a hacky
-        way. See changes in ``build_qt.py``. We now have unversioned libraries for
+        way. See changes in :ref:`build_qt`. We now have unversioned libraries for
         Android.
     ..
       - I'm less clear what changed as it was working well beforehand!
@@ -1255,10 +1255,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
     what's changed (unless I was just behind on testing for old versions of
     Android and the problem had been there for a while). One possibility was
     that the shared OpenSSL libraries were being compiled for ``android-23``
-    (as per ``build_qt.py``) and that was not the same as ``minSdkVersion`` in
+    (as per :ref:`build_qt`) and that was not the same as ``minSdkVersion`` in
     ``AndroidManifest.xml``. The problems are explained well at
     https://stackoverflow.com/questions/21888052/what-is-the-relation-between-app-platform-androidminsdkversion-and-androidtar/41079462#41079462,
-    where APP_PLATFORM is equivalent to the API version used by ``build_qt.py``
+    where APP_PLATFORM is equivalent to the API version used by :ref:`build_qt`
     to compile OpenSSL etc.
 
   - The upshot from that article is that libraries compiled with the Android
@@ -1266,7 +1266,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     version (``APP_PLATFORM``) as ``minSdkVersion``.
 
   - We were using ``minSdkVersion="16"``, so I tried setting
-    ``DEFAULT_ANDROID_API_NUM = 16`` in ``build_qt.py``, and recompiling for
+    ``DEFAULT_ANDROID_API_NUM = 16`` in :ref:`build_qt`, and recompiling for
     Android using ``build_qt.py --build_android_arm_v7_32``, continuing to use
     NDK r11c. I moved ``targetSdkVersion`` back to 26 (soon to be the Google
     Play minimum). This works on Android 6.0.1 (API 23, using debug mode).

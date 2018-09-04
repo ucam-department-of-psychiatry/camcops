@@ -115,8 +115,8 @@ Windows
         C:\Perl64\bin
 
   - Do make sure that the ``PATH`` doesn't have an unquoted ampersand in; this
-    is technically legal but it causes no end of trouble (see ``build_qt.py``).
-    (The usual culprit is MySQL.) The ``build_qt.py`` script will check this.
+    is technically legal but it causes no end of trouble (see :ref:`build_qt`).
+    (The usual culprit is MySQL.) The :ref:`build_qt` script will check this.
 
 - Tested in July 2018 with:
 
@@ -174,7 +174,7 @@ All operating systems
         * - CAMCOPS_QT_BASE_DIR
           - ``~/dev/qt_local_build``
           - ``%USERPROFILE%\dev\qt_local_build``
-          - Read by ``build_qt.py``.
+          - Read by :ref:`build_qt`.
 
         * - CAMCOPS_SOURCE_DIR
           - ``~/dev/camcops``
@@ -244,7 +244,7 @@ please use /FS``
 
 ... even when ``-FS`` is in use via jom_.
 
-**Solution:** just run ``build_qt.py`` again; this error usually goes away.
+**Solution:** just run :ref:`build_qt` again; this error usually goes away.
 Presumably the Qt jom_ tool doesn't always get things quite right with Visual
 C++, and this error reflects parallel compilation processes clashing
 occasionally. It's definitely worth persisting, because Jom saves no end of
@@ -278,7 +278,7 @@ Qt versions
 See :menuselection:`Tools --> Options --> Kits --> Qt Versions`.
 
 Assuming you set your qt_local_build directory to ``~/dev/qt_local_build``, the
-``build_qt.py`` script should have generated a series of ``qmake`` (or, under
+:ref:`build_qt` script should have generated a series of ``qmake`` (or, under
 Windows, ``qmake.exe``) files within that directory:
 
     ==================  ==============================================
@@ -583,7 +583,7 @@ for):
             requires this soon].
             **DOWNGRADED AGAIN 2018-07-16: OpenSSL problems.** Probably because
             you have to rebuild OpenSSL for Android (see
-            ``DEFAULT_ANDROID_API_NUM`` in ``build_qt.py``).
+            ``DEFAULT_ANDROID_API_NUM`` in :ref:`build_qt`).
         * - Application name
           - CamCOPS
         * - Activity name
@@ -837,13 +837,36 @@ Troubleshooting qmake/compilation
 Troubleshooting running CamCOPS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+- Runtime error, failing to find ``libssl.so`` or ``libcrypto.so``:
+
+  .. code-block:: none
+
+    Starting /.../camcops...
+    /.../camcops: error while loading shared libraries: libssl.so: cannot open shared object file: No such file or directory
+    /.../camcops exited with code 127
+
+  CamCOPS needs the ``libssl.so`` and ``libcrypto.so`` that was built by
+  :ref:`build_qt`. Until we have a proper Linux client distribution, do this:
+
+  .. code-block:: bash
+
+    $ export LD_LIBRARY_PATH=~/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.0g/
+
+  ... or wherever you built those ``.so`` libraries. Then re-run the CamCOPS
+  .client.
+
+
 - This error whilst running CamCOPS (Ubuntu 18.04):
 
   .. code-block:: none
 
-    01:04:22: Starting /home/rudolf/Documents/code/camcops/build-camcops-Linux_x86_64-Release/camcops...
-    /home/rudolf/Documents/code/camcops/build-camcops-Linux_x86_64-Release/camcops: error while loading shared libraries: libOpenVG.so.1: cannot open shared object file: No such file or directory
-    01:04:22: /home/rudolf/Documents/code/camcops/build-camcops-Linux_x86_64-Release/camcops exited with code 127
+    Starting /.../camcops...
+    /.../camcops: error while loading shared libraries: libOpenVG.so.1: cannot open shared object file: No such file or directory
+    /.../camcops exited with code 127
+
+  Thoughts:
+
+  .. code-block:: bash
 
     # Which files have similar names?
 
@@ -866,3 +889,11 @@ Troubleshooting running CamCOPS
     $ sudo ln -s /usr/lib/x86_64-linux-gnu/mesa-egl/libOpenVG.so.1 /usr/lib/x86_64-linux-gnu/libOpenVG.so.1
 
     # Yup, that fixes it.
+
+  Solution:
+
+  .. code-block:: bash
+
+    sudo ln -s /usr/lib/x86_64-linux-gnu/mesa-egl/libOpenVG.so.1 /usr/lib/x86_64-linux-gnu/libOpenVG.so.1
+
+.. That symlink implemented manually on wombat, osprey

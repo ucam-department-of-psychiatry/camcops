@@ -2189,6 +2189,8 @@ def delete_user(req: CamcopsRequest) -> Dict[str, Any]:
     elif user.may_use_webviewer or user.may_upload:
         error = "Unable to delete user: user still has webviewer login " \
                 "and/or tablet upload permission"
+    elif user.superuser and (not req.user.superuser):
+        error = "Unable to delete user: they are a superuser and you are not"
     elif ((not req.user.superuser) and
             bool(set(user.group_ids) -
                  set(req.user.ids_of_groups_user_is_admin_for))):

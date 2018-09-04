@@ -49,7 +49,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Group-to-group association table
 # =============================================================================
 # A group can always see itself, but may also have permission to see others;
-# see help(Group).
+# see "Groups" in the CamCOPS documentation.
 
 # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#self-referential-many-to-many-relationship  # noqa
 group_group_table = Table(
@@ -70,132 +70,7 @@ class Group(Base):
     """
     Represents a CamCOPS group.
 
-    ---------------------------------------------------------------------------
-    Basic group security concepts
-    ---------------------------------------------------------------------------
-
-    -   Users may be in one or more groups.
-
-    -   Users have a default "upload to" group.
-    -   Tasks (and other associated records) from a tablet get stashed in that
-        group.
-
-    -   Users can see records belonging to their group(s).
-
-    -   To facilitate group working, there is one level of indirection: groups
-        themselves can have permission to see other groups.
-
-        For example, imagine a research-active hospital with these groups:
-
-        USERS TO GROUPS:
-
-            RA_Smith is in group            depression_crp_study
-            PhDstudent_Jones is in group    depression_crp_study
-
-            RA_Willis is in group           depression_ketamine_study
-            PhDstudent_Fox is in group      depression_ketamine_study
-
-            RA_Armstrong is in group        healthy_development_study
-            PhDstudent_Bliss is in group    healthy_development_study
-
-            PI_Cratchett is in groups:      depression_crp_study
-                                            depression_ketamine_study
-
-            PI_Boxworth is in groups:       depression_ketamine_study
-                                            healthy_development_study
-                                            clinical
-
-            SHO_Amundsen is in group        clinical
-            SpR_Richards is in group        clinical
-
-        GROUPS TO OTHER GROUPS:
-
-            clinical can see:   depression_crp_study
-                                depression_ketamine_study
-
-        Then:
-                                +-- can see depression_crp_study
-                                |
-                                |       +-- can see depression_ketamine_study
-                                |       |
-                                |       |       +-- can see
-                                |       |       |   healthy_development_study
-                                |       |       |
-                                |       |       |       +-- can see clinical
-                                |       |       |       |
-                                v       v       v       v
-
-            RA_Smith            Y       n       n       n
-            PhDstudent_Jones    Y       n       n       n
-            RA_Willis           n       Y       n       n
-            PhDstudent_Fox      n       Y       n       n
-            RA_Armstrong        n       n       Y       n
-            PhDstudent_Bliss    n       n       Y       n
-            PI_Cratchett        Y       Y       n       n
-            PI_Boxworth         Y       Y       Y       Y
-            SHO_Amundsen        Y       Y       n       Y
-            SpR_Richards        Y       Y       n       Y
-
-        This example embodies these specimen principles:
-
-            - Researchers see only the patients consented into their study.
-            - A researcher may be part of one or several studies.
-            - Clinicians can see all records, including research records, for
-              patients consented into clinical research for the hospital.
-            - There may be some studies that don't involve patients, so
-              clinicians don't get some sort of superuser status.
-
-    (Actual CamCOPS superusers can see everything. This is an administrative
-    role.)
-
-    If that's not enough, consider starting another CamCOPS database...
-
-    ---------------------------------------------------------------------------
-    Per-group ID policy
-    ---------------------------------------------------------------------------
-
-    Then, we want a per-group ID policy. The prototypical example is where
-    clinical studies are hosted from a clinical organization; all group may be
-    required to share a common institutional ID, but individual studies may
-    want to enforce their own ID, so ID policies cannot be global.
-
-    ---------------------------------------------------------------------------
-    Group administrators
-    ---------------------------------------------------------------------------
-
-    For a large-scale system, it'd be desirable to be able to delegate user
-    management to group administrators, such that groupadmins can manage their
-    own users WITHOUT being able to see all records on the system.
-    This is a bit tricky.
-
-    - The superuser, alone, should be able to set groupadmin status, and to
-      create/delete groups.
-
-    - We'd want them to be able to add users
-        => add if user doesn't exist already (=> some information leakage)
-
-    - We can't let them delete users arbitrarily. We could say that they could
-      delete a user if all the users' groups were administered by this
-      groupadmin.
-
-    - The groupadmin should be able to grant/revoke access for their groups
-      only.
-
-    - This would entail some permissions being group-specific:
-        - login     [can login if "login" permission set for ANY group]
-        - upload    [can upload to a group only if "upload" permission for
-                     that group]
-        - register devices  [similar to upload]
-        - view_all_patients_when_unfiltered
-                    [if you're in >1 group, this per-group setting would be
-                     applied to patients belonging to that group]
-        - may_dump_data
-                    [applies to data for that group only]
-        - may_run_reports   [also per-group]
-        - may_add_notes [also per-group]
-
-    - A certain amount of crosstalk is hard to avoid: e.g.
-        must_change_password
+    See "Groups" in the CamCOPS documentation.
 
     """
     __tablename__ = "_security_groups"

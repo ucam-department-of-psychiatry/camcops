@@ -21,18 +21,9 @@
 
 // #define LINK_FUNCTION_FAMILY_USE_AIC
 
-#include "common/preprocessor_aid.h"
-
-#ifdef GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
-    #pragma GCC diagnostic ignored "-Wint-in-bool-context"
-#endif
-#include <Eigen/Dense>
-#ifdef GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
-    #pragma GCC diagnostic pop
-#endif
-
 #include <functional>
 #include <QString>
+#include "maths/include_eigen_dense.h"
 
 
 class LinkFunctionFamily
