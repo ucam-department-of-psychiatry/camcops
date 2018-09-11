@@ -1360,3 +1360,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Search facility for all-tasks list.
 
 - OS information.
+
+**Client v2.2.8, in progress (from 2018-09-10)**
+
+- Bugfix to CISR client: page colour was clinician, now patient.

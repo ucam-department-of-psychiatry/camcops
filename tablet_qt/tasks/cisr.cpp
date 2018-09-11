@@ -1087,7 +1087,7 @@ OpenableWidget* Cisr::editor(const bool read_only)
                 m_app,
                 std::bind(&Cisr::makePage, this, std::placeholders::_1),
                 std::bind(&Cisr::morePagesToGo, this, std::placeholders::_1));
-    m_questionnaire->setType(QuPage::PageType::Clinician);
+    m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
     return m_questionnaire;
 }

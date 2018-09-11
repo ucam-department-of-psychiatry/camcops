@@ -75,8 +75,8 @@ pathattr = {stroke: "#808", opacity: 1, "stroke-width" : 1, fill: "#ccf"},
 i;
 paper.path(path[index]).translate(c, c).attr(pathattr);
 for (i = 0; i < 2*c; i += 10) {
-paper.path(["M", 0, i, "L", 2*c, i]).attr(gridattr);
-paper.path(["M", i, 0, "L", i, 2*c]).attr(gridattr);
+    paper.path(["M", 0, i, "L", 2*c, i]).attr(gridattr);
+    paper.path(["M", i, 0, "L", i, 2*c]).attr(gridattr);
 }
 paper.rect(c - s/2, c - s/2, s, s).attr(chattr);
 paper.path(crosshairs).attr(chattr);
