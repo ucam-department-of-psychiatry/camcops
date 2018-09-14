@@ -44,6 +44,9 @@ The CamCOPS client is written in C++11 using the Qt_ cross-platform framework.
 Prerequisites
 -------------
 
+**Ensure the following prerequisites are met:**
+https://wiki.qt.io/Building_Qt_5_from_Git
+
 Linux
 ~~~~~
 
