@@ -274,7 +274,7 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
     )
 
     willing_to_participate_in_further_studies = BoolColumn(
-        "willing_to_participate_in_further_studies"
+        "willing_to_participate_in_further_studies", constraint_name="wtpifs"
     )
 
     def is_complete(self) -> bool:
