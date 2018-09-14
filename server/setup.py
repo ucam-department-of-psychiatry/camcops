@@ -109,7 +109,7 @@ INSTALL_REQUIRES = [
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.0.2',  # better than Arrow
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
-    # 'py-bcrypt==0.4;platform_system!="Windows"',  # Used by rnc_crypto; for bcrypt  # noqa
+    'py-bcrypt==0.4;platform_system!="Windows"',  # Used by rnc_crypto; for bcrypt  # noqa
     # *** 'py-bcrypt-w32==0.2.2;platform_system=="Windows"',  # Windows version
     'Pygments==2.2.0',  # Syntax highlighting for introspection
     'PyMySQL==0.7.1',
