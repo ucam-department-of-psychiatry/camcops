@@ -1372,4 +1372,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://dev.mysql.com/doc/refman/5.7/en/charset-unicode-conversion.html
 - Shebang changed for ``build_qt.py``
 - SQLAlchemy ``NAMING_CONVENTION`` changed in ``cc_sqlalchemy.py`` as some
-  fields were yielding index/constraint names that were too long.
+  fields were yielding index/constraint names that were too long... then
+  reverted and specific changes made for
+  ``cpft_lps_discharge.management_specialling_behavioural_disturbance``.

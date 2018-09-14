@@ -1239,7 +1239,8 @@ class BoolColumn(CamcopsColumn):
 
         _, type_in_args = _name_type_in_column_args(args)
         if not type_in_args:
-            kwargs['type_'] = Boolean()
+            constraint_name = kwargs.pop("constraint_name", None)
+            kwargs['type_'] = Boolean(name=constraint_name)
         kwargs['permitted_value_checker'] = BIT_CHECKER
         super().__init__(*args, **kwargs)
 

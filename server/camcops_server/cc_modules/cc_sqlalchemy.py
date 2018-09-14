@@ -70,23 +70,28 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # http://docs.sqlalchemy.org/en/latest/core/constraints.html#configuring-constraint-naming-conventions  # noqa
 
 NAMING_CONVENTION = {
+    # - Note that constraint names must be unique in the DATABASE, not the
+    #   table;
+    #   https://dev.mysql.com/doc/refman/5.6/en/create-table-foreign-keys.html
+    # - Index names only have to be unique for the table;
+    #   https://stackoverflow.com/questions/30653452/do-index-names-have-to-be-unique-across-entire-database-in-mysql  # noqa
+
     # INDEX:
     "ix": 'ix_%(column_0_label)s',
 
     # UNIQUE CONSTRAINT:
-    # "uq": "uq_%(table_name)s_%(column_0_name)s",
-    "uq": "uq_%(column_0_name)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    # "uq": "uq_%(column_0_name)s",
 
     # CHECK CONSTRAINT:
     # "ck": "ck_%(table_name)s_%(constraint_name)s",  # too long for MySQL
     # ... https://groups.google.com/forum/#!topic/sqlalchemy/SIT4D8S9dUg
-    # "ck": "ck_%(table_name)s_%(column_0_name)s",
-    "ck": "ck_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(column_0_name)s",
 
     # FOREIGN KEY:
     # "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",  # too long for MySQL sometimes!  # noqa
-    # "fk": "fk_%(table_name)s_%(column_0_name)s",
-    "fk": "fk_%(column_0_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s",
+    # "fk": "fk_%(column_0_name)s",
 
     # PRIMARY KEY:
     "pk": "pk_%(table_name)s"
