@@ -90,7 +90,7 @@ INSTALL_REQUIRES = [
     # 'aenum==2.0.9',  # advanced enums
     'alembic==0.9.9',  # database migrations
     # 'arrow==0.10.0',  # better datetime
-    'cardinal_pythonlib==1.0.23',  # RNC libraries
+    'cardinal_pythonlib==1.0.24',  # RNC libraries
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==16.0.2',  # web server
     'deform==2.0.5',  # web forms
@@ -103,13 +103,13 @@ INSTALL_REQUIRES = [
     'lockfile==0.12.2',  # File locking for background tasks
     'matplotlib==2.2.0',
     # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
-    'mysqlclient==1.3.13;platform_system=="Linux"',  # for mysql+mysqldb://...
-    # ... but adds dependency on C and mysql.h ***
+    # 'mysqlclient==1.3.13;platform_system=="Linux"',  # for mysql+mysqldb://...
+    # # ... but adds dependency on C and mysql.h ***
     'numpy==1.14.5',  # Used by some tasks. SLOW INSTALLATION.
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.0.2',  # better than Arrow
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
-    'py-bcrypt==0.4;platform_system!="Windows"',  # Used by rnc_crypto; for bcrypt  # noqa
+    # 'py-bcrypt==0.4;platform_system!="Windows"',  # Used by rnc_crypto; for bcrypt  # noqa
     # *** 'py-bcrypt-w32==0.2.2;platform_system=="Windows"',  # Windows version
     'Pygments==2.2.0',  # Syntax highlighting for introspection
     'PyMySQL==0.7.1',
@@ -117,14 +117,14 @@ INSTALL_REQUIRES = [
     'PyPDF2==1.26.0',  # Used by rnc_pdf.py
     'pyramid==1.9.2',  # web framework
     'pyramid_debugtoolbar==4.4',  # debugging for Pyramid
-    'python-dateutil==2.7.3',  # Date/time extensions.
-    'pytz==2018.5',  # Timezone definitions, specifically UTC.
-    'scipy==1.1.0',  # Used by some tasks. SLOW INSTALLATION.
+    'python-dateutil==2.7.3',  # date/time extensions.
+    'pytz==2018.5',  # timezone definitions, specifically utc.
+    'scipy==1.1.0',  # used by some tasks. slow installation.
     'semantic_version==2.6.0',  # semantic versioning; better than semver
-    'sphinx==1.7.6',  # DEVELOPMENT ONLY.
+    'sphinx==1.7.6',  # development only.
     'sqlalchemy==1.2.8',  # database access
-    # 'SQLAlchemy-Utils==0.32.16',  # extra column types
-    'typing==3.6.4',  # part of stdlib in Python 3.5, but not 3.4
+    # 'sqlalchemy-utils==0.32.16',  # extra column types
+    'typing==3.6.4',  # part of stdlib in python 3.5, but not 3.4
     'Wand==0.4.4',
     # ImageMagick for Python; used e.g. for BLOB PNG display; may need "sudo apt-get install libmagickwand-dev"  # noqa
     # Incompatible with Python 3.5; use paginate instead # 'WebHelpers==1.3',  # e.g. paginator and other tools for Pyramid  # noqa
