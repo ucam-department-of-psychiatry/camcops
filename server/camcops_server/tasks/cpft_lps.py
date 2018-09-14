@@ -505,7 +505,9 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     )
     management_medication = BoolColumn("management_medication")
     management_specialling_behavioural_disturbance = BoolColumn(
-        "management_specialling_behavioural_disturbance"
+        "management_specialling_behavioural_disturbance",
+        # Constraint name too long for MySQL unless we do this:
+        constraint_name="ck_cpft_lps_discharge_msbd"
     )
     management_supportive_patient = BoolColumn("management_supportive_patient")
     management_supportive_carers = BoolColumn("management_supportive_carers")
