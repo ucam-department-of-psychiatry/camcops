@@ -86,7 +86,7 @@ NAMING_CONVENTION = {
     # CHECK CONSTRAINT:
     # "ck": "ck_%(table_name)s_%(constraint_name)s",  # too long for MySQL
     # ... https://groups.google.com/forum/#!topic/sqlalchemy/SIT4D8S9dUg
-    "ck": "ck_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
 
     # FOREIGN KEY:
     # "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",  # too long for MySQL sometimes!  # noqa
