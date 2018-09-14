@@ -187,7 +187,7 @@ FILTER_TEXT_MAX_LEN = 255  # our choice
 FULLNAME_MAX_LEN = 255  # our choice; used for user full names on the server
 
 GROUP_DESCRIPTION_MAX_LEN = 255  # our choice
-GROUP_NAME_MAX_LEN = 255  # our choice
+GROUP_NAME_MAX_LEN = 191  # our choice
 
 HASHED_PW_MAX_LEN = 60  # for bcrypt
 # ... empirically; we use bcrypt; its length is:
