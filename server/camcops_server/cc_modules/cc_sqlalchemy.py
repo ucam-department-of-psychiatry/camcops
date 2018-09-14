@@ -86,7 +86,26 @@ NAMING_CONVENTION = {
     # CHECK CONSTRAINT:
     # "ck": "ck_%(table_name)s_%(constraint_name)s",  # too long for MySQL
     # ... https://groups.google.com/forum/#!topic/sqlalchemy/SIT4D8S9dUg
-    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    # "ck": "ck_%(table_name)s_%(column_0_name)s",
+    # Problem 2018-09-14:
+    # - constraints must be unique across database
+    # - MySQL only accepts 64 characters for constraint name
+    # - using "%(column_0_name)" means that explicit constrant names are
+    #   ignored
+    # - using "%(constraint_name)" means that all constraints have to be named
+    #   explicitly (very tedious)
+    # - so truncate?
+    #   https://docs.python.org/3/library/stdtypes.html#old-string-formatting
+    #   https://www.python.org/dev/peps/pep-0237/
+    # - The main problem is BOOL columns, e.g.
+    #   cpft_lps_discharge.management_specialling_behavioural_disturbance
+    # - Example:
+    #   longthing = "abcdefghijklmnopqrstuvwxyz"
+    #   d = {"thing": longthing}
+    #   "hello %(thing).10s world" % d  # LEFT TRUNCATE
+    #   # ... gives 'hello abcdefghij world'
+    "ck": "ck_%(table_name).30s_%(column_0_name).30s",
+    # 3 for "ck_" leaves 61; 30 for table, 1 for "_", 30 for column
 
     # FOREIGN KEY:
     # "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",  # too long for MySQL sometimes!  # noqa
