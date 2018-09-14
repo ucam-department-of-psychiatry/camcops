@@ -1365,4 +1365,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix to CISR client: page colour was clinician, now patient.
 
-- Bugfix reducing the maximum group name length to 191
+**Server v2.2.8, in progress (from 2018-09-14)**
+
+- ``GROUP_NAME_MAX_LEN`` changed from 255 to 191 because MySQL only supports
+  indexing of 191 characters in ``utf8mb4`` mode on ``InnoDB`` tables; see
+  https://dev.mysql.com/doc/refman/5.7/en/charset-unicode-conversion.html
+- Shebang changed for ``build_qt.py``
+- SQLAlchemy ``NAMING_CONVENTION`` changed in ``cc_sqlalchemy.py`` as some
+  fields were yielding index/constraint names that were too long.
