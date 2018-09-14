@@ -36,8 +36,8 @@
 # -----------------------------------------------------------------------------
 # When you alter the server, it is normal to change these two:
 
-CAMCOPS_SERVER_VERSION_STRING = "2.2.7"
-CAMCOPS_SERVER_CHANGEDATE = "2018-07-31"
+CAMCOPS_SERVER_VERSION_STRING = "2.2.8"
+CAMCOPS_SERVER_CHANGEDATE = "2018-09-14"
 
 # +++ NOW ALSO UPDATE: +++
 #
