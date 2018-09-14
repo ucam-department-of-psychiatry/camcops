@@ -122,14 +122,16 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     )
     admission_reason_overdose = BoolColumn("admission_reason_overdose")
     admission_reason_self_harm_not_overdose = BoolColumn(
-        "admission_reason_self_harm_not_overdose"
+        "admission_reason_self_harm_not_overdose",
+        constraint_name="ck_cpft_lps_referral_arshno"
     )
     admission_reason_confusion = BoolColumn("admission_reason_confusion")
     admission_reason_trauma = BoolColumn("admission_reason_trauma")
     admission_reason_falls = BoolColumn("admission_reason_falls")
     admission_reason_infection = BoolColumn("admission_reason_infection")
     admission_reason_poor_adherence = BoolColumn(
-        "admission_reason_poor_adherence"
+        "admission_reason_poor_adherence",
+        constraint_name="ck_cpft_lps_referral_adpa"
     )
     admission_reason_other = BoolColumn("admission_reason_other")
     existing_psychiatric_teams = Column("existing_psychiatric_teams",
@@ -398,7 +400,8 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     discharge_reason_code = Column("discharge_reason_code", UnicodeText)
 
     leaflet_or_discharge_card_given = BoolColumn(
-        "leaflet_or_discharge_card_given"
+        "leaflet_or_discharge_card_given",
+        constraint_name="ck_cpft_lps_discharge_lodcg"
     )
     frequent_attender = BoolColumn("frequent_attender")
     patient_wanted_copy_of_letter = BoolColumn(
@@ -415,50 +418,63 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     )
 
     referral_reason_self_harm_overdose = BoolColumn(
-        "referral_reason_self_harm_overdose"
+        "referral_reason_self_harm_overdose",
+        constraint_name="ck_cpft_lps_discharge_rrshoverdose"
     )
     referral_reason_self_harm_other = BoolColumn(
-        "referral_reason_self_harm_other"
+        "referral_reason_self_harm_other",
+        constraint_name="ck_cpft_lps_discharge_rrshother"
     )
     referral_reason_suicidal_ideas = BoolColumn(
-        "referral_reason_suicidal_ideas"
+        "referral_reason_suicidal_ideas",
+        constraint_name="ck_cpft_lps_discharge_rrsuicidal"
     )
     referral_reason_behavioural_disturbance = BoolColumn(
-        "referral_reason_behavioural_disturbance"
+        "referral_reason_behavioural_disturbance",
+        constraint_name="ck_cpft_lps_discharge_behavdisturb"
     )
     referral_reason_low_mood = BoolColumn("referral_reason_low_mood")
     referral_reason_elevated_mood = BoolColumn("referral_reason_elevated_mood")
     referral_reason_psychosis = BoolColumn("referral_reason_psychosis")
     referral_reason_pre_transplant = BoolColumn(
-        "referral_reason_pre_transplant"
+        "referral_reason_pre_transplant",
+        constraint_name="ck_cpft_lps_discharge_pretransplant"
     )
     referral_reason_post_transplant = BoolColumn(
-        "referral_reason_post_transplant"
+        "referral_reason_post_transplant",
+        constraint_name="ck_cpft_lps_discharge_posttransplant"
     )
     referral_reason_delirium = BoolColumn("referral_reason_delirium")
     referral_reason_anxiety = BoolColumn("referral_reason_anxiety")
     referral_reason_somatoform_mus = BoolColumn(
-        "referral_reason_somatoform_mus"
+        "referral_reason_somatoform_mus",
+        constraint_name="ck_cpft_lps_discharge_mus"
     )
     referral_reason_motivation_adherence = BoolColumn(
-        "referral_reason_motivation_adherence"
+        "referral_reason_motivation_adherence",
+        constraint_name="ck_cpft_lps_discharge_motivadherence"
     )
     referral_reason_capacity = BoolColumn("referral_reason_capacity")
     referral_reason_eating_disorder = BoolColumn(
-        "referral_reason_eating_disorder"
+        "referral_reason_eating_disorder",
+        constraint_name="ck_cpft_lps_discharge_eatingdis"
     )
     referral_reason_safeguarding = BoolColumn("referral_reason_safeguarding")
     referral_reason_discharge_placement = BoolColumn(
-        "referral_reason_discharge_placement"
+        "referral_reason_discharge_placement",
+        constraint_name="ck_cpft_lps_discharge_dcplacement"
     )
     referral_reason_cognitive_problem = BoolColumn(
-        "referral_reason_cognitive_problem"
+        "referral_reason_cognitive_problem",
+        constraint_name="ck_cpft_lps_discharge_cognitiveprob"
     )
     referral_reason_substance_alcohol = BoolColumn(
-        "referral_reason_substance_alcohol"
+        "referral_reason_substance_alcohol",
+        constraint_name="ck_cpft_lps_discharge_alcohol"
     )
     referral_reason_substance_other = BoolColumn(
-        "referral_reason_substance_other"
+        "referral_reason_substance_other",
+        constraint_name="ck_cpft_lps_discharge_substanceother"
     )
     referral_reason_other = BoolColumn("referral_reason_other")
     referral_reason_transplant_organ = Column(
@@ -469,7 +485,8 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     )
 
     diagnosis_no_active_mental_health_problem = BoolColumn(
-        "diagnosis_no_active_mental_health_problem"
+        "diagnosis_no_active_mental_health_problem",
+        constraint_name="ck_cpft_lps_discharge_nomhprob"
     )
     diagnosis_psych_1_icd10code = Column(
         "diagnosis_psych_1_icd10code", DiagnosticCodeColType
@@ -501,7 +518,8 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     diagnosis_medical_4 = Column("diagnosis_medical_4", UnicodeText)
 
     management_assessment_diagnostic = BoolColumn(
-        "management_assessment_diagnostic"
+        "management_assessment_diagnostic",
+        constraint_name="ck_cpft_lps_discharge_mx_ass_diag"
     )
     management_medication = BoolColumn("management_medication")
     management_specialling_behavioural_disturbance = BoolColumn(
@@ -517,22 +535,28 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     management_therapy_cat = BoolColumn("management_therapy_cat")
     management_therapy_other = BoolColumn("management_therapy_other")
     management_treatment_adherence = BoolColumn(
-        "management_treatment_adherence"
+        "management_treatment_adherence",
+        constraint_name="ck_cpft_lps_discharge_mx_rx_adhere"
     )
     management_capacity = BoolColumn("management_capacity")
     management_education_patient = BoolColumn("management_education_patient")
     management_education_carers = BoolColumn("management_education_carers")
     management_education_staff = BoolColumn("management_education_staff")
     management_accommodation_placement = BoolColumn(
-        "management_accommodation_placement")
+        "management_accommodation_placement",
+        constraint_name="ck_cpft_lps_discharge_accom"
+    )
     management_signposting_external_referral = BoolColumn(
-        "management_signposting_external_referral")
+        "management_signposting_external_referral",
+        constraint_name = "ck_cpft_lps_discharge_mx_signpostrefer"
+    )
     management_mha_s136 = BoolColumn("management_mha_s136")
     management_mha_s5_2 = BoolColumn("management_mha_s5_2")
     management_mha_s2 = BoolColumn("management_mha_s2")
     management_mha_s3 = BoolColumn("management_mha_s3")
     management_complex_case_conference = BoolColumn(
-        "management_complex_case_conference"
+        "management_complex_case_conference",
+        constraint_name="ck_cpft_lps_discharge_caseconf"
     )
     management_other = BoolColumn("management_other")
     management_other_detail = Column("management_other_detail", UnicodeText)

@@ -89,7 +89,10 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
 
     infections_last3months = BoolColumn("infections_last3months")
     infection_recent_respiratory = BoolColumn("infection_recent_respiratory")
-    infection_recent_gastroenteritis = BoolColumn("infection_recent_gastroenteritis")  # noqa
+    infection_recent_gastroenteritis = BoolColumn(
+        "infection_recent_gastroenteritis",
+        constraint_name="ck_deakin_1_healthreview_inf_recent_gastro"
+    )
     infection_recent_urinary = BoolColumn("infection_recent_urinary")
     infection_recent_sexual = BoolColumn("infection_recent_sexual")
     infection_recent_hepatitis = BoolColumn("infection_recent_hepatitis")
@@ -98,7 +101,10 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
 
     infections_chronic = BoolColumn("infections_chronic")
     infection_chronic_respiratory = BoolColumn("infection_chronic_respiratory")
-    infection_chronic_gastroenteritis = BoolColumn("infection_chronic_gastroenteritis")  # noqa
+    infection_chronic_gastroenteritis = BoolColumn(
+        "infection_chronic_gastroenteritis",
+        constraint_name="ck_deakin_1_healthreview_inf_chronic_gastro"
+    )
     infection_chronic_urinary = BoolColumn("infection_chronic_urinary")
     infection_chronic_sexual = BoolColumn("infection_chronic_sexual")
     infection_chronic_hepatitis = BoolColumn("infection_chronic_hepatitis")
@@ -136,7 +142,8 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
     )
 
     recreational_drug_in_last_3_months = BoolColumn(
-        "recreational_drug_in_last_3_months"
+        "recreational_drug_in_last_3_months",
+        constraint_name="ck_deakin_1_healthreview_recdruglast3mo"
     )
 
     recdrug_tobacco_frequency = CamcopsColumn(
@@ -214,14 +221,20 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT
     )
-    recdrug_amphetamines_prevheavy = BoolColumn("recdrug_amphetamines_prevheavy")  # noqa
+    recdrug_amphetamines_prevheavy = BoolColumn(
+        "recdrug_amphetamines_prevheavy",
+        constraint_name="ck_deakin_1_healthreview_amphetprevheavy"
+    )
 
     recdrug_benzodiazepines_frequency = CamcopsColumn(
         "recdrug_benzodiazepines_frequency", Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT
     )
-    recdrug_benzodiazepines_prevheavy = BoolColumn("recdrug_benzodiazepines_prevheavy")  # noqa
+    recdrug_benzodiazepines_prevheavy = BoolColumn(
+        "recdrug_benzodiazepines_prevheavy",
+        constraint_name="ck_deakin_1_healthreview_benzoprevheavy"
+    )
 
     recdrug_ketamine_frequency = CamcopsColumn(
         "recdrug_ketamine_frequency", Integer,
@@ -249,7 +262,10 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT
     )
-    recdrug_hallucinogens_prevheavy = BoolColumn("recdrug_hallucinogens_prevheavy")  # noqa
+    recdrug_hallucinogens_prevheavy = BoolColumn(
+        "recdrug_hallucinogens_prevheavy",
+        constraint_name="ck_deakin_1_healthreview_hallucinogenprevheavy"
+    )
 
     recdrug_details = Column("recdrug_details", UnicodeText)
 

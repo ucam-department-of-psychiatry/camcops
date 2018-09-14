@@ -129,6 +129,7 @@ from sqlalchemy import util
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm.relationships import RelationshipProperty
+from sqlalchemy.sql.elements import conv
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.functions import func, FunctionElement
 from sqlalchemy.sql.schema import Column
@@ -146,6 +147,7 @@ from sqlalchemy.sql.type_api import TypeDecorator
 
 from .cc_constants import PV
 from .cc_simpleobjects import IdNumReference
+from .cc_sqlalchemy import LONG_COLUMN_NAME_WARNING_LIMIT
 from .cc_version import make_version
 
 if TYPE_CHECKING:
@@ -1239,10 +1241,20 @@ class BoolColumn(CamcopsColumn):
 
         _, type_in_args = _name_type_in_column_args(args)
         if not type_in_args:
-            constraint_name = kwargs.pop("constraint_name", None)
-            kwargs['type_'] = Boolean(name=constraint_name)
+            constraint_name_str = kwargs.pop("constraint_name", None)
+            if constraint_name_str:
+                constraint_name_conv = conv(constraint_name_str)
+                # ... see help for ``conv``
+            else:
+                constraint_name_conv = None
+            kwargs['type_'] = Boolean(name=constraint_name_conv)
         kwargs['permitted_value_checker'] = BIT_CHECKER
         super().__init__(*args, **kwargs)
+        if (not constraint_name_str and
+                len(self.name) >= LONG_COLUMN_NAME_WARNING_LIMIT):
+            log.warning("Long column name and no constraint name: {!r}".format(
+                self.name
+            ))
 
     def _constructor(self, *args: Any, **kwargs: Any) -> "BoolColumn":
         # https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass  # noqa

@@ -69,6 +69,9 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # https://alembic.readthedocs.org/en/latest/naming.html
 # http://docs.sqlalchemy.org/en/latest/core/constraints.html#configuring-constraint-naming-conventions  # noqa
 
+MYSQL_MAX_IDENTIFIER_LENGTH = 64
+LONG_COLUMN_NAME_WARNING_LIMIT = 30
+
 NAMING_CONVENTION = {
     # - Note that constraint names must be unique in the DATABASE, not the
     #   table;
@@ -104,8 +107,11 @@ NAMING_CONVENTION = {
     #   d = {"thing": longthing}
     #   "hello %(thing).10s world" % d  # LEFT TRUNCATE
     #   # ... gives 'hello abcdefghij world'
-    "ck": "ck_%(table_name).30s_%(column_0_name).30s",
+    # "ck": "ck_%(table_name).30s_%(column_0_name).30s",
     # 3 for "ck_" leaves 61; 30 for table, 1 for "_", 30 for column
+    # ... no...
+    # "obs_contamination_bodily_waste_*"
+    "ck": "ck_%(table_name)s_%(column_0_name)s",  # unique but maybe too long
 
     # FOREIGN KEY:
     # "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",  # too long for MySQL sometimes!  # noqa
@@ -226,6 +232,21 @@ def log_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> None:
     text = get_all_ddl(dialect_name)
     log.info(text)
     log.info("DDL length: {} characters", len(text))
+
+
+def assert_constraint_name_ok(table_name: str, column_name: str) -> None:
+    d = {
+        "table_name": table_name,
+        "column_0_name": column_name,
+    }
+    anticipated_name = NAMING_CONVENTION["ck"] % d
+    if len(anticipated_name) > MYSQL_MAX_IDENTIFIER_LENGTH:
+        raise AssertionError(
+            "Constraint name too long for table {!r}, column {!r]; will be "
+            "{!r} of length {}".format(
+                table_name, column_name, anticipated_name,
+                len(anticipated_name)
+            ))
 
 
 # =============================================================================
