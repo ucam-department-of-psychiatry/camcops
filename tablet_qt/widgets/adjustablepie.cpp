@@ -402,7 +402,7 @@ qreal AdjustablePie::sectorProportionCumulative(const int sector_index) const
 
 QSize AdjustablePie::sizeHint() const
 {
-    auto diameter = static_cast<const int>(m_overall_radius * 2);
+    auto diameter = static_cast<int>(m_overall_radius * 2);
     return QSize(diameter, diameter);
 }
 

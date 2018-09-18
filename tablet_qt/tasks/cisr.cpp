@@ -1177,8 +1177,8 @@ bool Cisr::morePagesToGo(const int current_qnum) const
 
 Cisr::CisrQuestion Cisr::intToEnum(int qi) const
 {
-    auto start = static_cast<const int>(CisrQuestion::START_MARKER);
-    auto end = static_cast<const int>(CisrQuestion::END_MARKER);
+    auto start = static_cast<int>(CisrQuestion::START_MARKER);
+    auto end = static_cast<int>(CisrQuestion::END_MARKER);
     Q_ASSERT(qi >= start && qi <= end);
     return static_cast<CisrQuestion>(qi);
 }
