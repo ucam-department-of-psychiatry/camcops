@@ -18,11 +18,13 @@
 */
 
 #pragma once
+#include <QPointer>
 #include <QString>
 #include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
+class Questionnaire;
 class TaskFactory;
 
 void initializePhq9(TaskFactory& factory);
@@ -54,6 +56,10 @@ public:
     int nCoreSymptoms() const;
     int nOtherSymptoms() const;
     static QString severity(int score);
+public slots:
+    void mainScoreChanged();
 public:
     static const QString PHQ9_TABLENAME;
+protected:
+    QPointer<Questionnaire> m_questionnaire;
 };

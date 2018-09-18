@@ -50,7 +50,8 @@ void initializePhq9(TaskFactory& factory)
 
 
 Phq9::Phq9(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, PHQ9_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, PHQ9_TABLENAME, false, false, false),  // ... anon, clin, resp
+    m_questionnaire(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
@@ -169,9 +170,20 @@ OpenableWidget* Phq9::editor(const bool read_only)
         new QuMcq(fieldRef("q10"), options_q10),
     })->setTitle(xstring("title_main")));
 
-    auto questionnaire = new Questionnaire(m_app, {page});
-    questionnaire->setReadOnly(read_only);
-    return questionnaire;
+    for (const QString& main_q_fieldname : strseq(QPREFIX,
+                                                  FIRST_Q, LAST_SCORED_Q)) {
+        FieldRefPtr fr = fieldRef(main_q_fieldname);
+        connect(fr.data(), &FieldRef::valueChanged,
+                this, &Phq9::mainScoreChanged);
+    }
+
+    m_questionnaire = new Questionnaire(m_app, {page});
+    m_questionnaire->setType(QuPage::PageType::Patient);
+    m_questionnaire->setReadOnly(read_only);
+
+    mainScoreChanged();
+
+    return m_questionnaire;
 }
 
 
@@ -220,4 +232,17 @@ QString Phq9::severity(const int score)
     if (score >= 10) return textconst::MODERATE;
     if (score >=  5) return textconst::MILD;
     return textconst::NONE;
+}
+
+
+void Phq9::mainScoreChanged()
+{
+    // Question 10 is only mandatory if we're scoring above zero for
+    // the main questions (1-9).
+    if (!m_questionnaire) {
+        return;
+    }
+    const bool q10_mandatory = totalScore() > 0;
+    FieldRefPtr fr_q10 = fieldRef("q10");
+    fr_q10->setMandatory(q10_mandatory);
 }

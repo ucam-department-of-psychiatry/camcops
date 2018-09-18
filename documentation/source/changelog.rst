@@ -1365,6 +1365,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix to CISR client: page colour was clinician, now patient.
 
+- Bugfix to PHQ9: question 10 was still mandatory in the Questionnaire
+  even if zero score for other questions.
+
 **Server v2.2.8, in progress (from 2018-09-14)**
 
 - ``GROUP_NAME_MAX_LEN`` changed from 255 to 191 because MySQL only supports
@@ -1375,3 +1378,4 @@ Current C++/SQLite client, Python/SQLAlchemy server
   fields were yielding index/constraint names that were too long... then
   reverted and specific changes made for
   ``cpft_lps_discharge.management_specialling_behavioural_disturbance``.
+
