@@ -291,14 +291,20 @@ DEFAULT_TOOLCHAIN_VERSION = "4.9"
 DEFAULT_QT_SRC_DIRNAME = "qt5"
 DEFAULT_QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
 
-DEFAULT_QT_GIT_BRANCH = "5.11.1"
-# previously "5.7.0", "5.9", "5.10" [= development branch], "5.10.0"
+DEFAULT_QT_GIT_BRANCH = "5.12"
+# previously "5.7.0", "5.9", "5.10" [= development branch], "5.10.0", "5.11.1"
 # I think in general one should use x.y.z not x.y versions, because the former
 # are the development chain and the latter get frozen.
+
+# At present we're building against 5.12 (ie. in the development chain). This
+# includes patches for compatibility with glibc 2.28 (released 2018-08-01).
+# See: https://bugreports.qt.io/browse/QTBUG-69843
+
 USING_QT_5_7 = False
 USING_QT_5_9 = False
 USING_QT_5_10 = False
-USING_QT_5_11 = True
+USING_QT_5_11 = False
+USING_QT_5_12 = True
 # ... to find out which are available: go into the local git directory and run
 # "git remote show origin"
 # 2017-12-01: 5.10 still too buggy (e.g. at CamcopsApp creation as QApplication
@@ -2692,7 +2698,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             # can't really test e.g. Android code directly under Linux
         )
         if test_openssl:
-            runmake("test)")
+            runmake("test")
 
     # -------------------------------------------------------------------------
     # OpenSSL: check libraries and/or copy libraries to their standard names.
