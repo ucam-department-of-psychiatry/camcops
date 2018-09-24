@@ -1,6 +1,19 @@
+# server/requirements_readthedocs.txt
+
 # Point readthedocs towards setup.py.
+# As per https://docs.readthedocs.io/en/latest/faq.html
 # (1) Configure it to use "server/requirements_readthedocs.txt" as a
 #     requirements file.
 # (2) From this file, point to the relative path of setup.py:
 
-.
+# .  # doesn't work
+server/
+
+# Since "." fails and "server/" works, I am sceptical of the FAQ's comments
+# about paths being relative to this file...
+
+# Also,
+# (3) Turn off "Install your project inside a virtualenv using setup.py
+#     install"; the requirements-based method supersedes that (by redirecting
+#     to setup.py directly).
+

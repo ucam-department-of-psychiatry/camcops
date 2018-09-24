@@ -304,7 +304,8 @@ class Bdi(TaskHasPatientMixin, Task,
                 [2] Insight study: 
                     <a href="https://doi.org/10.1186/ISRCTN16942542">doi:10.1186/ISRCTN16942542</a>
                 
-                [3] See the <a href="http://camcops.org/documentation/tasks/bdi.html">CamCOPS 
+                [3] See the 
+                    <a href="https://camcops.readthedocs.io/en/latest/tasks/bdi.html">CamCOPS 
                     BDI help</a> for full references and bibliography for the 
                     citations that follow.
                 
