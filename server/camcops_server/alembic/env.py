@@ -73,6 +73,9 @@ def run_migrations_offline(config: Config,
         render_as_batch=True,  # for SQLite mode; http://stackoverflow.com/questions/30378233  # noqa
         literal_binds=True,
         version_table=ALEMBIC_VERSION_TABLE,
+        compare_type=True,
+        # ... http://blog.code4hire.com/2017/06/setting-up-alembic-to-detect-the-column-length-change/  # noqa
+        # ... https://eshlox.net/2017/08/06/alembic-migration-for-string-length-change/  # noqa
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -98,6 +101,7 @@ def run_migrations_online(config: Config,
             target_metadata=target_metadata,
             render_as_batch=True,  # for SQLite mode; http://stackoverflow.com/questions/30378233  # noqa
             version_table=ALEMBIC_VERSION_TABLE,
+            compare_type=True,
         )
         with context.begin_transaction():
             context.run_migrations()

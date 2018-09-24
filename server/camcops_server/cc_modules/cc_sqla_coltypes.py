@@ -177,6 +177,10 @@ if any([DEBUG_DATETIME_AS_ISO_TEXT,
 # =============================================================================
 # Constants
 # =============================================================================
+# Note: "191" relates to MySQL indexing of VARCHAR fields using utf8mb4;
+# - https://stackoverflow.com/questions/6172798/
+# - https://dev.mysql.com/doc/refman/5.7/en/innodb-restrictions.html
+# There are alternative workarounds, but these fields are OK at 191.
 
 AUDIT_SOURCE_MAX_LEN = 20  # our choice based on use in CamCOPS code
 
