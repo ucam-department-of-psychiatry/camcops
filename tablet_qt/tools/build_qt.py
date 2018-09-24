@@ -2698,7 +2698,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             # can't really test e.g. Android code directly under Linux
         )
         if test_openssl:
-            runmake("test)")
+            runmake("test")
 
     # -------------------------------------------------------------------------
     # OpenSSL: check libraries and/or copy libraries to their standard names.
