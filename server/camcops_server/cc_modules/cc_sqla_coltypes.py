@@ -181,7 +181,7 @@ if any([DEBUG_DATETIME_AS_ISO_TEXT,
 AUDIT_SOURCE_MAX_LEN = 20  # our choice based on use in CamCOPS code
 
 DATABASE_TITLE_MAX_LEN = 255  # our choice
-DEVICE_NAME_MAX_LEN = 255  # our choice; must be compatible with tablet
+DEVICE_NAME_MAX_LEN = 191  # our choice; must be compatible with tablet
 
 EMAIL_ADDRESS_MAX_LEN = 255  # https://en.wikipedia.org/wiki/Email_address
 
@@ -252,7 +252,7 @@ TASK_SUMMARY_TEXT_FIELD_DEFAULT_MAX_LEN = 50
 # Easy to change, since it's only used when exporting summaries, and not in
 # the core database.
 
-USERNAME_MAX_LEN = 255  # our choice
+USERNAME_MAX_LEN = 191  # our choice
 
 
 class RelationshipInfo(object):
