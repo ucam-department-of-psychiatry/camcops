@@ -313,7 +313,7 @@ setup(
     long_description=LONG_DESCRIPTION,
 
     # The project's main homepage.
-    url='https://www.camcops.org/',
+    url='http://www.camcops.org/',
 
     # Author details
     author='Rudolf Cardinal',

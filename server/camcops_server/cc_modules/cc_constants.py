@@ -141,7 +141,8 @@ CRIS_CLUSTER_KEY_FIELDSPEC = dict(
 # Other special values
 # =============================================================================
 
-CAMCOPS_URL = "http://www.camcops.org/"
+# CAMCOPS_URL = "http://www.camcops.org/"
+CAMCOPS_URL = "https://camcops.readthedocs.io/"
 ERA_NOW = "NOW"  # defines the current era in database records
 
 # =============================================================================

@@ -21,8 +21,9 @@
 
 namespace urlconst {
 
-const QString CAMCOPS_URL("http://camcops.org/");
-const QString CAMCOPS_DOCS_BASE_URL(CAMCOPS_URL + "documentation/");
+// const QString CAMCOPS_URL("http://camcops.org/");
+const QString CAMCOPS_URL("https://camcops.readthedocs.io/");
+const QString CAMCOPS_DOCS_BASE_URL(CAMCOPS_URL + "en/latest/");
 const QString CAMCOPS_DOCS_URL(CAMCOPS_DOCS_BASE_URL + "index.html");
 const QString CAMCOPS_LICENCES_URL(CAMCOPS_DOCS_BASE_URL +
                                    "licences/licences.html");
