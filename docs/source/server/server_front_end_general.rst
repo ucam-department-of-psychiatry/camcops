@@ -283,8 +283,8 @@ Click “Log out” to end your CamCOPS session.
 
 .. rubric:: Footnotes
 
-.. [#current] “Current” means that this download will skip historical versions of
-   tasks that have been edited, and just provide the latest version.
+.. [#current] “Current” means that this download will skip historical versions
+   of tasks that have been edited, and just provide the latest version.
 
 .. [#icd9cm] ICD-9-CM diagnostic codes:
    https://en.wikipedia.org/wiki/List_of_ICD-9_codes_290%E2%80%93319:_mental_disorders

@@ -296,7 +296,7 @@ DEFAULT_QT_GIT_BRANCH = "5.12"
 # I think in general one should use x.y.z not x.y versions, because the former
 # are the development chain and the latter get frozen.
 
-# At present we're building against 5.12 (ie. in the development chain). This
+# At present we're building against 5.12 (i.e. in the development chain). This
 # includes patches for compatibility with glibc 2.28 (released 2018-08-01).
 # See: https://bugreports.qt.io/browse/QTBUG-69843
 

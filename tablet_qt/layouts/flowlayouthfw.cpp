@@ -52,7 +52,16 @@
 
 #include "flowlayouthfw.h"
 #include <QDebug>
+
+#include "common/preprocessor_aid.h"
+#ifdef QT_WORKAROUND_BUG_68889
+    #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
 #include <QtWidgets>
+#ifdef QT_WORKAROUND_BUG_68889
+    #pragma GCC diagnostic pop
+#endif
+
 #include "lib/layoutdumper.h"
 #include "lib/margins.h"
 

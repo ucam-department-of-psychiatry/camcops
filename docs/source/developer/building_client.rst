@@ -373,11 +373,11 @@ Options last checked against Qt Creator 4.6.2 (built June 2018).
         * - Compiler: C
           - <No compiler>
         * - Compiler: C++
-          - Android GCC (arm-4.9)
+          - Android GCC (C++, arm-4.9) [#androidgcc]_
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - Android Debugger for Android GCC (arm-4.9)
+          - Android Debugger for Android GCC (C++, arm-4.9) [#androidgcc]_
         * - Qt version
           - **THE "ANDROID" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
@@ -900,3 +900,10 @@ Troubleshooting running CamCOPS
     sudo ln -s /usr/lib/x86_64-linux-gnu/mesa-egl/libOpenVG.so.1 /usr/lib/x86_64-linux-gnu/libOpenVG.so.1
 
 .. That symlink implemented manually on wombat, osprey
+
+
+.. rubric:: Footnotes
+
+.. [#androidgcc]
+    Prior to Qt 5.12.0, the compiler was "Android GCC (arm-4.9)", and the
+    debugger was "Android Debugger for Android GCC (arm-4.9)".

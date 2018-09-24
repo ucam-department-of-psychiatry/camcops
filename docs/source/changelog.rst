@@ -1368,6 +1368,16 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix to PHQ9: question 10 was still mandatory in the Questionnaire
   even if zero score for other questions.
 
+- Client moved from Qt 5.11.1 to Qt 5.12.0 (2018-09-24).
+
+  - Code changes: ``tablet_qt/layouts/flowlayout.cpp`` temporarily switches off
+  ``-Werror=missing-field-initializer`` warning which arises from
+  ``qcborvalue.h`` when including ``#include <QtWidgets>``; this is
+    https://bugreports.qt.io/browse/QTBUG-68889. The compiler was ``g++`` from
+    GCC 4.9, part of Android NDK r11c. We disable with ``#pragma GCC diagnostic
+    ignored "-Wmissing-field-initializer"
+  - Checked for Linux, Android; Windows checks pending.
+
 **Server v2.2.8, in progress (from 2018-09-14)**
 
 - ``GROUP_NAME_MAX_LEN`` changed from 255 to 191 because MySQL only supports
