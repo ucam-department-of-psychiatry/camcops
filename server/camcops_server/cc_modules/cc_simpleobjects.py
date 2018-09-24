@@ -115,18 +115,3 @@ class XmlSimpleValue(object):
     """
     def __init__(self, value) -> None:
         self.value = value
-
-
-# =============================================================================
-# IntrospectionFileDetails
-# =============================================================================
-
-class IntrospectionFileDetails(object):
-    def __init__(self, fullpath: str, prettypath: str, ext: str) -> None:
-        self.fullpath = fullpath
-        self.prettypath = prettypath
-        self.ext = ext
-
-    def __repr__(self) -> str:
-        return simple_repr(self, ["prettypath", "ext", "fullpath"],
-                           with_addr=False)

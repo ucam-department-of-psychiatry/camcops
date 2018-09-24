@@ -64,10 +64,6 @@ LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR = "/var/cache/camcops/matplotlib"
 STATIC_ROOT_DIR = join(CAMCOPS_SERVER_DIRECTORY, 'static')
 # ... mostly but not entirely superseded by STATIC_CAMCOPS_PACKAGE_PATH
 TEMPLATE_DIR = join(CAMCOPS_SERVER_DIRECTORY, 'templates')
-TABLET_SOURCE_COPY_DIR = join(CAMCOPS_SERVER_DIRECTORY, "tablet_source_copy")
-# ... used by setup.py to copy tablet source files into package
-
-DOCS_DIR = join(STATIC_ROOT_DIR, "documentation_copy")
 
 
 # =============================================================================
@@ -85,14 +81,6 @@ else:
 
 ALEMBIC_CONFIG_FILENAME = join(ALEMBIC_BASE_DIR, 'alembic.ini')
 
-DOCUMENTATION_INDEX_FILENAME_STEM = "index.html"
-DOCUMENTATION_INDEX_FILENAME = join(DOCS_DIR,
-                                    DOCUMENTATION_INDEX_FILENAME_STEM)
-
-# MANUAL_FILENAME_ODT = join(DOCS_DIR, "CAMCOPS_MANUAL.odt")
-# MANUAL_FILENAME_PDF_STEM = "CAMCOPS_MANUAL.pdf"
-# MANUAL_FILENAME_PDF = join(STATIC_ROOT_DIR, MANUAL_FILENAME_PDF_STEM)
-
 # =============================================================================
 # Significant table names
 # =============================================================================
@@ -100,9 +88,7 @@ DOCUMENTATION_INDEX_FILENAME = join(DOCS_DIR,
 ALEMBIC_VERSION_TABLE = "_alembic_version"
 
 # =============================================================================
-# Introspectable extensions
+# URLs
 # =============================================================================
 
-INTROSPECTABLE_EXTENSIONS = [".cpp", ".h", ".html", ".js", ".jsx",
-                             ".py", ".pl", ".qml", ".xml"]
-# ... used by setup.py to determine what to copy
+DOCUMENTATION_URL = "https://camcops.readthedocs.io/"

@@ -69,16 +69,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <li><a href="${request.route_url(Routes.VIEW_OWN_USER_INFO)}">Show your user settings</a></li>
 </ul>
 
-%if introspection:
-    <h3>Introspection</h3>
-    <ul>
-        <li><a href="${request.route_url(Routes.OFFER_INTROSPECTION)}">Introspect source code</a></li>
-    </ul>
-%endif
-
 <h3>Help</h3>
 <ul>
-    <li><a href="${request.url_camcops_manual_pdf}">CamCOPS documentation</a></li>
+    <li><a href="${request.url_camcops_docs}">CamCOPS documentation</a></li>
 </ul>
 
 <h3>Log out</h3>

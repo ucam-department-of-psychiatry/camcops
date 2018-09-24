@@ -62,10 +62,7 @@ from webob.multidict import MultiDict
 
 # Note: everything uder the sun imports this file, so keep the intra-package
 # imports as minimal as possible.
-from .cc_baseconstants import (
-    ENVVAR_CONFIG_FILE,
-    DOCUMENTATION_INDEX_FILENAME_STEM,
-)
+from .cc_baseconstants import DOCUMENTATION_URL, ENVVAR_CONFIG_FILE
 from .cc_config import (
     CamcopsConfig,
     get_config,
@@ -376,10 +373,8 @@ class CamcopsRequest(Request):
         return self.static_url(STATIC_CAMCOPS_PACKAGE_PATH + "logo_local.png")
 
     @property
-    def url_camcops_manual_pdf(self) -> str:
-        return self.static_url(STATIC_CAMCOPS_PACKAGE_PATH +
-                               "documentation_copy/" +
-                               DOCUMENTATION_INDEX_FILENAME_STEM)
+    def url_camcops_docs(self) -> str:
+        return DOCUMENTATION_URL
 
     # -------------------------------------------------------------------------
     # Low-level HTTP information

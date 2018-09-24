@@ -290,9 +290,6 @@ CANNOT_REPORT = "User not authorized to run reports (for any group)."
 # CAN_ONLY_CHANGE_OWN_PASSWORD = "You can only change your own password!"
 # TASK_FAIL_MSG = "Task not found or user not authorized."
 # NOT_AUTHORIZED_MSG = "User not authorized."
-NO_INTROSPECTION_MSG = "Introspection has been disabled by your administrator."
-INTROSPECTION_INVALID_FILE_MSG = "Invalid file for introspection"
-INTROSPECTION_FAILED_MSG = "Failed to read file for introspection"
 ERROR_TASK_LIVE = (
     "Task is live on tablet; finalize (or force-finalize) first.")
 
@@ -727,7 +724,6 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
         authorized_to_dump=user.authorized_to_dump,
         camcops_url=CAMCOPS_URL,
         warn_bad_id_policies=warn_bad_id_policies,
-        introspection=cfg.introspection,
         now=format_datetime(req.now, DateFormat.SHORT_DATETIME_SECONDS),
         server_version=CAMCOPS_SERVER_VERSION,
     )
@@ -2560,56 +2556,6 @@ def delete_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
                 error=error,
                 form=rendered_form,
                 head_form_html=get_head_form_html(req, [form]))
-
-
-# =============================================================================
-# Introspection of source code
-# =============================================================================
-
-@view_config(route_name=Routes.OFFER_INTROSPECTION)
-def offer_introspection(req: CamcopsRequest) -> Response:
-    """Page to offer CamCOPS server source code."""
-    cfg = req.config
-    if not cfg.introspection:
-        return simple_failure(req, NO_INTROSPECTION_MSG)
-    return render_to_response(
-        "introspection_file_list.mako",
-        dict(ifd_list=cfg.introspection_files),
-        request=req
-    )
-
-
-@view_config(route_name=Routes.INTROSPECT)
-def introspect(req: CamcopsRequest) -> Response:
-    """Provide formatted source code."""
-    cfg = req.config
-    if not cfg.introspection:
-        return simple_failure(req, NO_INTROSPECTION_MSG)
-    filename = req.get_str_param(ViewParam.FILENAME, None)
-    try:
-        ifd = next(ifd for ifd in cfg.introspection_files
-                   if ifd.prettypath == filename)
-    except StopIteration:
-        return simple_failure(req, INTROSPECTION_INVALID_FILE_MSG)
-    fullpath = ifd.fullpath
-
-    if fullpath.endswith(".jsx"):
-        lexer = pygments.lexers.web.JavascriptLexer()
-    else:
-        lexer = pygments.lexers.get_lexer_for_filename(fullpath)
-    formatter = pygments.formatters.HtmlFormatter()
-    try:
-        with codecs.open(fullpath, "r", "utf8") as f:
-            code = f.read()
-    except Exception as e:
-        log.debug("INTROSPECTION ERROR: {}", e)
-        return simple_failure(req, INTROSPECTION_FAILED_MSG)
-    code_html = pygments.highlight(code, lexer, formatter)
-    css = formatter.get_style_defs('.highlight')
-    return render_to_response("introspect_file.mako",
-                              dict(css=css,
-                                   code_html=code_html),
-                              request=req)
 
 
 # =============================================================================

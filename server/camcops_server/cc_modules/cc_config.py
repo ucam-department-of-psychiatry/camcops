@@ -72,7 +72,6 @@ from .cc_baseconstants import (
     CAMCOPS_SERVER_DIRECTORY,
     DEFAULT_EXTRA_STRINGS_DIR,
     ENVVAR_CONFIG_FILE,
-    INTROSPECTABLE_EXTENSIONS,
     LINUX_DEFAULT_LOCK_DIR,
     LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
     STATIC_ROOT_DIR,
@@ -89,11 +88,9 @@ from .cc_constants import (
     DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS,
     DEFAULT_PLOT_FONTSIZE,
     DEFAULT_TIMEOUT_MINUTES,
-    INTROSPECTION_BASE_DIRECTORY,
 )
 from .cc_filename import FilenameSpecElement, PatientSpecElementForFilename
 from .cc_pyramid import MASTER_ROUTE_CLIENT_API
-from .cc_simpleobjects import IntrospectionFileDetails
 from .cc_recipdef import ConfigParamRecipient, RecipientDefinition
 from .cc_version_string import CAMCOPS_SERVER_VERSION_STRING
 
@@ -124,7 +121,6 @@ class ConfigParamMain(object):
     DISABLE_PASSWORD_AUTOCOMPLETE = "DISABLE_PASSWORD_AUTOCOMPLETE"
     EXTRA_STRING_FILES = "EXTRA_STRING_FILES"
     HL7_LOCKFILE = "HL7_LOCKFILE"
-    INTROSPECTION = "INTROSPECTION"
     LOCAL_INSTITUTION_URL = "LOCAL_INSTITUTION_URL"
     LOCAL_LOGO_FILE_ABSOLUTE = "LOCAL_LOGO_FILE_ABSOLUTE"
     LOCKOUT_DURATION_INCREMENT_MINUTES = "LOCKOUT_DURATION_INCREMENT_MINUTES"
@@ -270,12 +266,6 @@ def get_demo_config(extra_strings_dir: str = None,
 # https://docs.python.org/3.5/library/glob.html).
 
 {cp.EXTRA_STRING_FILES} = {extra_strings_spec}
-
-# {cp.INTROSPECTION}: permits the offering of CamCOPS source code files to the user,
-# allowing inspection of tasks' internal calculating algorithms. Default is
-# true.
-
-{cp.INTROSPECTION} = true
 
 # {cp.HL7_LOCKFILE}: filename stem used for process locking for HL7 message
 # transmission. Default is {hl7_lockfile_stem}
@@ -1219,9 +1209,6 @@ class CamcopsConfig(object):
         self.hl7_lockfile = get_config_parameter(
             config, section, cp.HL7_LOCKFILE, str, None)
 
-        self.introspection = get_config_parameter_boolean(
-            config, section, cp.INTROSPECTION, True)
-
         self.local_institution_url = get_config_parameter(
             config, section, cp.LOCAL_INSTITUTION_URL,
             str, DEFAULT_LOCAL_INSTITUTION_URL)
@@ -1285,36 +1272,6 @@ class CamcopsConfig(object):
         except configparser.NoSectionError:
             log.info("No config file section [{}]",
                      CONFIG_FILE_RECIPIENTLIST_SECTION)
-
-        # ---------------------------------------------------------------------
-        # Built from the preceding:
-        # ---------------------------------------------------------------------
-
-        self.introspection_files = []  # type: List[IntrospectionFileDetails]
-        if self.introspection:
-            # All introspection starts at INTROSPECTION_BASE_DIRECTORY
-            rootdir = INTROSPECTION_BASE_DIRECTORY
-            for dir_, subdirs, files in os.walk(rootdir):
-                if dir_ == rootdir:
-                    pretty_dir = ''
-                else:
-                    pretty_dir = os.path.relpath(dir_, rootdir)
-                for filename in files:
-                    basename, ext = os.path.splitext(filename)
-                    if ext not in INTROSPECTABLE_EXTENSIONS:
-                        continue
-                    fullpath = os.path.join(dir_, filename)
-                    prettypath = os.path.join(pretty_dir, filename)
-                    self.introspection_files.append(
-                        IntrospectionFileDetails(
-                            fullpath=fullpath,
-                            prettypath=prettypath,
-                            ext=ext
-                        )
-                    )
-            self.introspection_files = sorted(
-                self.introspection_files,
-                key=operator.attrgetter("prettypath"))
 
         # ---------------------------------------------------------------------
         # More validity checks

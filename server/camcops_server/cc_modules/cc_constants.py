@@ -68,12 +68,6 @@ DEFAULT_CAMCOPS_LOGO_FILE = os.path.join(STATIC_ROOT_DIR, "logo_camcops.png")
 DEFAULT_LOCAL_LOGO_FILE = os.path.join(STATIC_ROOT_DIR, "logo_local.png")
 
 # =============================================================================
-# Introspection
-# =============================================================================
-
-INTROSPECTION_BASE_DIRECTORY = CAMCOPS_SERVER_DIRECTORY
-
-# =============================================================================
 # Webview constants
 # =============================================================================
 

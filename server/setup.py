@@ -46,14 +46,9 @@ import os
 from pprint import pformat
 from setuptools import setup, find_packages
 import shutil
-import subprocess
 import sys
 from typing import List
 
-from camcops_server.cc_modules.cc_baseconstants import (
-    INTROSPECTABLE_EXTENSIONS,
-    TABLET_SOURCE_COPY_DIR,
-)
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
 )
@@ -63,20 +58,23 @@ from camcops_server.cc_modules.cc_version_string import (
 # =============================================================================
 
 # Extensions and file patterns
-COPYABLE_EXTENSIONS = INTROSPECTABLE_EXTENSIONS + ['.png']
+COPYABLE_EXTENSIONS = [
+    ".cpp", ".h", ".html", ".js", ".jsx",
+    ".py", ".pl", ".qml", ".xml",
+    ".png"
+    # *** prune these
+]
 SKIP_PATTERNS = ['*.pyc', '~*']  # files not to add
 
 # Directories
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))  # .../camcops/server
 EGG_DIR = os.path.join(THIS_DIR, 'camcops_server.egg-info')
 CAMCOPS_ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))  # .../camcops  # noqa
-DOC_ROOT_DIR = os.path.join(CAMCOPS_ROOT_DIR, "documentation")
 CAMCOPS_SERVER_DIR = os.path.join(THIS_DIR, 'camcops_server')
 
 # Files
 MANIFEST_FILE = os.path.join(THIS_DIR, 'MANIFEST.in')
 PIP_REQ_FILE = os.path.join(THIS_DIR, 'requirements.txt')
-DOCMAKER = os.path.join(DOC_ROOT_DIR, "rebuild_docs_and_distribute.py")
 
 # Arguments
 EXTRAS_ARG = 'extras'
@@ -87,10 +85,8 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 
 # Package dependencies
 INSTALL_REQUIRES = [
-    # 'aenum==2.0.9',  # advanced enums
     'alembic==0.9.9',  # database migrations
-    # 'arrow==0.10.0',  # better datetime
-    'cardinal_pythonlib==1.0.24',  # RNC libraries
+    'cardinal_pythonlib==1.0.28',  # RNC libraries
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==16.0.2',  # web server
     'deform==2.0.5',  # web forms
@@ -111,7 +107,7 @@ INSTALL_REQUIRES = [
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     'py-bcrypt==0.4;platform_system!="Windows"',  # Used by rnc_crypto; for bcrypt  # noqa
     # *** 'py-bcrypt-w32==0.2.2;platform_system=="Windows"',  # Windows version
-    'Pygments==2.2.0',  # Syntax highlighting for introspection
+    'Pygments==2.2.0',  # Syntax highlighting for introspection/DDL
     'PyMySQL==0.7.1',
     # ... for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may break Pendulum handling *** FIX THIS *** # noqa
     'PyPDF2==1.26.0',  # Used by rnc_pdf.py
@@ -121,14 +117,13 @@ INSTALL_REQUIRES = [
     'pytz==2018.5',  # timezone definitions, specifically utc.
     'scipy==1.1.0',  # used by some tasks. slow installation.
     'semantic_version==2.6.0',  # semantic versioning; better than semver
-    'sphinx==1.7.6',  # development only.
     'sqlalchemy==1.2.8',  # database access
-    # 'sqlalchemy-utils==0.32.16',  # extra column types
     'typing==3.6.4',  # part of stdlib in python 3.5, but not 3.4
     'Wand==0.4.4',
-    # ImageMagick for Python; used e.g. for BLOB PNG display; may need "sudo apt-get install libmagickwand-dev"  # noqa
-    # Incompatible with Python 3.5; use paginate instead # 'WebHelpers==1.3',  # e.g. paginator and other tools for Pyramid  # noqa
-    # 'Werkzeug==0.11.3',  # Profiling middleware
+]
+
+DEVELOPMENT_ONLY_REQUIRES = [
+    'sphinx==1.7.6',  # development only.
 ]
 
 
@@ -266,60 +261,8 @@ if getattr(our_args, EXTRAS_ARG):
             sys.exit(1)
 
     # -------------------------------------------------------------------------
-    # Documentation: Old OpenOffice/PDF manual format
-    # -------------------------------------------------------------------------
-    #
-    # print("Converting manual ({!r}) to PDF ({!r})".format(
-    #     MANUAL_FILENAME_ODT, MANUAL_FILENAME_PDF))
-    # try:
-    #     os.remove(MANUAL_FILENAME_PDF)  # don't delete the wrong one (again...)  # noqa
-    # except OSError:
-    #     pass
-    # with tempfile.TemporaryDirectory() as tmpdirname:
-    #     libreoffice_args = [
-    #         "soffice",
-    #         "--convert-to", "pdf:writer_pdf_Export",
-    #         "--outdir", tmpdirname,
-    #         MANUAL_FILENAME_ODT
-    #     ]
-    #     print("... calling: {!r}".format(libreoffice_args))
-    #     subprocess.check_call(libreoffice_args)  # this is pretty nippy!
-    #     shutil.move(
-    #         os.path.join(tmpdirname, MANUAL_FILENAME_PDF_STEM),
-    #         MANUAL_FILENAME_PDF
-    #     )
-    # assert os.path.exists(MANUAL_FILENAME_PDF), (
-    #     "If this fails, there are a number of possible reasons, but one is "
-    #     "simply that you're using LibreOffice for something else!"
-    # )
-
-    # -------------------------------------------------------------------------
-    # Documentation (Sphinx format)
-    # -------------------------------------------------------------------------
-    print("Building and copying documentation...")
-    subprocess.call([DOCMAKER])
-
-    # -------------------------------------------------------------------------
-    # Copy tablet source
-    # -------------------------------------------------------------------------
-    dst_tablet = TABLET_SOURCE_COPY_DIR
-    print("Creating copy of tablet source files in {}".format(dst_tablet))
-
-    dst_tablet_qt = os.path.join(dst_tablet, 'tablet_qt')
-
-    deltree(dst_tablet)
-    mkdir_p(dst_tablet)
-    deltree(dst_tablet_qt)
-    # noinspection PyArgumentList
-    shutil.copytree(src=src_tablet_qt, dst=dst_tablet_qt, copy_function=copier)
-    delete_empty_directories(dst_tablet)
-
-    # -------------------------------------------------------------------------
     # Add extra files
     # -------------------------------------------------------------------------
-
-    add_all_files(dst_tablet, extra_files, absolute=False, include_n_parents=1)
-    # include_n_parents=1 means they start with "tablet_source_copy/"
 
     extra_files.append('alembic.ini')
     add_all_files(os.path.join(CAMCOPS_SERVER_DIR, 'alembic'),

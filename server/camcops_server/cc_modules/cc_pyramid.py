@@ -466,13 +466,11 @@ class Routes(object):
     ERASE_TASK = "erase_task"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
-    INTROSPECT = "introspect"
     LOGIN = "login"
     LOGOUT = "logout"
     OFFER_AUDIT_TRAIL = "offer_audit_trail"
     OFFER_HL7_MESSAGE_LOG = "offer_hl7_message_log"
     OFFER_HL7_RUN_LOG = "offer_hl7_run_log"
-    OFFER_INTROSPECTION = "offer_introspect"
     OFFER_REGENERATE_SUMMARIES = "offer_regenerate_summary_tables"
     OFFER_REPORT = "offer_report"
     OFFER_SQL_DUMP = "offer_sql_dump"
@@ -595,8 +593,6 @@ class RouteCollection(object):
         Routes.FORCIBLY_FINALIZE, "/forcibly_finalize"
     )
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)
-    INTROSPECT = RoutePath(Routes.INTROSPECT, '/introspect')
-    # ... filename via query param (sorts out escaping)
     LOGIN = RoutePath(Routes.LOGIN, "/login")
     LOGOUT = RoutePath(Routes.LOGOUT, "/logout")
     OFFER_AUDIT_TRAIL = RoutePath(Routes.OFFER_AUDIT_TRAIL,
@@ -605,8 +601,6 @@ class RouteCollection(object):
                                       "/offer_hl7_message_log")
     OFFER_HL7_RUN_LOG = RoutePath(Routes.OFFER_HL7_RUN_LOG,
                                   "/offer_hl7_run_log")
-    OFFER_INTROSPECTION = RoutePath(Routes.OFFER_INTROSPECTION,
-                                    "/offer_introspect")
     OFFER_REPORT = RoutePath(Routes.OFFER_REPORT, '/offer_report')
     OFFER_SQL_DUMP = RoutePath(Routes.OFFER_SQL_DUMP, "/offer_sql_dump")
     OFFER_TERMS = RoutePath(Routes.OFFER_TERMS, '/offer_terms')
