@@ -1,0 +1,6 @@
+# Point readthedocs towards setup.py.
+# (1) Configure it to use "server/requirements_readthedocs.txt" as a
+#     requirements file.
+# (2) From this file, point to the relative path of setup.py:
+
+.
