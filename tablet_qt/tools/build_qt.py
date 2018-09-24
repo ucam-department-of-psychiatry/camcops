@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # tablet_qt/tools/build_qt.py
 
 """
