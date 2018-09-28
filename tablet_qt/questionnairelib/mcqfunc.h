@@ -33,7 +33,8 @@ namespace mcqfunc {
 // Assistance functions for questionnaire items.
 
 void addVerticalLine(GridLayout* grid, int col, int n_rows);
-void addQuestion(GridLayout* grid, int row, const QString& question);
+void addQuestion(GridLayout* grid, int row, const QString& question,
+                 bool bold = true);
 void addTitle(GridLayout* grid, int row, const QString& title);
 void addSubtitle(GridLayout* grid, int row, const QString& subtitle);
 void addStem(GridLayout* grid, int row, int firstcol, int colspan,

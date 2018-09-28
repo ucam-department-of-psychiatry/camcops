@@ -93,11 +93,12 @@ void addVerticalLine(GridLayout* grid, const int col, const int n_rows)
 }
 
 
-void addQuestion(GridLayout* grid, const int row, const QString& question)
+void addQuestion(GridLayout* grid, const int row, const QString& question,
+                 bool bold)
 {
     auto q = new LabelWordWrapWide(question);
     q->setAlignment(question_text_align);
-    q->setObjectName(cssconst::QUESTION);
+    q->setObjectName(bold ? cssconst::QUESTION : cssconst::OPTION);
     grid->addWidget(q, row, 0, question_widget_align);
 }
 

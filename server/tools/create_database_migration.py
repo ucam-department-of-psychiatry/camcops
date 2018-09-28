@@ -34,6 +34,7 @@ from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from cardinal_pythonlib.sqlalchemy.alembic_func import create_database_migration_numbered_style  # noqa
 
 from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
+from camcops_server.cc_modules.cc_config import get_default_config_from_os_env
 
 log = logging.getLogger(__name__)
 
@@ -82,6 +83,12 @@ def main() -> None:
                             formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument("message", help="Revision message")
     args = parser.parse_args()
+
+    # Check the existing database version is OK.
+    config = get_default_config_from_os_env()
+    config.assert_database_ok()
+
+    # Then, if OK, create an upgrade.
     create_database_migration_numbered_style(
         alembic_ini_file=ALEMBIC_INI_FILE,
         alembic_versions_dir=ALEMBIC_VERSIONS_DIR,

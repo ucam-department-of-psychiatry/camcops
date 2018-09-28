@@ -141,15 +141,18 @@ OpenableWidget* Core10::editor(const bool read_only)
     const QVector<int> option_widths{10, 10, 10, 10, 10};
 
     QuPagePtr page((new QuPage{
-        (new QuText(xstring("stem")))->setBold(true),
+        (new QuText(xstring("instruction_1")))->setBold(true),
+        new QuText(xstring("instruction_2")),
         (new QuMcqGrid(
             {
                 QuestionWithOneField(xstring("q1"), fieldRef("q1")),
             },
             options_normal
         ))
+            ->setTitle(xstring("stem"))
             ->setWidth(question_width, option_widths)
-            ->setExpand(true),
+            ->setExpand(true)
+            ->setQuestionsBold(false),
         (new QuMcqGrid(
             {
                 QuestionWithOneField(xstring("q2"), fieldRef("q2")),
@@ -159,7 +162,8 @@ OpenableWidget* Core10::editor(const bool read_only)
         ))
             ->showTitle(false)
             ->setWidth(question_width, option_widths)
-            ->setExpand(true),
+            ->setExpand(true)
+            ->setQuestionsBold(false),
         (new QuMcqGrid(
             {
                 QuestionWithOneField(xstring("q4"), fieldRef("q4")),
@@ -174,7 +178,8 @@ OpenableWidget* Core10::editor(const bool read_only)
         ))
             ->showTitle(false)
             ->setWidth(question_width, option_widths)
-            ->setExpand(true),
+            ->setExpand(true)
+            ->setQuestionsBold(false),
         (new QuText(xstring("thanks")))->setBold(true),
     })->setTitle(xstring("title")));
 

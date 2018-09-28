@@ -52,6 +52,7 @@ public:
     QuMcqGrid* setExpand(bool expand);
     QuMcqGrid* setStripy(bool stripy);
     QuMcqGrid* showTitle(bool show_title);  // default is true!
+    QuMcqGrid* setQuestionsBold(bool bold);  // default is true
 protected:
     void setFromFields();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -73,6 +74,7 @@ protected:
     bool m_expand;
     bool m_stripy;
     bool m_show_title;
+    bool m_questions_bold;
     QVector<QVector<QPointer<BooleanWidget>>> m_widgets;
     QVector<QuMcqGridSignaller*> m_signallers;
 };

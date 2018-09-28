@@ -24,6 +24,8 @@
 ===============================================================================
 """
 
+_ = '''
+
 from typing import Any, Dict, List, Tuple, Type
 
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -223,3 +225,5 @@ class Lunsers(TaskHasPatientMixin, Task,
             </table>
         """
         return h
+
+'''

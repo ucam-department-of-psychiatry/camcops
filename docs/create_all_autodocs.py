@@ -64,6 +64,11 @@ COPYRIGHT_COMMENT = r"""
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 """
 
+PYGMENTS_OVERRIDE = {
+    # map file extension to Pygments language name
+    ".pro": "none",  # Qt project files, not Prolog
+}
+
 
 def make_subindex(directory: str,
                   skip_globs: List[str] = None,
@@ -94,6 +99,7 @@ def make_subindex(directory: str,
         index_heading_underline_char="~",
         source_rst_heading_underline_char="^",
         method=method,
+        pygments_language_override=PYGMENTS_OVERRIDE
     )
 
 
@@ -115,6 +121,7 @@ def make_autodoc(make: bool, destroy_first: bool) -> None:
         rst_prefix=COPYRIGHT_COMMENT,
         index_heading_underline_char="-",
         source_rst_heading_underline_char="~",
+        pygments_language_override=PYGMENTS_OVERRIDE
     )
     top_idx.add_indexes([
         make_subindex("tablet_qt",

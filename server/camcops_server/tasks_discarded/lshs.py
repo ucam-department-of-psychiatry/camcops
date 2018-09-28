@@ -24,6 +24,8 @@
 ===============================================================================
 """
 
+_ = '''
+
 from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
@@ -205,3 +207,5 @@ class LshsLaroi2005(TaskHasPatientMixin, Task,
             q_a=q_a,
         )
         return h
+
+'''

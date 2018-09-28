@@ -34,7 +34,8 @@ QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
     m_question_width(-1),
     m_expand(false),
     m_stripy(true),
-    m_show_title(true)
+    m_show_title(true),
+    m_questions_bold(true)
 {
     m_options.validateOrDie();
     // each QuestionWithOneField will have asserted on construction
@@ -104,6 +105,13 @@ QuMcqGrid* QuMcqGrid::setStripy(const bool stripy)
 QuMcqGrid* QuMcqGrid::showTitle(const bool show_title)
 {
     m_show_title = show_title;
+    return this;
+}
+
+
+QuMcqGrid* QuMcqGrid::setQuestionsBold(bool bold)
+{
+    m_questions_bold = bold;
     return this;
 }
 
@@ -194,7 +202,8 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
 
         // The question
         mcqfunc::addQuestion(grid, row,
-                                 m_question_field_pairs.at(qi).question());
+                             m_question_field_pairs.at(qi).question(),
+                             m_questions_bold);
 
         // The response widgets
         QVector<QPointer<BooleanWidget>> question_widgets;

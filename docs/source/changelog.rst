@@ -1371,11 +1371,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Client moved from Qt 5.11.1 to Qt 5.12.0 (2018-09-24).
 
   - Code changes: ``tablet_qt/layouts/flowlayout.cpp`` temporarily switches off
-  ``-Werror=missing-field-initializer`` warning which arises from
-  ``qcborvalue.h`` when including ``#include <QtWidgets>``; this is
+    ``-Werror=missing-field-initializer`` warning which arises from
+    ``qcborvalue.h`` when including ``#include <QtWidgets>``; this is
     https://bugreports.qt.io/browse/QTBUG-68889. The compiler was ``g++`` from
     GCC 4.9, part of Android NDK r11c. We disable with ``#pragma GCC diagnostic
-    ignored "-Wmissing-field-initializer"
+    ignored "-Wmissing-field-initializer"``
   - Checked for Linux, Android; Windows checks pending.
 
 - New task: CORE-10.
@@ -1393,3 +1393,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   ``cpft_lps_discharge.management_specialling_behavioural_disturbance``.
 - Removed introspection options; replaced with better docs.
 - https://camcops.readthedocs.io/
+- ``cardinal_pythonlib`` to 1.0.29
+- ``alembic`` to 1.0.0
+- ``create_database_migration.py`` checks the database version is OK first.
+- Make Alembic compare MySQL ``TINYINT(1)`` to be equal to ``Boolean()`` in the
+  metadata, so its default suggestions are more helpful.

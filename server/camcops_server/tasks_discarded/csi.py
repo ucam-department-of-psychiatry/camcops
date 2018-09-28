@@ -24,6 +24,8 @@
 ===============================================================================
 """
 
+_ = '''
+
 from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
@@ -140,3 +142,5 @@ class Csi(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             q_a=q_a,
         )
         return h
+
+'''

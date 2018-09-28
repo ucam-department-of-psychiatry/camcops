@@ -32,6 +32,8 @@ server/camcops_server
     alembic/versions/0002_cisr_2018_01_29.py.rst
     alembic/versions/0003_cisr_demographics_fields.py.rst
     alembic/versions/0004_khandaker_1_medicalhistory.py.rst
+    alembic/versions/0005_reduced_indexed_varchar_fields_from_255_.py.rst
+    alembic/versions/0006_core_10.py.rst
     camcops.py.rst
     camcops_meta.py.rst
     cc_modules/cc_alembic.py.rst
@@ -123,6 +125,7 @@ server/camcops_server
     extra_strings/ciwa.xml.rst
     extra_strings/contactlog.xml.rst
     extra_strings/cope.xml.rst
+    extra_strings/core10.xml.rst
     extra_strings/cpft_lps_discharge.xml.rst
     extra_strings/cpft_lps_referral.xml.rst
     extra_strings/cpft_lps_resetresponseclock.xml.rst
@@ -190,6 +193,7 @@ server/camcops_server
     tasks/ciwa.py.rst
     tasks/contactlog.py.rst
     tasks/cope.py.rst
+    tasks/core10.py.rst
     tasks/cpft_lps.py.rst
     tasks/dad.py.rst
     tasks/dast.py.rst

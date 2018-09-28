@@ -217,7 +217,7 @@ class PclCommon(TaskHasPatientMixin, Task,
             if q == 1 or q == 6 or q == 13:
                 section = "B" if q == 1 else ("C" if q == 6 else "D")
                 q_a += subheading_spanning_two_columns(
-                    "DSM section {}".format(section)
+                    "DSM-IV-TR section {}".format(section)
                 )
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_s"),

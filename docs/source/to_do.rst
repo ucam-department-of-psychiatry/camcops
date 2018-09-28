@@ -145,11 +145,7 @@ Server
 - What's the optimal packaging method for the server? Is it DEB/RPM for Linux,
   and PyInstaller + Inno Setup (or just Inno Setup) for Windows?
 
-- Make Alembic compare MySQL TINYINT(1) to be equal to Boolean() in the
-  metadata, so its default suggestions are more helpful. See
-
-  - https://bitbucket.org/zzzeek/alembic/issues/46/mysqltinyint-display_width-1-vs-saboolean
-  - http://alembic.zzzcomputing.com/en/latest/api/autogenerate.html
+- fix problem with CherryPy
 
 Documentation to-do list
 ------------------------

@@ -24,6 +24,8 @@
 ===============================================================================
 """
 
+_ = '''
+
 from typing import Any, Dict, List, Tuple, Type
 
 import cardinal_pythonlib.rnc_web as ws
@@ -247,3 +249,5 @@ class Gass(TaskHasPatientMixin, Task,
             medication=ws.webify(self.medication)
         )
         return h
+
+'''

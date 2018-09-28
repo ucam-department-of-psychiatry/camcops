@@ -306,6 +306,8 @@ tablet_qt
     menu/researchsetsmenu.h.rst
     menu/setmenucpftaffective1.cpp.rst
     menu/setmenucpftaffective1.h.rst
+    menu/setmenucpftperinatal1.cpp.rst
+    menu/setmenucpftperinatal1.h.rst
     menu/setmenudeakin1.cpp.rst
     menu/setmenudeakin1.h.rst
     menu/setmenufromlp.cpp.rst
@@ -559,6 +561,8 @@ tablet_qt
     tasks/contactlog.h.rst
     tasks/copebrief.cpp.rst
     tasks/copebrief.h.rst
+    tasks/core10.cpp.rst
+    tasks/core10.h.rst
     tasks/cpftlpsdischarge.cpp.rst
     tasks/cpftlpsdischarge.h.rst
     tasks/cpftlpsreferral.cpp.rst

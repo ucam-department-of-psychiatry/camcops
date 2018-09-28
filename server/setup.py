@@ -85,8 +85,8 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 
 # Package dependencies
 INSTALL_REQUIRES = [
-    'alembic==0.9.9',  # database migrations
-    'cardinal_pythonlib==1.0.28',  # RNC libraries
+    'alembic==1.0.0',  # database migrations
+    'cardinal_pythonlib==1.0.29',  # RNC libraries
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==16.0.2',  # web server
     'deform==2.0.5',  # web forms

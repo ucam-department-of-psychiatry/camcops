@@ -32,14 +32,14 @@
     <string name="q9_s">Q9 (unhappy):</string>
     <string name="q10_s">Q10 (unwanted images):</string>
 
-    <!-- Note: most questions are scored 0-4 like this, but a couple are reverse-scored. -->
+    <!-- Note: most questions are scored 0-4 like this, but a couple (Q2, Q3) are reverse-scored. -->
     <string name="a0">Not at all</string>
     <string name="a1">Only occasionally</string>
     <string name="a2">Sometimes</string>
     <string name="a3">Often</string>
     <string name="a4">Most or all of the time</string>
 
-    <string name="thanks">Thank you for your time in completing this questionnaire</string>
+    <string name="thanks">Thank you for your time in completing this questionnaire.</string>
 
   </task>
 </resources>

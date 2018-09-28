@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # camcops_server/discarded_upgrade_code.py
 
-# noinspection PySingleQuotedDocstring
-'''
+"""
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -23,6 +22,11 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Discarded upgrade code. Ignore.
+"""
+
+_ = '''
 
 SEPARATOR_HYPHENS = "-" * 79
 SEPARATOR_EQUALS = "=" * 79
