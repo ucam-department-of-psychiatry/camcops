@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="pcl5">
+    <!-- Patient Health Questionnaire-9 (PHQ-9) -->
+    <string name="title_main">PTSD Checklist for DSM-5 (PCL-5)</string>
+    <string name="stem">In the past month, how much were you bothered by the following problems?</string>
+    <string name="q1">1. Repeated, disturbing, and unwanted memories of the stressful experience?</string>
+    <string name="q2">2. Repeated, disturbing dreams of the stressful experience?</string>
+    <string name="q3">3. Suddenly feeling or acting as if the stressful experience were actually happening again (as if you were actually back there reliving it)?</string>
+    <string name="q4">4.Feeling very upset when something reminded you of the stressful experience?</string>
+    <string name="q5">5. Having strong physical reactions when something reminded you of the stressful experience (for example, heart pounding, trouble breathing, sweating)?</string>
+    <string name="q6">6. Avoiding memories, thoughts, or feelings related to the stressful experience?</string>
+    <string name="q7">7. Avoiding external reminders of the stressful experience (for example, people, places, conversations, activities, objects, or situations)?</string>
+    <string name="q8">8. Trouble remembering important parts of the stressful experience?</string>
+    <string name="q9">9. Having strong negative beliefs about yourself, other people, or the world (for example, having thoughts such as: I am bad, there is something seriously wrong with me, no one can be trusted, the world is completely dangerous)?</string>
+    <string name="q10">10. Blaming yourself or someone else for the stressful experience or what happened after it</string>
+    <string name="q11">11. Having strong negative feelings such as fear, horror, anger, guilt, or shame?</string>
+    <string name="q12">12. Loss of interest in activities that you used to enjoy?</string>
+    <string name="q13">13. Feeling distant or cut off from other people?</string>
+    <string name="q14">14. Trouble experiencing positive feelings (for example, being unable to feel happiness or have loving feelings for people close to you)?</string>
+    <string name="q15">15. Irritable behavior, angry outbursts, or acting aggressively?</string>
+    <string name="q16">16. Taking too many risks or doing things that could cause you harm?</string>
+    <string name="q17">17. Being “superalert” or watchful or on guard?</string>
+    <string name="q18">18. Feeling jumpy or easily startled?</string>
+    <string name="q19">19. Having difficulty concentrating?</string>
+    <string name="q20">20. Trouble falling or staying asleep?</string>
+
+    <string name="a0">Not at all</string>
+    <string name="a1">A little bit</string>
+    <string name="a2">Moderately</string>
+    <string name="a3">Quite a bit</string>
+    <string name="a4">Extremely</string>
+
+    <string name="q1_s">Q1 (disturbing memories/thoughts/images):</string>
+    <string name="q2_s">Q2 (disturbing dreams):</string>
+    <string name="q3_s">Q3 (reliving):</string>
+    <string name="q4_s">Q4 (upset at reminders):</string>
+    <string name="q5_s">Q5 (physical reactions to reminders):</string>
+    <string name="q6_s">Q6 (avoid thinking/talking/feelings relating to experience):</string>
+    <string name="q7_s">Q7 (avoid activities/situations because they remind):</string>
+    <string name="q8_s">Q8 (trouble remembering important parts of stressful event):</string>
+    <string name="q9_s">Q9 (strong negative beliefs about self/others/world)</string>
+    <string name="q10_s">Q10 (blaming)</string>
+    <string name="q11_s">Q11 (strong negative emotions)</string>
+    <string name="q12_s">Q12 (loss of interest in previously enjoyed activities):</string>
+    <string name="q13_s">Q13 (feeling distant/cut off from people):</string>
+    <string name="q14_s">Q14 (feeling emotionally numb):</string>
+    <string name="q15_s">Q15 (irritable, angry and/or aggressive):</string>
+    <string name="q16_s">Q16 (risk-taking and/or self-harming behaviour)</string>
+    <string name="q17_s">Q17 (super alert/on guard):</string>
+    <string name="q18_s">Q18 (jumpy/easily startled):</string>
+    <string name="q19_s">Q19 (difficulty concentrating):</string>
+    <string name="q20_s">Q20 (hard to sleep):</string>
+
+    <string name="dsm_criteria_met">Meets DSM-IV criteria for PTSD?</string>
+
+    <string name="mds">PHQ9 major depressive syndrome?</string>
+    <string name="ods">PHQ9 other depressive syndrome?</string>
+    <string name="depression_severity">PHQ9 depression severity:</string>
+  </task>
+</resources>

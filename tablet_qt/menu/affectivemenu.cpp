@@ -35,6 +35,7 @@
 #include "tasks/icd10manic.h"
 #include "tasks/icd10mixed.h"
 #include "tasks/iesr.h"
+#include "tasks/pcl5.h"
 #include "tasks/pclc.h"
 #include "tasks/pclm.h"
 #include "tasks/pcls.h"
@@ -68,6 +69,7 @@ AffectiveMenu::AffectiveMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Icd10Mixed::ICD10MIXED_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("madrs", app),
+        MAKE_TASK_MENU_ITEM(Pcl5::PCL5_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(PclM::PCLM_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(PclC::PCLC_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(PclS::PCLS_TABLENAME, app),

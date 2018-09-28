@@ -100,6 +100,8 @@ def filter_column_ops(column_ops: Iterable[AlterColumnOp]) \
     for column_op in column_ops:
         if not isinstance(column_op, AlterColumnOp):
             yield column_op  # don't know what it is; yield it unmodified
+            continue
+
         existing = column_op.existing_type
         modify_type = column_op.modify_type
 
@@ -135,12 +137,15 @@ def filter_table_ops(table_ops: Iterable[ModifyTableOps]) \
         if not isinstance(table_op, ModifyTableOps):
             log.warning("Don't understand: {!r}".format(table_op))
             yield table_op  # don't know what it is; yield it unmodified
+            continue
+
         log.warning("Filtering for table: {}".format(table_op.table_name))
         table_op.ops = list(filter_column_ops(table_op.ops))
         if not table_op.ops:
             log.warning("Nothing to do for table: {}".format(
                 table_op.table_name))
             continue
+
         yield table_op
 
 

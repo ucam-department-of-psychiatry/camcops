@@ -25,6 +25,10 @@ PTSD Checklist: Civilian version (PCL-C)
 History and guide
 ~~~~~~~~~~~~~~~~~
 
+- The PCL for the DSM-IV has three versions, PCL-M (military), PCL-C (civilian), and PCL-S (specific).
+  The PCL-5 is most similar to the PCL-S (specific). There are no corresponding PCL-M or PCL-C versions
+  of the PCL-5.
+
 For post-traumatic stress disorder (PTSD). Originals:
 
 - Weathers, F.W., Huska, J.A., Keane, T.M. PCL-S for DSM-IV. Boston: National
@@ -47,6 +51,8 @@ Source
 
 - http://www.nmcphc.med.navy.mil/Deployment_Health/frm_ptsdstress.aspx
 
+- https://www.ptsd.va.gov/professional/assessment/adult-sr/ptsd-checklist.asp
+
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -57,17 +63,27 @@ domain.” (http://www.mirecc.va.gov/docs/visn6/3_PTSD_CheckList_and_Scoring.pdf
 accessed 2012-09-20.
 
 
-.. _pcl_s:
+.. _pcl_m:
 
-PTSD Checklist: Military version (PCL-S)
+PTSD Checklist: Military version (PCL-M)
 ----------------------------------------
 
-See the `PCL-C <pcl_c>`.
+See the `PCL-M <pcl_m>`.
 
 
-.. _pcl_m:
+.. _pcl_s:
 
 PTSD Checklist: specific stressor version (PCL-S)
 -------------------------------------------------
 
-See the `PCL-C <pcl_c>`.
+See the `PCL-S <pcl_s>`.
+
+.. _pcl_5:
+
+
+PTSD Checklist: DSM-V Version (PCL-5)
+-------------------------------------
+
+
+
+See the `PCL-5 <pcl_5>`.

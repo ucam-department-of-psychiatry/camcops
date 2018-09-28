@@ -152,6 +152,8 @@ Affective (mood and anxiety) disorders
 
 - :ref:`Panic Disorder Severity Scale (PDSS) <pdss>`
 
+- :ref:`PTSD Checklist DSM-V (PCL-5) <pcl_5>`
+
 - :ref:`PTSD Checklist (PCL-C) <pcl_c>`
 
 - :ref:`PTSD Checklist (PCL-M) <pcl_m>`

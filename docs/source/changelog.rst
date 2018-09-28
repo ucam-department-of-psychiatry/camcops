@@ -1398,3 +1398,4 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``create_database_migration.py`` checks the database version is OK first.
 - Make Alembic compare MySQL ``TINYINT(1)`` to be equal to ``Boolean()`` in the
   metadata, so its default suggestions are more helpful.
+- Added the DSM-V PTSD checklist questionnaire (PCL5)

@@ -87,6 +87,7 @@ from .moca import Moca
 from .nart import Nart
 from .npiq import NpiQ
 from .panss import Panss
+from .pcl5 import Pcl5
 from .pcl import PclC, PclM, PclS
 from .pdss import Pdss
 from .photo import Photo, PhotoSequence
