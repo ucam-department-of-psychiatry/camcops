@@ -71,16 +71,6 @@ Wiley to Rudolf Cardinal, 2013-04-09).
 
 - Original: Bush et al. (1996), https://www.pubmed.gov/8686483.
 
-.. _core10:
-
-CORE-10
-~~~~~~~
-
-Copyright CORE System Trust. Paper use free. Electronic reproduction requires a
-licence fee.
-
-- http://www.coreims.co.uk/copyright.pdf
-
 .. _ess:
 
 Epworth Sleepiness Scale (ESS)

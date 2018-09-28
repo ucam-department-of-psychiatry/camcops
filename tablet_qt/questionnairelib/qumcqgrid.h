@@ -51,6 +51,7 @@ public:
     QuMcqGrid* setSubtitles(const QVector<McqGridSubtitle>& subtitles);
     QuMcqGrid* setExpand(bool expand);
     QuMcqGrid* setStripy(bool stripy);
+    QuMcqGrid* showTitle(bool show_title);  // default is true!
 protected:
     void setFromFields();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -71,6 +72,7 @@ protected:
     QVector<McqGridSubtitle> m_subtitles;
     bool m_expand;
     bool m_stripy;
+    bool m_show_title;
     QVector<QVector<QPointer<BooleanWidget>>> m_widgets;
     QVector<QuMcqGridSignaller*> m_signallers;
 };

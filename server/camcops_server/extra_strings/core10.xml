@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="core10">
+    <!-- Clinical Outcomes in Routine Evaluation 10 (CORE-10) -->
+
+    <string name="title">CORE-10 screening measure</string>
+
+    <string name="instruction_1">IMPORTANT – PLEASE READ THIS FIRST</string>
+    <string name="instruction_2">This form has 10 statements about how you have been OVER THE LAST WEEK. Please read each statement and think how often you felt that way last week. Then choose the option which is closest to this.</string>
+
+    <string name="stem">Over the last week...</string>
+
+    <string name="q1">1. I have felt tense, anxious or nervous</string>
+    <string name="q2">2. I have felt I have someone to turn to for support when needed</string>
+    <string name="q3">3. I have felt able to cope when things go wrong</string>
+    <string name="q4">4. Talking to people has felt too much for me</string>
+    <string name="q5">5. I have felt panic or terror</string>
+    <string name="q6">6. I made plans to end my life</string>
+    <string name="q7">7. I have had difficulty getting to sleep or staying asleep</string>
+    <string name="q8">8. I have felt despairing or hopeless</string>
+    <string name="q9">9. I have felt unhappy</string>
+    <string name="q10">10. Unwanted images or memories have been distressing me</string>
+
+    <string name="q1_s">Q1 (tension/anxiety):</string>
+    <string name="q2_s">Q2 (support):</string>
+    <string name="q3_s">Q3 (coping):</string>
+    <string name="q4_s">Q4 (talking is too much)</string>
+    <string name="q5_s">Q5 (panic):</string>
+    <string name="q6_s">Q6 (suicidality):</string>
+    <string name="q7_s">Q7 (sleep problems):</string>
+    <string name="q8_s">Q8 (despair/hopelessness):</string>
+    <string name="q9_s">Q9 (unhappy):</string>
+    <string name="q10_s">Q10 (unwanted images):</string>
+
+    <!-- Note: most questions are scored 0-4 like this, but a couple are reverse-scored. -->
+    <string name="a0">Not at all</string>
+    <string name="a1">Only occasionally</string>
+    <string name="a2">Sometimes</string>
+    <string name="a3">Often</string>
+    <string name="a4">Most or all of the time</string>
+
+    <string name="thanks">Thank you for your time in completing this questionnaire</string>
+
+  </task>
+</resources>

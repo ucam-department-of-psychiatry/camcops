@@ -24,6 +24,7 @@
 
 #include "tasks/bdi.h"
 #include "tasks/cisr.h"
+#include "tasks/core10.h"
 #include "tasks/gad7.h"
 #include "tasks/gds15.h"
 #include "tasks/hads.h"
@@ -54,6 +55,7 @@ AffectiveMenu::AffectiveMenu(CamcopsApp& app) :
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("asrm", app),
         MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("epds", app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gds15::GDS15_TABLENAME, app),

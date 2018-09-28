@@ -48,6 +48,7 @@ All tasks
     ciwa.rst
     clinical.rst
     cope.rst
+    core10.rst
     dad.rst
     dast.rst
     deakin_1.rst

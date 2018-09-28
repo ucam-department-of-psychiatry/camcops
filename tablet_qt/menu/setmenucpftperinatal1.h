@@ -17,25 +17,13 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "clinicalsetsmenu.h"
-#include "common/uiconst.h"
-#include "lib/uifunc.h"
-#include "menulib/menuitem.h"
-
-#include "menu/setmenucpftaffective1.h"
-#include "menu/setmenucpftperinatal1.h"
-#include "menu/setmenufromlp.h"
+#pragma once
+#include "menulib/menuwindow.h"
 
 
-ClinicalSetsMenu::ClinicalSetsMenu(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("Sets of tasks collected together for clinical purposes"),
-               uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
+class SetMenuCpftPerinatal1 : public MenuWindow
 {
-    m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftAffective1, app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftPerinatal1, app),
-        MAKE_MENU_MENU_ITEM(SetMenuFromLp, app),
-    };
-}
+    Q_OBJECT
+public:
+    SetMenuCpftPerinatal1(CamcopsApp& app);
+};

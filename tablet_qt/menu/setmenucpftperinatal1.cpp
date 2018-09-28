@@ -17,25 +17,25 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "clinicalsetsmenu.h"
+#include "setmenucpftperinatal1.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
-#include "menu/setmenucpftaffective1.h"
-#include "menu/setmenucpftperinatal1.h"
-#include "menu/setmenufromlp.h"
+#include "tasks/core10.h"
+#include "tasks/gad7.h"
 
 
-ClinicalSetsMenu::ClinicalSetsMenu(CamcopsApp& app) :
+SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
     MenuWindow(app,
-               tr("Sets of tasks collected together for clinical purposes"),
+               tr("CPFT Perinatal Service"),
                uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
+    m_subtitle = "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
+                 "perinatal psychiatry service";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftAffective1, app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftPerinatal1, app),
-        MAKE_MENU_MENU_ITEM(SetMenuFromLp, app),
+        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
     };
 }

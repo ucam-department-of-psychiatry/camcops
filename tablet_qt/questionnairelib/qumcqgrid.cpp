@@ -33,7 +33,8 @@ QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
     m_options(options),
     m_question_width(-1),
     m_expand(false),
-    m_stripy(true)
+    m_stripy(true),
+    m_show_title(true)
 {
     m_options.validateOrDie();
     // each QuestionWithOneField will have asserted on construction
@@ -100,6 +101,13 @@ QuMcqGrid* QuMcqGrid::setStripy(const bool stripy)
 }
 
 
+QuMcqGrid* QuMcqGrid::showTitle(const bool show_title)
+{
+    m_show_title = show_title;
+    return this;
+}
+
+
 void QuMcqGrid::setFromFields()
 {
     for (int qi = 0; qi < m_question_field_pairs.size(); ++qi) {
@@ -153,10 +161,12 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
     // Second and subsequent columns: options
 
     // Title row
-    mcqfunc::addOptionBackground(grid, row, 0, n_cols);
-    mcqfunc::addTitle(grid, row, m_title);
-    addOptions(grid, row);
-    ++row;  // new row after title/option text
+    if (m_show_title) {
+        mcqfunc::addOptionBackground(grid, row, 0, n_cols);
+        mcqfunc::addTitle(grid, row, m_title);
+        addOptions(grid, row);
+        ++row;  // new row after title/option text
+    }
 
     // Main question rows (with any preceding subtitles)
     // qi: question index

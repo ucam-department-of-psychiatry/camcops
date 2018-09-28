@@ -1378,6 +1378,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
     ignored "-Wmissing-field-initializer"
   - Checked for Linux, Android; Windows checks pending.
 
+- New task: CORE-10.
+
 **Server v2.2.8, in progress (from 2018-09-14)**
 
 - ``GROUP_NAME_MAX_LEN``, ``DEVICE_NAME_MAX_LEN`` and ``USER_NAME_MAX_LEN`` 

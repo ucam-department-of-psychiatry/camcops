@@ -781,7 +781,9 @@ SOURCES += \
     widgets/treeviewproxystyle.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
-    widgets/verticalscrollareaviewport.cpp
+    widgets/verticalscrollareaviewport.cpp \
+    tasks/core10.cpp \
+    menu/setmenucpftperinatal1.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1167,7 +1169,9 @@ HEADERS += \
     widgets/verticalscrollareaviewport.h \
     common/preprocessor_aid.h \
     maths/include_eigen_core.h \
-    maths/include_eigen_dense.h
+    maths/include_eigen_dense.h \
+    tasks/core10.h \
+    menu/setmenucpftperinatal1.h
 
 DISTFILES += \
     LICENSE.txt \

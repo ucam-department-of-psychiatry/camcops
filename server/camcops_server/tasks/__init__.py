@@ -45,6 +45,7 @@ from .cisr import Cisr
 from .ciwa import Ciwa
 from .contactlog import ContactLog
 from .cope import CopeBrief
+from .core10 import Core10
 from .cpft_lps import (
     CPFTLPSReferral,
     CPFTLPSResetResponseClock,

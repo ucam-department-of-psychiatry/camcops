@@ -26,6 +26,9 @@ Client
 Tasks
 ~~~~~
 
+- CORE-10: copyright has changed, now permissible, perinatal
+  will want.
+
 - Cardinal_ExpDet* tasks: generate noise on the fly?
 
 - PDSQ screener (see Clark talk 2018-09-20, MQ Data Science)

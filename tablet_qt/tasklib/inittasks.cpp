@@ -44,6 +44,7 @@
 #include "tasks/ciwa.h"
 #include "tasks/contactlog.h"
 #include "tasks/copebrief.h"
+#include "tasks/core10.h"
 #include "tasks/cpftlpsdischarge.h"
 #include "tasks/cpftlpsreferral.h"
 #include "tasks/cpftlpsresetresponseclock.h"
@@ -159,6 +160,7 @@ void InitTasks(TaskFactory& factory)
     initializeCiwa(factory);
     initializeContactLog(factory);
     initializeCopeBrief(factory);
+    initializeCore10(factory);
     initializeCPFTLPSDischarge(factory);
     initializeCPFTLPSReferral(factory);
     initializeCPFTLPSResetResponseClock(factory);

@@ -1,0 +1,130 @@
+..  docs/source/developer/new_task_walkthrough_core10.rst
+
+..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+    .
+    This file is part of CamCOPS.
+    .
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    .
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+    .
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+New task walkthrough: CORE-10 example
+-------------------------------------
+
+(2018-09-28.)
+
+Basics
+~~~~~~
+
+- Starting point: checked out and happily compiling.
+
+- Understand the task.
+
+- Start with the ``.rst`` file.
+
+  - Re the CORE-10: copyright now allows electronic reproduction:
+    http://www.coreims.co.uk/copyright.pdf.
+
+Client
+~~~~~~
+
+- create class in ``tasks/``.
+
+- find a similar task, or failing that something simple!
+
+- copy/paste/edit header
+
+- at some point should run ``qmake``, as it's a new Q_OBJECT.
+
+- copy/paste/edit ``.cpp`` file, then start to think
+
+- choose tablename
+
+- in constructor: is it anonymous? Does it have a clinician? Does it have a
+  respondent?
+
+- for very simple tasks like this, can often just use a N_QUESTIONS format,
+  with questions numbered 1 to N_QUESTIONS, and fieldname named ``q1`` to
+  ``q<whatever>``.
+
+- diversion: update the task factory, meaning update ``inittasks.cpp`` to
+  initialize the task (create the table(s), etc.) during app startup.
+
+- back to main task
+
+- work through calculations
+
+- build ``editor()``
+
+- add it to one or more menus; see ``menu/``
+
+- set the minimum server version; do this for the task, not the whole CamCOPS
+  client; this means creating a task function ``minimumServerVersion()``
+
+- bump the client version in ``camcopsversion.cpp``
+
+- and ``changelog.rst`` and all the other things it says in
+  ``camcopsversion.cpp``
+
+XML
+~~~
+
+- at some point, will want an ``xstring``; create the ``.xml`` file. Since this
+  task is freely available, put it in ``server/camcops_server/extra_strings``.
+
+Docs
+~~~~
+
+- update docs all-tasks list
+
+- update docs category task list
+
+- special for CORE-10: remove from "prohibited" list
+
+Server
+~~~~~~
+
+- create Python file: ``camcops_server/tasks/core10.py``
+
+- work through, mirroring calculations on client
+
+- check with PyCharm
+
+- create database revision using ``server/tools/create_database_migration.py``;
+  this will create a new file in ``server/camcops_server/alembic/versions``.
+  Review this manually!
+
+- note that the revision doesn't contain the new task! So delete it, then...
+
+- edit ``tasks/__init__.py`` to load the task
+
+- create database migration (again...)
+
+- manually review the database migration for sanity
+
+.. todo:: modify Alembic scanner so that MySQL ``TINYINT(1)`` is recognized
+   as equivalent to SQLAlchemy's ``Boolean``!
+
+- migration file will need adding to Git repository manually
+
+- upgrade the test database with ``camcops upgrade_db ...``
+
+- launch server
+
+.. todo:: fix problem with CherryPy
+
+Final
+~~~~~
+
+- Test
+
+- Commit!
