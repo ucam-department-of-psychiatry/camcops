@@ -215,7 +215,7 @@ Further detail:
 ICD-10 criteria: depressive episode
 -----------------------------------
 
-See `ICD-10 codes <diagnosis_icd10>`.
+See :ref:`ICD-10 codes <diagnosis_icd10>`.
 
 
 .. _icd10_mania:
@@ -223,7 +223,7 @@ See `ICD-10 codes <diagnosis_icd10>`.
 ICD-10 criteria: manic/hypomanic episode
 ----------------------------------------
 
-See `ICD-10 codes <diagnosis_icd10>`.
+See :ref:`ICD-10 codes <diagnosis_icd10>`.
 
 
 .. _icd10_mixed:
@@ -231,7 +231,7 @@ See `ICD-10 codes <diagnosis_icd10>`.
 ICD-10 criteria: mixed affective episode
 ----------------------------------------
 
-See `ICD-10 codes <diagnosis_icd10>`.
+See :ref:`ICD-10 codes <diagnosis_icd10>`.
 
 
 .. _icd10_schizophrenia:
@@ -239,7 +239,7 @@ See `ICD-10 codes <diagnosis_icd10>`.
 ICD-10 criteria: schizophrenia
 ------------------------------
 
-See `ICD-10 codes <diagnosis_icd10>`.
+See :ref:`ICD-10 codes <diagnosis_icd10>`.
 
 
 .. _icd10_schizotypal:
@@ -247,7 +247,7 @@ See `ICD-10 codes <diagnosis_icd10>`.
 ICD-10 criteria: schizotypal disorder
 -------------------------------------
 
-See `ICD-10 codes <diagnosis_icd10>`.
+See :ref:`ICD-10 codes <diagnosis_icd10>`.
 
 
 .. _icd10_personality:
@@ -255,4 +255,4 @@ See `ICD-10 codes <diagnosis_icd10>`.
 ICD-10 criteria: specific personality disorders
 -----------------------------------------------
 
-See `ICD-10 codes <diagnosis_icd10>`.
+See :ref:`ICD-10 codes <diagnosis_icd10>`.

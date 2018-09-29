@@ -24,7 +24,7 @@ Quality of Life: rating scale and time trade-off (QOL-Basic)
 
 The QOL-Basic task provides a rating scale and a time trade-off measure.
 
-For more detail, see `QOL-SG <qol_sg>`.
+For more detail, see :ref:`QOL-SG <qol_sg>`.
 
 
 .. _qol_sg:

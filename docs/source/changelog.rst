@@ -990,8 +990,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   Maintains a minimum client (tablet) version per task; during registration,
   offers the client the list of its tables and the minimum number. This allows
   a newer client to recognize that the server is older and has ‘missing’
-  tables, and act accordingly. See `ensure_valid_table_name()`. Minimum tablet
-  version remains v1.14.0.
+  tables, and act accordingly. See
+  :func:`camcops_server.cc_modules.client_api.ensure_valid_table_name`. Minimum
+  tablet version remains v1.14.0.
 
 - An obvious question: with that mechanism in place, is there any merit to the
   client maintaining a list of minimum server versions for each task? The
@@ -1021,7 +1022,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - SQLAlchemy `Engine` scope fixed (was per-request; that was wrong and caused
   ‘Too many connections’ errors; now per URL across the application, as it
-  should be; see `cc_config.py`).
+  should be; see ``cc_config.py``).
 
 - Links to de-identified versions of tasks.
 

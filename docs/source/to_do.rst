@@ -60,6 +60,17 @@ Client core
 - Validator options, e.g. the server says "ID type 72 uses the 'NHS number'
   validator", so checksums are checked. An NHS number validator is built.
 
+  - needs ?text field addition to the ID number descriptor table (client +
+    server), e.g. "nhs" for NHS number validator; only needs to be one option;
+    default NULL or blank
+  - (client + server) ID numbers should provide info as to whether they
+    pass their validator?
+  - plus changes to download code, maintaining backward compatibility
+  - plus changes to (client) patient editor, using the NHS number validator
+    if the validator is "NHS", etc.
+  - on the server, HTML task view showing a warning if an ID number fails
+    its validator?
+
 - Current Android back button behaviour may not be optimal.
 
 - Maybe implement pinch zoom for some subclasses of OpenableWidget, e.g.
@@ -69,6 +80,10 @@ Client core
 - QuAudioRecording: questionnaire element to record audio
 
 - QuVideoRecording: questionnaire element to record video
+
+- Qt have fixed bug https://bugreports.qt.io/browse/QTBUG-35545 as of Qt
+  5.12.0 beta 1, so may be possible to improve dialogue boxes again on Android
+  (but possibly our workaround sorted it; can't remember); check.
 
 Server
 ------

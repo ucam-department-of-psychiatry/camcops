@@ -94,7 +94,7 @@ Copyright © Royal College of Psychiatrists; reproduced with permission.
 Health of the Nation Outcome Scale for 65+-year-olds (HoNOS 65+)
 ----------------------------------------------------------------
 
-See `HoNOS <honos>`.
+See :ref:`HoNOS <honos>`.
 
 
 .. _honosca:
@@ -102,4 +102,4 @@ See `HoNOS <honos>`.
 Health of the Nation Outcome Scale for Children and Adolescents (HoNOSCA)
 -------------------------------------------------------------------------
 
-See `HoNOS <honos>`.
+See :ref:`HoNOS <honos>`.

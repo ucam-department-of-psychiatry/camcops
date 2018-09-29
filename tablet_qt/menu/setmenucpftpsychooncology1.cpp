@@ -22,7 +22,13 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "tasks/cgii.h"
+#include "tasks/copebrief.h"
+#include "tasks/gad7.h"
+#include "tasks/hads.h"
 #include "tasks/pcl5.h"
+#include "tasks/phq9.h"
+#include "tasks/wsas.h"
 
 
 SetMenuCpftPsychooncology1::SetMenuCpftPsychooncology1(CamcopsApp& app) :
@@ -34,6 +40,14 @@ SetMenuCpftPsychooncology1::SetMenuCpftPsychooncology1(CamcopsApp& app) :
                  "psycho-oncology service";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
+        // *** TO ADD (psycho-oncology): CES-D
+        MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, app),
+        // *** TO ADD (psycho-oncology): FACT-G
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Hads::HADS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Pcl5::PCL5_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Wsas::WSAS_TABLENAME, app),
     };
 }

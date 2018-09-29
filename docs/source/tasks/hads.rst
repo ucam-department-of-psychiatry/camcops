@@ -69,4 +69,4 @@ Intellectual property rights
 Hospital Anxiety and Depression Scale (HADS), respondent version
 ----------------------------------------------------------------
 
-See `HADS <hads>`.
+See :ref:`HADS <hads>`.

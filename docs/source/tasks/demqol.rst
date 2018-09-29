@@ -73,4 +73,4 @@ Dementia Quality of Life measure, proxy version (DEMQOL-Proxy)
 DEMQOL-Proxy: 31-item interviewer-administered questionnaire answered by a
 caregiver.
 
-See `DEMQOL <demqol>`.
+See :ref:`DEMQOL <demqol>`.

@@ -66,4 +66,4 @@ Clinical Global Impressions – Improvements scale (CGI-I)
 
 .. include:: include_from_lp_generic.rst
 
-This is a subset of the `CGI <cgi>`.
+This is a subset of the :ref:`CGI <cgi>`.
