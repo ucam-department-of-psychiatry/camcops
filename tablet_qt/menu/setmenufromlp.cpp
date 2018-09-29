@@ -26,6 +26,7 @@
 #include "tasks/auditc.h"
 #include "tasks/bmi.h"
 #include "tasks/cgii.h"
+#include "tasks/core10.h"
 #include "tasks/fft.h"
 #include "tasks/gad7.h"
 #include "tasks/honos.h"
@@ -48,7 +49,7 @@ SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
 
         MenuItem(tr("GENERIC SCALES")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
-        // CORE-10 -- copyright conditions prohibit
+        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Irac::IRAC_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, app),

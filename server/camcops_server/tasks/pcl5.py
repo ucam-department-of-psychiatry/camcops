@@ -33,7 +33,9 @@ from sqlalchemy.sql.sqltypes import Boolean, Integer
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import answer, get_yes_no, subheading_spanning_two_columns, tr, tr_qa
+from camcops_server.cc_modules.cc_html import (
+    answer, get_yes_no, subheading_spanning_two_columns, tr, tr_qa
+)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -43,7 +45,10 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasPatientMixin,
 )
 from camcops_server.cc_modules.cc_trackerhelpers import (
+    equally_spaced_int,
+    regular_tracker_axis_ticks_int,
     TrackerInfo,
+    TrackerLabel,
 )
 
 
@@ -94,7 +99,7 @@ class Pcl5(TaskHasPatientMixin, Task,
            metaclass=Pcl5Metaclass):
     __tablename__ = 'pcl5'
     shortname = 'PCL-5'
-    longname = 'PTSD Checklist, DSM-V version'
+    longname = 'PTSD Checklist, DSM-5 version'
     provides_trackers = True
     extrastring_taskname = "pcl5"
     N_QUESTIONS = 20
@@ -115,13 +120,29 @@ class Pcl5(TaskHasPatientMixin, Task,
         return self.sum_fields(self.SCORED_FIELDS)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
+        line_step = 20
+        preliminary_cutoff = 33
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PCL-5 total score",
             axis_label="Total score ({}-{})".format(self.MIN_SCORE,
                                                     self.MAX_SCORE),
             axis_min=self.MIN_SCORE - 0.5,
-            axis_max=self.MAX_SCORE + 0.5
+            axis_max=self.MAX_SCORE + 0.5,
+            axis_ticks=regular_tracker_axis_ticks_int(
+                self.MIN_SCORE,
+                self.MAX_SCORE,
+                step=line_step
+            ),
+            horizontal_lines=equally_spaced_int(
+                self.MIN_SCORE + line_step,
+                self.MAX_SCORE - line_step,
+                step=line_step
+            ) + [preliminary_cutoff],
+            horizontal_labels=[
+                TrackerLabel(preliminary_cutoff,
+                             self.wxstring(req, "preliminary_cutoff")),
+            ]
         )]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -173,7 +194,7 @@ class Pcl5(TaskHasPatientMixin, Task,
                 name="ptsd",
                 coltype=Boolean(),
                 value=self.ptsd(),
-                comment="Meets DSM-IV criteria for PTSD"),
+                comment="Provisionally meets DSM-5 criteria for PTSD"),
         ]
 
     def get_num_symptomatic(self, first: int, last: int) -> int:
@@ -204,8 +225,12 @@ class Pcl5(TaskHasPatientMixin, Task,
         num_symptomatic_c = self.num_symptomatic_c()
         num_symptomatic_d = self.num_symptomatic_d()
         num_symptomatic_e = self.num_symptomatic_e()
-        return num_symptomatic_b >= 1 and num_symptomatic_c >= 1 and \
-            num_symptomatic_d >= 2 and num_symptomatic_d >= 2
+        return (
+            num_symptomatic_b >= 1 and
+            num_symptomatic_c >= 1 and
+            num_symptomatic_d >= 2 and
+            num_symptomatic_e >= 2
+        )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -220,23 +245,19 @@ class Pcl5(TaskHasPatientMixin, Task,
             answer_dict[option] = str(option) + " – " + \
                 self.wxstring(req, "a" + str(option))
         q_a = ""
-        if hasattr(self, "event") and hasattr(self, "eventdate"):
-            # PCL-S
-            q_a += tr_qa(self.wxstring(req, "s_event_s"), self.event)
-            q_a += tr_qa(self.wxstring(req, "s_eventdate_s"), self.eventdate)
 
         section_start = {
-            1: 'B',
-            6: 'C',
-            8: 'D',
-            15: 'E'
+            1: 'B (intrusion symptoms)',
+            6: 'C (avoidance)',
+            8: 'D (negative cognition/mood)',
+            15: 'E (arousal/reactivity)'
         }
 
         for q in range(1, self.N_QUESTIONS + 1):
             if q in section_start:
                 section = section_start[q]
                 q_a += subheading_spanning_two_columns(
-                    "DSM section {}".format(section)
+                    "DSM-5 section {}".format(section)
                 )
 
             q_a += tr_qa(
@@ -263,7 +284,7 @@ class Pcl5(TaskHasPatientMixin, Task,
             <div class="{CssClass.FOOTNOTES}">
                 [1] Questions with scores ≥2 are considered symptomatic.
                 [2] ≥1 ‘B’ symptoms and ≥1 ‘C’ symptoms and ≥2 'D' symptoms
-                    ≥2 ‘E’ symptoms.
+                    and ≥2 ‘E’ symptoms.
             </div>
         """.format(
             CssClass=CssClass,

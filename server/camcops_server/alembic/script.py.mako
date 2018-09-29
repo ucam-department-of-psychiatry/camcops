@@ -56,11 +56,11 @@ depends_on = ${repr(depends_on)}
 # The upgrade/downgrade steps
 # =============================================================================
 
-# noinspection PyPep8
+# noinspection PyPep8,PyTypeChecker
 def upgrade():
     ${upgrades if upgrades else "pass"}
 
 
-# noinspection PyPep8
+# noinspection PyPep8,PyTypeChecker
 def downgrade():
     ${downgrades if downgrades else "pass"}

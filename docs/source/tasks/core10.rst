@@ -22,6 +22,8 @@
 Clinical Outcomes in Routine Evaluation 10 (CORE-10)
 ----------------------------------------------------
 
+.. include:: include_from_lp_generic.rst
+
 History and guide
 ~~~~~~~~~~~~~~~~~
 
@@ -32,8 +34,8 @@ History and guide
 - The CORE-10 is a shortened 10-item version of the CORE-OM; see
   http://www.coreims.co.uk/About_Measurement_CORE_Tools.html.
 
-- Original CORE-OM paper: Barkham et al. (2001), PMID 11393596,
-  https://www.ncbi.nlm.nih.gov/pubmed/11393596.
+- Original CORE-OM paper: Barkham et al. (2001),
+  PMID `11393596 <https://www.ncbi.nlm.nih.gov/pubmed/11393596>`_
 
 Source
 ~~~~~~

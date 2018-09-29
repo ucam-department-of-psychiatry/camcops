@@ -47,10 +47,12 @@ const int MAX_SCORE = 80;
 const QString QPREFIX("q");
 const QString Pcl5::PCL5_TABLENAME("pcl5");
 
+
 void initializePcl5(TaskFactory& factory)
 {
     static TaskRegistrar<Pcl5> registered(factory);
 }
+
 
 Pcl5::Pcl5(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
             Task(app, db, PCL5_TABLENAME, false, false, false),  // ... anon, clin, resp
@@ -71,15 +73,18 @@ QString Pcl5::shortname() const
     return "PCL-5";
 }
 
+
 QString Pcl5::longname() const
 {
-    return tr("PTSD Checklist, DSM-V version");
+    return tr("PTSD Checklist for DSM-5");
 }
+
 
 QString Pcl5::menusubtitle() const
 {
-    return tr("20-item self-report scale.");
+    return tr("20-item self-report scale, based on DSM-5 criteria.");
 }
+
 
 Version Pcl5::minimumServerVersion() const
 {
@@ -96,6 +101,7 @@ bool Pcl5::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
+
 QStringList Pcl5::summary() const
 {
     return QStringList{
@@ -105,6 +111,7 @@ QStringList Pcl5::summary() const
     };
 }
 
+
 QStringList Pcl5::detail() const
 {
     QStringList lines = completenessInfo();
@@ -112,9 +119,9 @@ QStringList Pcl5::detail() const
     return lines;
 }
 
+
 OpenableWidget* Pcl5::editor(const bool read_only)
 {
-
     const NameValueOptions options{
         {xstring("a0"), 0},
         {xstring("a1"), 1},
@@ -124,43 +131,50 @@ OpenableWidget* Pcl5::editor(const bool read_only)
     };
 
     QuPagePtr page((new QuPage{
-                        (new QuText(xstring("stem")))->setBold(true),
-                        new QuMcqGrid(
-                            {
-                                QuestionWithOneField(xstring("q1"), fieldRef("q1")),
-                                QuestionWithOneField(xstring("q2"), fieldRef("q2")),
-                                QuestionWithOneField(xstring("q3"), fieldRef("q3")),
-                                QuestionWithOneField(xstring("q4"), fieldRef("q4")),
-                                QuestionWithOneField(xstring("q5"), fieldRef("q5")),
-                                QuestionWithOneField(xstring("q6"), fieldRef("q6")),
-                                QuestionWithOneField(xstring("q7"), fieldRef("q7")),
-                                QuestionWithOneField(xstring("q8"), fieldRef("q8")),
-                                QuestionWithOneField(xstring("q9"), fieldRef("q9")),
-                                QuestionWithOneField(xstring("q10"), fieldRef("q10")),
-                                QuestionWithOneField(xstring("q11"), fieldRef("q11")),
-                                QuestionWithOneField(xstring("q12"), fieldRef("q12")),
-                                QuestionWithOneField(xstring("q13"), fieldRef("q13")),
-                                QuestionWithOneField(xstring("q14"), fieldRef("q14")),
-                                QuestionWithOneField(xstring("q15"), fieldRef("q15")),
-                                QuestionWithOneField(xstring("q16"), fieldRef("q16")),
-                                QuestionWithOneField(xstring("q17"), fieldRef("q17")),
-                                QuestionWithOneField(xstring("q18"), fieldRef("q18")),
-                                QuestionWithOneField(xstring("q19"), fieldRef("q19")),
-                                QuestionWithOneField(xstring("q20"), fieldRef("q20"))
-                            },
-                            options
-                        ),
-                    }));
+        new QuText(xstring("instructions")),
+        (new QuMcqGrid(
+            {
+                QuestionWithOneField(xstring("q1"), fieldRef("q1")),
+                QuestionWithOneField(xstring("q2"), fieldRef("q2")),
+                QuestionWithOneField(xstring("q3"), fieldRef("q3")),
+                QuestionWithOneField(xstring("q4"), fieldRef("q4")),
+                QuestionWithOneField(xstring("q5"), fieldRef("q5")),
+                QuestionWithOneField(xstring("q6"), fieldRef("q6")),
+                QuestionWithOneField(xstring("q7"), fieldRef("q7")),
+                QuestionWithOneField(xstring("q8"), fieldRef("q8")),
+                QuestionWithOneField(xstring("q9"), fieldRef("q9")),
+                QuestionWithOneField(xstring("q10"), fieldRef("q10")),
+                QuestionWithOneField(xstring("q11"), fieldRef("q11")),
+                QuestionWithOneField(xstring("q12"), fieldRef("q12")),
+                QuestionWithOneField(xstring("q13"), fieldRef("q13")),
+                QuestionWithOneField(xstring("q14"), fieldRef("q14")),
+                QuestionWithOneField(xstring("q15"), fieldRef("q15")),
+                QuestionWithOneField(xstring("q16"), fieldRef("q16")),
+                QuestionWithOneField(xstring("q17"), fieldRef("q17")),
+                QuestionWithOneField(xstring("q18"), fieldRef("q18")),
+                QuestionWithOneField(xstring("q19"), fieldRef("q19")),
+                QuestionWithOneField(xstring("q20"), fieldRef("q20"))
+            },
+            options
+        ))->setTitle(xstring("stem")),
+    })->setTitle(xstring("title")));
 
-        auto questionnaire = new Questionnaire(m_app, {page});
-        questionnaire->setType(QuPage::PageType::Patient);
-        questionnaire->setReadOnly(read_only);
-        return questionnaire;
+    auto questionnaire = new Questionnaire(m_app, {page});
+    questionnaire->setType(QuPage::PageType::Patient);
+    questionnaire->setReadOnly(read_only);
+    return questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
+
+int Pcl5::totalScore() const
+{
+    return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+}
+
 
 QVariant Pcl5::hasPtsd() const
 {
@@ -184,15 +198,15 @@ QVariant Pcl5::hasPtsd() const
     const int criterion_d = 2;
     const int criterion_e = 2;
 
-    int symptomatic_b = numSymptomatic(first_b, last_b);
-    int symptomatic_c = numSymptomatic(first_c, last_c);
-    int symptomatic_d = numSymptomatic(first_d, last_d);
-    int symptomatic_e = numSymptomatic(first_e, last_e);
+    const int symptomatic_b = numSymptomatic(first_b, last_b);
+    const int symptomatic_c = numSymptomatic(first_c, last_c);
+    const int symptomatic_d = numSymptomatic(first_d, last_d);
+    const int symptomatic_e = numSymptomatic(first_e, last_e);
 
-    int null_b = numNull(first_b, last_b);
-    int null_c = numNull(first_c, last_c);
-    int null_d = numNull(first_d, last_d);
-    int null_e = numNull(first_e, last_e);
+    const int null_b = numNull(first_b, last_b);
+    const int null_c = numNull(first_c, last_c);
+    const int null_d = numNull(first_d, last_d);
+    const int null_e = numNull(first_e, last_e);
 
     if (symptomatic_b >= criterion_b &&
             symptomatic_c >= criterion_c &&
@@ -209,6 +223,7 @@ QVariant Pcl5::hasPtsd() const
     return false;  // not PTSD
 }
 
+
 int Pcl5::numSymptomatic(const int first, const int last) const
 {
     int total = 0;
@@ -222,12 +237,8 @@ int Pcl5::numSymptomatic(const int first, const int last) const
     return total;
 }
 
+
 int Pcl5::numNull(const int first, const int last) const
 {
     return countNull(values(strseq(QPREFIX, first, last)));
-}
-
-int Pcl5::totalScore() const
-{
-    return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }

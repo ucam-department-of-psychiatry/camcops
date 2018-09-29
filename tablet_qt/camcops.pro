@@ -783,7 +783,9 @@ SOURCES += \
     widgets/verticalscrollarea.cpp \
     widgets/verticalscrollareaviewport.cpp \
     tasks/core10.cpp \
-    menu/setmenucpftperinatal1.cpp
+    menu/setmenucpftperinatal1.cpp \
+    tasks/pcl5.cpp \
+    menu/setmenucpftpsychooncology1.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1171,7 +1173,9 @@ HEADERS += \
     maths/include_eigen_core.h \
     maths/include_eigen_dense.h \
     tasks/core10.h \
-    menu/setmenucpftperinatal1.h
+    menu/setmenucpftperinatal1.h \
+    tasks/pcl5.h \
+    menu/setmenucpftpsychooncology1.h
 
 DISTFILES += \
     LICENSE.txt \

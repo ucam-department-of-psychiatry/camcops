@@ -33,20 +33,19 @@ The FROM-LP generic measures include:
 - CGI-I: Clinical Global Impression – Improvement scale; see :ref:`CGI-I
   <cgi_i>`.
 
-- CORE-10 — but while paper copies are free, electronic reproduction is not:
-  see http://www.coreims.co.uk/copyright.pdf; therefore, not part of CamCOPS.
+- :ref:`CORE-10 <core10>`
 
-- Friends and Family Test (FFT) (Department of Health, 2012).
+- :ref:`Friends and Family Test (FFT) <fft>` (Department of Health, 2012).
 
 - IRAC: Identify and Rate the Aim of the Contact (Trigwell P, 2014a).
 
-- Patient Satisfaction Scale (PSS) (Persaud A et al. 2008).
+- :ref:`Patient Satisfaction Scale (PSS) <pss>` (Persaud A et al. 2008).
 
 - Referrer Satisfaction Scale (RSS) (Trigwell P, 2014b, after Persaud A et al.
   2008).
 
-  - CamCOPS supports two versions of the RSS: a patient-specific version and
-    a survey version.
+  - CamCOPS supports two versions of the RSS: a :ref:`patient-specific version
+    <rss_patient_specific>` and a :ref:`survey version <rss_survey>`.
 
 History and guide
 ~~~~~~~~~~~~~~~~~
@@ -82,7 +81,8 @@ Intellectual property rights
   FROM-LP framework] “are all fine to use from a copyright perspective.” Peter
   Trigwell, clinical lead for FROM-LP, to Rudolf Cardinal 2015-06-01.
 
-- However, the CORE-10 isn’t, in an electronic context, as noted above.
+- The CORE-10 wasn’t, in an electronic context, but then it
+  became OK for electronic reproduction from 2015.
 
 
 .. _fft:
@@ -92,7 +92,7 @@ Friends and Family Test (FFT)
 
 .. include:: include_from_lp_generic.rst
 
-See `FROM-LP <from_lp>`.
+See :ref:`FROM-LP <from_lp>`.
 
 
 .. _pss:
@@ -102,7 +102,7 @@ Patient Satisfaction Scale (PSS)
 
 .. include:: include_from_lp_generic.rst
 
-See `FROM-LP <from_lp>`.
+See :ref:`FROM-LP <from_lp>`.
 
 
 .. _rss_patient_specific:
@@ -112,7 +112,7 @@ Referrer Satisfaction Scale (RSS): patient-specific version
 
 .. include:: include_from_lp_generic.rst
 
-See `FROM-LP <from_lp>`.
+See :ref:`FROM-LP <from_lp>`.
 
 
 .. _rss_survey:
@@ -122,4 +122,4 @@ Referrer Satisfaction Scale (RSS): survey version
 
 .. include:: include_from_lp_generic.rst
 
-See `FROM-LP <from_lp>`.
+See :ref:`FROM-LP <from_lp>`.

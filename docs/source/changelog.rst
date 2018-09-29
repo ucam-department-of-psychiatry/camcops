@@ -1398,4 +1398,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``create_database_migration.py`` checks the database version is OK first.
 - Make Alembic compare MySQL ``TINYINT(1)`` to be equal to ``Boolean()`` in the
   metadata, so its default suggestions are more helpful.
-- Added the DSM-V PTSD checklist questionnaire (PCL5)
+- Added the DSM-5 PTSD checklist questionnaire (PCL5).
+- ``CherryPy`` from 16.0.2 to 18.0.1, but this did not fix
+  https://github.com/cherrypy/cherrypy/issues/1618. However, it is a non-fatal
+  error; just carry on.
+

@@ -653,6 +653,8 @@ tablet_qt
     tasks/panss.h.rst
     tasks/patientsatisfaction.cpp.rst
     tasks/patientsatisfaction.h.rst
+    tasks/pcl5.cpp.rst
+    tasks/pcl5.h.rst
     tasks/pclc.cpp.rst
     tasks/pclc.h.rst
     tasks/pclm.cpp.rst

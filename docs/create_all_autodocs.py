@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# docs/rebuild_docs_and_distribute.py
+# docs/create_all_autodocs.py
 
 """
 ===============================================================================

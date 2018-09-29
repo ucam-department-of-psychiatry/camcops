@@ -34,6 +34,7 @@ server/camcops_server
     alembic/versions/0004_khandaker_1_medicalhistory.py.rst
     alembic/versions/0005_reduced_indexed_varchar_fields_from_255_.py.rst
     alembic/versions/0006_core_10.py.rst
+    alembic/versions/0007_add_pcl5.py.rst
     camcops.py.rst
     camcops_meta.py.rst
     cc_modules/cc_alembic.py.rst
@@ -159,6 +160,7 @@ server/camcops_server
     extra_strings/moca.xml.rst
     extra_strings/panss.xml.rst
     extra_strings/pcl.xml.rst
+    extra_strings/pcl5.xml.rst
     extra_strings/phq15.xml.rst
     extra_strings/phq9.xml.rst
     extra_strings/pswq.xml.rst
@@ -232,6 +234,7 @@ server/camcops_server
     tasks/npiq.py.rst
     tasks/panss.py.rst
     tasks/pcl.py.rst
+    tasks/pcl5.py.rst
     tasks/pdss.py.rst
     tasks/photo.py.rst
     tasks/phq15.py.rst

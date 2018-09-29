@@ -78,6 +78,7 @@ All tasks
     npiq.rst
     panss.rst
     pcl.rst
+    pcl5.rst
     pdss.rst
     phq9.rst
     phq15.rst

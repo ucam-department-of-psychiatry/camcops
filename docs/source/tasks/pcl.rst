@@ -19,17 +19,18 @@
 
 .. _pcl_c:
 
-PTSD Checklist: Civilian version (PCL-C)
-----------------------------------------
+PTSD Checklist for DSM-IV: Civilian version (PCL-C)
+---------------------------------------------------
+
+For post-traumatic stress disorder (PTSD).
 
 History and guide
 ~~~~~~~~~~~~~~~~~
 
-- The PCL for the DSM-IV has three versions, PCL-M (military), PCL-C (civilian), and PCL-S (specific).
-  The PCL-5 is most similar to the PCL-S (specific). There are no corresponding PCL-M or PCL-C versions
-  of the PCL-5.
+- The PCL for the DSM-IV has three versions, PCL-M (military), PCL-C
+  (civilian), and PCL-S (specific).
 
-For post-traumatic stress disorder (PTSD). Originals:
+Originals:
 
 - Weathers, F.W., Huska, J.A., Keane, T.M. PCL-S for DSM-IV. Boston: National
   Center for PTSD – Behavioral Science Division, 1991.
@@ -39,6 +40,7 @@ For post-traumatic stress disorder (PTSD). Originals:
 
 - Weathers, F.W., Huska, J.A., Keane, T.M. PCL-M for DSM-IV. Boston: National
   Center for PTSD – Behavioral Science Division, 1991.
+
 
 Source
 ~~~~~~
@@ -51,39 +53,29 @@ Source
 
 - http://www.nmcphc.med.navy.mil/Deployment_Health/frm_ptsdstress.aspx
 
-- https://www.ptsd.va.gov/professional/assessment/adult-sr/ptsd-checklist.asp
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Public domain.
+- PCL for DSM-IV: Public domain.
 
-Work of the US Government: “This is a Government document in the public
-domain.” (http://www.mirecc.va.gov/docs/visn6/3_PTSD_CheckList_and_Scoring.pdf,
-accessed 2012-09-20.
+  - Work of the US Government: “This is a Government document in the public
+    domain.”
+    (http://www.mirecc.va.gov/docs/visn6/3_PTSD_CheckList_and_Scoring.pdf,
+    accessed 2012-09-20.
 
 
 .. _pcl_m:
 
-PTSD Checklist: Military version (PCL-M)
-----------------------------------------
+PTSD Checklist for DSM-IV: Military version (PCL-M)
+---------------------------------------------------
 
-See the `PCL-M <pcl_m>`.
+See the :ref:`PCL-C <pcl_c>`.
 
 
 .. _pcl_s:
 
-PTSD Checklist: specific stressor version (PCL-S)
--------------------------------------------------
+PTSD Checklist for DSM-IV: specific stressor version (PCL-S)
+------------------------------------------------------------
 
-See the `PCL-S <pcl_s>`.
-
-.. _pcl_5:
-
-
-PTSD Checklist: DSM-V Version (PCL-5)
--------------------------------------
-
-
-
-See the `PCL-5 <pcl_5>`.
+See the :ref:`PCL-C <pcl_c>`.

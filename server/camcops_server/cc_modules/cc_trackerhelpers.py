@@ -27,6 +27,8 @@
 from enum import Enum
 from typing import List, Optional
 
+import numpy as np
+
 
 DEFAULT_TRACKER_ASPECT_RATIO = 2.0  # width / height
 
@@ -78,3 +80,94 @@ class TrackerInfo(object):
         self.horizontal_lines = horizontal_lines or []
         self.horizontal_labels = horizontal_labels or []
         self.aspect_ratio = aspect_ratio
+
+
+def equally_spaced_ndarray(start: float, stop: float, num: int,
+                           endpoint: bool = True) -> np.ndarray:
+    """
+    Produces equally spaced numbers. See
+    https://stackoverflow.com/questions/477486/how-to-use-a-decimal-range-step-value.
+
+    Args:
+        start: starting value
+        stop: stopping value
+        num: number of values to return
+        endpoint: include the endpoint?
+
+    Returns:
+        list of floats
+
+    """  # noqa
+    return np.linspace(start, stop, num, endpoint=endpoint, dtype=float)
+
+
+def equally_spaced_float(start: float, stop: float, num: int,
+                         endpoint: bool = True) -> List[float]:
+    """
+    Returns a float equivalent of :func:`equally_spaced_float` (q.v.).
+    """
+    return list(equally_spaced_ndarray(start, stop, num, endpoint=endpoint))
+
+
+def equally_spaced_int(start: int, stop: int, step: int,
+                       endpoint: bool = True) -> List[int]:
+    """
+    Almost a synonym for :func:`range`!
+
+    Args:
+        start: starting value
+        stop: stopping value (INCLUSIVE if endpoint is True)
+        step: step size
+        endpoint: bool
+
+    Returns:
+        list of integers
+    """
+    if endpoint:
+        if start <= stop:  # normal
+            range_stop = stop + 1
+        else:  # counting backwards: start > stop
+            range_stop = stop - 1
+    else:
+        range_stop = stop
+    return list(range(start, range_stop, step))
+
+
+def regular_tracker_axis_ticks_float(
+        start: float, stop: float, num: int,
+        endpoint: bool = True) -> List[TrackerAxisTick]:
+    """
+    Args:
+        start: starting value
+        stop: stopping value
+        num: number of values to return
+        endpoint: include the endpoint?
+
+    Returns:
+        a list of simple numerical TrackerAxisTick objects
+
+    """
+    ticks = []  # type: List[TrackerAxisTick]
+    for val in equally_spaced_ndarray(start, stop, num, endpoint=endpoint):
+        ticks.append(TrackerAxisTick(val, str(val)))
+    return ticks
+
+
+def regular_tracker_axis_ticks_int(
+        start: int, stop: int, step: int,
+        endpoint: bool = True) -> List[TrackerAxisTick]:
+    """
+    Args:
+        start: starting value
+        stop: stopping value
+        step: step size
+        endpoint: include the endpoint?
+
+    Returns:
+        a list of simple numerical TrackerAxisTick objects
+
+    """
+    ticks = []  # type: List[TrackerAxisTick]
+    for val in equally_spaced_int(start, stop, step, endpoint=endpoint):
+        ticks.append(TrackerAxisTick(val, str(val)))
+    return ticks

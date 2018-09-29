@@ -88,7 +88,7 @@ INSTALL_REQUIRES = [
     'alembic==1.0.0',  # database migrations
     'cardinal_pythonlib==1.0.29',  # RNC libraries
     'colorlog==3.1.4',  # colour in logs
-    'CherryPy==16.0.2',  # web server
+    'CherryPy==18.0.1',  # web server
     'deform==2.0.5',  # web forms
     # 'deform-bootstrap==0.2.9',  # deform with layout made easier
     'distro==1.3.0',  # detecting Linux distribution

@@ -152,13 +152,13 @@ Affective (mood and anxiety) disorders
 
 - :ref:`Panic Disorder Severity Scale (PDSS) <pdss>`
 
-- :ref:`PTSD Checklist DSM-V (PCL-5) <pcl_5>`
+- :ref:`PTSD Checklist for DSM-IV: Civilian version (PCL-C) <pcl_c>`
 
-- :ref:`PTSD Checklist (PCL-C) <pcl_c>`
+- :ref:`PTSD Checklist for DSM-IV: Military version (PCL-M) <pcl_m>`
 
-- :ref:`PTSD Checklist (PCL-M) <pcl_m>`
+- :ref:`PTSD Checklist for DSM-IV: specific stressor version (PCL-S) <pcl_s>`
 
-- :ref:`PTSD Checklist (PCL-S) <pcl_s>`
+- :ref:`PTSD Checklist for DSM-5 (PCL-5) <pcl5>`
 
 - :ref:`Patient Health Questionnaire-9 (PHQ-9) <phq9>`
 
@@ -285,6 +285,8 @@ FROM-LP menu
 Generic:
 
 - :ref:`Clinical Global Impression – Improvement (CGI-I) <cgi_i>`
+
+- :ref:`Clinical Outcomes in Routine Evaluation 10 (CORE-10) <core10>`
 
 - :ref:`Friends and Family Test (FFT) <fft>`
 

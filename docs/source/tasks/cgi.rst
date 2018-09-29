@@ -64,4 +64,6 @@ https://en.wikipedia.org/wiki/Copyright_status_of_work_by_the_U.S._government.
 Clinical Global Impressions – Improvements scale (CGI-I)
 --------------------------------------------------------
 
+.. include:: include_from_lp_generic.rst
+
 This is a subset of the `CGI <cgi>`.

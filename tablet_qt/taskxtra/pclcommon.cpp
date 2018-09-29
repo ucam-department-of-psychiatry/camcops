@@ -73,7 +73,7 @@ PclCommon::PclCommon(CamcopsApp& app,
 
 QString PclCommon::menusubtitle() const
 {
-    return tr("17-item self-report scale.");
+    return tr("17-item self-report scale, based on DSM-IV-TR criteria.");
 }
 
 

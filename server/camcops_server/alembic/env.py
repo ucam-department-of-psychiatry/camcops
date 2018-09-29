@@ -36,16 +36,18 @@ from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.operations.ops import (
     AlterColumnOp,
+    DowngradeOps,
     ModifyTableOps,
     MigrationScript,
     OpContainer,
-    UpgradeOps
+    UpgradeOps,
 )
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_url
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.dialects.mysql.types import LONGTEXT, TINYINT
 from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
+from sqlalchemy.sql.type_api import TypeEngine
 from sqlalchemy.sql.schema import MetaData
 
 # No relative imports from within the Alembic zone.
@@ -85,62 +87,95 @@ def debug_op_object(op: Union[List, OpContainer, Tuple],
     return "\n".join(lines)
 
 
-def filter_column_ops(column_ops: Iterable[AlterColumnOp]) \
+def types_equivalent(database_type: TypeEngine,
+                     metadata_type: TypeEngine) -> bool:
+    """
+    Are two types equivalent?
+
+    Args:
+        database_type: a type reflected from the database
+        metadata_type: a type from the SQLAlchemy metadata
+
+    Returns:
+        equivalent, in a non-trivial way?
+
+    Specifically, it detects:
+
+    - MySQL ``TINYINT(1)`` is equivalent to SQLAlchemy ``Boolean()``, because
+      ``TINYINT(1)`` is the correct instantiation of ``Boolean()``.
+
+    - ``LONGTEXT(collation='utf8mb4_unicode_ci')`` is the MySQL database
+      version of ``UnicodeText(length=4294967295)``
+    """
+    if (isinstance(database_type, TINYINT) and
+            database_type.display_width == 1 and
+            isinstance(metadata_type, Boolean)):
+        return True
+
+    if (isinstance(database_type, LONGTEXT) and
+            database_type.collation == 'utf8mb4_unicode_ci' and
+            isinstance(metadata_type, UnicodeText) and
+            metadata_type.length == 4294967295):
+        return True
+
+    return False
+
+
+def filter_column_ops(column_ops: Iterable[AlterColumnOp],
+                      upgrade: bool) \
         -> Generator[AlterColumnOp, None, None]:
     """
-    Generates column operations removing:
-
-    - those that are trying to change MySQL ``TINYINT(1)`` to SQLAlchemy
-      ``Boolean()`` -- because ``TINYINT(1)`` is the correct instantiation of
-      ``Boolean()``.
-
-    - similarly for ``LONGTEXT(collation='utf8mb4_unicode_ci')`` to
-      ``UnicodeText(length=4294967295)``
+    Generates column operations removing redundant changes from one type
+    to an equivalent type, as judged by :func:`types_equivalent`.
     """
+    method = "upgrade" if upgrade else "downgrade"
+
     for column_op in column_ops:
         if not isinstance(column_op, AlterColumnOp):
             yield column_op  # don't know what it is; yield it unmodified
             continue
 
-        existing = column_op.existing_type
+        existing_type = column_op.existing_type
         modify_type = column_op.modify_type
 
-        if (isinstance(existing, TINYINT) and
-                existing.display_width == 1 and
-                isinstance(modify_type, Boolean)):
-            log.info(
-                "Skipping duff type change of TINYINT(1) to Boolean for "
-                "{}.{}".format(column_op.table_name, column_op.column_name))
-            continue  # skip this one!
+        if upgrade:
+            database_type = existing_type
+            metadata_type = modify_type
+        else:
+            database_type = modify_type
+            metadata_type = existing_type
 
-        if (isinstance(existing, LONGTEXT) and
-                existing.collation == 'utf8mb4_unicode_ci' and
-                isinstance(modify_type, UnicodeText) and
-                modify_type.length == 4294967295):
+        if types_equivalent(database_type=database_type,
+                            metadata_type=metadata_type):
             log.info(
-                "Skipping duff type change of LONGTEXT(collation="
-                "'utf8mb4_unicode_ci') to UnicodeText(length=4294967295) for "
-                "{}.{}".format(column_op.table_name, column_op.column_name))
+                "Skipping duff {} type change of {!r} to {!r} for "
+                "{}.{}".format(
+                    method,
+                    existing_type, modify_type,
+                    column_op.table_name, column_op.column_name
+                ))
             continue  # skip this one!
 
         yield column_op
 
 
-def filter_table_ops(table_ops: Iterable[ModifyTableOps]) \
+def filter_table_ops(table_ops: Iterable[ModifyTableOps], upgrade: bool) \
         -> Generator[ModifyTableOps, None, None]:
     """
     Generates table operations, removing those that fail
     :func:`filter_column_ops`.
     """
-    log.warning("Filtering table operations")
+    method = "upgrade" if upgrade else "downgrade"
+    log.warning("Filtering {} table operations".format(method))
     for table_op in table_ops:
         if not isinstance(table_op, ModifyTableOps):
-            log.warning("Don't understand: {!r}".format(table_op))
+            log.info("Don't understand: {!r}".format(table_op))
             yield table_op  # don't know what it is; yield it unmodified
             continue
 
-        log.warning("Filtering for table: {}".format(table_op.table_name))
-        table_op.ops = list(filter_column_ops(table_op.ops))
+        log.warning("Filtering {} ops for table: {}".format(
+            method, table_op.table_name))
+        table_op.ops = list(filter_column_ops(table_op.ops, upgrade=upgrade))
         if not table_op.ops:
             log.warning("Nothing to do for table: {}".format(
                 table_op.table_name))
@@ -159,10 +194,15 @@ def process_revision_directives(context_: MigrationContext,  # empirically!
     if context_.config.cmd_opts.autogenerate:
         log.warning("Checking autogenerated operations")
         script = directives[0]
-        upgrade_ops = script.upgrade_ops  # type: UpgradeOps
 
-        # Check/filter our table ops.
-        upgrade_ops.ops = list(filter_table_ops(upgrade_ops.ops))
+        # Check/filter our upgrade table ops.
+        upgrade_ops = script.upgrade_ops  # type: UpgradeOps
+        upgrade_ops.ops = list(filter_table_ops(upgrade_ops.ops, upgrade=True))
+
+        # Check/filter our upgrade table ops.
+        downgrade_ops = script.downgrade_ops  # type: DowngradeOps
+        downgrade_ops.ops = list(filter_table_ops(downgrade_ops.ops,
+                                                  upgrade=False))
 
         # If no changes to the schema are produced, don't generate a revision
         # file:
