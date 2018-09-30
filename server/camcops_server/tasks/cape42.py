@@ -115,6 +115,9 @@ class Cape42Metaclass(DeclarativeMeta):
 
 class Cape42(TaskHasPatientMixin, Task,
              metaclass=Cape42Metaclass):
+    """
+    Server implementation of the CAPE-42 task.
+    """
     __tablename__ = "cape42"
     shortname = "CAPE-42"
     longname = "Community Assessment of Psychic Experiences"

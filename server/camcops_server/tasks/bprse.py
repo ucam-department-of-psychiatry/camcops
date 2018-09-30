@@ -74,6 +74,9 @@ class BprseMetaclass(DeclarativeMeta):
 
 class Bprse(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             metaclass=BprseMetaclass):
+    """
+    Server implementation of the BPRS-E task.
+    """
     __tablename__ = "bprse"
     shortname = "BPRS-E"
     longname = "Brief Psychiatric Rating Scale, Expanded"

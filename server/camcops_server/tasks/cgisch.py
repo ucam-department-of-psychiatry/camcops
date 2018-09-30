@@ -79,6 +79,9 @@ class CgiSchMetaclass(DeclarativeMeta):
 
 class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
              metaclass=CgiSchMetaclass):
+    """
+    Server implementation of the CGI-SCH task.
+    """
     __tablename__ = "cgisch"
     shortname = "CGI-SCH"
     longname = "Clinical Global Impression – Schizophrenia"

@@ -100,6 +100,9 @@ class DastMetaclass(DeclarativeMeta):
 
 class Dast(TaskHasPatientMixin, Task,
            metaclass=DastMetaclass):
+    """
+    Server implementation of the DAST task.
+    """
     __tablename__ = "dast"
     shortname = "DAST"
     longname = "Drug Abuse Screening Test"

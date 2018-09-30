@@ -189,6 +189,9 @@ class Icd10SpecPDMetaclass(DeclarativeMeta):
 
 class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                   metaclass=Icd10SpecPDMetaclass):
+    """
+    Server implementation of the ICD10-PD task.
+    """
     __tablename__ = "icd10specpd"
     shortname = "ICD10-PD"
     longname = "ICD-10 criteria for specific personality disorders (F60)"

@@ -378,6 +378,9 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, Base):
 
 
 class CardinalExpectationDetection(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the Cardinal_ExpDet task.
+    """
     __tablename__ = "cardinal_expdet"
     shortname = "Cardinal_ExpDet"
     longname = "Cardinal RN – Expectation–Detection task"

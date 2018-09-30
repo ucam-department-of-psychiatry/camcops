@@ -1838,6 +1838,9 @@ class CisrResult(object):
 # =============================================================================
 
 class Cisr(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the CIS-R task.
+    """
     __tablename__ = "cisr"
     shortname = "CIS-R"
     longname = "Clinical Interview Schedule, Revised"

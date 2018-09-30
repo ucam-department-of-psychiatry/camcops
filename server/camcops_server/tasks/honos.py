@@ -175,6 +175,9 @@ class HonosMetaclass(DeclarativeMeta):
 
 class Honos(HonosBase,
             metaclass=HonosMetaclass):
+    """
+    Server implementation of the HoNOS task.
+    """
     __tablename__ = "honos"
     shortname = "HoNOS"
     longname = "Health of the Nation Outcome Scales, working age adults"
@@ -317,6 +320,9 @@ class Honos65Metaclass(DeclarativeMeta):
 
 class Honos65(HonosBase,
               metaclass=Honos65Metaclass):
+    """
+    Server implementation of the HoNOS 65+ task.
+    """
     __tablename__ = "honos65"
     shortname = "HoNOS 65+"
     longname = "Health of the Nation Outcome Scales, older adults"
@@ -462,6 +468,9 @@ class HonoscaMetaclass(DeclarativeMeta):
 
 class Honosca(HonosBase,
               metaclass=HonoscaMetaclass):
+    """
+    Server implementation of the HoNOSCA task.
+    """
     __tablename__ = "honosca"
     shortname = "HoNOSCA"
     longname = "Health of the Nation Outcome Scales, Children and Adolescents"

@@ -85,6 +85,9 @@ class CiwaMetaclass(DeclarativeMeta):
 
 class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=CiwaMetaclass):
+    """
+    Server implementation of the CIWA-Ar task.
+    """
     __tablename__ = "ciwa"
     shortname = "CIWA-Ar"
     longname = ("Clinical Institute Withdrawal Assessment for Alcohol "

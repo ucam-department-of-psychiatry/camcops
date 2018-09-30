@@ -222,6 +222,9 @@ class Ace3Metaclass(DeclarativeMeta):
 
 class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=Ace3Metaclass):
+    """
+    Server implementation of the ACE-III task.
+    """
     __tablename__ = "ace3"
     shortname = "ACE-III"
     longname = "Addenbrooke’s Cognitive Examination III"

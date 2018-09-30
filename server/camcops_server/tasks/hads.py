@@ -204,6 +204,9 @@ class HadsMetaclass(DeclarativeMeta):
 
 class HadsBase(TaskHasPatientMixin, Task,
                metaclass=HadsMetaclass):
+    """
+    Server implementation of the HADS task.
+    """
     __abstract__ = True
     provides_trackers = True
 

@@ -115,6 +115,9 @@ class DemqolMetaclass(DeclarativeMeta):
 
 class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
              metaclass=DemqolMetaclass):
+    """
+    Server implementation of the DEMQOL task.
+    """
     __tablename__ = "demqol"
     shortname = "DEMQOL"
     longname = "Dementia Quality of Life measure, self-report version"

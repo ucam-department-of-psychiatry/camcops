@@ -86,6 +86,8 @@ Global function and multiple aspects of psychopathology
 
 - :ref:`Frontotemporal Dementia Rating Scale (FRS) <frs>`
 
+- :ref:`Functional Assessment of Cancer Therapy—General (FACT-G) <factg>`
+
 - :ref:`Global Assessment of Functioning (GAF) <gaf>`
 
 - :ref:`Health of the Nation Outcome Scales: HoNOS <honos>`
@@ -121,6 +123,12 @@ Affective (mood and anxiety) disorders
 --------------------------------------
 
 - :ref:`Beck Depression Inventory (BDI) <bdi>`
+
+- :ref:`Center for Epidemiological Studies Depression Scale (CES-D, CESD)
+  <cesd>`
+
+- :ref:`Center for Epidemiological Studies Depression Scale, Revised (CESD-R)
+  <cesdr>`
 
 - :ref:`Clinical Interview Schedule, Revised (CIS-R) <cisr>`
 

@@ -56,6 +56,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
+    """
+    Server implementation of the CGI task.
+    """
     __tablename__ = "cgi"
     shortname = "CGI"
     longname = "Clinical Global Impressions"

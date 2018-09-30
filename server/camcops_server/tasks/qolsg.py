@@ -52,6 +52,9 @@ DP = 3
 
 
 class QolSG(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the QoL-SG task.
+    """
     __tablename__ = "qolsg"
     shortname = "QoL-SG"
     longname = "Quality of Life: Standard Gamble"

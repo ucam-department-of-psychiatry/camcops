@@ -63,6 +63,9 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+    """
+    Server implementation of the ICD10-MANIC task.
+    """
     __tablename__ = "icd10manic"
     shortname = "ICD10-MANIC"
     longname = (

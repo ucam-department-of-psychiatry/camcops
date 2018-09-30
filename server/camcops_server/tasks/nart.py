@@ -129,6 +129,9 @@ class NartMetaclass(DeclarativeMeta):
 
 class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=NartMetaclass):
+    """
+    Server implementation of the NART task.
+    """
     __tablename__ = "nart"
     shortname = "NART"
     longname = "National Adult Reading Test"

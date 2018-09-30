@@ -54,6 +54,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 class Core10(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the CORE-10 task.
+    """
     __tablename__ = "core10"
     shortname = "CORE-10"
     longname = "Clinical Outcomes in Routine Evaluation, 10-item measure"

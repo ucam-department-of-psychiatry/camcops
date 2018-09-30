@@ -100,6 +100,9 @@ class Khandaker1MedicalHistoryMetaclass(DeclarativeMeta):
 
 class Khandaker1MedicalHistory(TaskHasPatientMixin, Task,
                                metaclass=Khandaker1MedicalHistoryMetaclass):
+    """
+    Server implementation of the Khandaker_1_MedicalHistory task.
+    """
     __tablename__ = "khandaker_1_medicalhistory"
     shortname = "Khandaker_1_MedicalHistory"
     longname = "Khandaker GM — 1 — Insight — Medical history"

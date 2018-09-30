@@ -77,6 +77,9 @@ class Gad7Metaclass(DeclarativeMeta):
 
 class Gad7(TaskHasPatientMixin, Task,
            metaclass=Gad7Metaclass):
+    """
+    Server implementation of the GAD-7 task.
+    """
     __tablename__ = "gad7"
     shortname = "GAD-7"
     longname = "Generalized Anxiety Disorder Assessment"

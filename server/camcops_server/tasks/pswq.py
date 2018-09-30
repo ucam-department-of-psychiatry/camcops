@@ -78,6 +78,9 @@ class PswqMetaclass(DeclarativeMeta):
 
 class Pswq(TaskHasPatientMixin, Task,
            metaclass=PswqMetaclass):
+    """
+    Server implementation of the PSWQ task.
+    """
     __tablename__ = "pswq"
     shortname = "PSWQ"
     longname = "Penn State Worry Questionnaire"

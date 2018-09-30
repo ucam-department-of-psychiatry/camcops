@@ -86,6 +86,9 @@ class Phq15Metaclass(DeclarativeMeta):
 
 class Phq15(TaskHasPatientMixin, Task,
             metaclass=Phq15Metaclass):
+    """
+    Server implementation of the PHQ-15 task.
+    """
     __tablename__ = "phq15"
     shortname = "PHQ-15"
     longname = "Patient Health Questionnaire-15"

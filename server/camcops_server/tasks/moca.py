@@ -149,6 +149,9 @@ class MocaMetaclass(DeclarativeMeta):
 
 class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=MocaMetaclass):
+    """
+    Server implementation of the MoCA task.
+    """
     __tablename__ = "moca"
     shortname = "MoCA"
     longname = "Montreal Cognitive Assessment"

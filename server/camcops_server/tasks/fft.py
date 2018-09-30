@@ -46,6 +46,9 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 class Fft(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the FFT task.
+    """
     __tablename__ = "fft"
     shortname = "FFT"
     longname = "Friends and Family Test"

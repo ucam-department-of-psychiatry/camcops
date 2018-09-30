@@ -90,6 +90,9 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 class CPFTLPSReferral(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the CPFT_LPS_Referral task.
+    """
     __tablename__ = "cpft_lps_referral"
     shortname = "CPFT_LPS_Referral"
     longname = "Referral to CPFT Liaison Psychiatry Service"
@@ -342,6 +345,9 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
 
 class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin, 
                                 Task):
+    """
+    Server implementation of the CPFT_LPS_ResetResponseClock task.
+    """
     __tablename__ = "cpft_lps_resetresponseclock"
     shortname = "CPFT_LPS_ResetResponseClock"
     longname = "Reset response clock (CPFT Liaison Psychiatry Service)"
@@ -392,6 +398,9 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
 # =============================================================================
 
 class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
+    """
+    Server implementation of the CPFT_LPS_Discharge task.
+    """
     __tablename__ = "cpft_lps_discharge"
     shortname = "CPFT_LPS_Discharge"
     longname = "Discharge from CPFT Liaison Psychiatry Service"

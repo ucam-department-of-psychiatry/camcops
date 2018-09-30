@@ -171,6 +171,9 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
 
 
 class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the Cardinal_ExpDetThreshold task.
+    """
     __tablename__ = "cardinal_expdetthreshold"
     shortname = "Cardinal_ExpDetThreshold"
     longname = ("Cardinal RN – Threshold determination for "

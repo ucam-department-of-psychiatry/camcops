@@ -331,6 +331,9 @@ class IDED3DStage(GenericTabletRecordMixin, Base):
 
 
 class IDED3D(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the ID/ED-3D task.
+    """
     __tablename__ = "ided3d"
     shortname = "ID/ED-3D"
     longname = "Three-dimensional ID/ED task"

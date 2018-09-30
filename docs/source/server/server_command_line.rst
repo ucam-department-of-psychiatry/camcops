@@ -741,6 +741,8 @@ Options as of 2017-10-23:
       -v, --verbose         Verbose
 
 
+.. _camcops_backup_mysql_database:
+
 camcops_backup_mysql_database
 -----------------------------
 

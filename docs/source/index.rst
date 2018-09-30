@@ -57,6 +57,7 @@ securely to your server.
     server/server_front_end_admin.rst
     server/server_command_line.rst
     server/server_troubleshooting.rst
+    server/server_migrating_databases.rst
 
     licences/licences.rst
 

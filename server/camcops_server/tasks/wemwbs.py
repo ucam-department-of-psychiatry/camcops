@@ -80,6 +80,9 @@ class WemwbsMetaclass(DeclarativeMeta):
 
 class Wemwbs(TaskHasPatientMixin, Task,
              metaclass=WemwbsMetaclass):
+    """
+    Server implementation of the WEMWBS task.
+    """
     __tablename__ = "wemwbs"
     shortname = "WEMWBS"
     longname = "Warwick–Edinburgh Mental Well-Being Scale"
@@ -223,6 +226,9 @@ class SwemwbsMetaclass(DeclarativeMeta):
 
 class Swemwbs(TaskHasPatientMixin, Task,
               metaclass=SwemwbsMetaclass):
+    """
+    Server implementation of the SWEMWBS task.
+    """
     __tablename__ = "swemwbs"
     shortname = "SWEMWBS"
     longname = "Short Warwick–Edinburgh Mental Well-Being Scale"

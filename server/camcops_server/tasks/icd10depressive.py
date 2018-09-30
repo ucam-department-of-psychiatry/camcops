@@ -63,6 +63,9 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+    """
+    Server implementation of the ICD10-DEPR task.
+    """
     __tablename__ = "icd10depressive"
     shortname = "ICD10-DEPR"
     longname = (

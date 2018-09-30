@@ -68,6 +68,9 @@ FREQUENCY_COMMENT = "Frequency (0 never - 3 often)"
 
 
 class CecaQ3(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the CECA-Q3 task.
+    """
     __tablename__ = "cecaq3"
     shortname = "CECA-Q3"
     longname = "Childhood Experience of Care and Abuse Questionnaire"

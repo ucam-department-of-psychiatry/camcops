@@ -76,6 +76,9 @@ class PdssMetaclass(DeclarativeMeta):
 
 class Pdss(TaskHasPatientMixin, Task,
            metaclass=PdssMetaclass):
+    """
+    Server implementation of the PDSS task.
+    """
     __tablename__ = "pdss"
     shortname = "PDSS"
     longname = "Panic Disorder Severity Scale"

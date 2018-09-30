@@ -78,6 +78,9 @@ class DemoQuestionnaireMetaclass(DeclarativeMeta):
 
 class DemoQuestionnaire(Task,
                         metaclass=DemoQuestionnaireMetaclass):
+    """
+    Server implementation of the demo questionnaire task.
+    """
     __tablename__ = "demoquestionnaire"
     shortname = "Demo"
     longname = "Demonstration Questionnaire"

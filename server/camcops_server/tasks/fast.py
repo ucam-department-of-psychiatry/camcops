@@ -68,6 +68,9 @@ class FastMetaclass(DeclarativeMeta):
 
 class Fast(TaskHasPatientMixin, Task,
            metaclass=FastMetaclass):
+    """
+    Server implementation of the FAST task.
+    """
     __tablename__ = "fast"
     shortname = "FAST"
     longname = "Fast Alcohol Screening Test"

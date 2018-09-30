@@ -171,6 +171,9 @@ class BdiMetaclass(DeclarativeMeta):
 
 class Bdi(TaskHasPatientMixin, Task,
           metaclass=BdiMetaclass):
+    """
+    Server implementation of the BDI task.
+    """
     __tablename__ = "bdi"
     shortname = "BDI"
     longname = "Beck Depression Inventory (data collection only)"

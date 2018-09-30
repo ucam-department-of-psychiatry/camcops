@@ -95,6 +95,9 @@ class YbocsMetaclass(DeclarativeMeta):
 
 class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             metaclass=YbocsMetaclass):
+    """
+    Server implementation of the Y-BOCS task.
+    """
     __tablename__ = "ybocs"
     shortname = "Y-BOCS"
     longname = "Yale–Brown Obsessive Compulsive Scale"
@@ -323,6 +326,9 @@ class YbocsScMetaclass(DeclarativeMeta):
 
 class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
               metaclass=YbocsScMetaclass):
+    """
+    Server implementation of the Y-BOCS-SC task.
+    """
     __tablename__ = "ybocssc"
     shortname = "Y-BOCS-SC"
     longname = "Y-BOCS Symptom Checklist"

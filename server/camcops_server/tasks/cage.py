@@ -67,6 +67,9 @@ class CageMetaclass(DeclarativeMeta):
 
 class Cage(TaskHasPatientMixin, Task,
            metaclass=CageMetaclass):
+    """
+    Server implementation of the CAGE task.
+    """
     __tablename__ = "cage"
     shortname = "CAGE"
     longname = "CAGE Questionnaire"

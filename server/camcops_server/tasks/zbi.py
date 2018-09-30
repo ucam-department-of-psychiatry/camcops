@@ -81,6 +81,9 @@ class Zbi12Metaclass(DeclarativeMeta):
 
 class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
             metaclass=Zbi12Metaclass):
+    """
+    Server implementation of the ZBI-12 task.
+    """
     __tablename__ = "zbi12"
     shortname = "ZBI-12"
     longname = "Zarit Burden Interview-12"

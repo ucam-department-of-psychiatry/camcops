@@ -57,6 +57,9 @@ M_DP = 3
 
 
 class Bmi(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the BMI task.
+    """
     __tablename__ = "bmi"
     shortname = "BMI"
     longname = "Body mass index"

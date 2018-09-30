@@ -48,6 +48,9 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 class Irac(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the IRAC task.
+    """
     __tablename__ = "irac"
     shortname = "IRAC"
     longname = "Identify and Rate the Aim of the Contact"

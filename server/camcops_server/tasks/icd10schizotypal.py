@@ -92,6 +92,9 @@ class Icd10SchizotypalMetaclass(DeclarativeMeta):
 
 class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                        metaclass=Icd10SchizotypalMetaclass):
+    """
+    Server implementation of the ICD10-SZTYP task.
+    """
     __tablename__ = "icd10schizotypal"
     shortname = "ICD10-SZTYP"
     longname = "ICD-10 criteria for schizotypal disorder (F21)"

@@ -86,6 +86,9 @@ class SmastMetaclass(DeclarativeMeta):
 
 class Smast(TaskHasPatientMixin, Task,
             metaclass=SmastMetaclass):
+    """
+    Server implementation of the SMAST task.
+    """
     __tablename__ = "smast"
     shortname = "SMAST"
     longname = "Short Michigan Alcohol Screening Test"

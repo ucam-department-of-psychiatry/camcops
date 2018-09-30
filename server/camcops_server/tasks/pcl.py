@@ -272,6 +272,9 @@ class PclCommon(TaskHasPatientMixin, Task,
 
 class PclC(PclCommon,
            metaclass=PclMetaclass):
+    """
+    Server implementation of the PCL-C task.
+    """
     __tablename__ = "pclc"
     shortname = "PCL-C"
     longname = "PTSD Checklist, Civilian version"
@@ -285,6 +288,9 @@ class PclC(PclCommon,
 
 class PclM(PclCommon,
            metaclass=PclMetaclass):
+    """
+    Server implementation of the PCL-M task.
+    """
     __tablename__ = "pclm"
     shortname = "PCL-M"
     longname = "PTSD Checklist, Military version"
@@ -298,6 +304,9 @@ class PclM(PclCommon,
 
 class PclS(PclCommon,
            metaclass=PclMetaclass):
+    """
+    Server implementation of the PCL-S task.
+    """
     __tablename__ = "pcls"
     shortname = "PCL-S"
     longname = "PTSD Checklist, Stressor-specific version"

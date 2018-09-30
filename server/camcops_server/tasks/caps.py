@@ -103,6 +103,9 @@ class CapsMetaclass(DeclarativeMeta):
 
 class Caps(TaskHasPatientMixin, Task,
            metaclass=CapsMetaclass):
+    """
+    Server implementation of the CAPS task.
+    """
     __tablename__ = "caps"
     shortname = "CAPS"
     longname = "Cardiff Anomalous Perceptions Scale"

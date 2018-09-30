@@ -57,6 +57,9 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+    """
+    Server implementation of the ContactLog task.
+    """
     __tablename__ = "contactlog"
     shortname = "ContactLog"
     longname = "Clinical contact log"

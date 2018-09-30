@@ -253,6 +253,9 @@ class DiagnosisIcd10Item(DiagnosisItemBase):
 
 
 class DiagnosisIcd10(DiagnosisBase):
+    """
+    Server implementation of the Diagnosis/ICD-10 task.
+    """
     __tablename__ = "diagnosis_icd10"
 
     items = ancillary_relationship(
@@ -284,6 +287,9 @@ class DiagnosisIcd9CMItem(DiagnosisItemBase):
 
 
 class DiagnosisIcd9CM(DiagnosisBase):
+    """
+    Server implementation of the Diagnosis/ICD-9-CM task.
+    """
     __tablename__ = "diagnosis_icd9cm"
 
     items = ancillary_relationship(

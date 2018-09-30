@@ -72,6 +72,9 @@ class BadlsMetaclass(DeclarativeMeta):
 
 class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
             metaclass=BadlsMetaclass):
+    """
+    Server implementation of the BADLS task.
+    """
     __tablename__ = "badls"
     shortname = "BADLS"
     longname = "Bristol Activities of Daily Living Scale"

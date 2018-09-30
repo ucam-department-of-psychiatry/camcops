@@ -77,6 +77,9 @@ class Gds15Metaclass(DeclarativeMeta):
 
 class Gds15(TaskHasPatientMixin, Task,
             metaclass=Gds15Metaclass):
+    """
+    Server implementation of the GDS-15 task.
+    """
     __tablename__ = "gds15"
     shortname = "GDS-15"
     longname = "Geriatric Depression Scale, 15-item version"

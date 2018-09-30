@@ -56,6 +56,9 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+    """
+    Server implementation of the MDS-UPDRS task.
+    """
     __tablename__ = "mds_updrs"
     shortname = "MDS-UPDRS"
     longname = (

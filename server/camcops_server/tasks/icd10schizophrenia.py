@@ -62,6 +62,9 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+    """
+    Server implementation of the ICD10-SZ task.
+    """
     __tablename__ = "icd10schizophrenia"
     shortname = "ICD10-SZ"
     longname = "ICD-10 criteria for schizophrenia (F20)"

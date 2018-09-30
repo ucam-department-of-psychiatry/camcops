@@ -74,6 +74,9 @@ class AuditMetaclass(DeclarativeMeta):
 
 class Audit(TaskHasPatientMixin, Task,
             metaclass=AuditMetaclass):
+    """
+    Server implementation of the AUDIT task.
+    """
     __tablename__ = "audit"
     shortname = "AUDIT"
     longname = "WHO Alcohol Use Disorders Identification Test"

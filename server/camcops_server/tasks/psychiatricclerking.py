@@ -47,6 +47,9 @@ from camcops_server.cc_modules.cc_task import (
 
 class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
                           Base):
+    """
+    Server implementation of the Clerking task.
+    """
     __tablename__ = "psychiatricclerking"
     shortname = "Clerking"
     longname = "Psychiatric clerking"

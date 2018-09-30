@@ -97,6 +97,9 @@ class CopeBriefMetaclass(DeclarativeMeta):
 
 class CopeBrief(TaskHasPatientMixin, Task,
                 metaclass=CopeBriefMetaclass):
+    """
+    Server implementation of the COPE-Brief task.
+    """
     __tablename__ = "cope_brief"
     shortname = "COPE-Brief"
     longname = "Brief COPE Inventory"

@@ -60,6 +60,9 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+    """
+    Server implementation of the Photo task.
+    """
     __tablename__ = "photo"
     shortname = "Photo"
     longname = "Photograph"
@@ -159,6 +162,9 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
 
 
 class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+    """
+    Server implementation of the PhotoSequence task.
+    """
     __tablename__ = "photosequence"
     shortname = "PhotoSequence"
     longname = "Photograph sequence"

@@ -99,6 +99,9 @@ class NpiQMetaclass(DeclarativeMeta):
 
 class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
            metaclass=NpiQMetaclass):
+    """
+    Server implementation of the NPI-Q task.
+    """
     __tablename__ = "npiq"
     shortname = "NPI-Q"
     longname = "Neuropsychiatric Inventory Questionnaire"

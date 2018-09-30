@@ -80,6 +80,9 @@ class AimsMetaclass(DeclarativeMeta):
 
 class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=AimsMetaclass):
+    """
+    Server implementation of the AIMS task.
+    """
     __tablename__ = "aims"
     shortname = "AIMS"
     longname = "Abnormal Involuntary Movement Scale"

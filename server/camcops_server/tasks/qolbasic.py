@@ -51,6 +51,9 @@ DP = 3
 
 
 class QolBasic(TaskHasPatientMixin, Task):
+    """
+    Server implementation of the QoL-Basic task.
+    """
     __tablename__ = "qolbasic"
     shortname = "QoL-Basic"
     longname = "Quality of Life: basic assessment"

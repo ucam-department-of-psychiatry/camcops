@@ -109,6 +109,9 @@ class PanssMetaclass(DeclarativeMeta):
 
 class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             metaclass=PanssMetaclass):
+    """
+    Server implementation of the PANSS task.
+    """
     __tablename__ = "panss"
     shortname = "PANSS"
     longname = "Positive and Negative Syndrome Scale"

@@ -79,6 +79,9 @@ class Hamd7Metaclass(DeclarativeMeta):
 
 class Hamd7(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             metaclass=Hamd7Metaclass):
+    """
+    Server implementation of the HAMD-7 task.
+    """
     __tablename__ = "hamd7"
     shortname = "HAMD-7"
     longname = "Hamilton Rating Scale for Depression (7-item scale)"

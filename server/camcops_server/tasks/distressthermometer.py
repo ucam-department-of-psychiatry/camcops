@@ -105,6 +105,9 @@ class DistressThermometerMetaclass(DeclarativeMeta):
 
 class DistressThermometer(TaskHasPatientMixin, Task,
                           metaclass=DistressThermometerMetaclass):
+    """
+    Server implementation of the DistressThermometer task.
+    """
     __tablename__ = "distressthermometer"
     shortname = "Distress Thermometer"
     longname = "Distress Thermometer"

@@ -76,6 +76,9 @@ class HamaMetaclass(DeclarativeMeta):
 
 class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=HamaMetaclass):
+    """
+    Server implementation of the HAM-A task.
+    """
     __tablename__ = "hama"
     shortname = "HAM-A"
     longname = "Hamilton Rating Scale for Anxiety"

@@ -108,6 +108,9 @@ class HamdMetaclass(DeclarativeMeta):
 
 class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=HamdMetaclass):
+    """
+    Server implementation of the HAM-D task.
+    """
     __tablename__ = "hamd"
     shortname = "HAM-D"
     longname = "Hamilton Rating Scale for Depression"

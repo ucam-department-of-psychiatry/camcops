@@ -222,6 +222,9 @@ class FrsMetaclass(DeclarativeMeta):
 class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
           Task,
           metaclass=FrsMetaclass):
+    """
+    Server implementation of the FRS task.
+    """
     __tablename__ = "frs"
     shortname = "FRS"
     longname = "Frontotemporal Dementia Rating Scale"

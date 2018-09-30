@@ -53,6 +53,9 @@ from camcops_server.cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 class GMCPQ(Task):
+    """
+    Server implementation of the GMC-PQ task.
+    """
     __tablename__ = "gmcpq"
     shortname = "GMC-PQ"
     longname = "GMC Patient Questionnaire"

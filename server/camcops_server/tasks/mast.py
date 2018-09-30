@@ -91,6 +91,9 @@ class MastMetaclass(DeclarativeMeta):
 
 class Mast(TaskHasPatientMixin, Task,
            metaclass=MastMetaclass):
+    """
+    Server implementation of the MAST task.
+    """
     __tablename__ = "mast"
     shortname = "MAST"
     longname = "Michigan Alcohol Screening Test"

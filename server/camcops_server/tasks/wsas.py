@@ -75,6 +75,9 @@ class WsasMetaclass(DeclarativeMeta):
 
 class Wsas(TaskHasPatientMixin, Task,
            metaclass=WsasMetaclass):
+    """
+    Server implementation of the WSAS task.
+    """
     __tablename__ = "wsas"
     shortname = "WSAS"
     longname = "Work and Social Adjustment Scale"

@@ -42,6 +42,7 @@ All tasks
     cardinal_expdetthreshold.rst
     cbir.rst
     cecaq3.rst
+    cesd.rst
     cgi.rst
     cgisch.rst
     cisr.rst
@@ -55,6 +56,7 @@ All tasks
     demoquestionnaire.rst
     demqol.rst
     distressthermometer.rst
+    factg.rst
     fast.rst
     from_lp.rst
     frs.rst

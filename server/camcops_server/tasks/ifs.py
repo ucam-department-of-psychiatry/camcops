@@ -131,6 +131,9 @@ class IfsMetaclass(DeclarativeMeta):
 
 class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
           metaclass=IfsMetaclass):
+    """
+    Server implementation of the IFS task.
+    """
     __tablename__ = "ifs"
     shortname = "IFS"
     longname = "INECO Frontal Screening"

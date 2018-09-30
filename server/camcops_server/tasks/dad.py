@@ -82,6 +82,9 @@ class DadMetaclass(DeclarativeMeta):
 class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
           Task,
           metaclass=DadMetaclass):
+    """
+    Server implementation of the DAD task.
+    """
     __tablename__ = "dad"
     shortname = "DAD"
     longname = "Disability Assessment for Dementia"

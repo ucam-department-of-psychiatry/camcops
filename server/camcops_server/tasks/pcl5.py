@@ -97,6 +97,9 @@ class Pcl5Metaclass(DeclarativeMeta):
 
 class Pcl5(TaskHasPatientMixin, Task,
            metaclass=Pcl5Metaclass):
+    """
+    Server implementation of the PCL-5 task.
+    """
     __tablename__ = 'pcl5'
     shortname = 'PCL-5'
     longname = 'PTSD Checklist, DSM-5 version'

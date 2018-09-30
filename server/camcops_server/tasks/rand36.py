@@ -130,6 +130,9 @@ class Rand36Metaclass(DeclarativeMeta):
 
 class Rand36(TaskHasPatientMixin, Task,
              metaclass=Rand36Metaclass):
+    """
+    Server implementation of the RAND-36 task.
+    """
     __tablename__ = "rand36"
     shortname = "RAND-36"
     longname = "RAND 36-Item Short Form Health Survey 1.0"

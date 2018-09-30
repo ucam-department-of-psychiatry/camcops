@@ -147,6 +147,9 @@ class AbstractSatisfaction(object):
 # =============================================================================
 
 class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):
+    """
+    Server implementation of the PatientSatisfaction task.
+    """
     __tablename__ = "pt_satis"
     shortname = "PatientSatisfaction"
     longname = "Patient Satisfaction Scale"
@@ -165,6 +168,9 @@ class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):
 # =============================================================================
 
 class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
+    """
+    Server implementation of the ReferrerSatisfactionSurvey task.
+    """
     __tablename__ = "ref_satis_gen"
     shortname = "ReferrerSatisfactionSurvey"
     longname = "Referrer Satisfaction Scale, survey"
@@ -184,6 +190,9 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
 
 class ReferrerSatisfactionSpec(TaskHasPatientMixin, AbstractSatisfaction,
                                Task):
+    """
+    Server implementation of the ReferrerSatisfactionSpecific task.
+    """
     __tablename__ = "ref_satis_spec"
     shortname = "ReferrerSatisfactionSpecific"
     longname = "Referrer Satisfaction Scale, patient-specific"

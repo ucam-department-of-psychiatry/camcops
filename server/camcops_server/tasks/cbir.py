@@ -129,6 +129,9 @@ class CbiRMetaclass(DeclarativeMeta):
 
 class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
            metaclass=CbiRMetaclass):
+    """
+    Server implementation of the CBI-R task.
+    """
     __tablename__ = "cbir"
     shortname = "CBI-R"
     longname = "Cambridge Behavioural Inventory, Revised"

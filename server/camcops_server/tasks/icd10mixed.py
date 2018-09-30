@@ -60,6 +60,9 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+    """
+    Server implementation of the ICD10-MIXED task.
+    """
     __tablename__ = "icd10mixed"
     shortname = "ICD10-MIXED"
     longname = (

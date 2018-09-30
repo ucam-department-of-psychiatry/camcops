@@ -38,9 +38,10 @@ SetMenuCpftPsychooncology1::SetMenuCpftPsychooncology1(CamcopsApp& app) :
 {
     m_subtitle = "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
                  "psycho-oncology service";
+    // See e-mail from Ruaidhri McCormack to Rudolf Cardinal, 2018-07-12.
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        // *** TO ADD (psycho-oncology): CES-D
+        // *** TO ADD (psycho-oncology): CESD
         MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, app),
         // *** TO ADD (psycho-oncology): FACT-G

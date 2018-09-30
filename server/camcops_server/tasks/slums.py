@@ -71,6 +71,9 @@ ZERO_OR_TWO_CHECKER = PermittedValueChecker(permitted_values=[0, 2])
 
 
 class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+    """
+    Server implementation of the SLUMS task.
+    """
     __tablename__ = "slums"
     shortname = "SLUMS"
     longname = "St Louis University Mental Status"

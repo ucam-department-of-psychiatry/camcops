@@ -92,6 +92,9 @@ class IesrMetaclass(DeclarativeMeta):
 
 class Iesr(TaskHasPatientMixin, Task,
            metaclass=IesrMetaclass):
+    """
+    Server implementation of the IES-R task.
+    """
     __tablename__ = "iesr"
     shortname = "IES-R"
     longname = "Impact of Events Scale – Revised"

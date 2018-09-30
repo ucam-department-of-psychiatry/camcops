@@ -46,6 +46,9 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
+    """
+    Server implementation of the ProgressNote task.
+    """
     __tablename__ = "progressnote"
     shortname = "ProgressNote"
     longname = "Clinical progress note"
