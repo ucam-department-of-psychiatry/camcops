@@ -39,6 +39,8 @@ from .cardinal_expdetthreshold import CardinalExpDetThreshold
 from .cardinal_expectationdetection import CardinalExpectationDetection
 from .cbir import CbiR
 from .ceca import CecaQ3
+from .cesd import Cesd
+from .cesdr import Cesdr
 from .cgi_task import Cgi
 from .cgisch import CgiSch
 from .cisr import Cisr

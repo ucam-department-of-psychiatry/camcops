@@ -22,6 +22,8 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "tasks/cesd.h"
+#include "tasks/cesdr.h"
 #include "tasks/cgii.h"
 #include "tasks/copebrief.h"
 #include "tasks/gad7.h"
@@ -41,7 +43,8 @@ SetMenuCpftPsychooncology1::SetMenuCpftPsychooncology1(CamcopsApp& app) :
     // See e-mail from Ruaidhri McCormack to Rudolf Cardinal, 2018-07-12.
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        // *** TO ADD (psycho-oncology): CESD
+        MAKE_TASK_MENU_ITEM(Cesd::CESD_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Cesdr::CESDR_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, app),
         // *** TO ADD (psycho-oncology): FACT-G
