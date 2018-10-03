@@ -28,7 +28,6 @@ tablet_qt
     :maxdepth: 1
 
     android/AndroidManifest.xml.rst
-    android/res/values/libs.xml.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
@@ -308,6 +307,8 @@ tablet_qt
     menu/setmenucpftaffective1.h.rst
     menu/setmenucpftperinatal1.cpp.rst
     menu/setmenucpftperinatal1.h.rst
+    menu/setmenucpftpsychooncology1.cpp.rst
+    menu/setmenucpftpsychooncology1.h.rst
     menu/setmenudeakin1.cpp.rst
     menu/setmenudeakin1.h.rst
     menu/setmenufromlp.cpp.rst
@@ -547,6 +548,10 @@ tablet_qt
     tasks/cbir.h.rst
     tasks/cecaq3.cpp.rst
     tasks/cecaq3.h.rst
+    tasks/cesd.cpp.rst
+    tasks/cesd.h.rst
+    tasks/cesdr.cpp.rst
+    tasks/cesdr.h.rst
     tasks/cgi.cpp.rst
     tasks/cgi.h.rst
     tasks/cgii.cpp.rst
