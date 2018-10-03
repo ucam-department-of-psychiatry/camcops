@@ -99,7 +99,7 @@ class CesdMetaclass(DeclarativeMeta):
 class Cesd(TaskHasPatientMixin, Task,
            metaclass=CesdMetaclass):
     """
-    Server implementation of the PCL-5 task.
+    Server implementation of the CESD task.
     """
     __tablename__ = 'cesd'
     shortname = 'CESD'
@@ -107,12 +107,14 @@ class Cesd(TaskHasPatientMixin, Task,
     provides_trackers = True
     extrastring_taskname = "cesd"
     N_QUESTIONS = 20
+    N_ANSWERS = 4
+    DEPRESSION_RISK_THRESHOLD = 16
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
     TASK_FIELDS = SCORED_FIELDS  # may be overridden
     TASK_TYPE = "?"  # will be overridden
     # ... not really used; we display the generic question forms on the server
     MIN_SCORE = 0
-    MAX_SCORE = 4 * N_QUESTIONS
+    MAX_SCORE = 3 * N_QUESTIONS
 
     def is_complete(self) -> bool:
         return (
@@ -166,31 +168,17 @@ class Cesd(TaskHasPatientMixin, Task,
         ]
 
     def hasDepressionRisk(self) -> bool:
-        true
+        return (self.total_score() >= self.DEPRESSION_RISK_THRESHOLD)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         hasDepressionRisk = self.hasDepressionRisk()
         answer_dict = {None: None}
-        for option in range(5):
+        for option in range(self.N_ANSWERS):
             answer_dict[option] = str(option) + " – " + \
                 self.wxstring(req, "a" + str(option))
         q_a = ""
-
-        section_start = {
-            1: 'B (intrusion symptoms)',
-            6: 'C (avoidance)',
-            8: 'D (negative cognition/mood)',
-            15: 'E (arousal/reactivity)'
-        }
-
-        for q in range(1, self.N_QUESTIONS + 1):
-            if q in section_start:
-                section = section_start[q]
-                q_a += subheading_spanning_two_columns(
-                    "DSM-5 section {}".format(section)
-                )
-
+        for q in range(1, self.N_QUESTIONS):
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_s"),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
@@ -200,6 +188,7 @@ class Cesd(TaskHasPatientMixin, Task,
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
+                    {total_score}
                     {dsm_criteria_met}
                 </table>
             </div>
@@ -211,17 +200,20 @@ class Cesd(TaskHasPatientMixin, Task,
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Questions with scores ≥2 are considered symptomatic.
-                [2] ≥1 ‘B’ symptoms and ≥1 ‘C’ symptoms and ≥2 'D' symptoms
-                    and ≥2 ‘E’ symptoms.
+            [1] Presence of depression (or depression risk) is indicated by a score >= 16
             </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr_qa(
+                "{} (0–60)".format(req.wappstring("total_score")),
+                score
+            ),
             dsm_criteria_met=tr_qa(
-                self.wxstring(req, "dsm_criteria_met") + " <sup>[2]</sup>",
+                self.wxstring(req, "depression_or_risk_of") + "? <sup>[1]</sup>",
                 get_yes_no(req, hasDepressionRisk)
             ),
             q_a=q_a,
+
         )
         return h

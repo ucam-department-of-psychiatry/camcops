@@ -52,10 +52,10 @@
     <string name="q19_s">Q20 (feeling disliked):</string>
     <string name="q20_s">Q20 (no enthusiasm):</string>
 
-    <string name="o_a0">Rarely or none of the time</string>
-    <string name="o_a1">Some or a little of the time</string>
-    <string name="o_a2">Occaisionally or a moderate amount of time</string>
-    <string name="o_a3">All of the time</string>
+    <string name="a0">Rarely or none of the time</string>
+    <string name="a1">Some or a little of the time</string>
+    <string name="a2">Occaisionally or a moderate amount of time</string>
+    <string name="a3">All of the time</string>
 	
 	<string name="depression_or_risk_of">Indicates depression or risk of depression</string>    
 
