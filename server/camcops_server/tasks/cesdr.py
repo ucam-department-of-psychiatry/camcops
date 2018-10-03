@@ -250,7 +250,7 @@ class Cesdr(TaskHasPatientMixin, Task,
                     {tr_is_complete}
                     {total_score}
                     {depression_or_risk_of}
-                    {provisional_diagnosis} [2]
+                    {provisional_diagnosis}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
