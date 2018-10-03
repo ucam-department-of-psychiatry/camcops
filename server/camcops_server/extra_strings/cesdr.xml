@@ -19,7 +19,7 @@
     <string name="q7">7. I could not get going</string>
     <string name="q8">8. Nothing made me happy</string>
     <string name="q9">9. I felt like a bad person</string>
-    <string name="q10">10. I lost interest in my usual activitie</string>
+    <string name="q10">10. I lost interest in my usual activities</string>
     <string name="q11">11. I slept much more than usual</string>
     <string name="q12">12. I felt like I was moving too slowly</string>
     <string name="q13">13. I felt fidgety</string>
@@ -59,12 +59,11 @@
     <string name="a4">Nearly every day for 2 weeks</string>
 
     <string name="depression_or_risk_of">Indicates depression or risk of depression</string>
-    <string name="depression_category">The depression caetegory is</string>
 
-    <string name="category_3">Meets criteria for Major depressive episode (Anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 4 DSM symptom groups noted as occurring nearly every day for the past two weeks)</string>
-    <string name="category_2">Probable major depressive episode (Anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 3 DSM symptom groups reported as occurring either nearly every day for the past two weeks, or 5-7 days in the past week)</string>
-    <string name="category_1">Possible major depressive episode (Anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 2 other DSM symptom groups reported as occurring either nearly every day for the past two weeks, or 5-7 days in the past week)</string>
     <string name="category_0">No depression or subthreshhold</string>
+    <string name="category_1">Possible major depressive episode (Anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 2 other DSM symptom groups reported as occurring either nearly every day for the past two weeks, or 5-7 days in the past week)</string>
+    <string name="category_2">Probable major depressive episode (Anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 3 DSM symptom groups reported as occurring either nearly every day for the past two weeks, or 5-7 days in the past week)</string>
+    <string name="category_3">Meets criteria for major depressive episode (Anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 4 DSM symptom groups noted as occurring nearly every day for the past two weeks)</string>
 
     <string name="thanks">Thank you for your time in completing this questionnaire.</string>
 

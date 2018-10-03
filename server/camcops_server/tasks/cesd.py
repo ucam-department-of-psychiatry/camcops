@@ -163,16 +163,15 @@ class Cesd(TaskHasPatientMixin, Task,
             SummaryElement(
                 name="depression",
                 coltype=Boolean(),
-                value=self.hasDepressionRisk(),
+                value=self.has_depression_risk(),
                 comment="Has depression or risk of."),
         ]
 
-    def hasDepressionRisk(self) -> bool:
+    def has_depression_risk(self) -> bool:
         return (self.total_score() >= self.DEPRESSION_RISK_THRESHOLD)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        hasDepressionRisk = self.hasDepressionRisk()
         answer_dict = {None: None}
         for option in range(self.N_ANSWERS):
             answer_dict[option] = str(option) + " – " + \
@@ -189,7 +188,7 @@ class Cesd(TaskHasPatientMixin, Task,
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
                     {total_score}
-                    {dsm_criteria_met}
+                    {depression_or_risk_of}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -209,9 +208,9 @@ class Cesd(TaskHasPatientMixin, Task,
                 "{} (0–60)".format(req.wappstring("total_score")),
                 score
             ),
-            dsm_criteria_met=tr_qa(
+            depression_or_risk_of=tr_qa(
                 self.wxstring(req, "depression_or_risk_of") + "? <sup>[1]</sup>",
-                get_yes_no(req, hasDepressionRisk)
+                get_yes_no(req, self.has_depression_risk())
             ),
             q_a=q_a,
 

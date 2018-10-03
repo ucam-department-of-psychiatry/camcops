@@ -24,19 +24,21 @@ const int N_QUESTIONS = 20;
 const int MAX_SCORE = 60;
 
 const int CAT_SUB = 0;
-const int CAT_POSS_MAJOR = 2;
-const int CAT_PROB_MAJOR = 3;
-const int CAT_MAJOR = 4;
+const int CAT_POSS_MAJOR = 1;
+const int CAT_PROB_MAJOR = 2;
+const int CAT_MAJOR = 3;
 
-const int FREQ_DAILY    = 4;
-const int FREQ_5_7_DAYS = 3;
-const int FREQ_3_4_DAYS = 2;
-const int FREQ_1_2_DAYS = 1;
+const int DEPRESSION_RISK_THRESHOLD = 16;
+
 const int FREQ_NOT_AT_ALL = 0;
+const int FREQ_1_2_DAYS = 1;
+const int FREQ_3_4_DAYS = 2;
+const int FREQ_5_7_DAYS = 3;
+const int FREQ_DAILY    = 4;
 
-const int PROB_MAJOR_THRESH = 4;
-const int POSS_MAJOR_THRESH = 3;
-const int MAJOR_THRESH = 2;
+const int POSS_MAJOR_THRESH = 2;
+const int PROB_MAJOR_THRESH = 3;
+const int MAJOR_THRESH = 4;
 
 const QString QPREFIX("q");
 const QString Cesdr::CESDR_TABLENAME("cesdr");
@@ -98,7 +100,7 @@ QStringList Cesdr::summary() const
     return QStringList{
         totalScorePhrase(totalScore(), MAX_SCORE),
         standardResult(xstring("depression_or_risk_of"),
-                       uifunc::yesNoUnknown(hasDepressionRisk())),
+                       uifunc::yesNoUnknown(totalScore() >= DEPRESSION_RISK_THRESHOLD)),
     };
 }
 
@@ -109,10 +111,12 @@ QStringList Cesdr::detail() const
     lines += summary();
 
     const int cat = depressionCategory(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
-    lines.append(xstring("depression_category") + " " + xstring("category_" + QString::number(cat)));
+    lines.append("");
+    lines.append(xstring("category_" + QString::number(cat)));
 
     return lines;
 }
+
 
 int Cesdr::depressionCategory(QVector<QVariant> responses) const
 {
@@ -120,16 +124,69 @@ int Cesdr::depressionCategory(QVector<QVariant> responses) const
      * Determining CESD-R categories
      * See: https://cesd-r.com/cesdr/
      */
-    if (countWhere(responses, QVector<QVariant>{FREQ_DAILY}) >= MAJOR_THRESH) {
+
+    if (totalScore() < DEPRESSION_RISK_THRESHOLD) {
+        return CAT_SUB;
+    }
+
+    // DSM Categories
+    const QVector<int> qs_dysphoria     = {2, 4, 6};
+    const QVector<int> qs_anhedonia     = {8, 10};
+    const QVector<int> qs_appetite      = {1, 18};
+    const QVector<int> qs_sleep         = {5, 11, 19};
+    const QVector<int> qs_thinking      = {3, 20};
+    const QVector<int> qs_guilt         = {9, 17};
+    const QVector<int> qs_tired         = {7, 16};
+    const QVector<int> qs_movement      = {12, 13};
+    const QVector<int> qs_suicidal      = {14, 15};
+
+    // Both dysphoria and anhedonia must be present at frequency mostly or daily
+    if (!fufillsGroupCriteria(qs_dysphoria, responses) || !fufillsGroupCriteria(qs_anhedonia, responses)) {
+        return CAT_SUB;
+    }
+
+    // For the remaining categories, count it if it contains an answer == FREQ_DAILY or answer == FREQ_5_7_DAYS
+    int categoryCount = 0;
+
+    if (fufillsGroupCriteria(qs_appetite, responses)) {
+        categoryCount += 1;
+    }
+
+    if (fufillsGroupCriteria(qs_sleep, responses)) {
+        categoryCount += 1;
+    }
+
+    if (fufillsGroupCriteria(qs_thinking, responses)) {
+        categoryCount += 1;
+    }
+
+    if (fufillsGroupCriteria(qs_guilt, responses)) {
+        categoryCount += 1;
+    }
+
+    if (fufillsGroupCriteria(qs_tired, responses)) {
+        categoryCount += 1;
+    }
+
+    if (fufillsGroupCriteria(qs_movement, responses)) {
+        categoryCount += 1;
+    }
+
+    if (fufillsGroupCriteria(qs_suicidal, responses)) {
+        categoryCount += 1;
+    }
+
+    if (categoryCount >= MAJOR_THRESH) {
         return CAT_MAJOR;
-    } else if (countWhere(responses, QVector<QVariant>{FREQ_5_7_DAYS}) > PROB_MAJOR_THRESH) {
+    } else if (categoryCount >= PROB_MAJOR_THRESH) {
         return CAT_PROB_MAJOR;
-    } else if (countWhere(responses, QVector<QVariant>{FREQ_5_7_DAYS}) > POSS_MAJOR_THRESH) {
+    } else if (categoryCount >= POSS_MAJOR_THRESH) {
         return CAT_POSS_MAJOR;
     }
 
     return CAT_SUB;
 }
+
 
 OpenableWidget* Cesdr::editor(const bool read_only)
 {
@@ -140,6 +197,9 @@ OpenableWidget* Cesdr::editor(const bool read_only)
         {xstring("a3"), FREQ_5_7_DAYS},
         {xstring("a4"), FREQ_DAILY},
     };
+
+    const int question_width = 50;
+    const QVector<int> option_widths{10, 10, 10, 10, 10};
 
     QuPagePtr page((new QuPage{
         new QuText(xstring("instructions")),
@@ -167,7 +227,11 @@ OpenableWidget* Cesdr::editor(const bool read_only)
                 QuestionWithOneField(xstring("q20"), fieldRef("q20"))
             },
             options
-        ))->setTitle(xstring("stem")),
+        ))
+        ->setTitle(xstring("stem"))
+        ->setWidth(question_width, option_widths)
+        ->setExpand(true)
+        ->setQuestionsBold(false)
     })->setTitle(xstring("title")));
 
     auto questionnaire = new Questionnaire(m_app, {page});
@@ -180,6 +244,16 @@ OpenableWidget* Cesdr::editor(const bool read_only)
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
+bool Cesdr::fufillsGroupCriteria(QVector<int> qnums, QVector<QVariant> values) const {
+    for (int i = 0; i < qnums.length(); ++i) {
+        const int offset = qnums.at(i) - 1;
+        const int v = values.at(offset).toInt();
+        if (v == FREQ_5_7_DAYS || v == FREQ_DAILY) {
+            return true;
+        }
+    }
+    return false;
+}
 
 int Cesdr::totalScore() const
 {
@@ -189,15 +263,11 @@ int Cesdr::totalScore() const
 
     QVector<QVariant> responses = values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS));
 
+    // Sum the response values, and subtract the count of answers marked as occurring daily.
+    // Makes the 5-7 and daily responses value-quivalent, so scoring is out of 60 and
+    // comparable to CESD.
     return sumInt(responses) - countWhere(responses, QVector<QVariant>{FREQ_DAILY});
 }
-
-
-QVariant Cesdr::hasDepressionRisk() const
-{
-    return totalScore() >= 16;
-}
-
 
 int Cesdr::numNull(const int first, const int last) const
 {
