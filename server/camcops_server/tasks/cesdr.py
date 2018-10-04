@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# camcops_server/tasks/core10.py
+# camcops_server/tasks/cesdr.py
 
 """
 ===============================================================================
@@ -28,13 +28,13 @@ from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.sqltypes import Boolean, Integer
+from sqlalchemy.sql.sqltypes import Boolean
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
-    answer, get_yes_no, subheading_spanning_two_columns, tr, tr_qa
+    get_yes_no, tr, tr_qa
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 
@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 
 
 # =============================================================================
-# CESD
+# CESD-R
 # =============================================================================
 
 class CesdrMetaclass(DeclarativeMeta):
@@ -61,7 +61,7 @@ class CesdrMetaclass(DeclarativeMeta):
     There is a multilayer metaclass problem; see hads.py for discussion.
     """
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['cesd'],
+    def __init__(cls: Type['cesdr'],
                  name: str,
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
@@ -84,35 +84,54 @@ class CesdrMetaclass(DeclarativeMeta):
                 "lethargic",
                 "fidgety",
                 "severely depressed",
-                "self-harm",
+                "self - harm",
                 "tiredness",
-                "self-hatred",
+                "self - hatred",
                 "weight loss",
                 "sleep problems",
                 "lack of focus"
-
             ]
         )
         super().__init__(name, bases, classdict)
 
 
 class Cesdr(TaskHasPatientMixin, Task,
-           metaclass=CesdrMetaclass):
+            metaclass=CesdrMetaclass):
     """
-    Server implementation of the PCL-5 task.
+    Server implementation of the CESD task.
     """
     __tablename__ = 'cesdr'
     shortname = 'CESD-R'
-    longname = 'CESD-R: Center for Epidemiologic Studies Depression Scale (Revised)'
+    longname = 'CESD-R: Center for Epidemiologic Studies Depression Scale - Revised'
     provides_trackers = True
-    extrastring_taskname = "cesd"
+    extrastring_taskname = "cesdr"
+
+    CAT_SUB = 0
+    CAT_POSS_MAJOR = 1
+    CAT_PROB_MAJOR = 2
+    CAT_MAJOR = 3
+
+    DEPRESSION_RISK_THRESHOLD = 16
+
+    FREQ_NOT_AT_ALL = 0
+    FREQ_1_2_DAYS = 1
+    FREQ_3_4_DAYS = 2
+    FREQ_5_7_DAYS = 3
+    FREQ_DAILY = 4
+
     N_QUESTIONS = 20
+    N_ANSWERS = 5
+
+    POSS_MAJOR_THRESH = 2
+    PROB_MAJOR_THRESH = 3
+    MAJOR_THRESH = 4
+
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
     TASK_FIELDS = SCORED_FIELDS  # may be overridden
     TASK_TYPE = "?"  # will be overridden
     # ... not really used; we display the generic question forms on the server
     MIN_SCORE = 0
-    MAX_SCORE = 4 * N_QUESTIONS
+    MAX_SCORE = 3 * N_QUESTIONS
 
     def is_complete(self) -> bool:
         return (
@@ -121,14 +140,58 @@ class Cesdr(TaskHasPatientMixin, Task,
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(self.SCORED_FIELDS)
+        return self.sum_fields(self.SCORED_FIELDS) - self.count_where(self.SCORED_FIELDS, [self.FREQ_DAILY])
+
+    def get_depression_category(self) -> int:
+
+        if not self.has_depression_risk():
+            return self.CAT_SUB
+
+        q_groups = {
+            'dysphoria': [2, 4, 6],
+            'anhedonia': [8, 10],
+            'appetite': [1, 18],
+            'sleep': [5, 11, 19],
+            'thinking': [3, 20],
+            'guilt': [9, 17],
+            'tired': [7, 16],
+            'movement': [12, 13],
+            'suicidal': [14, 15]
+        }
+
+        if (not self.fufills_group_criteria(q_groups['dysphoria']) or
+                not self.fufills_group_criteria(q_groups['anhedonia'])):
+            return self.CAT_SUB
+
+        count = 0
+
+        for group, qnums in q_groups.items():
+            if group == 'dysphoria' or group == 'anhedonia':
+                continue
+            if self.fufills_group_criteria(qnums):
+                count += 1
+
+        if count >= self.MAJOR_THRESH:
+            return self.CAT_MAJOR
+        if count >= self.PROB_MAJOR_THRESH:
+            return self.CAT_PROB_MAJOR
+        if count >= self.POSS_MAJOR_THRESH:
+            return self.CAT_POSS_MAJOR
+
+        return self.CAT_SUB
+
+    def fufills_group_criteria(self, qnums: list) -> bool:
+        qstrings = ["q" + str(qnum) for qnum in qnums]
+        count = (self.count_where(qstrings, [self.FREQ_DAILY]) +
+                self.count_where(qstrings, [self.FREQ_5_7_DAYS]))
+        return count > 0
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         line_step = 20
         preliminary_cutoff = 16
         return [TrackerInfo(
             value=self.total_score(),
-            plot_label="CESD total score",
+            plot_label="CESD-R total score",
             axis_label="Total score ({}-{})".format(self.MIN_SCORE,
                                                     self.MAX_SCORE),
             axis_min=self.MIN_SCORE - 0.5,
@@ -153,7 +216,7 @@ class Cesdr(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="CESD total score {}".format(self.total_score())
+            content="CESD-R total score {}".format(self.total_score())
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -161,36 +224,21 @@ class Cesdr(TaskHasPatientMixin, Task,
             SummaryElement(
                 name="depression",
                 coltype=Boolean(),
-                value=self.hasDepressionRisk(),
+                value=self.has_depression_risk(),
                 comment="Has depression or risk of."),
         ]
 
-    def hasDepressionRisk(self) -> bool:
-        true
+    def has_depression_risk(self) -> bool:
+        return self.total_score() >= self.DEPRESSION_RISK_THRESHOLD
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        hasDepressionRisk = self.hasDepressionRisk()
         answer_dict = {None: None}
-        for option in range(5):
+        for option in range(self.N_ANSWERS):
             answer_dict[option] = str(option) + " – " + \
                 self.wxstring(req, "a" + str(option))
         q_a = ""
-
-        section_start = {
-            1: 'B (intrusion symptoms)',
-            6: 'C (avoidance)',
-            8: 'D (negative cognition/mood)',
-            15: 'E (arousal/reactivity)'
-        }
-
-        for q in range(1, self.N_QUESTIONS + 1):
-            if q in section_start:
-                section = section_start[q]
-                q_a += subheading_spanning_two_columns(
-                    "DSM-5 section {}".format(section)
-                )
-
+        for q in range(1, self.N_QUESTIONS):
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_s"),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
@@ -200,7 +248,9 @@ class Cesdr(TaskHasPatientMixin, Task,
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
-                    {dsm_criteria_met}
+                    {total_score}
+                    {depression_or_risk_of}
+                    {provisional_diagnosis}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -211,17 +261,23 @@ class Cesdr(TaskHasPatientMixin, Task,
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Questions with scores ≥2 are considered symptomatic.
-                [2] ≥1 ‘B’ symptoms and ≥1 ‘C’ symptoms and ≥2 'D' symptoms
-                    and ≥2 ‘E’ symptoms.
+            [1] Presence of depression (or depression risk) is indicated by a score >= 16
+            [2] Diagnostic criteria described https://cesd-r.com/cesdr/
             </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
-            dsm_criteria_met=tr_qa(
-                self.wxstring(req, "dsm_criteria_met") + " <sup>[2]</sup>",
-                get_yes_no(req, hasDepressionRisk)
+            total_score=tr_qa(
+                "{} (0–60)".format(req.wappstring("total_score")),
+                score
             ),
+            depression_or_risk_of=tr_qa(
+                self.wxstring(req, "depression_or_risk_of") + "? <sup>[1]</sup>",
+                get_yes_no(req, self.has_depression_risk())
+            ),
+            provisional_diagnosis=tr('Provisional diagnosis <sup>[2]</sup>',
+                                     self.wxstring(req, "category_" + str(self.get_depression_category()))),
             q_a=q_a,
+
         )
         return h

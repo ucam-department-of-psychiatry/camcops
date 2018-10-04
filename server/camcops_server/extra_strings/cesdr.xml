@@ -57,7 +57,6 @@
 
     <string name="depression_or_risk_of">Indicates depression or risk of depression</string>
     <string name="depression_category">The depression category is</string>
-
     <string name="category_4">Meets criteria for major depressive episode (anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 4 DSM-5 symptom groups occurring nearly every day for the past two weeks)</string>
     <string name="category_3">Probable major depressive episode (anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 3 DSM-5 symptom groups reported as occurring either nearly every day for the past two weeks, or 5–7 days in the past week)</string>
     <string name="category_2">Possible major depressive episode (anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 2 other DSM-5 symptom groups reported as occurring either nearly every day for the past two weeks, or 5–7 days in the past week)</string>

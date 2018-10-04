@@ -53,9 +53,9 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
-    QVariant hasDepressionRisk() const;
     int numNull(int first, int last) const;
     int depressionCategory(QVector<QVariant>) const;
+    bool fufillsGroupCriteria(QVector<int>, QVector<QVariant>) const;
 public:
     static const QString CESDR_TABLENAME;
 protected:
