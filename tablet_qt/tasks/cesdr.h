@@ -54,8 +54,9 @@ public:
     // ------------------------------------------------------------------------
     int totalScore() const;
     int numNull(int first, int last) const;
-    int depressionCategory(QVector<QVariant>) const;
-    bool fufillsGroupCriteria(QVector<int>, QVector<QVariant>) const;
+    int depressionCategory() const;
+    bool fulfilsGroupCriteria(const QVector<int>& qnums,
+                              bool nearly_every_day_2w = false) const;
 public:
     static const QString CESDR_TABLENAME;
 protected:

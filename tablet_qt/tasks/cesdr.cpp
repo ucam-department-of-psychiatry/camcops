@@ -23,18 +23,19 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
 const int MAX_SCORE = 60;
 
-const int CAT_SUB = 0;
-const int CAT_POSS_MAJOR = 1;
-const int CAT_PROB_MAJOR = 2;
-const int CAT_MAJOR = 3;
+const int CAT_NONCLINICAL = 0;
+const int CAT_SUB = 1;
+const int CAT_POSS_MAJOR = 2;
+const int CAT_PROB_MAJOR = 3;
+const int CAT_MAJOR = 4;
 
 const int DEPRESSION_RISK_THRESHOLD = 16;
 
 const int FREQ_NOT_AT_ALL = 0;
-const int FREQ_1_2_DAYS = 1;
-const int FREQ_3_4_DAYS = 2;
-const int FREQ_5_7_DAYS = 3;
-const int FREQ_DAILY    = 4;
+const int FREQ_1_2_DAYS_LAST_WEEK = 1;
+const int FREQ_3_4_DAYS_LAST_WEEK = 2;
+const int FREQ_5_7_DAYS_LAST_WEEK = 3;
+const int FREQ_DAILY_2_WEEKS    = 4;
 
 const int POSS_MAJOR_THRESH = 2;
 const int PROB_MAJOR_THRESH = 3;
@@ -110,7 +111,7 @@ QStringList Cesdr::detail() const
     QStringList lines = completenessInfo();
     lines += summary();
 
-    const int cat = depressionCategory(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+    const int cat = depressionCategory();
     lines.append("");
     lines.append(xstring("category_" + QString::number(cat)));
 
@@ -118,7 +119,7 @@ QStringList Cesdr::detail() const
 }
 
 
-int Cesdr::depressionCategory(QVector<QVariant> responses) const
+int Cesdr::depressionCategory() const
 {
     /*
      * Determining CESD-R categories
@@ -139,52 +140,37 @@ int Cesdr::depressionCategory(QVector<QVariant> responses) const
     const QVector<int> qs_tired         = {7, 16};
     const QVector<int> qs_movement      = {12, 13};
     const QVector<int> qs_suicidal      = {14, 15};
+    const QVector<QVector<int>> non_anhedonia_groups{
+        qs_appetite, qs_sleep, qs_movement, qs_tired, qs_guilt,
+        qs_thinking, qs_suicidal
+    };
 
-    // Both dysphoria and anhedonia must be present at frequency mostly or daily
-    if (!fufillsGroupCriteria(qs_dysphoria, responses) || !fufillsGroupCriteria(qs_anhedonia, responses)) {
+    // Dysphoria or anhedonia must be present at frequency mostly or daily
+    const bool anhedonia_criterion = fulfilsGroupCriteria(qs_dysphoria, true) ||
+                                     fulfilsGroupCriteria(qs_anhedonia, true);
+    if (anhedonia_criterion) {
+        // For the remaining categories, count it if it contains an answer == FREQ_DAILY or answer == FREQ_5_7_DAYS
+        int categoryCount = 0;
+        for (auto qgroup : non_anhedonia_groups) {
+            if (fulfilsGroupCriteria(qgroup)) {
+                categoryCount += 1;
+            }
+        }
+
+        if (categoryCount >= MAJOR_THRESH) {
+            return CAT_MAJOR;
+        } else if (categoryCount >= PROB_MAJOR_THRESH) {
+            return CAT_PROB_MAJOR;
+        } else if (categoryCount >= POSS_MAJOR_THRESH) {
+            return CAT_POSS_MAJOR;
+        }
+    }
+
+    const int cesd_score = totalScore();
+    if (cesd_score >= 16) {
         return CAT_SUB;
     }
-
-    // For the remaining categories, count it if it contains an answer == FREQ_DAILY or answer == FREQ_5_7_DAYS
-    int categoryCount = 0;
-
-    if (fufillsGroupCriteria(qs_appetite, responses)) {
-        categoryCount += 1;
-    }
-
-    if (fufillsGroupCriteria(qs_sleep, responses)) {
-        categoryCount += 1;
-    }
-
-    if (fufillsGroupCriteria(qs_thinking, responses)) {
-        categoryCount += 1;
-    }
-
-    if (fufillsGroupCriteria(qs_guilt, responses)) {
-        categoryCount += 1;
-    }
-
-    if (fufillsGroupCriteria(qs_tired, responses)) {
-        categoryCount += 1;
-    }
-
-    if (fufillsGroupCriteria(qs_movement, responses)) {
-        categoryCount += 1;
-    }
-
-    if (fufillsGroupCriteria(qs_suicidal, responses)) {
-        categoryCount += 1;
-    }
-
-    if (categoryCount >= MAJOR_THRESH) {
-        return CAT_MAJOR;
-    } else if (categoryCount >= PROB_MAJOR_THRESH) {
-        return CAT_PROB_MAJOR;
-    } else if (categoryCount >= POSS_MAJOR_THRESH) {
-        return CAT_POSS_MAJOR;
-    }
-
-    return CAT_SUB;
+    return CAT_NONCLINICAL;
 }
 
 
@@ -192,10 +178,10 @@ OpenableWidget* Cesdr::editor(const bool read_only)
 {
     const NameValueOptions options{
         {xstring("a0"), FREQ_NOT_AT_ALL},
-        {xstring("a1"), FREQ_1_2_DAYS},
-        {xstring("a2"), FREQ_3_4_DAYS},
-        {xstring("a3"), FREQ_5_7_DAYS},
-        {xstring("a4"), FREQ_DAILY},
+        {xstring("a1"), FREQ_1_2_DAYS_LAST_WEEK},
+        {xstring("a2"), FREQ_3_4_DAYS_LAST_WEEK},
+        {xstring("a3"), FREQ_5_7_DAYS_LAST_WEEK},
+        {xstring("a4"), FREQ_DAILY_2_WEEKS},
     };
 
     const int question_width = 50;
@@ -244,16 +230,24 @@ OpenableWidget* Cesdr::editor(const bool read_only)
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
-bool Cesdr::fufillsGroupCriteria(QVector<int> qnums, QVector<QVariant> values) const {
-    for (int i = 0; i < qnums.length(); ++i) {
-        const int offset = qnums.at(i) - 1;
-        const int v = values.at(offset).toInt();
-        if (v == FREQ_5_7_DAYS || v == FREQ_DAILY) {
+
+bool Cesdr::fulfilsGroupCriteria(const QVector<int>& qnums,
+                                 bool nearly_every_day_2w) const
+{
+    for (const int qnum : qnums) {
+        const int v = valueInt(stringfunc::strnum("q", qnum));
+        if (v == FREQ_DAILY_2_WEEKS) {
+            return true;
+        }
+        if (v == FREQ_5_7_DAYS_LAST_WEEK && !nearly_every_day_2w) {
+            // A lower threshold for some symptoms, when nearly_every_day_2w
+            // is false.
             return true;
         }
     }
     return false;
 }
+
 
 int Cesdr::totalScore() const
 {
@@ -266,8 +260,9 @@ int Cesdr::totalScore() const
     // Sum the response values, and subtract the count of answers marked as occurring daily.
     // Makes the 5-7 and daily responses value-quivalent, so scoring is out of 60 and
     // comparable to CESD.
-    return sumInt(responses) - countWhere(responses, QVector<QVariant>{FREQ_DAILY});
+    return sumInt(responses) - countWhere(responses, QVector<QVariant>{FREQ_DAILY_2_WEEKS});
 }
+
 
 int Cesdr::numNull(const int first, const int last) const
 {
