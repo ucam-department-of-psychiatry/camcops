@@ -3,70 +3,66 @@
   <task name="cesdr">
     <!-- Center for Epidemiologic Studies Depression Scale -->
 
-    <string name="title">CESD-R - The CESD Revised</string>
+    <string name="title">The Center for Epidemiologic Studies Depression Scale (Revised)</string>
 
-    <string name="instruction_1">IMPORTANT – PLEASE READ THIS FIRST</string>
-    <string name="instruction_2">Below is a list of the ways you might have felt or behaved.  Please mark the answers to indicate how often you have felt this way in the past week or so.</string>
+    <string name="instructions">Below is a list of the ways you might have felt or behaved. Please indicate how often you have felt this way in the past week or so.</string>
 
-    <string name="stem">During the past week...</string>
-
-    <string name="q1">1. My appetite was poor</string>
-    <string name="q2">2. I could not shake off the blues</string>
-    <string name="q3">3. I had trouble keeping my mind on what I was doing</string>
-    <string name="q4">4. I felt depressed</string>
-    <string name="q5">5. My sleep was restless</string>
-    <string name="q6">6. I felt sad</string>
-    <string name="q7">7. I could not get going</string>
-    <string name="q8">8. Nothing made me happy</string>
-    <string name="q9">9. I felt like a bad person</string>
-    <string name="q10">10. I lost interest in my usual activitie</string>
-    <string name="q11">11. I slept much more than usual</string>
-    <string name="q12">12. I felt like I was moving too slowly</string>
-    <string name="q13">13. I felt fidgety</string>
-    <string name="q14">14. I wished I were dead</string>
-    <string name="q15">15. I wanted to hurt myself</string>
-    <string name="q16">16. I was tired all the time</string>
-    <string name="q17">17. I did not like myself</string>
-    <string name="q18">18. I lost a lot of weight without trying to</string>
-    <string name="q19">19. I had a lot of trouble getting to sleep</string>
-    <string name="q20">20. I could not focus on the important things</string>
+    <string name="q1">1. My appetite was poor.</string>
+    <string name="q2">2. I could not shake off the blues.</string>
+    <string name="q3">3. I had trouble keeping my mind on what I was doing.</string>
+    <string name="q4">4. I felt depressed.</string>
+    <string name="q5">5. My sleep was restless.</string>
+    <string name="q6">6. I felt sad.</string>
+    <string name="q7">7. I could not get going.</string>
+    <string name="q8">8. Nothing made me happy.</string>
+    <string name="q9">9. I felt like a bad person.</string>
+    <string name="q10">10. I lost interest in my usual activities.</string>
+    <string name="q11">11. I slept much more than usual.</string>
+    <string name="q12">12. I felt like I was moving too slowly.</string>
+    <string name="q13">13. I felt fidgety.</string>
+    <string name="q14">14. I wished I were dead.</string>
+    <string name="q15">15. I wanted to hurt myself.</string>
+    <string name="q16">16. I was tired all the time.</string>
+    <string name="q17">17. I did not like myself.</string>
+    <string name="q18">18. I lost a lot of weight without trying to.</string>
+    <string name="q19">19. I had a lot of trouble getting to sleep.</string>
+    <string name="q20">20. I could not focus on the important things.</string>
 
     <string name="q1_s">Q1 (poor appetite):</string>
-    <string name="q2_s">Q2 (unshakable blues):</string>
-    <string name="q3_s">Q3 (lack of focus):</string>
+    <string name="q2_s">Q2 (unshakeable blues):</string>
+    <string name="q3_s">Q3 (poor concentration):</string>
     <string name="q4_s">Q4 (depressed)</string>
-    <string name="q5_s">Q5 (sleep problems):</string>
+    <string name="q5_s">Q5 (sleep restless):</string>
     <string name="q6_s">Q6 (sad):</string>
-    <string name="q7_s">Q7 (no enthusiasm):</string>
-    <string name="q8_s">Q8 (depressed):</string>
-    <string name="q9_s">Q9 (feelings of guilt):</string>
+    <string name="q7_s">Q7 (could not get going):</string>
+    <string name="q8_s">Q8 (nothing made me happy):</string>
+    <string name="q9_s">Q9 (felt a bad person):</string>
     <string name="q10_s">Q10 (loss of interest):</string>
     <string name="q11_s">Q11 (oversleeping):</string>
-    <string name="q12_s">Q12 (lethargic):</string>
+    <string name="q12_s">Q12 (moving slowly):</string>
     <string name="q13_s">Q13 (fidgety):</string>
-    <string name="q14_s">Q14 (severely depressed)</string>
-    <string name="q15_s">Q16 (self-harm):</string>
+    <string name="q14_s">Q14 (wished were dead)</string>
+    <string name="q15_s">Q16 (wanted to hurt self):</string>
     <string name="q16_s">Q17 (tiredness):</string>
-    <string name="q17_s">Q18 (self-hatred):</string>
-    <string name="q18_s">Q19 (weight loss):</string>
-    <string name="q19_s">Q20 (sleep problems):</string>
+    <string name="q17_s">Q18 (disliked self):</string>
+    <string name="q18_s">Q19 (unintended weight loss):</string>
+    <string name="q19_s">Q20 (difficulty getting to sleep):</string>
     <string name="q20_s">Q20 (lack of focus):</string>
 
-    <string name="a0">Not at all or less than 1 day</string>
-    <string name="a1">1-2 days</string>
-    <string name="a2">3-4 days</string>
-    <string name="a3">5-7 days</string>
+    <string name="a0">Not at all or less than 1 day last week</string>
+    <string name="a1">1–2 days last week</string>
+    <string name="a2">3–4 days last week</string>
+    <string name="a3">5–7 days last week</string>
     <string name="a4">Nearly every day for 2 weeks</string>
 
     <string name="depression_or_risk_of">Indicates depression or risk of depression</string>
-    <string name="depression_category">The depression caetegory is</string>
+    <string name="depression_category">The depression category is</string>
 
-    <string name="category_3">Meets criteria for Major depressive episode (Anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 4 DSM symptom groups noted as occurring nearly every day for the past two weeks)</string>
-    <string name="category_2">Probable major depressive episode (Anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 3 DSM symptom groups reported as occurring either nearly every day for the past two weeks, or 5-7 days in the past week)</string>
-    <string name="category_1">Possible major depressive episode (Anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 2 other DSM symptom groups reported as occurring either nearly every day for the past two weeks, or 5-7 days in the past week)</string>
-    <string name="category_0">No depression or subthreshhold</string>
-
-    <string name="thanks">Thank you for your time in completing this questionnaire.</string>
+    <string name="category_4">Meets criteria for major depressive episode (anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 4 DSM-5 symptom groups occurring nearly every day for the past two weeks)</string>
+    <string name="category_3">Probable major depressive episode (anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 3 DSM-5 symptom groups reported as occurring either nearly every day for the past two weeks, or 5–7 days in the past week)</string>
+    <string name="category_2">Possible major depressive episode (anhedonia or dysphoria nearly every day for the past two weeks, plus symptoms in an additional 2 other DSM-5 symptom groups reported as occurring either nearly every day for the past two weeks, or 5–7 days in the past week)</string>
+    <string name="category_1">Subthreshhold depression symptoms (CESD-style score of at least 16 but does not meet higher criteria)</string>
+    <string name="category_0">No clinical significance (total CESD-style score of less than 16)</string>
 
   </task>
 </resources>
