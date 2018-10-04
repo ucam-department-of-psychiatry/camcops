@@ -89,7 +89,7 @@ import camcops_server.cc_modules.cc_all_models  # import side effects (ensure al
 from camcops_server.cc_modules.cc_alembic import (
     create_database_from_scratch,
     upgrade_database_to_head,
-    downgrade_database,
+    migrate_to_revision,
 )  # nopep8
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
@@ -930,19 +930,19 @@ Use 'camcops <COMMAND> --help' for more detail on each command.""".format(
     # Database commands
     # -------------------------------------------------------------------------
 
-    downgrade_db_parser = add_sub(
-        subparsers, "downgrade_db", config_mandatory=True,
+    migrate_db_parser = add_sub(
+        subparsers, "migrate_db", config_mandatory=True,
         help="Expert Only: Downgrade database to a specific revision (via Alembic)")
     add_req_named(
-        downgrade_db_parser,
-        '--confirm_downgrade_db', action="store_true",
+        migrate_db_parser,
+        '--confirm_migrate_db', action="store_true",
         help="Must be specified to run a downgrade")
     add_req_named(
-        downgrade_db_parser,
+        migrate_db_parser,
         '--target_revision',
         help="The revision to downgrade to")
-    downgrade_db_parser.set_defaults(
-        func=lambda args: downgrade_database(args.target_revision, show_sql_only=True))
+    migrate_db_parser.set_defaults(
+        func=lambda args: migrate_to_revision(args.target_revision, show_sql_only=True))
 
     upgradedb_parser = add_sub(
         subparsers, "upgrade_db", config_mandatory=True,

@@ -76,22 +76,22 @@ def upgrade_database_to_head(show_sql_only: bool = False) -> None:
     # ... will get its config information from the OS environment; see
     # run_alembic() in alembic/env.py
 
-def downgrade_database(target_revision: str, show_sql_only: bool = False) -> None:
+def migrate_to_revision(target_revision: str, show_sql_only: bool = False) -> None:
     """
-    Downgrade the database to a specific revision.
+    Migrate the database to a specific revision.
     """
     head_revision = get_head_revision_from_alembic(alembic_config_filename=ALEMBIC_CONFIG_FILENAME)
 
-    if int(target_revision) >= int(head_revision):
-        log.warning("Cannot ***downgrade*** from revision {current} to revision {target}".format(
-            current=head_revision,
-            target=target_revision)
-        )
+    operation = "upgrade"
+
+    if int(target_revision) < int(head_revision):
+        operation = "downgrade"
 
     upgrade_database(alembic_base_dir=ALEMBIC_BASE_DIR,
                      alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
                      version_table=ALEMBIC_VERSION_TABLE,
                      destination_revision=target_revision,
+                     operation_name=operation,
                      as_sql=show_sql_only)
 
 
