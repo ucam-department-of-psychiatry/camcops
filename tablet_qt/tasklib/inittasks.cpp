@@ -37,10 +37,8 @@
 #include "tasks/cardinalexpectationdetection.h"
 #include "tasks/cbir.h"
 #include "tasks/cecaq3.h"
-
 #include "tasks/cesd.h"
 #include "tasks/cesdr.h"
-
 #include "tasks/cgi.h"
 #include "tasks/cgii.h"
 #include "tasks/cgisch.h"
@@ -157,10 +155,8 @@ void InitTasks(TaskFactory& factory)
     initializeCardinalExpDetThreshold(factory);
     initializeCardinalExpectationDetection(factory);
     initializeCbiR(factory);
-
     initializeCesd(factory);
     initializeCesdr(factory);
-
     initializeCecaQ3(factory);
     initializeCgi(factory);
     initializeCgiI(factory);
@@ -255,21 +251,4 @@ void InitTasks(TaskFactory& factory)
     initializeYbocsSc(factory);
 
     initializeZbi12(factory);
-
-    // *** new task: mini-ACE
-    // *** new task: Andy Foster / eating disorders; e-mail of 24/5/16
-    // *** new task: AQ10 autistic spectrum screening
-
-    // *** discarded tasks - revitalize: ASRM
-    // *** discarded tasks - revitalize: BARS
-    // *** discarded tasks - revitalize: BFCRS
-    // *** discarded tasks - revitalize: CSI
-    // *** discarded tasks - revitalize: EPDS
-    // *** discarded tasks - revitalize: FAB
-    // *** discarded tasks - revitalize: GASS
-    // *** discarded tasks - revitalize: LSHSA
-    // *** discarded tasks - revitalize: LSHSLAROI2005
-    // *** discarded tasks - revitalize: LUNSERS
-    // *** discarded tasks - revitalize: MADRS
-    // *** discarded tasks - revitalize: SAS
 }
