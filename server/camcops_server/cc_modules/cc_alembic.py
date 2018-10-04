@@ -37,12 +37,11 @@ from typing import TYPE_CHECKING
 import os
 
 # from alembic import command
-from alembic.config import Config
 from cardinal_pythonlib.fileops import preserve_cwd
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.alembic_func import (
-    # get_current_and_head_revision,
     upgrade_database,
+    get_head_revision_from_alembic,
     stamp_allowing_unusual_version_table,
 )
 
@@ -76,6 +75,25 @@ def upgrade_database_to_head(show_sql_only: bool = False) -> None:
                      as_sql=show_sql_only)
     # ... will get its config information from the OS environment; see
     # run_alembic() in alembic/env.py
+
+def downgrade_database(target_revision: str, show_sql_only: bool = False) -> None:
+    """
+    Downgrade the database to a specific revision.
+    """
+    head_revision = int(get_head_revision_from_alembic(alembic_config_filename=ALEMBIC_CONFIG_FILENAME))
+    target_revision = int(target_revision)
+
+    if target_revision >= head_revision:
+        log.warning("Cannot ***downgrade*** from revision {current} to revision {target}".format(
+            current=head_revision,
+            target=target_revision)
+        )
+
+    upgrade_database(alembic_base_dir=ALEMBIC_BASE_DIR,
+                     alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
+                     version_table=ALEMBIC_VERSION_TABLE,
+                     destination_revision=target_revision,
+                     as_sql=show_sql_only)
 
 
 @preserve_cwd
