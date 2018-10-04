@@ -3,10 +3,9 @@
   <task name="cesd">
     <!-- Center for Epidemiologic Studies Depression Scale -->
 
-    <string name="title">CESD - A Self-Report Depression Scale for Research in the General Population</string>
+    <string name="title">Center for Epidemiologic Studies Depression Scale (CESD)</string>
 
-    <string name="instruction_1">IMPORTANT – PLEASE READ THIS FIRST</string>
-    <string name="instruction_2">This form has 20 statements about how you have been OVER THE LAST WEEK. Please read each statement and think how often you felt that way last week. Then choose the option which is closest to this.</string>
+    <string name="instruction">Below is a list of some of the ways you may have felt or behaved. Please indicate how often you have felt this way during the <b>past week:</b></string>
 
     <string name="stem">During the past week...</string>
 
@@ -28,38 +27,36 @@
     <string name="q16">16. I enjoyed life</string>
     <string name="q17">17. I had crying spells</string>
     <string name="q18">18. I felt sad</string>
-    <string name="q19">19.  I felt that people disliked me</string>
-    <string name="q20">20. I could not "get going"</string>
+    <string name="q19">19. I felt that people disliked me</string>
+    <string name="q20">20. I could not “get going”</string>
 
     <string name="q1_s">Q1 (sensitivity/irritability):</string>
     <string name="q2_s">Q2 (poor appetite):</string>
-    <string name="q3_s">Q3 (unshakable blues):</string>
-    <string name="q4_s">Q4 (self-esteem)</string>
-    <string name="q5_s">Q5 (focus):</string>
+    <string name="q3_s">Q3 (unshakeable blues):</string>
+    <string name="q4_s">Q4 (low self-esteem)</string>
+    <string name="q5_s">Q5 (poor concentration):</string>
     <string name="q6_s">Q6 (depressed):</string>
-    <string name="q7_s">Q7 (low energy):</string>
-    <string name="q8_s">Q8 (lack of optimism):</string>
+    <string name="q7_s">Q7 (everthing effortful):</string>
+    <string name="q8_s">Q8 (hopeful):</string>
     <string name="q9_s">Q9 (feelings of failure):</string>
     <string name="q10_s">Q10 (fearful):</string>
-    <string name="q11_s">Q11 (sleep problems):</string>
+    <string name="q11_s">Q11 (sleep restless):</string>
     <string name="q12_s">Q12 (happy):</string>
     <string name="q13_s">Q13 (uncommunicative):</string>
     <string name="q14_s">Q14 (lonely)</string>
-    <string name="q15_s">Q16 (perceived hostility):</string>
+    <string name="q15_s">Q16 (perceived unfriendliness):</string>
     <string name="q16_s">Q17 (enjoyment):</string>
     <string name="q17_s">Q18 (crying spells):</string>
     <string name="q18_s">Q19 (sadness):</string>
     <string name="q19_s">Q20 (feeling disliked):</string>
-    <string name="q20_s">Q20 (no enthusiasm):</string>
+    <string name="q20_s">Q20 (could not get going):</string>
 
-    <string name="o_a0">Rarely or none of the time</string>
-    <string name="o_a1">Some or a little of the time</string>
-    <string name="o_a2">Occaisionally or a moderate amount of time</string>
-    <string name="o_a3">All of the time</string>
+    <string name="a0"><b>Rarely or none of the time</b> (less than 1 day)</string>
+    <string name="a1"><b>Some or a little of the time</b> (1–2 days)</string>
+    <string name="a2"><b>Occasionally or a moderate amount of time</b> (3–4 days)</string>
+    <string name="a3"><b>All of the time</b> (5–7 days)</string>
 	
 	<string name="depression_or_risk_of">Indicates depression or risk of depression</string>    
-
-    <string name="thanks">Thank you for your time in completing this questionnaire.</string>
 
   </task>
 </resources>
