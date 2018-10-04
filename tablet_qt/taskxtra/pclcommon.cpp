@@ -167,8 +167,8 @@ OpenableWidget* PclCommon::editor(const bool read_only)
     }
     addtext(m_xstring_prefix + "_instructions");
     const QVector<McqGridSubtitle> subtitles{
-        {5, ""},
-        {12, ""},
+        {5, "Subtitle 1"},
+        {12, "Subtitle 2"},
     };
     elements.append((new QuMcqGrid(qfields, options))->setSubtitles(subtitles));
 

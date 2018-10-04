@@ -785,7 +785,8 @@ SOURCES += \
     tasks/core10.cpp \
     menu/setmenucpftperinatal1.cpp \
     tasks/pcl5.cpp \
-    menu/setmenucpftpsychooncology1.cpp
+    menu/setmenucpftpsychooncology1.cpp \
+    tasks/factg.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1175,7 +1176,8 @@ HEADERS += \
     tasks/core10.h \
     menu/setmenucpftperinatal1.h \
     tasks/pcl5.h \
-    menu/setmenucpftpsychooncology1.h
+    menu/setmenucpftpsychooncology1.h \
+    tasks/factg.h
 
 DISTFILES += \
     LICENSE.txt \
