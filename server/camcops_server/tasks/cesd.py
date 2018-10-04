@@ -68,12 +68,14 @@ class CesdMetaclass(DeclarativeMeta):
         add_multiple_columns(
             cls, "q", 1, cls.N_QUESTIONS,
             minimum=0, maximum=4,
-            comment_fmt="Q{n} ({s}) (0 not at all - 4 extremely)",
+            comment_fmt=(
+                "Q{n} ({s}) (0 rarely/none of the time - 4 all of the time)"
+            ),
             comment_strings=[
                 "sensitivity/irritability",
                 "poor appetite",
-                "unshakable blues",
-                "self-esteem",
+                "unshakeable blues",
+                "low self-esteem",
                 "focus",
                 "depressed",
                 "low energy",
@@ -103,7 +105,7 @@ class Cesd(TaskHasPatientMixin, Task,
     """
     __tablename__ = 'cesd'
     shortname = 'CESD'
-    longname = 'CESD: Center for Epidemiologic Studies Depression Scale'
+    longname = 'Center for Epidemiologic Studies Depression Scale'
     provides_trackers = True
     extrastring_taskname = "cesd"
     N_QUESTIONS = 20
