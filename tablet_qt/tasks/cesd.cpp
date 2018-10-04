@@ -23,6 +23,8 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
 const int MAX_SCORE = 60;
 
+const QVector<int> REVERSE_SCORED_QUESTIONS{4, 8, 12, 16};
+
 const QString QPREFIX("q");
 const QString Cesd::CESD_TABLENAME("cesd");
 
@@ -55,7 +57,7 @@ QString Cesd::shortname() const
 
 QString Cesd::longname() const
 {
-    return tr("CESD: Center for Epidemiologic Studies Depression Scale");
+    return tr("Center for Epidemiologic Studies Depression Scale");
 }
 
 
@@ -119,110 +121,24 @@ OpenableWidget* Cesd::editor(const bool read_only)
     const QVector<int> option_widths{15, 15, 15, 15};
 
     QuPagePtr page((new QuPage{
-                        (new QuText(xstring("instruction_1")))->setBold(true),
-                        new QuText(xstring("instruction_2")),
-                        (new QuMcqGrid(
-                        {
-                            QuestionWithOneField(xstring("q1"), fieldRef("q1")),
-                            QuestionWithOneField(xstring("q2"), fieldRef("q2")),
-                            QuestionWithOneField(xstring("q3"), fieldRef("q3")),
-                        },
-                        options
-                        ))
-                        ->setTitle(xstring("stem"))
-                        ->setWidth(question_width, option_widths)
-                        ->setExpand(true)
-                        ->setQuestionsBold(false),
-                        (new QuMcqGrid(
-                        {
-                            QuestionWithOneField(xstring("q4"), fieldRef("q4")),
-                        },
-                        options_reversed
-                        ))
-                        ->showTitle(false)
-                        ->setWidth(question_width, option_widths)
-                        ->setExpand(true)
-                        ->setQuestionsBold(false),
-                        (new QuMcqGrid(
-                        {
-                            QuestionWithOneField(xstring("q5"), fieldRef("q5")),
-                            QuestionWithOneField(xstring("q6"), fieldRef("q6")),
-                            QuestionWithOneField(xstring("q7"), fieldRef("q7")),
-                        },
-                        options
-                        ))
-                        ->showTitle(false)
-                        ->setWidth(question_width, option_widths)
-                        ->setExpand(true)
-                        ->setQuestionsBold(false),
-                        (new QuMcqGrid(
-                        {
-                            QuestionWithOneField(xstring("q8"), fieldRef("q8")),
-                        },
-                        options_reversed
-                        ))
-                        ->showTitle(false)
-                        ->setWidth(question_width, option_widths)
-                        ->setExpand(true)
-                        ->setQuestionsBold(false),
-                        (new QuMcqGrid(
-                        {
-                            QuestionWithOneField(xstring("q9"), fieldRef("q9")),
-                            QuestionWithOneField(xstring("q10"), fieldRef("q10")),
-                            QuestionWithOneField(xstring("q11"), fieldRef("q11")),
-                        },
-                        options
-                        ))
-                        ->showTitle(false)
-                        ->setWidth(question_width, option_widths)
-                        ->setExpand(true)
-                        ->setQuestionsBold(false),
-                        (new QuMcqGrid(
-                        {
-                            QuestionWithOneField(xstring("q12"), fieldRef("q12")),
-                        },
-                        options_reversed
-                        ))
-                        ->showTitle(false)
-                        ->setWidth(question_width, option_widths)
-                        ->setExpand(true)
-                        ->setQuestionsBold(false),
-                        (new QuMcqGrid(
-                        {
-                            QuestionWithOneField(xstring("q13"), fieldRef("q13")),
-                            QuestionWithOneField(xstring("q14"), fieldRef("q14")),
-                            QuestionWithOneField(xstring("q15"), fieldRef("q15")),
-                        },
-                        options
-                        ))
-                        ->showTitle(false)
-                        ->setWidth(question_width, option_widths)
-                        ->setExpand(true)
-                        ->setQuestionsBold(false),
-                        (new QuMcqGrid(
-                        {
-                            QuestionWithOneField(xstring("q16"), fieldRef("q16")),
-                        },
-                        options_reversed
-                        ))
-                        ->showTitle(false)
-                        ->setWidth(question_width, option_widths)
-                        ->setExpand(true)
-                        ->setQuestionsBold(false),
-                        (new QuMcqGrid(
-                        {
-                            QuestionWithOneField(xstring("q17"), fieldRef("q17")),
-                            QuestionWithOneField(xstring("q18"), fieldRef("q18")),
-                            QuestionWithOneField(xstring("q19"), fieldRef("q19")),
-                            QuestionWithOneField(xstring("q20"), fieldRef("q20")),
-                        },
-                        options
-                        ))
-                        ->showTitle(false)
-                        ->setWidth(question_width, option_widths)
-                        ->setExpand(true)
-                        ->setQuestionsBold(false),
-                    }));
+        new QuText(xstring("instruction"))
+    })->setTitle(xstring("title")));
+
+    QVector<QuestionWithOneField> question_field_pairs;
+    for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
+        const QString field_and_q_name = stringfunc::strnum("q", q);
+        question_field_pairs.append(
+            QuestionWithOneField(xstring(field_and_q_name),
+                                 fieldRef(field_and_q_name))
+        );
+    }
+    page->addElement(
+        (new QuMcqGrid(question_field_pairs, options))
+                ->setTitle(xstring("stem"))
+                ->setWidth(question_width, option_widths)
+                ->setExpand(true)
+                ->setQuestionsBold(false)
+    );
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
@@ -237,7 +153,21 @@ OpenableWidget* Cesd::editor(const bool read_only)
 
 int Cesd::totalScore() const
 {
-    return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+    // Need to score values as per original then flip here
+    int total = 0;
+    for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
+        QVariant v = value(stringfunc::strnum("q", q));
+        if (v.isNull()) {
+            continue;
+        }
+        const int score = v.toInt();
+        if (REVERSE_SCORED_QUESTIONS.contains(q)) {
+            total += 3 - score;
+        } else {
+            total += score;
+        }
+    }
+    return total;
 }
 
 
