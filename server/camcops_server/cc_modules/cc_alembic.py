@@ -80,10 +80,9 @@ def downgrade_database(target_revision: str, show_sql_only: bool = False) -> Non
     """
     Downgrade the database to a specific revision.
     """
-    head_revision = int(get_head_revision_from_alembic(alembic_config_filename=ALEMBIC_CONFIG_FILENAME))
-    target_revision = int(target_revision)
+    head_revision = get_head_revision_from_alembic(alembic_config_filename=ALEMBIC_CONFIG_FILENAME)
 
-    if target_revision >= head_revision:
+    if int(target_revision) >= int(head_revision):
         log.warning("Cannot ***downgrade*** from revision {current} to revision {target}".format(
             current=head_revision,
             target=target_revision)
