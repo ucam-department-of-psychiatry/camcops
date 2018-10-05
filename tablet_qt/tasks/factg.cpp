@@ -160,8 +160,16 @@ OpenableWidget* Factg::editor(const bool read_only)
                                             fieldRef(strnum(QPREFIX, i))));
     }
 
-    QVector<QuElement*> elements;
-    elements.append((new QuMcqGrid(qfields, options))->setSubtitles(subtitles));
+    QVector<QuElement*> elements = {
+        (new QuText(xstring("stem")))->setBold(true),
+        (new QuText(xstring("instruction")))->setBold(true),
+    };
+
+    elements.append((new QuMcqGrid(qfields, options))
+                    ->setExpand(true)
+                    ->showTitle(false)
+                    ->setSubtitles(subtitles)
+);
     QuPagePtr page((new QuPage(elements))
                    ->setTitle(xstring("title_main")));
 
