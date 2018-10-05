@@ -37,6 +37,7 @@ from typing import TYPE_CHECKING
 import os
 
 # from alembic import command
+from alembic.config import Config
 from cardinal_pythonlib.fileops import preserve_cwd
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.alembic_func import (
