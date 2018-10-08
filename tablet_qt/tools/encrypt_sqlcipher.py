@@ -15,7 +15,7 @@ import sys
 log = logging.getLogger(__name__)
 
 EXIT_FAIL = 1
-PASSWORD_ENV_VAR = "DECRYPT_SQLCIPHER_PASSWORD"
+PASSWORD_ENV_VAR = "ENCRYPT_SQLCIPHER_PASSWORD"
 SQLCIPHER_ENV_VAR = "SQLCIPHER"
 SQLCIPHER_DEFAULT = "sqlcipher"
 
@@ -34,14 +34,14 @@ def main() -> None:
     # Command-line arguments
     # -------------------------------------------------------------------------
     parser = argparse.ArgumentParser(
-        description="Use SQLCipher to make a decrypted copy of a database",
+        description="Use SQLCipher to make an encrypted copy of a database",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
-        "encrypted",
-        help="Filename of the existing encrypted database")
+        "plaintext",
+        help="Filename of the existing plain-text (decrypted) database")
     parser.add_argument(
-        "decrypted",
-        help="Filename of the decrypted database to be created")
+        "encrypted",
+        help="Filename of the encrypted database to be created")
     parser.add_argument(
         "--password", type=str, default=None,
         help="Password (if blank, environment variable {} will be used, or you"
@@ -67,12 +67,12 @@ def main() -> None:
     # -------------------------------------------------------------------------
     # Check file existence
     # -------------------------------------------------------------------------
-    if not os.path.isfile(progargs.encrypted):
-        log.critical("No such file: {}".format(repr(progargs.encrypted)))
+    if not os.path.isfile(progargs.plaintext):
+        log.critical("No such file: {}".format(repr(progargs.plaintext)))
         sys.exit(EXIT_FAIL)
-    if os.path.isfile(progargs.decrypted):
+    if os.path.isfile(progargs.encrypted):
         log.critical("Destination already exists: {}".format(
-            repr(progargs.decrypted)))
+            repr(progargs.encrypted)))
         sys.exit(EXIT_FAIL)
     if not shutil.which(sqlcipher):
         log.critical("Can't find SQLCipher at {}".format(repr(sqlcipher)))
@@ -101,26 +101,23 @@ def main() -> None:
 -- Exit on any error
 .bail on
 
--- Gain access to the encrypted database
-PRAGMA key = {key};
-
--- Check we can read from old database (or quit without creating new one)
+-- Check we can read from plaintext database (or quit without creating new one)
 SELECT COUNT(*) FROM sqlite_master;
 
 -- Create new database
-ATTACH DATABASE '{plaintext}' AS plaintext KEY '';
+ATTACH DATABASE '{encrypted}' AS encrypted KEY {key};
 
 -- Move data from one to the other
-SELECT sqlcipher_export('plaintext');
+SELECT sqlcipher_export('encrypted');
 
 -- Done
-DETACH DATABASE plaintext;
+DETACH DATABASE encrypted;
 .exit
     """.format(
-        plaintext=progargs.decrypted,
+        encrypted=progargs.encrypted,
         key=string_to_sql_literal(password),
     )
-    cmdargs = [sqlcipher, progargs.encrypted]
+    cmdargs = [sqlcipher, progargs.plaintext]
     # log.debug("cmdargs: " + repr(cmdargs))
     # log.debug("stdin: " + sql)
     log.info("Calling SQLCipher ({})...".format(repr(sqlcipher)))
@@ -131,13 +128,13 @@ DETACH DATABASE plaintext;
     retcode = p.returncode
     if retcode > 0:
         log.critical(
-            "SQLCipher returned an error; its output is below. (Wrong "
-            "password? Wrong passwords give the error 'file is encrypted or "
-            "is not a database', as do non-database files.)")
+            "SQLCipher returned an error; its output is below. (Not a "
+            "plain-text database? Wrong passwords give the error 'file is "
+            "encrypted or is not a database', as do non-database files.)")
         log.critical(stderr_str)
     else:
-        log.info("Success. (The decrypted database {} is now a standard SQLite"
-                 " plain-text database.)".format(repr(progargs.decrypted)))
+        log.info("Success. (The database {} is now an SQLCipher "
+                 " encrypted database.)".format(repr(progargs.encrypted)))
     sys.exit(retcode)
 
 

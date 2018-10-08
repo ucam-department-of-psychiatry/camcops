@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# camcops_server/tasks/core10.py
+# camcops_server/tasks/pcl5.py
 
 """
 ===============================================================================
@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 
 
 # =============================================================================
-# CORE-10
+# PCL-5
 # =============================================================================
 
 class Pcl5Metaclass(DeclarativeMeta):
@@ -108,8 +108,6 @@ class Pcl5(TaskHasPatientMixin, Task,
     N_QUESTIONS = 20
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
     TASK_FIELDS = SCORED_FIELDS  # may be overridden
-    TASK_TYPE = "?"  # will be overridden
-    # ... not really used; we display the generic question forms on the server
     MIN_SCORE = 0
     MAX_SCORE = 4 * N_QUESTIONS
 
@@ -285,11 +283,12 @@ class Pcl5(TaskHasPatientMixin, Task,
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Questions with scores ≥2 are considered symptomatic.
-                [2] ≥1 ‘B’ symptoms and ≥1 ‘C’ symptoms and ≥2 'D' symptoms
+                [1] Questions with scores ≥2 are considered symptomatic; see
+                    https://www.ptsd.va.gov/professional/assessment/adult-sr/ptsd-checklist.asp
+                [2] ≥1 ‘B’ symptoms and ≥1 ‘C’ symptoms and ≥2 ‘D’ symptoms
                     and ≥2 ‘E’ symptoms.
             </div>
-        """.format(
+        """.format(  # noqa
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr_qa(

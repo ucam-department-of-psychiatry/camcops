@@ -24,6 +24,8 @@
 
 #include "tasks/bdi.h"
 #include "tasks/cisr.h"
+#include "tasks/cesd.h"
+#include "tasks/cesdr.h"
 #include "tasks/core10.h"
 #include "tasks/gad7.h"
 #include "tasks/gds15.h"
@@ -55,6 +57,8 @@ AffectiveMenu::AffectiveMenu(CamcopsApp& app) :
         MAKE_CHANGE_PATIENT(app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("asrm", app),
         MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Cesd::CESD_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Cesdr::CESDR_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("epds", app),

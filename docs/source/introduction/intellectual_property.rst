@@ -61,8 +61,8 @@ Note also:
   comparison of free/open-source licences
   (https://en.wikipedia.org/wiki/Comparison_of_free_and_open-source_software_licenses).
 
-2. Tasks, scales, and questionnaires distributed with CamCOPS
--------------------------------------------------------------
+Tasks, scales, and questionnaires distributed with CamCOPS
+----------------------------------------------------------
 
 CamCOPS comes with several tasks, scales, and questionnaires. Their permissions
 cover a spectrum:
@@ -100,8 +100,8 @@ cover a spectrum:
 - For details on each task, see their :ref:`individual descriptions
   <tasks_all>`.
 
-3. Software libraries
----------------------
+Software libraries
+------------------
 
 The CamCOPS app and server rely on some third-party software; see
 :ref:`Licences <licences_other>`.

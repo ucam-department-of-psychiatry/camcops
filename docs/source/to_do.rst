@@ -30,6 +30,25 @@ Tasks
 
 - PDSQ screener (see Clark talk 2018-09-20, MQ Data Science)
 
+Consider:
+
+- new task: mini-ACE
+- new task: Andy Foster / eating disorders; e-mail of 24/5/16
+- new task: AQ10 autistic spectrum screening
+- discarded tasks - revitalize: ASRM
+- discarded tasks - revitalize: BARS
+- discarded tasks - revitalize: BFCRS
+- discarded tasks - revitalize: CSI
+- discarded tasks - revitalize: EPDS
+- discarded tasks - revitalize: FAB
+- discarded tasks - revitalize: GASS
+- discarded tasks - revitalize: LSHSA
+- discarded tasks - revitalize: LSHSLAROI2005
+- discarded tasks - revitalize: LUNSERS
+- discarded tasks - revitalize: MADRS
+- discarded tasks - revitalize: SAS
+
+
 Client core
 ~~~~~~~~~~~
 

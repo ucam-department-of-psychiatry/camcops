@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cesd">
+    <!-- Center for Epidemiologic Studies Depression Scale -->
+
+    <string name="title">Center for Epidemiologic Studies Depression Scale (CESD)</string>
+
+    <string name="instruction">Below is a list of some of the ways you may have felt or behaved. Please indicate how often you have felt this way during the <b>past week:</b></string>
+
+    <string name="stem">During the past week...</string>
+
+    <string name="q1">1. I was bothered by things that usually don’t bother me</string>
+    <string name="q2">2. I did not feel like eating; my appetite was poor</string>
+    <string name="q3">3. I felt that I could not shake off the blues even with help from my family</string>
+    <string name="q4">4. I felt that I was just as good as other people</string>
+    <string name="q5">5. I had trouble keeping my mind on what I was doing</string>
+    <string name="q6">6. I felt depressed</string>
+    <string name="q7">7. I felt that everything I did was an effort</string>
+    <string name="q8">8. I felt hopeful about the future</string>
+    <string name="q9">9.  I thought my life had been a failure</string>
+    <string name="q10">10. I felt fearful</string>
+    <string name="q11">11. My sleep was restless</string>
+    <string name="q12">12. I was happy</string>
+    <string name="q13">13. I talked less than usual</string>
+    <string name="q14">14. I felt lonely</string>
+    <string name="q15">15. People were unfriendly</string>
+    <string name="q16">16. I enjoyed life</string>
+    <string name="q17">17. I had crying spells</string>
+    <string name="q18">18. I felt sad</string>
+    <string name="q19">19. I felt that people disliked me</string>
+    <string name="q20">20. I could not “get going”</string>
+
+    <string name="q1_s">Q1 (sensitivity/irritability):</string>
+    <string name="q2_s">Q2 (poor appetite):</string>
+    <string name="q3_s">Q3 (unshakeable blues):</string>
+    <string name="q4_s">Q4 (low self-esteem)</string>
+    <string name="q5_s">Q5 (poor concentration):</string>
+    <string name="q6_s">Q6 (depressed):</string>
+    <string name="q7_s">Q7 (everything effortful):</string>
+    <string name="q8_s">Q8 (hopeful):</string>
+    <string name="q9_s">Q9 (feelings of failure):</string>
+    <string name="q10_s">Q10 (fearful):</string>
+    <string name="q11_s">Q11 (sleep restless):</string>
+    <string name="q12_s">Q12 (happy):</string>
+    <string name="q13_s">Q13 (uncommunicative):</string>
+    <string name="q14_s">Q14 (lonely)</string>
+    <string name="q15_s">Q16 (perceived unfriendliness):</string>
+    <string name="q16_s">Q17 (enjoyment):</string>
+    <string name="q17_s">Q18 (crying spells):</string>
+    <string name="q18_s">Q19 (sadness):</string>
+    <string name="q19_s">Q20 (feeling disliked):</string>
+    <string name="q20_s">Q20 (could not get going):</string>
+
+    <string name="a0">Rarely or none of the time (less than 1 day)</string>
+    <string name="a1">Some or a little of the time (1–2 days)</string>
+    <string name="a2">Occasionally or a moderate amount of time (3–4 days)</string>
+    <string name="a3">All of the time (5–7 days)</string>
+
+	<string name="depression_or_risk_of">Indicates depression or risk of depression</string>    
+
+  </task>
+</resources>

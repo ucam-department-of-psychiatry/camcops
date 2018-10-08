@@ -35,6 +35,8 @@ server/camcops_server
     alembic/versions/0005_reduced_indexed_varchar_fields_from_255_.py.rst
     alembic/versions/0006_core_10.py.rst
     alembic/versions/0007_add_pcl5.py.rst
+    alembic/versions/0008_add_cesd_task.py.rst
+    alembic/versions/0009_add_cesd_r_task.py.rst
     camcops.py.rst
     camcops_meta.py.rst
     cc_modules/cc_alembic.py.rst
@@ -120,6 +122,8 @@ server/camcops_server
     extra_strings/caps.xml.rst
     extra_strings/cbir.xml.rst
     extra_strings/cecaq3.xml.rst
+    extra_strings/cesd.xml.rst
+    extra_strings/cesdr.xml.rst
     extra_strings/cgi.xml.rst
     extra_strings/cgisch.xml.rst
     extra_strings/cisr.xml.rst
@@ -170,10 +174,6 @@ server/camcops_server
     extra_strings/slums.xml.rst
     extra_strings/smast.xml.rst
     extra_strings/wemwbs.xml.rst
-    static/documentation_copy/_static/basic.css.rst
-    static/documentation_copy/_static/css/camcops_docs.css.rst
-    static/documentation_copy/_static/nature.css.rst
-    static/documentation_copy/_static/pygments.css.rst
     tasks/ace3.py.rst
     tasks/aims.py.rst
     tasks/audit.py.rst
@@ -189,6 +189,8 @@ server/camcops_server
     tasks/cardinal_expectationdetection.py.rst
     tasks/cbir.py.rst
     tasks/ceca.py.rst
+    tasks/cesd.py.rst
+    tasks/cesdr.py.rst
     tasks/cgi_task.py.rst
     tasks/cgisch.py.rst
     tasks/cisr.py.rst

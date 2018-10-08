@@ -22,8 +22,6 @@
 Center for Epidemiological Studies Depression Scale (CES-D, CESD)
 -----------------------------------------------------------------
 
-.. include:: include_under_development.rst
-
 A 20-item self-report scale for detecting depression. The CESD (1977) and
 CESD-R (2004) both have 20 items, but their content differs slightly.
 
