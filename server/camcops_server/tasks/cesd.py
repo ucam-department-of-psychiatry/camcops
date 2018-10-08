@@ -28,14 +28,12 @@ from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.sqltypes import Boolean, Integer
+from sqlalchemy.sql.sqltypes import Boolean
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import (
-    answer, get_yes_no, subheading_spanning_two_columns, tr, tr_qa
-)
+from camcops_server.cc_modules.cc_html import get_yes_no, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -61,7 +59,7 @@ class CesdMetaclass(DeclarativeMeta):
     There is a multilayer metaclass problem; see hads.py for discussion.
     """
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['cesd'],
+    def __init__(cls: Type['Cesd'],
                  name: str,
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
@@ -76,23 +74,22 @@ class CesdMetaclass(DeclarativeMeta):
                 "poor appetite",
                 "unshakeable blues",
                 "low self-esteem",
-                "focus",
+                "poor concentration",
                 "depressed",
-                "low energy",
-                "lack of optimism",
+                "everything effortful",
+                "hopeful",
                 "feelings of failure",
                 "fearful",
-                "sleep problems",
+                "sleep restless",
                 "happy",
                 "uncommunicative",
                 "lonely",
-                "perceived hostility",
+                "perceived unfriendliness",
                 "enjoyment",
                 "crying spells",
                 "sadness",
                 "feeling disliked",
-                "lack of enthusiasm"
-
+                "could not get going",
             ]
         )
         super().__init__(name, bases, classdict)
@@ -112,11 +109,10 @@ class Cesd(TaskHasPatientMixin, Task,
     N_ANSWERS = 4
     DEPRESSION_RISK_THRESHOLD = 16
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
-    TASK_FIELDS = SCORED_FIELDS  # may be overridden
-    TASK_TYPE = "?"  # will be overridden
-    # ... not really used; we display the generic question forms on the server
+    TASK_FIELDS = SCORED_FIELDS
     MIN_SCORE = 0
     MAX_SCORE = 3 * N_QUESTIONS
+    REVERSE_SCORED_QUESTIONS = [4, 8, 12, 16]
 
     def is_complete(self) -> bool:
         return (
@@ -125,11 +121,22 @@ class Cesd(TaskHasPatientMixin, Task,
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(self.SCORED_FIELDS)
+        # Need to store values as per original then flip here
+        total = 0
+        for qnum, fieldname in enumerate(self.SCORED_FIELDS, start=1):
+            score = getattr(self, fieldname)
+            if score is None:
+                continue
+            if qnum in self.REVERSE_SCORED_QUESTIONS:
+                total += 3 - score
+            else:
+                total += score
+        return total
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         line_step = 20
-        preliminary_cutoff = 16
+        threshold_line = self.DEPRESSION_RISK_THRESHOLD - 0.5
+        # noinspection PyTypeChecker
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CESD total score",
@@ -146,10 +153,10 @@ class Cesd(TaskHasPatientMixin, Task,
                 self.MIN_SCORE + line_step,
                 self.MAX_SCORE - line_step,
                 step=line_step
-            ) + [preliminary_cutoff],
+            ) + [threshold_line],
             horizontal_labels=[
-                TrackerLabel(preliminary_cutoff,
-                             self.wxstring(req, "preliminary_cutoff")),
+                TrackerLabel(threshold_line,
+                             self.wxstring(req, "depression_or_risk_of")),
             ]
         )]
 
@@ -163,14 +170,14 @@ class Cesd(TaskHasPatientMixin, Task,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="depression",
+                name="depression_risk",
                 coltype=Boolean(),
                 value=self.has_depression_risk(),
-                comment="Has depression or risk of."),
+                comment="Has depression or at risk of depression"),
         ]
 
     def has_depression_risk(self) -> bool:
-        return (self.total_score() >= self.DEPRESSION_RISK_THRESHOLD)
+        return self.total_score() >= self.DEPRESSION_RISK_THRESHOLD
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -201,7 +208,8 @@ class Cesd(TaskHasPatientMixin, Task,
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-            [1] Presence of depression (or depression risk) is indicated by a score >= 16
+            [1] Presence of depression (or depression risk) is indicated by a 
+                score &ge; 16
             </div>
         """.format(
             CssClass=CssClass,
@@ -211,7 +219,8 @@ class Cesd(TaskHasPatientMixin, Task,
                 score
             ),
             depression_or_risk_of=tr_qa(
-                self.wxstring(req, "depression_or_risk_of") + "? <sup>[1]</sup>",
+                self.wxstring(req, "depression_or_risk_of") +
+                "? <sup>[1]</sup>",
                 get_yes_no(req, self.has_depression_risk())
             ),
             q_a=q_a,

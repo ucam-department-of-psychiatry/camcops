@@ -61,35 +61,36 @@ class CesdrMetaclass(DeclarativeMeta):
     There is a multilayer metaclass problem; see hads.py for discussion.
     """
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['cesdr'],
+    def __init__(cls: Type['Cesdr'],
                  name: str,
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
         add_multiple_columns(
             cls, "q", 1, cls.N_QUESTIONS,
             minimum=0, maximum=4,
-            comment_fmt="Q{n} ({s}) (0 not at all - 4 extremely)",
+            comment_fmt=("Q{n} ({s}) (0 not at all - "
+                         "4 nearly every day for two weeks)"),
             comment_strings=[
                 "poor appetite",
                 "unshakable blues",
-                "lack of focus",
+                "poor concentration",
                 "depressed",
-                "sleep problems",
+                "sleep restless",
                 "sad",
-                "no enthusiasm",
-                "depressed",
-                "feelings of guilt",
+                "could not get going",
+                "nothing made me happy",
+                "felt a bad person",
                 "loss of interest",
                 "oversleeping",
-                "lethargic",
+                "moving slowly",
                 "fidgety",
-                "severely depressed",
-                "self - harm",
+                "wished were dead",
+                "wanted to hurt self",
                 "tiredness",
-                "self - hatred",
-                "weight loss",
-                "sleep problems",
-                "lack of focus"
+                "disliked self",
+                "unintended weight loss",
+                "difficulty getting to sleep",
+                "lack of focus",
             ]
         )
         super().__init__(name, bases, classdict)
@@ -102,22 +103,23 @@ class Cesdr(TaskHasPatientMixin, Task,
     """
     __tablename__ = 'cesdr'
     shortname = 'CESD-R'
-    longname = 'CESD-R: Center for Epidemiologic Studies Depression Scale - Revised'
+    longname = 'Center for Epidemiologic Studies Depression Scale (Revised)'
     provides_trackers = True
     extrastring_taskname = "cesdr"
 
-    CAT_SUB = 0
-    CAT_POSS_MAJOR = 1
-    CAT_PROB_MAJOR = 2
-    CAT_MAJOR = 3
+    CAT_NONCLINICAL = 0
+    CAT_SUB = 1
+    CAT_POSS_MAJOR = 2
+    CAT_PROB_MAJOR = 3
+    CAT_MAJOR = 4
 
     DEPRESSION_RISK_THRESHOLD = 16
 
     FREQ_NOT_AT_ALL = 0
-    FREQ_1_2_DAYS = 1
-    FREQ_3_4_DAYS = 2
-    FREQ_5_7_DAYS = 3
-    FREQ_DAILY = 4
+    FREQ_1_2_DAYS_LAST_WEEK = 1
+    FREQ_3_4_DAYS_LAST_WEEK = 2
+    FREQ_5_7_DAYS_LAST_WEEK = 3
+    FREQ_DAILY_2_WEEKS = 4
 
     N_QUESTIONS = 20
     N_ANSWERS = 5
@@ -127,9 +129,7 @@ class Cesdr(TaskHasPatientMixin, Task,
     MAJOR_THRESH = 4
 
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
-    TASK_FIELDS = SCORED_FIELDS  # may be overridden
-    TASK_TYPE = "?"  # will be overridden
-    # ... not really used; we display the generic question forms on the server
+    TASK_FIELDS = SCORED_FIELDS
     MIN_SCORE = 0
     MAX_SCORE = 3 * N_QUESTIONS
 
@@ -140,16 +140,19 @@ class Cesdr(TaskHasPatientMixin, Task,
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(self.SCORED_FIELDS) - self.count_where(self.SCORED_FIELDS, [self.FREQ_DAILY])
+        return (
+            self.sum_fields(self.SCORED_FIELDS) -
+            self.count_where(self.SCORED_FIELDS, [self.FREQ_DAILY_2_WEEKS])
+        )
 
     def get_depression_category(self) -> int:
 
         if not self.has_depression_risk():
             return self.CAT_SUB
 
-        q_groups = {
-            'dysphoria': [2, 4, 6],
-            'anhedonia': [8, 10],
+        q_group_anhedonia = [8, 10]
+        q_group_dysphoria = [2, 4, 6]
+        other_q_groups = {
             'appetite': [1, 18],
             'sleep': [5, 11, 19],
             'thinking': [3, 20],
@@ -159,36 +162,59 @@ class Cesdr(TaskHasPatientMixin, Task,
             'suicidal': [14, 15]
         }
 
-        if (not self.fufills_group_criteria(q_groups['dysphoria']) or
-                not self.fufills_group_criteria(q_groups['anhedonia'])):
+        # Dysphoria or anhedonia must be present at frequency FREQ_DAILY_2_WEEKS
+        anhedonia_criterion = (
+            self.fulfils_group_criteria(q_group_anhedonia, True) or
+            self.fulfils_group_criteria(q_group_dysphoria, True)
+        )
+        if anhedonia_criterion:
+            category_count_high_freq = 0
+            category_count_lower_freq = 0
+            for qgroup in other_q_groups.values():
+                if self.fulfils_group_criteria(qgroup, True):
+                    # Category contains an answer == FREQ_DAILY_2_WEEKS
+                    category_count_high_freq += 1
+                if self.fulfils_group_criteria(qgroup, False):
+                    # Category contains an answer == FREQ_DAILY_2_WEEKS or
+                    # FREQ_5_7_DAYS_LAST_WEEK
+                    category_count_lower_freq += 1
+
+            if category_count_high_freq >= self.MAJOR_THRESH:
+                # Anhedonia or dysphoria (at FREQ_DAILY_2_WEEKS)
+                # plus 4 other symptom groups at FREQ_DAILY_2_WEEKS
+                return self.CAT_MAJOR
+            if category_count_lower_freq >= self.PROB_MAJOR_THRESH:
+                # Anhedonia or dysphoria (at FREQ_DAILY_2_WEEKS)
+                # plus 3 other symptom groups at FREQ_DAILY_2_WEEKS or
+                # FREQ_5_7_DAYS_LAST_WEEK
+                return self.CAT_PROB_MAJOR
+            if category_count_lower_freq >= self.POSS_MAJOR_THRESH:
+                # Anhedonia or dysphoria (at FREQ_DAILY_2_WEEKS)
+                # plus 2 other symptom groups at FREQ_DAILY_2_WEEKS or
+                # FREQ_5_7_DAYS_LAST_WEEK
+                return self.CAT_POSS_MAJOR
+
+        if self.has_depression_risk():
+            # Total CESD-style score >= 16 but doesn't meet other criteria.
             return self.CAT_SUB
 
-        count = 0
+        return self.CAT_NONCLINICAL
 
-        for group, qnums in q_groups.items():
-            if group == 'dysphoria' or group == 'anhedonia':
-                continue
-            if self.fufills_group_criteria(qnums):
-                count += 1
-
-        if count >= self.MAJOR_THRESH:
-            return self.CAT_MAJOR
-        if count >= self.PROB_MAJOR_THRESH:
-            return self.CAT_PROB_MAJOR
-        if count >= self.POSS_MAJOR_THRESH:
-            return self.CAT_POSS_MAJOR
-
-        return self.CAT_SUB
-
-    def fufills_group_criteria(self, qnums: list) -> bool:
+    def fulfils_group_criteria(self, qnums: List[int],
+                               nearly_every_day_2w: bool) -> bool:
         qstrings = ["q" + str(qnum) for qnum in qnums]
-        count = (self.count_where(qstrings, [self.FREQ_DAILY]) +
-                self.count_where(qstrings, [self.FREQ_5_7_DAYS]))
+        if nearly_every_day_2w:
+            possible_values = [self.FREQ_DAILY_2_WEEKS]
+        else:
+            possible_values = [self.FREQ_5_7_DAYS_LAST_WEEK,
+                               self.FREQ_DAILY_2_WEEKS]
+        count = self.count_where(qstrings, possible_values)
         return count > 0
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         line_step = 20
-        preliminary_cutoff = 16
+        threshold_line = self.DEPRESSION_RISK_THRESHOLD - 0.5
+        # noinspection PyTypeChecker
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CESD-R total score",
@@ -205,10 +231,10 @@ class Cesdr(TaskHasPatientMixin, Task,
                 self.MIN_SCORE + line_step,
                 self.MAX_SCORE - line_step,
                 step=line_step
-            ) + [preliminary_cutoff],
+            ) + [threshold_line],
             horizontal_labels=[
-                TrackerLabel(preliminary_cutoff,
-                             self.wxstring(req, "preliminary_cutoff")),
+                TrackerLabel(threshold_line,
+                             self.wxstring(req, "depression_or_risk_of")),
             ]
         )]
 
@@ -222,10 +248,10 @@ class Cesdr(TaskHasPatientMixin, Task,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="depression",
+                name="depression_risk",
                 coltype=Boolean(),
                 value=self.has_depression_risk(),
-                comment="Has depression or risk of."),
+                comment="Has depression or at risk of depression"),
         ]
 
     def has_depression_risk(self) -> bool:
@@ -261,10 +287,12 @@ class Cesdr(TaskHasPatientMixin, Task,
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-            [1] Presence of depression (or depression risk) is indicated by a score >= 16
-            [2] Diagnostic criteria described https://cesd-r.com/cesdr/
+            [1] Presence of depression (or depression risk) is indicated by a
+                score &ge; 16
+            [2] Diagnostic criteria described at 
+                <a href="https://cesd-r.com/cesdr/">https://cesd-r.com/cesdr/</a>
             </div>
-        """.format(
+        """.format(  # noqa
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr_qa(
@@ -272,11 +300,14 @@ class Cesdr(TaskHasPatientMixin, Task,
                 score
             ),
             depression_or_risk_of=tr_qa(
-                self.wxstring(req, "depression_or_risk_of") + "? <sup>[1]</sup>",
+                self.wxstring(req, "depression_or_risk_of") +
+                "? <sup>[1]</sup>",
                 get_yes_no(req, self.has_depression_risk())
             ),
-            provisional_diagnosis=tr('Provisional diagnosis <sup>[2]</sup>',
-                                     self.wxstring(req, "category_" + str(self.get_depression_category()))),
+            provisional_diagnosis=tr(
+                'Provisional diagnosis <sup>[2]</sup>',
+                self.wxstring(
+                    req, "category_" + str(self.get_depression_category()))),
             q_a=q_a,
 
         )

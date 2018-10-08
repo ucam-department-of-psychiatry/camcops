@@ -36,7 +36,7 @@
     <string name="q4_s">Q4 (low self-esteem)</string>
     <string name="q5_s">Q5 (poor concentration):</string>
     <string name="q6_s">Q6 (depressed):</string>
-    <string name="q7_s">Q7 (everthing effortful):</string>
+    <string name="q7_s">Q7 (everything effortful):</string>
     <string name="q8_s">Q8 (hopeful):</string>
     <string name="q9_s">Q9 (feelings of failure):</string>
     <string name="q10_s">Q10 (fearful):</string>
@@ -51,10 +51,10 @@
     <string name="q19_s">Q20 (feeling disliked):</string>
     <string name="q20_s">Q20 (could not get going):</string>
 
-    <string name="a0"><b>Rarely or none of the time</b> (less than 1 day)</string>
-    <string name="a1"><b>Some or a little of the time</b> (1–2 days)</string>
-    <string name="a2"><b>Occasionally or a moderate amount of time</b> (3–4 days)</string>
-    <string name="a3"><b>All of the time</b> (5–7 days)</string>
+    <string name="a0">Rarely or none of the time (less than 1 day)</string>
+    <string name="a1">Some or a little of the time (1–2 days)</string>
+    <string name="a2">Occasionally or a moderate amount of time (3–4 days)</string>
+    <string name="a3">All of the time (5–7 days)</string>
 
 	<string name="depression_or_risk_of">Indicates depression or risk of depression</string>    
 

@@ -31,6 +31,12 @@ Quick links:
 - :ref:`2017 <changelog_2017>`
 - :ref:`2018 <changelog_2018>`
 
+Contributors
+------------
+
+- Rudolf Cardinal, 2012–.
+- Joe Kearney, 2018–.
+
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
 ----------------------------------------------------------------------------------------
 

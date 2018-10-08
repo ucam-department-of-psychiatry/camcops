@@ -22,6 +22,7 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
 const int MAX_SCORE = 60;
+const int DEPRESSION_RISK_THRESHOLD = 16;
 
 const QVector<int> REVERSE_SCORED_QUESTIONS{4, 8, 12, 16};
 
@@ -110,13 +111,6 @@ OpenableWidget* Cesd::editor(const bool read_only)
         {xstring("a3"), 3}
     };
 
-    const NameValueOptions options_reversed{
-        {xstring("a0"), 3},
-        {xstring("a1"), 2},
-        {xstring("a2"), 1},
-        {xstring("a3"), 0},
-    };
-
     const int question_width = 40;
     const QVector<int> option_widths{15, 15, 15, 15};
 
@@ -153,7 +147,7 @@ OpenableWidget* Cesd::editor(const bool read_only)
 
 int Cesd::totalScore() const
 {
-    // Need to score values as per original then flip here
+    // Need to store values as per original then flip here
     int total = 0;
     for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
         QVariant v = value(stringfunc::strnum("q", q));
@@ -173,7 +167,7 @@ int Cesd::totalScore() const
 
 QVariant Cesd::hasDepressionRisk() const
 {
-    return totalScore() >= 16;
+    return totalScore() >= DEPRESSION_RISK_THRESHOLD;
 }
 
 

@@ -38,7 +38,6 @@ DATABASE REVISION SCRIPT
 
 from alembic import op
 import sqlalchemy as sa
-import cardinal_pythonlib.sqlalchemy.list_types
 import camcops_server.cc_modules.cc_sqla_coltypes
 
 

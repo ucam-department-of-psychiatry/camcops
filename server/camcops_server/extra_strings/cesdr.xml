@@ -3,7 +3,7 @@
   <task name="cesdr">
     <!-- Center for Epidemiologic Studies Depression Scale -->
 
-    <string name="title">The Center for Epidemiologic Studies Depression Scale (Revised)</string>
+    <string name="title">Center for Epidemiologic Studies Depression Scale (Revised)</string>
 
     <string name="instructions">Below is a list of the ways you might have felt or behaved. Please indicate how often you have felt this way in the past week or so.</string>
 
@@ -28,26 +28,26 @@
     <string name="q19">19. I had a lot of trouble getting to sleep.</string>
     <string name="q20">20. I could not focus on the important things.</string>
 
-    <string name="q1_s">Q1 (poor appetite):</string>
-    <string name="q2_s">Q2 (unshakeable blues):</string>
-    <string name="q3_s">Q3 (poor concentration):</string>
-    <string name="q4_s">Q4 (depressed)</string>
-    <string name="q5_s">Q5 (sleep restless):</string>
-    <string name="q6_s">Q6 (sad):</string>
-    <string name="q7_s">Q7 (could not get going):</string>
-    <string name="q8_s">Q8 (nothing made me happy):</string>
-    <string name="q9_s">Q9 (felt a bad person):</string>
-    <string name="q10_s">Q10 (loss of interest):</string>
-    <string name="q11_s">Q11 (oversleeping):</string>
-    <string name="q12_s">Q12 (moving slowly):</string>
-    <string name="q13_s">Q13 (fidgety):</string>
-    <string name="q14_s">Q14 (wished were dead)</string>
-    <string name="q15_s">Q16 (wanted to hurt self):</string>
-    <string name="q16_s">Q17 (tiredness):</string>
-    <string name="q17_s">Q18 (disliked self):</string>
-    <string name="q18_s">Q19 (unintended weight loss):</string>
-    <string name="q19_s">Q20 (difficulty getting to sleep):</string>
-    <string name="q20_s">Q20 (lack of focus):</string>
+    <string name="q1_s">Q1 (poor appetite) [appetite]:</string>
+    <string name="q2_s">Q2 (unshakeable blues) [dysphoria]:</string>
+    <string name="q3_s">Q3 (poor concentration) [thinking/concentration]:</string>
+    <string name="q4_s">Q4 (depressed) [dysphoria]</string>
+    <string name="q5_s">Q5 (sleep restless) [sleep]:</string>
+    <string name="q6_s">Q6 (sad) [dysphoria]:</string>
+    <string name="q7_s">Q7 (could not get going) [fatigue]:</string>
+    <string name="q8_s">Q8 (nothing made me happy) [anhedonia]:</string>
+    <string name="q9_s">Q9 (felt a bad person) [guilt/worthlessness]:</string>
+    <string name="q10_s">Q10 (loss of interest) [anhedonia]:</string>
+    <string name="q11_s">Q11 (oversleeping) [sleep]:</string>
+    <string name="q12_s">Q12 (moving slowly) [movement]:</string>
+    <string name="q13_s">Q13 (fidgety) [movement]:</string>
+    <string name="q14_s">Q14 (wished were dead) [suicidal ideation]</string>
+    <string name="q15_s">Q16 (wanted to hurt self) [suicidal ideation]:</string>
+    <string name="q16_s">Q17 (tiredness) [fatigue]:</string>
+    <string name="q17_s">Q18 (disliked self) [guilt/worthlessness]:</string>
+    <string name="q18_s">Q19 (unintended weight loss) [appetite]:</string>
+    <string name="q19_s">Q20 (difficulty getting to sleep) [sleep]:</string>
+    <string name="q20_s">Q20 (lack of focus) [thinking/concentration]:</string>
 
     <string name="a0">Not at all or less than 1 day last week</string>
     <string name="a1">1–2 days last week</string>

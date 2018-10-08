@@ -31,11 +31,11 @@ const int CAT_MAJOR = 4;
 
 const int DEPRESSION_RISK_THRESHOLD = 16;
 
-const int FREQ_NOT_AT_ALL = 0;
+const int FREQ_NOT_AT_ALL         = 0;
 const int FREQ_1_2_DAYS_LAST_WEEK = 1;
 const int FREQ_3_4_DAYS_LAST_WEEK = 2;
 const int FREQ_5_7_DAYS_LAST_WEEK = 3;
-const int FREQ_DAILY_2_WEEKS    = 4;
+const int FREQ_DAILY_2_WEEKS      = 4;
 
 const int POSS_MAJOR_THRESH = 2;
 const int PROB_MAJOR_THRESH = 3;
@@ -70,7 +70,7 @@ QString Cesdr::shortname() const
 
 QString Cesdr::longname() const
 {
-    return tr("CESD-R: Center for Epidemiologic Studies Depression Scale Revised");
+    return tr("Center for Epidemiologic Studies Depression Scale (Revised)");
 }
 
 
@@ -145,29 +145,41 @@ int Cesdr::depressionCategory() const
         qs_thinking, qs_suicidal
     };
 
-    // Dysphoria or anhedonia must be present at frequency mostly or daily
+    // Dysphoria or anhedonia must be present at frequency FREQ_DAILY_2_WEEKS
     const bool anhedonia_criterion = fulfilsGroupCriteria(qs_dysphoria, true) ||
                                      fulfilsGroupCriteria(qs_anhedonia, true);
     if (anhedonia_criterion) {
-        // For the remaining categories, count it if it contains an answer == FREQ_DAILY or answer == FREQ_5_7_DAYS
-        int categoryCount = 0;
+        int categoryCountHighFrequency = 0;
+        int categoryCountLowerFrequency = 0;
         for (auto qgroup : non_anhedonia_groups) {
-            if (fulfilsGroupCriteria(qgroup)) {
-                categoryCount += 1;
+            if (fulfilsGroupCriteria(qgroup, true)) {
+                // Category contains an answer == FREQ_DAILY_2_WEEKS
+                categoryCountHighFrequency += 1;
+            }
+            if (fulfilsGroupCriteria(qgroup, false)) {
+                // Category contains an answer == FREQ_DAILY_2_WEEKS or FREQ_5_7_DAYS_LAST_WEEK
+                categoryCountLowerFrequency += 1;
             }
         }
 
-        if (categoryCount >= MAJOR_THRESH) {
+        if (categoryCountHighFrequency >= MAJOR_THRESH) {
+            // Anhedonia or dysphoria (at FREQ_DAILY_2_WEEKS)
+            // plus 4 other symptom groups at FREQ_DAILY_2_WEEKS
             return CAT_MAJOR;
-        } else if (categoryCount >= PROB_MAJOR_THRESH) {
+        } else if (categoryCountLowerFrequency >= PROB_MAJOR_THRESH) {
+            // Anhedonia or dysphoria (at FREQ_DAILY_2_WEEKS)
+            // plus 3 other symptom groups at FREQ_DAILY_2_WEEKS or FREQ_5_7_DAYS_LAST_WEEK
             return CAT_PROB_MAJOR;
-        } else if (categoryCount >= POSS_MAJOR_THRESH) {
+        } else if (categoryCountLowerFrequency >= POSS_MAJOR_THRESH) {
+            // Anhedonia or dysphoria (at FREQ_DAILY_2_WEEKS)
+            // plus 2 other symptom groups at FREQ_DAILY_2_WEEKS or FREQ_5_7_DAYS_LAST_WEEK
             return CAT_POSS_MAJOR;
         }
     }
 
     const int cesd_score = totalScore();
-    if (cesd_score >= 16) {
+    if (cesd_score >= DEPRESSION_RISK_THRESHOLD) {
+        // Total CESD-style score >= 16 but doesn't meet other criteria.
         return CAT_SUB;
     }
     return CAT_NONCLINICAL;
@@ -251,16 +263,17 @@ bool Cesdr::fulfilsGroupCriteria(const QVector<int>& qnums,
 
 int Cesdr::totalScore() const
 {
-    // In order to make the revised CESD-R have the same range as the original version i.e., the ‘CESD style score’),
-    // the values for the top two responses are given the same value.
+    // So that the CESD-R has the same range as the CESD (the "CESD-style
+    // score"), the values for the top two responses are given the same value.
     // See: https://cesd-r.com/cesdr/
 
     QVector<QVariant> responses = values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS));
 
-    // Sum the response values, and subtract the count of answers marked as occurring daily.
-    // Makes the 5-7 and daily responses value-quivalent, so scoring is out of 60 and
-    // comparable to CESD.
-    return sumInt(responses) - countWhere(responses, QVector<QVariant>{FREQ_DAILY_2_WEEKS});
+    // Sum the response values, and subtract the count of answers marked as
+    // occurring daily. Makes the 5-7 and daily responses value-quivalent, so
+    // scoring is out of 60 and comparable to CESD.
+    return sumInt(responses) - countWhere(responses,
+                                          QVector<QVariant>{FREQ_DAILY_2_WEEKS});
 }
 
 
