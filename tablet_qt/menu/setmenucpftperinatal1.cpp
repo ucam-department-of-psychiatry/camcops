@@ -24,6 +24,7 @@
 
 #include "tasks/core10.h"
 #include "tasks/gad7.h"
+#include "tasks/honos.h"
 
 
 SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
@@ -37,5 +38,6 @@ SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
         MAKE_CHANGE_PATIENT(app),
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
     };
 }

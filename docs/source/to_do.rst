@@ -20,11 +20,26 @@
 Things to do
 ============
 
-Client
-------
-
 Tasks
-~~~~~
+-----
+
+**Priority**
+
+- Psycho-oncology: FACT-G
+- Psycho-oncology (and FROM-LP): EQ-5D-5L
+- Perinatal: POEM
+- Perinatal: Goal Based Outcomes (GBO); see
+  https://www.corc.uk.net/outcome-experience-measures/ and
+  https://digital.nhs.uk/National-Clinical-Content-Repository
+- Perinatal: Outcome Rating Scale (ORS); see
+  https://www.corc.uk.net/outcome-experience-measures/ and
+  https://digital.nhs.uk/National-Clinical-Content-Repository
+- Perinatal: Session Rating Scale (SRS); see
+  https://www.corc.uk.net/outcome-experience-measures/ and
+  https://digital.nhs.uk/National-Clinical-Content-Repository
+- Perinatal: an infant/mother relationship indicator (Zeyn, TBC)
+
+**Not a priority**
 
 - Cardinal_ExpDet* tasks: generate noise on the fly?
 
@@ -50,28 +65,17 @@ Consider:
 
 
 Client core
-~~~~~~~~~~~
+-----------
+
+**Priority**
 
 - iOS build.
 
 - Apple App Store.
 
-- OS/X build.
-
 - Consider a “chain of tasks” concept again (see e.g. ResearchMenu.js;
   MenuTableRow.js; QuestionnaireHeader.js...)... or is that pointless relative
   to a “set of tasks” concept?
-
-- Desktop-style menu for desktop clients. (Faster to navigate around.)
-
-- Search for ``“// ***”``
-
-- Think about a web-based client, e.g. via VNC (but this is complex and loads
-  servers/networks considerably). Potentially more promising is Qt for
-  WebAssembly (in preview May 2018), which compiles to a variety of portable
-  quasi-assembly language; the browser downloads and runs it. However, at
-  present there is no threading or DNS lookup
-  (http://blog.qt.io/blog/2018/05/22/qt-for-webassembly/).
 
 - Validator options, e.g. the server says "ID type 72 uses the 'NHS number'
   validator", so checksums are checked. An NHS number validator is built.
@@ -86,6 +90,24 @@ Client core
     if the validator is "NHS", etc.
   - on the server, HTML task view showing a warning if an ID number fails
     its validator?
+
+- Think: maybe extend the "required ID number" system so that groups can define
+  whether the client should/shouldn't offer forename, surname, DOB, address,
+  GP, other. This would make it easier to enforce a "no PID" rule for
+  research studies.
+
+**Not a priority**
+
+- OS/X build.
+
+- Think about a web-based client, e.g. via VNC (but this is complex and loads
+  servers/networks considerably). Potentially more promising is Qt for
+  WebAssembly (in preview May 2018), which compiles to a variety of portable
+  quasi-assembly language; the browser downloads and runs it. However, at
+  present there is no threading or DNS lookup
+  (http://blog.qt.io/blog/2018/05/22/qt-for-webassembly/).
+
+- Desktop-style menu for desktop clients. (Faster to navigate around.)
 
 - Current Android back button behaviour may not be optimal.
 
@@ -104,16 +126,16 @@ Client core
 Server
 ------
 
+**Priority**
+
+- Facility to hide individual sticky notes (with audit trail), so they're not
+  shown in HTML (+ PDF) and XML views. See e-mail RNC/JK/RE, 2018-10-12.
+
 - Superuser facility to list all users' e-mail addresses or provide ``mailto:``
   URL.
 
-- Search for all ``‘***’`` and fix.
-
-- Implement (from command line) “export to anonymisation staging database” =
-  with patient info per table. (Extend cc_dump.)
-
 - Test the HL7 backend. Think re HL7 implementation carefully; see
-  hl7_design.txt. Also: ensure we can efficiently distinguish between
+  ``hl7_design.txt``. Also: ensure we can efficiently distinguish between
   “previously sent” and “needs to be sent” in the context of re-sending stuff
   that changes in important ways (if we continue to allow this).
 
@@ -176,14 +198,38 @@ Server
 - What's the optimal packaging method for the server? Is it DEB/RPM for Linux,
   and PyInstaller + Inno Setup (or just Inno Setup) for Windows?
 
-- fix problem with CherryPy
+- Think: should we have a task index? Rationale would be to speed up multi-task
+  queries (which will get slower as we add more tasks). Would have a table like
+  _task_index and a class like TaskIndex, with fields including:
+
+  - ``task_table_name``: VARCHAR(?64); task main table name
+  - ``task_pk``: server ``_pk`` field for task
+  - ``patient_which_idnum``
+  - ``patient_idnum_value``
+
+  ... with one entry (``patient_which_idnum = NULL``) for anonymous tasks
+  and one or more entries for actual patients?
+
+  Using this index would be a method for :class:`TaskCollection` and
+  :class:`TaskFilter`.
+
+  Not sure this is yet optimal, though; see the task filters; would want to
+  support all common use-cases. Needs a bit more thought.
+
+  Would also need an (offline only?) method to update the index -- and most
+  significantly, the upload code would need to become properly patient-aware
+  and task-aware to update the index (and do so in an atomic way across
+  multiple upload calls).
+
+**Not a priority**
+
+- Implement (from command line) “export to anonymisation staging database” =
+  with patient info per table. (Extend ``cc_dump.py``. See
+  ``generate_anonymisation_staging_db()``, and it's also temporarily disabled
+  in the master command-line handler.)
+
 
 Documentation to-do list
 ------------------------
-
-- Notes to readthedocs.org (when "source" links are working properly?).
-
-- Consider autodocumentation for C++ code; see
-  https://stackoverflow.com/questions/11246637/using-sphinx-apidoc-to-generate-documentation-from-c-code
 
 .. todolist::
