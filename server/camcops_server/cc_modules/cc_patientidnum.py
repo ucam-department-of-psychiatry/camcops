@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_patientidnum.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Represent patient ID numbers.
 
 We were looking up ID descriptors from the device's stored variables.
 However, that is a bit of a nuisance for a server-side researcher, and
@@ -63,6 +67,10 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Stores ID numbers for a specific patient
 
 class PatientIdNum(GenericTabletRecordMixin, Base):
+    """
+    SQLAlchemy ORM class representing an ID number (as a
+    which_idnum/idnum_value pair) for a patient.
+    """
     __tablename__ = "patient_idnum"
 
     id = Column(
@@ -87,10 +95,16 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
     )
 
     def get_idnum_reference(self) -> IdNumReference:
+        """
+        Returns an :class:`IdNumReference` object summarizing this ID number.
+        """
         return IdNumReference(which_idnum=self.which_idnum,
                               idnum_value=self.idnum_value)
 
     def is_valid(self) -> bool:
+        """
+        Is this a valid ID number?
+        """
         return (
             self.which_idnum is not None and
             self.idnum_value is not None and
@@ -99,20 +113,33 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         )
 
     def description(self, req: "CamcopsRequest") -> str:
+        """
+        Returns the full description for this ID number.
+        """
         which_idnum = self.which_idnum  # type: int
         return req.get_id_desc(which_idnum, default="?")
 
     def short_description(self, req: "CamcopsRequest") -> str:
+        """
+        Returns the short description for this ID number.
+        """
         which_idnum = self.which_idnum  # type: int
         return req.get_id_shortdesc(which_idnum, default="?")
 
     def get_filename_component(self, req: "CamcopsRequest") -> str:
+        """
+        Returns a string including the short description of the ID number, and
+        the number itself, for use in filenames.
+        """
         if self.which_idnum is None or self.idnum_value is None:
             return ""
         return "{}-{}".format(self.short_description(req),
                               self.idnum_value)
 
     def set_idnum(self, idnum_value: int) -> None:
+        """
+        Sets the ID number value.
+        """
         self.idnum_value = idnum_value
 
 
@@ -121,4 +148,8 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
 # =============================================================================
 
 def fake_tablet_id_for_patientidnum(patient_id: int, which_idnum: int) -> int:
+    """
+    Returns a fake client-side PK (tablet ID) for a patient number. Only for
+    use in upgrading old databases.
+    """
     return patient_id * NUMBER_OF_IDNUMS_DEFUNCT + which_idnum

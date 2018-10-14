@@ -2,6 +2,8 @@
 # camcops_server/tasks/cisr.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,14 +24,18 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+..
 """
 
 from enum import Enum
 import logging
 from typing import List, Optional
 
+from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
+from semantic_version import Version
 from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -2768,6 +2774,11 @@ class Cisr(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     # Functions
     # -------------------------------------------------------------------------
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def minimum_client_version(cls) -> Version:
+        return Version("2.2.0")
 
     def value_for_question(self, q: CisrQuestion) -> Optional[int]:
         fieldname = fieldname_for_q(q)

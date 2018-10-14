@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_config.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,12 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Read and represent a CamCOPS config file.
+
+Also contains various types of demonstration config file (CamCOPS, but also
+``supervisord``, Apache, etc.) and demonstration helper scripts (e.g. MySQL).
+
 """
 
 # There are CONDITIONAL AND IN-FUNCTION IMPORTS HERE; see below. This is to
@@ -32,10 +40,9 @@ import codecs
 import configparser
 import contextlib
 import datetime
-import operator
 import os
 import logging
-from typing import Dict, Generator, List
+from typing import Generator, List
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -112,6 +119,9 @@ DUMMY_INSTITUTION_URL = 'http://www.mydomain/'
 
 
 class ConfigParamMain(object):
+    """
+    Parameters allowed in the main section of the CamCOPS config file.
+    """
     ALLOW_INSECURE_COOKIES = "ALLOW_INSECURE_COOKIES"
     CAMCOPS_LOGO_FILE_ABSOLUTE = "CAMCOPS_LOGO_FILE_ABSOLUTE"
     CLIENT_API_LOGLEVEL = "CLIENT_API_LOGLEVEL"
@@ -144,6 +154,9 @@ def get_demo_config(extra_strings_dir: str = None,
                     summary_table_lock_file_stem: str = None,
                     db_url: str = None,
                     db_echo: bool = False) -> str:
+    """
+    Returns a demonstration config file based on the specified parameters.
+    """
     extra_strings_dir = extra_strings_dir or DEFAULT_EXTRA_STRINGS_DIR
     extra_strings_spec = os.path.join(extra_strings_dir, '*')
     lock_dir = lock_dir or LINUX_DEFAULT_LOCK_DIR
@@ -726,6 +739,10 @@ DEFAULT_SOCKET_FILENAME = "/tmp/.camcops.sock"
 def get_demo_supervisor_config(
         specimen_internal_port: int = DEFAULT_INTERNAL_PORT,
         specimen_socket_file: str = DEFAULT_SOCKET_FILENAME) -> str:
+    """
+    Returns a demonstration ``supervisord`` config file based on the
+    specified parameters.
+    """
     return """
 # =============================================================================
 # Demonstration 'supervisor' config file for CamCOPS.
@@ -820,6 +837,9 @@ def get_demo_apache_config(
         urlbase: str = "/camcops",
         specimen_internal_port: int = DEFAULT_INTERNAL_PORT,
         specimen_socket_file: str = DEFAULT_SOCKET_FILENAME) -> str:
+    """
+    Returns a demo Apache HTTPD config file section applicable to CamCOPS.
+    """
     return """
     # Demonstration Apache config file section for CamCOPS.
     # Created by CamCOPS version {version} at {now}.
@@ -1082,6 +1102,11 @@ def get_demo_apache_config(
 
 
 def get_demo_mysql_create_db() -> str:
+    """
+    Returns a demonstration MySQL script to create a CamCOPS database.
+    (The database structure is then provided by the CamCOPS ``upgrade_db``
+    command.)
+    """
     return """
 # First, from the Linux command line, log in to MySQL as root:
 
@@ -1117,6 +1142,9 @@ exit
 
 
 def get_demo_mysql_dump_script() -> str:
+    """
+    Returns a demonstration script to dump all current MySQL databases.
+    """
     return """#!/bin/bash
 
 # Minimal simple script to dump all current MySQL databases.
@@ -1157,11 +1185,13 @@ chmod -R ug+rw *
 
 class CamcopsConfig(object):
     """
-    Class representing the config.
+    Class representing the CamCOPS configuration.
     """
 
     def __init__(self, config_filename: str) -> None:
-        """Initialize from config file."""
+        """
+        Initialize by reading the config file.
+        """
         cp = ConfigParamMain
 
         # ---------------------------------------------------------------------
@@ -1310,6 +1340,8 @@ class CamcopsConfig(object):
 
     def get_sqla_engine(self) -> Engine:
         """
+        Returns an SQLAlchemy :class:`Engine`.
+        
         I was previously misinterpreting the appropriate scope of an Engine.
         I thought: create one per request.
         But the Engine represents the connection *pool*.
@@ -1319,15 +1351,15 @@ class CamcopsConfig(object):
         "The appropriate scope is once per [database] URL per application,
         at the module level."
 
-        https://groups.google.com/forum/#!topic/sqlalchemy/ZtCo2DsHhS4
-        https://stackoverflow.com/questions/8645250/how-to-close-sqlalchemy-connection-in-mysql
+        - https://groups.google.com/forum/#!topic/sqlalchemy/ZtCo2DsHhS4
+        - https://stackoverflow.com/questions/8645250/how-to-close-sqlalchemy-connection-in-mysql
 
         Now, our CamcopsConfig instance is cached, so there should be one of
         them overall. See get_config() below.
 
         Therefore, making the engine a member of this class should do the
         trick, whilst avoiding global variables.
-        """
+        """  # noqa
         if self._sqla_engine is None:
             self._sqla_engine = create_engine(
                 self.db_url,
@@ -1342,11 +1374,18 @@ class CamcopsConfig(object):
     @property
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
     def get_all_table_names(self) -> List[str]:
+        """
+        Returns all table names from the database.
+        """
         engine = self.get_sqla_engine()
         return get_table_names(engine=engine)
 
     @contextlib.contextmanager
     def get_dbsession_context(self) -> Generator[SqlASession, None, None]:
+        """
+        Context manager to provide an SQLAlchemy session that will COMMIT
+        once we've finished, or perform a ROLLBACK if there was an exception.
+        """
         engine = self.get_sqla_engine()
         maker = sessionmaker(bind=engine)
         dbsession = maker()  # type: SqlASession
@@ -1361,10 +1400,12 @@ class CamcopsConfig(object):
 
     def _assert_valid_database_engine(self) -> None:
         """
-        Excluding invalid backend database types.
+        Assert that our backend database is a valid type.
 
-        Specifically, SQL Server versions before 2008 don't support timezones
-        and we need that.
+        Specifically, we prohibit:
+
+        - SQL Server versions before 2008: they don't support timezones
+          and we need that.
         """
         engine = self.get_sqla_engine()
         if not is_sqlserver(engine):
@@ -1376,6 +1417,12 @@ class CamcopsConfig(object):
         )
 
     def _assert_database_is_at_head(self) -> None:
+        """
+        Assert that the current database is at its head (most recent) revision,
+        by comparing its Alembic version number (written into the Alembic
+        version table of the database) to the most recent Alembic revision in
+        our ``camcops_server/alembic/versions`` directory.
+        """
         current, head = get_current_and_head_revision(
             database_url=self.db_url,
             alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
@@ -1393,6 +1440,10 @@ class CamcopsConfig(object):
             raise RuntimeError(msg)
 
     def assert_database_ok(self) -> None:
+        """
+        Asserts that our database engine is OK and our database structure is
+        correct.
+        """
         self._assert_valid_database_engine()
         self._assert_database_is_at_head()
 
@@ -1402,7 +1453,12 @@ class CamcopsConfig(object):
 # =============================================================================
 
 def get_config_filename_from_os_env() -> str:
-    # We do NOT trust the WSGI environment for this.
+    """
+    Returns the config filename to use, from our operating system environment
+    variable.
+
+    (We do NOT trust the WSGI environment for this.)
+    """
     config_filename = os.environ.get(ENVVAR_CONFIG_FILE)
     if not config_filename:
         raise AssertionError(
@@ -1417,6 +1473,11 @@ def get_config_filename_from_os_env() -> str:
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_config(config_filename: str) -> CamcopsConfig:
+    """
+    Returns a :class:`CamcopsConfig` from the specified config filename.
+
+    Cached.
+    """
     return CamcopsConfig(config_filename)
 
 
@@ -1425,6 +1486,10 @@ def get_config(config_filename: str) -> CamcopsConfig:
 # =============================================================================
 
 def get_default_config_from_os_env() -> CamcopsConfig:
+    """
+    Returns the :class:`CamcopsConfig` representing the config filename that
+    we read from our operating system environment variable.
+    """
     return get_config(get_config_filename_from_os_env())
 
 

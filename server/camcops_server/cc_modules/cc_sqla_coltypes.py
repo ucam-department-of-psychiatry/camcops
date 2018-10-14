@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_sqla_coltypes.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -23,8 +25,10 @@
 
 ===============================================================================
 
-Note these built-in SQLAlchemy types:
-http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types
+SQLAlchemy column types used by CamCOPS.
+
+Note these built-in SQLAlchemy types
+(http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types):
 
     =============== ===========================================================
     SQLAlchemy type Comment
@@ -38,21 +42,21 @@ http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types
     Enum
     Float
     Integer         MySQL: -2,147,483,648 to 2,147,483,647 (32-bit)
-    Interval        for datetime.timedelta
-    LargeBinary     under MySQL, maps to BLOB
-    MatchType       for the return type of the MATCH operator
-    Numeric         for fixed-precision numbers like NUMERIC or DECIMAL
+    Interval        For ``datetime.timedelta``
+    LargeBinary     Under MySQL, maps to ``BLOB``
+    MatchType       For the return type of the ``MATCH`` operator
+    Numeric         For fixed-precision numbers like ``NUMERIC`` or ``DECIMAL``
     PickleType
     SchemaType
     SmallInteger
-    String          VARCHAR
-    Text            variably sized string type
-                    ... under MySQL, renders as TEXT
+    String          ``VARCHAR``
+    Text            Variably sized string type.
+                    (Under MySQL, renders as ``TEXT``.)
     Time
-    Unicode         implies that the underlying column explicitly supports 
+    Unicode         Implies that the underlying column explicitly supports 
                     Unicode
-    UnicodeText     variably sized version of Unicode
-                    ... under MySQL, renders as TEXT too
+    UnicodeText     Variably sized version of Unicode
+                    (Under MySQL, renders as ``TEXT`` too.)
     =============== ===========================================================
     
 Not supported across all platforms:
@@ -60,10 +64,10 @@ Not supported across all platforms:
     =============== ===========================================================
     SQL type        Comment
     =============== ===========================================================
-    BIGINT UNSIGNED MySQL: 0 to 18,446,744,073,709,551,615 (64-bit)
-                    ... use sqlalchemy.dialects.mysql.BIGINT(unsigned=True)
-    INT UNSIGNED    MySQL: 0 to 4,294,967,295 (32-bit)
-                    ... use sqlalchemy.dialects.mysql.INTEGER(unsigned=True)
+    BIGINT UNSIGNED MySQL: 0 to 18,446,744,073,709,551,615 (64-bit).
+                    Use ``sqlalchemy.dialects.mysql.BIGINT(unsigned=True)``.
+    INT UNSIGNED    MySQL: 0 to 4,294,967,295 (32-bit).
+                    Use ``sqlalchemy.dialects.mysql.INTEGER(unsigned=True)``.
     =============== ===========================================================
 
 Other MySQL sizes:
@@ -81,12 +85,12 @@ Other MySQL sizes:
     LONGTEXT        4,294,967,295 (2^32 - 1) bytes = 4 GiB
     =============== ===========================================================
 
-See https://stackoverflow.com/questions/13932750/tinytext-text-mediumtext-and-longtext-maximum-storage-sizes
+See https://stackoverflow.com/questions/13932750/tinytext-text-mediumtext-and-longtext-maximum-storage-sizes.
 
-Also:
+Also notes:
 
-    - Columns may need their character set specified explicitly under MySQL:
-      https://stackoverflow.com/questions/2108824/mysql-incorrect-string-value-error-when-save-unicode-string-in-django
+- Columns may need their character set specified explicitly under MySQL:
+  https://stackoverflow.com/questions/2108824/mysql-incorrect-string-value-error-when-save-unicode-string-in-django
 
 """  # noqa
 
@@ -261,8 +265,10 @@ USERNAME_MAX_LEN = 191  # our choice
 
 class RelationshipInfo(object):
     """
-    Used for the "info" parameter to SQLAlchemy "relationship" calls.
-    """
+    Used as keys the ``info`` (user-defined) dictionary parameter to SQLAlchemy
+    ``relationship`` calls; see
+    https://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship.
+    """  # noqa
     IS_ANCILLARY = "is_ancillary"
     IS_BLOB = "is_blob"
 
@@ -368,10 +374,10 @@ _SQLSERVER_DATETIME2_LEN = 27
 # noinspection PyPep8Naming
 class isotzdatetime_to_utcdatetime(FunctionElement):
     """
-    Used as an SQL operation by PendulumDateTimeAsIsoTextColType.
+    Used as an SQL operation by :class:`PendulumDateTimeAsIsoTextColType`.
 
     Creates an SQL expression wrapping a field containing our ISO-8601 text,
-    making a DATETIME out of it, in the UTC timezone.
+    making a ``DATETIME`` out of it, in the UTC timezone.
 
     Implemented for different SQL dialects.
     """
@@ -385,7 +391,7 @@ def isotzdatetime_to_utcdatetime_default(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> None:
     """
-    Default implementation for isotzdatetime_to_utcdatetime: fail.
+    Default implementation for :class:`isotzdatetime_to_utcdatetime`: fail.
     """
     fail_unknown_dialect(compiler, "perform isotzdatetime_to_utcdatetime")
 
@@ -396,14 +402,14 @@ def isotzdatetime_to_utcdatetime_mysql(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> str:
     """
-    Implementation of isotzdatetime_to_utcdatetime for MySQL.
+    Implementation of :class:`isotzdatetime_to_utcdatetime` for MySQL.
     
     For format, see
     https://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html#function_date-format
     
     Note the use of "%i" for minutes.
     
-    Things after "func." get passed to the database engine as literal SQL
+    Things after ``func.`` get passed to the database engine as literal SQL
     functions; http://docs.sqlalchemy.org/en/latest/core/tutorial.html
     """  # noqa
     x = fetch_processed_single_clause(element, compiler)
@@ -435,7 +441,7 @@ def isotzdatetime_to_utcdatetime_sqlite(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> str:
     """
-    Implementation of isotzdatetime_to_utcdatetime for SQLite.
+    Implementation of :class:`isotzdatetime_to_utcdatetime` for SQLite.
     """
     x = fetch_processed_single_clause(element, compiler)
 
@@ -465,7 +471,7 @@ def isotzdatetime_to_utcdatetime_sqlserver(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> str:
     """
-    Implementation of isotzdatetime_to_utcdatetime for SQL Server.
+    Implementation of :class:`isotzdatetime_to_utcdatetime` for SQL Server.
 
     **Converting strings to DATETIME values**
 
@@ -584,11 +590,11 @@ def isotzdatetime_to_utcdatetime_sqlserver(
 # noinspection PyPep8Naming
 class unknown_field_to_utcdatetime(FunctionElement):
     """
-    Used as an SQL operation by PendulumDateTimeAsIsoTextColType.
+    Used as an SQL operation by :class:`PendulumDateTimeAsIsoTextColType`.
 
     Creates an SQL expression wrapping a field containing something unknown,
-    which might be a DATETIME or an ISO-formatted field, and
-    making a DATETIME out of it, in the UTC timezone.
+    which might be a ``DATETIME`` or an ISO-formatted field, and
+    making a ``DATETIME`` out of it, in the UTC timezone.
 
     Implemented for different SQL dialects.
     """
@@ -602,7 +608,7 @@ def unknown_field_to_utcdatetime_default(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> None:
     """
-    Default implementation for unknown_field_to_utcdatetime: fail.
+    Default implementation for :class:`unknown_field_to_utcdatetime`: fail.
     """
     fail_unknown_dialect(compiler, "perform unknown_field_to_utcdatetime")
 
@@ -613,11 +619,10 @@ def unknown_field_to_utcdatetime_mysql(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> str:
     """
-    Implementation of unknown_field_to_utcdatetime for MySQL.
+    Implementation of :class:`unknown_field_to_utcdatetime` for MySQL.
 
-    If it's the length of a plain DATETIME e.g. "2013-05-30 00:00:00" (19),
-    leave it as a DATETIME; otherwise convert ISO -> DATETIME
-    log.critical(result)
+    If it's the length of a plain ``DATETIME`` e.g. ``2013-05-30 00:00:00``
+    (19), leave it as a ``DATETIME``; otherwise convert ISO -> ``DATETIME``.
     """
     x = fetch_processed_single_clause(element, compiler)
     result = "IF(LENGTH({x}) = {dtlen}, {x}, {converted})".format(
@@ -625,6 +630,7 @@ def unknown_field_to_utcdatetime_mysql(
         dtlen=_MYSQL_DATETIME_LEN,
         converted=isotzdatetime_to_utcdatetime_mysql(element, compiler, **kw)
     )
+    # log.critical(result)
     return result
 
 
@@ -634,7 +640,7 @@ def unknown_field_to_utcdatetime_sqlite(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> str:
     """
-    Implementation of unknown_field_to_utcdatetime for SQLite.
+    Implementation of :class:`unknown_field_to_utcdatetime` for SQLite.
     """
     x = fetch_processed_single_clause(element, compiler)
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
@@ -649,17 +655,18 @@ def unknown_field_to_utcdatetime_sqlserver(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> str:
     """
-    Implementation of unknown_field_to_utcdatetime for SQL Server.
+    Implementation of :class:`unknown_field_to_utcdatetime` for SQL Server.
 
-    We should cope also with the possibility of a DATETIME2 field, not just
-    DATETIME. It seems consistent that LEN(DATETIME2) = 27, with precision
-    tenth of a microsecond, e.g. ``2001-01-31 21:30:49.1234567`` (27).
+    We should cope also with the possibility of a ``DATETIME2`` field, not just
+    ``DATETIME``. It seems consistent that ``LEN(DATETIME2) = 27``, with
+    precision tenth of a microsecond, e.g. ``2001-01-31 21:30:49.1234567``
+    (27).
 
-    So, if it looks like a DATETIME or a DATETIME2, then we leave it alone;
-    otherwise we put it through our ISO-to-datetime function.
+    So, if it looks like a ``DATETIME`` or a ``DATETIME2``, then we leave it
+    alone; otherwise we put it through our ISO-to-datetime function.
 
-    Importantly, note that neither _SQLSERVER_DATETIME_LEN nor
-    _SQLSERVER_DATETIME2_LEN are the length of any of our ISO strings.
+    Importantly, note that neither ``_SQLSERVER_DATETIME_LEN`` nor
+    ``_SQLSERVER_DATETIME2_LEN`` are the length of any of our ISO strings.
     """
     x = fetch_processed_single_clause(element, compiler)
     # https://stackoverflow.com/questions/5487892/sql-server-case-when-or-then-else-end-the-or-is-not-supported  # noqa
@@ -695,7 +702,10 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
     _coltype_name = "PendulumDateTimeAsIsoTextColType"
 
     @property
-    def python_type(self):
+    def python_type(self) -> type:
+        """
+        The Python type of the object.
+        """
         return Pendulum
 
     @staticmethod
@@ -715,7 +725,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
 
     @staticmethod
     def isostring_to_pendulum(x: Optional[str]) -> Optional[Pendulum]:
-        """From an ISO-formatted string to a Python Pendulum, with timezone."""
+        """
+        From an ISO-formatted string to a Python Pendulum, with timezone.
+        """
         try:
             return coerce_to_pendulum(x)
         except (ParserError, ValueError):
@@ -724,7 +736,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
 
     def process_bind_param(self, value: Optional[Pendulum],
                            dialect: Dialect) -> Optional[str]:
-        """Convert things on the way from Python to the database."""
+        """
+        Convert parameters on the way from Python to the database.
+        """
         retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
@@ -735,7 +749,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
 
     def process_literal_param(self, value: Optional[Pendulum],
                               dialect: Dialect) -> Optional[str]:
-        """Convert things on the way from Python to the database."""
+        """
+        Convert literals on the way from Python to the database.
+        """
         retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
@@ -746,7 +762,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
 
     def process_result_value(self, value: Optional[str],
                              dialect: Dialect) -> Optional[Pendulum]:
-        """Convert things on the way from the database to Python."""
+        """
+        Convert things on the way from the database to Python.
+        """
         retval = self.isostring_to_pendulum(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
@@ -811,12 +829,17 @@ class SemanticVersionColType(TypeDecorator):
     _coltype_name = "SemanticVersionColType"
 
     @property
-    def python_type(self):
+    def python_type(self) -> type:
+        """
+        The Python type of the object.
+        """
         return Version
 
     def process_bind_param(self, value: Optional[Version],
                            dialect: Dialect) -> Optional[str]:
-        """Convert things on the way from Python to the database."""
+        """
+        Convert parameters on the way from Python to the database.
+        """
         retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
             log.debug(
@@ -827,7 +850,9 @@ class SemanticVersionColType(TypeDecorator):
 
     def process_literal_param(self, value: Optional[Version],
                               dialect: Dialect) -> Optional[str]:
-        """Convert things on the way from Python to the database."""
+        """
+        Convert literals on the way from Python to the database.
+        """
         retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
             log.debug(
@@ -838,7 +863,9 @@ class SemanticVersionColType(TypeDecorator):
 
     def process_result_value(self, value: Optional[str],
                              dialect: Dialect) -> Optional[Version]:
-        """Convert things on the way from the database to Python."""
+        """
+        Convert things on the way from the database to Python.
+        """
         if value is None:
             retval = None
         else:
@@ -855,8 +882,10 @@ class SemanticVersionColType(TypeDecorator):
 
     # noinspection PyPep8Naming
     class comparator_factory(TypeDecorator.Comparator):
-        """Process SQL for when we are comparing our column, in the database,
-        to something else."""
+        """
+        Process SQL for when we are comparing our column, in the database,
+        to something else.
+        """
 
         def operate(self, op, *other, **kwargs):
             assert len(other) == 1
@@ -886,12 +915,19 @@ class IdNumReferenceListColType(TypeDecorator):
     _coltype_name = "IdNumReferenceListColType"
 
     @property
-    def python_type(self):
+    def python_type(self) -> type:
+        """
+        The Python type of the object.
+        """
         return list
 
     @staticmethod
     def _idnumdef_list_to_dbstr(
             idnumdef_list: Optional[List[IdNumReference]]) -> str:
+        """
+        Converts an optional list of :class:`IdNumReference` objects to a
+        CSV string suitable for storing in the database.
+        """
         if not idnumdef_list:
             return ""
         elements = []  # type: List[int]
@@ -902,6 +938,10 @@ class IdNumReferenceListColType(TypeDecorator):
 
     @staticmethod
     def _dbstr_to_idnumdef_list(dbstr: Optional[str]) -> List[IdNumReference]:
+        """
+        Converts a CSV string (from the database) to a list of
+        :class:`IdNumReference` objects.
+        """
         idnumdef_list = []  # type: List[IdNumReference]
         try:
             intlist = [int(numstr) for numstr in dbstr.split(",")]
@@ -919,7 +959,9 @@ class IdNumReferenceListColType(TypeDecorator):
 
     def process_bind_param(self, value: Optional[List[IdNumReference]],
                            dialect: Dialect) -> str:
-        """Convert things on the way from Python to the database."""
+        """
+        Convert parameters on the way from Python to the database.
+        """
         retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
             log.debug(
@@ -930,7 +972,9 @@ class IdNumReferenceListColType(TypeDecorator):
 
     def process_literal_param(self, value: Optional[List[IdNumReference]],
                               dialect: Dialect) -> str:
-        """Convert things on the way from Python to the database."""
+        """
+        Convert literals on the way from Python to the database.
+        """
         retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
             log.debug(
@@ -941,7 +985,9 @@ class IdNumReferenceListColType(TypeDecorator):
 
     def process_result_value(self, value: Optional[str],
                              dialect: Dialect) -> List[IdNumReference]:
-        """Convert things on the way from the database to Python."""
+        """
+        Convert things on the way from the database to Python.
+        """
         retval = self._dbstr_to_idnumdef_list(value)
         if DEBUG_IDNUMDEF_LIST:
             log.debug(
@@ -957,19 +1003,30 @@ class IdNumReferenceListColType(TypeDecorator):
 
 class PermittedValueChecker(object):
     """
-    Represents permitted values, and checks a value against them.
+    Represents permitted values (in columns belonging to CamCOPS tasks), and
+    checks a value against them.
     """
     def __init__(self,
                  not_null: bool = False,
                  minimum: Union[int, float] = None,
                  maximum: Union[int, float] = None,
                  permitted_values: List[Any] = None) -> None:
+        """
+        Args:
+            not_null: must the value not be NULL?
+            minimum: if specified, a numeric minimum value
+            maximum: if specified, a numeric maximum value
+            permitted_values: if specified, a list of permitted values
+        """
         self.not_null = not_null
         self.minimum = minimum
         self.maximum = maximum
         self.permitted_values = permitted_values
 
     def is_ok(self, value: Any) -> bool:
+        """
+        Does the value pass our tests?
+        """
         if value is None:
             return not self.not_null
             # If not_null is True, then the value is not OK; return False.
@@ -983,6 +1040,9 @@ class PermittedValueChecker(object):
         return True
 
     def failure_msg(self, value: Any) -> str:
+        """
+        Why does the value not pass our tests?
+        """
         if value is None:
             if self.not_null:
                 return "value is None and NULL values are not permitted"
@@ -1031,10 +1091,13 @@ ONE_TO_NINE_CHECKER = PermittedValueChecker(minimum=1, maximum=9)
 # noinspection PyAbstractClass
 class CamcopsColumn(Column):
     """
-    A Column class that supports some CamCOPS-specific flags, such as whether
-    a field is a BLOB reference; how it should be treated for anonymisation;
-    and which values are permitted in the field (in a soft sense: duff values
-    cause errors to be reported, but they're still stored).
+    A SQLAlchemy :class:`Column` class that supports some CamCOPS-specific
+    flags, such as:
+
+    - whether a field is a BLOB reference;
+    - how it should be treated for anonymisation;
+    - which values are permitted in the field (in a soft sense: duff values
+      cause errors to be reported, but they're still stored).
     """
     def __init__(self,
                  *args,
@@ -1057,8 +1120,14 @@ class CamcopsColumn(Column):
                 "of the relationship too")
         super().__init__(*args, **kwargs)
 
-    def _constructor(self, *args, **kwargs):
-        # https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass  # noqa
+    def _constructor(self, *args, **kwargs) -> "CamcopsColumn":
+        """
+        SQLAlchemy method (not clearly documented) to assist in copying
+        objects. Returns a copy of this object.
+        
+        See
+        https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass
+        """  # noqa
         kwargs['cris_include'] = self.cris_include
         kwargs['exempt_from_anonymisation'] = self.exempt_from_anonymisation
         kwargs['identifies_patient'] = self.identifies_patient
@@ -1083,6 +1152,9 @@ class CamcopsColumn(Column):
 
     def set_permitted_value_checker(
             self, permitted_value_checker: PermittedValueChecker) -> None:
+        """
+        Sets the :class:`PermittedValueChecker` attribute.
+        """
         self.permitted_value_checker = permitted_value_checker
 
 
@@ -1092,6 +1164,18 @@ class CamcopsColumn(Column):
 
 def gen_columns_matching_attrnames(obj, attrnames: List[str]) \
         -> Generator[Tuple[str, Column], None, None]:
+    """
+    Find columns of an SQLAlchemy ORM object whose attribute names match a
+    list.
+
+    Args:
+        obj: SQLAlchemy ORM object to inspect
+        attrnames: attribute names
+
+    Yields:
+        ``attrname, column`` tuples
+
+    """
     for attrname, column in gen_columns(obj):
         if attrname in attrnames:
             yield attrname, column
@@ -1100,7 +1184,13 @@ def gen_columns_matching_attrnames(obj, attrnames: List[str]) \
 def gen_camcops_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
                                           None, None]:
     """
-    Yields tuples of (attr_name, CamcopsColumn) from an object.
+    Finds all columns of an object that are :class:`CamcopsColumn` columns.
+
+    Args:
+        obj: SQLAlchemy ORM object to inspect
+
+    Yields:
+        ``attrname, column`` tuples
     """
     for attrname, column in gen_columns(obj):
         if isinstance(column, CamcopsColumn):
@@ -1110,8 +1200,14 @@ def gen_camcops_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
 def gen_camcops_blob_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
                                                None, None]:
     """
-    Yields tuples of (attr_name, CamcopsColumn) from a class where those
-    CamcopsColumns are for fields referencing the BLOB table.
+    Finds all columns of an object that are :class:`CamcopsColumn` columns
+    referencing the BLOB table.
+
+    Args:
+        obj: SQLAlchemy ORM object to inspect
+
+    Yields:
+        ``attrname, column`` tuples
     """
     for attrname, column in gen_camcops_columns(obj):
         if column.is_blob_id_field:
@@ -1122,22 +1218,37 @@ def gen_camcops_blob_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
 
 
 def get_column_attr_names(obj) -> List[str]:
+    """
+    Get a list of column attribute names from an SQLAlchemy ORM object.
+    """
     return [attrname for attrname, _ in gen_columns(obj)]
 
 
 def get_camcops_column_attr_names(obj) -> List[str]:
+    """
+    Get a list of :class:`CamcopsColumn` column attribute names from an
+    SQLAlchemy ORM object.
+    """
     return [attrname for attrname, _ in gen_camcops_columns(obj)]
 
 
 def get_camcops_blob_column_attr_names(obj) -> List[str]:
+    """
+    Get a list of :class:`CamcopsColumn` BLOB column attribute names from an
+    SQLAlchemy ORM object.
+    """
     return [attrname for attrname, _ in gen_camcops_blob_columns(obj)]
 
 
 def permitted_value_failure_msgs(obj) -> List[str]:
     """
-    Checks a SQLAlchemy ORM object instance against its PermittedValueColumn
-    checks, if it has any.
+    Checks a SQLAlchemy ORM object instance against its permitted value
+    checks (via its :class:`CamcopsColumn` columns), if it has any.
+
     Returns a list of failure messages (empty list means all OK).
+
+    If you just want to know whether it passes, a quicker way is via
+    :func:`permitted_values_ok`.
     """
     failure_msgs = []
     for attrname, camcops_column in gen_camcops_columns(obj):
@@ -1154,8 +1265,11 @@ def permitted_value_failure_msgs(obj) -> List[str]:
 
 def permitted_values_ok(obj) -> bool:
     """
-    Faster way of checking WHETHER an instance passes its PermittedValueColumn
-    checks, if it has any.
+    Checks whether an instance passes its permitted value checks, if it has
+    any.
+
+    If you want to know why it failed, see
+    :func:`permitted_value_failure_msgs`.
     """
     for attrname, camcops_column in gen_camcops_columns(obj):
         pv_checker = camcops_column.permitted_value_checker  # type: Optional[PermittedValueChecker]  # noqa
@@ -1171,8 +1285,9 @@ def gen_ancillary_relationships(obj) -> Generator[
         Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
         None, None]:
     """
-    Yields tuples of ``(attrname, RelationshipProperty, related_class)``
-    for all relationships that are marked as a CamCOPS ancillary relationship.
+    For an SQLAlchemy ORM object, yields tuples of ``attrname,
+    relationship_property, related_class`` for all relationships that are
+    marked as a CamCOPS ancillary relationship.
     """
     for attrname, rel_prop, related_class in gen_relationships(obj):
         if rel_prop.info.get(RelationshipInfo.IS_ANCILLARY, None) is True:
@@ -1183,8 +1298,9 @@ def gen_blob_relationships(obj) -> Generator[
         Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
         None, None]:
     """
-    Yields tuples of ``(attrname, RelationshipProperty, related_class)``
-    for all relationships that are marked as a CamCOPS BLOB relationship.
+    For an SQLAlchemy ORM object, yields tuples of ``attrname,
+    relationship_property, related_class`` for all relationships that are
+    marked as a CamCOPS BLOB relationship.
     """
     for attrname, rel_prop, related_class in gen_relationships(obj):
         if rel_prop.info.get(RelationshipInfo.IS_BLOB, None) is True:
@@ -1197,20 +1313,22 @@ def gen_blob_relationships(obj) -> Generator[
 
 def _name_type_in_column_args(args: Tuple[Any, ...]) -> Tuple[bool, bool]:
     """
-    SQLAlchemy doesn't encourage deriving from Column.
-    If you do, you have to implement __init__() and _constructor() carefully.
-    The __init__() function will be called by user code, and via SQLAlchemy
-    internals, including via _constructor (e.g. from Column.make_proxy()).
+    SQLAlchemy doesn't encourage deriving from Column. If you do, you have to
+    implement ``__init__()`` and ``_constructor()`` carefully. The
+    ``__init__()`` function will be called by user code, and via SQLAlchemy
+    internals, including via ``_constructor`` (e.g. from
+    ``Column.make_proxy()``).
 
-    It is likely that __init__ will experience many combinations of the column
-    name and type being passed either in *args or *kwargs. It must pass them
-    on to Column. If you don't mess with the type, that's easy; just pass them
-    on unmodified. But if you plan to mess with the type, as we do in
-    BoolColumn below, we must make sure that we don't pass either of name
-    or type_ in *both* args and kwargs.
+    It is likely that ``__init__`` will experience many combinations of the
+    column name and type being passed either in ``*args`` or ``**kwargs``. It
+    must pass them on to :class:`Column`. If you don't mess with the type,
+    that's easy; just pass them on unmodified. But if you plan to mess with the
+    type, as we do in :class:`BoolColumn` below, we must make sure that we
+    don't pass either of ``name`` or ``type_`` in *both* ``args`` and
+    ``kwargs``.
 
-    This function tells you whether name and type_ are present in args,
-    using the same method as Column.__init__().
+    This function tells you whether ``name`` and ``type_`` are present in args,
+    using the same method as ``Column.__init__()``.
     """
     name_in_args = False
     type_in_args = False
@@ -1228,6 +1346,9 @@ def _name_type_in_column_args(args: Tuple[Any, ...]) -> Tuple[bool, bool]:
 
 # noinspection PyAbstractClass
 class BoolColumn(CamcopsColumn):
+    """
+    A :class:`CamcopsColumn` representing a boolean value.
+    """
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         # Must pass on all arguments, ultimately to Column, or when using
         # AbstractConcreteBase, you can get this:
@@ -1244,6 +1365,7 @@ class BoolColumn(CamcopsColumn):
         # in args, so we must handle that, too...
 
         _, type_in_args = _name_type_in_column_args(args)
+        constraint_name_str = None
         if not type_in_args:
             constraint_name_str = kwargs.pop("constraint_name", None)
             if constraint_name_str:
@@ -1261,7 +1383,10 @@ class BoolColumn(CamcopsColumn):
             ))
 
     def _constructor(self, *args: Any, **kwargs: Any) -> "BoolColumn":
-        # https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass  # noqa
+        """
+        Make a copy; see
+        https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass
+        """
         return BoolColumn(*args, **kwargs)
 
 
@@ -1270,6 +1395,9 @@ class BoolColumn(CamcopsColumn):
 # =============================================================================
 
 class SqlaColtypesTest(unittest.TestCase):
+    """
+    Unit tests.
+    """
     # don't inherit from ExtendedTestCase; circular import
 
     @staticmethod

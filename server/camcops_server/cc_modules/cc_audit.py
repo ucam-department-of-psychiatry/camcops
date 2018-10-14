@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_audit.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Auditing. The Big Brother part.
+
 """
 
 from typing import TYPE_CHECKING
@@ -46,6 +51,9 @@ if TYPE_CHECKING:
 # =============================================================================
 
 class AuditEntry(Base):
+    """
+    An entry in the audit table.
+    """
     __tablename__ = "_security_audit"
 
     id = Column(
@@ -110,7 +118,9 @@ def audit(req: "CamcopsRequest",
           user_id: int = None,
           from_console: bool = False,
           from_dbclient: bool = False) -> None:
-    """Write an entry to the audit log."""
+    """
+    Write an entry to the audit log.
+    """
     dbsession = req.dbsession
     if not remote_addr:
         remote_addr = req.remote_addr if req else None

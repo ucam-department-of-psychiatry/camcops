@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_tsv.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,11 +24,15 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Helper functions/classes for spreadsheet-style tab-separated value (TSV)
+exports.
+
 """
 
 from collections import OrderedDict
 import logging
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 
@@ -40,8 +46,17 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 class TsvPage(object):
+    """
+    Represents a single TSV "spreadsheet".
+    """
     def __init__(self, name: str,
                  rows: List[Union[Dict[str, Any], OrderedDict]]) -> None:
+        """
+        Args:
+            name: name for the whole sheet
+            rows: list of rows, where each row is a dictionary mapping
+                column name to value
+        """
         assert name, "Missing name"
         self.name = name
         self.rows = rows
@@ -54,25 +69,59 @@ class TsvPage(object):
 
     @property
     def empty(self) -> bool:
+        """
+        Do we have zero rows?
+        """
         return len(self.rows) == 0
 
     def _add_headings_if_absent(self, headings: List[str]) -> None:
+        """
+        Add any headings we've not yet seen to our list of headings.
+        """
         for h in headings:
             if h not in self.headings:
                 self.headings.append(h)
 
     def add_or_set_value(self, heading: str, value: Any) -> None:
-        assert len(self.rows) == 1, "add_value can only be used if #row == 1"
+        """
+        If we contain only a single row, this function will set the value
+        for a given column (``heading``) to ``value``.
+
+        Raises:
+            :exc:`AssertionError` if we don't have exactly 1 row
+        """
+        assert len(self.rows) == 1, "add_value can only be used if #rows == 1"
         self._add_headings_if_absent([heading])
         self.rows[0][heading] = value
 
     def add_or_set_column(self, heading: str, values: List[Any]) -> None:
+        """
+        Set the column labelled ``heading`` so it contains the values specified
+        in ``values``. The length of ``values`` must equal the number of rows
+        that we already contain.
+
+        Raises:
+            :exc:`AssertionError` if the number of values doesn't match
+            the number of existing rows
+        """
         assert len(values) == len(self.rows), "#values != #existing rows"
         self._add_headings_if_absent([heading])
         for i, row in enumerate(self.rows):
             row[heading] = values[i]
 
     def add_or_set_columns_from_page(self, other: "TsvPage") -> None:
+        """
+        This function presupposes that ``self`` and ``other`` are two pages
+        ("spreadsheets") with *matching* rows.
+
+        It updates values or creates columns in ``self`` such that the values
+        from all columns in ``other`` are written to the corresponding rows of
+        ``self``.
+
+        Raises:
+            :exc:`AssertionError` if the two pages (sheets) don't have
+            the same number of rows.
+        """
         assert len(self.rows) == len(other.rows), "Mismatched #rows"
         self._add_headings_if_absent(other.headings)
         for i, row in enumerate(self.rows):
@@ -80,22 +129,44 @@ class TsvPage(object):
                 row[k] = v
 
     def add_rows_from_page(self, other: "TsvPage") -> None:
+        """
+        Add all rows from ``other`` to ``self``.
+        """
         self._add_headings_if_absent(other.headings)
         self.rows.extend(other.rows)
 
     def sort_headings(self) -> None:
+        """
+        Sort our headings internally.
+        """
         self.headings.sort()
 
     def get_tsv_headings(self) -> str:
+        """
+        Get the TSV header row (containing column names).
+        """
         return "\t".join(tsv_escape(h) for h in self.headings)
 
     def get_tsv_row(self, rownum: int) -> str:
+        """
+        Get a specific TSV row.
+
+        Args:
+            rownum: zero-based row index
+
+        Returns:
+            TSV row
+        """
         assert 0 <= rownum < len(self.rows)
         row = self.rows[rownum]  # type: OrderedDict
         values = [tsv_escape(row.get(h)) for h in self.headings]
         return "\t".join(values)
 
     def get_tsv(self) -> str:
+        """
+        Returns the entire page (sheet) as TSV: one header row and then
+        lots of data rows.
+        """
         lines = (
             [self.get_tsv_headings()] +
             [self.get_tsv_row(i) for i in range(len(self.rows))]
@@ -104,6 +175,10 @@ class TsvPage(object):
 
 
 class TsvCollection(object):
+    """
+    A collection of :class:`TsvPage` pages (spreadsheets), like an Excel
+    workbook.
+    """
     def __init__(self) -> None:
         self.pages = []  # type: List[TsvPage]
 
@@ -113,11 +188,20 @@ class TsvCollection(object):
             "\n\n".join(page.get_tsv() for page in self.pages)
         )
 
-    def page_with_name(self, page_name: str) -> TsvPage:
+    def page_with_name(self, page_name: str) -> Optional[TsvPage]:
+        """
+        Returns the page with the specific name, or ``None`` if no such
+        page exists.
+        """
         return next((page for page in self.pages if page.name == page_name),
                     None)
 
     def add_page(self, page: TsvPage) -> None:
+        """
+        Adds a new page to our collection. If the new page has the same name
+        as an existing page, rows from the new page are added to the existing
+        page. Does nothing if the new page is empty.
+        """
         if page.empty:
             return
         existing_page = self.page_with_name(page.name)
@@ -129,20 +213,39 @@ class TsvCollection(object):
             self.pages.append(page)
 
     def add_pages(self, pages: List[TsvPage]) -> None:
+        """
+        Adds all ``pages`` to our collection, via :func:`add_page`.
+        """
         for page in pages:
             self.add_page(page)
 
     def sort_headings_within_all_pages(self) -> None:
+        """
+        Sort headings within each of our pages.
+        """
         for page in self.pages:
             page.sort_headings()
 
     def sort_pages(self) -> None:
+        """
+        Sort our pages by their page name.
+        """
         self.pages.sort(key=lambda p: p.name)
 
     def get_page_names(self) -> List[str]:
+        """
+        Return a list of the names of all our pages.
+        """
         return [p.name for p in self.pages]
 
     def get_tsv_file(self, page_name: str) -> str:
+        """
+        Returns a TSV file for a named page.
+
+        Raises:
+            :exc:`AssertionError` if the named page does not exist
+
+        """
         page = self.page_with_name(page_name)
         assert page is not None, "No such page with name {}".format(page_name)
         return page.get_tsv()

@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_alembic.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -26,9 +28,8 @@
 Functions to talk to Alembic; specifically, those functions that may be used
 by users/administrators, such as to upgrade a database.
 
-If you're a developer and want to create a new database migration, see instead
-
-    tools/create_database_migration.py
+If you're a developer and want to create a new database migration, see
+``tools/create_database_migration.py`` instead.
 
 """
 
@@ -61,13 +62,18 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 def import_all_models():
+    """
+    Imports all SQLAlchemy models. (This has side effects including setting up
+    the SQLAlchemy metadata properly.)
+    """
     # noinspection PyUnresolvedReferences
     import camcops_server.cc_modules.cc_all_models  # delayed import  # import side effects (ensure all models registered)  # noqa
 
 
 def upgrade_database_to_head(show_sql_only: bool = False) -> None:
     """
-    The primary upgrade method.
+    The primary upgrade method. Modifies the database structure from where it
+    is, stepwise through revisions, to the head revision.
     """
     import_all_models()  # delayed, for command-line interfaces
     upgrade_database(alembic_base_dir=ALEMBIC_BASE_DIR,
@@ -85,18 +91,18 @@ def create_database_from_scratch(cfg: "CamcopsConfig") -> None:
     bypassing Alembic's revisions and taking the state directly from the
     SQLAlchemy ORM metadata.
 
-    See
-        http://alembic.zzzcomputing.com/en/latest/cookbook.html#building-an-up-to-date-database-from-scratch  # noqa
+    See 
+    http://alembic.zzzcomputing.com/en/latest/cookbook.html#building-an-up-to-date-database-from-scratch
 
-    This ASSUMES that the head revision "frozen" into the latest
-    alembic/version/XXX.py file MATCHES THE STATE OF THE SQLALCHEMY ORM
-    METADATA as judged by Base.metadata. If that's not the case, things will go
-    awry later! (Alembic will think the database is at the state of its "head"
-    revision, but it won't be.)
+    This function ASSUMES that the head revision "frozen" into the latest
+    ``alembic/version/XXX.py`` file MATCHES THE STATE OF THE SQLALCHEMY ORM
+    METADATA as judged by ``Base.metadata``. If that's not the case, things
+    will go awry later! (Alembic will think the database is at the state of its
+    "head" revision, but it won't be.)
 
-    It also ASSUMES (as many things do) that importing .cc_all_models imports
-    all the models (or Base.metadata will be incomplete).
-    """
+    It also ASSUMES (as many things do) that importing ``.cc_all_models``
+    imports all the models (or ``Base.metadata`` will be incomplete).
+    """  # noqa
     import_all_models()  # delayed, for command-line interfaces
 
     log.warning("Performing one-step database creation.")

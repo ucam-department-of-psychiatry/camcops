@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_tabletsession.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Session information for client devices (tablets etc.).
+
 """
 
 import logging
@@ -55,6 +60,10 @@ NO_UPLOAD_GROUP_SET = "No upload group set for user "
 
 
 class TabletSession(object):
+    """
+    Represents session information for client devices. They use HTTPS POST
+    calls and do not bother with cookies.
+    """
     def __init__(self, req: "CamcopsRequest") -> None:
         # Check the basics
         if req.method != RequestMethod.POST:
@@ -125,26 +134,39 @@ class TabletSession(object):
 
     @property
     def device_id(self) -> Optional[int]:
+        """
+        Returns the integer device ID, if known.
+        """
         if not self._device_obj:
             return None
         return self._device_obj.id
 
     @property
     def user_id(self) -> Optional[int]:
+        """
+        Returns the integer user ID, if known.
+        """
         if self._user_obj is None:
             return None
         return self._user_obj.id
 
     def is_device_registered(self) -> bool:
+        """
+        Is the device registered with our server?
+        """
         return self._device_obj is not None
 
     def reload_device(self):
+        """
+        Re-fetch the device information from the database.
+        """
         self._device_obj = Device.get_device_by_name(self.req.dbsession,
                                                      self.device_name)
 
     def ensure_device_registered(self) -> None:
         """
-        Ensure the device is registered. Raises UserErrorException on failure.
+        Ensure the device is registered. Raises :exc:`UserErrorException`
+        on failure.
         """
         if not self.is_device_registered():
             fail_user_error("Unregistered device")
@@ -152,7 +174,7 @@ class TabletSession(object):
     def ensure_valid_device_and_user_for_uploading(self) -> None:
         """
         Ensure the device/username/password combination is valid for uploading.
-        Raises UserErrorException on failure.
+        Raises :exc:`UserErrorException` on failure.
         """
         user = self.req.user
         if not user:
@@ -167,7 +189,7 @@ class TabletSession(object):
     def ensure_valid_user_for_device_registration(self) -> None:
         """
         Ensure the username/password combination is valid for device
-        registration. Raises UserErrorException on failure.
+        registration. Raises :exc:`UserErrorException` on failure.
         """
         user = self.req.user
         if not user:
@@ -183,11 +205,12 @@ class TabletSession(object):
         """
         Sets the session ID and token.
         Typical situation:
-            - TabletSession created; may or may not have an ID/token as part
-              of the POST request
-            - CamcopsRequest translates that into a server-side session
-            - If one wasn't found and needs to be created, we write back
-              the values here.
+
+        - :class:`TabletSession` created; may or may not have an ID/token as
+          part of the POST request
+        - :class:`CamcopsRequest` translates that into a server-side session
+        - If one wasn't found and needs to be created, we write back
+          the values here.
         """
         self.session_id = session_id
         self.session_token = session_token
@@ -198,22 +221,42 @@ class TabletSession(object):
 
     @property
     def cope_with_deleted_patient_descriptors(self) -> bool:
+        """
+        Must we cope with an old client that had ID descriptors
+        in the Patient table?
+        """
         return (self.tablet_version_ver <
                 FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE)
 
     @property
     def cope_with_old_idnums(self) -> bool:
+        """
+        Must we cope with an old client that had ID numbers embedded in the
+        Patient table?
+        """
         return (self.tablet_version_ver <
                 FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE)
 
     @property
     def explicit_pkname_for_upload_table(self) -> bool:
+        """
+        Is the client a nice new one that explicitly names the
+        primary key when uploading tables?
+        """
         return (self.tablet_version_ver >=
                 FIRST_TABLET_VER_WITH_EXPLICIT_PKNAME_IN_UPLOAD_TABLE)
 
     @property
     def pkname_in_upload_table_neither_first_nor_explicit(self):
+        """
+        Is the client a particularly tricky old version that is a C++ client
+        (generally a good thing, but meaning that the primary key might not be
+        the first field in uploaded tables) but had a bug such that it did not
+        explicitly name its PK either?
+
+        See discussion of bug in ``NetworkManager::sendTableWhole`` (C++).
+        For these versions, the only safe thing is to take ``"id"`` as the
+        name of the (client-side) primary key.
+        """
         return (self.tablet_version_ver >= FIRST_CPP_TABLET_VER and
                 not self.explicit_pkname_for_upload_table)
-        # See discussion of bug in NetworkManager::sendTableWhole (C++).
-        # For these versions, the only safe thing is to take "id".

@@ -109,6 +109,8 @@ ${next.body()}
 ## ============================================================================
 
 %if viewtype == ViewArg.HTML:
+    ## The XML version is available from the configuration view.
+    ## Users might appreciate a direct shortcut to the PDF, though.
     <div class="navigation">
         ## Link to PDF version
         <a href="${ req.route_url(

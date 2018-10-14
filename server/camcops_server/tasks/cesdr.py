@@ -2,6 +2,8 @@
 # camcops_server/tasks/cesdr.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,11 +24,15 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+..
 """
 
 from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
+from semantic_version import Version
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean
 
@@ -132,6 +138,11 @@ class Cesdr(TaskHasPatientMixin, Task,
     TASK_FIELDS = SCORED_FIELDS
     MIN_SCORE = 0
     MAX_SCORE = 3 * N_QUESTIONS
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def minimum_client_version(cls) -> Version:
+        return Version("2.2.8")
 
     def is_complete(self) -> bool:
         return (

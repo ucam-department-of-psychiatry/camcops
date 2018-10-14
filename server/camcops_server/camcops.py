@@ -2,6 +2,8 @@
 # camcops_server/camcops.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Command-line entry point for the CamCOPS server.
+
 """
 
 # SET UP LOGGING BEFORE WE IMPORT CAMCOPS MODULES, allowing them to log during
@@ -93,7 +98,7 @@ from camcops_server.cc_modules.cc_alembic import (
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
     DOCUMENTATION_URL,
-)
+)  # nopep8
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # nopep8
 from camcops_server.cc_modules.cc_config import (
@@ -179,6 +184,10 @@ URL_PATH_ROOT = '/'
 # =============================================================================
 
 def ensure_database_is_ok() -> None:
+    """
+    Opens a link to the database and checks it's of the correct version
+    (or otherwise raises an assertion error).
+    """
     config = get_default_config_from_os_env()
     config.assert_database_ok()
 
@@ -191,6 +200,7 @@ def make_wsgi_app(debug_toolbar: bool = False,
 
     QUESTION: how do we access the WSGI environment (passed to the WSGI app)
     from within a Pyramid request?
+
     ANSWER:
 
     .. code-block:: none
@@ -232,7 +242,13 @@ def make_wsgi_app(debug_toolbar: bool = False,
 
 
 def make_wsgi_app_from_argparse_args(args: Namespace) -> Router:
-    # ... matches add_wsgi_options()
+    """
+    Reads the command-line (argparse) arguments, and creates a WSGI
+    application.
+
+    Must match :func:`add_wsgi_options`, which sets up argparse
+    parsers.
+    """
     reverse_proxied_config = ReverseProxiedConfig(
         trusted_proxy_headers=args.trusted_proxy_headers,
         http_host=args.proxy_http_host,
@@ -254,6 +270,10 @@ def make_wsgi_app_from_argparse_args(args: Namespace) -> Router:
 def test_serve_pyramid(application: Router,
                        host: str = DEFAULT_HOST,
                        port: int = DEFAULT_PORT) -> None:
+    """
+    Launches an extremely simple Pyramid web server (via
+    ``wsgiref.make_server``).
+    """
     ensure_database_is_ok()
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}".format(host, port))
@@ -261,7 +281,11 @@ def test_serve_pyramid(application: Router,
 
 
 def join_url_fragments(*fragments: str) -> str:
-    # urllib.parse.urljoin doesn't do what we want
+    """
+    Combines fragments to make a URL.
+
+    (``urllib.parse.urljoin`` doesn't do what we want.)
+    """
     newfrags = [f[1:] if f.startswith("/") else f for f in fragments]
     return "/".join(newfrags)
 
@@ -278,7 +302,8 @@ def serve_cherrypy(application: Router,
                    ssl_private_key: Optional[str],
                    root_path: str) -> None:
     """
-    Start CherryPy server
+    Start CherryPy server.
+
     - Multithreading.
     - Any platform.
     """
@@ -348,14 +373,15 @@ def serve_gunicorn(application: Router,
     Start Gunicorn server
 
     - Multiprocessing; this is a Good Thing particularly in Python; see e.g.
-      https://eli.thegreenplace.net/2012/01/16/python-parallelizing-cpu-bound-tasks-with-multiprocessing/  # noqa
-      http://www.dabeaz.com/python/UnderstandingGIL.pdf
+    
+      - https://eli.thegreenplace.net/2012/01/16/python-parallelizing-cpu-bound-tasks-with-multiprocessing/
+      - http://www.dabeaz.com/python/UnderstandingGIL.pdf
 
     - UNIX only.
 
     - The Pyramid debug toolbar detects a multiprocessing web server and says
       "shan't, because I use global state".
-    """
+    """  # noqa
     if BaseApplication is None:
         raise RuntimeError("Gunicorn does not run under Windows. "
                            "(It relies on the UNIX fork() facility.)")
@@ -396,14 +422,14 @@ def serve_gunicorn(application: Router,
                     v = self.cfg.settings[k]
                     log.info("{}:\n{}", k, v.desc)
 
-        def load_config(self):
+        def load_config(self) -> None:
             # The Gunicorn example looks somewhat convoluted! Let's be simpler:
             for key, value in self.options.items():
                 key_lower = key.lower()
                 if key_lower in self.cfg.settings and value is not None:
                     self.cfg.set(key_lower, value)
 
-        def load(self):
+        def load(self) -> Router:
             return self.application
 
     opts = {
@@ -425,35 +451,66 @@ def serve_gunicorn(application: Router,
 # =============================================================================
 
 def launch_manual() -> None:
+    """
+    Use the operating system "launch something" tool to show the CamCOPS
+    documentation.
+    """
     launch_external_file(DOCUMENTATION_URL)
 
 
 def print_demo_camcops_config() -> None:
+    """
+    Prints a demonstration config file to stdout.
+    """
     print(get_demo_config())
 
 
 def print_demo_supervisor_config() -> None:
+    """
+    Prints a demonstration ``supervisord`` config file to stdout.
+    """
     print(get_demo_supervisor_config())
 
 
 def print_demo_apache_config() -> None:
+    """
+    Prints a demonstration Apache HTTPD config file segment (for CamCOPS)
+    to stdout.
+    """
     print(get_demo_apache_config())
 
 
 def print_demo_mysql_create_db() -> None:
+    """
+    Prints a demonstration MySQL database creation script to stdout.
+    """
     print(get_demo_mysql_create_db())
 
 
 def print_demo_mysql_dump_script() -> None:
+    """
+    Prints a demonstration MySQL database dump script to stdout.
+    """
     print(get_demo_mysql_dump_script())
 
 
 def print_database_title() -> None:
+    """
+    Prints the database title (for the current config) to stdout.
+    """
     with command_line_request_context() as req:
         print(req.database_title)
 
 
 def generate_anonymisation_staging_db() -> None:
+    """
+    Generates an anonymisation staging database -- that is, a database with
+    patient IDs in every row of every table, suitable for feeding into an
+    anonymisation system like CRATE
+    (https://dx.doi.org/10.1186%2Fs12911-017-0437-1).
+
+    **BROKEN; NEEDS TO BE REPLACED.**
+    """
     # generate_anonymisation_staging_db: *** BROKEN; REPLACE
     db = pls.get_anonymisation_database()  # may raise
     ddfilename = pls.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE
@@ -483,6 +540,20 @@ def get_username_from_cli(req: CamcopsRequest,
                           starting_username: str = "",
                           must_exist: bool = False,
                           must_not_exist: bool = False) -> str:
+    """
+    Asks the user (via stdout/stdin) for a username.
+
+    Args:
+        req: CamcopsRequest object
+        prompt: textual prompt
+        starting_username: try this username and ask only if it fails tests
+        must_exist: the username must exist
+        must_not_exist: the username must not exist
+
+    Returns:
+        the username
+
+    """
     assert not (must_exist and must_not_exist)
     first = True
     while True:
@@ -507,6 +578,10 @@ def get_username_from_cli(req: CamcopsRequest,
 
 
 def get_new_password_from_cli(username: str) -> str:
+    """
+    Asks the user (via stdout/stdin) for a new password for the specified
+    username. Returns the password.
+    """
     while True:
         password1 = ask_user_password("New password for user "
                                       "{}".format(username))
@@ -591,6 +666,12 @@ def enable_user_cli(username: str = None) -> bool:
 
 
 def send_hl7(show_queue_only: bool) -> None:
+    """
+    Send all outbound HL7 messages.
+
+    Args:
+        show_queue_only: don't send them; just show the outbound queue.
+    """
     with command_line_request_context() as req:
         send_all_pending_hl7_messages(req.config,
                                       show_queue_only=show_queue_only)
@@ -677,20 +758,33 @@ _REQNAMED = 'required named arguments'
 
 
 # noinspection PyShadowingBuiltins
-def add_sub(sp: "_SubParsersAction", cmd: str,
+def add_sub(sp: "_SubParsersAction",
+            cmd: str,
             config_mandatory: Optional[bool] = False,
             description: str = None,
             help: str = None) -> ArgumentParser:
     """
-    help:
-        Used for the main help summary, i.e. "camcops --help".
-    description:
-        Used for the description in the detailed help, e.g.
-        "camcops docs --help". Defaults to "help".
-    config_mandatory:
-        None = don't ask for config
-        False = ask for it, but not mandatory
-        True = mandatory
+    Adds (and returns) a subparser to an ArgumentParser.
+
+    Args:
+        sp: the ``_SubParsersAction`` object from a call to
+            :func:`argparse.ArgumentParser.add_subparsers`.
+        cmd: the command for the subparser (e.g. ``docs`` to make the command
+            ``camcops docs``).
+        config_mandatory:
+            Does this subcommand require a CamCOPS config file?
+            ``None`` = don't ask for config.
+            ``False`` = ask for it, but not mandatory.
+            ``True`` = mandatory.
+        description: Used for the description in the detailed help, e.g.
+            "camcops docs --help". Defaults to the value of the ``help``
+            argument.
+        help: Used for this subparser's contribution to the main help summary,
+            i.e. ``camcops --help``.
+
+    Returns:
+        the subparser
+
     """
     if description is None:
         description = help
@@ -722,6 +816,17 @@ def add_sub(sp: "_SubParsersAction", cmd: str,
 # noinspection PyShadowingBuiltins
 def add_req_named(sp: ArgumentParser, switch: str, help: str,
                   action: str = None) -> None:
+    """
+    Adds a required but named argument. This is a bit unconventional; for
+    example, making the ``--config`` option mandatory even though ``--`` is
+    usually a prefix for optional arguments.
+
+    Args:
+        sp: the :class:`ArgumentParser` to add to
+        switch: passed to :func:`add_argument`
+        help: passed to :func:`add_argument`
+        action: passed to :func:`add_argument`
+    """
     # noinspection PyProtectedMember
     reqgroup = next((g for g in sp._action_groups
                      if g.title == _REQNAMED), None)
@@ -731,6 +836,10 @@ def add_req_named(sp: ArgumentParser, switch: str, help: str,
 
 
 def add_wsgi_options(sp: ArgumentParser) -> None:
+    """
+    Adds to the specified :class:`ArgumentParser` all the options that we
+    always want for any WSGI server.
+    """
     sp.add_argument(
         "--trusted_proxy_headers", type=str, nargs="*",
         help=(
@@ -840,7 +949,7 @@ def add_wsgi_options(sp: ArgumentParser) -> None:
 
 def camcops_main() -> None:
     """
-    Command-line entry point.
+    Primary command-line entry point. Parse command-line arguments and act.
 
     Note that we can't easily use delayed imports to speed up the help output,
     because the help system has function calls embedded into it.
@@ -1301,6 +1410,9 @@ Use 'camcops <COMMAND> --help' for more detail on each command.""".format(
 # =============================================================================
 
 def main():
+    """
+    Command-line entry point. Calls :func:`camcops_main`.
+    """
     if DEBUG_RUN_WITH_PDB:
         pdb_run(camcops_main)
     else:

@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_request.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Implements a Pyramid Request object customized for CamCOPS.
+
 """
 
 from contextlib import contextmanager
@@ -133,6 +138,12 @@ if any([DEBUG_ADD_ROUTES,
 # ... https://docs.pylonsproject.org/projects/pyramid/en/latest/api/request.html#pyramid.request.Request.set_property  # noqa
 
 class CamcopsRequest(Request):
+    """
+    The CamcopsRequest is an object central to all HTTP requests. It is the
+    main thing passed all around the server, and embodies what we need to know
+    about the client request -- including user information, ways of accessing
+    the database, and so on.
+    """
     def __init__(self, *args, **kwargs):
         """
         This is called as the Pyramid request factory; see
@@ -145,8 +156,10 @@ class CamcopsRequest(Request):
         - But are cookies a good idea?
           Probably not; they are somewhat overcomplicated for this.
           See also
-          https://softwareengineering.stackexchange.com/questions/141019/
-          https://stackoverflow.com/questions/6068113/do-sessions-really-violate-restfulness  # noqa
+
+          - https://softwareengineering.stackexchange.com/questions/141019/
+          - https://stackoverflow.com/questions/6068113/do-sessions-really-violate-restfulness
+
         - Let's continue to avoid cookies.
         - We don't have to cache any information (we still send username/
           password details with each request, and that is RESTful) but it
@@ -160,7 +173,7 @@ class CamcopsRequest(Request):
             determined by the content.
           - This gives one more database hit, but avoids the bcrypt time.
 
-        """
+        """  # noqa
         super().__init__(*args, **kwargs)
         self.use_svg = False
         self.add_response_callback(complete_request_add_cookies)
@@ -179,9 +192,16 @@ class CamcopsRequest(Request):
 
     @property
     def camcops_session(self) -> "CamcopsSession":
-        # Contrast:
-        # ccsession = request.camcops_session  # type: CamcopsSession
-        # pyramid_session = request.session  # type: ISession
+        """
+        Returns the :class:`CamcopsSession` for this request (q.v.).
+
+        Contrast:
+
+        .. code-block:: none
+
+            ccsession = request.camcops_session  # type: CamcopsSession
+            pyramid_session = request.session  # type: ISession
+        """
         if self._camcops_session is None:
             from .cc_session import CamcopsSession  # delayed import
             self._camcops_session = CamcopsSession.get_session_using_cookies(
@@ -191,12 +211,18 @@ class CamcopsRequest(Request):
         return self._camcops_session
 
     def replace_camcops_session(self, ccsession: "CamcopsSession") -> None:
-        # We may have created a new HTTP session because the request had no
-        # cookies (added to the DB session but not yet saved), but we might
-        # then enter the database/tablet upload API and find session details,
-        # not from the cookies, but from the POST data. At that point, we
-        # want to replace the session in the Request, without committing the
-        # first one to disk.
+        """
+        Replaces any existing :class:`CamcopsSession` with a new one.
+
+        Rationale:
+
+        We may have created a new HTTP session because the request had no
+        cookies (added to the DB session but not yet saved), but we might
+        then enter the database/tablet upload API and find session details,
+        not from the cookies, but from the POST data. At that point, we
+        want to replace the session in the Request, without committing the
+        first one to disk.
+        """
         if self._camcops_session is not None:
             self.dbsession.expunge(self._camcops_session)
         self._camcops_session = ccsession
@@ -208,15 +234,16 @@ class CamcopsRequest(Request):
     @reify
     def config_filename(self) -> str:
         """
-        Gets the config filename in use.
+        Gets the CamCOPS config filename in use.
         """
         return get_config_filename_from_os_env()
 
     @reify
     def config(self) -> CamcopsConfig:
         """
-        Return an instance of CamcopsConfig for the request.
-        Access it as request.config, with no brackets.
+        Return an instance of :class:`CamcopsConfig` for the request.
+
+        Access it as ``request.config``, with no brackets.
         """
         config = get_config(config_filename=self.config_filename)
         return config
@@ -227,6 +254,9 @@ class CamcopsRequest(Request):
 
     @reify
     def engine(self) -> Engine:
+        """
+        Returns the SQLAlchemy :class:`Engine` for the request.
+        """
         cfg = self.config
         return cfg.get_sqla_engine()
 
@@ -234,14 +264,16 @@ class CamcopsRequest(Request):
     def dbsession(self) -> SqlASession:
         """
         Return an SQLAlchemy session for the relevant request.
-        The use of @reify makes this elegant. If and only if a view wants a
+
+        The use of ``@reify`` makes this elegant. If and only if a view wants a
         database, it can say
 
         .. code-block:: python
 
             dbsession = request.dbsession
 
-        and if it requests that, the cleanup callbacks get installed.
+        and if it requests that, the cleanup callbacks (COMMIT or ROLLBACK) get
+        installed.
         """
         session = self.get_bare_dbsession()
 
@@ -262,6 +294,10 @@ class CamcopsRequest(Request):
         return session
 
     def _finish_dbsession(self) -> None:
+        """
+        A database session has finished. COMMIT or ROLLBACK, depending on how
+        things went.
+        """
         # Do NOT roll back "if req.exception is not None"; that includes
         # all sorts of exceptions like HTTPFound, HTTPForbidden, etc.
         # See also
@@ -284,6 +320,11 @@ class CamcopsRequest(Request):
         session.close()
 
     def get_bare_dbsession(self) -> SqlASession:
+        """
+        Returns a bare SQLAlchemy session for the request.
+
+        See :func:`dbsession`, the more commonly used wrapper function.
+        """
         if self._debugging_db_session:
             log.debug("Request is using debugging SQLAlchemy session")
             return self._debugging_db_session
@@ -301,11 +342,12 @@ class CamcopsRequest(Request):
     @reify
     def tabletsession(self) -> TabletSession:
         """
-        Request a TabletSession, which is an information structure geared to
-        client (tablet) database accesses.
+        Request a :class:`TabletSession`, which is an information structure
+        geared to client (tablet) database accesses.
+
         If we're using this interface, we also want to ensure we're using
-        the CamcopsSession for the information provided by the tablet in the
-        POST request, not anything already loaded/reset via cookies.
+        the :class:`CamcopsSession` for the information provided by the tablet
+        in the POST request, not anything already loaded/reset via cookies.
         """
         from .cc_session import CamcopsSession  # delayed import
         ts = TabletSession(self)
@@ -327,6 +369,7 @@ class CamcopsRequest(Request):
     def now(self) -> Pendulum:
         """
         Returns the time of the request as an Pendulum object.
+
         (Reified, so a request only ever has one time.)
         Exposed as a property.
         """
@@ -342,10 +385,17 @@ class CamcopsRequest(Request):
 
     @reify
     def now_iso8601_era_format(self) -> str:
+        """
+        Returns the request time in an ISO-8601 format suitable for use as a
+        CamCOPS ``era``.
+        """
         return format_datetime(self.now, DateFormat.ISO8601)
 
     @property
     def today(self) -> Date:
+        """
+        Returns today's date.
+        """
         return self.now.date()
 
     # -------------------------------------------------------------------------
@@ -354,10 +404,18 @@ class CamcopsRequest(Request):
 
     @property
     def url_local_institution(self) -> str:
+        """
+        Returns the local institution's home URL.
+        """
         return self.config.local_institution_url
 
     @property
     def url_camcops_favicon(self) -> str:
+        """
+        Returns a URL to the favicon (see
+        https://en.wikipedia.org/wiki/Favicon) from within the CamCOPS static
+        files.
+        """
         # Cope with reverse proxies, etc.
         # https://docs.pylonsproject.org/projects/pyramid/en/latest/api/request.html#pyramid.request.Request.static_url  # noqa
         return self.static_url(STATIC_CAMCOPS_PACKAGE_PATH +
@@ -365,15 +423,27 @@ class CamcopsRequest(Request):
 
     @property
     def url_camcops_logo(self) -> str:
+        """
+        Returns a URL to the CamCOPS logo from within our static files.
+        Returns:
+
+        """
         return self.static_url(STATIC_CAMCOPS_PACKAGE_PATH +
                                "logo_camcops.png")
 
     @property
     def url_local_logo(self) -> str:
+        """
+        Returns a URL to the local institution's logo, from somewhere on our
+        server.
+        """
         return self.static_url(STATIC_CAMCOPS_PACKAGE_PATH + "logo_local.png")
 
     @property
     def url_camcops_docs(self) -> str:
+        """
+        Returns the URL to the CamCOPS documentation.
+        """
         return DOCUMENTATION_URL
 
     # -------------------------------------------------------------------------
@@ -383,7 +453,9 @@ class CamcopsRequest(Request):
     @reify
     def remote_port(self) -> Optional[int]:
         """
-        The remote_port variable is an optional WSGI extra provided by some
+        What port number is the client using?
+
+        The ``remote_port`` variable is an optional WSGI extra provided by some
         frameworks, such as mod_wsgi.
 
         The WSGI spec:
@@ -393,9 +465,9 @@ class CamcopsRequest(Request):
         - https://en.wikipedia.org/wiki/Common_Gateway_Interface
 
         The Pyramid Request object:
-        - https://docs.pylonsproject.org/projects/pyramid/en/latest/api/request.html#pyramid.request.Request  # noqa
-        - ... note: that includes remote_addr, but not remote_port.
-        """
+        - https://docs.pylonsproject.org/projects/pyramid/en/latest/api/request.html#pyramid.request.Request
+        - ... note: that includes ``remote_addr``, but not ``remote_port``.
+        """  # noqa
         try:
             return int(self.environ.get("REMOTE_PORT", ""))
         except (TypeError, ValueError):
@@ -410,6 +482,19 @@ class CamcopsRequest(Request):
                       default: str = None,
                       lower: bool = False,
                       upper: bool = False) -> Optional[str]:
+        """
+        Returns an HTTP parameter from the request.
+
+        Args:
+            key: the parameter's name
+            default: the value to return if the parameter is not found
+            lower: convert to lower case?
+            upper: convert to upper case?
+
+        Returns:
+            the parameter's (string) contents, or ``default``
+
+        """
         # HTTP parameters are always strings at heart
         value = self.params.get(key, default)
         if value is None:
@@ -424,6 +509,18 @@ class CamcopsRequest(Request):
                            key: str,
                            lower: bool = False,
                            upper: bool = False) -> List[str]:
+        """
+        Returns a list of HTTP parameter values from the request.
+
+        Args:
+            key: the parameter's name
+            lower: convert to lower case?
+            upper: convert to upper case?
+
+        Returns:
+            a list of string values
+
+        """
         values = self.params.getall(key)
         if lower:
             return [x.lower() for x in values]
@@ -432,12 +529,34 @@ class CamcopsRequest(Request):
         return values
 
     def get_int_param(self, key: str, default: int = None) -> Optional[int]:
+        """
+        Returns an integer parameter from the HTTP request.
+
+        Args:
+            key: the parameter's name
+            default: the value to return if the parameter is not found or is
+                not a valid integer
+
+        Returns:
+            an integer, or ``default``
+
+        """
         try:
             return int(self.params[key])
         except (KeyError, TypeError, ValueError):
             return default
 
     def get_int_list_param(self, key: str) -> List[int]:
+        """
+        Returns a list of integer parameter values from the HTTP request.
+
+        Args:
+            key: the parameter's name
+
+        Returns:
+            a list of integer values
+
+        """
         values = self.params.getall(key)
         try:
             return [int(x) for x in values]
@@ -445,6 +564,24 @@ class CamcopsRequest(Request):
             return []
 
     def get_bool_param(self, key: str, default: bool) -> bool:
+        """
+        Returns a boolean parameter from the HTTP request.
+
+        Args:
+            key: the parameter's name
+            default: the value to return if the parameter is not found or is
+                not a valid boolean value
+
+        Returns:
+            an integer, or ``default``
+
+        Valid "true" and "false" values (case-insensitive):
+
+        .. code-block:: none
+
+            "true", "t", "1", "yes", "y"
+            "false", "f", "0", "no", "n"
+        """
         try:
             param_str = self.params[key].lower()
             if param_str in ["true", "t", "1", "yes", "y"]:
@@ -457,12 +594,30 @@ class CamcopsRequest(Request):
             return default
 
     def get_date_param(self, key: str) -> Optional[Date]:
+        """
+        Returns a date parameter from the HTTP request.
+
+        Args:
+            key: the parameter's name
+
+        Returns:
+            a :class:`pendulum.Date`, or ``None``
+        """
         try:
             return coerce_to_pendulum_date(self.params[key])
         except (KeyError, ParserError, TypeError, ValueError):
             return None
 
     def get_datetime_param(self, key: str) -> Optional[Pendulum]:
+        """
+        Returns a datetime parameter from the HTTP request.
+
+        Args:
+            key: the parameter's name
+
+        Returns:
+            a :class:`pendulum.DateTime`, or ``None``
+        """
         try:
             return coerce_to_pendulum(self.params[key])
         except (KeyError, ParserError, TypeError, ValueError):
@@ -475,12 +630,12 @@ class CamcopsRequest(Request):
     def route_url_params(self, route_name: str,
                          paramdict: Dict[str, Any]) -> str:
         """
-        Provides a simplified interface to Request.route_url when you have
-        parameters to pass.
+        Provides a simplified interface to :func:`Request.route_url` when you
+        have parameters to pass.
 
         It does two things:
 
-        (1) convert all params to their str() form;
+        (1) convert all params to their ``str()`` form;
         (2) allow you to pass parameters more easily using a string
             parameter name.
 
@@ -509,6 +664,26 @@ class CamcopsRequest(Request):
 
     @reify
     def _all_extra_strings(self) -> Dict[str, Dict[str, str]]:
+        """
+        Returns all CamCOPS "extra strings" (from XML files) in the format:
+
+        .. code-block:: none
+
+            {
+                taskname1: {
+                    stringname1: value1,
+                    stringname2: value2,
+                    ...
+                },
+                taskname2: {
+                    stringname1: value1,
+                    stringname2: value2,
+                    ...
+                },
+                ...
+            }
+
+        """
         return all_extra_strings_as_dicts(self.config_filename)
 
     def xstring(self,
@@ -518,6 +693,18 @@ class CamcopsRequest(Request):
                 provide_default_if_none: bool = True) -> Optional[str]:
         """
         Looks up a string from one of the optional extra XML string files.
+
+        Args:
+            taskname: task name (top-level key)
+            stringname: string name within task (second-level key)
+            default: default to return if the string is not found
+            provide_default_if_none: if ``True`` and ``default is None``,
+                return a helpful missing-string message in the style
+                "string x.y not found"
+
+        Returns:
+            the "extra string"
+
         """
         # For speed, calculate default only if needed:
         allstrings = self._all_extra_strings
@@ -534,7 +721,9 @@ class CamcopsRequest(Request):
                  stringname: str,
                  default: str = None,
                  provide_default_if_none: bool = True) -> Optional[str]:
-        """Returns a web-safe version of an xstring (see above)."""
+        """
+        Returns a web-safe version of an :func:`xstring` (q.v.).
+        """
         value = self.xstring(taskname, stringname, default,
                              provide_default_if_none=provide_default_if_none)
         if value is None and not provide_default_if_none:
@@ -546,7 +735,7 @@ class CamcopsRequest(Request):
                    default: str = None,
                    provide_default_if_none: bool = True) -> Optional[str]:
         """
-        Returns a web-safe version of an appstring (an app-wide extra string.
+        Returns a web-safe version of an appstring (an app-wide extra string).
         """
         value = self.xstring(APPSTRING_TASKNAME, stringname, default,
                              provide_default_if_none=provide_default_if_none)
@@ -556,7 +745,7 @@ class CamcopsRequest(Request):
 
     def get_all_extra_strings(self) -> List[Tuple[str, str, str]]:
         """
-        Returns all extra strings, as a list of (task, name, value) tuples.
+        Returns all extra strings, as a list of ``task, name, value`` tuples.
         """
         allstrings = self._all_extra_strings
         rows = []
@@ -567,14 +756,16 @@ class CamcopsRequest(Request):
 
     def task_extrastrings_exist(self, taskname: str) -> bool:
         """
-        Has the server been supplied with extra strings for a specific task?
+        Has the server been supplied with any extra strings for a specific
+        task?
         """
         allstrings = self._all_extra_strings
         return taskname in allstrings
 
     def extrastring_families(self, sort: bool = True) -> List[str]:
         """
-        Which sets of extra strings do we have?
+        Which sets of extra strings do we have? A "family" here means, for
+        example, "the server itself", "the PHQ9 task", etc.
         """
         families = list(self._all_extra_strings.keys())
         if sort:
@@ -586,6 +777,10 @@ class CamcopsRequest(Request):
     # -------------------------------------------------------------------------
 
     def prepare_for_pdf_figures(self) -> None:
+        """
+        Switch the server (for this request) to producing figures in a format
+        most suitable for PDF.
+        """
         if CSS_PAGED_MEDIA:
             # unlikely -- we use wkhtmltopdf instead now
             self.switch_output_to_png()
@@ -595,18 +790,30 @@ class CamcopsRequest(Request):
             self.switch_output_to_svg()  # wkhtmltopdf can cope
 
     def prepare_for_html_figures(self) -> None:
+        """
+        Switch the server (for this request) to producing figures in a format
+        most suitable for HTML.
+        """
         self.switch_output_to_svg()
 
     def switch_output_to_png(self) -> None:
-        """Switch server to producing figures in PNG."""
+        """
+        Switch server (for this request) to producing figures in PNG format.
+        """
         self.use_svg = False
 
     def switch_output_to_svg(self) -> None:
-        """Switch server to producing figures in SVG."""
+        """
+        Switch server (for this request) to producing figures in SVG format.
+        """
         self.use_svg = True
 
     @staticmethod
     def create_figure(**kwargs) -> Figure:
+        """
+        Creates and returns a :class:`matplotlib.figure.Figure` with a canvas.
+        The canvas will be available as ``fig.canvas``.
+        """
         fig = Figure(**kwargs)
         # noinspection PyUnusedLocal
         canvas = FigureCanvas(fig)
@@ -648,6 +855,9 @@ class CamcopsRequest(Request):
 
     @reify
     def fontdict(self) -> Dict[str, Any]:
+        """
+        Returns a font dictionary for use with Matplotlib plotting.
+        """
         fontsize = self.config.plot_fontsize
         return dict(
             # http://stackoverflow.com/questions/3899980
@@ -664,6 +874,10 @@ class CamcopsRequest(Request):
 
     @reify
     def fontprops(self) -> FontProperties:
+        """
+        Return a :class:`matplotlib.font_manager.FontProperties` object for
+        use with Matplotlib plotting.
+        """
         return FontProperties(self.fontdict)
 
     def set_figure_font_sizes(self,
@@ -671,6 +885,16 @@ class CamcopsRequest(Request):
                               fontdict: Dict[str, Any] = None,
                               x_ticklabels: bool = True,
                               y_ticklabels: bool = True) -> None:
+        """
+        Sets font sizes for the axes of the specified Matplotlib figure.
+
+        Args:
+            ax: the figure to modify
+            fontdict: the font dictionary to use (if omitted, the default
+                will be used)
+            x_ticklabels: if ``True``, modify the X-axis tick labels
+            y_ticklabels: if ``True``, modify the Y-axis tick labels
+        """
         final_fontdict = self.fontdict.copy()
         if fontdict:
             final_fontdict.update(fontdict)
@@ -686,7 +910,10 @@ class CamcopsRequest(Request):
                 ticklabel.set_fontproperties(fp)
 
     def get_html_from_pyplot_figure(self, fig: Figure) -> str:
-        """Make HTML (as PNG or SVG) from pyplot figure."""
+        """
+        Make HTML (as PNG or SVG) from pyplot
+        :class:`matplotlib.figure.Figure`.
+        """
         if USE_SVG_IN_HTML and self.use_svg:
             return (
                 svg_html_from_pyplot_figure(fig) +
@@ -705,10 +932,16 @@ class CamcopsRequest(Request):
 
     @property
     def user(self) -> Optional["User"]:
+        """
+        Returns the :class:`User` for the current request.
+        """
         return self._debugging_user or self.camcops_session.user
 
     @property
     def user_id(self) -> Optional[int]:
+        """
+        Returns the integer user ID for the current request.
+        """
         if self._debugging_user:
             return self._debugging_user.user_id
         return self.camcops_session.user_id
@@ -719,28 +952,44 @@ class CamcopsRequest(Request):
 
     @reify
     def idnum_definitions(self) -> List[IdNumDefinition]:
+        """
+        Returns all :class:`IdNumDefinition` objects.
+        """
         return get_idnum_definitions(self.dbsession)  # no longer cached
 
     @reify
     def valid_which_idnums(self) -> List[int]:
+        """
+        Returns the ``which_idnum`` values for all ID number definitions.
+        """
         return [iddef.which_idnum for iddef in self.idnum_definitions]
         # ... pre-sorted
 
     def get_idnum_definition(self,
                              which_idnum: int) -> Optional[IdNumDefinition]:
+        """
+        Retrieves an :class:`IdNumDefinition` for the specified ``which_idnum``
+        value.
+        """
         return next((iddef for iddef in self.idnum_definitions
                      if iddef.which_idnum == which_idnum), None)
 
     def get_id_desc(self, which_idnum: int,
                     default: str = None) -> Optional[str]:
-        """Get server's ID description."""
+        """
+        Get the server's ID description for the specified ``which_idnum``
+        value.
+        """
         return next((iddef.description for iddef in self.idnum_definitions
                      if iddef.which_idnum == which_idnum),
                     default)
 
     def get_id_shortdesc(self, which_idnum: int,
                          default: str = None) -> Optional[str]:
-        """Get server's short ID description."""
+        """
+        Get the server's short ID description for the specified ``which_idnum``
+        value.
+        """
         return next((iddef.short_description
                      for iddef in self.idnum_definitions
                      if iddef.which_idnum == which_idnum),
@@ -752,14 +1001,23 @@ class CamcopsRequest(Request):
 
     @reify
     def server_settings(self) -> ServerSettings:
+        """
+        Return the :class:`ServerSettings` for the server.
+        """
         return get_server_settings(self)
 
     @reify
     def database_title(self) -> str:
+        """
+        Return the database friendly title for the server.
+        """
         ss = self.server_settings
         return ss.database_title or ""
 
     def set_database_title(self, title: str) -> None:
+        """
+        Sets the database friendly title for the server.
+        """
         ss = self.server_settings
         ss.database_title = title
 
@@ -772,7 +1030,7 @@ def complete_request_add_cookies(req: CamcopsRequest, response: Response):
     database/tablet API rather than a human web browser.
 
     Response callbacks are called in the order first-to-most-recently-added.
-    See pyramid.request.CallbackMethodsMixin.
+    See :class:`pyramid.request.CallbackMethodsMixin`.
 
     That looks like we can add a callback in the process of running a callback.
     And when we add a cookie to a Pyramid session, that sets a callback.
@@ -796,12 +1054,29 @@ def complete_request_add_cookies(req: CamcopsRequest, response: Response):
 
 @contextmanager
 def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
-    # Note this includes settings that transcend the config file.
-    #
-    # Most things should be in the config file. This enables us to run multiple
-    # configs (e.g. multiple CamCOPS databases) through the same process.
-    # However, some things we need to know right now, to make the WSGI app.
-    # Here, OS environment variables and command-line switches are appropriate.
+    """
+    Context manager to create a Pyramid configuration context, for making
+    (for example) a WSGI server or a debugging request. That means setting up
+    things like:
+
+    - the authentication and authorization policies
+    - our request and session factories
+    - our Mako renderer
+    - our routes and views
+
+    Args:
+        debug_toolbar: add the Pyramid debug toolbar?
+
+    Returns:
+        a :class:`Configurator` object
+
+    Note this includes settings that transcend the config file.
+
+    Most things should be in the config file. This enables us to run multiple
+    configs (e.g. multiple CamCOPS databases) through the same process.
+    However, some things we need to know right now, to make the WSGI app.
+    Here, OS environment variables and command-line switches are appropriate.
+    """
 
     # -------------------------------------------------------------------------
     # 1. Base app
@@ -897,6 +1172,13 @@ def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
 
 def make_post_body_from_dict(d: Dict[str, str],
                              encoding: str = "utf8") -> bytes:
+    """
+    Makes an HTTP POST body from a dictionary.
+
+    For debugging HTTP requests.
+
+    It mimics how the tablet operates.
+    """
     # https://docs.pylonsproject.org/projects/pyramid-cookbook/en/latest/testing/testing_post_curl.html  # noqa
     txt = urllib.parse.urlencode(query=d)
     # ... this encoding mimics how the tablet operates
@@ -911,11 +1193,11 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
 
     Notes:
 
-    - The important base class is webob.request.BaseRequest.
-    - self.params is a NestedMultiDict (see webob/multidict.py); these are
-      intrinsically read-only.
-    - self.params is also a read-only property. When read, it combines
-      self.GET and self.POST.
+    - The important base class is :class:`webob.request.BaseRequest`.
+    - ``self.params`` is a :class:`NestedMultiDict` (see
+      ``webob/multidict.py``); these are intrinsically read-only.
+    - ``self.params`` is also a read-only property. When read, it combines
+      data from ``self.GET`` and ``self.POST``.
     - What we do here is to manipulate the underlying GET/POST data.
 
     """
@@ -944,12 +1226,21 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
     #     self._fake_params = value
 
     def set_method_get(self) -> None:
+        """
+        Sets the fictional request method to GET.
+        """
         self.method = RequestMethod.GET
 
     def set_method_post(self) -> None:
+        """
+        Sets the fictional request method to POST.
+        """
         self.method = RequestMethod.POST
 
     def clear_get_params(self) -> None:
+        """
+        Clear all GET parameters.
+        """
         env = self.environ
         if self._CACHE_KEY in env:
             del env[self._CACHE_KEY]
@@ -957,6 +1248,13 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
 
     def add_get_params(self, d: Dict[str, str],
                        set_method_get: bool = True) -> None:
+        """
+        Add GET parameters.
+
+        Args:
+            d: dictionary of ``{parameter: value}`` pairs.
+            set_method_get: also set the request's method to GET?
+        """
         if not d:
             return
         # webob.request.BaseRequest.GET reads from self.environ['QUERY_STRING']
@@ -973,11 +1271,22 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
 
     def set_get_params(self, d: Dict[str, str],
                        set_method_get: bool = True) -> None:
+        """
+        Clear any GET parameters, and then set them to new values.
+        See :func:`add_get_params`.
+        """
         self.clear_get_params()
         self.add_get_params(d, set_method_get=set_method_get)
 
     def set_post_body(self, body: bytes,
                       set_method_post: bool = True) -> None:
+        """
+        Sets the fake POST body.
+
+        Args:
+            body: the body to set
+            set_method_post: also set the request's method to POST?
+        """
         log.debug("Applying fake POST body: {!r}", body)
         self.body = body
         self.content_length = len(body)
@@ -988,6 +1297,14 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
                                     d: Dict[str, str],
                                     encoding: str = "utf8",
                                     set_method_post: bool = True) -> None:
+        """
+        Sets the request's POST body according to a dictionary.
+
+        Args:
+            d: dictionary of ``{parameter: value}`` pairs.
+            encoding: character encoding to use
+            set_method_post: also set the request's method to POST?
+        """
         # webob.request.BaseRequest.POST reads from 'body' (indirectly).
         body = make_post_body_from_dict(d, encoding=encoding)
         self.set_post_body(body, set_method_post=set_method_post)
@@ -1040,6 +1357,9 @@ y.b  # 6
 
 
 def _get_core_debugging_request() -> CamcopsDummyRequest:
+    """
+    Returns a basic :class:`CamcopsDummyRequest`.
+    """
     with pyramid_configurator_context(debug_toolbar=False) as config:
         req = CamcopsDummyRequest(
             environ={
@@ -1063,8 +1383,9 @@ def _get_core_debugging_request() -> CamcopsDummyRequest:
 def get_command_line_request() -> CamcopsRequest:
     """
     Creates a dummy CamcopsRequest for use on the command line.
-    Presupposes that os.environ[ENVVAR_CONFIG_FILE] has been set, as it is
-    in camcops.main().
+
+    - Presupposes that ``os.environ[ENVVAR_CONFIG_FILE]`` has been set, as it
+      is in :func:`camcops_server.camcops.main`.
     """
     log.debug("Creating command-line pseudo-request")
     req = _get_core_debugging_request()
@@ -1094,10 +1415,11 @@ def command_line_request_context() -> Generator[CamcopsRequest, None, None]:
 def get_unittest_request(dbsession: SqlASession,
                          params: Dict[str, Any] = None) -> CamcopsDummyRequest:
     """
-    Creates a dummy CamcopsRequest for use by unit tests.
-    Points to an existing database (e.g. SQLite in-memory database).
-    Presupposes that os.environ[ENVVAR_CONFIG_FILE] has been set, as it is
-    in camcops.main().
+    Creates a :class:`CamcopsDummyRequest` for use by unit tests.
+
+    - Points to an existing database (e.g. SQLite in-memory database).
+    - Presupposes that ``os.environ[ENVVAR_CONFIG_FILE]`` has been set, as it
+      is in :func:`camcops_server.camcops.main`.
     """
     log.debug("Creating unit testing pseudo-request")
     req = _get_core_debugging_request()

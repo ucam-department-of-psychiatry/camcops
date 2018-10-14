@@ -1,4 +1,33 @@
 #!/usr/bin/env python
+# camcops_server/tools/install_virtualenv.py
+
+"""
+..
+
+===============================================================================
+
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+===============================================================================
+
+Creates a Python virtual environment.
+
+"""
 
 import argparse
 import os
@@ -6,6 +35,7 @@ import platform
 import shutil
 import subprocess
 import sys
+from typing import List
 
 try:
     import distro
@@ -46,13 +76,19 @@ RPM_REQ_FILE = os.path.join(PROJECT_BASE_DIR, 'requirements-rpm.txt')
 SEP = "=" * 79
 
 
-def title(msg):
+def title(msg: str) -> None:
+    """
+    Prints a title.
+    """
     print(SEP)
     print(msg)
     print(SEP)
 
 
-def get_lines_without_comments(filename):
+def get_lines_without_comments(filename: str) -> List[str]:
+    """
+    Retrieves all non-comment lines from a file.
+    """
     lines = []
     with open(filename) as f:
         for line in f:
@@ -64,7 +100,10 @@ def get_lines_without_comments(filename):
     return lines
 
 
-def cmd_returns_zero_success(cmdargs):
+def cmd_returns_zero_success(cmdargs: List[str]) -> bool:
+    """
+    Runs a command; returns True if it succeeded and False if it failed.
+    """
     print("Checking result of command: {}".format(cmdargs))
     try:
         subprocess.check_call(cmdargs)
@@ -73,12 +112,19 @@ def cmd_returns_zero_success(cmdargs):
         return False
 
 
-def check_call(cmdargs):
+def check_call(cmdargs: List[str]) -> None:
+    """
+    Displays its intent, executes a command, and checks that it succeeded.
+    """
     print("Command: {}".format(cmdargs))
     subprocess.check_call(cmdargs)
 
 
-def require_deb(package):
+def require_deb(package: str) -> None:
+    """
+    Ensure that a specific Debian package is installed.
+    Exits the program entirely if it isn't.
+    """
     if cmd_returns_zero_success(['dpkg', '-l', package]):
         return
     print("You must install the package {package}. On Ubuntu, use the command:"
@@ -87,7 +133,11 @@ def require_deb(package):
     sys.exit(1)
 
 
-def require_rpm(package):
+def require_rpm(package: str) -> None:
+    """
+    Ensure that a specific RPM package is installed.
+    Exits the program entirely if it isn't.
+    """
     # PROBLEM: can't call yum inside yum. See --skippackagechecks option.
     if cmd_returns_zero_success(['yum', 'list', 'installed', package]):
         return
@@ -97,7 +147,10 @@ def require_rpm(package):
     sys.exit(1)
 
 
-if __name__ == '__main__':
+def main() -> None:
+    """
+    Create a virtual environment. See DESCRIPTION.
+    """
     if not LINUX:
         raise AssertionError("Installation requires Linux.")
     parser = argparse.ArgumentParser(
@@ -112,10 +165,10 @@ if __name__ == '__main__':
                              "example).")
     args = parser.parse_args()
 
-    VENV_TOOL = 'virtualenv'
-    VENV_PYTHON = os.path.join(args.virtualenv, 'bin', 'python')
-    VENV_PIP = os.path.join(args.virtualenv, 'bin', 'pip')
-    ACTIVATE = "source " + os.path.join(args.virtualenv, 'bin', 'activate')
+    venv_tool = 'virtualenv'
+    venv_python = os.path.join(args.virtualenv, 'bin', 'python')
+    venv_pip = os.path.join(args.virtualenv, 'bin', 'pip')
+    activate = "source " + os.path.join(args.virtualenv, 'bin', 'activate')
 
     print("XDG_CACHE_HOME: {}".format(os.environ.get('XDG_CACHE_HOME',
                                                      None)))
@@ -141,23 +194,27 @@ if __name__ == '__main__':
     print('OK')
 
     title("Using system Python ({}) and virtualenv ({}) to make {}".format(
-          PYTHON, VENV_TOOL, args.virtualenv))
-    check_call([PYTHON, '-m', VENV_TOOL, args.virtualenv])
+          PYTHON, venv_tool, args.virtualenv))
+    check_call([PYTHON, '-m', venv_tool, args.virtualenv])
     print('OK')
 
     title("Upgrading pip within virtualenv")
-    check_call([VENV_PIP, 'install', '--upgrade', 'pip'])
+    check_call([venv_pip, 'install', '--upgrade', 'pip'])
 
     title("Checking version of tools within new virtualenv")
-    print(VENV_PYTHON)
-    check_call([VENV_PYTHON, '--version'])
-    print(VENV_PIP)
-    check_call([VENV_PIP, '--version'])
+    print(venv_python)
+    check_call([venv_python, '--version'])
+    print(venv_pip)
+    check_call([venv_pip, '--version'])
 
     # title("Use pip within the new virtualenv to install dependencies")
-    # check_call([VENV_PIP, 'install', '-r', PIP_REQ_FILE])
+    # check_call([venv_pip, 'install', '-r', PIP_REQ_FILE])
     # print('OK')
     # print('--- Virtual environment installed successfully')
 
     print("To activate the virtual environment, use\n"
-          "    {ACTIVATE}\n\n".format(ACTIVATE=ACTIVATE))
+          "    {activate}\n\n".format(activate=activate))
+
+
+if __name__ == '__main__':
+    main()

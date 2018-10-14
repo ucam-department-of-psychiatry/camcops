@@ -208,6 +208,11 @@ int Core10::nQuestionsCompleted() const
 
 double Core10::clinicalScore() const
 {
+    const int n_q_completed = nQuestionsCompleted();
+    if (n_q_completed == 0) {
+        // Avoid division by zero. Doesn't crash, but does give "nan".
+        return 0;
+    }
     return static_cast<double>(N_QUESTIONS * totalScore()) /
-            static_cast<double>(nQuestionsCompleted());
+            static_cast<double>(n_q_completed);
 }

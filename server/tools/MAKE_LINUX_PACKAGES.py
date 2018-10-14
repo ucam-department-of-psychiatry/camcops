@@ -2,22 +2,58 @@
 # camcops/server/tools/MAKE_LINUX_PACKAGES.py
 
 """
+..
+
+===============================================================================
+
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+===============================================================================
+
+Creates Debian and RPM packages for Linux.
+
 For CentOS, you need to get Python 3 installed. For Centos 6, 64-bit:
+
+.. code-block:: bash
 
     # http://stackoverflow.com/questions/8087184/installing-python3-on-rhel
 
     sudo yum install https://centos6.iuscommunity.org/ius-release.rpm
 
 then for Python 3.4:
+
+.. code-block:: bash
+
     sudo yum install python34u
 
 or for Python 3.5 (with some other helpful things):
+
+.. code-block:: bash
+
     sudo yum install python35u python35u-pip libxml2-devel libxslt-devel python35u-devel gcc
 
 Note that you can get CentOS version/architecture with:
 
+.. code-block:: bash
+
     cat /etc/centos-release
     uname -a
+    
 """  # noqa
 
 # We could use a temporary directory for the Debian build,

@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_tracker.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+PDF functions.
+
 """
 
 from typing import Any, Dict
@@ -37,6 +42,9 @@ def pdf_from_html(req: CamcopsRequest,
                   header_html: str = None,
                   footer_html: str = None,
                   extra_wkhtmltopdf_options: Dict[str, Any] = None) -> bytes:
+    """
+    Create and return a PDF from the HTML provided.
+    """
     extra_wkhtmltopdf_options = extra_wkhtmltopdf_options or {}  # type: Dict[str, Any]  # noqa
     wkhtmltopdf_options = dict(WKHTMLTOPDF_OPTIONS,
                                **extra_wkhtmltopdf_options)

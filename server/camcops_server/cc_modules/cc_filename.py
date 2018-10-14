@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_filename.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Functions for handling filenames, and some associated constants.
+
 """
 
 import logging
@@ -50,12 +55,19 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 class FileType(object):
+    """
+    Used to represent output formats and their file extensions.
+    """
     HTML = "html"
     PDF = "pdf"
     XML = "xml"
 
 
 class PatientSpecElementForFilename(object):
+    """
+    Parts of the patient information that can be used to autogenerate
+    the "patient" part of a filename specification.
+    """
     SURNAME = "surname"
     FORENAME = "forename"
     DOB = "dob"
@@ -66,6 +78,9 @@ class PatientSpecElementForFilename(object):
 
 
 class FilenameSpecElement(object):
+    """
+    Types of informatino that can be used to autogenerate a filename.
+    """
     PATIENT = "patient"
     CREATED = "created"
     NOW = "now"
@@ -78,7 +93,10 @@ class FilenameSpecElement(object):
 
 def patient_spec_for_filename_is_valid(patient_spec: str,
                                        valid_which_idnums: List[int]) -> bool:
-    """Returns True if the patient_spec appears valid; otherwise False."""
+    """
+    Returns ``True`` if the ``patient_spec`` appears valid; otherwise
+    ``False``.
+    """
     pse = PatientSpecElementForFilename
     testdict = {
         pse.SURNAME: "surname",
@@ -102,7 +120,10 @@ def patient_spec_for_filename_is_valid(patient_spec: str,
 
 def filename_spec_is_valid(filename_spec: str,
                            valid_which_idnums: List[int]) -> bool:
-    """Returns True if the filename_spec appears valid; otherwise False."""
+    """
+    Returns ``True`` if the ``filename_spec`` appears valid; otherwise
+    ``False``.
+    """
     pse = PatientSpecElementForFilename
     fse = FilenameSpecElement
     testdict = {
@@ -151,7 +172,34 @@ def get_export_filename(req: "CamcopsRequest",
                         creation_datetime: Pendulum = None,
                         basetable: str = None,
                         serverpk: int = None) -> str:
-    """Get filename, for file exports/transfers."""
+    """
+    Get filename, for file exports/transfers.
+
+    Args:
+        req: :class:`CamcopsRequest`
+        patient_spec_if_anonymous:
+            patient specification to be used for anonymous tasks
+        patient_spec:
+            patient specification to be used for patient-identifiable tasks
+        filename_spec:
+            specification to use to create the filename (may include
+            patient information from the patient specification)
+        task_format:
+            task output format and therefore file type (e.g. HTML, PDF, XML)
+        is_anonymous: is it an anonymous task?
+        surname: patient's surname
+        forename: patient's forename
+        dob: patient's date of birth
+        sex: patient's sex
+        idnum_objects: list of :class:`PatientIdNum` objects for the patient
+        creation_datetime: date/time the task was created
+        basetable: name of the task's base table
+        serverpk: server PK of the task
+
+    Returns:
+        the generated filename
+
+    """
     idnum_objects = idnum_objects or []  # type: List['PatientIdNum']
     pse = PatientSpecElementForFilename
     fse = FilenameSpecElement
@@ -202,8 +250,10 @@ def get_export_filename(req: "CamcopsRequest",
 
 
 def convert_string_for_filename(s: str, allow_paths: bool = False) -> str:
-    """Remove characters that don't play nicely in filenames across multiple
-    operating systems."""
+    """
+    Remove characters that don't play nicely in filenames across multiple
+    operating systems.
+    """
     # http://stackoverflow.com/questions/7406102
     # ... modified
     s = mangle_unicode_to_ascii(s)
@@ -216,8 +266,9 @@ def convert_string_for_filename(s: str, allow_paths: bool = False) -> str:
 
 
 def change_filename_ext(filename: str, new_extension_with_dot: str) -> str:
-    """Replaces the extension, i.e. the part of the filename after its last
-    '.'."""
+    """
+    Replaces the extension, i.e. the part of the filename after its last '.'.
+    """
     (root, ext) = os.path.splitext(filename)
     # ... converts "blah.blah.txt" to ("blah.blah", ".txt")
     return root + new_extension_with_dot

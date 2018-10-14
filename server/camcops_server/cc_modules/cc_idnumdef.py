@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_idnumdef.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+ID number definitions.
+
 """
 
 import logging
@@ -49,6 +54,9 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Stores the server's master ID number definitions
 
 class IdNumDefinition(Base):
+    """
+    Represents an ID number definition.
+    """
     __tablename__ = "_idnum_definitions"
 
     which_idnum = Column(
@@ -121,6 +129,9 @@ class IdNumDefinition(Base):
 
 
 def get_idnum_definitions(dbsession: SqlASession) -> List[IdNumDefinition]:
+    """
+    Get all ID number definitions from the database.
+    """
     return list(
         dbsession.query(IdNumDefinition)
         .order_by(IdNumDefinition.which_idnum)

@@ -2,6 +2,8 @@
 # camcops_server/tasks/cpft_lps.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,16 +24,17 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+..
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
-from colander import Integer
 import pyramid.httpexceptions as exc
 from sqlalchemy.sql.expression import and_, exists, select
 from sqlalchemy.sql.selectable import SelectBase
@@ -557,7 +560,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     )
     management_signposting_external_referral = BoolColumn(
         "management_signposting_external_referral",
-        constraint_name = "ck_cpft_lps_discharge_mx_signpostrefer"
+        constraint_name="ck_cpft_lps_discharge_mx_signpostrefer"
     )
     management_mha_s136 = BoolColumn("management_mha_s136")
     management_mha_s5_2 = BoolColumn("management_mha_s5_2")

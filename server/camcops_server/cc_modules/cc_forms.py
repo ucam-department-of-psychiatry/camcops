@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_forms.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -23,7 +25,9 @@
 
 ===============================================================================
 
-COLANDER NODES, NULLS, AND VALIDATION
+Forms for use by the web front end.
+
+*COLANDER NODES, NULLS, AND VALIDATION*
 
 - Surprisingly tricky.
 - Nodes must be validly intialized with NO USER-DEFINED PARAMETERS to __init__;
@@ -162,7 +166,11 @@ OR_JOIN_DESCRIPTION = (
 
 
 class Binding:
-    # Must match kwargs of calls to bind() function of each Schema
+    """
+    Keys used for binding dictionaries with Colander schemas (schemata).
+
+    Must match ``kwargs`` of calls to ``bind()`` function of each ``Schema``.
+    """
     GROUP = "group"
     OPEN_ADMIN = "open_admin"
     OPEN_WHAT = "open_what"
@@ -176,16 +184,22 @@ class Binding:
 # =============================================================================
 # CSRF
 # =============================================================================
-# As per http://deformdemo.repoze.org/pyramid_csrf_demo/, modified for a more
-# recent Colander API.
-# NOTE that this makes use of colander.SchemaNode.bind; this CLONES the Schema,
-# and resolves any deferred values by means of the keywords passed to bind().
-# Since the Schema is created at module load time, but since we're asking the
-# Schema to know about the request's CSRF values, this is the only mechanism.
-# https://docs.pylonsproject.org/projects/colander/en/latest/api.html#colander.SchemaNode.bind  # noqa
 
 class CSRFToken(SchemaNode):
     """
+    Node to embed a cross-site request forgery (CSRF) prevention token in a
+    form.
+
+    As per http://deformdemo.repoze.org/pyramid_csrf_demo/, modified for a more
+    recent Colander API.
+    
+    NOTE that this makes use of colander.SchemaNode.bind; this CLONES the
+    Schema, and resolves any deferred values by means of the keywords passed to
+    bind(). Since the Schema is created at module load time, but since we're
+    asking the Schema to know about the request's CSRF values, this is the only
+    mechanism
+    (https://docs.pylonsproject.org/projects/colander/en/latest/api.html#colander.SchemaNode.bind).
+
     From http://deform2000.readthedocs.io/en/latest/basics.html:
 
     "The default of a schema node indicates the value to be serialized if a
@@ -202,7 +216,7 @@ class CSRFToken(SchemaNode):
 
     RNC: Serialized values are always STRINGS.
 
-    """
+    """  # noqa
     schema_type = String
     default = ""
     missing = ""
@@ -237,10 +251,10 @@ class CSRFSchema(Schema):
     Base class for form schemas that use CSRF (XSRF; cross-site request
     forgery) tokens.
 
-    You can't put the call to bind() at the end of __init__(), because bind()
-    calls clone() with no arguments and clone() ends up calling __init__()...
+    You can't put the call to ``bind()`` at the end of ``__init__()``, because
+    ``bind()`` calls ``clone()`` with no arguments and ``clone()`` ends up
+    calling ``__init__()```...
     """
-
     csrf = CSRFToken()  # name must match ViewParam.CSRF_TOKEN
 
 
@@ -249,11 +263,21 @@ class CSRFSchema(Schema):
 # =============================================================================
 
 class SimpleSubmitForm(InformativeForm):
+    """
+    Form with a simple "submit" button.
+    """
     def __init__(self,
                  schema_class: Type[Schema],
                  submit_title: str,
                  request: "CamcopsRequest",
                  **kwargs):
+        """
+        Args:
+            schema_class: class of the Colander :class:`Schema` to use as this
+                form's schema
+            submit_title: title (text) to be used for the "submit" button
+            request: :class:`CamcopsRequest`
+        """
         schema = schema_class().bind(request=request)
         super().__init__(
             schema,
@@ -264,6 +288,9 @@ class SimpleSubmitForm(InformativeForm):
 
 
 class ApplyCancelForm(InformativeForm):
+    """
+    Form with "apply" and "cancel" buttons.
+    """
     def __init__(self,
                  schema_class: Type[Schema],
                  request: "CamcopsRequest",
@@ -280,6 +307,9 @@ class ApplyCancelForm(InformativeForm):
 
 
 class AddCancelForm(InformativeForm):
+    """
+    Form with "add" and "cancel" buttons.
+    """
     def __init__(self,
                  schema_class: Type[Schema],
                  request: "CamcopsRequest",
@@ -296,6 +326,11 @@ class AddCancelForm(InformativeForm):
 
 
 class DangerousForm(DynamicDescriptionsForm):
+    """
+    Form with one "submit" button (with user-specifiable title text and action
+    name), in a CSS class indicating that it's a dangerous operation, plus a
+    "Cancel" button.
+    """
     def __init__(self,
                  schema_class: Type[Schema],
                  submit_action: str,
@@ -315,6 +350,10 @@ class DangerousForm(DynamicDescriptionsForm):
 
 
 class DeleteCancelForm(DangerousForm):
+    """
+    Form with a "delete" button (visually marked as dangerous) and a "cancel"
+    button.
+    """
     def __init__(self,
                  schema_class: Type[Schema],
                  request: "CamcopsRequest",
@@ -333,10 +372,18 @@ class DeleteCancelForm(DangerousForm):
 # =============================================================================
 
 class OptionalSingleTaskSelector(OptionalStringNode):
+    """
+    Node to pick one task type.
+    """
     title = "Task type"
 
     def __init__(self, *args, tracker_tasks_only: bool = False,
                  **kwargs) -> None:
+        """
+        Args:
+            tracker_tasks_only: restrict the choices to tasks that offer
+                trackers.
+        """
         self.tracker_tasks_only = tracker_tasks_only
         self.widget = None  # type: Widget
         self.validator = None  # type: ValidatorType
@@ -362,6 +409,9 @@ class OptionalSingleTaskSelector(OptionalStringNode):
 
 
 class MultiTaskSelector(SchemaNode):
+    """
+    Node to select multiple task types.
+    """
     schema_type = Set
     default = ""
     missing = ""
@@ -398,6 +448,10 @@ class MultiTaskSelector(SchemaNode):
 
 
 class MandatoryWhichIdNumSelector(SchemaNode):
+    """
+    Node to enforce the choice of a single ID number type (e.g. "NHS number"
+    or "study Blah ID number").
+    """
     title = "Identifier"
     widget = SelectWidget()
 
@@ -429,12 +483,18 @@ class MandatoryWhichIdNumSelector(SchemaNode):
 
 
 class LinkingIdNumSelector(MandatoryWhichIdNumSelector):
-    # Convenience class
+    """
+    Convenience node: pick a single ID number, with title/description
+    indicating that it's the ID number to link on.
+    """
     title = "Linking ID number"
     description = "Which ID number to link on?"
 
 
 class OptionalWhichIdNumSelector(MandatoryWhichIdNumSelector):
+    """
+    Node to select (optionally) an ID number type.
+    """
     default = None
     missing = None
 
@@ -448,12 +508,18 @@ class OptionalWhichIdNumSelector(MandatoryWhichIdNumSelector):
 
 
 class MandatoryIdNumValue(SchemaNode):
+    """
+    Mandatory node to capture an ID number value.
+    """
     schema_type = Integer
     title = "ID# value"
     validator = Range(min=0)
 
 
 class OptionalIdNumValue(MandatoryIdNumValue):
+    """
+    Optional node to capture an ID number value.
+    """
     default = None
     missing = None
 
@@ -463,12 +529,19 @@ class OptionalIdNumValue(MandatoryIdNumValue):
 
 
 class MandatoryIdNumNode(MappingSchema):
+    """
+    Mandatory node to capture an ID number type and the associated actual
+    ID number (value).
+    """
     which_idnum = MandatoryWhichIdNumSelector()  # must match ViewParam.WHICH_IDNUM  # noqa
     idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE
     title = "ID number"
 
 
 class IdNumSequenceAnyCombination(SequenceSchema):
+    """
+    Sequence to capture multiple ID numbers (as type/value pairs).
+    """
     idnum_sequence = MandatoryIdNumNode()
     title = "ID numbers"
 
@@ -483,6 +556,10 @@ class IdNumSequenceAnyCombination(SequenceSchema):
 
 
 class IdNumSequenceUniquePerWhichIdnum(SequenceSchema):
+    """
+    Sequence to capture multiple ID numbers (as type/value pairs) but with only
+    up to one per ID number type.
+    """
     idnum_sequence = MandatoryIdNumNode()
     title = "ID numbers"
 
@@ -501,6 +578,9 @@ SEX_CHOICES = [("F", "F"), ("M", "M"), ("X", "X")]
 
 
 class OptionalSexSelector(OptionalStringNode):
+    """
+    Optional node to choose sex.
+    """
     title = "Sex"
 
     def __init__(self, *args, **kwargs) -> None:
@@ -511,6 +591,9 @@ class OptionalSexSelector(OptionalStringNode):
 
 
 class MandatorySexSelector(MandatoryStringNode):
+    """
+    Mandatory node to choose sex.
+    """
     title = "Sex"
 
     def __init__(self, *args, **kwargs) -> None:
@@ -521,6 +604,10 @@ class MandatorySexSelector(MandatoryStringNode):
 
 
 class MandatoryUserIdSelectorUsersAllowedToSee(SchemaNode):
+    """
+    Mandatory node to choose a user, from the users that the requesting user
+    is allowed to see.
+    """
     schema_type = Integer
     title = "User"
 
@@ -553,6 +640,9 @@ class MandatoryUserIdSelectorUsersAllowedToSee(SchemaNode):
 
 
 class OptionalUserNameSelector(OptionalStringNode):
+    """
+    Optional node to select a username, from all possible users.
+    """
     title = "User"
 
     def __init__(self, *args, **kwargs) -> None:
@@ -575,6 +665,9 @@ class OptionalUserNameSelector(OptionalStringNode):
 
 
 class MandatoryDeviceIdSelector(SchemaNode):
+    """
+    Mandatory node to select a client device ID.
+    """
     schema_type = Integer
     title = "Device"
 
@@ -598,34 +691,58 @@ class MandatoryDeviceIdSelector(SchemaNode):
 
 
 class ServerPkSelector(OptionalIntNode):
+    """
+    Optional node to request an integer, marked as a server PK.
+    """
     title = "Server PK"
 
 
 class StartPendulumSelector(OptionalPendulumNode):
+    """
+    Optional node to select a start date/time.
+    """
     title = "Start date/time"
 
 
 class EndPendulumSelector(OptionalPendulumNode):
+    """
+    Optional node to select an end date/time.
+    """
     title = "End date/time"
 
 
 class StartDateTimeSelector(DateTimeSelectorNode):
+    """
+    Optional node to select a start date/time (in UTC).
+    """
     title = "Start date/time (UTC)"
 
 
 class EndDateTimeSelector(DateTimeSelectorNode):
+    """
+    Optional node to select an end date/time (in UTC).
+    """
     title = "End date/time (UTC)"
 
 
 class StartDateSelector(DateSelectorNode):
+    """
+    Optional node to select a start date (in UTC).
+    """
     title = "Start date (UTC)"
 
 
 class EndDateSelector(DateSelectorNode):
+    """
+    Optional node to select an end date (in UTC).
+    """
     title = "End date (UTC)"
 
 
 class RowsPerPageSelector(SchemaNode):
+    """
+    Node to select how many rows per page are shown.
+    """
     _choices = ((10, "10"), (25, "25"), (50, "50"), (100, "100"))
 
     schema_type = Integer
@@ -636,6 +753,9 @@ class RowsPerPageSelector(SchemaNode):
 
 
 class TaskTrackerOutputTypeSelector(SchemaNode):
+    """
+    Node to select the output format for a tracker.
+    """
     _choices = ((ViewArg.HTML, "HTML"),
                 (ViewArg.PDF, "PDF"),
                 (ViewArg.XML, "XML"))
@@ -649,6 +769,9 @@ class TaskTrackerOutputTypeSelector(SchemaNode):
 
 
 class ReportOutputTypeSelector(SchemaNode):
+    """
+    Node to select the output format for a report.
+    """
     _choices = ((ViewArg.HTML, "HTML"),
                 (ViewArg.TSV, "TSV (tab-separated values)"))
 
@@ -661,6 +784,9 @@ class ReportOutputTypeSelector(SchemaNode):
 
 
 class DumpTypeSelector(SchemaNode):
+    """
+    Node to select the filtering method for a data dump.
+    """
     _choices = (
         (ViewArg.EVERYTHING, "Everything"),
         (ViewArg.USE_SESSION_FILTER, "Use the session filter settings"),
@@ -677,6 +803,9 @@ class DumpTypeSelector(SchemaNode):
 
 
 class UsernameNode(SchemaNode):
+    """
+    Node to enter a username.
+    """
     schema_type = String
     title = "Username"
     _length_validator = Length(1, USERNAME_MAX_LEN)
@@ -689,6 +818,9 @@ class UsernameNode(SchemaNode):
 
 
 class MustChangePasswordNode(SchemaNode):
+    """
+    Boolean node: must the user change their password?
+    """
     schema_type = Boolean
     label = "User must change password at next login"
     title = "Must change password at next login?"
@@ -697,6 +829,9 @@ class MustChangePasswordNode(SchemaNode):
 
 
 class NewPasswordNode(SchemaNode):
+    """
+    Node to enter a new password.
+    """
     schema_type = String
     validator = Length(min=MINIMUM_PASSWORD_LENGTH)
     widget = CheckedPasswordWidget()
@@ -707,7 +842,7 @@ class NewPasswordNode(SchemaNode):
 class MandatoryGroupIdSelectorAllGroups(SchemaNode):
     """
     Offers a picklist of groups from ALL POSSIBLE GROUPS.
-    Used by superusers: add user to any group.
+    Used by superusers: "add user to any group".
     """
     title = "Group"
 
@@ -734,7 +869,7 @@ class MandatoryGroupIdSelectorAllGroups(SchemaNode):
 class MandatoryGroupIdSelectorAdministeredGroups(SchemaNode):
     """
     Offers a picklist of groups from GROUPS ADMINISTERED BY REQUESTOR.
-    Used by groupadmins: add user to my group(s).
+    Used by groupadmins: "add user to one of my groups".
     """
     title = "Group"
 
@@ -762,7 +897,8 @@ class MandatoryGroupIdSelectorAdministeredGroups(SchemaNode):
 
 class MandatoryGroupIdSelectorOtherGroups(SchemaNode):
     """
-    Offers a picklist of groups THAT ARE NOT THE SPECIFIED GROUP.
+    Offers a picklist of groups THAT ARE NOT THE SPECIFIED GROUP (as specified
+    in ``kw[Binding.GROUP]``).
     Used by superusers: "which other groups can this group see?"
     """
     title = "Other group"
@@ -821,7 +957,7 @@ class MandatoryGroupIdSelectorUserGroups(SchemaNode):
 class OptionalGroupIdSelectorUserGroups(MandatoryGroupIdSelectorUserGroups):
     """
     Offers a picklist of groups from THOSE THE USER IS A MEMBER OF.
-    Used for "which do you want to upload into?".
+    Used for "which do you want to upload into?". Optional.
     """
     default = None
     missing = None
@@ -867,6 +1003,9 @@ class MandatoryGroupIdSelectorAllowedGroups(SchemaNode):
 
 
 class GroupsSequenceBase(SequenceSchema):
+    """
+    Sequence schema to capture zero or more non-duplicate groups.
+    """
     title = "Groups"
 
     def __init__(self, *args, minimum_number: int = 0, **kwargs) -> None:
@@ -888,17 +1027,19 @@ class GroupsSequenceBase(SequenceSchema):
 
 class AllGroupsSequence(GroupsSequenceBase):
     """
+    Sequence to offer a choice of all possible groups.
+
     Typical use: superuser assigns group memberships to a user.
-    Offer all possible groups.
     """
     group_id_sequence = MandatoryGroupIdSelectorAllGroups()
 
 
 class AdministeredGroupsSequence(GroupsSequenceBase):
     """
+    Sequence to offer a choice of the groups administered by the requestor.
+
     Typical use: (non-superuser) group administrator assigns group memberships
     to a user.
-    Offers the groups administered by the requestor.
     """
     group_id_sequence = MandatoryGroupIdSelectorAdministeredGroups()
 
@@ -908,18 +1049,27 @@ class AdministeredGroupsSequence(GroupsSequenceBase):
 
 class AllOtherGroupsSequence(GroupsSequenceBase):
     """
+    Sequence to offer a choice of all possible OTHER groups (as determined
+    relative to the group specified in ``kw[Binding.GROUP]``).
+
     Typical use: superuser assigns group permissions to another group.
-    Offer all possible OTHER groups.
     """
     group_id_sequence = MandatoryGroupIdSelectorOtherGroups()
 
 
 class AllowedGroupsSequence(GroupsSequenceBase):
+    """
+    Sequence to offer a choice of all the groups the user is allowed to see.
+    """
     group_id_sequence = MandatoryGroupIdSelectorAllowedGroups()
     description = OR_JOIN_DESCRIPTION
 
 
 class TextContentsSequence(SequenceSchema):
+    """
+    Sequence to capture multiple pieces of text (representing text contents
+    for a task filter).
+    """
     text_sequence = SchemaNode(
         String(),
         title="Text contents criterion",
@@ -936,6 +1086,10 @@ class TextContentsSequence(SequenceSchema):
 
 
 class UploadingUserSequence(SequenceSchema):
+    """
+    Sequence to capture multiple users (for task filters: "uploaded by one of
+    the following users...").
+    """
     user_id_sequence = MandatoryUserIdSelectorUsersAllowedToSee()
     title = "Uploading users"
     description = OR_JOIN_DESCRIPTION
@@ -948,6 +1102,10 @@ class UploadingUserSequence(SequenceSchema):
 
 
 class DevicesSequence(SequenceSchema):
+    """
+    Sequence to capture multiple client devices (for task filters: "uploaded by
+    one of the following devices...").
+    """
     device_id_sequence = MandatoryDeviceIdSelector()
     title = "Uploading devices"
     description = OR_JOIN_DESCRIPTION
@@ -960,6 +1118,9 @@ class DevicesSequence(SequenceSchema):
 
 
 class SortTsvByHeadingsNode(SchemaNode):
+    """
+    Boolean node: sort TSV files by column name?
+    """
     schema_type = Boolean
     label = "Sort TSV files by heading (column) names?"
     title = "Sort columns?"
@@ -983,6 +1144,9 @@ DIALECT_CHOICES = (
 
 
 class DatabaseDialectSelector(SchemaNode):
+    """
+    Node to choice an SQL dialect (for viewing DDL).
+    """
     schema_type = String
     default = SqlaDialectName.MYSQL
     missing = SqlaDialectName.MYSQL
@@ -1003,6 +1167,9 @@ SQLITE_CHOICES = (
 
 
 class SqliteSelector(SchemaNode):
+    """
+    Node to select a way of downloading an SQLite database.
+    """
     schema_type = String
     default = ViewArg.SQLITE
     missing = ViewArg.SQLITE
@@ -1016,6 +1183,9 @@ class SqliteSelector(SchemaNode):
 
 
 class IncludeBlobsNode(SchemaNode):
+    """
+    Boolean node: should BLOBs be included (for downloads)?
+    """
     schema_type = Boolean
     default = False
     missing = False
@@ -1024,6 +1194,10 @@ class IncludeBlobsNode(SchemaNode):
 
 
 class PolicyNode(MandatoryStringNode):
+    """
+    Node to capture a CamCOPS ID number policy, and make sure it is
+    syntactically valid.
+    """
     def validator(self, node: SchemaNode, value: Any) -> None:
         if not isinstance(value, str):
             # unlikely!
@@ -1038,12 +1212,18 @@ class PolicyNode(MandatoryStringNode):
 
 
 class IdDefinitionDescriptionNode(SchemaNode):
+    """
+    Node to capture the description of an ID number type.
+    """
     schema_type = String
     title = "Full description (e.g. “NHS number”)"
     validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
 
 
 class IdDefinitionShortDescriptionNode(SchemaNode):
+    """
+    Node to capture the short description of an ID number type.
+    """
     schema_type = String
     title = "Short description (e.g. “NHS#”)"
     description = "Try to keep it very short!"
@@ -1051,6 +1231,9 @@ class IdDefinitionShortDescriptionNode(SchemaNode):
 
 
 class Hl7AssigningAuthorityNode(OptionalStringNode):
+    """
+    Optional node to capture the name of an HL7 Assigning Authority.
+    """
     schema_type = String
     title = "HL7 Assigning Authority"
     description = (
@@ -1062,6 +1245,9 @@ class Hl7AssigningAuthorityNode(OptionalStringNode):
 
 
 class Hl7IdTypeNode(OptionalStringNode):
+    """
+    Optional node to capture the name of an HL7 Identifier Type code.
+    """
     schema_type = String
     title = "HL7 Identifier Type"
     description = (
@@ -1074,6 +1260,10 @@ class Hl7IdTypeNode(OptionalStringNode):
 
 
 class HardWorkConfirmationSchema(CSRFSchema):
+    """
+    Schema to make it hard to do something. We require a pattern of yes/no
+    answers before we will proceed.
+    """
     confirm_1_t = BooleanNode(title="Really?", default=False)
     confirm_2_t = BooleanNode(title="Leave ticked to confirm", default=True)
     confirm_3_f = BooleanNode(title="Please untick to confirm", default=True)
@@ -1094,6 +1284,9 @@ class HardWorkConfirmationSchema(CSRFSchema):
 # =============================================================================
 
 class LoginSchema(CSRFSchema):
+    """
+    Schema to capture login details.
+    """
     username = UsernameNode()  # name must match ViewParam.USERNAME
     password = SchemaNode(  # name must match ViewParam.PASSWORD
         String(),
@@ -1104,10 +1297,19 @@ class LoginSchema(CSRFSchema):
 
 
 class LoginForm(InformativeForm):
+    """
+    Form to capture login details.
+    """
     def __init__(self,
                  request: "CamcopsRequest",
                  autocomplete_password: bool = True,
                  **kwargs) -> None:
+        """
+        Args:
+            autocomplete_password:
+                suggest to the browser that it's OK to store the password for
+                autocompletion? Note that browsers may ignore this.
+        """
         schema = LoginSchema().bind(request=request)
         super().__init__(
             schema,
@@ -1129,6 +1331,9 @@ CHANGE_PASSWORD_TITLE = "Change password"
 
 
 class OldUserPasswordCheck(SchemaNode):
+    """
+    Schema to capture an old password (for when a password is being changed).
+    """
     schema_type = String
     title = "Old password"
     widget = PasswordWidget()
@@ -1142,10 +1347,18 @@ class OldUserPasswordCheck(SchemaNode):
 
 
 class ChangeOwnPasswordSchema(CSRFSchema):
+    """
+    Schema to change one's own password.
+    """
     old_password = OldUserPasswordCheck()
     new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
 
     def __init__(self, *args, must_differ: bool = True, **kwargs):
+        """
+        Args:
+            must_differ:
+                must the new password be different from the old one?
+        """
         self.must_differ = must_differ
         super().__init__(*args, **kwargs)
 
@@ -1155,9 +1368,17 @@ class ChangeOwnPasswordSchema(CSRFSchema):
 
 
 class ChangeOwnPasswordForm(InformativeForm):
+    """
+    Form to change one's own password.
+    """
     def __init__(self, request: "CamcopsRequest",
                  must_differ: bool = True,
                  **kwargs) -> None:
+        """
+        Args:
+            must_differ:
+                must the new password be different from the old one?
+        """
         schema = ChangeOwnPasswordSchema(must_differ=must_differ).\
             bind(request=request)
         super().__init__(
@@ -1169,12 +1390,18 @@ class ChangeOwnPasswordForm(InformativeForm):
 
 
 class ChangeOtherPasswordSchema(CSRFSchema):
+    """
+    Schema to change another user's password.
+    """
     user_id = HiddenIntegerNode()  # name must match ViewParam.USER_ID
     must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD  # noqa
     new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
 
 
 class ChangeOtherPasswordForm(SimpleSubmitForm):
+    """
+    Form to change another user's password.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=ChangeOtherPasswordSchema,
                          submit_title=CHANGE_PASSWORD_TITLE,
@@ -1186,14 +1413,25 @@ class ChangeOtherPasswordForm(SimpleSubmitForm):
 # =============================================================================
 
 class OfferTermsSchema(CSRFSchema):
+    """
+    Schema to offer terms and ask the user to accept them.
+    """
     pass
 
 
 class OfferTermsForm(SimpleSubmitForm):
+    """
+    Form to offer terms and ask the user to accept them.
+    """
     def __init__(self,
                  request: "CamcopsRequest",
                  agree_button_text: str,
                  **kwargs) -> None:
+        """
+        Args:
+            agree_button_text:
+                text for the "agree" button
+        """
         super().__init__(schema_class=OfferTermsSchema,
                          submit_title=agree_button_text,
                          request=request, **kwargs)
@@ -1204,6 +1442,9 @@ class OfferTermsForm(SimpleSubmitForm):
 # =============================================================================
 
 class AuditTrailSchema(CSRFSchema):
+    """
+    Schema to filter audit trail entries.
+    """
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
     start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
@@ -1219,6 +1460,9 @@ class AuditTrailSchema(CSRFSchema):
 
 
 class AuditTrailForm(SimpleSubmitForm):
+    """
+    Form to filter and then view audit trail entries.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=AuditTrailSchema,
                          submit_title="View audit trail",
@@ -1230,6 +1474,9 @@ class AuditTrailForm(SimpleSubmitForm):
 # =============================================================================
 
 class HL7MessageLogSchema(CSRFSchema):
+    """
+    Schema to filter HL7 message logs.
+    """
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
     table_name = OptionalSingleTaskSelector()  # must match ViewParam.TABLENAME  # noqa
     server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
@@ -1239,6 +1486,9 @@ class HL7MessageLogSchema(CSRFSchema):
 
 
 class HL7MessageLogForm(SimpleSubmitForm):
+    """
+    Form to filter and then view HL7 message logs.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=HL7MessageLogSchema,
                          submit_title="View HL7 message log",
@@ -1250,6 +1500,9 @@ class HL7MessageLogForm(SimpleSubmitForm):
 # =============================================================================
 
 class HL7RunLogSchema(CSRFSchema):
+    """
+    Schema to filter HL7 run logs.
+    """
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
     hl7_run_id = OptionalIntNode(title="Run ID")  # must match ViewParam.HL7_RUN_ID  # noqa
     start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
@@ -1257,6 +1510,9 @@ class HL7RunLogSchema(CSRFSchema):
 
 
 class HL7RunLogForm(SimpleSubmitForm):
+    """
+    Form to filter and then view HL7 run logs.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=HL7RunLogSchema,
                          submit_title="View HL7 run log",
@@ -1268,6 +1524,9 @@ class HL7RunLogForm(SimpleSubmitForm):
 # =============================================================================
 
 class EditTaskFilterWhoSchema(Schema):
+    """
+    Schema to edit the "who" parts of a task filter.
+    """
     surname = OptionalStringNode(title="Surname")  # must match ViewParam.SURNAME  # noqa
     forename = OptionalStringNode(title="Forename")  # must match ViewParam.FORENAME  # noqa
     dob = SchemaNode(  # must match ViewParam.DOB
@@ -1281,11 +1540,17 @@ class EditTaskFilterWhoSchema(Schema):
 
 
 class EditTaskFilterWhenSchema(Schema):
+    """
+    Schema to edit the "when" parts of a task filter.
+    """
     start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
 
 
 class EditTaskFilterWhatSchema(Schema):
+    """
+    Schema to edit the "what" parts of a task filter.
+    """
     text_contents = TextContentsSequence()  # must match ViewParam.TEXT_CONTENTS  # noqa
     complete_only = BooleanNode(  # must match ViewParam.COMPLETE_ONLY
         default=False,
@@ -1295,12 +1560,18 @@ class EditTaskFilterWhatSchema(Schema):
 
 
 class EditTaskFilterAdminSchema(Schema):
+    """
+    Schema to edit the "admin" parts of a task filter.
+    """
     device_ids = DevicesSequence()  # must match ViewParam.DEVICE_IDS
     user_ids = UploadingUserSequence()  # must match ViewParam.USER_IDS
     group_ids = AllowedGroupsSequence()  # must match ViewParam.GROUP_IDS
 
 
 class EditTaskFilterSchema(CSRFSchema):
+    """
+    Schema to edit a task filter.
+    """
     who = EditTaskFilterWhoSchema(  # must match ViewParam.WHO
         title="Who",
         widget=MappingWidget(template="mapping_accordion", open=False)
@@ -1354,6 +1625,9 @@ class EditTaskFilterSchema(CSRFSchema):
 
 
 class EditTaskFilterForm(InformativeForm):
+    """
+    Form to edit a task filter.
+    """
     def __init__(self, 
                  request: "CamcopsRequest",
                  open_who: bool = False,
@@ -1375,10 +1649,16 @@ class EditTaskFilterForm(InformativeForm):
 
 
 class TasksPerPageSchema(CSRFSchema):
+    """
+    Schema to edit the number of rows per page, for the task view.
+    """
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
 
 
 class TasksPerPageForm(InformativeForm):
+    """
+    Form to edit the number of tasks per page, for the task view.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = TasksPerPageSchema().bind(request=request)
         super().__init__(
@@ -1390,10 +1670,16 @@ class TasksPerPageForm(InformativeForm):
 
 
 class RefreshTasksSchema(CSRFSchema):
+    """
+    Schema for a "refresh tasks" button.
+    """
     pass
 
 
 class RefreshTasksForm(InformativeForm):
+    """
+    Form for a "refresh tasks" button.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = RefreshTasksSchema().bind(request=request)
         super().__init__(
@@ -1408,6 +1694,9 @@ class RefreshTasksForm(InformativeForm):
 # =============================================================================
 
 class ChooseTrackerSchema(CSRFSchema):
+    """
+    Schema to select a tracker or CTV.
+    """
     which_idnum = MandatoryWhichIdNumSelector()  # must match ViewParam.WHICH_IDNUM  # noqa
     idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE  # noqa
     start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
@@ -1422,8 +1711,15 @@ class ChooseTrackerSchema(CSRFSchema):
 
 
 class ChooseTrackerForm(InformativeForm):
+    """
+    Form to select a tracker or CTV.
+    """
     def __init__(self, request: "CamcopsRequest",
                  as_ctv: bool, **kwargs) -> None:
+        """
+        Args:
+            as_ctv: CTV, not tracker?
+        """
         schema = ChooseTrackerSchema().bind(request=request,
                                             tracker_tasks_only=not as_ctv)
         super().__init__(
@@ -1439,12 +1735,19 @@ class ChooseTrackerForm(InformativeForm):
 # =============================================================================
 
 class ReportParamSchema(CSRFSchema):
+    """
+    Schema to embed a report type (ID) and output format (view type).
+    """
     viewtype = ReportOutputTypeSelector()  # must match ViewParam.VIEWTYPE
     report_id = HiddenStringNode()  # must match ViewParam.REPORT_ID
     # Specific forms may inherit from this.
 
 
 class ReportParamForm(SimpleSubmitForm):
+    """
+    Form to view a specific report. Often derived from, to configure the report
+    in more detail.
+    """
     def __init__(self, request: "CamcopsRequest",
                  schema_class: Type[ReportParamSchema], **kwargs) -> None:
         super().__init__(schema_class=schema_class,
@@ -1457,10 +1760,16 @@ class ReportParamForm(SimpleSubmitForm):
 # =============================================================================
 
 class ViewDdlSchema(CSRFSchema):
+    """
+    Schema to choose how to view DDL.
+    """
     dialect = DatabaseDialectSelector()  # must match ViewParam.DIALECT
 
 
 class ViewDdlForm(SimpleSubmitForm):
+    """
+    Form to choose how to view DDL (and then view it).
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=ViewDdlSchema,
                          submit_title="View DDL",
@@ -1471,9 +1780,9 @@ class ViewDdlForm(SimpleSubmitForm):
 # Add/edit/delete users
 # =============================================================================
 
-class UserGroupMembershipGroupAdminSchema(CSRFSchema):
+class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
     """
-    Edit group membership - for group administrators.
+    Edit group-specific permissions for a user. For group administrators.
     """
     may_upload = BooleanNode(  # match ViewParam.MAY_UPLOAD and User attribute
         default=True,
@@ -1506,9 +1815,10 @@ class UserGroupMembershipGroupAdminSchema(CSRFSchema):
     )
 
 
-class UserGroupMembershipFullSchema(UserGroupMembershipGroupAdminSchema):
+class UserGroupPermissionsFullSchema(UserGroupPermissionsGroupAdminSchema):
     """
-    Edit group membership - for superusers.
+    Edit group-specific permissions for a user. For superusers; includes the
+    option to make the user a groupadmin.
     """
     groupadmin = BooleanNode(  # match ViewParam.GROUPADMIN and User attribute  # noqa
         default=True,
@@ -1517,6 +1827,9 @@ class UserGroupMembershipFullSchema(UserGroupMembershipGroupAdminSchema):
 
 
 class EditUserGroupAdminSchema(CSRFSchema):
+    """
+    Schema to edit a user. Version for group administrators.
+    """
     username = UsernameNode()  # name must match ViewParam.USERNAME and User attribute  # noqa
     fullname = OptionalStringNode(  # name must match ViewParam.FULLNAME and User attribute  # noqa
         title="Full name",
@@ -1531,6 +1844,10 @@ class EditUserGroupAdminSchema(CSRFSchema):
 
 
 class EditUserFullSchema(EditUserGroupAdminSchema):
+    """
+    Schema to edit a user. Version for superusers; can also make the user a
+    superuser.
+    """
     superuser = BooleanNode(  # match ViewParam.SUPERUSER and User attribute  # noqa
         default=False,
         title="Superuser (CAUTION!)",
@@ -1539,30 +1856,46 @@ class EditUserFullSchema(EditUserGroupAdminSchema):
 
 
 class EditUserFullForm(ApplyCancelForm):
+    """
+    Form to edit a user. Full version for superusers.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=EditUserFullSchema,
                          request=request, **kwargs)
 
 
 class EditUserGroupAdminForm(ApplyCancelForm):
+    """
+    Form to edit a user. Version for group administrators.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=EditUserGroupAdminSchema,
                          request=request, **kwargs)
 
 
-class EditUserGroupMembershipFullForm(ApplyCancelForm):
+class EditUserGroupPermissionsFullForm(ApplyCancelForm):
+    """
+    Form to edit a user's permissions within a group. Version for superusers.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        super().__init__(schema_class=UserGroupMembershipFullSchema,
+        super().__init__(schema_class=UserGroupPermissionsFullSchema,
                          request=request, **kwargs)
 
 
 class EditUserGroupMembershipGroupAdminForm(ApplyCancelForm):
+    """
+    Form to edit a user's permissions within a group. Version for group
+    administrators.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        super().__init__(schema_class=UserGroupMembershipGroupAdminSchema,
+        super().__init__(schema_class=UserGroupPermissionsGroupAdminSchema,
                          request=request, **kwargs)
 
 
 class AddUserSuperuserSchema(CSRFSchema):
+    """
+    Schema to add a user. Version for superusers.
+    """
     username = UsernameNode()  # name must match ViewParam.USERNAME and User attribute  # noqa
     new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
     must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute  # noqa
@@ -1570,22 +1903,34 @@ class AddUserSuperuserSchema(CSRFSchema):
 
 
 class AddUserGroupadminSchema(AddUserSuperuserSchema):
+    """
+    Schema to add a user. Version for group administrators.
+    """
     group_ids = AdministeredGroupsSequence()  # must match ViewParam.GROUP_IDS
 
 
 class AddUserSuperuserForm(AddCancelForm):
+    """
+    Form to add a user. Version for superusers.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=AddUserSuperuserSchema,
                          request=request, **kwargs)
 
 
 class AddUserGroupadminForm(AddCancelForm):
+    """
+    Form to add a user. Version for group administrators.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=AddUserGroupadminSchema,
                          request=request, **kwargs)
 
 
 class SetUserUploadGroupSchema(CSRFSchema):
+    """
+    Schema to choose the group into which a user uploads.
+    """
     upload_group_id = OptionalGroupIdSelectorUserGroups(  # must match ViewParam.UPLOAD_GROUP_ID  # noqa
         title="Group into which to upload data",
         description="Pick a group from those to which the user belongs"
@@ -1593,6 +1938,9 @@ class SetUserUploadGroupSchema(CSRFSchema):
 
 
 class SetUserUploadGroupForm(InformativeForm):
+    """
+    Form to choose the group into which a user uploads.
+    """
     def __init__(self, request: "CamcopsRequest", user: "User",
                  **kwargs) -> None:
         schema = SetUserUploadGroupSchema().bind(request=request,
@@ -1608,11 +1956,17 @@ class SetUserUploadGroupForm(InformativeForm):
 
 
 class DeleteUserSchema(HardWorkConfirmationSchema):
+    """
+    Schema to delete a user.
+    """
     user_id = HiddenIntegerNode()  # name must match ViewParam.USER_ID
     danger = ValidateDangerousOperationNode()
 
 
 class DeleteUserForm(DeleteCancelForm):
+    """
+    Form to delete a user.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=DeleteUserSchema,
                          request=request, **kwargs)
@@ -1623,6 +1977,9 @@ class DeleteUserForm(DeleteCancelForm):
 # =============================================================================
 
 class EditGroupSchema(CSRFSchema):
+    """
+    Schema to edit a group.
+    """
     group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
     name = SchemaNode(  # must match ViewParam.NAME
         String(),
@@ -1656,6 +2013,9 @@ class EditGroupSchema(CSRFSchema):
 
 
 class EditGroupForm(InformativeForm):
+    """
+    Form to edit a group.
+    """
     def __init__(self, request: "CamcopsRequest", group: Group,
                  **kwargs) -> None:
         schema = EditGroupSchema().bind(request=request,
@@ -1671,6 +2031,9 @@ class EditGroupForm(InformativeForm):
 
 
 class AddGroupSchema(CSRFSchema):
+    """
+    Schema to add a group.
+    """
     name = SchemaNode(  # name must match ViewParam.NAME
         String(),
         title="Group name"
@@ -1685,17 +2048,26 @@ class AddGroupSchema(CSRFSchema):
 
 
 class AddGroupForm(AddCancelForm):
+    """
+    Form to add a group.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=AddGroupSchema,
                          request=request, **kwargs)
 
 
 class DeleteGroupSchema(HardWorkConfirmationSchema):
+    """
+    Schema to delete a group.
+    """
     group_id = HiddenIntegerNode()  # name must match ViewParam.GROUP_ID
     danger = ValidateDangerousOperationNode()
 
 
 class DeleteGroupForm(DeleteCancelForm):
+    """
+    Form to delete a group.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=DeleteGroupSchema,
                          request=request, **kwargs)
@@ -1706,6 +2078,9 @@ class DeleteGroupForm(DeleteCancelForm):
 # =============================================================================
 
 class OfferDumpManualSchema(Schema):
+    """
+    Schema to offer the "manual" settings for a data dump (groups, task types).
+    """
     group_ids = AllowedGroupsSequence()  # must match ViewParam.GROUP_IDS
     tasks = MultiTaskSelector()  # must match ViewParam.TASKS
 
@@ -1714,24 +2089,28 @@ class OfferDumpManualSchema(Schema):
 
 
 class OfferBasicDumpSchema(CSRFSchema):
+    """
+    Schema to choose the settings for a basic (TSV/ZIP) data dump.
+    """
     dump_method = DumpTypeSelector()  # must match ViewParam.DUMP_METHOD
     sort = SortTsvByHeadingsNode()  # must match ViewParam.SORT
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
 
 
 class OfferBasicDumpForm(SimpleSubmitForm):
+    """
+    Form to offer a basic (TSV/ZIP) data dump.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=OfferBasicDumpSchema,
                          submit_title="Dump",
                          request=request, **kwargs)
 
 
-class OfferSqlDumpManualSchema(Schema):
-    group_ids = AllowedGroupsSequence()  # must match ViewParam.GROUP_IDS
-    tasks = MultiTaskSelector()  # must match ViewParam.TASKS
-
-
 class OfferSqlDumpSchema(CSRFSchema):
+    """
+    Schema to choose the settings for an SQL data dump.
+    """
     dump_method = DumpTypeSelector()  # must match ViewParam.DUMP_METHOD
     sqlite_method = SqliteSelector()  # must match ViewParam.SQLITE_METHOD
     include_blobs = IncludeBlobsNode()  # must match ViewParam.INCLUDE_BLOBS
@@ -1739,6 +2118,9 @@ class OfferSqlDumpSchema(CSRFSchema):
 
 
 class OfferSqlDumpForm(SimpleSubmitForm):
+    """
+    Form to choose the settings for an SQL data dump.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=OfferSqlDumpSchema,
                          submit_title="Dump",
@@ -1750,6 +2132,9 @@ class OfferSqlDumpForm(SimpleSubmitForm):
 # =============================================================================
 
 class EditServerSettingsSchema(CSRFSchema):
+    """
+    Schema to edit the global settings for the server.
+    """
     database_title = SchemaNode(  # must match ViewParam.DATABASE_TITLE
         String(),
         title="Database friendly title",
@@ -1758,12 +2143,18 @@ class EditServerSettingsSchema(CSRFSchema):
 
 
 class EditServerSettingsForm(ApplyCancelForm):
+    """
+    Form to edit the global settings for the server.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=EditServerSettingsSchema,
                          request=request, **kwargs)
 
 
 class EditIdDefinitionSchema(CSRFSchema):
+    """
+    Schema to edit an ID number definition.
+    """
     which_idnum = HiddenIntegerNode()  # must match ViewParam.WHICH_IDNUM
     description = IdDefinitionDescriptionNode()  # must match ViewParam.DESCRIPTION  # noqa
     short_description = IdDefinitionShortDescriptionNode()  # must match ViewParam.SHORT_DESCRIPTION  # noqa
@@ -1790,12 +2181,18 @@ class EditIdDefinitionSchema(CSRFSchema):
 
 
 class EditIdDefinitionForm(ApplyCancelForm):
+    """
+    Form to edit an ID number definition.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=EditIdDefinitionSchema,
                          request=request, **kwargs)
 
 
 class AddIdDefinitionSchema(CSRFSchema):
+    """
+    Schema to add an ID number definition.
+    """
     which_idnum = SchemaNode(  # must match ViewParam.WHICH_IDNUM
         Integer(),
         title="Which ID number?",
@@ -1827,17 +2224,26 @@ class AddIdDefinitionSchema(CSRFSchema):
 
 
 class AddIdDefinitionForm(AddCancelForm):
+    """
+    Form to add an ID number definition.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=AddIdDefinitionSchema,
                          request=request, **kwargs)
 
 
 class DeleteIdDefinitionSchema(HardWorkConfirmationSchema):
+    """
+    Schema to delete an ID number definition.
+    """
     which_idnum = HiddenIntegerNode()  # name must match ViewParam.WHICH_IDNUM
     danger = ValidateDangerousOperationNode()
 
 
 class DeleteIdDefinitionForm(DangerousForm):
+    """
+    Form to add an ID number definition.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=DeleteIdDefinitionSchema,
                          submit_action=FormAction.DELETE,
@@ -1850,6 +2256,9 @@ class DeleteIdDefinitionForm(DangerousForm):
 # =============================================================================
 
 class AddSpecialNoteSchema(CSRFSchema):
+    """
+    Schema to add a special note to a task.
+    """
     table_name = HiddenStringNode()  # must match ViewParam.TABLENAME
     server_pk = HiddenIntegerNode()  # must match ViewParam.SERVER_PK
     note = MandatoryStringNode(  # must match ViewParam.NOTE
@@ -1859,6 +2268,9 @@ class AddSpecialNoteSchema(CSRFSchema):
 
 
 class AddSpecialNoteForm(DangerousForm):
+    """
+    Form to add a special note to a task.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=AddSpecialNoteSchema,
                          submit_action=FormAction.SUBMIT,
@@ -1871,12 +2283,18 @@ class AddSpecialNoteForm(DangerousForm):
 # =============================================================================
 
 class EraseTaskSchema(HardWorkConfirmationSchema):
+    """
+    Schema to erase a task.
+    """
     table_name = HiddenStringNode()  # must match ViewParam.TABLENAME
     server_pk = HiddenIntegerNode()  # must match ViewParam.SERVER_PK
     danger = ValidateDangerousOperationNode()
 
 
 class EraseTaskForm(DangerousForm):
+    """
+    Form to erase a task.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=EraseTaskSchema,
                          submit_action=FormAction.DELETE,
@@ -1885,6 +2303,9 @@ class EraseTaskForm(DangerousForm):
 
 
 class DeletePatientChooseSchema(CSRFSchema):
+    """
+    Schema to delete a patient.
+    """
     which_idnum = MandatoryWhichIdNumSelector()  # must match ViewParam.WHICH_IDNUM  # noqa
     idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE
     group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID  # noqa
@@ -1892,6 +2313,9 @@ class DeletePatientChooseSchema(CSRFSchema):
 
 
 class DeletePatientChooseForm(DangerousForm):
+    """
+    Form to delete a patient.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=DeletePatientChooseSchema,
                          submit_action=FormAction.SUBMIT,
@@ -1900,6 +2324,9 @@ class DeletePatientChooseForm(DangerousForm):
 
 
 class DeletePatientConfirmSchema(HardWorkConfirmationSchema):
+    """
+    Schema to confirm deletion of a patient.
+    """
     which_idnum = HiddenIntegerNode()  # must match ViewParam.WHICH_IDNUM
     idnum_value = HiddenIntegerNode()  # must match ViewParam.IDNUM_VALUE
     group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
@@ -1907,6 +2334,9 @@ class DeletePatientConfirmSchema(HardWorkConfirmationSchema):
 
 
 class DeletePatientConfirmForm(DangerousForm):
+    """
+    Form to confirm deletion of a patient.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=DeletePatientConfirmSchema,
                          submit_action=FormAction.DELETE,
@@ -1926,6 +2356,9 @@ EDIT_PATIENT_SIMPLE_PARAMS = [
 
 
 class EditPatientSchema(CSRFSchema):
+    """
+    Schema to edit a patient.
+    """
     server_pk = HiddenIntegerNode()  # must match ViewParam.SERVER_PK
     group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
     forename = OptionalStringNode()  # must match ViewParam.FORENAME
@@ -1962,6 +2395,9 @@ class EditPatientSchema(CSRFSchema):
 
 
 class EditPatientForm(DangerousForm):
+    """
+    Form to edit a patient.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=EditPatientSchema,
                          submit_action=FormAction.SUBMIT,
@@ -1970,11 +2406,17 @@ class EditPatientForm(DangerousForm):
 
 
 class ForciblyFinalizeChooseDeviceSchema(CSRFSchema):
+    """
+    Schema to force-finalize records from a device.
+    """
     device_id = MandatoryDeviceIdSelector()  # must match ViewParam.DEVICE_ID
     danger = ValidateDangerousOperationNode()
 
 
 class ForciblyFinalizeChooseDeviceForm(SimpleSubmitForm):
+    """
+    Form to force-finalize records from a device.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=ForciblyFinalizeChooseDeviceSchema,
                          submit_title="View affected tasks",
@@ -1982,11 +2424,17 @@ class ForciblyFinalizeChooseDeviceForm(SimpleSubmitForm):
 
 
 class ForciblyFinalizeConfirmSchema(HardWorkConfirmationSchema):
+    """
+    Schema to confirm force-finalizing of a device.
+    """
     device_id = HiddenIntegerNode()  # must match ViewParam.DEVICE_ID
     danger = ValidateDangerousOperationNode()
 
 
 class ForciblyFinalizeConfirmForm(DangerousForm):
+    """
+    Form to confirm force-finalizing of a device.
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=ForciblyFinalizeConfirmSchema,
                          submit_action=FormAction.FINALIZE,
@@ -1999,6 +2447,9 @@ class ForciblyFinalizeConfirmForm(DangerousForm):
 # =============================================================================
 
 class SchemaTests(DemoRequestTestCase):
+    """
+    Unit tests.
+    """
     @staticmethod
     def _serialize_deserialize(schema: Schema,
                                appstruct: Dict[str, Any]) -> None:

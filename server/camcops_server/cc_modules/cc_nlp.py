@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_nlp.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+..
 """
 
 from typing import Dict
@@ -42,16 +46,19 @@ TITLES = [
 
 
 def guess_name_components(s: str, uppercase: bool = True) -> Dict[str, str]:
-    """Takes a string such as 'Dr James T. Smith, M.D.' and returns parts.
+    """
+    Takes a string such as 'Dr James T. Smith, M.D.' and returns parts.
 
     This will not be perfect! If it isn't reasonably sure, it returns
     everything in the surname field.
 
     Examples it will fail on:
-        Nurse Specialist Jones
+
+    - Nurse Specialist Jones
 
     Returns:
-        dictionary with members: "surname", "forename", "prefix"
+        dict: dictionary with keys "surname", "forename", "prefix"
+
     """
     # Hard.
     # http://stackoverflow.com/questions/4276905/

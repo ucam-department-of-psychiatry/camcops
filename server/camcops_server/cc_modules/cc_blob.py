@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_blob.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+BLOB (binary large object) handling.
+
 """
 
 import logging
@@ -123,7 +128,9 @@ class Blob(GenericTabletRecordMixin, Base):
                                         device_id: int,
                                         clientpk: int,
                                         era: str) -> Optional['Blob']:
-        """Returns the current Blob object, or None."""
+        """
+        Returns the current Blob object, or None.
+        """
         blob = dbsession.query(cls)\
             .filter(cls.id == clientpk)\
             .filter(cls._device_id == device_id)\
@@ -161,7 +168,9 @@ class Blob(GenericTabletRecordMixin, Base):
         return blob
 
     def get_rotated_image(self) -> Optional[bytes]:
-        """Returns a binary image, having rotated if necessary, or None."""
+        """
+        Returns a binary image, having rotated if necessary, or None.
+        """
         if not self.theblob:
             return None
         rotation = self.image_rotation_deg_cw
@@ -173,7 +182,9 @@ class Blob(GenericTabletRecordMixin, Base):
             # ... no parameter => return in same format as supplied
 
     def get_img_html(self) -> str:
-        """Returns an HTML IMG tag encoding the BLOB, or ''."""
+        """
+        Returns an HTML IMG tag encoding the BLOB, or ''.
+        """
         image_bits = self.get_rotated_image()
         if not image_bits:
             return ""
@@ -181,6 +192,9 @@ class Blob(GenericTabletRecordMixin, Base):
         # Historically, CamCOPS supported only PNG, so add this as a default
 
     def get_xml_element(self, req: "CamcopsRequest") -> XmlElement:
+        """
+        Returns an :class:`XmlElement` representing this BLOB.
+        """
         branches = self._get_xml_branches(
             req,
             skip_attrs=["theblob"],
@@ -199,12 +213,16 @@ class Blob(GenericTabletRecordMixin, Base):
         )
 
     def _get_xml_theblob_value_binary(self) -> Optional[bytes]:
-        """Returns a binary value for this object, to be encoded into XML."""
+        """
+        Returns a binary value for this object, to be encoded into XML.
+        """
         image_bits = self.get_rotated_image()
         return image_bits
 
     def get_data_url(self) -> str:
-        """Returns a data URL encapsulating the BLOB, or ''."""
+        """
+        Returns a data URL encapsulating the BLOB, or ''.
+        """
         if not self.theblob:
             return ""
         return get_data_url(self.mimetype or MimeType.PNG, self.theblob)
@@ -267,7 +285,10 @@ def blob_relationship(classname: str,
 # =============================================================================
 
 def get_blob_img_html(blob: Optional[Blob]) -> str:
-    """Get HTML IMG tag with embedded data, or HTML error message."""
+    """
+    For the specified BLOB, get an HTML IMG tag with embedded data, or an HTML
+    error message.
+    """
     if blob is None:
         return "<i>(No picture)</i>"
     return blob.get_img_html()
@@ -278,6 +299,9 @@ def get_blob_img_html(blob: Optional[Blob]) -> str:
 # =============================================================================
 
 class BlobTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_blob(self) -> None:
         self.announce("test_blob")
         q = self.dbsession.query(Blob)

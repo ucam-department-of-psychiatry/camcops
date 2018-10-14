@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_all_models.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -152,6 +154,9 @@ for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
 # =============================================================================
 
 class ModelTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_show_ddl(self) -> None:
         self.announce("test_show_ddl")
         log_all_ddl()

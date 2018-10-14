@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_version.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Version helper functions.
+
 """
 
 from typing import Union
@@ -51,7 +56,8 @@ FIRST_TABLET_VER_WITH_EXPLICIT_PKNAME_IN_UPLOAD_TABLE = Version("2.0.4")
 
 def make_version(v: Union[str, float, None]) -> Version:
     """
-    Returns a Version or raises ValueError.
+    Returns a :class:`semantic_version.Version` from its input or raises
+    :exc:`ValueError`.
     """
     if v is None:
         return Version("0.0.0")

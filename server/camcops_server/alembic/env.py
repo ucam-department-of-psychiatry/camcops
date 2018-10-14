@@ -2,6 +2,8 @@
 # camcops_server/alembic/env.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+The file ``env.py`` configures and runs Alembic.
+It is loaded directly by Alembic, via a pseudo-"main" environment.
+
 """
 
 # =============================================================================

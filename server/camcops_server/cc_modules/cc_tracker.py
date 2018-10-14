@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_tracker.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Trackers, showing numerical information over time, and clinical text views,
+showing text that a clinician might care about.
+
 """
 
 import logging
@@ -88,15 +94,16 @@ DEBUG_TRACKER_TASK_INCLUSION = False  # should be False for production system
 def consistency(values: List[Any],
                 servervalue: Any = None,
                 case_sensitive: bool = True) -> Tuple[bool, str]:
-    """Checks for consistency in a set of values (e.g. ID numbers, names).
+    """
+    Checks for consistency in a set of values (e.g. ID numbers, names).
 
-    The list of values (with the servervalue appended, if not None) is checked
-    to ensure that it contains only one unique value (ignoring None values or
-    empty "" values).
+    The list of values (with the ``servervalue`` appended, if not ``None``) is
+    checked to ensure that it contains only one unique value (ignoring ``None``
+    values or empty ``""`` values).
 
-    Returns tuple: (consistent, msg)
-        consistent: Boolean
-        msg: HTML message
+    Returns:
+        the tuple ``consistent, msg``, where ``consistent`` is a bool and
+        ``msg`` is a descriptive HTML message
     """
     if case_sensitive:
         vallist = [str(v) if v is not None else v for v in values]
@@ -125,6 +132,19 @@ def consistency(values: List[Any],
 
 def consistency_idnums(idnum_lists: List[List[PatientIdNum]]) \
         -> Tuple[bool, str]:
+    """
+    Checks the consistency of a set of :class:`PatientIdNum` objects.
+    "Are all these records from the same patient?"
+
+    Args:
+        idnum_lists: a list of lists (one per :class:`Patient` instance) of
+            :class:`PatientIdNum` objects
+
+    Returns:
+        the tuple ``consistent, msg``, where ``consistent`` is a bool and
+        ``msg`` is a descriptive HTML message
+
+    """
     known = {}  # type: Dict[int, Set[int]]  # maps which_idnum -> set of idnum_values  # noqa
     for idnum_list in idnum_lists:
         for idnum in idnum_list:
@@ -153,9 +173,11 @@ def consistency_idnums(idnum_lists: List[List[PatientIdNum]]) \
 
 def format_daterange(start: Optional[Pendulum],
                      end: Optional[Pendulum]) -> str:
-    """Textual representation of inclusive date range.
+    """
+    Textual representation of an inclusive date range.
 
-    Arguments are datetime values."""
+    Arguments are datetime values.
+    """
     return "[{}, {}]".format(
         format_datetime(start, DateFormat.ISO8601_DATE_ONLY, default="−∞"),
         format_datetime(end, DateFormat.ISO8601_DATE_ONLY, default="+∞")
@@ -167,10 +189,14 @@ def format_daterange(start: Optional[Pendulum],
 # =============================================================================
 
 class ConsistencyInfo(object):
-    """Stores ID consistency information about a set of tasks."""
+    """
+    Represents ID consistency information about a set of tasks.
+    """
 
     def __init__(self, tasklist: List[Task]) -> None:
-        """Initialize values, from a list of task instances."""
+        """
+        Initialize values, from a list of task instances.
+        """
         self.consistent_forename, self.msg_forename = consistency(
             [task.get_patient_forename() for task in tasklist],
             servervalue=None, case_sensitive=False)
@@ -192,12 +218,16 @@ class ConsistencyInfo(object):
         )
 
     def are_all_consistent(self) -> bool:
-        """Is all the ID information consistent?"""
+        """
+        Is all the ID information consistent?
+        """
         return self.all_consistent
 
     def get_description_list(self) -> List[str]:
-        """Textual representation of ID information, indicating consistency or
-        lack of it."""
+        """
+        Textual representation of ID information, indicating consistency or
+        lack of it.
+        """
         cons = [
             "Forename: {}".format(self.msg_forename),
             "Surname: {}".format(self.msg_surname),
@@ -208,7 +238,9 @@ class ConsistencyInfo(object):
         return cons
 
     def get_xml_root(self) -> XmlElement:
-        """XML tree (as root XmlElementTuple) of consistency information."""
+        """
+        XML tree (as root :class:`XmlElement`) of consistency information.
+        """
         branches = [
             XmlElement(
                 name="all_consistent",
@@ -229,13 +261,17 @@ class ConsistencyInfo(object):
 # =============================================================================
 
 class TrackerCtvCommon(object):
-    """Base class for Tracker and ClinicalTextView."""
+    """
+    Base class for :class:`Tracker` and :class:`ClinicalTextView`.
+    """
 
     def __init__(self,
                  req: CamcopsRequest,
                  taskfilter: TaskFilter,
                  as_ctv: bool) -> None:
-        """Initialize, fetching applicable tasks."""
+        """
+        Initialize, fetching applicable tasks.
+        """
 
         # Record input variables at this point (for URL regeneration)
         self.req = req
@@ -299,12 +335,29 @@ class TrackerCtvCommon(object):
                 indent_spaces: int = 4,
                 eol: str = '\n',
                 include_comments: bool = False) -> str:
+        """
+        Returns an XML representation.
+
+        Args:
+            indent_spaces: number of spaces to indent formatted XML
+            eol: end-of-line string
+            include_comments: include comments describing each field?
+
+        Returns:
+            an XML UTF-8 document representing our object.
+        """
         raise NotImplementedError()
 
     def _get_html(self) -> str:
+        """
+        Returns an HTML representation.
+        """
         raise NotImplementedError()
 
     def _get_pdf_html(self) -> str:
+        """
+        Returns HTML used for making PDFs.
+        """
         raise NotImplementedError()
 
     # -------------------------------------------------------------------------
@@ -317,7 +370,19 @@ class TrackerCtvCommon(object):
                  indent_spaces: int = 4,
                  eol: str = '\n',
                  include_comments: bool = False) -> str:
-        """Get XML document representing tracker."""
+        """
+        Returns an XML document representing this object.
+
+        Args:
+            audit_string: description used to audit access to this information
+            xml_name: name of the root XML element
+            indent_spaces: number of spaces to indent formatted XML
+            eol: end-of-line string
+            include_comments: include comments describing each field?
+
+        Returns:
+            an XML UTF-8 document representing the task.
+        """
         iddef = self.taskfilter.get_only_iddef()
         if not iddef:
             raise ValueError("Tracker/CTV doesn't have a single ID number "
@@ -380,7 +445,9 @@ class TrackerCtvCommon(object):
     # -------------------------------------------------------------------------
 
     def get_html(self) -> str:
-        """Get HTML representing tracker."""
+        """
+        Get HTML representing this object.
+        """
         self.req.prepare_for_html_figures()
         return self._get_html()
 
@@ -389,11 +456,16 @@ class TrackerCtvCommon(object):
     # -------------------------------------------------------------------------
 
     def get_pdf_html(self) -> str:
+        """
+        Returns HTML to be made into a PDF representing this object.
+        """
         self.req.prepare_for_pdf_figures()
         return self._get_pdf_html()
 
     def get_pdf(self) -> bytes:
-        """Get PDF representing tracker/CTV."""
+        """
+        Get PDF representing tracker/CTV.
+        """
         req = self.req
         html = self.get_pdf_html()  # main content
         if CSS_PAGED_MEDIA:
@@ -422,7 +494,9 @@ class TrackerCtvCommon(object):
             )
 
     def suggested_pdf_filename(self) -> str:
-        """Get suggested filename for tracker/CTV PDF."""
+        """
+        Get suggested filename for tracker/CTV PDF.
+        """
         cfg = self.req.config
         return get_export_filename(
             req=self.req,
@@ -447,7 +521,9 @@ class TrackerCtvCommon(object):
 # =============================================================================
 
 class Tracker(TrackerCtvCommon):
-    """Class representing numerical tracker."""
+    """
+    Class representing a numerical tracker.
+    """
 
     def __init__(self,
                  req: CamcopsRequest,
@@ -462,7 +538,6 @@ class Tracker(TrackerCtvCommon):
                 indent_spaces: int = 4,
                 eol: str = '\n',
                 include_comments: bool = False) -> str:
-        """Get XML document representing tracker."""
         return self._get_xml(
             audit_string="Tracker XML accessed",
             xml_name="tracker",
@@ -472,14 +547,12 @@ class Tracker(TrackerCtvCommon):
         )
 
     def _get_html(self) -> str:
-        """Get HTML representing tracker."""
         return render("tracker.mako",
                       dict(tracker=self,
                            viewtype=ViewArg.HTML),
                       request=self.req)
 
     def _get_pdf_html(self) -> str:
-        """Get HTML used to generate PDF representing tracker."""
         return render("tracker.mako",
                       dict(tracker=self,
                            pdf_landscape=False,
@@ -491,7 +564,9 @@ class Tracker(TrackerCtvCommon):
     # -------------------------------------------------------------------------
 
     def get_all_plots_for_one_task_html(self, tasks: List[Task]) -> str:
-        """HTML for all plots for a given task type."""
+        """
+        HTML for all plots for a given task type.
+        """
         html = ""
         ntasks = len(tasks)
         if ntasks == 0:
@@ -525,7 +600,9 @@ class Tracker(TrackerCtvCommon):
                              datetimes: List[Pendulum],
                              values: List[float],
                              specimen_tracker: TrackerInfo) -> str:
-        """HTML for a single figure."""
+        """
+        HTML for a single figure.
+        """
         plot_label = specimen_tracker.plot_label
         axis_label = specimen_tracker.axis_label
         axis_min = specimen_tracker.axis_min
@@ -638,7 +715,9 @@ class Tracker(TrackerCtvCommon):
 # =============================================================================
 
 class ClinicalTextView(TrackerCtvCommon):
-    """Class representing a clinical text view."""
+    """
+    Class representing a clinical text view.
+    """
 
     def __init__(self,
                  req: CamcopsRequest,
@@ -653,7 +732,6 @@ class ClinicalTextView(TrackerCtvCommon):
                 indent_spaces: int = 4,
                 eol: str = '\n',
                 include_comments: bool = False) -> str:
-        """Get XML document representing CTV."""
         return self._get_xml(
             audit_string="Clinical text view XML accessed",
             xml_name="ctv",
@@ -663,14 +741,12 @@ class ClinicalTextView(TrackerCtvCommon):
         )
 
     def _get_html(self) -> str:
-        """Get HTML representing CTV."""
         return render("ctv.mako",
                       dict(tracker=self,
                            viewtype=ViewArg.HTML),
                       request=self.req)
 
     def _get_pdf_html(self) -> str:
-        """Get HTML used to generate PDF representing CTV."""
         return render("ctv.mako",
                       dict(tracker=self,
                            pdf_landscape=False,
@@ -683,6 +759,9 @@ class ClinicalTextView(TrackerCtvCommon):
 # =============================================================================
 
 class TrackerCtvTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_tracker(self) -> None:
         self.announce("test_tracker")
         req = self.req

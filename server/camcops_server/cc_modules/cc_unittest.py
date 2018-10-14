@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_unittest.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Framework and support functions for unit tests.
+
 """
 
 import base64
@@ -32,7 +37,6 @@ from typing import Type, TYPE_CHECKING
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
-from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Session as SqlASession
 
 from .cc_idnumdef import IdNumDefinition
@@ -62,6 +66,10 @@ DEMO_PNG_BYTES = base64.b64decode(
 # =============================================================================
 
 class ExtendedTestCase(unittest.TestCase):
+    """
+    A subclass of :class:`unittest.TestCase` that provides some additional
+    functionality.
+    """
     # Logging in unit tests:
     # https://stackoverflow.com/questions/7472863/pydev-unittesting-how-to-capture-text-logged-to-a-logging-logger-in-captured-o  # noqa
     # https://stackoverflow.com/questions/7472863/pydev-unittesting-how-to-capture-text-logged-to-a-logging-logger-in-captured-o/15969985#15969985
@@ -69,15 +77,26 @@ class ExtendedTestCase(unittest.TestCase):
 
     @classmethod
     def announce(cls, msg: str) -> None:
+        """
+        Logs a message to the Python log.
+        """
         log.info(cls.__module__ + "." + cls.__name__ + ":" + msg)
 
     def assertIsInstanceOrNone(self, obj: object, cls: Type, msg: str = None):
+        """
+        Asserts that ``obj`` is an instance of ``cls`` or is None. The
+        parameter ``msg`` is used as part of the failure message if it isn't.
+        """
         if obj is None:
             return
         self.assertIsInstance(obj, cls, msg)
 
 
 class DemoRequestTestCase(ExtendedTestCase):
+    """
+    Test case that creates a demo Pyramid request that refers to a bare
+    in-memory SQLite database.
+    """
     def setUp(self) -> None:
         self.announce("setUp")
         from sqlalchemy.orm.session import sessionmaker
@@ -93,6 +112,9 @@ class DemoRequestTestCase(ExtendedTestCase):
 
 
 class DemoDatabaseTestCase(DemoRequestTestCase):
+    """
+    Test case that sets up a demonstration CamCOPS database in memory.
+    """
     def setUp(self) -> None:
         super().setUp()
         from cardinal_pythonlib.datetimefunc import (
@@ -230,11 +252,19 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         self.dbsession.commit()
 
     def _apply_standard_task_fields(self, task: "Task") -> None:
+        """
+        Writes some default values to an SQLAlchemy ORM object representing
+        a task.
+        """
         self._apply_standard_db_fields(task)
         task.when_created = self.era_time
 
     def _apply_standard_db_fields(self,
                                   obj: "GenericTabletRecordMixin") -> None:
+        """
+        Writes some default values to an SQLAlchemy ORM object representing a
+        record uploaded from a client (tablet) device.
+        """
         obj._device_id = self.server_device.id
         obj._era = self.era
         obj._group_id = self.group.id

@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_group.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Group definitions.
+
 """
 
 import logging
@@ -71,7 +76,6 @@ class Group(Base):
     Represents a CamCOPS group.
 
     See "Groups" in the CamCOPS documentation.
-
     """
     __tablename__ = "_security_groups"
 
@@ -139,11 +143,17 @@ class Group(Base):
     @classmethod
     def get_groups_from_id_list(cls, dbsession: SqlASession,
                                 group_ids: List[int]) -> List["Group"]:
+        """
+        Fetches groups from a list of group IDs.
+        """
         return dbsession.query(Group).filter(Group.id.in_(group_ids)).all()
 
     @classmethod
     def get_group_by_name(cls, dbsession: SqlASession,
                           name: str) -> Optional["Group"]:
+        """
+        Fetches a group from its name.
+        """
         if not name:
             return None
         return dbsession.query(cls).filter(cls.name == name).first()
@@ -151,21 +161,36 @@ class Group(Base):
     @classmethod
     def get_group_by_id(cls, dbsession: SqlASession,
                         group_id: int) -> Optional["Group"]:
+        """
+        Fetches a group from its integer ID.
+        """
         if group_id is None:
             return None
         return dbsession.query(cls).filter(cls.id == group_id).first()
 
     @classmethod
     def all_group_ids(cls, dbsession: SqlASession) -> List[int]:
+        """
+        Returns all group IDs.
+        """
         query = dbsession.query(cls).order_by(cls.id)
         return [g.id for g in query]
 
     @classmethod
     def group_exists(cls, dbsession: SqlASession, group_id: int) -> bool:
+        """
+        Does a particular group (specified by its integer ID) exist?
+        """
         return exists_orm(dbsession, cls, cls.id == group_id)
 
     def tokenized_upload_policy(self) -> TokenizedPolicy:
+        """
+        Returns the upload policy for a group.
+        """
         return TokenizedPolicy(self.upload_policy)
 
     def tokenized_finalize_policy(self) -> TokenizedPolicy:
+        """
+        Returns the finalize policy for a group.
+        """
         return TokenizedPolicy(self.finalize_policy)

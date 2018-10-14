@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_ctvinfo.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Information class used by the clinical text viewer (CTV) function.
+
 """
 
 
@@ -30,6 +35,9 @@
 # =============================================================================
 
 class CtvInfo(object):
+    """
+    Snippet of information for incorporating into a CTV.
+    """
     def __init__(self,
                  heading: str = None,
                  subheading: str = None,
@@ -46,6 +54,7 @@ class CtvInfo(object):
                 unless content evaluates to True
 
         These will be NOT webified by the ClinicalTextView class, meaning
+
         (a) do it yourself if it's necessary, and
         (b) you can pass HTML formatting.
         """

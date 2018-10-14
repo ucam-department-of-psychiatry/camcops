@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_taskfilter.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Representation of filtering criteria for tasks.
+
 """
 
 from enum import Enum
@@ -34,7 +39,6 @@ from cardinal_pythonlib.sqlalchemy.list_types import (
     IntListType,
     StringListType,
 )
-from pendulum import Date
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import and_, or_
@@ -70,6 +74,9 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 class TaskClassSortMethod(Enum):
+    """
+    Enum to represent ways to sort task types (classes).
+    """
     NONE = 0
     TABLENAME = 1
     SHORTNAME = 2
@@ -78,6 +85,13 @@ class TaskClassSortMethod(Enum):
 
 def sort_task_classes_in_place(classlist: List[Type[Task]],
                                sortmethod: TaskClassSortMethod) -> None:
+    """
+    Sort a list of task classes in place.
+
+    Args:
+        classlist: the list of task classes
+        sortmethod: a :class:`TaskClassSortMethod` enum
+    """
     if sortmethod == TaskClassSortMethod.TABLENAME:
         classlist.sort(key=lambda c: c.tablename)
     elif sortmethod == TaskClassSortMethod.SHORTNAME:
@@ -96,6 +110,9 @@ def sort_task_classes_in_place(classlist: List[Type[Task]],
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def tablename_to_task_class_dict() -> Dict[str, Type[Task]]:
+    """
+    Returns a mapping from task base tablenames to task classes.
+    """
     d = {}  # type: Dict[str, Type[Task]]
     for cls in Task.gen_all_subclasses():
         d[cls.tablename] = cls
@@ -107,7 +124,19 @@ def task_classes_from_table_names(
         sortmethod: TaskClassSortMethod = TaskClassSortMethod.NONE) \
         -> List[Type[Task]]:
     """
-    May raise KeyError.
+    Transforms a list of task base tablenames into a list of task classes,
+    appropriately sorted.
+
+    Args:
+        tablenames: list of task base table names
+        sortmethod: a :class:`TaskClassSortMethod` enum
+
+    Returns:
+        a list of task classes, in the order requested
+
+    Raises:
+        :exc:`KeyError` if a table name is invalid
+
     """
     d = tablename_to_task_class_dict()
     classes = []  # type: List[Type[Task]]
@@ -120,6 +149,9 @@ def task_classes_from_table_names(
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def all_tracker_task_classes() -> List[Type[Task]]:
+    """
+    Returns a list of all task classes that provide tracker information.
+    """
     return [cls for cls in Task.all_subclasses_by_shortname()
             if cls.provides_trackers]
 
@@ -129,6 +161,9 @@ def all_tracker_task_classes() -> List[Type[Task]]:
 # =============================================================================
 
 class TaskFilter(Base):
+    """
+    SQLAlchemy ORM object representing task filter criteria.
+    """
     __tablename__ = "_task_filters"
 
     # Lots of these could be changed into lists; for example, filtering to
@@ -245,6 +280,9 @@ class TaskFilter(Base):
 
     @reconstructor
     def init_on_load(self):
+        """
+        SQLAlchemy function to recreate after loading from the database.
+        """
         self.era = None  # type: str
         self.patient_ids = []  # type: List[int]
 
@@ -255,11 +293,18 @@ class TaskFilter(Base):
         return auto_repr(self, with_addr=True)
 
     def set_sort_method(self, sort_method: TaskClassSortMethod) -> None:
+        """
+        Sets the sorting method for task types.
+        """
         self.sort_method = sort_method
 
     @property
     def task_classes(self) -> List[Type[Task]]:
-        # Cached, since the filter will be called repeatedly
+        """
+        Return a list of task classes permitted by the filter.
+
+        Uses caching, since the filter will be called repeatedly.
+        """
         if self._task_classes is None:
             self._task_classes = []  # type: List[Type[Task]]
             if self.task_types:
@@ -279,10 +324,16 @@ class TaskFilter(Base):
 
     @property
     def task_tablename_list(self) -> List[str]:
+        """
+        Returns the base table names for all task types permitted by the
+        filter.
+        """
         return [cls.__tablename__ for cls in self.task_classes]
 
     def any_patient_filtering(self) -> bool:
-        """Is there some sort of patient filtering being applied?"""
+        """
+        Is some sort of patient filtering being applied?
+        """
         return (
             bool(self.surname) or
             bool(self.forename) or
@@ -293,8 +344,11 @@ class TaskFilter(Base):
         )
 
     def any_specific_patient_filtering(self) -> bool:
-        """Are there filters that would restrict to one or a few patients?"""
-        # differs from any_patient_filtering w.r.t. sex
+        """
+        Are there filters that would restrict to one or a few patients?
+
+        (Differs from :func:`any_patient_filtering` with respect to sex.)
+        """
         return (
             bool(self.surname) or
             bool(self.forename) or
@@ -304,11 +358,18 @@ class TaskFilter(Base):
         )
 
     def get_only_iddef(self) -> Optional[IdNumReference]:
+        """
+        If a single ID number type/value restriction is being applied, return
+        it, as an :class:`IdNumReference`. Otherwise, return ``None``.
+        """
         if len(self.idnum_criteria) != 1:
             return None
         return self.idnum_criteria[0]
 
     def get_group_names(self, req: CamcopsRequest) -> List[str]:
+        """
+        Get the names of any groups to which we are restricting.
+        """
         names = []  # type: List[str]
         dbsession = req.dbsession
         for group_id in self.group_ids:
@@ -317,6 +378,9 @@ class TaskFilter(Base):
         return names
 
     def get_user_names(self, req: CamcopsRequest) -> List[str]:
+        """
+        Get the usernames of any uploading users to which we are restricting.
+        """
         names = []  # type: List[str]
         dbsession = req.dbsession
         for user_id in self.adding_user_ids:
@@ -325,6 +389,9 @@ class TaskFilter(Base):
         return names
 
     def get_device_names(self, req: CamcopsRequest) -> List[str]:
+        """
+        Get the names of any devices to which we are restricting.
+        """
         names = []  # type: List[str]
         dbsession = req.dbsession
         for dev_id in self.device_ids:
@@ -336,6 +403,23 @@ class TaskFilter(Base):
                                         req: CamcopsRequest,
                                         q: Query,
                                         cls: Type[Task]) -> Optional[Query]:
+        """
+        Restricts an SQLAlchemy ORM query for a given task class to those
+        tasks that our filter permits.
+
+        THIS IS A KEY SECURITY FUNCTION, since it implements some permissions
+        that relate to viewing tasks when unfiltered.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            q: the starting SQLAlchemy ORM Query
+            cls: the task class
+
+        Returns:
+            the original query, a modified query, or ``None`` if no tasks
+            would pass the filter
+
+        """
         user = req.user
         if self.group_ids:
             permitted_group_ids = self.group_ids.copy()
@@ -354,7 +438,8 @@ class TaskFilter(Base):
         if cls.is_anonymous:
             if self.any_patient_filtering():
                 # If we're restricting by patient in any way, we don't
-                # want this task class at all.
+                # want this task class at all (because it's an anonymous task
+                # that doesn't have a patient).
                 return None
         else:
             # Not anonymous.
@@ -363,7 +448,7 @@ class TaskFilter(Base):
                     pass
                 elif user.may_view_no_patients_when_unfiltered:
                     # (a) User not permitted to view any patients when
-                    # unfiltered. (b) Not filtered to a level that would
+                    # unfiltered, and (b) not filtered to a level that would
                     # reasonably restrict to one or a small number of
                     # patients. Skip the task class.
                     return None
@@ -436,7 +521,7 @@ class TaskFilter(Base):
             q = q.filter(cls.when_created <= self.end_datetime)
 
         if self.text_contents:
-            textcols = [col for _, col in cls.gen_text_filter_columns()]
+            textcols = cls.get_text_filter_columns()
             if not textcols:
                 # Text filtering requested, but there are no text columns, so
                 # by definition the filter must fail.
@@ -460,9 +545,16 @@ class TaskFilter(Base):
         return q
 
     def has_python_parts_to_filter(self) -> bool:
+        """
+        Does the filter have aspects to it that require some Python thought,
+        not just a database query?
+        """
         return self.complete_only
 
     def task_matches_python_parts_of_filter(self, task: Task) -> bool:
+        """
+        Does the task pass the Python parts of the filter?
+        """
         # "Is task complete" filter
         if self.complete_only:
             if not task.is_complete():
@@ -471,6 +563,9 @@ class TaskFilter(Base):
         return True
 
     def clear(self) -> None:
+        """
+        Clear all parts of the filter.
+        """
         self.task_types = []  # type: List[str]
 
         self.surname = None

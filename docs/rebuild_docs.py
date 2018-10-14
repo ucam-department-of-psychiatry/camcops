@@ -2,6 +2,8 @@
 # docs/rebuild_docs_and_distribute.py
 
 """
+..
+
 ===============================================================================
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
@@ -20,6 +22,8 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 ===============================================================================
+
+..
 """
 
 import os

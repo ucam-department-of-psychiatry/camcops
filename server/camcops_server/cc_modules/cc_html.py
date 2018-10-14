@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_html.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Basic HTML creation functions.
+
 """
 
 import base64
@@ -45,7 +50,20 @@ def table_row(columns: List[str],
               colwidths: List[str] = None,
               default: str = "",
               heading: bool = False) -> str:
-    """Make HTML table row."""
+    """
+    Make HTML table row.
+
+    Args:
+        columns: contents of HTML table columns
+        classes: optional CSS classes, one for each column
+        colspans: ``colspan`` values for each column
+        colwidths: ``width`` values for each column
+        default: content to use if a ``column`` value is None
+        heading: use ``<th>`` rather than ``<td>`` for contents?
+
+    Returns:
+        the ``<tr>...</tr>`` string
+    """
     n = len(columns)
 
     if not classes or len(classes) != n:
@@ -86,7 +104,9 @@ def table_row(columns: List[str],
 
 
 def div(content: str, div_class: str = "") -> str:
-    """Make simple HTML div."""
+    """
+    Make simple HTML div.
+    """
     return """
         <div{div_class}>
             {content}
@@ -98,7 +118,9 @@ def div(content: str, div_class: str = "") -> str:
 
 
 def table(content: str, table_class: str = "") -> str:
-    """Make simple HTML table."""
+    """
+    Make simple HTML table.
+    """
     return """
         <table{table_class}>
             {content}
@@ -115,7 +137,7 @@ def tr(*args, tr_class: str = "", literal: bool = False) -> str:
 
     Args:
         *args: Set of columns data.
-        literal: Treat elements as literals with their own <td> ... </td>,
+        literal: Treat elements as literals with their own ``<td> ... </td>``,
             rather than things to be encapsulated.
         tr_class: table row class
     """
@@ -130,7 +152,9 @@ def tr(*args, tr_class: str = "", literal: bool = False) -> str:
 
 
 def td(contents: Any, td_class: str = "", td_width: str = "") -> str:
-    """Make simple HTML table data cell."""
+    """
+    Make simple HTML table data ``<td>...</td>`` cell.
+    """
     return "<td{td_class}{td_width}>{contents}</td>\n".format(
         td_class=' class="{}"'.format(td_class) if td_class else '',
         td_width=' width="{}"'.format(td_width) if td_width else '',
@@ -139,7 +163,9 @@ def td(contents: Any, td_class: str = "", td_width: str = "") -> str:
 
 
 def th(contents: Any, th_class: str = "", th_width: str = "") -> str:
-    """Make simple HTML table header cell."""
+    """
+    Make simple HTML table header ``<th>...</th>`` cell.
+    """
     return "<th{th_class}{th_width}>{contents}</th>\n".format(
         th_class=' class="{}"'.format(th_class) if th_class else '',
         th_width=' width="{}"'.format(th_width) if th_width else '',
@@ -151,62 +177,84 @@ def tr_qa(q: str,
           a: Any,
           default: str = "?",
           default_for_blank_strings: bool = False) -> str:
-    """Make HTML two-column data row, with right-hand column formatted as an
-    answer."""
+    """
+    Make HTML two-column data row (``<tr>...</tr>``), with the right-hand
+    column formatted as an answer.
+    """
     return tr(q, answer(a, default=default,
                         default_for_blank_strings=default_for_blank_strings))
 
 
 def heading_spanning_two_columns(s: str) -> str:
-    """HTML table heading spanning 2 columns."""
+    """
+    HTML table heading row spanning 2 columns.
+    """
     return tr_span_col(s, cols=2, tr_class=CssClass.HEADING)
 
 
 def subheading_spanning_two_columns(s: str, th_not_td: bool = False) -> str:
-    """HTML table subheading spanning 2 columns."""
+    """
+    HTML table subheading row spanning 2 columns.
+    """
     return tr_span_col(s, cols=2, tr_class=CssClass.SUBHEADING,
                        th_not_td=th_not_td)
 
 
 def subheading_spanning_three_columns(s: str, th_not_td: bool = False) -> str:
-    """HTML table subheading spanning 3 columns."""
+    """
+    HTML table subheading row spanning 3 columns.
+    """
     return tr_span_col(s, cols=3, tr_class=CssClass.SUBHEADING,
                        th_not_td=th_not_td)
 
 
 def subheading_spanning_four_columns(s: str, th_not_td: bool = False) -> str:
-    """HTML table subheading spanning 4 columns."""
+    """
+    HTML table subheading row spanning 4 columns.
+    """
     return tr_span_col(s, cols=4, tr_class=CssClass.SUBHEADING,
                        th_not_td=th_not_td)
 
 
 def bold(x: str) -> str:
-    """Applies HTML bold."""
+    """
+    Applies HTML bold.
+    """
     return "<b>{}</b>".format(x)
 
 
 def italic(x: str) -> str:
-    """Applies HTML italic."""
+    """
+    Applies HTML italic.
+    """
     return "<i>{}</i>".format(x)
 
 
 def identity(x: Any) -> Any:
-    """Returns argument unchanged."""
+    """
+    Returns argument unchanged.
+    """
     return x
 
 
 def bold_webify(x: str) -> str:
-    """Webifies the string, then makes it bold."""
+    """
+    Webifies the string, then makes it bold.
+    """
     return bold(ws.webify(x))
 
 
 def sub(x: str) -> str:
-    """Applies HTML subscript."""
+    """
+    Applies HTML subscript.
+    """
     return "<sub>{}</sub>".format(x)
 
 
 def sup(x: str) -> str:
-    """Applies HTML superscript."""
+    """
+    Applies HTML superscript.
+    """
     return "<sup>{}</sup>".format(x)
 
 
@@ -215,11 +263,12 @@ def answer(x: Any,
            default_for_blank_strings: bool = False,
            formatter_answer: Callable[[str], str] = bold_webify,
            formatter_blank: Callable[[str], str] = italic) -> str:
-    """Formats answer in bold, or the default value if None.
+    """
+    Formats answer in bold, or the default value if None.
 
-    Avoid the word None for the default, e.g.
-    'Score indicating likelihood of abuse: None' ... may be misleading!
-    Prefer '?' instead.
+    Avoid the word "None" for the default, e.g.
+    "Score indicating likelihood of abuse: None"... may be misleading!
+    Prefer "?" instead.
     """
     if x is None:
         return formatter_blank(default)
@@ -233,7 +282,8 @@ def tr_span_col(x: str,
                 tr_class: str = "",
                 td_class: str = "",
                 th_not_td: bool = False) -> str:
-    """HTML table data row spanning several columns.
+    """
+    HTML table data row spanning several columns.
 
     Args:
         x: Data.
@@ -254,9 +304,11 @@ def tr_span_col(x: str,
 
 def get_data_url(mimetype: str, data: Union[bytes, memoryview]) -> str:
     """
-    Takes data (in binary format) and returns a data URL as per RFC 2397:
-        https://tools.ietf.org/html/rfc2397
-    such as:
+    Takes data (in binary format) and returns a data URL as per RFC 2397
+    (https://tools.ietf.org/html/rfc2397), such as:
+
+    .. code-block:: none
+
         data:MIMETYPE;base64,B64_ENCODED_DATA
     """
     return "data:{mimetype};base64,{b64encdata}".format(
@@ -270,7 +322,9 @@ def get_embedded_img_tag(mimetype: str, data: Union[bytes, memoryview]) -> str:
     Takes a binary image and its MIME type, and produces an HTML tag of the
     form:
 
-    <img src="DATA_URL">
+    .. code-block:: none
+
+        <img src="DATA_URL">
     """
     return '<img src={}>'.format(get_data_url(mimetype, data))
 
@@ -280,57 +334,75 @@ def get_embedded_img_tag(mimetype: str, data: Union[bytes, memoryview]) -> str:
 # =============================================================================
 
 def get_yes_no(req: "CamcopsRequest", x: Any) -> str:
-    """'Yes' if x else 'No'"""
+    """
+    'Yes' if x else 'No'
+    """
     return req.wappstring("yes") if x else req.wappstring("no")
 
 
 def get_yes_no_none(req: "CamcopsRequest", x: Any) -> Optional[str]:
-    """Returns 'Yes' for True, 'No' for False, or None for None."""
+    """
+    Returns 'Yes' for True, 'No' for False, or None for None.
+    """
     if x is None:
         return None
     return get_yes_no(req, x)
 
 
 def get_yes_no_unknown(req: "CamcopsRequest", x: Any) -> str:
-    """Returns 'Yes' for True, 'No' for False, or '?' for None."""
+    """
+    Returns 'Yes' for True, 'No' for False, or '?' for None.
+    """
     if x is None:
         return "?"
     return get_yes_no(req, x)
 
 
 def get_true_false(req: "CamcopsRequest", x: Any) -> str:
-    """'True' if x else 'False'"""
+    """
+    'True' if x else 'False'
+    """
     return req.wappstring("true") if x else req.wappstring("false")
 
 
 def get_true_false_none(req: "CamcopsRequest", x: Any) -> Optional[str]:
-    """Returns 'True' for True, 'False' for False, or None for None."""
+    """
+    Returns 'True' for True, 'False' for False, or None for None.
+    """
     if x is None:
         return None
     return get_true_false(req, x)
 
 
 def get_true_false_unknown(req: "CamcopsRequest", x: Any) -> str:
-    """Returns 'True' for True, 'False' for False, or '?' for None."""
+    """
+    Returns 'True' for True, 'False' for False, or '?' for None.
+    """
     if x is None:
         return "?"
     return get_true_false(req, x)
 
 
 def get_present_absent(req: "CamcopsRequest", x: Any) -> str:
-    """'Present' if x else 'Absent'"""
+    """
+    'Present' if x else 'Absent'
+    """
     return req.wappstring("present") if x else req.wappstring("absent")
 
 
 def get_present_absent_none(req: "CamcopsRequest", x: Any) -> Optional[str]:
-    """Returns 'Present' for True, 'Absent' for False, or None for None."""
+    """
+    Returns 'Present' for True, 'Absent' for False, or None for None.
+    """
     if x is None:
         return None
     return get_present_absent(req, x)
 
 
 def get_present_absent_unknown(req: "CamcopsRequest", x: str) -> str:
-    """Returns 'Present' for True, 'Absent' for False, or '?' for None."""
+    """
+    Returns 'Present' for True, 'Absent' for False, or '?' for None.
+    """
     if x is None:
         return "?"
     return get_present_absent(req, x)
@@ -340,6 +412,10 @@ def get_ternary(x: Any,
                 value_true: Any = True,
                 value_false: Any = False,
                 value_none: Any = None) -> Any:
+    """
+    Returns ``value_none`` if ``x`` is ``None``, ``value_true`` if it's truthy,
+    or ``value_false`` if it's falsy.
+    """
     if x is None:
         return value_none
     if x:
@@ -348,5 +424,9 @@ def get_ternary(x: Any,
 
 
 def get_correct_incorrect_none(x: Any) -> Optional[str]:
+    """
+    Returns None if ``x`` is None, "Correct" if it's truthy, or "Incorrect" if
+    it's falsy.
+    """
     # noinspection PyTypeChecker
     return get_ternary(x, "Correct", "Incorrect", None)

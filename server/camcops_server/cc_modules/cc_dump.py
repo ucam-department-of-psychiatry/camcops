@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_dump.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Methods for providing a dump of data from the server to the web user.
+
 """
 
 import logging
@@ -107,11 +112,22 @@ FOREIGN_KEY_CONSTRAINTS_IN_DUMP = False
 # =============================================================================
 
 class DumpController(object):
+    """
+    A controller class that manages the copying (dumping) of information from
+    our database to another SQLAlchemy :class:`Engine`/:class:`Session`.
+    """
     def __init__(self,
                  dst_engine: Engine,
                  dst_session: SqlASession,
                  include_blobs: bool,
                  req: CamcopsRequest) -> None:
+        """
+        Args:
+            dst_engine: destination SQLAlchemy Engine
+            dst_session:  destination SQLAlchemy Session
+            include_blobs: include BLOBs in the dump?
+            req: :class:`CamcopsRequest`
+        """
         self.dst_engine = dst_engine
         self.dst_session = dst_session
         self.include_blobs = include_blobs
@@ -127,6 +143,10 @@ class DumpController(object):
         self.instances_seen = set()  # type: Set[object]
 
     def consider_object(self, src_obj: object) -> None:
+        """
+        Think about an SQLAlchemy ORM object. If it comes from a table we
+        want dumped, add this object to the dump.
+        """
         # noinspection PyUnresolvedReferences
         src_table = src_obj.__table__  # type: Table
         src_tablename = src_table.name
@@ -215,6 +235,9 @@ class DumpController(object):
         dst_table.create(self.dst_engine)
 
     def _copy_object_to_dump(self, src_obj: object) -> None:
+        """
+        Copy the SQLAlchemy ORM object to the dump.
+        """
         # noinspection PyUnresolvedReferences
         src_table = src_obj.__table__  # type: Table
 
@@ -246,6 +269,10 @@ class DumpController(object):
                     self.dst_session.execute(dst_summary_table.insert(row))
 
     def _get_or_insert_summary_table(self, est: ExtraSummaryTable) -> Table:
+        """
+        Add an additional summary table to the dump, if it's not there already.
+        Return the table (from the destination database).
+        """
         tablename = est.tablename
         if tablename not in self.tablenames_seen:
             self.tablenames_seen.add(tablename)
@@ -256,6 +283,9 @@ class DumpController(object):
         return self.dst_tables[tablename]
 
     def _dump_skip_table(self, tablename: str) -> bool:
+        """
+        Should we skip this table (omit it from the dump)?
+        """
         if not self.include_blobs and tablename == Blob.__tablename__:
             return True
         if tablename in DUMP_SKIP_TABLES:
@@ -264,6 +294,9 @@ class DumpController(object):
 
     @staticmethod
     def _dump_skip_column(tablename: str, columnname: str) -> bool:
+        """
+        Should we skip this column (omit it from the dump)?
+        """
         if columnname in DUMP_SKIP_COLNAMES:
             return True
         if (tablename in DUMP_ONLY_COLNAMES and
@@ -284,6 +317,17 @@ def copy_tasks_and_summaries(tasks: Iterable[Task],
                              dst_session: SqlASession,
                              include_blobs: bool,
                              req: CamcopsRequest) -> None:
+    """
+    Copy a set of tasks, and their associated related information (found by
+    walking the SQLAlchemy ORM tree), to the dump.
+
+    Args:
+        tasks: tasks to copy
+        dst_engine: destination SQLAlchemy Engine
+        dst_session:  destination SQLAlchemy Session
+        include_blobs: include BLOBs in the dump?
+        req: :class:`CamcopsRequest`
+    """
     # How best to create the structure that's required?
     #
     # https://stackoverflow.com/questions/21770829/sqlalchemy-copy-schema-and-data-of-subquery-to-another-database  # noqa

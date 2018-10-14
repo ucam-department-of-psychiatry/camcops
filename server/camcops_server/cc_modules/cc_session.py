@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_session.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Implements sessions for web clients (humans).
+
 """
 
 import logging
@@ -75,6 +80,7 @@ DEFAULT_NUMBER_OF_TASKS_TO_VIEW = 25
 def generate_token(num_bytes: int = 16) -> str:
     """
     Make a new session token that's not in use.
+
     It doesn't matter if it's already in use by a session with a different ID,
     because the ID/token pair is unique. (Removing that constraint gets rid of
     an in-principle-but-rare locking problem.)
@@ -149,6 +155,10 @@ class CamcopsSession(Base):
 
     @property
     def last_activity_utc_iso(self) -> str:
+        """
+        Returns a formatted version of the date/time at which the last
+        activity took place for this session.
+        """
         return format_datetime(self.last_activity_utc, DateFormat.ISO8601)
 
     # -------------------------------------------------------------------------
@@ -159,7 +169,11 @@ class CamcopsSession(Base):
     def get_session_using_cookies(cls,
                                   req: "CamcopsRequest") -> "CamcopsSession":
         """
-        Makes, or retrieves, a new CamcopsSession for this Pyramid Request.
+        Makes, or retrieves, a new :class:`CamcopsSession` for this Pyramid
+        Request.
+
+        The session is found using the ID/token information in the request's
+        cookies.
         """
         pyramid_session = req.session  # type: ISession
         # noinspection PyArgumentList
@@ -170,6 +184,12 @@ class CamcopsSession(Base):
 
     @classmethod
     def get_session_for_tablet(cls, ts: "TabletSession") -> "CamcopsSession":
+        """
+        For a given :class:`TabletSession` (used by tablet client devices),
+        returns a corresponding :class:`CamcopsSession`.
+
+        User authentication is via the :class:`CamcopsSession`.
+        """
 
         def login_from_ts(cc: "CamcopsSession", ts_: "TabletSession") -> None:
             if DEBUG_CAMCOPS_SESSION_CREATION:
@@ -212,8 +232,8 @@ class CamcopsSession(Base):
                     session_id_str: Optional[str],
                     session_token: Optional[str]) -> 'CamcopsSession':
         """
-        Retrieves, or makes, a new CamcopsSession for this Pyramid Request,
-        for a specific session_id and session_token.
+        Retrieves, or makes, a new :class:`CamcopsSession` for this Pyramid
+        Request, given a specific ``session_id`` and ``session_token``.
         """
         if DEBUG_CAMCOPS_SESSION_CREATION:
             log.debug("CamcopsSession.get_session: session_id_str={!r}, "
@@ -267,6 +287,12 @@ class CamcopsSession(Base):
     @classmethod
     def get_oldest_last_activity_allowed(
             cls, req: "CamcopsRequest") -> Pendulum:
+        """
+        What is the latest time that the last activity (for a session) could
+        have occurred, before the session would have timed out?
+
+        Calculated as ``now - session_timeout``.
+        """
         cfg = req.config
         now = req.now_utc
         oldest_last_activity_allowed = now - cfg.session_timeout
@@ -274,7 +300,9 @@ class CamcopsSession(Base):
 
     @classmethod
     def delete_old_sessions(cls, req: "CamcopsRequest") -> None:
-        """Delete all expired sessions."""
+        """
+        Delete all expired sessions.
+        """
         oldest_last_activity_allowed = \
             cls.get_oldest_last_activity_allowed(req)
         dbsession = req.dbsession
@@ -286,6 +314,11 @@ class CamcopsSession(Base):
     def __init__(self,
                  ip_addr: str = None,
                  last_activity_utc: Pendulum = None):
+        """
+        Args:
+            ip_addr: client IP address
+            last_activity_utc: date/time of last activity that occurred
+        """
         self.token = generate_token()
         self.ip_address = ip_addr
         self.last_activity_utc = last_activity_utc
@@ -296,6 +329,9 @@ class CamcopsSession(Base):
 
     @property
     def username(self) -> Optional[str]:
+        """
+        Returns the user's username, or ``None``.
+        """
         if self.user:
             return self.user.username
         return None
@@ -334,11 +370,14 @@ class CamcopsSession(Base):
     # -------------------------------------------------------------------------
 
     def get_task_filter(self) -> TaskFilter:
+        """
+        Returns the :class:`TaskFilter` in use for this session.
+        """
         if not self.task_filter:
             dbsession = SqlASession.object_session(self)
             assert dbsession, (
                 "CamcopsSession.get_task_filter() called on a CamcopsSession "
-                "that's not yet in a session")
+                "that's not yet in a database session")
             self.task_filter = TaskFilter()
             dbsession.add(self.task_filter)
         return self.task_filter
@@ -349,6 +388,9 @@ class CamcopsSession(Base):
 # =============================================================================
 
 class SessionTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_sessions(self) -> None:
         self.announce("test_sessions")
         req = self.req

@@ -1,11 +1,43 @@
 #!/usr/bin/env python
+# camcops_server/tools/install_wkhtmltopdf.py
 
 """
-Once installed from a Debian package, wkhtmltopdf will show up in "dpkg --list"
-as "wkhtmltox". So you can remove it with
+..
+
+===============================================================================
+
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+===============================================================================
+
+Installs wkhtmltopdf.
+
+Once installed from a Debian package, wkhtmltopdf will show up in ``dpkg
+--list`` as ``wkhtmltox``. So you can remove it with
+
+.. code-block:: bash
+
     sudo dpkg --remove wkhtmltox  # Debian
 
-Examples of platform.linux_distribution():
+Examples of ``platform.linux_distribution()`` results:
+
+.. code-block:: none
+
     ('Ubuntu', '14.04', 'trusty')
     ('CentOS', '6.5', 'Final')
 """
@@ -28,7 +60,8 @@ if sys.version_info[0] < 3:
 if not platform.system() == 'Linux':
     raise AssertionError("Need Linux")
 if not distro:
-    raise AssertionError("Please install the 'distro' package with 'pip install distro' first")  # noqa
+    raise AssertionError("Please install the 'distro' package with "
+                         "'pip install distro' first")
 
 # =============================================================================
 # What version do we have/need?

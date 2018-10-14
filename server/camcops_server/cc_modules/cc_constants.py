@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_constants.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,16 +24,16 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Various constants.
+
 """
 
 # Helpful UTF-8 characters: ‘’ “” – — × • ≤ ≥ ≠ ± →
 
 import os
 
-from .cc_baseconstants import (
-    CAMCOPS_SERVER_DIRECTORY,
-    STATIC_ROOT_DIR,
-)
+from .cc_baseconstants import STATIC_ROOT_DIR
 
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.
@@ -81,6 +83,9 @@ USER_NAME_FOR_SYSTEM = "system"  # Do not alter.
 # =============================================================================
 
 class DateFormat(object):
+    """
+    Assorted date/time formats.
+    """
     SHORT_DATE = "%d %b %Y"  # e.g. 24 Jul 2013
     LONG_DATE = "%d %B %Y"  # e.g. 24 July 2013
     LONG_DATE_WITH_DAY = "%a %d %B %Y"  # e.g. Wed 24 July 2013
@@ -186,7 +191,9 @@ WKHTMLTOPDF_OPTIONS = {  # dict for pdfkit
 
 class CssClass(object):
     """
-    Values should match e.g. css_base.mako
+    CSS names.
+
+    Values should match e.g. ``camcops_server/templates/css/css_base.mako``.
     """
     BAD_ID_POLICY_MILD = "badidpolicy_mild"
     BAD_ID_POLICY_SEVERE = "badidpolicy_severe"

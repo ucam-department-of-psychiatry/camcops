@@ -2,6 +2,8 @@
 # camcops_server/discarded_upgrade_code.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).

@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_report.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+CamCOPS reports.
+
 """
 
 import logging
@@ -57,9 +62,12 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 class PlainReportType(object):
-    def __init__(self, rows: List[List[Any]], columns: List[str]) -> None:
+    """
+    Simple class to hold the results of a plain report.
+    """
+    def __init__(self, rows: List[List[Any]], column_names: List[str]) -> None:
         self.rows = rows
-        self.columns = columns
+        self.column_names = column_names
 
 
 # =============================================================================
@@ -70,23 +78,13 @@ class Report(object):
     """
     Abstract base class representing a report.
 
-    Must override attributes:
+    If you are writing a report, you must override these attributes:
 
-        report_id
-            String used in HTML selector
-        report_title
-            String for display purposes
-        get_rows_descriptions
-            returns the actual data; the request data will have been pre-
-            validated against the report's form
+    - ``report_id``
+    - ``report_title``
+    - ``get_query`` OR ``get_rows_colnames``
 
-        get_schema_class
-            Schema used to create a form for seeking parameters; override this
-            for simple parameter collection (if you just override this, you'll
-            get a ReportParamForm with this schema).
-        get_form
-            Schema used to create a form for seeking parameters; override this
-            for full control over parameter collection.
+    See the explanations of each.
     """
 
     # -------------------------------------------------------------------------
@@ -96,20 +94,40 @@ class Report(object):
     # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
+        """
+        Returns a identifying string, unique to this report, used in the HTML
+        report selector.
+        """
         raise NotImplementedError()
 
     # noinspection PyMethodParameters
     @classproperty
     def title(cls) -> str:
+        """
+        Descriptive title for display purposes.
+        """
         raise NotImplementedError()
 
     # noinspection PyMethodParameters
     @classproperty
     def superuser_only(cls) -> bool:
-        return True  # must explicitly override to permit others!
+        """
+        If ``True`` (the default), only superusers may run the report.
+        You must explicitly override this property to permit others.
+        """
+        return True
 
     @classmethod
     def get_http_query_keys(cls) -> List[str]:
+        """
+        Returns the keys used for the HTTP GET query. They include details of:
+
+        - which report?
+        - how to view it?
+        - pagination options
+        - report-specific configuration details from
+          :func:`get_specific_http_query_keys`.
+        """
         return [
             ViewParam.REPORT_ID,
             ViewParam.VIEWTYPE,
@@ -119,26 +137,54 @@ class Report(object):
 
     @classmethod
     def get_specific_http_query_keys(cls) -> List[str]:
+        """
+        Additional HTTP GET query keys used by this report. Override to add
+        custom ones.
+        """
         return []
 
     def get_query(self, req: "CamcopsRequest") \
             -> Union[None, SelectBase, Query]:
         """
-        Return the Select statement to execute the report. Must override.
-        Parameters are passed in via the Request.
+        Overriding this function is one way of providing a report. (The other
+        is :func:`get_rows_colnames`.)
+
+        To override this function, return the SQLAlchemy Base :class:`Select`
+        statement or the SQLAlchemy ORM :class:`Query` to execute the report.
+
+        Parameters are passed in via the request.
         """
         return None
 
     def get_rows_colnames(self, req: "CamcopsRequest") \
             -> Optional[PlainReportType]:
+        """
+        Overriding this function is one way of providing a report. (The other
+        is :func:`get_query`.)
+
+        To override this function, return a :class:`PlainReportType` with
+        column names and row content.
+        """
         return None
 
     @staticmethod
     def get_paramform_schema_class() -> Type["ReportParamSchema"]:
+        """
+        Returns the class used as the Colander schema for the form that
+        configures the report. By default, this is a simple form that just
+        offers a choice of output format, but you can provide a more
+        extensive one (an example being in
+        :class:`camcops_server.tasks.diagnosis.DiagnosisFinderReportBase`.
+        """
         from .cc_forms import ReportParamSchema  # delayed import
         return ReportParamSchema
 
     def get_form(self, req: "CamcopsRequest") -> Form:
+        """
+        Returns a Colander form to configure the report. The default usually
+        suffices, and it will use the schema specified in
+        :func:`get_paramform_schema_class`.
+        """
         from .cc_forms import ReportParamForm  # delayed import
         schema_class = self.get_paramform_schema_class()
         return ReportParamForm(request=req, schema_class=schema_class)
@@ -146,8 +192,8 @@ class Report(object):
     @staticmethod
     def get_test_querydict() -> Dict[str, Any]:
         """
-        What this function returns is used as the specimen appstruct for
-        unit tests.
+        What this function returns is used as the specimen Colander
+        ``appstruct`` for unit tests. The default is an empty dictionary.
         """
         return {}
 
@@ -160,7 +206,7 @@ class Report(object):
                        sort_title: bool = False) -> List[Type["Report"]]:
         """
         Get all report subclasses, except those not implementing their
-        report_id property.
+        ``report_id`` property. Optionally, sort by their title.
         """
         classes = all_subclasses(cls)  # type: List[Type["Report"]]
         instantiated_report_classes = []  # type: List[Type["Report"]]
@@ -181,6 +227,9 @@ class Report(object):
     # -------------------------------------------------------------------------
 
     def get_response(self, req: "CamcopsRequest") -> Response:
+        """
+        Return the report content itself, as an HTTP :class:`Response`.
+        """
         # Check the basic parameters
         report_id = req.get_str_param(ViewParam.REPORT_ID)
         rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
@@ -224,7 +273,7 @@ class Report(object):
                 raise NotImplementedError(
                     "Report did not implement either of get_select_statement()"
                     " or get_rows_colnames()")
-            column_names = plain_report.columns
+            column_names = plain_report.column_names
             rows = plain_report.rows
 
         # Serve the result
@@ -252,6 +301,8 @@ class Report(object):
                     column_names: List[str],
                     page: CamcopsPage) -> Response:
         """
+        Converts a paginated report into an HTML response.
+
         If you wish, you can override this for more report customization.
         """
         return render_to_response(
@@ -269,20 +320,27 @@ class Report(object):
 # =============================================================================
 
 def get_all_report_classes() -> List[Type["Report"]]:
+    """
+    Returns all :class:`Report` (sub)classes, i.e. all report types.
+    """
     classes = Report.all_subclasses(sort_title=True)
     return classes
 
 
 def get_all_report_ids() -> List[str]:
-    """Get all report IDs.
+    """
+    Get all report IDs.
 
-    Report IDs are fixed names defined in each Report subclass.
+    Report IDs are fixed names defined in each :class:`Report` subclass.
     """
     return [cls.report_id for cls in get_all_report_classes()]
 
 
 def get_report_instance(report_id: str) -> Optional[Report]:
-    """Creates an instance of a Report, given its ID (name), or None."""
+    """
+    Creates an instance of a :class:`Report`, given its ID (name), or return
+    ``None`` if the ID is invalid.
+    """
     if not report_id:
         return None
     for cls in Report.all_subclasses():
@@ -296,6 +354,9 @@ def get_report_instance(report_id: str) -> Optional[Report]:
 # =============================================================================
 
 class ReportTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_reports(self) -> None:
         self.announce("test_reports")
         for cls in get_all_report_classes():

@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_sqlalchemy.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -23,11 +25,14 @@
 
 ===============================================================================
 
+SQLAlchemy helper functions and constants. We define our metadata ``Base``
+here, and things like our index naming convention and MySQL table formats.
+
 A few random notes:
 
 - SQLAlchemy will automatically warn about clashing columns:
 
-.. :code-block:: python
+  .. :code-block:: python
 
     from sqlalchemy import Column, Integer
     from sqlalchemy.ext.declarative import declarative_base
@@ -40,8 +45,10 @@ A few random notes:
         b = Column("b", Integer)
         c = Column("b", Integer)  # produces a warning:
 
-SAWarning: On class 'Thing', Column object 'b' named directly multiple times,
-only one will be used: b, c. Consider using orm.synonym instead
+  .. code-block:: none
+
+    SAWarning: On class 'Thing', Column object 'b' named directly multiple
+    times, only one will be used: b, c. Consider using orm.synonym instead
 
 """
 
@@ -211,15 +218,29 @@ Base.__table_args__ = {
 # =============================================================================
 
 def make_memory_sqlite_engine() -> Engine:
+    """
+    Create an SQLAlchemy :class:`Engine` for an in-memory SQLite database.
+    """
     return create_engine(SQLITE_MEMORY_URL)
 
 
 def make_debug_sqlite_engine(echo: bool = True) -> Engine:
+    """
+    Create an SQLAlchemy :class:`Engine` for an in-memory SQLite database,
+    optionally switching on the SQL echo feature for logging.
+    """
     return create_engine(SQLITE_MEMORY_URL, echo=echo)
 
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> str:
+    """
+    Returns the DDL (data definition language; SQL ``CREATE TABLE`` commands)
+    for our SQLAlchemy metadata.
+
+    Args:
+        dialect_name: SQLAlchemy dialect name
+    """
     metadata = Base.metadata  # type: MetaData
     with StringIO() as f:
         dump_ddl(metadata, dialect_name=dialect_name, fileobj=f)
@@ -229,12 +250,29 @@ def get_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> str:
 
 
 def log_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> None:
+    """
+    Send the DDL for our SQLAlchemy metadata to the Python log.
+
+    Args:
+        dialect_name: SQLAlchemy dialect name
+    """
     text = get_all_ddl(dialect_name)
     log.info(text)
     log.info("DDL length: {} characters", len(text))
 
 
 def assert_constraint_name_ok(table_name: str, column_name: str) -> None:
+    """
+    Checks that the automatically generated name of a constraint isn't too long
+    for specific databases.
+
+    Args:
+        table_name: table name
+        column_name: column name
+
+    Raises:
+        AssertionError, if something will break
+    """
     d = {
         "table_name": table_name,
         "column_0_name": column_name,
@@ -254,7 +292,12 @@ def assert_constraint_name_ok(table_name: str, column_name: str) -> None:
 # =============================================================================
 
 def hack_pendulum_into_pymysql() -> None:
-    # https://pendulum.eustace.io/docs/#limitations
+    """
+    Hack in support for :class:`pendulum.DateTime` into the ``pymysql``
+    database interface.
+
+    See https://pendulum.eustace.io/docs/#limitations.
+    """
     try:
         # noinspection PyUnresolvedReferences
         from pymysql.converters import encoders, escape_datetime

@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_sqlalchemy.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Anonymisation functions. Largely superseded by CRATE
+(https://dx.doi.org/10.1186%2Fs12911-017-0437-1).
+
 """
 
 from collections import OrderedDict
@@ -37,7 +43,9 @@ from . import cc_db
 # =============================================================================
 
 def get_literal_regex(x: str) -> Pattern:
-    """Regex for anonymisation. Literal at word boundaries."""
+    """
+    Regex for anonymisation: a literal at word boundaries.
+    """
     # http://stackoverflow.com/questions/919056
     wb = "\\b"  # word boundary; escape the slash
     return re.compile(wb + re.escape(x) + wb, re.IGNORECASE)
@@ -48,6 +56,11 @@ def get_literal_regex(x: str) -> Pattern:
 # =============================================================================
 
 def get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
+    """
+    Splits SQL size definitions like ``VARCHAR(10)`` into tuples like
+    ``('VARCHAR', '10')`` If it doesn't fit that format, return
+    ``(sqltype, '')``.
+    """
     size = ""
     finaltype = sqltype
     m = re.match("(\w+)\((\w+)\)", sqltype)  # e.g. VARCHAR(10)
@@ -60,8 +73,13 @@ def get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
 def get_cris_dd_row(taskname: str,
                     tablename: str,
                     fieldspec: "FIELDSPEC_TYPE") -> Dict:
-    """Returns an OrderedDict with information for a CRIS Data Dictionary row,
-    given a fieldspec."""
+    """
+    Returns an OrderedDict with information for a CRIS Data Dictionary row,
+    given a fieldspec.
+
+    .. todo:: get_cris_dd_row: outdated/broken; fix/delete.
+
+    """
 
     cc_db.add_sqltype_to_fieldspec_in_place(fieldspec)
     cctype = fieldspec["cctype"]
@@ -147,6 +165,9 @@ def get_cris_dd_rows_from_fieldspecs(
         taskname: str,
         tablename: str,
         fieldspecs: "FIELDSPECLIST_TYPE") -> List[Dict]:
+    """
+    .. todo:: get_cris_dd_rows_from_fieldspecs: outdated/broken; fix/delete.
+    """
     rows = []
     for fs in fieldspecs:
         rows.append(get_cris_dd_row(taskname, tablename, fs))

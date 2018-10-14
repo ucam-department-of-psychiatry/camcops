@@ -2,6 +2,8 @@
 # camcops_server/webview.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Implements the CamCOPS web front end.
 
 Quick tutorial on Pyramid views:
 
@@ -118,7 +122,6 @@ Quick tutorial on Pyramid views:
 
 """
 
-import codecs
 from collections import OrderedDict
 import io
 import logging
@@ -205,7 +208,7 @@ from .cc_forms import (
     EditServerSettingsForm,
     EditUserFullForm,
     EditUserGroupAdminForm,
-    EditUserGroupMembershipFullForm,
+    EditUserGroupPermissionsFullForm,
     EditUserGroupMembershipGroupAdminForm,
     EraseTaskForm,
     ForciblyFinalizeChooseDeviceForm,
@@ -300,7 +303,9 @@ ERROR_TASK_LIVE = (
 
 def simple_success(req: CamcopsRequest, msg: str,
                    extra_html: str = "") -> Response:
-    """Simple success message."""
+    """
+    Simple success response.
+    """
     return render_to_response("generic_success.mako",
                               dict(msg=msg,
                                    extra_html=extra_html),
@@ -309,7 +314,9 @@ def simple_success(req: CamcopsRequest, msg: str,
 
 def simple_failure(req: CamcopsRequest, msg: str,
                    extra_html: str = "") -> Response:
-    """Simple failure message."""
+    """
+    Simple failure response.
+    """
     return render_to_response("generic_failure.mako",
                               dict(msg=msg,
                                    extra_html=extra_html),
@@ -351,6 +358,9 @@ def simple_failure(req: CamcopsRequest, msg: str,
 # noinspection PyUnusedLocal
 @notfound_view_config(renderer="not_found.mako")
 def not_found(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    "Page not found" view.
+    """
     return {}
 
 
@@ -358,6 +368,8 @@ def not_found(req: CamcopsRequest) -> Dict[str, Any]:
 @view_config(context=HTTPBadRequest, renderer="bad_request.mako")
 def bad_request(req: CamcopsRequest) -> Dict[str, Any]:
     """
+    "Bad request" view.
+
     NOTE that this view only gets used from
 
     .. code-block:: python
@@ -378,18 +390,24 @@ def bad_request(req: CamcopsRequest) -> Dict[str, Any]:
 # =============================================================================
 # Test pages
 # =============================================================================
-# Not on the menus...
 
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PUBLIC_1,
              permission=NO_PERMISSION_REQUIRED)
 def test_page_1(req: CamcopsRequest) -> Response:
+    """
+    A public test page with no content.
+    """
     return Response("Hello! This is a public CamCOPS test page.")
 
 
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PRIVATE_1)
 def test_page_private_1(req: CamcopsRequest) -> Response:
+    """
+    A private test page with no informative content, but which should only
+    be accessible to authenticated users.
+    """
     return Response("Private test page.")
 
 
@@ -398,8 +416,11 @@ def test_page_private_1(req: CamcopsRequest) -> Response:
              renderer="testpage.mako",
              permission=Permission.SUPERUSER)
 def test_page_2(req: CamcopsRequest) -> Dict[str, Any]:
-    # Contains POTENTIALLY SENSITIVE test information, including environment
-    # variables
+    """
+    A private test page containing POTENTIALLY SENSITIVE test information,
+    including environment variables, that should only be accessible to
+    superusers.
+    """
     return dict(param1="world")
 
 
@@ -408,13 +429,18 @@ def test_page_2(req: CamcopsRequest) -> Dict[str, Any]:
              renderer="inherit_cache_test_child.mako",
              permission=Permission.SUPERUSER)
 def test_page_3(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    A private test page that tests template inheritance.
+    """
     return {}
 
 
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.CRASH, permission=Permission.SUPERUSER)
 def crash(req: CamcopsRequest) -> Response:
-    """Deliberately raises an exception."""
+    """
+    A view that deliberately raises an exception.
+    """
     raise RuntimeError("Deliberately crashed. Should not affect other "
                        "processes.")
 
@@ -423,7 +449,9 @@ def crash(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.DEVELOPER, permission=Permission.SUPERUSER,
              renderer="developer.mako")
 def developer_page(req: CamcopsRequest) -> Dict[str, Any]:
-    """Shows developer menu."""
+    """
+    Shows the developer menu.
+    """
     return {}
 
 
@@ -438,6 +466,18 @@ def developer_page(req: CamcopsRequest) -> Dict[str, Any]:
 
 @view_config(route_name=Routes.LOGIN, permission=NO_PERMISSION_REQUIRED)
 def login_view(req: CamcopsRequest) -> Response:
+    """
+    Login view.
+
+    - GET: presents the login screen
+    - POST/submit: attempts to log in;
+
+      - failure: returns a login failure view or an account lockout view
+      - success:
+
+        - redirects to the redirection view if one was specified;
+        - redirects to the home view if not.
+    """
     cfg = req.config
     autocomplete_password = not cfg.disable_password_autocomplete
 
@@ -514,8 +554,8 @@ def login_view(req: CamcopsRequest) -> Response:
 
 def login_failed(req: CamcopsRequest) -> Response:
     """
-    HTML given after login failure.
-    Returned by login_view() only.
+    Response given after login failure.
+    Returned by :func:`login_view` only.
     """
     return render_to_response(
         "login_failed.mako",
@@ -526,8 +566,8 @@ def login_failed(req: CamcopsRequest) -> Response:
 
 def account_locked(req: CamcopsRequest, locked_until: Pendulum) -> Response:
     """
-    HTML given when account locked out.
-    Returned by login_view() only.
+    Response given when account locked out.
+    Returned by :func:`login_view` only.
     """
     return render_to_response(
         "accounted_locked.mako",
@@ -542,7 +582,9 @@ def account_locked(req: CamcopsRequest, locked_until: Pendulum) -> Response:
 
 @view_config(route_name=Routes.LOGOUT, renderer="logged_out.mako")
 def logout(req: CamcopsRequest) -> Dict[str, Any]:
-    """Logs a session out."""
+    """
+    Logs a session out, and returns the "logged out" view.
+    """
     audit(req, "Logout")
     ccsession = req.camcops_session
     ccsession.logout(req)
@@ -553,7 +595,10 @@ def logout(req: CamcopsRequest) -> Dict[str, Any]:
              permission=Authenticated,
              renderer="offer_terms.mako")
 def offer_terms(req: CamcopsRequest) -> Response:
-    """HTML offering terms/conditions and requesting acknowledgement."""
+    """
+    - GET: show terms/conditions and request acknowledgement
+    - POST/submit: note the user's agreement; redirect to the home view.
+    """
     form = OfferTermsForm(
         request=req,
         agree_button_text=req.wappstring("disclaimer_agree"))
@@ -577,6 +622,15 @@ def offer_terms(req: CamcopsRequest) -> Response:
 
 @forbidden_view_config()
 def forbidden(req: CamcopsRequest) -> Response:
+    """
+    Generic place that Pyramid comes when permission is denied for a view.
+
+    We will offer one of these:
+
+    - Must change password? Redirect to "change own password" view.
+    - Must agree terms? Redirect to "offer terms" view.
+    - Otherwise: a generic "forbidden" view.
+    """
     # I was doing this:
     if req.has_permission(Authenticated):
         user = req.user
@@ -606,6 +660,12 @@ def forbidden(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.CHANGE_OWN_PASSWORD, permission=Authenticated)
 def change_own_password(req: CamcopsRequest) -> Response:
+    """
+    For any user: to change their own password.
+
+    - GET: offer "change own password" view
+    - POST/submit: change the password and return :func:`password_changed`.
+    """
     user = req.user
     assert user is not None
     expired = user.must_change_password
@@ -641,7 +701,13 @@ def change_own_password(req: CamcopsRequest) -> Response:
              permission=Permission.GROUPADMIN,
              renderer="change_other_password.mako")
 def change_other_password(req: CamcopsRequest) -> Response:
-    """For administrators, to change another's password."""
+    """
+    For administrators, to change another's password.
+
+    - GET: offer "change another's password" view (except that if you're
+      changing your own password, return :func:`change_own_password`.
+    - POST/submit: change the password and return :func:`password_changed`.
+    """
     form = ChangeOtherPasswordForm(request=req)
     username = None  # for type checker
     if FormAction.SUBMIT in req.POST:
@@ -692,6 +758,15 @@ def change_other_password(req: CamcopsRequest) -> Response:
 def password_changed(req: CamcopsRequest,
                      username: str,
                      own_password: bool) -> Response:
+    """
+    Generic "the password has been changed" view (whether changing your own
+    or another's password).
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        username: the username whose password is being changed?
+        own_password: is the user changing their own password?
+    """
     return render_to_response("password_changed.mako",
                               dict(username=username,
                                    own_password=own_password),
@@ -704,9 +779,10 @@ def password_changed(req: CamcopsRequest,
 
 @view_config(route_name=Routes.HOME, renderer="main_menu.mako")
 def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
-    """Main HTML menu."""
+    """
+    Main CamCOPS menu view.
+    """
     user = req.user
-    cfg = req.config
     if user.superuser:
         groups = req.dbsession.query(Group)  # type: Iterable[Group]
         warn_bad_id_policies = any(
@@ -735,6 +811,14 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
 
 def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
                 redirect_url: str) -> Response:
+    """
+    Edit the task filter for the current user.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        task_filter: the user's :class:`TaskFilter`
+        redirect_url: URL to redirect (back) to upon success
+    """
     if FormAction.SET_FILTERS in req.POST:
         form = EditTaskFilterForm(request=req)
         try:
@@ -826,6 +910,9 @@ def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
 
 @view_config(route_name=Routes.SET_FILTERS)
 def set_filters(req: CamcopsRequest) -> Response:
+    """
+    View to set the task filters for the current user.
+    """
     redirect_url = req.get_str_param(ViewParam.REDIRECT_URL,
                                      req.route_url(Routes.VIEW_TASKS))
     task_filter = req.camcops_session.get_task_filter()
@@ -834,7 +921,9 @@ def set_filters(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.VIEW_TASKS, renderer="view_tasks.mako")
 def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
-    """HTML displaying tasks and applicable filters."""
+    """
+    Main view displaying tasks and applicable filters.
+    """
     ccsession = req.camcops_session
     user = req.user
     taskfilter = ccsession.get_task_filter()
@@ -903,7 +992,10 @@ def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
 
 @view_config(route_name=Routes.TASK)
 def serve_task(req: CamcopsRequest) -> Response:
-    """Serves an individual task."""
+    """
+    View that serves an individual task, in a variety of possible formats
+    (e.g. HTML, PDF, XML).
+    """
     viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML, lower=True)
     tablename = req.get_str_param(ViewParam.TABLE_NAME)
     server_pk = req.get_int_param(ViewParam.SERVER_PK)
@@ -959,7 +1051,17 @@ def serve_task(req: CamcopsRequest) -> Response:
 
 def choose_tracker_or_ctv(req: CamcopsRequest,
                           as_ctv: bool) -> Dict[str, Any]:
-    """HTML form for tracker selection."""
+    """
+    Returns a dictionary for a Mako template to configure a :class:`Tracker` or
+    :class:`ClinicalTextView`.
+
+    Upon success, it redirects to the tracker or CTV view itself, with the
+    tracker's parameters embedded as URL parameters.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        as_ctv: CTV, rather than tracker?
+    """
 
     form = ChooseTrackerForm(req, as_ctv=as_ctv, css_class="form-inline")
 
@@ -996,16 +1098,30 @@ def choose_tracker_or_ctv(req: CamcopsRequest,
 
 @view_config(route_name=Routes.CHOOSE_TRACKER, renderer="choose_tracker.mako")
 def choose_tracker(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to choose/configure a :class:`Tracker`.
+    """
     return choose_tracker_or_ctv(req, as_ctv=False)
 
 
 @view_config(route_name=Routes.CHOOSE_CTV, renderer="choose_ctv.mako")
 def choose_ctv(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to choose/configure a :class:`ClinicalTextView`.
+    """
     return choose_tracker_or_ctv(req, as_ctv=True)
 
 
 def serve_tracker_or_ctv(req: CamcopsRequest,
                          as_ctv: bool) -> Response:
+    """
+    Returns a response to show a :class:`Tracker` or :class:`ClinicalTextView`,
+    in a variety of formats (e.g. HTML, PDF, XML).
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        as_ctv: CTV, rather than tracker?
+    """
     which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
     idnum_value = req.get_int_param(ViewParam.IDNUM_VALUE)
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
@@ -1068,11 +1184,18 @@ def serve_tracker_or_ctv(req: CamcopsRequest,
 
 @view_config(route_name=Routes.TRACKER)
 def serve_tracker(req: CamcopsRequest) -> Response:
+    """
+    View to serve a :class:`Tracker`; see :func:`serve_tracker_or_ctv`.
+    """
     return serve_tracker_or_ctv(req, as_ctv=False)
 
 
 @view_config(route_name=Routes.CTV)
 def serve_ctv(req: CamcopsRequest) -> Response:
+    """
+    View to serve a :class:`ClinicalTextView`; see
+    :func:`serve_tracker_or_ctv`.
+    """
     return serve_tracker_or_ctv(req, as_ctv=True)
 
 
@@ -1082,13 +1205,16 @@ def serve_ctv(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.REPORTS_MENU, renderer="reports_menu.mako")
 def reports_menu(req: CamcopsRequest) -> Dict[str, Any]:
-    """Offer a menu of reports."""
+    """
+    Offer a menu of reports.
+
+    Note: Reports are not group-specific.
+    If you're authorized to see any, you'll see the whole menu.
+    (The *data* you get will be restricted to the group's you're authorized
+    to run reports for.)
+    """
     if not req.user.authorized_for_reports:
         raise HTTPBadRequest(CANNOT_REPORT)
-    # Reports are not group-specific.
-    # If you're authorized to see any, you'll see the whole menu.
-    # (The *data* you get will be restricted to the group's you're authorized
-    # to run reports for.)
     return {}
 
 
@@ -1096,7 +1222,7 @@ def reports_menu(req: CamcopsRequest) -> Dict[str, Any]:
 def offer_report(req: CamcopsRequest) -> Response:
     """
     Offer configuration options for a single report, or (following submission)
-    redirect to serve that report
+    redirect to serve that report (with configuration parameters in the URL).
     """
     if not req.user.authorized_for_reports:
         raise HTTPBadRequest(CANNOT_REPORT)
@@ -1158,7 +1284,11 @@ def serve_report(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.OFFER_TSV_DUMP)
 def offer_tsv_dump(req: CamcopsRequest) -> Response:
-    """Form for basic research dump selection."""
+    """
+    View to configure a basic research dump.
+    Following submission success, it redirects to a view serving a TSV/ZIP
+    dump.
+    """
     if not req.user.authorized_to_dump:
         raise HTTPBadRequest(CANNOT_DUMP)
     form = OfferBasicDumpForm(request=req)
@@ -1191,6 +1321,9 @@ def offer_tsv_dump(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.TSV_DUMP)
 def serve_tsv_dump(req: CamcopsRequest) -> Response:
+    """
+    View serving a TSV/ZIP basic research dump.
+    """
     if not req.user.authorized_to_dump:
         raise HTTPBadRequest(CANNOT_DUMP)
     # -------------------------------------------------------------------------
@@ -1277,7 +1410,10 @@ def serve_tsv_dump(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.OFFER_SQL_DUMP)
 def offer_sql_dump(req: CamcopsRequest) -> Response:
-    """Form for SQL research dump selection."""
+    """
+    View to configure a SQL research dump.
+    Following submission success, it redirects to a view serving the SQL dump.
+    """
     if not req.user.authorized_to_dump:
         raise HTTPBadRequest(CANNOT_DUMP)
     form = OfferSqlDumpForm(request=req)
@@ -1310,6 +1446,9 @@ def offer_sql_dump(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.SQL_DUMP)
 def sql_dump(req: CamcopsRequest) -> Response:
+    """
+    View serving an SQL dump in the chosen format (e.g. SQLite binary, SQL).
+    """
     if not req.user.authorized_to_dump:
         raise HTTPBadRequest(CANNOT_DUMP)
     # -------------------------------------------------------------------------
@@ -1468,7 +1607,10 @@ LEXERMAP = {
 
 @view_config(route_name=Routes.VIEW_DDL)
 def view_ddl(req: CamcopsRequest) -> Response:
-    """Inspect table definitions with field comments."""
+    """
+    Inspect table definitions (data definition language, DDL) with field
+    comments.
+    """
     form = ViewDdlForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1507,6 +1649,11 @@ def view_ddl(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.OFFER_AUDIT_TRAIL,
              permission=Permission.SUPERUSER)
 def offer_audit_trail(req: CamcopsRequest) -> Response:
+    """
+    View to configure how we'll view the audit trail. Once configured, it
+    redirects to a view that shows the audit trail (with query parameters in
+    the URL).
+    """
     form = AuditTrailForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1546,6 +1693,9 @@ AUDIT_TRUNCATE_AT = 100
 @view_config(route_name=Routes.VIEW_AUDIT_TRAIL,
              permission=Permission.SUPERUSER)
 def view_audit_trail(req: CamcopsRequest) -> Response:
+    """
+    View to serve the audit trail.
+    """
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
@@ -1613,6 +1763,9 @@ def view_audit_trail(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.OFFER_HL7_MESSAGE_LOG,
              permission=Permission.SUPERUSER)
 def offer_hl7_message_log(req: CamcopsRequest) -> Response:
+    """
+    View to choose how we'll view the HL7 message log.
+    """
     form = HL7MessageLogForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1646,6 +1799,9 @@ def offer_hl7_message_log(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.VIEW_HL7_MESSAGE_LOG,
              permission=Permission.SUPERUSER)
 def view_hl7_message_log(req: CamcopsRequest) -> Response:
+    """
+    View to serve the HL7 message log.
+    """
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     table_name = req.get_str_param(ViewParam.TABLE_NAME, None)
@@ -1693,6 +1849,9 @@ def view_hl7_message_log(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.VIEW_HL7_MESSAGE,
              permission=Permission.SUPERUSER)
 def view_hl7_message(req: CamcopsRequest) -> Response:
+    """
+    View to serve an individual HL7 message.
+    """
     hl7_msg_id = req.get_int_param(ViewParam.HL7_MSG_ID, None)
     dbsession = req.dbsession
     hl7msg = dbsession.query(HL7Message)\
@@ -1712,6 +1871,9 @@ def view_hl7_message(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.OFFER_HL7_RUN_LOG,
              permission=Permission.SUPERUSER)
 def offer_hl7_run_log(req: CamcopsRequest) -> Response:
+    """
+    View to configure how we'll view the HL7 run log.
+    """
     form = HL7RunLogForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1743,6 +1905,9 @@ def offer_hl7_run_log(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.VIEW_HL7_RUN_LOG,
              permission=Permission.SUPERUSER)
 def view_hl7_run_log(req: CamcopsRequest) -> Response:
+    """
+    View to serve the HL7 run log.
+    """
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
@@ -1782,6 +1947,9 @@ def view_hl7_run_log(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.VIEW_HL7_RUN,
              permission=Permission.SUPERUSER)
 def view_hl7_run(req: CamcopsRequest) -> Response:
+    """
+    View to serve details of an individual HL7 run.
+    """
     hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
     dbsession = req.dbsession
     hl7run = dbsession.query(HL7Run)\
@@ -1801,6 +1969,9 @@ def view_hl7_run(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.VIEW_OWN_USER_INFO,
              renderer="view_own_user_info.mako")
 def view_own_user_info(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to provide information about your own user.
+    """
     groups_page = CamcopsPage(req.user.groups,
                               url_maker=PageUrl(req))
     return dict(user=req.user,
@@ -1811,7 +1982,7 @@ def view_own_user_info(req: CamcopsRequest) -> Dict[str, Any]:
              renderer="view_server_info.mako")
 def view_server_info(req: CamcopsRequest) -> Dict[str, Any]:
     """
-    HTML showing server's ID policies, etc..
+    View to show the server's ID policies, etc.
     """
     return dict(
         idnum_definitions=req.idnum_definitions,
@@ -1850,6 +2021,10 @@ EDIT_USER_GROUP_MEMBERSHIP_KEYS_SUPERUSER = EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROU
 
 
 def get_user_from_request_user_id_or_raise(req: CamcopsRequest) -> User:
+    """
+    Returns the :class:`User` represented by the request's
+    ``ViewParam.USER_ID`` parameter, or raise :exc:`HTTPBadRequest`.
+    """
     user_id = req.get_int_param(ViewParam.USER_ID)
     user = User.get_user_by_id(req.dbsession, user_id)
     if not user:
@@ -1861,6 +2036,10 @@ def get_user_from_request_user_id_or_raise(req: CamcopsRequest) -> User:
              permission=Permission.GROUPADMIN,
              renderer="users_view.mako")
 def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View all users that the current user administers. The view has hyperlinks
+    to edit those users too.
+    """
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
@@ -1901,8 +2080,8 @@ def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
 
 def assert_may_edit_user(req: CamcopsRequest, user: User) -> None:
     """
-    Checks that the requesting user (req.user) is allowed to edit the other
-    user (user). Raises HTTPBadRequest otherwise.
+    Checks that the requesting user (``req.user``) is allowed to edit the other
+    user (``user``). Raises :exc:`HTTPBadRequest` otherwise.
     """
     # LOGIC SHOULD MATCH view_all_users
     if user.username == USER_NAME_FOR_SYSTEM:
@@ -1922,6 +2101,9 @@ def assert_may_edit_user(req: CamcopsRequest, user: User) -> None:
              permission=Permission.GROUPADMIN,
              renderer="view_other_user_info.mako")
 def view_user(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to show details of another user, for administrators.
+    """
     user = get_user_from_request_user_id_or_raise(req)
     assert_may_edit_user(req, user)
     return dict(user=user)
@@ -1933,6 +2115,9 @@ def view_user(req: CamcopsRequest) -> Dict[str, Any]:
              permission=Permission.GROUPADMIN,
              renderer="user_edit.mako")
 def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to edit a user (for administrators).
+    """
     route_back = Routes.VIEW_ALL_USERS
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(route_back))
@@ -2008,6 +2193,9 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
              permission=Permission.GROUPADMIN,
              renderer="user_edit_group_membership.mako")
 def edit_user_group_membership(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to edit the group memberships of a user (for administrators).
+    """
     route_back = Routes.VIEW_ALL_USERS
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(route_back))
@@ -2019,7 +2207,7 @@ def edit_user_group_membership(req: CamcopsRequest) -> Dict[str, Any]:
     user = ugm.user
     assert_may_edit_user(req, user)
     if req.user.superuser:
-        form = EditUserGroupMembershipFullForm(request=req)
+        form = EditUserGroupPermissionsFullForm(request=req)
         keys = EDIT_USER_GROUP_MEMBERSHIP_KEYS_SUPERUSER
     else:
         form = EditUserGroupMembershipGroupAdminForm(request=req)
@@ -2047,6 +2235,15 @@ def edit_user_group_membership(req: CamcopsRequest) -> Dict[str, Any]:
 def set_user_upload_group(req: CamcopsRequest,
                           user: User,
                           as_superuser: bool) -> Response:
+    """
+    Provides a view to choose which group a user uploads into.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        user: the :class:`User` to edit
+        as_superuser: is the current user a superuser? Determines the
+            screen we return to afterwards.
+    """
     route_back = Routes.VIEW_ALL_USERS if as_superuser else Routes.HOME
     if FormAction.CANCEL in req.POST:
         return HTTPFound(req.route_url(route_back))
@@ -2080,12 +2277,18 @@ def set_user_upload_group(req: CamcopsRequest,
 
 @view_config(route_name=Routes.SET_OWN_USER_UPLOAD_GROUP)
 def set_own_user_upload_group(req: CamcopsRequest) -> Response:
+    """
+    View to set the upload group for your own user.
+    """
     return set_user_upload_group(req, req.user, False)
 
 
 @view_config(route_name=Routes.SET_OTHER_USER_UPLOAD_GROUP,
              permission=Permission.SUPERUSER)
 def set_other_user_upload_group(req: CamcopsRequest) -> Response:
+    """
+    View to set the upload group for another user.
+    """
     user = get_user_from_request_user_id_or_raise(req)
     return set_user_upload_group(req, user, True)
 
@@ -2093,6 +2296,9 @@ def set_other_user_upload_group(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.UNLOCK_USER,
              permission=Permission.GROUPADMIN)
 def unlock_user(req: CamcopsRequest) -> Response:
+    """
+    View to unlock a locked user account.
+    """
     user = get_user_from_request_user_id_or_raise(req)
     assert_may_edit_user(req, user)
     user.enable(req)
@@ -2103,6 +2309,9 @@ def unlock_user(req: CamcopsRequest) -> Response:
              permission=Permission.GROUPADMIN,
              renderer="user_add.mako")
 def add_user(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to add a user.
+    """
     route_back = Routes.VIEW_ALL_USERS
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(route_back))
@@ -2142,6 +2351,12 @@ def add_user(req: CamcopsRequest) -> Dict[str, Any]:
 
 
 def any_records_use_user(req: CamcopsRequest, user: User) -> bool:
+    """
+    Do any records in the database refer to the specified user?
+
+    (Used when we're thinking about deleting a user; would it leave broken
+    references? If so, we will prevent deletion; see :func:`delete_user`.)
+    """
     dbsession = req.dbsession
     user_id = user.id
     # Device?
@@ -2173,6 +2388,9 @@ def any_records_use_user(req: CamcopsRequest, user: User) -> bool:
              permission=Permission.GROUPADMIN,
              renderer="user_delete.mako")
 def delete_user(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to delete a user (and make it hard work).
+    """
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
     user = get_user_from_request_user_id_or_raise(req)
@@ -2235,6 +2453,10 @@ def delete_user(req: CamcopsRequest) -> Dict[str, Any]:
              permission=Permission.SUPERUSER,
              renderer="groups_view.mako")
 def view_groups(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to show all groups (with hyperlinks to edit them).
+    Superusers only.
+    """
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
@@ -2248,6 +2470,10 @@ def view_groups(req: CamcopsRequest) -> Dict[str, Any]:
 
 
 def get_group_from_request_group_id_or_raise(req: CamcopsRequest) -> Group:
+    """
+    Returns the :class:`Group` represented by the request's
+    ``ViewParam.GROUP_ID`` parameter, or raise :exc:`HTTPBadRequest`.
+    """
     group_id = req.get_int_param(ViewParam.GROUP_ID)
     group = None
     if group_id is not None:
@@ -2262,6 +2488,9 @@ def get_group_from_request_group_id_or_raise(req: CamcopsRequest) -> Group:
              permission=Permission.SUPERUSER,
              renderer="group_edit.mako")
 def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to edit a group. Superusers only.
+    """
     route_back = Routes.VIEW_GROUPS
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(route_back))
@@ -2311,6 +2540,9 @@ def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
              permission=Permission.SUPERUSER,
              renderer="group_add.mako")
 def add_group(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to add a group. Superusers only.
+    """
     route_back = Routes.VIEW_GROUPS
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(route_back))
@@ -2336,6 +2568,12 @@ def add_group(req: CamcopsRequest) -> Dict[str, Any]:
 
 
 def any_records_use_group(req: CamcopsRequest, group: Group) -> bool:
+    """
+    Do any records in the database refer to the specified group?
+
+    (Used when we're thinking about deleting a group; would it leave broken
+    references? If so, we will prevent deletion; see :func:`delete_group`.)
+    """
     dbsession = req.dbsession
     group_id = group.id
     # Our own or users filtering on us?
@@ -2356,6 +2594,9 @@ def any_records_use_group(req: CamcopsRequest, group: Group) -> bool:
              permission=Permission.SUPERUSER,
              renderer="group_delete.mako")
 def delete_group(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to delete a group. Superusers only.
+    """
     route_back = Routes.VIEW_GROUPS
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(route_back))
@@ -2398,6 +2639,9 @@ def delete_group(req: CamcopsRequest) -> Dict[str, Any]:
              permission=Permission.SUPERUSER,
              renderer="server_settings_edit.mako")
 def edit_server_settings(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to edit server settings (like the database title).
+    """
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(Routes.HOME))
     form = EditServerSettingsForm(request=req)
@@ -2425,6 +2669,10 @@ def edit_server_settings(req: CamcopsRequest) -> Dict[str, Any]:
              permission=Permission.SUPERUSER,
              renderer="id_definitions_view.mako")
 def view_id_definitions(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to show all ID number definitions (with hyperlinks to edit them).
+    Superusers only.
+    """
     return dict(
         idnum_definitions=req.idnum_definitions,
     )
@@ -2432,6 +2680,10 @@ def view_id_definitions(req: CamcopsRequest) -> Dict[str, Any]:
 
 def get_iddef_from_request_which_idnum_or_raise(
         req: CamcopsRequest) -> IdNumDefinition:
+    """
+    Returns the :class:`IdNumDefinition` represented by the request's
+    ``ViewParam.WHICH_IDNUM`` parameter, or raise :exc:`HTTPBadRequest`.
+    """
     which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
     iddef = req.dbsession.query(IdNumDefinition)\
         .filter(IdNumDefinition.which_idnum == which_idnum)\
@@ -2446,6 +2698,9 @@ def get_iddef_from_request_which_idnum_or_raise(
              permission=Permission.SUPERUSER,
              renderer="id_definition_edit.mako")
 def edit_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to edit an ID number definition. Superusers only.
+    """
     route_back = Routes.VIEW_ID_DEFINITIONS
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(route_back))
@@ -2484,6 +2739,9 @@ def edit_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
              permission=Permission.SUPERUSER,
              renderer="id_definition_add.mako")
 def add_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to add an ID number definition. Superusers only.
+    """
     route_back = Routes.VIEW_ID_DEFINITIONS
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(route_back))
@@ -2513,6 +2771,13 @@ def add_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
 
 
 def any_records_use_iddef(req: CamcopsRequest, iddef: IdNumDefinition) -> bool:
+    """
+    Do any records in the database refer to the specified ID number definition?
+
+    (Used when we're thinking about deleting one; would it leave broken
+    references? If so, we will prevent deletion; see
+    :func:`delete_id_definition`.)
+    """
     # Helpfully, these are only referred to permanently from one place:
     q = CountStarSpecializedQuery(PatientIdNum, session=req.dbsession)\
         .filter(PatientIdNum.which_idnum == iddef.which_idnum)
@@ -2526,6 +2791,9 @@ def any_records_use_iddef(req: CamcopsRequest, iddef: IdNumDefinition) -> bool:
              permission=Permission.SUPERUSER,
              renderer="id_definition_delete.mako")
 def delete_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View to delete an ID number definition. Superusers only.
+    """
     route_back = Routes.VIEW_ID_DEFINITIONS
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(route_back))
@@ -2566,7 +2834,7 @@ def delete_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
              renderer="special_note_add.mako")
 def add_special_note(req: CamcopsRequest) -> Dict[str, Any]:
     """
-    Add a special note to a task (after confirmation).
+    View to add a special note to a task (after confirmation).
     """
     table_name = req.get_str_param(ViewParam.TABLE_NAME)
     server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
@@ -2617,7 +2885,7 @@ def add_special_note(req: CamcopsRequest) -> Dict[str, Any]:
              permission=Permission.GROUPADMIN)
 def erase_task(req: CamcopsRequest) -> Response:
     """
-    Wipe all data from a task (after confirmation).
+    View to wipe all data from a task (after confirmation).
 
     Leaves the task record as a placeholder.
     """
@@ -2684,7 +2952,7 @@ def erase_task(req: CamcopsRequest) -> Response:
              permission=Permission.GROUPADMIN)
 def delete_patient(req: CamcopsRequest) -> Response:
     """
-    Completely delete all data from a patient (after confirmation),
+    View to cdelete ompletely all data from a patient (after confirmation),
     within a specific group.
     """
     if FormAction.CANCEL in req.POST:
@@ -2799,6 +3067,9 @@ def delete_patient(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.EDIT_PATIENT, permission=Permission.GROUPADMIN)
 def edit_patient(req: CamcopsRequest) -> Response:
+    """
+    View to edit details for a patient.
+    """
     if FormAction.CANCEL in req.POST:
         return HTTPFound(req.route_url(Routes.HOME))
 
@@ -2970,12 +3241,9 @@ def edit_patient(req: CamcopsRequest) -> Response:
              permission=Permission.GROUPADMIN)
 def forcibly_finalize(req: CamcopsRequest) -> Response:
     """
-    Force-finalize all live (_era == ERA_NOW) records from a device.
-    Available to group administrators if all those records are within their
-    groups (otherwise, it's a superuser operation).
-
-    This is a superuser permission, since we can't guarantee to know what group
-    the device relates to.
+    View to force-finalize all live (``_era == ERA_NOW``) records from a
+    device. Available to group administrators if all those records are within
+    their groups (otherwise, it's a superuser operation).
     """
     if FormAction.CANCEL in req.POST:
         return HTTPFound(req.route_url(Routes.HOME))
@@ -3096,6 +3364,6 @@ DEFORM_MISSING_GLYPH = os.path.join(STATIC_ROOT_DIR,
              permission=NO_PERMISSION_REQUIRED)
 def static_bugfix_deform_missing_glyphs(req: CamcopsRequest) -> Response:
     """
-    Hack for a missing-file bug in deform==2.0.4:
+    Hack for a missing-file bug in ``deform==2.0.4``.
     """
     return FileResponse(DEFORM_MISSING_GLYPH, request=req)

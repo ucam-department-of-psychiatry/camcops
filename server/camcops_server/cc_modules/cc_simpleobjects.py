@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_simpleobjects.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,11 +24,13 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Simple struct-like classes.
+
 """
 
 from typing import List, TYPE_CHECKING
 
-from cardinal_pythonlib.reprfunc import simple_repr
 from pendulum import Date
 
 if TYPE_CHECKING:
@@ -43,8 +47,14 @@ if TYPE_CHECKING:
 class IdNumReference(object):
     """
     A simple way of referring to an ID number.
-    Not stored in the database - just an object to be passed around that
-    encapsulates which_idnum and idnum_value.
+
+    It's not stored in the database -- it's just an object to be passed around
+    that encapsulates ``which_idnum`` and ``idnum_value``.
+
+    As an example, suppose our administrator has defined ID type
+    (``which_idnum``) 7 to be "NHS number". Then if a patient has NHS number
+    9999999999, we might represent this ID of theirs as
+    ``IdNumReference(which_idnum=7, idnum_value=9999999999)``.
     """
     def __init__(self, which_idnum: int, idnum_value: int) -> None:
         self.which_idnum = which_idnum
@@ -77,6 +87,9 @@ class IdNumReference(object):
 
 # noinspection PyShadowingBuiltins
 class HL7PatientIdentifier(object):
+    """
+    Represents a patient identifier for the HL7 protocol.
+    """
     def __init__(self, id: str, id_type: str,
                  assigning_authority: str) -> None:
         self.id = id
@@ -87,11 +100,16 @@ class HL7PatientIdentifier(object):
 # =============================================================================
 # BarePatientInfo
 # =============================================================================
-# We avoid using Patient because otherwise we have to deal
-# with mutual dependency problems and the use of the database (prior to full
-# database initialization)
 
 class BarePatientInfo(object):
+    """
+    Represents information about a patient using a simple object with no
+    connection to a database.
+
+    In some situations we avoid using :class:`Patient`: specifically, when we
+    would otherwise have to deal with mutual dependency problems and the use of
+    the database (prior to full database initialization).
+    """
     def __init__(self,
                  forename: str = None,
                  surname: str = None,
@@ -111,7 +129,7 @@ class BarePatientInfo(object):
 
 class XmlSimpleValue(object):
     """
-    Represents XML lowest-level items. See functions in cc_xml.py
+    Represents XML lowest-level items. See functions in ``cc_xml.py``.
     """
     def __init__(self, value) -> None:
         self.value = value

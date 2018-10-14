@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_recipdef.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Define recipients for export functions (e.g. HL7, file-based export).
+
 """
 
 import configparser
@@ -61,6 +66,9 @@ RIO_MAX_USER_LEN = 10
 
 
 class Hl7RecipientType(object):
+    """
+    Possible "export recipient" types.
+    """
     HL7 = "hl7"
     FILE = "file"
 
@@ -72,6 +80,10 @@ ALL_RECIPIENT_TYPES = [
 
 
 class ConfigParamRecipient(object):
+    """
+    Possible configuration file parameters that relate to "export recipient"
+    definitions.
+    """
     DIVERT_TO_FILE = "DIVERT_TO_FILE"
     END_DATE = "END_DATE"
     FILENAME_SPEC = "FILENAME_SPEC"
@@ -110,7 +122,7 @@ class ConfigParamRecipient(object):
 
 class RecipientDefinition(object):
     """
-    Class representing HL7/file recipient.
+    Class representing HL7/file export recipient.
 
     Full details of parameters are in the demonstration config file.
     """
@@ -119,7 +131,9 @@ class RecipientDefinition(object):
                  config: configparser.ConfigParser = None,
                  section: str = None) -> None:
         """
-        Initialize. Possible methods:
+        Initialize. Possible initialization methods:
+
+        .. code-block:: python
 
             RecipientDefinition()  # FOR TESTING ONLY
             RecipientDefinition(config, section)
@@ -280,10 +294,15 @@ class RecipientDefinition(object):
 
     @staticmethod
     def report_error(msg) -> None:
+        """
+        Report an error to the log.
+        """
         log.error("RecipientDefinition: {}", msg)
 
     def valid(self, req: "CamcopsRequest") -> bool:
-        """Is this definition valid?"""
+        """
+        Is this definition valid?
+        """
         if self.type not in ALL_RECIPIENT_TYPES:
             self.report_error("missing/invalid type: {}".format(self.type))
             return False
@@ -398,22 +417,30 @@ class RecipientDefinition(object):
         return True
 
     def using_hl7(self) -> bool:
-        """Is the recipient an HL7 recipient?"""
+        """
+        Is the recipient an HL7 recipient?
+        """
         return self.type == Hl7RecipientType.HL7
 
     def using_file(self) -> bool:
-        """Is the recipient a filestore?"""
+        """
+        Is the recipient a filestore?
+        """
         return self.type == Hl7RecipientType.FILE
 
     @staticmethod
     def get_id_type(req: "CamcopsRequest", which_idnum: int) -> str:
-        """Get HL7 ID type for a specific ID number."""
+        """
+        Get the HL7 ID type for a specific CamCOPS ID number type.
+        """
         iddef = req.get_idnum_definition(which_idnum)
         return (iddef.hl7_id_type or '') if iddef else ''
 
     @staticmethod
     def get_id_aa(req: "CamcopsRequest", which_idnum: int) -> str:
-        """Get HL7 ID type for a specific ID number."""
+        """
+        Get the HL7 Assigning Authority for a specific CamCOPS ID number type.
+        """
         iddef = req.get_idnum_definition(which_idnum)
         return (iddef.hl7_assigning_authority or '') if iddef else ''
 
@@ -428,7 +455,9 @@ class RecipientDefinition(object):
                      creation_datetime: Pendulum = None,
                      basetable: str = None,
                      serverpk: int = None) -> str:
-        """Get filename, for file transfers."""
+        """
+        Get the export filename, for file transfers.
+        """
         return get_export_filename(
             req=req,
             patient_spec_if_anonymous=self.patient_spec_if_anonymous,
@@ -447,6 +476,8 @@ class RecipientDefinition(object):
         )
 
     def __str__(self):
-        """String representation."""
+        """
+        String representation.
+        """
         attrnames = [key for key in self.__dict__ if not key.startswith('_')]
         return simple_repr(self, attrnames)

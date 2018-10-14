@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_user.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+CamCOPS users.
+
 """
 
 import datetime
@@ -91,6 +96,9 @@ CLEAR_DUMMY_LOGIN_PERIOD = datetime.timedelta(
 # they're locked out (to prevent username discovery that way, by timing)
 
 class SecurityAccountLockout(Base):
+    """
+    Represents an account "lockout".
+    """
     __tablename__ = "_security_account_lockouts"
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
@@ -108,7 +116,9 @@ class SecurityAccountLockout(Base):
 
     @classmethod
     def delete_old_account_lockouts(cls, req: "CamcopsRequest") -> None:
-        """Delete all expired account lockouts."""
+        """
+        Delete all expired account lockouts.
+        """
         dbsession = req.dbsession
         now = req.now_utc
         dbsession.query(cls)\
@@ -117,6 +127,13 @@ class SecurityAccountLockout(Base):
 
     @classmethod
     def is_user_locked_out(cls, req: "CamcopsRequest", username: str) -> bool:
+        """
+        Is the specified user locked out?
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            username: the user's username
+        """
         dbsession = req.dbsession
         now = req.now_utc
         return exists_orm(dbsession, cls,
@@ -129,7 +146,13 @@ class SecurityAccountLockout(Base):
         """
         When is the user locked out until?
 
-        Returns datetime in local timezone (or None).
+        Args:
+            req: the :class:`CamcopsRequest`
+            username: the user's username
+
+        Returns:
+             Pendulum datetime in local timezone (or ``None`` if not
+             locked out).
         """
         dbsession = req.dbsession
         now = req.now_utc
@@ -147,6 +170,11 @@ class SecurityAccountLockout(Base):
                       username: str, lockout_minutes: int) -> None:
         """
         Lock user out for a specified number of minutes.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            username: the user's username
+            lockout_minutes: number of minutes
         """
         dbsession = req.dbsession
         now = req.now_utc
@@ -159,6 +187,13 @@ class SecurityAccountLockout(Base):
 
     @classmethod
     def unlock_user(cls, req: "CamcopsRequest", username: str) -> None:
+        """
+        Unlock a user.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            username: the user's username
+        """
         dbsession = req.dbsession
         dbsession.query(cls)\
             .filter(cls.username == username)\
@@ -170,6 +205,12 @@ class SecurityAccountLockout(Base):
 # =============================================================================
 
 class SecurityLoginFailure(Base):
+    """
+    Represents a record of a failed login.
+
+    Too many failed logins lead to a lockout; see
+    :class:`SecurityAccountLockout`.
+    """
     __tablename__ = "_security_login_failures"
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
@@ -188,7 +229,13 @@ class SecurityLoginFailure(Base):
     @classmethod
     def record_login_failure(cls, req: "CamcopsRequest",
                              username: str) -> None:
-        """Record that a user has failed to log in."""
+        """
+        Record that a user has failed to log in.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            username: the user's username
+        """
         dbsession = req.dbsession
         now = req.now_utc
         # noinspection PyArgumentList
@@ -198,7 +245,13 @@ class SecurityLoginFailure(Base):
     @classmethod
     def act_on_login_failure(cls, req: "CamcopsRequest",
                              username: str) -> None:
-        """Record login failure and lock out user if necessary."""
+        """
+        Record login failure and lock out user if necessary.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            username: the user's username
+        """
         cfg = req.config
         audit(req, "Failed login as user: {}".format(username))
         cls.record_login_failure(req, username)
@@ -215,7 +268,13 @@ class SecurityLoginFailure(Base):
     @classmethod
     def clear_login_failures(cls, req: "CamcopsRequest",
                              username: str) -> None:
-        """Clear login failures for a user."""
+        """
+        Clear login failures for a user.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            username: the user's username
+        """
         dbsession = req.dbsession
         dbsession.query(cls)\
             .filter(cls.username == username)\
@@ -224,7 +283,13 @@ class SecurityLoginFailure(Base):
     @classmethod
     def how_many_login_failures(cls, req: "CamcopsRequest",
                                 username: str) -> int:
-        """How many times has the user failed to log in (recently)?"""
+        """
+        How many times has the user tried and failed to log in (recently)?
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            username: the user's username
+        """
         dbsession = req.dbsession
         q = CountStarSpecializedQuery([cls], session=dbsession)\
             .filter(cls.username == username)
@@ -232,7 +297,13 @@ class SecurityLoginFailure(Base):
 
     @classmethod
     def enable_user(cls, req: "CamcopsRequest", username: str) -> None:
-        """Unlock user and clear login failures."""
+        """
+        Unlock user and clear login failures.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            username: the user's username
+        """
         SecurityAccountLockout.unlock_user(req, username)
         cls.clear_login_failures(req, username)
         audit(req, "User {} re-enabled".format(username))
@@ -246,6 +317,9 @@ class SecurityLoginFailure(Base):
         Login failues are recorded for nonexistent users to mimic the lockout
         seen for real users, i.e. to reduce the potential for username
         discovery.
+
+        Args:
+            req: the :class:`CamcopsRequest`
         """
         dbsession = req.dbsession
         all_user_names = dbsession.query(User.username)
@@ -257,9 +331,13 @@ class SecurityLoginFailure(Base):
     @classmethod
     def clear_dummy_login_failures_if_necessary(cls,
                                                 req: "CamcopsRequest") -> None:
-        """Clear dummy login failures if we haven't done so for a while.
+        """
+        Clear dummy login failures if we haven't done so for a while.
 
-        Not too often! See CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS.
+        Not too often! See :data:`CLEAR_DUMMY_LOGIN_PERIOD`.
+
+        Args:
+            req: the :class:`CamcopsRequest`
         """
         now = req.now_utc
         ss = req.server_settings
@@ -361,6 +439,9 @@ class User(Base):
     def get_user_by_id(cls,
                        dbsession: SqlASession,
                        user_id: Optional[int]) -> Optional['User']:
+        """
+        Returns a User from their integer ID, or ``None``.
+        """
         if user_id is None:
             return None
         return dbsession.query(cls).filter(cls.id == user_id).first()
@@ -369,12 +450,18 @@ class User(Base):
     def get_user_by_name(cls,
                          dbsession: SqlASession,
                          username: str) -> Optional['User']:
+        """
+        Returns a User from their username, or ``None``.
+        """
         if not username:
             return None
         return dbsession.query(cls).filter(cls.username == username).first()
 
     @classmethod
     def user_exists(cls, req: "CamcopsRequest", username: str) -> bool:
+        """
+        Does a user exist with this username?
+        """
         if not username:
             return False
         dbsession = req.dbsession
@@ -383,6 +470,20 @@ class User(Base):
     @classmethod
     def create_superuser(cls, req: "CamcopsRequest", username: str,
                          password: str) -> bool:
+        """
+        Creates a superuser.
+
+        Will fail if the user already exists.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            username: the new superuser's username
+            password: the new superuser's password
+
+        Returns:
+            success?
+
+        """
         assert username, "Can't create superuser with no name"
         assert username != USER_NAME_FOR_SYSTEM, (
             "Can't create user with name {!r}".format(USER_NAME_FOR_SYSTEM))
@@ -402,6 +503,9 @@ class User(Base):
     @classmethod
     def get_username_from_id(cls, req: "CamcopsRequest",
                              user_id: int) -> Optional[str]:
+        """
+        Looks up a user from their integer ID and returns their name, if found.
+        """
         dbsession = req.dbsession
         return dbsession.query(cls.username)\
             .filter(cls.id == user_id)\
@@ -418,6 +522,16 @@ class User(Base):
         """
         Retrieve a User object from the supplied username, if the password is
         correct; otherwise, return None.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            username: the username
+            password: the password attempt
+            take_time_for_nonexistent_user: if ``True`` (the default), then
+                even if the user doesn't exist, we take some time to mimic
+                the time we spend doing deliberately wasteful password
+                encryption (to prevent attackers from discovering real
+                usernames via timing attacks).
         """
         dbsession = req.dbsession
         user = cls.get_user_by_name(dbsession, username)
@@ -478,7 +592,7 @@ class User(Base):
 
     def is_password_valid(self, password: str) -> bool:
         """
-        Is the supplied password valid?
+        Is the supplied password valid for this user?
         """
         return rnc_crypto.is_password_valid(password, self.hashedpw)
 
@@ -522,47 +636,68 @@ class User(Base):
 
     @property
     def must_agree_terms(self) -> bool:
-        """Does the user still need to agree the terms/conditions of use?"""
+        """
+        Does the user still need to agree the terms/conditions of use?
+        """
         return self.when_agreed_terms_of_use is None
 
     def agree_terms(self, req: "CamcopsRequest") -> None:
-        """Mark the user as having agreed to the terms/conditions of use
-        now."""
+        """
+        Mark the user as having agreed to the terms/conditions of use now.
+        """
         self.when_agreed_terms_of_use = req.now
 
     def clear_login_failures(self, req: "CamcopsRequest") -> None:
-        """Clear login failures."""
+        """
+        Clear login failures.
+        """
         if not self.username:
             return
         SecurityLoginFailure.clear_login_failures(req, self.username)
 
     def is_locked_out(self, req: "CamcopsRequest") -> bool:
-        """Is the user locked out because of multiple login failures?"""
+        """
+        Is the user locked out because of multiple login failures?
+        """
         return SecurityAccountLockout.is_user_locked_out(req, self.username)
 
     def locked_out_until(self,
                          req: "CamcopsRequest") -> Optional[Pendulum]:
         """
-        When is the user locked out until (or None)?
+        When is the user locked out until?
 
-        Returns datetime in local timezone (or None).
+        Returns a Pendulum datetime in local timezone (or ``None`` if the
+        user isn't locked out).
         """
         return SecurityAccountLockout.user_locked_out_until(req,
                                                             self.username)
 
     def enable(self, req: "CamcopsRequest") -> None:
-        """Re-enables a user, unlocking them and clearing login failures."""
+        """
+        Re-enables the user, unlocking them and clearing login failures.
+        """
         SecurityLoginFailure.enable_user(req, self.username)
 
     @property
     def may_login_as_tablet(self) -> bool:
+        """
+        May the user login via the client (tablet) API?
+        """
         return self.may_upload or self.may_register_devices
 
     @property
     def group_ids(self) -> List[int]:
+        """
+        Return a list of group IDs for all the groups that the user is a member
+        of.
+        """
         return sorted(list(g.id for g in self.groups))
 
     def set_group_ids(self, group_ids: List[int]) -> None:
+        """
+        Set the user's groups to the groups whose integer IDs are in the
+        ``group_ids`` list, and remove the user from any other groups.
+        """
         dbsession = SqlASession.object_session(self)
         assert dbsession, ("User.set_group_ids() called on a User that's not "
                            "yet in a session")
@@ -584,6 +719,11 @@ class User(Base):
 
     @property
     def ids_of_groups_user_may_see(self) -> List[int]:
+        """
+        Return a list of group IDs for groups that the user may see data
+        from. (That means the groups the user is in, plus any other groups that
+        the user's groups are authorized to see.)
+        """
         # Incidentally: "list_a += list_b" vs "list_a.extend(list_b)":
         # https://stackoverflow.com/questions/3653298/concatenating-two-lists-difference-between-and-extend  # noqa
         # ... not much difference; perhaps += is slightly better (also clearer)
@@ -596,10 +736,19 @@ class User(Base):
             group_ids.update(my_group.ids_of_groups_group_may_see())
         return list(group_ids)
         # Return as a list rather than a set, because SQLAlchemy's in_()
-        # operator only likes lists and sets.
+        # operator only likes lists and ?tuples.
 
     @property
     def ids_of_groups_user_may_dump(self) -> List[int]:
+        """
+        Return a list of group IDs for groups that the user may dump data
+        from.
+
+        .. todo::
+            ids_of_groups_user_may_dump: check: no second-hand authority
+            given here via groups; should we? Also crosscheck to
+            groups_user_may_dump
+        """
         if self.superuser:
             return Group.all_group_ids(
                 dbsession=SqlASession.object_session(self))
@@ -608,6 +757,15 @@ class User(Base):
 
     @property
     def ids_of_groups_user_may_report_on(self) -> List[int]:
+        """
+        Returns a list of group IDs for groups that the user may run reports
+        on.
+
+        .. todo::
+            ids_of_groups_user_may_report_on: check: no second-hand authority
+            given here via groups; should we? Also crosscheck to
+            groups_user_may_report_on
+        """
         if self.superuser:
             return Group.all_group_ids(
                 dbsession=SqlASession.object_session(self))
@@ -616,6 +774,10 @@ class User(Base):
 
     @property
     def ids_of_groups_user_is_admin_for(self) -> List[int]:
+        """
+        Returns a list of group IDs for groups that the user is an
+        administrator for.
+        """
         if self.superuser:
             return Group.all_group_ids(
                 dbsession=SqlASession.object_session(self))
@@ -623,14 +785,23 @@ class User(Base):
         return [m.group_id for m in memberships if m.groupadmin]
 
     def may_administer_group(self, group_id: int) -> bool:
+        """
+        May this user administer the group identified by ``group_id``?
+        """
         if self.superuser:
             return True
         return group_id in self.ids_of_groups_user_is_admin_for
 
     @property
     def groups_user_may_see(self) -> List[Group]:
-        # A less efficient version, for visual display (see
-        # view_own_user_info.mako)
+        """
+        Returns a list of :class:`Group` objects for groups the user can
+        see.
+
+        Less efficient than the group ID version; for visual display (see
+        ``view_own_user_info.mako``).
+
+        """
         groups = set(self.groups)  # type: Set[Group]
         for my_group in self.groups:  # type: Group
             groups.update(set(my_group.can_see_other_groups))
@@ -638,35 +809,67 @@ class User(Base):
 
     @property
     def groups_user_may_dump(self) -> List[Group]:
-        # For visual display (see view_own_user_info.mako).
+        """
+        Returns a list of :class:`Group` objects for groups the user can
+        dump.
+
+        Less efficient than the group ID version; for visual display (see
+        ``view_own_user_info.mako``).
+
+        """
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return sorted([m.group for m in memberships if m.may_dump_data],
                       key=lambda g: g.name)
 
     @property
     def groups_user_may_report_on(self) -> List[Group]:
-        # For visual display (see view_own_user_info.mako).
+        """
+        Returns a list of :class:`Group` objects for groups the user can
+        report on.
+
+        Less efficient than the group ID version; for visual display (see
+        ``view_own_user_info.mako``).
+
+        """
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return sorted([m.group for m in memberships if m.may_run_reports],
                       key=lambda g: g.name)
 
     @property
     def groups_user_may_upload_into(self) -> List[Group]:
-        # For visual display (see view_own_user_info.mako).
+        """
+        Returns a list of :class:`Group` objects for groups the user can
+        upload into.
+
+        For visual display (see ``view_own_user_info.mako``).
+
+        """
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return sorted([m.group for m in memberships if m.may_upload],
                       key=lambda g: g.name)
 
     @property
     def groups_user_may_add_special_notes(self) -> List[Group]:
-        # For visual display (see view_own_user_info.mako).
+        """
+        Returns a list of :class:`Group` objects for groups the user can
+        add special notes to.
+
+        For visual display (see ``view_own_user_info.mako``).
+
+        """
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return sorted([m.group for m in memberships if m.may_add_notes],
                       key=lambda g: g.name)
 
     @property
     def groups_user_may_see_all_pts_when_unfiltered(self) -> List[Group]:
-        # For visual display (see view_own_user_info.mako).
+        """
+        Returns a list of :class:`Group` objects for groups the user can
+        see all patients when unfiltered.
+
+        For visual display (see ``view_own_user_info.mako``).
+
+        """
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return sorted([m.group for m in memberships
                        if m.view_all_patients_when_unfiltered],
@@ -674,21 +877,40 @@ class User(Base):
 
     @property
     def groups_user_is_admin_for(self) -> List[Group]:
-        # For visual display (see view_own_user_info.mako).
+        """
+        Returns a list of :class:`Group` objects for groups the user is
+        an administrator for.
+
+        Less efficient than the group ID version; for visual display (see
+        ``view_own_user_info.mako``).
+
+        """
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return sorted([m.group for m in memberships if m.groupadmin],
                       key=lambda g: g.name)
 
     @property
     def is_a_groupadmin(self) -> bool:
+        """
+        Is the user a specifically defined group administrator (for any group)?
+        """
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return any(m.groupadmin for m in memberships)
 
     @property
     def authorized_as_groupadmin(self) -> bool:
+        """
+        Is the user authorized as a group administrator for any group (either
+        by being specifically set as a group administrator, or by being a
+        superuser)?
+        """
         return self.superuser or self.is_a_groupadmin
 
     def membership_for_group_id(self, group_id: int) -> UserGroupMembership:
+        """
+        Returns the :class:`UserGroupMembership` object relating this user
+        to the group identified by ``group_id``.
+        """
         return next(
             (m for m in self.user_group_memberships if m.group_id == group_id),
             None
@@ -696,12 +918,19 @@ class User(Base):
 
     @property
     def may_use_webviewer(self) -> bool:
+        """
+        May this user log in to the web front end?
+        """
         if self.superuser:
             return True
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return any(m.may_use_webviewer for m in memberships)
 
     def authorized_to_add_special_note(self, group_id: int) -> bool:
+        """
+        Is this user authorized to add special notes for the group identified
+        by ``group_id``?
+        """
         if self.superuser:
             return True
         membership = self.membership_for_group_id(group_id)
@@ -710,6 +939,10 @@ class User(Base):
         return membership.may_add_notes
 
     def authorized_to_erase_tasks(self, group_id: int) -> bool:
+        """
+        Is this user authorized to add erase tasks for the group identified
+        by ``group_id``?
+        """
         if self.superuser:
             return True
         membership = self.membership_for_group_id(group_id)
@@ -719,7 +952,9 @@ class User(Base):
 
     @property
     def authorized_to_dump(self) -> bool:
-        """Is the user authorized to dump data?"""
+        """
+        Is the user authorized to dump data (for some group)?
+        """
         if self.superuser:
             return True
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
@@ -727,7 +962,9 @@ class User(Base):
 
     @property
     def authorized_for_reports(self) -> bool:
-        """Is the user authorized to run reports?"""
+        """
+        Is the user authorized to run reports (for some group)?
+        """
         if self.superuser:
             return True
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
@@ -735,7 +972,10 @@ class User(Base):
 
     @property
     def may_view_all_patients_when_unfiltered(self) -> bool:
-        """May the user view all patients when no filters are applied?"""
+        """
+        May the user view all patients when no filters are applied (for some
+        group)?
+        """
         if self.superuser:
             return True
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
@@ -743,7 +983,9 @@ class User(Base):
 
     @property
     def may_view_no_patients_when_unfiltered(self) -> bool:
-        """May the user view *no* patients when no filters are applied?"""
+        """
+        May the user view *no* patients when no filters are applied?
+        """
         if self.superuser:
             return False
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
@@ -751,11 +993,17 @@ class User(Base):
                    for m in memberships)
 
     def group_ids_that_nonsuperuser_may_see_when_unfiltered(self) -> List[int]:
+        """
+        Which group IDs may this user see all patients for, when unfiltered?
+        """
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return [m.group_id for m in memberships
                 if m.view_all_patients_when_unfiltered]
 
     def may_upload_to_group(self, group_id: int) -> bool:
+        """
+        May this user upload to the specified group?
+        """
         if self.superuser:
             return True
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
@@ -763,6 +1011,9 @@ class User(Base):
 
     @property
     def may_upload(self) -> bool:
+        """
+        May this user upload to the group that is set as their upload group?
+        """
         if self.upload_group_id is None:
             return False
         return self.may_upload_to_group(self.upload_group_id)
@@ -770,6 +1021,8 @@ class User(Base):
     @property
     def may_register_devices(self) -> bool:
         """
+        May this user register devices?
+
         You can register a device if your chosen upload groups allow you to do
         so. (You have to have a chosen group -- even for superusers -- because
         the tablet wants group ID policies at the moment of registration, so we
@@ -805,6 +1058,9 @@ def set_password_directly(req: "CamcopsRequest",
 # =============================================================================
 
 class UserTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_user(self) -> None:
         self.announce("test_user")
         req = self.req

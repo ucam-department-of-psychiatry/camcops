@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_serversettings.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Represents server-wide configuration settings.
 
 Previously, we had a key/value pair system, both for device stored variables
 (table "storedvars") and server ones ("_server_storedvars"). We used a "type"
@@ -50,7 +54,7 @@ Subsequently
     databaseTitle                               still needed somehow
 
 So, two options:
-https://stackoverflow.com/questions/2300356/using-a-single-row-configuration-table-in-sql-server-database-bad-idea  # noqa
+https://stackoverflow.com/questions/2300356/using-a-single-row-configuration-table-in-sql-server-database-bad-idea
 
 Let's use a single row, based on a fixed PK (of 1).
 
@@ -59,9 +63,9 @@ MySQL isn't one of those.
 
 - http://docs.sqlalchemy.org/en/latest/core/constraints.html#check-constraint
 
-- https://stackoverflow.com/questions/3967372/sql-server-how-to-constrain-a-table-to-contain-a-single-row  # noqa
+- https://stackoverflow.com/questions/3967372/sql-server-how-to-constrain-a-table-to-contain-a-single-row
 
-"""
+"""  # noqa
 
 import logging
 from typing import Optional, TYPE_CHECKING
@@ -89,6 +93,11 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 class StoredVarTypesDefunct(object):
+    """
+    Variable types for the ServerStoredVars system.
+
+    Defunct, but maintained for database imports.
+    """
     # values for the "type" column
     TYPE_INTEGER = "integer"
     TYPE_TEXT = "text"
@@ -96,6 +105,11 @@ class StoredVarTypesDefunct(object):
 
 
 class ServerStoredVarNamesDefunct(object):
+    """
+    Variable names for the ServerStoredVars system.
+
+    Defunct, but maintained for database imports.
+    """
     # values for the "name" column
     ID_POLICY_UPLOAD = "idPolicyUpload"  # text
     ID_POLICY_FINALIZE = "idPolicyFinalize"  # text
@@ -148,6 +162,10 @@ SERVER_SETTINGS_SINGLETON_PK = 1
 
 
 class ServerSettings(Base):
+    """
+    Singleton SQLAlchemy object (i.e. there is just one row in the database
+    table) representing server settings.
+    """
     __tablename__ = "_server_settings"
 
     id = Column(
@@ -169,8 +187,16 @@ class ServerSettings(Base):
     def get_last_dummy_login_failure_clearance_pendulum(self) \
             -> Optional[Pendulum]:
         """
-        Produces an offset-aware (timezone-aware) version of the raw UTC
-        DATETIME from the database.
+        Returns the time at which login failure records were cleared for
+        nonexistent users.
+
+        This is part of a security failure to prevent attackers discovering
+        usernames: since repeated attempts to hack a real account leads to an
+        account lockout, we arrange things so that attempts to hack nonexistent
+        accounts do likewise.
+
+        Specifically, this function returns an offset-aware (timezone-aware)
+        version of the raw UTC DATETIME from the database.
         """
         dt = self.last_dummy_login_failure_clearance_at_utc  # type: Optional[datetime]  # noqa
         if dt is None:
@@ -179,6 +205,9 @@ class ServerSettings(Base):
 
 
 def get_server_settings(req: "CamcopsRequest") -> ServerSettings:
+    """
+    Gets the :class:`ServerSettings` object for the request.
+    """
     dbsession = req.dbsession
     server_settings = dbsession.query(ServerSettings)\
         .filter(ServerSettings.id == SERVER_SETTINGS_SINGLETON_PK)\

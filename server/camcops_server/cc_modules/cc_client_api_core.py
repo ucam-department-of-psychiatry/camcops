@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_client_api_core.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Core constants and functions used by the client (tablet device) API.
+
 """
 
 from typing import Any, Dict, List
@@ -33,14 +38,15 @@ from typing import Any, Dict, List
 
 class TabletParam(object):
     """
-    Keys used by server or client (S server, C client, B bidirectional)
+    Keys used by server or client (in the comments: S server, C client, B
+    bidirectional).
     """
     CAMCOPS_VERSION = "camcops_version"  # C->S
     DATABASE_TITLE = "databaseTitle"  # S->C
     DATEVALUES = "datevalues"  # C->S
     DEVICE = "device"  # C->S
     DEVICE_FRIENDLY_NAME = "devicefriendlyname"  # C->S
-    ERROR = "error"   # S->C
+    ERROR = "error"  # S->C
     FIELDS = "fields"  # B
     ID_DESCRIPTION_PREFIX = "idDescription"  # S->C
     ID_POLICY_FINALIZE = "idPolicyFinalize"  # S->C
@@ -53,11 +59,11 @@ class TabletParam(object):
     PKNAME = "pkname"  # C->S
     PKVALUES = "pkvalues"  # C->S
     RECORD_PREFIX = "record"  # B
-    RESULT = "result"   # S->C
+    RESULT = "result"  # S->C
     SERVER_CAMCOPS_VERSION = "serverCamcopsVersion"  # S->C
-    SESSION_ID = "session_id"   # B
-    SESSION_TOKEN = "session_token"   # B
-    SUCCESS = "success"   # S->C
+    SESSION_ID = "session_id"  # B
+    SESSION_TOKEN = "session_token"  # B
+    SUCCESS = "success"  # S->C
     TABLE = "table"  # C->S
     TABLES = "tables"  # C->S
     USER = "user"  # C->S
@@ -71,7 +77,7 @@ class TabletParam(object):
 
 class ExtraStringFieldNames(object):
     """
-    To match extrastring.cpp on the tablet.
+    To match ``extrastring.cpp`` on the tablet.
     """
     TASK = "task"
     NAME = "name"
@@ -124,6 +130,9 @@ class IgnoringAntiqueTableException(Exception):
 # =============================================================================
 
 def exception_description(e: Exception) -> str:
+    """
+    Returns a formatted description of a Python exception.
+    """
     return "{t}: {m}".format(t=type(e).__name__, m=str(e))
 
 
@@ -138,6 +147,8 @@ def exception_description(e: Exception) -> str:
 def fail_user_error(msg: str) -> None:
     """
     Function to abort the script when the input is dodgy.
+
+    Raises :exc:`UserErrorException`.
     """
     # While Titanium-Android can extract error messages from e.g.
     # finish("400 Bad Request: @_"), Titanium-iOS can't, and we need the error
@@ -147,28 +158,43 @@ def fail_user_error(msg: str) -> None:
 
 
 def require_keys(dictionary: Dict[Any, Any], keys: List[Any]) -> None:
+    """
+    Ensure that all listed keys are present in the specified dictionary, or
+    raise a :exc:`UserErrorException`.
+    """
     for k in keys:
         if k not in dictionary:
             fail_user_error("Field {} missing in client input".format(repr(k)))
 
 
 def fail_user_error_from_exception(e: Exception) -> None:
+    """
+    Raise :exc:`UserErrorException` with a description that comes from
+    the specified exception.
+    """
     fail_user_error(exception_description(e))
 
 
 def fail_server_error(msg: str) -> None:
     """
     Function to abort the script when something's broken server-side.
+
+    Raises :exc:`ServerErrorException`.
     """
     raise ServerErrorException(msg)
 
 
 def fail_server_error_from_exception(e: Exception) -> None:
+    """
+    Raise :exc:`ServerErrorException` with a description that comes from
+    the specified exception.
+    """
     fail_server_error(exception_description(e))
 
 
 def fail_unsupported_operation(operation: str) -> None:
     """
-    Abort the script when the operation is invalid.
+    Abort the script (with a :exc:`UserErrorException`) when the
+    operation is invalid.
     """
     fail_user_error("operation={}: not supported".format(operation))

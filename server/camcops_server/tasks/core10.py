@@ -2,6 +2,8 @@
 # camcops_server/tasks/core10.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,11 +24,15 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+..
 """
 
 from typing import Dict, List, Optional
 
+from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
+from semantic_version import Version
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -120,6 +126,11 @@ class Core10(TaskHasPatientMixin, Task):
     MAX_SCORE = 4 * N_QUESTIONS
     QUESTION_FIELDNAMES = strseq("q", 1, N_QUESTIONS)
 
+    # noinspection PyMethodParameters
+    @classproperty
+    def minimum_client_version(cls) -> Version:
+        return Version("2.2.8")
+
     def is_complete(self) -> bool:
         return self.are_all_fields_complete(self.QUESTION_FIELDNAMES)
 
@@ -173,9 +184,11 @@ class Core10(TaskHasPatientMixin, Task):
         return self.n_complete(self.QUESTION_FIELDNAMES)
 
     def clinical_score(self) -> float:
-        return (
-            self.N_QUESTIONS * self.total_score() / self.n_questions_complete()
-        )
+        n_q_completed = self.n_questions_complete()
+        if n_q_completed == 0:
+            # avoid division by zero
+            return 0
+        return self.N_QUESTIONS * self.total_score() / n_q_completed
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         normal_dict = {

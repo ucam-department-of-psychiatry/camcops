@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_device.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Representation of the client devices.
+
 """
 
 from typing import Optional, TYPE_CHECKING
@@ -52,7 +57,9 @@ if TYPE_CHECKING:
 # =============================================================================
 
 class Device(Base):
-    """Represents a tablet device."""
+    """
+    Represents a tablet (client) device.
+    """
     __tablename__ = "_security_devices"
     id = Column(
         "id", Integer,
@@ -104,6 +111,9 @@ class Device(Base):
     @classmethod
     def get_device_by_name(cls, dbsession: SqlASession,
                            device_name: str) -> Optional['Device']:
+        """
+        Returns a device by its name.
+        """
         if not device_name:
             return None
         device = dbsession.query(cls)\
@@ -114,6 +124,9 @@ class Device(Base):
     @classmethod
     def get_device_by_id(cls, dbsession: SqlASession,
                          device_id: int) -> Optional['Device']:
+        """
+        Returns a device by its integer ID.
+        """
         if device_id is None:
             return None
         device = dbsession.query(cls)\
@@ -123,6 +136,10 @@ class Device(Base):
 
     @classmethod
     def get_server_device(cls, dbsession: SqlASession) -> "Device":
+        """
+        Return the special device meaning "the server", creating it if it
+        doesn't already exist.
+        """
         device = cls.get_device_by_name(dbsession, DEVICE_NAME_FOR_SERVER)
         if device is None:
             device = Device()
@@ -135,13 +152,18 @@ class Device(Base):
         return device
 
     def get_friendly_name(self) -> str:
-        """Get device friendly name (or failing that, device name)."""
+        """
+        Get the device's friendly name (or failing that, its name).
+        """
         if self.friendly_name is None:
             return self.name
         return self.friendly_name
 
     def get_friendly_name_and_id(self) -> str:
-        """Get device ID with friendly name (or failing that, device name)."""
+        """
+        Get a formatted representation of the device (name, ID,
+        friendly name).
+        """
         if self.friendly_name is None:
             return self.name
         return "{} (device# {}, {})".format(self.name,
@@ -149,13 +171,16 @@ class Device(Base):
                                             self.friendly_name)
 
     def get_id(self) -> int:
-        """Get device ID."""
+        """
+        Get the device's integer ID.
+        """
         return self.id
 
     def is_valid(self) -> bool:
         """
-        Valid device (having been instantiated with Device(device_id), i.e.
-        is it in the database?
+        Having instantiated an instance with ``Device(device_id)``, this
+        function reports whether it is a valid device, i.e. is it in the
+        database?
         """
         return self.id is not None
 
@@ -199,6 +224,9 @@ class DeviceReport(Report):
 # =============================================================================
 
 class DeviceTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_device(self) -> None:
         self.announce("test_device")
         q = self.dbsession.query(Device)

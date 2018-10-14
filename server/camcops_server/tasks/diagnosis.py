@@ -2,6 +2,8 @@
 # camcops_server/tasks/diagnosis.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,10 +24,12 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+..
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING
+from typing import Any, Dict, List, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.colander_utils import OptionalIntNode

@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_hl7core.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Core functions to build HL7 messages.
+
 """
 
 import base64
@@ -72,10 +77,15 @@ ESCAPE_CHARACTER = "\\"
 # =============================================================================
 
 def get_mod11_checkdigit(strnum: str) -> str:
-    """Input: string containing integer. Output: MOD11 check digit (string)."""
-    # http://www.mexi.be/documents/hl7/ch200025.htm
-    # http://stackoverflow.com/questions/7006109
-    # http://www.pgrocer.net/Cis51/mod11.html
+    """
+    Input: string containing integer. Output: MOD11 check digit (string).
+
+    See:
+
+    - http://www.mexi.be/documents/hl7/ch200025.htm
+    - http://stackoverflow.com/questions/7006109
+    - http://www.pgrocer.net/Cis51/mod11.html
+    """
     total = 0
     multiplier = 2  # 2 for units digit, increases to 7, then resets to 2
     try:
@@ -97,17 +107,18 @@ def get_mod11_checkdigit(strnum: str) -> str:
 
 def make_msh_segment(message_datetime: Pendulum,
                      message_control_id: str) -> hl7.Segment:
-    """Creates an HL7 message header (MSH) segment."""
-    # We're making an ORU^R01 message = unsolicited result.
-    # ORU = Observational Report - Unsolicited
-    # ORU^R01 = Unsolicited transmission of an observation message
-    # http://www.corepointhealth.com/resource-center/hl7-resources/hl7-oru-message  # noqa
-    # http://www.hl7kit.com/joomla/index.php/hl7resources/examples/107-orur01  # noqa
+    """
+    Creates an HL7 message header (MSH) segment.
+    
+    - MSH: http://www.hl7.org/documentcenter/public/wg/conf/HL7MSH.htm
 
-    # -------------------------------------------------------------------------
-    # Message header (MSH)
-    # -------------------------------------------------------------------------
-    # http://www.hl7.org/documentcenter/public/wg/conf/HL7MSH.htm
+    - We're making an ORU^R01 message = unsolicited result.
+    
+      - ORU = Observational Report - Unsolicited
+      - ORU^R01 = Unsolicited transmission of an observation message
+      - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-oru-message
+      - http://www.hl7kit.com/joomla/index.php/hl7resources/examples/107-orur01
+    """  # noqa
 
     segment_id = "MSH"
     encoding_characters = (COMPONENT_SEPARATOR + REPETITION_SEPARATOR +
@@ -169,17 +180,17 @@ def make_pid_segment(
         sex: str,
         address: str,
         patient_id_list: List[HL7PatientIdentifier] = None) -> hl7.Segment:
-    """Creates an HL7 patient identification (PID) segment."""
-    patient_id_list = patient_id_list or []
+    """
+    Creates an HL7 patient identification (PID) segment.
+    
+    - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-pid-segment
+    - http://www.hl7.org/documentcenter/public/wg/conf/Msgadt.pdf (s5.4.8)
 
-    # -------------------------------------------------------------------------
-    # Patient identification (PID)
-    # -------------------------------------------------------------------------
-    # http://www.corepointhealth.com/resource-center/hl7-resources/hl7-pid-segment  # noqa
-    # http://www.hl7.org/documentcenter/public/wg/conf/Msgadt.pdf (s5.4.8)
+    - ID numbers...
+      http://www.cdc.gov/vaccines/programs/iis/technical-guidance/downloads/hl7guide-1-4-2012-08.pdf
+    """  # noqa
 
-    # ID numbers...
-    # http://www.cdc.gov/vaccines/programs/iis/technical-guidance/downloads/hl7guide-1-4-2012-08.pdf  # noqa
+    patient_id_list = patient_id_list or []  # type: List[HL7PatientIdentifier]
 
     segment_id = "PID"
     set_id = ""
@@ -194,7 +205,7 @@ def make_pid_segment(
     for i in range(len(patient_id_list)):
         if not patient_id_list[i].id:
             continue
-        pid = patient_id_list[i].id
+        pid = patient_id_list[i].id  # type: str
         check_digit = get_mod11_checkdigit(pid)
         check_digit_scheme = "M11"  # Mod 11 algorithm
         type_id = patient_id_list[i].id_type
@@ -280,14 +291,15 @@ def make_pid_segment(
 
 # noinspection PyUnusedLocal
 def make_obr_segment(task: "Task") -> hl7.Segment:
-    """Creates an HL7 observation request (OBR) segment."""
-    # -------------------------------------------------------------------------
-    # Observation request segment (OBR)
-    # -------------------------------------------------------------------------
-    # http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
-    # Required in ORU^R01 message:
-    #   http://www.corepointhealth.com/resource-center/hl7-resources/hl7-oru-message  # noqa
-    #   http://www.corepointhealth.com/resource-center/hl7-resources/hl7-obr-segment  # noqa
+    """
+    Creates an HL7 observation request (OBR) segment.
+
+    - http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
+    - Required in ORU^R01 message:
+    
+      - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-oru-message
+      - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-obr-segment
+    """  # noqa
 
     segment_id = "OBR"
     set_id = "1"
@@ -393,18 +405,19 @@ def make_obx_segment(req: "CamcopsRequest",
                      observation_datetime: Pendulum,
                      responsible_observer: str,
                      xml_field_comments: bool = True) -> hl7.Segment:
-    """Creates an HL7 observation result (OBX) segment."""
-    # -------------------------------------------------------------------------
-    # Observation result segment (OBX)
-    # -------------------------------------------------------------------------
-    # http://www.hl7standards.com/blog/2006/10/18/how-do-i-send-a-binary-file-inside-of-an-hl7-message  # noqa
-    # http://www.hl7standards.com/blog/2007/11/27/pdf-attachment-in-hl7-message/  # noqa
-    # http://www.hl7standards.com/blog/2006/12/01/sending-images-or-formatted-documents-via-hl7-messaging/  # noqa
-    # www.hl7.org/documentcenter/public/wg/ca/HL7ClmAttIG.PDF
-    # type of data:
-    #   http://www.hl7.org/implement/standards/fhir/v2/0191/index.html
-    # subtype of data:
-    #   http://www.hl7.org/implement/standards/fhir/v2/0291/index.html
+    """
+    Creates an HL7 observation result (OBX) segment.
+
+    - http://www.hl7standards.com/blog/2006/10/18/how-do-i-send-a-binary-file-inside-of-an-hl7-message
+    - http://www.hl7standards.com/blog/2007/11/27/pdf-attachment-in-hl7-message/
+    - http://www.hl7standards.com/blog/2006/12/01/sending-images-or-formatted-documents-via-hl7-messaging/
+    - www.hl7.org/documentcenter/public/wg/ca/HL7ClmAttIG.PDF
+    - type of data:
+      http://www.hl7.org/implement/standards/fhir/v2/0191/index.html
+    - subtype of data:
+      http://www.hl7.org/implement/standards/fhir/v2/0291/index.html
+    """  # noqa
+
     segment_id = "OBX"
     set_id = str(1)
 
@@ -552,12 +565,10 @@ def make_dg1_segment(set_id: int,
 
         attestation_datetime: Date/time the diagnosis was attested.
 
+    - http://www.mexi.be/documents/hl7/ch600012.htm
+    - https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf
     """
-    # -------------------------------------------------------------------------
-    # Diagnosis segment (DG1)
-    # -------------------------------------------------------------------------
-    # http://www.mexi.be/documents/hl7/ch600012.htm
-    # https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf
+
     segment_id = "DG1"
     try:
         int(set_id)
@@ -658,9 +669,12 @@ def make_dg1_segment(set_id: int,
 
 
 def escape_hl7_text(s: str) -> str:
-    """Escapes HL7 special characters."""
-    # http://www.mexi.be/documents/hl7/ch200034.htm
-    # http://www.mexi.be/documents/hl7/ch200071.htm
+    """
+    Escapes HL7 special characters.
+
+    - http://www.mexi.be/documents/hl7/ch200034.htm
+    - http://www.mexi.be/documents/hl7/ch200071.htm
+    """
     esc_escape = ESCAPE_CHARACTER + ESCAPE_CHARACTER + ESCAPE_CHARACTER
     esc_fieldsep = ESCAPE_CHARACTER + "F" + ESCAPE_CHARACTER
     esc_componentsep = ESCAPE_CHARACTER + "S" + ESCAPE_CHARACTER
@@ -683,8 +697,11 @@ def escape_hl7_text(s: str) -> str:
 
 
 def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
-    """Checks whether msg represents a successful acknowledgement message."""
-    # http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
+    """
+    Checks whether msg represents a successful acknowledgement message.
+
+    - http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
+    """
 
     if msg is None:
         return False, "Reply is None"
@@ -730,13 +747,16 @@ def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
 # =============================================================================
 
 class HL7CoreTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_hl7core_func(self) -> None:
         self.announce("test_hl7core_func")
         from camcops_server.tasks.phq9 import Phq9
         pitlist = [
             HL7PatientIdentifier(id="1", id_type="TT", assigning_authority="AA")
         ]
-        dob = Date.today()
+        dob = Date.today()  # type: Date
         now = Pendulum.now()
         task = self.dbsession.query(Phq9).first()
         assert task, "Missing Phq9 in demo database!"

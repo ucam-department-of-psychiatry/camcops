@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_taskfactory.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Classes and functions to fetch tasks from the database as efficiently as
+possible.
+
 """
 
 from collections import OrderedDict
@@ -61,12 +67,18 @@ if DEBUG_QUERY_TIMING:
 # =============================================================================
 
 def task_when_created_sorter(task: Task) -> Union[Pendulum, MinType]:
+    """
+    Function to sort tasks by their creation date.
+    """
     # For sorting of tasks
     when_created = task.when_created
     return MINTYPE_SINGLETON if when_created is None else when_created
 
 
 class TaskSortMethod(Enum):
+    """
+    Enum representing ways to sort tasks.
+    """
     NONE = 0
     CREATION_DATE_ASC = 1
     CREATION_DATE_DESC = 2
@@ -74,6 +86,13 @@ class TaskSortMethod(Enum):
 
 def sort_tasks_in_place(tasklist: List[Task],
                         sortmethod: TaskSortMethod) -> None:
+    """
+    Sort a list of tasks, in place, according to ``sortmethod``.
+
+    Args:
+        tasklist: the list of tasks
+        sortmethod: a :class:`TaskSortMethod` enum
+    """
     # Sort?
     if sortmethod == TaskSortMethod.CREATION_DATE_ASC:
         tasklist.sort(key=task_when_created_sorter)
@@ -88,6 +107,20 @@ def sort_tasks_in_place(tasklist: List[Task],
 def task_query_restricted_to_permitted_users(
         req: CamcopsRequest, q: Query, cls: Type[Task],
         as_dump: bool) -> Optional[Query]:
+    """
+    Restricts an SQLAlchemy ORM query to permitted users, for a given
+    task class. THIS IS A KEY SECURITY FUNCTION.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        q: the SQLAlchemy ORM query
+        cls: the class of the task type
+        as_dump: use the "dump" permissions rather than the "view" permissions?
+
+    Returns:
+        a filtered query (or the original query, if no filtering was required)
+
+    """
     user = req.user
 
     if user.superuser:
@@ -115,8 +148,19 @@ def task_query_restricted_to_permitted_users(
 def task_factory(req: CamcopsRequest, basetable: str,
                  serverpk: int) -> Optional[Task]:
     """
-    Make a task; return None if the PK doesn't exist;
-    raise HTTPBadRequest if the table doesn't exist.
+    Load a task from the database and return it.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        basetable: name of the task's base table
+        serverpk: server PK of the task
+
+    Returns:
+        the task, or ``None`` if the PK doesn't exist
+
+    Raises:
+        :exc:`HTTPBadRequest` if the table doesn't exist
+
     """
     d = tablename_to_task_class_dict()
     try:
@@ -156,6 +200,8 @@ def task_factory(req: CamcopsRequest, basetable: str,
 
 class FetchThread(Thread):
     """
+    Thread to fetch tasks in parallel.
+
     CURRENTLY UNUSED.
     """
     def __init__(self,
@@ -201,6 +247,7 @@ class TaskCollection(object):
     """
     Represent a potential or instantiated call to fetch tasks from the
     database.
+
     The caller may want them in a giant list (e.g. task viewer, CTVs), or split
     by task class (e.g. trackers).
     """
@@ -212,6 +259,19 @@ class TaskCollection(object):
                  sort_method_global: TaskSortMethod = TaskSortMethod.NONE,
                  current_only: bool = True) \
             -> None:
+        """
+        Args:
+            req: the :class:`CamcopsRequest`
+            taskfilter: a :class:`TaskFilter` object that contains any
+                restrictions we may want to apply
+            as_dump: use the "dump" permissions rather than the "view"
+                permissions?
+            sort_method_by_class: how should we sort tasks within each task
+                class?
+            sort_method_global: how should we sort tasks overall (across all
+                task types)?
+            current_only: restrict to ``_current`` tasks only?
+        """
         self._req = req
         self._filter = taskfilter
         self._as_dump = as_dump
@@ -227,9 +287,17 @@ class TaskCollection(object):
     # =========================================================================
 
     def task_classes(self) -> List[Type[Task]]:
+        """
+        Return a list of task classes that we want.
+        """
         return self._filter.task_classes
 
     def tasks_for_task_class(self, task_class: Type[Task]):
+        """
+        Returns all appropriate task instances for a specific task type.
+
+        Uses caching internally.
+        """
         self._fetch_task_class(task_class)
         tasklist = self._tasks_by_class.get(task_class, [])
         sort_tasks_in_place(tasklist, self._sort_method_by_class)
@@ -237,6 +305,11 @@ class TaskCollection(object):
 
     @property
     def all_tasks(self) -> List[Task]:
+        """
+        Returns a list of all appropriate task instances.
+
+        Uses caching internally.
+        """
         if self._all_tasks is None:
             self._fetch_all_tasks()
             self._all_tasks = []  # type: List[Task]
@@ -251,6 +324,11 @@ class TaskCollection(object):
 
     def _make_query(self, dbsession: SqlASession,
                     task_class: Type[Task]) -> Optional[Query]:
+        """
+        Make and return an SQLAlchemy ORM query for a specific task class.
+
+        Returns ``None`` if no tasks would match our criteria.
+        """
         q = dbsession.query(task_class)
 
         # Restrict to what the web front end will supply
@@ -272,10 +350,19 @@ class TaskCollection(object):
         return q
 
     def _serial_query(self, task_class) -> Optional[Query]:
+        """
+        Make and return an SQLAlchemy ORM query for a specific task class.
+
+        Returns ``None`` if no tasks would match our criteria.
+        """
         dbsession = self._req.dbsession
         return self._make_query(dbsession, task_class)
 
     def _filter_through_python(self, tasks: List[Task]) -> List[Task]:
+        """
+        Returns those tasks in the list provided that pass any Python-only
+        aspects of our filter (those parts not easily calculable via SQL).
+        """
         if not self._filter.has_python_parts_to_filter():
             return tasks
         return [
@@ -284,11 +371,16 @@ class TaskCollection(object):
         ]
 
     def forget_task_class(self, task_class: Type[Task]) -> None:
+        """
+        Ditch results for a specific task class (for memory efficiency).
+        """
         self._tasks_by_class.pop(task_class, None)
         # https://stackoverflow.com/questions/11277432/how-to-remove-a-key-from-a-python-dictionary  # noqa
 
     def _fetch_task_class(self, task_class: Type[Task]) -> None:
-        """Fetch one set of tasks from database."""
+        """
+        Fetch tasks from the database for one task type.
+        """
         if task_class in self._tasks_by_class:
             return  # already fetched
         q = self._serial_query(task_class)
@@ -301,7 +393,9 @@ class TaskCollection(object):
         self._tasks_by_class[task_class] = newtasks
 
     def _fetch_all_tasks(self, parallel: bool = False) -> None:
-        """Fetch all tasks from database."""
+        """
+        Fetch all tasks from the database.
+        """
 
         # AVOID parallel=True; see notes above.
         if DEBUG_QUERY_TIMING:

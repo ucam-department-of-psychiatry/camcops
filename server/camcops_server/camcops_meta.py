@@ -2,6 +2,8 @@
 # camcops_server/camcops_meta.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,13 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+The CamCOPS "meta" launcher: so you can run a CamCOPS command over multiple
+config files (installations).
+
+This has been largely superseded by the "groups" concept, since a single
+CamCOPS instance is now capable of much more.
+
 """
 
 import argparse
@@ -41,6 +50,9 @@ DEFAULT_CAMCOPS = os.path.join(PROJECT_BASE_DIRECTORY, 'camcops.py')
 
 
 def meta_main() -> None:
+    """
+    Command-line process for ``camcops_meta`` tool.
+    """
     parser = argparse.ArgumentParser(
         description="Run commands across multiple CamCOPS databases")
     parser.add_argument(

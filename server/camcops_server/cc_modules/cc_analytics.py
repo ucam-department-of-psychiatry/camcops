@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_analytics.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -23,7 +25,9 @@
 
 ===============================================================================
 
-Abandoned for now.
+Abandoned for now. We don't send any data, even analytics, anywhere except
+where the hosting institution configures.
+
 """
 
 _unused = '''

@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_patient.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,11 +24,12 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+..
 """
 
 import logging
-from typing import (Any, Dict, Generator, List, Optional, Set, TYPE_CHECKING,
-                    Union)
+from typing import Generator, List, Optional, Set, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -197,6 +200,10 @@ class Patient(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     @declared_attr
     def special_notes(cls) -> RelationshipProperty:
+        """
+        Relationship to all :class:`SpecialNote` objects associated with this
+        patient.
+        """
         # The SpecialNote also allows a link to patients, not just tasks,
         # like this:
         return relationship(
@@ -223,6 +230,20 @@ class Patient(GenericTabletRecordMixin, Base):
                               idnum_value: int,
                               group_id: int = None,
                               current_only: bool = True) -> List['Patient']:
+        """
+        Get all patients matching the specified ID number.
+
+        Args:
+            dbsession: SQLAlchemy database session
+            which_idnum: which ID number type?
+            idnum_value: actual value of the ID number
+            group_id: optional group ID to restrict to
+            current_only: restrict to ``_current`` patients?
+
+        Returns:
+            list of all matching patients
+
+        """
         if not which_idnum or which_idnum < 1:
             return []
         if idnum_value is None:
@@ -242,22 +263,41 @@ class Patient(GenericTabletRecordMixin, Base):
     @classmethod
     def get_patient_by_pk(cls, dbsession: SqlASession,
                           server_pk: int) -> Optional["Patient"]:
+        """
+        Fetch a patient by the server PK.
+        """
         return dbsession.query(cls).filter(cls._pk == server_pk).first()
 
     def get_idnum_objects(self) -> List[PatientIdNum]:
+        """
+        Returns all :class:`PatientIdNum` objects for the patient.
+
+        These are SQLAlchemy ORM objects.
+        """
         return self.idnums  # type: List[PatientIdNum]
 
     def get_idnum_references(self) -> List[IdNumReference]:
+        """
+        Returns all :class:`IdNumReference` objects for the patient.
+
+        These are simple which_idnum/idnum_value pairs.
+        """
         idnums = self.idnums  # type: List[PatientIdNum]
         return [x.get_idnum_reference() for x in idnums if x.is_valid()]
 
     def get_idnum_raw_values_only(self) -> List[int]:
+        """
+        Get all plain ID number values (ignoring which ID number type they
+        represent) for the patient.
+        """
         idnums = self.idnums  # type: List[PatientIdNum]
         return [x.idnum_value for x in idnums if x.is_valid()]
 
     def get_xml_root(self, req: CamcopsRequest,
                      skip_fields: List[str] = None) -> XmlElement:
-        """Get root of XML tree, as an XmlElementTuple."""
+        """
+        Get root of XML tree, as an :class:`XmlElement`.
+        """
         skip_fields = skip_fields or []
         # No point in skipping old ID columns (1-8) now; they're gone.
         branches = self._get_xml_branches(req, skip_attrs=skip_fields)
@@ -277,6 +317,9 @@ class Patient(GenericTabletRecordMixin, Base):
         return XmlElement(name=self.__tablename__, value=branches)
 
     def get_tsv_page(self, req: CamcopsRequest) -> TsvPage:
+        """
+        Get a :class:`TsvPage` for the patient.
+        """
         # 1. Our core fields.
         page = self._get_core_tsv_page(
             req, heading_prefix=TSV_PATIENT_FIELD_PREFIX)
@@ -305,7 +348,10 @@ class Patient(GenericTabletRecordMixin, Base):
         return page
 
     def get_bare_ptinfo(self) -> BarePatientInfo:
-        """Get basic identifying information, as a BarePatientInfo."""
+        """
+        Get basic identifying information, as a :class:`BarePatientInfo`
+        object.
+        """
         return BarePatientInfo(
             forename=self.forename,
             surname=self.surname,
@@ -316,43 +362,60 @@ class Patient(GenericTabletRecordMixin, Base):
 
     @property
     def group(self) -> Optional["Group"]:
+        """
+        Returns the :class:`Group` to which this patient's record belongs.
+        """
         return self._group
 
     def satisfies_upload_id_policy(self) -> bool:
-        """Does the patient satisfy the uploading ID policy?"""
+        """
+        Does the patient satisfy the uploading ID policy?
+        """
         group = self._group  # type: Optional[Group]
         if not group:
             return False
         return self.satisfies_id_policy(group.tokenized_upload_policy())
 
     def satisfies_finalize_id_policy(self) -> bool:
-        """Does the patient satisfy the finalizing ID policy?"""
+        """
+        Does the patient satisfy the finalizing ID policy?
+        """
         group = self._group  # type: Optional[Group]
         if not group:
             return False
         return self.satisfies_id_policy(group.tokenized_finalize_policy())
 
     def satisfies_id_policy(self, policy: TokenizedPolicy) -> bool:
-        """Does the patient satisfy a particular ID policy?"""
+        """
+        Does the patient satisfy a particular ID policy?
+        """
         return policy.satisfies_id_policy(self.get_bare_ptinfo())
 
     def get_surname(self) -> str:
-        """Get surname (in upper case) or ""."""
+        """
+        Get surname (in upper case) or "".
+        """
         return self.surname.upper() if self.surname else ""
 
     def get_forename(self) -> str:
-        """Get forename (in upper case) or ""."""
+        """
+        Get forename (in upper case) or "".
+        """
         return self.forename.upper() if self.forename else ""
 
     def get_surname_forename_upper(self) -> str:
-        """Get "SURNAME, FORENAME" in HTML-safe format, using "UNKNOWN" for
-        missing details."""
+        """
+        Get "SURNAME, FORENAME" in HTML-safe format, using "(UNKNOWN)" for
+        missing details.
+        """
         s = self.surname.upper() if self.surname else "(UNKNOWN)"
         f = self.forename.upper() if self.surname else "(UNKNOWN)"
         return ws.webify(s + ", " + f)
 
     def get_dob_html(self, longform: bool) -> str:
-        """HTML fragment for date of birth."""
+        """
+        HTML fragment for date of birth.
+        """
         if longform:
             return "<br>Date of birth: {}".format(
                 answer(format_datetime(
@@ -362,18 +425,25 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def get_age(self, req: CamcopsRequest,
                 default: str = "") -> Union[int, str]:
-        """Age (in whole years) today, or default."""
+        """
+        Age (in whole years) today, or default.
+        """
         now = req.now
         return self.get_age_at(now, default=default)
 
     def get_dob(self) -> Optional[pendulum.Date]:
-        """Date of birth, as a a timezone-naive date."""
+        """
+        Date of birth, as a a timezone-naive date.
+        """
         dob = self.dob
         if not dob:
             return None
         return coerce_to_pendulum_date(dob)
 
     def get_dob_str(self) -> Optional[str]:
+        """
+        Date of birth, as a string.
+        """
         dob_dt = self.get_dob()
         if dob_dt is None:
             return None
@@ -388,30 +458,42 @@ class Patient(GenericTabletRecordMixin, Base):
         return get_age(self.dob, when, default=default)
 
     def is_female(self) -> bool:
-        """Is sex 'F'?"""
+        """
+        Is sex 'F'?
+        """
         return self.sex == "F"
 
     def is_male(self) -> bool:
-        """Is sex 'M'?"""
+        """
+        Is sex 'M'?
+        """
         return self.sex == "M"
 
     def get_sex(self) -> str:
-        """Return sex or ""."""
+        """
+        Return sex or "".
+        """
         return self.sex or ""
 
     def get_sex_verbose(self, default: str = "sex unknown") -> str:
-        """Returns HTML-safe version of sex, or default."""
+        """
+        Returns HTML-safe version of sex, or default.
+        """
         return default if not self.sex else ws.webify(self.sex)
 
     def get_address(self) -> Optional[str]:
-        """Returns address (NOT necessarily web-safe)."""
+        """
+        Returns address (NOT necessarily web-safe).
+        """
         address = self.address  # type: Optional[str]
         return address or ""
 
     def get_hl7_pid_segment(self,
                             req: CamcopsRequest,
                             recipient_def: RecipientDefinition) -> hl7.Segment:
-        """Get HL7 patient identifier (PID) segment."""
+        """
+        Get HL7 patient identifier (PID) segment.
+        """
         # Put the primary one first:
         patient_id_tuple_list = [
             HL7PatientIdentifier(
@@ -460,12 +542,17 @@ class Patient(GenericTabletRecordMixin, Base):
         return None
 
     def get_idnum_value(self, which_idnum: int) -> Optional[int]:
-        """Get value of a specific ID number, if present."""
+        """
+        Get value of a specific ID number, if present.
+        """
         idobj = self.get_idnum_object(which_idnum)
         return idobj.idnum_value if idobj else None
 
     def set_idnum_value(self, req: CamcopsRequest,
                         which_idnum: int, idnum_value: int) -> None:
+        """
+        Sets an ID number value.
+        """
         dbsession = req.dbsession
         ccsession = req.camcops_session
         idnums = self.idnums  # type: List[PatientIdNum]
@@ -488,18 +575,24 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def get_iddesc(self, req: CamcopsRequest,
                    which_idnum: int) -> Optional[str]:
-        """Get value of a specific ID description, if present."""
+        """
+        Get value of a specific ID description, if present.
+        """
         idobj = self.get_idnum_object(which_idnum)
         return idobj.description(req) if idobj else None
 
     def get_idshortdesc(self, req: CamcopsRequest,
                         which_idnum: int) -> Optional[str]:
-        """Get value of a specific ID short description, if present."""
+        """
+        Get value of a specific ID short description, if present.
+        """
         idobj = self.get_idnum_object(which_idnum)
         return idobj.short_description(req) if idobj else None
 
     def is_preserved(self) -> bool:
-        """Is the patient record preserved and erased from the tablet?"""
+        """
+        Is the patient record preserved and erased from the tablet?
+        """
         return self._pk is not None and self._era != ERA_NOW
 
     # -------------------------------------------------------------------------
@@ -508,7 +601,9 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def audit(self, req: CamcopsRequest,
               details: str, from_console: bool = False) -> None:
-        """Audits actions to this patient."""
+        """
+        Audits an action to this patient.
+        """
         audit(req,
               details,
               patient_server_pk=self._pk,
@@ -548,6 +643,10 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def gen_patient_idnums_even_noncurrent(self) -> \
             Generator[PatientIdNum, None, None]:
+        """
+        Generates all :class:`PatientIdNum` objects, including non-current
+        ones.
+        """
         seen = set()  # type: Set[PatientIdNum]
         for live_pidnum in self.idnums:
             for lineage_member in live_pidnum.get_lineage():
@@ -557,6 +656,9 @@ class Patient(GenericTabletRecordMixin, Base):
                 yield lineage_member
 
     def delete_with_dependants(self, req: "CamcopsRequest") -> None:
+        """
+        Delete the patient with all its dependent objects.
+        """
         if self._pk is None:
             return
         for pidnum in self.gen_patient_idnums_even_noncurrent():
@@ -569,12 +671,19 @@ class Patient(GenericTabletRecordMixin, Base):
 
     @property
     def is_editable(self) -> bool:
+        """
+        Is the patient finalized (no longer available to be edited on the
+        client device), and therefore editable on the server?
+        """
         if self._era == ERA_NOW:
             # Not finalized; no editing on server
             return False
         return True
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
+        """
+        Does the current user have permission to edit this patient?
+        """
         return req.user.may_administer_group(self._group_id)
 
 
@@ -583,7 +692,9 @@ class Patient(GenericTabletRecordMixin, Base):
 # =============================================================================
 
 class DistinctPatientReport(Report):
-    """Report to show distinct patients."""
+    """
+    Report to show distinct patients.
+    """
 
     # noinspection PyMethodParameters
     @classproperty
@@ -651,6 +762,9 @@ class DistinctPatientReport(Report):
 # =============================================================================
 
 class PatientTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_patient(self) -> None:
         self.announce("test_patient")
         from camcops_server.cc_modules.cc_group import Group

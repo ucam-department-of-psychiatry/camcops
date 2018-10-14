@@ -2,6 +2,8 @@
 # camcops_server/client_api.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -23,6 +25,9 @@
 
 ===============================================================================
 
+Implements the API through which client devices (tablets etc.) upload and
+download data.
+
 We use primarily SQLAlchemy Core here (in contrast to the ORM used elsewhere).
 
 """
@@ -34,8 +39,7 @@ We use primarily SQLAlchemy Core here (in contrast to the ORM used elsewhere).
 import logging
 # from pprint import pformat
 import time
-from typing import (Any, Dict, Iterable, List, Optional, Sequence, Tuple,
-                    TYPE_CHECKING)
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 import unittest
 
 from cardinal_pythonlib.convert import (
@@ -105,9 +109,6 @@ from .cc_task import all_task_tables_with_min_client_version
 from .cc_unittest import DemoDatabaseTestCase
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING, MINIMUM_TABLET_VERSION
 
-if TYPE_CHECKING:
-    from pyramid.request import Request
-
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
@@ -150,6 +151,10 @@ FAILURE_CODE = "0"
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def all_tables_with_min_client_version() -> Dict[str, Version]:
+    """
+    For all tables that the client might upload to, return a mapping from the
+    table name to the corresponding minimum client version.
+    """
     d = all_task_tables_with_min_client_version()
     d[Blob.__tablename__] = MINIMUM_TABLET_VERSION
     d[Patient.__tablename__] = MINIMUM_TABLET_VERSION
@@ -164,13 +169,17 @@ def all_tables_with_min_client_version() -> Dict[str, Version]:
 
 def ensure_valid_table_name(req: CamcopsRequest, tablename: str) -> None:
     """
-    Ensures a table name doesn't contain bad characters, isn't a reserved
-    table that the user is prohibited from accessing, and is a valid table name
-    that's in the database. Raises UserErrorException upon failure.
+    Ensures a table name:
 
-    ... 2017-10-08: shortcut to all that: it's OK if it's listed as a valid
-    client table.
-    ... 2018-01-16 (v2.2.0): check also that client version is OK
+    - doesn't contain bad characters,
+    - isn't a reserved table that the user is prohibited from accessing, and
+    - is a valid table name that's in the database.
+
+    Raises :exc:`UserErrorException` upon failure.
+
+    - 2017-10-08: shortcut to all that: it's OK if it's listed as a valid
+      client table.
+    - 2018-01-16 (v2.2.0): check also that client version is OK
     """
     if tablename not in CLIENT_TABLE_MAP:
         fail_user_error("Invalid client table name: {}".format(tablename))
@@ -193,10 +202,11 @@ def ensure_valid_field_name(table: Table, fieldname: str) -> None:
     """
     Ensures a field name contains only valid characters, and isn't a
     reserved fieldname that the user isn't allowed to access.
-    Raises UserErrorException upon failure.
 
-    ... 2017-10-08: shortcut: it's OK if it's a column name for a particular
-    table.
+    Raises :exc:`UserErrorException` upon failure.
+
+    - 2017-10-08: shortcut: it's OK if it's a column name for a particular
+      table.
     """
     # if fieldname in RESERVED_FIELDS:
     if fieldname.startswith("_"):  # all reserved fields start with _
@@ -223,15 +233,19 @@ def get_str_var(req: CamcopsRequest,
                 var: str,
                 mandatory: bool = True) -> Optional[str]:
     """
-    Retrieves a string variable from CamcopsRequest, raising an error that gets
-    passed to the client device if it's mandatory and missing.
+    Retrieves a string variable from the CamcopsRequest.
 
     Args:
-        req: CamcopsRequest
+        req: the :class:`CamcopsRequest`
         var: name of variable to retrieve
-        mandatory: if True, script aborts if variable missing
+        mandatory: if ``True``, raise an exception if the variable is missing
+
     Returns:
         value
+
+    Raises:
+        :exc:`UserErrorException` if the variable was mandatory and
+        no value was provided
     """
     val = req.get_str_param(var, default=None)
     if mandatory and val is None:
@@ -242,6 +256,21 @@ def get_str_var(req: CamcopsRequest,
 def get_int_var(req: CamcopsRequest,
                 var: str,
                 mandatory: bool = True) -> int:
+    """
+    Retrieves an integer variable from the CamcopsRequest.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        var: name of variable to retrieve
+        mandatory: if ``True``, raise an exception if the variable is missing
+
+    Returns:
+        value
+
+    Raises:
+        :exc:`UserErrorException` if the variable was mandatory and
+        no value was provided, or if it wasn't an integer
+    """
     s = get_str_var(req, var, mandatory)
     try:
         return int(s)
@@ -252,8 +281,21 @@ def get_int_var(req: CamcopsRequest,
 
 def get_table_from_req(req: CamcopsRequest, var: str) -> Table:
     """
-    Retrieves a table name from a CGI form and checks it's a valid client
-    table.
+    Retrieves a table name from a HTTP request, checks it's a valid client
+    table, and returns that table.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        var: variable name (the variable's should be the table name)
+
+    Returns:
+        a SQLAlchemy :class:`Table`
+
+    Raises:
+        :exc:`UserErrorException` if the variable wasn't provided
+
+        :exc:`IgnoringAntiqueTableException` if the table is one to
+        ignore quietly (requested by an antique client)
     """
     tablename = get_str_var(req, var, mandatory=True)
     if tablename in SILENTLY_IGNORE_TABLENAMES:
@@ -267,8 +309,20 @@ def get_tables_from_post_var(req: CamcopsRequest,
                              var: str,
                              mandatory: bool = True) -> List[Table]:
     """
-    Gets a list of tables from a CGI form variable, and ensures all are
+    Gets a list of tables from an HTTP request variable, and ensures all are
     valid.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        var: name of variable to retrieve
+        mandatory: if ``True``, raise an exception if the variable is missing
+
+    Returns:
+        a list of SQLAlchemy :class:`Table` objects
+
+    Raises:
+        :exc:`UserErrorException` if the variable was mandatory and
+        no value was provided, or if one or more tables was not valid
     """
     cstables = get_str_var(req, var, mandatory=mandatory)
     if not cstables:
@@ -291,8 +345,22 @@ def get_single_field_from_post_var(req: CamcopsRequest,
                                    var: str,
                                    mandatory: bool = True) -> str:
     """
-    Retrieves a field name from a the request and checks it's not a bad
-    fieldname.
+    Retrieves a field (column) name from a the request and checks it's not a
+    bad fieldname for the specified table.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: SQLAlchemy :class:`Table` in which the column should exist
+        var: name of variable to retrieve
+        mandatory: if ``True``, raise an exception if the variable is missing
+
+    Returns:
+        the field (column) name
+
+    Raises:
+        :exc:`UserErrorException` if the variable was mandatory and
+        no value was provided, or if the field was not valid for the specified
+        table
     """
     field = get_str_var(req, var, mandatory=mandatory)
     ensure_valid_field_name(table, field)
@@ -306,6 +374,20 @@ def get_fields_from_post_var(req: CamcopsRequest,
     """
     Get a comma-separated list of field names from a request and checks that
     all are acceptable. Returns a list of fieldnames.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: SQLAlchemy :class:`Table` in which the columns should exist
+        var: name of variable to retrieve
+        mandatory: if ``True``, raise an exception if the variable is missing
+
+    Returns:
+        a list of the field (column) names
+
+    Raises:
+        :exc:`UserErrorException` if the variable was mandatory and
+        no value was provided, or if any field was not valid for the specified
+        table
     """
     csfields = get_str_var(req, var, mandatory=mandatory)
     if not csfields:
@@ -325,6 +407,11 @@ def get_values_from_post_var(req: CamcopsRequest,
     Retrieves a list of values from a CSV-separated list of SQL values
     stored in a CGI form (including e.g. NULL, numbers, quoted strings, and
     special handling for base-64/hex-encoded BLOBs.)
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        var: name of variable to retrieve
+        mandatory: if ``True``, raise an exception if the variable is missing
     """
     csvalues = get_str_var(req, var, mandatory=mandatory)
     if not csvalues:
@@ -339,6 +426,23 @@ def get_fields_and_values(req: CamcopsRequest,
                           mandatory: bool = True) -> Dict[str, Any]:
     """
     Gets fieldnames and matching values from two variables in a request.
+
+    See :func:`get_fields_from_post_var`, :func:`get_values_from_post_var`.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: SQLAlchemy :class:`Table` in which the columns should exist
+        fields_var: name of CSV "column names" variable to retrieve
+        values_var: name of CSV "corresponding values" variable to retrieve
+        mandatory: if ``True``, raise an exception if the variable is missing
+
+    Returns:
+        a dictionary mapping column names to decoded values
+
+    Raises:
+        :exc:`UserErrorException` if the variable was mandatory and
+        no value was provided, or if any field was not valid for the specified
+        table
     """
     fields = get_fields_from_post_var(req, table, fields_var,
                                       mandatory=mandatory)
@@ -356,7 +460,10 @@ def get_fields_and_values(req: CamcopsRequest,
 # =============================================================================
 
 def get_server_id_info(req: CamcopsRequest) -> Dict[str, str]:
-    """Returns a reply for the tablet giving details of the server."""
+    """
+    Returns a reply for the tablet, as a variable-to-value dictionary, giving
+    details of the server.
+    """
     group = Group.get_group_by_id(req.dbsession, req.user.upload_group_id)
     reply = {
         TabletParam.DATABASE_TITLE: req.database_title,
@@ -376,17 +483,33 @@ def get_server_id_info(req: CamcopsRequest) -> Dict[str, str]:
 def get_select_reply(fields: Sequence[str],
                      rows: Sequence[Sequence[Any]]) -> Dict[str, str]:
     """
-    Return format:
+    Formats the result of a ``SELECT`` query for the client as a dictionary
+    reply. 
 
-    .. code-block:: none
+    Args:
+        fields: list of field names 
+        rows: list of rows, where each row is a list of values in the same
+            order as ``fields`` 
 
-        nfields:X
-        fields:X
-        nrecords:X
-        record0:VALUES_AS_CSV_LIST_OF_ENCODED_SQL_VALUES
-            ...
-        record{n}:VALUES_AS_CSV_LIST_OF_ENCODED_SQL_VALUES
-    """
+    Returns:
+        
+        a dictionary of the format:
+
+        .. code-block:: none
+        
+            {
+                "nfields": NUMBER_OF_FIELDS,
+                "fields": FIELDNAMES_AS_CSV,
+                "nrecords": NUMBER_OF_RECORDS,
+                "record0": VALUES_AS_CSV_LIST_OF_ENCODED_SQL_VALUES,
+                    ...
+                "record{nrecords - 1}": VALUES_AS_CSV_LIST_OF_ENCODED_SQL_VALUES
+            }
+            
+    The final reply to the server is then formatted as text as per
+    :func:`client_api`.
+
+    """  # noqa
     nrecords = len(rows)
     reply = {
         TabletParam.NFIELDS: len(fields),
@@ -409,8 +532,13 @@ def get_select_reply(fields: Sequence[str],
 def get_server_pks_of_active_records(req: CamcopsRequest,
                                      table: Table) -> List[int]:
     """
-    Gets server PKs of active records (_current and in the 'NOW' era) for
-    the specified device/table.
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: an SQLAlchemy :class:`Table`
+
+    Returns:
+        Server PKs of active records (``_current`` and in the 'NOW' era) for
+        the specified device/table.
     """
     # noinspection PyProtectedMember
     query = (
@@ -429,8 +557,17 @@ def record_exists(req: CamcopsRequest,
     """
     Checks if a record exists, using the device's perspective of a
     table/client PK combination.
-    Returns (exists, serverpk), where exists is Boolean.
-    If exists is False, serverpk will be None.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: an SQLAlchemy :class:`Table`
+        clientpk_name: the column name of the client's PK
+        clientpk_value: the client's PK value
+
+    Returns:
+        the tuple ``exists, serverpk``, where exists is Boolean.
+        If ``exists`` is False, serverpk will be ``None``.
+
     """
     # log.critical("record_exists: checking table={}, {}={}",
     #              table.name, clientpk_name, clientpk_value)
@@ -458,6 +595,15 @@ def client_pks_that_exist(req: CamcopsRequest,
     Searches for client PK values (for this device, current, and 'now')
     matching the input list. Returns a dictionary of {clientpk: serverpk}
     values for those that do.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: an SQLAlchemy :class:`Table`
+        clientpk_name: the column name of the client's PK
+        clientpk_values: a list of the client's PK values
+
+    Returns:
+        a dictionary of {clientpk: serverpk} values, as above
     """
     # noinspection PyProtectedMember
     query = (
@@ -479,8 +625,18 @@ def get_server_pks_of_specified_records(req: CamcopsRequest,
                                         wheredict: Dict) -> List[int]:
     """
     Retrieves server PKs for a table, for a given device, given a set of
-    'where' conditions specified in wheredict (as field/value combinations,
+    'where' conditions specified in ``wheredict`` (as field/value combinations,
     joined with AND).
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: an SQLAlchemy :class:`Table`
+        wheredict: a set of {columnname: value} pairs, to be joined with
+            ``AND``
+
+    Returns:
+        a list of integer server PKs
+
     """
     # noinspection PyProtectedMember
     query = (
@@ -501,8 +657,18 @@ def record_identical_full(req: CamcopsRequest,
     """
     If a record with the specified server PK exists in the specified table
     having all its values matching the field/value combinations in wheredict
-    (joined with AND), returns True. Otherwise, returns False.
+    (joined with AND), returns ``True``. Otherwise, returns ``False``.
     Used to detect if an incoming record matches the database record.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: an SQLAlchemy :class:`Table`
+        serverpk: integer server PK
+        wheredict: a set of {columnname: value} pairs, to be joined with
+            ``AND``
+
+    Returns:
+        is the record present and identical?
 
     CURRENTLY UNUSED.
     """
@@ -520,10 +686,19 @@ def record_identical_by_date(req: CamcopsRequest,
     """
     Shortcut to detecting a record being identical. Returns true if the
     record (defined by its table/server PK) has a CLIENT_DATE_FIELD field
-    that matches that of the incoming record. As long as the tablet always
-    updates the CLIENT_DATE_FIELD when it saves a record, and the clock on the
-    device doesn't go backwards by a certain exact millisecond-precision value,
-    this is a valid method.
+    (``when_last_modified``) that matches that of the incoming record. As long
+    as the tablet always updates the CLIENT_DATE_FIELD when it saves a record,
+    and the clock on the device doesn't go backwards by a certain exact
+    millisecond-precision value, this is a valid method.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: an SQLAlchemy :class:`Table`
+        serverpk: integer server PK
+        client_date_value: "when updated" Pendulum date/time from the client
+
+    Returns:
+        is the record present and identical?
     """
     # noinspection PyProtectedMember
     criteria = [
@@ -540,6 +715,22 @@ def upload_record_core(req: CamcopsRequest,
                        recordnum: int) -> Tuple[Optional[int], int]:
     """
     Uploads a record. Deals with IDENTICAL, NEW, and MODIFIED records.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: an SQLAlchemy :class:`Table`
+        clientpk_name: the column name of the client's PK
+        valuedict: a dictionary of {colname: value} pairs from the client
+        recordnum: record index from within the records being uploaded; only
+            used for debugging
+
+    Returns:
+        The tuple ``oldserverpk, newserverpk``.
+
+        - ``oldserverpk`` may be ``None`` if the record is new.
+        - ``newserverpk`` may be ``None`` if the record was identical to an
+          existing one.
+
     """
     ts = req.tabletsession
     require_keys(valuedict, [clientpk_name, CLIENT_DATE_FIELD,
@@ -630,6 +821,15 @@ def insert_record(req: CamcopsRequest,
                   predecessor_pk: Optional[int]) -> int:
     """
     Inserts a record, or raises an exception if that fails.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: an SQLAlchemy :class:`Table`
+        valuedict: a dictionary of {colname: value} pairs from the client
+        predecessor_pk: an optional server PK of the record's predecessor
+
+    Returns:
+        the server PK of the new record
     """
     mark_table_dirty(req, table)
     ts = req.tabletsession
@@ -652,9 +852,19 @@ def insert_record(req: CamcopsRequest,
 def duplicate_record(req: CamcopsRequest, table: Table, serverpk: int) -> int:
     """
     Duplicates the record defined by the table/serverpk combination.
-    Will raise an exception if the insert fails. Otherwise...
-    The old record then NEEDS MODIFICATION by flag_modified().
-    The new record NEEDS MODIFICATION by update_new_copy_of_record().
+
+    - Will raise an exception if the insert fails. Otherwise...
+    - The old record then NEEDS MODIFICATION by flag_modified().
+    - The new record NEEDS MODIFICATION by update_new_copy_of_record().
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: an SQLAlchemy :class:`Table`
+        serverpk: the server PK of the record to duplicate
+
+    Returns:
+        the server PK of the new record
+
     """
     mark_table_dirty(req, table)
     # Fetch the existing record.
@@ -687,8 +897,15 @@ def update_new_copy_of_record(req: CamcopsRequest,
                               valuedict: Dict,
                               predecessor_pk: int) -> None:
     """
-    Following duplicate_record(), use this to modify the new copy (defined
-    by the table/serverpk combination).
+    Following :func:`duplicate_record`, use this to modify the new copy
+    (defined by the table/serverpk combination).
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: an SQLAlchemy :class:`Table`
+        serverpk: the server PK of the (new) record to modify
+        valuedict: dictionary of {columnname: value} pairs to change
+        predecessor_pk: set the new record's ``_predecessor_pk`` to this value
     """
     valuedict.update(dict(
         _current=0,
@@ -711,11 +928,13 @@ def update_new_copy_of_record(req: CamcopsRequest,
 def get_batch_details_start_if_needed(req: CamcopsRequest) \
         -> Tuple[Optional[Pendulum], Optional[bool]]:
     """
-    Gets a (upload_batch_utc, currently_preserving) tuple.
+    Gets a tuple: ``upload_batch_utc, currently_preserving``.
 
-    upload_batch_utc: the batchtime; UTC date/time of the current upload batch.
-    currently_preserving: Boolean; whether preservation (shifting to an older
-    era) is currently taking place.
+    ``upload_batch_utc``: the batchtime; UTC date/time of the current upload
+    batch.
+
+    ``currently_preserving``: Boolean; whether preservation (shifting to an
+    older era) is currently taking place.
 
     SIDE EFFECT: if the username is different from the username that started
     a previous upload batch for this device, we restart the upload batch (thus
@@ -761,6 +980,12 @@ def end_device_upload_batch(req: CamcopsRequest,
                             preserving: bool) -> None:
     """
     Ends an upload batch, committing all changes made thus far.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        batchtime: the UTC batch time to apply to all changes
+        preserving: are we preserving the records (see
+            :func:`start_preserving`, :func:`commit_table`)?
     """
     commit_all(req, batchtime, preserving)
     req.dbsession.execute(
@@ -806,7 +1031,8 @@ def mark_table_dirty(req: CamcopsRequest, table: Table) -> None:
 
 def get_dirty_tables(req: CamcopsRequest) -> List[Table]:
     """
-    Returns tables marked as dirty for this device.
+    Returns tables marked as dirty for this device. (See
+    :func:`mark_table_dirty`.)
     """
     query = (
         select([DirtyTable.tablename])
@@ -819,7 +1045,8 @@ def get_dirty_tables(req: CamcopsRequest) -> List[Table]:
 def flag_deleted(req: CamcopsRequest, table: Table,
                  pklist: Iterable[int]) -> None:
     """
-    Marks record(s) as deleted, specified by a list of server PKs.
+    Marks record(s) as deleted, specified by a list of server PKs within a
+    table.
     """
     mark_table_dirty(req, table)
     # noinspection PyProtectedMember
@@ -853,8 +1080,9 @@ def flag_deleted_where_clientpk_not(req: CamcopsRequest,
                                     clientpk_name: str,
                                     clientpk_values: Sequence[Any]) -> None:
     """
-    Marks for deletion all current/current-era records for a device, defined
-    by a list of client-side PK values.
+    Marks for deletion all current/current-era records for a device, within a
+    specific table, defined by a list of client-side PK values (and the name of
+    the client-side PK column).
     """
     mark_table_dirty(req, table)
     # noinspection PyProtectedMember
@@ -875,6 +1103,12 @@ def flag_modified(req: CamcopsRequest,
                   successor_pk: int) -> None:
     """
     Marks a record as old, storing its successor's details.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: SQLAlchemy :class:`Table`
+        pk: server PK of the record to mark as old
+        successor_pk: server PK of its successor
     """
     mark_table_dirty(req, table)
     # noinspection PyProtectedMember
@@ -892,6 +1126,11 @@ def flag_record_for_preservation(req: CamcopsRequest,
     """
     Marks a record for preservation (moving off the tablet, changing its
     era details).
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        table: SQLAlchemy :class:`Table`
+        pk: server PK of the record to mark
     """
     # noinspection PyProtectedMember
     req.dbsession.execute(
@@ -906,6 +1145,12 @@ def commit_all(req: CamcopsRequest,
                preserving: bool) -> None:
     """
     Commits additions, removals, and preservations for all tables.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        batchtime: the UTC batch time to apply to all changes
+        preserving: are we preserving the records (see
+            :func:`start_preserving`, :func:`commit_table`)?
     """
     tables = get_dirty_tables(req)
     auditsegments = []
@@ -934,6 +1179,21 @@ def commit_table(req: CamcopsRequest,
                  clear_dirty: bool = True) -> Tuple[int, int, int]:
     """
     Commits additions, removals, and preservations for one table.
+
+    Args:
+        req: the :class:`CamcopsRequest`
+        batchtime: the UTC batch time to apply to all changes
+        preserving: are we preserving the records -- that is, moving them
+            from the current era (``NOW``) to the ``batchtime`` era, so they
+            can be deleted from the tablet without apparent loss on the server?
+        table: SQLAlchemy :class:`Table`
+        clear_dirty: remove the table from the record of dirty tables for
+            this device? (If called from :func:`commit_all`, this should be
+            ``False``, since it's faster to clear all dirty tables for the
+            device simultaneously than one-by-one.)
+
+    Returns:
+        tuple ``n_added, n_removed, n_preserved``
     """
     # log.debug("commit_table: {}", table.name)
     user_id = req.user_id
@@ -1120,7 +1380,8 @@ def audit(req: CamcopsRequest,
 
 def check_device_registered(req: CamcopsRequest) -> None:
     """
-    Check that a device is registered, or raise UserErrorException.
+    Check that a device is registered, or raise
+    :exc:`UserErrorException`.
     """
     req.tabletsession.ensure_device_registered()
 
@@ -1132,6 +1393,9 @@ def check_device_registered(req: CamcopsRequest) -> None:
 def register(req: CamcopsRequest) -> Dict[str, Any]:
     """
     Register a device with the server.
+
+    Returns:
+        server information dictionary (from :func:`get_server_id_info`)
     """
     dbsession = req.dbsession
     ts = req.tabletsession
@@ -1179,6 +1443,10 @@ def register(req: CamcopsRequest) -> Dict[str, Any]:
 def get_extra_strings(req: CamcopsRequest) -> Dict[str, str]:
     """
     Fetch all local extra strings from the server.
+
+    Returns:
+        a SELECT-style reply (see :func:`get_select_reply`) for the
+        extra-string table
     """
     fields = [ExtraStringFieldNames.TASK,
               ExtraStringFieldNames.NAME,
@@ -1196,7 +1464,7 @@ def get_allowed_tables(req: CamcopsRequest) -> Dict[str, str]:
     the minimum client (tablet) version that will be accepted for each table.
     (Typically these are all the same as the minimum global tablet version.)
 
-    Uses the SELECT-like syntax.
+    Uses the SELECT-like syntax (see :func:`get_select_reply`).
     """
     tables_versions = all_tables_with_min_client_version()
     fields = [AllowedTablesFieldNames.TABLENAME,
@@ -1215,14 +1483,17 @@ def get_allowed_tables(req: CamcopsRequest) -> Dict[str, str]:
 def check_upload_user_and_device(req: CamcopsRequest) -> None:
     """
     Stub function for the operation to check that a user is valid.
+
+    To get this far, the user has to be valid, so this function doesn't
+    actually have to do anything.
     """
     pass  # don't need to do anything!
 
 
 # noinspection PyUnusedLocal
-def get_id_info(req: CamcopsRequest) -> Dict:
+def get_id_info(req: CamcopsRequest) -> Dict[str, Any]:
     """
-    Fetch server ID information.
+    Fetch server ID information; see :func:`get_server_id_info`.
     """
     return get_server_id_info(req)
 
@@ -1249,8 +1520,8 @@ def upload_table(req: CamcopsRequest) -> str:
 
     Incoming information in the POST request includes a CSV list of fields, a
     count of the number of records being provided, and a set of variables named
-    record0 ... record{nrecords}, each containing a CSV list of SQL-encoded
-    values.
+    ``record0`` ... ``record{nrecords - 1}``, each containing a CSV list of
+    SQL-encoded values.
 
     Typically used for smaller tables, i.e. most except for BLOBs.
     """
@@ -1421,8 +1692,8 @@ def start_preservation(req: CamcopsRequest) -> str:
     from the tablet).
 
     Without this, individual records can still be marked for preservation if
-    their MOVE_OFF_TABLET_FIELD field (_move_off_tablet) is set; see
-    upload_record and its functions.
+    their MOVE_OFF_TABLET_FIELD field (``_move_off_tablet``) is set; see
+    :func:`upload_record` and the functions it calls.
     """
     _, _ = get_batch_details_start_if_needed(req)
     start_preserving(req)
@@ -1522,6 +1793,9 @@ def which_keys_to_send(req: CamcopsRequest) -> str:
 # =============================================================================
 
 class Operations:
+    """
+    Constants giving the name of operations (commands) accepted by this API.
+    """
     CHECK_DEVICE_REGISTERED = "check_device_registered"
     CHECK_UPLOAD_USER_DEVICE = "check_upload_user_and_device"
     DELETE_WHERE_KEY_NOT = "delete_where_key_not"
@@ -1542,20 +1816,20 @@ OPERATIONS_ANYONE = {
     Operations.CHECK_DEVICE_REGISTERED: check_device_registered,
 }
 OPERATIONS_REGISTRATION = {
-    Operations.REGISTER: register,
-    Operations.GET_EXTRA_STRINGS: get_extra_strings,
     Operations.GET_ALLOWED_TABLES: get_allowed_tables,  # v2.2.0  # noqa
+    Operations.GET_EXTRA_STRINGS: get_extra_strings,
+    Operations.REGISTER: register,
 }
 OPERATIONS_UPLOAD = {
     Operations.CHECK_UPLOAD_USER_DEVICE: check_upload_user_and_device,
-    Operations.GET_ID_INFO: get_id_info,
-    Operations.START_UPLOAD: start_upload,
-    Operations.END_UPLOAD: end_upload,
-    Operations.UPLOAD_TABLE: upload_table,
-    Operations.UPLOAD_RECORD: upload_record,
-    Operations.UPLOAD_EMPTY_TABLES: upload_empty_tables,
-    Operations.START_PRESERVATION: start_preservation,
     Operations.DELETE_WHERE_KEY_NOT: delete_where_key_not,
+    Operations.END_UPLOAD: end_upload,
+    Operations.GET_ID_INFO: get_id_info,
+    Operations.START_PRESERVATION: start_preservation,
+    Operations.START_UPLOAD: start_upload,
+    Operations.UPLOAD_EMPTY_TABLES: upload_empty_tables,
+    Operations.UPLOAD_RECORD: upload_record,
+    Operations.UPLOAD_TABLE: upload_table,
     Operations.WHICH_KEYS_TO_SEND: which_keys_to_send,
 }
 
@@ -1579,11 +1853,11 @@ def main_client_api(req: CamcopsRequest) -> Dict[str, str]:
     if ts.operation in OPERATIONS_ANYONE:
         fn = OPERATIONS_ANYONE.get(ts.operation)
 
-    if ts.operation in OPERATIONS_REGISTRATION:
+    elif ts.operation in OPERATIONS_REGISTRATION:
         ts.ensure_valid_user_for_device_registration()
         fn = OPERATIONS_REGISTRATION.get(ts.operation)
 
-    if ts.operation in OPERATIONS_UPLOAD:
+    elif ts.operation in OPERATIONS_UPLOAD:
         ts.ensure_valid_device_and_user_for_uploading()
         fn = OPERATIONS_UPLOAD.get(ts.operation)
 
@@ -1591,8 +1865,10 @@ def main_client_api(req: CamcopsRequest) -> Dict[str, str]:
         fail_unsupported_operation(ts.operation)
     result = fn(req)
     if result is None:
+        # generic success
         result = {TabletParam.RESULT: ts.operation}
     elif not isinstance(result, dict):
+        # convert strings (etc.) to a dictionary
         result = {TabletParam.RESULT: result}
     return result
 
@@ -1601,7 +1877,17 @@ def main_client_api(req: CamcopsRequest) -> Dict[str, str]:
 def client_api(req: CamcopsRequest) -> Response:
     """
     View for client API. All tablet interaction comes through here.
-    Wraps main_client_api().
+    Wraps :func:`main_client_api`.
+
+    Internally, replies are managed as dictionaries.
+    For the final reply, the dictionary is converted to text in this format:
+
+    .. code-block:: none
+
+        k1:v1
+        k2:v2
+        k3:v3
+        ...
     """
     # log.critical("{!r}", req.environ)
     # log.critical("{!r}", req.params)
@@ -1611,6 +1897,7 @@ def client_api(req: CamcopsRequest) -> Response:
         resultdict = main_client_api(req)
         resultdict[TabletParam.SUCCESS] = SUCCESS_CODE
         status = '200 OK'
+
     except IgnoringAntiqueTableException as e:
         log.warning(IGNORING_ANTIQUE_TABLE_MESSAGE)
         resultdict = {
@@ -1618,6 +1905,7 @@ def client_api(req: CamcopsRequest) -> Response:
             TabletParam.SUCCESS: SUCCESS_CODE,
         }
         status = '200 OK'
+
     except UserErrorException as e:
         log.warning("CLIENT-SIDE SCRIPT ERROR: {}", e)
         resultdict = {
@@ -1625,6 +1913,7 @@ def client_api(req: CamcopsRequest) -> Response:
             TabletParam.ERROR: escape_newlines(str(e))
         }
         status = '200 OK'
+
     except ServerErrorException as e:
         log.error("SERVER-SIDE SCRIPT ERROR: {}", e)
         # rollback? Not sure
@@ -1633,6 +1922,7 @@ def client_api(req: CamcopsRequest) -> Response:
             TabletParam.ERROR: escape_newlines(str(e))
         }
         status = "503 Database Unavailable: " + str(e)
+
     except Exception as e:
         # All other exceptions. May include database write failures.
         # Let's return with status '200 OK'; though this seems dumb, it means
@@ -1663,6 +1953,10 @@ def client_api(req: CamcopsRequest) -> Response:
 # =============================================================================
 
 def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
+    """
+    For unit testing: convert the text in a :class:`Response` back to a
+    dictionary, so we can check it was correct.
+    """
     txt = str(response)
     d = {}  # type: Dict[str, str]
     # Format is: "200 OK\r\n<other headers>\r\n\r\n<content>"
@@ -1688,6 +1982,9 @@ def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
 
 
 class ClientApiTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_client_api_basics(self) -> None:
         self.announce("test_client_api_basics")
 

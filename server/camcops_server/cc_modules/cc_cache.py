@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_cache.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Cache functions.
 
 1. The basic cache objects.
 

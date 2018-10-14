@@ -2,6 +2,8 @@
 # camcops_server/tools/create_database_migration.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,11 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Creates an Alembic database migration for CamCOPS.
+
+For developer use only.
+
 """
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
@@ -48,11 +55,12 @@ ALEMBIC_VERSIONS_DIR = join(SERVER_PACKAGE_DIR, 'alembic', 'versions')
 
 def main() -> None:
     """
+    Creates an Alembic database migration for CamCOPS, by comparing the 
+    metadata (from Python) with the current database.
+    
     Note special difficulty with "variant" types, such as
-        Integer().with_variant(...)
-
-    which are (2017-08-21, alembic==0.9.4) rendered as "sa.Variant()" only
-    with a MySQL backend.
+    ``Integer().with_variant(...)`` which are (2017-08-21, alembic==0.9.4)
+    rendered as ``sa.Variant()`` only with a MySQL backend.
     
     - https://bitbucket.org/zzzeek/alembic/issues/433/variant-base-not-taken-into-account-when
     - https://bitbucket.org/zzzeek/alembic/issues/131/create-special-rendering-for-variant

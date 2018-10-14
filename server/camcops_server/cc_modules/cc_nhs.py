@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_nhs.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+..
 """
 
 from typing import Dict, Optional
@@ -43,6 +47,10 @@ PV_NHS_ETHNIC_CATEGORY = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
 
 def get_nhs_dd_person_marital_status(
         req: CamcopsRequest) -> Dict[Optional[str], Optional[str]]:
+    """
+    Returns a dictionary mapping NHS marital status codes to descriptive
+    strings.
+    """
     return {
         None: None,
         "S": req.wappstring("nhs_person_marital_status_code_S"),
@@ -56,6 +64,10 @@ def get_nhs_dd_person_marital_status(
 
 def get_nhs_dd_ethnic_category_code(
         req: CamcopsRequest) -> Dict[Optional[str], Optional[str]]:
+    """
+    Returns a dictionary mapping NHS ethnicity codes to descriptive
+    strings.
+    """
     return {
         None: None,
         "A": req.wappstring("nhs_ethnic_category_code_A"),

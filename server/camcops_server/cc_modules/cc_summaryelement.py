@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_simpleobjects.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Classes to represent summary information created by tasks. For example,
+the PHQ9 task calculates a total score; that's part of its summary information.
+
 """
 
 from collections import OrderedDict
@@ -49,9 +55,17 @@ class SummaryElement(object):
     """
     def __init__(self,
                  name: str,
-                 coltype: TypeEngine,  # e.g. Integer(), String(length=50)
+                 coltype: TypeEngine,
                  value: Any,
                  comment: str = None) -> None:
+        """
+        Args:
+            name: column name
+            coltype: SQLAlchemy column type; e.g. ``Integer()``,
+                ``String(length=50)``
+            value: value
+            comment: explanatory comment
+        """
         self.name = name
         self.coltype = coltype
         self.value = value
@@ -74,12 +88,23 @@ class ExtraSummaryTable(object):
                  xmlname: str,
                  columns: List[Column],
                  rows: List[Union[Dict[str, Any], OrderedDict]]) -> None:
+        """
+        Args:
+            tablename: name of the additional summary table
+            xmlname: name of the XML tag to encapsulate this information
+            columns: list of column names
+            rows: list of rows, where each row is a dictionary mapping
+                column names to values
+        """
         self.tablename = tablename
         self.xmlname = xmlname
         self.columns = columns
         self.rows = rows
 
     def get_xml_element(self) -> XmlElement:
+        """
+        Returns an :class:`XmlElement` representing this summary table.
+        """
         itembranches = []  # type: List[XmlElement]
         for valuedict in self.rows:
             leaves = []  # type: List[XmlElement]
@@ -90,6 +115,9 @@ class ExtraSummaryTable(object):
         return XmlElement(name=self.xmlname, value=itembranches)
 
     def get_tsv_page(self) -> TsvPage:
+        """
+        Returns an :class:`TsvPage` representing this summary table.
+        """
         return TsvPage(name=self.tablename, rows=self.rows)
 
     def __repr__(self) -> str:

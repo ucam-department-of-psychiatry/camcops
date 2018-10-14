@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_xml.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+XML helper functions/classes.
+
 """
 
 import base64
@@ -76,6 +81,9 @@ XML_IGNORE_NAMESPACES = [
 
 
 class XmlDataTypes(object):
+    """
+    Constants representing standard XML data types.
+    """
     BASE64BINARY = "base64Binary"
     BOOLEAN = "boolean"
     DATE = "date"
@@ -91,9 +99,19 @@ class XmlDataTypes(object):
 # =============================================================================
 
 class XmlElement(object):
-    """Represents XML data in a tree. See functions in cc_xml.py"""
+    """
+    Represents XML data in a tree.
+    """
     def __init__(self, name: str, value: Any = None, datatype: str = None,
                  comment: str = None) -> None:
+        """
+        Args:
+            name: name of this XML element
+            value: value of this element: may be a raw value or a list of
+                :class:`XmlElement` objects (default: ``None``)
+            datatype: data type of this element (default: ``None``)
+            comment: description of this element (default: ``None``)
+        """
         # Special: boolean requires lower case "true"/"false" (or 0/1)
         if datatype == XmlDataTypes.BOOLEAN and value is not None:
             value = str(value).lower()
@@ -120,9 +138,13 @@ def make_xml_branches_from_columns(
         obj,
         skip_fields: List[str] = None) -> List[XmlElement]:
     """
-    Returns a list of XML branches, each an XmlElement, from an object,
-    using the list of SQLAlchemy Column objects that define/describe its
-    fields.
+    Returns a list of XML branches, each an :class:`XmlElement`, from an
+    SQLAlchemy ORM object, using the list of SQLAlchemy Column objects that
+    define/describe its fields.
+
+    Args:
+        obj: the SQLAlchemy ORM object
+        skip_fields: database column names to skip
     """
     skip_fields = skip_fields or []  # type: List[str]
     branches = []  # type: List[XmlElement]
@@ -144,8 +166,15 @@ def make_xml_branches_from_summaries(
         summaries: List["SummaryElement"],
         skip_fields: List[str] = None,
         sort_by_name: bool = True) -> List[XmlElement]:
-    """Returns a list of XML branches, each an XmlElement, from a
-    list of summary data provided by a task."""
+    """
+    Returns a list of XML branches, each an :class:`XmlElement`, from a
+    list of summary data provided by a task.
+
+    Args:
+        summaries: list of :class:`SummaryElement` objects
+        skip_fields: summary element names to skip
+        sort_by_name: sort branches by element name?
+    """
     skip_fields = skip_fields or []
     branches = []
     for s in summaries:
@@ -167,6 +196,19 @@ def make_xml_branches_from_blobs(
         req: "CamcopsRequest",
         obj,
         skip_fields: List[str] = None) -> List[XmlElement]:
+    """
+    Return XML branches from those attributes of an SQLAlchemy ORM object
+    (e.g. task) that represent BLOBs.
+
+    Args:
+        req: the :class:`CamcopsRequset`
+        obj: the SQLAlchemy ORM object
+        skip_fields: database column names to skip
+
+    Returns:
+        a list of :class:`XmlElement` objects
+
+    """
     skip_fields = skip_fields or []  # type: List[str]
     branches = []  # type: List[XmlElement]
     for id_attrname, column in gen_camcops_blob_columns(obj):
@@ -184,7 +226,9 @@ def make_xml_branches_from_blobs(
 
 
 def xml_header(eol: str = '\n') -> str:
-    """XML declaration header."""
+    """
+    XML declaration header.
+    """
     return (
         '<?xml version="1.0" encoding="UTF-8"?>{eol}'.format(
             eol=eol,
@@ -195,7 +239,7 @@ def xml_header(eol: str = '\n') -> str:
 def get_xml_datatype_from_sqla_column_type(coltype: TypeEngine) -> str:
     """
     Returns the XML schema datatype from an SQLAlchemy column type,
-    such as Integer.
+    such as ``Integer``. Compare :func:`get_xml_datatype_from_sqla_column`.
     """
     # http://www.xml.dvint.com/docs/SchemaDataTypesQR-2.pdf
     # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html
@@ -224,7 +268,10 @@ def get_xml_datatype_from_sqla_column_type(coltype: TypeEngine) -> str:
 
 
 def get_xml_datatype_from_sqla_column(column: Column) -> Optional[str]:
-    """Returns the XML schema datatype from an SQLAlchemy Column."""
+    """
+    Returns the XML schema datatype from an SQLAlchemy Column, such as
+    ``Integer()``. Compare :func:`get_xml_datatype_from_sqla_column_type`.
+    """
     coltype = column.type  # type: TypeEngine
     return get_xml_datatype_from_sqla_column_type(coltype)
 
@@ -232,7 +279,14 @@ def get_xml_datatype_from_sqla_column(column: Column) -> Optional[str]:
 def get_xml_blob_element(name: str,
                          blobdata: Optional[bytes],
                          comment: str = None) -> XmlElement:
-    """Returns an XmlElement representing a base-64-encoded BLOB."""
+    """
+    Returns an XmlElement representing a base-64-encoded BLOB.
+
+    Args:
+        name: XML element name
+        blobdata: the raw binary, or ``None``
+        comment: XML comment
+    """
     if blobdata:
         # blobdata is raw binary
         b64bytes = base64.b64encode(blobdata)
@@ -250,14 +304,17 @@ def get_xml_blob_element(name: str,
 
 
 def xml_escape_value(value: str) -> str:
-    """Escape a value for XML."""
+    """
+    Escape a value for XML.
+    """
     # http://stackoverflow.com/questions/1091945/
     # https://wiki.python.org/moin/EscapingXml
     return xml.sax.saxutils.escape(value)
 
 
 def xml_quote_attribute(attr: str) -> str:
-    """Escapes and quotes an attribute for XML.
+    """
+    Escapes and quotes an attribute for XML.
 
     More stringent than value escaping.
     """
@@ -270,13 +327,27 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
                  indent_spaces: int = 4,
                  eol: str = '\n',
                  include_comments: bool = False) -> str:
-    """Returns an entire XML tree as text, given the root XmlElement."""
-    # We will represent NULL values with xsi:nil, but this requires a
-    # namespace: http://stackoverflow.com/questions/774192
-    # http://books.xmlschemata.org/relaxng/relax-CHP-11-SECT-1.html
-    # Comments:
-    # - http://blog.galasoft.ch/posts/2010/02/quick-tip-commenting-out-properties-in-xaml/  # noqa
-    # - http://stackoverflow.com/questions/2073140/
+    """
+    Returns an :class:`XmlElement` as text.
+
+    Args:
+        element: root :class:`XmlElement` 
+        level: starting level/depth (used for recursion)
+        indent_spaces: number of spaces to indent formatted XML
+        eol: end-of-line string
+        include_comments: include comments describing each field?
+
+    We will represent NULL values with ``xsi:nil``, but this requires a
+    namespace:
+    
+    - http://stackoverflow.com/questions/774192
+    - http://books.xmlschemata.org/relaxng/relax-CHP-11-SECT-1.html
+    
+    Comments:
+    
+    - http://blog.galasoft.ch/posts/2010/02/quick-tip-commenting-out-properties-in-xaml/
+    - http://stackoverflow.com/questions/2073140/
+    """  # noqa
     xmltext = ""
     prefix = ' ' * level * indent_spaces
 
@@ -367,7 +438,13 @@ def get_xml_document(root: XmlElement,
                      eol: str = '\n',
                      include_comments: bool = False) -> str:
     """
-    Returns an entire XML document as text, given the root XmlElement.
+    Returns an entire XML document as text, given the root :class:`XmlElement`.
+
+    Args:
+        root: root :class:`XmlElement`
+        indent_spaces: number of spaces to indent formatted XML
+        eol: end-of-line string
+        include_comments: include comments describing each field?
     """
     if not isinstance(root, XmlElement):
         raise AssertionError("get_xml_document: root not an XmlElement; "

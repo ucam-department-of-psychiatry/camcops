@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_hl7.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+..
 """
 
 import errno
@@ -283,7 +287,7 @@ class HL7Run(Base):
         """
         Initialize from a RecipientDefinition, copying its fields.
         (However, we must also support a no-parameter constructor, not least
-        for our merge_db() function.)
+        for our :func:`merge_db` function.)
         """
         super().__init__(*args, **kwargs)
         if recipdef:
@@ -320,6 +324,10 @@ class HL7Run(Base):
         self.finish_at_utc = None
 
     def call_script(self, files_exported: Optional[List[str]]) -> None:
+        """
+        Calls the script (if one was specified) to be called once the files
+        have been exported.
+        """
         if not self.script_after_file_export:
             # No script to call
             return
@@ -341,6 +349,9 @@ class HL7Run(Base):
             self.script_stderr = str(e)
 
     def finish(self) -> None:
+        """
+        Records the export finish time.
+        """
         self.finish_at_utc = get_now_utc_datetime()
 
 
@@ -349,6 +360,9 @@ class HL7Run(Base):
 # =============================================================================
 
 class HL7Message(Base):
+    """
+    Represents an individual HL7 message.
+    """
     __tablename__ = HL7MESSAGE_TABLENAME  # indirected to resolve circular dependency  # noqa
 
     msg_id = Column(
@@ -419,7 +433,8 @@ class HL7Message(Base):
                  show_queue_only: bool = False,
                  *args, **kwargs) -> None:
         """
-        Must support parameter-free construction, not least for merge_db().
+        Must support parameter-free construction, not least for
+        :func:`merge_db`.
         """
         super().__init__(*args, **kwargs)
         # Internal attributes
@@ -440,6 +455,9 @@ class HL7Message(Base):
 
     @reconstructor
     def init_on_load(self) -> None:
+        """
+        SQLAlchemy function to recreate after loading from the database.
+        """
         self._host = None  # type: str
         self._port = None  # type: int
         self._msg = None  # type: str
@@ -448,7 +466,9 @@ class HL7Message(Base):
         self._task = None  # type: Task
 
     def valid(self, req: CamcopsRequest) -> bool:
-        """Checks for internal validity; returns Boolean."""
+        """
+        Checks for internal validity; returns a bool.
+        """
         if not self._recipient_def or not self._recipient_def.valid(req):
             return False
         if not self.basetable or self.serverpk is None:
@@ -468,7 +488,9 @@ class HL7Message(Base):
         return True
 
     def divert_to_file(self, f: TextIO) -> None:
-        """Write an HL7 message to a file."""
+        """
+        Write an HL7 message to a file.
+        """
         infomsg = (
             "OUTBOUND MESSAGE DIVERTED FROM RECIPIENT {} AT {}\n".format(
                 self._recipient_def.recipient,
@@ -487,8 +509,10 @@ class HL7Message(Base):
              req: CamcopsRequest,
              queue_file: TextIO = None,
              divert_file: TextIO = None) -> Tuple[bool, bool]:
-        """Send an outbound HL7/file message, by the appropriate method."""
-        # returns: tried, succeeded
+        """
+        Send an outbound HL7/file message, by the appropriate method.
+        Returns the tuple ``tried, succeeded``.
+        """
         if not self.valid(req):
             return False, False
 
@@ -531,7 +555,9 @@ class HL7Message(Base):
         return True, self.success
 
     def send_to_filestore(self, req: CamcopsRequest) -> None:
-        """Send a file to a filestore."""
+        """
+        Send a file to a filestore.
+        """
         self.filename = self._recipient_def.get_filename(
             req=req,
             is_anonymous=self._task.is_anonymous,
@@ -617,10 +643,10 @@ class HL7Message(Base):
 
     def make_hl7_message(self, req: CamcopsRequest) -> None:
         """
-        Stores HL7 message in self.msg.
+        Makes an HL7 message and stores it in ``self.msg``.
 
-        May also store it in self.message (which is saved to the database), if
-        we're saving HL7 messages.
+        May also store it in ``self.message`` (which is saved to the database),
+        if we're saving HL7 messages.
         """
         # http://python-hl7.readthedocs.org/en/latest/index.html
 
@@ -642,13 +668,17 @@ class HL7Message(Base):
             self.message = str(self._msg)
 
     def transmit_hl7(self) -> None:
-        """Sends HL7 message over TCP/IP."""
-        # Default MLLP/HL7 port is 2575
-        # ... MLLP = minimum lower layer protocol
-        # ... http://www.cleo.com/support/byproduct/lexicom/usersguide/mllp_configuration.htm  # noqa
-        # ... http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=hl7  # noqa
-        # Essentially just a TCP socket with a minimal wrapper:
-        #   http://stackoverflow.com/questions/11126918
+        """
+        Sends the HL7 message over TCP/IP.
+
+        - Default MLLP/HL7 port is 2575
+        - MLLP = minimum lower layer protocol
+        
+          - http://www.cleo.com/support/byproduct/lexicom/usersguide/mllp_configuration.htm
+          - http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=hl7
+          - Essentially just a TCP socket with a minimal wrapper:
+            http://stackoverflow.com/questions/11126918
+        """  # noqa
 
         self._host = self._recipient_def.host
         self._port = self._recipient_def.port
@@ -699,7 +729,9 @@ RECV_BUFFER = 4096
 
 
 class MLLPTimeoutClient(object):
-    """Class for MLLP TCP/IP transmission that implements timeouts."""
+    """
+    Class for MLLP TCP/IP transmission that implements timeouts.
+    """
 
     def __init__(self, host: str, port: int, timeout_ms: int = None) -> None:
         """Creates MLLP client and opens socket."""
@@ -710,22 +742,31 @@ class MLLPTimeoutClient(object):
         self.socket.connect((host, port))
 
     def __enter__(self):
-        """For use with "with" statement."""
+        """
+        For use with "with" statement.
+        """
         return self
 
     # noinspection PyUnusedLocal
     def __exit__(self, exc_type, exc_val, traceback):
-        """For use with "with" statement."""
+        """
+        For use with "with" statement.
+        """
         self.close()
 
     def close(self):
-        """Release the socket connection"""
+        """
+        Release the socket connection.
+        """
         self.socket.close()
 
     def send_message(self, message: Union[str, hl7.Message]) \
             -> Tuple[bool, Optional[str]]:
-        """Wraps a str, unicode, or :py:class:`hl7.Message` in a MLLP container
-        and send the message to the server
+        """
+        Wraps a string or :class:`hl7.Message` in a MLLP container
+        and sends the message to the server.
+
+        Returns ``success, ack_msg``.
         """
         if isinstance(message, hl7.Message):
             message = str(message)
@@ -737,8 +778,12 @@ class MLLPTimeoutClient(object):
         return self.send(data.encode('utf-8'))
 
     def send(self, data: bytes) -> Tuple[bool, Optional[str]]:
-        """Low-level, direct access to the socket.send (data must be already
-        wrapped in an MLLP container).  Blocks until the server returns.
+        """
+        Low-level, direct access to the ``socket.send`` function (data must be
+        already wrapped in an MLLP container). Blocks until the server
+        returns.
+
+        Returns ``success, ack_msg``.
         """
         # upload the data
         self.socket.send(data)
@@ -756,7 +801,8 @@ class MLLPTimeoutClient(object):
 
 def send_all_pending_hl7_messages(cfg: CamcopsConfig,
                                   show_queue_only: bool = False) -> None:
-    """Sends all pending HL7 or file messages.
+    """
+    Sends all pending HL7 or file messages.
 
     Obtains a file lock, then iterates through all recipients.
     """
@@ -786,10 +832,13 @@ def send_pending_hl7_messages(req: CamcopsRequest,
                               recipient_def: RecipientDefinition,
                               show_queue_only: bool,
                               queue_stdout: TextIO) -> None:
-    """Pings recipient if necessary, opens any files required, creates an
+    """
+    Pings recipient if necessary, opens any files required, creates an
     HL7Run, then sends all pending HL7/file messages to a specific
-    recipient."""
-    # Called once per recipient.
+    recipient.
+
+    Called once per recipient.
+    """
     log.debug("send_pending_hl7_messages: " + str(recipient_def))
 
     use_ping = (recipient_def.using_hl7() and
@@ -933,7 +982,9 @@ def send_pending_hl7_messages_2(
 # =============================================================================
 
 def make_sure_path_exists(path: str) -> None:
-    """Creates a directory/directories if the path doesn't already exist."""
+    """
+    Creates a directory/directories if the path doesn't already exist.
+    """
     # http://stackoverflow.com/questions/273192
     try:
         os.makedirs(path)

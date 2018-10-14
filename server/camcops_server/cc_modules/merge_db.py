@@ -2,6 +2,8 @@
 # camcops_server/tools/merge_db.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+..
 """
 
 import logging
@@ -82,6 +86,24 @@ DEBUG_VIA_PDB = False
 # =============================================================================
 
 def get_skip_tables(src_tables: List[str]) -> List[TableIdentity]:
+    """
+    From the list of source table names provided, return details of tables in
+    the metadata to skip because they are not in the source database.
+
+    Also checks that some core CamCOPS tables are present in the source, or
+    raises :exc:`ValueError`.
+
+    Args:
+        src_tables: list of all table names in the source database
+
+    Returns:
+        list of
+        :class:`cardinal_pythonlib.sqlalchemy.table_identity.TableIdentity`
+        objects representing tables to skip
+
+    Note that other tables to skip are defined in :func:`merge_camcops_db`.
+
+    """
     skip_tables = []  # type: List[TableIdentity]
 
     # Check we have some core tables present in the sources
@@ -120,7 +142,16 @@ def get_skip_tables(src_tables: List[str]) -> List[TableIdentity]:
 def get_src_iddefs(src_engine: Engine,
                    src_tables: List[str]) -> Dict[int, IdNumDefinition]:
     """
-    Returns a list of IdNumDefinition options, not attached to any session.
+    Get information about all the ID number definitions in the source database.
+
+    Args:
+        src_engine: source SQLAlchemy :class:`Engine`
+        src_tables: list of all table names in the source database
+
+    Returns:
+        dictionary: ``{which_idnum: idnumdef}`` mappings, where each
+        ``idnumdef`` is a :class:`IdNumDefinition` not attached to any database
+        session
     """
     iddefs = {}  # type: Dict[int, IdNumDefinition]
     if IdNumDefinition.__tablename__ in src_tables:
@@ -177,15 +208,43 @@ def get_src_iddefs(src_engine: Engine,
 # The extra logic for this database:
 
 def flush_session(dst_session: Session) -> None:
+    """
+    Flushes the destination SQLAlchemy session.
+    """
     log.debug("Flushing session")
     dst_session.flush()
 
 
 def group_exists(group_id: int, dst_session: Session) -> bool:
+    """
+    Does a group exist in the destination session with the specified group ID?
+
+    Args:
+        group_id: integer group ID
+        dst_session: destination SQLAlchemy :class:`Session`
+    """
     return Group.group_exists(dbsession=dst_session, group_id=group_id)
 
 
 def fetch_group_id_by_name(group_name: str, dst_session: Session) -> int:
+    """
+    Returns the group ID of the group with the specified name, in the
+    destination session.
+
+    If there are multiple such groups, that's a bug, and
+    :exc:`MultipleResultsFound` will be raised.
+
+    If there's no such group in the destination database with that name, one
+    will be created, and its ID returned.
+
+    Args:
+        group_name: group name
+        dst_session: destination SQLAlchemy :class:`Session`
+
+    Returns:
+        group ID in the destination database
+
+    """
     try:
         group = dst_session.query(Group)\
             .filter(Group.name == group_name)\
@@ -207,6 +266,22 @@ def fetch_group_id_by_name(group_name: str, dst_session: Session) -> int:
 
 
 def ensure_default_group_id(trcon: TranslationContext) -> None:
+    """
+    Ensure that the :class:`TranslationContext` has a ``default_group_id``
+    key in its ``info`` dictionary. This is the ID, in the destination
+    database, of the group to put records in where those records come from
+    an older, pre-group-based CamCOPS database.
+
+    The user may have specified that ``default_group_id` on the command line.
+    Otherwise, they may have specified a ``default_group_name``, so we'll use
+    the ID of that group (creating it if necessary). If they specified neither,
+    we will raise an :exc:`AssertionError`, because we have come to a
+    situation where we need one or the other.
+
+    Args:
+        trcon: the :class:`TranslationContext`
+
+    """
     default_group_id = trcon.info["default_group_id"]  # type: Optional[int]
     if default_group_id is not None:
         # The user specified a group ID to use for records without one
@@ -234,21 +309,51 @@ def ensure_default_group_id(trcon: TranslationContext) -> None:
 
 def get_dst_iddef(dst_session: Session,
                   which_idnum: int) -> Optional[IdNumDefinition]:
+    """
+    Fetches an ID number definition from the destination database.
+
+    Args:
+        dst_session: destination SQLAlchemy :class:`Session`
+        which_idnum: integer expressing which ID number type to look up
+
+    Returns:
+        an :class:`IdNumDefinition`, or ``None`` if none was found
+
+    """
     return dst_session.query(IdNumDefinition)\
-            .filter(IdNumDefinition.which_idnum == which_idnum)\
-            .first()
+        .filter(IdNumDefinition.which_idnum == which_idnum)\
+        .first()
 
 
 def ensure_idnumdef(trcon: TranslationContext,
                     which_idnum: int) -> IdNumDefinition:
+    """
+    Ensure that the destination database contains an ID number definition with
+    the same ``which_idnum`` as in the source database, or create one.
+
+    If an ID number definition with that ``which_idnum`` was present in the
+    source and the destination, ensure they don't clash (i.e. ensure that they
+    represent the same sort of ID number).
+
+    Args:
+        trcon: the :class:`TranslationContext`
+        which_idnum: integer expressing which ID number type to look up
+
+    Returns:
+        the :class:`IdNumDefinition`, attached to the destination database
+
+    """
     dst_iddef = get_dst_iddef(trcon.dst_session, which_idnum=which_idnum)
     src_iddefs = trcon.info['src_iddefs']  # type: Dict[int, IdNumDefinition]  # noqa
     if dst_iddef:
+        # Present in the destination
         if which_idnum in src_iddefs.keys():
+            # Also present in the source
             src_iddef = src_iddefs[which_idnum]
             ensure_no_iddef_clash(src_iddef=src_iddef, dst_iddef=dst_iddef)
         return dst_iddef
     else:
+        # Not present in the destination
         assert which_idnum in src_iddefs.keys(), (
             "Descriptions for ID#{} are missing from the source "
             "database!".format(which_idnum)
@@ -266,7 +371,16 @@ def ensure_idnumdef(trcon: TranslationContext,
 
 
 def ensure_no_iddef_clash(src_iddef: IdNumDefinition,
-                          dst_iddef: IdNumDefinition):
+                          dst_iddef: IdNumDefinition) -> None:
+    """
+    Ensure that a given source and destination pair of ID number definitions,
+    which must match on ``which_idnum``, have the same description and short
+    description, or raise :exc:`ValueError`.
+
+    Args:
+        src_iddef: source :class:`IdNumDefinition`
+        dst_iddef: destination :class:`IdNumDefinition`
+    """
     assert src_iddef.which_idnum == dst_iddef.which_idnum, (
         "Bug: ensure_no_iddef_clash() called with IdNumDefinition objects"
         "that don't share the same value for which_idnum (silly!)."
@@ -293,6 +407,45 @@ def ensure_no_iddef_clash(src_iddef: IdNumDefinition,
 
 # noinspection PyProtectedMember
 def translate_fn(trcon: TranslationContext) -> None:
+    """
+    Function to translate source objects to their destination counterparts,
+    where special processing is required. Called as a callback from
+    :func:`cardinal_pythonlib.sqlalchemy.merge_db.merge_db`.
+
+    Args:
+        trcon: the :class:`TranslationContext`; all the relevant information is
+            in here, and our function modifies its members.
+
+    This function does the following things:
+
+    - For any records uploaded from tablets: set ``_group_id``, if it's blank.
+
+    - For :class:`User` objects: if an identical user is found in the
+      destination database, merge on it rather than creating a new one. Users
+      with matching usernames are considered to be identical.
+
+    - For :class:`Device` objects: if an identical device is found, merge on it
+      rather than creating a new one. Devices with matching names are
+      considered to be identical.
+
+    - For :class:`Group` objects: if an identical group is found, merge on it
+      rather than creating a new one. Groups with matching names are considered
+      to be identical.
+
+    - For :class:`Patient` objects: if any have ID numbers in the old format
+      (as columns in the Patient table), convert them to the
+      :class:`PatientIdNum` system.
+
+    - If we're inserting a :class:`PatientIdNum`, make sure there is a
+      corresponding :class:`IdNumDefinition`, and that it's valid.
+
+    - If we're merging from a more modern database with the
+      :class:`IdNumDefinition` table, check our ID number definitions don't
+      conflict.
+
+    - Check we're not creating duplicates for anything uploaded.
+
+    """
     log.debug("Translating object from table: {!r}", trcon.tablename)
     # log.debug("Translating: {}", auto_repr(trcon.oldobj))
 
@@ -630,6 +783,15 @@ def translate_fn(trcon: TranslationContext) -> None:
 
 # noinspection PyUnusedLocal
 def postprocess(src_engine: Engine, dst_session: Session) -> None:
+    """
+    Implement any extra processing after :func:`merge_db` has been called.
+
+    At present this just warns you about things that need to be done manually.
+
+    Args:
+        src_engine: source database SQLAlchemy engine
+        dst_session: destination database SQLAlchemy session
+    """
     log.warning("NOT IMPLEMENTED AUTOMATICALLY: copying user/group mapping "
                 "from table {!r}; do this by hand.",
                 UserGroupMembership.__tablename__)
@@ -651,8 +813,40 @@ def merge_camcops_db(src: str,
                      default_group_id: Optional[int],
                      default_group_name: Optional[str]) -> None:
     """
-    Merge an existing database (with a pre-v2 or later) structure into a
+    Merge an existing database (with a pre-v2 or later structure) into a
     comtemporary CamCOPS database.
+
+    Args:
+        src:
+            source database SQLAlchemy URL
+
+        echo:
+            echo the SQL that is produced?
+
+        report_every:
+            provide a progress report every *n* records
+
+        dummy_run:
+            don't alter the destination database
+
+        info_only:
+            show info, then stop
+
+        skip_hl7_logs:
+            skip HL7 export log tables
+
+        skip_audit_logs:
+            skip audit log table
+
+        default_group_id:
+            integer group ID (in the destination database) to use for source
+            records that have no group (because they come from a very old
+            source database) but need one
+
+        default_group_name:
+            group name (in the destination database) to use for source
+            records that have no group (because they come from a very old
+            source database) but need one
     """
     req = get_command_line_request()
     src_engine = create_engine(src, echo=echo, pool_pre_ping=True)

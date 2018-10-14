@@ -28,6 +28,7 @@ tablet_qt
     :maxdepth: 1
 
     android/AndroidManifest.xml.rst
+    android/res/values/libs.xml.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
@@ -741,6 +742,7 @@ tablet_qt
     tools/build_qt.py.rst
     tools/chord.py.rst
     tools/decrypt_sqlcipher.py.rst
+    tools/encrypt_sqlcipher.py.rst
     version/camcopsversion.cpp.rst
     version/camcopsversion.h.rst
     whisker/whiskerapi.cpp.rst

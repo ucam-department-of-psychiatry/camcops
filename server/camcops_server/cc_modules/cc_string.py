@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_string.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Manage the "extra strings" that the server reads from XML files. The server
+uses these for displaying tasks, and provides them to client devices.
+
 """
 
 import glob
@@ -59,26 +65,37 @@ APPSTRING_TASKNAME = "camcops"
 
 def text_contents(e: Element, plain: bool = False, strip: bool = True) -> str:
     """
+    Extract the exact text contents of an XML element, including any XML/HTML
+    tags within it.
+
     A normal string looks like
 
-        .. code-block:: xml
+    .. code-block:: xml
 
-            <string name="stringname">words words words</string>
+        <string name="stringname">words words words</string>
 
     and we extract its contents ("words words words") with
 
-        .. code-block:: python
+    .. code-block:: python
 
-            e.text
+        e.text
 
     However, for this:
 
-        .. code-block:: xml
+    .. code-block:: xml
 
-            <string name="stringname">words <b>bold words</b> words</string>
+        <string name="stringname">words <b>bold words</b> words</string>
 
-    we want to extract "words <b>bold words</b> words" and that's a little
-    trickier.
+    we want to extract ``words <b>bold words</b> words`` and that's a little
+    trickier. This function does that.
+
+    Args:
+        e: the :class:`Element` to read
+        plain: remove all HTML/XML tags?
+        strip: strip leading/trailing whitespace?
+
+    Returns:
+        the text contents of the element
     """
     n_children = len(e)
     if n_children == 0:
@@ -102,17 +119,23 @@ def all_extra_strings_as_dicts(
         config_filename: str) -> Dict[str, Dict[str, str]]:
     r"""
     Returns strings from the all the extra XML string files.
-    Caching is now via a proper cache.
 
-    - Returns a dictionary whose keys are tasknames,
+    The result is cached (via a proper cache).
 
-      - and whose values are each a dictionary
+    Args:
+        config_filename: a CamCOPS config filename
 
-        - whose keys are string names
-        - and whose values are strings.
+    Returns:
+
+        a dictionary whose keys are tasknames,
+
+        - and whose values are each a dictionary
+
+            - whose keys are string names
+            - and whose values are strings.
 
     For example, ``result['phq9']['q5'] == "5. Poor appetite or overeating"``.
-    There is also a top-level dictionary with the key APPSTRING_TASKNAME.
+    There is also a top-level dictionary with the key ``APPSTRING_TASKNAME``.
 
     The extra string files look like this:
 

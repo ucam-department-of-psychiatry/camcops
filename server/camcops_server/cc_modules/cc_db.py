@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_db.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Common database code, e.g. mixins for tables that are uploaded from the client.
+
 """
 
 from collections import OrderedDict
@@ -77,10 +82,14 @@ T = TypeVar('T')
 # noinspection PyAttributeOutsideInit
 class GenericTabletRecordMixin(object):
     """
-    From the server's perspective, _pk is unique.
-    However, records are defined also in their tablet context, for which
-    an individual tablet (defined by the combination of _device_id and _era)
-    sees its own PK, "id".
+    Mixin for all tables that are uploaded from the client, representing the
+    fields that the server adds at the point of upload.
+
+    From the server's perspective, ``_pk`` is the unique primary key.
+
+    However, records are defined also in their tablet context, for which an
+    individual tablet (defined by the combination of ``_device_id`` and
+    ``_era``) sees its own PK, ``id``.
     """
     __tablename__ = None  # type: str  # sorts out some mixin type checking
 
@@ -373,15 +382,29 @@ class GenericTabletRecordMixin(object):
     # -------------------------------------------------------------------------
 
     def get_pk(self) -> Optional[int]:
+        """
+        Returns the (server) primary key of this record.
+        """
         return self._pk
 
     def get_era(self) -> Optional[str]:
+        """
+        Returns the era of this record (a text representation of the date/time
+        of the point of record finalization, or ``NOW`` if the record is still
+        present on the client device).
+        """
         return self._era
 
     def get_device_id(self) -> Optional[int]:
+        """
+        Returns the client device ID of this record.
+        """
         return self._device_id
 
     def get_group_id(self) -> Optional[int]:
+        """
+        Returns the group ID of this record.
+        """
         return self._group_id
 
     # -------------------------------------------------------------------------
@@ -428,7 +451,7 @@ class GenericTabletRecordMixin(object):
         Optionally, find any SQLAlchemy relationships that are relationships
         to Blob objects, and include them too.
 
-        Used by _get_xml_root above, but also by Tasks themselves.
+        Used by :func:`_get_xml_root` above, but also by Tasks themselves.
         """
         # log.critical("_get_xml_branches for {!r}", self)
         skip_attrs = skip_attrs or []  # type: List[str]
@@ -455,6 +478,11 @@ class GenericTabletRecordMixin(object):
 
     def _get_core_tsv_page(self, req: "CamcopsRequest",
                            heading_prefix: str = "") -> TsvPage:
+        """
+        Returns a single-row :class:`TsvPage`, like an Excel "sheet",
+        representing this record. (It may be combined with others later to
+        produce a multi-row spreadsheet.)
+        """
         row = OrderedDict()
         for attrname, column in gen_columns(self):
             row[heading_prefix + attrname] = getattr(self, attrname)
@@ -468,10 +496,13 @@ class GenericTabletRecordMixin(object):
 
     def manually_erase_with_dependants(self, req: "CamcopsRequest") -> None:
         """
-        Manually erases a standard record and marks it so erased.
-        The object remains _current (if it was), as a placeholder, but its
+        Manually erases a standard record and marks it so erased. Iterates
+        through any dependants and does likewise to them.
+
+        The object remains ``_current`` (if it was), as a placeholder, but its
         contents are wiped.
-        WRITES TO DATABASE.
+
+        WRITES TO THE DATABASE.
         """
         if self._manually_erased or self._pk is None or self._era == ERA_NOW:
             # ... _manually_erased: don't do it twice
@@ -501,6 +532,10 @@ class GenericTabletRecordMixin(object):
         self._manually_erasing_user_id = req.user_id
 
     def delete_with_dependants(self, req: "CamcopsRequest") -> None:
+        """
+        Deletes (completely from the database) this record and any
+        dependant records.
+        """
         if self._pk is None:
             return
         # 1. "Delete my dependants"
@@ -514,6 +549,12 @@ class GenericTabletRecordMixin(object):
 
     def gen_attrname_ancillary_pairs(self) \
             -> Generator[Tuple[str, "GenericTabletRecordMixin"], None, None]:
+        """
+        Iterates through and yields all ``_current`` "ancillary" objects
+        (typically: records of subtables).
+
+        Yields tuples of ``(attrname, related_record)``.
+        """
         for attrname, rel_prop, rel_cls in gen_ancillary_relationships(self):
             if rel_prop.uselist:
                 ancillaries = getattr(self, attrname)  # type: List[GenericTabletRecordMixin]  # noqa
@@ -526,11 +567,18 @@ class GenericTabletRecordMixin(object):
 
     def gen_ancillary_instances(self) -> Generator["GenericTabletRecordMixin",
                                                    None, None]:
+        """
+        Generates all ``_current`` ancillary objects of this object.
+        """
         for attrname, ancillary in self.gen_attrname_ancillary_pairs():
             yield ancillary
 
     def gen_ancillary_instances_even_noncurrent(self) \
             -> Generator["GenericTabletRecordMixin", None, None]:
+        """
+        Generates all ancillary objects of this object, even non-current
+        ones.
+        """
         seen = set()  # type: Set[GenericTabletRecordMixin]
         for ancillary in self.gen_ancillary_instances():
             for lineage_member in ancillary.get_lineage():
@@ -540,6 +588,9 @@ class GenericTabletRecordMixin(object):
                 yield lineage_member
 
     def gen_blobs(self) -> Generator["Blob", None, None]:
+        """
+        Generate all ``_current`` BLOBs owned by this object.
+        """
         for id_attrname, column in gen_camcops_blob_columns(self):
             relationship_attr = column.blob_relationship_attr_name
             blob = getattr(self, relationship_attr)
@@ -548,6 +599,9 @@ class GenericTabletRecordMixin(object):
             yield blob
 
     def gen_blobs_even_noncurrent(self) -> Generator["Blob", None, None]:
+        """
+        Generates all BLOBs owned by this object, even non-current ones.
+        """
         seen = set()  # type: Set["Blob"]
         for blob in self.gen_blobs():
             if blob is None:
@@ -561,8 +615,11 @@ class GenericTabletRecordMixin(object):
     def get_lineage(self) -> List["GenericTabletRecordMixin"]:
         """
         Returns all records that are part of the same "lineage", that is:
-        matching on id/device_id/era, but including both current and any
-        historical non-current versions.
+
+        - of the same class;
+        - matching on id/device_id/era;
+        - including both current and any historical non-current versions.
+
         """
         dbsession = SqlASession.object_session(self)
         cls = self.__class__
@@ -581,9 +638,12 @@ class GenericTabletRecordMixin(object):
         """
         Used for some unusual server-side manipulations (e.g. editing patient
         details).
-        The "self" object replaces the predecessor, so "self" becomes current
-        and refers back to "predecessor", while "predecessor" becomes
-        non-current and refers forward to "self".
+
+        Amends this object so the "self" object replaces the predecessor, so:
+
+        - "self" becomes current and refers back to "predecessor";
+        - "predecessor" becomes non-current and refers forward to "self".
+
         """
         assert predecessor._current
         # We become new and current, and refer to our predecessor
@@ -608,7 +668,7 @@ class GenericTabletRecordMixin(object):
     def _set_successor(self, req: "CamcopsRequest",
                        successor: "GenericTabletRecordMixin") -> None:
         """
-        See set_predecessor() above.
+        See :func:`set_predecessor` above.
         """
         assert successor._pk is not None
         self._current = False
@@ -647,8 +707,8 @@ class GenericTabletRecordMixin(object):
     # noinspection PyMethodMayBeStatic
     def get_summaries(self, req: "CamcopsRequest") -> List[SummaryElement]:
         """
-        Return a list of summary value objects, for this database object
-        (not any dependent classes/tables).
+        Return a list of :class:`SummaryElement` objects, for this database
+        object (not any dependent classes/tables).
         """
         return []  # type: List[SummaryElement]
 
@@ -724,37 +784,44 @@ def add_multiple_columns(
         pv: List[Any] = None) -> None:
     """
     Add a sequence of SQLAlchemy columns to a class.
+
     Called from a metaclass.
+    Used to make task creation a bit easier.
 
-    :param cls: class to which to add columns
+    Args:
+        cls:
+            class to which to add columns
+        prefix:
+            Fieldname will be ``prefix + str(n)``, where ``n`` is defined as
+            below.
+        start:
+            Start of range.
+        end:
+            End of range. Thus: ``i`` will range from ``0`` to ``(end -
+            start)`` inclusive; ``n`` will range from ``start`` to ``end``
+            inclusive.
+        coltype:
+             SQLAlchemy column type, in either of these formats: (a)
+             ``Integer`` (of general type ``Type[TypeEngine]``?); (b)
+             ``Integer()`` (of general type ``TypeEngine``).
+        colkwargs:
+            SQLAlchemy column arguments, as in
+            ``Column(name, coltype, **colkwargs)``
+        comment_fmt:
+            Format string defining field comments. Substitutable
+            values are:
 
-    :param prefix: Fieldname will be prefix + str(n), where n defined as below.
+            - ``{n}``: field number (from range).
+            - ``{s}``: comment_strings[i], or "" if out of range.
 
-    :param start: Start of range.
-
-    :param end: End of range. Thus: i will range from 0 to (end - start)
-        inclusive; n will range from start to end inclusive.
-
-    :param coltype: SQLAlchemy column type, in either of these formats: (a)
-        ``Integer`` (of general type ``Type[TypeEngine]``?); (b) ``Integer()``
-        (of general type ``TypeEngine``).
-
-    :param colkwargs: SQLAlchemy column arguments, as in
-        ``Column(name, coltype, **colkwargs)``
-
-    :param comment_fmt: Format string defining field comments. Substitutable
-        values are:
-        ``{n}``: field number (from range).
-        ``{s}``: comment_strings[i], or "" if out of range.
-
-    :param comment_strings: see comment_fmt
-
-    :param minimum: minimum permitted value, or None
-
-    :param maximum: maximum permitted value, or None
-
-    :param pv: list of permitted values, or None
-
+        comment_strings:
+            see ``comment_fmt``
+        minimum:
+            minimum permitted value, or ``None``
+        maximum:
+            maximum permitted value, or ``None``
+        pv:
+            list of permitted values, or ``None``
     """
     colkwargs = {} if colkwargs is None else colkwargs  # type: Dict[str, Any]
     comment_strings = comment_strings or []

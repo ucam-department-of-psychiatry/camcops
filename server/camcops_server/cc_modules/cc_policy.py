@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_policy.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -23,12 +25,13 @@
 
 ===============================================================================
 
-Note that the upload script should NOT attempt to verify patients
-against the ID policy, not least because tablets are allowed to upload
-task data (in a separate transaction) before uploading patients;
-referential integrity would be very hard to police. So the tablet software
-deals with ID compliance. (Also, the superuser can change the server's ID
-policy retrospectively!)
+Represents ID number policies.
+
+Note that the upload script should NOT attempt to verify patients against the
+ID policy, not least because tablets are allowed to upload task data (in a
+separate transaction) before uploading patients; referential integrity would be
+very hard to police. So the tablet software deals with ID compliance. (Also,
+the superuser can change the server's ID policy retrospectively!)
 
 """
 
@@ -86,11 +89,23 @@ TOKEN_IDNUM_PREFIX = "IDNUM"
 
 
 class TokenizedPolicy(object):
+    """
+    Represents a tokenized ID policy.
+
+    A tokenized policy is a policy represented by a sequence of integers;
+    0 means "bad token"; negative numbers represent fixed things like
+    "forename" or "left parenthesis" or "and"; positive numbers represent
+    ID number types.
+    """
     def __init__(self, policy: str) -> None:
         self.tokens = self.get_tokenized_id_policy(policy)
 
     @staticmethod
     def name_to_token(name: str) -> int:
+        """
+        Converts an upper-case string token name (such as ``dob``) to an
+        integer token.
+        """
         if name in POLICY_TOKEN_DICT:
             return POLICY_TOKEN_DICT[name]
         if name.startswith(TOKEN_IDNUM_PREFIX):
@@ -128,12 +143,22 @@ class TokenizedPolicy(object):
         return tokens
 
     def is_syntactically_valid(self) -> bool:
+        """
+        Is the policy syntactically valid?
+        """
         return bool(self.tokens)
 
     def is_valid_from_req(self, req: "CamcopsRequest") -> bool:
+        """
+        Is the policy valid in the context of the ID types available in our
+        database?
+        """
         return self.is_valid(req.valid_which_idnums)
 
     def is_valid(self, valid_idnums: List[int]) -> bool:
+        """
+        Is the policy valid, given a list of valid ID number types?
+        """
         # First, syntax:
         if not self.is_syntactically_valid():
             return False
@@ -145,6 +170,9 @@ class TokenizedPolicy(object):
 
     def find_critical_single_numerical_id_from_req(
             self, req: "CamcopsRequest") -> Optional[int]:
+        """
+        Return the single critical required ID number type, if one exists.
+        """
         return self.find_critical_single_numerical_id(req.valid_which_idnums)
 
     def find_critical_single_numerical_id(
@@ -275,7 +303,8 @@ class TokenizedPolicy(object):
                           ptinfo: BarePatientInfo,
                           start: int) -> Tuple[Optional[bool], int]:
         """
-        Applies part of a policy to ptinfo. Called by id_policy_chunk (q.v.).
+        Applies part of a policy to ``ptinfo``. Called by
+        :func:`id_policy_chunk` (q.v.).
         """
         if start >= len(policy):
             return None, start
@@ -309,7 +338,9 @@ class TokenizedPolicy(object):
     @classmethod
     def id_policy_op(cls, policy: TOKENIZED_POLICY_TYPE, start: int) \
             -> Tuple[Optional[TOKEN_TYPE], int]:
-        """Returns an operator from the policy, or None."""
+        """
+        Returns an operator from the policy, or None.
+        """
         if start >= len(policy):
             return None, start
         token = policy[start]
@@ -353,6 +384,9 @@ class TokenizedPolicy(object):
 # =============================================================================
 
 class PolicyTests(ExtendedTestCase):
+    """
+    Unit tests.
+    """
     def test_policies(self) -> None:
         self.announce("test_policies")
 

@@ -362,7 +362,7 @@ class DateTimeAsIsoText(TypeDecorator):
     """Stores date/time values as ISO-8601."""
 
     @property
-    def python_type(self):
+    def python_type(self) -> type:
         return datetime.datetime
 
     impl = sqlalchemy.types.String(32)  # underlying SQL type

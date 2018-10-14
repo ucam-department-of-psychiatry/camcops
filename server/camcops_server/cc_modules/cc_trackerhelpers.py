@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_simpleobjects.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Helper representations for trackers.
+
 """
 
 from enum import Enum
@@ -34,6 +39,9 @@ DEFAULT_TRACKER_ASPECT_RATIO = 2.0  # width / height
 
 
 class LabelAlignment(Enum):
+    """
+    Enum representing figure label alignment.
+    """
     center = "center"
     top = "top"
     bottom = "bottom"
@@ -41,16 +49,30 @@ class LabelAlignment(Enum):
 
 
 class TrackerLabel(object):
+    """
+    Representation of a label on a
+    :class:`camcops_server.cc_modules.cc_tracker.Tracker` figure.
+    """
     def __init__(self,
                  y: float,
                  label: str,
                  vertical_alignment: LabelAlignment = LabelAlignment.center):
+        """
+        Args:
+            y: Y axis (vertical) position
+            label: text for label
+            vertical_alignment: :class:`LabelAlignment` enum
+        """
         self.y = y
         self.label = label
         self.vertical_alignment = vertical_alignment
 
 
 class TrackerAxisTick(object):
+    """
+    Representation of a Y-axis tick mark and associated label on a
+    :class:`camcops_server.cc_modules.cc_tracker.Tracker` figure.
+    """
     def __init__(self, y: float, label: str):
         self.y = y
         self.label = label
@@ -59,7 +81,8 @@ class TrackerAxisTick(object):
 class TrackerInfo(object):
     """
     Tasks return one or more of these (one for each tracker to be shown), from
-    which tracker displays are created.
+    which :class:`camcops_server.cc_modules.cc_tracker.Tracker` displays are
+    created.
     """
     def __init__(self,
                  value: float,
@@ -71,6 +94,22 @@ class TrackerInfo(object):
                  horizontal_lines: Optional[List[float]] = None,
                  horizontal_labels: Optional[List[TrackerLabel]] = None,
                  aspect_ratio: Optional[float] = DEFAULT_TRACKER_ASPECT_RATIO):
+        """
+        Args:
+            value: numerical value
+            plot_label: label for the whole plot
+            axis_label: label for the Y axis
+            axis_min: minimum value for the Y axis
+            axis_max: maximum value for the Y axis
+            axis_ticks: optional list of :class:`TrackerAxisTick` objects
+                describing where to put tick marks/labels on the Y axis
+            horizontal_lines: optional list of y values at which to draw
+                horizontal (dotted) lines
+            horizontal_labels: optional list of :class:`TrackerLabel` objects
+                indicating which additional labels to place on the main plot
+                (such as: to describe the meaning of the horizontal lines)
+            aspect_ratio: optional aspect ratio (width / height)
+        """
         self.value = value
         self.plot_label = plot_label
         self.axis_label = axis_label

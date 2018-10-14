@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_membership.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Represents a user's membership of a group.
+
 """
 
 import logging
@@ -71,6 +76,10 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # ... no, not association_proxy!
 
 class UserGroupMembership(Base):
+    """
+    Represents a user's membership of a group, and associated per-group
+    permissions.
+    """
     __tablename__ = "_security_user_group"
 
     # PK, so we can use this object easily on its own via the ORM.
@@ -142,6 +151,9 @@ class UserGroupMembership(Base):
     def get_ugm_by_id(cls,
                       dbsession: SqlASession,
                       ugm_id: Optional[int]) -> Optional['UserGroupMembership']:
+        """
+        Fetches a :class:`UserGroupMembership` by its ID.
+        """
         if ugm_id is None:
             return None
         return dbsession.query(cls).filter(cls.id == ugm_id).first()

@@ -983,7 +983,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix: don’t think the patient ID number table was being made routinely
   (!?).
 
-- New CIS-R task.
+- New :ref:`CIS-R <cisr>` task.
 
 - Internal fix to `DynamicQuestionnaire` to defer first-page creation until
   after constructor.
@@ -1385,7 +1385,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
     ignored "-Wmissing-field-initializer"``
   - Checked for Linux, Android; Windows checks pending.
 
-- New task: CORE-10.
+- New task: :ref:`CORE-10 <core10>`.
+
+- New task: :ref:`CESD <cesd>`.
+
+- New task: :ref:`CESD-R <cesdr>`.
+
+- New task: :ref:`PTSD Checklist for DSM-5 (PCL-5) <pcl5>`.
 
 **Server v2.2.8, in progress (from 2018-09-14)**
 
@@ -1393,20 +1399,29 @@ Current C++/SQLite client, Python/SQLAlchemy server
   changed from 255 to 191 because MySQL<=5.6 only supports indexing of 191 characters
   in ``utf8mb4`` mode on ``InnoDB`` tables;
   see https://dev.mysql.com/doc/refman/5.7/en/charset-unicode-conversion.html
+
 - Shebang changed for ``build_qt.py``
+
 - SQLAlchemy ``NAMING_CONVENTION`` changed in ``cc_sqlalchemy.py`` as some
   fields were yielding index/constraint names that were too long... then
   reverted and specific changes made for
   ``cpft_lps_discharge.management_specialling_behavioural_disturbance``.
+
 - Removed introspection options; replaced with better docs.
+
 - https://camcops.readthedocs.io/
+
 - ``cardinal_pythonlib`` to 1.0.29
+
 - ``alembic`` to 1.0.0
+
 - ``create_database_migration.py`` checks the database version is OK first.
+
 - Make Alembic compare MySQL ``TINYINT(1)`` to be equal to ``Boolean()`` in the
   metadata, so its default suggestions are more helpful.
-- Added the DSM-5 PTSD checklist questionnaire (PCL5).
+
 - ``CherryPy`` from 16.0.2 to 18.0.1, but this did not fix
   https://github.com/cherrypy/cherrypy/issues/1618. However, it is a non-fatal
   error; just carry on.
 
+- Better server docstrings.

@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_dirtytables.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Representation of a "dirty table" -- one that a device is in the process of
+uploading to/preserving.
+
 """
 
 from sqlalchemy.schema import Column, ForeignKey

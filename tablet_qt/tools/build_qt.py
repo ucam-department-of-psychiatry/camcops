@@ -2,6 +2,8 @@
 # tablet_qt/tools/build_qt.py
 
 """
+..
+
 ===============================================================================
 Overview
 ===============================================================================
@@ -3092,6 +3094,8 @@ In file included from /home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qt
             run(qt_config_args, env)  # The configure step takes a few seconds.
         except subprocess.CalledProcessError:
             log.critical("""
+..
+
 ===============================================================================
 Troubleshooting Qt 'configure' failures
 ===============================================================================
@@ -3133,6 +3137,8 @@ Troubleshooting Qt 'configure' failures
             run(cfg.make_args(env=env), env)
         except subprocess.CalledProcessError:
             log.critical("""
+..
+
 ===============================================================================
 Troubleshooting Qt 'make' failures
 ===============================================================================
@@ -3679,6 +3685,8 @@ def build_mxe(cfg: Config, target_platform: Platform,
             run(cmdargs)
         except subprocess.CalledProcessError:
             log.critical(r"""
+..
+
 ===============================================================================
 Troubleshooting MXE 'make' failures
 ===============================================================================
@@ -3841,6 +3849,8 @@ Compiler bug is:
         sys.exit(1)
 
     log.info("""
+..
+
 ===============================================================================
 Now, to compile CamCOPS using Qt Creator:
 ===============================================================================

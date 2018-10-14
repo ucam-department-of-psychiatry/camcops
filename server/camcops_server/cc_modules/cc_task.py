@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_task.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -23,17 +25,22 @@
 
 ===============================================================================
 
+Represents CamCOPS tasks.
+
 Core task export methods:
 
-------  -----------------------------------------------------------------------
+======= =======================================================================
 Format  Comment
-------  -----------------------------------------------------------------------
-HTML    The task in a user-friendly format
-PDF     Essentially the HTML output
-XML     Centres on the task with its subdata integrated
-TSV     Tab-separated value format
-SQL     As part of an SQL or SQLite download
-------  -----------------------------------------------------------------------
+======= =======================================================================
+HTML    The task in a user-friendly format.
+PDF     Essentially the HTML output, but with page headers and (for clinician
+        tasks) a signature block, and without additional HTML administrative
+        hyperlinks.
+XML     Centres on the task with its subdata integrated.
+TSV     Tab-separated value format.
+SQL     As part of an SQL or SQLite download.
+======= =======================================================================
+
 """
 
 import copy
@@ -141,11 +148,17 @@ TASK_FWD_REF = "Task"
 # =============================================================================
 
 class TaskHasPatientMixin(object):
+    """
+    Mixin for tasks that have a patient (aren't anonymous).
+    """
     # http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html#using-advanced-relationship-arguments-e-g-primaryjoin-etc  # noqa
 
     # noinspection PyMethodParameters
     @declared_attr
     def patient_id(cls) -> Column:
+        """
+        SQLAlchemy :class:`Column` that is a foreign key to the patient table.
+        """
         return Column(
             "patient_id", Integer,
             nullable=False, index=True,
@@ -155,6 +168,9 @@ class TaskHasPatientMixin(object):
     # noinspection PyMethodParameters
     @declared_attr
     def patient(cls) -> RelationshipProperty:
+        """
+        SQLAlchemy relationship: "the patient for this task".
+        """
         return relationship(
             "Patient",
             primaryjoin=(
@@ -179,6 +195,9 @@ class TaskHasPatientMixin(object):
     # noinspection PyMethodParameters
     @classproperty
     def has_patient(cls) -> bool:
+        """
+        Does this task have a patient? (Yes.)
+        """
         return True
 
 
@@ -189,7 +208,9 @@ class TaskHasPatientMixin(object):
 class TaskHasClinicianMixin(object):
     """
     Mixin to add clinician columns and override clinician-related methods.
-    Must be to the LEFT of Task in the class's base class list.
+
+    Must be to the LEFT of ``Task`` in the class's base class list, i.e.
+    must have higher precedence than ``Task`` in the method resolution order.
     """
     # noinspection PyMethodParameters
     @declared_attr
@@ -254,9 +275,15 @@ class TaskHasClinicianMixin(object):
     # noinspection PyMethodParameters
     @classproperty
     def has_clinician(cls) -> bool:
+        """
+        Does the task have a clinician? (Yes.)
+        """
         return True
 
     def get_clinician_name(self) -> str:
+        """
+        Returns the clinician's name.
+        """
         return self.clinician_name or ""
 
 
@@ -267,9 +294,17 @@ class TaskHasClinicianMixin(object):
 class TaskHasRespondentMixin(object):
     """
     Mixin to add respondent columns and override respondent-related methods.
-    Must be to the LEFT of Task in the class's base class list.
 
-    If you don't use declared_attr, the "comment" property doesn't work.
+    A respondent is someone who isn't the patient and isn't a clinician, such
+    as a family member or carer.
+
+    Must be to the LEFT of ``Task`` in the class's base class list, i.e.
+    must have higher precedence than ``Task`` in the method resolution order.
+
+    Notes:
+
+    - If you don't use ``@declared_attr``, the ``comment`` property on columns
+      doesn't work.
     """
 
     # noinspection PyMethodParameters
@@ -292,9 +327,16 @@ class TaskHasRespondentMixin(object):
     # noinspection PyMethodParameters
     @classproperty
     def has_respondent(cls) -> bool:
+        """
+        Does the class have a respondent? (Yes.)
+        """
         return True
 
     def is_respondent_complete(self) -> bool:
+        """
+        Do we have sufficient information about the respondent?
+        (That means: name, relationship to the patient.)
+        """
         return all([self.respondent_name, self.respondent_relationship])
 
 
@@ -306,11 +348,12 @@ class Task(GenericTabletRecordMixin, Base):
     """
     Abstract base class for all tasks.
 
-    - Column definitions:
+    Note:
 
-        Use CamcopsColumn, not Column, if you have fields that need to define
-        permitted values, mark them as BLOB-referencing fields, or do other
-        CamCOPS-specific things.
+    - For column definitions: use :class:`CamcopsColumn`, not :class:`Column`,
+      if you have fields that need to define permitted values, mark them as
+      BLOB-referencing fields, or do other CamCOPS-specific things.
+
     """
     __abstract__ = True
 
@@ -331,6 +374,9 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     @declared_attr
     def when_created(cls) -> Column:
+        """
+        Column representing the task's creation time.
+        """
         return Column(
             "when_created", PendulumDateTimeAsIsoTextColType,
             nullable=False,
@@ -340,6 +386,10 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     @declared_attr
     def when_firstexit(cls) -> Column:
+        """
+        Column representing when the user first exited the task's editor
+        (i.e. first "finish" or first "abort").
+        """
         return Column(
             "when_firstexit", PendulumDateTimeAsIsoTextColType,
             comment="(TASK) Date/time of the first exit from this task "
@@ -349,6 +399,9 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     @declared_attr
     def firstexit_is_finish(cls) -> Column:
+        """
+        Was the first exit from the task's editor a successful "finish"?
+        """
         return Column(
             "firstexit_is_finish", Boolean,
             comment="(TASK) Was the first exit from the task because it was "
@@ -358,6 +411,9 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     @declared_attr
     def firstexit_is_abort(cls) -> Column:
+        """
+        Was the first exit from the task's editor an "abort"?
+        """
         return Column(
             "firstexit_is_abort", Boolean,
             comment="(TASK) Was the first exit from this task because it was "
@@ -367,6 +423,10 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     @declared_attr
     def editing_time_s(cls) -> Column:
+        """
+        How long has the user spent editing the task?
+        (Calculated by the CamCOPS client.)
+        """
         return Column(
             "editing_time_s", Float,
             comment="(TASK) Time spent editing (s)"
@@ -377,6 +437,10 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     @declared_attr
     def special_notes(cls) -> RelationshipProperty:
+        """
+        List-style SQLAlchemy relationship to any :class:`SpecialNote` objects
+        attached to this class.
+        """
         return relationship(
             SpecialNote,
             primaryjoin=(
@@ -421,6 +485,7 @@ class Task(GenericTabletRecordMixin, Base):
     def is_complete(self) -> bool:
         """
         Is the task instance complete?
+
         Must be overridden.
         """
         raise NotImplementedError("Task.is_complete must be overridden")
@@ -428,7 +493,8 @@ class Task(GenericTabletRecordMixin, Base):
     def get_task_html(self, req: CamcopsRequest) -> str:
         """
         HTML for the main task content.
-        Overridden by derived classes.
+
+        Must be overridden by derived classes.
         """
         raise NotImplementedError(
             "No get_task_html() HTML generator for this task class!")
@@ -440,14 +506,14 @@ class Task(GenericTabletRecordMixin, Base):
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         """
         Tasks that provide quantitative information for tracking over time
-        should override this and return a list of TrackerInfo, one per tracker.
+        should override this and return a list of :class:`TrackerInfo` objects,
+        one per tracker.
 
-        The information is read by get_all_plots_for_one_task_html() in
-        cc_tracker.py -- q.v.
+        The information is read by
+        :func:`camcops_server.cc_modules.cc_tracker.Tracker.get_all_plots_for_one_task_html`.
 
-        Time information will be retrieved using the get_creation_datetime()
-        function.
-        """
+        Time information will be retrieved using :func:`get_creation_datetime`.
+        """  # noqa
         return []
 
     # -------------------------------------------------------------------------
@@ -456,11 +522,13 @@ class Task(GenericTabletRecordMixin, Base):
 
     # noinspection PyMethodMayBeStatic
     def get_clinical_text(self, req: CamcopsRequest) -> Optional[List[CtvInfo]]:
-        """Tasks that provide clinical text information should override this
-        to provide a list of dictionaries.
+        """
+        Tasks that provide clinical text information should override this
+        to provide a list of :class:`CtvInfo` objects.
 
-        Return None (default) for a task that doesn't provide clinical text,
-        or [] for one with no information, or a list of CtvInfo objects.
+        Return ``None`` (default) for a task that doesn't provide clinical
+        text, or ``[]`` for one that does in general but has no information for
+        this particular instance, or a list of :class:`CtvInfo` objects.
         """
         return None
 
@@ -474,6 +542,8 @@ class Task(GenericTabletRecordMixin, Base):
         """
         Override if you wish to create extra summary tables, not just add
         summary columns to task/ancillary tables.
+
+        Return a list of :class:`ExtraSummaryTable` objects.
         """
         return []
 
@@ -488,23 +558,31 @@ class Task(GenericTabletRecordMixin, Base):
     @classmethod
     def gen_all_subclasses(cls) -> Generator[Type[TASK_FWD_REF], None, None]:
         """
-        We require that actual tasks are subclasses of both Task and Base
+        Generate all non-abstract SQLAlchemy ORM subclasses of :class:`Task` --
+        that is, all task classes.
 
-        ... so we can (a) inherit from Task to make a base class for actual
-        tasks, as with PCL, HADS, HoNOS, etc.; and (b) not have those
-        intermediate classes appear in the task list. Since all actual classes
-        must be SQLAlchemy ORM objects inheriting from Base, that common
-        inheritance is an excellent way to define them.
+        We require that actual tasks are subclasses of both :class:`Task` and 
+        :class:`camcops_server.cc_modules.cc_sqlalchemy.Base`.
 
-        ... CHANGED: things now inherit from Base/Task without necessarily
-        being actual tasks; we discriminate using __abstract__ and/or
-        __tablename__.
-        """
+        OLD WAY (ignore): this means we can (a) inherit from Task to make an
+        abstract base class for actual tasks, as with PCL, HADS, HoNOS, etc.;
+        and (b) not have those intermediate classes appear in the task list.
+        Since all actual classes must be SQLAlchemy ORM objects inheriting from
+        Base, that common inheritance is an excellent way to define them.
+
+        NEW WAY: things now inherit from Base/Task without necessarily
+        being actual tasks; we discriminate using ``__abstract__`` and/or
+        ``__tablename__``. See
+        https://docs.sqlalchemy.org/en/latest/orm/inheritance.html#abstract-concrete-classes
+        """  # noqa
         return gen_orm_classes_from_base(cls)
 
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
     def all_subclasses_by_tablename(cls) -> List[Type[TASK_FWD_REF]]:
+        """
+        Return all task classes, ordered by table name.
+        """
         classes = list(cls.gen_all_subclasses())
         classes.sort(key=lambda c: c.tablename)
         return classes
@@ -512,6 +590,9 @@ class Task(GenericTabletRecordMixin, Base):
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
     def all_subclasses_by_shortname(cls) -> List[Type[TASK_FWD_REF]]:
+        """
+        Return all task classes, ordered by short name.
+        """
         classes = list(cls.gen_all_subclasses())
         classes.sort(key=lambda c: c.shortname)
         return classes
@@ -519,6 +600,9 @@ class Task(GenericTabletRecordMixin, Base):
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
     def all_subclasses_by_longname(cls) -> List[Type[TASK_FWD_REF]]:
+        """
+        Return all task classes, ordered by long name.
+        """
         classes = list(cls.gen_all_subclasses())
         classes.sort(key=lambda c: c.longname)
         return classes
@@ -531,7 +615,9 @@ class Task(GenericTabletRecordMixin, Base):
     @classproperty
     def has_patient(cls) -> bool:
         """
-        May be overridden by TaskHasPatientMixin.
+        Does the task have a patient? (No.)
+
+        May be overridden by :class:`TaskHasPatientMixin`.
         """
         return False
 
@@ -539,7 +625,7 @@ class Task(GenericTabletRecordMixin, Base):
     @classproperty
     def is_anonymous(cls) -> bool:
         """
-        Antonym for has_patient.
+        Antonym for :attribute:`has_patient`.
         """
         return not cls.has_patient
 
@@ -547,7 +633,9 @@ class Task(GenericTabletRecordMixin, Base):
     @classproperty
     def has_clinician(cls) -> bool:
         """
-        May be overridden by TaskHasClinicianMixin.
+        Does the task have a clinician? (No.)
+
+        May be overridden by :class:`TaskHasClinicianMixin`.
         """
         return False
 
@@ -555,7 +643,9 @@ class Task(GenericTabletRecordMixin, Base):
     @classproperty
     def has_respondent(cls) -> bool:
         """
-        May be overridden by TaskHasRespondentMixin.
+        Does the task have a respondent? (No.)
+
+        May be overridden by :class:`TaskHasRespondentMixin`.
         """
         return False
 
@@ -566,16 +656,38 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     @classproperty
     def tablename(cls) -> str:
+        """
+        Returns the database table name for the task's primary table.
+        """
         return cls.__tablename__
 
     # noinspection PyMethodParameters
     @classproperty
     def minimum_client_version(cls) -> Version:
+        """
+        Returns the minimum client version that provides this task.
+
+        Override this as you add tasks.
+
+        Used by
+        :func:`camcops_server.cc_modules.client_api.ensure_valid_table_name`.
+
+        (There are some pre-C++ client versions for which the default is not
+        exactly accurate, and the tasks do not override, but this is of no
+        consequence and the version numbering system also changed, from
+        something legible as a float -- e.g. ``1.2 > 1.14`` -- to something
+        interpreted as a semantic version -- e.g. ``1.2 < 1.14``. So we ignore
+        that.)
+        """
         return MINIMUM_TABLET_VERSION
 
     # noinspection PyMethodParameters
     @classmethod
     def all_tables_with_min_client_version(cls) -> Dict[str, Version]:
+        """
+        Returns a dictionary mapping all this task's tables (primary and
+        ancillary) to the corresponding minimum client version.
+        """
         v = cls.minimum_client_version
         d = {cls.__tablename__: v}  # type: Dict[str, Version]
         for _, _, rel_cls in gen_ancillary_relationships(cls):
@@ -588,21 +700,30 @@ class Task(GenericTabletRecordMixin, Base):
 
     @classmethod
     def get_fieldnames(cls) -> List[str]:
+        """
+        Returns all field (column) names for this task's primary table.
+        """
         return get_column_attr_names(cls)
 
     def field_contents_valid(self) -> bool:
         """
-        Checks field contents validity against fieldspecs.
+        Checks field contents validity.
+
         This is a high-speed function that doesn't bother with explanations,
-        since we use it for lots of task is_complete() calculations.
+        since we use it for lots of task :func:`is_complete` calculations.
         """
         return permitted_values_ok(self)
 
     def field_contents_invalid_because(self) -> List[str]:
-        """Explains why contents are invalid."""
+        """
+        Explains why contents are invalid.
+        """
         return permitted_value_failure_msgs(self)
 
     def get_blob_fields(self) -> List[str]:
+        """
+        Returns field (column) names for all BLOB fields in this class.
+        """
         return get_camcops_blob_column_attr_names(self)
 
     # -------------------------------------------------------------------------
@@ -610,30 +731,43 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def get_pk(self) -> Optional[int]:
+        """
+        Returns the server-side primary key for this task.
+        """
         return self._pk
 
     def is_preserved(self) -> bool:
-        """Is the task preserved and erased from the tablet?"""
+        """
+        Is the task preserved and erased from the tablet?
+        """
         return self._pk is not None and self._era != ERA_NOW
 
     def was_forcibly_preserved(self) -> bool:
-        """Was it forcibly preserved?"""
+        """
+        Was this task forcibly preserved?
+        """
         return self._forcibly_preserved and self.is_preserved()
 
     def get_creation_datetime(self) -> Optional[Pendulum]:
-        """Creation datetime, or None."""
+        """
+        Creation datetime, or None.
+        """
         return self.when_created
 
     def get_creation_datetime_utc(self) -> Optional[Pendulum]:
-        """Creation datetime in UTC, or None."""
+        """
+        Creation datetime in UTC, or None.
+        """
         localtime = self.get_creation_datetime()
         if localtime is None:
             return None
         return convert_datetime_to_utc(localtime)
 
     def get_seconds_from_creation_to_first_finish(self) -> Optional[float]:
-        """Time in seconds from creation time to first finish (i.e. first exit
-        if the first exit was a finish rather than an abort), or None."""
+        """
+        Time in seconds from creation time to first finish (i.e. first exit
+        if the first exit was a finish rather than an abort), or None.
+        """
         if not self.firstexit_is_finish:
             return None
         start = self.get_creation_datetime()
@@ -644,18 +778,36 @@ class Task(GenericTabletRecordMixin, Base):
         return diff.total_seconds()
 
     def get_adding_user_id(self) -> int:
+        """
+        Returns the user ID of the user who uploaded this task.
+        """
         return self._adding_user_id
 
     def get_adding_user_username(self) -> str:
+        """
+        Returns the username of the user who uploaded this task.
+        """
         return self._adding_user.username if self._adding_user else ""
 
     def get_removing_user_username(self) -> str:
+        """
+        Returns the username of the user who deleted this task (by removing it
+        on the client and re-uploading).
+        """
         return self._removing_user.username if self._removing_user else ""
 
     def get_preserving_user_username(self) -> str:
+        """
+        Returns the username of the user who "preserved" this task (marking it
+        to be saved on the server and then deleting it from the client).
+        """
         return self._preserving_user.username if self._preserving_user else ""
 
     def get_manually_erasing_user_username(self) -> str:
+        """
+        Returns the username of the user who erased this task manually on the
+        server.
+        """
         return self._manually_erasing_user.username if self._manually_erasing_user else ""  # noqa
 
     # -------------------------------------------------------------------------
@@ -663,6 +815,9 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def standard_task_summary_fields(self) -> List[SummaryElement]:
+        """
+        Returns summary fields/values provided by all tasks.
+        """
         return [
             SummaryElement(
                 name="is_complete",
@@ -684,7 +839,10 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def dump(self) -> None:
-        """Dump to log."""
+        """
+        Dump a description of the task instance to the Python log, for
+        debugging.
+        """
         line_equals = "=" * 79
         lines = ["", line_equals]
         for f in self.get_fieldnames():
@@ -704,7 +862,7 @@ class Task(GenericTabletRecordMixin, Base):
         Manually applies a special note to a task.
 
         Applies it to all predecessor/successor versions as well.
-        WRITES TO DATABASE.
+        WRITES TO THE DATABASE.
         """
         sn = SpecialNote()
         sn.basetable = self.tablename
@@ -727,7 +885,8 @@ class Task(GenericTabletRecordMixin, Base):
     def get_clinician_name(self) -> str:
         """
         Get the clinician's name.
-        May be overridden by TaskHasClinicianMixin.
+
+        May be overridden by :class:`TaskHasClinicianMixin`.
         """
         return ""
 
@@ -738,7 +897,9 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodMayBeStatic
     def is_respondent_complete(self) -> bool:
         """
-        May be overridden by TaskHasRespondentMixin.
+        Is the respondent information complete?
+
+        May be overridden by :class:`TaskHasRespondentMixin`.
         """
         return False
 
@@ -749,36 +910,53 @@ class Task(GenericTabletRecordMixin, Base):
     @property
     def patient(self) -> Optional[Patient]:
         """
-        Overridden by TaskHasPatientMixin.
+        Returns the :class:`Patient` for this task.
+
+        Overridden by :class:`TaskHasPatientMixin`.
         """
         return None
 
     def is_female(self) -> bool:
-        """Is the patient female?"""
+        """
+        Is the patient female?
+        """
         return self.patient.is_female() if self.patient else False
 
     def is_male(self) -> bool:
-        """Is the patient male?"""
+        """
+        Is the patient male?
+        """
         return self.patient.is_male() if self.patient else False
 
     def get_patient_server_pk(self) -> Optional[int]:
-        """Get the server PK of the patient, or None."""
+        """
+        Get the server PK of the patient, or None.
+        """
         return self.patient.get_pk() if self.patient else None
 
     def get_patient_forename(self) -> str:
-        """Get the patient's forename, in upper case, or ""."""
+        """
+        Get the patient's forename, in upper case, or "".
+        """
         return self.patient.get_forename() if self.patient else ""
 
     def get_patient_surname(self) -> str:
-        """Get the patient's surname, in upper case, or ""."""
+        """
+        Get the patient's surname, in upper case, or "".
+        """
         return self.patient.get_surname() if self.patient else ""
 
     def get_patient_dob(self) -> Optional[Date]:
-        """Get the patient's DOB, or None."""
+        """
+        Get the patient's DOB, or None.
+        """
         return self.patient.get_dob() if self.patient else None
 
     def get_patient_dob_first11chars(self) -> Optional[str]:
-        """For example: '29 Dec 1999'."""
+        """
+        Gets the patient's date of birth in an 11-character human-readable
+        short format. For example: ``29 Dec 1999``.
+        """
         if not self.patient:
             return None
         dob_str = self.patient.get_dob_str()
@@ -787,25 +965,37 @@ class Task(GenericTabletRecordMixin, Base):
         return dob_str[:11]
 
     def get_patient_sex(self) -> str:
-        """Get the patient's sex, or ""."""
+        """
+        Get the patient's sex, or "".
+        """
         return self.patient.get_sex() if self.patient else ""
 
     def get_patient_address(self) -> str:
-        """Get the patient's address, or ""."""
+        """
+        Get the patient's address, or "".
+        """
         return self.patient.get_address() if self.patient else ""
 
     def get_patient_idnum_objects(self) -> List[PatientIdNum]:
+        """
+        Gets all :class:`PatientIdNum` objects for the patient.
+        """
         return self.patient.get_idnum_objects() if self.patient else []
 
     def get_patient_idnum_object(self,
                                  which_idnum: int) -> Optional[PatientIdNum]:
         """
-        Get the patient's ID number, or None.
+        Get the patient's :class:`PatientIdNum` for the specified ID number
+        type (``which_idnum``), or None.
         """
         return (self.patient.get_idnum_object(which_idnum) if self.patient
                 else None)
 
     def get_patient_idnum_value(self, which_idnum: int) -> Optional[int]:
+        """
+        Get the patient's ID number value for the specified ID number
+        type (``which_idnum``), or None.
+        """
         idobj = self.get_patient_idnum_object(which_idnum=which_idnum)
         return idobj.idnum_value if idobj else None
 
@@ -813,7 +1003,9 @@ class Task(GenericTabletRecordMixin, Base):
                                     req: CamcopsRequest,
                                     recipient_def: RecipientDefinition) \
             -> Union[hl7.Segment, str]:
-        """Get patient HL7 PID segment, or ""."""
+        """
+        Get an HL7 PID segment for the patient, or "".
+        """
         return (self.patient.get_hl7_pid_segment(req, recipient_def)
                 if self.patient else "")
 
@@ -824,12 +1016,14 @@ class Task(GenericTabletRecordMixin, Base):
     def get_hl7_data_segments(self, req: CamcopsRequest,
                               recipient_def: RecipientDefinition) \
             -> List[hl7.Segment]:
-        """Returns a list of HL7 data segments.
+        """
+        Returns a list of HL7 data segments.
 
         These will be:
-            OBR segment
-            OBX segment
-            any extra ones offered by the task
+
+        - OBR segment
+        - OBX segment
+        - any extra ones offered by the task
         """
         obr_segment = make_obr_segment(self)
         obx_segment = make_obx_segment(
@@ -849,7 +1043,9 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def get_hl7_extra_data_segments(self, recipient_def: RecipientDefinition) \
             -> List[hl7.Segment]:
-        """Return a list of any extra HL7 data segments.
+        """
+        Return a list of any extra HL7 data segments. (See
+        :func:`get_hl7_data_segments`.)
 
         May be overridden.
         """
@@ -886,7 +1082,9 @@ class Task(GenericTabletRecordMixin, Base):
 
     def audit(self, req: CamcopsRequest, details: str,
               from_console: bool = False) -> None:
-        """Audits actions to this task."""
+        """
+        Audits actions to this task.
+        """
         audit(req,
               details,
               patient_server_pk=self.get_patient_server_pk(),
@@ -915,6 +1113,9 @@ class Task(GenericTabletRecordMixin, Base):
         self.delete_from_hl7_message_log(req)
 
     def is_erased(self) -> bool:
+        """
+        Has the task been manually erased? See :func:`manually_erase`.
+        """
         return self._manually_erased
 
     # -------------------------------------------------------------------------
@@ -923,7 +1124,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def delete_entirely(self, req: CamcopsRequest) -> None:
         """
-        Completely delete this task, its lineage, and its dependents.
+        Completely delete this task, its lineage, and its dependants.
         """
         for task in self.get_lineage():
             task.delete_with_dependants(req)
@@ -934,7 +1135,9 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def is_live_on_tablet(self) -> bool:
-        """Is the instance live on a tablet?"""
+        """
+        Is the task instance live on a tablet?
+        """
         return self._era == ERA_NOW
 
     # -------------------------------------------------------------------------
@@ -945,7 +1148,7 @@ class Task(GenericTabletRecordMixin, Base):
     def gen_text_filter_columns(cls) -> Generator[Tuple[str, Column], None,
                                                   None]:
         """
-        Yields tuples of (attr_name, Column), for columns that are suitable
+        Yields tuples of ``attrname, column``, for columns that are suitable
         for text filtering.
         """
         for attrname, column in gen_columns(cls):
@@ -954,6 +1157,15 @@ class Task(GenericTabletRecordMixin, Base):
             if not is_sqlatype_string(column.type):
                 continue
             yield attrname, column
+
+    @classmethod
+    @cache_region_static.cache_on_arguments(function_key_generator=fkg)
+    def get_text_filter_columns(cls) -> List[Column]:
+        """
+        Cached function to return a list of SQLAlchemy Column objects suitable
+        for text filtering.
+        """
+        return [col for _, col in cls.gen_text_filter_columns()]
 
     # -------------------------------------------------------------------------
     # TSV export for basic research dump
@@ -986,6 +1198,11 @@ class Task(GenericTabletRecordMixin, Base):
     @classmethod
     def get_cris_dd_rows(cls, req: CamcopsRequest) -> List[Dict]:
         """
+        Returns rows for a CRIS data dictionary
+        (https://doi.org/10.1186/1472-6947-13-71).
+
+        BROKEN?
+
         .. todo:: fix get_cris_dd_rows
         """
         if cls.is_anonymous:
@@ -1013,7 +1230,11 @@ class Task(GenericTabletRecordMixin, Base):
     def make_cris_tables(cls, req: CamcopsRequest,
                          db: "DatabaseSupporter") -> None:
         """
-        .. todo:: fix make_cris_tables
+        Makes database tables for a CRIS anonymisation database.
+
+        BROKEN, AND SUPERSEDED?
+
+        .. todo:: fix/remove make_cris_tables
         """
         # DO NOT CONFUSE pls.db and db. HERE WE ONLY USE db.
         log.info("Generating CRIS staging tables for: {}", cls.shortname)
@@ -1044,6 +1265,11 @@ class Task(GenericTabletRecordMixin, Base):
                                                                item_fsv)
 
     def get_cris_common_fieldspecs_values(self) -> "FIELDSPECLIST_TYPE":
+        """
+        Another broken CRIS-related function.
+
+        .. todo:: fix/remove get_cris_common_fieldspecs_values
+        """
         # Store the task's PK in its own but all linked records
         clusterpk_fs = copy.deepcopy(CRIS_CLUSTER_KEY_FIELDSPEC)
         clusterpk_fs["value"] = self._pk
@@ -1063,6 +1289,11 @@ class Task(GenericTabletRecordMixin, Base):
             self,
             req: CamcopsRequest,
             common_fsv: "FIELDSPECLIST_TYPE") -> "FIELDSPECLIST_TYPE":
+        """
+        Another broken CRIS-related function.
+
+        .. todo:: fix/remove get_cris_fieldspecs_values
+        """
         fieldspecs = copy.deepcopy(self.get_full_fieldspecs())
         for fs in fieldspecs:
             fs["value"] = getattr(self, fs["name"])
@@ -1084,16 +1315,36 @@ class Task(GenericTabletRecordMixin, Base):
                 include_calculated: bool = True,
                 include_blobs: bool = True,
                 include_patient: bool = True,
+                include_ancillary: bool = True,
+                skip_fields: List[str] = None,
                 indent_spaces: int = 4,
                 eol: str = '\n',
-                skip_fields: List[str] = None,
                 include_comments: bool = False) -> str:
-        """Returns XML UTF-8 document representing task."""
+        """
+        Returns XML describing the task.
+
+        Args:
+            req: a :class:`CamcopsRequest`
+            include_calculated: include fields calculated by the task
+            include_blobs: include binary large objects (BLOBs)
+            include_patient: include patient details?
+            include_ancillary: include ancillary tables as well as the main?
+            skip_fields: fieldnames to skip
+
+            indent_spaces: number of spaces to indent formatted XML
+            eol: end-of-line string
+            include_comments: include comments describing each field?
+
+        Returns:
+            an XML UTF-8 document representing the task.
+
+        """
         skip_fields = skip_fields or []
         tree = self.get_xml_root(req=req,
                                  include_calculated=include_calculated,
                                  include_blobs=include_blobs,
                                  include_patient=include_patient,
+                                 include_ancillary=include_ancillary,
                                  skip_fields=skip_fields)
         return get_xml_document(
             tree,
@@ -1110,10 +1361,18 @@ class Task(GenericTabletRecordMixin, Base):
                      include_ancillary: bool = True,
                      skip_fields: List[str] = None) -> XmlElement:
         """
-        Returns XML tree. Return value is the root XmlElement.
+        Returns an XML tree. The return value is the root :class:`XmlElement`.
 
         Override to include other tables, or to deal with BLOBs, if the default
         methods are insufficient.
+
+        Args:
+            req: a :class:`CamcopsRequest`
+            include_calculated: include fields calculated by the task
+            include_blobs: include binary large objects (BLOBs)
+            include_patient: include patient details?
+            include_ancillary: include ancillary tables as well as the main?
+            skip_fields: fieldnames to skip
         """
         skip_fields = skip_fields or []
 
@@ -1137,8 +1396,16 @@ class Task(GenericTabletRecordMixin, Base):
             include_ancillary: bool = True,
             skip_fields: List[str] = None) -> List[XmlElement]:
         """
-        Returns a list of XmlElementTuple elements representing stored,
+        Returns a list of :class:`XmlElement` elements representing stored,
         calculated, patient, and/or BLOB fields, depending on the options.
+
+        Args:
+            req: a :class:`CamcopsRequest`
+            include_calculated: include fields calculated by the task
+            include_blobs: include binary large objects (BLOBs)
+            include_patient: include patient details?
+            include_ancillary: include ancillary tables as well as the main?
+            skip_fields: fieldnames to skip
         """
         skip_fields = skip_fields or []
 
@@ -1226,7 +1493,13 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def get_html(self, req: CamcopsRequest, anonymise: bool = False) -> str:
-        """Returns HTML representing task."""
+        """
+        Returns HTML representing the task, for our HTML view.
+
+        Args:
+            req: a :class:`CamcopsRequest`
+            anonymise: hide patient identifying details?
+        """
         req.prepare_for_html_figures()
         return render("task.mako",
                       dict(task=self,
@@ -1240,7 +1513,13 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def get_pdf(self, req: CamcopsRequest, anonymise: bool = False) -> bytes:
-        """Returns PDF representing task."""
+        """
+        Returns a PDF representing the task.
+
+        Args:
+            req: a :class:`CamcopsRequest`
+            anonymise: hide patient identifying details?
+        """
         html = self.get_pdf_html(req, anonymise=anonymise)  # main content
         if CSS_PAGED_MEDIA:
             return pdf_from_html(req, html=html)
@@ -1270,7 +1549,10 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_pdf_html(self, req: CamcopsRequest,
                      anonymise: bool = False) -> str:
-        """Gets HTML used to make PDF (slightly different from plain HTML)."""
+        """
+        Gets the HTML used to make the PDF (slightly different from the HTML
+        used for the HTML view).
+        """
         req.prepare_for_pdf_figures()
         return render("task.mako",
                       dict(task=self,
@@ -1281,7 +1563,9 @@ class Task(GenericTabletRecordMixin, Base):
                       request=req)
 
     def suggested_pdf_filename(self, req: CamcopsRequest) -> str:
-        """Suggested filename for PDF."""
+        """
+        Suggested filename for the PDF copy (for downloads).
+        """
         cfg = req.config
         return get_export_filename(
             req=req,
@@ -1301,7 +1585,9 @@ class Task(GenericTabletRecordMixin, Base):
         )
 
     def write_pdf_to_disk(self, req: CamcopsRequest, filename: str) -> None:
-        """Writes PDF to disk, using filename."""
+        """
+        Writes the PDF to disk, using ``filename``.
+        """
         pdffile = open(filename, "wb")
         pdffile.write(self.get_pdf(req))
 
@@ -1314,7 +1600,21 @@ class Task(GenericTabletRecordMixin, Base):
                          uploading_user_id: str,
                          document_type: str) -> str:
         """
-        Called by cc_hl7.send_to_filestore().
+        Returns metadata for the task that Servelec's RiO electronic patient
+        record may want.
+
+        Args:
+            which_idnum: which CamCOPS ID number type corresponds to the RiO
+                client ID?
+            uploading_user_id: RiO user ID (string) of the user who will
+                be recorded as uploading this information; see below
+            document_type: a string indicating the RiO-defined document type
+                (this is system-specific); see below
+
+        Returns:
+            a newline-terminated single line of CSV values; see below
+
+        Called by :func:`camcops_server.cc_modules.cc_hl7.send_to_filestore`.
 
         From Servelec (Lee Meredith) to Rudolf Cardinal, 2014-12-04:
 
@@ -1439,14 +1739,18 @@ class Task(GenericTabletRecordMixin, Base):
     def get_standard_clinician_comments_block(self,
                                               req: CamcopsRequest,
                                               comments: str) -> str:
-        """HTML DIV for clinician's comments."""
+        """
+        HTML DIV for clinician's comments.
+        """
         return render("clinician_comments.mako",
                       dict(comment=comments),
                       request=req)
 
     def get_is_complete_td_pair(self, req: CamcopsRequest) -> str:
-        """HTML to indicate whether task is complete or not, and to make it
-        very obvious visually when it isn't."""
+        """
+        HTML to indicate whether task is complete or not, and to make it
+        very obvious visually when it isn't.
+        """
         c = self.is_complete()
         return """<td>Completed?</td>{}<b>{}</b></td>""".format(
             "<td>" if c else """<td class="{}">""".format(CssClass.INCOMPLETE),
@@ -1454,15 +1758,29 @@ class Task(GenericTabletRecordMixin, Base):
         )
 
     def get_is_complete_tr(self, req: CamcopsRequest) -> str:
-        """HTML table row to indicate whether task is complete or not, and to
-        make it very obvious visually when it isn't."""
+        """
+        HTML table row to indicate whether task is complete or not, and to
+        make it very obvious visually when it isn't.
+        """
         return "<tr>" + self.get_is_complete_td_pair(req) + "</tr>"
 
     def get_twocol_val_row(self,
                            fieldname: str,
                            default: str = None,
                            label: str = None) -> str:
-        """HTML table row, two columns, without web-safing of value."""
+        """
+        HTML table row, two columns, without web-safing of value.
+
+        Args:
+            fieldname: field (attribute) name; the value will be retrieved
+                from this attribute
+            default: default to show if the value is ``None``
+            label: descriptive label
+
+        Returns:
+            two-column HTML table row (label, value)
+
+        """
         val = getattr(self, fieldname)
         if val is None:
             val = default
@@ -1473,7 +1791,17 @@ class Task(GenericTabletRecordMixin, Base):
     def get_twocol_string_row(self,
                               fieldname: str,
                               label: str = None) -> str:
-        """HTML table row, two columns, with web-safing of value."""
+        """
+        HTML table row, two columns, with web-safing of value.
+
+        Args:
+            fieldname: field (attribute) name; the value will be retrieved
+                from this attribute
+            label: descriptive label
+
+        Returns:
+            two-column HTML table row (label, value)
+        """
         if label is None:
             label = fieldname
         return tr_qa(label, getattr(self, fieldname))
@@ -1482,7 +1810,18 @@ class Task(GenericTabletRecordMixin, Base):
                             req: CamcopsRequest,
                             fieldname: str,
                             label: str = None) -> str:
-        """HTML table row, two columns, with Boolean Y/N formatter."""
+        """
+        HTML table row, two columns, with Boolean Y/N formatter for value.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            fieldname: field (attribute) name; the value will be retrieved
+                from this attribute
+            label: descriptive label
+
+        Returns:
+            two-column HTML table row (label, value)
+        """
         if label is None:
             label = fieldname
         return tr_qa(label, get_yes_no_none(req, getattr(self, fieldname)))
@@ -1491,7 +1830,19 @@ class Task(GenericTabletRecordMixin, Base):
                                        req: CamcopsRequest,
                                        fieldname: str,
                                        label: str = None) -> str:
-        """HTML table row, two columns, with Boolean T/F formatter."""
+        """
+        HTML table row, two columns, with Boolean true/false formatter for
+        value.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            fieldname: field (attribute) name; the value will be retrieved
+                from this attribute
+            label: descriptive label
+
+        Returns:
+            two-column HTML table row (label, value)
+        """
         if label is None:
             label = fieldname
         return tr_qa(label, get_true_false_none(req, getattr(self, fieldname)))
@@ -1500,7 +1851,19 @@ class Task(GenericTabletRecordMixin, Base):
                                            req: CamcopsRequest,
                                            fieldname: str,
                                            label: str = None) -> str:
-        """HTML table row, two columns, with Boolean P/A formatter."""
+        """
+        HTML table row, two columns, with Boolean present/absent formatter for
+        value.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            fieldname: field (attribute) name; the value will be retrieved
+                from this attribute
+            label: descriptive label
+
+        Returns:
+            two-column HTML table row (label, value)
+        """
         if label is None:
             label = fieldname
         return tr_qa(label, get_present_absent_none(req,
@@ -1508,7 +1871,16 @@ class Task(GenericTabletRecordMixin, Base):
 
     @staticmethod
     def get_twocol_picture_row(blob: Optional[Blob], label: str) -> str:
-        """HTML table row, two columns, with PNG on right."""
+        """
+        HTML table row, two columns, with PNG on right.
+
+        Args:
+            blob: the :class:`Blob` object
+            label: descriptive label
+
+        Returns:
+            two-column HTML table row (label, picture)
+        """
         return tr(label, get_blob_img_html(blob))
 
     # -------------------------------------------------------------------------
@@ -1516,22 +1888,30 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def get_values(self, fields: List[str]) -> List:
-        """Get list of object's values from list of field names."""
+        """
+        Get list of object's values from list of field names.
+        """
         return [getattr(self, f) for f in fields]
 
     def is_field_complete(self, field: str) -> bool:
-        """Is the field not None?"""
+        """
+        Is the field not None?
+        """
         return getattr(self, field) is not None
 
     def are_all_fields_complete(self, fields: List[str]) -> bool:
-        """Are all fields not None?"""
+        """
+        Are all specified fields not None?
+        """
         for f in fields:
             if getattr(self, f) is None:
                 return False
         return True
 
     def n_complete(self, fields: List[str]) -> int:
-        """How many of the fields are not None?"""
+        """
+        How many of the specified fields are not None?
+        """
         total = 0
         for f in fields:
             if getattr(self, f) is not None:
@@ -1539,7 +1919,9 @@ class Task(GenericTabletRecordMixin, Base):
         return total
 
     def n_incomplete(self, fields: List[str]) -> int:
-        """How many of the fields are None?"""
+        """
+        How many of the specified fields are None?
+        """
         total = 0
         for f in fields:
             if getattr(self, f) is None:
@@ -1547,7 +1929,9 @@ class Task(GenericTabletRecordMixin, Base):
         return total
 
     def count_booleans(self, fields: List[str]) -> int:
-        """How many fields evaluate to True?"""
+        """
+        How many of the specified fields evaluate to True (are truthy)?
+        """
         total = 0
         for f in fields:
             value = getattr(self, f)
@@ -1556,7 +1940,9 @@ class Task(GenericTabletRecordMixin, Base):
         return total
 
     def all_true(self, fields: List[str]) -> bool:
-        """Do all fields evaluate to True?"""
+        """
+        Do all the specified fields evaluate to True (are they all truthy)?
+        """
         for f in fields:
             value = getattr(self, f)
             if not value:
@@ -1566,20 +1952,27 @@ class Task(GenericTabletRecordMixin, Base):
     def count_where(self,
                     fields: List[str],
                     wherevalues: List[Any]) -> int:
-        """Count how many field values are in wherevalues."""
+        """
+        Count how many values for the specified fields are in ``wherevalues``.
+        """
         return sum(1 for x in self.get_values(fields) if x in wherevalues)
 
     def count_wherenot(self,
                        fields: List[str],
                        notvalues: List[Any]) -> int:
-        """Count how many field values are NOT in notvalues."""
+        """
+        Count how many values for the specified fields are NOT in
+        ``notvalues``.
+        """
         return sum(1 for x in self.get_values(fields) if x not in notvalues)
 
     def sum_fields(self,
                    fields: List[str],
                    ignorevalue: Any = None) -> Union[int, float]:
-        """Sum values stored in all fields (skipping any whose value is
-        ignorevalue; treating fields containing None as zero)."""
+        """
+        Sum values stored in all specified fields (skipping any whose value is
+        ``ignorevalue``; treating fields containing ``None`` as zero).
+        """
         total = 0
         for f in fields:
             value = getattr(self, f)
@@ -1592,8 +1985,8 @@ class Task(GenericTabletRecordMixin, Base):
                     fields: List[str],
                     ignorevalue: Any = None) -> Union[int, float, None]:
         """
-        Mean of values stored in all fields (skipping any whose value is
-        ignorevalue).
+        Return the mean of the values stored in all specified fields (skipping
+        any whose value is ``ignorevalue``).
         """
         values = []
         for f in fields:
@@ -1607,11 +2000,37 @@ class Task(GenericTabletRecordMixin, Base):
 
     @staticmethod
     def fieldnames_from_prefix(prefix: str, start: int, end: int) -> List[str]:
+        """
+        Returns a list of field (column, attribute) names from a prefix.
+        For example, ``fieldnames_from_prefix("q", 1, 5)`` produces
+        ``["q1", "q2", "q3", "q4", "q5"]``.
+
+        Args:
+            prefix: string prefix
+            start: first value (inclusive)
+            end: last value (inclusive
+
+        Returns:
+            list of fieldnames, as above
+
+        """
         return [prefix + str(x) for x in range(start, end + 1)]
 
     @staticmethod
     def fieldnames_from_list(prefix: str,
                              suffixes: Iterable[Any]) -> List[str]:
+        """
+        Returns a list of fieldnames made by appending each suffix to the
+        prefix.
+
+        Args:
+            prefix: string prefix
+            suffixes: list of suffixes, which will be coerced to ``str``
+
+        Returns:
+            list of fieldnames, as above
+
+        """
         return [prefix + str(x) for x in suffixes]
 
     # -------------------------------------------------------------------------
@@ -1619,9 +2038,18 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def get_extrastring_taskname(self) -> str:
+        """
+        Get the taskname used as the top-level key for this task's extra
+        strings (loaded by the server from XML files). By default this is the
+        task's primary tablename, but tasks may override that via
+        ``extrastring_taskname``.
+        """
         return self.extrastring_taskname or self.tablename
 
     def extrastrings_exist(self, req: CamcopsRequest) -> bool:
+        """
+        Does the server have any extra strings for this task?
+        """
         return req.task_extrastrings_exist(self.get_extrastring_taskname())
 
     def wxstring(self,
@@ -1629,6 +2057,18 @@ class Task(GenericTabletRecordMixin, Base):
                  name: str,
                  defaultvalue: str = None,
                  provide_default_if_none: bool = True) -> str:
+        """
+        Return a web-safe version of an extra string for this task.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            name: name (second-level key) of the string, within the set of
+                this task's extra strings
+            defaultvalue: default to return if the string is not found
+            provide_default_if_none: if ``True`` and ``default is None``,
+                return a helpful missing-string message in the style
+                "string x.y not found"
+        """
         if defaultvalue is None and provide_default_if_none:
             defaultvalue = "[{}: {}]".format(self.get_extrastring_taskname(),
                                              name)
@@ -1643,6 +2083,19 @@ class Task(GenericTabletRecordMixin, Base):
                 name: str,
                 defaultvalue: str = None,
                 provide_default_if_none: bool = True) -> str:
+        """
+        Return a raw (not necessarily web-safe) version of an extra string for
+        this task.
+
+        Args:
+            req: the :class:`CamcopsRequest`
+            name: name (second-level key) of the string, within the set of
+                this task's extra strings
+            defaultvalue: default to return if the string is not found
+            provide_default_if_none: if ``True`` and ``default is None``,
+                return a helpful missing-string message in the style
+                "string x.y not found"
+        """
         if defaultvalue is None and provide_default_if_none:
             defaultvalue = "[{}: {}]".format(self.get_extrastring_taskname(),
                                              name)
@@ -1654,19 +2107,18 @@ class Task(GenericTabletRecordMixin, Base):
 
 
 # =============================================================================
-# Fieldnames to auto-exempt from text filtering
+# Collating all task tables for specific purposes
 # =============================================================================
 
-@cache_region_static.cache_on_arguments(function_key_generator=fkg)
-def text_filter_exempt_fields(task: Type[Task]) -> List[str]:
-    exempt = []  # type: List[str]
-    for attrname, column in gen_columns(task):
-        if attrname.startswith("_") or not is_sqlatype_string(column.type):
-            exempt.append(attrname)
-    return exempt
-
-
 def all_task_tables_with_min_client_version() -> Dict[str, Version]:
+    """
+    Across all tasks, return a mapping from each of their tables to the
+    minimum client version.
+    
+    Used by
+    :func:`camcops_server.cc_modules.client_api.all_tables_with_min_client_version`.
+    
+    """  # noqa
     d = {}  # type: Dict[str, Version]
     classes = list(Task.gen_all_subclasses())
     for cls in classes:
@@ -1679,7 +2131,15 @@ def all_task_tables_with_min_client_version() -> Dict[str, Version]:
 # =============================================================================
 
 def get_from_dict(d: Dict, key: str, default: Any = INVALID_VALUE) -> Any:
-    """Returns a value from a dictionary."""
+    """
+    Returns a value from a dictionary. This is not a very complex function...
+    all it really does in practice is provide a default for ``default``.
+
+    Args:
+        d: the dictionary
+        key: the key
+        default: value to return if none is provided
+    """
     return d.get(key, default)
 
 
@@ -1688,7 +2148,9 @@ def get_from_dict(d: Dict, key: str, default: Any = INVALID_VALUE) -> Any:
 # =============================================================================
 
 class TaskCountReport(Report):
-    """Report to count task instances."""
+    """
+    Report to count task instances.
+    """
 
     # noinspection PyMethodParameters
     @classproperty
@@ -1740,7 +2202,7 @@ class TaskCountReport(Report):
             # log.critical(str(query))
             rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
             final_rows.extend(rows)
-        return PlainReportType(rows=final_rows, columns=colnames)
+        return PlainReportType(rows=final_rows, column_names=colnames)
 
 
 # =============================================================================
@@ -1748,6 +2210,9 @@ class TaskCountReport(Report):
 # =============================================================================
 
 class TaskTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_query_phq9(self) -> None:
         self.announce("test_query_phq9")
         from camcops_server.tasks import Phq9

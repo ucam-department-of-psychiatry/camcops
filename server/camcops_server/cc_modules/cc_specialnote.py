@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_specialnote.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Special notes that are attached, on the server, to tasks or patients.
+
 """
 
 from typing import List, Optional
@@ -53,9 +58,9 @@ SPECIALNOTE_FWD_REF = "SpecialNote"
 
 class SpecialNote(Base):
     """
-    Represents a special note, attached server-side to a task.
+    Represents a special note, attached server-side to a task or patient.
 
-    'Task' means all records representing versions of a single task instance,
+    "Task" means all records representing versions of a single task instance,
     identified by the combination of {id, device, era}.
     """
     __tablename__ = "_special_notes"
@@ -105,7 +110,9 @@ class SpecialNote(Base):
     )
 
     def get_note_as_string(self) -> str:
-        """Return a string-formatted version of the note."""
+        """
+        Return a string-formatted version of the note.
+        """
         return "[{dt}, {user}]\n{note}".format(
             dt=self.note_at or "?",
             user=self.get_username() or "?",
@@ -113,7 +120,9 @@ class SpecialNote(Base):
         )
 
     def get_note_as_html(self) -> str:
-        """Return an HTML-formatted version of the note."""
+        """
+        Return an HTML-formatted version of the note.
+        """
         return "[{dt}, {user}]<br><b>{note}</b>".format(
             dt=self.note_at or "?",
             user=self.get_username() or "?",
@@ -126,7 +135,9 @@ class SpecialNote(Base):
         return self.user.username
 
     def get_xml_root(self, skip_fields: List[str] = None) -> XmlElement:
-        """Get root of XML tree, as an XmlElementTuple."""
+        """
+        Get root of XML tree, as an :class:`XmlElement`.
+        """
         skip_fields = skip_fields or []
         branches = make_xml_branches_from_columns(
             self, skip_fields=skip_fields)
@@ -136,6 +147,8 @@ class SpecialNote(Base):
     def forcibly_preserve_special_notes_for_device(cls, req: CamcopsRequest,
                                                    device_id: int) -> None:
         """
+        Force-preserve all special notes for a given device.
+
         WRITES TO DATABASE.
 
         For update methods, see also:

@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_convert.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Miscellaneous conversion functions.
+
 """
 
 import logging
@@ -57,15 +62,20 @@ NEWLINE_REGEX = re.compile("\n", re.MULTILINE)
 # =============================================================================
 
 def encode_single_value(v: Any, is_blob=False) -> str:
-    """Encodes a value for incorporation into an SQL CSV value string.
+    """
+    Encodes a value for incorporation into an SQL CSV value string.
 
-    Note that this also escapes newlines (not necessary when receiving data
-    from tablets, because those data arrive in CGI forms, but necessary for
-    the return journey to the tablet/webclient, because those data get sent in
-    a one-record-one-line format.
+    Note that this also escapes newlines. That is not necessary when receiving
+    data from tablets, because those data arrive in CGI forms, but necessary
+    for the return journey to the tablet/webclient, because those data get sent
+    in a one-record-one-line format.
 
-    The client-side counterpart to this function is decode_single_sql_literal()
-    in lib/conversion.js.
+    In the old Titanium client, the client-side counterpart to this function
+    was ``decode_single_sql_literal()`` in ``lib/conversion.js``.
+
+    In the newer C++ client, the client-side counterpart is
+    ``fromSqlLiteral()`` in ``lib/convert.cpp``.
+
     """
     if v is None:
         return "NULL"
@@ -100,9 +110,13 @@ def decode_single_value(v: str) -> Any:
 
     - we use ISO-8601 text for dates/times
 
-    The client-side counterpart to this function is SQLite's QUOTE() function
-    (see getRecordByPK_lowmem() in lib/dbsqlite.js), except in the case of
-    BLOBs (when it's getEncodedBlob() in table/Blob.js); see lib/dbupload.js.
+    In the old Titanium client, the client-side counterpart to this function
+    was SQLite's ``QUOTE()`` function (see ``getRecordByPK_lowmem()`` in
+    ``lib/dbsqlite.js``), except in the case of BLOBs (when it was
+    ``getEncodedBlob()`` in ``table/Blob.js``); see ``lib/dbupload.js``.
+
+    In the newer C++ client, the client-side counterpart is
+    ``toSqlLiteral()`` in ``lib/convert.cpp``.
 
     """
 
@@ -163,9 +177,10 @@ def decode_values(valuelist: str) -> List[Any]:
 # =============================================================================
 
 def tsv_escape(value: Any) -> str:
-    """Escapes value for tab-separated value (TSV) format.
+    """
+    Escapes ``value`` for tab-separated value (TSV) format.
 
-    Converts to unicode/str and escapes tabs/newlines.
+    Converts to ``str`` and escapes tabs/newlines.
     """
     if value is None:
         return ""
@@ -177,18 +192,24 @@ def tsv_escape(value: Any) -> str:
 
 
 def get_tsv_header_from_dict(d: Dict) -> str:
-    """Returns a TSV header line from a dictionary."""
+    """
+    Returns a TSV header line from a dictionary.
+    """
     return "\t".join([tsv_escape(x) for x in d.keys()])
 
 
 def get_tsv_line_from_dict(d: Dict) -> str:
-    """Returns a TSV data line from a dictionary."""
+    """
+    Returns a TSV data line from a dictionary.
+    """
     return "\t".join([tsv_escape(x) for x in d.values()])
 
 
 def tsv_from_query(rows: Iterable[Iterable[Any]],
                    descriptions: Iterable[str]) -> str:
-    """Converts rows from an SQL query result to TSV format."""
+    """
+    Converts rows from an SQL query result to TSV format.
+    """
     tsv = "\t".join([tsv_escape(x) for x in descriptions]) + "\n"
     for row in rows:
         tsv += "\t".join([tsv_escape(x) for x in row]) + "\n"
@@ -201,7 +222,7 @@ def tsv_from_query(rows: Iterable[Iterable[Any]],
 
 def br_html(text: str) -> str:
     r"""
-    Filter that esscapes text safely whilst also converting \n to <br>.
+    Filter that escapes text safely whilst also converting \n to <br>.
     """
     # https://stackoverflow.com/questions/2285507/converting-n-to-br-in-mako-files
     # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br

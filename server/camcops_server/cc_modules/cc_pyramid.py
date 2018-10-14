@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_pyramid.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -22,6 +24,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Functions for the Pyramid web framework.
+
 """
 
 from enum import Enum
@@ -100,11 +105,20 @@ COOKIE_NAME = 'camcops'
 
 
 class CookieKey:
+    """
+    Keys for HTTP cookies. We keep this to the absolute minimum; cookies
+    contain enough detail to look up a session on the server, and then
+    everything else is looked up on the server side.
+    """
     SESSION_ID = 'session_id'
     SESSION_TOKEN = 'session_token'
 
 
 class FormAction(object):
+    """
+    Action values for HTML forms. These values generally end up as the ``name``
+    attribute (and sometimes also the ``value`` attribute) of an HTML button.
+    """
     CANCEL = 'cancel'
     CLEAR_FILTERS = 'clear_filters'
     DELETE = 'delete'
@@ -116,20 +130,25 @@ class FormAction(object):
 
 
 class RequestMethod(object):
+    """
+    Constants to distinguish HTTP GET from HTTP POST requests.
+    """
     GET = "GET"
     POST = "POST"
 
 
 class ViewParam(object):
     """
+    View parameter constants.
+
     Used in the following situations:
 
-    - as parameter names for parameterized URLs, via RoutePath to Pyramid's
-      route configuration, then fetched from the matchdict.
+    - as parameter names for parameterized URLs (via RoutePath to Pyramid's
+      route configuration, then fetched from the matchdict);
 
     - as form parameter names (often with some duplication as the attribute
       names of deform Form objects, because to avoid duplication would involve
-      metaclass mess);
+      metaclass mess).
     """
     # QUERY = "_query"  # built in to Pyramid
     ADDRESS = "address"
@@ -219,7 +238,9 @@ class ViewParam(object):
 
 class ViewArg(object):
     """
-    String used as view arguments, e.g.
+    String used as view arguments. For example,
+    :class:`camcops_server.cc_modules.cc_forms.DumpTypeSelector` represents its
+    choices (inside an HTTP POST request) as values from this class.
     """
     EVERYTHING = "everything"
     HTML = "html"
@@ -291,8 +312,10 @@ MAKO_LOOKUP = TemplateLookup(
 
 class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
     """
-    (a) load the Mako template
-    (b) shove any other keys into its dictionary
+    A Mako template renderer that, when called:
+
+    (a) loads the Mako template
+    (b) shoves any other keys we specify into its dictionary
     """
     def __call__(self, value: Dict[str, Any], system: Dict[str, Any]) -> str:
         if DEBUG_TEMPLATE_PARAMETERS:
@@ -338,10 +361,8 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
         except:
             try:
                 exc_info = sys.exc_info()
-                errtext = text_error_template().render(
-                    error=exc_info[1],
-                    traceback=exc_info[2]
-                    )
+                errtext = text_error_template().render(error=exc_info[1],
+                                                       traceback=exc_info[2])
                 reraise(MakoRenderingException(errtext), None, exc_info[2])
             finally:
                 # noinspection PyUnboundLocalVariable
@@ -352,14 +373,21 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
 
 
 class CamcopsMakoRendererFactory(MakoRendererFactory):
+    """
+    A Mako renderer factory to use :class:`CamcopsMakoLookupTemplateRenderer`.
+    """
     # noinspection PyTypeChecker
     renderer_factory = staticmethod(CamcopsMakoLookupTemplateRenderer)
 
 
-def camcops_add_mako_renderer(config: Configurator, extension):
+def camcops_add_mako_renderer(config: Configurator, extension: str) -> None:
     """
-    Replacement for add_mako_renderer from pyramid_mako, so we can use our own
-    lookup.
+    Registers a renderer factory for a given template file type.
+
+    Replacement for :func:`add_mako_renderer` from ``pyramid_mako``, so we can
+    use our own lookup.
+
+    The ``extension`` parameter is a filename extension (e.g. ".mako").
     """
     renderer_factory = CamcopsMakoRendererFactory()
     renderer_factory.lookup = MAKO_LOOKUP
@@ -377,18 +405,51 @@ RE_VALID_REPLACEMENT_MARKER = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
 
 
 def valid_replacement_marker(marker: str) -> bool:
+    """
+    Is a string suitable for use as a parameter name in a templatized URL?
+
+    (That is: is it free of odd characters?)
+
+    See :class:`UrlParam`.
+    """
     return RE_VALID_REPLACEMENT_MARKER.match(marker) is not None
 
 
 class UrlParamType(Enum):
+    """
+    Enum for building templatized URLs.
+    See :class:`UrlParam`.
+    """
     STRING = 1
     POSITIVE_INTEGER = 2
     PLAIN_STRING = 3
 
 
 class UrlParam(object):
+    """
+    Represents a parameter within a URL. For example:
+
+    .. code-block:: python
+
+        from camcops_server.cc_modules.cc_pyramid import *
+        p = UrlParam("patient_id", UrlParamType.POSITIVE_INTEGER)
+        p.markerdef()  # '{patient_id:\\d+}'
+        
+    These fragments are suitable for building into a URL for use with Pyramid's
+    URL Dispatch system:
+    https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html
+    
+    See also :class:`RoutePath`.
+
+    """  # noqa
     def __init__(self, name: str,
                  paramtype: UrlParamType == UrlParamType.PLAIN_STRING) -> None:
+        """
+        Args:
+            name: the name of the parameter
+            paramtype: the type (e.g. string? positive integer), defined via
+                the :class:`UrlParamType` enum.
+        """
         self.name = name
         self.paramtype = paramtype
         assert valid_replacement_marker(name), (
@@ -396,6 +457,9 @@ class UrlParam(object):
         )
 
     def regex(self) -> str:
+        """
+        Returns text for a regular expression to capture the parameter value.
+        """
         if self.paramtype == UrlParamType.STRING:
             return ''
         elif self.paramtype == UrlParamType.POSITIVE_INTEGER:
@@ -406,6 +470,9 @@ class UrlParam(object):
             raise RuntimeError("Bug in UrlParam")
 
     def markerdef(self) -> str:
+        """
+        Returns the string to use in building the URL.
+        """
         marker = self.name
         r = self.regex()
         if r:
@@ -414,6 +481,17 @@ class UrlParam(object):
 
 
 def make_url_path(base: str, *args: UrlParam) -> str:
+    """
+    Makes a URL path for use with the Pyramid URL dispatch system.
+    See :class:`UrlParam`.
+
+    Args:
+        base: the base path, to which we will append parameter templates
+        *args: a number of :class:`UrlParam` objects.
+
+    Returns:
+        the URL path, beginning with ``/``
+    """
     parts = []  # type: List[str]
     if not base.startswith("/"):
         parts.append("/")
@@ -431,9 +509,9 @@ class Routes(object):
     """
     Names of Pyramid routes.
 
-    - Used by the @view_config(route_name=...) decorator.
-    - Configured via RouteCollection / RoutePath to the Pyramid route
-      configurator.
+    - Used by the ``@view_config(route_name=...)`` decorator.
+    - Configured via :class:`RouteCollection` / :class:`RoutePath` to the
+      Pyramid route configurator.
     """
     # Hard-coded special paths
     STATIC = "static"
@@ -510,11 +588,11 @@ class RoutePath(object):
     Class to hold a route/path pair.
 
     - Pyramid route names are just strings used internally for convenience.
-    - Pyramid URL paths are URL fragments, like '/thing', and can contain
-      placeholders, like '/thing/{bork_id}', which will result in the
-      request.matchdict object containing a 'bork_id' key. Those can be
-      further constrained by regular expressions, like '/thing/{bork_id:\d+}'
-      to restrict to digits.
+    - Pyramid URL paths are URL fragments, like ``'/thing'``, and can contain
+      placeholders, like ``'/thing/{bork_id}'``, which will result in the
+      ``request.matchdict`` object containing a ``'bork_id'`` key. Those can be
+      further constrained by regular expressions, like
+      ``'/thing/{bork_id:\d+}'`` to restrict to digits.
 
     """
     def __init__(self, route: str, path: str,
@@ -534,12 +612,13 @@ STATIC_CAMCOPS_PACKAGE_PATH = "camcops_server.static:"
 class RouteCollection(object):
     """
     All routes, with their paths, for CamCOPS.
-    They will be auto-read by all_routes().
+    They will be auto-read by :func:`all_routes`.
 
-    To make a URL on the fly, use Request.route_url() or
-    CamcopsRequest.route_url_params().
+    To make a URL on the fly, use :func:`Request.route_url` or
+    :func:`CamcopsRequest.route_url_params`.
 
-    To associate a view with a route, use the Pyramid @view_config decorator.
+    To associate a view with a route, use the Pyramid ``@view_config``
+    decorator.
     """
     # Hard-coded special paths
     DEBUG_TOOLBAR = RoutePath('debug_toolbar', '/_debug_toolbar/',
@@ -641,45 +720,49 @@ class RouteCollection(object):
     @classmethod
     def all_routes(cls) -> List[RoutePath]:
         """
-        Fetch all routes.
+        Fetch all routes for CamCOPS.
         """
-        return [v for k, v in cls.__dict__.items()
-                if not (k.startswith('_') or  # class hidden things
-                        k == 'all_routes' or  # this function
-                        v.ignore_in_all_routes)  # explicitly ignored
-                ]
+        return [
+            v for k, v in cls.__dict__.items()
+            if not (k.startswith('_') or  # class hidden things
+                    k == 'all_routes' or  # this function
+                    v.ignore_in_all_routes)  # explicitly ignored
+        ]
 
 
 # =============================================================================
 # Pyramid HTTP session handling
 # =============================================================================
 
-def get_session_factory() -> SignedCookieSessionFactory:
+def get_session_factory() -> Callable[["CamcopsRequest"], ISession]:
     """
     We have to give a Pyramid request a way of making an HTTP session.
     We must return a session factory.
     
-    - An example is an instance of SignedCookieSessionFactory().
+    - An example is in :class:`pyramid.session.SignedCookieSessionFactory`.
     - A session factory has the signature [1]:
     
       .. code-block:: none
       
             sessionfactory(req: CamcopsRequest) -> session_object
 
-      ... where session "is a namespace" [2]
-      ... but more concretely, "implements the pyramid.interfaces.ISession 
-      interface"
+      - ... where session "is a namespace" [2]
+      - ... but more concretely, "implements the pyramid.interfaces.ISession 
+        interface"
 
-    - We want to be able to make the session by reading the CamcopsConfig from
-      the request.
+    - We want to be able to make the session by reading the
+      :class:`CamcopsConfig` from the request.
 
     [1] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory
     
     [2] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session
     """  # noqa
+
     def factory(req: "CamcopsRequest") -> ISession:
         """
-        How does the session write the cookies to the response?
+        How does the session write the cookies to the response? Like this:
+        
+        .. code-block:: none
 
             SignedCookieSessionFactory
                 BaseCookieSessionFactory  # pyramid/session.py
@@ -690,13 +773,13 @@ def get_session_factory() -> SignedCookieSessionFactory:
                                 def set_cookie_callback(request, response):
                                     self._set_cookie(response)
                                     # ...
-                                self.request.add_response_callback(set_cookie_callback)  # noqa
+                                self.request.add_response_callback(set_cookie_callback)
 
                         def _set_cookie(self, response):
                             # ...
                             response.set_cookie(...)
 
-        """
+        """  # noqa
         cfg = req.config
         secure_cookies = not cfg.allow_insecure_cookies
         pyramid_factory = SignedCookieSessionFactory(
@@ -726,8 +809,12 @@ def get_session_factory() -> SignedCookieSessionFactory:
 # =============================================================================
 
 class Permission(object):
-    # Permissions are strings.
-    # For "logged in", use pyramid.security.Authenticated
+    """
+    Pyramid permission values.
+
+    - Permissions are strings.
+    - For "logged in", use ``pyramid.security.Authenticated``
+    """
     GROUPADMIN = "groupadmin"
     HAPPY = "happy"  # logged in, can use webview, no need to change p/w, agreed to terms  # noqa
     MUST_AGREE_TERMS = "must_agree_terms"
@@ -737,24 +824,44 @@ class Permission(object):
 
 @implementer(IAuthenticationPolicy)
 class CamcopsAuthenticationPolicy(object):
-    # - https://docs.pylonsproject.org/projects/pyramid/en/latest/tutorials/wiki2/authorization.html  # noqa
-    # - https://docs.pylonsproject.org/projects/pyramid-cookbook/en/latest/auth/custom.html  # noqa
-    # - Don't actually inherit from IAuthenticationPolicy; it ends up in the
-    #   zope.interface.interface.InterfaceClass metaclass and then breaks with
-    #   "zope.interface.exceptions.InvalidInterface: Concrete attribute, ..."
-    # - But @implementer does the trick.
+    """
+    CamCOPS authentication policy.
+    
+    See
+
+    - https://docs.pylonsproject.org/projects/pyramid/en/latest/tutorials/wiki2/authorization.html
+    - https://docs.pylonsproject.org/projects/pyramid-cookbook/en/latest/auth/custom.html
+    - Don't actually inherit from :class:`IAuthenticationPolicy`; it ends up in
+      the :class:`zope.interface.interface.InterfaceClass` metaclass and then
+      breaks with "zope.interface.exceptions.InvalidInterface: Concrete
+      attribute, ..."
+    - But ``@implementer`` does the trick.
+    """  # noqa
 
     @staticmethod
     def authenticated_userid(request: "CamcopsRequest") -> Optional[int]:
+        """
+        Returns the user ID of the authenticated user.
+        """
         return request.user_id
 
     # noinspection PyUnusedLocal
     @staticmethod
     def unauthenticated_userid(request: "CamcopsRequest") -> Optional[int]:
+        """
+        Returns the user ID of the unauthenticated user.
+
+        We don't allow users to be identified but not authenticated, so we
+        return ``None``.
+        """
         return None
 
     @staticmethod
     def effective_principals(request: "CamcopsRequest") -> List[str]:
+        """
+        Returns a list of strings indicating permissions that the current user
+        has.
+        """
         principals = [Everyone]
         user = request.user
         if user is not None:
@@ -790,6 +897,9 @@ class CamcopsAuthenticationPolicy(object):
 
 @implementer(IAuthorizationPolicy)
 class CamcopsAuthorizationPolicy(object):
+    """
+    CamCOPS authorization policy.
+    """
     # noinspection PyUnusedLocal
     @staticmethod
     def permits(context: ILocation, principals: List[str], permission: str) \
@@ -815,23 +925,32 @@ class CamcopsAuthorizationPolicy(object):
 
 class SqlalchemyOrmQueryWrapper(object):
     """
-    Wrapper class to access elements of an SQLAlchemy ORM query.
+    Wrapper class to access elements of an SQLAlchemy ORM query in an efficient
+    way for pagination. We only ask the database for what we need.
 
     See:
-    - https://docs.pylonsproject.org/projects/pylons-webframework/en/latest/helpers.html  # noqa
-    - https://docs.pylonsproject.org/projects/webhelpers/en/latest/modules/paginate.html  # noqa
+    
+    - https://docs.pylonsproject.org/projects/pylons-webframework/en/latest/helpers.html
+    - https://docs.pylonsproject.org/projects/webhelpers/en/latest/modules/paginate.html
     - https://github.com/Pylons/paginate
-    """
+    """  # noqa
     def __init__(self, query: Query) -> None:
         self.query = query
 
     def __getitem__(self, cut: slice) -> List[Any]:
-        # Return a range of objects of an sqlalchemy.orm.query.Query object
+        """
+        Return a range of objects of an :class:`sqlalchemy.orm.query.Query`
+        object.
+
+        Will apply LIMIT/OFFSET to fetch only what we need.
+        """
         return self.query[cut]
-        # ... will apply LIMIT/OFFSET to fetch only what we need
 
     def __len__(self) -> int:
-        # Count the number of objects in an sqlalchemy.orm.query.Query object
+        """
+        Count the number of objects in an :class:`sqlalchemy.orm.query.Query``
+        object.
+        """
         return self.query.count()
 
 
@@ -842,6 +961,14 @@ PAGER_PATTERN = (
 
 
 class CamcopsPage(Page):
+    """
+    Pagination class, for HTML views that display, for example,
+    items 1-20 and buttons like "page 2", "next page", "last page".
+
+    - Fixes a bug in paginate: it slices its collection BEFORE it realizes that
+      the page number is out of range.
+    - Also, it uses ``..`` for an ellipsis, which is just wrong.
+    """
     # noinspection PyShadowingBuiltins
     def __init__(self,
                  collection: Union[Sequence[Any], Query, Select],
@@ -852,9 +979,12 @@ class CamcopsPage(Page):
                  wrapper_class: Type[Any] = None,
                  ellipsis: str = "&hellip;",
                  **kwargs) -> None:
-        # Bug in paginate: it slices its collection BEFORE it realizes that the
-        # page number is out of range.
-        # Also, it uses ".." for an ellipsis, which is just wrong.
+        """
+        See :class:`paginate.Page`. Additional arguments:
+
+        Args:
+            ellipsis: HTML text to use as the ellipsis marker
+        """
         self.ellipsis = ellipsis
         page = max(1, page)
         if item_count is None:
@@ -895,11 +1025,14 @@ class CamcopsPage(Page):
               curpage_attr: Dict[str, str] = None,
               dotdot_attr: Dict[str, str] = None,
               link_tag: Callable[[Dict[str, str]], str] = None):
-        # The reason for the default for 'show_if_single_page' being True is
-        # that it's possible otherwise to think you've lost your tasks. For
-        # example: (1) have 99 tasks; (2) view 50/page; (3) go to page 2;
-        # (4) set number per page to 100. Or simply use the URL to go beyond
-        # the end.
+        """
+        See :func:`paginate.Page.pager`.
+
+        The reason for the default for ``show_if_single_page`` being ``True``
+        is that it's possible otherwise to think you've lost your tasks. For
+        example: (1) have 99 tasks; (2) view 50/page; (3) go to page 2; (4) set
+        number per page to 100. Or simply use the URL to go beyond the end.
+        """
         link_attr = link_attr or {}  # type: Dict[str, str]
         curpage_attr = curpage_attr or {}  # type: Dict[str, str]
         # dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]
@@ -1061,7 +1194,9 @@ class CamcopsPage(Page):
 
 
 class SqlalchemyOrmPage(CamcopsPage):
-    """A pagination page that deals with SQLAlchemy ORM objects."""
+    """
+    A pagination page that paginates SQLAlchemy ORM queries efficiently.
+    """
     def __init__(self,
                  query: Query,
                  url_maker: Callable[[int], str],
@@ -1143,7 +1278,9 @@ class PageUrl(object):
         self.qualified = qualified
 
     def __call__(self, page: int, partial: bool = False) -> str:
-        """Generate a URL for the specified page."""
+        """
+        Generate a URL for the specified page.
+        """
         if self.qualified:
             path = self.request.application_url
         else:
@@ -1156,6 +1293,11 @@ class PageUrl(object):
 # =============================================================================
 
 def get_body_from_request(req: Request) -> bytes:
+    """
+    Debugging function to read the body from an HTTP request.
+    May not work and will warn accordingly. Use Wireshark to be sure
+    (https://www.wireshark.org/).
+    """
     log.warning("Attempting to read body from request -- but a previous read "
                 "may have left this empty. Consider using Wireshark!")
     wsgi_input = req.environ[WsgiEnvVar.WSGI_INPUT]
@@ -1165,7 +1307,7 @@ def get_body_from_request(req: Request) -> bytes:
 
 class HTTPFoundDebugVersion(HTTPFound):
     """
-    For debugging redirections.
+    A debugging version of :class:`HTTPFound`, for debugging redirections.
     """
     def __init__(self, location: str = '', **kwargs) -> None:
         log.debug("Redirecting to {!r}", location)

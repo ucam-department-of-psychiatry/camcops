@@ -2,6 +2,8 @@
 # camcops_server/cc_modules/cc_plot.py
 
 """
+..
+
 ===============================================================================
 
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
@@ -23,6 +25,8 @@
 
 ===============================================================================
 
+Plotting functions.
+
 PROPER WAY TO USE MATPLOTLIB:
 
 - http://jbarillari.blogspot.co.uk/2009/09/threadsafety-and-matplotlibpylab.html?m=1  # noqa
@@ -32,6 +36,8 @@ PROPER WAY TO USE MATPLOTLIB:
 
 In summary: matplotlib is easy to use in a way that has global state, but that
 will break in a threading application. Using the Figure() API is safe. Thus:
+
+.. code-block:: python
 
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from matplotlib.figure import Figure
