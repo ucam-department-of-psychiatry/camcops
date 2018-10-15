@@ -18,48 +18,92 @@
 */
 
 #include "factg.h"
-#include "common/textconst.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
-#include "lib/version.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
+#include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
+#include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::anyNull;
-using mathfunc::countNotNull;
-using mathfunc::sumInt;
-using mathfunc::scorePhrase;
-using stringfunc::strnum;
-using stringfunc::strseq;
-
-const int FIRST_Q = 1;
-const int N_QUESTIONS = 27;
-const int N_SECTIONS = 4;
-
-const int SECTION_1_START = 1;
-const int SECTION_2_START = 8;
-const int SECTION_3_START = 15;
-const int SECTION_4_START = 21;
-
-const QString QPREFIX("q");
 
 const QString Factg::FACTG_TABLENAME("factg");
 
+const QString SUBTITLE_PHYSICAL("Physical Well-Being");
+const QString SUBTITLE_SOCIAL("Social/Family Well-Being");
+const QString SUBTITLE_EMOTIONAL("Emotional Well-Being");
+const QString SUBTITLE_FUNCTIONAL("Functional Well-Being");
+
+const QString PREFIX_PHYSICAL("p_q");
+const QString PREFIX_SOCIAL("s_q");
+const QString PREFIX_EMOTIONAL("e_q");
+const QString PREFIX_FUNCTIONAL("f_q");
+
+const int FIRST_Q = 1;
+const int LAST_Q_PHYSICAL = 7;
+const int LAST_Q_SOCIAL = 7;
+const int LAST_Q_EMOTIONAL = 6;
+const int LAST_Q_FUNCTIONAL = 7;
+
+const int N_PHYSICAL = 7;
+const int N_SOCIAL = 7;
+const int N_EMOTIONAL = 6;
+const int N_FUNCTIONAL= 7;
+
+const int MAX_SCORE_PHYSICAL = 28;
+const int MAX_SCORE_SOCIAL = 28;
+const int MAX_SCORE_EMOTIONAL = 24;
+const int MAX_SCORE_FUNCTIONAL = 28;
+
+const int MAX_SCORE =    MAX_SCORE_PHYSICAL
+                       + MAX_SCORE_SOCIAL
+                       + MAX_SCORE_EMOTIONAL
+                       + MAX_SCORE_FUNCTIONAL;
+
+const QString PREFER_NO_ANSWER("prefer_no_answer");
+const QString SOC_Q7_XSTRING(PREFIX_SOCIAL + "7");
+
+using stringfunc::strseq;
+using mathfunc::anyNull;
+using mathfunc::countNotNull;
+using mathfunc::scorePhrase;
+using mathfunc::sumDouble;
+using mathfunc::sumInt;
+using mathfunc::totalScorePhrase;
 
 void initializeFactg(TaskFactory& factory)
 {
     static TaskRegistrar<Factg> registered(factory);
 }
 
-
 Factg::Factg(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, FACTG_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, FACTG_TABLENAME, false, false, false),  // ... anon, clin, resp
+    m_in_tickbox_change(false)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    for (auto field : strseq(PREFIX_PHYSICAL, FIRST_Q, LAST_Q_PHYSICAL)) {
+        addField(field, QVariant::Int);
+    }
+
+    for (auto field : strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_SOCIAL)) {
+        addField(field, QVariant::Int);
+    }
+
+    for (auto field : strseq(PREFIX_EMOTIONAL, FIRST_Q, LAST_Q_EMOTIONAL)) {
+        addField(field, QVariant::Int);
+    }
+
+    for (auto field : strseq(PREFIX_FUNCTIONAL, FIRST_Q, LAST_Q_FUNCTIONAL)) {
+        addField(field, QVariant::Int);
+    }
+
+    addField(PREFER_NO_ANSWER, QVariant::Bool);
+
+    if (load_pk == dbconst::NONEXISTENT_PK) {
+        setValue(PREFER_NO_ANSWER, false, false);
+    }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -83,143 +127,223 @@ QString Factg::longname() const
 
 QString Factg::menusubtitle() const
 {
-    return tr("A 27-item general cancer quality-of-life (QL) measure - version 4.");
+    return tr("A 27-item general cancer quality-of-life (QL) measure - "
+              "version 4.");
 }
-
-
-Version Factg::minimumServerVersion() const
-{
-    return Version(2, 2, 8);
-}
-
 
 // ============================================================================
 // Instance info
 // ============================================================================
 
-bool Factg::isComplete() const
+QVector<QVariant> Factg::getScores() const
 {
-    return !anyNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
-}
+    QVector<QVariant> vals = values(strseq(PREFIX_PHYSICAL, FIRST_Q,
+                                           LAST_Q_PHYSICAL));
 
+    double score_phys, score_soc, score_emo, score_func;
+
+    int answered = countNotNull(vals);
+    score_phys = (answered > 0) ?
+                (sumInt(vals) * N_PHYSICAL) / answered
+            : 0;
+
+    vals = values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_SOCIAL));
+    answered = countNotNull(vals);
+    score_soc = (answered > 0) ?
+                (sumInt(vals) * N_SOCIAL) / answered
+            : 0;
+
+    vals = values(strseq(PREFIX_EMOTIONAL, FIRST_Q, LAST_Q_EMOTIONAL));
+    answered = countNotNull(vals);
+    score_emo = (answered > 0) ?
+                (sumInt(vals) * N_EMOTIONAL) / answered
+            : 0;
+
+    vals = values(strseq(PREFIX_FUNCTIONAL, FIRST_Q, LAST_Q_FUNCTIONAL));
+    answered = countNotNull(vals);
+    score_func = (answered > 0) ?
+                (sumInt(vals) * N_FUNCTIONAL) / answered
+            : 0;
+
+    return {score_phys, score_soc, score_emo, score_func};
+}
 
 QStringList Factg::summary() const
 {
-    return QStringList{
-//        scorePhrase(tr("Clinical score"), clinicalScore(), MAX_SCORE)
-    };
+    return QStringList{totalScorePhrase(sumDouble(getScores()), MAX_SCORE)};
 }
-
 
 QStringList Factg::detail() const
 {
-    const QString spacer = " ";
-    QStringList lines = completenessInfo();
-    lines += fieldSummaries("q", "_s", spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
-    lines.append("");
-    lines += summary();
-    return lines;
+    QVector<QVariant> scores = getScores();
+
+    return QStringList{
+        totalScorePhrase(sumDouble(scores), MAX_SCORE),
+        scorePhrase(SUBTITLE_PHYSICAL, scores.at(0).toDouble(),
+                    MAX_SCORE_EMOTIONAL),
+        scorePhrase(SUBTITLE_SOCIAL, scores.at(1).toDouble(),
+                    MAX_SCORE_SOCIAL),
+        scorePhrase(SUBTITLE_EMOTIONAL, scores.at(2).toDouble(),
+                    MAX_SCORE_EMOTIONAL),
+        scorePhrase(SUBTITLE_FUNCTIONAL, scores.at(3).toDouble(),
+                    MAX_SCORE_FUNCTIONAL)
+    };
 }
 
+bool Factg::isComplete() const
+{
+    return !(
+        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_PHYSICAL)))
+    ||  anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_SOCIAL)))
+    ||  anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_EMOTIONAL)))
+    ||  anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_FUNCTIONAL))));
+}
+
+void Factg::updateQ7(const FieldRef* fieldref)
+{
+    if (m_in_tickbox_change) {
+        // avoid circular signal
+        return;
+    }
+    m_in_tickbox_change = true;
+    bool prefer_no_answer = fieldref->valueBool();
+
+    FieldRefPtr fr_q7 = fieldRef(SOC_Q7_XSTRING);
+    fr_q7->setMandatory(!prefer_no_answer);
+
+    if (prefer_no_answer) {
+        fr_q7->setValue(QVariant());
+    }
+
+    m_in_tickbox_change = false;
+}
+
+void Factg::untickBox()
+{
+    fieldRef(PREFER_NO_ANSWER)->setValue(false);
+}
 
 OpenableWidget* Factg::editor(const bool read_only)
-{
-    const NameValueOptions options{
+{   
+    const NameValueOptions options_normal{
         {xstring("a0"), 0},
         {xstring("a1"), 1},
         {xstring("a2"), 2},
         {xstring("a3"), 3},
-        {xstring("a4"), 4}
+        {xstring("a4"), 4},
     };
 
-    const QVector<McqGridSubtitle> subtitles{
-        {0, "Physical Well-being"},
-        {7, "Social/Family Well-being"},
-        {14, "Emotional Well-being"},
-        {20, "Functional Well-being"},
+    const NameValueOptions options_reversed{
+        {xstring("a0"), 4},
+        {xstring("a1"), 3},
+        {xstring("a2"), 2},
+        {xstring("a3"), 1},
+        {xstring("a4"), 0},
     };
 
-    QVector<QuestionWithOneField> qfields;
-    QString xstring_section_prefix = "";
+    const int question_width = 50;
+    const QVector<int> option_widths{10, 10, 10, 10, 10};
 
-    int s_num = 0;
-    int q_num = 0;
+    // ========================================================================
+    // Physical
+    // ========================================================================
+    QVector<QuestionWithOneField> fields;
+    for (auto field : strseq(PREFIX_PHYSICAL, FIRST_Q, LAST_Q_PHYSICAL)) {
+        fields.append(QuestionWithOneField(xstring(field), fieldRef(field)));
+    }
+    QuPagePtr p1((new QuPage{
+                     (new QuText(xstring("instruction")))->setBold(true),
+                     (new QuMcqGrid({fields}, options_reversed))
+                      ->setExpand(true)
+                      ->setWidth(question_width, option_widths)
+                 })->setTitle(xstring("title_main")));
 
-    for (int i = FIRST_Q; s_num <= N_SECTIONS && i <= N_QUESTIONS; ++i, ++q_num) {
-        switch(i) {
-        case SECTION_1_START:
-        case SECTION_2_START:
-        case SECTION_3_START:
-        case SECTION_4_START:
-            ++s_num;
-            q_num = 1;
-            xstring_section_prefix = strnum("s", s_num, "_");
-        }
-        QString xstringname = strnum(xstring_section_prefix + "q", q_num);
-        qfields.append(QuestionWithOneField(xstring(xstringname),
-                                            fieldRef(strnum(QPREFIX, i))));
+    // ========================================================================
+    // Social
+    // ========================================================================
+    fields.clear();
+    for (auto field : strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_SOCIAL - 1)) {
+        fields.append(QuestionWithOneField(xstring(field), fieldRef(field)));
     }
 
-    QVector<QuElement*> elements = {
-        (new QuText(xstring("stem")))->setBold(true),
-        (new QuText(xstring("instruction")))->setBold(true),
-    };
+    QuMcqGrid *g1, *g2;
 
-    elements.append((new QuMcqGrid(qfields, options))
-                    ->setExpand(true)
-                    ->showTitle(false)
-                    ->setSubtitles(subtitles)
-);
-    QuPagePtr page((new QuPage(elements))
-                   ->setTitle(xstring("title_main")));
+    g1 = (new QuMcqGrid({fields}, options_normal))
+            ->setExpand(true)
+            ->setWidth(question_width, option_widths);
 
-    /*
-    QuPagePtr page((new QuPage{
-        (new QuMcqGrid(
-            {
-                QuestionWithOneField(xstring("q1"), fieldRef("q1")),
-            },
-            options
-        ))
-            ->setTitle(xstring("section_physical"))
-            ->setExpand(true),
-        (new QuMcqGrid(
-            {
-                QuestionWithOneField(xstring("q1"), fieldRef("q1")),
-            },
-            options
-        ))
-            ->setTitle(xstring("section_social"))
-            ->setExpand(true),
-    })->setTitle(xstring("title_main")));
-*/
+    FieldRefPtr fr_q7_enabled = fieldRef(PREFER_NO_ANSWER);
+    connect(fr_q7_enabled.data(), &FieldRef::valueChanged, this,
+            &Factg::updateQ7);
 
+    QuBoolean *no_answer = new QuBoolean(
+                            xstring("prefer_no_answer"),
+                            fr_q7_enabled);
 
-    auto questionnaire = new Questionnaire(m_app, {page});
-    questionnaire->setType(QuPage::PageType::Patient);
-    questionnaire->setReadOnly(read_only);
-    return questionnaire;
-}
+    FieldRefPtr fr_q7 = fieldRef(PREFIX_SOCIAL + "7");
+    connect(fr_q7.data(), &FieldRef::valueChanged, this,
+            &Factg::untickBox);
 
+    g2 = (new QuMcqGrid({
+            QuestionWithOneField(xstring(PREFIX_SOCIAL  + "7"),
+                                 fr_q7)}, options_normal))
+            ->showTitle(false)
+            ->setExpand(true)
+            ->setWidth(question_width, option_widths);
 
-// ============================================================================
-// Task-specific calculations
-// ============================================================================
+    QuPagePtr p2((new QuPage{
+                      g1,
+                      no_answer,
+                      g2
+                  })->setTitle(xstring("title_main")));
 
-int Factg::totalScore() const
-{
-    return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
-}
+    // ========================================================================
+    // Emotional
+    // ========================================================================
+    g1 = (new QuMcqGrid({
+            QuestionWithOneField(xstring(PREFIX_EMOTIONAL + "1"),
+                                 fieldRef(PREFIX_EMOTIONAL + "1"))
+                                  }, options_reversed))
+            ->setExpand(true)
+            ->setWidth(question_width, option_widths);
 
 
-int Factg::nQuestionsCompleted() const
-{
-    return countNotNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
-}
+    g2 = (new QuMcqGrid({
+            QuestionWithOneField(xstring(PREFIX_EMOTIONAL + "2"),
+                                 fieldRef(PREFIX_EMOTIONAL + "2"))
+                                  }, options_normal))
+            ->showTitle(false)
+            ->setExpand(true)
+            ->setWidth(question_width, option_widths);
 
+    fields.clear();
+    for (auto field : strseq(PREFIX_EMOTIONAL, 3, LAST_Q_EMOTIONAL)) {
+        fields.append(QuestionWithOneField(xstring(field), fieldRef(field)));
+    }
+    QuPagePtr p3((new QuPage{
+                     g1,
+                     g2,
+                    (new QuMcqGrid({fields}, options_reversed))
+                        ->showTitle(false)
+                        ->setExpand(true)
+                      ->setWidth(question_width, option_widths)
+                 })->setTitle(xstring("title_main")));
 
-double Factg::clinicalScore() const
-{
-    return static_cast<double>(N_QUESTIONS * totalScore()) /
-            static_cast<double>(nQuestionsCompleted());
+    // ========================================================================
+    // Functional
+    // ========================================================================
+    fields.clear();
+    for (auto field : strseq(PREFIX_FUNCTIONAL, FIRST_Q, LAST_Q_FUNCTIONAL)) {
+        fields.append(QuestionWithOneField(xstring(field), fieldRef(field)));
+    }
+    QuPagePtr p4((new QuPage{
+                      (new QuMcqGrid({fields}, options_normal))
+                        ->setExpand(true),
+                      new QuSpacer(),
+                      (new QuText(xstring("thanks")))->setBold(true),
+                  })->setTitle(xstring("title_main")));
+
+    auto q = new Questionnaire(m_app, {p1, p2, p3, p4});
+    q->setReadOnly(read_only);
+    return q;
 }

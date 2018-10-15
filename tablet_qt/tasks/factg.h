@@ -42,7 +42,6 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString menusubtitle() const override;
-    virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -53,9 +52,12 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    int totalScore() const;
-    int nQuestionsCompleted() const;
-    double clinicalScore() const;  // same as total score if complete; otherwise scaled to be out of 40
+    virtual QVector<QVariant> getScores() const;
+protected slots:
+    void updateQ7(const FieldRef* fieldref);
+    void untickBox();
 public:
     static const QString FACTG_TABLENAME;
+protected:
+    bool m_in_tickbox_change;
 };
