@@ -192,11 +192,17 @@ QStringList Factg::detail() const
 
 bool Factg::isComplete() const
 {
-    return !(
-        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_PHYSICAL)))
-    ||  anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_SOCIAL)))
-    ||  anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_EMOTIONAL)))
-    ||  anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_FUNCTIONAL))));
+    int last_q_social = LAST_Q_SOCIAL;
+
+    if (value(PREFER_NO_ANSWER).toBool()) {
+        --last_q_social;
+    }
+
+    return
+        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_PHYSICAL)))    ||
+        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, last_q_social)))  ||
+        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_EMOTIONAL)))   ||
+        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_FUNCTIONAL)));
 }
 
 void Factg::updateQ7(const FieldRef* fieldref)
@@ -214,6 +220,8 @@ void Factg::updateQ7(const FieldRef* fieldref)
     if (prefer_no_answer) {
         fr_q7->setValue(QVariant());
     }
+
+    fieldRef(PREFER_NO_ANSWER)->setValue(prefer_no_answer);
 
     m_in_tickbox_change = false;
 }
@@ -276,9 +284,10 @@ OpenableWidget* Factg::editor(const bool read_only)
     connect(fr_q7_enabled.data(), &FieldRef::valueChanged, this,
             &Factg::updateQ7);
 
-    QuBoolean *no_answer = new QuBoolean(
+    QuBoolean *no_answer = (new QuBoolean(
                             xstring("prefer_no_answer"),
-                            fr_q7_enabled);
+                            fr_q7_enabled))
+            ->setFalseAppearsBlank();
 
     FieldRefPtr fr_q7 = fieldRef(PREFIX_SOCIAL + "7");
     connect(fr_q7.data(), &FieldRef::valueChanged, this,
