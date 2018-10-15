@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/client_api.py
 
 """
-..
+camcops_server/cc_modules/client_api.py
 
 ===============================================================================
 
@@ -25,8 +24,8 @@
 
 ===============================================================================
 
-Implements the API through which client devices (tablets etc.) upload and
-download data.
+**Implements the API through which client devices (tablets etc.) upload and
+download data.**
 
 We use primarily SQLAlchemy Core here (in contrast to the ORM used elsewhere).
 
@@ -484,19 +483,19 @@ def get_select_reply(fields: Sequence[str],
                      rows: Sequence[Sequence[Any]]) -> Dict[str, str]:
     """
     Formats the result of a ``SELECT`` query for the client as a dictionary
-    reply. 
+    reply.
 
     Args:
-        fields: list of field names 
+        fields: list of field names
         rows: list of rows, where each row is a list of values in the same
-            order as ``fields`` 
+            order as ``fields``
 
     Returns:
-        
+
         a dictionary of the format:
 
         .. code-block:: none
-        
+
             {
                 "nfields": NUMBER_OF_FIELDS,
                 "fields": FIELDNAMES_AS_CSV,
@@ -505,7 +504,7 @@ def get_select_reply(fields: Sequence[str],
                     ...
                 "record{nrecords - 1}": VALUES_AS_CSV_LIST_OF_ENCODED_SQL_VALUES
             }
-            
+
     The final reply to the server is then formatted as text as per
     :func:`client_api`.
 

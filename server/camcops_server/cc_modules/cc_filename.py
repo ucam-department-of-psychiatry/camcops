@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_filename.py
 
 """
-..
+camcops_server/cc_modules/cc_filename.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Functions for handling filenames, and some associated constants.
+**Functions for handling filenames, and some associated constants.**
 
 """
 

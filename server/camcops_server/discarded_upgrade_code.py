@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/discarded_upgrade_code.py
 
 """
-..
+camcops_server/discarded_upgrade_code.py
 
 ===============================================================================
 
@@ -25,7 +24,8 @@
 
 ===============================================================================
 
-Discarded upgrade code. Ignore.
+**Discarded upgrade code. Ignore.**
+
 """
 
 _ = '''

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_taskfilter.py
 
 """
-..
+camcops_server/cc_modules/cc_taskfilter.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Representation of filtering criteria for tasks.
+**Representation of filtering criteria for tasks.**
 
 """
 

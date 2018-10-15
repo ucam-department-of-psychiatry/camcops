@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_blob.py
 
 """
-..
+camcops_server/cc_modules/cc_blob.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-BLOB (binary large object) handling.
+**BLOB (binary large object) handling.**
 
 """
 

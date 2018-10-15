@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/contactlog.py
 
 """
-..
+camcops_server/tasks/contactlog.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import List

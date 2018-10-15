@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/icd10manic.py
 
 """
-..
+camcops_server/tasks/icd10manic.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import List, Optional
@@ -222,7 +220,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "comments", UnicodeText,
         comment="Clinician's comments"
     )
-    
+
     CORE_NAMES = ["mood_elevated", "mood_irritable"]
     HYPOMANIA_MANIA_NAMES = [
         "distractible", "activity", "sleep",
@@ -237,7 +235,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "perceptual_alterations",  # not psychotic
         "hallucinations_schizophrenic", "hallucinations_other",
         "delusions_schizophrenic", "delusions_other"
-    ] 
+    ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

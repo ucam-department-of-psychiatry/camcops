@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/slums.py
 
 """
-..
+camcops_server/tasks/slums.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import List
@@ -57,8 +55,8 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
-    Task, 
-    TaskHasClinicianMixin, 
+    Task,
+    TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
 from camcops_server.cc_modules.cc_trackerhelpers import (
@@ -84,7 +82,7 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     provides_trackers = True
 
     alert = CamcopsColumn(
-        "alert", Integer, 
+        "alert", Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Is the patient alert? (0 no, 1 yes)")
     highschooleducation = CamcopsColumn(
@@ -220,9 +218,9 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     PREAMBLE_FIELDS = ["alert", "highschooleducation"]
     SCORED_FIELDS = [
-        "q1", "q2", "q3", 
+        "q1", "q2", "q3",
         "q5a", "q5b",
-        "q6", 
+        "q6",
         "q7a", "q7b", "q7c", "q7d", "q7e",
         "q8b", "q8c",
         "q9a", "q9b",

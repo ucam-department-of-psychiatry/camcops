@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_unittest.py
 
 """
-..
+camcops_server/cc_modules/cc_unittest.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Framework and support functions for unit tests.
+**Framework and support functions for unit tests.**
 
 """
 

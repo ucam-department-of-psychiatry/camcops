@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_client_api_core.py
 
 """
-..
+camcops_server/cc_modules/cc_client_api_core.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Core constants and functions used by the client (tablet device) API.
+**Core constants and functions used by the client (tablet device) API.**
 
 """
 

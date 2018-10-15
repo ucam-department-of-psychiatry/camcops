@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/core10.py
 
 """
-..
+camcops_server/tasks/core10.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Dict, List, Optional

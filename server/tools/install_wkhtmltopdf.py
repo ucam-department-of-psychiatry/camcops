@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tools/install_wkhtmltopdf.py
 
 """
-..
+tools/install_wkhtmltopdf.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Installs wkhtmltopdf.
+**Installs wkhtmltopdf.**
 
 Once installed from a Debian package, wkhtmltopdf will show up in ``dpkg
 --list`` as ``wkhtmltox``. So you can remove it with

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/cardinal_expdetthreshold.py
 
 """
-..
+camcops_server/tasks/cardinal_expdetthreshold.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 import math
@@ -84,7 +82,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
         nullable=False,
         comment="Trial number"
     )
-    
+
     # Results
     trial_ignoring_catch_trials = Column(
         "trial_ignoring_catch_trials", Integer,
@@ -183,7 +181,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
     longname = ("Cardinal RN – Threshold determination for "
                 "Expectation–Detection task")
     use_landscape_for_pdf = True
-    
+
     # Config
     modality = Column(
         "modality", Integer,
@@ -241,7 +239,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         "iti_s", Float,
         comment="Intertrial interval (s)"
     )
-    
+
     # Results
     finished = Column(
         "finished", Integer,

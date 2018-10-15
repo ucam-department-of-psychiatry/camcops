@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_alembic.py
 
 """
-..
+camcops_server/cc_modules/cc_alembic.py
 
 ===============================================================================
 
@@ -25,8 +24,8 @@
 
 ===============================================================================
 
-Functions to talk to Alembic; specifically, those functions that may be used
-by users/administrators, such as to upgrade a database.
+**Functions to talk to Alembic; specifically, those functions that may be used
+by users/administrators, such as to upgrade a database.**
 
 If you're a developer and want to create a new database migration, see
 ``tools/create_database_migration.py`` instead.
@@ -91,7 +90,7 @@ def create_database_from_scratch(cfg: "CamcopsConfig") -> None:
     bypassing Alembic's revisions and taking the state directly from the
     SQLAlchemy ORM metadata.
 
-    See 
+    See
     http://alembic.zzzcomputing.com/en/latest/cookbook.html#building-an-up-to-date-database-from-scratch
 
     This function ASSUMES that the head revision "frozen" into the latest

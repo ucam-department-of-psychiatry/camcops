@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/cisr.py
 
 """
-..
+camcops_server/tasks/cisr.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from enum import Enum
@@ -689,8 +687,8 @@ class CisrQuestion(Enum):
     OVERALL2_IMPACT_PAST_WEEK = next_enum()
     THANKS_FINISHED = next_enum()
     END_MARKER = next_enum()  # not a real page
-    
-    
+
+
 CQ = CisrQuestion  # shorthand
 
 # Demographics section
@@ -1306,7 +1304,7 @@ def enum_to_int(qe: CisrQuestion) -> int:
 def int_to_enum(qi: int) -> CisrQuestion:
     # https://stackoverflow.com/questions/23951641/how-to-convert-int-to-enum-in-python  # noqa
     return CisrQuestion(qi)
-    
+
 
 # =============================================================================
 # CisrResult
@@ -1317,7 +1315,7 @@ class CisrResult(object):
         self.incomplete = False
         self.record_decisions = record_decisions
         self.decisions = []  # type: List[str]
-        
+
         # Symptom scoring
         self.depression = 0  # DEPR in original
         self.depr_crit_1_mood_anhedonia_energy = 0  # DEPCRIT1
@@ -1384,7 +1382,7 @@ class CisrResult(object):
     # -------------------------------------------------------------------------
     # Overall scoring
     # -------------------------------------------------------------------------
-        
+
     def get_score(self) -> int:  # SCORE in original
         return (
             self.somatic_symptoms +
@@ -1402,7 +1400,7 @@ class CisrResult(object):
             self.compulsions +
             self.obsessions
         )
-        
+
     def needs_impairment_question(self) -> bool:
         # code in OVERALL1 in original
         threshold = 2  # for all symptoms
@@ -1541,10 +1539,10 @@ class CisrResult(object):
         return self.diagnosis_icd10_code(self.diagnosis_2)
 
     def finalize(self) -> None:
-        at_least_1_activity_impaired = (self.functional_impairment >= 
+        at_least_1_activity_impaired = (self.functional_impairment >=
                                         OVERALL_IMPAIRMENT_STOP_1_ACTIVITY)
         score = self.get_score()
-    
+
         # GAD
         if (self.anxiety >= 2 and
                 self.anxiety_physical_symptoms and
@@ -1630,7 +1628,7 @@ class CisrResult(object):
         # Depression
         if (self.depression_at_least_2_weeks and
                 self.depr_crit_1_mood_anhedonia_energy > 1 and
-                self.depr_crit_1_mood_anhedonia_energy + 
+                self.depr_crit_1_mood_anhedonia_energy +
                 self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 3):
             self.decide("Depressive symptoms >=2 weeks AND "
                         "depr_crit_1_mood_anhedonia_energy > 1 AND "
@@ -1640,7 +1638,7 @@ class CisrResult(object):
             self.depression_mild = True
         if (self.depression_at_least_2_weeks and
                 self.depr_crit_1_mood_anhedonia_energy > 1 and
-                (self.depr_crit_1_mood_anhedonia_energy + 
+                (self.depr_crit_1_mood_anhedonia_energy +
                  self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui) > 5):
             self.decide("Depressive symptoms >=2 weeks AND "
                         "depr_crit_1_mood_anhedonia_energy > 1 AND "
@@ -1656,16 +1654,16 @@ class CisrResult(object):
                         "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 4. "
                         "Setting depression_severe.")
             self.depression_severe = True
-    
+
         # CFS
         if self.neurasthenia >= 2:
             # The original had a pointless check for "DIAG1 == 0" too, but that
             # was always true.
             self.decide("neurasthenia >= 2. Setting chronic_fatigue_syndrome.")
             self.chronic_fatigue_syndrome = True
-    
+
         # Final diagnostic hierarchy
-    
+
         # ... primary diagnosis
         if score >= 12:
             self.decide("Total score >= 12. Setting diagnosis_1 to "
@@ -1788,7 +1786,7 @@ class CisrResult(object):
         self._showint("suicidality", self.suicidality)
         self._showbool("depression_at_least_2_weeks",
                        self.depression_at_least_2_weeks)
-    
+
         self._showint("hypochondria", self.hypochondria)
         self._showint("worry", self.worry)
         self._showint("anxiety", self.anxiety)
@@ -1803,7 +1801,7 @@ class CisrResult(object):
         self._showint("panic", self.panic)
         self._showbool("panic_rapid_onset", self.panic_rapid_onset)
         self._showint("panic_symptoms_total", self.panic_symptoms_total)
-    
+
         self._showint("compulsions", self.compulsions)
         self._showbool("compulsions_tried_to_stop",
                        self.compulsions_tried_to_stop)
@@ -1814,9 +1812,9 @@ class CisrResult(object):
                        self.obsessions_tried_to_stop)
         self._showbool("obsessions_at_least_2_weeks",
                        self.obsessions_at_least_2_weeks)
-    
+
         self._showint("functional_impairment", self.functional_impairment)
-    
+
         # Disorder flags
         self._showbool("obsessive_compulsive_disorder",
                        self.obsessive_compulsive_disorder)
@@ -1831,7 +1829,7 @@ class CisrResult(object):
         self._showbool("phobia_social", self.phobia_social)
         self._showbool("phobia_specific", self.phobia_specific)
         self._showbool("panic_disorder", self.panic_disorder)
-    
+
         self.decide("--- Final diagnoses:")
         self.decide("Probable primary diagnosis: " +
                     self.diagnosis_name(self.diagnosis_1))
@@ -2868,11 +2866,11 @@ class Cisr(TaskHasPatientMixin, Task):
                 v = int(var_q)
 
         next_q = -1
-        
+
         def jump_to(qe: CisrQuestion) -> None:
             nonlocal next_q
             next_q = enum_to_int(qe)
-            
+
         # If there is no special handling for a question, then after the
         # switch() statement we will move to the next question in sequence.
         # So only special "skip" situations are handled here.
@@ -4482,12 +4480,12 @@ class Cisr(TaskHasPatientMixin, Task):
                     {summary_rows_html}
                 </table>
             </div>
-            
+
             <div class="{CssClass.FOOTNOTES}">
                 [1] {total_score_footnote}
                 [2] {symptom_score_note}
             </div>
-            
+
             <div class="{CssClass.HEADING}">
                 Preamble/demographics (not contributing to diagnosis)
             </div>
@@ -4498,7 +4496,7 @@ class Cisr(TaskHasPatientMixin, Task):
                 </tr>
                 {demographics_html}
             </table>
-            
+
             <div class="{CssClass.HEADING}">
                 Data considered by algorithm (may be a subset of all data if
                 subject revised answers)
@@ -4510,10 +4508,10 @@ class Cisr(TaskHasPatientMixin, Task):
                 </tr>
                 {questions_html}
             </table>
-            
+
             <div class="{CssClass.HEADING}">Decisions</div>
             <pre>{decisions_html}</pre>
-            
+
             <div class="{CssClass.COPYRIGHT}">
                 • Original papers:
                 ▶ Lewis G, Pelosi AJ, Aray R, Dunn G (1992).

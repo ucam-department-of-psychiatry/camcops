@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_hl7core.py
 
 """
-..
+camcops_server/cc_modules/cc_hl7core.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Core functions to build HL7 messages.
+**Core functions to build HL7 messages.**
 
 """
 
@@ -109,11 +108,11 @@ def make_msh_segment(message_datetime: Pendulum,
                      message_control_id: str) -> hl7.Segment:
     """
     Creates an HL7 message header (MSH) segment.
-    
+
     - MSH: http://www.hl7.org/documentcenter/public/wg/conf/HL7MSH.htm
 
     - We're making an ORU^R01 message = unsolicited result.
-    
+
       - ORU = Observational Report - Unsolicited
       - ORU^R01 = Unsolicited transmission of an observation message
       - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-oru-message
@@ -182,7 +181,7 @@ def make_pid_segment(
         patient_id_list: List[HL7PatientIdentifier] = None) -> hl7.Segment:
     """
     Creates an HL7 patient identification (PID) segment.
-    
+
     - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-pid-segment
     - http://www.hl7.org/documentcenter/public/wg/conf/Msgadt.pdf (s5.4.8)
 
@@ -296,7 +295,7 @@ def make_obr_segment(task: "Task") -> hl7.Segment:
 
     - http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
     - Required in ORU^R01 message:
-    
+
       - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-oru-message
       - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-obr-segment
     """  # noqa

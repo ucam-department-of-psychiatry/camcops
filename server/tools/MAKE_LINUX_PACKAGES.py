@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops/server/tools/MAKE_LINUX_PACKAGES.py
 
 """
-..
+tools/MAKE_LINUX_PACKAGES.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Creates Debian and RPM packages for Linux.
+**Creates Debian and RPM packages for Linux.**
 
 For CentOS, you need to get Python 3 installed. For Centos 6, 64-bit:
 
@@ -53,7 +52,7 @@ Note that you can get CentOS version/architecture with:
 
     cat /etc/centos-release
     uname -a
-    
+
 """  # noqa
 
 # We could use a temporary directory for the Debian build,
@@ -352,17 +351,17 @@ To install rpmrebuild:
 
 parser = argparse.ArgumentParser(
     description="""
-- Creates a Debian (.deb) and RPM (.rpm) distribution file for the CamCOPS 
+- Creates a Debian (.deb) and RPM (.rpm) distribution file for the CamCOPS
   server, for distribution under Linux.
 
 - In brief, the following sequence is followed as the package is built:
 
   * The CamCOPS server is packaged up from source using
         python setup.py sdist --extras
-            # ... where "--extras" is a special custom option that copies the 
-            # tablet source code and packages that, plus all static files 
+            # ... where "--extras" is a special custom option that copies the
+            # tablet source code and packages that, plus all static files
     and zipped in a Debian-safe way.
-    
+
   * The principle is that the Python package should do all the work, not the
     Debian framework. This also means that a user who elects to install via pip
     gets exactly the same functional file structure.
@@ -375,13 +374,13 @@ parser = argparse.ArgumentParser(
 
   * An RPM is built from the .deb package.
 
-- The user then installs the DEB or RPM file. In addition to installing 
+- The user then installs the DEB or RPM file. In addition to installing
   standard things like man pages, this then:
 
   * attempts to stop supervisord for the duration of the installation (because
     that's the usual way to run a CamCOPS server);
 
-  * creates a few standard directories (e.g. for CamCOPS configuration and 
+  * creates a few standard directories (e.g. for CamCOPS configuration and
     lock files), including
         {LINUX_DEFAULT_CAMCOPS_CONFIG_DIR}
         {LINUX_DEFAULT_CAMCOPS_DIR}
@@ -390,14 +389,14 @@ parser = argparse.ArgumentParser(
 
   * checks that Python 3.5 is available on the system;
 
-  * uses the system Python to create a Python virtual environment within 
+  * uses the system Python to create a Python virtual environment within
     {LINUX_DEFAULT_CAMCOPS_DIR};
 
   * uses the virtual environment's "pip" command to install the distributed
     CamCOPS Python package within that virtual environment;
     ... which also appears to compile .py to .pyc files automatically;
 
-  * creates master executable scripts (which call corresponding Python 
+  * creates master executable scripts (which call corresponding Python
     scripts):
         {DSTCONSOLEFILE}
         {DSTMETACONSOLEFILE}
@@ -524,7 +523,7 @@ To create a demonstration config file, run
 Typically one would put the real configuration file in /etc/camcops/, and make
 it readable only by the Apache user (typically www-data on Debian/Ubuntu
 and apache on CentOS).
-    
+
 To create demonstration configuration files for support programs such as
 supervisord and Apache, try
 
@@ -584,7 +583,7 @@ log.info("Creating links to documentation. Will be installed as " + DSTREADME)
 write_text(WRKREADME, """
 CamCOPS: the Cambridge Cognitive and Psychiatric Test Kit
 
-See http://www.camcops.org for documentation, or the manual (for which, use 
+See http://www.camcops.org for documentation, or the manual (for which, use
 'camcops docs').
 """)
 

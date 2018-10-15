@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_membership.py
 
 """
-..
+camcops_server/cc_modules/cc_membership.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Represents a user's membership of a group.
+**Represents a user's membership of a group.**
 
 """
 

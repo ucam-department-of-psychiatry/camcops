@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_sqla_coltypes.py
 
 """
-..
+camcops_server/cc_modules/cc_sqla_coltypes.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-SQLAlchemy column types used by CamCOPS.
+**SQLAlchemy column types used by CamCOPS.**
 
 Note these built-in SQLAlchemy types
 (http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types):
@@ -33,7 +32,7 @@ Note these built-in SQLAlchemy types
     =============== ===========================================================
     SQLAlchemy type Comment
     =============== ===========================================================
-    BigInteger      MySQL: -9,223,372,036,854,775,808 to 
+    BigInteger      MySQL: -9,223,372,036,854,775,808 to
                     9,223,372,036,854,775,807 (64-bit)
                     (compare NHS number: up to 9,999,999,999)
     Boolean
@@ -53,12 +52,12 @@ Note these built-in SQLAlchemy types
     Text            Variably sized string type.
                     (Under MySQL, renders as ``TEXT``.)
     Time
-    Unicode         Implies that the underlying column explicitly supports 
+    Unicode         Implies that the underlying column explicitly supports
                     Unicode
     UnicodeText     Variably sized version of Unicode
                     (Under MySQL, renders as ``TEXT`` too.)
     =============== ===========================================================
-    
+
 Not supported across all platforms:
 
     =============== ===========================================================
@@ -78,7 +77,7 @@ Other MySQL sizes:
     TINYBLOB        2^8 bytes = 256 bytes
     BLOB            2^16 bytes = 64 KiB
     MEDIUMBLOB      2^24 bytes = 16 MiB
-    LONGBLOB        2^32 bytes = 4 GiB 
+    LONGBLOB        2^32 bytes = 4 GiB
     TINYTEXT        255 (2^8 - 1) bytes
     TEXT            65,535 bytes (2^16 - 1) = 64 KiB
     MEDIUMTEXT      16,777,215 (2^24 - 1) bytes = 16 MiB
@@ -403,12 +402,12 @@ def isotzdatetime_to_utcdatetime_mysql(
         compiler: "SQLCompiler", **kw) -> str:
     """
     Implementation of :class:`isotzdatetime_to_utcdatetime` for MySQL.
-    
+
     For format, see
     https://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html#function_date-format
-    
+
     Note the use of "%i" for minutes.
-    
+
     Things after ``func.`` get passed to the database engine as literal SQL
     functions; http://docs.sqlalchemy.org/en/latest/core/tutorial.html
     """  # noqa
@@ -1124,7 +1123,7 @@ class CamcopsColumn(Column):
         """
         SQLAlchemy method (not clearly documented) to assist in copying
         objects. Returns a copy of this object.
-        
+
         See
         https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass
         """  # noqa

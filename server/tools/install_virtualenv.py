@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tools/install_virtualenv.py
 
 """
-..
+tools/install_virtualenv.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Creates a Python virtual environment.
+**Creates a Python virtual environment.**
 
 """
 

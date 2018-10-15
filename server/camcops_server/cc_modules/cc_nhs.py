@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_nhs.py
 
 """
-..
+camcops_server/cc_modules/cc_nhs.py
 
 ===============================================================================
 
@@ -25,7 +24,8 @@
 
 ===============================================================================
 
-..
+**NHS constants.**
+
 """
 
 from typing import Dict, Optional

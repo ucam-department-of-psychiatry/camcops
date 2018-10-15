@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_dump.py
 
 """
-..
+camcops_server/cc_modules/cc_dump.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Methods for providing a dump of data from the server to the web user.
+**Methods for providing a dump of data from the server to the web user.**
 
 """
 

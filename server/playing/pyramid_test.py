@@ -1,6 +1,30 @@
 #!/usr/bin/env python
 
 """
+playing/pyramid_test.py
+
+===============================================================================
+
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+===============================================================================
+
+**Test the Pyramid web framework.**
 
 pip install arrow==0.10.0
 pip install dogpile.cache==0.6.4
@@ -8,21 +32,15 @@ pip install mysqlclient==1.3.10  # for mysql+mysqldb://...
 pip install pyramid==1.9.1
 pip install pyramid_debugtoolbar==4.3
 pip install sqlalchemy==1.1.11
-
 # NOT THESE:
 # pip install pyramid_beaker==0.8
-
-===============================================================================
-1. Cache
-===============================================================================
-
 - Pyramid likes Beaker as its cache, which is another Mike Bayer product.
 
 - Note that cached functions take no parameters in the programmatic API, but
   can have (non-keyword) parameters in the better decorator API:
   - https://beaker.readthedocs.io/en/latest/caching.html#decorator-api
   - https://stackoverflow.com/questions/5050110/how-do-i-use-beaker-caching-in-pyramid
-  
+
 - What we want to replicate is the cached config. So, the main parameter is the
   filename. However, we want all sorts of functions to say "get me the config"
   without further ado.
@@ -35,12 +53,12 @@ pip install sqlalchemy==1.1.11
 
   So a simple way is to write the environment variable.
   Changes to the environment will not contaminate parent processes.
-  
+
 - This all works beautifully.
-- What wouldn't be so obvious is using the config to define the cache 
+- What wouldn't be so obvious is using the config to define the cache
   mechanism. Still, 'memory' is fine for now.
 
-- But the next problem is lock_dir, which Beaker wants (even for memory 
+- But the next problem is lock_dir, which Beaker wants (even for memory
   caching), and that is pretty hard to define at runtime, because Beaker seems
   to like the sequence
     1. CACHE_OPTS = {'cache.type': 'memory', 'lock_dir': 'XXX'}
@@ -113,7 +131,7 @@ pip install sqlalchemy==1.1.11
   with a @reify decorator ("cache me"); and also
   https://stackoverflow.com/questions/15643798/pyramid-sessions-and-static-assets
   ... in other words, Pyramid thinks of sessions as storage (which may not
-  always be needed), and this question also ties in with that of 
+  always be needed), and this question also ties in with that of
   authentication.
 - OK. We can set up a Pyramid session that we never use, and a real one.
 - Seems fine to add an object to the request.

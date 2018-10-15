@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_simpleobjects.py
 
 """
-..
+camcops_server/cc_modules/cc_simpleobjects.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Simple struct-like classes.
+**Simple struct-like classes.**
 
 """
 

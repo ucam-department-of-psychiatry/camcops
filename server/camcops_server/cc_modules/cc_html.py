@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_html.py
 
 """
-..
+camcops_server/cc_modules/cc_html.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Basic HTML creation functions.
+**Basic HTML creation functions.**
 
 """
 

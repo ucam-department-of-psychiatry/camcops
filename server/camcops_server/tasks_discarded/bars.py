@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks_discarded/bars.py
 
 """
-..
+camcops_server/tasks_discarded/bars.py
 
 ===============================================================================
 
@@ -25,7 +24,8 @@
 
 ===============================================================================
 
-..
+**BARS task.***
+
 """
 
 from typing import Any, Dict, List, Tuple, Type

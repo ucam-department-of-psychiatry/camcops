@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_baseconstants.py
 
 """
-..
+camcops_server/cc_modules/cc_baseconstants.py
 
 ===============================================================================
 
@@ -25,8 +24,8 @@
 
 ===============================================================================
 
-Constants required during package creation, which therefore can't rely on
-anything except the Python standard library.
+**Constants required during package creation, which therefore can't rely on
+anything except the Python standard library.**
 
 By simple extension, also directory/filename definitions within the server
 tree.

@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/versions/0006.py
 
 """
-CORE-10
-
-Revision ID: 0006
-Revises: 0005
-Creation date: 2018-09-28 11:17:38.988418
-
-DATABASE REVISION SCRIPT
+camcops_server/alembic/versions/0006_core_10.py
 
 ===============================================================================
 
@@ -31,7 +24,11 @@ DATABASE REVISION SCRIPT
 
 ===============================================================================
 
-..
+CORE-10
+Revision ID: 0006
+Revises: 0005
+Creation date: 2018-09-28 11:17:38.988418
+DATABASE REVISION SCRIPT
 """
 
 # =============================================================================

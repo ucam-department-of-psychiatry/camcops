@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_tsv.py
 
 """
-..
+camcops_server/cc_modules/cc_tsv.py
 
 ===============================================================================
 
@@ -25,8 +24,8 @@
 
 ===============================================================================
 
-Helper functions/classes for spreadsheet-style tab-separated value (TSV)
-exports.
+**Helper functions/classes for spreadsheet-style tab-separated value (TSV)
+exports.**
 
 """
 

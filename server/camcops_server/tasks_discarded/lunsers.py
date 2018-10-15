@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks_discarded/lunsers.py
 
 """
-..
+camcops_server/tasks_discarded/lunsers.py
 
 ===============================================================================
 
@@ -25,7 +24,8 @@
 
 ===============================================================================
 
-..
+**LUNSERS task.***
+
 """
 
 _ = '''
@@ -90,7 +90,7 @@ class Lunsers(TaskHasPatientMixin, Task,
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total", 
+            SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
                            comment="Total score"),

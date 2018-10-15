@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/core10.py
 
 """
-..
+camcops_server/tasks/cesd.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Tuple, Type
@@ -219,7 +217,7 @@ class Cesd(TaskHasPatientMixin, Task,
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-            [1] Presence of depression (or depression risk) is indicated by a 
+            [1] Presence of depression (or depression risk) is indicated by a
                 score &ge; 16
             </div>
         """.format(

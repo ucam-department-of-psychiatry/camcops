@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_user.py
 
 """
-..
+camcops_server/cc_modules/cc_user.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-CamCOPS users.
+**CamCOPS users.**
 
 """
 

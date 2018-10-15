@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_report.py
 
 """
-..
+camcops_server/cc_modules/cc_report.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-CamCOPS reports.
+**CamCOPS reports.**
 
 """
 

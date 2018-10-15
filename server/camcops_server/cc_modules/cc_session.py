@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_session.py
 
 """
-..
+camcops_server/cc_modules/cc_session.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Implements sessions for web clients (humans).
+**Implements sessions for web clients (humans).**
 
 """
 

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_xml.py
 
 """
-..
+camcops_server/cc_modules/cc_xml.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-XML helper functions/classes.
+**XML helper functions/classes.**
 
 """
 
@@ -331,7 +330,7 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
     Returns an :class:`XmlElement` as text.
 
     Args:
-        element: root :class:`XmlElement` 
+        element: root :class:`XmlElement`
         level: starting level/depth (used for recursion)
         indent_spaces: number of spaces to indent formatted XML
         eol: end-of-line string
@@ -339,12 +338,12 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
 
     We will represent NULL values with ``xsi:nil``, but this requires a
     namespace:
-    
+
     - http://stackoverflow.com/questions/774192
     - http://books.xmlschemata.org/relaxng/relax-CHP-11-SECT-1.html
-    
+
     Comments:
-    
+
     - http://blog.galasoft.ch/posts/2010/02/quick-tip-commenting-out-properties-in-xaml/
     - http://stackoverflow.com/questions/2073140/
     """  # noqa

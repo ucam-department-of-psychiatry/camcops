@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_patientidnum.py
 
 """
-..
+camcops_server/cc_modules/cc_patientidnum.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Represent patient ID numbers.
+**Represent patient ID numbers.**
 
 We were looking up ID descriptors from the device's stored variables.
 However, that is a bit of a nuisance for a server-side researcher, and

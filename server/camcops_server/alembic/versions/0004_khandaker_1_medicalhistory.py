@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/versions/0004.py
 
 """
-khandaker_1_medicalhistory
-
-Revision ID: 0004
-Revises: 0003
-Creation date: 2018-06-23 15:48:01.147404
-
-DATABASE REVISION SCRIPT
+camcops_server/alembic/versions/0004_khandaker_1_medicalhistory.py
 
 ===============================================================================
 
@@ -31,7 +24,11 @@ DATABASE REVISION SCRIPT
 
 ===============================================================================
 
-..
+khandaker_1_medicalhistory
+Revision ID: 0004
+Revises: 0003
+Creation date: 2018-06-23 15:48:01.147404
+DATABASE REVISION SCRIPT
 """
 
 # =============================================================================

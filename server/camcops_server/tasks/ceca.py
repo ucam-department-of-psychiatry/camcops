@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/ceca.py
 
 """
-..
+camcops_server/tasks/ceca.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Optional
@@ -84,17 +82,17 @@ class CecaQ3(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     s1a_motherfigure_birthmother = CamcopsColumn(
         "s1a_motherfigure_birthmother", Boolean,
-        permitted_value_checker=BIT_CHECKER, 
+        permitted_value_checker=BIT_CHECKER,
         comment="Raised by, maternal, birth mother?"
     )
     s1a_motherfigure_stepmother = CamcopsColumn(
         "s1a_motherfigure_stepmother", Boolean,
-        permitted_value_checker=BIT_CHECKER, 
+        permitted_value_checker=BIT_CHECKER,
         comment="Raised by, maternal, stepmother?"
     )
     s1a_motherfigure_femalerelative = CamcopsColumn(
         "s1a_motherfigure_femalerelative", Boolean,
-        permitted_value_checker=BIT_CHECKER, 
+        permitted_value_checker=BIT_CHECKER,
         comment="Raised by, maternal, female relative?"
     )
     s1a_motherfigure_femalerelative_detail = Column(
@@ -529,7 +527,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
         comment=FREQUENCY_COMMENT
     )
     s2b_age_began = CamcopsColumn(
-        "s2b_age_began", Float, 
+        "s2b_age_began", Float,
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Age these experienced began (years)"
     )
@@ -1192,67 +1190,67 @@ class CecaQ3(TaskHasPatientMixin, Task):
         comment="Sexual abuse, first experience, knew the person?"
     )
     s6_other_person_known = CamcopsColumn(
-        "s6_other_person_known", Boolean, 
+        "s6_other_person_known", Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, knew the person?"
     )
     s6_first_relative = CamcopsColumn(
-        "s6_first_relative", Boolean, 
+        "s6_first_relative", Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, first experience, person was a relative?"
     )
     s6_other_relative = CamcopsColumn(
-        "s6_other_relative", Boolean, 
+        "s6_other_relative", Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, person was a relative?"
     )
     s6_first_in_household = CamcopsColumn(
-        "s6_first_in_household", Boolean, 
+        "s6_first_in_household", Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, first experience, person lived in household?"
     )
     s6_other_in_household = CamcopsColumn(
-        "s6_other_in_household", Boolean, 
+        "s6_other_in_household", Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, person lived in household?"
     )
     s6_first_more_than_once = CamcopsColumn(
-        "s6_first_more_than_once", Boolean, 
+        "s6_first_more_than_once", Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, first experience, happened more than once?"
     )
     s6_other_more_than_once = CamcopsColumn(
-        "s6_other_more_than_once", Boolean, 
+        "s6_other_more_than_once", Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, happened more than once?"
     )
     s6_first_touch_privates_subject = CamcopsColumn(
         "s6_first_touch_privates_subject", Boolean,
-        permitted_value_checker=BIT_CHECKER, 
+        permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, first experience, touched your private parts?"
     )
     s6_other_touch_privates_subject = CamcopsColumn(
         "s6_other_touch_privates_subject", Boolean,
-        permitted_value_checker=BIT_CHECKER, 
+        permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, touched your private parts?"
     )
     s6_first_touch_privates_other = CamcopsColumn(
         "s6_first_touch_privates_other", Boolean,
-        permitted_value_checker=BIT_CHECKER, 
+        permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, first experience, touched their private parts?"
     )
     s6_other_touch_privates_other = CamcopsColumn(
         "s6_other_touch_privates_other", Boolean,
-        permitted_value_checker=BIT_CHECKER, 
+        permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, touched their private parts?"
     )
     s6_first_intercourse = CamcopsColumn(
-        "s6_first_intercourse", Boolean, 
+        "s6_first_intercourse", Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, first experience, sexual intercourse?"
     )
     s6_other_intercourse = CamcopsColumn(
-        "s6_other_intercourse", Boolean, 
+        "s6_other_intercourse", Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, sexual intercourse?"
     )
@@ -1864,7 +1862,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        
+
         def wxstring(wstringname: str) -> str:
             return self.wxstring(req, wstringname)
 

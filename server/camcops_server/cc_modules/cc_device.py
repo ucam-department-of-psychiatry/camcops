@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_device.py
 
 """
-..
+camcops_server/cc_modules/cc_device.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Representation of the client devices.
+**Representation of the client devices.**
 
 """
 

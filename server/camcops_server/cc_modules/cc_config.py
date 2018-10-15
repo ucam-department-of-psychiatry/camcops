@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_config.py
 
 """
-..
+camcops_server/cc_modules/cc_config.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Read and represent a CamCOPS config file.
+**Read and represent a CamCOPS config file.**
 
 Also contains various types of demonstration config file (CamCOPS, but also
 ``supervisord``, Apache, etc.) and demonstration helper scripts (e.g. MySQL).
@@ -218,7 +217,7 @@ def get_demo_config(extra_strings_dir: str = None,
 #   C:\> pip install pyodbc
 #   DB_URL = mssql+pyodbc://<username>:<password>@<odbc_dsn_name>
 #
-# - ... or via Windows authentication: 
+# - ... or via Windows authentication:
 #   DB_URL = mssql+pyodbc://@<odbc_dsn_name>
 
 {cp.DB_URL} = {db_url}
@@ -357,7 +356,7 @@ def get_demo_config(extra_strings_dir: str = None,
 # -----------------------------------------------------------------------------
 # Try with Chrome, Firefox. Internet Explorer may be less obliging.
 
-# {cp.PATIENT_SPEC_IF_ANONYMOUS}: for anonymous tasks, this fixed string is 
+# {cp.PATIENT_SPEC_IF_ANONYMOUS}: for anonymous tasks, this fixed string is
 # used as the patient descriptor (see also {cp.PATIENT_SPEC} below).
 # Typically "anonymous".
 
@@ -762,9 +761,9 @@ def get_demo_supervisor_config(
 #       sudo supervisorctl status
 #   ... or just "sudo supervisorctl" for an interactive prompt.
 #
-# - TO ADD MORE CAMCOPS INSTANCES, first consider whether you wouldn't be 
+# - TO ADD MORE CAMCOPS INSTANCES, first consider whether you wouldn't be
 #   better off just adding groups. If you decide you want a completely new
-#   instance, make a copy of the [program:camcops] section, renaming the copy, 
+#   instance, make a copy of the [program:camcops] section, renaming the copy,
 #   and change the following:
 #   - the --config switch;
 #   - the port or socket;
@@ -778,7 +777,7 @@ def get_demo_supervisor_config(
 #   commands! Beware that.
 # - You can't put quotes around the directory variable
 #   http://stackoverflow.com/questions/10653590
-# - Python programs that are installed within a Python virtual environment 
+# - Python programs that are installed within a Python virtual environment
 #   automatically use the virtualenv's copy of Python via their shebang; you do
 #   not need to specify that by hand, nor the PYTHONPATH.
 # - The "environment" setting sets the OS environment. The "--env" parameter
@@ -790,24 +789,24 @@ command = {CAMCOPS_EXECUTABLE}
     serve_gunicorn
     --config /etc/camcops/camcops.conf
     --unix_domain_socket {specimen_socket_file}
-    --trusted_proxy_headers 
-        HTTP_X_FORWARDED_HOST 
-        HTTP_X_FORWARDED_SERVER 
-        HTTP_X_FORWARDED_PORT 
-        HTTP_X_FORWARDED_PROTO 
+    --trusted_proxy_headers
+        HTTP_X_FORWARDED_HOST
+        HTTP_X_FORWARDED_SERVER
+        HTTP_X_FORWARDED_PORT
+        HTTP_X_FORWARDED_PROTO
         HTTP_X_SCRIPT_NAME
 
 # To run via a TCP socket, use e.g.:
 #   --host 127.0.0.1 --port {specimen_internal_port}
 # To run via a UNIX domain socket, use e.g.
-#   --unix_domain_socket {specimen_socket_file} 
+#   --unix_domain_socket {specimen_socket_file}
 
 directory = {CAMCOPS_SERVER_DIRECTORY}
 
 environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
 
 # MPLCONFIGDIR specifies a cache directory for matplotlib, which greatly
-# speeds up its subsequent loading. 
+# speeds up its subsequent loading.
 
 user = www-data
 
@@ -848,7 +847,7 @@ def get_demo_apache_config(
     # Under CentOS, the Apache config will be somewhere in /etc/httpd/
     #
     # This section should go within the <VirtualHost> directive for the secure
-    # (SSL, HTTPS) part of the web site. 
+    # (SSL, HTTPS) part of the web site.
 
 <VirtualHost *:443>
     # ...
@@ -868,9 +867,9 @@ def get_demo_apache_config(
         # c) disable ProxyPass for static files
 
         # Change this: aim the alias at your own institutional logo.
-        
+
     Alias {urlbase}/static/logo_local.png {STATIC_ROOT_DIR}/logo_local.png
-    
+
         # We move from more specific to less specific aliases; the first match
         # takes precedence. (Apache will warn about conflicting aliases if
         # specified in a wrong, less-to-more-specific, order.)
@@ -879,14 +878,14 @@ def get_demo_apache_config(
 
     <Directory {STATIC_ROOT_DIR}>
         Require all granted
-        
+
         # ... for old Apache version (e.g. 2.2), use instead:
         # Order allow,deny
         # Allow from all
     </Directory>
-    
+
         # Don't ProxyPass the static files; we'll serve them via Apache.
-        
+
     ProxyPassMatch ^{urlbase}/static/ !
 
         # ---------------------------------------------------------------------
@@ -901,7 +900,7 @@ def get_demo_apache_config(
         #       https://YOURSITE{urlbase}
         #   and point your tablet devices to
         #       https://YOURSITE{urlbase}{MASTER_ROUTE_CLIENT_API}
-        # - Don't specify trailing slashes for the ProxyPass and 
+        # - Don't specify trailing slashes for the ProxyPass and
         #   ProxyPassReverse directives.
         #   If you do, http://host/camcops will fail though
         #              http://host/camcops/ will succeed.
@@ -935,7 +934,7 @@ def get_demo_apache_config(
         # PORT METHOD
         # Note the use of "http" (reflecting the backend), not https (like the
         # front end).
-        
+
     ProxyPass {urlbase} http://127.0.0.1:{specimen_internal_port} retry=0
     ProxyPassReverse {urlbase} http://127.0.0.1:{specimen_internal_port} retry=0
 
@@ -993,15 +992,15 @@ def get_demo_apache_config(
         # Without this, you will get errors like:
         #   ... SSL Proxy requested for wombat:443 but not enabled [Hint: SSLProxyEngine]
         #   ... failed to enable ssl support for 0.0.0.0:0 (httpd-UDS)
-        
+
     SSLProxyEngine on
 
     <Location /camcops>
 
-            # ~~~~~~~~~~~~~~~~    
+            # ~~~~~~~~~~~~~~~~
             # (c) Allow access
             # ~~~~~~~~~~~~~~~~
-            
+
         Require all granted
 
         # ... for old Apache version (e.g. 2.2), use instead:
@@ -1015,10 +1014,10 @@ def get_demo_apache_config(
             #     ... https://stackoverflow.com/questions/16042647
             #
             # EITHER enable mod_headers (e.g. "sudo a2enmod headers") and set:
-            
+
         RequestHeader set X-Forwarded-Proto https
         RequestHeader set X-Script-Name {urlbase}
-        
+
             # and call CamCOPS like:
             #
             # camcops serve_gunicorn \\
@@ -1034,7 +1033,7 @@ def get_demo_apache_config(
             # supplied by Apache automatically)
             #
             # ... OR specify those options by hand in the CamCOPS command.
-            
+
     </Location>
 
         # ---------------------------------------------------------------------
@@ -1054,12 +1053,12 @@ def get_demo_apache_config(
     # SSL security (for HTTPS)
     #==========================================================================
 
-        # You will also need to install your SSL certificate; see the 
-        # instructions that came with it. You get a certificate by creating a 
-        # certificate signing request (CSR). You enter some details about your 
-        # site, and a software tool makes (1) a private key, which you keep 
-        # utterly private, and (2) a CSR, which you send to a Certificate 
-        # Authority (CA) for signing. They send back a signed certificate, and 
+        # You will also need to install your SSL certificate; see the
+        # instructions that came with it. You get a certificate by creating a
+        # certificate signing request (CSR). You enter some details about your
+        # site, and a software tool makes (1) a private key, which you keep
+        # utterly private, and (2) a CSR, which you send to a Certificate
+        # Authority (CA) for signing. They send back a signed certificate, and
         # a chain of certificates leading from yours to a trusted root CA.
         #
         # You can create your own (a 'snake-oil' certificate), but your tablets
@@ -1341,7 +1340,7 @@ class CamcopsConfig(object):
     def get_sqla_engine(self) -> Engine:
         """
         Returns an SQLAlchemy :class:`Engine`.
-        
+
         I was previously misinterpreting the appropriate scope of an Engine.
         I thought: create one per request.
         But the Engine represents the connection *pool*.

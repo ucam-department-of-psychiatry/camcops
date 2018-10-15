@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_recipdef.py
 
 """
-..
+camcops_server/cc_modules/cc_recipdef.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Define recipients for export functions (e.g. HL7, file-based export).
+**Define recipients for export functions (e.g. HL7, file-based export).**
 
 """
 

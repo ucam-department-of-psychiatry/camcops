@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/ided3d.py
 
 """
-..
+camcops_server/tasks/ided3d.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any
@@ -69,7 +67,7 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
     __tablename__ = "ided3d_trials"
 
     ided3d_id = Column(
-        "ided3d_id", Integer, 
+        "ided3d_id", Integer,
         nullable=False,
         comment="FK to ided3d"
     )
@@ -79,10 +77,10 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
         comment="Trial number (1-based)"
     )
     stage = Column(
-        "stage", Integer, 
+        "stage", Integer,
         comment="Stage number (1-based)"
     )
-    
+
     # Locations
     correct_location = Column(
         "correct_location", Integer,
@@ -94,7 +92,7 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
         comment="Location of incorrect stimulus "
                 "(0 top, 1 right, 2 bottom, 3 left)"
     )
-    
+
     # Stimuli
     correct_shape = Column(
         "correct_shape", Integer,
@@ -120,13 +118,13 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
         "incorrect_number", Integer,
         comment="Number of copies of incorrect stimulus"
     )
-    
+
     # Trial
     trial_start_time = Column(
         "trial_start_time", PendulumDateTimeAsIsoTextColType,
         comment="Trial start time / stimuli presented at (ISO-8601)"
     )
-    
+
     # Response
     responded = CamcopsColumn(
         "responded", Boolean,
@@ -210,7 +208,7 @@ class IDED3DStage(GenericTabletRecordMixin, Base):
         nullable=False,
         comment="Stage number (1-based)"
     )
-    
+
     # Config
     stage_name = Column(
         "stage_name", Text,
@@ -258,7 +256,7 @@ class IDED3DStage(GenericTabletRecordMixin, Base):
         comment="Possible numbers for incorrect stimulus "
                 "(CSV list of numbers)"
     )
-    
+
     # Results
     first_trial_num = Column(
         "first_trial_num", Integer,
@@ -409,7 +407,7 @@ class IDED3D(TaskHasPatientMixin, Task):
         "colour_definitions_rgb", Text,
         comment="JSON-encoded version of colour RGB definitions"
     )
-    
+
     # Results
     aborted = Column(
         "aborted", Integer,

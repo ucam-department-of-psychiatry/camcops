@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_forms.py
 
 """
-..
+camcops_server/cc_modules/cc_forms.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Forms for use by the web front end.
+**Forms for use by the web front end.**
 
 *COLANDER NODES, NULLS, AND VALIDATION*
 
@@ -192,7 +191,7 @@ class CSRFToken(SchemaNode):
 
     As per http://deformdemo.repoze.org/pyramid_csrf_demo/, modified for a more
     recent Colander API.
-    
+
     NOTE that this makes use of colander.SchemaNode.bind; this CLONES the
     Schema, and resolves any deferred values by means of the keywords passed to
     bind(). Since the Schema is created at module load time, but since we're
@@ -1628,7 +1627,7 @@ class EditTaskFilterForm(InformativeForm):
     """
     Form to edit a task filter.
     """
-    def __init__(self, 
+    def __init__(self,
                  request: "CamcopsRequest",
                  open_who: bool = False,
                  open_what: bool = False,

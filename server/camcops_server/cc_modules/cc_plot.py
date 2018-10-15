@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_plot.py
 
 """
-..
+camcops_server/cc_modules/cc_plot.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Plotting functions.
+**Plotting functions.**
 
 PROPER WAY TO USE MATPLOTLIB:
 

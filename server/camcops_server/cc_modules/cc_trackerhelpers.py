@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_simpleobjects.py
 
 """
-..
+camcops_server/cc_modules/cc_trackerhelpers.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Helper representations for trackers.
+**Helper representations for trackers.**
 
 """
 

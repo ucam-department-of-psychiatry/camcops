@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_tracker.py
 
 """
-..
+camcops_server/cc_modules/cc_tracker.py
 
 ===============================================================================
 
@@ -25,8 +24,8 @@
 
 ===============================================================================
 
-Trackers, showing numerical information over time, and clinical text views,
-showing text that a clinician might care about.
+**Trackers, showing numerical information over time, and clinical text views,
+showing text that a clinician might care about.**
 
 """
 

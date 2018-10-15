@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/cardinal_expectationdetection.py
 
 """
-..
+camcops_server/tasks/cardinal_expectationdetection.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -112,7 +110,7 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
         nullable=False,
         comment="Trial number"
     )
-    
+
     # Config determines these (via an autogeneration process):
     block = Column(
         "block", Integer,
@@ -188,7 +186,7 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
         "trial_end_time", PendulumDateTimeAsIsoTextColType,
         comment="Trial end time (ISO-8601)"
     )
-    
+
     # Subject decides these:
     responded = Column(
         "responded", Integer,
@@ -463,7 +461,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         "iti_max_s", Float,
         comment="Intertrial interval maximum (s)"
     )
-    
+
     # Results
     aborted = Column(
         "aborted", Integer,

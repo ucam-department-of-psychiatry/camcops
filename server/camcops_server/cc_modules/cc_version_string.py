@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_version_string.py
 
 """
-..
+camcops_server/cc_modules/cc_version_string.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Contains CamCOPS version strings.
+**Contains CamCOPS version strings.**
 
 """
 

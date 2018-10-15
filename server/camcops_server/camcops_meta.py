@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/camcops_meta.py
 
 """
-..
+camcops_server/camcops_meta.py
 
 ===============================================================================
 
@@ -25,8 +24,8 @@
 
 ===============================================================================
 
-The CamCOPS "meta" launcher: so you can run a CamCOPS command over multiple
-config files (installations).
+**The CamCOPS "meta" launcher: so you can run a CamCOPS command over multiple
+config files (installations).**
 
 This has been largely superseded by the "groups" concept, since a single
 CamCOPS instance is now capable of much more.

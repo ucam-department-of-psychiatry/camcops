@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/versions/0005.py
 
 """
-reduced indexed VARCHAR fields from 255 to 191 for MySQL
-
-Revision ID: 0005
-Revises: 0004
-Creation date: 2018-09-24 16:25:45.525788
-
-DATABASE REVISION SCRIPT
+camcops_server/alembic/versions/0005_reduced_indexed_varchar_fields_from_255.py
 
 ===============================================================================
 
@@ -31,7 +24,11 @@ DATABASE REVISION SCRIPT
 
 ===============================================================================
 
-..
+reduced indexed VARCHAR fields from 255 to 191 for MySQL
+Revision ID: 0005
+Revises: 0004
+Creation date: 2018-09-24 16:25:45.525788
+DATABASE REVISION SCRIPT
 """
 
 # =============================================================================

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_sqlalchemy.py
 
 """
-..
+camcops_server/cc_modules/cc_anon.py
 
 ===============================================================================
 
@@ -25,8 +24,9 @@
 
 ===============================================================================
 
-Anonymisation functions. Largely superseded by CRATE
-(https://dx.doi.org/10.1186%2Fs12911-017-0437-1).
+**Anonymisation functions.**
+
+Largely superseded by CRATE (https://dx.doi.org/10.1186%2Fs12911-017-0437-1).
 
 """
 

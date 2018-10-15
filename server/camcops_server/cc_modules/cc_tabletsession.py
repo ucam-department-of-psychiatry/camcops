@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_tabletsession.py
 
 """
-..
+camcops_server/cc_modules/cc_tabletsession.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Session information for client devices (tablets etc.).
+**Session information for client devices (tablets etc.).**
 
 """
 

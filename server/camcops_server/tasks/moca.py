@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/moca.py
 
 """
-..
+camcops_server/tasks/moca.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Tuple, Type
@@ -52,7 +50,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BIT_CHECKER, 
+    BIT_CHECKER,
     CamcopsColumn,
     ZERO_TO_THREE_CHECKER,
 )
@@ -83,7 +81,7 @@ class MocaMetaclass(DeclarativeMeta):
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS, 
+            cls, "q", 1, cls.NQUESTIONS,
             minimum=0, maximum=1,  # see below
             comment_fmt="{s}",
             comment_strings=[
@@ -119,33 +117,33 @@ class MocaMetaclass(DeclarativeMeta):
         )
         # Fix maximum for Q12:
         cls.q12.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
-        
+
         add_multiple_columns(
-            cls, "register_trial1_", 1, 5, 
+            cls, "register_trial1_", 1, 5,
             pv=PV.BIT,
             comment_fmt="Registration, trial 1 (not scored), {n}: {s} "
-                        "(0 or 1)", 
+                        "(0 or 1)",
             comment_strings=WORDLIST
         )
         add_multiple_columns(
-            cls, "register_trial2_", 1, 5, 
+            cls, "register_trial2_", 1, 5,
             pv=PV.BIT,
             comment_fmt="Registration, trial 2 (not scored), {n}: {s} "
-                        "(0 or 1)", 
+                        "(0 or 1)",
             comment_strings=WORDLIST
         )
         add_multiple_columns(
-            cls, "recall_category_cue_", 1, 5, 
+            cls, "recall_category_cue_", 1, 5,
             pv=PV.BIT,
             comment_fmt="Recall with category cue (not scored), {n}: {s} "
-                        "(0 or 1)", 
+                        "(0 or 1)",
             comment_strings=WORDLIST
         )
         add_multiple_columns(
-            cls, "recall_mc_cue_", 1, 5, 
+            cls, "recall_mc_cue_", 1, 5,
             pv=PV.BIT,
             comment_fmt="Recall with multiple-choice cue (not scored), "
-                        "{n}: {s} (0 or 1)", 
+                        "{n}: {s} (0 or 1)",
             comment_strings=WORDLIST
         )
         super().__init__(name, bases, classdict)

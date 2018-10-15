@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/demqol.py
 
 """
-..
+camcops_server/tasks/demqol.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union

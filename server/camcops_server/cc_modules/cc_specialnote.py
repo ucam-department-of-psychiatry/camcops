@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_specialnote.py
 
 """
-..
+camcops_server/cc_modules/cc_specialnote.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Special notes that are attached, on the server, to tasks or patients.
+**Special notes that are attached, on the server, to tasks or patients.**
 
 """
 

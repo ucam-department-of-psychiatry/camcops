@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/psychiatricclerking.py
 
 """
-..
+camcops_server/tasks/psychiatricclerking.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import List
@@ -49,7 +47,7 @@ from camcops_server.cc_modules.cc_task import (
 # PsychiatricClerking
 # =============================================================================
 
-class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                           Base):
     """
     Server implementation of the Clerking task.
@@ -108,7 +106,7 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     impression = Column("impression", UnicodeText)
     management_plan = Column("management_plan", UnicodeText)
     information_given = Column("information_given", UnicodeText)
-    
+
     FIELDS_B = [
         "location", "contact_type", "reason_for_contact",
         "presenting_issue", "systems_review", "collateral_history"
@@ -139,7 +137,7 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         "current_problems", "patient_carer_concerns", "impression",
         "management_plan", "information_given"
     ]
-    
+
     def get_ctv_heading(self, req: CamcopsRequest,
                         wstringname: str) -> CtvInfo:
         return CtvInfo(

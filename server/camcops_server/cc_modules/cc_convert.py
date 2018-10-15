@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_convert.py
 
 """
-..
+camcops_server/cc_modules/cc_convert.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Miscellaneous conversion functions.
+**Miscellaneous conversion functions.**
 
 """
 

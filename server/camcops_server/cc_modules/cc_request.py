@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_request.py
 
 """
-..
+camcops_server/cc_modules/cc_request.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Implements a Pyramid Request object customized for CamCOPS.
+**Implements a Pyramid Request object customized for CamCOPS.**
 
 """
 
@@ -1316,7 +1315,7 @@ _ = """
 class Test(object):
     def __init__(self):
         self.a = 3
-        
+
     @property
     def b(self):
         return 4
@@ -1327,7 +1326,7 @@ class Derived(Test):
         super().__init__()
         self._superclass_b = super().b
         self._b = 4
-        
+
     @property
     def b(self):
         print("Superclass b: {}".format(self._superclass_b.fget(self)))

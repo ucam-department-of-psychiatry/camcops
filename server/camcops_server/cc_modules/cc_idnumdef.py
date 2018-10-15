@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_idnumdef.py
 
 """
-..
+camcops_server/cc_modules/cc_idnumdef.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-ID number definitions.
+**ID number definitions.**
 
 """
 

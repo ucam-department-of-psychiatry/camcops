@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_constants.py
 
 """
-..
+camcops_server/cc_modules/cc_constants.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Various constants.
+**Various constants.**
 
 """
 

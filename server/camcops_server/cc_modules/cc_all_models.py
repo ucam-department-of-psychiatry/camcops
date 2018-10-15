@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_all_models.py
 
 """
-..
+camcops_server/cc_modules/cc_all_models.py
 
 ===============================================================================
 
@@ -25,8 +24,8 @@
 
 ===============================================================================
 
-The point of this is to import everything that's an SQLAlchemy model, so
-they're registered (and also Task knows about all its subclasses).
+**The point of this is to import everything that's an SQLAlchemy model, so
+they're registered (and also Task knows about all its subclasses).**
 
 """
 

@@ -1411,7 +1411,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - https://camcops.readthedocs.io/
 
-- ``cardinal_pythonlib`` to 1.0.29
+- ``cardinal_pythonlib`` to 1.0.31
 
 - ``alembic`` to 1.0.0
 

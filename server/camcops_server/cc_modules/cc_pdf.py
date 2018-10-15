@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_tracker.py
 
 """
-..
+camcops_server/cc_modules/cc_pdf.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-PDF functions.
+**PDF functions.**
 
 """
 

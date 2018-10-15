@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_serversettings.py
 
 """
-..
+camcops_server/cc_modules/cc_serversettings.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Represents server-wide configuration settings.
+**Represents server-wide configuration settings.**
 
 Previously, we had a key/value pair system, both for device stored variables
 (table "storedvars") and server ones ("_server_storedvars"). We used a "type"

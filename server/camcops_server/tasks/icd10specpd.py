@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/icd10specpd.py
 
 """
-..
+camcops_server/tasks/icd10specpd.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -105,7 +103,7 @@ class Icd10SpecPDMetaclass(DeclarativeMeta):
                              "self-referential", "conspiratorial"]
         )
         add_multiple_columns(
-            cls, "schizoid", 1, cls.N_SCHIZOID, 
+            cls, "schizoid", 1, cls.N_SCHIZOID,
             Boolean,
             pv=PV.BIT,
             comment_fmt="Schizoid ({n}): {s}",

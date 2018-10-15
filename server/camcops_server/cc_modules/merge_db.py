@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tools/merge_db.py
 
 """
-..
+camcops_server/cc_modules/merge_db.py
 
 ===============================================================================
 
@@ -25,7 +24,10 @@
 
 ===============================================================================
 
-..
+**Tool to merge data from one CamCOPS database into another.**
+
+Has special code to deal with old databases.
+
 """
 
 import logging

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/service_satisfaction.py
 
 """
-..
+camcops_server/tasks/service_satisfaction.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Optional

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_version.py
 
 """
-..
+camcops_server/cc_modules/cc_version.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Version helper functions.
+**Version helper functions.**
 
 """
 

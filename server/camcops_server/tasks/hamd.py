@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/hamd.py
 
 """
-..
+camcops_server/tasks/hamd.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Tuple, Type
@@ -48,7 +46,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
-    get_from_dict, 
+    get_from_dict,
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,

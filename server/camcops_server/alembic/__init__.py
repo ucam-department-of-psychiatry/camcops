@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/__init__.py
 
 """
-..
+camcops_server/alembic/__init__.py
 
 ===============================================================================
 
@@ -25,5 +24,6 @@
 
 ===============================================================================
 
-..
+The mere existence of this file makes Python treat the directory as a package.
+
 """

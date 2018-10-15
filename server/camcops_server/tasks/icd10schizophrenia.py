@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/icd10schizophrenia.py
 
 """
-..
+camcops_server/tasks/icd10schizophrenia.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import List, Optional
@@ -307,7 +305,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "passivity_bodily", "passivity_mental",
         "hv_commentary", "hv_discussing", "hv_from_body",
         "delusions", "delusional_perception",
-        "thought_echo", "thought_withdrawal", "thought_insertion", 
+        "thought_echo", "thought_withdrawal", "thought_insertion",
         "thought_broadcasting"
     ]
     B_NAMES = ["hallucinations_other", "thought_disorder", "catatonia"]

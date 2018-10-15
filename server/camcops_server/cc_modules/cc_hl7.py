@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_hl7.py
 
 """
-..
+camcops_server/cc_modules/cc_hl7.py
 
 ===============================================================================
 
@@ -25,7 +24,8 @@
 
 ===============================================================================
 
-..
+**HL7 export functions.**
+
 """
 
 import errno
@@ -673,7 +673,7 @@ class HL7Message(Base):
 
         - Default MLLP/HL7 port is 2575
         - MLLP = minimum lower layer protocol
-        
+
           - http://www.cleo.com/support/byproduct/lexicom/usersguide/mllp_configuration.htm
           - http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=hl7
           - Essentially just a TCP socket with a minimal wrapper:

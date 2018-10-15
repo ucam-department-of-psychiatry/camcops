@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_policy.py
 
 """
-..
+camcops_server/cc_modules/cc_policy.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Represents ID number policies.
+**Represents ID number policies.**
 
 Note that the upload script should NOT attempt to verify patients against the
 ID policy, not least because tablets are allowed to upload task data (in a

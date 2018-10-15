@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_nlp.py
 
 """
-..
+camcops_server/cc_modules/cc_nlp.py
 
 ===============================================================================
 
@@ -25,7 +24,8 @@
 
 ===============================================================================
 
-..
+**Natural language processing functions (of sorts).**
+
 """
 
 from typing import Dict

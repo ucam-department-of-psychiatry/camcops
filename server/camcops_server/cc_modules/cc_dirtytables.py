@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_dirtytables.py
 
 """
-..
+camcops_server/cc_modules/cc_dirtytables.py
 
 ===============================================================================
 
@@ -25,8 +24,8 @@
 
 ===============================================================================
 
-Representation of a "dirty table" -- one that a device is in the process of
-uploading to/preserving.
+**Representation of a "dirty table" -- one that a device is in the process of
+uploading to/preserving.**
 
 """
 

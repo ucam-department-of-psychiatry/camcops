@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_audit.py
 
 """
-..
+camcops_server/cc_modules/cc_audit.py
 
 ===============================================================================
 
@@ -25,7 +24,9 @@
 
 ===============================================================================
 
-Auditing. The Big Brother part.
+**Auditing.**
+
+The Big Brother part.
 
 """
 

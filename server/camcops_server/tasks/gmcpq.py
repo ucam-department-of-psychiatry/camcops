@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/gmcpq.py
 
 """
-..
+camcops_server/tasks/gmcpq.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 import cardinal_pythonlib.rnc_web as ws

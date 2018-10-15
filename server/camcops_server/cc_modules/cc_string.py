@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_string.py
 
 """
-..
+camcops_server/cc_modules/cc_string.py
 
 ===============================================================================
 
@@ -25,8 +24,8 @@
 
 ===============================================================================
 
-Manage the "extra strings" that the server reads from XML files. The server
-uses these for displaying tasks, and provides them to client devices.
+**Manage the "extra strings" that the server reads from XML files. The server
+uses these for displaying tasks, and provides them to client devices.**
 
 """
 

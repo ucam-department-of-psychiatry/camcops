@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/bdi.py
 
 """
-..
+camcops_server/tasks/bdi.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Tuple, Type
@@ -305,21 +303,21 @@ class Bdi(TaskHasPatientMixin, Task,
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Suicidal thoughts are asked about in Q{suicidality_qnum} 
+                [1] Suicidal thoughts are asked about in Q{suicidality_qnum}
                     for all of: BDI-I (1961), BDI-IA (1978), and BDI-II (1996).
-                    
-                [2] Insight study: 
+
+                [2] Insight study:
                     <a href="https://doi.org/10.1186/ISRCTN16942542">doi:10.1186/ISRCTN16942542</a>
-                
-                [3] See the 
-                    <a href="https://camcops.readthedocs.io/en/latest/tasks/bdi.html">CamCOPS 
-                    BDI help</a> for full references and bibliography for the 
+
+                [3] See the
+                    <a href="https://camcops.readthedocs.io/en/latest/tasks/bdi.html">CamCOPS
+                    BDI help</a> for full references and bibliography for the
                     citations that follow.
-                
-                    <b>The BDI rates “right now” [Beck1988]. 
-                    The BDI-IA rates the past week [Beck1988]. 
+
+                    <b>The BDI rates “right now” [Beck1988].
+                    The BDI-IA rates the past week [Beck1988].
                     The BDI-II rates the past two weeks [Beck1996b].</b>
-                    
+
                     1961 BDI(-I) question topics from [Beck1988].
                     1978 BDI-IA question topics from [Beck1996b].
                     1996 BDI-II question topics from [Steer1999], [Gary2018].

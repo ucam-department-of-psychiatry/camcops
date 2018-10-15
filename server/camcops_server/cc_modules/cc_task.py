@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_task.py
 
 """
-..
+camcops_server/cc_modules/cc_task.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Represents CamCOPS tasks.
+**Represents CamCOPS tasks.**
 
 Core task export methods:
 
@@ -561,7 +560,7 @@ class Task(GenericTabletRecordMixin, Base):
         Generate all non-abstract SQLAlchemy ORM subclasses of :class:`Task` --
         that is, all task classes.
 
-        We require that actual tasks are subclasses of both :class:`Task` and 
+        We require that actual tasks are subclasses of both :class:`Task` and
         :class:`camcops_server.cc_modules.cc_sqlalchemy.Base`.
 
         OLD WAY (ignore): this means we can (a) inherit from Task to make an
@@ -2114,10 +2113,10 @@ def all_task_tables_with_min_client_version() -> Dict[str, Version]:
     """
     Across all tasks, return a mapping from each of their tables to the
     minimum client version.
-    
+
     Used by
     :func:`camcops_server.cc_modules.client_api.all_tables_with_min_client_version`.
-    
+
     """  # noqa
     d = {}  # type: Dict[str, Version]
     classes = list(Task.gen_all_subclasses())

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/dad.py
 
 """
-..
+camcops_server/tasks/dad.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, Iterable, List, Tuple, Type

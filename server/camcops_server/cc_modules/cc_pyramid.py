@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_pyramid.py
 
 """
-..
+camcops_server/cc_modules/cc_pyramid.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Functions for the Pyramid web framework.
+**Functions for the Pyramid web framework.**
 
 """
 
@@ -434,11 +433,11 @@ class UrlParam(object):
         from camcops_server.cc_modules.cc_pyramid import *
         p = UrlParam("patient_id", UrlParamType.POSITIVE_INTEGER)
         p.markerdef()  # '{patient_id:\\d+}'
-        
+
     These fragments are suitable for building into a URL for use with Pyramid's
     URL Dispatch system:
     https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html
-    
+
     See also :class:`RoutePath`.
 
     """  # noqa
@@ -738,30 +737,30 @@ def get_session_factory() -> Callable[["CamcopsRequest"], ISession]:
     """
     We have to give a Pyramid request a way of making an HTTP session.
     We must return a session factory.
-    
+
     - An example is in :class:`pyramid.session.SignedCookieSessionFactory`.
     - A session factory has the signature [1]:
-    
+
       .. code-block:: none
-      
+
             sessionfactory(req: CamcopsRequest) -> session_object
 
       - ... where session "is a namespace" [2]
-      - ... but more concretely, "implements the pyramid.interfaces.ISession 
+      - ... but more concretely, "implements the pyramid.interfaces.ISession
         interface"
 
     - We want to be able to make the session by reading the
       :class:`CamcopsConfig` from the request.
 
     [1] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory
-    
+
     [2] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session
     """  # noqa
 
     def factory(req: "CamcopsRequest") -> ISession:
         """
         How does the session write the cookies to the response? Like this:
-        
+
         .. code-block:: none
 
             SignedCookieSessionFactory
@@ -826,7 +825,7 @@ class Permission(object):
 class CamcopsAuthenticationPolicy(object):
     """
     CamCOPS authentication policy.
-    
+
     See
 
     - https://docs.pylonsproject.org/projects/pyramid/en/latest/tutorials/wiki2/authorization.html
@@ -929,7 +928,7 @@ class SqlalchemyOrmQueryWrapper(object):
     way for pagination. We only ask the database for what we need.
 
     See:
-    
+
     - https://docs.pylonsproject.org/projects/pylons-webframework/en/latest/helpers.html
     - https://docs.pylonsproject.org/projects/webhelpers/en/latest/modules/paginate.html
     - https://github.com/Pylons/paginate

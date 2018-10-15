@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/camcops.py
 
 """
-..
+camcops_server/camcops.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Command-line entry point for the CamCOPS server.
+**Command-line entry point for the CamCOPS server.**
 
 """
 
@@ -373,7 +372,7 @@ def serve_gunicorn(application: Router,
     Start Gunicorn server
 
     - Multiprocessing; this is a Good Thing particularly in Python; see e.g.
-    
+
       - https://eli.thegreenplace.net/2012/01/16/python-parallelizing-cpu-bound-tasks-with-multiprocessing/
       - http://www.dabeaz.com/python/UnderstandingGIL.pdf
 

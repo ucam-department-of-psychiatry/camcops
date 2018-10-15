@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_simpleobjects.py
 
 """
-..
+camcops_server/cc_modules/cc_summaryelement.py
 
 ===============================================================================
 
@@ -25,8 +24,10 @@
 
 ===============================================================================
 
-Classes to represent summary information created by tasks. For example,
-the PHQ9 task calculates a total score; that's part of its summary information.
+**Classes to represent summary information created by tasks.**
+
+For example, the PHQ9 task calculates a total score; that's part of its summary
+information.
 
 """
 

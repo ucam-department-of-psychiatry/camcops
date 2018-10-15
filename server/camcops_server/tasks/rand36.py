@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/rand36.py
 
 """
-..
+camcops_server/tasks/rand36.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -61,7 +59,7 @@ class Rand36Metaclass(DeclarativeMeta):
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
         add_multiple_columns(
-            cls, "q", 3, 12, 
+            cls, "q", 3, 12,
             minimum=1, maximum=3,
             comment_fmt="Q{n} ({s}) (1 limited a lot - 3 not limited at all)",
             comment_strings=[
@@ -78,7 +76,7 @@ class Rand36Metaclass(DeclarativeMeta):
             ]
         )
         add_multiple_columns(
-            cls, "q", 13, 16, 
+            cls, "q", 13, 16,
             minimum=1, maximum=2,
             comment_fmt="Q{n} (physical health: {s}) (1 yes, 2 no)",
             comment_strings=[
@@ -89,7 +87,7 @@ class Rand36Metaclass(DeclarativeMeta):
             ]
         )
         add_multiple_columns(
-            cls, "q", 17, 19, 
+            cls, "q", 17, 19,
             minimum=1, maximum=2,
             comment_fmt="Q{n} (emotional problems: {s}) (1 yes, 2 no)",
             comment_strings=[
@@ -100,7 +98,7 @@ class Rand36Metaclass(DeclarativeMeta):
             ]
         )
         add_multiple_columns(
-            cls, "q", 23, 31, 
+            cls, "q", 23, 31,
             minimum=1, maximum=6,
             comment_fmt="Q{n} (past 4 weeks: {s}) (1 all of the time - "
                         "6 none of the time)",
@@ -118,7 +116,7 @@ class Rand36Metaclass(DeclarativeMeta):
             ]
         )
         add_multiple_columns(
-            cls, "q", 33, 36, 
+            cls, "q", 33, 36,
             minimum=1, maximum=5,
             comment_fmt="Q{n} (how true/false: {s}) (1 definitely true - "
                         "5 definitely false)",

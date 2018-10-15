@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/fft.py
 
 """
-..
+camcops_server/tasks/fft.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from sqlalchemy.sql.schema import Column

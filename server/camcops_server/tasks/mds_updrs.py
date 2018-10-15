@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/mds_updrs.py
 
 """
-..
+camcops_server/tasks/mds_updrs.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import List
@@ -139,7 +137,7 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "q1_13", Integer, permitted_value_checker=main_pv,
         comment="Part I, Q1.13 " + main_cmt
     )
-        
+
     # Part II
     q2_1 = CamcopsColumn(
         "q2_1", Integer, permitted_value_checker=main_pv,
@@ -193,7 +191,7 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "q2_13", Integer, permitted_value_checker=main_pv,
         comment="Part II, Q2.13 " + main_cmt
     )
-        
+
     # Part III
     q3a = CamcopsColumn(
         "q3a", Boolean, permitted_value_checker=BIT_CHECKER,
@@ -356,7 +354,7 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "q3_hy_stage", Integer, permitted_value_checker=hy_pv,
         comment="Part III, q3_hy_stage (0-5)"
     )
-        
+
     # Part IV
     q4_1 = CamcopsColumn(
         "q4_1", Integer, permitted_value_checker=main_pv,

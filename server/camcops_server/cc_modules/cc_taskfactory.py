@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_taskfactory.py
 
 """
-..
+camcops_server/cc_modules/cc_taskfactory.py
 
 ===============================================================================
 
@@ -25,8 +24,8 @@
 
 ===============================================================================
 
-Classes and functions to fetch tasks from the database as efficiently as
-possible.
+**Classes and functions to fetch tasks from the database as efficiently as
+possible.**
 
 """
 

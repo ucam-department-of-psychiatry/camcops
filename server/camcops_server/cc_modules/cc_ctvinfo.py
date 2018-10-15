@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_ctvinfo.py
 
 """
-..
+camcops_server/cc_modules/cc_ctvinfo.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Information class used by the clinical text viewer (CTV) function.
+**Information class used by the clinical text viewer (CTV) function.**
 
 """
 

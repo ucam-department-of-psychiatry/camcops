@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/versions/0008.py
 
 """
-add CESD task
-
-Revision ID: 0008
-Revises: 0007
-Creation date: 2018-10-03 09:33:18.987477
-
-DATABASE REVISION SCRIPT
+camcops_server/alembic/versions/0008_add_cesd_task.py
 
 ===============================================================================
 
@@ -31,7 +24,11 @@ DATABASE REVISION SCRIPT
 
 ===============================================================================
 
-..
+add CESD task
+Revision ID: 0008
+Revises: 0007
+Creation date: 2018-10-03 09:33:18.987477
+DATABASE REVISION SCRIPT
 """
 
 # =============================================================================

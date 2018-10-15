@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/versions/0002.py
 
 """
-CISR 2018-01-29
-
-Revision ID: 0002
-Revises: 0001
-Creation date: 2018-01-29 20:31:56.440656
-
-DATABASE REVISION SCRIPT
+camcops_server/alembic/versions/0002_cisr_2018_01_29.py
 
 ===============================================================================
 
@@ -31,7 +24,11 @@ DATABASE REVISION SCRIPT
 
 ===============================================================================
 
-..
+CISR 2018-01-29
+Revision ID: 0002
+Revises: 0001
+Creation date: 2018-01-29 20:31:56.440656
+DATABASE REVISION SCRIPT
 """
 
 # =============================================================================

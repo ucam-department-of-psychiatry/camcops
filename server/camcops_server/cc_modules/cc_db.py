@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_db.py
 
 """
-..
+camcops_server/cc_modules/cc_db.py
 
 ===============================================================================
 
@@ -25,7 +24,8 @@
 
 ===============================================================================
 
-Common database code, e.g. mixins for tables that are uploaded from the client.
+**Common database code, e.g. mixins for tables that are uploaded from the
+client.**
 
 """
 

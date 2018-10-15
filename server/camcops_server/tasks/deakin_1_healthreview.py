@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/deakin_1_healthreview.py
 
 """
-..
+camcops_server/tasks/deakin_1_healthreview.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from sqlalchemy.sql.schema import Column
@@ -341,7 +339,7 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
     def get_task_html(self, req: CamcopsRequest) -> str:
         def twocol_bool_row(fieldname: str) -> str:
             return self.get_twocol_bool_row(req, fieldname)
-        
+
         return """
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">

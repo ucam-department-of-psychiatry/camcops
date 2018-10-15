@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/env.py
 
 """
-..
+camcops_server/alembic/env.py
 
 ===============================================================================
 
@@ -25,7 +24,8 @@
 
 ===============================================================================
 
-The file ``env.py`` configures and runs Alembic.
+**This file configures and runs Alembic.**
+
 It is loaded directly by Alembic, via a pseudo-"main" environment.
 
 """

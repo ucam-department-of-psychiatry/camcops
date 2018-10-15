@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_patient.py
 
 """
-..
+camcops_server/cc_modules/cc_patient.py
 
 ===============================================================================
 
@@ -25,7 +24,8 @@
 
 ===============================================================================
 
-..
+**Patients.**
+
 """
 
 import logging
@@ -768,7 +768,7 @@ class PatientTests(DemoDatabaseTestCase):
     def test_patient(self) -> None:
         self.announce("test_patient")
         from camcops_server.cc_modules.cc_group import Group
-        
+
         req = self.req
         q = self.dbsession.query(Patient)
         p = q.first()  # type: Patient

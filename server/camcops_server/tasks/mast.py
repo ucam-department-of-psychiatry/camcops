@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/mast.py
 
 """
-..
+camcops_server/tasks/mast.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Tuple, Type

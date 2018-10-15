@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_group.py
 
 """
-..
+camcops_server/cc_modules/cc_group.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Group definitions.
+**Group definitions.**
 
 """
 

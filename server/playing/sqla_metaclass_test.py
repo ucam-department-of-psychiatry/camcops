@@ -1,45 +1,56 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 """
+playing/sqla_metaclass_test.py
+
+===============================================================================
+
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+===============================================================================
 
 Metaclasses in general:
 - https://www.python.org/dev/peps/pep-3115/
 - http://eli.thegreenplace.net/2011/08/14/python-metaclasses-by-example
 - https://stackoverflow.com/questions/27258557/metaclass-arguments-for-python-3-x
-
 - http://python-3-patterns-idioms-test.readthedocs.io/en/latest/Metaprogramming.html#using-init-vs-new-in-metaclasses
-
 MOST IMPORTANTLY FOR PYTHON 3:
-
     Use
         class X(metaclass=Y)
     not
         class X(object):
             __metaclass__ = Y  # WILL BE IGNORED
-
 THE OVERALL SEQUENCE:
-
     - suppose class Thing has a metaclass MetaThing
-    
         class Thing(object, metaclass=MetaThing):
             # AT THIS POINT IN EVALUATION, MetaThing.__prepare__() is called
-            # (PEP 3115: "This attribute is named __prepare__ , which is 
+            # (PEP 3115: "This attribute is named __prepare__ , which is
             # invoked as a function before the evaluation of the class body.")
             # THE POINT OF __prepare__ IS TO MODIFY THE BASE CLASS DICTIONARY.
             # See http://python-3-patterns-idioms-test.readthedocs.io/en/latest/Metaprogramming.html#the-prepare-metamethod
-            
             someattr = 99
-            
             def somefunc(self):
                 return "hello"
-                
         # NOW, WHEN THE CLASS DEFINITION HAS BEEN READ, MetaThing.__new__()
         # is called
-
 Metaclass __new__ vs __init__:
 - https://stackoverflow.com/questions/1840421/is-there-any-reason-to-choose-new-over-init-when-defining-a-metaclass
 - https://docs.python.org/3/reference/datamodel.html#basic-customization
-
 """  # noqa
 
 # =============================================================================
@@ -127,23 +138,23 @@ class MetaSomeThing(DeclarativeMeta):
                 classdict: Dict[str, Any]) -> Type:
         """
         Args:
-            mcs: this metaclass, e.g. 
+            mcs: this metaclass, e.g.
                 <class '__main__.MetaSomeThing'>
-            name: the name of the new class, e.g. 
+            name: the name of the new class, e.g.
                 'SomeThing'
             bases: tuple of the new class's base classes, e.g.
                 (<class 'sqlalchemy.ext.declarative.api.Base'>,)
             classdict: dictionary mapping attribute names to attributes, e.g.
                 {
-                    '__qualname__': 'SomeThing', 
-                    '__tablename__': 'some_table', 
+                    '__qualname__': 'SomeThing',
+                    '__tablename__': 'some_table',
                     '__init__':
                         <function SomeThing.__init__ at 0x7fd8065647b8>,
                     'a': Column('a', Integer(), table=None, primary_key=True,
                                 nullable=False),
                     'somefunc':
                         <function SomeThing.somefunc at 0x7fd806564840>,
-                    '__module__': '__main__', 
+                    '__module__': '__main__',
                     'c': Column('c', Integer(), table=None)
                 }
 
@@ -179,15 +190,15 @@ class MetaSomeThing(DeclarativeMeta):
                 (<class 'sqlalchemy.ext.declarative.api.Base'>,)
             classdict: dictionary mapping attribute names to attributes, e.g.
                 {
-                    '__qualname__': 'SomeThing', 
-                    '__tablename__': 'some_table', 
+                    '__qualname__': 'SomeThing',
+                    '__tablename__': 'some_table',
                     '__init__':
                         <function SomeThing.__init__ at 0x7fd8065647b8>,
                     'a': Column('a', Integer(), table=None, primary_key=True,
                                 nullable=False),
                     'somefunc':
                         <function SomeThing.somefunc at 0x7fd806564840>,
-                    '__module__': '__main__', 
+                    '__module__': '__main__',
                     'c': Column('c', Integer(), table=None)
                 }
         """

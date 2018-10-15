@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/khandaker_1_medicalhistory.py
 
 """
-..
+camcops_server/tasks/khandaker_1_medicalhistory.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, Tuple, Type
@@ -52,7 +50,7 @@ class KQInfo(object):
         self.fieldname_comment = stem + "_comment"
         self.question_xmlstr = "q_" + stem
         self.heading_xmlstr = heading_xml
-        
+
     def has_heading(self) -> bool:
         return bool(self.heading_xmlstr)
 

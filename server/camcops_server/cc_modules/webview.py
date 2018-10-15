@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/webview.py
 
 """
-..
+camcops_server/cc_modules/webview.py
 
 ===============================================================================
 
@@ -25,7 +24,7 @@
 
 ===============================================================================
 
-Implements the CamCOPS web front end.
+**Implements the CamCOPS web front end.**
 
 Quick tutorial on Pyramid views:
 

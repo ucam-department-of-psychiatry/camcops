@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_sqlalchemy.py
 
 """
-..
+camcops_server/cc_modules/cc_sqlalchemy.py
 
 ===============================================================================
 
@@ -25,8 +24,10 @@
 
 ===============================================================================
 
-SQLAlchemy helper functions and constants. We define our metadata ``Base``
-here, and things like our index naming convention and MySQL table formats.
+**SQLAlchemy helper functions and constants.**
+
+We define our metadata ``Base`` here, and things like our index naming
+convention and MySQL table formats.
 
 A few random notes:
 

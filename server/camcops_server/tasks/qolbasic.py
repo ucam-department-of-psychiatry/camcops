@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/qolbasic.py
 
 """
-..
+camcops_server/tasks/qolbasic.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import List, Optional

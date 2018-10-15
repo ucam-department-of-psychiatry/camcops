@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/cesdr.py
 
 """
-..
+camcops_server/tasks/cesdr.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Tuple, Type
@@ -300,7 +298,7 @@ class Cesdr(TaskHasPatientMixin, Task,
             <div class="{CssClass.FOOTNOTES}">
             [1] Presence of depression (or depression risk) is indicated by a
                 score &ge; 16
-            [2] Diagnostic criteria described at 
+            [2] Diagnostic criteria described at
                 <a href="https://cesd-r.com/cesdr/">https://cesd-r.com/cesdr/</a>
             </div>
         """.format(  # noqa

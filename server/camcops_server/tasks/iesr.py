@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/iesr.py
 
 """
-..
+camcops_server/tasks/iesr.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 from typing import Any, Dict, List, Tuple, Type

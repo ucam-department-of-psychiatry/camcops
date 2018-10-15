@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_cache.py
 
 """
-..
+camcops_server/cc_modules/cc_cache.py
 
 ===============================================================================
 
@@ -25,12 +24,12 @@
 
 ===============================================================================
 
-Cache functions.
+**Cache functions.**
 
 1. The basic cache objects.
 
 2. FIX FOR DOGPILE.CACHE FOR DECORATED FUNCTIONS, 2017-07-28 (PLUS SOME OTHER
-   IMPROVEMENTS). SEE 
+   IMPROVEMENTS). SEE
    https://bitbucket.org/zzzeek/dogpile.cache/issues/96/error-in-python-35-with-use-of-deprecated
 
 Crash using type-hinted functions under Python 3.5 with dogpile.cache==0.6.4:
@@ -60,45 +59,45 @@ Crash using type-hinted functions under Python 3.5 with dogpile.cache==0.6.4:
   This means that for single-process (single-thread or multithreaded) servers,
   the cache is unique, but that won't work for multi-process (e.g. Gunicorn)
   servers.
-  
+
 - That means that in a multiprocess environment it's fine to continue to use a
   memory cache for file-based stuff (e.g. configs, XML strings), but not for
   database-based stuff (e.g. which ID numbers are valid).
-  
+
 - Correct solutions WITH a cache for those database-based things include:
 
-  - ignoring Python caching and relying on the MySQL query cache -- but this is 
+  - ignoring Python caching and relying on the MySQL query cache -- but this is
     being removed because it's not all that great:
-    
+
     http://mysqlserverteam.com/mysql-8-0-retiring-support-for-the-query-cache/
-    
+
   - using memcached (via dogpile.cache.pylibmc)
-  
+
     http://www.ubergizmo.com/how-to/install-memcached-windows/
 
   - using redis (via dogpile.cache.redis and
     https://pypi.python.org/pypi/redis/ )
-  
+
     https://stackoverflow.com/questions/10558465/memcached-vs-redis
     https://redis.io/
     https://web.archive.org/web/20120118030804/http://simonwillison.net/static/2010/redis-tutorial/
     http://oldblog.antirez.com/post/take-advantage-of-redis-adding-it-to-your-stack.html
     https://redis.io/topics/security
-    
+
     redis unsupported under Windows:
         https://redis.io/download
-        
+
 - The other obvious alternative: don't cache such stuff! This may all be
   premature optimization.
-  
+
   https://msol.io/blog/tech/youre-probably-wrong-about-caching/
-  
+
   The actual price is of the order of 0.6-1 ms per query, for the queries
   "find me all the ID number definitions" and "fetch the server settings".
-  
+
 - The answer is probably:
 
-  - continue to use dogpile.cache.memory for simple "fixed" stuff read from 
+  - continue to use dogpile.cache.memory for simple "fixed" stuff read from
     disk;
   - continue to use Pyramid's per-request caching mechanism (@reify);
   - forget about database caching for now;

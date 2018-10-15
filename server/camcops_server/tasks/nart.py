@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/nart.py
 
 """
-..
+camcops_server/tasks/nart.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 import math
@@ -262,12 +260,12 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
                     {tr_total_errors}
-                    
+
                     {nelson_full_scale_iq}
                     {nelson_verbal_iq}
                     {nelson_performance_iq}
                     {nelson_willison_full_scale_iq}
-                    
+
                     {bright_full_scale_iq}
                     {bright_general_ability}
                     {bright_verbal_comprehension}
@@ -288,16 +286,16 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Nelson HE (1982), <i>National Adult Reading Test (NART): 
-                    For the Assessment of Premorbid Intelligence in Patients 
+                [1] Nelson HE (1982), <i>National Adult Reading Test (NART):
+                    For the Assessment of Premorbid Intelligence in Patients
                     with Dementia: Test Manual</i>, NFER-Nelson, Windsor, UK.
-                [2] Nelson HE, Wilson J (1991) 
+                [2] Nelson HE, Wilson J (1991)
                     <i>National Adult Reading Test (NART)</i>,
                     NFER-Nelson, Windsor, UK; see [3].
-                [3] Bright P et al (2016). The National Adult Reading Test: 
-                    restandardisation against the Wechsler Adult Intelligence 
+                [3] Bright P et al (2016). The National Adult Reading Test:
+                    restandardisation against the Wechsler Adult Intelligence
                     Scale—Fourth edition.
-                    <a href="https://www.ncbi.nlm.nih.gov/pubmed/27624393">PMID 
+                    <a href="https://www.ncbi.nlm.nih.gov/pubmed/27624393">PMID
                     27624393</a>.
             </div>
             <div class="{CssClass.COPYRIGHT}">

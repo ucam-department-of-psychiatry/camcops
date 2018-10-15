@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/versions/0001.py
 
 """
-start
-
-Revision ID: 0001
-Revises: 
-Creation date: 2017-10-22 02:13:14.498367
-
-DATABASE REVISION SCRIPT
+camcops_server/alembic/versions/0001_start.py
 
 ===============================================================================
 
@@ -31,7 +24,11 @@ DATABASE REVISION SCRIPT
 
 ===============================================================================
 
-..
+start
+Revision ID: 0001
+Revises:
+Creation date: 2017-10-22 02:13:14.498367
+DATABASE REVISION SCRIPT
 """
 
 # =============================================================================

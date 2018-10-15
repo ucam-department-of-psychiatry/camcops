@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/versions/0007.py
 
 """
-add PCL5
-
-Revision ID: 0007
-Revises: 0006
-Creation date: 2018-09-28 16:45:49.422031
-
-DATABASE REVISION SCRIPT
+camcops_server/alembic/versions/0007_add_pcl5.py
 
 ===============================================================================
 
@@ -31,7 +24,11 @@ DATABASE REVISION SCRIPT
 
 ===============================================================================
 
-..
+add PCL5
+Revision ID: 0007
+Revises: 0006
+Creation date: 2018-09-28 16:45:49.422031
+DATABASE REVISION SCRIPT
 """
 
 # =============================================================================

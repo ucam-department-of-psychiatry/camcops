@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/versions/0003.py
 
 """
-CISR demographics fields 2018-02-02
-
-Revision ID: 0003
-Revises: 0002
-Creation date: 2018-02-02 10:02:46.382218
-
-DATABASE REVISION SCRIPT
+camcops_server/alembic/versions/0003_cisr_demographics_fields.py
 
 ===============================================================================
 
@@ -31,7 +24,11 @@ DATABASE REVISION SCRIPT
 
 ===============================================================================
 
-..
+CISR demographics fields 2018-02-02
+Revision ID: 0003
+Revises: 0002
+Creation date: 2018-02-02 10:02:46.382218
+DATABASE REVISION SCRIPT
 """
 
 # =============================================================================

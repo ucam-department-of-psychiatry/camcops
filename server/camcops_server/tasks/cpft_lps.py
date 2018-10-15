@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/tasks/cpft_lps.py
 
 """
-..
+camcops_server/tasks/cpft_lps.py
 
 ===============================================================================
 
@@ -25,7 +24,6 @@
 
 ===============================================================================
 
-..
 """
 
 import logging
@@ -222,7 +220,7 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
                 admission_reasons.append(self.wxstring(req, "f_" + r))
 
         h = """
-            <div class="{CssClass.BANNER} {banner_class}">{division_name} 
+            <div class="{CssClass.BANNER} {banner_class}">{division_name}
                 referral at {when}</div>
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
@@ -346,7 +344,7 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
 # CPFT_LPS_ResetResponseClock
 # =============================================================================
 
-class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin, 
+class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
                                 Task):
     """
     Server implementation of the CPFT_LPS_ResetResponseClock task.
