@@ -292,13 +292,15 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app) :
         MenuItem("QuAudioPlayer",
                  std::bind(&WidgetTestMenu::testQuAudioPlayer, this)),
         MenuItem("QuBoolean (as_text_button=false, short text)",
-                 std::bind(&WidgetTestMenu::testQuBoolean, this, false, false)),
+                 std::bind(&WidgetTestMenu::testQuBoolean, this, false, false, false)),
+        MenuItem("QuBoolean (as_text_button=false, short text, false_appears_blank)",
+                 std::bind(&WidgetTestMenu::testQuBoolean, this, false, false, true)),
         MenuItem("QuBoolean (as_text_button=false, long text)",
-                 std::bind(&WidgetTestMenu::testQuBoolean, this, false, true)),
+                 std::bind(&WidgetTestMenu::testQuBoolean, this, false, true, false)),
         MenuItem("QuBoolean (as_text_button=true, short text)",
-                 std::bind(&WidgetTestMenu::testQuBoolean, this, true, false)),
+                 std::bind(&WidgetTestMenu::testQuBoolean, this, true, false, false)),
         MenuItem("QuBoolean (as_text_button=true, long text)",
-                 std::bind(&WidgetTestMenu::testQuBoolean, this, true, true)),
+                 std::bind(&WidgetTestMenu::testQuBoolean, this, true, true, false)),
         MenuItem("QuButton",
                  std::bind(&WidgetTestMenu::testQuButton, this)),
         MenuItem("QuCanvas",
@@ -860,10 +862,12 @@ void WidgetTestMenu::testQuAudioPlayer()
 
 
 void WidgetTestMenu::testQuBoolean(const bool as_text_button,
-                                   const bool long_text)
+                                   const bool long_text,
+                                   const bool false_appears_blank)
 {
     QuBoolean element(sampleText(long_text), m_fieldref_1);
     element.setAsTextButton(as_text_button);
+    element.setFalseAppearsBlank(false_appears_blank);
     testQuestionnaireElement(&element);
 }
 

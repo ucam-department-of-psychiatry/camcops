@@ -44,6 +44,7 @@ public:
     QuBoolean* setAllowUnset(bool allow_unset = true);
     QuBoolean* setAsTextButton(bool as_text_button = true);
     QuBoolean* setAdjustImageForDpi(bool adjust_image_for_dpi = true);
+    QuBoolean* setFalseAppearsBlank(bool false_appears_blank = true);
 protected:
     void commonConstructor();
     void setFromField();
@@ -66,5 +67,6 @@ protected:
     bool m_italic;
     bool m_allow_unset;
     bool m_as_text_button;
+    bool m_false_appears_blank;
     QPointer<BooleanWidget> m_indicator;
 };

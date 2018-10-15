@@ -61,6 +61,7 @@ void QuBoolean::commonConstructor()
     m_italic = false;
     m_allow_unset = false;
     m_as_text_button = false;
+    m_false_appears_blank = false;
     m_indicator = nullptr;
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
@@ -133,6 +134,13 @@ QuBoolean* QuBoolean::setAdjustImageForDpi(const bool adjust_image_for_dpi)
 }
 
 
+QuBoolean* QuBoolean::setFalseAppearsBlank(const bool false_appears_blank)
+{
+    m_false_appears_blank = false_appears_blank;
+    return this;
+}
+
+
 QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
 {
     const bool read_only = questionnaire->readOnly();
@@ -199,7 +207,14 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
         m_indicator->setAppearance(BooleanWidget::Appearance::Text);
         m_indicator->setText(m_text);
     } else {
-        m_indicator->setAppearance(BooleanWidget::Appearance::CheckRed);
+        if (m_false_appears_blank) {
+            // Slightly unusual
+            m_indicator->setAppearance(
+                        BooleanWidget::Appearance::CheckRedFalseAppearsBlank);
+        } else {
+            // Normal
+            m_indicator->setAppearance(BooleanWidget::Appearance::CheckRed);
+        }
     }
     if (!read_only) {
         connect(m_indicator, &BooleanWidget::clicked,

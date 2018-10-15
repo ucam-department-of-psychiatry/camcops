@@ -51,7 +51,9 @@ public:
     };
     enum class Appearance {
         CheckBlack,
+        CheckBlackFalseAppearsBlank,
         CheckRed,
+        CheckRedFalseAppearsBlank,
         Radio,
         Text,
     };

@@ -153,6 +153,27 @@ void BooleanWidget::updateWidget(const bool full_refresh)
             break;
         }
         break;
+
+    case Appearance::CheckBlackFalseAppearsBlank:
+        switch (m_state) {
+        case State::Disabled:
+            img = CHECK_DISABLED;
+            break;
+        case State::Null:
+            img = CHECK_UNSELECTED;
+            break;
+        case State::NullRequired:
+            img = CHECK_UNSELECTED_REQUIRED;
+            break;
+        case State::False:
+            img = CHECK_UNSELECTED;  // difference from CheckBlack
+            break;
+        case State::True:
+            img = CHECK_TRUE_BLACK;
+            break;
+        }
+        break;
+
     case Appearance::CheckRed:
     default:
         switch (m_state) {
@@ -173,6 +194,27 @@ void BooleanWidget::updateWidget(const bool full_refresh)
             break;
         }
         break;
+
+    case Appearance::CheckRedFalseAppearsBlank:
+        switch (m_state) {
+        case State::Disabled:
+            img = CHECK_DISABLED;
+            break;
+        case State::Null:
+            img = CHECK_UNSELECTED;
+            break;
+        case State::NullRequired:
+            img = CHECK_UNSELECTED_REQUIRED;
+            break;
+        case State::False:
+            img = CHECK_UNSELECTED;  // difference from CheckRed
+            break;
+        case State::True:
+            img = CHECK_TRUE_RED;
+            break;
+        }
+        break;
+
     case Appearance::Radio:
         switch (m_state) {
         case State::Disabled:
@@ -193,6 +235,7 @@ void BooleanWidget::updateWidget(const bool full_refresh)
             break;
         }
         break;
+
     case Appearance::Text:
         // http://wiki.qt.io/DynamicPropertiesAndStylesheets
         {
