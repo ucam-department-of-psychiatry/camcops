@@ -1473,7 +1473,7 @@ def get_config_filename_from_os_env() -> str:
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_config(config_filename: str) -> CamcopsConfig:
     """
-    Returns a :class:`CamcopsConfig` from the specified config filename.
+    Returns a :class:`camcops_server.cc_modules.cc_config.CamcopsConfig` from the specified config filename.
 
     Cached.
     """
@@ -1486,7 +1486,7 @@ def get_config(config_filename: str) -> CamcopsConfig:
 
 def get_default_config_from_os_env() -> CamcopsConfig:
     """
-    Returns the :class:`CamcopsConfig` representing the config filename that
+    Returns the :class:`camcops_server.cc_modules.cc_config.CamcopsConfig` representing the config filename that
     we read from our operating system environment variable.
     """
     return get_config(get_config_filename_from_os_env())

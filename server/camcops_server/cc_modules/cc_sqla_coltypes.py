@@ -924,7 +924,7 @@ class IdNumReferenceListColType(TypeDecorator):
     def _idnumdef_list_to_dbstr(
             idnumdef_list: Optional[List[IdNumReference]]) -> str:
         """
-        Converts an optional list of :class:`IdNumReference` objects to a
+        Converts an optional list of :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference` objects to a
         CSV string suitable for storing in the database.
         """
         if not idnumdef_list:
@@ -939,7 +939,7 @@ class IdNumReferenceListColType(TypeDecorator):
     def _dbstr_to_idnumdef_list(dbstr: Optional[str]) -> List[IdNumReference]:
         """
         Converts a CSV string (from the database) to a list of
-        :class:`IdNumReference` objects.
+        :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference` objects.
         """
         idnumdef_list = []  # type: List[IdNumReference]
         try:
@@ -1183,7 +1183,7 @@ def gen_columns_matching_attrnames(obj, attrnames: List[str]) \
 def gen_camcops_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
                                           None, None]:
     """
-    Finds all columns of an object that are :class:`CamcopsColumn` columns.
+    Finds all columns of an object that are :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` columns.
 
     Args:
         obj: SQLAlchemy ORM object to inspect
@@ -1199,7 +1199,7 @@ def gen_camcops_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
 def gen_camcops_blob_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
                                                None, None]:
     """
-    Finds all columns of an object that are :class:`CamcopsColumn` columns
+    Finds all columns of an object that are :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` columns
     referencing the BLOB table.
 
     Args:
@@ -1225,7 +1225,7 @@ def get_column_attr_names(obj) -> List[str]:
 
 def get_camcops_column_attr_names(obj) -> List[str]:
     """
-    Get a list of :class:`CamcopsColumn` column attribute names from an
+    Get a list of :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` column attribute names from an
     SQLAlchemy ORM object.
     """
     return [attrname for attrname, _ in gen_camcops_columns(obj)]
@@ -1233,7 +1233,7 @@ def get_camcops_column_attr_names(obj) -> List[str]:
 
 def get_camcops_blob_column_attr_names(obj) -> List[str]:
     """
-    Get a list of :class:`CamcopsColumn` BLOB column attribute names from an
+    Get a list of :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` BLOB column attribute names from an
     SQLAlchemy ORM object.
     """
     return [attrname for attrname, _ in gen_camcops_blob_columns(obj)]
@@ -1242,7 +1242,7 @@ def get_camcops_blob_column_attr_names(obj) -> List[str]:
 def permitted_value_failure_msgs(obj) -> List[str]:
     """
     Checks a SQLAlchemy ORM object instance against its permitted value
-    checks (via its :class:`CamcopsColumn` columns), if it has any.
+    checks (via its :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` columns), if it has any.
 
     Returns a list of failure messages (empty list means all OK).
 
@@ -1346,7 +1346,7 @@ def _name_type_in_column_args(args: Tuple[Any, ...]) -> Tuple[bool, bool]:
 # noinspection PyAbstractClass
 class BoolColumn(CamcopsColumn):
     """
-    A :class:`CamcopsColumn` representing a boolean value.
+    A :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` representing a boolean value.
     """
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         # Must pass on all arguments, ultimately to Column, or when using

@@ -168,8 +168,9 @@ class CamcopsSession(Base):
     def get_session_using_cookies(cls,
                                   req: "CamcopsRequest") -> "CamcopsSession":
         """
-        Makes, or retrieves, a new :class:`CamcopsSession` for this Pyramid
-        Request.
+        Makes, or retrieves, a new
+        :class:`camcops_server.cc_modules.cc_session.CamcopsSession` for this
+        Pyramid Request.
 
         The session is found using the ID/token information in the request's
         cookies.
@@ -184,10 +185,12 @@ class CamcopsSession(Base):
     @classmethod
     def get_session_for_tablet(cls, ts: "TabletSession") -> "CamcopsSession":
         """
-        For a given :class:`TabletSession` (used by tablet client devices),
-        returns a corresponding :class:`CamcopsSession`.
+        For a given :class:`camcops_server.cc_modules.cc_tabletsession.TabletSession` (used by tablet client devices),
+        returns a corresponding
+        :class:`camcops_server.cc_modules.cc_session.CamcopsSession`.
 
-        User authentication is via the :class:`CamcopsSession`.
+        User authentication is via the
+        :class:`camcops_server.cc_modules.cc_session.CamcopsSession`.
         """
 
         def login_from_ts(cc: "CamcopsSession", ts_: "TabletSession") -> None:
@@ -231,8 +234,9 @@ class CamcopsSession(Base):
                     session_id_str: Optional[str],
                     session_token: Optional[str]) -> 'CamcopsSession':
         """
-        Retrieves, or makes, a new :class:`CamcopsSession` for this Pyramid
-        Request, given a specific ``session_id`` and ``session_token``.
+        Retrieves, or makes, a new
+        :class:`camcops_server.cc_modules.cc_session.CamcopsSession` for this
+        Pyramid Request, given a specific ``session_id`` and ``session_token``.
         """
         if DEBUG_CAMCOPS_SESSION_CREATION:
             log.debug("CamcopsSession.get_session: session_id_str={!r}, "
@@ -370,7 +374,7 @@ class CamcopsSession(Base):
 
     def get_task_filter(self) -> TaskFilter:
         """
-        Returns the :class:`TaskFilter` in use for this session.
+        Returns the :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter` in use for this session.
         """
         if not self.task_filter:
             dbsession = SqlASession.object_session(self)

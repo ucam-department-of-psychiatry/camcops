@@ -359,7 +359,7 @@ class TaskFilter(Base):
     def get_only_iddef(self) -> Optional[IdNumReference]:
         """
         If a single ID number type/value restriction is being applied, return
-        it, as an :class:`IdNumReference`. Otherwise, return ``None``.
+        it, as an :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference`. Otherwise, return ``None``.
         """
         if len(self.idnum_criteria) != 1:
             return None
@@ -410,7 +410,7 @@ class TaskFilter(Base):
         that relate to viewing tasks when unfiltered.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             q: the starting SQLAlchemy ORM Query
             cls: the task class
 

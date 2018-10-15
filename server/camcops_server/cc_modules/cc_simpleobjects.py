@@ -105,7 +105,7 @@ class BarePatientInfo(object):
     Represents information about a patient using a simple object with no
     connection to a database.
 
-    In some situations we avoid using :class:`Patient`: specifically, when we
+    In some situations we avoid using :class:`camcops_server.cc_modules.cc_patient.Patient`: specifically, when we
     would otherwise have to deal with mutual dependency problems and the use of
     the database (prior to full database initialization).
     """

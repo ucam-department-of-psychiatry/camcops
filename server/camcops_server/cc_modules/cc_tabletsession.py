@@ -205,9 +205,9 @@ class TabletSession(object):
         Sets the session ID and token.
         Typical situation:
 
-        - :class:`TabletSession` created; may or may not have an ID/token as
+        - :class:`camcops_server.cc_modules.cc_tabletsession.TabletSession` created; may or may not have an ID/token as
           part of the POST request
-        - :class:`CamcopsRequest` translates that into a server-side session
+        - :class:`camcops_server.cc_modules.cc_request.CamcopsRequest` translates that into a server-side session
         - If one wasn't found and needs to be created, we write back
           the values here.
         """

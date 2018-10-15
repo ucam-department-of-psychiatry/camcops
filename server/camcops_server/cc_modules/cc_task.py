@@ -349,9 +349,11 @@ class Task(GenericTabletRecordMixin, Base):
 
     Note:
 
-    - For column definitions: use :class:`CamcopsColumn`, not :class:`Column`,
-      if you have fields that need to define permitted values, mark them as
-      BLOB-referencing fields, or do other CamCOPS-specific things.
+    - For column definitions: use
+      :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn`, not
+      :class:`Column`, if you have fields that need to define permitted values,
+      mark them as BLOB-referencing fields, or do other CamCOPS-specific
+      things.
 
     """
     __abstract__ = True
@@ -505,11 +507,12 @@ class Task(GenericTabletRecordMixin, Base):
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         """
         Tasks that provide quantitative information for tracking over time
-        should override this and return a list of :class:`TrackerInfo` objects,
-        one per tracker.
+        should override this and return a list of
+        :class:`camcops_server.cc_modules.cc_trackerhelpers.TrackerInfo`
+        objects, one per tracker.
 
         The information is read by
-        :func:`camcops_server.cc_modules.cc_tracker.Tracker.get_all_plots_for_one_task_html`.
+        :meth:`camcops_server.cc_modules.cc_tracker.Tracker.get_all_plots_for_one_task_html`.
 
         Time information will be retrieved using :func:`get_creation_datetime`.
         """  # noqa
@@ -542,7 +545,9 @@ class Task(GenericTabletRecordMixin, Base):
         Override if you wish to create extra summary tables, not just add
         summary columns to task/ancillary tables.
 
-        Return a list of :class:`ExtraSummaryTable` objects.
+        Return a list of
+        :class:`camcops_server.cc_modules.cc_summaryelement.ExtraSummaryTable`
+        objects.
         """
         return []
 
@@ -909,7 +914,8 @@ class Task(GenericTabletRecordMixin, Base):
     @property
     def patient(self) -> Optional[Patient]:
         """
-        Returns the :class:`Patient` for this task.
+        Returns the :class:`camcops_server.cc_modules.cc_patient.Patient` for
+        this task.
 
         Overridden by :class:`TaskHasPatientMixin`.
         """
@@ -1323,7 +1329,7 @@ class Task(GenericTabletRecordMixin, Base):
         Returns XML describing the task.
 
         Args:
-            req: a :class:`CamcopsRequest`
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             include_calculated: include fields calculated by the task
             include_blobs: include binary large objects (BLOBs)
             include_patient: include patient details?
@@ -1360,13 +1366,14 @@ class Task(GenericTabletRecordMixin, Base):
                      include_ancillary: bool = True,
                      skip_fields: List[str] = None) -> XmlElement:
         """
-        Returns an XML tree. The return value is the root :class:`XmlElement`.
+        Returns an XML tree. The return value is the root
+        :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
 
         Override to include other tables, or to deal with BLOBs, if the default
         methods are insufficient.
 
         Args:
-            req: a :class:`CamcopsRequest`
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             include_calculated: include fields calculated by the task
             include_blobs: include binary large objects (BLOBs)
             include_patient: include patient details?
@@ -1395,11 +1402,12 @@ class Task(GenericTabletRecordMixin, Base):
             include_ancillary: bool = True,
             skip_fields: List[str] = None) -> List[XmlElement]:
         """
-        Returns a list of :class:`XmlElement` elements representing stored,
-        calculated, patient, and/or BLOB fields, depending on the options.
+        Returns a list of :class:`camcops_server.cc_modules.cc_xml.XmlElement`
+        elements representing stored, calculated, patient, and/or BLOB fields,
+        depending on the options.
 
         Args:
-            req: a :class:`CamcopsRequest`
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             include_calculated: include fields calculated by the task
             include_blobs: include binary large objects (BLOBs)
             include_patient: include patient details?
@@ -1496,7 +1504,7 @@ class Task(GenericTabletRecordMixin, Base):
         Returns HTML representing the task, for our HTML view.
 
         Args:
-            req: a :class:`CamcopsRequest`
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             anonymise: hide patient identifying details?
         """
         req.prepare_for_html_figures()
@@ -1516,7 +1524,7 @@ class Task(GenericTabletRecordMixin, Base):
         Returns a PDF representing the task.
 
         Args:
-            req: a :class:`CamcopsRequest`
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             anonymise: hide patient identifying details?
         """
         html = self.get_pdf_html(req, anonymise=anonymise)  # main content
@@ -1813,7 +1821,7 @@ class Task(GenericTabletRecordMixin, Base):
         HTML table row, two columns, with Boolean Y/N formatter for value.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             fieldname: field (attribute) name; the value will be retrieved
                 from this attribute
             label: descriptive label
@@ -1834,7 +1842,7 @@ class Task(GenericTabletRecordMixin, Base):
         value.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             fieldname: field (attribute) name; the value will be retrieved
                 from this attribute
             label: descriptive label
@@ -1855,7 +1863,7 @@ class Task(GenericTabletRecordMixin, Base):
         value.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             fieldname: field (attribute) name; the value will be retrieved
                 from this attribute
             label: descriptive label
@@ -1874,7 +1882,7 @@ class Task(GenericTabletRecordMixin, Base):
         HTML table row, two columns, with PNG on right.
 
         Args:
-            blob: the :class:`Blob` object
+            blob: the :class:`camcops_server.cc_modules.cc_blob.Blob` object
             label: descriptive label
 
         Returns:
@@ -2060,7 +2068,7 @@ class Task(GenericTabletRecordMixin, Base):
         Return a web-safe version of an extra string for this task.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             name: name (second-level key) of the string, within the set of
                 this task's extra strings
             defaultvalue: default to return if the string is not found
@@ -2087,7 +2095,7 @@ class Task(GenericTabletRecordMixin, Base):
         this task.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             name: name (second-level key) of the string, within the set of
                 this task's extra strings
             defaultvalue: default to return if the string is not found

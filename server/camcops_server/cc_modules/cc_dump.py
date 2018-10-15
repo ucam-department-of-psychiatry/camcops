@@ -125,7 +125,7 @@ class DumpController(object):
             dst_engine: destination SQLAlchemy Engine
             dst_session:  destination SQLAlchemy Session
             include_blobs: include BLOBs in the dump?
-            req: :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
         self.dst_engine = dst_engine
         self.dst_session = dst_session
@@ -325,7 +325,7 @@ def copy_tasks_and_summaries(tasks: Iterable[Task],
         dst_engine: destination SQLAlchemy Engine
         dst_session:  destination SQLAlchemy Session
         include_blobs: include BLOBs in the dump?
-        req: :class:`CamcopsRequest`
+        req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
     """
     # How best to create the structure that's required?
     #

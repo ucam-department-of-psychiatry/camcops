@@ -111,7 +111,7 @@ def task_query_restricted_to_permitted_users(
     task class. THIS IS A KEY SECURITY FUNCTION.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         q: the SQLAlchemy ORM query
         cls: the class of the task type
         as_dump: use the "dump" permissions rather than the "view" permissions?
@@ -150,7 +150,7 @@ def task_factory(req: CamcopsRequest, basetable: str,
     Load a task from the database and return it.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         basetable: name of the task's base table
         serverpk: server PK of the task
 
@@ -260,8 +260,8 @@ class TaskCollection(object):
             -> None:
         """
         Args:
-            req: the :class:`CamcopsRequest`
-            taskfilter: a :class:`TaskFilter` object that contains any
+            req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            taskfilter: a :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter` object that contains any
                 restrictions we may want to apply
             as_dump: use the "dump" permissions rather than the "view"
                 permissions?

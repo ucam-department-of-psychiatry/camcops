@@ -130,7 +130,7 @@ class SecurityAccountLockout(Base):
         Is the specified user locked out?
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             username: the user's username
         """
         dbsession = req.dbsession
@@ -146,7 +146,7 @@ class SecurityAccountLockout(Base):
         When is the user locked out until?
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             username: the user's username
 
         Returns:
@@ -171,7 +171,7 @@ class SecurityAccountLockout(Base):
         Lock user out for a specified number of minutes.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             username: the user's username
             lockout_minutes: number of minutes
         """
@@ -190,7 +190,7 @@ class SecurityAccountLockout(Base):
         Unlock a user.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             username: the user's username
         """
         dbsession = req.dbsession
@@ -232,7 +232,7 @@ class SecurityLoginFailure(Base):
         Record that a user has failed to log in.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             username: the user's username
         """
         dbsession = req.dbsession
@@ -248,7 +248,7 @@ class SecurityLoginFailure(Base):
         Record login failure and lock out user if necessary.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             username: the user's username
         """
         cfg = req.config
@@ -271,7 +271,7 @@ class SecurityLoginFailure(Base):
         Clear login failures for a user.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             username: the user's username
         """
         dbsession = req.dbsession
@@ -286,7 +286,7 @@ class SecurityLoginFailure(Base):
         How many times has the user tried and failed to log in (recently)?
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             username: the user's username
         """
         dbsession = req.dbsession
@@ -300,7 +300,7 @@ class SecurityLoginFailure(Base):
         Unlock user and clear login failures.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             username: the user's username
         """
         SecurityAccountLockout.unlock_user(req, username)
@@ -318,7 +318,7 @@ class SecurityLoginFailure(Base):
         discovery.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
         dbsession = req.dbsession
         all_user_names = dbsession.query(User.username)
@@ -336,7 +336,7 @@ class SecurityLoginFailure(Base):
         Not too often! See :data:`CLEAR_DUMMY_LOGIN_PERIOD`.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
         now = req.now_utc
         ss = req.server_settings
@@ -475,7 +475,7 @@ class User(Base):
         Will fail if the user already exists.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             username: the new superuser's username
             password: the new superuser's password
 
@@ -523,7 +523,7 @@ class User(Base):
         correct; otherwise, return None.
 
         Args:
-            req: the :class:`CamcopsRequest`
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             username: the username
             password: the password attempt
             take_time_for_nonexistent_user: if ``True`` (the default), then
@@ -794,8 +794,8 @@ class User(Base):
     @property
     def groups_user_may_see(self) -> List[Group]:
         """
-        Returns a list of :class:`Group` objects for groups the user can
-        see.
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user can see.
 
         Less efficient than the group ID version; for visual display (see
         ``view_own_user_info.mako``).
@@ -809,8 +809,8 @@ class User(Base):
     @property
     def groups_user_may_dump(self) -> List[Group]:
         """
-        Returns a list of :class:`Group` objects for groups the user can
-        dump.
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user can dump.
 
         Less efficient than the group ID version; for visual display (see
         ``view_own_user_info.mako``).
@@ -823,8 +823,8 @@ class User(Base):
     @property
     def groups_user_may_report_on(self) -> List[Group]:
         """
-        Returns a list of :class:`Group` objects for groups the user can
-        report on.
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user can report on.
 
         Less efficient than the group ID version; for visual display (see
         ``view_own_user_info.mako``).
@@ -837,8 +837,8 @@ class User(Base):
     @property
     def groups_user_may_upload_into(self) -> List[Group]:
         """
-        Returns a list of :class:`Group` objects for groups the user can
-        upload into.
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user can upload into.
 
         For visual display (see ``view_own_user_info.mako``).
 
@@ -850,8 +850,8 @@ class User(Base):
     @property
     def groups_user_may_add_special_notes(self) -> List[Group]:
         """
-        Returns a list of :class:`Group` objects for groups the user can
-        add special notes to.
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user can add special notes to.
 
         For visual display (see ``view_own_user_info.mako``).
 
@@ -863,8 +863,8 @@ class User(Base):
     @property
     def groups_user_may_see_all_pts_when_unfiltered(self) -> List[Group]:
         """
-        Returns a list of :class:`Group` objects for groups the user can
-        see all patients when unfiltered.
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user can see all patients when unfiltered.
 
         For visual display (see ``view_own_user_info.mako``).
 
@@ -877,8 +877,8 @@ class User(Base):
     @property
     def groups_user_is_admin_for(self) -> List[Group]:
         """
-        Returns a list of :class:`Group` objects for groups the user is
-        an administrator for.
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user is an administrator for.
 
         Less efficient than the group ID version; for visual display (see
         ``view_own_user_info.mako``).

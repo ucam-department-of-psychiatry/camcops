@@ -107,7 +107,8 @@ class XmlElement(object):
         Args:
             name: name of this XML element
             value: value of this element: may be a raw value or a list of
-                :class:`XmlElement` objects (default: ``None``)
+                :class:`camcops_server.cc_modules.cc_xml.XmlElement` objects
+                (default: ``None``)
             datatype: data type of this element (default: ``None``)
             comment: description of this element (default: ``None``)
         """
@@ -137,8 +138,9 @@ def make_xml_branches_from_columns(
         obj,
         skip_fields: List[str] = None) -> List[XmlElement]:
     """
-    Returns a list of XML branches, each an :class:`XmlElement`, from an
-    SQLAlchemy ORM object, using the list of SQLAlchemy Column objects that
+    Returns a list of XML branches, each an
+    :class:`camcops_server.cc_modules.cc_xml.XmlElement`, from an SQLAlchemy
+    ORM object, using the list of SQLAlchemy Column objects that
     define/describe its fields.
 
     Args:
@@ -166,8 +168,9 @@ def make_xml_branches_from_summaries(
         skip_fields: List[str] = None,
         sort_by_name: bool = True) -> List[XmlElement]:
     """
-    Returns a list of XML branches, each an :class:`XmlElement`, from a
-    list of summary data provided by a task.
+    Returns a list of XML branches, each an
+    :class:`camcops_server.cc_modules.cc_xml.XmlElement`, from a list of
+    summary data provided by a task.
 
     Args:
         summaries: list of :class:`SummaryElement` objects
@@ -205,7 +208,7 @@ def make_xml_branches_from_blobs(
         skip_fields: database column names to skip
 
     Returns:
-        a list of :class:`XmlElement` objects
+        a list of :class:`camcops_server.cc_modules.cc_xml.XmlElement` objects
 
     """
     skip_fields = skip_fields or []  # type: List[str]
@@ -327,10 +330,10 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
                  eol: str = '\n',
                  include_comments: bool = False) -> str:
     """
-    Returns an :class:`XmlElement` as text.
+    Returns an :class:`camcops_server.cc_modules.cc_xml.XmlElement` as text.
 
     Args:
-        element: root :class:`XmlElement`
+        element: root :class:`camcops_server.cc_modules.cc_xml.XmlElement`
         level: starting level/depth (used for recursion)
         indent_spaces: number of spaces to indent formatted XML
         eol: end-of-line string
@@ -437,10 +440,11 @@ def get_xml_document(root: XmlElement,
                      eol: str = '\n',
                      include_comments: bool = False) -> str:
     """
-    Returns an entire XML document as text, given the root :class:`XmlElement`.
+    Returns an entire XML document as text, given the root
+    :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
 
     Args:
-        root: root :class:`XmlElement`
+        root: root :class:`camcops_server.cc_modules.cc_xml.XmlElement`
         indent_spaces: number of spaces to indent formatted XML
         eol: end-of-line string
         include_comments: include comments describing each field?

@@ -762,7 +762,7 @@ def password_changed(req: CamcopsRequest,
     or another's password).
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         username: the username whose password is being changed?
         own_password: is the user changing their own password?
     """
@@ -814,8 +814,9 @@ def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
     Edit the task filter for the current user.
 
     Args:
-        req: the :class:`CamcopsRequest`
-        task_filter: the user's :class:`TaskFilter`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        task_filter: the user's
+            :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter`
         redirect_url: URL to redirect (back) to upon success
     """
     if FormAction.SET_FILTERS in req.POST:
@@ -1051,14 +1052,15 @@ def serve_task(req: CamcopsRequest) -> Response:
 def choose_tracker_or_ctv(req: CamcopsRequest,
                           as_ctv: bool) -> Dict[str, Any]:
     """
-    Returns a dictionary for a Mako template to configure a :class:`Tracker` or
-    :class:`ClinicalTextView`.
+    Returns a dictionary for a Mako template to configure a
+    :class:`camcops_server.cc_modules.cc_tracker.Tracker` or
+    :class:`camcops_server.cc_modules.cc_tracker.ClinicalTextView`.
 
     Upon success, it redirects to the tracker or CTV view itself, with the
     tracker's parameters embedded as URL parameters.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         as_ctv: CTV, rather than tracker?
     """
 
@@ -1098,7 +1100,8 @@ def choose_tracker_or_ctv(req: CamcopsRequest,
 @view_config(route_name=Routes.CHOOSE_TRACKER, renderer="choose_tracker.mako")
 def choose_tracker(req: CamcopsRequest) -> Dict[str, Any]:
     """
-    View to choose/configure a :class:`Tracker`.
+    View to choose/configure a
+    :class:`camcops_server.cc_modules.cc_tracker.Tracker`.
     """
     return choose_tracker_or_ctv(req, as_ctv=False)
 
@@ -1106,7 +1109,8 @@ def choose_tracker(req: CamcopsRequest) -> Dict[str, Any]:
 @view_config(route_name=Routes.CHOOSE_CTV, renderer="choose_ctv.mako")
 def choose_ctv(req: CamcopsRequest) -> Dict[str, Any]:
     """
-    View to choose/configure a :class:`ClinicalTextView`.
+    View to choose/configure a
+    :class:`camcops_server.cc_modules.cc_tracker.ClinicalTextView`.
     """
     return choose_tracker_or_ctv(req, as_ctv=True)
 
@@ -1114,11 +1118,13 @@ def choose_ctv(req: CamcopsRequest) -> Dict[str, Any]:
 def serve_tracker_or_ctv(req: CamcopsRequest,
                          as_ctv: bool) -> Response:
     """
-    Returns a response to show a :class:`Tracker` or :class:`ClinicalTextView`,
-    in a variety of formats (e.g. HTML, PDF, XML).
+    Returns a response to show a
+    :class:`camcops_server.cc_modules.cc_tracker.Tracker` or
+    :class:`camcops_server.cc_modules.cc_tracker.ClinicalTextView`, in a
+    variety of formats (e.g. HTML, PDF, XML).
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         as_ctv: CTV, rather than tracker?
     """
     which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
@@ -1184,7 +1190,8 @@ def serve_tracker_or_ctv(req: CamcopsRequest,
 @view_config(route_name=Routes.TRACKER)
 def serve_tracker(req: CamcopsRequest) -> Response:
     """
-    View to serve a :class:`Tracker`; see :func:`serve_tracker_or_ctv`.
+    View to serve a :class:`camcops_server.cc_modules.cc_tracker.Tracker`; see
+    :func:`serve_tracker_or_ctv`.
     """
     return serve_tracker_or_ctv(req, as_ctv=False)
 
@@ -1192,7 +1199,8 @@ def serve_tracker(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.CTV)
 def serve_ctv(req: CamcopsRequest) -> Response:
     """
-    View to serve a :class:`ClinicalTextView`; see
+    View to serve a
+    :class:`camcops_server.cc_modules.cc_tracker.ClinicalTextView`; see
     :func:`serve_tracker_or_ctv`.
     """
     return serve_tracker_or_ctv(req, as_ctv=True)
@@ -2021,8 +2029,9 @@ EDIT_USER_GROUP_MEMBERSHIP_KEYS_SUPERUSER = EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROU
 
 def get_user_from_request_user_id_or_raise(req: CamcopsRequest) -> User:
     """
-    Returns the :class:`User` represented by the request's
-    ``ViewParam.USER_ID`` parameter, or raise :exc:`HTTPBadRequest`.
+    Returns the :class:`camcops_server.cc_modules.cc_user.User` represented by
+    the request's ``ViewParam.USER_ID`` parameter, or raise
+    :exc:`HTTPBadRequest`.
     """
     user_id = req.get_int_param(ViewParam.USER_ID)
     user = User.get_user_by_id(req.dbsession, user_id)
@@ -2238,8 +2247,8 @@ def set_user_upload_group(req: CamcopsRequest,
     Provides a view to choose which group a user uploads into.
 
     Args:
-        req: the :class:`CamcopsRequest`
-        user: the :class:`User` to edit
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        user: the :class:`camcops_server.cc_modules.cc_user.User` to edit
         as_superuser: is the current user a superuser? Determines the
             screen we return to afterwards.
     """
@@ -2470,8 +2479,9 @@ def view_groups(req: CamcopsRequest) -> Dict[str, Any]:
 
 def get_group_from_request_group_id_or_raise(req: CamcopsRequest) -> Group:
     """
-    Returns the :class:`Group` represented by the request's
-    ``ViewParam.GROUP_ID`` parameter, or raise :exc:`HTTPBadRequest`.
+    Returns the :class:`camcops_server.cc_modules.cc_group.Group` represented
+    by the request's ``ViewParam.GROUP_ID`` parameter, or raise
+    :exc:`HTTPBadRequest`.
     """
     group_id = req.get_int_param(ViewParam.GROUP_ID)
     group = None
@@ -2680,8 +2690,9 @@ def view_id_definitions(req: CamcopsRequest) -> Dict[str, Any]:
 def get_iddef_from_request_which_idnum_or_raise(
         req: CamcopsRequest) -> IdNumDefinition:
     """
-    Returns the :class:`IdNumDefinition` represented by the request's
-    ``ViewParam.WHICH_IDNUM`` parameter, or raise :exc:`HTTPBadRequest`.
+    Returns the :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`
+    represented by the request's ``ViewParam.WHICH_IDNUM`` parameter, or raise
+    :exc:`HTTPBadRequest`.
     """
     which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
     iddef = req.dbsession.query(IdNumDefinition)\

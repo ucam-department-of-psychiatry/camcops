@@ -235,7 +235,7 @@ def get_str_var(req: CamcopsRequest,
     Retrieves a string variable from the CamcopsRequest.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         var: name of variable to retrieve
         mandatory: if ``True``, raise an exception if the variable is missing
 
@@ -259,7 +259,7 @@ def get_int_var(req: CamcopsRequest,
     Retrieves an integer variable from the CamcopsRequest.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         var: name of variable to retrieve
         mandatory: if ``True``, raise an exception if the variable is missing
 
@@ -284,7 +284,7 @@ def get_table_from_req(req: CamcopsRequest, var: str) -> Table:
     table, and returns that table.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         var: variable name (the variable's should be the table name)
 
     Returns:
@@ -312,7 +312,7 @@ def get_tables_from_post_var(req: CamcopsRequest,
     valid.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         var: name of variable to retrieve
         mandatory: if ``True``, raise an exception if the variable is missing
 
@@ -348,7 +348,7 @@ def get_single_field_from_post_var(req: CamcopsRequest,
     bad fieldname for the specified table.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: SQLAlchemy :class:`Table` in which the column should exist
         var: name of variable to retrieve
         mandatory: if ``True``, raise an exception if the variable is missing
@@ -375,7 +375,7 @@ def get_fields_from_post_var(req: CamcopsRequest,
     all are acceptable. Returns a list of fieldnames.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: SQLAlchemy :class:`Table` in which the columns should exist
         var: name of variable to retrieve
         mandatory: if ``True``, raise an exception if the variable is missing
@@ -408,7 +408,7 @@ def get_values_from_post_var(req: CamcopsRequest,
     special handling for base-64/hex-encoded BLOBs.)
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         var: name of variable to retrieve
         mandatory: if ``True``, raise an exception if the variable is missing
     """
@@ -429,7 +429,7 @@ def get_fields_and_values(req: CamcopsRequest,
     See :func:`get_fields_from_post_var`, :func:`get_values_from_post_var`.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: SQLAlchemy :class:`Table` in which the columns should exist
         fields_var: name of CSV "column names" variable to retrieve
         values_var: name of CSV "corresponding values" variable to retrieve
@@ -532,7 +532,7 @@ def get_server_pks_of_active_records(req: CamcopsRequest,
                                      table: Table) -> List[int]:
     """
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: an SQLAlchemy :class:`Table`
 
     Returns:
@@ -558,7 +558,7 @@ def record_exists(req: CamcopsRequest,
     table/client PK combination.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: an SQLAlchemy :class:`Table`
         clientpk_name: the column name of the client's PK
         clientpk_value: the client's PK value
@@ -596,7 +596,7 @@ def client_pks_that_exist(req: CamcopsRequest,
     values for those that do.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: an SQLAlchemy :class:`Table`
         clientpk_name: the column name of the client's PK
         clientpk_values: a list of the client's PK values
@@ -628,7 +628,7 @@ def get_server_pks_of_specified_records(req: CamcopsRequest,
     joined with AND).
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: an SQLAlchemy :class:`Table`
         wheredict: a set of {columnname: value} pairs, to be joined with
             ``AND``
@@ -660,7 +660,7 @@ def record_identical_full(req: CamcopsRequest,
     Used to detect if an incoming record matches the database record.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: an SQLAlchemy :class:`Table`
         serverpk: integer server PK
         wheredict: a set of {columnname: value} pairs, to be joined with
@@ -691,7 +691,7 @@ def record_identical_by_date(req: CamcopsRequest,
     millisecond-precision value, this is a valid method.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: an SQLAlchemy :class:`Table`
         serverpk: integer server PK
         client_date_value: "when updated" Pendulum date/time from the client
@@ -716,7 +716,7 @@ def upload_record_core(req: CamcopsRequest,
     Uploads a record. Deals with IDENTICAL, NEW, and MODIFIED records.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: an SQLAlchemy :class:`Table`
         clientpk_name: the column name of the client's PK
         valuedict: a dictionary of {colname: value} pairs from the client
@@ -822,7 +822,7 @@ def insert_record(req: CamcopsRequest,
     Inserts a record, or raises an exception if that fails.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: an SQLAlchemy :class:`Table`
         valuedict: a dictionary of {colname: value} pairs from the client
         predecessor_pk: an optional server PK of the record's predecessor
@@ -857,7 +857,7 @@ def duplicate_record(req: CamcopsRequest, table: Table, serverpk: int) -> int:
     - The new record NEEDS MODIFICATION by update_new_copy_of_record().
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: an SQLAlchemy :class:`Table`
         serverpk: the server PK of the record to duplicate
 
@@ -900,7 +900,7 @@ def update_new_copy_of_record(req: CamcopsRequest,
     (defined by the table/serverpk combination).
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: an SQLAlchemy :class:`Table`
         serverpk: the server PK of the (new) record to modify
         valuedict: dictionary of {columnname: value} pairs to change
@@ -981,7 +981,7 @@ def end_device_upload_batch(req: CamcopsRequest,
     Ends an upload batch, committing all changes made thus far.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         batchtime: the UTC batch time to apply to all changes
         preserving: are we preserving the records (see
             :func:`start_preserving`, :func:`commit_table`)?
@@ -1104,7 +1104,7 @@ def flag_modified(req: CamcopsRequest,
     Marks a record as old, storing its successor's details.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: SQLAlchemy :class:`Table`
         pk: server PK of the record to mark as old
         successor_pk: server PK of its successor
@@ -1127,7 +1127,7 @@ def flag_record_for_preservation(req: CamcopsRequest,
     era details).
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: SQLAlchemy :class:`Table`
         pk: server PK of the record to mark
     """
@@ -1146,7 +1146,7 @@ def commit_all(req: CamcopsRequest,
     Commits additions, removals, and preservations for all tables.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         batchtime: the UTC batch time to apply to all changes
         preserving: are we preserving the records (see
             :func:`start_preserving`, :func:`commit_table`)?
@@ -1180,7 +1180,7 @@ def commit_table(req: CamcopsRequest,
     Commits additions, removals, and preservations for one table.
 
     Args:
-        req: the :class:`CamcopsRequest`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         batchtime: the UTC batch time to apply to all changes
         preserving: are we preserving the records -- that is, moving them
             from the current era (``NOW``) to the ``batchtime`` era, so they

@@ -278,7 +278,7 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def get_idnum_references(self) -> List[IdNumReference]:
         """
-        Returns all :class:`IdNumReference` objects for the patient.
+        Returns all :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference` objects for the patient.
 
         These are simple which_idnum/idnum_value pairs.
         """
@@ -296,7 +296,7 @@ class Patient(GenericTabletRecordMixin, Base):
     def get_xml_root(self, req: CamcopsRequest,
                      skip_fields: List[str] = None) -> XmlElement:
         """
-        Get root of XML tree, as an :class:`XmlElement`.
+        Get root of XML tree, as an :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
         """
         skip_fields = skip_fields or []
         # No point in skipping old ID columns (1-8) now; they're gone.
@@ -318,7 +318,7 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def get_tsv_page(self, req: CamcopsRequest) -> TsvPage:
         """
-        Get a :class:`TsvPage` for the patient.
+        Get a :class:`camcops_server.cc_modules.cc_tsv.TsvPage` for the patient.
         """
         # 1. Our core fields.
         page = self._get_core_tsv_page(
@@ -363,7 +363,7 @@ class Patient(GenericTabletRecordMixin, Base):
     @property
     def group(self) -> Optional["Group"]:
         """
-        Returns the :class:`Group` to which this patient's record belongs.
+        Returns the :class:`camcops_server.cc_modules.cc_group.Group` to which this patient's record belongs.
         """
         return self._group
 

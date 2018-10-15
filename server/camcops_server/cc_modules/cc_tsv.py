@@ -175,8 +175,8 @@ class TsvPage(object):
 
 class TsvCollection(object):
     """
-    A collection of :class:`TsvPage` pages (spreadsheets), like an Excel
-    workbook.
+    A collection of :class:`camcops_server.cc_modules.cc_tsv.TsvPage` pages
+    (spreadsheets), like an Excel workbook.
     """
     def __init__(self) -> None:
         self.pages = []  # type: List[TsvPage]

@@ -192,7 +192,9 @@ class CamcopsRequest(Request):
     @property
     def camcops_session(self) -> "CamcopsSession":
         """
-        Returns the :class:`CamcopsSession` for this request (q.v.).
+        Returns the
+        :class:`camcops_server.cc_modules.cc_session.CamcopsSession` for this
+        request (q.v.).
 
         Contrast:
 
@@ -211,7 +213,9 @@ class CamcopsRequest(Request):
 
     def replace_camcops_session(self, ccsession: "CamcopsSession") -> None:
         """
-        Replaces any existing :class:`CamcopsSession` with a new one.
+        Replaces any existing
+        :class:`camcops_server.cc_modules.cc_session.CamcopsSession` with a new
+        one.
 
         Rationale:
 
@@ -240,7 +244,9 @@ class CamcopsRequest(Request):
     @reify
     def config(self) -> CamcopsConfig:
         """
-        Return an instance of :class:`CamcopsConfig` for the request.
+        Return an instance of
+        :class:`camcops_server/cc_modules/cc_config.CamcopsConfig` for the
+        request.
 
         Access it as ``request.config``, with no brackets.
         """
@@ -341,12 +347,15 @@ class CamcopsRequest(Request):
     @reify
     def tabletsession(self) -> TabletSession:
         """
-        Request a :class:`TabletSession`, which is an information structure
-        geared to client (tablet) database accesses.
+        Request a
+        :class:`camcops_server.cc_modules.cc_tabletsession.TabletSession`,
+        which is an information structure geared to client (tablet) database
+        accesses.
 
         If we're using this interface, we also want to ensure we're using
-        the :class:`CamcopsSession` for the information provided by the tablet
-        in the POST request, not anything already loaded/reset via cookies.
+        the :class:`camcops_server.cc_modules.cc_session.CamcopsSession` for
+        the information provided by the tablet in the POST request, not
+        anything already loaded/reset via cookies.
         """
         from .cc_session import CamcopsSession  # delayed import
         ts = TabletSession(self)
@@ -932,7 +941,7 @@ class CamcopsRequest(Request):
     @property
     def user(self) -> Optional["User"]:
         """
-        Returns the :class:`User` for the current request.
+        Returns the :class:`camcops_server.cc_modules.cc_user.User` for the current request.
         """
         return self._debugging_user or self.camcops_session.user
 
@@ -952,7 +961,7 @@ class CamcopsRequest(Request):
     @reify
     def idnum_definitions(self) -> List[IdNumDefinition]:
         """
-        Returns all :class:`IdNumDefinition` objects.
+        Returns all :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition` objects.
         """
         return get_idnum_definitions(self.dbsession)  # no longer cached
 
@@ -967,7 +976,7 @@ class CamcopsRequest(Request):
     def get_idnum_definition(self,
                              which_idnum: int) -> Optional[IdNumDefinition]:
         """
-        Retrieves an :class:`IdNumDefinition` for the specified ``which_idnum``
+        Retrieves an :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition` for the specified ``which_idnum``
         value.
         """
         return next((iddef for iddef in self.idnum_definitions
@@ -1001,7 +1010,7 @@ class CamcopsRequest(Request):
     @reify
     def server_settings(self) -> ServerSettings:
         """
-        Return the :class:`ServerSettings` for the server.
+        Return the :class:`camcops_server.cc_modules.cc_serversettings.ServerSettings` for the server.
         """
         return get_server_settings(self)
 

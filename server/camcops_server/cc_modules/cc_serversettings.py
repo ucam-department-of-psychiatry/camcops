@@ -205,7 +205,7 @@ class ServerSettings(Base):
 
 def get_server_settings(req: "CamcopsRequest") -> ServerSettings:
     """
-    Gets the :class:`ServerSettings` object for the request.
+    Gets the :class:`camcops_server.cc_modules.cc_serversettings.ServerSettings` object for the request.
     """
     dbsession = req.dbsession
     server_settings = dbsession.query(ServerSettings)\

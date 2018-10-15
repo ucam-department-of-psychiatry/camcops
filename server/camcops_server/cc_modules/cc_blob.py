@@ -192,7 +192,8 @@ class Blob(GenericTabletRecordMixin, Base):
 
     def get_xml_element(self, req: "CamcopsRequest") -> XmlElement:
         """
-        Returns an :class:`XmlElement` representing this BLOB.
+        Returns an :class:`camcops_server.cc_modules.cc_xml.XmlElement`
+        representing this BLOB.
         """
         branches = self._get_xml_branches(
             req,

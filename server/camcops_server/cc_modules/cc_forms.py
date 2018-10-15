@@ -272,10 +272,13 @@ class SimpleSubmitForm(InformativeForm):
                  **kwargs):
         """
         Args:
-            schema_class: class of the Colander :class:`Schema` to use as this
-                form's schema
-            submit_title: title (text) to be used for the "submit" button
-            request: :class:`CamcopsRequest`
+            schema_class:
+                class of the Colander :class:`Schema` to use as this form's
+                schema
+            submit_title:
+                title (text) to be used for the "submit" button
+            request:
+                :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
         schema = schema_class().bind(request=request)
         super().__init__(

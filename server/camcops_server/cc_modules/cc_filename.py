@@ -175,7 +175,7 @@ def get_export_filename(req: "CamcopsRequest",
     Get filename, for file exports/transfers.
 
     Args:
-        req: :class:`CamcopsRequest`
+        req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         patient_spec_if_anonymous:
             patient specification to be used for anonymous tasks
         patient_spec:

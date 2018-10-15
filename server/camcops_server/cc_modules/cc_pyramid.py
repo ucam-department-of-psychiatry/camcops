@@ -750,7 +750,7 @@ def get_session_factory() -> Callable[["CamcopsRequest"], ISession]:
         interface"
 
     - We want to be able to make the session by reading the
-      :class:`CamcopsConfig` from the request.
+      :class:`camcops_server.cc_modules.cc_config.CamcopsConfig` from the request.
 
     [1] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory
 

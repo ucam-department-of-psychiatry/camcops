@@ -135,7 +135,7 @@ class SpecialNote(Base):
 
     def get_xml_root(self, skip_fields: List[str] = None) -> XmlElement:
         """
-        Get root of XML tree, as an :class:`XmlElement`.
+        Get root of XML tree, as an :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
         """
         skip_fields = skip_fields or []
         branches = make_xml_branches_from_columns(

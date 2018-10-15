@@ -136,7 +136,7 @@ def consistency_idnums(idnum_lists: List[List[PatientIdNum]]) \
     "Are all these records from the same patient?"
 
     Args:
-        idnum_lists: a list of lists (one per :class:`Patient` instance) of
+        idnum_lists: a list of lists (one per :class:`camcops_server.cc_modules.cc_patient.Patient` instance) of
             :class:`PatientIdNum` objects
 
     Returns:
@@ -238,7 +238,7 @@ class ConsistencyInfo(object):
 
     def get_xml_root(self) -> XmlElement:
         """
-        XML tree (as root :class:`XmlElement`) of consistency information.
+        XML tree (as root :class:`camcops_server.cc_modules.cc_xml.XmlElement`) of consistency information.
         """
         branches = [
             XmlElement(
@@ -261,7 +261,7 @@ class ConsistencyInfo(object):
 
 class TrackerCtvCommon(object):
     """
-    Base class for :class:`Tracker` and :class:`ClinicalTextView`.
+    Base class for :class:`camcops_server.cc_modules.cc_tracker.Tracker` and :class:`camcops_server.cc_modules.cc_tracker.ClinicalTextView`.
     """
 
     def __init__(self,

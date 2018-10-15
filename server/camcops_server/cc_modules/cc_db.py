@@ -479,9 +479,9 @@ class GenericTabletRecordMixin(object):
     def _get_core_tsv_page(self, req: "CamcopsRequest",
                            heading_prefix: str = "") -> TsvPage:
         """
-        Returns a single-row :class:`TsvPage`, like an Excel "sheet",
-        representing this record. (It may be combined with others later to
-        produce a multi-row spreadsheet.)
+        Returns a single-row :class:`camcops_server.cc_modules.cc_tsv.TsvPage`,
+        like an Excel "sheet", representing this record. (It may be combined
+        with others later to produce a multi-row spreadsheet.)
         """
         row = OrderedDict()
         for attrname, column in gen_columns(self):
