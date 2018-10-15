@@ -228,26 +228,30 @@ class PythonProcessor(object):
                         elif copyright_done:
                             swallow_blanks_in_docstring = False
 
+                elif not dl.startswith(HASH) and not dl == BLANK:
+                    in_body = True
+
+                    if not docstring_done:
+                        # The source file didn't have a docstring!
+                        new_docstring_lines = [
+                            BLANK,
+                            TRIPLE_DOUBLEQUOTE,
+                            self.advertised_filename,
+                            BLANK,
+                        ] + CORRECT_COPYRIGHT_LINES + [
+                            BLANK,
+                            MISSING_RST_TITLE,
+                            BLANK,
+                            TRIPLE_DOUBLEQUOTE
+                        ]
+                        self._warn("File had no docstring; adding one. "
+                                   "Will need manual edit to add RST title. "
+                                   "Search for {!r}".format(MISSING_RST_TITLE))
+                        self.dest_lines[1:1] = new_docstring_lines
+
             if dl is not None:
                 # self._debug_line(linenum, dl, "adding ")
                 self.dest_lines.append(dl)
-
-        if not docstring_done:
-            # The source file didn't have a docstring!
-            new_docstring_lines = [
-                BLANK,
-                TRIPLE_DOUBLEQUOTE,
-                self.advertised_filename,
-                BLANK,
-            ] + CORRECT_COPYRIGHT_LINES + [
-                BLANK,
-                MISSING_RST_TITLE,
-                TRIPLE_DOUBLEQUOTE
-            ]
-            self._warn("File had no docstring; adding one. "
-                       "Will need manual edit to add RST title. "
-                       "Search for {!r}".format(MISSING_RST_TITLE))
-            self.dest_lines[1:1] = new_docstring_lines
 
         self.needs_rewriting = self.dest_lines != self.source_lines
 
@@ -323,7 +327,7 @@ class PythonProcessor(object):
 # Top-level functions
 # =============================================================================
 
-def walk_source_dir(top_dir: str,
+def walk_source_dir(top_dirs: List[str],
                     show_only: bool = True,
                     rewrite: bool = False,
                     process_only_filenum: int = None) -> None:
@@ -338,25 +342,27 @@ def walk_source_dir(top_dir: str,
             for debugging only
     """
     filenum = 0
-    for dirpath, dirnames, filenames in walk(top_dir):
-        for filename in filenames:
-            fullname = join(dirpath, filename)
-            extension = splitext(filename)[1]
-            if extension != PYTHON_EXTENSION:
-                # log.debug("Skipping non-Python file: {}".format(fullname))
-                continue
+    for top_dir in top_dirs:
+        for dirpath, dirnames, filenames in walk(top_dir):
+            for filename in filenames:
+                fullname = join(dirpath, filename)
+                extension = splitext(filename)[1]
+                if extension != PYTHON_EXTENSION:
+                    # log.debug("Skipping non-Python file: {}".format(
+                    #     fullname))
+                    continue
 
-            filenum += 1
+                filenum += 1
 
-            if process_only_filenum and filenum != process_only_filenum:
-                continue
+                if process_only_filenum and filenum != process_only_filenum:
+                    continue
 
-            log.info("Processing file {}: {}".format(filenum, fullname))
-            proc = PythonProcessor(fullname, top_dir)
-            if show_only:
-                proc.show()
-            elif rewrite:
-                proc.rewrite_file()
+                log.info("Processing file {}: {}".format(filenum, fullname))
+                proc = PythonProcessor(fullname, top_dir)
+                if show_only:
+                    proc.show()
+                elif rewrite:
+                    proc.rewrite_file()
 
 
 def main() -> None:
@@ -383,14 +389,10 @@ def main() -> None:
     process_only_filenum = args.process_only_filenum
 
     if not rewrite and not show_only:
-        log.warning("Not rewriting and not showing; will just catalogue files "
-                    "and report things it's changing")
+        log.info("Not rewriting and not showing; will just catalogue files "
+                 "and report things it's changing")
 
-    walk_source_dir(SERVER_ROOT_DIR,
-                    show_only=show_only,
-                    rewrite=rewrite,
-                    process_only_filenum=process_only_filenum)
-    walk_source_dir(TABLET_ROOT_DIR,
+    walk_source_dir(top_dirs=[SERVER_ROOT_DIR, TABLET_ROOT_DIR],
                     show_only=show_only,
                     rewrite=rewrite,
                     process_only_filenum=process_only_filenum)
