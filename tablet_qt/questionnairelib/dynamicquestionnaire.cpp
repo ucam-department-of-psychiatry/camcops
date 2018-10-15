@@ -36,6 +36,12 @@ DynamicQuestionnaire::DynamicQuestionnaire(
 }
 
 
+bool DynamicQuestionnaire::isDynamic() const
+{
+    return true;
+}
+
+
 void DynamicQuestionnaire::addFirstDynamicPage()
 {
     QuPagePtr first_page = m_make_page_fn(m_current_page_index);

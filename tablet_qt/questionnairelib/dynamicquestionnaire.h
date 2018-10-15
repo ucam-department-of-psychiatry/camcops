@@ -101,6 +101,7 @@ public:
     DynamicQuestionnaire(CamcopsApp& app,
                          const MakePageFn& make_page_fn,
                          const MorePagesToGoFn& more_pages_to_go_fn);
+    virtual bool isDynamic() const override;
 
     // Override in order to block functionality:
     virtual void addPage(const QuPagePtr& page) override;

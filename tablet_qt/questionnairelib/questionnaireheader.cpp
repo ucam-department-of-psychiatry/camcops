@@ -34,7 +34,7 @@
 QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
                                          const QString& title,
                                          const bool read_only,
-                                         const bool jump_allowed,
+                                         const bool offer_page_jump,
                                          const bool within_chain,
                                          const QString& css_name,
                                          const bool debug_allowed) :
@@ -112,7 +112,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     m_button_previous = new ImageButton(uiconst::CBS_BACK);
     toprowlayout->addWidget(m_button_previous, 0, button_align);
 
-    if (jump_allowed) {
+    if (offer_page_jump) {
         m_button_jump = new ImageButton(uiconst::CBS_CHOOSE_PAGE);
         connect(m_button_jump, &QAbstractButton::clicked,
                 this, &QuestionnaireHeader::jumpClicked);

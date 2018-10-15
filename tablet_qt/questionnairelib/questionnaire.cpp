@@ -217,9 +217,10 @@ void Questionnaire::build()
 #else
     const bool offer_debug_layout = false;
 #endif
+    const bool offer_page_jump = m_jump_allowed && (isDynamic() || nPages() > 1);
     m_p_header = new QuestionnaireHeader(
         this, page->title(),
-        m_read_only, m_jump_allowed, m_within_chain,
+        m_read_only, offer_page_jump, m_within_chain,
         header_css_name, offer_debug_layout);
     if (!m_finish_button_icon_base_filename.isEmpty()) {
         m_p_header->setFinishButtonIcon(m_finish_button_icon_base_filename);
@@ -357,6 +358,12 @@ int Questionnaire::currentPageNumOneBased() const
 int Questionnaire::nPages() const
 {
     return m_pages.size();
+}
+
+
+bool Questionnaire::isDynamic() const
+{
+    return false;
 }
 
 

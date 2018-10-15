@@ -1385,6 +1385,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
     ignored "-Wmissing-field-initializer"``
   - Checked for Linux, Android; Windows checks pending.
 
+- "Page jump" button only shown in questionnaires if (allowed and) there is
+  more than one page, or the questionnaire is dynamic.
+
+- New variant on ``QuBoolean``/``BooleanWidget`` to display "false as blank".
+  Used in FACT-G task.
+
 - New task: :ref:`CORE-10 <core10>`.
 
 - New task: :ref:`CESD <cesd>`.

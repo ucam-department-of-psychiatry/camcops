@@ -37,9 +37,10 @@ class QuestionnaireHeader : public BaseWidget
 
     Q_OBJECT
 public:
-    QuestionnaireHeader(QWidget* parent, const QString& title,
-                        bool read_only, bool jump_allowed, bool within_chain,
-                        const QString& css_name, bool debug_allowed = false);
+    QuestionnaireHeader(
+            QWidget* parent, const QString& title,
+            bool read_only, bool offer_page_jump, bool within_chain,
+            const QString& css_name, bool debug_allowed = false);
     void setButtons(bool previous, bool next, bool finish);
     void setFinishButtonIcon(const QString& base_filename);
 signals:

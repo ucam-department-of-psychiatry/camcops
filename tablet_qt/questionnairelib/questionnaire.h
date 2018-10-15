@@ -53,6 +53,7 @@ public:
     int currentPageIndex() const;
     int currentPageNumOneBased() const;
     int nPages() const;
+    virtual bool isDynamic() const;
 
     // Build widgets when the Questionnaire is displayed
     virtual void build() override;
