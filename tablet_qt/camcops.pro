@@ -543,6 +543,8 @@ SOURCES += \
     menu/researchmenu.cpp \
     menu/researchsetsmenu.cpp \
     menu/setmenucpftaffective1.cpp \
+    menu/setmenucpftperinatal1.cpp \
+    menu/setmenucpftpsychooncology1.cpp \
     menu/setmenudeakin1.cpp \
     menu/setmenufromlp.cpp \
     menu/setmenukhandaker1.cpp \
@@ -652,6 +654,8 @@ SOURCES += \
     tasks/cardinalexpectationdetection.cpp \
     tasks/cbir.cpp \
     tasks/cecaq3.cpp \
+    tasks/cesd.cpp \
+    tasks/cesdr.cpp \
     tasks/cgi.cpp \
     tasks/cgii.cpp \
     tasks/cgisch.cpp \
@@ -659,6 +663,7 @@ SOURCES += \
     tasks/ciwa.cpp \
     tasks/contactlog.cpp \
     tasks/copebrief.cpp \
+    tasks/core10.cpp \
     tasks/cpftlpsdischarge.cpp \
     tasks/cpftlpsreferral.cpp \
     tasks/cpftlpsresetresponseclock.cpp \
@@ -671,6 +676,7 @@ SOURCES += \
     tasks/diagnosisicd10.cpp \
     tasks/diagnosisicd9cm.cpp \
     tasks/distressthermometer.cpp \
+    tasks/factg.cpp \
     tasks/fast.cpp \
     tasks/fft.cpp \
     tasks/frs.cpp \
@@ -704,6 +710,7 @@ SOURCES += \
     tasks/npiq.cpp \
     tasks/panss.cpp \
     tasks/patientsatisfaction.cpp \
+    tasks/pcl5.cpp \
     tasks/pclc.cpp \
     tasks/pclm.cpp \
     tasks/pcls.cpp \
@@ -782,12 +789,6 @@ SOURCES += \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
     widgets/verticalscrollareaviewport.cpp \
-    tasks/core10.cpp \
-    menu/setmenucpftperinatal1.cpp \
-    tasks/pcl5.cpp \
-    menu/setmenucpftpsychooncology1.cpp \
-    tasks/cesd.cpp \
-    tasks/cesdr.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -800,6 +801,7 @@ HEADERS += \
     common/globals.h \
     common/gui_defines.h \
     common/platform.h \
+    common/preprocessor_aid.h \
     common/textconst.h \
     common/uiconst.h \
     common/urlconst.h \
@@ -906,6 +908,8 @@ HEADERS += \
     maths/floatingpoint.h \
     maths/glm.h \
     maths/ieee754.h \
+    maths/include_eigen_core.h \
+    maths/include_eigen_dense.h \
     maths/linkfunctionfamily.h \
     maths/logisticdescriptives.h \
     maths/logisticregression.h \
@@ -931,6 +935,8 @@ HEADERS += \
     menu/researchmenu.h \
     menu/researchsetsmenu.h \
     menu/setmenucpftaffective1.h \
+    menu/setmenucpftperinatal1.h \
+    menu/setmenucpftpsychooncology1.h \
     menu/setmenudeakin1.h \
     menu/setmenufromlp.h \
     menu/setmenukhandaker1.h \
@@ -1041,6 +1047,8 @@ HEADERS += \
     tasks/cardinalexpectationdetection.h \
     tasks/cbir.h \
     tasks/cecaq3.h \
+    tasks/cesd.h \
+    tasks/cesdr.h \
     tasks/cgi.h \
     tasks/cgii.h \
     tasks/cgisch.h \
@@ -1048,6 +1056,7 @@ HEADERS += \
     tasks/ciwa.h \
     tasks/contactlog.h \
     tasks/copebrief.h \
+    tasks/core10.h \
     tasks/cpftlpsdischarge.h \
     tasks/cpftlpsreferral.h \
     tasks/cpftlpsresetresponseclock.h \
@@ -1060,6 +1069,7 @@ HEADERS += \
     tasks/diagnosisicd10.h \
     tasks/diagnosisicd9cm.h \
     tasks/distressthermometer.h \
+    tasks/factg.h \
     tasks/fast.h \
     tasks/fft.h \
     tasks/frs.h \
@@ -1093,6 +1103,7 @@ HEADERS += \
     tasks/npiq.h \
     tasks/panss.h \
     tasks/patientsatisfaction.h \
+    tasks/pcl5.h \
     tasks/pclc.h \
     tasks/pclm.h \
     tasks/pcls.h \
@@ -1170,16 +1181,7 @@ HEADERS += \
     widgets/treeviewproxystyle.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
-    widgets/verticalscrollareaviewport.h \
-    common/preprocessor_aid.h \
-    maths/include_eigen_core.h \
-    maths/include_eigen_dense.h \
-    tasks/core10.h \
-    menu/setmenucpftperinatal1.h \
-    tasks/pcl5.h \
-    menu/setmenucpftpsychooncology1.h \
-    tasks/cesd.h \
-    tasks/cesdr.h
+    widgets/verticalscrollareaviewport.h
 
 DISTFILES += \
     LICENSE.txt \

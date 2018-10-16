@@ -240,6 +240,7 @@ class CssClass(object):
     PATIENT = "patient"
     PHOTO = "photo"
     PDF_LOGO_HEADER = "pdf_logo_header"
+    QA_TABLE_HEADING = "qa_tableheading"
     RESPONDENT = "respondent"
     SIGNATURE = "signature"
     SIGNATURE_LABEL = "signature_label"

@@ -26,6 +26,7 @@
 #include "tasks/cesdr.h"
 #include "tasks/cgii.h"
 #include "tasks/copebrief.h"
+#include "tasks/factg.h"
 #include "tasks/gad7.h"
 #include "tasks/hads.h"
 #include "tasks/pcl5.h"
@@ -47,7 +48,7 @@ SetMenuCpftPsychooncology1::SetMenuCpftPsychooncology1(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Cesdr::CESDR_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, app),
-        // *** TO ADD (psycho-oncology): FACT-G
+        MAKE_TASK_MENU_ITEM(Factg::FACTG_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Hads::HADS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),

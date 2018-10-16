@@ -97,7 +97,8 @@ protected:
     // Questionnaire element widgets
     // ========================================================================
     void testQuAudioPlayer();
-    void testQuBoolean(bool as_text_button, bool long_text);
+    void testQuBoolean(bool as_text_button, bool long_text,
+                       bool false_appears_blank);
     void testQuButton();
     void testQuCanvas();
     void testQuCountdown();

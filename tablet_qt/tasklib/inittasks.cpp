@@ -62,6 +62,7 @@
 #include "tasks/distressthermometer.h"
 
 #include "tasks/fast.h"
+#include "tasks/factg.h"
 #include "tasks/fft.h"
 #include "tasks/frs.h"
 
@@ -180,6 +181,7 @@ void InitTasks(TaskFactory& factory)
     initializeDiagnosisIcd10(factory);
     initializeDistressThermometer(factory);
 
+    initializeFactg(factory);
     initializeFast(factory);
     initializeFft(factory);
     initializeFrs(factory);

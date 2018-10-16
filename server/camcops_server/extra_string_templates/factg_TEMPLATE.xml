@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="factg">
+    <!-- FACT-G (v4): Functional Assessment of Cancer Therapy—General -->
+    <!-- TEMPLATE ONLY: replace 'XXX' with real text if you have the necessary permissions -->
+
+    <string name="title_main">XXX</string>
+    <string name="instruction">XXX</string>
+
+    <string name="h1">XXX</string>
+    <string name="h2">XXX</string>
+    <string name="h3">XXX</string>
+    <string name="h4">XXX</string>
+
+    <string name="p_q1">XXX</string>
+    <string name="p_q2">XXX</string>
+    <string name="p_q3">XXX</string>
+    <string name="p_q4">XXX</string>
+    <string name="p_q5">XXX</string>
+    <string name="p_q6">XXX</string>
+    <string name="p_q7">XXX</string>
+
+    <string name="s_q1">XXX</string>
+    <string name="s_q2">XXX</string>
+    <string name="s_q3">XXX</string>
+    <string name="s_q4">XXX</string>
+    <string name="s_q5">XXX</string>
+    <string name="s_q6">XXX</string>
+    <string name="s_q7">XXX</string>
+
+    <string name="e_q1">XXX</string>
+    <string name="e_q2">XXX</string>
+    <string name="e_q3">XXX</string>
+    <string name="e_q4">XXX</string>
+    <string name="e_q5">XXX</string>
+    <string name="e_q6">XXX</string>
+
+    <string name="f_q1">XXX</string>
+    <string name="f_q2">XXX</string>
+    <string name="f_q3">XXX</string>
+    <string name="f_q4">XXX</string>
+    <string name="f_q5">XXX</string>
+    <string name="f_q6">XXX</string>
+    <string name="f_q7">XXX</string>
+
+    <string name="prefer_no_answer">XXX</string>
+    <string name="thanks">XXX</string>
+
+  </task>
+</resources>
