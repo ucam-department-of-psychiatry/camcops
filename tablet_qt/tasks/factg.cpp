@@ -63,7 +63,7 @@ const int MAX_SCORE =    MAX_SCORE_PHYSICAL
                        + MAX_SCORE_EMOTIONAL
                        + MAX_SCORE_FUNCTIONAL;
 
-const QString PREFER_NO_ANSWER("prefer_no_answer");
+const QString IGNORE_Q7("ignore_q7");
 const QString SOC_Q7_XSTRING(PREFIX_SOCIAL + "7");
 
 using stringfunc::strseq;
@@ -99,10 +99,10 @@ Factg::Factg(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
         addField(field, QVariant::Int);
     }
 
-    addField(PREFER_NO_ANSWER, QVariant::Bool);
+    addField(IGNORE_Q7, QVariant::Bool);
 
     if (load_pk == dbconst::NONEXISTENT_PK) {
-        setValue(PREFER_NO_ANSWER, false, false);
+        setValue(IGNORE_Q7, false, false);
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
@@ -194,15 +194,15 @@ bool Factg::isComplete() const
 {
     int last_q_social = LAST_Q_SOCIAL;
 
-    if (value(PREFER_NO_ANSWER).toBool()) {
+    if (value(IGNORE_Q7).toBool()) {
         --last_q_social;
     }
 
     return
-        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_PHYSICAL)))    ||
-        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, last_q_social)))  ||
+        !(anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_PHYSICAL)))  ||
+        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, last_q_social)))      ||
         anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_EMOTIONAL)))   ||
-        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_FUNCTIONAL)));
+        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_FUNCTIONAL))));
 }
 
 void Factg::updateQ7(const FieldRef* fieldref)
@@ -221,14 +221,14 @@ void Factg::updateQ7(const FieldRef* fieldref)
         fr_q7->setValue(QVariant());
     }
 
-    fieldRef(PREFER_NO_ANSWER)->setValue(prefer_no_answer);
+    fieldRef(IGNORE_Q7)->setValue(prefer_no_answer);
 
     m_in_tickbox_change = false;
 }
 
 void Factg::untickBox()
 {
-    fieldRef(PREFER_NO_ANSWER)->setValue(false);
+    fieldRef(IGNORE_Q7)->setValue(false);
 }
 
 OpenableWidget* Factg::editor(const bool read_only)
@@ -280,7 +280,7 @@ OpenableWidget* Factg::editor(const bool read_only)
             ->setExpand(true)
             ->setWidth(question_width, option_widths);
 
-    FieldRefPtr fr_q7_enabled = fieldRef(PREFER_NO_ANSWER);
+    FieldRefPtr fr_q7_enabled = fieldRef(IGNORE_Q7);
     connect(fr_q7_enabled.data(), &FieldRef::valueChanged, this,
             &Factg::updateQ7);
 
