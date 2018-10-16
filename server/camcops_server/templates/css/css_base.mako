@@ -394,6 +394,9 @@ table.taskdetail td {
 .taskheader {
     background-color: rgb(200, 200, 200);
 }
+th.qa_tableheading {
+    text-align: center;
+}
 .trackerheader {
     font-size: ${va.TINYFONTSIZE};
     line-height: ${va.TINYLINEHEIGHT};
