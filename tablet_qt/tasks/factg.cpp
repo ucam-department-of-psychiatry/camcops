@@ -64,7 +64,7 @@ const int MAX_SCORE =    MAX_SCORE_PHYSICAL
                        + MAX_SCORE_FUNCTIONAL;
 
 const QString IGNORE_Q7("ignore_q7");
-const QString SOC_Q7_XSTRING(PREFIX_SOCIAL + "7");
+const QString OPTIONAL_Q(PREFIX_SOCIAL + "7");
 
 using stringfunc::strseq;
 using mathfunc::anyNull;
@@ -199,10 +199,10 @@ bool Factg::isComplete() const
     }
 
     return
-        !(anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_PHYSICAL)))  ||
-        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, last_q_social)))      ||
-        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_EMOTIONAL)))   ||
-        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_FUNCTIONAL))));
+        !(anyNull(values(strseq(PREFIX_PHYSICAL, FIRST_Q, LAST_Q_PHYSICAL))) ||
+        anyNull(values(strseq(PREFIX_SOCIAL, FIRST_Q, last_q_social)))       ||
+        anyNull(values(strseq(PREFIX_EMOTIONAL, FIRST_Q, LAST_Q_EMOTIONAL))) ||
+        anyNull(values(strseq(PREFIX_FUNCTIONAL, FIRST_Q, LAST_Q_FUNCTIONAL))));
 }
 
 void Factg::updateQ7(const FieldRef* fieldref)
@@ -214,7 +214,7 @@ void Factg::updateQ7(const FieldRef* fieldref)
     m_in_tickbox_change = true;
     bool prefer_no_answer = fieldref->valueBool();
 
-    FieldRefPtr fr_q7 = fieldRef(SOC_Q7_XSTRING);
+    FieldRefPtr fr_q7 = fieldRef(OPTIONAL_Q);
     fr_q7->setMandatory(!prefer_no_answer);
 
     if (prefer_no_answer) {
@@ -280,21 +280,23 @@ OpenableWidget* Factg::editor(const bool read_only)
             ->setExpand(true)
             ->setWidth(question_width, option_widths);
 
-    FieldRefPtr fr_q7_enabled = fieldRef(IGNORE_Q7);
-    connect(fr_q7_enabled.data(), &FieldRef::valueChanged, this,
+    FieldRefPtr ignore_q7 = fieldRef(IGNORE_Q7);
+    connect(ignore_q7.data(), &FieldRef::valueChanged, this,
             &Factg::updateQ7);
 
     QuBoolean *no_answer = (new QuBoolean(
                             xstring("prefer_no_answer"),
-                            fr_q7_enabled))
+                            ignore_q7))
             ->setFalseAppearsBlank();
 
     FieldRefPtr fr_q7 = fieldRef(PREFIX_SOCIAL + "7");
+    fr_q7->setMandatory(!ignore_q7->valueBool());
+
     connect(fr_q7.data(), &FieldRef::valueChanged, this,
             &Factg::untickBox);
 
     g2 = (new QuMcqGrid({
-            QuestionWithOneField(xstring(PREFIX_SOCIAL  + "7"),
+            QuestionWithOneField(xstring(OPTIONAL_Q),
                                  fr_q7)}, options_normal))
             ->showTitle(false)
             ->setExpand(true)
