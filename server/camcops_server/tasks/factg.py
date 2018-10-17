@@ -24,9 +24,7 @@
 ===============================================================================
 """
 
-from cardinal_pythonlib.stringfunc import strseq
 from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -39,15 +37,17 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
 )
-from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
     Task,
     TaskHasPatientMixin,
 )
 from camcops_server.cc_modules.cc_trackerhelpers import (
+    TrackerAxisTick,
     TrackerInfo,
+    TrackerLabel,
 )
+from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean
 from typing import Any, Dict, List, Tuple, Type
@@ -142,13 +142,29 @@ class Factg(TaskHasPatientMixin, Task,
         return True
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        pass
-
-    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        pass
-
-    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        pass
+        return [TrackerInfo(
+            value=self.total_score(),
+            plot_label="FACT-G total score (rating well-being)",
+            axis_label="Total Score".format(
+                self.MAX_SCORE_TOTAL),
+            axis_min=-0.5,
+            axis_max=self.MAX_SCORE_TOTAL + 0.5,
+            axis_ticks=[
+                TrackerAxisTick(108, "108"),
+                TrackerAxisTick(100, "100"),
+                TrackerAxisTick(80, "80"),
+                TrackerAxisTick(60, "60"),
+                TrackerAxisTick(40, "40"),
+                TrackerAxisTick(20, "20"),
+                TrackerAxisTick(0, "0"),
+            ],
+            horizontal_lines=[
+                80,
+                60,
+                40,
+                20
+            ],
+        )]
 
     def subscore(self, fields, qnum) -> float:
         complete = self.n_complete(fields)
