@@ -45,7 +45,6 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerAxisTick,
     TrackerInfo,
-    TrackerLabel,
 )
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta

@@ -131,6 +131,7 @@ QString Factg::menusubtitle() const
               "version 4.");
 }
 
+
 // ============================================================================
 // Instance info
 // ============================================================================
@@ -144,34 +145,36 @@ QVector<QVariant> Factg::getScores() const
 
     int answered = countNotNull(vals);
     score_phys = (answered > 0) ?
-                (sumInt(vals) * N_PHYSICAL) / answered
+                (sumInt(vals) * N_PHYSICAL) / static_cast<double>(answered)
             : 0;
 
     vals = values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_SOCIAL));
     answered = countNotNull(vals);
     score_soc = (answered > 0) ?
-                (sumInt(vals) * N_SOCIAL) / answered
+                (sumInt(vals) * N_SOCIAL) / static_cast<double>(answered)
             : 0;
 
     vals = values(strseq(PREFIX_EMOTIONAL, FIRST_Q, LAST_Q_EMOTIONAL));
     answered = countNotNull(vals);
     score_emo = (answered > 0) ?
-                (sumInt(vals) * N_EMOTIONAL) / answered
+                (sumInt(vals) * N_EMOTIONAL) / static_cast<double>(answered)
             : 0;
 
     vals = values(strseq(PREFIX_FUNCTIONAL, FIRST_Q, LAST_Q_FUNCTIONAL));
     answered = countNotNull(vals);
     score_func = (answered > 0) ?
-                (sumInt(vals) * N_FUNCTIONAL) / answered
+                (sumInt(vals) * N_FUNCTIONAL) / static_cast<double>(answered)
             : 0;
 
     return {score_phys, score_soc, score_emo, score_func};
 }
 
+
 QStringList Factg::summary() const
 {
     return QStringList{totalScorePhrase(sumDouble(getScores()), MAX_SCORE)};
 }
+
 
 QStringList Factg::detail() const
 {
@@ -190,6 +193,7 @@ QStringList Factg::detail() const
     };
 }
 
+
 bool Factg::isComplete() const
 {
     int last_q_social = LAST_Q_SOCIAL;
@@ -204,6 +208,7 @@ bool Factg::isComplete() const
         anyNull(values(strseq(PREFIX_EMOTIONAL, FIRST_Q, LAST_Q_EMOTIONAL))) ||
         anyNull(values(strseq(PREFIX_FUNCTIONAL, FIRST_Q, LAST_Q_FUNCTIONAL))));
 }
+
 
 void Factg::updateQ7(const FieldRef* fieldref)
 {
@@ -226,13 +231,15 @@ void Factg::updateQ7(const FieldRef* fieldref)
     m_in_tickbox_change = false;
 }
 
+
 void Factg::untickBox()
 {
     fieldRef(IGNORE_Q7)->setValue(false);
 }
 
+
 OpenableWidget* Factg::editor(const bool read_only)
-{   
+{
     const NameValueOptions options_normal{
         {xstring("a0"), 0},
         {xstring("a1"), 1},
