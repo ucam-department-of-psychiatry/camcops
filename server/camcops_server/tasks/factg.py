@@ -28,7 +28,12 @@ from cardinal_pythonlib.stringfunc import strseq
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
+from camcops_server.cc_modules.cc_html import (
+    answer,
+    tr_qa,
+    subheading_spanning_two_columns,
+    tr
+)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
@@ -93,81 +98,29 @@ class Factg(TaskHasPatientMixin, Task,
     N_QUESTIONS_EMOTIONAL = 6
     N_QUESTIONS_FUNCTIONAL = 7
 
-    MAX_SCORE_PHYSICAL = 28
-    MAX_SCORE_SOCIAL = 28
-    MAX_SCORE_EMOTIONAL = 24
-    MAX_SCORE_FUNCTIONAL = 28
+    N_ALL = N_QUESTIONS_PHYSICAL + N_QUESTIONS_SOCIAL + N_QUESTIONS_EMOTIONAL + N_QUESTIONS_FUNCTIONAL
 
-    MAX_SCORE_TOTAL = MAX_SCORE_PHYSICAL + MAX_SCORE_SOCIAL
-    MAX_SCORE_TOTAL += MAX_SCORE_EMOTIONAL + MAX_SCORE_FUNCTIONAL
+    MAX_Q_SCORE = 4
+
+    MAX_SCORE_TOTAL = N_ALL * MAX_Q_SCORE
 
     QUESTIONS_PHYSICAL = strseq("p_q", 1, N_QUESTIONS_PHYSICAL)
     QUESTIONS_SOCIAL = strseq("s_q", 1, N_QUESTIONS_SOCIAL)
     QUESTIONS_EMOTIONAL = strseq("e_q", 1, N_QUESTIONS_EMOTIONAL)
     QUESTIONS_FUNCTIONAL = strseq("f_q", 1, N_QUESTIONS_FUNCTIONAL)
 
-    ALL_QUESTIONS = [QUESTIONS_PHYSICAL, QUESTIONS_SOCIAL, QUESTIONS_EMOTIONAL, QUESTIONS_FUNCTIONAL]
+    GROUPS = [
+        ["Physical Well-being", QUESTIONS_PHYSICAL],
+        ["Social / Family Well-being", QUESTIONS_SOCIAL],
+        ["Emotional Well-being", QUESTIONS_EMOTIONAL],
+        ["Functional Well-being", QUESTIONS_FUNCTIONAL],
+    ]
 
     OPTIONAL_Q = "s_q7"
 
     ignore_q7 = CamcopsColumn("ignore_q7", Boolean, permitted_value_checker=BIT_CHECKER)
 
-    # print("HERE")
-
-    HTML = """
-            <div class="{CssClass.SUMMARY}">
-                <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
-                    {section_1}
-                    {section_2}
-                    {section_3}
-                    {section_4}
-                </table>
-            </div>
-            <table class="{CssClass.TASKDETAIL}">
-                <tr>
-                    <th colspan="2" class="{CssClass.QA_TABLE_HEADING}">
-                        Physical Well-being
-                    </th>
-                </tr>
-                <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
-                </tr>
-                {q_a_1}
-                <tr>
-                    <th colspan="2" class="{CssClass.QA_TABLE_HEADING}">
-                        Social/Family Well-being
-                    </th>
-                </tr>
-                <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
-                </tr>
-                {q_a_2}
-                <tr>
-                    <th colspan="2" class="{CssClass.QA_TABLE_HEADING}">
-                        Emotional Well-being
-                    </th>
-                </tr>
-                <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
-                </tr>
-                {q_a_3}
-                <tr>
-                    <th colspan="2" class="{CssClass.QA_TABLE_HEADING}">
-                        Functional Well-being
-                    </th>
-                </tr>
-                <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
-                </tr>
-                {q_a_4}
-            </table>
-    """
+    total = None
 
     def is_complete(self) -> bool:
 
@@ -205,15 +158,14 @@ class Factg(TaskHasPatientMixin, Task,
 
         return round(result, 2)
 
+    def subscores(self) -> List[float]:
+        sscores = []
+        for _, questions in self.GROUPS:
+            sscores.append(self.subscore(questions, len(questions)))
+        return sscores
+
     def total_score(self) -> float:
-        score_physical = self.subscore(self.QUESTIONS_PHYSICAL, self.N_QUESTIONS_PHYSICAL)
-        score_social = self.subscore(self.QUESTIONS_SOCIAL, self.N_QUESTIONS_SOCIAL)
-        score_emotional = self.subscore(self.QUESTIONS_EMOTIONAL, self.N_QUESTIONS_EMOTIONAL)
-        score_functional = self.subscore(self.QUESTIONS_FUNCTIONAL, self.N_QUESTIONS_FUNCTIONAL)
-
-        total = score_physical + score_social + score_emotional + score_functional
-
-        return round(total, 2)
+        return round(sum(self.subscores()), 2)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
 
@@ -225,46 +177,52 @@ class Factg(TaskHasPatientMixin, Task,
             3: "3 — " + self.wxstring(req, "a3"),
             4: "4 — " + self.wxstring(req, "a4"),
         }
+
+        subheadings = [items[0] for items in self.GROUPS]
+        subscores = self.subscores()
+
+        h = """
+            <div class="{CssClass.SUMMARY}">
+                 <table class="{CssClass.SUMMARY}">
+                     {tr_is_complete}
+                     {total_score}
+                     {s1}
+                     {s2}
+                     {s3}
+                     {s4}
+                 </table>
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="50%">Question</th>
+                    <th width="50%">Answer</th>
+                </tr>
+            """.format(
+                CssClass=CssClass,
+                tr_is_complete=self.get_is_complete_tr(req),
+                total_score=tr(
+                    req.wappstring("total_score"),
+                    answer(self.total_score()) +
+                    " / {}".format(self.MAX_SCORE_TOTAL)
+                ),
+                s1=tr(subheadings[0], answer(subscores[0])
+                      + " / {}".format(self.MAX_SCORE_TOTAL)),
+                s2=tr(subheadings[1], answer(subscores[1])
+                      + " / {}".format(self.MAX_SCORE_TOTAL)),
+                s3=tr(subheadings[2], answer(subscores[2])
+                      + " / {}".format(self.MAX_SCORE_TOTAL)),
+                s4=tr(subheadings[3], answer(subscores[3])
+                      + " / {}".format(self.MAX_SCORE_TOTAL)),
+            )
+
         dlen = len(answers.keys())
 
-        q_rows = []
-
         rev = True
-        for q_group in self.ALL_QUESTIONS:
-            q_row = ''
-            for q in q_group:
+        for subheading, questions in self.GROUPS:
+            h += subheading_spanning_two_columns(self.wxstring(req, subheading))
+            for q in questions:
                 answer_val = getattr(self, q)
                 if answer_val is not None and rev:
-                    answer_val = str(dlen - int(answer_val) - 2)
-                q_row += tr_qa(self.wxstring(req, q), get_from_dict(answers, answer_val))
-            q_rows.append(q_row)
-
-        score = answer(self.subscore(self.QUESTIONS_PHYSICAL, self.N_QUESTIONS_PHYSICAL))
-        phys_score = score + " / {}".format(self.MAX_SCORE_PHYSICAL)
-
-        score = answer(self.subscore(self.QUESTIONS_SOCIAL, self.N_QUESTIONS_SOCIAL))
-        soc_score = score + " / {}".format(self.MAX_SCORE_SOCIAL)
-
-        score = answer(self.subscore(self.QUESTIONS_EMOTIONAL, self.N_QUESTIONS_EMOTIONAL))
-        emo_score = score + " / {}".format(self.MAX_SCORE_EMOTIONAL)
-
-        score = answer(self.subscore(self.QUESTIONS_FUNCTIONAL, self.N_QUESTIONS_FUNCTIONAL))
-        func_score = score + " / {}".format(self.MAX_SCORE_FUNCTIONAL)
-
-        return self.HTML.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                req.wappstring("total_score"),
-                answer(self.total_score()) +
-                " / {}".format(self.MAX_SCORE_TOTAL)
-            ),
-            section_1=tr("Physical Well-being", phys_score),
-            section_2=tr("Social/Family Well-being", soc_score),
-            section_3=tr("Emotional", emo_score),
-            section_4=tr("Functional", func_score),
-            q_a_1=q_rows[0],
-            q_a_2=q_rows[1],
-            q_a_3=q_rows[2],
-            q_a_4=q_rows[3],
-        )
+                    answer_val = dlen - int(answer_val) - 2
+                h += tr_qa(self.wxstring(req, q), get_from_dict(answers, answer_val))
+        return h
