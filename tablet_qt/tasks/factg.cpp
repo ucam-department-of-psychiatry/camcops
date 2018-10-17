@@ -20,6 +20,7 @@
 #include "factg.h"
 
 #include "lib/stringfunc.h"
+#include "lib/version.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
@@ -129,6 +130,12 @@ QString Factg::menusubtitle() const
 {
     return tr("A 27-item general cancer quality-of-life (QL) measure - "
               "version 4.");
+}
+
+
+Version Factg::minimumServerVersion() const
+{
+    return Version(2, 2, 8);
 }
 
 
