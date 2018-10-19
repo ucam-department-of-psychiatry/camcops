@@ -455,7 +455,7 @@ void Questionnaire::jumpClicked()
             continue;
             // Skipped pages don't block subsequent ones, either.
         }
-        const QString text = page->title();
+        const QString text = page->indexTitle();
         const bool missing_input = page->progressBlocked() || page->missingInput();
         PagePickerItem::PagePickerItemType type = blocked
             ? PagePickerItem::PagePickerItemType::BlockedByPrevious

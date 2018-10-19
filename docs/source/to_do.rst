@@ -91,10 +91,19 @@ Client core
   - on the server, HTML task view showing a warning if an ID number fails
     its validator?
 
+  This would be a "per ID number" setting.
+
 - Think: maybe extend the "required ID number" system so that groups can define
   whether the client should/shouldn't offer forename, surname, DOB, address,
   GP, other. This would make it easier to enforce a "no PID" rule for
-  research studies.
+  research studies. This would be a per-group setting.
+
+- Potentially (a/w CPFT discussion 22/10/18): have facility to upload and/or
+  automatically feed patient details into the server, then have clients
+  restrict to these predefined patients. Since we are aiming to minimize
+  PID on the client, this could be implemented by having the client validate
+  its patients with the server, and refusing to upload if they don't match.
+  This would be a per-group setting.
 
 **Not a priority**
 

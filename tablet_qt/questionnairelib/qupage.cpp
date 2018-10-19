@@ -90,6 +90,13 @@ QuPage* QuPage::setTitle(const QString& title)
 }
 
 
+QuPage* QuPage::setIndexTitle(const QString& index_title)
+{
+    m_index_title = index_title;
+    return this;
+}
+
+
 QuPage* QuPage::setSkip(const bool skip)
 {
     m_skip = skip;
@@ -166,6 +173,15 @@ QuPage::PageType QuPage::type() const
 
 QString QuPage::title() const
 {
+    return m_title;
+}
+
+
+QString QuPage::indexTitle() const
+{
+    if (!m_index_title.isEmpty()) {
+        return m_index_title;
+    }
     return m_title;
 }
 

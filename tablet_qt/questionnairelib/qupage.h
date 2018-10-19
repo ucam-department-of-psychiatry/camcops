@@ -57,6 +57,7 @@ public:
 
     QuPage* setType(PageType type);
     QuPage* setTitle(const QString& title);
+    QuPage* setIndexTitle(const QString& index_title);
     QuPage* addElement(const QuElementPtr& element);
     QuPage* addElement(QuElement* element);  // takes ownership
     QuPage* addElements(const QVector<QuElementPtr>& elements);
@@ -67,6 +68,7 @@ public:
 
     PageType type() const;
     QString title() const;
+    QString indexTitle() const;
     bool hasTag(const QString& tag) const;
     bool skip() const;
     void clearElements();  // for rebuilding live pages
@@ -86,6 +88,7 @@ protected:
 protected:
     PageType m_type;
     QString m_title;
+    QString m_index_title;
     QStringList m_tags;
     QVector<QuElementPtr> m_elements;
     bool m_skip;

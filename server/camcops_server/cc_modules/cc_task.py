@@ -2137,7 +2137,7 @@ def all_task_tables_with_min_client_version() -> Dict[str, Version]:
 # Support functions
 # =============================================================================
 
-def get_from_dict(d: Dict, key: str, default: Any = INVALID_VALUE) -> Any:
+def get_from_dict(d: Dict, key: Any, default: Any = INVALID_VALUE) -> Any:
     """
     Returns a value from a dictionary. This is not a very complex function...
     all it really does in practice is provide a default for ``default``.

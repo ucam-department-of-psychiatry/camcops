@@ -24,6 +24,12 @@
 ===============================================================================
 """
 
+from typing import Any, Dict, List, Tuple, Type
+
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.sqltypes import Boolean, Float
+
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -37,6 +43,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
 )
+from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
     Task,
@@ -46,10 +53,6 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerAxisTick,
     TrackerInfo,
 )
-from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.sqltypes import Boolean
-from typing import Any, Dict, List, Tuple, Type
 
 
 # =============================================================================
@@ -97,7 +100,10 @@ class Factg(TaskHasPatientMixin, Task,
     N_QUESTIONS_EMOTIONAL = 6
     N_QUESTIONS_FUNCTIONAL = 7
 
-    N_ALL = N_QUESTIONS_PHYSICAL + N_QUESTIONS_SOCIAL + N_QUESTIONS_EMOTIONAL + N_QUESTIONS_FUNCTIONAL
+    N_ALL = (
+        N_QUESTIONS_PHYSICAL + N_QUESTIONS_SOCIAL +
+        N_QUESTIONS_EMOTIONAL + N_QUESTIONS_FUNCTIONAL
+    )
 
     MAX_Q_SCORE = 4
 
@@ -109,24 +115,24 @@ class Factg(TaskHasPatientMixin, Task,
     QUESTIONS_FUNCTIONAL = strseq("f_q", 1, N_QUESTIONS_FUNCTIONAL)
 
     GROUPS = [
-        ["Physical Well-being", QUESTIONS_PHYSICAL],
-        ["Social / Family Well-being", QUESTIONS_SOCIAL],
-        ["Emotional Well-being", QUESTIONS_EMOTIONAL],
-        ["Functional Well-being", QUESTIONS_FUNCTIONAL],
+        # xstring name, list of question fieldnames, summary fieldname
+        ("h1", QUESTIONS_PHYSICAL, "physical_wellbeing"),
+        ("h2", QUESTIONS_SOCIAL, "social_family_wellbeing"),
+        ("h3", QUESTIONS_EMOTIONAL, "emotional_wellbeing"),
+        ("h4", QUESTIONS_FUNCTIONAL, "functional_wellbeing"),
     ]
 
     OPTIONAL_Q = "s_q7"
 
-    ignore_q7 = CamcopsColumn("ignore_q7", Boolean, permitted_value_checker=BIT_CHECKER)
+    ignore_s_q7 = CamcopsColumn("ignore_s_q7", Boolean,
+                                permitted_value_checker=BIT_CHECKER)
 
     total = None
 
     def is_complete(self) -> bool:
-
-        ignore_q7 = getattr(self, "ignore_q7")
         questions_social = self.QUESTIONS_SOCIAL
 
-        if ignore_q7 and self.OPTIONAL_Q in questions_social:
+        if self.ignore_s_q7 and self.OPTIONAL_Q in questions_social:
             questions_social.remove(self.OPTIONAL_Q)
 
         all_qs = [self.QUESTIONS_PHYSICAL, questions_social,
@@ -144,7 +150,7 @@ class Factg(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="FACT-G total score (rating well-being)",
-            axis_label="Total Score".format(
+            axis_label="Total score".format(
                 self.MAX_SCORE_TOTAL),
             axis_min=-0.5,
             axis_max=self.MAX_SCORE_TOTAL + 0.5,
@@ -165,6 +171,22 @@ class Factg(TaskHasPatientMixin, Task,
             ],
         )]
 
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
+        elements = self.standard_task_summary_fields()
+        for description, questions, fieldname in self.GROUPS:
+            nquestions = len(questions)
+            score = self.subscore(questions, nquestions)
+            elements.append(SummaryElement(
+                name=fieldname, coltype=Float(),
+                value=score,
+                comment="{} ({} / {})".format(description, score, nquestions)
+            ))
+        elements.append(SummaryElement(
+            name="total_score", coltype=Float(),
+            value=self.total_score()
+        ))
+        return elements
+
     def subscore(self, fields, qnum) -> float:
         complete = self.n_complete(fields)
         if complete == 0:
@@ -175,7 +197,7 @@ class Factg(TaskHasPatientMixin, Task,
 
     def subscores(self) -> List[float]:
         sscores = []
-        for _, questions in self.GROUPS:
+        for _, questions, _ in self.GROUPS:
             sscores.append(self.subscore(questions, len(questions)))
         return sscores
 
@@ -183,7 +205,6 @@ class Factg(TaskHasPatientMixin, Task,
         return round(sum(self.subscores()), 2)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-
         answers = {
             None: None,
             0: "0 — " + self.wxstring(req, "a0"),
@@ -195,6 +216,7 @@ class Factg(TaskHasPatientMixin, Task,
 
         subheadings = [items[0] for items in self.GROUPS]
         subscores = self.subscores()
+        tscore = round(self.total_score(), 2)
 
         h = """
             <div class="{CssClass.SUMMARY}">
@@ -212,32 +234,36 @@ class Factg(TaskHasPatientMixin, Task,
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-            """.format(
-                CssClass=CssClass,
-                tr_is_complete=self.get_is_complete_tr(req),
-                total_score=tr(
-                    req.wappstring("total_score"),
-                    answer(self.total_score()) +
-                    " / {}".format(self.MAX_SCORE_TOTAL)
-                ),
-                s1=tr(subheadings[0], answer(subscores[0])
-                      + " / {}".format(self.MAX_SCORE_TOTAL)),
-                s2=tr(subheadings[1], answer(subscores[1])
-                      + " / {}".format(self.MAX_SCORE_TOTAL)),
-                s3=tr(subheadings[2], answer(subscores[2])
-                      + " / {}".format(self.MAX_SCORE_TOTAL)),
-                s4=tr(subheadings[3], answer(subscores[3])
-                      + " / {}".format(self.MAX_SCORE_TOTAL)),
-            )
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.wappstring("total_score"),
+                answer(tscore) + " / {}".format(self.MAX_SCORE_TOTAL)
+            ),
+            s1=tr(subheadings[0], answer(subscores[0])
+                  + " / {}".format(self.MAX_SCORE_TOTAL)),
+            s2=tr(subheadings[1], answer(subscores[1])
+                  + " / {}".format(self.MAX_SCORE_TOTAL)),
+            s3=tr(subheadings[2], answer(subscores[2])
+                  + " / {}".format(self.MAX_SCORE_TOTAL)),
+            s4=tr(subheadings[3], answer(subscores[3])
+                  + " / {}".format(self.MAX_SCORE_TOTAL)),
+        )
 
         dlen = len(answers.keys())
 
         rev = True
-        for subheading, questions in self.GROUPS:
-            h += subheading_spanning_two_columns(self.wxstring(req, subheading))
+        for xstringname, questions, _ in self.GROUPS:
+            h += subheading_spanning_two_columns(
+                self.wxstring(req, xstringname))
             for q in questions:
                 answer_val = getattr(self, q)
                 if answer_val is not None and rev:
                     answer_val = dlen - int(answer_val) - 2
-                h += tr_qa(self.wxstring(req, q), get_from_dict(answers, answer_val))
+                h += tr_qa(self.wxstring(req, q),
+                           get_from_dict(answers, answer_val))
+        h += """
+            </table>
+        """
         return h
