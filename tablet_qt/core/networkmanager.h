@@ -58,14 +58,15 @@ public:
 public:
     void setSilent(bool silent);
     void setTitle(const QString& title);
-    void statusMessage(const QString& msg);
+    void statusMessage(const QString& msg) const;
+    void htmlStatusMessage(const QString& html) const;
     enum class UploadMethod {
         Copy,
         MoveKeepingPatients,
         Move
     };
 protected:
-    void ensureLogBox();
+    void ensureLogBox() const;
     void deleteLogBox();
 protected slots:
     void logboxCancelled();
@@ -89,9 +90,10 @@ protected:
     void serverPost(Dict dict, ReplyFuncPtr reply_func,
                     bool include_user = true);
     bool processServerReply(QNetworkReply* reply);
-    QString sizeBytes(qint64 size);
-    RecordList getRecordList();
-    bool replyReportsSuccess();
+    QString sizeBytes(qint64 size) const;
+    RecordList getRecordList() const;
+    bool replyFormatCorrect() const;
+    bool replyReportsSuccess() const;
     void cleanup();
 protected slots:
     void sslIgnoringErrorHandler(QNetworkReply* reply,
@@ -157,10 +159,10 @@ protected:
     bool writeIdDescriptionsToPatientTable();
 #endif
     bool catalogueTablesForUpload();
-    bool isServerVersionOK();
-    bool arePoliciesOK();
-    bool areDescriptionsOK();
-    QVector<int> whichIdnumsUsedOnTablet();
+    bool isServerVersionOK() const;
+    bool arePoliciesOK() const;
+    bool areDescriptionsOK() const;
+    QVector<int> whichIdnumsUsedOnTablet() const;
     bool pruneRecordwisePks();
     void wipeTables();
     void queryFail(const QString& sql);
@@ -193,7 +195,7 @@ protected:
     QString m_title;
     bool m_offer_cancel;
     bool m_silent;
-    QPointer<LogBox> m_logbox;
+    mutable QPointer<LogBox> m_logbox;
     QNetworkAccessManager* m_mgr;
 
     QString m_tmp_password;

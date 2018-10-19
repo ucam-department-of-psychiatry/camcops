@@ -18,7 +18,7 @@
 */
 
 // #define DEBUG_NETWORK_REQUESTS
-// #define DEBUG_NETWORK_REPLIES
+#define DEBUG_NETWORK_REPLIES
 // #define DEBUG_ACTIVITY
 #define USE_BACKGROUND_DATABASE
 
@@ -156,7 +156,7 @@ NetworkManager::~NetworkManager()
 // User interface
 // ============================================================================
 
-void NetworkManager::ensureLogBox()
+void NetworkManager::ensureLogBox() const
 {
     if (!m_logbox) {
 #ifdef DEBUG_ACTIVITY
@@ -201,7 +201,7 @@ void NetworkManager::setTitle(const QString& title)
 }
 
 
-void NetworkManager::statusMessage(const QString& msg)
+void NetworkManager::statusMessage(const QString& msg) const
 {
 #ifdef DEBUG_ACTIVITY
     qInfo() << "Network:" << msg;
@@ -215,6 +215,13 @@ void NetworkManager::statusMessage(const QString& msg)
     ensureLogBox();
     m_logbox->statusMessage(
                 QString("%1: %2").arg(datetime::nowTimestamp(), msg));
+}
+
+
+void NetworkManager::htmlStatusMessage(const QString& html) const
+{
+    ensureLogBox();
+    m_logbox->statusMessage(html, true);
 }
 
 
@@ -421,8 +428,16 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
 #endif
     m_reply_dict = convert::getReplyDict(m_reply_data);
 #ifdef DEBUG_NETWORK_REPLIES
-        qInfo() << "Network reply (dictionary): " << m_reply_dict;
+    qInfo() << "Network reply (dictionary): " << m_reply_dict;
 #endif
+    if (!replyFormatCorrect()) {
+        statusMessage(
+            "Reply is not from CamCOPS API. Are your server settings "
+            "misconfigured? Reply is below.");
+        htmlStatusMessage(convert::getReplyString(m_reply_data));
+        fail();
+        return false;
+    }
     m_tmp_session_id = m_reply_dict[KEY_SESSION_ID];
     m_tmp_session_token = m_reply_dict[KEY_SESSION_TOKEN];
     if (replyReportsSuccess()) {
@@ -437,19 +452,29 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
 }
 
 
-QString NetworkManager::sizeBytes(const qint64 size)
+QString NetworkManager::sizeBytes(const qint64 size) const
 {
     return convert::prettySize(size, true, false, true, "bytes");
 }
 
 
-bool NetworkManager::replyReportsSuccess()
+bool NetworkManager::replyFormatCorrect() const
+{
+    // Characteristics of a reply that has come from the CamCOPS API, not
+    // (for example) a "page not found" error from Apache:
+    return m_reply_dict.contains(KEY_SUCCESS) &&
+           m_reply_dict.contains(KEY_SESSION_ID) &&
+           m_reply_dict.contains(KEY_SESSION_TOKEN);
+}
+
+
+bool NetworkManager::replyReportsSuccess() const
 {
     return m_reply_dict[KEY_SUCCESS].toInt();
 }
 
 
-RecordList NetworkManager::getRecordList()
+RecordList NetworkManager::getRecordList() const
 {
     RecordList recordlist;
 
@@ -1711,7 +1736,7 @@ bool NetworkManager::catalogueTablesForUpload()
 }
 
 
-bool NetworkManager::isServerVersionOK()
+bool NetworkManager::isServerVersionOK() const
 {
     statusMessage("Checking server CamCOPS version");
     const QString server_version_str = m_reply_dict[KEY_SERVER_CAMCOPS_VERSION];
@@ -1738,7 +1763,7 @@ bool NetworkManager::isServerVersionOK()
 }
 
 
-bool NetworkManager::arePoliciesOK()
+bool NetworkManager::arePoliciesOK() const
 {
     statusMessage("Checking ID policies match server");
     const QString local_upload = m_app.uploadPolicy().pretty();
@@ -1767,7 +1792,7 @@ bool NetworkManager::arePoliciesOK()
 }
 
 
-bool NetworkManager::areDescriptionsOK()
+bool NetworkManager::areDescriptionsOK() const
 {
     statusMessage("Checking ID descriptions match server");
     bool idnums_all_on_server = true;
@@ -1826,7 +1851,7 @@ bool NetworkManager::areDescriptionsOK()
 }
 
 
-QVector<int> NetworkManager::whichIdnumsUsedOnTablet()
+QVector<int> NetworkManager::whichIdnumsUsedOnTablet() const
 {
     const QString sql = QString("SELECT DISTINCT %1 FROM %2 ORDER BY %1")
             .arg(delimit(PatientIdNum::FN_WHICH_IDNUM),
