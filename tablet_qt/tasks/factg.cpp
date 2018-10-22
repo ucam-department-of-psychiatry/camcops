@@ -44,6 +44,9 @@ const QString PREFIX_SOCIAL("s_q");
 const QString PREFIX_EMOTIONAL("e_q");
 const QString PREFIX_FUNCTIONAL("f_q");
 
+const QString IGNORE_SOCIAL_Q7("ignore_s_q7");
+const QString OPTIONAL_Q(PREFIX_SOCIAL + "7");
+
 const int FIRST_Q = 1;
 const int LAST_Q_PHYSICAL = 7;
 const int LAST_Q_SOCIAL = 7;
@@ -55,6 +58,7 @@ const int N_SOCIAL = 7;
 const int N_EMOTIONAL = 6;
 const int N_FUNCTIONAL= 7;
 
+const int MAX_QSCORE = 4;
 const int MAX_SCORE_PHYSICAL = 28;
 const int MAX_SCORE_SOCIAL = 28;
 const int MAX_SCORE_EMOTIONAL = 24;
@@ -64,9 +68,6 @@ const int MAX_SCORE =    MAX_SCORE_PHYSICAL
                        + MAX_SCORE_SOCIAL
                        + MAX_SCORE_EMOTIONAL
                        + MAX_SCORE_FUNCTIONAL;
-
-const QString IGNORE_SOCIAL_Q7("ignore_s_q7");
-const QString OPTIONAL_Q(PREFIX_SOCIAL + "7");
 
 using stringfunc::strseq;
 using mathfunc::anyNull;
@@ -146,33 +147,44 @@ Version Factg::minimumServerVersion() const
 
 QVector<QVariant> Factg::getScores() const
 {
+
+    double score_phys = 0;
+    double score_soc  = 0;
+    double score_emo  = 0;
+    double score_func = 0;
+
+    int answered, sum;
+
     QVector<QVariant> vals = values(strseq(PREFIX_PHYSICAL, FIRST_Q,
                                            LAST_Q_PHYSICAL));
-
-    double score_phys, score_soc, score_emo, score_func;
-
-    int answered = countNotNull(vals);
-    score_phys = (answered > 0) ?
-                (sumInt(vals) * N_PHYSICAL) / static_cast<double>(answered)
-            : 0;
+    answered = countNotNull(vals);
+    if (answered > 0) {
+        sum = (vals.length() * MAX_QSCORE) - sumInt(vals);
+        score_phys = sum * N_PHYSICAL / static_cast<double>(answered);
+    }
 
     vals = values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_SOCIAL));
     answered = countNotNull(vals);
-    score_soc = (answered > 0) ?
-                (sumInt(vals) * N_SOCIAL) / static_cast<double>(answered)
-            : 0;
+    if (answered > 0) {
+        score_soc = (sumInt(vals) * N_SOCIAL) / static_cast<double>(answered);
+    }
 
     vals = values(strseq(PREFIX_EMOTIONAL, FIRST_Q, LAST_Q_EMOTIONAL));
     answered = countNotNull(vals);
-    score_emo = (answered > 0) ?
-                (sumInt(vals) * N_EMOTIONAL) / static_cast<double>(answered)
-            : 0;
+    if (answered > 0) {
+        // reverse the whole section
+        sum = (vals.length() * MAX_QSCORE) - sumInt(vals);
+        // unreverse q2 and add the raw score
+        int normal_q = vals.at(1).toInt();
+        sum += (normal_q * 2) - MAX_QSCORE;
+        score_emo = sum * N_EMOTIONAL / static_cast<double>(answered);
+    }
 
     vals = values(strseq(PREFIX_FUNCTIONAL, FIRST_Q, LAST_Q_FUNCTIONAL));
     answered = countNotNull(vals);
-    score_func = (answered > 0) ?
-                (sumInt(vals) * N_FUNCTIONAL) / static_cast<double>(answered)
-            : 0;
+    if (answered > 0) {
+        score_func = (sumInt(vals) * N_FUNCTIONAL) / static_cast<double>(answered);
+    }
 
     return {score_phys, score_soc, score_emo, score_func};
 }
@@ -248,20 +260,12 @@ void Factg::untickBox()
 
 OpenableWidget* Factg::editor(const bool read_only)
 {
-    const NameValueOptions options_normal{
+    const NameValueOptions options{
         {xstring("a0"), 0},
         {xstring("a1"), 1},
         {xstring("a2"), 2},
         {xstring("a3"), 3},
         {xstring("a4"), 4},
-    };
-
-    const NameValueOptions options_reversed{
-        {xstring("a0"), 4},
-        {xstring("a1"), 3},
-        {xstring("a2"), 2},
-        {xstring("a3"), 1},
-        {xstring("a4"), 0},
     };
 
     const int question_width = 50;
@@ -284,7 +288,7 @@ OpenableWidget* Factg::editor(const bool read_only)
         (new QuPage{
             (new QuHeading(heading1)),
             (new QuText(instruction))->setBold(true),
-            (new QuMcqGrid({fields}, options_reversed))
+            (new QuMcqGrid({fields}, options))
                 ->setExpand(true)
                 ->setWidth(question_width, option_widths)
         })
@@ -302,7 +306,7 @@ OpenableWidget* Factg::editor(const bool read_only)
 
     QuMcqGrid *g1, *g2;
 
-    g1 = (new QuMcqGrid({fields}, options_normal))
+    g1 = (new QuMcqGrid({fields}, options))
             ->setExpand(true)
             ->setWidth(question_width, option_widths);
 
@@ -323,7 +327,7 @@ OpenableWidget* Factg::editor(const bool read_only)
 
     g2 = (new QuMcqGrid({
             QuestionWithOneField(xstring(OPTIONAL_Q),
-                                 fr_q7)}, options_normal))
+                                 fr_q7)}, options))
             ->showTitle(false)
             ->setExpand(true)
             ->setWidth(question_width, option_widths);
@@ -346,7 +350,7 @@ OpenableWidget* Factg::editor(const bool read_only)
     g1 = (new QuMcqGrid({
             QuestionWithOneField(xstring(PREFIX_EMOTIONAL + "1"),
                                  fieldRef(PREFIX_EMOTIONAL + "1"))
-                                  }, options_reversed))
+                                  }, options))
             ->setExpand(true)
             ->setWidth(question_width, option_widths);
 
@@ -354,7 +358,7 @@ OpenableWidget* Factg::editor(const bool read_only)
     g2 = (new QuMcqGrid({
             QuestionWithOneField(xstring(PREFIX_EMOTIONAL + "2"),
                                  fieldRef(PREFIX_EMOTIONAL + "2"))
-                                  }, options_normal))
+                                  }, options))
             ->showTitle(false)
             ->setExpand(true)
             ->setWidth(question_width, option_widths);
@@ -369,7 +373,7 @@ OpenableWidget* Factg::editor(const bool read_only)
             (new QuText(instruction))->setBold(true),
             g1,
             g2,
-            (new QuMcqGrid({fields}, options_reversed))
+            (new QuMcqGrid({fields}, options))
                 ->showTitle(false)
                 ->setExpand(true)
                 ->setWidth(question_width, option_widths)
@@ -389,7 +393,7 @@ OpenableWidget* Factg::editor(const bool read_only)
         (new QuPage{
             (new QuHeading(heading4)),
             (new QuText(instruction))->setBold(true),
-            (new QuMcqGrid({fields}, options_normal))
+            (new QuMcqGrid({fields}, options))
                 ->setExpand(true),
             new QuSpacer(),
             (new QuText(xstring("thanks")))->setBold(true),
