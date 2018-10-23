@@ -5,52 +5,50 @@
 
     <string name="title">EQ-5D-5L</string>
 
-    <string name="t1_instruction">Under each heading, please tick the ONE box that best describes your health TODAY.</string>
+    <string name="t1_instruction">Please tick the ONE box that best describes your health TODAY.</string>
     
-    <!-- Task 1: Descriptive -->
+    <string name="q1_h">MOBILITY</string>
+    <string name="q1_o1">I have no problems in walking about</string>
+    <string name="q2_o2">I have slight problems in walking about</string>
+    <string name="q3_o3">I have moderate problems in walking about</string>
+    <string name="q4_o4">I have severe problems in walking about</string>
+    <string name="q5_o5">I am unable to walk about</string>
 
-    <string name="h1">MOBILITY</string>
-    <string name="h2">SELF-CARE</string>
-    <string name="h3">USUAL ACTIVITIES</string>
-    <string name="h4">PAIN/DISCOMFORT</string>
-    <string name="h5">ANXIETY/DEPRESSION</string>
 
-    <string name="q1">I have no problems in walking about</string>
-    <string name="q2">I have slight problems in walking about</string>
-    <string name="q3">I have moderate problems in walking about</string>
-    <string name="q4">I have severe problems in walking about</string>
-    <string name="q5">I am unable to walk about</string>
+    <string name="q2_h">SELF-CARE</string>
+    <string name="q2_o1">I have no problems washing or dressing myself</string>
+    <string name="q2_o2">I have slight problems washing or dressing myself</string>
+    <string name="q2_o3">I have moderate problems washing or dressing myself</string>
+    <string name="q2_o4">I have severe problems washing or dressing myself</string>
+    <string name="q2_o5">I have washing or dressing myself</string>
 
-    <string name="q6">I have no problems washing or dressing myself</string>
-    <string name="q7">I have slight problems washing or dressing myself</string>
-    <string name="q8">I have moderate problems washing or dressing myself</string>
-    <string name="q9">I have severe problems washing or dressing myself</string>
-    <string name="q10">I have washing or dressing myself</string>
+    <string name="q3_h">USUAL ACTIVITIES</string>
+    <string name="q3_o1">I have no problems doing my usual activities</string>
+    <string name="q3_o2">I have slight problems doing my usual activities</string>
+    <string name="q3_o3">I have moderate problems doing my usual activities</string>
+    <string name="q3_o4">I have severe problems doing my usual activities</string>
+    <string name="q3_o5">I have doing my usual activities</string>
 
-    <string name="q11">I have no problems doing my usual activities</string>
-    <string name="q12">I have slight problems doing my usual activities</string>
-    <string name="q13">I have moderate problems doing my usual activities</string>
-    <string name="q14">I have severe problems doing my usual activities</string>
-    <string name="q15">I have doing my usual activities</string>
+    <string name="q4_h">PAIN/DISCOMFORT</string>
+    <string name="q4_o1">I have no pain or discomfort</string>
+    <string name="q4_o2">I have slight pain or discomfort</string>
+    <string name="q4_o3">I have moderate pain or discomfort</string>
+    <string name="q4_o4">I have severe pain or discomfort</string>
+    <string name="q4_o5">I have extreme pain or discomfort</string>
 
-    <string name="q16">I have no pain or discomfort</string>
-    <string name="q17">I have slight pain or discomfort</string>
-    <string name="q18">I have moderate pain or discomfort</string>
-    <string name="q19">I have severe pain or discomfort</string>
-    <string name="q20">I have extreme pain or discomfort</string>
+    <string name="q5_h">ANXIETY/DEPRESSION</string>
+    <string name="q5_o1">I am not anxious or depressed</string>
+    <string name="q5_o2">I am slightly anxious or depressed</string>
+    <string name="q5_o3">I am moderately anxious or depressed</string>
+    <string name="q5_o4">I am severely nxious or depressed</string>
+    <string name="q5_o5">I am extremely anxious or depressed</string>
 
-    <string name="q21">I am not anxious or depressed</string>
-    <string name="q22">I am slightly anxious or depressed</string>
-    <string name="q23">I am moderately anxious or depressed</string>
-    <string name="q24">I am severely nxious or depressed</string>
-    <string name="q25">I am extremely anxious or depressed</string>
-
-    <!-- Task 2 : Visual -->
-    <string name="t2_instruction_1">We would like to know how good or bad your health is TODAY.</string>
-    <string name="t2_instruction_2">This scale is numbered from 0 to 100.</string>
-    <string name="t2_instruction_3">100 means the <u>best</u> health you can imagine.</string>
-    <string name="t2_instruction_4">0 means the <u>worst</u> health you can imagine.</string>
-    <string name="t2_instruction_5">Use the scale to indicate how your health is TODAY.</string>
+    <!-- Task 2 Instructions -->
+    <string name="t2_i1">1. We would like to know how good or bad your health is TODAY.</string>
+    <string name="t2_i2">2. This scale is numbered from 0 to 100.</string>
+    <string name="t2_i3">3.100 means the <u>best</u> health you can imagine.</string>
+    <string name="t2_i4">0 means the <u>worst</u> health you can imagine.</string>
+    <string name="t2_i5">4.Use the scale to indicate how your health is TODAY.</string>
 
     <string name="thanks">Thank you for your time in completing this questionnaire.</string>
 
