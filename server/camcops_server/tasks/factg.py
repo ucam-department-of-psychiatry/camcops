@@ -100,29 +100,43 @@ class Factg(TaskHasPatientMixin, Task,
     N_QUESTIONS_EMOTIONAL = 6
     N_QUESTIONS_FUNCTIONAL = 7
 
+    MAX_SCORE_PHYSICAL = 28
+    MAX_SCORE_SOCIAL = 28
+    MAX_SCORE_EMOTIONAL = 24
+    MAX_SCORE_FUNCTIONAL = 28
+
     N_ALL = (
         N_QUESTIONS_PHYSICAL + N_QUESTIONS_SOCIAL +
         N_QUESTIONS_EMOTIONAL + N_QUESTIONS_FUNCTIONAL
     )
 
-    MAX_Q_SCORE = 4
+    MAX_QSCORE = 4
 
-    MAX_SCORE_TOTAL = N_ALL * MAX_Q_SCORE
+    MAX_SCORE_TOTAL = N_ALL * MAX_QSCORE
 
-    QUESTIONS_PHYSICAL = strseq("p_q", 1, N_QUESTIONS_PHYSICAL)
-    QUESTIONS_SOCIAL = strseq("s_q", 1, N_QUESTIONS_SOCIAL)
-    QUESTIONS_EMOTIONAL = strseq("e_q", 1, N_QUESTIONS_EMOTIONAL)
-    QUESTIONS_FUNCTIONAL = strseq("f_q", 1, N_QUESTIONS_FUNCTIONAL)
+    PHYSICAL_PREFIX = "p_q"
+    SOCIAL_PREFIX = "s_q"
+    EMOTIONAL_PREFIX = "e_q"
+    FUNCTIONAL_PREFIX = "f_q"
+
+    QUESTIONS_PHYSICAL = strseq(PHYSICAL_PREFIX, 1, N_QUESTIONS_PHYSICAL)
+    QUESTIONS_SOCIAL = strseq(SOCIAL_PREFIX, 1, N_QUESTIONS_SOCIAL)
+    QUESTIONS_EMOTIONAL = strseq(EMOTIONAL_PREFIX, 1, N_QUESTIONS_EMOTIONAL)
+    QUESTIONS_FUNCTIONAL = strseq(FUNCTIONAL_PREFIX, 1, N_QUESTIONS_FUNCTIONAL)
 
     GROUPS = [
-        # xstring name, list of question fieldnames, summary fieldname
-        ("h1", QUESTIONS_PHYSICAL, "physical_wellbeing"),
-        ("h2", QUESTIONS_SOCIAL, "social_family_wellbeing"),
-        ("h3", QUESTIONS_EMOTIONAL, "emotional_wellbeing"),
-        ("h4", QUESTIONS_FUNCTIONAL, "functional_wellbeing"),
+        # xstring name, subgroup question prefix, list of question fieldnames, summary fieldname
+        ("h1", PHYSICAL_PREFIX, QUESTIONS_PHYSICAL, "physical_wellbeing"),
+        ("h2", SOCIAL_PREFIX, QUESTIONS_SOCIAL, "social_family_wellbeing"),
+        ("h3", EMOTIONAL_PREFIX, QUESTIONS_EMOTIONAL, "emotional_wellbeing"),
+        ("h4", FUNCTIONAL_PREFIX, QUESTIONS_FUNCTIONAL, "functional_wellbeing"),
     ]
 
     OPTIONAL_Q = "s_q7"
+
+    # Index into a list of fields in the emotional group. Question 2 (index 1)
+    # is NOT reversed scored, as opposed to the rest of the qroup
+    EMO_NORMAL_Q_IDX = 1
 
     ignore_s_q7 = CamcopsColumn("ignore_s_q7", Boolean,
                                 permitted_value_checker=BIT_CHECKER)
@@ -173,9 +187,9 @@ class Factg(TaskHasPatientMixin, Task,
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         elements = self.standard_task_summary_fields()
-        for description, questions, fieldname in self.GROUPS:
+        for description, prefix, questions, fieldname in self.GROUPS:
             nquestions = len(questions)
-            score = self.subscore(questions, nquestions)
+            score = self.subscore(questions, nquestions, prefix)
             elements.append(SummaryElement(
                 name=fieldname, coltype=Float(),
                 value=score,
@@ -187,18 +201,29 @@ class Factg(TaskHasPatientMixin, Task,
         ))
         return elements
 
-    def subscore(self, fields, qnum) -> float:
-        complete = self.n_complete(fields)
-        if complete == 0:
+    def subscore(self, fields, qnum, prefix) -> float:
+        answered = self.n_complete(fields)
+        if answered == 0:
             return 0
-        result = self.sum_fields(fields) * qnum / complete
+
+        if prefix == self.PHYSICAL_PREFIX or prefix == self.EMOTIONAL_PREFIX:
+            result = self.MAX_QSCORE * qnum - self.sum_fields(fields)
+        else:
+            result = self.sum_fields(fields)
+
+        if prefix == self.EMOTIONAL_PREFIX:
+            value = getattr(self, fields[self.EMO_NORMAL_Q_IDX])
+            result -= self.MAX_QSCORE
+            result += value * 2
+
+        result = result * qnum / answered
 
         return round(result, 2)
 
     def subscores(self) -> List[float]:
         sscores = []
-        for _, questions, _ in self.GROUPS:
-            sscores.append(self.subscore(questions, len(questions)))
+        for _, qprefix, questions, _ in self.GROUPS:
+            sscores.append(self.subscore(questions, len(questions), qprefix))
         return sscores
 
     def total_score(self) -> float:
@@ -242,25 +267,22 @@ class Factg(TaskHasPatientMixin, Task,
                 answer(tscore) + " / {}".format(self.MAX_SCORE_TOTAL)
             ),
             s1=tr(subheadings[0], answer(subscores[0])
-                  + " / {}".format(self.MAX_SCORE_TOTAL)),
+                  + " / {}".format(self.MAX_SCORE_PHYSICAL)),
             s2=tr(subheadings[1], answer(subscores[1])
-                  + " / {}".format(self.MAX_SCORE_TOTAL)),
+                  + " / {}".format(self.MAX_SCORE_SOCIAL)),
             s3=tr(subheadings[2], answer(subscores[2])
-                  + " / {}".format(self.MAX_SCORE_TOTAL)),
+                  + " / {}".format(self.MAX_SCORE_EMOTIONAL)),
             s4=tr(subheadings[3], answer(subscores[3])
-                  + " / {}".format(self.MAX_SCORE_TOTAL)),
+                  + " / {}".format(self.MAX_SCORE_FUNCTIONAL)),
         )
 
         dlen = len(answers.keys())
 
-        rev = True
-        for xstringname, questions, _ in self.GROUPS:
+        for xstringname, _, questions, _ in self.GROUPS:
             h += subheading_spanning_two_columns(
                 self.wxstring(req, xstringname))
             for q in questions:
                 answer_val = getattr(self, q)
-                if answer_val is not None and rev:
-                    answer_val = dlen - int(answer_val) - 2
                 h += tr_qa(self.wxstring(req, q),
                            get_from_dict(answers, answer_val))
         h += """
