@@ -33,6 +33,7 @@
 #include "tasks/demqol.h"
 #include "tasks/demqolproxy.h"
 #include "tasks/distressthermometer.h"
+#include "tasks/eq5d5l.h"
 #include "tasks/factg.h"
 #include "tasks/frs.h"
 #include "tasks/gaf.h"
@@ -66,6 +67,7 @@ GlobalMenu::GlobalMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(DemqolProxy::DEMQOLPROXY_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(DistressThermometer::DT_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Frs::FRS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Factg::FACTG_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gaf::GAF_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
