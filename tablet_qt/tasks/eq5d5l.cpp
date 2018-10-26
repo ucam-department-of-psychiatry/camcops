@@ -158,24 +158,31 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
 
     items.append(QuThermometerItem(
         uifunc::resourceFilename("eq5d5lslider/base.png"),
-        uifunc::resourceFilename("eq5d5lslider/base.png"),
-        "", 0
+        uifunc::resourceFilename("eq5d5lslider/base.png"),  // ***
+        "0", 0
     ));
 
+    const int overspill_rows = 3;
+    QString itemtext;
     for (int i = 1; i < 100; ++i) {
 
         n = QString::number(i);
 
-        resource = "eq5d5lslider/tick.png";
-
         if (i % 5 == 0) {
+            // larger ticks with numbers every 5
             resource = "eq5d5lslider/mid.png";
+            itemtext = n;
+        } else {
+            resource = "eq5d5lslider/tick.png";
+            itemtext = "";
         }
 
         QuThermometerItem item(
-            uifunc::resourceFilename(resource),
-            uifunc::resourceFilename(resource),
-            "", i
+            uifunc::resourceFilename(resource),  // active
+            uifunc::resourceFilename(resource),  // inactive ***
+            itemtext,  // text
+            i,  // value
+            overspill_rows
         );
 
         items.append(item);
@@ -183,8 +190,8 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
 
     items.append(QuThermometerItem(
         uifunc::resourceFilename("eq5d5lslider/top.png"),
-        uifunc::resourceFilename("eq5d5lslider/top.png"),
-        "", 100
+        uifunc::resourceFilename("eq5d5lslider/top.png"),  // ***
+        "100", 100
     ));
 
     QVector<QuElementPtr> instructions;

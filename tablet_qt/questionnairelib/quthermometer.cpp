@@ -99,10 +99,24 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
         if (m_rescale) {
             inactive->resizeImages(m_rescale_factor);
         }
-        auto label = new QLabel(item.text());
         grid->addWidget(active.data(), row, 0);
         grid->addWidget(inactive.data(), row, 0);
-        grid->addWidget(label, row, 1);
+        const QString text = item.text();
+        if (!text.isEmpty()) {
+            auto label = new QLabel(item.text());
+            const int overspill = item.overspillRows();
+            const int rowspan = overspill > 0 ? (1 + 2 * overspill) : 1;
+            const int toprow = row - overspill;
+            const Qt::Alignment textalign = item.textAlignment();
+#ifdef DEBUG_IMAGE_SIZES
+            qDebug().nospace()
+                    << "Adding label " << label
+                    << "at toprow=" << toprow
+                    << ", rowspan=" << rowspan
+                    << ", alignment=" << textalign;
+#endif
+            grid->addWidget(label, toprow, 1, rowspan, 1, textalign);
+        }
         if (!read_only) {
             // Safe object lifespan signal: can use std::bind
             connect(active.data(), &ImageButton::clicked,

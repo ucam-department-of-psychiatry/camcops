@@ -23,19 +23,32 @@
 
 
 class QuThermometerItem {
+    // Describes part of a thermometer-style display.
+    // On the left is an image, which can take one of two states (active or
+    // inactive). On the right is some optional text.
 public:
     QuThermometerItem();
-    QuThermometerItem(const QString& active_filename,
-                      const QString& inactive_filename,
-                      const QString& text,
-                      const QVariant& value);
+    QuThermometerItem(
+            const QString& active_filename,
+            const QString& inactive_filename,
+            const QString& text,
+            const QVariant& value,
+            int overspill_rows = 0,
+            Qt::Alignment text_alignment = Qt::AlignLeft | Qt::AlignVCenter);
     QString activeFilename() const;
     QString inactiveFilename() const;
     QString text() const;
     QVariant value() const;
+    // Number of grid rows that the text should be allowed to spill over onto
+    // (for large text with vertically small pictures):
+    int overspillRows() const;
+    // Alignment of text object:
+    Qt::Alignment textAlignment() const;
 protected:
     QString m_active_filename;
     QString m_inactive_filename;
     QString m_text;
     QVariant m_value;
+    int m_overspill_rows;
+    Qt::Alignment m_text_alignment;
 };
