@@ -624,7 +624,7 @@ void MenuWindow::debugLayout()
 
 void MenuWindow::searchTextChanged(const QString& text)
 {
-    qDebug() << "Search text:" << text;
+    // qDebug() << "Search text:" << text;
     const bool search_empty = text.isEmpty();
     const QString search_text_lower = text.toLower();
     const int n_items = m_items.size();

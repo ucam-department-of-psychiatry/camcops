@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define OFFER_LAYOUT_DEBUG_BUTTON
+#define OFFER_LAYOUT_DEBUG_BUTTON
 // #define DEBUG_PAGE_LAYOUT_ON_OPEN
 // #define DEBUG_REPORT_OPEN_SUBWIDGET
 
