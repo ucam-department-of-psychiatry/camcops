@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define DEBUG_IMAGE_SIZES
+
 #include "quthermometer.h"
 #include <QLabel>
 #include "layouts/layouts.h"
@@ -108,6 +110,12 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
             connect(inactive.data(), &ImageButton::clicked,
                     std::bind(&QuThermometer::clicked, this, i));
         }
+#ifdef DEBUG_IMAGE_SIZES
+        qDebug().nospace()
+            << "Thermometer item " << i
+            << ": active size hint " << active->sizeHint()
+            << ", inactive size hint " << inactive->sizeHint();
+#endif
         m_active_widgets.append(active);
         m_inactive_widgets.append(inactive);
     }

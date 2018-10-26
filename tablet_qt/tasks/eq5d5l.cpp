@@ -156,13 +156,21 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     QString prefix("eq5d5lslider");
     QString n, resource;
 
-    for (int i = 0; i <= 100; i += 5) {
+    items.append(QuThermometerItem(
+        uifunc::resourceFilename("eq5d5lslider/base.png"),
+        uifunc::resourceFilename("eq5d5lslider/base.png"),
+        "", 0
+    ));
+
+    for (int i = 1; i < 100; ++i) {
 
         n = QString::number(i);
 
-//        resource = "eq5d5lslider/tick.png";
+        resource = "eq5d5lslider/tick.png";
 
-        resource = "eq5d5lslider/" + n + ".png";
+        if (i % 5 == 0) {
+            resource = "eq5d5lslider/mid.png";
+        }
 
         QuThermometerItem item(
             uifunc::resourceFilename(resource),
@@ -172,6 +180,12 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
 
         items.append(item);
     }
+
+    items.append(QuThermometerItem(
+        uifunc::resourceFilename("eq5d5lslider/top.png"),
+        uifunc::resourceFilename("eq5d5lslider/top.png"),
+        "", 100
+    ));
 
     QVector<QuElementPtr> instructions;
     for (int i = 1; i <= 5; ++i) {
@@ -192,14 +206,16 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
         }
     ));
 
+    QuThermometer* therm = new QuThermometer(fieldRef("thermometer"), items);
+    // ... will be owned by the grid when inserted;
+    therm->setRescale(false);
+
     pages.append(
        QuPagePtr((new QuPage{
         new QuGridContainer{
             QuGridCell(
                 new QuVerticalContainer{instructions}, 0, 0, 4),
-            QuGridCell(
-                (new QuThermometer(fieldRef("thermometer"), items))
-                    ->setRescale(true, 0.75), 0, 1, 4)
+            QuGridCell(therm, 0, 1, 4)
        }})->setTitle(shortname())
           ->setIndexTitle(xstring("t2_h")))
     );
