@@ -185,5 +185,9 @@
         <file>resources/eq5d5lslider/base.png</file>
         <file>resources/eq5d5lslider/mid.png</file>
         <file>resources/eq5d5lslider/top.png</file>
+        <file>resources/eq5d5lslider/base_unsel.png</file>
+        <file>resources/eq5d5lslider/mid_unsel.png</file>
+        <file>resources/eq5d5lslider/tick_unsel.png</file>
+        <file>resources/eq5d5lslider/top_unsel.png</file>
     </qresource>
 </RCC>
