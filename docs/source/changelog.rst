@@ -1391,6 +1391,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - New variant on ``QuBoolean``/``BooleanWidget`` to display "false as blank".
   Used in FACT-G task.
 
+- ``QuPage::indexTitle()`` for different titles (if desired) on the page jump
+  index to the heading at the top of the page.
+
+- Markedly improved error messages when you aim the client at a web server but
+  not the CamCOPS client API.
+
 - New task: :ref:`CORE-10 <core10>`.
 
 - New task: :ref:`CESD <cesd>`.
@@ -1399,11 +1405,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - New task: :ref:`PTSD Checklist for DSM-5 (PCL-5) <pcl5>`.
 
+- New task: :ref:`FACT-G <factg>`.
+
 **Server v2.2.8, in progress (from 2018-09-14)**
 
 - ``GROUP_NAME_MAX_LEN``, ``DEVICE_NAME_MAX_LEN`` and ``USER_NAME_MAX_LEN`` 
-  changed from 255 to 191 because MySQL<=5.6 only supports indexing of 191 characters
-  in ``utf8mb4`` mode on ``InnoDB`` tables;
+  changed from 255 to 191 because MySQL<=5.6 only supports indexing of 191
+  characters in ``utf8mb4`` mode on ``InnoDB`` tables;
   see https://dev.mysql.com/doc/refman/5.7/en/charset-unicode-conversion.html
 
 - Shebang changed for ``build_qt.py``
