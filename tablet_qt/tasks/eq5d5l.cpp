@@ -197,10 +197,10 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     QVector<QuElementPtr> instructions;
     for (int i = 1; i <= 5; ++i) {
         instructions.append(
-           QuElementPtr(new QuFlowContainer{
+           QuElementPtr(
             (new QuText(xstring(strnum("t2_i", i))))
                 ->setBig()
-           })
+           )
         );
         instructions.append(QuElementPtr(new QuSpacer));
     }
@@ -221,7 +221,8 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
        QuPagePtr((new QuPage{
         new QuGridContainer{
             QuGridCell(
-                new QuVerticalContainer{instructions}, 0, 0, 4),
+                new QuVerticalContainer{instructions},
+                0, 0, 4, 1, Qt::AlignLeft | Qt::AlignTop),
             QuGridCell(therm, 0, 1, 4)
        }})->setTitle(shortname())
           ->setIndexTitle(xstring("t2_h")))
