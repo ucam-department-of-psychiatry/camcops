@@ -26,6 +26,7 @@
 #include "tasks/cesdr.h"
 #include "tasks/cgii.h"
 #include "tasks/copebrief.h"
+#include "tasks/eq5d5l.h"
 #include "tasks/factg.h"
 #include "tasks/gad7.h"
 #include "tasks/hads.h"
@@ -48,6 +49,7 @@ SetMenuCpftPsychooncology1::SetMenuCpftPsychooncology1(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Cesdr::CESDR_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Factg::FACTG_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Hads::HADS_TABLENAME, app),

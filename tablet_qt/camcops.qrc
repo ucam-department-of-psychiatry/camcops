@@ -181,5 +181,27 @@
         <file>resources/camcops/camera_qml/images/toolbutton.png</file>
         <file>resources/camcops/camera_qml/images/toolbutton.sci</file>
         <file>resources/camcops/html/test.html</file>
+        <file>resources/eq5d5lslider/0.png</file>
+        <file>resources/eq5d5lslider/5.png</file>
+        <file>resources/eq5d5lslider/10.png</file>
+        <file>resources/eq5d5lslider/15.png</file>
+        <file>resources/eq5d5lslider/20.png</file>
+        <file>resources/eq5d5lslider/25.png</file>
+        <file>resources/eq5d5lslider/30.png</file>
+        <file>resources/eq5d5lslider/35.png</file>
+        <file>resources/eq5d5lslider/40.png</file>
+        <file>resources/eq5d5lslider/45.png</file>
+        <file>resources/eq5d5lslider/50.png</file>
+        <file>resources/eq5d5lslider/55.png</file>
+        <file>resources/eq5d5lslider/60.png</file>
+        <file>resources/eq5d5lslider/65.png</file>
+        <file>resources/eq5d5lslider/70.png</file>
+        <file>resources/eq5d5lslider/75.png</file>
+        <file>resources/eq5d5lslider/80.png</file>
+        <file>resources/eq5d5lslider/85.png</file>
+        <file>resources/eq5d5lslider/90.png</file>
+        <file>resources/eq5d5lslider/95.png</file>
+        <file>resources/eq5d5lslider/100.png</file>
+        <file>resources/eq5d5lslider/tick.png</file>
     </qresource>
 </RCC>

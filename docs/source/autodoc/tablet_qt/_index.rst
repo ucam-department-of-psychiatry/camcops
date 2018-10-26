@@ -28,7 +28,6 @@ tablet_qt
     :maxdepth: 1
 
     android/AndroidManifest.xml.rst
-    android/res/values/libs.xml.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
@@ -593,6 +592,10 @@ tablet_qt
     tasks/diagnosisicd9cm.h.rst
     tasks/distressthermometer.cpp.rst
     tasks/distressthermometer.h.rst
+    tasks/eq5d5l.cpp.rst
+    tasks/eq5d5l.h.rst
+    tasks/factg.cpp.rst
+    tasks/factg.h.rst
     tasks/fast.cpp.rst
     tasks/fast.h.rst
     tasks/fft.cpp.rst

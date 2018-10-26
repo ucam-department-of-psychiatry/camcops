@@ -37,6 +37,8 @@ server/camcops_server
     alembic/versions/0007_add_pcl5.py.rst
     alembic/versions/0008_add_cesd_task.py.rst
     alembic/versions/0009_add_cesd_r_task.py.rst
+    alembic/versions/0010_add_factg.py.rst
+    alembic/versions/0011_add_eq5d5l_task.py.rst
     camcops.py.rst
     camcops_meta.py.rst
     cc_modules/cc_alembic.py.rst
@@ -102,6 +104,8 @@ server/camcops_server
     extra_string_templates/BLANK_TEMPLATE.xml.rst
     extra_string_templates/badls_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
+    extra_string_templates/eq5d5l_TEMPLATE.xml.rst
+    extra_string_templates/factg_TEMPLATE.xml.rst
     extra_string_templates/hads_TEMPLATE.xml.rst
     extra_string_templates/iesr_TEMPLATE.xml.rst
     extra_string_templates/ifs_TEMPLATE.xml.rst
@@ -206,6 +210,8 @@ server/camcops_server
     tasks/demqol.py.rst
     tasks/diagnosis.py.rst
     tasks/distressthermometer.py.rst
+    tasks/eq5d5l.py.rst
+    tasks/factg.py.rst
     tasks/fast.py.rst
     tasks/fft.py.rst
     tasks/frs.py.rst

@@ -1431,3 +1431,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   error; just carry on.
 
 - Better server docstrings.
+
+- New task :ref: `EQ-5D-5L <eq5d5l>`.
