@@ -158,7 +158,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
 
     items.append(QuThermometerItem(
         uifunc::resourceFilename("eq5d5lslider/base.png"),
-        uifunc::resourceFilename("eq5d5lslider/base.png"),  // ***
+        uifunc::resourceFilename("eq5d5lslider/base_unsel.png"),
         "0", 0
     ));
 
@@ -170,16 +170,16 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
 
         if (i % 5 == 0) {
             // larger ticks with numbers every 5
-            resource = "eq5d5lslider/mid.png";
+            resource = "eq5d5lslider/mid%1.png";
             itemtext = n;
         } else {
-            resource = "eq5d5lslider/tick.png";
+            resource = "eq5d5lslider/tick%1.png";
             itemtext = "";
         }
 
         QuThermometerItem item(
-            uifunc::resourceFilename(resource),  // active
-            uifunc::resourceFilename(resource),  // inactive ***
+            uifunc::resourceFilename(resource.arg("")),  // active
+            uifunc::resourceFilename(resource.arg("_unsel")),  // inactive
             itemtext,  // text
             i,  // value
             overspill_rows
@@ -190,7 +190,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
 
     items.append(QuThermometerItem(
         uifunc::resourceFilename("eq5d5lslider/top.png"),
-        uifunc::resourceFilename("eq5d5lslider/top.png"),  // ***
+        uifunc::resourceFilename("eq5d5lslider/top_unsel.png"),
         "100", 100
     ));
 
@@ -215,7 +215,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
 
     QuThermometer* therm = new QuThermometer(fieldRef("thermometer"), items);
     // ... will be owned by the grid when inserted;
-    therm->setRescale(false);
+    therm->setRescale(true, 0.75, true);
 
     pages.append(
        QuPagePtr((new QuPage{
