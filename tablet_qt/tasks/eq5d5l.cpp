@@ -3,8 +3,11 @@
 #include "lib/uifunc.h"
 #include "lib/stringfunc.h"
 #include "lib/version.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quboolean.h"
+#include "questionnairelib/quflowcontainer.h"
+#include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quhorizontalcontainer.h"
@@ -20,15 +23,12 @@ const QString Eq5d5l::EQ5D5L_TABLENAME("eq5d5l");
 
 const QString QPREFIX("q");
 const QString OPT_PREFIX("o");
-const QString TASK1_INSTRUCTION("t1_instruction");
 
 
 const int FIRST_Q = 1;
 const int LAST_Q = 5;
 
-const int FIRST_OPT = 1;
-const int LAST_OPT = 5;
-
+using mathfunc::noneNull;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
@@ -84,18 +84,40 @@ Version Eq5d5l::minimumServerVersion() const
 QStringList Eq5d5l::summary() const
 {
     return QStringList{};
+//    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
 }
-
 
 QStringList Eq5d5l::detail() const
 {
-    return QStringList{};
+    QStringList lines = completenessInfo();
+    lines.append(xstring("hstate_raw"));
+
+    for (auto s : getScoreStrings()) {
+        lines.append(s);
+    }
+
+    return lines;
 }
 
+QVector<QString> Eq5d5l::getScoreStrings() const {
+    QString descriptive = "";
+    QVariant v;
+    for (auto field : strseq(QPREFIX, FIRST_Q, LAST_Q)) {
+        v = value(field);
+        descriptive += (v.isNull() ? "9" : QString::number(v.toInt() + 1));
+    }
+
+    QString visual = "";
+    v = value("thermometer");
+    visual += (v.isNull() ? "999" : QString::number(v.toInt()));
+
+    return QVector<QString>{descriptive, visual};
+}
 
 bool Eq5d5l::isComplete() const
 {
-    return true;
+    return noneNull(values(strseq(QPREFIX, FIRST_Q, LAST_Q))) &&
+            !value("thermometer").isNull();
 }
 
 
@@ -104,133 +126,85 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     QVector<QuPagePtr> pages;
     QVector<QuElement*> elements;
 
-
     for (auto field : strseq(QPREFIX, FIRST_Q, LAST_Q)) {
+        const QString heading = QString("%1_h").arg(field);
+        const QString qnumstr = QString("%1_%2").arg(field, OPT_PREFIX);
 
-        const QString opt_stem = QString("%1_%2").arg(field, OPT_PREFIX);
+        NameValueOptions options{
+            {xstring(qnumstr + "1"), 0},
+            {xstring(qnumstr + "2"), 1},
+            {xstring(qnumstr + "3"), 2},
+            {xstring(qnumstr + "4"), 3},
+            {xstring(qnumstr + "5"), 4},
+        };
 
-        NameValueOptions options;
-        int opt_val = 0;
-        for (auto option : strseq(opt_stem, FIRST_OPT, LAST_OPT)) {
-            options.append(NameValuePair(option, opt_val));
-            opt_val++;
-        }
         elements.append({
-            new QuText(xstring("instruction")),
-            new QuMcq(fieldRef(field), options),
+            (new QuText(xstring("t1_instruction")))->setBold(),
+            new QuMcq(fieldRef(field), options)
         });
 
-        pages.append(QuPagePtr(new QuPage(elements)));
+        pages.append(QuPagePtr(
+            (new QuPage(elements))
+                ->setTitle(shortname())
+                ->setIndexTitle(xstring(heading))
+        ));
 
         elements.clear();
     }
     QVector<QuThermometerItem> items;
 
-    for (int i = 0; i <= 100; ++i) {
-//        QString text = QString::number(i);
-//        QuThermometerItem item;
+    QString prefix("eq5d5lslider");
+    QString n, resource;
 
-//        item.text(text);
+    for (int i = 0; i <= 100; i += 5) {
 
-/*
-            uifunc::resourceFilename(
-                        QString("distressthermometer/dt_sel_%1.png").arg(i)),
-            uifunc::resourceFilename(
-                        QString("distressthermometer/dt_unsel_%1.png").arg(i)),
-            text,
-            i
+        n = QString::number(i);
+
+//        resource = "eq5d5lslider/tick.png";
+
+        resource = "eq5d5lslider/" + n + ".png";
+
+        QuThermometerItem item(
+            uifunc::resourceFilename(resource),
+            uifunc::resourceFilename(resource),
+            "", i
         );
-*/
+
         items.append(item);
     }
 
-    pages.prepend(
-       QuPagePtr(new QuPage{
-         (new QuGridContainer{
-            QuGridCell(new QuVerticalContainer{
-                new QuText(xstring("t2_i1")),
-                new QuText(xstring("t2_i2")),
-                new QuText(xstring("t2_i3")),
-                new QuText(xstring("t2_i4")),
-                new QuText(xstring("t2_i5")),
-                new QuSpacer(),
-                new QuHorizontalContainer{
-                  new QuText("YOUR HEALTH TODAY = "),
-                 new QuLineEditInteger(fieldRef("thermometer"), 0, 100)
-                },
-            }, 0, 0, 3, 1),
-           QuGridCell(
-            (new QuThermometer(fieldRef("thermometer"), items))
-                     ->setRescale(true, 0.5),
-            0, 1, 2, 1, Qt::AlignRight | Qt::AlignRight)
-         })
-       })
-    );
+    QVector<QuElementPtr> instructions;
+    for (int i = 1; i <= 5; ++i) {
+        instructions.append(
+           QuElementPtr(new QuFlowContainer{
+            (new QuText(xstring(strnum("t2_i", i))))
+                ->setBig()
+           })
+        );
+        instructions.append(QuElementPtr(new QuSpacer));
+    }
 
-    /*
-QuThermometerItem item(
-        uifunc::resourceFilename(
-                    QString("distressthermometer/eq5d5l%1.png").arg(i)),
-        uifunc::resourceFilename(
-                    QString("distressthermometer/dt_unsel_%1.png").arg(i)),
-        text,
-        i
-    );
-    thermometer_items.append(item);
+    instructions.append(QuElementPtr(new QuSpacer));
+    instructions.append(QuElementPtr(
+        new QuHorizontalContainer{
+            (new QuText("YOUR HEALTH TODAY ="))->setBig(),
+            new QuLineEditInteger(fieldRef("thermometer"), 0, 100)
+        }
+    ));
 
-    pages.append(new QuPage{
-        (new QuThermometer(fieldRef("thermometer"), thermometer_items))
-    });
-*/
+    pages.append(
+       QuPagePtr((new QuPage{
+        new QuGridContainer{
+            QuGridCell(
+                new QuVerticalContainer{instructions}, 0, 0, 4),
+            QuGridCell(
+                (new QuThermometer(fieldRef("thermometer"), items))
+                    ->setRescale(true, 0.75), 0, 1, 4)
+       }})->setTitle(shortname())
+          ->setIndexTitle(xstring("t2_h")))
+    );
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-/*
-
-    for (int n = 1; n <= N_SECTIONS; ++n) {
-        addpage(n);
-    }
-
-    QuSlider *slider = (new QuSlider(fieldRef("slider"), 0, 100, 1))
-                        ->setShowValue(true)
-                        ->setTickInterval(5)
-                        ->setTickPosition(QSlider::TicksRight)
-                        ->setUseDefaultTickLabels(true)
-                        ->setTickLabelPosition(QSlider::TicksRight)
-                        ->setHorizontal(false);
-
-    QuPagePtr page(new QuPage{
-                       (new QuGridContainer{
-                           QuGridCell(slider, 0, 1),
-                       })
-            });
-
-
-    pages.append(page);
-
-//                            ->setTickInterval(1)
-//                            ->setTickPosition(QSlider::TicksBothSides)
-//                            ->setShowValue(true)
-//    page.append(page);
-
-    auto q = new Questionnaire(m_app, pages);
-    q->setReadOnly(read_only);
-    return q;*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -62,6 +62,7 @@ from .demoquestionnaire import DemoQuestionnaire
 from .demqol import Demqol
 from .diagnosis import DiagnosisIcd9CM, DiagnosisIcd10
 from .distressthermometer import DistressThermometer
+from .eq5d5l import Eq5d5l
 from .factg import Factg
 from .fast import Fast
 from .fft import Fft

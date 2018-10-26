@@ -33,6 +33,8 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+    int getScore(QString field) const;
+    QVector<QString> getScoreStrings() const;
 protected slots:
 
 public:
