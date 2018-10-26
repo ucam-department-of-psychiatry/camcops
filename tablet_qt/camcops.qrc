@@ -181,13 +181,13 @@
         <file>resources/camcops/camera_qml/images/toolbutton.png</file>
         <file>resources/camcops/camera_qml/images/toolbutton.sci</file>
         <file>resources/camcops/html/test.html</file>
-        <file>resources/eq5d5lslider/tick.png</file>
-        <file>resources/eq5d5lslider/base.png</file>
-        <file>resources/eq5d5lslider/mid.png</file>
-        <file>resources/eq5d5lslider/top.png</file>
         <file>resources/eq5d5lslider/base_unsel.png</file>
         <file>resources/eq5d5lslider/mid_unsel.png</file>
         <file>resources/eq5d5lslider/tick_unsel.png</file>
         <file>resources/eq5d5lslider/top_unsel.png</file>
+        <file>resources/eq5d5lslider/base_sel.png</file>
+        <file>resources/eq5d5lslider/mid_sel.png</file>
+        <file>resources/eq5d5lslider/tick_sel.png</file>
+        <file>resources/eq5d5lslider/top_sel.png</file>
     </qresource>
 </RCC>

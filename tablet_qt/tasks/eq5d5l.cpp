@@ -157,7 +157,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     QString n, resource;
 
     items.append(QuThermometerItem(
-        uifunc::resourceFilename("eq5d5lslider/base.png"),
+        uifunc::resourceFilename("eq5d5lslider/base_sel.png"),
         uifunc::resourceFilename("eq5d5lslider/base_unsel.png"),
         "0", 0
     ));
@@ -178,7 +178,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
         }
 
         QuThermometerItem item(
-            uifunc::resourceFilename(resource.arg("")),  // active
+            uifunc::resourceFilename(resource.arg("_sel")),  // active
             uifunc::resourceFilename(resource.arg("_unsel")),  // inactive
             itemtext,  // text
             i,  // value
@@ -189,7 +189,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     }
 
     items.append(QuThermometerItem(
-        uifunc::resourceFilename("eq5d5lslider/top.png"),
+        uifunc::resourceFilename("eq5d5lslider/top_sel.png"),
         uifunc::resourceFilename("eq5d5lslider/top_unsel.png"),
         "100", 100
     ));
