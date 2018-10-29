@@ -69,6 +69,7 @@ protected:
     // OpenableWidget: part of main app framework instead
     // Spacer: see QuSpacer instead
     void testSvgWidgetClickable();
+    void testThermometer();
     // TickSlider: see QuSlider instead
     void testVerticalLine();
     void testVerticalScrollAreaSimple();

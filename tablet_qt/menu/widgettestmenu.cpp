@@ -79,6 +79,7 @@
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/svgwidgetclickable.h"
+#include "widgets/thermometer.h"
 #include "widgets/verticalline.h"
 #include "widgets/verticalscrollarea.h"
 
@@ -223,6 +224,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app) :
                  std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, true, true)),
         MenuItem("SvgWidgetClickable",
                  std::bind(&WidgetTestMenu::testSvgWidgetClickable, this)),
+        MenuItem("Thermometer",
+                 std::bind(&WidgetTestMenu::testThermometer, this)),
         MenuItem("VerticalLine",
                  std::bind(&WidgetTestMenu::testVerticalLine, this)),
         MenuItem("VerticalScrollArea (QVBoxLayout, fixed-size icons)",
@@ -599,6 +602,42 @@ void WidgetTestMenu::testSvgWidgetClickable()
 {
     auto widget = new SvgWidgetClickable();
     widget->setSvgFromString(graphicsfunc::TEST_SVG);
+    debugfunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testThermometer()
+{
+    const QStringList left_strings{
+        "row zero", "row one", "row two", "row three", "row four", "row five",
+        "row six", "row seven", "row eight", "row nine", "row ten"
+    };
+    const QStringList right_strings{
+        "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "0"
+    };
+    QVector<QPixmap> active_images;
+    QVector<QPixmap> inactive_images;
+    for (int i = 10; i >= 0; --i) {
+        const QString active_filename = uifunc::resourceFilename(
+                    QString("distressthermometer/dt_sel_%1.png").arg(i));
+        const QString inactive_filename = uifunc::resourceFilename(
+                    QString("distressthermometer/dt_unsel_%1.png").arg(i));
+        active_images.append(uifunc::getPixmap(active_filename));
+        inactive_images.append(uifunc::getPixmap(inactive_filename));
+    }
+    auto widget = new Thermometer(
+        active_images, inactive_images,
+        &left_strings, &right_strings,
+        1,  // left_string_scale
+        2,  // image_scale
+        1,  // right_string_scale
+        true,  // allow_deselection
+        false,  // read_only
+        true,  // rescale
+        0.25,  // rescale_factor
+        4,  // text_gap_px
+        nullptr  // nullptr
+    );
     debugfunc::debugWidget(widget);
 }
 

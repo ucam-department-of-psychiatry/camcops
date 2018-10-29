@@ -18,10 +18,17 @@
 */
 
 #pragma once
+
+#define QUTHERMOMETER_USE_THERMOMETER_WIDGET
+
 #include <QList>
 #include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
 #include "questionnairelib/quthermometeritem.h"
+
+#ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
+#include "widgets/thermometer.h"
+#endif
 
 class ImageButton;
 
@@ -34,6 +41,8 @@ class QuThermometer : public QuElement
     //
     // The thermometer operates on name/value pairs; the thing that gets stored
     // in the field is the value() part of the QuThermometerItem.
+    //
+    // It's recommended to disable scrolling for pages using one of these.
 
     Q_OBJECT
 public:
@@ -51,14 +60,22 @@ protected:
     int indexFromValue(const QVariant& value) const;
     QVariant valueFromIndex(int index) const;
 protected slots:
-    void clicked(int index);
+#ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
+    void thermometerSelectionChanged(int thermometer_index);  // top-to-bottom index
+#else
+    void clicked(int index);  // our internal bottom-to-top index
+#endif
     void fieldValueChanged(const FieldRef* fieldref);
 protected:
     FieldRefPtr m_fieldref;
     QVector<QuThermometerItem> m_items;
     bool m_rescale;
     double m_rescale_factor;
+#ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
+    QPointer<Thermometer> m_thermometer;
+#else
     QPointer<QWidget> m_main_widget;
     QVector<QPointer<ImageButton>> m_active_widgets;
     QVector<QPointer<ImageButton>> m_inactive_widgets;
+#endif
 };

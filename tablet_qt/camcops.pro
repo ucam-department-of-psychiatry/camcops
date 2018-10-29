@@ -790,6 +790,7 @@ SOURCES += \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
     widgets/verticalscrollareaviewport.cpp \
+    widgets/thermometer.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1183,7 +1184,8 @@ HEADERS += \
     widgets/treeviewproxystyle.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
-    widgets/verticalscrollareaviewport.h
+    widgets/verticalscrollareaviewport.h \
+    widgets/thermometer.h
 
 DISTFILES += \
     LICENSE.txt \
