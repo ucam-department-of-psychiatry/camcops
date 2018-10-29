@@ -144,10 +144,13 @@ OpenableWidget* DistressThermometer::editor(const bool read_only)
     QVector<QuPagePtr> pages;
 
     pages.append(QuPagePtr((new QuPage{
-        new QuText(xstring("distress_question")),
-        (new QuThermometer(fieldRef(DISTRESS), thermometer_items))
-                                ->setRescale(true, 0.4),
-    })->setTitle(xstring("section1_title"))));
+            new QuText(xstring("distress_question")),
+            (new QuThermometer(fieldRef(DISTRESS), thermometer_items))
+                                    ->setRescale(true, 0.4),
+        })
+        ->setTitle(xstring("section1_title"))
+        ->allowScroll(false)  // 2018-10-29, for new thermometer widget
+    ));
 
     QVector<QuestionWithOneField> qfpairs;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
@@ -166,11 +169,13 @@ OpenableWidget* DistressThermometer::editor(const bool read_only)
         {35, ""},
     };
     pages.append(QuPagePtr((new QuPage{
-        new QuText(xstring("section2_stem")),
-        (new QuMcqGrid(qfpairs, CommonOptions::yesNoInteger()))
-                                ->setTitle(xstring("subtitle1"))
-                                ->setSubtitles(subtitles),
-    })->setTitle(xstring("section2_title"))));
+            new QuText(xstring("section2_stem")),
+            (new QuMcqGrid(qfpairs, CommonOptions::yesNoInteger()))
+                                    ->setTitle(xstring("subtitle1"))
+                                    ->setSubtitles(subtitles),
+        })
+        ->setTitle(xstring("section2_title"))
+    ));
 
     pages.append(QuPagePtr((new QuPage{
         new QuText(xstring("other_question")),

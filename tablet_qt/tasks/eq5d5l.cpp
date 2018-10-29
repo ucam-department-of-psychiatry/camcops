@@ -217,16 +217,18 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     // ... will be owned by the grid when inserted;
     therm->setRescale(true, 0.75, true);
 
-    pages.append(
-       QuPagePtr((new QuPage{
-        new QuGridContainer{
-            QuGridCell(
-                new QuVerticalContainer{instructions},
-                0, 0, 4, 1, Qt::AlignLeft | Qt::AlignTop),
-            QuGridCell(therm, 0, 1, 4)
-       }})->setTitle(shortname())
-          ->setIndexTitle(xstring("t2_h")))
-    );
+    pages.append(QuPagePtr(
+        (new QuPage{
+            new QuGridContainer{
+                QuGridCell(
+                    new QuVerticalContainer{instructions},
+                    0, 0, 4, 1, Qt::AlignLeft | Qt::AlignTop),
+                QuGridCell(therm, 0, 1, 4)
+            }
+        })->setTitle(shortname())
+          ->setIndexTitle(xstring("t2_h"))
+          ->allowScroll(false)
+    ));
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setReadOnly(read_only);

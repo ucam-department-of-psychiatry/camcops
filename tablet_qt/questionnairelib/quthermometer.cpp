@@ -26,6 +26,12 @@
 #include "questionnairelib/questionnaire.h"
 #include "widgets/imagebutton.h"
 
+#ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
+#include "widgets/thermometer.h"
+
+const int DEFAULT_TEXT_GAP_PX = 5;
+#endif
+
 
 QuThermometer::QuThermometer(FieldRefPtr fieldref,
                              const QVector<QuThermometerItem>& items) :
@@ -49,7 +55,11 @@ void QuThermometer::commonConstructor()
 {
     m_rescale = false;
     m_rescale_factor = 0;
+#ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
+    m_thermometer = nullptr;
+#else
     m_main_widget = nullptr;
+#endif
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuThermometer::fieldValueChanged);
@@ -73,9 +83,44 @@ QuThermometer* QuThermometer::setRescale(const bool rescale,
 
 QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
 {
+    const bool read_only = questionnaire->readOnly();
+    const int n = m_items.size();
+
+#ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
+    QVector<QPixmap> active_images;
+    QVector<QPixmap> inactive_images;
+    QStringList right_strings;
+    // In reverse order:
+    for (int i = n - 1; i >= 0; --i) {  // i (item index): 0 bottom, n - 1 top
+        // ... iterating top to bottom
+        const QuThermometerItem& item = m_items.at(i);
+        active_images.append(uifunc::getPixmap(item.activeFilename()));
+        inactive_images.append(uifunc::getPixmap(item.inactiveFilename()));
+        right_strings.append(item.text());
+    }
+    m_thermometer = new Thermometer(
+        active_images,
+        inactive_images,
+        nullptr,  // left_strings
+        &right_strings,
+        0,  // left_string_scale
+        1,  // image_scale
+        1,  // right_string_scale
+        false,  // allow_deselection
+        read_only,  // read_only
+        m_rescale,  // rescale
+        m_rescale_factor,  // rescale_factor
+        DEFAULT_TEXT_GAP_PX  // text_gap_px
+    );
+    connect(m_thermometer.data(), &Thermometer::selectionIndexChanged,
+            this, &QuThermometer::thermometerSelectionChanged);
+    setFromField();
+    return m_thermometer.data();
+
+#else
+
     m_active_widgets.clear();
     m_inactive_widgets.clear();
-    const bool read_only = questionnaire->readOnly();
     m_main_widget = new QWidget();
     m_main_widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     auto grid = new GridLayout();
@@ -83,9 +128,9 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
     grid->setSpacing(0);
     m_main_widget->setLayout(grid);
     // In reverse order:
-    const int n = m_items.size();
-    for (int i = n - 1; i >= 0; --i) {
-        const int row = (n - 1) - i;
+    for (int i = n - 1; i >= 0; --i) {  // i (item index): 0 bottom, n - 1 top
+        // ... iterating top to bottom
+        const int row = (n - 1) - i;  // row: 0 top, n - 1 bottom
         const QuThermometerItem& item = m_items.at(i);
         QPointer<ImageButton> active = new ImageButton();
         active->setImages(item.activeFilename(),
@@ -135,6 +180,8 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
     }
     setFromField();
     return m_main_widget;
+
+#endif
 }
 
 
@@ -144,7 +191,27 @@ void QuThermometer::setFromField()
 }
 
 
-void QuThermometer::clicked(const int index)
+#ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
+
+void QuThermometer::thermometerSelectionChanged(int thermometer_index)
+{
+    // thermometer_index: thermometer's top-to-bottom index
+    const int n = m_items.size();
+    const int index = (n - 1) - thermometer_index;  // QuThermometer internal index
+    if (index < 0 || index >= n) {
+        qWarning() << Q_FUNC_INFO << "- out of range";
+        return;
+    }
+    const QVariant newvalue = m_items.at(index).value();
+    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    if (changed) {
+        emit elementValueChanged();
+    }
+}
+
+#else
+
+void QuThermometer::clicked(const int index)  // our internal bottom-to-top index
 {
     if (index < 0 || index >= m_items.size()) {
         qWarning() << Q_FUNC_INFO << "- out of range";
@@ -156,6 +223,8 @@ void QuThermometer::clicked(const int index)
         emit elementValueChanged();
     }
 }
+
+#endif
 
 
 int QuThermometer::indexFromValue(const QVariant &value) const
@@ -183,14 +252,24 @@ QVariant QuThermometer::valueFromIndex(const int index) const
 
 void QuThermometer::fieldValueChanged(const FieldRef* fieldref)
 {
+    const int index = indexFromValue(fieldref->value());
+    const int n = m_items.size();
+    const int index_row = (n - 1) - index;  // operating in reverse
+
+#ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
+
+    if (!m_thermometer) {
+        return;
+    }
+    m_thermometer->setSelectedIndex(index_row);
+
+#else
+
     if (!m_main_widget) {
         return;
     }
     uifunc::setPropertyMissing(m_main_widget, fieldref->missingInput());
-    const int index = indexFromValue(fieldref->value());
-    const int n = m_active_widgets.size();
-    const int index_row = (n - 1) - index;  // operating in reverse
-    for (int i = 0; i < m_active_widgets.size(); ++ i) {
+    for (int i = 0; i < n; ++ i) {
         QPointer<ImageButton> active = m_active_widgets.at(i);
         QPointer<ImageButton> inactive = m_inactive_widgets.at(i);
         if (i == index_row) {
@@ -202,6 +281,8 @@ void QuThermometer::fieldValueChanged(const FieldRef* fieldref)
         }
     }
     m_main_widget->update();
+
+#endif
 }
 
 
