@@ -234,13 +234,18 @@ todo_include_todos = True
 
 
 # -----------------------------------------------------------------------------
-# RNC: add CSS
+# Setup function
 # -----------------------------------------------------------------------------
-# https://stackoverflow.com/questions/23462494/how-to-add-a-custom-css-file-to-sphinx
 
 def setup(app: Sphinx) -> None:
+    # Add CSS
+    # - https://stackoverflow.com/questions/23462494/how-to-add-a-custom-css-file-to-sphinx  # noqa
     app.add_stylesheet('css/camcops_docs.css')  # may also be an URL
 
+
+# -----------------------------------------------------------------------------
+# Add CSS
+# -----------------------------------------------------------------------------
 
 # html_context = {
 #     'css_files': ['_static/css/camcops_docs.css'],
@@ -334,3 +339,6 @@ def register_css_role_allowing_content_substitution(css_class: str) -> None:
 main_only_quicksetup_rootlogger(level=logging.INFO)
 
 register_css_role_allowing_content_substitution("tabletmenu")
+
+# https://stackoverflow.com/questions/5599254/how-to-use-sphinxs-autodoc-to-document-a-classs-init-self-method  # noqa
+autoclass_content = "both"

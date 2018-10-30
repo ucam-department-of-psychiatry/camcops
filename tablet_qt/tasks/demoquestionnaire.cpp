@@ -267,7 +267,10 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
             QuGridCell(new QuText("<b>row 0, col 0:</b> " + lipsum2), 0, 0),
             QuGridCell(new QuText("<b>row 0, col 1 [+1]:</b> " + lipsum2), 0, 1, 1, 2),
             QuGridCell(new QuText("<b>row 1, col 0 [+1]:</b> " + lipsum2), 1, 0, 1, 2),
-            QuGridCell(new QuText("<b>row 1 [+1], col 2:</b> " + lipsum2), 1, 2, 2, 1),
+            QuGridCell(new QuText(
+                "<b>row 1 [+1], col 2, with top-right alignment:</b> " + lipsum2),
+                1, 2, 2, 1,
+                Qt::AlignRight | Qt::AlignTop),
             QuGridCell(new QuText("<b>row 2, col 0:</b> " + lipsum2), 2, 0),
             QuGridCell(new QuText("<b>row 2, col 1:</b> " + lipsum2), 2, 1),
         },
@@ -280,6 +283,24 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         })
             ->setColumnStretch(0, 2)
             ->setColumnStretch(1, 1),
+        new QuHeading("Another grid (5 equal columns), with alignment settings:"),
+        (new QuGridContainer{
+            QuGridCell(new QuImage(uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
+                       0, 0, 1, 1, Qt::AlignLeft | Qt::AlignTop),
+            QuGridCell(new QuText(lipsum2 + lipsum2 + lipsum2 + lipsum2),
+                       0, 1, 1, 1),
+            QuGridCell(new QuImage(uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
+                       0, 2, 1, 1, Qt::AlignHCenter | Qt::AlignVCenter),
+            QuGridCell(new QuText(lipsum2 + lipsum2 + lipsum2 + lipsum2),
+                       0, 3, 1, 1),
+            QuGridCell(new QuImage(uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
+                       0, 4, 1, 1, Qt::AlignRight | Qt::AlignBottom),
+        })
+            ->setColumnStretch(0, 1)
+            ->setColumnStretch(1, 1)
+            ->setColumnStretch(2, 1)
+            ->setColumnStretch(3, 1)
+            ->setColumnStretch(4, 1),
         new QuHeading("Another grid (1:1 columns):"),
         (new QuGridContainer{
             QuGridCell(new QuText("<b>r0 c0</b> " + lipsum2), 0, 0),
