@@ -296,7 +296,6 @@ if getattr(our_args, EXTRAS_ARG):
     # Write requirements.txt
     # -------------------------------------------------------------------------
     with open(PIP_REQ_FILE, "w") as req_file:
-        # subprocess.run(["pip", "freeze"], stdout=req_file)
         for line in INSTALL_REQUIRES:
             req_file.write(line + "\n")
 

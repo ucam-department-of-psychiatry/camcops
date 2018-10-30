@@ -1,4 +1,4 @@
-..  docs/source/misc/local_info.rst
+..  docs/source/local/local_info.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -24,3 +24,4 @@ These links may be restricted:
 
 - `Cambridgeshire & Peterborough NHS Foundation Trust (CPFT)
   <http://egret.psychol.cam.ac.uk/camcops_local/cpft.html>`_
+

@@ -23,10 +23,13 @@ Things to do
 Tasks
 -----
 
-**Priority**
+**Done, in testing**
 
 - Psycho-oncology: FACT-G
 - Psycho-oncology (and FROM-LP): EQ-5D-5L
+
+**Priority**
+
 - Perinatal: POEM
 - Perinatal: Goal Based Outcomes (GBO); see
   https://www.corc.uk.net/outcome-experience-measures/ and
@@ -39,15 +42,21 @@ Tasks
   https://digital.nhs.uk/National-Clinical-Content-Repository
 - Perinatal: an infant/mother relationship indicator (Zeyn, TBC)
 
+**To be prioritized**
+
+- Test Your Memory (TYM) task (Jerry M. Brown).
+- Continuous performance task, as per RNC's similar previous task (Linda P
+  and team.)
+
 **Not a priority**
 
 - Cardinal_ExpDet* tasks: generate noise on the fly?
 
 - PDSQ screener (see Clark talk 2018-09-20, MQ Data Science)
 
-Consider:
+**Consider**
 
-- new task: mini-ACE
+- new task: mini-ACE (subset of the ACE-III)
 - new task: Andy Foster / eating disorders; e-mail of 24/5/16
 - new task: AQ10 autistic spectrum screening
 - discarded tasks - revitalize: ASRM
@@ -68,14 +77,6 @@ Client core
 -----------
 
 **Priority**
-
-- iOS build.
-
-- Apple App Store.
-
-- Consider a “chain of tasks” concept again (see e.g. ResearchMenu.js;
-  MenuTableRow.js; QuestionnaireHeader.js...)... or is that pointless relative
-  to a “set of tasks” concept?
 
 - Validator options, e.g. the server says "ID type 72 uses the 'NHS number'
   validator", so checksums are checked. An NHS number validator is built.
@@ -98,14 +99,33 @@ Client core
   GP, other. This would make it easier to enforce a "no PID" rule for
   research studies. This would be a per-group setting.
 
-- Potentially (a/w CPFT discussion 22/10/18): have facility to upload and/or
-  automatically feed patient details into the server, then have clients
-  restrict to these predefined patients. Since we are aiming to minimize
-  PID on the client, this could be implemented by having the client validate
-  its patients with the server, and refusing to upload if they don't match.
-  This would be a per-group setting.
+- Facility to dump entire groups e.g. daily to a database.
+
+- Facility to auto-email individual PDFS to defined group recipients (e.g.
+  admin teams).
+
+- Ensure autoscheduling facility is working properly.
+
+- Have facility to upload and/or automatically feed patient details into the
+  server, then have clients restrict to these predefined patients. Since we are
+  aiming to minimize PID on the client, this could be implemented by having the
+  client validate its patients with the server, and refusing to upload if they
+  don't match. This would be a per-group setting.
+
+- Consider a “chain of tasks” concept again (see e.g. ResearchMenu.js;
+  MenuTableRow.js; QuestionnaireHeader.js...)... or is that pointless relative
+  to a “set of tasks” concept?
+
+**Medium priority**
+
+- iOS build.
+
+- Apple App Store.
 
 **Not a priority**
+
+- Make tasks support SNOMED coding. Should each task return multiple SNOMED
+  rows e.g. code, value (+/- originator type e.g. clinician/patient)?
 
 - OS/X build.
 

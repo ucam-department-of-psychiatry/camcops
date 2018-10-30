@@ -72,7 +72,7 @@ securely to your server.
     faq_known_problems.rst
     to_do.rst
     wishlist.rst
-    misc/local_info.rst
+    local/local_info.rst
 
 
 Indices and tables
