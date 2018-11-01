@@ -1072,6 +1072,7 @@ ZERO_TO_TWO_CHECKER = PermittedValueChecker(minimum=0, maximum=2)
 ZERO_TO_THREE_CHECKER = PermittedValueChecker(minimum=0, maximum=3)
 ZERO_TO_FOUR_CHECKER = PermittedValueChecker(minimum=0, maximum=4)
 ZERO_TO_FIVE_CHECKER = PermittedValueChecker(minimum=0, maximum=5)
+ZERO_TO_100_CHECKER = PermittedValueChecker(minimum=0, maximum=100)
 
 ONE_TO_TWO_CHECKER = PermittedValueChecker(minimum=1, maximum=2)
 ONE_TO_THREE_CHECKER = PermittedValueChecker(minimum=1, maximum=3)

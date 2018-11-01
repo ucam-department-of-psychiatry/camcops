@@ -4,7 +4,9 @@
     <!-- EQ-5D-5L -->
 
       <string name="title">XXX</string>
+
       <string name="t1_instruction">XXX</string>
+
       <string name="q1_h">XXX</string>
       <string name="q1_o1">XXX</string>
       <string name="q1_o2">XXX</string>
@@ -48,8 +50,6 @@
       <string name="t2_i3">XXX</string>
       <string name="t2_i4">XXX</string>
       <string name="t2_i5">XXX</string>
-
-      <string name="thanks">XXX</string>
 
   </task>
 </resources>

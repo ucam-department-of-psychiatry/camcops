@@ -237,7 +237,7 @@ QStringList Factg::detail() const
 {
     FactgScore s = getScores();
 
-    QStringList strings{
+    QStringList lines{
         totalScorePhrase(s.total(), MAX_SCORE),
         scorePhrase(SUBTITLE_PHYSICAL, s.score_phys,
                     MAX_SCORE_PHYSICAL),
@@ -248,40 +248,40 @@ QStringList Factg::detail() const
         scorePhrase(SUBTITLE_FUNCTIONAL, s.score_func,
                     MAX_SCORE_FUNCTIONAL)
     };
-    strings.append("");
-    strings.append("Answers (not scores):");
+    lines.append("");
+    lines.append("Answers (not scores):");
 
     // Physical
-    strings.append("");
-    strings.append(xstring("h1"));
+    lines.append("");
+    lines.append(xstring("h1"));
     for (auto fieldname : strseq(PREFIX_PHYSICAL, FIRST_Q, LAST_Q_PHYSICAL)) {
-        strings.append(fieldSummary(fieldname, xstring(fieldname)));
+        lines.append(fieldSummary(fieldname, xstring(fieldname)));
     }
     // Social
-    strings.append("");
-    strings.append(xstring("h2"));
+    lines.append("");
+    lines.append(xstring("h2"));
     for (auto fieldname : strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_SOCIAL - 1)) {
-        strings.append(fieldSummary(fieldname, xstring(fieldname)));
+        lines.append(fieldSummary(fieldname, xstring(fieldname)));
     }
-    strings.append(fieldSummary(IGNORE_SOCIAL_Q7, xstring(XSTRING_PREFER_NO_ANSWER)));
+    lines.append(fieldSummary(IGNORE_SOCIAL_Q7, xstring(XSTRING_PREFER_NO_ANSWER)));
     const QString last_social_q = strnum(PREFIX_SOCIAL, LAST_Q_SOCIAL);
-    strings.append(fieldSummary(last_social_q, xstring(last_social_q)));
+    lines.append(fieldSummary(last_social_q, xstring(last_social_q)));
 
     // Emotional
-    strings.append("");
-    strings.append(xstring("h3"));
+    lines.append("");
+    lines.append(xstring("h3"));
     for (auto fieldname : strseq(PREFIX_EMOTIONAL, FIRST_Q, LAST_Q_EMOTIONAL)) {
-        strings.append(fieldSummary(fieldname, xstring(fieldname)));
+        lines.append(fieldSummary(fieldname, xstring(fieldname)));
     }
 
     // Functional
-    strings.append("");
-    strings.append(xstring("h4"));
+    lines.append("");
+    lines.append(xstring("h4"));
     for (auto fieldname : strseq(PREFIX_FUNCTIONAL, FIRST_Q, LAST_Q_FUNCTIONAL)) {
-        strings.append(fieldSummary(fieldname, xstring(fieldname)));
+        lines.append(fieldSummary(fieldname, xstring(fieldname)));
     }
 
-    return strings;
+    return completenessInfo() + lines;
 }
 
 

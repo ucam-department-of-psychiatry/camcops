@@ -19,34 +19,46 @@
 
 .. _eq5d5l:
 
-EQ 5-Dimension, 5-Level Health Scale (EQ-5D-5L)
---------------------------------------------------------
+EuroQol 5-Dimension, 5-Level Health Scale (EQ-5D-5L)
+----------------------------------------------------
 
-A descriptive system comprising five dimensions: mobility, self-care, usual activities, pain/discomfort and
-anxiety/depression. Each dimension has 5 levels: no problems, slight problems, moderate problems, severe problems and
-extreme problems. The second task component is a visual scale wherein the patient is asked to rate their health on
-a scale of 0 to 100.
+A descriptive system comprising five dimensions: mobility, self-care, usual
+activities, pain/discomfort and anxiety/depression. Each dimension has 5
+levels: no problems, slight problems, moderate problems, severe problems and
+extreme problems. The second task component is a visual scale wherein the
+patient is asked to rate their health on a scale of 0 to 100.
 
-EQ-5D-5L evolved from EQ-5D-3L, as the five level classifer provided greater discriminative ability and more power to
-detect differences between groups compared.
+EQ-5D-5L evolved from EQ-5D-3L, as the five level classifier provided greater
+discriminative ability and more power to detect differences between groups
+compared.
 
 History and guide
 ~~~~~~~~~~~~~~~~~
 
-- Pickard AS et al. (2007). Psychometric comparison of the standard EQ-5D to a 5 level version in cancer patients.
-  Med Care 45: 259-263
-  PMID `https://www.ncbi.nlm.nih.gov/pubmed/17304084`
+- Brooks R (1996). EuroQol: The current state of play.
+  Health Policy. 37: 53–72.
+  doi: 10.1016/0168-8510(96)00822-6.
+  PMID `10158943 <https://www.ncbi.nlm.nih.gov/pubmed/10158943>`_.
 
-- Herdman M et al. (2011). Development and preliminary testing of the new five-level version of EQ-5D (EQ-5D-5L).
-  Qual Life Research: 1727-1736
-  PMID `https://www.ncbi.nlm.nih.gov/pubmed/21479777`
+- Pickard AS et al. (2007). Psychometric comparison of the standard EQ-5D to a
+  5 level version in cancer patients.
+  Med Care 45: 259–263
+  PMID `17304084 <https://www.ncbi.nlm.nih.gov/pubmed/17304084>`_.
 
-Scoring the EQ-5D-5L from EQ-5D-3L
-- Ben van Hout et al. (2012) Interim Scoring for the EQ-5D-5L: Mapping the EQ-5D-5L to EQ-5D-3L Value Sets
+- Herdman M et al. (2011). Development and preliminary testing of the new
+  five-level version of EQ-5D (EQ-5D-5L).
+  Qual Life Research: 1727–1736.
+  PMID `21479777 <https://www.ncbi.nlm.nih.gov/pubmed/21479777>`_.
+
+Scoring the EQ-5D-5L from EQ-5D-3L:
+
+- Ben van Hout et al. (2012) Interim Scoring for the EQ-5D-5L: Mapping the
+  EQ-5D-5L to EQ-5D-3L Value Sets
   Value in Health, Volume 15, Issue 5: 708-715
-  PMID `https://www.ncbi.nlm.nih.gov/pubmed/22867780`
+  PMID `22867780 <https://www.ncbi.nlm.nih.gov/pubmed/22867780>`_.
 
-More on scoring
+More on scoring:
+
 - https://en.wikipedia.org/wiki/EQ-5D#Valuation_process
 
 Source

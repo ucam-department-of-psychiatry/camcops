@@ -34,7 +34,7 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int getScore(QString field) const;
-    QStringList getScoreStrings() const;
+    QString getHealthStateCode() const;
 protected slots:
 
 public:

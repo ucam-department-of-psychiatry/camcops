@@ -24,6 +24,7 @@ const QString Eq5d5l::EQ5D5L_TABLENAME("eq5d5l");
 const QString QPREFIX("q");
 const QString OPT_PREFIX("o");
 
+const QString VAS_QUESTION("health_vas");
 
 const int FIRST_Q = 1;
 const int LAST_Q = 5;
@@ -43,7 +44,7 @@ Eq5d5l::Eq5d5l(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 {
     addFields(strseq(QPREFIX, FIRST_Q, LAST_Q), QVariant::Int);
 
-    addField("thermometer", QVariant::Int);
+    addField(VAS_QUESTION, QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -61,13 +62,13 @@ QString Eq5d5l::shortname() const
 
 QString Eq5d5l::longname() const
 {
-    return tr("EQ 5-Dimension, 5-Level Health Scale");
+    return tr("EuroQol 5-Dimension, 5-Level Health Scale");
 }
 
 
 QString Eq5d5l::menusubtitle() const
 {
-    return tr("Self-rated health scale.");
+    return tr("Self-rated health scale; 5 questions plus a visual analogue scale.");
 }
 
 
@@ -83,63 +84,50 @@ Version Eq5d5l::minimumServerVersion() const
 
 QStringList Eq5d5l::summary() const
 {
-    QStringList scores = getScoreStrings();
     return QStringList{
-        QString("Descriptive System: %1").arg(scores.at(0)),
-        QString("Visual Analogue Score: %1").arg(scores.at(1)),
+        QString("Health state code: %1").arg(getHealthStateCode()),
+        QString("Visual analogue health: %1").arg(prettyValue(VAS_QUESTION)),
     };
 }
 
+
 QStringList Eq5d5l::detail() const
 {
-    QStringList lines = summary();
-
+    QStringList lines = completenessInfo() + summary();
     lines.append("");
 
-    QString spacer = " ";
-    QString line;
-    QString qcat;
-    QVariant v;
-    int score, i = FIRST_Q;
-
-    for (auto field : strseq(QPREFIX, FIRST_Q, LAST_Q)) {
-        QString istr = QString::number(i);
-        v = value(field);
-        score = (v.isNull() ? 9 : v.toInt() + 1);
-        qcat = xstring(QString("q%1_h").arg(istr));
-
-        line = "Q%1 (" + qcat.toLower() + ")"
-                + spacer
-                + QString::number(score).arg(istr);
-        lines.append(QString(line).arg(istr));
-
-        i++;
+    for (int qnum = FIRST_Q; qnum <= LAST_Q; ++qnum) {
+        const QString& fieldname = strnum(QPREFIX, qnum);
+        const QString istr = QString::number(qnum);
+        const QString qcat = xstring(QString("q%1_h").arg(qnum));
+        const QString line = stringfunc::standardResult(
+            QString("Q%1 (%2)").arg(istr, qcat),
+            prettyValue(fieldname)
+        );
+        lines.append(line);
     }
 
     lines += completenessInfo();
-
     return lines;
 }
 
-QStringList Eq5d5l::getScoreStrings() const {
+
+QString Eq5d5l::getHealthStateCode() const
+{
     QString descriptive = "";
-    QVariant v;
-    for (auto field : strseq(QPREFIX, FIRST_Q, LAST_Q)) {
-        v = value(field);
-        descriptive += (v.isNull() ? "9" : QString::number(v.toInt() + 1));
+    for (const QString& field : strseq(QPREFIX, FIRST_Q, LAST_Q)) {
+        const QVariant v = value(field);
+        descriptive += v.isNull() ? "9" : QString::number(v.toInt());
     }
 
-    QString visual = "";
-    v = value("thermometer");
-    visual += (v.isNull() ? "999" : QString::number(v.toInt()));
-
-    return QStringList{descriptive, visual};
+    return descriptive;
 }
+
 
 bool Eq5d5l::isComplete() const
 {
     return noneNull(values(strseq(QPREFIX, FIRST_Q, LAST_Q))) &&
-            !value("thermometer").isNull();
+            !value(VAS_QUESTION).isNull();
 }
 
 
@@ -150,14 +138,14 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
 
     for (auto field : strseq(QPREFIX, FIRST_Q, LAST_Q)) {
         const QString heading = QString("%1_h").arg(field);
-        const QString qnumstr = QString("%1_%2").arg(field, OPT_PREFIX);
+        const QString qoptprefix = QString("%1_%2").arg(field, OPT_PREFIX);
 
         NameValueOptions options{
-            {xstring(qnumstr + "1"), 0},
-            {xstring(qnumstr + "2"), 1},
-            {xstring(qnumstr + "3"), 2},
-            {xstring(qnumstr + "4"), 3},
-            {xstring(qnumstr + "5"), 4},
+            {xstring(qoptprefix + "1"), 1},
+            {xstring(qoptprefix + "2"), 2},
+            {xstring(qoptprefix + "3"), 3},
+            {xstring(qoptprefix + "4"), 4},
+            {xstring(qoptprefix + "5"), 5},
         };
 
         elements.append({
@@ -231,11 +219,11 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     instructions.append(QuElementPtr(
         new QuHorizontalContainer{
             (new QuText("YOUR HEALTH TODAY ="))->setBig(),
-            new QuLineEditInteger(fieldRef("thermometer"), 0, 100)
+            new QuLineEditInteger(fieldRef(VAS_QUESTION), 0, 100)
         }
     ));
 
-    QuThermometer* therm = new QuThermometer(fieldRef("thermometer"), items);
+    QuThermometer* therm = new QuThermometer(fieldRef(VAS_QUESTION), items);
     // ... will be owned by the grid when inserted;
     therm->setRescale(true, 0.75, true);
 

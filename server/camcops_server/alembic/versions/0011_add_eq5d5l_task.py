@@ -67,7 +67,7 @@ def upgrade():
     sa.Column('q3', sa.Integer(), nullable=True),
     sa.Column('q4', sa.Integer(), nullable=True),
     sa.Column('q5', sa.Integer(), nullable=True),
-    sa.Column('thermometer', sa.Integer(), nullable=True),
+    sa.Column('health_vas', sa.Integer(), nullable=True),
     sa.Column('patient_id', sa.Integer(), nullable=False),
     sa.Column('when_created', camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(length=32), nullable=False),
     sa.Column('when_firstexit', camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(length=32), nullable=True),
