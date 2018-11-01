@@ -88,7 +88,7 @@ Global function and multiple aspects of psychopathology
 
 - :ref:`Functional Assessment of Cancer Therapy—General (FACT-G) <factg>`
 
-- :ref:`EQ 5-Dimension, 5-Level Health Scale (EQ-5D-5L) <eq5d5l>`
+- :ref:`EuroQol 5-Dimension, 5-Level Health Scale (EQ-5D-5L) <eq5d5l>`
 
 - :ref:`Global Assessment of Functioning (GAF) <gaf>`
 
