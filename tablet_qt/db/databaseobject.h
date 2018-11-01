@@ -204,6 +204,7 @@ public:
     // ========================================================================
 
     void requireField(const QString& fieldname) const;
+    QString debugDescription() const;
 
     // ========================================================================
     // Special field access

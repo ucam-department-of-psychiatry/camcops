@@ -59,6 +59,11 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # Fact-G
 # =============================================================================
 
+DISPLAY_DP = 2
+MAX_QSCORE = 4
+NON_REVERSE_SCORED_EMOTIONAL_QNUM = 2
+
+
 class FactgMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls: Type['Factg'],
@@ -85,6 +90,52 @@ class FactgMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
+class FactgGroupInfo(object):
+    """
+    Internal information class for the FACT-G.
+    """
+    def __init__(self,
+                 heading_xstring_name: str,
+                 question_prefix: str,
+                 fieldnames: List[str],
+                 summary_fieldname: str,
+                 summary_description: str,
+                 max_score: int,
+                 reverse_score_all: bool = False,
+                 reverse_score_all_but_q2: bool = False) -> None:
+        self.heading_xstring_name = heading_xstring_name
+        self.question_prefix = question_prefix
+        self.fieldnames = fieldnames
+        self.summary_fieldname = summary_fieldname
+        self.summary_description = summary_description
+        self.max_score = max_score
+        self.reverse_score_all = reverse_score_all
+        self.reverse_score_all_but_q2 = reverse_score_all_but_q2
+        self.n_questions = len(fieldnames)
+
+    def subscore(self, task: "Factg") -> float:
+        answered = 0
+        scoresum = 0
+        for qnum, fieldname in enumerate(self.fieldnames, start=1):
+            answer_val = getattr(task, fieldname)
+            try:
+                answer_int = int(answer_val)
+            except (TypeError, ValueError):
+                continue
+            answered += 1
+            if (self.reverse_score_all or
+                    (self.reverse_score_all_but_q2 and
+                     qnum != NON_REVERSE_SCORED_EMOTIONAL_QNUM)):
+                # reverse-scored
+                scoresum += MAX_QSCORE - answer_int
+            else:
+                # normally scored
+                scoresum += answer_int
+        if answered == 0:
+            return 0
+        return scoresum * self.n_questions / answered
+
+
 class Factg(TaskHasPatientMixin, Task,
             metaclass=FactgMetaclass):
     """
@@ -92,7 +143,7 @@ class Factg(TaskHasPatientMixin, Task,
     """
     __tablename__ = "factg"
     shortname = "FACT-G"
-    longname = "Functional Assessment of Cancer Therapy - General"
+    longname = "Functional Assessment of Cancer Therapy — General"
     provides_trackers = True
 
     N_QUESTIONS_PHYSICAL = 7
@@ -110,8 +161,6 @@ class Factg(TaskHasPatientMixin, Task,
         N_QUESTIONS_EMOTIONAL + N_QUESTIONS_FUNCTIONAL
     )
 
-    MAX_QSCORE = 4
-
     MAX_SCORE_TOTAL = N_ALL * MAX_QSCORE
 
     PHYSICAL_PREFIX = "p_q"
@@ -125,28 +174,31 @@ class Factg(TaskHasPatientMixin, Task,
     QUESTIONS_FUNCTIONAL = strseq(FUNCTIONAL_PREFIX, 1, N_QUESTIONS_FUNCTIONAL)
 
     GROUPS = [
-        # xstring name, subgroup question prefix, list of question fieldnames, summary fieldname
-        ("h1", PHYSICAL_PREFIX, QUESTIONS_PHYSICAL, "physical_wellbeing"),
-        ("h2", SOCIAL_PREFIX, QUESTIONS_SOCIAL, "social_family_wellbeing"),
-        ("h3", EMOTIONAL_PREFIX, QUESTIONS_EMOTIONAL, "emotional_wellbeing"),
-        ("h4", FUNCTIONAL_PREFIX, QUESTIONS_FUNCTIONAL, "functional_wellbeing"),
+        FactgGroupInfo("h1", PHYSICAL_PREFIX, QUESTIONS_PHYSICAL,
+                       "physical_wellbeing", "Physical wellbeing subscore",
+                       MAX_SCORE_PHYSICAL,
+                       reverse_score_all=True),
+        FactgGroupInfo("h2", SOCIAL_PREFIX, QUESTIONS_SOCIAL,
+                       "social_family_wellbeing",
+                       "Social/family wellbeing subscore",
+                       MAX_SCORE_SOCIAL),
+        FactgGroupInfo("h3", EMOTIONAL_PREFIX, QUESTIONS_EMOTIONAL,
+                       "emotional_wellbeing", "Emotional wellbeing subscore",
+                       MAX_SCORE_EMOTIONAL,
+                       reverse_score_all_but_q2=True),
+        FactgGroupInfo("h4", FUNCTIONAL_PREFIX, QUESTIONS_FUNCTIONAL,
+                       "functional_wellbeing", "Functional wellbeing subscore",
+                       MAX_SCORE_FUNCTIONAL),
     ]
 
     OPTIONAL_Q = "s_q7"
 
-    # Index into a list of fields in the emotional group. Question 2 (index 1)
-    # is NOT reversed scored, as opposed to the rest of the qroup
-    EMO_NORMAL_Q_IDX = 1
-
     ignore_s_q7 = CamcopsColumn("ignore_s_q7", Boolean,
                                 permitted_value_checker=BIT_CHECKER)
 
-    total = None
-
     def is_complete(self) -> bool:
-        questions_social = self.QUESTIONS_SOCIAL
-
-        if self.ignore_s_q7 and self.OPTIONAL_Q in questions_social:
+        questions_social = self.QUESTIONS_SOCIAL.copy()
+        if self.ignore_s_q7:
             questions_social.remove(self.OPTIONAL_Q)
 
         all_qs = [self.QUESTIONS_PHYSICAL, questions_social,
@@ -155,8 +207,9 @@ class Factg(TaskHasPatientMixin, Task,
         for qlist in all_qs:
             if not self.are_all_fields_complete(qlist):
                 return False
-            if not self.field_contents_valid():
-                return False
+
+        if not self.field_contents_valid():
+            return False
 
         return True
 
@@ -164,8 +217,7 @@ class Factg(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="FACT-G total score (rating well-being)",
-            axis_label="Total score".format(
-                self.MAX_SCORE_TOTAL),
+            axis_label="Total score".format(self.MAX_SCORE_TOTAL),
             axis_min=-0.5,
             axis_max=self.MAX_SCORE_TOTAL + 0.5,
             axis_ticks=[
@@ -187,47 +239,29 @@ class Factg(TaskHasPatientMixin, Task,
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         elements = self.standard_task_summary_fields()
-        for description, prefix, questions, fieldname in self.GROUPS:
-            nquestions = len(questions)
-            score = self.subscore(questions, nquestions, prefix)
+        for info in self.GROUPS:
+            subscore = info.subscore(self)
             elements.append(SummaryElement(
-                name=fieldname, coltype=Float(),
-                value=score,
-                comment="{} ({} / {})".format(description, score, nquestions)
+                name=info.summary_fieldname, coltype=Float(),
+                value=subscore,
+                comment="{} (out of {})".format(info.summary_description,
+                                                info.max_score)
             ))
         elements.append(SummaryElement(
             name="total_score", coltype=Float(),
-            value=self.total_score()
+            value=self.total_score(),
+            comment="Total score (out of {})".format(self.MAX_SCORE_TOTAL)
         ))
         return elements
 
-    def subscore(self, fields, qnum, prefix) -> float:
-        answered = self.n_complete(fields)
-        if answered == 0:
-            return 0
-
-        if prefix == self.PHYSICAL_PREFIX or prefix == self.EMOTIONAL_PREFIX:
-            result = self.MAX_QSCORE * qnum - self.sum_fields(fields)
-        else:
-            result = self.sum_fields(fields)
-
-        if prefix == self.EMOTIONAL_PREFIX:
-            value = getattr(self, fields[self.EMO_NORMAL_Q_IDX])
-            result -= self.MAX_QSCORE
-            result += value * 2
-
-        result = result * qnum / answered
-
-        return round(result, 2)
-
     def subscores(self) -> List[float]:
         sscores = []
-        for _, qprefix, questions, _ in self.GROUPS:
-            sscores.append(self.subscore(questions, len(questions), qprefix))
+        for info in self.GROUPS:
+            sscores.append(info.subscore(self))
         return sscores
 
     def total_score(self) -> float:
-        return round(sum(self.subscores()), 2)
+        return sum(self.subscores())
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         answers = {
@@ -238,20 +272,38 @@ class Factg(TaskHasPatientMixin, Task,
             3: "3 — " + self.wxstring(req, "a3"),
             4: "4 — " + self.wxstring(req, "a4"),
         }
+        subscore_html = ""
+        answer_html = ""
 
-        subheadings = [items[0] for items in self.GROUPS]
-        subscores = self.subscores()
-        tscore = round(self.total_score(), 2)
+        for info in self.GROUPS:
+            heading = self.wxstring(req, info.heading_xstring_name)
+            subscore = info.subscore(self)
+            subscore_html += tr(
+                heading,
+                (
+                    answer(round(subscore, DISPLAY_DP)) +
+                    " / {}".format(info.max_score)
+                )
+            )
+            answer_html += subheading_spanning_two_columns(heading)
+            for q in info.fieldnames:
+                if q == self.OPTIONAL_Q:
+                    # insert additional row
+                    answer_html += tr_qa(
+                        self.xstring(req, "prefer_no_answer"),
+                        self.ignore_s_q7)
+                answer_val = getattr(self, q)
+                answer_html += tr_qa(self.wxstring(req, q),
+                                     get_from_dict(answers, answer_val))
+
+        tscore = round(self.total_score(), DISPLAY_DP)
 
         h = """
             <div class="{CssClass.SUMMARY}">
                  <table class="{CssClass.SUMMARY}">
                      {tr_is_complete}
                      {total_score}
-                     {s1}
-                     {s2}
-                     {s3}
-                     {s4}
+                     {subscore_html}
                  </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -259,6 +311,7 @@ class Factg(TaskHasPatientMixin, Task,
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
+                {answer_html}
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
@@ -266,25 +319,9 @@ class Factg(TaskHasPatientMixin, Task,
                 req.wappstring("total_score"),
                 answer(tscore) + " / {}".format(self.MAX_SCORE_TOTAL)
             ),
-            s1=tr(subheadings[0], answer(subscores[0])
-                  + " / {}".format(self.MAX_SCORE_PHYSICAL)),
-            s2=tr(subheadings[1], answer(subscores[1])
-                  + " / {}".format(self.MAX_SCORE_SOCIAL)),
-            s3=tr(subheadings[2], answer(subscores[2])
-                  + " / {}".format(self.MAX_SCORE_EMOTIONAL)),
-            s4=tr(subheadings[3], answer(subscores[3])
-                  + " / {}".format(self.MAX_SCORE_FUNCTIONAL)),
+            subscore_html=subscore_html,
+            answer_html=answer_html,
         )
-
-        dlen = len(answers.keys())
-
-        for xstringname, _, questions, _ in self.GROUPS:
-            h += subheading_spanning_two_columns(
-                self.wxstring(req, xstringname))
-            for q in questions:
-                answer_val = getattr(self, q)
-                h += tr_qa(self.wxstring(req, q),
-                           get_from_dict(answers, answer_val))
         h += """
             </table>
         """

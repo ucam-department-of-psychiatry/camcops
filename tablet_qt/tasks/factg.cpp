@@ -69,6 +69,11 @@ const int MAX_SCORE =    MAX_SCORE_PHYSICAL
                        + MAX_SCORE_EMOTIONAL
                        + MAX_SCORE_FUNCTIONAL;
 
+const int NON_REVERSE_SCORED_EMOTIONAL_QNUM = 2;
+
+const QString XSTRING_PREFER_NO_ANSWER("prefer_no_answer");
+
+using stringfunc::strnum;
 using stringfunc::strseq;
 using mathfunc::anyNull;
 using mathfunc::countNotNull;
@@ -77,10 +82,12 @@ using mathfunc::sumDouble;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 
+
 void initializeFactg(TaskFactory& factory)
 {
     static TaskRegistrar<Factg> registered(factory);
 }
+
 
 Factg::Factg(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, FACTG_TABLENAME, false, false, false),  // ... anon, clin, resp
@@ -145,72 +152,136 @@ Version Factg::minimumServerVersion() const
 // Instance info
 // ============================================================================
 
-QVector<QVariant> Factg::getScores() const
+Factg::FactgScore Factg::getScores() const
 {
-
-    double score_phys = 0;
-    double score_soc  = 0;
-    double score_emo  = 0;
-    double score_func = 0;
+    FactgScore s;
 
     int answered, sum;
 
-    QVector<QVariant> vals = values(strseq(PREFIX_PHYSICAL, FIRST_Q,
-                                           LAST_Q_PHYSICAL));
-    answered = countNotNull(vals);
+    auto reset = [&answered, &sum]() -> void {
+        answered = 0;
+        sum = 0;
+    };
+
+    auto processQuestion = [this, &answered, &sum](const QString& fieldname,
+                                                   bool reverse) -> void {
+        const QVariant& val = value(fieldname);
+        if (!val.isNull()) {
+            answered += 1;
+            const int answer = val.toInt();
+            if (reverse) {
+                sum += MAX_QSCORE - answer;
+            } else {
+                sum += answer;
+            }
+        }
+    };
+
+    // Physical
+    reset();
+    for (const QString& fieldname : strseq(PREFIX_PHYSICAL,
+                                           FIRST_Q, LAST_Q_PHYSICAL)) {
+        // All negatively scored (reverse)
+        processQuestion(fieldname, true);
+    }
     if (answered > 0) {
-        sum = (vals.length() * MAX_QSCORE) - sumInt(vals);
-        score_phys = sum * N_PHYSICAL / static_cast<double>(answered);
+        s.score_phys = sum * N_PHYSICAL / static_cast<double>(answered);
     }
 
-    vals = values(strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_SOCIAL));
-    answered = countNotNull(vals);
+    // Social
+    reset();
+    for (const QString& fieldname : strseq(PREFIX_SOCIAL,
+                                           FIRST_Q, LAST_Q_SOCIAL)) {
+        // All positively scored (do not reverse)
+        processQuestion(fieldname, false);
+    }
     if (answered > 0) {
-        score_soc = (sumInt(vals) * N_SOCIAL) / static_cast<double>(answered);
+        s.score_soc = sum * N_SOCIAL / static_cast<double>(answered);
     }
 
-    vals = values(strseq(PREFIX_EMOTIONAL, FIRST_Q, LAST_Q_EMOTIONAL));
-    answered = countNotNull(vals);
+    // Emotional
+    reset();
+    for (int qnum = FIRST_Q; qnum <= LAST_Q_EMOTIONAL; ++qnum) {
+        // Mixture of negative and positive scoring.
+        const QString& fieldname = strnum(PREFIX_EMOTIONAL, qnum);
+        const bool reverse = qnum != NON_REVERSE_SCORED_EMOTIONAL_QNUM;
+        processQuestion(fieldname, reverse);
+    }
     if (answered > 0) {
-        // reverse the whole section
-        sum = (vals.length() * MAX_QSCORE) - sumInt(vals);
-        // unreverse q2 and add the raw score
-        int normal_q = vals.at(1).toInt();
-        sum += (normal_q * 2) - MAX_QSCORE;
-        score_emo = sum * N_EMOTIONAL / static_cast<double>(answered);
+        s.score_emo = sum * N_EMOTIONAL / static_cast<double>(answered);
     }
 
-    vals = values(strseq(PREFIX_FUNCTIONAL, FIRST_Q, LAST_Q_FUNCTIONAL));
-    answered = countNotNull(vals);
+    // Functional
+    reset();
+    for (const QString& fieldname : strseq(PREFIX_FUNCTIONAL,
+                                           FIRST_Q, LAST_Q_FUNCTIONAL)) {
+        // All positively scored (do not reverse)
+        processQuestion(fieldname, false);
+    }
     if (answered > 0) {
-        score_func = (sumInt(vals) * N_FUNCTIONAL) / static_cast<double>(answered);
+        s.score_func = sum * N_FUNCTIONAL / static_cast<double>(answered);
     }
 
-    return {score_phys, score_soc, score_emo, score_func};
+    return s;
 }
 
 
 QStringList Factg::summary() const
 {
-    return QStringList{totalScorePhrase(sumDouble(getScores()), MAX_SCORE)};
+    FactgScore s = getScores();
+    return QStringList{totalScorePhrase(s.total(), MAX_SCORE)};
 }
 
 
 QStringList Factg::detail() const
 {
-    QVector<QVariant> scores = getScores();
+    FactgScore s = getScores();
 
-    return QStringList{
-        totalScorePhrase(sumDouble(scores), MAX_SCORE),
-        scorePhrase(SUBTITLE_PHYSICAL, scores.at(0).toDouble(),
-                    MAX_SCORE_EMOTIONAL),
-        scorePhrase(SUBTITLE_SOCIAL, scores.at(1).toDouble(),
+    QStringList strings{
+        totalScorePhrase(s.total(), MAX_SCORE),
+        scorePhrase(SUBTITLE_PHYSICAL, s.score_phys,
+                    MAX_SCORE_PHYSICAL),
+        scorePhrase(SUBTITLE_SOCIAL, s.score_soc,
                     MAX_SCORE_SOCIAL),
-        scorePhrase(SUBTITLE_EMOTIONAL, scores.at(2).toDouble(),
+        scorePhrase(SUBTITLE_EMOTIONAL, s.score_emo,
                     MAX_SCORE_EMOTIONAL),
-        scorePhrase(SUBTITLE_FUNCTIONAL, scores.at(3).toDouble(),
+        scorePhrase(SUBTITLE_FUNCTIONAL, s.score_func,
                     MAX_SCORE_FUNCTIONAL)
     };
+    strings.append("");
+    strings.append("Answers (not scores):");
+
+    // Physical
+    strings.append("");
+    strings.append(xstring("h1"));
+    for (auto fieldname : strseq(PREFIX_PHYSICAL, FIRST_Q, LAST_Q_PHYSICAL)) {
+        strings.append(fieldSummary(fieldname, xstring(fieldname)));
+    }
+    // Social
+    strings.append("");
+    strings.append(xstring("h2"));
+    for (auto fieldname : strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_SOCIAL - 1)) {
+        strings.append(fieldSummary(fieldname, xstring(fieldname)));
+    }
+    strings.append(fieldSummary(IGNORE_SOCIAL_Q7, xstring(XSTRING_PREFER_NO_ANSWER)));
+    const QString last_social_q = strnum(PREFIX_SOCIAL, LAST_Q_SOCIAL);
+    strings.append(fieldSummary(last_social_q, xstring(last_social_q)));
+
+    // Emotional
+    strings.append("");
+    strings.append(xstring("h3"));
+    for (auto fieldname : strseq(PREFIX_EMOTIONAL, FIRST_Q, LAST_Q_EMOTIONAL)) {
+        strings.append(fieldSummary(fieldname, xstring(fieldname)));
+    }
+
+    // Functional
+    strings.append("");
+    strings.append(xstring("h4"));
+    for (auto fieldname : strseq(PREFIX_FUNCTIONAL, FIRST_Q, LAST_Q_FUNCTIONAL)) {
+        strings.append(fieldSummary(fieldname, xstring(fieldname)));
+    }
+
+    return strings;
 }
 
 
@@ -232,12 +303,24 @@ bool Factg::isComplete() const
 
 void Factg::updateQ7(const FieldRef* fieldref)
 {
+    // Called when the user ticks/unticks the tickbox.
+    // Signal comes from IGNORE_SOCIAL_Q7 which is "prefer not to answer social
+    // Q7 about sex life".
+
+    // qDebug() << Q_FUNC_INFO << *fieldref;
+
     if (m_in_tickbox_change) {
         // avoid circular signal
         return;
     }
+    if (!fieldref) {
+        // in case of bugs
+        return;
+    }
     m_in_tickbox_change = true;
-    bool prefer_no_answer = fieldref->valueBool();
+
+    const bool prefer_no_answer = fieldref->valueBool();
+    // qDebug() << Q_FUNC_INFO << "fieldref->value()" << fieldref->value();
 
     FieldRefPtr fr_q7 = fieldRef(OPTIONAL_Q);
     fr_q7->setMandatory(!prefer_no_answer);
@@ -246,15 +329,22 @@ void Factg::updateQ7(const FieldRef* fieldref)
         fr_q7->setValue(QVariant());
     }
 
-    fieldRef(IGNORE_SOCIAL_Q7)->setValue(prefer_no_answer);
-
     m_in_tickbox_change = false;
 }
 
 
 void Factg::untickBox()
 {
+    // Called if the user does in fact answer the sex life question;
+    // automatically unticks "don't wish to answer".
+    qDebug() << Q_FUNC_INFO;
+    if (m_in_tickbox_change) {
+        // avoid circular signal
+        return;
+    }
+    m_in_tickbox_change = true;
     fieldRef(IGNORE_SOCIAL_Q7)->setValue(false);
+    m_in_tickbox_change = false;
 }
 
 
@@ -315,7 +405,7 @@ OpenableWidget* Factg::editor(const bool read_only)
             &Factg::updateQ7);
 
     QuBoolean *no_answer = (new QuBoolean(
-                            xstring("prefer_no_answer"),
+                            xstring(XSTRING_PREFER_NO_ANSWER),
                             ignore_s_q7))
             ->setFalseAppearsBlank();
 

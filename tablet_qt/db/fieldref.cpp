@@ -564,3 +564,107 @@ QVariant FieldRef::getHint() const
 {
     return m_hint;
 }
+
+
+// ============================================================================
+// Debugging
+// ============================================================================
+
+QString FieldRef::getFieldRefMethodDescription() const
+{
+    switch (m_method) {
+    case FieldRefMethod::Invalid:
+        return "Invalid";
+
+    case FieldRefMethod::Field:
+        return "Field";
+
+    case FieldRefMethod::DatabaseObject:
+        return "DatabaseObject";
+
+    case FieldRefMethod::DatabaseObjectBlobField:
+        return "DatabaseObjectBlobField";
+
+    case FieldRefMethod::IsolatedBlobFieldForTesting:
+        return "IsolatedBlobFieldForTesting";
+
+    case FieldRef::FieldRefMethod::Functions:
+        return "Functions";
+
+    case FieldRef::FieldRefMethod::StoredVar:
+        return "StoredVar";
+
+    case FieldRef::FieldRefMethod::CachedStoredVar:
+        return "CachedStoredVar";
+
+    default:
+        // Shouldn't get here
+        return "Bad_method";
+    }
+}
+
+
+QString FieldRef::getTargetDescription() const
+{
+    switch (m_method) {
+    case FieldRefMethod::Invalid:
+        return "N/A";
+
+    case FieldRefMethod::Field:
+        if (m_p_field) {
+            return m_p_field->name();
+        } else {
+            return "<bad field: nullptr>";
+        }
+
+    case FieldRefMethod::DatabaseObject:
+        if (m_p_dbobject) {
+            return m_p_dbobject->debugDescription();
+        } else {
+            return "<bad dbobject: nullptr>";
+        }
+
+    case FieldRefMethod::DatabaseObjectBlobField:
+        if (valid()) {
+            return QString("dbobject=%1, blob=%2").arg(
+                m_p_dbobject->debugDescription(),
+                m_blob->debugDescription()
+            );
+        } else {
+            return "<invalid>";
+        }
+
+    case FieldRefMethod::IsolatedBlobFieldForTesting:
+        if (valid()) {
+            return m_blob->debugDescription();
+        } else {
+            return "<invalid>";
+        }
+
+    case FieldRef::FieldRefMethod::Functions:
+        return "C++ get/set functions";
+
+    case FieldRef::FieldRefMethod::StoredVar:
+        return m_storedvar_name;
+
+    case FieldRef::FieldRefMethod::CachedStoredVar:
+        return "CachedStoredVar";
+
+    default:
+        // Shouldn't get here
+        return "?";
+    }
+}
+
+
+QDebug operator<<(QDebug debug, const FieldRef& fr)
+{
+    const QVariant hintval = fr.m_hint;
+    debug.nospace().noquote()
+            << "FieldRef(method=" << fr.getFieldRefMethodDescription()
+            << ", mandatory=" << fr.m_mandatory
+            << ", target=" << fr.getTargetDescription()
+            << ", hint=" << fr.m_hint
+            << ")";
+    return debug;
+}

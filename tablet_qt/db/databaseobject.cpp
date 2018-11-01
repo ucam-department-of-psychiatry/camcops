@@ -781,6 +781,15 @@ void DatabaseObject::requireField(const QString &fieldname) const
 }
 
 
+QString DatabaseObject::debugDescription() const
+{
+    return QString("DatabaseObject(tablename=%1,%2=%3)").arg(
+                tablename(),
+                pkname(),
+                QString::number(pkvalueInt()));
+}
+
+
 // ============================================================================
 // Special field access
 // ============================================================================

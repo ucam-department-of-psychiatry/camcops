@@ -46,7 +46,7 @@ Tasks
 
 - Test Your Memory (TYM) task (Jerry M. Brown).
 - Continuous performance task, as per RNC's similar previous task (Linda P
-  and team.)
+  and team).
 
 **Not a priority**
 

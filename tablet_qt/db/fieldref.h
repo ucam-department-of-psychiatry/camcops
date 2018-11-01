@@ -156,6 +156,13 @@ public:
     void setHint(const QVariant& hint);
     QVariant getHint() const;
 
+    // ========================================================================
+    // Debugging
+    // ========================================================================
+    QString getFieldRefMethodDescription() const;
+    QString getTargetDescription() const;
+    friend QDebug operator<<(QDebug debug, const FieldRef& f);
+
 protected:
     void commonConstructor();
     bool signalSetValue(bool changed, const QObject* originator);

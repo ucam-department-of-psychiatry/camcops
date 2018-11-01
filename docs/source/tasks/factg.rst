@@ -22,8 +22,6 @@
 Functional Assessment of Cancer Therapy—General (FACT-G)
 --------------------------------------------------------
 
-.. include:: include_under_development.rst
-
 .. include:: include_data_collection_plus_local_upgrade.rst
 
 A self-report quality-of-life scale developed for patients undergoing

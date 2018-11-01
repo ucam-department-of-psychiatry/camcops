@@ -53,10 +53,21 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    virtual QVector<QVariant> getScores() const;
 protected slots:
     void updateQ7(const FieldRef* fieldref);
     void untickBox();
+protected:
+    struct FactgScore {
+        double score_phys = 0;
+        double score_soc  = 0;
+        double score_emo  = 0;
+        double score_func = 0;
+        double total() {
+            return score_phys + score_soc + score_emo + score_func;
+        }
+    };
+    virtual FactgScore getScores() const;
+
 public:
     static const QString FACTG_TABLENAME;
 protected:
