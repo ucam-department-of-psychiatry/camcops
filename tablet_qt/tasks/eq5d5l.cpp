@@ -83,23 +83,45 @@ Version Eq5d5l::minimumServerVersion() const
 
 QStringList Eq5d5l::summary() const
 {
-    return QStringList{};
-//    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    QStringList scores = getScoreStrings();
+    return QStringList{
+        QString("Descriptive System: %1").arg(scores.at(0)),
+        QString("Visual Analogue Score: %1").arg(scores.at(1)),
+    };
 }
 
 QStringList Eq5d5l::detail() const
 {
-    QStringList lines = completenessInfo();
-    lines.append(xstring("hstate_raw"));
+    QStringList lines = summary();
 
-    for (auto s : getScoreStrings()) {
-        lines.append(s);
+    lines.append("");
+
+    QString spacer = " ";
+    QString line;
+    QString qcat;
+    QVariant v;
+    int score, i = FIRST_Q;
+
+    for (auto field : strseq(QPREFIX, FIRST_Q, LAST_Q)) {
+        QString istr = QString::number(i);
+        v = value(field);
+        score = (v.isNull() ? 9 : v.toInt() + 1);
+        qcat = xstring(QString("q%1_h").arg(istr));
+
+        line = "Q%1 (" + qcat.toLower() + ")"
+                + spacer
+                + QString::number(score).arg(istr);
+        lines.append(QString(line).arg(istr));
+
+        i++;
     }
+
+    lines += completenessInfo();
 
     return lines;
 }
 
-QVector<QString> Eq5d5l::getScoreStrings() const {
+QStringList Eq5d5l::getScoreStrings() const {
     QString descriptive = "";
     QVariant v;
     for (auto field : strseq(QPREFIX, FIRST_Q, LAST_Q)) {
@@ -111,7 +133,7 @@ QVector<QString> Eq5d5l::getScoreStrings() const {
     v = value("thermometer");
     visual += (v.isNull() ? "999" : QString::number(v.toInt()));
 
-    return QVector<QString>{descriptive, visual};
+    return QStringList{descriptive, visual};
 }
 
 bool Eq5d5l::isComplete() const

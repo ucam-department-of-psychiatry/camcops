@@ -34,7 +34,7 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int getScore(QString field) const;
-    QVector<QString> getScoreStrings() const;
+    QStringList getScoreStrings() const;
 protected slots:
 
 public:
