@@ -29,7 +29,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
+from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
@@ -139,7 +139,6 @@ class Eq5d5l(TaskHasPatientMixin, Task):
     def get_task_html(self, req: CamcopsRequest) -> str:
 
         q_a = ""
-        mcq_score = ""
 
         for i in range(1, self.N_QUESTIONS + 1):
             nstr = str(i)
