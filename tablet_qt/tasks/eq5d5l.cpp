@@ -215,25 +215,27 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
         instructions.append(QuElementPtr(new QuSpacer));
     }
 
+    FieldRefPtr fr_vas = fieldRef(VAS_QUESTION);
+
     instructions.append(QuElementPtr(new QuSpacer));
     instructions.append(QuElementPtr(
         new QuHorizontalContainer{
             (new QuText("YOUR HEALTH TODAY ="))->setBig(),
-            new QuLineEditInteger(fieldRef(VAS_QUESTION), 0, 100)
+            new QuLineEditInteger(fr_vas, 0, 100)
         }
     ));
 
-    QuThermometer* therm = new QuThermometer(fieldRef(VAS_QUESTION), items);
+    QuThermometer* therm = new QuThermometer(fr_vas, items);
     // ... will be owned by the grid when inserted;
-    therm->setRescale(true, 0.75, true);
+    therm->setRescale(true, 0.4, true);
 
     pages.append(QuPagePtr(
         (new QuPage{
             new QuGridContainer{
                 QuGridCell(
                     new QuVerticalContainer{instructions},
-                    0, 0, 4, 1, Qt::AlignLeft | Qt::AlignTop),
-                QuGridCell(therm, 0, 1, 4)
+                    0, 0, 1, 1, Qt::AlignLeft | Qt::AlignTop),
+                QuGridCell(therm, 0, 1, 1, 1, Qt::AlignHCenter | Qt::AlignTop)
             }
         })->setTitle(shortname())
           ->setIndexTitle(xstring("t2_h"))

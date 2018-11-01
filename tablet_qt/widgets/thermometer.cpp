@@ -21,6 +21,7 @@
 // #define DEBUG_VERY_VERBOSE
 // #define DEBUG_FULL_REPAINT
 // #define DEBUG_INTERACTION
+// #define DEBUG_SIZE_HINT
 
 #include "thermometer.h"
 #include <QDebug>
@@ -165,7 +166,6 @@ Thermometer::Thermometer(const QVector<QPixmap>& active_images,
             static_cast<double>(m_unscaled_total_size.height());
 
     // Set Qt size policy
-    // setSizePolicy(sizehelpers::maximumFixedHFWPolicy());
     setSizePolicy(sizehelpers::maximumMaximumHFWPolicy());
 }
 
@@ -300,6 +300,9 @@ int Thermometer::heightForWidth(const int width) const
 
 QSize Thermometer::sizeHint() const
 {
+#ifdef DEBUG_SIZE_HINT
+    qDebug() << Q_FUNC_INFO << m_target_total_size;
+#endif
     return m_target_total_size;
 }
 

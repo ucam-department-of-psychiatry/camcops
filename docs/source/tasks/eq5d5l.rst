@@ -19,8 +19,11 @@
 
 .. _eq5d5l:
 
+
 EuroQol 5-Dimension, 5-Level Health Scale (EQ-5D-5L)
 ----------------------------------------------------
+
+.. include:: include_data_collection_plus_local_upgrade.rst
 
 A descriptive system comprising five dimensions: mobility, self-care, usual
 activities, pain/discomfort and anxiety/depression. Each dimension has 5

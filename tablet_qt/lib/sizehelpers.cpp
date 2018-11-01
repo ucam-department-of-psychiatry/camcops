@@ -38,6 +38,24 @@
 
 namespace sizehelpers {
 
+// REMINDERS:
+//
+// - QSizePolicy(horizontal_policy, vertical_policy)
+//
+// http://doc.qt.io/qt-5/qsizepolicy.html#Policy-enum:
+//
+// - Fixed: fixed size, from sizeHint().
+// - Minimum: sizeHint() or greater; will grow to available space, but no
+//   advantage to expanding.
+// - Maximum: sizeHint() or smaller; will shrink as much as required.
+// - Preferred: ideally sizeHint(), but can grow or shrink as required; no
+//   advantage to growing.
+// - MinimumExpanding: sizeHint() or larger, and should get as much space
+//   as possible.
+// - Expanding: sizeHint() is sensible, but can be smaller or larger, and
+//   should get as much space as possible.
+// - Ignored: give it as much space as possible; ignore sizeHint().
+
 
 QSizePolicy expandingFixedHFWPolicy()
 {
