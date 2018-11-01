@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/versions/${up_revision}.py
 
 """
-${message}
-
-Revision ID: ${up_revision}
-Revises: ${down_revision | comma,n}
-Creation date: ${create_date}
-
-DATABASE REVISION SCRIPT
+camcops_server/alembic/versions/${up_revision}.py
 
 ===============================================================================
 
@@ -31,7 +24,14 @@ DATABASE REVISION SCRIPT
 
 ===============================================================================
 
-..
+DATABASE REVISION SCRIPT
+
+${message}
+
+Revision ID: ${up_revision}
+Revises: ${down_revision | comma,n}
+Creation date: ${create_date}
+
 """
 
 # =============================================================================

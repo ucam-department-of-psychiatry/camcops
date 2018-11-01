@@ -28,6 +28,7 @@ tablet_qt
     :maxdepth: 1
 
     android/AndroidManifest.xml.rst
+    android/res/values/libs.xml.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
@@ -812,6 +813,8 @@ tablet_qt
     widgets/spacer.h.rst
     widgets/svgwidgetclickable.cpp.rst
     widgets/svgwidgetclickable.h.rst
+    widgets/thermometer.cpp.rst
+    widgets/thermometer.h.rst
     widgets/tickslider.cpp.rst
     widgets/tickslider.h.rst
     widgets/treeviewcontroldelegate.cpp.rst
