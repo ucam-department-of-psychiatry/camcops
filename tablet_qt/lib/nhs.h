@@ -29,6 +29,10 @@
 #include <QValidator>
 #include <QVector>
 
+// ============================================================================
+// Namespace with declarations
+// ============================================================================
+
 namespace nhs {
 
 int nhsCheckDigit(const QVector<int>& ninedigits, int failure_code = -1);
@@ -38,6 +42,10 @@ QValidator::State validateNhsNumber(const QString& s, bool allow_empty = false);
 
 }  // namespace nhs
 
+
+// ============================================================================
+// Templatized validator function
+// ============================================================================
 
 template<typename T>
 QValidator::State nhs::validateNhsNumber(const QString& s, bool allow_empty)

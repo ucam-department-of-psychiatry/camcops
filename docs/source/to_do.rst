@@ -23,11 +23,6 @@ Things to do
 Tasks
 -----
 
-**Done, in testing**
-
-- Psycho-oncology: FACT-G
-- Psycho-oncology (and FROM-LP): EQ-5D-5L
-
 **Priority**
 
 - Perinatal: POEM
@@ -44,6 +39,7 @@ Tasks
 
 **To be prioritized**
 
+- Perinatal: PEQ (?)
 - Test Your Memory (TYM) task (Jerry M. Brown).
 - Continuous performance task, as per RNC's similar previous task (Linda P
   and team).

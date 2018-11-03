@@ -1441,3 +1441,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   error; just carry on.
 
 - Better server docstrings.
+
+- All summary tables report the CamCOPS server version that calculated the
+  summary, in the field ``camcops_server_version``.
