@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/versions/0008.py
 
 """
-add factg
-
-Revision ID: 0010
-Revises: 0009
-Creation date: 2018-10-16 09:15:16.914729
-
-DATABASE REVISION SCRIPT
+camcops_server/alembic/versions/0008.py
 
 ===============================================================================
 
@@ -30,6 +23,15 @@ DATABASE REVISION SCRIPT
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+add factg
+
+Revision ID: 0010
+Revises: 0009
+Creation date: 2018-10-16 09:15:16.914729
+
+DATABASE REVISION SCRIPT
+
 """
 
 # =============================================================================

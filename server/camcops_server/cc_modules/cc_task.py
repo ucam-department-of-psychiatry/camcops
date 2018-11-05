@@ -112,18 +112,19 @@ from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
     CamcopsColumn,
-    PendulumDateTimeAsIsoTextColType,
     gen_ancillary_relationships,
-    get_column_attr_names,
     get_camcops_blob_column_attr_names,
+    get_column_attr_names,
+    PendulumDateTimeAsIsoTextColType,
     permitted_value_failure_msgs,
     permitted_values_ok,
+    SemanticVersionColType,
 )
 from .cc_sqlalchemy import Base
 from .cc_summaryelement import ExtraSummaryTable, SummaryElement
 from .cc_trackerhelpers import TrackerInfo
 from .cc_tsv import TsvPage
-from .cc_version import MINIMUM_TABLET_VERSION
+from .cc_version import CAMCOPS_SERVER_VERSION, MINIMUM_TABLET_VERSION
 from .cc_unittest import DemoDatabaseTestCase
 from .cc_xml import (
     get_xml_document,
@@ -835,6 +836,13 @@ class Task(GenericTabletRecordMixin, Base):
                 value=self.get_seconds_from_creation_to_first_finish(),
                 comment="(GENERIC) Time (in seconds) from record creation to "
                         "first exit, if that was a finish not an abort",
+            ),
+            SummaryElement(
+                name="camcops_server_version",
+                coltype=SemanticVersionColType(),
+                value=CAMCOPS_SERVER_VERSION,
+                comment="(GENERIC) CamCOPS server version that created the "
+                        "summary information",
             ),
         ]
 

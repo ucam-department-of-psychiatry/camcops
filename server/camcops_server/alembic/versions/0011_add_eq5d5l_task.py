@@ -1,14 +1,7 @@
 #!/usr/bin/env python
-# camcops_server/alembic/versions/0011.py
 
 """
-add eq5d5l task
-
-Revision ID: 0011
-Revises: 0010
-Creation date: 2018-10-25 09:00:49.236034
-
-DATABASE REVISION SCRIPT
+camcops_server/alembic/versions/0011.py
 
 ===============================================================================
 
@@ -31,7 +24,14 @@ DATABASE REVISION SCRIPT
 
 ===============================================================================
 
-..
+add eq5d5l task
+
+Revision ID: 0011
+Revises: 0010
+Creation date: 2018-10-25 09:00:49.236034
+
+DATABASE REVISION SCRIPT
+
 """
 
 # =============================================================================
