@@ -225,51 +225,67 @@ command
 Here's an example, which you would typically save as
 `/etc/supervisor/conf.d/camcops.conf`:
 
+.. ============================================================================
+.. START OF SUPERVISOR DEMO CONFIG (below code-block line):
+.. ============================================================================
+
 .. code-block:: ini
 
     # =============================================================================
     # Demonstration 'supervisor' config file for CamCOPS.
-    # Created by CamCOPS version 2.2.1 at 2018-06-08T18:03:08.640489+01:00.
+    # Created by CamCOPS version 2.2.8 at 2018-11-05T12:05:01.028716+00:00.
     # =============================================================================
-    # - Supervisor is a system for controlling background processes running on
-    #   UNIX-like operating systems. See:
-    #       http://supervisord.org
-    # - On Ubuntu systems, you would typically install supervisor with
-    #       sudo apt install supervisor
-    #   and then save this file as
-    #       /etc/supervisor/conf.d/camcops.conf
-    #
-    # - IF YOU EDIT THIS FILE, run:
-    #       sudo service supervisor restart
-    # - TO MONITOR SUPERVISOR, run:
-    #       sudo supervisorctl status
-    #   ... or just "sudo supervisorctl" for an interactive prompt.
-    #
-    # - TO ADD MORE CAMCOPS INSTANCES, first consider whether you wouldn't be
-    #   better off just adding groups. If you decide you want a completely new
-    #   instance, make a copy of the [program:camcops] section, renaming the copy,
-    #   and change the following:
-    #   - the --config switch;
-    #   - the port or socket;
-    #   - the log files.
-    #   Then make the main web server point to the copy as well.
-    #
-    # NOTES ON THE SUPERVISOR CONFIG FILE AND ENVIRONMENT:
-    # - Indented lines are treated as continuation (even in commands; no need for
-    #   end-of-line backslashes or similar).
-    # - The downside of that is that indented comment blocks can join onto your
-    #   commands! Beware that.
-    # - You can't put quotes around the directory variable
-    #   http://stackoverflow.com/questions/10653590
-    # - Python programs that are installed within a Python virtual environment
-    #   automatically use the virtualenv's copy of Python via their shebang; you do
-    #   not need to specify that by hand, nor the PYTHONPATH.
-    # - The "environment" setting sets the OS environment. The "--env" parameter
-    #   to gunicorn, if you use it, sets the WSGI environment.
+        # - Supervisor is a system for controlling background processes running on
+        #   UNIX-like operating systems. See:
+        #
+        #       http://supervisord.org
+        #
+        # - On Ubuntu systems, you would typically install supervisor with
+        #
+        #       sudo apt install supervisor
+        #
+        #   and then save this file as
+        #
+        #       /etc/supervisor/conf.d/camcops.conf
+        #
+        # - IF YOU EDIT THIS FILE, run:
+        #
+        #       sudo service supervisor restart
+        #
+        # - TO MONITOR SUPERVISOR, run:
+        #
+        #       sudo supervisorctl status
+        #
+        #   ... or just "sudo supervisorctl" for an interactive prompt.
+        #
+        # - TO ADD MORE CAMCOPS INSTANCES, first consider whether you wouldn't be
+        #   better off just adding groups. If you decide you want a completely new
+        #   instance, make a copy of the [program:camcops] section, renaming the
+        #   copy, and change the following:
+        #
+        #   - the --config switch;
+        #   - the port or socket;
+        #   - the log files.
+        #
+        #   Then make the main web server point to the copy as well.
+        #
+        # NOTES ON THE SUPERVISOR CONFIG FILE AND ENVIRONMENT:
+        #
+        # - Indented lines are treated as continuation (even in commands; no need
+        #   for end-of-line backslashes or similar).
+        # - The downside of that is that indented comment blocks can join onto your
+        #   commands! Beware that.
+        # - You can't put quotes around the directory variable
+        #   http://stackoverflow.com/questions/10653590
+        # - Python programs that are installed within a Python virtual environment
+        #   automatically use the virtualenv's copy of Python via their shebang;
+        #   you do not need to specify that by hand, nor the PYTHONPATH.
+        # - The "environment" setting sets the OS environment. The "--env"
+        #   parameter to gunicorn, if you use it, sets the WSGI environment.
 
     [program:camcops]
 
-    command = /home/rudolf/dev/venvs/camcops/bin/camcops
+    command = /usr/share/camcops/venv/bin/camcops
         serve_gunicorn
         --config /etc/camcops/camcops.conf
         --unix_domain_socket /tmp/.camcops.sock
@@ -280,22 +296,22 @@ Here's an example, which you would typically save as
             HTTP_X_FORWARDED_PROTO
             HTTP_X_SCRIPT_NAME
 
-    # To run via a TCP socket, use e.g.:
-    #   --host 127.0.0.1 --port 8000
-    # To run via a UNIX domain socket, use e.g.
-    #   --unix_domain_socket /tmp/.camcops.sock
+        # To run via a TCP socket, use e.g.:
+        #   --host 127.0.0.1 --port 8000
+        # To run via a UNIX domain socket, use e.g.
+        #   --unix_domain_socket /tmp/.camcops.sock
 
-    directory = /home/rudolf/Documents/code/camcops/server/camcops_server
+    directory = /usr/share/camcops/venv/lib/python3.6/site-packages/camcops_server
 
     environment = MPLCONFIGDIR="/var/cache/camcops/matplotlib"
 
-    # MPLCONFIGDIR specifies a cache directory for matplotlib, which greatly
-    # speeds up its subsequent loading.
+        # MPLCONFIGDIR specifies a cache directory for matplotlib, which greatly
+        # speeds up its subsequent loading.
 
     user = www-data
 
-    # ... Ubuntu: typically www-data
-    # ... CentOS: typically apache
+        # ... Ubuntu: typically www-data
+        # ... CentOS: typically apache
 
     stdout_logfile = /var/log/supervisor/camcops_out.log
     stderr_logfile = /var/log/supervisor/camcops_err.log
@@ -304,6 +320,11 @@ Here's an example, which you would typically save as
     autorestart = true
     startsecs = 30
     stopwaitsecs = 60
+
+
+.. ============================================================================
+.. END OF SUPERVISOR DEMO CONFIG
+.. ============================================================================
 
 This is where you choose which back-end web server CamCOPS should use (see
 above), by choosing the command you pass to `camcops`. For high-performance
@@ -330,10 +351,15 @@ edit into the Apache config file [#linuxflavours]_:
    to /usr/share/camcops, not your user's home directory, otherwise the paths
    will be silly.
 
+
+.. ============================================================================
+.. START OF APACHE DEMO CONFIG (below code-block line):
+.. ============================================================================
+
 .. code-block:: apacheconf
 
         # Demonstration Apache config file section for CamCOPS.
-        # Created by CamCOPS version 2.2.0 at 2018-06-08T19:52:03.221011+01:00.
+        # Created by CamCOPS version 2.2.8 at 2018-11-05T12:02:46.677413+00:00.
         #
         # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
         # Under CentOS, the Apache config will be somewhere in /etc/httpd/
@@ -360,15 +386,15 @@ edit into the Apache config file [#linuxflavours]_:
 
             # Change this: aim the alias at your own institutional logo.
 
-        Alias /camcops/static/logo_local.png /usr/share/camcops/venv/lib/python3.5/site-packages/camcops_server/static/logo_local.png
+        Alias /camcops/static/logo_local.png /usr/share/camcops/venv/lib/python3.6/site-packages/camcops_server/static/logo_local.png
 
             # We move from more specific to less specific aliases; the first match
             # takes precedence. (Apache will warn about conflicting aliases if
             # specified in a wrong, less-to-more-specific, order.)
 
-        Alias /camcops/static/ /usr/share/camcops/venv/lib/python3.5/site-packages/camcops_server/static/
+        Alias /camcops/static/ /usr/share/camcops/venv/lib/python3.6/site-packages/camcops_server/static/
 
-        <Directory /usr/share/camcops/venv/lib/python3.5/site-packages/camcops_server/static>
+        <Directory /usr/share/camcops/venv/lib/python3.6/site-packages/camcops_server/static>
             Require all granted
 
             # ... for old Apache version (e.g. 2.2), use instead:
@@ -433,10 +459,14 @@ edit into the Apache config file [#linuxflavours]_:
             # UNIX SOCKET METHOD (Apache 2.4.9 and higher)
             #
             # The general syntax is:
+            #
             #   ProxyPass /URL_USER_SEES unix:SOCKETFILE|PROTOCOL://HOST/EXTRA_URL_FOR_BACKEND retry=0
+            #
             # Note that:
+            #
             #   - the protocol should be http, not https (Apache deals with the
             #     HTTPS part and passes HTTP on)
+            #   - the URL should not have a trailing slash
             #   - the EXTRA_URL_FOR_BACKEND needs to be (a) unique for each
             #     instance or Apache will use a single worker for multiple
             #     instances, and (b) blank for the backend's benefit. Since those
@@ -446,37 +476,51 @@ edit into the Apache config file [#linuxflavours]_:
             #     https://bz.apache.org/bugzilla/show_bug.cgi?id=54101#c1
             #
             # If your Apache version is too old, you will get the error
+            #
             #   "AH00526: Syntax error on line 56 of /etc/apache2/sites-enabled/SOMETHING:
             #    ProxyPass URL must be absolute!"
+            #
             # On Ubuntu, if your Apache is too old, you could use
+            #
             #   sudo add-apt-repository ppa:ondrej/apache2
+            #
             # ... details at https://launchpad.net/~ondrej/+archive/ubuntu/apache2
             #
             # If you get this error:
+            #
             #   AH01146: Ignoring parameter 'retry=0' for worker 'unix:/tmp/.camcops_gunicorn.sock|https://localhost' because of worker sharing
             #   https://wiki.apache.org/httpd/ListOfErrors
-            # ... then your URLs are overlapping and should be redone or sorted:
-            #   http://httpd.apache.org/docs/2.4/mod/mod_proxy.html#workers
+            #
+            # ... then your URLs are overlapping and should be redone or sorted;
+            # see http://httpd.apache.org/docs/2.4/mod/mod_proxy.html#workers
+            #
             # The part that must be unique for each instance, with no part a
             # leading substring of any other, is THIS_BIT in:
-            #   ProxyPass /URL_USER_SEES unix:SOCKETFILE|https://localhost/THIS_BIT retry=0
+            #
+            #   ProxyPass /URL_USER_SEES unix:SOCKETFILE|http://localhost/THIS_BIT retry=0
             #
             # If you get an error like this:
+            #
             #   AH01144: No protocol handler was valid for the URL /SOMEWHERE. If you are using a DSO version of mod_proxy, make sure the proxy submodules are included in the configuration using LoadModule.
+            #
             # Then do this:
+            #
             #   sudo a2enmod proxy proxy_http
             #   sudo apache2ctl restart
             #
             # If you get an error like this:
+            #
             #   ... [proxy_http:error] [pid 32747] (103)Software caused connection abort: [client 109.151.49.173:56898] AH01102: error reading status line from remote server httpd-UDS:0
             #       [proxy:error] [pid 32747] [client 109.151.49.173:56898] AH00898: Error reading from remote server returned by /camcops_bruhl/webview
+            #
             # then check you are specifying http://, not https://, in the ProxyPass
             #
             # Other information sources:
-            #   https://emptyhammock.com/projects/info/pyweb/webconfig.html
+            #
+            # - https://emptyhammock.com/projects/info/pyweb/webconfig.html
 
-        # ProxyPass /camcops unix:/tmp/.camcops.sock|https://dummy1/ retry=0
-        # ProxyPassReverse /camcops unix:/tmp/.camcops.sock|https://dummy1/ retry=0
+        # ProxyPass /camcops unix:/tmp/.camcops.sock|http://dummy1 retry=0
+        # ProxyPassReverse /camcops unix:/tmp/.camcops.sock|http://dummy1 retry=0
 
             # ~~~~~~~~~~~~~~~~~~~~~~~~~
             # (b) Allow proxy over SSL.
@@ -581,6 +625,11 @@ edit into the Apache config file [#linuxflavours]_:
 
     </VirtualHost>
 
+
+.. ============================================================================
+.. END OF APACHE DEMO CONFIG
+.. ============================================================================
+
 Once you are happy with your Apache config file:
 
 - Ensure file ownerships/permissions are correct (including, on CentOS, SELinux
@@ -636,6 +685,39 @@ Assuming you used `/camcops` as the base URL path,
 - Check that a tablet device can register with the server and upload some data
   while using the URL `https://YOURHOST/camcops/database`.
 
+
+Troubleshooting access to the web site
+--------------------------------------
+
+1.  If something isn't working, begin by trying the following (as a user that
+    can definitely read the config file):
+
+    .. code-block:: bash
+
+        cat /PATH/TO/YOUR_CONFIG_FILE  # can I read it?
+        camcops serve_pyramid --config /PATH/TO/YOUR_CONFIG_FILE
+
+    Note the URL and port, likely ``localhost`` on port 8000, and in a separate
+    command prompt, try:
+
+    .. code-block:: bash
+
+        wget http://127.0.0.1:8000
+
+    The server should report a "GET / HTTP" message and the ``wget`` command should
+    return HTML with a "login failed" message, but if so, this shows that CamCOPS
+    is reading the config file and serving data correctly.
+
+2.  If a UNIX socket method wasn't working, try a TCP/IP port method.
+
+    - If a TCP/IP method works and a Unix socket doesn't, with Apache, then
+      check the Apache config file and make sure the "internal" unique dummy
+      URL associated with the socket is using "http", not "https". See the
+      demo Apache config file.
+
+3.  If, when using Apache, you get errors like ``Page not found! //login``,
+    then there is a slash error; potentially you have an incorrect slash at
+    the end of the Unix domain socket "dummy" URL.
 
 Configure backups
 -----------------

@@ -1383,6 +1383,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     https://bugreports.qt.io/browse/QTBUG-68889. The compiler was ``g++`` from
     GCC 4.9, part of Android NDK r11c. We disable with ``#pragma GCC diagnostic
     ignored "-Wmissing-field-initializer"``
+
   - Checked for Linux, Android; Windows checks pending.
 
 - "Page jump" button only shown in questionnaires if (allowed and) there is
@@ -1407,7 +1408,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - New task: :ref:`FACT-G <factg>`.
 
-- New task :ref: `EQ-5D-5L <eq5d5l>`.
+- New task: :ref:`EQ-5D-5L <eq5d5l>`.
 
 **Server v2.2.8, in progress (from 2018-09-14)**
 
@@ -1444,3 +1445,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - All summary tables report the CamCOPS server version that calculated the
   summary, in the field ``camcops_server_version``.
+
+- If no extra string files at all are found, the server aborts.
+
+- Typo fixed in demo Apache config re Unix domain sockets (inappropriately
+  had "https" and a trailing slash).
