@@ -1004,6 +1004,20 @@ class Task(GenericTabletRecordMixin, Base):
         return (self.patient.get_idnum_object(which_idnum) if self.patient
                 else None)
 
+    def any_patient_idnums_invalid(self, req: "CamcopsRequest") -> bool:
+        """
+        Do we have a patient who has any invalid ID numbers?
+
+        Args:
+            req: the
+            :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        idnums = self.get_patient_idnum_objects()
+        for idnum in idnums:
+            if not idnum.is_fully_valid(req):
+                return True
+        return False
+
     def get_patient_idnum_value(self, which_idnum: int) -> Optional[int]:
         """
         Get the patient's ID number value for the specified ID number
@@ -2214,7 +2228,6 @@ class TaskCountReport(Report):
                 .where(and_(*wheres)) \
                 .group_by(*group_by) \
                 .order_by(*order_by)
-            # log.critical(str(query))
             rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
             final_rows.extend(rows)
         return PlainReportType(rows=final_rows, column_names=colnames)
@@ -2322,7 +2335,7 @@ class TaskTests(DemoDatabaseTestCase):
             for idnum in t.get_patient_idnum_objects():
                 self.assertIsInstance(idnum.get_idnum_reference(),
                                       IdNumReference)
-                self.assertIsInstance(idnum.is_valid(), bool)
+                self.assertIsInstance(idnum.is_superficially_valid(), bool)
                 self.assertIsInstance(idnum.description(req), str)
                 self.assertIsInstance(idnum.short_description(req), str)
                 self.assertIsInstance(idnum.get_filename_component(req), str)

@@ -180,9 +180,9 @@ class DumpController(object):
         # Copy columns, dropping any we don't want, and dropping FK constraints
         dst_columns = []  # type: List[Column]
         for src_column in src_table.columns:
-            # log.critical("trying {!r}", src_column.name)
+            # log.debug("trying {!r}", src_column.name)
             if self._dump_skip_column(tablename, src_column.name):
-                # log.critical("... skipping {!r}", src_column.name)
+                # log.debug("... skipping {!r}", src_column.name)
                 continue
             # You can't add the source column directly; you get
             # "sqlalchemy.exc.ArgumentError: Column object 'ccc' already
@@ -209,9 +209,9 @@ class DumpController(object):
                 # non-constraint-bound ForeignKey objects, but to be sure:
                 copied_column.foreign_keys = set()  # type: Set[ForeignKey]
             # if src_column.foreign_keys:
-            #     log.critical("Column {}, FKs {!r} -> {!r}", src_column.name,
-            #                  src_column.foreign_keys,
-            #                  copied_column.foreign_keys)
+            #     log.debug("Column {}, FKs {!r} -> {!r}", src_column.name,
+            #               src_column.foreign_keys,
+            #               copied_column.foreign_keys)
             dst_columns.append(copied_column)
         # Add extra columns?
         if isinstance(src_obj, GenericTabletRecordMixin):
@@ -220,7 +220,7 @@ class DumpController(object):
                                           summary_element.coltype,
                                           comment=summary_element.comment))
         # Create the table
-        # log.critical("Adding table {!r} to dump output", tablename)
+        # log.debug("Adding table {!r} to dump output", tablename)
         dst_table = Table(tablename, self.dst_metadata, *dst_columns)
         self.dst_tables[tablename] = dst_table
         # You have to use an engine, not a session, to create tables (or you
@@ -230,7 +230,6 @@ class DumpController(object):
         #     "sqlalchemy.exc.OperationalError: (sqlite3.OperationalError)
         #     database is locked", since a session is also being used.
         self.dst_session.commit()
-        # log.critical("{!r}", dst_table)
         dst_table.create(self.dst_engine)
 
     def _copy_object_to_dump(self, src_obj: object) -> None:

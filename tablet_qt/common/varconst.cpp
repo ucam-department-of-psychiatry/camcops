@@ -36,9 +36,6 @@ const QString VALIDATE_SSL_CERTIFICATES("validateSSLCertificates");
 const QString SSL_PROTOCOL("sslProtocol");
 const QString DEBUG_USE_HTTPS_TO_SERVER("debugUseHttpsToServer");
 const QString STORE_SERVER_PASSWORD("storeServerPassword");
-#ifdef ALLOW_SEND_ANALYTICS
-const QString SEND_ANALYTICS("sendAnalytics");
-#endif
 
 // Uploading flag
 const QString NEEDS_UPLOAD("needsUpload");

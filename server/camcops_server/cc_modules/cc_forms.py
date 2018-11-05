@@ -119,7 +119,10 @@ from .cc_constants import (
     USER_NAME_FOR_SYSTEM,
 )
 from .cc_group import Group
-from .cc_idnumdef import IdNumDefinition
+from .cc_idnumdef import (
+    IdNumDefinition,
+    ID_NUM_VALIDATION_METHOD_CHOICES,
+)
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
 from .cc_policy import TokenizedPolicy
@@ -549,7 +552,6 @@ class IdNumSequenceAnyCombination(SequenceSchema):
 
     # noinspection PyMethodMayBeStatic
     def validator(self, node: SchemaNode, value: List[Dict[str, int]]) -> None:
-        # log.critical("IdNumSequence.validator: {!r}", value)
         assert isinstance(value, list)
         list_of_lists = [(x[ViewParam.WHICH_IDNUM], x[ViewParam.IDNUM_VALUE])
                          for x in value]
@@ -567,7 +569,6 @@ class IdNumSequenceUniquePerWhichIdnum(SequenceSchema):
 
     # noinspection PyMethodMayBeStatic
     def validator(self, node: SchemaNode, value: List[Dict[str, int]]) -> None:
-        # log.critical("IdNumSequence.validator: {!r}", value)
         assert isinstance(value, list)
         which_idnums = [x[ViewParam.WHICH_IDNUM] for x in value]
         if len(which_idnums) != len(set(which_idnums)):
@@ -1018,7 +1019,6 @@ class GroupsSequenceBase(SequenceSchema):
     def validator(self,
                   node: SchemaNode,
                   value: List[int]) -> None:
-        # log.critical("GroupsSequenceBase.validator: {!r}", value)
         assert isinstance(value, list)
         if len(value) != len(set(value)):
             raise Invalid(node, "You have specified duplicate groups")
@@ -1232,11 +1232,20 @@ class IdDefinitionShortDescriptionNode(SchemaNode):
     validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
 
 
+class IdValidationMethodNode(OptionalStringNode):
+    """
+    Node to choose a build-in ID number validation method.
+    """
+    title = "Validation method"
+    description = "Built-in CamCOPS ID number validation method"
+    widget = SelectWidget(values=ID_NUM_VALIDATION_METHOD_CHOICES)
+    validator = OneOf(list(x[0] for x in ID_NUM_VALIDATION_METHOD_CHOICES))
+
+
 class Hl7AssigningAuthorityNode(OptionalStringNode):
     """
     Optional node to capture the name of an HL7 Assigning Authority.
     """
-    schema_type = String
     title = "HL7 Assigning Authority"
     description = (
         "For HL7 messaging: "
@@ -1250,13 +1259,12 @@ class Hl7IdTypeNode(OptionalStringNode):
     """
     Optional node to capture the name of an HL7 Identifier Type code.
     """
-    schema_type = String
     title = "HL7 Identifier Type"
     description = (
         "For HL7 messaging: "
-        "HL7 Identifier Type code: 'a code corresponding to the type "
+        "HL7 Identifier Type code: ‘a code corresponding to the type "
         "of identifier. In some cases, this code may be used as a "
-        "qualifier to the \"Assigning Authority\" component.'"
+        "qualifier to the “Assigning Authority” component.’"
     )
     validator = Length(0, HL7_ID_TYPE_MAX_LEN)
 
@@ -1593,8 +1601,8 @@ class EditTaskFilterSchema(CSRFSchema):
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        # log.critical("EditTaskFilterSchema.after_bind")
-        # log.critical("{!r}", self.__dict__)
+        # log.debug("EditTaskFilterSchema.after_bind")
+        # log.debug("{!r}", self.__dict__)
         # This is pretty nasty. By the time we get here, the Form class has
         # made Field objects, and, I think, called a clone() function on us.
         # Objects like "who" are not in our __dict__ any more. Our __dict__
@@ -1618,8 +1626,8 @@ class EditTaskFilterSchema(CSRFSchema):
         what = next(x for x in self.children if x.name == 'what')
         when = next(x for x in self.children if x.name == 'when')
         admin = next(x for x in self.children if x.name == 'admin')
-        # log.critical("who = {!r}", who)
-        # log.critical("who.__dict__ = {!r}", who.__dict__)
+        # log.debug("who = {!r}", who)
+        # log.debug("who.__dict__ = {!r}", who.__dict__)
         who.widget.open = kw[Binding.OPEN_WHO]
         what.widget.open = kw[Binding.OPEN_WHAT]
         when.widget.open = kw[Binding.OPEN_WHEN]
@@ -2160,6 +2168,7 @@ class EditIdDefinitionSchema(CSRFSchema):
     which_idnum = HiddenIntegerNode()  # must match ViewParam.WHICH_IDNUM
     description = IdDefinitionDescriptionNode()  # must match ViewParam.DESCRIPTION  # noqa
     short_description = IdDefinitionShortDescriptionNode()  # must match ViewParam.SHORT_DESCRIPTION  # noqa
+    validation_method = IdValidationMethodNode()  # must match ViewParam.VALIDATION_METHOD
     hl7_id_type = Hl7IdTypeNode()  # must match ViewParam.HL7_ID_TYPE
     hl7_assigning_authority = Hl7AssigningAuthorityNode()  # must match ViewParam.HL7_ASSIGNING_AUTHORITY  # noqa
 

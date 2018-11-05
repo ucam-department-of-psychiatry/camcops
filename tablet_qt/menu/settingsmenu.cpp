@@ -257,16 +257,6 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
                 "NO = fractionally more secure; YES = more convenient/"
                 "fractionally less secure, but still AES-256-encrypted.");
 
-#ifdef ALLOW_SEND_ANALYTICS
-    FieldRefPtr analytics_fr = app.storedVarFieldRef(varconst::SEND_ANALYTICS);
-    const QString analytics_t = tr("Send analytics to CamCOPS base?");
-    const QString analytics_h = tr(
-        "We’d very much appreciate you saying yes; it allows us to support "
-        "users better. No patient-identifiable information, per-patient "
-        "information, or task details are sent. See the documentation for "
-        "details.");
-#endif
-
     const NameValueOptions options_ssl_protocol{
         // http://doc.qt.io/qt-5/qssl.html#SslProtocol-enum
         {"Known secure [default]", convert::SSLPROTODESC_SECUREPROTOCOLS},
@@ -332,14 +322,6 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
                        ->setHorizontal(true)
                        ->setAsTextButton(true),
 
-#ifdef ALLOW_SEND_ANALYTICS
-        new QuHorizontalLine(),
-
-        new QuText(makeTitle(analytics_t, analytics_h)),
-        (new QuMcq(analytics_fr, CommonOptions::yesNoBoolean()))
-                       ->setHorizontal(true)
-                       ->setAsTextButton(true),
-#endif
     });
     page->setTitle(tr("Configure server settings"));
     page->setType(QuPage::PageType::Config);

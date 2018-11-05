@@ -38,7 +38,8 @@ We use primarily SQLAlchemy Core here (in contrast to the ORM used elsewhere).
 import logging
 # from pprint import pformat
 import time
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import (Any, Dict, Iterable, List, Optional, Sequence, Tuple,
+                    TYPE_CHECKING)
 import unittest
 
 from cardinal_pythonlib.convert import (
@@ -64,7 +65,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from semantic_version import Version
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.sql.expression import exists, select, text, update
+from sqlalchemy.sql.expression import exists, select, update
 from sqlalchemy.sql.schema import Table
 
 from camcops_server.cc_modules import cc_audit  # avoids "audit" name clash
@@ -107,6 +108,9 @@ from .cc_specialnote import SpecialNote
 from .cc_task import all_task_tables_with_min_client_version
 from .cc_unittest import DemoDatabaseTestCase
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING, MINIMUM_TABLET_VERSION
+
+if TYPE_CHECKING:
+    from .cc_tabletsession import TabletSession
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -158,7 +162,6 @@ def all_tables_with_min_client_version() -> Dict[str, Version]:
     d[Blob.__tablename__] = MINIMUM_TABLET_VERSION
     d[Patient.__tablename__] = MINIMUM_TABLET_VERSION
     d[PatientIdNum.__tablename__] = MINIMUM_TABLET_VERSION
-    # log.critical("{}", pformat(d))
     return d
 
 
@@ -470,12 +473,15 @@ def get_server_id_info(req: CamcopsRequest) -> Dict[str, str]:
         TabletParam.ID_POLICY_FINALIZE: group.finalize_policy or "",
         TabletParam.SERVER_CAMCOPS_VERSION: CAMCOPS_SERVER_VERSION_STRING,
     }
-    for n in req.valid_which_idnums:
+    for iddef in req.idnum_definitions:
+        n = iddef.which_idnum
         nstr = str(n)
         reply[TabletParam.ID_DESCRIPTION_PREFIX + nstr] = \
-            req.get_id_desc(n, "")
+            iddef.description or ""
         reply[TabletParam.ID_SHORT_DESCRIPTION_PREFIX + nstr] = \
-            req.get_id_shortdesc(n, "")
+            iddef.short_description or ""
+        reply[TabletParam.ID_VALIDATION_METHOD_PREFIX + nstr] = \
+            iddef.validation_method or ""
     return reply
 
 
@@ -568,8 +574,8 @@ def record_exists(req: CamcopsRequest,
         If ``exists`` is False, serverpk will be ``None``.
 
     """
-    # log.critical("record_exists: checking table={}, {}={}",
-    #              table.name, clientpk_name, clientpk_value)
+    # log.debug("record_exists: checking table={}, {}={}",
+    #           table.name, clientpk_name, clientpk_value)
     # noinspection PyProtectedMember
     query = (
         select([table.c._pk])
@@ -617,36 +623,6 @@ def client_pks_that_exist(req: CamcopsRequest,
     for client_pk, server_pk in rows:
         clientpkdict[client_pk] = server_pk
     return clientpkdict
-
-
-def get_server_pks_of_specified_records(req: CamcopsRequest,
-                                        table: Table,
-                                        wheredict: Dict) -> List[int]:
-    """
-    Retrieves server PKs for a table, for a given device, given a set of
-    'where' conditions specified in ``wheredict`` (as field/value combinations,
-    joined with AND).
-
-    Args:
-        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        table: an SQLAlchemy :class:`Table`
-        wheredict: a set of {columnname: value} pairs, to be joined with
-            ``AND``
-
-    Returns:
-        a list of integer server PKs
-
-    """
-    # noinspection PyProtectedMember
-    query = (
-        select([table.c._pk])
-        .where(table.c._device_id == req.tabletsession.device_id)
-        .where(table.c._current)
-        .where(table.c._era == ERA_NOW)
-    )
-    for fieldname, value in wheredict.items():
-        query = query.where(table.c[fieldname] == value)
-    return fetch_all_first_values(req.dbsession, query)
 
 
 def record_identical_full(req: CamcopsRequest,
@@ -707,13 +683,110 @@ def record_identical_by_date(req: CamcopsRequest,
     return exists_in_table(req.dbsession, table, *criteria)
 
 
+def process_upload_record_special(req: CamcopsRequest,
+                                  ts: "TabletSession",
+                                  table: Table,
+                                  valuedict: Dict[str, Any],
+                                  recordnum: int) -> None:
+    """
+    Special processing function for upload, in which we inspect the data.
+    Called by :func:`upload_record_core`.
+
+    1. Handles old clients with ID information in the patient table, etc.
+
+    2. Validates ID numbers.
+
+    Args:
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        ts: the
+            :class:`camcops_server.cc_modules.cc_tabletsession.TabletSession`
+        table: an SQLAlchemy :class:`Table`
+        valuedict: a dictionary of {colname: value} pairs from the client.
+            May be modified.
+        recordnum: record index from within the records being uploaded; only
+            used for debugging
+    """
+    tablename = table.name
+
+    if tablename == Patient.__tablename__:
+        # ---------------------------------------------------------------------
+        # Deal with old tablets that had ID numbers in a less flexible format.
+        # ---------------------------------------------------------------------
+        if ts.cope_with_deleted_patient_descriptors:
+            # Old tablets (pre-2.0.0) will upload copies of the ID
+            # descriptions with the patient. To cope with that, we
+            # remove those here:
+            for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
+                nstr = str(n)
+                fn_desc = FP_ID_DESC + nstr
+                fn_shortdesc = FP_ID_SHORT_DESC + nstr
+                valuedict.pop(fn_desc, None)  # remove item, if exists
+                valuedict.pop(fn_shortdesc, None)
+
+        if ts.cope_with_old_idnums:
+            # Insert records into the new ID number table from the old
+            # patient table:
+            for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
+                nstr = str(which_idnum)
+                fn_idnum = FP_ID_NUM + nstr
+                idnum_value = valuedict.pop(fn_idnum, None)
+                # ... and remove it from our new Patient record
+                patient_id = valuedict.get("id", None)
+                if idnum_value is None or patient_id is None:
+                    continue
+                # noinspection PyUnresolvedReferences
+                mark_table_dirty(req, PatientIdNum.__table__)
+                # noinspection PyUnresolvedReferences
+                _, _ = upload_record_core(
+                    req=req,
+                    table=PatientIdNum.__table__,
+                    clientpk_name='id',
+                    valuedict={
+                        'id': fake_tablet_id_for_patientidnum(
+                            patient_id=patient_id,
+                            which_idnum=which_idnum
+                        ),  # ... guarantees a pseudo client PK
+                        'patient_id': patient_id,
+                        'which_idnum': which_idnum,
+                        'idnum_value': idnum_value,
+                        CLIENT_DATE_FIELD: client_date_value,
+                        MOVE_OFF_TABLET_FIELD: valuedict[MOVE_OFF_TABLET_FIELD],  # noqa
+                    },
+                    recordnum=recordnum
+                )
+            # Now, how to deal with deletion, i.e. records missing
+            # from the tablet?
+            # See our caller, upload_table(), which has a special handler for
+            # this.
+            #
+            # Note that upload_record() is/was only used for BLOBs, so we don't
+            # have to worry about special processing for that aspect here;
+            # also, that method handles deletion in a different way.
+
+    elif tablename == PatientIdNum.__tablename__:
+        # ---------------------------------------------------------------------
+        # Validate ID numbers.
+        # ---------------------------------------------------------------------
+        which_idnum = valuedict.get("which_idnum", None)
+        if which_idnum not in req.valid_which_idnums:
+            fail_user_error("No such ID number type: {}".format(which_idnum))
+        idnum_value = valuedict.get("idnum_value", None)
+        if not req.is_idnum_valid(which_idnum, idnum_value):
+            why_invalid = req.why_idnum_invalid(which_idnum, idnum_value)
+            fail_user_error(
+                "For ID type {}, ID number {} is invalid: {}".format(
+                    which_idnum, idnum_value, why_invalid))
+
+
 def upload_record_core(req: CamcopsRequest,
                        table: Table,
                        clientpk_name: str,
-                       valuedict: Dict,
+                       valuedict: Dict[str, Any],
                        recordnum: int) -> Tuple[Optional[int], int]:
     """
     Uploads a record. Deals with IDENTICAL, NEW, and MODIFIED records.
+
+    Used by :func:`upload_table` and :func:`upload_record`.
 
     Args:
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
@@ -739,84 +812,33 @@ def upload_record_core(req: CamcopsRequest,
                                        clientpk_value)
     newserverpk = None
     if found:
+        # There's an existing record, which is either identical or not.
         client_date_value = valuedict[CLIENT_DATE_FIELD]
         if record_identical_by_date(req, table, oldserverpk,
                                     client_date_value):
-            # log.critical("... record is identical")
-            # IDENTICAL. No action needed...
-            # UNLESS MOVE_OFF_TABLET_FIELDNAME is set
+            # The existing record is identical.
+            # No action needed unless MOVE_OFF_TABLET_FIELDNAME is set.
             if valuedict[MOVE_OFF_TABLET_FIELD]:
                 flag_record_for_preservation(req, table, oldserverpk)
-                # log.debug("Table {table}, uploaded record {recordnum}: "
-                #           "identical but moving off tablet",
-                #           table=table, recordnum=recordnum)
             else:
-                # log.debug("Table {table}, uploaded record {recordnum}: "
-                #           "identical", table=table, recordnum=recordnum)
                 pass
         else:
-            # MODIFIED
-            # log.critical("... record is modified")
-            if table == Patient.__tablename__:
-                if ts.cope_with_deleted_patient_descriptors:
-                    # Old tablets (pre-2.0.0) will upload copies of the ID
-                    # descriptions with the patient. To cope with that, we
-                    # remove those here:
-                    for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
-                        nstr = str(n)
-                        fn_desc = FP_ID_DESC + nstr
-                        fn_shortdesc = FP_ID_SHORT_DESC + nstr
-                        valuedict.pop(fn_desc, None)  # remove item, if exists
-                        valuedict.pop(fn_shortdesc, None)
-                if ts.cope_with_old_idnums:
-                    # Insert records into the new ID number table from the old
-                    # patient table:
-                    for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
-                        nstr = str(which_idnum)
-                        fn_idnum = FP_ID_NUM + nstr
-                        idnum_value = valuedict.pop(fn_idnum, None)
-                        # ... and remove it from our new Patient record
-                        patient_id = valuedict.get("id", None)
-                        if idnum_value is None or patient_id is None:
-                            continue
-                        mark_table_dirty(req, PatientIdNum.__table__)
-                        _, _ = upload_record_core(
-                            req=req,
-                            table=PatientIdNum.__table__,
-                            clientpk_name='id',
-                            valuedict={
-                                'id': fake_tablet_id_for_patientidnum(
-                                    patient_id=patient_id,
-                                    which_idnum=which_idnum
-                                ),  # ... guarantees a pseudo client PK
-                                'patient_id': patient_id,
-                                'which_idnum': which_idnum,
-                                'idnum_value': idnum_value,
-                                CLIENT_DATE_FIELD: client_date_value,
-                                MOVE_OFF_TABLET_FIELD: valuedict[MOVE_OFF_TABLET_FIELD],  # noqa
-                            },
-                            recordnum=recordnum
-                        )
-                    # Now, how to deal with deletion, i.e. records missing
-                    # from the tablet?
-                    # See our caller, upload_table().
-
+            # The existing record is different. We need a logical UPDATE, but
+            # maintaining an audit trail.
+            process_upload_record_special(req, ts, table, valuedict, recordnum)
             newserverpk = insert_record(req, table, valuedict, oldserverpk)
             flag_modified(req, table, oldserverpk, newserverpk)
-            # log.debug("Table {table}, record {recordnum}: modified",
-            #           table=table.name, recordnum=recordnum)
     else:
-        # log.critical("... record is new")
-        # NEW
+        # The record is NEW. We need to INSERT it.
+        process_upload_record_special(req, ts, table, valuedict, recordnum)
         newserverpk = insert_record(req, table, valuedict, None)
-        # log.debug("Table {table}, record {recordnum}: new",
-        #           table=table.name, recordnum=recordnum)
+
     return oldserverpk, newserverpk
 
 
 def insert_record(req: CamcopsRequest,
                   table: Table,
-                  valuedict: Dict,
+                  valuedict: Dict[str, Any],
                   predecessor_pk: Optional[int]) -> int:
     """
     Inserts a record, or raises an exception if that fails.
@@ -848,78 +870,6 @@ def insert_record(req: CamcopsRequest,
     return rp.inserted_primary_key
 
 
-def duplicate_record(req: CamcopsRequest, table: Table, serverpk: int) -> int:
-    """
-    Duplicates the record defined by the table/serverpk combination.
-
-    - Will raise an exception if the insert fails. Otherwise...
-    - The old record then NEEDS MODIFICATION by flag_modified().
-    - The new record NEEDS MODIFICATION by update_new_copy_of_record().
-
-    Args:
-        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        table: an SQLAlchemy :class:`Table`
-        serverpk: the server PK of the record to duplicate
-
-    Returns:
-        the server PK of the new record
-
-    """
-    mark_table_dirty(req, table)
-    # Fetch the existing record.
-    # noinspection PyProtectedMember
-    query = (
-        select([text('*')])
-        .select_from(table)
-        .where(table.c._pk == serverpk)
-    )
-    rp = req.dbsession.execute(query)  # type: ResultProxy
-    row = rp.fetchone()
-    if not row:
-        raise ServerErrorException(
-            "Tried to fetch nonexistent record: table {t}, PK {pk}".format(
-                t=table.name, pk=serverpk))
-    valuedict = dict(row)
-    # Remove the PK from what we insert back (that will be autogenerated)
-    valuedict.pop("_pk", None)
-    # ... or del d["_pk"]; http://stackoverflow.com/questions/5447494
-    # Perform the insert
-    insert_rp = req.dbsession.execute(
-        table.insert().values(valuedict)
-    )  # type: ResultProxy
-    return insert_rp.inserted_primary_key
-
-
-def update_new_copy_of_record(req: CamcopsRequest,
-                              table: Table,
-                              serverpk: int,
-                              valuedict: Dict,
-                              predecessor_pk: int) -> None:
-    """
-    Following :func:`duplicate_record`, use this to modify the new copy
-    (defined by the table/serverpk combination).
-
-    Args:
-        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        table: an SQLAlchemy :class:`Table`
-        serverpk: the server PK of the (new) record to modify
-        valuedict: dictionary of {columnname: value} pairs to change
-        predecessor_pk: set the new record's ``_predecessor_pk`` to this value
-    """
-    valuedict.update(dict(
-        _current=0,
-        _addition_pending=1,
-        _predecessor_pk=predecessor_pk,
-        _camcops_version=req.tabletsession.tablet_version_str
-    ))
-    # noinspection PyProtectedMember
-    req.dbsession.execute(
-        update(table)
-        .where(table.c._pk == serverpk)
-        .values(valuedict)
-    )
-
-
 # =============================================================================
 # Batch (atomic) upload and preserving
 # =============================================================================
@@ -939,6 +889,7 @@ def get_batch_details_start_if_needed(req: CamcopsRequest) \
     a previous upload batch for this device, we restart the upload batch (thus
     rolling back previous pending changes).
     """
+    # noinspection PyUnresolvedReferences
     query = (
         select([Device.ongoing_upload_batch_utc,
                 Device.uploading_user_id,
@@ -965,6 +916,7 @@ def start_device_upload_batch(req: CamcopsRequest) -> None:
     Starts an upload batch for a device.
     """
     rollback_all(req)
+    # noinspection PyUnresolvedReferences
     req.dbsession.execute(
         update(Device.__table__)
         .where(Device.id == req.tabletsession.device_id)
@@ -987,6 +939,7 @@ def end_device_upload_batch(req: CamcopsRequest,
             :func:`start_preserving`, :func:`commit_table`)?
     """
     commit_all(req, batchtime, preserving)
+    # noinspection PyUnresolvedReferences
     req.dbsession.execute(
         update(Device.__table__)
         .where(Device.id == req.tabletsession.device_id)
@@ -1001,6 +954,7 @@ def start_preserving(req: CamcopsRequest) -> None:
     Starts preservation (the process of moving records from the NOW era to
     an older era, so they can be removed safely from the tablet).
     """
+    # noinspection PyUnresolvedReferences
     req.dbsession.execute(
         update(Device.__table__)
         .where(Device.id == req.tabletsession.device_id)
@@ -1014,6 +968,7 @@ def mark_table_dirty(req: CamcopsRequest, table: Table) -> None:
     """
     dbsession = req.dbsession
     ts = req.tabletsession
+    # noinspection PyUnresolvedReferences
     table_already_dirty = exists_in_table(
         dbsession,
         DirtyTable.__table__,
@@ -1021,6 +976,7 @@ def mark_table_dirty(req: CamcopsRequest, table: Table) -> None:
         DirtyTable.tablename == table.name
     )
     if not table_already_dirty:
+        # noinspection PyUnresolvedReferences
         dbsession.execute(
             DirtyTable.__table__.insert()
             .values(device_id=ts.device_id,
@@ -1243,6 +1199,7 @@ def commit_table(req: CamcopsRequest,
         n_preserved = preserve_rp.rowcount
 
         # Also preserve/finalize any corresponding special notes (2015-02-01)
+        # noinspection PyUnresolvedReferences
         req.dbsession.execute(
             update(SpecialNote.__table__)
             .where(SpecialNote.basetable == table.name)
@@ -1265,7 +1222,7 @@ def commit_table(req: CamcopsRequest,
         n_preserved = preserve_rp.rowcount
 
         # Also preserve/finalize any corresponding special notes (2015-02-01)
-        # noinspection PyProtectedMember
+        # noinspection PyProtectedMember,PyUnresolvedReferences
         req.dbsession.execute(
             update(SpecialNote.__table__)
             .where(SpecialNote.basetable == table.name)
@@ -1280,6 +1237,7 @@ def commit_table(req: CamcopsRequest,
 
     # Remove individually from list of dirty tables?
     if clear_dirty:
+        # noinspection PyUnresolvedReferences
         req.dbsession.execute(
             DirtyTable.__table__.delete()
             .where(DirtyTable.device_id == device_id)
@@ -1337,6 +1295,7 @@ def clear_dirty_tables(req: CamcopsRequest) -> None:
     """
     Clears the dirty-table list for a device.
     """
+    # noinspection PyUnresolvedReferences
     req.dbsession.execute(
         DirtyTable.__table__.delete()
         .where(DirtyTable.device_id == req.tabletsession.device_id)
@@ -1400,6 +1359,7 @@ def register(req: CamcopsRequest) -> Dict[str, Any]:
     ts = req.tabletsession
     device_friendly_name = get_str_var(req, TabletParam.DEVICE_FRIENDLY_NAME,
                                        mandatory=False)
+    # noinspection PyUnresolvedReferences
     device_exists = exists_in_table(
         dbsession,
         Device.__table__,
@@ -1407,6 +1367,7 @@ def register(req: CamcopsRequest) -> Dict[str, Any]:
     )
     if device_exists:
         # device already registered, but accept re-registration
+        # noinspection PyUnresolvedReferences
         dbsession.execute(
             update(Device.__table__)
             .where(Device.name == ts.device_name)
@@ -1418,6 +1379,7 @@ def register(req: CamcopsRequest) -> Dict[str, Any]:
     else:
         # new registration
         try:
+            # noinspection PyUnresolvedReferences
             dbsession.execute(
                 Device.__table__.insert()
                 .values(name=ts.device_name,
@@ -1566,13 +1528,11 @@ def upload_table(req: CamcopsRequest) -> str:
                 "number of values in record {r} ({nvalues})".format(
                     nfields=nfields, r=r, nvalues=nvalues)
             )
-            log.warning(errmsg +
-                        "\nfields: {!r}\n"
-                        "values: {!r}",
+            log.warning(errmsg + "\nfields: {!r}\n" "values: {!r}",
                         fields, values)
             fail_user_error(errmsg)
         valuedict = dict(zip(fields, values))
-        # log.critical("table {!r}, record {}: {!r}", table.name, r, valuedict)
+        # log.debug("table {!r}, record {}: {!r}", table.name, r, valuedict)
         # CORE: CALLS upload_record_core
         oldserverpk, newserverpk = upload_record_core(
             req, table, clientpk_name, valuedict, r)
@@ -1593,11 +1553,13 @@ def upload_table(req: CamcopsRequest) -> str:
         flag_deleted(req, table, server_pks_for_deletion)
 
     # Special for old tablets:
+    # noinspection PyUnresolvedReferences
     if req.tabletsession.cope_with_old_idnums and table == Patient.__table__:
+        # noinspection PyUnresolvedReferences
         mark_table_dirty(req, PatientIdNum.__table__)
         # Mark patient ID numbers for deletion if their parent Patient is
         # similarly being marked for deletion
-        # noinspection PyProtectedMember
+        # noinspection PyProtectedMember,PyUnresolvedReferences
         req.dbsession.execute(
             update(PatientIdNum.__table__)
             .where(PatientIdNum._device_id == Patient._device_id)
@@ -1640,29 +1602,17 @@ def upload_record(req: CamcopsRequest) -> str:
                                                    TabletParam.PKNAME)
     valuedict = get_fields_and_values(req, table,
                                       TabletParam.FIELDS, TabletParam.VALUES)
-    require_keys(valuedict, [clientpk_name, CLIENT_DATE_FIELD])
-    clientpk_value = valuedict[clientpk_name]
-    wheredict = {clientpk_name: clientpk_value}
-
-    serverpks = get_server_pks_of_specified_records(req, table, wheredict)
-    if not serverpks:
-        # Insert
-        insert_record(req, table, valuedict, None)
+    oldserverpk, newserverpk = upload_record_core(
+        req, table, clientpk_name, valuedict,
+        recordnum=1  # single-record upload
+    )
+    if oldserverpk is None:
         log.info("upload-insert")
         return "UPLOAD-INSERT"
     else:
-        # Update
-        oldserverpk = serverpks[0]
-        client_date_value = valuedict[CLIENT_DATE_FIELD]
-        rec_exists = record_identical_by_date(req, table, oldserverpk,
-                                              client_date_value)
-        if rec_exists:
+        if newserverpk is None:
             log.info("upload-update: skipping existing record")
         else:
-            newserverpk = duplicate_record(req, table, oldserverpk)
-            flag_modified(req, table, oldserverpk, newserverpk)
-            update_new_copy_of_record(req, table, newserverpk, valuedict,
-                                      oldserverpk)
             log.info("upload-update")
         return "UPLOAD-UPDATE"
     # Auditing occurs at commit_all.
@@ -1675,7 +1625,6 @@ def upload_empty_tables(req: CamcopsRequest) -> str:
     requests.
     """
     tables = get_tables_from_post_var(req, TabletParam.TABLES)
-
     _, _ = get_batch_details_start_if_needed(req)
     for table in tables:
         flag_all_records_deleted(req, table)
@@ -1888,8 +1837,8 @@ def client_api(req: CamcopsRequest) -> Response:
         k3:v3
         ...
     """
-    # log.critical("{!r}", req.environ)
-    # log.critical("{!r}", req.params)
+    # log.debug("{!r}", req.environ)
+    # log.debug("{!r}", req.params)
     t0 = time.time()  # in seconds
 
     try:

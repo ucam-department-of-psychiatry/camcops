@@ -186,6 +186,7 @@ public:
     bool isPkNull() const;
     void touch(bool only_if_unset = false);
     void setAllDirty();
+    bool existsInDb() const;
 
     // ========================================================================
     // Batch operations
@@ -194,7 +195,7 @@ public:
     QVector<int> getAllPKs() const;
 
     // ========================================================================
-    // Deleting
+    // Deletingc
     // ========================================================================
 
     virtual void deleteFromDatabase();

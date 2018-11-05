@@ -51,6 +51,7 @@ class TabletParam(object):
     ID_POLICY_FINALIZE = "idPolicyFinalize"  # S->C
     ID_POLICY_UPLOAD = "idPolicyUpload"  # S->C
     ID_SHORT_DESCRIPTION_PREFIX = "idShortDescription"  # S->C
+    ID_VALIDATION_METHOD_PREFIX = "idValidationMethod"  # S->C; new in v2.2.8
     NFIELDS = "nfields"  # B
     NRECORDS = "nrecords"  # B
     OPERATION = "operation"  # C->S

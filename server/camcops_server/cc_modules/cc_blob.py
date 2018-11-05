@@ -284,14 +284,15 @@ def blob_relationship(classname: str,
 # Unit tests
 # =============================================================================
 
-def get_blob_img_html(blob: Optional[Blob]) -> str:
+def get_blob_img_html(blob: Optional[Blob],
+                      html_if_missing: str = "<i>(No picture)</i>") -> str:
     """
     For the specified BLOB, get an HTML IMG tag with embedded data, or an HTML
     error message.
     """
     if blob is None:
-        return "<i>(No picture)</i>"
-    return blob.get_img_html()
+        return html_if_missing
+    return blob.get_img_html() or html_if_missing
 
 
 # =============================================================================

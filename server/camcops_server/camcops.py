@@ -113,6 +113,7 @@ from camcops_server.cc_modules.cc_constants import (
     MINIMUM_PASSWORD_LENGTH,
     USER_NAME_FOR_SYSTEM,
 )  # nopep8
+from camcops_server.cc_modules.cc_exception import raise_runtime_error  # nopep8
 from camcops_server.cc_modules.cc_hl7 import send_all_pending_hl7_messages  # nopep8
 from camcops_server.cc_modules.cc_pyramid import RouteCollection  # nopep8
 from camcops_server.cc_modules.cc_request import (
@@ -135,7 +136,7 @@ from camcops_server.cc_modules.cc_user import (
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
 from camcops_server.cc_modules.merge_db import merge_camcops_db  # nopep8
 
-log.debug("All imports complete")
+log.info("Imports complete")
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
@@ -145,14 +146,8 @@ if TYPE_CHECKING:
 # Check Python version (the shebang is not a guarantee)
 # =============================================================================
 
-# if sys.version_info[0] != 2 or sys.version_info[1] != 7:
-#     # ... sys.version_info.major (etc.) require Python 2.7 in any case!
-#     raise RuntimeError(
-#         "CamCOPS needs Python 2.7, and this Python version is: "
-#         + sys.version)
-
 if sys.version_info[0] != 3:
-    raise RuntimeError(
+    raise_runtime_error(
         "CamCOPS needs Python 3, and this Python version is: " + sys.version)
 
 # =============================================================================
@@ -382,8 +377,8 @@ def serve_gunicorn(application: Router,
       "shan't, because I use global state".
     """  # noqa
     if BaseApplication is None:
-        raise RuntimeError("Gunicorn does not run under Windows. "
-                           "(It relies on the UNIX fork() facility.)")
+        raise_runtime_error("Gunicorn does not run under Windows. "
+                            "(It relies on the UNIX fork() facility.)")
 
     ensure_database_is_ok()
 
@@ -735,7 +730,6 @@ def self_test(show_only: bool = False) -> None:
         ]
         suite = unittest.TestSuite()
         for cls in gen_all_subclasses(unittest.TestCase):
-            # log.critical("Considering: {}", cls)
             if cls in skip_testclass_subclasses:
                 continue
             if not cls.__module__.startswith("camcops_server"):

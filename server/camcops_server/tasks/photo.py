@@ -193,7 +193,6 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return len(self.photos) > 0
 
     def is_complete(self) -> bool:
-        # log.critical("is_complete")
         # If you're wondering why this is being called unexpectedly: it may be
         # because this task is being displayed in the task list, at which point
         # we colour it by its complete-or-not status.

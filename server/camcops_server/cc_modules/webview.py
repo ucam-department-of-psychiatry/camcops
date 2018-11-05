@@ -485,9 +485,7 @@ def login_view(req: CamcopsRequest) -> Response:
     if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
-            # log.critical("controls from POST: {!r}", controls)
             appstruct = form.validate(controls)
-            # log.critical("appstruct from POST: {!r}", appstruct)
             log.debug("Validating user login.")
             ccsession = req.camcops_session
             username = appstruct.get(ViewParam.USERNAME)
@@ -528,7 +526,7 @@ def login_view(req: CamcopsRequest) -> Response:
             # page, via the permissions system (Permission.HAPPY or not).
 
             if redirect_url:
-                # log.critical("Redirecting to {!r}", redirect_url)
+                # log.debug("Redirecting to {!r}", redirect_url)
                 return HTTPFound(redirect_url)  # redirect
             return HTTPFound(req.route_url(Routes.HOME))  # redirect
 
@@ -540,7 +538,7 @@ def login_view(req: CamcopsRequest) -> Response:
         # ... use default of "", because None gets serialized to "None", which
         #     would then get read back later as "None".
         appstruct = {ViewParam.REDIRECT_URL: redirect_url}
-        # log.critical("appstruct from GET/POST: {!r}", appstruct)
+        # log.debug("appstruct from GET/POST: {!r}", appstruct)
         rendered_form = form.render(appstruct)
 
     return render_to_response(
@@ -2077,7 +2075,6 @@ def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
         # ... user must be a member of one of our groups
         # ... no groupadmins
         # https://stackoverflow.com/questions/14600619/using-not-exists-clause-in-sqlalchemy-orm-query  # noqa
-        # log.critical(str(q))
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
@@ -2151,7 +2148,7 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
     user_frozen_group_ids = list(set(user_group_ids) - set(all_fluid_groups))
     # Group memberships we might alter:
     user_fluid_group_ids = list(set(user_group_ids) & set(all_fluid_groups))
-    # log.critical(
+    # log.debug(
     #     "all_fluid_groups={}, user_group_ids={}, "
     #     "user_frozen_group_ids={}, user_fluid_group_ids={}".format(
     #         all_fluid_groups, user_group_ids,
@@ -2725,6 +2722,7 @@ def edit_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
             # -----------------------------------------------------------------
             iddef.description = appstruct.get(ViewParam.DESCRIPTION)
             iddef.short_description = appstruct.get(ViewParam.SHORT_DESCRIPTION)  # noqa
+            iddef.validation_method = appstruct.get(ViewParam.VALIDATION_METHOD)  # noqa
             iddef.hl7_id_type = appstruct.get(ViewParam.HL7_ID_TYPE)
             iddef.hl7_assigning_authority = appstruct.get(ViewParam.HL7_ASSIGNING_AUTHORITY)  # noqa
             # REMOVED # clear_idnum_definition_cache()  # SPECIAL
@@ -2736,6 +2734,7 @@ def edit_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
             ViewParam.WHICH_IDNUM: iddef.which_idnum,
             ViewParam.DESCRIPTION: iddef.description or "",
             ViewParam.SHORT_DESCRIPTION: iddef.short_description or "",
+            ViewParam.VALIDATION_METHOD: iddef.validation_method or "",
             ViewParam.HL7_ID_TYPE: iddef.hl7_id_type or "",
             ViewParam.HL7_ASSIGNING_AUTHORITY: iddef.hl7_assigning_authority or "",  # noqa
         }
@@ -3133,7 +3132,7 @@ def edit_patient(req: CamcopsRequest) -> Response:
                 changes[k] = (old_value, new_value)
                 setattr(patient, k, new_value)
             # The ID numbers are more complex.
-            # log.critical("{}", pformat(appstruct))
+            # log.debug("{}", pformat(appstruct))
             new_idrefs = [
                 IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
                                idnum_value=idrefdict[ViewParam.IDNUM_VALUE])
@@ -3274,7 +3273,7 @@ def forcibly_finalize(req: CamcopsRequest) -> Response:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
-            # log.critical("{}", pformat(appstruct))
+            # log.debug("{}", pformat(appstruct))
             device_id = appstruct.get(ViewParam.DEVICE_ID)
             device = Device.get_device_by_id(dbsession, device_id)
             if device is None:

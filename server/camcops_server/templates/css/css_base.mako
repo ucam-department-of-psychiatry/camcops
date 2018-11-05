@@ -128,6 +128,13 @@ tr, th, td {
 .badidpolicy_severe {
     background-color: rgb(255, 255, 0);  /* bright yellow */
 }
+.invalid_id_number_foreground {
+    color: rgb(128, 0, 128);  /* purple */
+    font-weight: bold;
+}
+.invalid_id_number_background {
+    background-color: rgb(218, 112, 214);  /* orchid */
+}
 .banner {
     text-align: center;
     font-size: ${va.BANNERFONTSIZE};

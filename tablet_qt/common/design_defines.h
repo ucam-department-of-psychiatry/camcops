@@ -38,6 +38,7 @@
 //      description consistency and will abort if it's not consistent; see
 //      NetworkManager::areDescriptionsOK().
 // A. Design change 2017-07-08: NO. Don't #define this.
+// As of 2018-11-05, it no longer has any effect.
 
 // #define DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
 
@@ -45,6 +46,7 @@
 // Limit to 8 ID numbers, in patient table, or use separate table?
 // ============================================================================
 // Design change 2017-07-24: Do NOT #define this.
+// As of 2018-11-05, it no longer has any effect.
 
 // #define LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
 
@@ -54,5 +56,8 @@
 // ============================================================================
 // A. Design change 2017-07-08: no. The server can do this; we shouldn't burden
 //    clients with pointless extra network activity, even if users agree.
+//    Also, subsequent more general privacy point: no, whether from the client
+//    or the server.
+// As of 2018-11-05, it no longer has any effect.
 
 // #define ALLOW_SEND_ANALYTICS

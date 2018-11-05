@@ -43,6 +43,7 @@ from cardinal_pythonlib.text import unescape_newlines
 
 from .cc_cache import cache_region_static, fkg
 from .cc_config import get_config
+from .cc_exception import raise_runtime_error
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -159,8 +160,8 @@ def all_extra_strings_as_dicts(
         filenames.extend(possibles)
     filenames = sorted(set(filenames))  # just unique ones
     if not filenames:
-        raise RuntimeError("No CamCOPS extra string files specified; "
-                           "config is misconfigured; aborting")
+        raise_runtime_error("No CamCOPS extra string files specified; "
+                            "config is misconfigured; aborting")
     allstrings = {}  # type: Dict[str, Dict[str, str]]
     for filename in filenames:
         log.info("Loading XML file: " + filename)
@@ -178,7 +179,7 @@ def all_extra_strings_as_dicts(
                 allstrings[taskname][stringname] = final_string
 
     if APPSTRING_TASKNAME not in allstrings:
-        raise RuntimeError(
+        raise_runtime_error(
             "Extra string files do not contain core CamCOPS strings; "
             "config is misconfigured; aborting")
 

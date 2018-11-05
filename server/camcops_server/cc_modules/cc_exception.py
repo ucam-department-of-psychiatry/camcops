@@ -1,4 +1,10 @@
-/*
+#!/usr/bin/env python
+
+"""
+camcops_server/cc_modules/cc_exception.py
+
+===============================================================================
+
     Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -15,33 +21,22 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
-*/
 
-#include "dbconst.h"
-#include <QDebug>
+===============================================================================
 
+**Exception-handling functions.**
 
-namespace dbconst {
+"""
 
-const QString PK_FIELDNAME("id");
-const QString MODIFICATION_TIMESTAMP_FIELDNAME("when_last_modified");
-const QString MOVE_OFF_TABLET_FIELDNAME("_move_off_tablet");
-// ... must match database.py on server
+import logging
 
-const QString CREATION_TIMESTAMP_FIELDNAME("when_created");
-const int NONEXISTENT_PK = -1;
-
-const QString UNKNOWN_IDNUM_DESC("<ID_number_%1>");
+log = logging.getLogger(__name__)
 
 
-bool isValidWhichIdnum(int which_idnum)
-{
-    const bool valid = which_idnum >= 1;
-    if (!valid) {
-        qWarning() << Q_FUNC_INFO << "bad idnum" << which_idnum;
-    }
-    return valid;
-}
-
-
-}  // namespace dbconst
+def raise_runtime_error(msg: str) -> None:
+    """
+    Reports an error message to the Python log and raises a
+    :exc:`RuntimeError`.
+    """
+    log.critical(msg)
+    raise RuntimeError(msg)

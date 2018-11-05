@@ -155,9 +155,6 @@ protected:
     // internal functions
     bool isPatientInfoComplete();
     bool applyPatientMoveOffTabletFlagsToTasks();
-#ifdef DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
-    bool writeIdDescriptionsToPatientTable();
-#endif
     bool catalogueTablesForUpload();
     bool isServerVersionOK() const;
     bool arePoliciesOK() const;
@@ -169,13 +166,6 @@ protected:
     void queryFailClearingMoveOffFlag(const QString& tablename);
     bool clearMoveOffTabletFlag(const QString& tablename);
     bool pruneDeadBlobs();
-
-    // ------------------------------------------------------------------------
-    // Analytics
-    // ------------------------------------------------------------------------
-#ifdef ALLOW_SEND_ANALYTICS
-    void sendAnalytics();
-#endif
 
     // ------------------------------------------------------------------------
     // Signals

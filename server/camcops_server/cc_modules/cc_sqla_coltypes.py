@@ -430,7 +430,7 @@ def isotzdatetime_to_utcdatetime_mysql(
             utc=_UTC_TZ_LITERAL)
     )
 
-    # log.critical(result_utc)
+    # log.debug(result_utc)
     return result_utc
 
 
@@ -460,7 +460,7 @@ def isotzdatetime_to_utcdatetime_sqlite(
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
     result = "STRFTIME({fmt}, {x})".format(fmt=fmt, x=x)
 
-    # log.critical(result)
+    # log.debug(result)
     return result
 
 
@@ -578,7 +578,7 @@ def isotzdatetime_to_utcdatetime_sqlserver(
     result_utc = "CAST({dtu} AS DATETIME2".format(
         dtu=date_time_offset_with_utc_tz)
 
-    # log.critical(result_utc)
+    # log.debug(result_utc)
     return result_utc
 
 
@@ -629,7 +629,7 @@ def unknown_field_to_utcdatetime_mysql(
         dtlen=_MYSQL_DATETIME_LEN,
         converted=isotzdatetime_to_utcdatetime_mysql(element, compiler, **kw)
     )
-    # log.critical(result)
+    # log.debug(result)
     return result
 
 
@@ -644,7 +644,7 @@ def unknown_field_to_utcdatetime_sqlite(
     x = fetch_processed_single_clause(element, compiler)
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
     result = "STRFTIME({fmt}, {x})".format(fmt=fmt, x=x)
-    # log.critical(result)
+    # log.debug(result)
     return result
 
 
@@ -681,7 +681,7 @@ def unknown_field_to_utcdatetime_sqlserver(
                 element, compiler, **kw)
         )
     )
-    # log.critical(result)
+    # log.debug(result)
     return result
 
 
@@ -1474,7 +1474,7 @@ class SqlaColtypesTest(unittest.TestCase):
             .execute()
         )
         # for row in rows:
-        #     log.critical("\n{}", pformat(dict(row)))
+        #     log.debug("\n{}", pformat(dict(row)))
         self._assert_dt_equal(rows[0][dt_local_col], now)
         self._assert_dt_equal(rows[0][dt_utc_col], now_utc)
         self._assert_dt_equal(rows[0][iso_colname], now)

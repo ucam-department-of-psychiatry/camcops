@@ -216,7 +216,7 @@ class FetchThread(Thread):
         super().__init__(name=name, target=None, **kwargs)
 
     def run(self) -> None:
-        log.critical("Thread starting")
+        log.debug("Thread starting")
         dbsession = self.req.get_bare_dbsession()
         # noinspection PyBroadException
         try:
@@ -229,12 +229,12 @@ class FetchThread(Thread):
                 # http://effbot.org/pyfaq/what-kinds-of-global-value-mutation-are-thread-safe.htm  # noqa
                 # noinspection PyProtectedMember
                 self.factory._tasks_by_class[self.task_class] = tasks
-                log.critical("Thread finishing with results")
+                log.debug("Thread finishing with results")
             else:
-                log.critical("Thread finishing without results")
+                log.debug("Thread finishing without results")
         except:
             self.error = True
-            log.critical("Thread error")
+            log.error("Thread error")
         dbsession.close()
 
 
@@ -279,7 +279,7 @@ class TaskCollection(object):
         self._sort_method_global = sort_method_global
         self._tasks_by_class = OrderedDict()  # type: Dict[Type[Task], List[Task]]  # noqa
         self._all_tasks = None  # type: List[Task]
-        # log.critical("TaskCollection(): taskfilter={!r}", self._filter)
+        # log.debug("TaskCollection(): taskfilter={!r}", self._filter)
 
     # =========================================================================
     # Interface to read

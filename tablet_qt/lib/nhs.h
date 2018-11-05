@@ -94,7 +94,7 @@ QValidator::State nhs::validateNhsNumber(const QString& s, bool allow_empty)
 #ifdef NHS_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << s << "-> Invalid (>10 digits)";
 #endif
-            return QValidator::State::Intermediate;
+            return QValidator::State::Invalid;
     }
     if (len < nhs_num_len) {
 #ifdef NHS_DEBUG_VALIDATOR

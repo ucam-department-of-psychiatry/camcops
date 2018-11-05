@@ -54,6 +54,7 @@ using FieldRefPtrList = QVector<FieldRefPtr>;
 class IdNumDescription;
 using IdNumDescriptionPtr = QSharedPointer<IdNumDescription>;
 using IdNumDescriptionPtrList = QVector<IdNumDescriptionPtr>;
+using IdNumDescriptionConstPtr = QSharedPointer<const IdNumDescription>;
 
 class Patient;
 using PatientPtr = QSharedPointer<Patient>;

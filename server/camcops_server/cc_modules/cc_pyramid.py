@@ -227,6 +227,7 @@ class ViewParam(object):
     USER_ID = "user_id"
     USER_IDS = "user_ids"
     USERNAME = "username"
+    VALIDATION_METHOD = "validation_method"
     VIEW_ALL_PATIENTS_WHEN_UNFILTERED = "view_all_patients_when_unfiltered"
     VIEWTYPE = "viewtype"
     WHICH_IDNUM = "which_idnum"
@@ -466,7 +467,7 @@ class UrlParam(object):
         elif self.paramtype == UrlParamType.PLAIN_STRING:
             return r'[a-zA-Z0-9_]+'
         else:
-            raise RuntimeError("Bug in UrlParam")
+            raise AssertionError("Bug in UrlParam")
 
     def markerdef(self) -> str:
         """

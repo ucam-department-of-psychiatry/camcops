@@ -18,7 +18,8 @@
 */
 
 // #define DEBUG_NETWORK_REQUESTS
-#define DEBUG_NETWORK_REPLIES
+// #define DEBUG_NETWORK_REPLIES_RAW
+// #define DEBUG_NETWORK_REPLIES_DICT
 // #define DEBUG_ACTIVITY
 #define USE_BACKGROUND_DATABASE
 
@@ -80,6 +81,8 @@ const QString KEYPREFIX_ID_DESCRIPTION("idDescription");  // S->C
 const QString KEYSPEC_ID_DESCRIPTION(KEYPREFIX_ID_DESCRIPTION + "%1");  // S->C
 const QString KEYPREFIX_ID_SHORT_DESCRIPTION("idShortDescription");  // S->C
 const QString KEYSPEC_ID_SHORT_DESCRIPTION(KEYPREFIX_ID_SHORT_DESCRIPTION + "%1");  // S->C
+const QString KEYPREFIX_ID_VALIDATION_METHOD("idValidationMethod");  // S->C, new in v2.2.8
+const QString KEYSPEC_ID_VALIDATION_METHOD(KEYPREFIX_ID_VALIDATION_METHOD + "%1");  // S->C, new in v2.2.8
 const QString KEYSPEC_RECORD("record%1");  // B
 
 // Operations for server:
@@ -423,11 +426,11 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
     }
     m_reply_data = reply->readAll();  // can probably do this only once
     statusMessage("... received " + sizeBytes(m_reply_data.length()));
-#ifdef DEBUG_NETWORK_REPLIES
+#ifdef DEBUG_NETWORK_REPLIES_RAW
     qDebug() << "Network reply (raw): " << m_reply_data;
 #endif
     m_reply_dict = convert::getReplyDict(m_reply_data);
-#ifdef DEBUG_NETWORK_REPLIES
+#ifdef DEBUG_NETWORK_REPLIES_DICT
     qInfo() << "Network reply (dictionary): " << m_reply_dict;
 #endif
     if (!replyFormatCorrect()) {
@@ -804,7 +807,9 @@ void NetworkManager::storeServerIdentificationInfo()
                 const QString desc = m_reply_dict[keydesc];
                 const QString key_shortdesc = KEYSPEC_ID_SHORT_DESCRIPTION.arg(which_idnum);
                 const QString shortdesc = m_reply_dict[key_shortdesc];
-                m_app.setIdDescription(which_idnum, desc, shortdesc);
+                const QString key_validation = KEYSPEC_ID_VALIDATION_METHOD.arg(which_idnum);
+                const QString validation_method = m_reply_dict[key_validation];
+                m_app.setIdDescription(which_idnum, desc, shortdesc, validation_method);
             } else {
                 qWarning() << "Bad ID description key:" << keydesc;
             }
@@ -889,12 +894,6 @@ void NetworkManager::upload(const UploadMethod method)
     statusMessage("... done");
     m_app.processEvents();
 
-#ifdef DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
-    if (!writeIdDescriptionsToPatientTable()) {
-        fail();
-        return;
-    }
-#endif
     m_app.processEvents();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1056,7 +1055,6 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
 
     default:
         uifunc::stopApp("Bug: unknown m_upload_next_stage");
-        break;
     }
 }
 
@@ -1598,36 +1596,6 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
 }
 
 
-#ifdef DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
-bool NetworkManager::writeIdDescriptionsToPatientTable()
-{
-    statusMessage("Writing ID descriptions to patient table for upload");
-    QStringList assignments;
-    ArgList args;
-    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-        assignments.append(
-                    delimit(dbconst::IDDESC_FIELD_FORMAT.arg(n)) + "=?");
-        args.append(m_app.idDescription(n));
-        assignments.append(
-                    delimit(dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n)) + "=?");
-        args.append(m_app.idShortDescription(n));
-    }
-    const QString sql = QString("UPDATE %1 SET %2")
-            .arg(delimit(Patient::TABLENAME),
-                 assignments.join(", "));
-#ifdef USE_BACKGROUND_DATABASE
-    m_db.execNoAnswer(sql, args);
-#else
-    if (!m_db.exec(sql, args)) {
-        queryFail(sql);
-        return false;
-    }
-#endif
-    return true;
-}
-#endif
-
-
 bool NetworkManager::catalogueTablesForUpload()
 {
     statusMessage("Cataloguing tables for upload");
@@ -1798,29 +1766,30 @@ bool NetworkManager::areDescriptionsOK() const
     bool idnums_all_on_server = true;
     bool descriptions_match = true;
     QVector<int> which_idnums_on_server;
-#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
-    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-        const QString varname_desc = dbconst::IDDESC_FIELD_FORMAT.arg(n);
-        const QString varname_shortdesc = dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n);
-        const QString local_desc = m_app.varString(varname_desc);
-        const QString local_shortdesc = m_app.varString(varname_shortdesc);
-#else
     QVector<IdNumDescriptionPtr> iddescriptions = m_app.getAllIdDescriptions();
     for (const IdNumDescriptionPtr& iddesc : iddescriptions) {
         const int n = iddesc->whichIdNum();
-        const QString local_desc = iddesc->description();
-        const QString local_shortdesc = iddesc->shortDescription();
-#endif
         const QString key_desc = KEYSPEC_ID_DESCRIPTION.arg(n);
         const QString key_shortdesc = KEYSPEC_ID_SHORT_DESCRIPTION.arg(n);
+        const QString key_validation = KEYSPEC_ID_VALIDATION_METHOD.arg(n);
         if (m_reply_dict.contains(key_desc) &&
                 m_reply_dict.contains(key_shortdesc)) {
+            const QString local_desc = iddesc->description();
+            const QString local_shortdesc = iddesc->shortDescription();
             const QString server_desc = m_reply_dict[key_desc];
             const QString server_shortdesc = m_reply_dict[key_shortdesc];
             descriptions_match = descriptions_match &&
                     local_desc == server_desc &&
                     local_shortdesc == server_shortdesc;
             which_idnums_on_server.append(n);
+            // Old servers may not provide the ID number validator info.
+            // But new ones will (v2.2.8+), in which case we'll check.
+            if (m_reply_dict.contains(key_validation)) {
+                const QString local_validation = iddesc->validationMethod();
+                const QString server_validation = m_reply_dict[key_validation];
+                descriptions_match = descriptions_match &&
+                        local_validation == server_validation;
+            }
         } else {
             idnums_all_on_server = false;
         }
@@ -2003,15 +1972,3 @@ bool NetworkManager::pruneDeadBlobs()
 #endif
     return true;
 }
-
-
-// ============================================================================
-// Analytics
-// ============================================================================
-
-#ifdef ALLOW_SEND_ANALYTICS
-void NetworkManager::sendAnalytics()
-{
-#error NetworkManager::sendAnalytics() not implemented
-}
-#endif

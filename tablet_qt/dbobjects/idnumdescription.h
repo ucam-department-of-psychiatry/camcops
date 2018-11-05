@@ -28,15 +28,15 @@ public:
     IdNumDescription(CamcopsApp& app, DatabaseManager& db,
                      int which_idnum = dbconst::NONEXISTENT_PK);
     int whichIdNum() const;
-    bool exists() const;
     QString description() const;
     QString shortDescription() const;
-    bool setDescriptions(const QString& desc, const QString& shortdesc);
+    bool setDescriptions(const QString& desc, const QString& shortdesc,
+                         const QString& validation_method);
+    QString validationMethod() const;
     void deleteAllDescriptions();  // sort-of static function
     void makeIndexes();  // sort-of static function
+    bool validateAsNhsNumber() const;
 public:
     static const QString IDNUMDESC_TABLENAME;
     static const QString FN_IDNUM;
-protected:
-    bool m_exists;
 };

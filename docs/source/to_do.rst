@@ -74,28 +74,14 @@ Client core
 
 **Priority**
 
-- Validator options, e.g. the server says "ID type 72 uses the 'NHS number'
-  validator", so checksums are checked. An NHS number validator is built.
-
-  - needs ?text field addition to the ID number descriptor table (client +
-    server), e.g. "nhs" for NHS number validator; only needs to be one option;
-    default NULL or blank
-  - (client + server) ID numbers should provide info as to whether they
-    pass their validator?
-  - plus changes to download code, maintaining backward compatibility
-  - plus changes to (client) patient editor, using the NHS number validator
-    if the validator is "NHS", etc.
-  - on the server, HTML task view showing a warning if an ID number fails
-    its validator?
-
-  This would be a "per ID number" setting.
-
 - Think: maybe extend the "required ID number" system so that groups can define
   whether the client should/shouldn't offer forename, surname, DOB, address,
   GP, other. This would make it easier to enforce a "no PID" rule for
   research studies. This would be a per-group setting.
 
 - Facility to dump entire groups e.g. daily to a database.
+
+- Basic e-mail sending functions.
 
 - Facility to auto-email individual PDFS to defined group recipients (e.g.
   admin teams).

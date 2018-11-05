@@ -1656,7 +1656,7 @@ class Config(object):
         sdkpath = self._xcode_all_sdks_path(xcode_platform)
         stdout = fetch(["ls", sdkpath])
         sdks = [x for x in stdout.splitlines() if x]
-        # log.critical(sdks)
+        # log.debug(sdks)
         if not sdks:
             log.warning("No iOS SDKs found in {}".format(sdkpath))
             return default
@@ -1664,7 +1664,7 @@ class Config(object):
         suffix = ".sdk"
         sdk_name = latest_sdk[:-len(suffix)]  # remove the trailing ".sdk"
         sdk_version = sdk_name[len(xcode_platform):]  # remove the leading prefix, e.g. "iPhoneOS"  # noqa
-        # log.critical("iOS SDK version: {!r}".format(sdk_version))
+        # log.debug("iOS SDK version: {!r}".format(sdk_version))
         return sdk_version
 
     def _get_ios_sdk_version(self, target_platform: Platform) -> str:

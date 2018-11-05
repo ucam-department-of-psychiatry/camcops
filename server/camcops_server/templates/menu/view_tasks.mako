@@ -57,6 +57,7 @@ ${ refresh_form }
     <div class="footnotes">
         Colour in the Patient column means that an ID policy is not yet
             satisfied.
+        Colour in the Identifiers column means that an ID number is invalid.
         Colour in the Task Type column means the record is not current.
         Colour in the Created column means the task is ‘live’ on the tablet,
             not finalized (so patient and task details may change).

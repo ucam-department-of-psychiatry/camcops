@@ -789,7 +789,7 @@ class DiagnosisICD10FinderReport(DiagnosisFinderReportBase):
             age_maximum_y=age_maximum,
         )
         q = q.order_by(*ORDER_BY)
-        # log.critical("Final query:\n{}".format(get_literal_query(
+        # log.debug("Final query:\n{}".format(get_literal_query(
         #     q, bind=req.engine)))
         return q
 
@@ -837,7 +837,7 @@ class DiagnosisICD9CMFinderReport(DiagnosisFinderReportBase):
             age_maximum_y=age_maximum,
         )
         q = q.order_by(*ORDER_BY)
-        # log.critical("Final query:\n{}".format(get_literal_query(
+        # log.debug("Final query:\n{}".format(get_literal_query(
         #     q, bind=req.engine)))
         return q
 

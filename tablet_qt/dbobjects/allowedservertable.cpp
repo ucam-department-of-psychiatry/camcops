@@ -48,7 +48,7 @@ AllowedServerTable::AllowedServerTable(CamcopsApp& app,
         // Not a specimen; load
         WhereConditions where;
         where.add(TABLENAME_FIELD, tablename);
-        m_exists = load(where);
+        load(where);
     }
 }
 
@@ -70,7 +70,6 @@ AllowedServerTable::AllowedServerTable(CamcopsApp& app,
     setValue(TABLENAME_FIELD, tablename);
     setValue(VERSION_FIELD, min_client_version.toVariant());
     save();
-    m_exists = true;
 }
 
 
@@ -79,8 +78,6 @@ void AllowedServerTable::commonConstructor()
     // Define fields
     addField(TABLENAME_FIELD, QVariant::String, true, true, false);  // unique
     addField(VERSION_FIELD, convert::TYPENAME_VERSION, true, false, false);
-
-    m_exists = false;
 }
 
 
@@ -98,12 +95,6 @@ QString AllowedServerTable::tablename() const
 Version AllowedServerTable::minClientVersion() const
 {
     return Version::fromVariant(value(VERSION_FIELD));
-}
-
-
-bool AllowedServerTable::exists() const
-{
-    return m_exists;
 }
 
 

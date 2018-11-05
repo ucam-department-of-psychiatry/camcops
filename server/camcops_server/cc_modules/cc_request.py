@@ -78,7 +78,11 @@ from .cc_constants import (
     DEFAULT_PLOT_DPI,
     USE_SVG_IN_HTML,
 )
-from .cc_idnumdef import get_idnum_definitions, IdNumDefinition
+from .cc_idnumdef import (
+    get_idnum_definitions,
+    IdNumDefinition,
+    validate_id_number,
+)
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
 from .cc_pyramid import (
@@ -941,7 +945,8 @@ class CamcopsRequest(Request):
     @property
     def user(self) -> Optional["User"]:
         """
-        Returns the :class:`camcops_server.cc_modules.cc_user.User` for the current request.
+        Returns the :class:`camcops_server.cc_modules.cc_user.User` for the
+        current request.
         """
         return self._debugging_user or self.camcops_session.user
 
@@ -961,7 +966,8 @@ class CamcopsRequest(Request):
     @reify
     def idnum_definitions(self) -> List[IdNumDefinition]:
         """
-        Returns all :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition` objects.
+        Returns all
+        :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition` objects.
         """
         return get_idnum_definitions(self.dbsession)  # no longer cached
 
@@ -976,8 +982,9 @@ class CamcopsRequest(Request):
     def get_idnum_definition(self,
                              which_idnum: int) -> Optional[IdNumDefinition]:
         """
-        Retrieves an :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition` for the specified ``which_idnum``
-        value.
+        Retrieves an
+        :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition` for the
+        specified ``which_idnum`` value.
         """
         return next((iddef for iddef in self.idnum_definitions
                      if iddef.which_idnum == which_idnum), None)
@@ -1002,6 +1009,42 @@ class CamcopsRequest(Request):
                      for iddef in self.idnum_definitions
                      if iddef.which_idnum == which_idnum),
                     default)
+
+    def is_idnum_valid(self, which_idnum: int,
+                       idnum_value: Optional[int]) -> bool:
+        """
+        Does the ID number pass any extended validation checks?
+
+        Args:
+            which_idnum: which ID number type is this?
+            idnum_value: ID number value
+
+        Returns:
+            bool: valid?
+        """
+        idnumdef = self.get_idnum_definition(which_idnum)
+        if not idnumdef:
+            return False
+        valid, _ = validate_id_number(idnum_value, idnumdef.validation_method)
+        return valid
+
+    def why_idnum_invalid(self, which_idnum: int,
+                          idnum_value: Optional[int]) -> str:
+        """
+        Why does the ID number fail any extended validation checks?
+
+        Args:
+            which_idnum: which ID number type is this?
+            idnum_value: ID number value
+
+        Returns:
+            str: why invalid? (Human-readable string.)
+        """
+        idnumdef = self.get_idnum_definition(which_idnum)
+        if not idnumdef:
+            return "Can't fetch ID number definition"
+        _, why = validate_id_number(idnum_value, idnumdef.validation_method)
+        return why
 
     # -------------------------------------------------------------------------
     # Server settings
@@ -1224,7 +1267,7 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
     #
     # @property
     # def params(self):
-    #     log.critical(repr(self._fake_params))
+    #     log.debug(repr(self._fake_params))
     #     return self._fake_params
     #     # Returning the member object allows clients to call
     #     #       dummyreq.params.update(...)

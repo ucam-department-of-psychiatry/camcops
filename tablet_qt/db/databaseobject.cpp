@@ -530,12 +530,11 @@ bool DatabaseObject::load(const WhereConditions& where)
     const QueryResult result = m_db.query(sqlargs, QueryResult::FetchMode::FetchFirst);
     const bool found = result.nRows() > 0;
     if (found) {
-        setFromQuery(result, 0, true);
+        setFromQuery(result, 0, true);  // sets m_exists_in_db
         loadAllAncillary();
     } else {
-        nullify();
+        nullify();  // clears m_exists_in_db
     }
-    m_exists_in_db = found;
     return found;
 }
 
@@ -583,6 +582,7 @@ void DatabaseObject::setFromQuery(const QueryResult& query_result,
             it.value().setFromDatabaseValue(query_result.at(row, fieldname));
         }
     }
+    m_exists_in_db = true;
 
     // And also:
     loadAllAncillary();
@@ -634,6 +634,7 @@ void DatabaseObject::nullify()
         Field field = i.value();
         field.nullify();
     }
+    m_exists_in_db = false;
 }
 
 
@@ -667,6 +668,13 @@ void DatabaseObject::setAllDirty()
         i.value().setDirty();
     }
 }
+
+
+bool DatabaseObject::existsInDb() const
+{
+    return m_exists_in_db;
+}
+
 
 // ============================================================================
 // Batch operations

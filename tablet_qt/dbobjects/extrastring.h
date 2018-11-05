@@ -49,5 +49,4 @@ public:
     static const QString VALUE_FIELD;
 protected:
     void commonConstructor();
-    bool m_exists;
 };

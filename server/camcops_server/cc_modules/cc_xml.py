@@ -150,7 +150,7 @@ def make_xml_branches_from_columns(
     skip_fields = skip_fields or []  # type: List[str]
     branches = []  # type: List[XmlElement]
     for attrname, column in gen_columns(obj):
-        # log.critical("make_xml_branches_from_columns: {!r}", attrname)
+        # log.debug("make_xml_branches_from_columns: {!r}", attrname)
         colname = column.name
         if colname in skip_fields:
             continue

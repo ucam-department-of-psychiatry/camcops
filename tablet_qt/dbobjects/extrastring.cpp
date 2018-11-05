@@ -50,7 +50,7 @@ ExtraString::ExtraString(CamcopsApp& app,
         WhereConditions where;
         where.add(TASK_FIELD, task);
         where.add(NAME_FIELD, name);
-        m_exists = load(where);
+        load(where);
     }
 }
 
@@ -74,7 +74,6 @@ ExtraString::ExtraString(CamcopsApp& app,
     setValue(NAME_FIELD, name);
     setValue(VALUE_FIELD, value);
     save();
-    m_exists = true;
 }
 
 
@@ -84,20 +83,12 @@ void ExtraString::commonConstructor()
     addField(TASK_FIELD, QVariant::String, true, false, false);
     addField(NAME_FIELD, QVariant::String, true, false, false);
     addField(VALUE_FIELD, QVariant::String, false, false, false);
-
-    m_exists = false;
 }
 
 
 QString ExtraString::value() const
 {
     return valueString(VALUE_FIELD);
-}
-
-
-bool ExtraString::exists() const
-{
-    return m_exists;
 }
 
 

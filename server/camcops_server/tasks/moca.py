@@ -456,7 +456,7 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 literal=True,
             ),
             tr_images_2=tr(
-                td(get_blob_img_html(self.trailpicture),
+                td(get_blob_img_html(self.clockpicture),
                    td_class=CssClass.PHOTO, td_width="50%"),
                 td("", td_class=CssClass.SUBHEADING),
                 literal=True,

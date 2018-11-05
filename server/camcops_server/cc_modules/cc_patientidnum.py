@@ -44,12 +44,13 @@ import logging
 from typing import TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
 from .cc_constants import NUMBER_OF_IDNUMS_DEFUNCT
 from .cc_db import GenericTabletRecordMixin
-from .cc_idnumdef import IdNumDefinition
+from .cc_idnumdef import IdNumDefinition, validate_id_number
 from .cc_simpleobjects import IdNumReference
 from .cc_sqla_coltypes import CamcopsColumn
 from .cc_sqlalchemy import Base
@@ -92,6 +93,8 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         identifies_patient=True,
         comment="The value of the ID number"
     )
+    # Note: we don't use a relationship() to IdNumDefinition here; we do that
+    # sort of work via the CamcopsRequest, which caches them for speed.
 
     def get_idnum_reference(self) -> IdNumReference:
         """
@@ -100,7 +103,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         return IdNumReference(which_idnum=self.which_idnum,
                               idnum_value=self.idnum_value)
 
-    def is_valid(self) -> bool:
+    def is_superficially_valid(self) -> bool:
         """
         Is this a valid ID number?
         """
@@ -110,6 +113,16 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
             self.which_idnum >= 0 and
             self.idnum_value >= 0
         )
+
+    def is_fully_valid(self, req: "CamcopsRequest") -> bool:
+        if not self.is_superficially_valid():
+            return False
+        return req.is_idnum_valid(self.which_idnum, self.idnum_value)
+
+    def why_invalid(self, req: "CamcopsRequest") -> str:
+        if not self.is_superficially_valid():
+            return "ID number fails basic checks"
+        return req.why_idnum_invalid(self.which_idnum, self.idnum_value)
 
     def description(self, req: "CamcopsRequest") -> str:
         """

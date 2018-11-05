@@ -217,14 +217,14 @@ public:
     QString idShortDescription(int which_idnum);
     void deleteAllIdDescriptions();
     bool setIdDescription(int which_idnum, const QString& desc,
-                          const QString& shortdesc);
+                          const QString& shortdesc,
+                          const QString& validation_method);
     QVector<IdNumDescriptionPtr> getAllIdDescriptions();
     QVector<int> whichIdNumsAvailable();
+    IdNumDescriptionConstPtr getIdInfo(int which_idnum);
 protected:
     void clearIdDescriptionCache();
-    QPair<QString, QString> idDescriptionDirect(int which_idnum);  // desc, shortdesc
-    QPair<QString, QString> idDescShortDesc(int which_idnum);
-    mutable QMap<int, QPair<QString, QString>> m_iddescription_cache;
+    mutable QMap<int, IdNumDescriptionConstPtr> m_iddescription_cache;
 
     // ------------------------------------------------------------------------
     // Extra strings (downloaded from server)

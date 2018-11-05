@@ -143,6 +143,10 @@ for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
     if issubclass(__orm_class, GenericTabletRecordMixin):
         __tablename = __orm_class.__tablename__
         if __tablename not in RESERVED_TABLE_NAMES:
+            # Additional safety check: no client tables start with "_" and all
+            # server tables do:
+            if __tablename.startswith("_"):
+                pass
             # noinspection PyUnresolvedReferences
             __table = __orm_class.__table__  # type: Table
             CLIENT_TABLE_MAP[__tablename] = __table

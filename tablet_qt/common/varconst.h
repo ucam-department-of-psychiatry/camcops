@@ -38,9 +38,6 @@ extern const QString VALIDATE_SSL_CERTIFICATES;
 extern const QString SSL_PROTOCOL;
 extern const QString DEBUG_USE_HTTPS_TO_SERVER;
 extern const QString STORE_SERVER_PASSWORD;
-#ifdef ALLOW_SEND_ANALYTICS
-extern const QString SEND_ANALYTICS;
-#endif
 
 // Uploading flag
 extern const QString NEEDS_UPLOAD;

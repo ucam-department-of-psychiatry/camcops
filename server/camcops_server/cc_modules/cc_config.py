@@ -95,6 +95,7 @@ from .cc_constants import (
     DEFAULT_PLOT_FONTSIZE,
     DEFAULT_TIMEOUT_MINUTES,
 )
+from .cc_exception import raise_runtime_error
 from .cc_filename import FilenameSpecElement, PatientSpecElementForFilename
 from .cc_pyramid import MASTER_ROUTE_CLIENT_API
 from .cc_recipdef import ConfigParamRecipient, RecipientDefinition
@@ -1424,31 +1425,28 @@ class CamcopsConfig(object):
         # More validity checks
         # ---------------------------------------------------------------------
         if not self.patient_spec_if_anonymous:
-            raise RuntimeError(
-                "Blank PATIENT_SPEC_IF_ANONYMOUS in [server] "
-                "section of config file")
+            raise_runtime_error("Blank PATIENT_SPEC_IF_ANONYMOUS in [server] "
+                                "section of config file")
 
         if not self.patient_spec:
-            raise RuntimeError(
-                "Missing/blank PATIENT_SPEC in [server] section"
-                " of config file")
+            raise_runtime_error("Missing/blank PATIENT_SPEC in [server] "
+                                "section of config file")
 
         if not self.session_cookie_secret:
-            raise RuntimeError(
-                "Invalid or missing SESSION_COOKIE_SECRET "
-                "setting in [server] section of config file")
+            raise_runtime_error("Invalid or missing SESSION_COOKIE_SECRET "
+                                "setting in [server] section of config file")
 
         if not self.task_filename_spec:
-            raise RuntimeError("Missing/blank TASK_FILENAME_SPEC in "
-                               "[server] section of config file")
+            raise_runtime_error("Missing/blank TASK_FILENAME_SPEC in "
+                                "[server] section of config file")
 
         if not self.tracker_filename_spec:
-            raise RuntimeError("Missing/blank TRACKER_FILENAME_SPEC in "
-                               "[server] section of config file")
+            raise_runtime_error("Missing/blank TRACKER_FILENAME_SPEC in "
+                                "[server] section of config file")
 
         if not self.ctv_filename_spec:
-            raise RuntimeError("Missing/blank CTV_FILENAME_SPEC in "
-                               "[server] section of config file")
+            raise_runtime_error("Missing/blank CTV_FILENAME_SPEC in "
+                                "[server] section of config file")
 
         # ---------------------------------------------------------------------
         # Other attributes
@@ -1549,12 +1547,10 @@ class CamcopsConfig(object):
         if current == head:
             log.debug("Database is at correct (head) revision of {}", current)
         else:
-            msg = (
+            raise_runtime_error(
                 "Database structure is at version {} but should be at "
                 "version {}. CamCOPS will not start. Please use the "
                 "'upgrade_db' command to fix this.".format(current, head))
-            log.critical(msg)
-            raise RuntimeError(msg)
 
     def assert_database_ok(self) -> None:
         """

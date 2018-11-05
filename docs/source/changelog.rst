@@ -1398,6 +1398,16 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Markedly improved error messages when you aim the client at a web server but
   not the CamCOPS client API.
 
+- Rounding of DPI prior to icon sizing (we were using e.g. 96.0126 DPI, which
+  is probably the system reporting inaccurately).
+
+- ID number validation system and NHS number validation.
+
+- Removed all defunct preprocessor references to
+  ``LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE``,
+  ``DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE``, and
+  ``ALLOW_SEND_ANALYTICS``.
+
 - New task: :ref:`CORE-10 <core10>`.
 
 - New task: :ref:`CESD <cesd>`.
@@ -1450,3 +1460,18 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Typo fixed in demo Apache config re Unix domain sockets (inappropriately
   had "https" and a trailing slash).
+
+- Upload API: improved
+  :func:`camcops_server.cc_modules.client_api.upload_record` to use
+  :func:`camcops_server.cc_modules.client_api.upload_record_core`, in common
+  with :func:`camcops_server.cc_modules.client_api.upload_table`.
+
+- Bugfix to MOCA server display: trail picture was shown twice, clock picture
+  not at all.
+
+- Probable bugfix to code that handles very old tablet versions, now moved to
+  :func:`camcops_server.cc_modules.client_api.process_upload_record_special`.
+  Code was unlikely to trigger; comparison of a Table to a tablename would have
+  failed.
+
+- ID number validation system and NHS number validation.

@@ -453,7 +453,7 @@ class GenericTabletRecordMixin(object):
 
         Used by :func:`_get_xml_root` above, but also by Tasks themselves.
         """
-        # log.critical("_get_xml_branches for {!r}", self)
+        # log.debug("_get_xml_branches for {!r}", self)
         skip_attrs = skip_attrs or []  # type: List[str]
         stored_branches = []  # type: List[XmlElement]
         if include_plain_columns:
@@ -473,7 +473,7 @@ class GenericTabletRecordMixin(object):
                 skip_fields=skip_attrs,
                 sort_by_name=sort_by_attr
             ))
-        # log.critical("... branches for {!r}: {!r}", self, branches)
+        # log.debug("... branches for {!r}: {!r}", self, branches)
         return branches
 
     def _get_core_tsv_page(self, req: "CamcopsRequest",

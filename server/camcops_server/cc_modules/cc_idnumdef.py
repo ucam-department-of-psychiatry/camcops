@@ -29,13 +29,14 @@ camcops_server/cc_modules/cc_idnumdef.py
 """
 
 import logging
-from typing import List
+from typing import List, Optional, Tuple
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.nhs import is_valid_nhs_number
 from cardinal_pythonlib.reprfunc import simple_repr
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.sql.sqltypes import Integer, String
 
 from .cc_sqla_coltypes import (
     HL7AssigningAuthorityType,
@@ -48,9 +49,58 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
+# ID number validation
+# =============================================================================
+
+ID_NUM_VALIDATION_METHOD_MAX_LEN = 50
+
+
+class IdNumValidationMethod(object):
+    """
+    Constants representing ways that CamCOPS knows to validate ID numbers.
+    """
+    NONE = ""  # special
+    UK_NHS_NUMBER = "uk_nhs_number"
+
+
+ID_NUM_VALIDATION_METHOD_CHOICES = (
+    # for HTML forms: value, description
+    (IdNumValidationMethod.NONE, "None"),
+    (IdNumValidationMethod.UK_NHS_NUMBER, "UK NHS number"),
+)
+
+
+def validate_id_number(idnum: Optional[int], method: str) -> Tuple[bool, str]:
+    """
+    Validates an ID number according to a method (as per
+    :class:`IdNumValidationMethod`).
+
+    If the number is ``None``, that's valid (that's an ID policy failure, not
+    a number validation failure). If ``method`` is falsy, that's also valid
+    (no constraints).
+
+    Args:
+        idnum: the ID number, or ``None``
+        method:
+
+    Returns:
+        tuple: ``valid, why_invalid`` where ``valid`` is ``bool`` and
+        ``why_invalid`` is ``str``.
+
+    """
+    if idnum is None or not method:
+        return True, ""
+    if not isinstance(idnum, int):
+        return False, "not an integer"
+    if method == IdNumValidationMethod.UK_NHS_NUMBER:
+        valid = is_valid_nhs_number(idnum)
+        return valid, "" if valid else "invalid UK NHS number"
+    return False, "unknown validation method"
+
+
+# =============================================================================
 # IdNumDefinition
 # =============================================================================
-# Stores the server's master ID number definitions
 
 class IdNumDefinition(Base):
     """
@@ -81,18 +131,24 @@ class IdNumDefinition(Base):
         comment="HL7: Assigning Authority for ID number (unique name of the "
                 "system/organization/agency/department that creates the data)."
     )
+    validation_method = Column(
+        "validation_method", String(length=ID_NUM_VALIDATION_METHOD_MAX_LEN),
+        comment="Optional validation method"
+    )
 
     def __init__(self,
                  which_idnum: int,
                  description: str,
                  short_description: str,
                  hl7_id_type: str = "",
-                 hl7_assigning_authority: str = ""):
+                 hl7_assigning_authority: str = "",
+                 validation_method: str = ""):
         self.which_idnum = which_idnum
         self.description = description
         self.short_description = short_description
         self.hl7_id_type = hl7_id_type
         self.hl7_assigning_authority = hl7_assigning_authority
+        self.validation_method = validation_method
 
     def __repr__(self) -> str:
         return simple_repr(self,
@@ -101,35 +157,12 @@ class IdNumDefinition(Base):
 
 
 # =============================================================================
-# Caching IdNumDefinition
+# Retrieving all IdNumDefinition objects
 # =============================================================================
-
-# CACHE_KEY_IDNUMDEFS = "id_num_definitions"
-
-
-# def get_idnum_definitions(dbsession: SqlASession) -> List[IdNumDefinition]:
-#     def creator() -> List[IdNumDefinition]:
-#         defs = list(
-#             dbsession.query(IdNumDefinition)
-#             .order_by(IdNumDefinition.which_idnum)
-#         )
-#         # Now make these objects persist outside the scope of a session:
-#         # https://stackoverflow.com/questions/8253978/sqlalchemy-get-object-not-bound-to-a-session  # noqa
-#         # http://docs.sqlalchemy.org/en/latest/orm/session_state_management.html#expunging  # noqa
-#         for iddef in defs:
-#             dbsession.expunge(iddef)
-#         return defs
-#
-#     return cache_region_static.get_or_create(CACHE_KEY_IDNUMDEFS, creator)
-
-
-# def clear_idnum_definition_cache() -> None:
-#     cache_region_static.delete(CACHE_KEY_IDNUMDEFS)
-
 
 def get_idnum_definitions(dbsession: SqlASession) -> List[IdNumDefinition]:
     """
-    Get all ID number definitions from the database.
+    Get all ID number definitions from the database, in order.
     """
     return list(
         dbsession.query(IdNumDefinition)

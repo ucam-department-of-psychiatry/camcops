@@ -303,5 +303,5 @@ def run_alembic() -> None:
 
 
 main_only_quicksetup_rootlogger(level=logging.DEBUG)
-# log.critical("IN CAMCOPS MIGRATION SCRIPT env.py")
+# log.debug("IN CAMCOPS MIGRATION SCRIPT env.py")
 run_alembic()

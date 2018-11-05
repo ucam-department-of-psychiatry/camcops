@@ -200,9 +200,6 @@ int CamcopsApp::run()
 
     openMainWindow();  // uses HelpMenu etc. and so must be AFTER TASK REGISTRATION
     makeNetManager();  // needs to be after main window created, and on GUI thread
-#ifdef ALLOW_SEND_ANALYTICS
-    networkManager()->sendAnalytics();
-#endif
 
     if (!hasAgreedTerms()) {
         offerTerms();
@@ -318,7 +315,10 @@ void CamcopsApp::announceStartup()
 #else
     qDebug() << "Compiler type/version unknown";
 #endif
+
+#pragma GCC diagnostic ignored "-Wdate-time"
     qDebug() << "Compiled at" << __DATE__ << __TIME__;
+#pragma GCC diagnostic pop
 }
 
 
@@ -566,9 +566,6 @@ void CamcopsApp::createStoredVars()
               convert::SSLPROTODESC_SECUREPROTOCOLS);
     createVar(varconst::DEBUG_USE_HTTPS_TO_SERVER, QVariant::Bool, true);
     createVar(varconst::STORE_SERVER_PASSWORD, QVariant::Bool, true);
-#ifdef ALLOW_SEND_ANALYTICS
-    createVar(varconst::SEND_ANALYTICS, QVariant::Bool, true);
-#endif
 
     // Uploading "dirty" flag
     createVar(varconst::NEEDS_UPLOAD, QVariant::Bool, false);
@@ -733,7 +730,8 @@ void CamcopsApp::initGuiOne()
         m_dpi = uiconst::DEFAULT_DPI;
     } else {
         const QScreen* screen = all_screens.at(0);
-        m_dpi = screen->logicalDotsPerInch();
+        // m_dpi = screen->logicalDotsPerInch();  // can be e.g. 96.0126
+        m_dpi = std::round(screen->logicalDotsPerInch());
     }
 
     // This is slightly nasty, but it saves a great deal of things referring
@@ -1571,22 +1569,11 @@ IdPolicy CamcopsApp::finalizePolicy() const
 }
 
 
-QPair<QString, QString> CamcopsApp::idDescriptionDirect(const int which_idnum)  // desc, shortdesc
-{
-    IdNumDescription idnumdesc(*this, *m_sysdb, which_idnum);
-    if (!idnumdesc.exists()) {
-        QString failure = dbconst::UNKNOWN_IDNUM_DESC.arg(which_idnum);
-        return QPair<QString, QString>(failure, failure);
-    }
-    return QPair<QString, QString>(idnumdesc.description(),
-                                   idnumdesc.shortDescription());
-}
-
-
-QPair<QString, QString> CamcopsApp::idDescShortDesc(const int which_idnum)
+IdNumDescriptionConstPtr CamcopsApp::getIdInfo(const int which_idnum)
 {
     if (!m_iddescription_cache.contains(which_idnum)) {
-        m_iddescription_cache[which_idnum] = idDescriptionDirect(which_idnum);
+        m_iddescription_cache[which_idnum] = IdNumDescriptionPtr(
+                    new IdNumDescription(*this, *m_sysdb, which_idnum));
     }
     return m_iddescription_cache[which_idnum];
 }
@@ -1594,15 +1581,15 @@ QPair<QString, QString> CamcopsApp::idDescShortDesc(const int which_idnum)
 
 QString CamcopsApp::idDescription(const int which_idnum)
 {
-    const QPair<QString, QString> desc_shortdesc = idDescShortDesc(which_idnum);
-    return desc_shortdesc.first;
+    IdNumDescriptionConstPtr idinfo = getIdInfo(which_idnum);
+    return idinfo->description();
 }
 
 
 QString CamcopsApp::idShortDescription(const int which_idnum)
 {
-    const QPair<QString, QString> desc_shortdesc = idDescShortDesc(which_idnum);
-    return desc_shortdesc.second;
+    IdNumDescriptionConstPtr idinfo = getIdInfo(which_idnum);
+    return idinfo->shortDescription();
 }
 
 
@@ -1621,13 +1608,15 @@ void CamcopsApp::deleteAllIdDescriptions()
 
 
 bool CamcopsApp::setIdDescription(const int which_idnum, const QString& desc,
-                                  const QString& shortdesc)
+                                  const QString& shortdesc,
+                                  const QString& validation_method)
 {
 //    qDebug().nospace()
 //            << "Setting ID descriptions for which_idnum==" << which_idnum
 //            << " to " << desc << ", " << shortdesc;
     IdNumDescription idnumdesc(*this, *m_sysdb, which_idnum);
-    const bool success = idnumdesc.setDescriptions(desc, shortdesc);
+    const bool success = idnumdesc.setDescriptions(desc, shortdesc,
+                                                   validation_method);
     if (success) {
         idnumdesc.save();
     }
@@ -1665,7 +1654,7 @@ QString CamcopsApp::xstringDirect(const QString& taskname,
                                   const QString& default_str)
 {
     ExtraString extrastring(*this, *m_sysdb, taskname, stringname);
-    const bool found = extrastring.exists();
+    const bool found = extrastring.existsInDb();
     if (found) {
         QString result = extrastring.value();
         stringfunc::toHtmlLinebreaks(result);
@@ -1798,7 +1787,7 @@ bool CamcopsApp::mayUploadTable(const QString& tablename,
     // We always write all three return-by-reference values.
     min_server_version = minServerVersionForTable(tablename);
     AllowedServerTable allowedtable(*this, *m_sysdb, tablename);
-    server_has_table = allowedtable.exists();
+    server_has_table = allowedtable.existsInDb();
     if (!server_has_table) {
         min_client_version = Version::makeInvalidVersion();
         return false;

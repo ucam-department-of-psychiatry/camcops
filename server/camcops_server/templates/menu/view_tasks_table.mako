@@ -55,7 +55,11 @@ OFFER_PDF_ANON_VERSION = False
             ## ------------------------------------------------------------
             ## ID numbers
             ## ------------------------------------------------------------
-            <td>
+            <td
+                %if task.any_patient_idnums_invalid(req):
+                    class="invalid_id_number_background"
+                %endif
+                >
                 %if task.is_anonymous:
                     —
                 %else:

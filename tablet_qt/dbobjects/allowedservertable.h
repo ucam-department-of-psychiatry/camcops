@@ -25,6 +25,7 @@ class CamcopsApp;
 
 class AllowedServerTable : public DatabaseObject
 {
+    Q_OBJECT
 public:
     // Specimen constructor:
     AllowedServerTable(CamcopsApp& app, DatabaseManager& db);
@@ -38,7 +39,6 @@ public:
     virtual ~AllowedServerTable();
     QString tablename() const;
     Version minClientVersion() const;
-    bool exists() const;
     void deleteAllAllowedServerTables();  // sort-of static function
     void makeIndexes();  // sort-of static function
 
@@ -47,5 +47,4 @@ public:
     static const QString VERSION_FIELD;
 protected:
     void commonConstructor();
-    bool m_exists;
 };
