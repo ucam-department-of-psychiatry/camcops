@@ -125,7 +125,7 @@ from .cc_idnumdef import (
 )
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
-from .cc_policy import TokenizedPolicy
+from .cc_policy import TABLET_ID_POLICY_STR, TokenizedPolicy
 from .cc_pyramid import FormAction, ViewArg, ViewParam
 from .cc_sqla_coltypes import (
     DATABASE_TITLE_MAX_LEN,
@@ -1209,8 +1209,12 @@ class PolicyNode(MandatoryStringNode):
         if not policy.is_syntactically_valid():
             raise Invalid(node, "Syntactically invalid policy")
         if not policy.is_valid_from_req(req):
-            raise Invalid(node, "Invalid policy (have you referred to "
-                                "non-existent ID numbers?")
+            raise Invalid(
+                node,
+                "Invalid policy. (Have you referred to non-existent ID "
+                "numbers? Is the policy less restrictive than the tablet's "
+                "minimum ID policy of {}".format(TABLET_ID_POLICY_STR)
+            )
 
 
 class IdDefinitionDescriptionNode(SchemaNode):

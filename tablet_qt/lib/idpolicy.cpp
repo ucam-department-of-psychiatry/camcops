@@ -32,11 +32,16 @@ const int TOKEN_LPAREN = -1;
 const int TOKEN_RPAREN = -2;
 const int TOKEN_AND = -3;
 const int TOKEN_OR = -4;
-const int TOKEN_FORENAME = -5;
-const int TOKEN_SURNAME = -6;
-const int TOKEN_DOB = -7;
-const int TOKEN_SEX = -8;
-const int TOKEN_ANY_IDNUM = -9;
+const int TOKEN_NOT = -5;
+const int TOKEN_ANY_IDNUM = -6;
+const int TOKEN_OTHER_IDNUM = -7;
+const int TOKEN_FORENAME = -8;
+const int TOKEN_SURNAME = -9;
+const int TOKEN_SEX = -10;
+const int TOKEN_DOB = -11;
+const int TOKEN_ADDRESS = -12;
+const int TOKEN_GP = -13;
+const int TOKEN_OTHER_DETAILS = -14;
 // Tokens for ID numbers are from 1 upwards.
 
 const QString TOKENIZE_RE_STR(
@@ -79,11 +84,18 @@ void IdPolicy::initializeTokenDicts()
     m_token_to_name[TOKEN_RPAREN] = ")";
     m_token_to_name[TOKEN_AND] = "and";
     m_token_to_name[TOKEN_OR] = "or";
+    m_token_to_name[TOKEN_NOT] = "not";
+
+    m_token_to_name[TOKEN_ANY_IDNUM] = ANY_IDNUM;
+    m_token_to_name[TOKEN_OTHER_IDNUM] = OTHER_IDNUM;
+
     m_token_to_name[TOKEN_FORENAME] = FORENAME_FIELD;
     m_token_to_name[TOKEN_SURNAME] = SURNAME_FIELD;
-    m_token_to_name[TOKEN_DOB] = DOB_FIELD;
     m_token_to_name[TOKEN_SEX] = SEX_FIELD;
-    m_token_to_name[TOKEN_ANY_IDNUM] = ANY_IDNUM;
+    m_token_to_name[TOKEN_DOB] = DOB_FIELD;
+    m_token_to_name[TOKEN_ADDRESS] = ADDRESS_FIELD;
+    m_token_to_name[TOKEN_GP] = GP_FIELD;
+    m_token_to_name[TOKEN_OTHER_DETAILS] = OTHER_FIELD;
 
     m_name_to_token.clear();
     QMapIterator<int, QString> it(m_token_to_name);
@@ -127,9 +139,12 @@ QString IdPolicy::tokenToName(const int token) const
 }
 
 
-void IdPolicy::tokenize(const QString& policy_text)
+void IdPolicy::tokenize(QString policy_text)
 {
     m_valid = true;
+
+    // Single line, whitespace trimmed, newlines/tabs etc. removed
+    policy_text = policy_text.simplified();
 
     // QString::split() splits using the regex to match BOUNDARIES.
     // Our regex matches CONTENT, so we use QRegularExpression functions.
@@ -147,6 +162,7 @@ void IdPolicy::tokenize(const QString& policy_text)
         const int token = nameToToken(element);
         if (token == BAD_TOKEN) {
             reportSyntaxError(QString("unknown word: %1").arg(word));
+            invalidate();
             return;
         }
         m_tokens.append(token);
@@ -157,9 +173,15 @@ void IdPolicy::tokenize(const QString& policy_text)
         blank_attributes[name] = false;
     }
     if (idPolicyChunk(m_tokens, blank_attributes) == ChunkValue::SyntaxError) {
-        m_valid = false;
-        m_tokens.clear();
+        invalidate();
     }
+}
+
+
+void IdPolicy::invalidate()
+{
+    m_valid = false;
+    m_tokens.clear();
 }
 
 
@@ -205,6 +227,7 @@ void IdPolicy::reportSyntaxError(const QString &msg) const
 bool IdPolicy::complies(const AttributesType& attributes) const
 {
     // Do a set of attributes (from the patient) comply with the policy?
+
     // A duff policy doesn't match anything:
     if (!m_valid) {
         return false;
@@ -290,6 +313,7 @@ IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QVector<int>& tokens,
 {
     // Returns the truth value of a Boolean chunk of the policy. (Can recurse
     // if the policy contains parentheses.)
+
     // qDebug() << Q_FUNC_INFO << "tokens =" << stringify(tokens) << "; index =" << index;
     if (index >= tokens.length()) {
         reportSyntaxError("policy incomplete; missing content at end");
@@ -327,11 +351,24 @@ IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QVector<int>& tokens,
             QVector<int> subchunk = tokens.mid(subchunkstart, subchunklen);
             return idPolicyChunk(subchunk, attributes);
         }
+    case TOKEN_NOT:
+        {
+            ChunkValue nextchunk = idPolicyContent(tokens, attributes, index);
+            switch (nextchunk) {
+            case ChunkValue::SyntaxError:
+            case ChunkValue::Unknown:
+            default:
+                return nextchunk;
+            case ChunkValue::False:  // invert
+                return ChunkValue::True;
+            case ChunkValue::True:  // invert
+                return ChunkValue::False;
+            }
+        }
     default:
         // meaningful token
         return idPolicyElement(attributes, token);
     }
-
 }
 
 
@@ -379,12 +416,26 @@ IdPolicy::ChunkValue IdPolicy::idPolicyElement(const AttributesType& attributes,
 }
 
 
+QVector<int> IdPolicy::specificallyMentionedIdNums() const
+{
+    QVector<int> mentioned;
+    for (const int t : m_tokens) {
+        if (t > 0) {
+            mentioned.append(t);
+        }
+    }
+    return mentioned;
+}
+
+
+
 // ============================================================================
 // Tablet ID policy
 // ============================================================================
 
 const IdPolicy TABLET_ID_POLICY(
         "sex AND ((forename AND surname AND dob) OR anyidnum)");
+
 // ... clinical environment: forename/surname/dob/sex, and we can await an
 //     ID number later
 // ... research environment: sex and one ID number for pseudonymised

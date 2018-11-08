@@ -34,9 +34,11 @@ extern const QString SEX_FIELD;
 extern const QString ADDRESS_FIELD;
 extern const QString GP_FIELD;
 extern const QString OTHER_FIELD;
+
 extern const QString IDNUM_FIELD_PREFIX;
 extern const QString IDNUM_FIELD_FORMAT;
 extern const QString ANY_IDNUM;
+extern const QString OTHER_IDNUM;
 
 
 class Patient : public DatabaseObject
@@ -70,15 +72,20 @@ public:
     int ageYears() const;
     bool hasForename() const;
     bool hasSurname() const;
-    bool hasDob() const;
     bool hasSex() const;
+    bool hasDob() const;
+    bool hasAddress() const;
+    bool hasGP() const;
+    bool hasOtherDetails() const;
     bool hasIdnum(int which_idnum) const;
     QVector<int> whichIdnumsPresent() const;
     QVector<int> whichIdnumsHaveEntries() const;
     QVariant idnumVariant(int which_idnum) const;
     qlonglong idnumInteger(int which_idnum) const;  // 64-bit signed integer: up to 2^63 - 1 = 9,223,372,036,854,775,807
-    AttributesType policyAttributes() const;
+    AttributesType policyAttributes(
+            const QVector<int>& policy_mentioned_idnums) const;
     bool compliesWith(const IdPolicy& policy) const;
+    bool compliesWithTablet() const;
     bool compliesWithUpload() const;
     bool compliesWithFinalize() const;
     QString shortIdnumSummary() const;

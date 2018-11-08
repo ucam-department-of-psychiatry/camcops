@@ -46,30 +46,39 @@ all need be used.
 
 - Forename
 - Surname
-- Date of birth
 - Sex (one of: M, F, X)
+- Date of birth
 - ID numbers(s), which are flexibly defined (see below)
-- (\*) Address (free text)
-- (\*) General practitioner’s (GP’s) details (free text)
-- (\*) Other details (free text)
+- Address (free text)
+- General practitioner’s (GP’s) details (free text)
+- Other details (free text)
 
-All except those marked (\*) may be selected as part of the minimum patient
-identification details. What counts as the minimum is configurable.
-Furthermore, the meaning of the ID numbers is entirely configurable. Below we
-explain the purposes of this system.
+All may be selected as part of the minimum patient identification details. What
+counts as the minimum is configurable. Furthermore, the meaning of the ID
+numbers is entirely configurable. Below we explain the purposes of this system.
 
 When writing an ID policy, use the following terms:
 
 ============  ==============================================================
 Term          Meaning
 ============  ==============================================================
+idnum\ *<n>*  The ID number of type *n*, e.g. idnum3 means ID number type 3
+anyidnum      Whether any ID number type is present
+otheridnum    Whether any ID number type is present, that is not specifically
+              mentioned in the policy
 forename      Forename
 surname       Surname
 dob           Date of birth
 sex           Sex
-idnum\ *<n>*  The ID number of type *n*, e.g. idnum3 means ID number type 3
-anyidnum      Whether any ID number type is present
+address       Address
+gp            GP details
+otherdetails  Other details
 ============  ==============================================================
+
+.. versionadded::
+
+    ``otheridnum``, ``address``, ``gp``, and ``otherdetails`` were added in
+    CamCOPS v2.2.8.
 
 Configuring the meaning of the ID number fields
 -----------------------------------------------
@@ -99,10 +108,12 @@ which the tablet app can’t edit that information).
 The policies you require depend on your institution. Some examples are given
 below.
 
-You can configure the policies using brackets ( ), AND, OR, and any of the
-fields listed above (except those marked \* above). Some examples are shown
-below. Configure the policies using the :ref:`View/manage groups
-<view_manage_groups>` option on the server main menu.
+You can configure the policies using brackets ``( )``, ``AND``, ``OR``,
+``NOT``, and any of the fields listed above. Some examples are shown below.
+Configure the policies using the :ref:`Group management <group_management>`
+option on the server main menu.
+
+.. versionadded:: ``NOT``was added in CamCOPS v2.2.8.
 
 Examples
 --------
@@ -204,6 +215,25 @@ There are at least three possible approaches. You could set up a new server, or
 you could add a second CamCOPS database to your existing server, or you can
 simply add a new group to your CamCOPS server. The last is likely to be
 quickest and best.
+
+Example 4: research where personal identifying data (PID) is prohibited
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Compare example 2, but now you want to try to enforce a "no PID" rule. This is
+not completely enforceable by a computer, because some CamCOPS tasks allow free
+text, and wherever there is free text, somebody could type in sensitive
+information. However, the following method can certainly help:
+
+.. code-block:: none
+
+    sex AND idnum1 AND NOT (otheridnum OR forename OR surname OR dob OR address OR gp OR otherdetails)
+
+This will stop users uploading information with any PID in the Patient table,
+if idnum1 is a non-identifying pseudonym for the study.
+
+.. versionadded::
+
+    ``NOT`` and some other tokens were added in CamCOPS v2.2.8; see above.
 
 
 Minimum details required by the tablet software

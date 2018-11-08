@@ -29,7 +29,7 @@ from markupsafe import escape
             upload_tk = group.tokenized_upload_policy()  # type: TokenizedPolicy
             finalize_tk = group.tokenized_finalize_policy()  # type: TokenizedPolicy
             upload_valid = upload_tk.is_valid_from_req(request)
-            finalize_valid = upload_tk.is_valid_from_req(request)
+            finalize_valid = finalize_tk.is_valid_from_req(request)
         %>
         <tr>
             <td>${ group.name | h }</td>
@@ -75,6 +75,7 @@ from markupsafe import escape
 <div>${groups_page.pager(show_if_single_page=False)}</div>
 
 <div class="footnotes">
-    Colour in a policy column means that an ID policy is not valid (either
-    syntactically, or because it refers to ID numbers that do not exist).
+    Colour in a policy column means that an ID policy is not valid
+    (syntactically, because it refers to ID numbers that do not exist, or
+    because it's less restrictive than the tablet's minimum ID policy).
 </div>

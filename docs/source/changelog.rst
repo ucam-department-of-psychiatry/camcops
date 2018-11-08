@@ -1408,6 +1408,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
   ``DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE``, and
   ``ALLOW_SEND_ANALYTICS``.
 
+- ID policy supports "NOT" and other new tokens; see server changelog.
+
+  If an old client is used with a new server, the server may offer "invalid"
+  policies (as seen by the old client); these will refuse uploads, as per
+  ``IdPolicy::complies()``. If a new client is used with an old server, there
+  should be no problem.
+
 - New task: :ref:`CORE-10 <core10>`.
 
 - New task: :ref:`CESD <cesd>`.
@@ -1475,3 +1482,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   failed.
 
 - ID number validation system and NHS number validation.
+
+- ID policy supports "NOT" and "otheridnum".
+
+  This makes it easier for research studies to support a "no PID" rule, as a
+  per-group setting.
+
+- Bugfix to validation colours for ``groups_table.mako``.

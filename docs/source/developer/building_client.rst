@@ -841,6 +841,16 @@ Troubleshooting qmake/compilation
   ... occurred after an upgrade from Ubuntu 16.04 to 18.04; the problem relates
   to missing OS libraries (``libicu``); the easiest thing is to rebuild Qt.
 
+- This error whilst building CamCOPS:
+
+  .. code-block:: none
+
+    /usr/bin/x86_64-linux-gnu-ld: cannot find -ludev
+    Makefile:2433: recipe for target 'camcops' failed
+    collect2: error: ld returned 1 exit status
+
+  ... use ``sudo apt install libudev-dev``.
+
 Troubleshooting running CamCOPS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

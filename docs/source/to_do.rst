@@ -74,20 +74,6 @@ Client core
 
 **Priority**
 
-- Think: maybe extend the "required ID number" system so that groups can define
-  whether the client should/shouldn't offer forename, surname, DOB, address,
-  GP, other. This would make it easier to enforce a "no PID" rule for
-  research studies. This would be a per-group setting.
-
-- Facility to dump entire groups e.g. daily to a database.
-
-- Basic e-mail sending functions.
-
-- Facility to auto-email individual PDFS to defined group recipients (e.g.
-  admin teams).
-
-- Ensure autoscheduling facility is working properly.
-
 - Have facility to upload and/or automatically feed patient details into the
   server, then have clients restrict to these predefined patients. Since we are
   aiming to minimize PID on the client, this could be implemented by having the
@@ -105,9 +91,6 @@ Client core
 - Apple App Store.
 
 **Not a priority**
-
-- Make tasks support SNOMED coding. Should each task return multiple SNOMED
-  rows e.g. code, value (+/- originator type e.g. clinician/patient)?
 
 - OS/X build.
 
@@ -138,6 +121,15 @@ Server
 ------
 
 **Priority**
+
+- Facility to dump entire groups e.g. daily to a database.
+
+- Basic e-mail sending functions.
+
+- Facility to auto-email individual PDFS to defined group recipients (e.g.
+  admin teams).
+
+- Ensure autoscheduling facility is working properly.
 
 - Facility to hide individual sticky notes (with audit trail), so they're not
   shown in HTML (+ PDF) and XML views. See e-mail RNC/JK/RE, 2018-10-12.
@@ -215,11 +207,16 @@ Server
 
   - ``task_table_name``: VARCHAR(?64); task main table name
   - ``task_pk``: server ``_pk`` field for task
+  - ``group_id``
+  - ``device``
+  - ``current``
   - ``patient_which_idnum``
   - ``patient_idnum_value``
 
   ... with one entry (``patient_which_idnum = NULL``) for anonymous tasks
   and one or more entries for actual patients?
+
+  ... other patient info? The patient search is more tricky.
 
   Using this index would be a method for :class:`TaskCollection` and
   :class:`TaskFilter`.
@@ -233,6 +230,9 @@ Server
   multiple upload calls).
 
 **Not a priority**
+
+- Make tasks support SNOMED coding. Should each task return multiple SNOMED
+  rows e.g. code, value (+/- originator type e.g. clinician/patient)?
 
 - Implement (from command line) “export to anonymisation staging database” =
   with patient info per table. (Extend ``cc_dump.py``. See

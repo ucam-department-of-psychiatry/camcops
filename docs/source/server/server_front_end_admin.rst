@@ -71,8 +71,8 @@ Group administrator options
 These options, on the main menu, are only available to users who are marked as
 administrators for one or more groups.
 
-View/manage users
-~~~~~~~~~~~~~~~~~
+User management
+~~~~~~~~~~~~~~~
 
 Superusers can add, edit, and delete all users.
 
@@ -173,40 +173,40 @@ Superuser options
 
 These options are only available to users with the superuser flag set.
 
-.. _view_manage_groups:
+.. _group_management:
 
-View/manage groups
-~~~~~~~~~~~~~~~~~~
-
-This option allows you to define ID policies for groups, and to configure which
-groups have intrinsic permission to see which other groups (if any). See
-:ref:`Groups <groups>`.
-
-View audit trail
+Group management
 ~~~~~~~~~~~~~~~~
+
+This option allows you to define groups, define ID policies for groups, and to
+configure which groups have intrinsic permission to see which other groups (if
+any). See :ref:`Groups <groups>`.
+
+Audit trail
+~~~~~~~~~~~
 
 View the CamCOPS audit trail (optionally, filtering it according to a range of
 criteria).
 
 Internally, this audit trail is stored in the `_security_audit` table.
 
-View HL7 message log
-~~~~~~~~~~~~~~~~~~~~
+HL7 message log
+~~~~~~~~~~~~~~~
 
 View a log of outbound HL7 messages that CamCOPS has sent (along with their
 success/failure status).
 
 .. todo:: The HL7 implementation is currently disabled. This needs fixing.
 
-View HL7 run log
-~~~~~~~~~~~~~~~~
+HL7 run log
+~~~~~~~~~~~
 
 View a log of HL7 runs. A run is when CamCOPS checks to see if any HL7 messages
 should be sent. Each message belongs to a run. An individual run may cause
 zero, one, or many messages to be sent.
 
-View/edit ID number definitions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Manage ID number definitions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 CamCOPS supports multiple simultaneous ID numbers. For example:
 
@@ -226,8 +226,10 @@ few additional options for HL7 messaging.
 Edit server settings
 ~~~~~~~~~~~~~~~~~~~~
 
-You can set the server’s master database title here. The title is displayed to
-all users using the database.
+You can edit the following server-wide settings here:
+
+- The server’s master database title here. The title is displayed to all users
+  using the database.
 
 Developer test page
 ~~~~~~~~~~~~~~~~~~~

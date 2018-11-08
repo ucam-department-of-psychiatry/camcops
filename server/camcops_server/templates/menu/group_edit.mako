@@ -17,16 +17,26 @@ ${ form }
 
     Policies are specified using
     <ul>
-        <li>these logical operators: <code>AND</code>, <code>OR</code>;</li>
+        <li>these logical operators: <code>AND</code>, <code>OR</code>,
+            <code>NOT</code>;</li>
+
         <li>these precedence operators: <code>(</code>, <code>)</code>;</li>
+
         <li>these named fields: <code>forename</code>, <code>surname</code>,
-            <code>dob</code> (date of birth), <code>sex</code>;</li>
+            <code>sex</code>, <code>dob</code> (date of birth),
+            <code>address</code>, <code>gp</code>,
+            <code>otherdetails</code>;</li>
+
         <li>a specific ID number using “idnum<i>n</i>”;
             for example, <code>idnum3</code> refers to ID number 3 as
             defined by the server’s
             <a href="${ req.route_url(Routes.VIEW_SERVER_INFO) }">ID numbers</a>;</li>
+
         <li>the token <code>anyidnum</code> as a shorthand to mean “at least
-            one of the server’s ID numbers is present”.</li>
+            one of the server’s ID numbers is present”;</li>
+
+        <li>the token <code>otheridnum</code> as a shorthand to mean “at least
+            one of the server’s ID numbers that is not named in the policy”;</li>
     </ul>
 
     The policies are case-insensitive.<br>

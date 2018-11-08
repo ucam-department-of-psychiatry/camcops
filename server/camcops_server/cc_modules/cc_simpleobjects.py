@@ -32,6 +32,8 @@ from typing import List, TYPE_CHECKING
 
 from pendulum import Date
 
+from cardinal_pythonlib.reprfunc import auto_repr
+
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
 
@@ -58,6 +60,9 @@ class IdNumReference(object):
     def __init__(self, which_idnum: int, idnum_value: int) -> None:
         self.which_idnum = which_idnum
         self.idnum_value = idnum_value
+
+    def __repr__(self) -> str:
+        return auto_repr(self)
 
     def is_valid(self) -> bool:
         return (
@@ -105,21 +110,31 @@ class BarePatientInfo(object):
     Represents information about a patient using a simple object with no
     connection to a database.
 
-    In some situations we avoid using :class:`camcops_server.cc_modules.cc_patient.Patient`: specifically, when we
-    would otherwise have to deal with mutual dependency problems and the use of
-    the database (prior to full database initialization).
+    In some situations we avoid using
+    :class:`camcops_server.cc_modules.cc_patient.Patient`: specifically, when
+    we would otherwise have to deal with mutual dependency problems and the use
+    of the database (prior to full database initialization).
     """
     def __init__(self,
                  forename: str = None,
                  surname: str = None,
-                 dob: Date = None,
                  sex: str = None,
+                 dob: Date = None,
+                 address: str = None,
+                 gp: str = None,
+                 other: str = None,
                  idnum_definitions: List[IdNumReference] = None) -> None:
         self.forename = forename
         self.surname = surname
-        self.dob = dob
         self.sex = sex
+        self.dob = dob
+        self.address = address
+        self.gp = gp
+        self.otherdetails = other
         self.idnum_definitions = idnum_definitions or []  # type: List[IdNumReference]  # noqa
+
+    def __repr__(self) -> str:
+        return auto_repr(self)
 
 
 # =============================================================================

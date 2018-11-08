@@ -360,8 +360,11 @@ class Patient(GenericTabletRecordMixin, Base):
         return BarePatientInfo(
             forename=self.forename,
             surname=self.surname,
-            dob=self.dob,
             sex=self.sex,
+            dob=self.dob,
+            address=self.address,
+            gp=self.gp,
+            other=self.other,
             idnum_definitions=self.get_idnum_references()
         )
 

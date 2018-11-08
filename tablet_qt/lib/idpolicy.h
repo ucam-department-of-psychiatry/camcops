@@ -31,6 +31,7 @@ public:
     bool complies(const AttributesType& attributes) const;
     QString original() const;
     QString pretty() const;
+    QVector<int> specificallyMentionedIdNums() const;
 public:
     enum class ChunkValue {
         True,
@@ -47,8 +48,9 @@ protected:
     void initializeTokenDicts();
     int nameToToken(const QString& name) const;
     QString tokenToName(int token) const;
-    void tokenize(const QString& policy_text);
+    void tokenize(QString policy_text);
     void reportSyntaxError(const QString& msg) const;
+    void invalidate();
     ChunkValue idPolicyChunk(const QVector<int>& tokens,
                              const AttributesType& attributes) const;
     ChunkValue idPolicyContent(const QVector<int>& tokens,

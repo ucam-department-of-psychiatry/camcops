@@ -39,6 +39,7 @@ server/camcops_server
     alembic/versions/0009_add_cesd_r_task.py.rst
     alembic/versions/0010_add_factg.py.rst
     alembic/versions/0011_add_eq5d5l_task.py.rst
+    alembic/versions/0012_idnum_def_validation_method.py.rst
     camcops.py.rst
     camcops_meta.py.rst
     cc_modules/cc_alembic.py.rst
@@ -58,6 +59,7 @@ server/camcops_server
     cc_modules/cc_device.py.rst
     cc_modules/cc_dirtytables.py.rst
     cc_modules/cc_dump.py.rst
+    cc_modules/cc_exception.py.rst
     cc_modules/cc_filename.py.rst
     cc_modules/cc_forms.py.rst
     cc_modules/cc_group.py.rst

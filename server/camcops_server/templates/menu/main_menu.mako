@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %if authorized_as_groupadmin:
     <h3>Group administrator options</h3>
     <ul>
-        <li><a href="${request.route_url(Routes.VIEW_ALL_USERS)}">View/manage users</a></li>
+        <li><a href="${request.route_url(Routes.VIEW_ALL_USERS)}">User management</a></li>
         <li><a href="${request.route_url(Routes.DELETE_PATIENT)}">Delete patient entirely</a></li>
         <li><a href="${request.route_url(Routes.FORCIBLY_FINALIZE)}">Forcibly preserve/finalize records for a device</a></li>
     </ul>
@@ -47,11 +47,11 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %if authorized_as_superuser:
     <h3>Superuser options</h3>
     <ul>
-        <li><a href="${request.route_url(Routes.VIEW_GROUPS)}">View/manage groups</a></li>
-        <li><a href="${request.route_url(Routes.OFFER_AUDIT_TRAIL)}">View audit trail</a></li>
-        <li><a href="${request.route_url(Routes.OFFER_HL7_MESSAGE_LOG)}">View HL7 message log</a></li>
-        <li><a href="${request.route_url(Routes.OFFER_HL7_RUN_LOG)}">View HL7 run log</a></li>
-        <li><a href="${request.route_url(Routes.VIEW_ID_DEFINITIONS)}">View/edit ID number definitions</a></li>
+        <li><a href="${request.route_url(Routes.VIEW_GROUPS)}">Group management</a></li>
+        <li><a href="${request.route_url(Routes.OFFER_AUDIT_TRAIL)}">Audit trail</a></li>
+        <li><a href="${request.route_url(Routes.OFFER_HL7_MESSAGE_LOG)}">HL7 message log</a></li>
+        <li><a href="${request.route_url(Routes.OFFER_HL7_RUN_LOG)}">HL7 run log</a></li>
+        <li><a href="${request.route_url(Routes.VIEW_ID_DEFINITIONS)}">Manage ID number definitions</a></li>
         <li><a href="${request.route_url(Routes.EDIT_SERVER_SETTINGS)}">Edit server settings</a></li>
         <li><a href="${request.route_url(Routes.DEVELOPER)}">Developer test page</a></li>
     </ul>
@@ -59,14 +59,14 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <h3>Settings</h3>
 <ul>
+    <li><a href="${request.route_url(Routes.VIEW_OWN_USER_INFO)}">Show your user settings</a></li>
+    <li><a href="${request.route_url(Routes.SET_OWN_USER_UPLOAD_GROUP)}">Choose group into which to upload data</a></li>
     <li><a href="${request.route_url(Routes.VIEW_SERVER_INFO)}">Show database/server settings</a></li>
     %if request.camcops_session.username:
         <li><a href="${request.route_url(Routes.CHANGE_OWN_PASSWORD, username=request.camcops_session.username)}">Change password</a></li>
     %else:
         <li class="warning">No username!</li>
     %endif
-    <li><a href="${request.route_url(Routes.SET_OWN_USER_UPLOAD_GROUP)}">Choose group into which to upload data</a></li>
-    <li><a href="${request.route_url(Routes.VIEW_OWN_USER_INFO)}">Show your user settings</a></li>
 </ul>
 
 <h3>Help</h3>

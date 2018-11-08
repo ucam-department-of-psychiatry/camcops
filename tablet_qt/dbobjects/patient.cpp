@@ -59,11 +59,13 @@ const QString FORENAME_FIELD("forename");
 const QString SURNAME_FIELD("surname");
 const QString DOB_FIELD("dob");
 const QString SEX_FIELD("sex");
+
 const QString IDNUM_FIELD_PREFIX("idnum");
 const QString IDNUM_FIELD_FORMAT(IDNUM_FIELD_PREFIX + "%1");
 const QString ANY_IDNUM("anyidnum");
+const QString OTHER_IDNUM("otheridnum");
 
-// Not so important:
+// Not so important prior to v2.2.8, then more important (part of policies):
 const QString ADDRESS_FIELD("address");
 const QString GP_FIELD("gp");
 const QString OTHER_FIELD("other");
@@ -263,39 +265,75 @@ bool Patient::hasSurname() const
 }
 
 
-bool Patient::hasDob() const
-{
-    return !value(DOB_FIELD).isNull();
-}
-
-
 bool Patient::hasSex() const
 {
     return !valueString(SEX_FIELD).isEmpty();
 }
 
 
-Patient::AttributesType Patient::policyAttributes() const
+bool Patient::hasDob() const
+{
+    return !value(DOB_FIELD).isNull();
+}
+
+
+bool Patient::hasAddress() const
+{
+    return !valueString(ADDRESS_FIELD).isEmpty();
+}
+
+
+bool Patient::hasGP() const
+{
+    return !valueString(GP_FIELD).isEmpty();
+}
+
+
+bool Patient::hasOtherDetails() const
+{
+    return !valueString(OTHER_FIELD).isEmpty();
+}
+
+
+Patient::AttributesType Patient::policyAttributes(
+        const QVector<int>& policy_mentioned_idnums) const
 {
     AttributesType map;
     map[FORENAME_FIELD] = hasForename();
     map[SURNAME_FIELD] = hasSurname();
-    map[DOB_FIELD] = hasDob();
     map[SEX_FIELD] = hasSex();
+    map[DOB_FIELD] = hasDob();
+    map[ADDRESS_FIELD] = hasAddress();
+    map[GP_FIELD] = hasGP();
+    map[OTHER_FIELD] = hasOtherDetails();
     bool any_idnum = false;
+    bool other_idnum = false;
     for (const PatientIdNumPtr& idnum : m_idnums) {
         const bool present = idnum->idnumIsPresent();
-        map[IDNUM_FIELD_FORMAT.arg(idnum->whichIdNum())] = present;
+        const int which_idnum = idnum->whichIdNum();
+        map[IDNUM_FIELD_FORMAT.arg(which_idnum)] = present;
         any_idnum = any_idnum || present;
+        if (!policy_mentioned_idnums.contains(which_idnum)) {
+            // "other"
+            other_idnum = other_idnum || present;
+        }
     }
     map[ANY_IDNUM] = any_idnum;
+    map[OTHER_IDNUM] = other_idnum;
     return map;
 }
 
 
 bool Patient::compliesWith(const IdPolicy& policy) const
 {
-    return policy.complies(policyAttributes());
+    return policy.complies(policyAttributes(
+                               policy.specificallyMentionedIdNums()));
+}
+
+
+bool Patient::compliesWithTablet() const
+{
+    return compliesWith(TABLET_ID_POLICY);
 }
 
 
@@ -335,9 +373,8 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
     if (!m_questionnaire) {
         return;
     }
-    AttributesType attributes = policyAttributes();
 
-    const bool tablet_ok = TABLET_ID_POLICY.complies(attributes);
+    const bool tablet_ok = compliesWithTablet();
     m_questionnaire->setVisibleByTag(TAG_POLICY_APP_OK, tablet_ok);
     m_questionnaire->setVisibleByTag(TAG_POLICY_APP_FAIL, !tablet_ok);
     fieldRef(SURNAME_FIELD)->setMandatory(!tablet_ok);
@@ -348,11 +385,11 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
         idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(!tablet_ok);
     }
 
-    const bool upload_ok = m_app.uploadPolicy().complies(attributes);
+    const bool upload_ok = compliesWithUpload();
     m_questionnaire->setVisibleByTag(TAG_POLICY_UPLOAD_OK, upload_ok);
     m_questionnaire->setVisibleByTag(TAG_POLICY_UPLOAD_FAIL, !upload_ok);
 
-    const bool finalize_ok = m_app.finalizePolicy().complies(attributes);
+    const bool finalize_ok = compliesWithFinalize();
     m_questionnaire->setVisibleByTag(TAG_POLICY_FINALIZE_OK, finalize_ok);
     m_questionnaire->setVisibleByTag(TAG_POLICY_FINALIZE_FAIL, !finalize_ok);
 
@@ -697,7 +734,8 @@ void Patient::buildPage(bool read_only)
     // ------------------------------------------------------------------------
     // Signals
     // ------------------------------------------------------------------------
-    QStringList fields{FORENAME_FIELD, SURNAME_FIELD, DOB_FIELD, SEX_FIELD};
+    QStringList fields{FORENAME_FIELD, SURNAME_FIELD, DOB_FIELD, SEX_FIELD,
+                       ADDRESS_FIELD, GP_FIELD, OTHER_FIELD};
     for (const QString& fieldname : fields) {
         FieldRefPtr fr = fieldRef(fieldname);
         connect(fr.data(), &FieldRef::valueChanged,
