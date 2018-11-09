@@ -569,15 +569,15 @@ def isotzdatetime_to_utcdatetime_sqlserver(
     """
     x = fetch_processed_single_clause(element, compiler)
 
-    date_time_part = "LEFT({x}, LEN({x}) - {tzl)".format(x=x, tzl=_TZ_LEN)  # a VARCHAR  # noqa
+    date_time_part = "LEFT({x}, LEN({x}) - {tzl})".format(x=x, tzl=_TZ_LEN)  # a VARCHAR  # noqa
     old_timezone = "RIGHT({x}, {tzl})".format(x=x, tzl=_TZ_LEN)  # a VARCHAR
     date_time_no_tz = "CAST({dtp} AS DATETIME2)".format(dtp=date_time_part)  # a DATETIME2  # noqa
-    date_time_offset_with_old_tz = "TODATETIMEOFFSET({dt}, {tz}".format(
+    date_time_offset_with_old_tz = "TODATETIMEOFFSET({dt}, {tz})".format(
         dt=date_time_no_tz, tz=old_timezone)  # a DATETIMEOFFSET
     date_time_offset_with_utc_tz = "SWITCHOFFSET({dto}, {utc})".format(
         dto=date_time_offset_with_old_tz,
         utc=_UTC_TZ_LITERAL)  # a DATETIMEOFFSET in UTC
-    result_utc = "CAST({dtu} AS DATETIME2".format(
+    result_utc = "CAST({dtu} AS DATETIME2)".format(
         dtu=date_time_offset_with_utc_tz)
 
     # log.debug(result_utc)

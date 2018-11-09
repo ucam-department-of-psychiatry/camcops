@@ -1500,3 +1500,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   you should review these.**
 
 - Added dependency ``bcrypt==3.1.4`` to ``setup.py``.
+
+- Bugfixes for operation under SQL Server.

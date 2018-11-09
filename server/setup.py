@@ -87,7 +87,6 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 # Package dependencies
 INSTALL_REQUIRES = [
     'alembic==1.0.0',  # database migrations
-    'bcrypt==3.1.4',  # need by cardinal_pythonlib.crypto
     'cardinal_pythonlib==1.0.31',  # RNC libraries
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.0.1',  # web server
@@ -107,8 +106,7 @@ INSTALL_REQUIRES = [
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.0.2',  # better than Arrow
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
-    'py-bcrypt==0.4;platform_system!="Windows"',  # Used by rnc_crypto; for bcrypt  # noqa
-    # *** 'py-bcrypt-w32==0.2.2;platform_system=="Windows"',  # Windows version
+    'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt; now works under Windows too  # noqa
     'Pygments==2.2.0',  # Syntax highlighting for introspection/DDL
     'PyMySQL==0.7.1',
     # ... for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may break Pendulum handling *** FIX THIS *** # noqa
