@@ -161,7 +161,7 @@ void TaskFactory::makeTables(const QString& key) const
 }
 
 
-TaskPtrList TaskFactory::fetch(const QString& tablename, const bool sort) const
+TaskPtrList TaskFactory::fetchTasks(const QString& tablename, const bool sort) const
 {
     // KEY SECURITY DECISIONS IMPLEMENTED HERE: which tasks users can see.
     const int patient_id = m_app.selectedPatientId();
@@ -173,12 +173,7 @@ TaskPtrList TaskFactory::fetch(const QString& tablename, const bool sort) const
         //   or not).
         // - No patient selected -> return nothing.
         if (patient_selected) {
-            MapIteratorType it(m_map);
-            while (it.hasNext()) {
-                it.next();
-                ProxyType proxy = it.value().proxy;
-                tasklist += proxy->fetch(m_app, m_app.db(), patient_id);
-            }
+            tasklist = fetchAllTasksForPatient(patient_id);
         }
     } else if (!m_map.contains(tablename)) {
         // Duff task
@@ -218,14 +213,14 @@ TaskPtrList TaskFactory::fetch(const QString& tablename, const bool sort) const
 }
 
 
-TaskPtrList TaskFactory::fetchAllForPatient(const int patient_id) const
+TaskPtrList TaskFactory::fetchAllTasksForPatient(const int patient_id) const
 {
     TaskPtrList tasklist;
     MapIteratorType it(m_map);
     while (it.hasNext()) {
         it.next();
         const TaskCache& cache = it.value();
-        bool anonymous = cache.anonymous;
+        const bool anonymous = cache.anonymous;
         if (anonymous) {
             continue;
         }

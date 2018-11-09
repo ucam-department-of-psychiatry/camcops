@@ -493,7 +493,7 @@ void Patient::deleteFromDatabase()
     }
     DbNestableTransaction trans(m_db);
     TaskFactory* factory = m_app.taskFactory();
-    for (const TaskPtr& p_task : factory->fetchAllForPatient(patient_id)) {
+    for (const TaskPtr& p_task : factory->fetchAllTasksForPatient(patient_id)) {
         p_task->deleteFromDatabase();
     }
     // Delete ourself
@@ -825,7 +825,7 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
     qInfo() << Q_FUNC_INFO << "Moving tasks from patient" << other_pk
             << "to patient" << this_pk;
     TaskFactory* factory = m_app.taskFactory();
-    for (const TaskPtr& p_task : factory->fetchAllForPatient(other_pk)) {
+    for (const TaskPtr& p_task : factory->fetchAllTasksForPatient(other_pk)) {
         p_task->moveToPatient(this_pk);
         p_task->save();
     }

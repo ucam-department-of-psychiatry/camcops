@@ -117,6 +117,11 @@ Client core
   5.12.0 beta 1, so may be possible to improve dialogue boxes again on Android
   (but possibly our workaround sorted it; can't remember); check.
 
+**May not be worth it**
+
+- Client-side task index, to speed up the patient summary view? (Not clear that
+  this is a major performance problem!)
+
 Server
 ------
 
@@ -133,9 +138,6 @@ Server
 
 - Facility to hide individual sticky notes (with audit trail), so they're not
   shown in HTML (+ PDF) and XML views. See e-mail RNC/JK/RE, 2018-10-12.
-
-- Superuser facility to list all users' e-mail addresses or provide ``mailto:``
-  URL.
 
 - Test the HL7 backend. Think re HL7 implementation carefully; see
   ``hl7_design.txt``. Also: ensure we can efficiently distinguish between

@@ -1212,8 +1212,8 @@ class PolicyNode(MandatoryStringNode):
             raise Invalid(
                 node,
                 "Invalid policy. (Have you referred to non-existent ID "
-                "numbers? Is the policy less restrictive than the tablet's "
-                "minimum ID policy of {}".format(TABLET_ID_POLICY_STR)
+                "numbers? Is the policy less restrictive than the tablet’s "
+                "minimum ID policy of {!r}?)".format(TABLET_ID_POLICY_STR)
             )
 
 

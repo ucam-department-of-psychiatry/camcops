@@ -1489,3 +1489,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   per-group setting.
 
 - Bugfix to validation colours for ``groups_table.mako``.
+
+- Group admin facility to list all users' e-mail addresses with ``mailto:``
+  URLs.

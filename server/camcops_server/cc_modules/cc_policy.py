@@ -40,7 +40,7 @@ configuration).
 """
 
 import io
-from itertools import combinations
+from itertools import combinations, product
 import logging
 import tokenize
 from typing import (Generator, Iterable, List, Optional, Sequence, Tuple,
@@ -154,54 +154,53 @@ def gen_test_bpis(which_idnums_present_options: Iterable[Iterable[int]],
         `camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo` objects,
         for all combinations of the options requested
     """
-    default = [True, False]  # "most likely to be happy" first
-    p_str = "X"  # present
-    a_str = ""  # absent
-    p_date = Date.today()
-    a_date = None
+    def strval(present: bool) -> str:
+        return "X" if present else ""
 
-    forename_present_options = forename_present_options or default
-    surname_present_options = surname_present_options or default
-    sex_present_options = sex_present_options or default
+    def dateval(present: bool) -> Optional[Date]:
+        return Date.today() if present else None
+
+    default = [True, False]  # "most likely to be happy" first
+
+    forename_present_options = map(strval, forename_present_options or default)
+    surname_present_options = map(strval, surname_present_options or default)
+    sex_present_options = map(strval, sex_present_options or default)
     # Sex must ALWAYS be present; it's required by the tablet.
     # However, we may want to generate invalid things to test here.
-    dob_present_options = dob_present_options or default
-    address_present_options = address_present_options or default
-    gp_present_options = gp_present_options or default
-    otherdetails_present_options = otherdetails_present_options or default
+    dob_present_options = map(dateval, dob_present_options or default)
+    address_present_options = map(strval, address_present_options or default)
+    gp_present_options = map(strval, gp_present_options or default)
+    otherdetails_present_options = map(strval,
+                                       otherdetails_present_options or default)
 
     # Most to least plausible, so ID numbers last in loop and "present" before
     # "absent" in default.
-    for forename_present in forename_present_options:
-        forename = p_str if forename_present else a_str
-        for surname_present in surname_present_options:
-            surname = p_str if surname_present else a_str
-            for sex_present in sex_present_options:
-                sex = p_str if sex_present else a_str
-                for dob_present in dob_present_options:
-                    dob = p_date if dob_present else a_date
-                    for address_present in address_present_options:
-                        address = p_str if address_present else a_str
-                        for gp_present in gp_present_options:
-                            gp = p_str if gp_present else a_str
-                            for od_present in otherdetails_present_options:
-                                other = p_str if od_present else a_str
-                                for which_ids in which_idnums_present_options:
-                                    bpi = BarePatientInfo(
-                                        forename=forename,
-                                        surname=surname,
-                                        sex=sex,
-                                        dob=dob,
-                                        address=address,
-                                        gp=gp,
-                                        other=other,
-                                        idnum_definitions=[
-                                            IdNumReference(which_idnum=n,
-                                                           idnum_value=1)
-                                            for n in which_ids
-                                        ]
-                                    )
-                                    yield bpi
+    # https://docs.python.org/3/library/itertools.html#itertools.product
+    for forename, surname, sex, dob, address, gp, other, which_ids in product(
+                forename_present_options,
+                surname_present_options,
+                sex_present_options,
+                dob_present_options,
+                address_present_options,
+                gp_present_options,
+                otherdetails_present_options,
+                which_idnums_present_options,
+            ):
+        bpi = BarePatientInfo(
+            forename=forename,
+            surname=surname,
+            sex=sex,
+            dob=dob,
+            address=address,
+            gp=gp,
+            other=other,
+            idnum_definitions=[
+                IdNumReference(which_idnum=n,
+                               idnum_value=1)
+                for n in which_ids
+            ]
+        )
+        yield bpi
 
 
 def gen_all_combinations(x: Sequence[int]) \
@@ -232,6 +231,7 @@ class TokenizedPolicy(object):
     """
     def __init__(self, policy: str) -> None:
         self.tokens = self.get_tokenized_id_policy(policy)
+        self._syntactically_valid = None
 
     # -------------------------------------------------------------------------
     # Tokenize
@@ -290,13 +290,17 @@ class TokenizedPolicy(object):
         """
         Is the policy syntactically valid? This is a basic check.
         """
-        if not self.tokens:
-            return False
-        # Evaluate against a dummy patient info object. If we get None, it's
-        # gone wrong.
-        ptinfo = BarePatientInfo()
-        value = self.id_policy_chunk(self.tokens, ptinfo)
-        return value is not None
+        if self._syntactically_valid is None:
+            # Cache it
+            if not self.tokens:
+                self._syntactically_valid = False
+            else:
+                # Evaluate against a dummy patient info object. If we get None,
+                # it's gone wrong.
+                ptinfo = BarePatientInfo()
+                value = self.id_policy_chunk(self.tokens, ptinfo)
+                self._syntactically_valid = value is not None
+        return self._syntactically_valid
 
     def is_valid_from_req(self, req: "CamcopsRequest") -> bool:
         """
@@ -439,6 +443,26 @@ class TokenizedPolicy(object):
         # That should be it...
         return True
 
+    def less_restrictive_than(self, other: "TokenizedPolicy",
+                              valid_idnums: List[int]) -> bool:
+        """
+        Is this ("self") policy at least as restrictive as the "other" policy?
+
+        Args:
+            other: the other policy
+            valid_idnums: ID number types that are valid on the server
+        """
+        # Not elegant, but...
+        for which_idnums in gen_all_combinations(valid_idnums):
+            for bpi in gen_test_bpis(
+                    which_idnums_present_options=[which_idnums]):
+                if not other.satisfies_id_policy(bpi):
+                    # This bpi does NOT satisfy the others's minimum ID policy.
+                    if self.satisfies_id_policy(bpi):
+                        # The "self" policy is LESS RESTRICTIVE.
+                        return True
+        return False
+
     def compatible_with_tablet_id_policy(self,
                                          valid_idnums: List[int]) -> bool:
         """
@@ -450,16 +474,7 @@ class TokenizedPolicy(object):
         Args:
             valid_idnums: ID number types that are valid on the server
         """
-        # Not elegant, but...
-        for which_idnums in gen_all_combinations(valid_idnums):
-            for bpi in gen_test_bpis(
-                    which_idnums_present_options=[which_idnums]):
-                if not TABLET_ID_POLICY.satisfies_id_policy(bpi):
-                    # This bpi does NOT satisfy the tablet's minimum ID policy.
-                    # Therefore, the "self" policy must not permit it.
-                    if self.satisfies_id_policy(bpi):
-                        return False
-        return True
+        return not self.less_restrictive_than(TABLET_ID_POLICY, valid_idnums)
 
     # -------------------------------------------------------------------------
     # Check if a patient satisfies the policy
@@ -796,7 +811,3 @@ if __name__ == "__main__":
     # Run with "python cc_policy.py" to test.
     main_only_quicksetup_rootlogger(level=logging.DEBUG)
     unittest.main()
-
-# *** IN PROGRESS.
-# *** DOING "SEX ALWAYS MANDATORY" AND CHECKING is_idnum_mandatory_in_policy
-# *** CHECKING TABLET CODE

@@ -30,7 +30,6 @@ camcops_server/cc_modules/cc_hl7.py
 
 import errno
 import codecs
-import hl7
 import lockfile
 import logging
 import os
@@ -45,6 +44,7 @@ from cardinal_pythonlib.datetimefunc import (
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.network import ping
+import hl7
 from sqlalchemy.orm import reconstructor, relationship
 from sqlalchemy.sql.expression import or_, not_
 from sqlalchemy.sql.schema import Column, ForeignKey

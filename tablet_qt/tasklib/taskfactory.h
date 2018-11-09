@@ -84,8 +84,8 @@ public:
     QString shortname(const QString& key) const;
     QString longname(const QString& key) const;
     void makeTables(const QString& key) const;
-    TaskPtrList fetch(const QString& tablename = "", bool sort = true) const;
-    TaskPtrList fetchAllForPatient(int patient_id) const;
+    TaskPtrList fetchTasks(const QString& tablename = "", bool sort = true) const;
+    TaskPtrList fetchAllTasksForPatient(int patient_id) const;
     TaskPtrList allSpecimens() const;
     TaskPtrList allSpecimensExceptAnonymous() const;
     Version minimumServerVersion(const QString& tablename) const;  // main or sub-table

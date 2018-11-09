@@ -341,7 +341,7 @@ def make_obr_segment(task: "Task") -> hl7.Segment:
     transcriptionist = ""
     scheduled_date_time = ""
     number_of_sample_containers = ""
-    transport_logisticts_of_collected_samples = ""
+    transport_logistics_of_collected_samples = ""
     collectors_comment = ""
     transport_arrangement_responsibility = ""
     transport_arranged = ""
@@ -386,7 +386,7 @@ def make_obr_segment(task: "Task") -> hl7.Segment:
         transcriptionist,
         scheduled_date_time,
         number_of_sample_containers,
-        transport_logisticts_of_collected_samples,
+        transport_logistics_of_collected_samples,
         collectors_comment,
         transport_arrangement_responsibility,
         transport_arranged,

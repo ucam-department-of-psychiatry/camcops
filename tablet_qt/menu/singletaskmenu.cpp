@@ -95,7 +95,7 @@ void SingleTaskMenu::build()
     );
 
     // Task items
-    TaskPtrList tasklist = factory->fetch(m_tablename);
+    TaskPtrList tasklist = factory->fetchTasks(m_tablename);
 #ifdef DEBUG_TASK_MENU_CREATION
     qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "tasks";
 #endif

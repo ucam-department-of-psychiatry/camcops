@@ -165,7 +165,7 @@ import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
 from sqlalchemy.engine import create_engine
-from sqlalchemy.orm import Session as SqlASession, sessionmaker
+from sqlalchemy.orm import Session as SqlASession, sessionmaker, Query
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import (and_, desc, exists, not_, or_,
                                        select, update)
@@ -2038,17 +2038,7 @@ def get_user_from_request_user_id_or_raise(req: CamcopsRequest) -> User:
     return user
 
 
-@view_config(route_name=Routes.VIEW_ALL_USERS,
-             permission=Permission.GROUPADMIN,
-             renderer="users_view.mako")
-def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
-    """
-    View all users that the current user administers. The view has hyperlinks
-    to edit those users too.
-    """
-    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
-                                      DEFAULT_ROWS_PER_PAGE)
-    page_num = req.get_int_param(ViewParam.PAGE, 1)
+def query_users_that_i_manage(req: CamcopsRequest) -> Query:
     dbsession = req.dbsession
     q = (
         dbsession.query(User)
@@ -2075,6 +2065,21 @@ def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
         # ... user must be a member of one of our groups
         # ... no groupadmins
         # https://stackoverflow.com/questions/14600619/using-not-exists-clause-in-sqlalchemy-orm-query  # noqa
+    return q
+
+
+@view_config(route_name=Routes.VIEW_ALL_USERS,
+             permission=Permission.GROUPADMIN,
+             renderer="users_view.mako")
+def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View all users that the current user administers. The view has hyperlinks
+    to edit those users too.
+    """
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
+    q = query_users_that_i_manage(req)
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
@@ -2083,12 +2088,24 @@ def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
                 as_superuser=req.user.superuser)
 
 
+@view_config(route_name=Routes.VIEW_USER_EMAILS,
+             permission=Permission.GROUPADMIN,
+             renderer="view_user_emails.mako")
+def view_user_emails(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    View e-mail addresses of all users that the requesting user is authorized
+    to manage.
+    """
+    q = query_users_that_i_manage(req)
+    return dict(query=q)
+
+
 def assert_may_edit_user(req: CamcopsRequest, user: User) -> None:
     """
     Checks that the requesting user (``req.user``) is allowed to edit the other
     user (``user``). Raises :exc:`HTTPBadRequest` otherwise.
     """
-    # LOGIC SHOULD MATCH view_all_users
+    # LOGIC SHOULD MATCH query_users_that_i_manage
     if user.username == USER_NAME_FOR_SYSTEM:
         raise HTTPBadRequest("Nobody may edit the system user")
     if not req.user.superuser:

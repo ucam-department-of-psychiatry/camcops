@@ -579,6 +579,7 @@ class Routes(object):
     VIEW_HL7_RUN_LOG = "view_hl7_run_log"
     VIEW_ID_DEFINITIONS = "view_id_definitions"
     VIEW_USER = "view_user"
+    VIEW_USER_EMAILS = "view_user_emails"
     VIEW_SERVER_INFO = "view_server_info"
     VIEW_TASKS = "view_tasks"
 
@@ -716,6 +717,7 @@ class RouteCollection(object):
     VIEW_SERVER_INFO = RoutePath(Routes.VIEW_SERVER_INFO, "/view_server_info")
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS, "/view_tasks")
     VIEW_USER = RoutePath(Routes.VIEW_USER, "/view_user")
+    VIEW_USER_EMAILS = RoutePath(Routes.VIEW_USER_EMAILS, "/view_user_emails")
 
     @classmethod
     def all_routes(cls) -> List[RoutePath]:
