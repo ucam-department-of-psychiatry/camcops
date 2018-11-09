@@ -1483,7 +1483,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - ID number validation system and NHS number validation.
 
-- ID policy supports "NOT" and "otheridnum".
+- ID policy supports ``NOT``, ``address``, ``gp``, ``otherdetails``, and
+  ``otheridnum``; see :ref:`patient identification <patient_identification>`.
 
   This makes it easier for research studies to support a "no PID" rule, as a
   per-group setting.
