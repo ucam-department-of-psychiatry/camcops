@@ -69,7 +69,7 @@ def meta_main() -> None:
         help="Python interpreter (default: {})".format(sys.executable))
     parser.add_argument(
         '--camcops', default=DEFAULT_CAMCOPS,
-        help="CamCOPS executable (default: {})".format(DEFAULT_CAMCOPS))
+        help="CamCOPS server executable (default: {})".format(DEFAULT_CAMCOPS))
     parser.add_argument(
         '-d', '--dummyrun', action="store_true",
         help="Dummy run (show filenames only)")

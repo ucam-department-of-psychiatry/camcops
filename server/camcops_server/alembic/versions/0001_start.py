@@ -37,6 +37,7 @@ DATABASE REVISION SCRIPT
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import mysql
 import cardinal_pythonlib.sqlalchemy.list_types
 import camcops_server.cc_modules.cc_sqla_coltypes
 
@@ -243,7 +244,8 @@ def upgrade():
     sa.Column('reply_at_utc', sa.DateTime(), nullable=True),
     sa.Column('success', sa.Boolean(), nullable=True),
     sa.Column('failure_reason', sa.Text(), nullable=True),
-    sa.Column('message', sa.UnicodeText(length=4294967295), nullable=True),
+    # sa.Column('message', sa.UnicodeText(length=4294967295), nullable=True),
+    sa.Column('message', sa.UnicodeText().with_variant(mysql.LONGTEXT, "mysql"), nullable=True),
     sa.Column('reply', sa.Text(), nullable=True),
     sa.Column('filename', sa.Text(), nullable=True),
     sa.Column('rio_metadata_filename', sa.Text(), nullable=True),
@@ -911,7 +913,8 @@ def upgrade():
     sa.Column('filename', sa.Text(), nullable=True),
     sa.Column('mimetype', sa.String(length=255), nullable=True),
     sa.Column('image_rotation_deg_cw', sa.Integer(), nullable=True),
-    sa.Column('theblob', sa.LargeBinary(length=4294967295), nullable=True),
+    # sa.Column('theblob', sa.LargeBinary(length=4294967295), nullable=True),
+    sa.Column('theblob', sa.LargeBinary().with_variant(mysql.LONGBLOB, "mysql"), nullable=True),
     sa.Column('_preserving_user_id', sa.Integer(), nullable=True),
     sa.Column('_manually_erased', sa.Boolean(), nullable=True),
     sa.Column('_removal_pending', sa.Boolean(), nullable=True),

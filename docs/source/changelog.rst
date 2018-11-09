@@ -1498,3 +1498,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   etc. Similarly ``camcops_meta`` to ``camcops_server_meta``.
   **Note that this may break automatic launch scripts, e.g. via supervisord;
   you should review these.**
+
+- Added dependency ``bcrypt==3.1.4`` to ``setup.py``.

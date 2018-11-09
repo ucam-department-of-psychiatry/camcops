@@ -76,6 +76,45 @@ First, to get Centos 6.5 to a basic standard, :ref:`see here
 
 You should be able to type ``camcops`` and see something relevant.
 
+Windows prerequisites
+~~~~~~~~~~~~~~~~~~~~~
+
+- ImageMagick: see
+  http://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows.
+
+  - If, despite installing ImageMagick, CamCOPS fails to start regardless with
+    the message:
+
+    .. code-block:: none
+
+        ImportError: MagickWand shared library not found.
+        You probably had not installed ImageMagick library.
+        Try to install:
+          http://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows
+
+    then one possibility is that your Python interpreter and your ImageMagick
+    libraries do not match in terms of 32- versus 64-bitness.
+
+    To check Python, run ``python`` then see
+    https://stackoverflow.com/questions/1405913/. To check ImageMagick, a quick
+    way is to run its ImageMagick Display (IMDisplay) program, then
+    :menuselection:`Help --> About`.
+
+    Another possibility is that you failed to tick "Install development headers
+    and libraries for C and C++" (see the Wand instructions). Retry with that
+    ticked.
+
+    If none of that works, it's possible that ImageMagick 7.x doesn't work with
+    Wand 0.4.4 and you need ImageMagick 6.x (e.g. 6.9.10); see
+    https://stackoverflow.com/questions/25003117/. Binary downloads are at
+    https://www.imagemagick.org/download/binaries/. This fixed it for us.
+
+.. todo::
+
+    ImageMagick still not being found by Wand under Windows despite
+    appropriate-looking PATH and bit-correctness.
+
+
 Installation for any OS
 ~~~~~~~~~~~~~~~~~~~~~~~
 

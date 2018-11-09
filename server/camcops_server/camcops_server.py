@@ -954,10 +954,11 @@ def camcops_main() -> None:
     # -------------------------------------------------------------------------
 
     parser = ArgumentParser(
-        prog="camcops",  # name the user will use to call it
-        description="""CamCOPS server version {}, by Rudolf Cardinal.
-Use 'camcops <COMMAND> --help' for more detail on each command.""".format(
-            CAMCOPS_SERVER_VERSION),
+        description=(
+            "CamCOPS server version {}, by Rudolf Cardinal.\n"
+            "Use 'camcops_server <COMMAND> --help' for more detail on each "
+            "command.".format(CAMCOPS_SERVER_VERSION)
+        ),
         formatter_class=RawDescriptionHelpFormatter,
         # add_help=False  # only do this if manually overriding the method
     )

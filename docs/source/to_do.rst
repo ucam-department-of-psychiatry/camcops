@@ -154,6 +154,9 @@ Server
   SQL Server version is 2008 (below that, there’s no time zone conversion
   support).
 
+  - Fields like ``_hl7_message_log.message`` which use
+    ``LONGBLOB_LONGTEXT_MAX_LEN``: needs fixing.
+
 - (SERVER + CLIENT) Concept of “tasks that need doing” in the context of a
   research study.
 

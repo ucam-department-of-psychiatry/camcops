@@ -24,20 +24,20 @@ CamCOPS command-line tools
 
 .. _camcops_cli:
 
-camcops
--------
+camcops_server
+--------------
 
-The ``camcops`` command is the main interface to the CamCOPS server.
-Options as of 2018-04-06 (output from ``camcops --allhelp``):
+The ``camcops_server`` command is the main interface to the CamCOPS server.
+Options as of 2018-11-09 (output from ``camcops_server --allhelp``):
 
 .. code-block:: none
 
-    usage: camcops [-h] [--allhelp] [--version]
-                   {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,show_db_title,merge_db,create_db,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,serve_cherrypy,serve_gunicorn}
-                   ...
+    usage: camcops_server [-h] [--allhelp] [--version]
+                          {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,show_upgrade_sql,show_db_title,merge_db,create_db,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,serve_cherrypy,serve_gunicorn}
+                          ...
 
-    CamCOPS server version 2.2.0, by Rudolf Cardinal.
-    Use 'camcops <COMMAND> --help' for more detail on each command.
+    CamCOPS server version 2.2.8, by Rudolf Cardinal.
+    Use 'camcops_server <COMMAND> --help' for more detail on each command.
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -47,7 +47,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     commands:
       Valid CamCOPS commands are as follows.
 
-      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,show_db_title,merge_db,create_db,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,serve_cherrypy,serve_gunicorn}
+      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,show_upgrade_sql,show_db_title,merge_db,create_db,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,serve_cherrypy,serve_gunicorn}
                             Specify one command.
         docs                Launch the main documentation (CamCOPS manual)
         demo_camcops_config
@@ -62,6 +62,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
                             Print demo instructions to dump all current MySQL
                             databases
         upgrade_db          Upgrade database to most recent version (via Alembic)
+        show_upgrade_sql    Show SQL for upgrading database (to stdout)
         show_db_title       Show database title
         merge_db            Merge in data from an old or recent CamCOPS database
         create_db           Create CamCOPS database from scratch (AVOID; use the
@@ -84,7 +85,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'docs'
     ===============================================================================
-    usage: camcops docs [-h] [-v]
+    usage: camcops_server docs [-h] [-v]
 
     Launch the main documentation (CamCOPS manual)
 
@@ -95,7 +96,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'demo_camcops_config'
     ===============================================================================
-    usage: camcops demo_camcops_config [-h] [-v]
+    usage: camcops_server demo_camcops_config [-h] [-v]
 
     Print a demo CamCOPS config file
 
@@ -106,7 +107,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'demo_supervisor_config'
     ===============================================================================
-    usage: camcops demo_supervisor_config [-h] [-v]
+    usage: camcops_server demo_supervisor_config [-h] [-v]
 
     Print a demo 'supervisor' config file for CamCOPS
 
@@ -117,7 +118,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'demo_apache_config'
     ===============================================================================
-    usage: camcops demo_apache_config [-h] [-v]
+    usage: camcops_server demo_apache_config [-h] [-v]
 
     Print a demo Apache config file section for CamCOPS
 
@@ -128,7 +129,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'demo_mysql_create_db'
     ===============================================================================
-    usage: camcops demo_mysql_create_db [-h] [-v]
+    usage: camcops_server demo_mysql_create_db [-h] [-v]
 
     Print demo instructions to create a MySQL database for CamCOPS
 
@@ -139,7 +140,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'demo_mysql_dump_script'
     ===============================================================================
-    usage: camcops demo_mysql_dump_script [-h] [-v]
+    usage: camcops_server demo_mysql_dump_script [-h] [-v]
 
     Print demo instructions to dump all current MySQL databases
 
@@ -150,7 +151,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'upgrade_db'
     ===============================================================================
-    usage: camcops upgrade_db [-h] [-v] --config CONFIG
+    usage: camcops_server upgrade_db [-h] [-v] --config CONFIG
 
     Upgrade database to most recent version (via Alembic)
 
@@ -162,9 +163,23 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
       --config CONFIG  Configuration file (default: None)
 
     ===============================================================================
+    Help for command 'show_upgrade_sql'
+    ===============================================================================
+    usage: camcops_server show_upgrade_sql [-h] [-v] --config CONFIG
+
+    Show SQL for upgrading database (to stdout)
+
+    optional arguments:
+      -h, --help       show this help message and exit
+      -v, --verbose    Be verbose (default: False)
+
+    required named arguments:
+      --config CONFIG  Configuration file (default: None)
+
+    ===============================================================================
     Help for command 'show_db_title'
     ===============================================================================
-    usage: camcops show_db_title [-h] [-v] [--config CONFIG]
+    usage: camcops_server show_db_title [-h] [-v] [--config CONFIG]
 
     Show database title
 
@@ -177,11 +192,13 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'merge_db'
     ===============================================================================
-    usage: camcops merge_db [-h] [-v] --config CONFIG
-                            [--report_every REPORT_EVERY] [--echo] [--dummy_run]
-                            [--info_only] [--skip_hl7_logs] [--skip_audit_logs]
-                            [--default_group_id DEFAULT_GROUP_ID]
-                            [--default_group_name DEFAULT_GROUP_NAME] --src SRC
+    usage: camcops_server merge_db [-h] [-v] --config CONFIG
+                                   [--report_every REPORT_EVERY] [--echo]
+                                   [--dummy_run] [--info_only] [--skip_hl7_logs]
+                                   [--skip_audit_logs]
+                                   [--default_group_id DEFAULT_GROUP_ID]
+                                   [--default_group_name DEFAULT_GROUP_NAME] --src
+                                   SRC
 
     Merge in data from an old or recent CamCOPS database
 
@@ -215,7 +232,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'create_db'
     ===============================================================================
-    usage: camcops create_db [-h] [-v] --config CONFIG --confirm_create_db
+    usage: camcops_server create_db [-h] [-v] --config CONFIG --confirm_create_db
 
     Create CamCOPS database from scratch (AVOID; use the upgrade facility instead)
 
@@ -231,8 +248,8 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'make_superuser'
     ===============================================================================
-    usage: camcops make_superuser [-h] [-v] [--config CONFIG]
-                                  [--username USERNAME]
+    usage: camcops_server make_superuser [-h] [-v] [--config CONFIG]
+                                         [--username USERNAME]
 
     Make superuser, or give superuser status to an existing user
 
@@ -248,8 +265,8 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'reset_password'
     ===============================================================================
-    usage: camcops reset_password [-h] [-v] [--config CONFIG]
-                                  [--username USERNAME]
+    usage: camcops_server reset_password [-h] [-v] [--config CONFIG]
+                                         [--username USERNAME]
 
     Reset a user's password
 
@@ -265,7 +282,8 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'enable_user'
     ===============================================================================
-    usage: camcops enable_user [-h] [-v] [--config CONFIG] [--username USERNAME]
+    usage: camcops_server enable_user [-h] [-v] [--config CONFIG]
+                                      [--username USERNAME]
 
     Re-enable a locked user account
 
@@ -281,7 +299,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'ddl'
     ===============================================================================
-    usage: camcops ddl [-h] [-v] [--config CONFIG] [--dialect DIALECT]
+    usage: camcops_server ddl [-h] [-v] [--config CONFIG] [--dialect DIALECT]
 
     Print database schema (data definition language; DDL)
 
@@ -290,13 +308,13 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
       -v, --verbose      Be verbose (default: False)
       --config CONFIG    Configuration file (if not specified, the environment
                          variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-      --dialect DIALECT  SQL dialect (options: sybase, postgresql, sqlite, mysql,
-                         oracle, mssql, firebird) (default: mysql)
+      --dialect DIALECT  SQL dialect (options: oracle, postgresql, mssql,
+                         firebird, sqlite, mysql, sybase) (default: mysql)
 
     ===============================================================================
     Help for command 'hl7'
     ===============================================================================
-    usage: camcops hl7 [-h] [-v] [--config CONFIG]
+    usage: camcops_server hl7 [-h] [-v] [--config CONFIG]
 
     Send pending HL7 messages and outbound files
 
@@ -309,7 +327,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'show_hl7_queue'
     ===============================================================================
-    usage: camcops show_hl7_queue [-h] [-v] [--config CONFIG]
+    usage: camcops_server show_hl7_queue [-h] [-v] [--config CONFIG]
 
     View outbound HL7/file queue (without sending)
 
@@ -322,7 +340,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'show_tests'
     ===============================================================================
-    usage: camcops show_tests [-h] [-v]
+    usage: camcops_server show_tests [-h] [-v]
 
     Show available self-tests
 
@@ -333,7 +351,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'self_test'
     ===============================================================================
-    usage: camcops self_test [-h] [-v]
+    usage: camcops_server self_test [-h] [-v]
 
     Test internal code
 
@@ -344,17 +362,17 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'serve_pyramid'
     ===============================================================================
-    usage: camcops serve_pyramid [-h] [-v] [--config CONFIG] [--host HOST]
-                                 [--port PORT]
-                                 [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
-                                 [--proxy_http_host PROXY_HTTP_HOST]
-                                 [--proxy_remote_addr PROXY_REMOTE_ADDR]
-                                 [--proxy_script_name PROXY_SCRIPT_NAME]
-                                 [--proxy_server_port PROXY_SERVER_PORT]
-                                 [--proxy_server_name PROXY_SERVER_NAME]
-                                 [--proxy_url_scheme PROXY_URL_SCHEME]
-                                 [--proxy_rewrite_path_info]
-                                 [--debug_reverse_proxy] [--debug_toolbar]
+    usage: camcops_server serve_pyramid [-h] [-v] [--config CONFIG] [--host HOST]
+                                        [--port PORT]
+                                        [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
+                                        [--proxy_http_host PROXY_HTTP_HOST]
+                                        [--proxy_remote_addr PROXY_REMOTE_ADDR]
+                                        [--proxy_script_name PROXY_SCRIPT_NAME]
+                                        [--proxy_server_port PROXY_SERVER_PORT]
+                                        [--proxy_server_name PROXY_SERVER_NAME]
+                                        [--proxy_url_scheme PROXY_URL_SCHEME]
+                                        [--proxy_rewrite_path_info]
+                                        [--debug_reverse_proxy] [--debug_toolbar]
 
     Test web server (single-thread, single-process, HTTP-only, Pyramid; for
     development use only
@@ -443,25 +461,25 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'serve_cherrypy'
     ===============================================================================
-    usage: camcops serve_cherrypy [-h] [-v] [--config CONFIG] [--serve]
-                                  [--host HOST] [--port PORT]
-                                  [--unix_domain_socket UNIX_DOMAIN_SOCKET]
-                                  [--server_name SERVER_NAME]
-                                  [--threads_start THREADS_START]
-                                  [--threads_max THREADS_MAX]
-                                  [--ssl_certificate SSL_CERTIFICATE]
-                                  [--ssl_private_key SSL_PRIVATE_KEY]
-                                  [--log_screen] [--no_log_screen]
-                                  [--root_path ROOT_PATH]
-                                  [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
-                                  [--proxy_http_host PROXY_HTTP_HOST]
-                                  [--proxy_remote_addr PROXY_REMOTE_ADDR]
-                                  [--proxy_script_name PROXY_SCRIPT_NAME]
-                                  [--proxy_server_port PROXY_SERVER_PORT]
-                                  [--proxy_server_name PROXY_SERVER_NAME]
-                                  [--proxy_url_scheme PROXY_URL_SCHEME]
-                                  [--proxy_rewrite_path_info]
-                                  [--debug_reverse_proxy] [--debug_toolbar]
+    usage: camcops_server serve_cherrypy [-h] [-v] [--config CONFIG] [--serve]
+                                         [--host HOST] [--port PORT]
+                                         [--unix_domain_socket UNIX_DOMAIN_SOCKET]
+                                         [--server_name SERVER_NAME]
+                                         [--threads_start THREADS_START]
+                                         [--threads_max THREADS_MAX]
+                                         [--ssl_certificate SSL_CERTIFICATE]
+                                         [--ssl_private_key SSL_PRIVATE_KEY]
+                                         [--log_screen] [--no_log_screen]
+                                         [--root_path ROOT_PATH]
+                                         [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
+                                         [--proxy_http_host PROXY_HTTP_HOST]
+                                         [--proxy_remote_addr PROXY_REMOTE_ADDR]
+                                         [--proxy_script_name PROXY_SCRIPT_NAME]
+                                         [--proxy_server_port PROXY_SERVER_PORT]
+                                         [--proxy_server_name PROXY_SERVER_NAME]
+                                         [--proxy_url_scheme PROXY_URL_SCHEME]
+                                         [--proxy_rewrite_path_info]
+                                         [--debug_reverse_proxy] [--debug_toolbar]
 
     Start web server (via CherryPy)
 
@@ -581,23 +599,24 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
     ===============================================================================
     Help for command 'serve_gunicorn'
     ===============================================================================
-    usage: camcops serve_gunicorn [-h] [-v] [--config CONFIG] [--serve]
-                                  [--host HOST] [--port PORT]
-                                  [--unix_domain_socket UNIX_DOMAIN_SOCKET]
-                                  [--num_workers NUM_WORKERS] [--debug_reload]
-                                  [--ssl_certificate SSL_CERTIFICATE]
-                                  [--ssl_private_key SSL_PRIVATE_KEY]
-                                  [--timeout TIMEOUT]
-                                  [--debug_show_gunicorn_options]
-                                  [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
-                                  [--proxy_http_host PROXY_HTTP_HOST]
-                                  [--proxy_remote_addr PROXY_REMOTE_ADDR]
-                                  [--proxy_script_name PROXY_SCRIPT_NAME]
-                                  [--proxy_server_port PROXY_SERVER_PORT]
-                                  [--proxy_server_name PROXY_SERVER_NAME]
-                                  [--proxy_url_scheme PROXY_URL_SCHEME]
-                                  [--proxy_rewrite_path_info]
-                                  [--debug_reverse_proxy] [--debug_toolbar]
+    usage: camcops_server serve_gunicorn [-h] [-v] [--config CONFIG] [--serve]
+                                         [--host HOST] [--port PORT]
+                                         [--unix_domain_socket UNIX_DOMAIN_SOCKET]
+                                         [--num_workers NUM_WORKERS]
+                                         [--debug_reload]
+                                         [--ssl_certificate SSL_CERTIFICATE]
+                                         [--ssl_private_key SSL_PRIVATE_KEY]
+                                         [--timeout TIMEOUT]
+                                         [--debug_show_gunicorn_options]
+                                         [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
+                                         [--proxy_http_host PROXY_HTTP_HOST]
+                                         [--proxy_remote_addr PROXY_REMOTE_ADDR]
+                                         [--proxy_script_name PROXY_SCRIPT_NAME]
+                                         [--proxy_server_port PROXY_SERVER_PORT]
+                                         [--proxy_server_name PROXY_SERVER_NAME]
+                                         [--proxy_url_scheme PROXY_URL_SCHEME]
+                                         [--proxy_rewrite_path_info]
+                                         [--debug_reverse_proxy] [--debug_toolbar]
 
     Start web server (via Gunicorn) (not available under Windows)
 
@@ -615,7 +634,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
                             if specified) (default: )
       --num_workers NUM_WORKERS
                             Number of worker processes for server to use (default:
-                            16)
+                            8)
       --debug_reload        Debugging option: reload Gunicorn upon code change
                             (default: False)
       --ssl_certificate SSL_CERTIFICATE
@@ -702,6 +721,7 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
       --debug_toolbar       Enable the Pyramid debug toolbar (default: False)
 
 
+
 .. _camcops_server_meta:
 
 camcops_server_meta
@@ -712,14 +732,14 @@ CamCOPS configuration files/databases. It’s less useful than it was, because
 the dominant mode of “one database per research group” has been replaced by the
 concept of “a single database with group-level security”.
 
-Options as of 2017-10-23:
+Options as of 2018-11-09:
 
 .. code-block:: none
 
-    usage: camcops_meta [-h] --filespecs FILESPECS [FILESPECS ...]
-                        [--ccargs [CCARGS [CCARGS ...]]] [--python PYTHON]
-                        [--camcops CAMCOPS] [-d] [-v]
-                        cc_command
+    usage: camcops_server_meta [-h] --filespecs FILESPECS [FILESPECS ...]
+                               [--ccargs [CCARGS [CCARGS ...]]] [--python PYTHON]
+                               [--camcops CAMCOPS] [-d] [-v]
+                               cc_command
 
     Run commands across multiple CamCOPS databases
 
@@ -735,8 +755,8 @@ Options as of 2017-10-23:
                             prefixed
       --python PYTHON       Python interpreter (default:
                             /home/rudolf/dev/venvs/camcops/bin/python3)
-      --camcops CAMCOPS     CamCOPS executable (default:
-                            /home/rudolf/Documents/code/camcops/server/camcops.py)
+      --camcops CAMCOPS     CamCOPS server executable (default: /home/rudolf/Docum
+                            ents/code/camcops/server/camcops_server.py)
       -d, --dummyrun        Dummy run (show filenames only)
       -v, --verbose         Verbose
 

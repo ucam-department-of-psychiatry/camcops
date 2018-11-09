@@ -129,6 +129,7 @@ from pendulum import DateTime as Pendulum
 from pendulum.parsing.exceptions import ParserError
 from semantic_version import Version
 from sqlalchemy import util
+from sqlalchemy.dialects import mysql
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm.relationships import RelationshipProperty
@@ -238,7 +239,8 @@ ISO8601_STRING_MAX_LEN = 32
 #                     1234567890123456789012345678901234567890
 #     (with punctuation, T, microseconds, colon in timezone).
 
-LONGBLOB_LONGTEXT_MAX_LEN = (2 ** 32) - 1
+# LONGBLOB_LONGTEXT_MAX_LEN = (2 ** 32) - 1
+# ... https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html
 
 MIMETYPE_MAX_LEN = 255  # https://stackoverflow.com/questions/643690
 
@@ -324,11 +326,11 @@ IPAddressColType = String(length=IP_ADDRESS_MAX_LEN)
 # Large BLOB:
 # https://stackoverflow.com/questions/43791725/sqlalchemy-how-to-make-a-longblob-column-in-mysql  # noqa
 # One of these:
-# LongBlob = LargeBinary().with_variant(mysql.LONGBLOB, "mysql")
-LongBlob = LargeBinary(length=LONGBLOB_LONGTEXT_MAX_LEN)
+LongBlob = LargeBinary().with_variant(mysql.LONGBLOB, "mysql")
+# LongBlob = LargeBinary(length=LONGBLOB_LONGTEXT_MAX_LEN)  # doesn't translate to SQL Server  # noqa
 
-# LongText = UnicodeText().with_variant(mysql.LONGTEXT, 'mysql')
-LongText = UnicodeText(length=LONGBLOB_LONGTEXT_MAX_LEN)
+LongText = UnicodeText().with_variant(mysql.LONGTEXT, "mysql")
+# LongText = UnicodeText(length=LONGBLOB_LONGTEXT_MAX_LEN)  # doesn't translate to SQL Server  # noqa
 
 MimeTypeColType = String(length=MIMETYPE_MAX_LEN)
 
