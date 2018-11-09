@@ -39,9 +39,10 @@ It’s also possible, of course, to have multiple CamCOPS databases, each with
 its own configuration file.
 
 If you do operate with multiple databases/configuration files, you may want to
-use the :ref:`camcops_meta <camcops_meta>` tool, which allows you to run the
-same :ref:`camcops <camcops_cli>` command over multiple configuration files in
-one go (for example, to upgrade the databases for a new version of CamCOPS).
+use the :ref:`camcops_server_meta <camcops_server_meta>` tool, which allows you
+to run the same :ref:`camcops <camcops_cli>` command over multiple
+configuration files in one go (for example, to upgrade the databases for a new
+version of CamCOPS).
 
 Format of the configuration file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

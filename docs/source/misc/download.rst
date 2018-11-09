@@ -31,7 +31,7 @@ The Android app is at
 
 Other client downloads, and server distributions, are at
 
-- http://www.camcops.org/download/
+- https://egret.psychol.cam.ac.uk/camcops/download/
 
 The source code is at
 

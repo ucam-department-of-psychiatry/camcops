@@ -40,8 +40,8 @@ server/camcops_server
     alembic/versions/0010_add_factg.py.rst
     alembic/versions/0011_add_eq5d5l_task.py.rst
     alembic/versions/0012_idnum_def_validation_method.py.rst
-    camcops.py.rst
-    camcops_meta.py.rst
+    camcops_server.py.rst
+    camcops_server_meta.py.rst
     cc_modules/cc_alembic.py.rst
     cc_modules/cc_all_models.py.rst
     cc_modules/cc_analytics.py.rst

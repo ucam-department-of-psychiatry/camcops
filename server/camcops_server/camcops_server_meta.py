@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/camcops_meta.py
+camcops_server/camcops_server_meta.py
 
 ===============================================================================
 
@@ -45,12 +45,12 @@ log = logging.getLogger(__name__)
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 PROJECT_BASE_DIRECTORY = os.path.abspath(os.path.join(THIS_DIRECTORY,
                                                       os.pardir))
-DEFAULT_CAMCOPS = os.path.join(PROJECT_BASE_DIRECTORY, 'camcops.py')
+DEFAULT_CAMCOPS = os.path.join(PROJECT_BASE_DIRECTORY, 'camcops_server.py')
 
 
 def meta_main() -> None:
     """
-    Command-line process for ``camcops_meta`` tool.
+    Command-line process for ``camcops_server_meta`` tool.
     """
     parser = argparse.ArgumentParser(
         description="Run commands across multiple CamCOPS databases")
@@ -80,7 +80,7 @@ def meta_main() -> None:
     log.debug("Arguments: {}".format(args))
 
     # Delayed import so --help doesn't take ages
-    from camcops_server.camcops import main as camcops_main  # delayed import
+    from camcops_server.camcops_server import main as camcops_main  # delayed import  # noqa
 
     did_something = False
     # old_sys_argv = sys.argv.copy()

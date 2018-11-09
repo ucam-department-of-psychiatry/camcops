@@ -1492,3 +1492,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Group admin facility to list all users' e-mail addresses with ``mailto:``
   URLs.
+
+- Server renamed from ``camcops`` to ``camcops_server``; package, executable,
+  etc. Similarly ``camcops_meta`` to ``camcops_server_meta``.
+  **Note that this may break automatic launch scripts, e.g. via supervisord;
+  you should review these.**

@@ -702,14 +702,14 @@ Options as of 2018-04-06 (output from ``camcops --allhelp``):
       --debug_toolbar       Enable the Pyramid debug toolbar (default: False)
 
 
-.. _camcops_meta:
+.. _camcops_server_meta:
 
-camcops_meta
-------------
+camcops_server_meta
+-------------------
 
-The ``camcops_meta`` tool allows you to run CamCOPS over multiple CamCOPS
-configuration files/databases. It’s less useful than it was, because the
-dominant mode of “one database per research group” has been replaced by the
+The ``camcops_server_meta`` tool allows you to run CamCOPS over multiple
+CamCOPS configuration files/databases. It’s less useful than it was, because
+the dominant mode of “one database per research group” has been replaced by the
 concept of “a single database with group-level security”.
 
 Options as of 2017-10-23:

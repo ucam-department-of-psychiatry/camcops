@@ -106,7 +106,7 @@ if sys.version_info[1] < 5:
 # URL defaults and other constants
 # =============================================================================
 
-PACKAGE = "camcops"
+PACKAGE = "camcops_server"
 DSTSYSTEMPYTHON = 'python3'
 # ... must be present on the path on the destination system
 
@@ -239,11 +239,8 @@ WRKTOOLDIR = join(WRKBASEDIR, 'tools')
 DSTTOOLDIR = join(DSTBASEDIR, 'tools')
 VENVSCRIPT = 'install_virtualenv.py'
 WKHTMLTOPDFSCRIPT = 'install_wkhtmltopdf.py'
-METASCRIPT = 'camcops_meta.py'
 DSTVENVSCRIPT = join(DSTTOOLDIR, VENVSCRIPT)
 DSTWKHTMLTOPDFSCRIPT = join(DSTTOOLDIR, WKHTMLTOPDFSCRIPT)
-
-MAINSCRIPTNAME = 'camcops.py'
 
 METASCRIPTNAME = '{}_meta'.format(PACKAGE)
 
@@ -288,8 +285,8 @@ DSTVENVPYTHON = join(DSTVENVBIN, 'python')
 DSTVENVPIP = join(DSTVENVBIN, 'pip')
 
 # For these names, see setup.py:
-DST_CAMCOPS_LAUNCHER = join(DSTVENVBIN, 'camcops')
-DST_CAMCOPS_META_LAUNCHER = join(DSTVENVBIN, 'camcops_meta')
+DST_CAMCOPS_LAUNCHER = join(DSTVENVBIN, 'camcops_server')
+DST_CAMCOPS_META_LAUNCHER = join(DSTVENVBIN, 'camcops_server_meta')
 
 
 # =============================================================================
@@ -550,7 +547,7 @@ Rudolf Cardinal (rudolf@pobox.com)
 
 
 # =============================================================================
-log.info("Creating man page for camcops_meta. Will be installed as " +
+log.info("Creating man page for camcops_server_meta. Will be installed as " +
          DSTMETAMANFILE)
 # =============================================================================
 # http://www.fnal.gov/docs/products/ups/ReferenceManual/html/manpages.html
@@ -562,7 +559,7 @@ write_gzipped_text(WRKMETAMANFILE_BASE, r""".\" Manpage for {METASCRIPTNAME}.
 .SH NAME
 {METASCRIPTNAME} \- run the CamCOPS meta-command-line
 
-.IP "camcops_meta --help"
+.IP "{METASCRIPTNAME} --help"
 show all options
 
 .SH SEE ALSO
@@ -584,12 +581,12 @@ write_text(WRKREADME, """
 CamCOPS: the Cambridge Cognitive and Psychiatric Test Kit
 
 See http://www.camcops.org for documentation, or the manual (for which, use
-'camcops docs').
+'camcops_server docs').
 """)
 
 
 # =============================================================================
-log.info("Creating camcops launch script. Will be installed as " +
+log.info("Creating camcops_server launch script. Will be installed as " +
          DSTCONSOLEFILE)
 # =============================================================================
 write_text(WRKCONSOLEFILE, """#!/bin/bash
@@ -605,8 +602,8 @@ echo 'Launching CamCOPS command-line tool...' >&2
 
 
 # =============================================================================
-log.info("Creating camcops_meta launch script. Will be installed as {}".format(
-    DSTMETACONSOLEFILE))
+log.info("Creating camcops_server_meta launch script. Will be installed as "
+         "{}".format(DSTMETACONSOLEFILE))
 # =============================================================================
 write_text(WRKMETACONSOLEFILE, """#!/bin/bash
 # Launch script for CamCOPS meta-command tool tool.

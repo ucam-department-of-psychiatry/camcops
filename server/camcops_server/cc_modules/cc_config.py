@@ -178,8 +178,8 @@ def get_demo_config(extra_strings_dir: str = None,
                                 password=DEFAULT_DB_PASSWORD,
                                 dbname=DEFAULT_DB_NAME)
     return """
-# Demonstration CamCOPS configuration file.
-# Created by CamCOPS version {version} at {now}.
+# Demonstration CamCOPS server configuration file.
+# Created by CamCOPS server version {version} at {now}.
 
 # =============================================================================
 # Format of the CamCOPS configuration file

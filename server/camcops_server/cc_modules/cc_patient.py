@@ -643,7 +643,7 @@ class Patient(GenericTabletRecordMixin, Base):
         req.dbsession.add(sn)
         self.special_notes.append(sn)
         self.audit(req, audit_msg)
-        # HL7 deletion of corresponding tasks is done in camcops.py
+        # HL7 deletion of corresponding tasks is done in camcops_server.py
 
     # -------------------------------------------------------------------------
     # Deletion

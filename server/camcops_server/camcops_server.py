@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/camcops.py
+camcops_server/camcops_server.py
 
 ===============================================================================
 

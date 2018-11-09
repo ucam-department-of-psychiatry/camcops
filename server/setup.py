@@ -379,8 +379,8 @@ setup(
     entry_points={
         'console_scripts': [
             # Format is 'script=module:function".
-            'camcops=camcops_server.camcops:main',
-            'camcops_meta=camcops_server.camcops_meta:meta_main',
+            'camcops_server=camcops_server.camcops_server:main',
+            'camcops_server_meta=camcops_server.camcops_server_meta:meta_main',
             'camcops_backup_mysql_database=cardinal_pythonlib.tools.backup_mysql_database:main',  # noqa
         ],
     },
