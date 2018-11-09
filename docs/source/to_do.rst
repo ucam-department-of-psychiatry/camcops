@@ -196,10 +196,6 @@ Server
   you organize so that would be simplest for them? The minimum would that you’d
   create login details for them, and give them a URL, username, and password.
 
-- Rename server master tool from camcops to camcops_server. Rename package,
-  too. This is so we can use "camcops" for the client (on the basis that the
-  client should be the simplest for users).
-
 - What's the optimal packaging method for the server? Is it DEB/RPM for Linux,
   and PyInstaller + Inno Setup (or just Inno Setup) for Windows?
 
