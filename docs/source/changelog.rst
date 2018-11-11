@@ -1443,9 +1443,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Removed introspection options; replaced with better docs.
 
-- https://camcops.readthedocs.io/
+- Documentation now at https://camcops.readthedocs.io/.
 
-- ``cardinal_pythonlib`` to 1.0.31
+- ``cardinal_pythonlib`` to 1.0.37
 
 - ``alembic`` to 1.0.0
 
@@ -1502,3 +1502,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Added dependency ``bcrypt==3.1.4`` to ``setup.py``.
 
 - Bugfixes for operation under SQL Server.
+
+- **The minimum SQL Server version is 2008** (below that, there’s no time zone
+  conversion support).
+
+- :meth:`camcops_server.cc_modules.cc_config.CamcopsConfig.get_dbsession_context`
+  re-raises exceptions.
+
+- Better upgrade/downgrade database facilities for developers.

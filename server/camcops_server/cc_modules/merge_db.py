@@ -69,6 +69,7 @@ from camcops_server.cc_modules.cc_serversettings import (
     ServerStoredVarNamesDefunct,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_taskindex import reindex_everything
 from camcops_server.cc_modules.cc_user import (
     SecurityAccountLockout,
     SecurityLoginFailure,
@@ -788,12 +789,15 @@ def postprocess(src_engine: Engine, dst_session: Session) -> None:
     """
     Implement any extra processing after :func:`merge_db` has been called.
 
-    At present this just warns you about things that need to be done manually.
+    - Reindexes tasks.
+    - Warns you about things that need to be done manually.
 
     Args:
         src_engine: source database SQLAlchemy engine
         dst_session: destination database SQLAlchemy session
     """
+    log.info("Reindexing destination database")
+    reindex_everything(dst_session)
     log.warning("NOT IMPLEMENTED AUTOMATICALLY: copying user/group mapping "
                 "from table {!r}; do this by hand.",
                 UserGroupMembership.__tablename__)

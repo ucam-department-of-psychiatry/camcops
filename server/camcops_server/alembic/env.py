@@ -48,6 +48,7 @@ from alembic.operations.ops import (
     OpContainer,
     UpgradeOps,
 )
+from cardinal_pythonlib.sqlalchemy.alembic_func import get_current_revision
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_url
 from sqlalchemy import engine_from_config, pool
@@ -295,6 +296,8 @@ def run_alembic() -> None:
     alembic_config.set_main_option('sqlalchemy.url', dburl)
     log.warning("Applying migrations to database at URL: {}".format(
         get_safe_url_from_url(dburl)))
+    log.info("Current database revision is {!r}".format(
+        get_current_revision(dburl, ALEMBIC_VERSION_TABLE)))
 
     if context.is_offline_mode():
         run_migrations_offline(alembic_config, target_metadata)

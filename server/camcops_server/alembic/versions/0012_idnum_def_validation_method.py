@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0012.py
+camcops_server/alembic/versions/0012_idnum_def_validation_method.py
 
 ===============================================================================
 
@@ -40,8 +40,6 @@ Creation date: 2018-11-05 13:16:39.101358
 
 from alembic import op
 import sqlalchemy as sa
-import cardinal_pythonlib.sqlalchemy.list_types
-import camcops_server.cc_modules.cc_sqla_coltypes
 
 
 # =============================================================================

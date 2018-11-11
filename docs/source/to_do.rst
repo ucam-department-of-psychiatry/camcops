@@ -84,6 +84,8 @@ Client core
   MenuTableRow.js; QuestionnaireHeader.js...)... or is that pointless relative
   to a “set of tasks” concept?
 
+- Test task upload (and date filtering) under Windows/SQL Server.
+
 **Medium priority**
 
 - iOS build.
@@ -127,6 +129,14 @@ Server
 
 **Priority**
 
+- Test task index. In particular (1) recheck server-side work; (2) remove the
+  debug version from the menu; (3) check that upload works correctly and
+  updates indexes.
+
+  Design note: we should not have a client-side index that gets uploaded. This
+  is a bit risky (trusting clients with the server's index); the client's index
+  couldn't use server PKs (which we'd want); etc.
+
 - Facility to dump entire groups e.g. daily to a database.
 
 - Basic e-mail sending functions.
@@ -148,14 +158,6 @@ Server
   should be.
 
 - Finish manual.
-
-- Test SQL Server support. (Main work was the implementation of the ISO-8601
-  field, 2018-05-22; the rest should be automatic.) Document that the minimum
-  SQL Server version is 2008 (below that, there’s no time zone conversion
-  support).
-
-  - Fields like ``_hl7_message_log.message`` which use
-    ``LONGBLOB_LONGTEXT_MAX_LEN``: needs fixing.
 
 - (SERVER + CLIENT) Concept of “tasks that need doing” in the context of a
   research study.
@@ -201,34 +203,6 @@ Server
 
 - What's the optimal packaging method for the server? Is it DEB/RPM for Linux,
   and PyInstaller + Inno Setup (or just Inno Setup) for Windows?
-
-- Think: should we have a task index? Rationale would be to speed up multi-task
-  queries (which will get slower as we add more tasks). Would have a table like
-  _task_index and a class like TaskIndex, with fields including:
-
-  - ``task_table_name``: VARCHAR(?64); task main table name
-  - ``task_pk``: server ``_pk`` field for task
-  - ``group_id``
-  - ``device``
-  - ``current``
-  - ``patient_which_idnum``
-  - ``patient_idnum_value``
-
-  ... with one entry (``patient_which_idnum = NULL``) for anonymous tasks
-  and one or more entries for actual patients?
-
-  ... other patient info? The patient search is more tricky.
-
-  Using this index would be a method for :class:`TaskCollection` and
-  :class:`TaskFilter`.
-
-  Not sure this is yet optimal, though; see the task filters; would want to
-  support all common use-cases. Needs a bit more thought.
-
-  Would also need an (offline only?) method to update the index -- and most
-  significantly, the upload code would need to become properly patient-aware
-  and task-aware to update the index (and do so in an atomic way across
-  multiple upload calls).
 
 **Not a priority**
 

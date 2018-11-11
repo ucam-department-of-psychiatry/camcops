@@ -972,8 +972,8 @@ class User(Base):
     @property
     def may_view_all_patients_when_unfiltered(self) -> bool:
         """
-        May the user view all patients when no filters are applied (for some
-        group)?
+        May the user view all patients when no filters are applied (for all
+        groups that the user is a member of)?
         """
         if self.superuser:
             return True

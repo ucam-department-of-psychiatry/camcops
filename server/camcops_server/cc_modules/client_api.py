@@ -105,7 +105,11 @@ from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
 from .cc_pyramid import Routes
 from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
-from .cc_task import all_task_tables_with_min_client_version
+from .cc_task import (
+    all_task_tablenames,
+    all_task_tables_with_min_client_version,
+)
+from .cc_taskindex import PatientIdNumIndexEntry, TaskIndexEntry
 from .cc_unittest import DemoDatabaseTestCase
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING, MINIMUM_TABLET_VERSION
 
@@ -1120,6 +1124,10 @@ def commit_all(req: CamcopsRequest,
                 n_preserved=n_preserved,
             )
         )
+    PatientIdNumIndexEntry.update_index_for_upload(
+        session=req.dbsession,
+        device_id=req.tabletsession.device_id,
+    )
     clear_dirty_tables(req)
     details = "Upload [table (n_added,n_removed,n_preserved)]: {}".format(
         ", ".join(auditsegments)
@@ -1134,6 +1142,8 @@ def commit_table(req: CamcopsRequest,
                  clear_dirty: bool = True) -> Tuple[int, int, int]:
     """
     Commits additions, removals, and preservations for one table.
+
+    Also updates task indexes.
 
     Args:
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
@@ -1154,10 +1164,21 @@ def commit_table(req: CamcopsRequest,
     user_id = req.user_id
     device_id = req.tabletsession.device_id
     exacttime = req.now
+    dbsession = req.dbsession
+    tablename = table.name
+
+    # Update index.
+    # We do this just before we make the changes to _addition_pending and
+    # _removal_pending, because this means we can index selectively only those
+    # records that are changing.
+    if tablename in all_task_tablenames():
+        TaskIndexEntry.update_index_for_upload(session=dbsession,
+                                               device_id=device_id,
+                                               tasktablename=tablename)
 
     # Additions
     # noinspection PyProtectedMember
-    addition_rp = req.dbsession.execute(
+    addition_rp = dbsession.execute(
         update(table)
         .where(table.c._device_id == device_id)
         .where(table.c._addition_pending)
@@ -1171,7 +1192,7 @@ def commit_table(req: CamcopsRequest,
 
     # Removals
     # noinspection PyProtectedMember
-    removal_rp = req.dbsession.execute(
+    removal_rp = dbsession.execute(
         update(table)
         .where(table.c._device_id == device_id)
         .where(table.c._removal_pending)
@@ -1188,7 +1209,7 @@ def commit_table(req: CamcopsRequest,
     if preserving:
         # Preserve all relevant records
         # noinspection PyProtectedMember
-        preserve_rp = req.dbsession.execute(
+        preserve_rp = dbsession.execute(
             update(table)
             .where(table.c._device_id == device_id)
             .where(table.c._era == ERA_NOW)
@@ -1200,9 +1221,9 @@ def commit_table(req: CamcopsRequest,
 
         # Also preserve/finalize any corresponding special notes (2015-02-01)
         # noinspection PyUnresolvedReferences
-        req.dbsession.execute(
+        dbsession.execute(
             update(SpecialNote.__table__)
-            .where(SpecialNote.basetable == table.name)
+            .where(SpecialNote.basetable == tablename)
             .where(SpecialNote.device_id == device_id)
             .where(SpecialNote.era == ERA_NOW)
             .values(era=new_era)
@@ -1211,7 +1232,7 @@ def commit_table(req: CamcopsRequest,
     else:
         # Preserve any individual records
         # noinspection PyProtectedMember
-        preserve_rp = req.dbsession.execute(
+        preserve_rp = dbsession.execute(
             update(table)
             .where(table.c._device_id == device_id)
             .where(table.c._move_off_tablet)
@@ -1223,9 +1244,9 @@ def commit_table(req: CamcopsRequest,
 
         # Also preserve/finalize any corresponding special notes (2015-02-01)
         # noinspection PyProtectedMember,PyUnresolvedReferences
-        req.dbsession.execute(
+        dbsession.execute(
             update(SpecialNote.__table__)
-            .where(SpecialNote.basetable == table.name)
+            .where(SpecialNote.basetable == tablename)
             .where(SpecialNote.device_id == device_id)
             .where(SpecialNote.era == ERA_NOW)
             .where(exists().select_from(table)
@@ -1238,10 +1259,10 @@ def commit_table(req: CamcopsRequest,
     # Remove individually from list of dirty tables?
     if clear_dirty:
         # noinspection PyUnresolvedReferences
-        req.dbsession.execute(
+        dbsession.execute(
             DirtyTable.__table__.delete()
             .where(DirtyTable.device_id == device_id)
-            .where(DirtyTable.tablename == table.name)
+            .where(DirtyTable.tablename == tablename)
         )
         # ... otherwise a call to clear_dirty_tables() must be made.
 

@@ -75,7 +75,7 @@ gp            GP details
 otherdetails  Other details
 ============  ==============================================================
 
-.. versionadded::
+.. versionadded:: 2.2.8
 
     ``otheridnum``, ``address``, ``gp``, and ``otherdetails`` were added in
     CamCOPS v2.2.8.
@@ -113,7 +113,9 @@ You can configure the policies using brackets ``( )``, ``AND``, ``OR``,
 Configure the policies using the :ref:`Group management <group_management>`
 option on the server main menu.
 
-.. versionadded:: ``NOT``was added in CamCOPS v2.2.8.
+.. versionadded:: 2.2.8
+
+    ``NOT`` was added in CamCOPS v2.2.8.
 
 Examples
 --------
@@ -231,7 +233,7 @@ information. However, the following method can certainly help:
 This will stop users uploading information with any PID in the Patient table,
 if idnum1 is a non-identifying pseudonym for the study.
 
-.. versionadded::
+.. versionadded:: 2.2.8
 
     ``NOT`` and some other tokens were added in CamCOPS v2.2.8; see above.
 

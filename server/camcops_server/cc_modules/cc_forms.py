@@ -704,14 +704,14 @@ class StartPendulumSelector(OptionalPendulumNode):
     """
     Optional node to select a start date/time.
     """
-    title = "Start date/time"
+    title = "Start date/time (local timezone)"
 
 
 class EndPendulumSelector(OptionalPendulumNode):
     """
     Optional node to select an end date/time.
     """
-    title = "End date/time"
+    title = "End date/time (local timezone)"
 
 
 class StartDateTimeSelector(DateTimeSelectorNode):

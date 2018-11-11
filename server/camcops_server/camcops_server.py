@@ -92,7 +92,9 @@ import camcops_server.cc_modules.cc_all_models  # import side effects (ensure al
 
 from camcops_server.cc_modules.cc_alembic import (
     create_database_from_scratch,
+    downgrade_database_to_revision,
     upgrade_database_to_head,
+    upgrade_database_to_revision,
 )  # nopep8
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
@@ -101,6 +103,7 @@ from camcops_server.cc_modules.cc_baseconstants import (
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # nopep8
 from camcops_server.cc_modules.cc_config import (
+    CamcopsConfig,
     get_default_config_from_os_env,  # nopep8
     get_demo_apache_config,
     get_demo_config,
@@ -123,6 +126,7 @@ from camcops_server.cc_modules.cc_request import (
 )  # nopep8
 from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl  # nopep8
 from camcops_server.cc_modules.cc_task import Task  # nopep8
+from camcops_server.cc_modules.cc_taskindex import reindex_everything  # nopep8
 from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
     DemoRequestTestCase,
@@ -174,7 +178,7 @@ URL_PATH_ROOT = '/'
 
 
 # =============================================================================
-# WSGI entry point
+# Helper functions for web server launcher
 # =============================================================================
 
 def ensure_database_is_ok() -> None:
@@ -185,6 +189,20 @@ def ensure_database_is_ok() -> None:
     config = get_default_config_from_os_env()
     config.assert_database_ok()
 
+
+def join_url_fragments(*fragments: str) -> str:
+    """
+    Combines fragments to make a URL.
+
+    (``urllib.parse.urljoin`` doesn't do what we want.)
+    """
+    newfrags = [f[1:] if f.startswith("/") else f for f in fragments]
+    return "/".join(newfrags)
+
+
+# =============================================================================
+# WSGI entry point
+# =============================================================================
 
 def make_wsgi_app(debug_toolbar: bool = False,
                   reverse_proxied_config: ReverseProxiedConfig = None,
@@ -261,6 +279,10 @@ def make_wsgi_app_from_argparse_args(args: Namespace) -> Router:
                          debug_reverse_proxy=args.debug_reverse_proxy)
 
 
+# =============================================================================
+# Web server launchers
+# =============================================================================
+
 def test_serve_pyramid(application: Router,
                        host: str = DEFAULT_HOST,
                        port: int = DEFAULT_PORT) -> None:
@@ -272,16 +294,6 @@ def test_serve_pyramid(application: Router,
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}".format(host, port))
     server.serve_forever()
-
-
-def join_url_fragments(*fragments: str) -> str:
-    """
-    Combines fragments to make a URL.
-
-    (``urllib.parse.urljoin`` doesn't do what we want.)
-    """
-    newfrags = [f[1:] if f.startswith("/") else f for f in fragments]
-    return "/".join(newfrags)
 
 
 def serve_cherrypy(application: Router,
@@ -441,6 +453,72 @@ def serve_gunicorn(application: Router,
 
 
 # =============================================================================
+# Helper functions for command-line functions
+# =============================================================================
+
+def get_username_from_cli(req: CamcopsRequest,
+                          prompt: str,
+                          starting_username: str = "",
+                          must_exist: bool = False,
+                          must_not_exist: bool = False) -> str:
+    """
+    Asks the user (via stdout/stdin) for a username.
+
+    Args:
+        req: CamcopsRequest object
+        prompt: textual prompt
+        starting_username: try this username and ask only if it fails tests
+        must_exist: the username must exist
+        must_not_exist: the username must not exist
+
+    Returns:
+        the username
+
+    """
+    assert not (must_exist and must_not_exist)
+    first = True
+    while True:
+        if first:
+            username = starting_username
+            first = False
+        else:
+            username = ""
+        username = username or ask_user(prompt)
+        exists = User.user_exists(req, username)
+        if must_not_exist and exists:
+            log.error("... user already exists!")
+            continue
+        if must_exist and not exists:
+            log.error("... no such user!")
+            continue
+        if username == USER_NAME_FOR_SYSTEM:
+            log.error("... username {!r} is reserved".format(
+                USER_NAME_FOR_SYSTEM))
+            continue
+        return username
+
+
+def get_new_password_from_cli(username: str) -> str:
+    """
+    Asks the user (via stdout/stdin) for a new password for the specified
+    username. Returns the password.
+    """
+    while True:
+        password1 = ask_user_password("New password for user "
+                                      "{}".format(username))
+        if not password1 or len(password1) < MINIMUM_PASSWORD_LENGTH:
+            log.error("... passwords can't be blank or shorter than {} "
+                      "characters".format(MINIMUM_PASSWORD_LENGTH))
+            continue
+        password2 = ask_user_password("New password for user {} "
+                                      "(again)".format(username))
+        if password1 != password2:
+            log.error("... passwords don't match; try again")
+            continue
+        return password1
+
+
+# =============================================================================
 # Command-line functions
 # =============================================================================
 
@@ -529,68 +607,6 @@ def generate_anonymisation_staging_db() -> None:
     log.info("Draft data dictionary written to {}".format(ddfilename))
 
 
-def get_username_from_cli(req: CamcopsRequest,
-                          prompt: str,
-                          starting_username: str = "",
-                          must_exist: bool = False,
-                          must_not_exist: bool = False) -> str:
-    """
-    Asks the user (via stdout/stdin) for a username.
-
-    Args:
-        req: CamcopsRequest object
-        prompt: textual prompt
-        starting_username: try this username and ask only if it fails tests
-        must_exist: the username must exist
-        must_not_exist: the username must not exist
-
-    Returns:
-        the username
-
-    """
-    assert not (must_exist and must_not_exist)
-    first = True
-    while True:
-        if first:
-            username = starting_username
-            first = False
-        else:
-            username = ""
-        username = username or ask_user(prompt)
-        exists = User.user_exists(req, username)
-        if must_not_exist and exists:
-            log.error("... user already exists!")
-            continue
-        if must_exist and not exists:
-            log.error("... no such user!")
-            continue
-        if username == USER_NAME_FOR_SYSTEM:
-            log.error("... username {!r} is reserved".format(
-                USER_NAME_FOR_SYSTEM))
-            continue
-        return username
-
-
-def get_new_password_from_cli(username: str) -> str:
-    """
-    Asks the user (via stdout/stdin) for a new password for the specified
-    username. Returns the password.
-    """
-    while True:
-        password1 = ask_user_password("New password for user "
-                                      "{}".format(username))
-        if not password1 or len(password1) < MINIMUM_PASSWORD_LENGTH:
-            log.error("... passwords can't be blank or shorter than {} "
-                      "characters".format(MINIMUM_PASSWORD_LENGTH))
-            continue
-        password2 = ask_user_password("New password for user {} "
-                                      "(again)".format(username))
-        if password1 != password2:
-            log.error("... passwords don't match; try again")
-            continue
-        return password1
-
-
 def make_superuser(username: str = None) -> bool:
     """
     Make a superuser from the command line.
@@ -671,9 +687,21 @@ def send_hl7(show_queue_only: bool) -> None:
                                       show_queue_only=show_queue_only)
 
 
-# -----------------------------------------------------------------------------
+def reindex(cfg: CamcopsConfig) -> None:
+    """
+    Drops and regenerates the server task index.
+
+    Args:
+        cfg: a :class:`camcops_server.cc_modules.cc_config.CamcopsConfig`
+    """
+    ensure_database_is_ok()
+    with cfg.get_dbsession_context() as dbsession:
+        reindex_everything(dbsession)
+
+
+# =============================================================================
 # Test rig
-# -----------------------------------------------------------------------------
+# =============================================================================
 
 def self_test(show_only: bool = False) -> None:
     """
@@ -765,10 +793,10 @@ def add_sub(sp: "_SubParsersAction",
         cmd: the command for the subparser (e.g. ``docs`` to make the command
             ``camcops docs``).
         config_mandatory:
-            Does this subcommand require a CamCOPS config file?
-            ``None`` = don't ask for config.
-            ``False`` = ask for it, but not mandatory.
-            ``True`` = mandatory.
+            Does this subcommand require a CamCOPS config file? ``None`` =
+            don't ask for config. ``False`` = ask for it, but not mandatory as
+            a command-line argument. ``True`` = mandatory as a command-line
+            argument.
         description: Used for the description in the detailed help, e.g.
             "camcops docs --help". Defaults to the value of the ``help``
             argument.
@@ -790,18 +818,18 @@ def add_sub(sp: "_SubParsersAction",
     subparser.add_argument(
         '-v', '--verbose', action='store_true',
         help="Be verbose")
-    if config_mandatory:
+    if config_mandatory:  # True
         cfg_help = "Configuration file"
-    else:
+    else:  # None, False
         cfg_help = ("Configuration file (if not specified, the environment"
                     " variable {} is checked)".format(ENVVAR_CONFIG_FILE))
-    if config_mandatory is None:
+    if config_mandatory is None:  # None
         pass
-    elif config_mandatory:
+    elif config_mandatory:  # True
         g = subparser.add_argument_group(_REQNAMED)
         # https://stackoverflow.com/questions/24180527/argparse-required-arguments-listed-under-optional-arguments  # noqa
         g.add_argument("--config", required=True, help=cfg_help)
-    else:
+    else:  # False
         subparser.add_argument("--config", help=cfg_help)
     return subparser
 
@@ -955,7 +983,7 @@ def camcops_main() -> None:
 
     parser = ArgumentParser(
         description=(
-            "CamCOPS server version {}, by Rudolf Cardinal.\n"
+            "CamCOPS server, created by Rudolf Cardinal; version {}.\n"
             "Use 'camcops_server <COMMAND> --help' for more detail on each "
             "command.".format(CAMCOPS_SERVER_VERSION)
         ),
@@ -1035,14 +1063,59 @@ def camcops_main() -> None:
     upgradedb_parser = add_sub(
         subparsers, "upgrade_db", config_mandatory=True,
         help="Upgrade database to most recent version (via Alembic)")
+    upgradedb_parser.add_argument(
+        "--show_sql_only", action="store_true",
+        help="Show SQL only (to stdout); don't execute it"
+    )
     upgradedb_parser.set_defaults(
-        func=lambda args: upgrade_database_to_head(show_sql_only=False))
+        func=lambda args: upgrade_database_to_head(
+            show_sql_only=args.show_sql_only
+        )
+    )
 
-    show_upgrade_sql_parser = add_sub(
-        subparsers, "show_upgrade_sql", config_mandatory=True,
-        help="Show SQL for upgrading database (to stdout)")
-    show_upgrade_sql_parser.set_defaults(
-        func=lambda args: upgrade_database_to_head(show_sql_only=True))
+    dev_upgrade_to_parser = add_sub(
+        subparsers, "dev_upgrade_to", config_mandatory=True,
+        help="(DEVELOPER OPTION ONLY.) Upgrade a database to "
+             "a specific revision."
+    )
+    dev_upgrade_to_parser.add_argument(
+        "--destination_db_revision", type=str, required=True,
+        help="The target database revision"
+    )
+    dev_upgrade_to_parser.add_argument(
+        "--show_sql_only", action="store_true",
+        help="Show SQL only (to stdout); don't execute it"
+    )
+    dev_upgrade_to_parser.set_defaults(
+        func=lambda args: upgrade_database_to_revision(
+            revision=args.destination_db_revision,
+            show_sql_only=args.show_sql_only
+        )
+    )
+
+    dev_downgrade_parser = add_sub(
+        subparsers, "dev_downgrade_db", config_mandatory=True,
+        help="(DEVELOPER OPTION ONLY.) Downgrades a database to "
+             "a specific revision. May DESTROY DATA."
+    )
+    dev_downgrade_parser.add_argument(
+        "--destination_db_revision", type=str, required=True,
+        help="The target database revision"
+    )
+    add_req_named(
+        dev_downgrade_parser,
+        '--confirm_downgrade_db', action="store_true",
+        help="Must specify this too, as a safety measure")
+    dev_downgrade_parser.add_argument(
+        "--show_sql_only", action="store_true",
+        help="Show SQL only (to stdout); don't execute it"
+    )
+    dev_downgrade_parser.set_defaults(
+        func=lambda args: downgrade_database_to_revision(
+            revision=args.destination_db_revision,
+            show_sql_only=args.show_sql_only
+        )
+    )
 
     showdbtitle_parser = add_sub(
         subparsers, "show_db_title",
@@ -1130,7 +1203,18 @@ def camcops_main() -> None:
     createdb_parser.set_defaults(
         func=lambda args: create_database_from_scratch(
             cfg=get_default_config_from_os_env()
-        ))
+        )
+    )
+
+    reindex_parser = add_sub(
+        subparsers, "reindex",
+        help="Recreate task index"
+    )
+    reindex_parser.set_defaults(
+        func=lambda args: reindex(
+            cfg=get_default_config_from_os_env()
+        )
+    )
 
     # db_group.add_argument(
     #     "-s", "--summarytables", action="store_true", default=False,
@@ -1376,7 +1460,7 @@ def camcops_main() -> None:
 
     # Say hello
     log.info("CamCOPS server version {}", CAMCOPS_SERVER_VERSION)
-    log.info("By Rudolf Cardinal. See {}", CAMCOPS_URL)
+    log.info("Created by Rudolf Cardinal. See {}", CAMCOPS_URL)
     log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
     log.debug("Command-line arguments: {!r}", progargs)
 

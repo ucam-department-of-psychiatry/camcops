@@ -182,7 +182,7 @@ by the web server user, such as `www-data` under Ubuntu [#linuxflavours]_.
 Create the database structure
 -----------------------------
 
-To create tables and indices, use the command:
+To create tables and indexes, use the command:
 
 .. code-block:: bash
 

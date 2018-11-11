@@ -249,12 +249,12 @@ from .cc_simpleobjects import IdNumReference
 from .cc_specialnote import SpecialNote
 from .cc_sqlalchemy import get_all_ddl
 from .cc_task import Task
-from .cc_taskfactory import (
-    task_factory,
+from .cc_taskcollection import (
     TaskFilter,
     TaskCollection,
     TaskSortMethod,
 )
+from .cc_taskfactory import task_factory
 from .cc_taskfilter import (
     task_classes_from_table_names,
     TaskClassSortMethod,
@@ -932,6 +932,7 @@ def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
         ViewParam.ROWS_PER_PAGE,
         ccsession.number_to_view or DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
+    via_index = req.get_bool_param(ViewParam.VIA_INDEX, True)
 
     errors = False
 
@@ -968,12 +969,14 @@ def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
         collection = TaskCollection(
             req=req,
             taskfilter=taskfilter,
-            sort_method_global=TaskSortMethod.CREATION_DATE_DESC
-        ).all_tasks
-    page = CamcopsPage(collection=collection,
-                       page=page_num,
-                       items_per_page=rows_per_page,
-                       url_maker=PageUrl(req))
+            sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
+            via_index=via_index
+        ).all_tasks_or_indexes_or_query or []
+    paginator = SqlalchemyOrmPage if isinstance(collection, Query) else CamcopsPage  # noqa
+    page = paginator(collection,
+                     page=page_num,
+                     items_per_page=rows_per_page,
+                     url_maker=PageUrl(req))
     return dict(
         page=page,
         head_form_html=get_head_form_html(req, [tpp_form,
@@ -1132,6 +1135,7 @@ def serve_tracker_or_ctv(req: CamcopsRequest,
     tasks = req.get_str_list_param(ViewParam.TASKS)
     all_tasks = req.get_bool_param(ViewParam.ALL_TASKS, True)
     viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML)
+    via_index = req.get_bool_param(ViewParam.VIA_INDEX, True)
 
     if all_tasks:
         task_classes = []  # type: List[Type[Task]]
@@ -1161,7 +1165,8 @@ def serve_tracker_or_ctv(req: CamcopsRequest,
     taskfilter.tasks_with_patient_only = True
 
     tracker_ctv_class = ClinicalTextView if as_ctv else Tracker
-    tracker = tracker_ctv_class(req=req, taskfilter=taskfilter)
+    tracker = tracker_ctv_class(req=req, taskfilter=taskfilter,
+                                via_index=via_index)
 
     if viewtype == ViewArg.HTML:
         return Response(

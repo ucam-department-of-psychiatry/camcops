@@ -14,7 +14,12 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <li><a href="${ request.route_url(Routes.SET_FILTERS, _query={
                     ViewParam.REDIRECT_URL: request.route_url(Routes.HOME)
                 }) }">Set task filters</a></li>
-    <li><a href="${request.route_url(Routes.VIEW_TASKS)}">View tasks</a></li>
+    <li><a href="${request.route_url(Routes.VIEW_TASKS, _query={
+                    ViewParam.VIA_INDEX: True
+                })}">View tasks</a></li>
+    <li><a href="${request.route_url(Routes.VIEW_TASKS, _query={
+                    ViewParam.VIA_INDEX: False
+                }) }">DEBUG: View tasks without using index</a></li>
     <li><a href="${request.route_url(Routes.CHOOSE_TRACKER)}">Trackers for numerical information</a></li>
     <li><a href="${request.route_url(Routes.CHOOSE_CTV)}">Clinical text views</a></li>
 </ul>

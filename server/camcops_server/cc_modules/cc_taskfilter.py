@@ -30,20 +30,21 @@ camcops_server/cc_modules/cc_taskfilter.py
 
 from enum import Enum
 import logging
-from typing import Dict, List, Optional, Type, TYPE_CHECKING
+from typing import List, Optional, Type, TYPE_CHECKING
 
+from cardinal_pythonlib.datetimefunc import convert_datetime_to_utc
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.list_types import (
     IntListType,
     StringListType,
 )
-from sqlalchemy.orm import reconstructor
+from pendulum import DateTime as Pendulum
+from sqlalchemy.orm import Query, reconstructor
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, Integer
-from sqlalchemy.orm import Query
 
 from .cc_cache import cache_region_static, fkg
 from .cc_device import Device
@@ -59,7 +60,8 @@ from .cc_sqla_coltypes import (
     SexColType,
 )
 from .cc_sqlalchemy import Base
-from .cc_task import Task
+from .cc_task import tablename_to_task_class_dict, Task
+from .cc_taskindex import PatientIdNumIndexEntry
 from .cc_user import User
 
 if TYPE_CHECKING:
@@ -106,17 +108,6 @@ def sort_task_classes_in_place(classlist: List[Type[Task]],
 # https://stackoverflow.com/questions/8108688/in-python-when-should-i-use-a-function-instead-of-a-method  # noqa
 # https://stackoverflow.com/questions/11788195/module-function-vs-staticmethod-vs-classmethod-vs-no-decorators-which-idiom-is  # noqa
 # https://stackoverflow.com/questions/15017734/using-static-methods-in-python-best-practice  # noqa
-
-@cache_region_static.cache_on_arguments(function_key_generator=fkg)
-def tablename_to_task_class_dict() -> Dict[str, Type[Task]]:
-    """
-    Returns a mapping from task base tablenames to task classes.
-    """
-    d = {}  # type: Dict[str, Type[Task]]
-    for cls in Task.gen_all_subclasses():
-        d[cls.tablename] = cls
-    return d
-
 
 def task_classes_from_table_names(
         tablenames: List[str],
@@ -243,11 +234,12 @@ class TaskFilter(Base):
         "end_datetime_iso8601", PendulumDateTimeAsIsoTextColType,
         comment="Task filter: end date/time (UTC as ISO8601)"
     )
+    # Implemented on the Python side for indexed lookup:
     text_contents = Column(
         "text_contents", StringListType,
         comment="Task filter: filter text fields"
-    )
-    # Implemented on the Python side
+    )  # task must contain ALL the strings in AT LEAST ONE of its text columns
+    # Implemented on the Python side for non-indexed lookup:
     complete_only = Column(
         "complete_only", Boolean,
         comment="Task filter: task complete?"
@@ -271,7 +263,6 @@ class TaskFilter(Base):
 
         # Python-only (non-database) filtering attributes:
         self.era = None  # type: str
-        self.patient_ids = []  # type: List[int]
 
         # Other Python-only attributes
         self.sort_method = TaskClassSortMethod.NONE
@@ -283,7 +274,6 @@ class TaskFilter(Base):
         SQLAlchemy function to recreate after loading from the database.
         """
         self.era = None  # type: str
-        self.patient_ids = []  # type: List[int]
 
         self.sort_method = TaskClassSortMethod.NONE
         self._task_classes = None  # type: List[Type[Task]]
@@ -311,15 +301,53 @@ class TaskFilter(Base):
                     self.task_types)
             else:
                 starting_classes = Task.all_subclasses_by_shortname()
+            skip_anonymous_tasks = self.skip_anonymous_tasks()
             for cls in starting_classes:
                 if (self.tasks_offering_trackers_only and
                         not cls.provides_trackers):
+                    # Class doesn't provide trackers; skip
                     continue
-                if self.tasks_with_patient_only and not cls.has_patient:
+                if skip_anonymous_tasks and not cls.has_patient:
+                    # Anonymous task; skip
+                    continue
+                if self.text_contents and not cls.get_text_filter_columns():
+                    # Text filter and task has no text columns; skip
                     continue
                 self._task_classes.append(cls)
             sort_task_classes_in_place(self._task_classes, self.sort_method)
         return self._task_classes
+
+    def skip_anonymous_tasks(self) -> bool:
+        """
+        Should we skip anonymous tasks?
+        """
+        return self.tasks_with_patient_only or self.any_patient_filtering()
+
+    def offers_all_task_types(self) -> bool:
+        """
+        Does this filter offer every single task class? Used for efficiency
+        when using indexes. (Since ignored.)
+        """
+        if self.tasks_offering_trackers_only:
+            return False
+        if self.skip_anonymous_tasks():
+            return False
+        if not self.task_types:
+            return True
+        return set(self.task_classes) == set(Task.all_subclasses_by_shortname)
+
+    def offers_all_non_anonymous_task_types(self) -> bool:
+        """
+        Does this filter offer every single non-anonymous task class? Used for
+        efficiency when using indexes.
+        """
+        offered_task_classes = self.task_classes
+        for taskclass in Task.all_subclasses_by_shortname():
+            if taskclass.is_anonymous:
+                continue
+            if taskclass not in offered_task_classes:
+                return False
+        return True
 
     @property
     def task_tablename_list(self) -> List[str]:
@@ -338,8 +366,7 @@ class TaskFilter(Base):
             bool(self.forename) or
             (self.dob is not None) or
             bool(self.sex) or
-            bool(self.idnum_criteria) or
-            bool(self.patient_ids)
+            bool(self.idnum_criteria)
         )
 
     def any_specific_patient_filtering(self) -> bool:
@@ -352,8 +379,7 @@ class TaskFilter(Base):
             bool(self.surname) or
             bool(self.forename) or
             self.dob is not None or
-            bool(self.idnum_criteria) or
-            bool(self.patient_ids)
+            bool(self.idnum_criteria)
         )
 
     def get_only_iddef(self) -> Optional[IdNumReference]:
@@ -398,169 +424,6 @@ class TaskFilter(Base):
             names.append(dev.name if dev and dev.name else "")
         return names
 
-    def task_query_restricted_by_filter(self,
-                                        req: CamcopsRequest,
-                                        q: Query,
-                                        cls: Type[Task]) -> Optional[Query]:
-        """
-        Restricts an SQLAlchemy ORM query for a given task class to those
-        tasks that our filter permits.
-
-        THIS IS A KEY SECURITY FUNCTION, since it implements some permissions
-        that relate to viewing tasks when unfiltered.
-
-        Args:
-            req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            q: the starting SQLAlchemy ORM Query
-            cls: the task class
-
-        Returns:
-            the original query, a modified query, or ``None`` if no tasks
-            would pass the filter
-
-        """
-        user = req.user
-        if self.group_ids:
-            permitted_group_ids = self.group_ids.copy()
-        else:
-            permitted_group_ids = None  # unrestricted
-
-        if (self.start_datetime and self.end_datetime and
-                self.end_datetime < self.start_datetime):
-            # Inconsistent
-            return None
-
-        if cls not in self.task_classes:
-            # We don't want this task
-            return None
-
-        if cls.is_anonymous:
-            if self.any_patient_filtering():
-                # If we're restricting by patient in any way, we don't
-                # want this task class at all (because it's an anonymous task
-                # that doesn't have a patient).
-                return None
-        else:
-            # Not anonymous.
-            if not self.any_specific_patient_filtering():
-                if user.may_view_all_patients_when_unfiltered:
-                    pass
-                elif user.may_view_no_patients_when_unfiltered:
-                    # (a) User not permitted to view any patients when
-                    # unfiltered, and (b) not filtered to a level that would
-                    # reasonably restrict to one or a small number of
-                    # patients. Skip the task class.
-                    return None
-                else:
-                    liberal_group_ids = user.group_ids_that_nonsuperuser_may_see_when_unfiltered()  # noqa
-                    if not permitted_group_ids:  # was unrestricted
-                        permitted_group_ids = liberal_group_ids
-                    else:  # was restricted; restrict further
-                        permitted_group_ids = [
-                            gid for gid in permitted_group_ids
-                            if gid in liberal_group_ids
-                        ]
-                        if not permitted_group_ids:
-                            return None  # down to zero; no point continuing
-
-            # Patient filtering
-            if self.any_patient_filtering():
-                # q = q.join(Patient) # fails
-                q = q.join(cls.patient)  # use explicitly configured relationship  # noqa
-
-                if self.surname:
-                    q = q.filter(func.upper(Patient.surname) ==
-                                 self.surname.upper())
-                if self.forename:
-                    q = q.filter(func.upper(Patient.forename) ==
-                                 self.forename.upper())
-                if self.dob is not None:
-                    q = q.filter(Patient.dob == self.dob)
-                if self.sex:
-                    q = q.filter(func.upper(Patient.sex) == self.sex.upper())
-
-                if self.idnum_criteria:
-                    # q = q.join(PatientIdNum) # fails
-                    q = q.join(Patient.idnums)
-                    id_filter_parts = []  # type: List[ColumnElement]
-                    for iddef in self.idnum_criteria:
-                        id_filter_parts.append(
-                            and_(
-                                PatientIdNum.which_idnum == iddef.which_idnum,
-                                PatientIdNum.idnum_value == iddef.idnum_value
-                            )
-                        )
-                    # Use OR (disjunction) of the specified values:
-                    q = q.filter(or_(*id_filter_parts))
-
-                if self.patient_ids:
-                    q = q.filter(cls.patient_id.in_(self.patient_ids))
-
-        # Patient-independent filtering
-
-        if self.device_ids:
-            # noinspection PyProtectedMember
-            q = q.filter(cls._device_id.in_(self.device_ids))
-
-        if self.era:
-            # noinspection PyProtectedMember
-            q = q.filter(cls._era == self.era)
-
-        if self.adding_user_ids:
-            # noinspection PyProtectedMember
-            q = q.filter(cls._adding_user_id.in_(self.adding_user_ids))
-
-        if permitted_group_ids:
-            # noinspection PyProtectedMember
-            q = q.filter(cls._group_id.in_(permitted_group_ids))
-
-        if self.start_datetime is not None:
-            q = q.filter(cls.when_created >= self.start_datetime)
-        if self.end_datetime is not None:
-            q = q.filter(cls.when_created <= self.end_datetime)
-
-        if self.text_contents:
-            textcols = cls.get_text_filter_columns()
-            if not textcols:
-                # Text filtering requested, but there are no text columns, so
-                # by definition the filter must fail.
-                return None
-            clauses_over_text_phrases = []  # type: List[ColumnElement]
-            for textfilter in self.text_contents:
-                tf_lower = textfilter.lower()
-                clauses_over_columns = []  # type: List[ColumnElement]
-                for textcol in textcols:
-                    # Case-insensitive comparison:
-                    # https://groups.google.com/forum/#!topic/sqlalchemy/331XoToT4lk
-                    # https://bitbucket.org/zzzeek/sqlalchemy/wiki/UsageRecipes/StringComparisonFilter  # noqa
-                    clauses_over_columns.append(
-                        func.lower(textcol).contains(tf_lower, autoescape='/')
-                    )
-                clauses_over_text_phrases.append(
-                    or_(*clauses_over_columns)
-                )
-            q = q.filter(and_(*clauses_over_text_phrases))
-
-        return q
-
-    def has_python_parts_to_filter(self) -> bool:
-        """
-        Does the filter have aspects to it that require some Python thought,
-        not just a database query?
-        """
-        return self.complete_only
-
-    def task_matches_python_parts_of_filter(self, task: Task) -> bool:
-        """
-        Does the task pass the Python parts of the filter?
-        """
-        # "Is task complete" filter
-        if self.complete_only:
-            if not task.is_complete():
-                return False
-
-        return True
-
     def clear(self) -> None:
         """
         Clear all parts of the filter.
@@ -581,3 +444,79 @@ class TaskFilter(Base):
         self.text_contents = []  # type: List[str]
 
         self.complete_only = None
+
+    def dates_inconsistent(self) -> bool:
+        """
+        Are inconsistent dates specified, such that no tasks should be
+        returned?
+        """
+        return (self.start_datetime and self.end_datetime and
+                self.end_datetime < self.start_datetime)
+
+    def filter_query_by_patient(self, q: Query,
+                                via_index: bool) -> Query:
+        """
+        Restricts an query that has *already been joined* to the
+        :class:`camcops_server.cc_modules.cc_patient.Patient` class, according
+        to the patient filtering criteria.
+
+        Args:
+            q: the starting SQLAlchemy ORM Query
+            via_index:
+                If ``True``, the query relates to a
+                :class:`camcops_server.cc_modules.cc_taskindex.TaskIndexEntry`
+                and we should restrict it according to the
+                :class:`camcops_server.cc_modules.cc_taskindex.PatientIdNumIndexEntry`
+                class. If ``False``, the query relates to a
+                :class:`camcops_server.cc_modules.cc_taskindex.Task` and we
+                should restrict according to
+                :class:`camcops_server.cc_modules.cc_patientidnum.PatientIdNum`.
+
+        Returns:
+            a revised Query
+
+        """
+        if self.surname:
+            q = q.filter(func.upper(Patient.surname) ==
+                         self.surname.upper())
+        if self.forename:
+            q = q.filter(func.upper(Patient.forename) ==
+                         self.forename.upper())
+        if self.dob is not None:
+            q = q.filter(Patient.dob == self.dob)
+        if self.sex:
+            q = q.filter(func.upper(Patient.sex) == self.sex.upper())
+
+        if self.idnum_criteria:
+            id_filter_parts = []  # type: List[ColumnElement]
+            if via_index:
+                q = q.join(PatientIdNumIndexEntry)
+                for iddef in self.idnum_criteria:
+                    id_filter_parts.append(and_(
+                        PatientIdNumIndexEntry.which_idnum == iddef.which_idnum,  # noqa
+                        PatientIdNumIndexEntry.idnum_value == iddef.idnum_value
+                    ))
+            else:
+                # q = q.join(PatientIdNum) # fails
+                q = q.join(Patient.idnums)
+                for iddef in self.idnum_criteria:
+                    id_filter_parts.append(and_(
+                        PatientIdNum.which_idnum == iddef.which_idnum,
+                        PatientIdNum.idnum_value == iddef.idnum_value
+                    ))
+            # Use OR (disjunction) of the specified values:
+            q = q.filter(or_(*id_filter_parts))
+
+        return q
+
+    @property
+    def start_datetime_utc(self) -> Optional[Pendulum]:
+        if not self.start_datetime:
+            return None
+        return convert_datetime_to_utc(self.start_datetime)
+
+    @property
+    def end_datetime_utc(self) -> Optional[Pendulum]:
+        if not self.end_datetime:
+            return None
+        return convert_datetime_to_utc(self.end_datetime)

@@ -50,12 +50,13 @@ from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
 from .cc_constants import NUMBER_OF_IDNUMS_DEFUNCT
 from .cc_db import GenericTabletRecordMixin
-from .cc_idnumdef import IdNumDefinition, validate_id_number
+from .cc_idnumdef import IdNumDefinition
 from .cc_simpleobjects import IdNumReference
 from .cc_sqla_coltypes import CamcopsColumn
 from .cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
+    from .cc_patient import Patient
     from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -95,6 +96,23 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
     )
     # Note: we don't use a relationship() to IdNumDefinition here; we do that
     # sort of work via the CamcopsRequest, which caches them for speed.
+
+    patient = relationship(
+        # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-custom-foreign
+        # http://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship  # noqa
+        # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
+        "Patient",
+        primaryjoin=(
+            "and_("
+            " remote(Patient.id) == foreign(PatientIdNum.patient_id), "
+            " remote(Patient._device_id) == foreign(PatientIdNum._device_id), "
+            " remote(Patient._era) == foreign(PatientIdNum._era), "
+            " remote(Patient._current) == True "
+            ")"
+        ),
+        uselist=False,
+        viewonly=True,
+    )
 
     def get_idnum_reference(self) -> IdNumReference:
         """
@@ -153,6 +171,13 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         Sets the ID number value.
         """
         self.idnum_value = idnum_value
+
+    def get_patient_server_pk(self) -> int:
+        patient = self.patient  # type: Patient
+        if not patient:
+            raise ValueError(
+                "Corrupted database? PatientIdNum can't fetch its Patient")
+        return patient.get_pk()
 
 
 # =============================================================================

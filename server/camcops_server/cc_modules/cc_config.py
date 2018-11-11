@@ -1510,6 +1510,7 @@ class CamcopsConfig(object):
             dbsession.commit()
         except Exception:
             dbsession.rollback()
+            raise
         finally:
             dbsession.close()
 

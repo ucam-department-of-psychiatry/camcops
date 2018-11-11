@@ -53,7 +53,7 @@ from .cc_pdf import pdf_from_html
 from .cc_pyramid import ViewArg, ViewParam
 from .cc_request import CamcopsRequest
 from .cc_task import Task
-from .cc_taskfactory import (
+from .cc_taskcollection import (
     TaskCollection,
     TaskFilter,
     TaskSortMethod,
@@ -267,7 +267,8 @@ class TrackerCtvCommon(object):
     def __init__(self,
                  req: CamcopsRequest,
                  taskfilter: TaskFilter,
-                 as_ctv: bool) -> None:
+                 as_ctv: bool,
+                 via_index: bool = True) -> None:
         """
         Initialize, fetching applicable tasks.
         """
@@ -282,7 +283,8 @@ class TrackerCtvCommon(object):
             req=req,
             taskfilter=taskfilter,
             sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC,
-            sort_method_global=TaskSortMethod.CREATION_DATE_ASC
+            sort_method_global=TaskSortMethod.CREATION_DATE_ASC,
+            via_index=via_index
         )
         all_tasks = self.collection.all_tasks
         if all_tasks:
@@ -296,8 +298,8 @@ class TrackerCtvCommon(object):
 
         # Summary information
         self.summary = ""
-        first = True
         if DEBUG_TRACKER_TASK_INCLUSION:
+            first = True
             for cls in self.taskfilter.task_classes:
                 if not first:
                     self.summary += " // "
@@ -526,11 +528,13 @@ class Tracker(TrackerCtvCommon):
 
     def __init__(self,
                  req: CamcopsRequest,
-                 taskfilter: TaskFilter) -> None:
+                 taskfilter: TaskFilter,
+                 via_index: bool = True) -> None:
         super().__init__(
             req=req,
             taskfilter=taskfilter,
-            as_ctv=False
+            as_ctv=False,
+            via_index=via_index
         )
 
     def get_xml(self,
@@ -720,11 +724,13 @@ class ClinicalTextView(TrackerCtvCommon):
 
     def __init__(self,
                  req: CamcopsRequest,
-                 taskfilter: TaskFilter) -> None:
+                 taskfilter: TaskFilter,
+                 via_index: bool = True) -> None:
         super().__init__(
             req=req,
             taskfilter=taskfilter,
-            as_ctv=True
+            as_ctv=True,
+            via_index=via_index
         )
 
     def get_xml(self,

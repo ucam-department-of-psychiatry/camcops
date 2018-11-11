@@ -75,7 +75,7 @@ securely to your server.
     local/local_info.rst
 
 
-Indices and tables
+Indexes and tables
 ==================
 
 * :ref:`genindex`

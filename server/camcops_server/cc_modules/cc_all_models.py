@@ -68,6 +68,8 @@ from .cc_serversettings import ServerSettings
 # noinspection PyUnresolvedReferences
 from .cc_task import Task
 from .cc_taskfilter import TaskFilter
+# noinspection PyUnresolvedReferences
+from .cc_taskindex import PatientIdNumIndexEntry, TaskIndexEntry
 from .cc_unittest import DemoDatabaseTestCase
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 

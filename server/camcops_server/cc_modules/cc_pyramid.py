@@ -228,6 +228,7 @@ class ViewParam(object):
     USER_IDS = "user_ids"
     USERNAME = "username"
     VALIDATION_METHOD = "validation_method"
+    VIA_INDEX = "via_index"
     VIEW_ALL_PATIENTS_WHEN_UNFILTERED = "view_all_patients_when_unfiltered"
     VIEWTYPE = "viewtype"
     WHICH_IDNUM = "which_idnum"
@@ -929,6 +930,9 @@ class SqlalchemyOrmQueryWrapper(object):
     """
     Wrapper class to access elements of an SQLAlchemy ORM query in an efficient
     way for pagination. We only ask the database for what we need.
+    
+    (But it will perform a ``COUNT(*)`` for the query before fetching it via
+    ``LIMIT/OFFSET``.) 
 
     See:
 

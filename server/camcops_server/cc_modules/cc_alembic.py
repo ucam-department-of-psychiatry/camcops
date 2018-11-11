@@ -42,6 +42,7 @@ from cardinal_pythonlib.fileops import preserve_cwd
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.alembic_func import (
     # get_current_and_head_revision,
+    downgrade_database,
     upgrade_database,
     stamp_allowing_unusual_version_table,
 )
@@ -73,12 +74,49 @@ def upgrade_database_to_head(show_sql_only: bool = False) -> None:
     """
     The primary upgrade method. Modifies the database structure from where it
     is, stepwise through revisions, to the head revision.
+
+    Args:
+        show_sql_only: just show the SQL; don't execute it
+    """
+    upgrade_database_to_revision(revision="head", show_sql_only=show_sql_only)
+
+
+def upgrade_database_to_revision(revision: str,
+                                 show_sql_only: bool = False) -> None:
+    """
+    Upgrades the database to a specific revision. Modifies the database
+    structure from where it is, stepwise through revisions, to the specified
+    revision.
+
+    Args:
+        revision: destination revision
+        show_sql_only: just show the SQL; don't execute it
     """
     import_all_models()  # delayed, for command-line interfaces
     upgrade_database(alembic_base_dir=ALEMBIC_BASE_DIR,
                      alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
+                     destination_revision=revision,
                      version_table=ALEMBIC_VERSION_TABLE,
                      as_sql=show_sql_only)
+    # ... will get its config information from the OS environment; see
+    # run_alembic() in alembic/env.py
+
+
+def downgrade_database_to_revision(revision: str,
+                                   show_sql_only: bool = False) -> None:
+    """
+    Developer option. Takes the database to a specific revision.
+
+    Args:
+        revision: destination revision
+        show_sql_only: just show the SQL; don't execute it
+    """
+    import_all_models()  # delayed, for command-line interfaces
+    downgrade_database(alembic_base_dir=ALEMBIC_BASE_DIR,
+                       alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
+                       destination_revision=revision,
+                       version_table=ALEMBIC_VERSION_TABLE,
+                       as_sql=show_sql_only)
     # ... will get its config information from the OS environment; see
     # run_alembic() in alembic/env.py
 

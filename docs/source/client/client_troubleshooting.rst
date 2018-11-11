@@ -18,8 +18,62 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 
+.. _client_troubleshooting:
+
 Troubleshooting client problems
 ===============================
+
+Windows client fails to start
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``MF.dll`` missing under Windows Server.
+
+  What follows assumes 64-bit CamCOPS under 64-bit Windows.
+
+  This error can appear under e.g. Windows Server 2008 R2 64-bit (Windows
+  6.1.7601), when the CamCOPS client is launched. This component is part of
+  "normal" desktop Windows, but not Windows Server
+  (https://serverfault.com/questions/562362/program-missing-dlls). Download and
+  install the Windows Media Services 2008 for Windows Server 2008 R2 package
+  from https://www.microsoft.com/en-gb/download/details.aspx?id=20424. (See
+  also
+  https://support.microsoft.com/en-ca/help/963697/how-to-install-windows-media-services-for-windows-server-2008-r2;
+  potentially relevant.)
+
+  The trouble is that this creates thousands of directories within
+  ``C:\Windows\winsxs``, each with a single file in, so (for example)
+  ``MF.DLL`` and ``MFPlat.DLL`` are in separate directories.
+
+  So, copy the most recent OS-relevant version of the following into
+  ``C:\Windows\system32``:
+
+  - ``MF.DLL``
+  - ``MFPlat.DLL``
+  - ``EVR.DLL``
+  - ``MFReadWrite.DLL``
+  - ``api-ms-win-core-winrt-l1-1-0.dll.DLL`` -- **stuck; missing**
+
+  For example, from an administrative command prompt:
+
+  .. code-block:: bat
+
+    cd c:\windows\system32
+    copy C:\Windows\winsxs\amd64_microsoft-windows-mediafoundation_31bf3856ad364e35_6.1.7601.24146_none_faf014703c95b62f\mf.dll .
+    copy C:\Windows\winsxs\amd64_microsoft-windows-mfplat_31bf3856ad364e35_6.1.7601.23471_none_5516292583660fc2\mfplat.dll .
+    copy C:\Windows\winsxs\amd64_microsoft-windows-enhancedvideorenderer_31bf3856ad364e35_6.1.7601.23471_none_ee0e0e23fc773db4\evr.dll .
+    copy C:\Windows\winsxs\amd64_microsoft-windows-mfreadwrite_31bf3856ad364e35_6.1.7601.17514_none_177bed732ea3f85f\mfreadwrite.dll .
+
+  See:
+
+  - https://forums.plex.tv/t/mfplat-dll-fix-for-windows-server/149701
+  - https://serverfault.com/questions/275314/should-i-add-syswow64-to-my-system-path-to-get-32bit-programs-in-the-path
+
+  Not yet fixed.
+
+  .. todo::
+
+    fix Windows Server client problems (related to system DLLs), or declare
+    Windows Server an unsuitable OS.
 
 Tablet upload fails with error “Read timed out”
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,3 +105,7 @@ forcibly stop and restart the app:
 - Swipe the app preview up to close it
 
 - Then start the app again as usual
+
+*Windows*
+
+- Close it as usual; if it refuses to close, kill it via the Task Manager.

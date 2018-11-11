@@ -76,7 +76,10 @@ within their own organization as above; or (b) wait for the App Store version.
 Windows
 ~~~~~~~
 
-.. todo:: Package CamCOPS client for easier Windows distribution.
+Download the Windows application from the CamCOPS :ref:`download <download>`
+page.
+
+If you have trouble see :ref:`client troubleshooting <client_troubleshooting>`.
 
 Linux
 ~~~~~

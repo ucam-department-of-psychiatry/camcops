@@ -630,7 +630,7 @@ class Task(GenericTabletRecordMixin, Base):
     @classproperty
     def is_anonymous(cls) -> bool:
         """
-        Antonym for :attribute:`has_patient`.
+        Antonym for :attr:`has_patient`.
         """
         return not cls.has_patient
 
@@ -1009,8 +1009,7 @@ class Task(GenericTabletRecordMixin, Base):
         Do we have a patient who has any invalid ID numbers?
 
         Args:
-            req: the
-            :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
         idnums = self.get_patient_idnum_objects()
         for idnum in idnums:
@@ -1193,6 +1192,44 @@ class Task(GenericTabletRecordMixin, Base):
         for text filtering.
         """
         return [col for _, col in cls.gen_text_filter_columns()]
+
+    # def contains_text(self, text: str) -> bool:
+    #     """
+    #     For index-based (Python-side) text filtering. Does this task contain
+    #     the specified text?
+    #
+    #     Args:
+    #         text:
+    #             string that must be present in at least one of our text
+    #             columns
+    #
+    #     Returns:
+    #         is the strings present?
+    #     """
+    #     text = text.lower()
+    #     for attrname, _ in self.gen_text_filter_columns():
+    #         value = getattr(self, attrname)
+    #         if value is None:
+    #             continue
+    #         assert isinstance(value, str), "Internal bug in contains_text"
+    #         if text in value.lower():
+    #             return True
+    #     return False
+
+    # def contains_all_strings(self, strings: List[str]) -> bool:
+    #     """
+    #     For index-based (Python-side) text filtering. Does this task contain
+    #     the specified text?
+    #
+    #     Args:
+    #         strings:
+    #             list of strings; each string must be present in at least
+    #             one of our text columns
+    #
+    #     Returns:
+    #         are all strings present?
+    #     """
+    #     return all(self.contains_text(text) for text in strings)
 
     # -------------------------------------------------------------------------
     # TSV export for basic research dump
@@ -2138,6 +2175,10 @@ class Task(GenericTabletRecordMixin, Base):
 # =============================================================================
 # Collating all task tables for specific purposes
 # =============================================================================
+# Function, staticmethod, classmethod?
+# https://stackoverflow.com/questions/8108688/in-python-when-should-i-use-a-function-instead-of-a-method  # noqa
+# https://stackoverflow.com/questions/11788195/module-function-vs-staticmethod-vs-classmethod-vs-no-decorators-which-idiom-is  # noqa
+# https://stackoverflow.com/questions/15017734/using-static-methods-in-python-best-practice  # noqa
 
 def all_task_tables_with_min_client_version() -> Dict[str, Version]:
     """
@@ -2153,6 +2194,35 @@ def all_task_tables_with_min_client_version() -> Dict[str, Version]:
     for cls in classes:
         d.update(cls.all_tables_with_min_client_version())
     return d
+
+
+@cache_region_static.cache_on_arguments(function_key_generator=fkg)
+def tablename_to_task_class_dict() -> Dict[str, Type[Task]]:
+    """
+    Returns a mapping from task base tablenames to task classes.
+    """
+    d = {}  # type: Dict[str, Type[Task]]
+    for cls in Task.gen_all_subclasses():
+        d[cls.tablename] = cls
+    return d
+
+
+@cache_region_static.cache_on_arguments(function_key_generator=fkg)
+def all_task_tablenames() -> List[str]:
+    """
+    Returns all task base table names.
+    """
+    d = tablename_to_task_class_dict()
+    return list(d.keys())
+
+
+@cache_region_static.cache_on_arguments(function_key_generator=fkg)
+def all_task_classes() -> List[Type[Task]]:
+    """
+    Returns all task base table names.
+    """
+    d = tablename_to_task_class_dict()
+    return list(d.values())
 
 
 # =============================================================================
@@ -2213,6 +2283,7 @@ class TaskCountReport(Report):
                 extract_month(cls._when_added_batch_utc).label("month"),
                 func.count().label("num_tasks_added"),
             ]
+            # noinspection PyUnresolvedReferences
             select_from = cls.__table__
             # noinspection PyProtectedMember
             wheres = [cls._current == True]  # nopep8
