@@ -40,6 +40,7 @@ server/camcops_server
     alembic/versions/0010_add_factg.py.rst
     alembic/versions/0011_add_eq5d5l_task.py.rst
     alembic/versions/0012_idnum_def_validation_method.py.rst
+    alembic/versions/0013_task_index.py.rst
     camcops_server.py.rst
     camcops_server_meta.py.rst
     cc_modules/cc_alembic.py.rst
@@ -89,8 +90,11 @@ server/camcops_server
     cc_modules/cc_summaryelement.py.rst
     cc_modules/cc_tabletsession.py.rst
     cc_modules/cc_task.py.rst
+    cc_modules/cc_taskcollection.py.rst
     cc_modules/cc_taskfactory.py.rst
     cc_modules/cc_taskfilter.py.rst
+    cc_modules/cc_taskindex.py.rst
+    cc_modules/cc_taskreports.py.rst
     cc_modules/cc_tracker.py.rst
     cc_modules/cc_trackerhelpers.py.rst
     cc_modules/cc_tsv.py.rst

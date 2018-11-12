@@ -92,7 +92,6 @@
 const QString APPSTRING_TASKNAME("camcops");  // task name used for generic but downloaded tablet strings
 const QString APP_NAME("camcops");  // e.g. subdirectory of ~/.local/share; DO NOT ALTER
 const QString APP_PRETTY_NAME("CamCOPS");
-const QString ARG_DB_DIR("--dbdir");
 const QString CONNECTION_DATA("data");
 const QString CONNECTION_SYS("sys");
 const QString ENVVAR_DB_DIR("CAMCOPS_DATABASE_DIRECTORY");
@@ -260,7 +259,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     parser.addHelpOption();
     parser.addVersionOption();
     QCommandLineOption dbDirOption(
-        "dbdir",
+        "dbdir",  // makes "--dbdir" option
         QString(
             "Specify the database directory, in which the databases %1 and %2 "
             "are used or created. Order of precedence (highest to lowest) "

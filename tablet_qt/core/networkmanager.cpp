@@ -206,9 +206,7 @@ void NetworkManager::setTitle(const QString& title)
 
 void NetworkManager::statusMessage(const QString& msg) const
 {
-#ifdef DEBUG_ACTIVITY
-    qInfo() << "Network:" << msg;
-#endif
+    qInfo().noquote() << "Network:" << msg;
     if (m_silent) {
 #ifdef DEBUG_ACTIVITY
         qDebug() << Q_FUNC_INFO << "silent";

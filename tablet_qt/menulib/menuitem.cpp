@@ -18,6 +18,7 @@
 */
 
 // #define DEBUG_VERBOSE
+// #define DEBUG_SHOW_PATIENT_INFO_IN_DESCRIPTION
 
 #include "menuitem.h"
 #include <QDebug>
@@ -637,6 +638,7 @@ QString MenuItem::info() const
                      .arg(convert::stringToCppLiteral(m_p_task->shortname())));
     }
     if (m_p_patient) {
+#ifdef DEBUG_SHOW_PATIENT_INFO_IN_DESCRIPTION
         QString patient_info = QString("%1, %2 (%3, DOB %4); %5")
                         .arg(m_p_patient->surname().toUpper(),
                              m_p_patient->forename(),
@@ -645,6 +647,9 @@ QString MenuItem::info() const
                              m_p_patient->shortIdnumSummary());
         parts.append(QString("patient=%1")
                      .arg(convert::stringToCppLiteral(patient_info)));
+#else
+        parts.append("patient=<hidden>");
+#endif
     }
     return parts.join(" ");
 }

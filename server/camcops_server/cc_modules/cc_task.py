@@ -54,13 +54,11 @@ from cardinal_pythonlib.datetimefunc import (
     format_datetime,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_columns,
     gen_orm_classes_from_base,
 )
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
-from cardinal_pythonlib.sqlalchemy.sqlfunc import extract_month, extract_year
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 import hl7
 from pendulum import Date, DateTime as Pendulum
@@ -69,8 +67,7 @@ from semantic_version import Version
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
-from sqlalchemy.sql.expression import (and_, desc, func, literal, not_,
-                                       select, update)
+from sqlalchemy.sql.expression import not_, update
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
@@ -107,7 +104,6 @@ from .cc_patientidnum import PatientIdNum
 from .cc_pdf import pdf_from_html
 from .cc_pyramid import ViewArg
 from .cc_recipdef import RecipientDefinition
-from .cc_report import Report, PlainReportType
 from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
@@ -1193,43 +1189,41 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return [col for _, col in cls.gen_text_filter_columns()]
 
-    # def contains_text(self, text: str) -> bool:
-    #     """
-    #     For index-based (Python-side) text filtering. Does this task contain
-    #     the specified text?
-    #
-    #     Args:
-    #         text:
-    #             string that must be present in at least one of our text
-    #             columns
-    #
-    #     Returns:
-    #         is the strings present?
-    #     """
-    #     text = text.lower()
-    #     for attrname, _ in self.gen_text_filter_columns():
-    #         value = getattr(self, attrname)
-    #         if value is None:
-    #             continue
-    #         assert isinstance(value, str), "Internal bug in contains_text"
-    #         if text in value.lower():
-    #             return True
-    #     return False
+    def contains_text(self, text: str) -> bool:
+        """
+        Does this task contain the specified text?
 
-    # def contains_all_strings(self, strings: List[str]) -> bool:
-    #     """
-    #     For index-based (Python-side) text filtering. Does this task contain
-    #     the specified text?
-    #
-    #     Args:
-    #         strings:
-    #             list of strings; each string must be present in at least
-    #             one of our text columns
-    #
-    #     Returns:
-    #         are all strings present?
-    #     """
-    #     return all(self.contains_text(text) for text in strings)
+        Args:
+            text:
+                string that must be present in at least one of our text
+                columns
+
+        Returns:
+            is the strings present?
+        """
+        text = text.lower()
+        for attrname, _ in self.gen_text_filter_columns():
+            value = getattr(self, attrname)
+            if value is None:
+                continue
+            assert isinstance(value, str), "Internal bug in contains_text"
+            if text in value.lower():
+                return True
+        return False
+
+    def contains_all_strings(self, strings: List[str]) -> bool:
+        """
+        Does this task contain all of the specified strings?
+
+        Args:
+            strings:
+                list of strings; each string must be present in at least
+                one of our text columns
+
+        Returns:
+            are all strings present?
+        """
+        return all(self.contains_text(text) for text in strings)
 
     # -------------------------------------------------------------------------
     # TSV export for basic research dump
@@ -2240,69 +2234,6 @@ def get_from_dict(d: Dict, key: Any, default: Any = INVALID_VALUE) -> Any:
         default: value to return if none is provided
     """
     return d.get(key, default)
-
-
-# =============================================================================
-# Reports
-# =============================================================================
-
-class TaskCountReport(Report):
-    """
-    Report to count task instances.
-    """
-
-    # noinspection PyMethodParameters
-    @classproperty
-    def report_id(cls) -> str:
-        return "taskcount"
-
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return "(Server) Count current task instances, by creation date"
-
-    # noinspection PyMethodParameters
-    @classproperty
-    def superuser_only(cls) -> bool:
-        return False
-
-    def get_rows_colnames(self, req: CamcopsRequest) -> PlainReportType:
-        final_rows = []
-        colnames = []
-        dbsession = req.dbsession
-        group_ids = req.user.ids_of_groups_user_may_report_on
-        superuser = req.user.superuser
-        classes = Task.all_subclasses_by_tablename()
-        for cls in classes:
-            # noinspection PyProtectedMember
-            select_fields = [
-                literal(cls.__tablename__).label("task"),
-                # func.year() is specific to some DBs, e.g. MySQL
-                # so is func.extract(); http://modern-sql.com/feature/extract
-                extract_year(cls._when_added_batch_utc).label("year"),
-                extract_month(cls._when_added_batch_utc).label("month"),
-                func.count().label("num_tasks_added"),
-            ]
-            # noinspection PyUnresolvedReferences
-            select_from = cls.__table__
-            # noinspection PyProtectedMember
-            wheres = [cls._current == True]  # nopep8
-            if not superuser:
-                # Restrict to accessible groups
-                # noinspection PyProtectedMember
-                wheres.append(cls._group_id.in_(group_ids))
-            group_by = ["year", "month"]
-            order_by = [desc("year"), desc("month")]
-            # ... http://docs.sqlalchemy.org/en/latest/core/tutorial.html#ordering-or-grouping-by-a-label  # noqa
-            query = select(select_fields) \
-                .select_from(select_from) \
-                .where(and_(*wheres)) \
-                .group_by(*group_by) \
-                .order_by(*order_by)
-            rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
-            final_rows.extend(rows)
-        return PlainReportType(rows=final_rows, column_names=colnames)
-
 
 # =============================================================================
 # Unit testing

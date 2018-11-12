@@ -1495,15 +1495,23 @@ class CamcopsConfig(object):
         engine = self.get_sqla_engine()
         return get_table_names(engine=engine)
 
+    def get_dbsession_raw(self) -> SqlASession:
+        """
+        Returns a raw SQLAlchemy Session.
+        Avoid this -- use :func:`get_dbsession_context` instead.
+        """
+        engine = self.get_sqla_engine()
+        maker = sessionmaker(bind=engine)
+        dbsession = maker()  # type: SqlASession
+        return dbsession
+
     @contextlib.contextmanager
     def get_dbsession_context(self) -> Generator[SqlASession, None, None]:
         """
         Context manager to provide an SQLAlchemy session that will COMMIT
         once we've finished, or perform a ROLLBACK if there was an exception.
         """
-        engine = self.get_sqla_engine()
-        maker = sessionmaker(bind=engine)
-        dbsession = maker()  # type: SqlASession
+        dbsession = self.get_dbsession_raw()
         # noinspection PyBroadException
         try:
             yield dbsession

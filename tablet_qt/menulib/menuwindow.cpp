@@ -17,6 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_SELECTIONS
 // #define OFFER_LAYOUT_DEBUG_BUTTON
 #define SHOW_TASK_TIMING
 
@@ -259,7 +260,9 @@ void MenuWindow::build()
         m_p_listwidget->setItemWidget(listitem, row);
         if (item.patient()
                 && item.patient()->id() == app_selected_patient_id) {
-            // qDebug() << Q_FUNC_INFO << "preselecting patient at index" << i;
+#ifdef DEBUG_SELECTIONS
+            qDebug() << Q_FUNC_INFO << "preselecting patient at index" << i;
+#endif
             // m_p_listwidget->item(i)->setSelected(true);
             m_p_listwidget->setCurrentItem(listitem);
 
@@ -314,7 +317,9 @@ void MenuWindow::menuItemSelectionChanged()
     // WHAT'S BEEN CHOSEN?
     QList<QListWidgetItem*> selected_items = m_p_listwidget->selectedItems();
     if (selected_items.isEmpty()) {
-        // qDebug() << Q_FUNC_INFO << "Nothing selected";
+#ifdef DEBUG_SELECTIONS
+        qDebug() << Q_FUNC_INFO << "Nothing selected";
+#endif
         emit offerView(false);
         emit offerEditDelete(false, false);
         emit offerFinishFlag(false);
@@ -329,7 +334,9 @@ void MenuWindow::menuItemSelectionChanged()
         return;
     }
     MenuItem& m = m_items[i];
-    // qInfo() << "Selected:" << m;
+#ifdef DEBUG_SELECTIONS
+    qInfo() << "Selected:" << m;
+#endif
     TaskPtr task = m.task();
     PatientPtr patient = m.patient();
 
@@ -606,9 +613,11 @@ TaskPtr MenuWindow::currentTask() const
 PatientPtr MenuWindow::currentPatient() const
 {
     const int index = currentIndex();
+#ifdef DEBUG_SELECTIONS
     qDebug() << Q_FUNC_INFO << "index =" << index;
+#endif
     if (index == BAD_INDEX) {
-        qDebug() << "... bad index";
+        qDebug() << Q_FUNC_INFO << "... bad index";
         return PatientPtr(nullptr);
     }
     const MenuItem& item = m_items[index];

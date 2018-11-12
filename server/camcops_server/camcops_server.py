@@ -771,6 +771,22 @@ def self_test(show_only: bool = False) -> None:
         runner.run(suite)
 
 
+def dev_cli() -> None:
+    """
+    Fire up a developer debug command-line.
+    """
+    config = get_default_config_from_os_env()
+    engine = config.get_sqla_engine()
+    dbsession = config.get_dbsession_raw()
+    log.error("""Entering developer command-line.
+    - Config is available in 'config'.
+    - Database engine is available in 'engine'.
+    - Database session is available in 'dbsession'. (Not working properly.)
+    """)
+    import pdb
+    pdb.set_trace()
+
+
 # =============================================================================
 # Command-line processor
 # =============================================================================
@@ -1319,6 +1335,13 @@ def camcops_main() -> None:
         host=args.host,
         port=args.port
     ))
+
+    dev_cli_parser = add_sub(
+        subparsers, "dev_cli",
+        help="Developer command-line interface, with config loaded as "
+             "'config'."
+    )
+    dev_cli_parser.set_defaults(func=lambda args: dev_cli())
 
     # -------------------------------------------------------------------------
     # Web server options

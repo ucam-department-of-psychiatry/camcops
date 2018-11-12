@@ -452,6 +452,20 @@ class MultiTaskSelector(SchemaNode):
         return choices
 
 
+class ViaIndexSelector(BooleanNode):
+    """
+    Node to choose whether we use the server index or not.
+    Default is true.
+    """
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(
+            *args,
+            title="Use server index? (Default is true; much faster.)",
+            default=True,
+            **kwargs
+        )
+
+
 class MandatoryWhichIdNumSelector(SchemaNode):
     """
     Node to enforce the choice of a single ID number type (e.g. "NHS number"
@@ -1721,6 +1735,7 @@ class ChooseTrackerSchema(CSRFSchema):
     )
     tasks = MultiTaskSelector()  # must match ViewParam.TASKS
     # tracker_tasks_only will be set via the binding
+    via_index = ViaIndexSelector()  # must match ViewParam.VIA_INDEX
     viewtype = TaskTrackerOutputTypeSelector()  # must match ViewParams.VIEWTYPE  # noqa
 
 

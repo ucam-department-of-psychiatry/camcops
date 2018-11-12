@@ -40,7 +40,7 @@ from cardinal_pythonlib.reprfunc import simple_repr
 from pendulum import DateTime as Pendulum
 import pyramid.httpexceptions as exc
 from sqlalchemy.orm import relationship, Session as SqlASession
-from sqlalchemy.sql.expression import and_, join, select
+from sqlalchemy.sql.expression import and_, join, literal, select
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import BigInteger, Boolean, DateTime, Integer
 
@@ -118,6 +118,11 @@ class PatientIdNumIndexEntry(Base):
         comment="Server primary key of the PatientIdNum "
                 "(and of the PatientIdNumIndexEntry)"
     )
+    indexed_at_utc = Column(
+        "indexed_at_utc", DateTime, nullable=False,
+        comment="When this index entry was created"
+    )
+
     patient_pk = Column(
         "patient_pk", Integer, ForeignKey(Patient._pk),
         index=True,
@@ -178,12 +183,14 @@ class PatientIdNumIndexEntry(Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def rebuild_index(cls, session: SqlASession) -> None:
+    def rebuild_idnum_index(cls, session: SqlASession,
+                            indexed_at_utc: Pendulum) -> None:
         """
         Rebuilds the index entirely. Uses SQLAlchemy Core (not ORM) for speed.
 
         Args:
             session: an SQLAlchemy Session
+            indexed_at_utc: current time in UTC
         """
         log.info("Rebuilding patient ID number index")
         # noinspection PyUnresolvedReferences
@@ -207,12 +214,14 @@ class PatientIdNumIndexEntry(Base):
             indextable.insert().from_select(
                 # Target:
                 [indexcols.idnum_pk,
+                 indexcols.indexed_at_utc,
                  indexcols.patient_pk,
                  indexcols.which_idnum,
                  indexcols.idnum_value],
                 # Source:
                 (
                     select([idnumcols._pk,
+                            literal(indexed_at_utc),
                             patientcols._pk,
                             idnumcols.which_idnum,
                             idnumcols.idnum_value])
@@ -238,18 +247,26 @@ class PatientIdNumIndexEntry(Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def update_index_for_upload(cls, session: SqlASession,
-                                device_id: int) -> None:
+    def update_idnum_index_for_upload(cls, session: SqlASession,
+                                      indexed_at_utc: Pendulum,
+                                      idnum_pks_added: List[int],
+                                      idnum_pks_removed: List[int]) -> None:
         """
         Updates the index for a device's upload.
 
         - Deletes index entries for records that are on the way out.
         - Creates index entries for records that are on the way in.
+        - Should be called before the tables are committed.
 
         Args:
-            session: an SQLAlchemy Session
-            device_id:
-                ID of the :class:`camcops_server.cc_modules.cc_device.Device`
+            session:
+                an SQLAlchemy Session
+            indexed_at_utc:
+                current time in UTC
+            idnum_pks_added:
+                server PKs of PatientIdNum records added in the upload
+            idnum_pks_removed:
+                server PKs of PatientIdNum records removed in the upload
         """
         # noinspection PyUnresolvedReferences
         indextable = PatientIdNumIndexEntry.__table__  # type: Table
@@ -262,17 +279,9 @@ class PatientIdNumIndexEntry(Base):
         patientcols = patienttable.columns
 
         # Delete the old
-        # noinspection PyProtectedMember
         session.execute(
             indextable.delete()
-            # Extra bits:
-            .where(
-                indextable.c.idnum_pk.in_(
-                    idnumtable.select([idnumcols._pk])
-                    .where(idnumcols._device_id == device_id)
-                    .where(idnumcols._removal_pending == 1)
-                )
-            )
+            .where(indextable.c.idnum_pk.in_(idnum_pks_removed))
         )
 
         # Create the new
@@ -281,12 +290,14 @@ class PatientIdNumIndexEntry(Base):
             indextable.insert().from_select(
                 # Target:
                 [indexcols.idnum_pk,
+                 indexcols.indexed_at_utc,
                  indexcols.patient_pk,
                  indexcols.which_idnum,
                  indexcols.idnum_value],
                 # Source:
                 (
                     select([idnumcols._pk,
+                            literal(indexed_at_utc),
                             patientcols._pk,
                             idnumcols.which_idnum,
                             idnumcols.idnum_value])
@@ -301,11 +312,8 @@ class PatientIdNumIndexEntry(Base):
                             )
                         )
                     )
-                    .where(idnumcols._current == True)
+                    .where(idnumcols._pk.in_(idnum_pks_added))
                     .where(patientcols._current == True)
-                    # Extra bits:
-                    .where(idnumcols._device_id == device_id)
-                    .where(idnumcols._addition_pending == 1)
                 )
             )
         )
@@ -329,6 +337,10 @@ class TaskIndexEntry(Base):
         "index_entry_pk", Integer,
         primary_key=True, autoincrement=True,
         comment="Arbitrary primary key of this index entry"
+    )
+    indexed_at_utc = Column(
+        "indexed_at_utc", DateTime, nullable=False,
+        comment="When this index entry was created"
     )
 
     # The next two fields link to our task:
@@ -512,19 +524,33 @@ class TaskIndexEntry(Base):
 
     @classmethod
     def make_from_task(cls, task: Task,
-                       ignore_current: bool = False) -> "TaskIndexEntry":
+                       indexed_at_utc: Pendulum,
+                       ignore_current: bool = False,
+                       adding_user_id: int = None) -> "TaskIndexEntry":
         """
         Returns a task index entry for the specified
         :class:`camcops_server.cc_modules.cc_task.Task`. The
         returned index requires inserting into a database session.
 
         Args:
-            task: a :class:`camcops_server.cc_modules.cc_task.Task`
-            ignore_current: ignore the _current flag; used by the upload API
+            task:
+                a :class:`camcops_server.cc_modules.cc_task.Task`
+            indexed_at_utc:
+                current time in UTC
+            ignore_current:
+                ignore the _current flag; used by the upload API
+            adding_user_id:
+                ID of the user adding this row (overrides information already
+                stored with the task -- but in practice is used by the upload
+                API at a point when the task's adding-user ID is still blank)
         """
         if not ignore_current:
             assert task._current, "Only index current Task objects"
+        assert indexed_at_utc is not None, "Missing indexed_at_utc"
+
         index = cls()
+
+        index.indexed_at_utc = indexed_at_utc
 
         index.task_table_name = task.tablename
         index.task_pk = task.get_pk()
@@ -536,7 +562,10 @@ class TaskIndexEntry(Base):
         index.era = task.get_era()
         index.when_created_utc = task.get_creation_datetime_utc()
         index.when_created_iso = task.when_created
-        index.adding_user_id = task.get_adding_user_id()
+        if adding_user_id is not None:
+            index.adding_user_id = adding_user_id
+        else:
+            index.adding_user_id = task.get_adding_user_id()
         index.group_id = task.get_group_id()
         index.task_is_complete = task.is_complete()
 
@@ -544,16 +573,30 @@ class TaskIndexEntry(Base):
 
     @classmethod
     def index_task(cls, task: Task, session: SqlASession,
-                   ignore_current: bool = False) -> None:
+                   indexed_at_utc: Pendulum,
+                   ignore_current: bool = False,
+                   adding_user_id: int = None) -> None:
         """
         Indexes a task and inserts the index into the database.
 
         Args:
-            task: a :class:`camcops_server.cc_modules.cc_task.Task`
-            session: an SQLAlchemy Session
-            ignore_current: ignore the _current flag; used by the upload API
+            task:
+                a :class:`camcops_server.cc_modules.cc_task.Task`
+            session:
+                an SQLAlchemy Session
+            indexed_at_utc:
+                current time in UTC
+            ignore_current:
+                ignore the _current flag; used by the upload API
+            adding_user_id:
+                ID of the user adding this row (overrides information already
+                stored with the task -- but in practice is used by the upload
+                API at a point when the task's adding-user ID is still blank)
         """
-        index = cls.make_from_task(task, ignore_current=ignore_current)
+        index = cls.make_from_task(task,
+                                   indexed_at_utc=indexed_at_utc,
+                                   ignore_current=ignore_current,
+                                   adding_user_id=adding_user_id)
         session.add(index)
 
     # -------------------------------------------------------------------------
@@ -563,6 +606,7 @@ class TaskIndexEntry(Base):
     @classmethod
     def rebuild_index_for_task_type(cls, session: SqlASession,
                                     taskclass: Type[Task],
+                                    indexed_at_utc: Pendulum,
                                     delete_first: bool = True) -> None:
         """
         Rebuilds the index for a particular task type.
@@ -571,6 +615,7 @@ class TaskIndexEntry(Base):
             session: an SQLAlchemy Session
             taskclass: a subclass of
                 :class:`camcops_server.cc_modules.cc_task.Task`
+            indexed_at_utc: current time in UTC
             delete_first: delete old index entries first? Should always be True
                 unless called as part of a master rebuild that deletes
                 everything first.
@@ -594,15 +639,17 @@ class TaskIndexEntry(Base):
             .order_by(isotzdatetime_to_utcdatetime(taskclass.when_created))
         )
         for task in q:
-            cls.index_task(task, session)
+            cls.index_task(task, session, indexed_at_utc)
 
     @classmethod
-    def rebuild_entire_index(cls, session: SqlASession) -> None:
+    def rebuild_entire_task_index(cls, session: SqlASession,
+                                  indexed_at_utc: Pendulum) -> None:
         """
         Rebuilds the entire index.
 
         Args:
             session: an SQLAlchemy Session
+            indexed_at_utc: current time in UTC
         """
         log.info("Rebuilding entire task index")
         # noinspection PyUnresolvedReferences
@@ -614,6 +661,7 @@ class TaskIndexEntry(Base):
         # Now rebuild:
         for taskclass in Task.all_subclasses_by_tablename():
             cls.rebuild_index_for_task_type(session, taskclass,
+                                            indexed_at_utc,
                                             delete_first=False)
 
     # -------------------------------------------------------------------------
@@ -621,9 +669,12 @@ class TaskIndexEntry(Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def update_index_for_upload(cls, session: SqlASession,
-                                device_id: int,
-                                tasktablename: str) -> None:
+    def update_task_index_for_upload(cls, session: SqlASession,
+                                     tasktablename: str,
+                                     pks_added: List[int],
+                                     pks_removed: List[int],
+                                     indexed_at_utc: Pendulum,
+                                     adding_user_id: int = None) -> None:
         """
         Updates the index for a device's upload.
 
@@ -631,10 +682,20 @@ class TaskIndexEntry(Base):
         - Creates index entries for records that are on the way in.
 
         Args:
-            session: an SQLAlchemy Session
-            device_id:
-                ID of the :class:`camcops_server.cc_modules.cc_device.Device`
-            tasktablename: name of the task's base table
+            session:
+                an SQLAlchemy Session
+            tasktablename:
+                name of the task's base table
+            pks_added:
+                task server PKs that were added in the upload
+            pks_removed:
+                task server PKs that were removed in the upload
+            indexed_at_utc:
+                current time in UTC
+            adding_user_id:
+                ID of the user adding this row (overrides information already
+                stored with the task -- but in practice is used by the upload
+                API at a point when the task's adding-user ID is still blank)
         """
         d = tablename_to_task_class_dict()
         try:
@@ -646,35 +707,28 @@ class TaskIndexEntry(Base):
         # noinspection PyUnresolvedReferences
         idxtable = cls.__table__  # type: Table
         idxcols = idxtable.columns
-        # noinspection PyUnresolvedReferences,PyUnboundLocalVariable
-        tasktable = taskclass.__table__  # type: Table
-        taskcols = tasktable.columns
 
         # Delete the old:
         # noinspection PyProtectedMember
         session.execute(
             idxtable.delete()
-            .where(idxcols.table_name == tasktablename)
-            # Extra bits:
-            .where(idxcols.device_id == device_id)
-            .where(
-                idxcols.task_pk.in_(
-                    tasktable.select([taskcols._pk])
-                    .where(taskcols._device_id == device_id)
-                    .where(taskcols._removal_pending == 1)
-                )
-            )
+            .where(idxcols.task_table_name == tasktablename)
+            .where(idxcols.task_pk.in_(pks_removed))
         )
 
         # Create the new:
+        # noinspection PyUnboundLocalVariable
         q = (
             session.query(taskclass)
-            .filter(taskclass._device_id == device_id)
-            .filter(taskclass._addition_pending == 1)
+            .filter(taskclass._pk.in_(pks_added))
             .order_by(isotzdatetime_to_utcdatetime(taskclass.when_created))
         )
         for task in q:
-            cls.index_task(task, session, ignore_current=True)
+            cls.index_task(task,
+                           session,
+                           ignore_current=True,
+                           adding_user_id=adding_user_id,
+                           indexed_at_utc=indexed_at_utc)
 
 
 def reindex_everything(session: SqlASession) -> None:
@@ -684,5 +738,7 @@ def reindex_everything(session: SqlASession) -> None:
     Args:
         session: an SQLAlchemy Session
     """
-    PatientIdNumIndexEntry.rebuild_index(session)
-    TaskIndexEntry.rebuild_entire_index(session)
+    now = Pendulum.utcnow()
+    log.info("Reindexing database; indexed_at_utc = {}".format(now))
+    PatientIdNumIndexEntry.rebuild_idnum_index(session, now)
+    TaskIndexEntry.rebuild_entire_task_index(session, now)

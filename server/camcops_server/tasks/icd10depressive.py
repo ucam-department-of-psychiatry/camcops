@@ -319,7 +319,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             self.duration_at_least_2_weeks is not None and
             self.are_all_fields_complete(self.CORE_NAMES) and
             self.are_all_fields_complete(self.ADDITIONAL_NAMES)
-        ) or (
+        ) or bool(
             self.severe_clinically
         )
 

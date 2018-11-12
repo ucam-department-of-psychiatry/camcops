@@ -1065,7 +1065,7 @@ def choose_tracker_or_ctv(req: CamcopsRequest,
         as_ctv: CTV, rather than tracker?
     """
 
-    form = ChooseTrackerForm(req, as_ctv=as_ctv, css_class="form-inline")
+    form = ChooseTrackerForm(req, as_ctv=as_ctv)  # , css_class="form-inline")
 
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1078,6 +1078,7 @@ def choose_tracker_or_ctv(req: CamcopsRequest,
                 ViewParam.END_DATETIME,
                 ViewParam.TASKS,
                 ViewParam.ALL_TASKS,
+                ViewParam.VIA_INDEX,
                 ViewParam.VIEWTYPE,
             ]
             querydict = {k: appstruct.get(k) for k in keys}

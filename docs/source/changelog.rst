@@ -1415,6 +1415,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
   ``IdPolicy::complies()``. If a new client is used with an old server, there
   should be no problem.
 
+- ``CardinalExpDetThreshold`` was missing ``ancillaryTables()`` and
+  ``ancillaryTableFKToTaskFieldname()``.
+
+- Turn off patient ID information in debug stream for ``MenuItem``,
+
+- Add network status messages to debug stream.
+
 - New task: :ref:`CORE-10 <core10>`.
 
 - New task: :ref:`CESD <cesd>`.
@@ -1510,3 +1517,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   re-raises exceptions.
 
 - Better upgrade/downgrade database facilities for developers.
+
+- Task report was claiming to slice by creation date but was slicing by
+  addition (upload) date; fixed (to creation date).

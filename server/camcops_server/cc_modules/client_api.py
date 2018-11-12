@@ -47,6 +47,7 @@ from cardinal_pythonlib.convert import (
     hex_xformat_encode,
 )
 from cardinal_pythonlib.datetimefunc import coerce_to_pendulum, format_datetime
+from cardinal_pythonlib.dbfunc import fetchallfirstvalues
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
@@ -1112,22 +1113,37 @@ def commit_all(req: CamcopsRequest,
             :func:`start_preserving`, :func:`commit_table`)?
     """
     tables = get_dirty_tables(req)
-    auditsegments = []
+    # Ensure we do the "patient" and "patient_idnum" tables first; task
+    # indexing depends on referring to those correctly.
+    tables.sort(key=lambda x: (x.name != Patient.__tablename__,
+                               x.name != PatientIdNum.__tablename__,
+                               x.name))
+    # ... https://stackoverflow.com/questions/23090664/sorting-a-list-of-string-in-python-such-that-a-specific-string-if-present-appea  # noqa
+
+    auditsegments = []  # type: List[str]
+    idnum_pks_added = []  # type: List[int]
+    idnum_pks_removed = []  # type: List[int]
     for table in tables:
-        n_added, n_removed, n_preserved = commit_table(
+        pks_added, pks_removed, n_preserved = commit_table(
             req, batchtime, preserving, table, clear_dirty=False)
+        if table.name == PatientIdNum.__tablename__:
+            idnum_pks_added = pks_added
+            idnum_pks_removed = pks_removed
         auditsegments.append(
             "{tablename} ({n_added},{n_removed},{n_preserved})".format(
                 tablename=table.name,
-                n_added=n_added,
-                n_removed=n_removed,
+                n_added=len(pks_added),
+                n_removed=len(pks_removed),
                 n_preserved=n_preserved,
             )
         )
-    PatientIdNumIndexEntry.update_index_for_upload(
+    PatientIdNumIndexEntry.update_idnum_index_for_upload(
         session=req.dbsession,
-        device_id=req.tabletsession.device_id,
-    )
+        indexed_at_utc=batchtime,
+        idnum_pks_added=idnum_pks_added,
+        idnum_pks_removed=idnum_pks_removed
+    )  # after the commit
+
     clear_dirty_tables(req)
     details = "Upload [table (n_added,n_removed,n_preserved)]: {}".format(
         ", ".join(auditsegments)
@@ -1139,7 +1155,7 @@ def commit_table(req: CamcopsRequest,
                  batchtime: Pendulum,
                  preserving: bool,
                  table: Table,
-                 clear_dirty: bool = True) -> Tuple[int, int, int]:
+                 clear_dirty: bool = True) -> Tuple[List[int], List[int], int]:
     """
     Commits additions, removals, and preservations for one table.
 
@@ -1158,7 +1174,7 @@ def commit_table(req: CamcopsRequest,
             device simultaneously than one-by-one.)
 
     Returns:
-        tuple ``n_added, n_removed, n_preserved``
+        tuple ``pks_added, pks_n_removed, n_preserved``
     """
     # log.debug("commit_table: {}", table.name)
     user_id = req.user_id
@@ -1167,18 +1183,16 @@ def commit_table(req: CamcopsRequest,
     dbsession = req.dbsession
     tablename = table.name
 
-    # Update index.
-    # We do this just before we make the changes to _addition_pending and
-    # _removal_pending, because this means we can index selectively only those
-    # records that are changing.
-    if tablename in all_task_tablenames():
-        TaskIndexEntry.update_index_for_upload(session=dbsession,
-                                               device_id=device_id,
-                                               tasktablename=tablename)
-
     # Additions
     # noinspection PyProtectedMember
-    addition_rp = dbsession.execute(
+    pks_added = fetchallfirstvalues(dbsession.execute(
+        select([table.c._pk])
+        .select_from(table)
+        .where(table.c._device_id == device_id)
+        .where(table.c._addition_pending)
+    ))  # type: List[int]
+    # noinspection PyProtectedMember
+    dbsession.execute(
         update(table)
         .where(table.c._device_id == device_id)
         .where(table.c._addition_pending)
@@ -1188,11 +1202,17 @@ def commit_table(req: CamcopsRequest,
                 _when_added_exact=exacttime,
                 _when_added_batch_utc=batchtime)
     )  # type: ResultProxy
-    n_added = addition_rp.rowcount
 
     # Removals
     # noinspection PyProtectedMember
-    removal_rp = dbsession.execute(
+    pks_removed = fetchallfirstvalues(dbsession.execute(
+        select([table.c._pk])
+        .select_from(table)
+        .where(table.c._device_id == device_id)
+        .where(table.c._removal_pending)
+    ))  # type: List[int]
+    # noinspection PyProtectedMember
+    dbsession.execute(
         update(table)
         .where(table.c._device_id == device_id)
         .where(table.c._removal_pending)
@@ -1202,7 +1222,6 @@ def commit_table(req: CamcopsRequest,
                 _when_removed_exact=exacttime,
                 _when_removed_batch_utc=batchtime)
     )  # type: ResultProxy
-    n_removed = removal_rp.rowcount
 
     # Preservation
     new_era = format_datetime(batchtime, DateFormat.ERA)
@@ -1256,6 +1275,15 @@ def commit_table(req: CamcopsRequest,
             .values(era=new_era)
         )
 
+    # Update task index
+    if tablename in all_task_tablenames():
+        TaskIndexEntry.update_task_index_for_upload(session=dbsession,
+                                                    tasktablename=tablename,
+                                                    pks_added=pks_added,
+                                                    pks_removed=pks_removed,
+                                                    adding_user_id=user_id,
+                                                    indexed_at_utc=batchtime)
+
     # Remove individually from list of dirty tables?
     if clear_dirty:
         # noinspection PyUnresolvedReferences
@@ -1266,7 +1294,7 @@ def commit_table(req: CamcopsRequest,
         )
         # ... otherwise a call to clear_dirty_tables() must be made.
 
-    return n_added, n_removed, n_preserved
+    return pks_added, pks_removed, n_preserved
 
 
 def rollback_all(req: CamcopsRequest) -> None:

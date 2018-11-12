@@ -238,6 +238,18 @@ QString CardinalExpDetThreshold::menusubtitle() const
 // Ancillary management
 // ============================================================================
 
+QStringList CardinalExpDetThreshold::ancillaryTables() const
+{
+    return QStringList{CardinalExpDetThresholdTrial::TRIAL_TABLENAME};
+}
+
+
+QString CardinalExpDetThreshold::ancillaryTableFKToTaskFieldname() const
+{
+    return CardinalExpDetThresholdTrial::FN_FK_TO_TASK;
+}
+
+
 void CardinalExpDetThreshold::loadAllAncillary(const int pk)
 {
     const OrderBy order_by{{CardinalExpDetThresholdTrial::FN_TRIAL, true}};

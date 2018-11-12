@@ -129,8 +129,7 @@ Server
 
 **Priority**
 
-- Test task index. In particular (1) recheck server-side work; (2) remove the
-  debug version from the menu; (3) check that upload works correctly and
+- Test task index. In particular (1) check group permissions; (2) check that upload works correctly and
   updates indexes.
 
   Design note: we should not have a client-side index that gets uploaded. This

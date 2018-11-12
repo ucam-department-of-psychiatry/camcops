@@ -22,7 +22,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <h2>E-mail addresses for users that you manage</h2>
 <ul>
-    <li>Click one to e-mail them using your computer's e-mail client.</li>
+    <li>Click one to e-mail that user using your computer's e-mail client.</li>
     <li>Copy/paste the whole list into your e-mail client for a bulk e-mail.</li>
 </ul>
 <p>
