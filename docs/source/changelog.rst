@@ -1520,3 +1520,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Task report was claiming to slice by creation date but was slicing by
   addition (upload) date; fixed (to creation date).
+
+- Task index. See ``cc_taskindex.py``, with corresponding changes in e.g.
+  ``cc_taskcollection.py`` and ``client_api.py``. Significant speedup on the
+  server.
+
+  - Design note: we should not have a client-side index that gets uploaded.
+    This would be a bit risky (trusting clients with the server's index); also,
+    the client's index couldn't use server PKs (which we'd want); etc.

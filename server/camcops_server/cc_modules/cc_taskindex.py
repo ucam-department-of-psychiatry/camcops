@@ -46,6 +46,7 @@ from sqlalchemy.sql.sqltypes import BigInteger, Boolean, DateTime, Integer
 
 from .cc_client_api_core import fail_user_error
 from .cc_constants import ERA_NOW
+from .cc_dirtytables import UploadAdditionTable, UploadRemovalTable
 from .cc_idnumdef import IdNumDefinition
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
@@ -249,25 +250,27 @@ class PatientIdNumIndexEntry(Base):
     @classmethod
     def update_idnum_index_for_upload(cls, session: SqlASession,
                                       indexed_at_utc: Pendulum,
-                                      idnum_pks_added: List[int],
-                                      idnum_pks_removed: List[int]) -> None:
+                                      device_id: int) -> None:
         """
         Updates the index for a device's upload.
 
         - Deletes index entries for records that are on the way out.
         - Creates index entries for records that are on the way in.
-        - Should be called before the tables are committed.
+        - Should be called after both the Patient and PatientIdNum tables are
+          committed; see special ordering in
+          :func:`camcops_server.cc_modules.client_api.commit_all`.
+        - Reads its PKs from
+          :class:`camcops_server.cc_modules.cc_dirtytables.UploadAdditionTable`,
+          :class:`camcops_server.cc_modules.cc_dirtytables.UploadRemovalTable`.
 
         Args:
             session:
                 an SQLAlchemy Session
             indexed_at_utc:
                 current time in UTC
-            idnum_pks_added:
-                server PKs of PatientIdNum records added in the upload
-            idnum_pks_removed:
-                server PKs of PatientIdNum records removed in the upload
-        """
+            device_id:
+                :class:`camcops_server.cc_modules.cc_device.Device` PK
+        """  # noqa
         # noinspection PyUnresolvedReferences
         indextable = PatientIdNumIndexEntry.__table__  # type: Table
         indexcols = indextable.columns
@@ -277,11 +280,19 @@ class PatientIdNumIndexEntry(Base):
         # noinspection PyUnresolvedReferences
         patienttable = Patient.__table__  # type: Table
         patientcols = patienttable.columns
+        # noinspection PyUnresolvedReferences
+        additiontable = UploadAdditionTable.__table__
+        # noinspection PyUnresolvedReferences
+        removaltable = UploadRemovalTable.__table__
 
         # Delete the old
         session.execute(
             indextable.delete()
-            .where(indextable.c.idnum_pk.in_(idnum_pks_removed))
+            .where(indextable.c.idnum_pk.in_(
+                select([removaltable.c.pkvalue])
+                .select_from(removaltable)
+                .where(removaltable.c.device_id == device_id)
+            ))
         )
 
         # Create the new
@@ -312,7 +323,11 @@ class PatientIdNumIndexEntry(Base):
                             )
                         )
                     )
-                    .where(idnumcols._pk.in_(idnum_pks_added))
+                    .where(idnumcols._pk.in_(
+                        select([additiontable.c.pkvalue])
+                        .select_from(additiontable)
+                        .where(additiontable.c.device_id == device_id)
+                    ))
                     .where(patientcols._current == True)
                 )
             )
@@ -671,8 +686,7 @@ class TaskIndexEntry(Base):
     @classmethod
     def update_task_index_for_upload(cls, session: SqlASession,
                                      tasktablename: str,
-                                     pks_added: List[int],
-                                     pks_removed: List[int],
+                                     device_id: int,
                                      indexed_at_utc: Pendulum,
                                      adding_user_id: int = None) -> None:
         """
@@ -680,23 +694,24 @@ class TaskIndexEntry(Base):
 
         - Deletes index entries for records that are on the way out.
         - Creates index entries for records that are on the way in.
+        - Reads its PKs from
+          :class:`camcops_server.cc_modules.cc_dirtytables.UploadAdditionTable`,
+          :class:`camcops_server.cc_modules.cc_dirtytables.UploadRemovalTable`.
 
         Args:
             session:
                 an SQLAlchemy Session
             tasktablename:
                 name of the task's base table
-            pks_added:
-                task server PKs that were added in the upload
-            pks_removed:
-                task server PKs that were removed in the upload
+            device_id:
+                :class:`camcops_server.cc_modules.cc_device.Device` PK
             indexed_at_utc:
                 current time in UTC
             adding_user_id:
                 ID of the user adding this row (overrides information already
                 stored with the task -- but in practice is used by the upload
                 API at a point when the task's adding-user ID is still blank)
-        """
+        """  # noqa
         d = tablename_to_task_class_dict()
         try:
             taskclass = d[tasktablename]  # may raise KeyError
@@ -707,20 +722,32 @@ class TaskIndexEntry(Base):
         # noinspection PyUnresolvedReferences
         idxtable = cls.__table__  # type: Table
         idxcols = idxtable.columns
+        # noinspection PyUnresolvedReferences
+        additiontable = UploadAdditionTable.__table__
+        # noinspection PyUnresolvedReferences
+        removaltable = UploadRemovalTable.__table__
 
         # Delete the old:
         # noinspection PyProtectedMember
         session.execute(
             idxtable.delete()
             .where(idxcols.task_table_name == tasktablename)
-            .where(idxcols.task_pk.in_(pks_removed))
+            .where(idxcols.task_pk.in_(
+                select([removaltable.c.pkvalue])
+                .select_from(removaltable)
+                .where(removaltable.c.device_id == device_id)
+            ))
         )
 
         # Create the new:
         # noinspection PyUnboundLocalVariable
         q = (
             session.query(taskclass)
-            .filter(taskclass._pk.in_(pks_added))
+            .filter(taskclass._pk.in_(
+                select([additiontable.c.pkvalue])
+                .select_from(additiontable)
+                .where(additiontable.c.device_id == device_id)
+            ))
             .order_by(isotzdatetime_to_utcdatetime(taskclass.when_created))
         )
         for task in q:

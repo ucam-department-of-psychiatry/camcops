@@ -42,10 +42,14 @@ from .cc_sqlalchemy import Base
 # =============================================================================
 
 class DirtyTable(Base):
+    """
+    Class to represent tables being modified during a client upload.
+    """
     __tablename__ = "_dirty_tables"
 
     id = Column(
-        "id", Integer, primary_key=True,  # new in 2.1.0; ditch composite PK
+        # new in 2.1.0; ditch composite PK
+        "id", Integer, primary_key=True, autoincrement=True
     )
     device_id = Column(
         "device_id", Integer,
@@ -55,4 +59,46 @@ class DirtyTable(Base):
     tablename = Column(
         "tablename", TableNameColType,
         comment="Table in the process of being preserved"
+    )
+
+
+class UploadAdditionTable(Base):
+    """
+    Class to store, temporarily, server PKs being added during an upload.
+    """
+    __tablename__ = "_upload_addition_keys"
+
+    id = Column(
+        "id", Integer, primary_key=True, autoincrement=True
+    )
+    device_id = Column(
+        "device_id", Integer,  # skip FK constraint
+        index=True,
+        comment="Source tablet device ID"
+    )
+    pkvalue = Column(
+        "pkvalue", Integer,
+        index=True,
+        comment="Temporarily stored PK value of records being added"
+    )
+
+
+class UploadRemovalTable(Base):
+    """
+    Class to store, temporarily, server PKs being "removed" during an upload.
+    """
+    __tablename__ = "_upload_removal_keys"
+
+    id = Column(
+        "id", Integer, primary_key=True, autoincrement=True
+    )
+    device_id = Column(
+        "device_id", Integer,  # skip FK constraint
+        index=True,
+        comment="Source tablet device ID"
+    )
+    pkvalue = Column(
+        "pkvalue", Integer,
+        index=True,
+        comment="Temporarily stored PK value of records being removed"
     )

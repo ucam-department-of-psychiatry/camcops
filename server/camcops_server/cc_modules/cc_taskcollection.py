@@ -424,14 +424,17 @@ class TaskCollection(object):
             if not tf.any_specific_patient_filtering():
                 # No patient filtering. Permissions depend on user settings.
                 if user.may_view_all_patients_when_unfiltered:
+                    # May see everything. No restrictions.
                     pass
                 elif user.may_view_no_patients_when_unfiltered:
+                    # Can't see patient data from any group.
                     # (a) User not permitted to view any patients when
                     # unfiltered, and (b) not filtered to a level that would
                     # reasonably restrict to one or a small number of
                     # patients. Skip the task class.
                     return None
                 else:
+                    # May see patient data from some, but not all, groups.
                     liberal_group_ids = user.group_ids_that_nonsuperuser_may_see_when_unfiltered()  # noqa
                     if not permitted_group_ids:  # was unrestricted
                         permitted_group_ids = liberal_group_ids
@@ -685,20 +688,28 @@ class TaskCollection(object):
         if tf.dates_inconsistent():
             return None
 
+        # Task type filtering
+
         if tf.skip_anonymous_tasks():
             # noinspection PyPep8
             q = q.filter(TaskIndexEntry.patient_pk != None)
 
         if not tf.offers_all_non_anonymous_task_types():
-            permitted_task_classes = tf.task_classes
-        else:
-            permitted_task_classes = None
+            permitted_task_tablenames = [
+                tc.__tablename__ for tc in tf.task_classes]
+            q = q.filter(TaskIndexEntry.task_table_name.in_(
+                permitted_task_tablenames
+            ))
+
+        # Special rules when we've not filtered for any patients
 
         if not tf.any_specific_patient_filtering():
             # No patient filtering. Permissions depend on user settings.
             if user.may_view_all_patients_when_unfiltered:
+                # May see everything. No restrictions.
                 pass
             elif user.may_view_no_patients_when_unfiltered:
+                # Can't see patient data from any group.
                 # (a) User not permitted to view any patients when
                 # unfiltered, and (b) not filtered to a level that would
                 # reasonably restrict to one or a small number of
@@ -706,25 +717,20 @@ class TaskCollection(object):
                 # noinspection PyPep8
                 q = q.filter(TaskIndexEntry.patient_pk == None)
             else:
+                # May see patient data from some, but not all, groups.
+                # This is a little more complex than the equivalent in
+                # _task_query_restricted_by_filter(), because we shouldn't
+                # restrict anonymous tasks.
                 liberal_group_ids = user.group_ids_that_nonsuperuser_may_see_when_unfiltered()  # noqa
-                if not permitted_group_ids:  # was unrestricted
-                    permitted_group_ids = liberal_group_ids
-                else:  # was restricted; restrict further
-                    permitted_group_ids = [
-                        gid for gid in permitted_group_ids
-                        if gid in liberal_group_ids
-                    ]
-                    if not permitted_group_ids:
-                        return None  # down to zero; no point continuing
-
-        # Task type filtering
-
-        if permitted_task_classes:
-            permitted_task_tablenames = [
-                tc.__tablename__ for tc in permitted_task_classes]
-            q = q.filter(TaskIndexEntry.task_table_name.in_(
-                permitted_task_tablenames
-            ))
+                # noinspection PyPep8
+                liberal_or_anon_criteria = [
+                    TaskIndexEntry.patient_pk == None  # anonymous OK
+                ]
+                for gid in liberal_group_ids:
+                    liberal_or_anon_criteria.append(
+                        TaskIndexEntry.group_id == gid  # this group OK
+                    )
+                q = q.filter(or_(*liberal_or_anon_criteria))
 
         # Patient filtering
 
@@ -755,9 +761,9 @@ class TaskCollection(object):
         if tf.end_datetime is not None:
             q = q.filter(TaskIndexEntry.when_created_utc <= tf.end_datetime_utc)  # noqa
 
-        # tf.text_contents has to be managed on the Python side with indexes
+        # text_contents is managed at the later fetch stage when using indexes
 
-        # But is_complete doesn't:
+        # But is_complete can be filtered now and in SQL:
         if tf.complete_only:
             # noinspection PyPep8
             q = q.filter(TaskIndexEntry.task_is_complete == True)

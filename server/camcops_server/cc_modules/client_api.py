@@ -47,7 +47,6 @@ from cardinal_pythonlib.convert import (
     hex_xformat_encode,
 )
 from cardinal_pythonlib.datetimefunc import coerce_to_pendulum, format_datetime
-from cardinal_pythonlib.dbfunc import fetchallfirstvalues
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
@@ -66,7 +65,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from semantic_version import Version
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.sql.expression import exists, select, update
+from sqlalchemy.sql.expression import exists, func, literal, select, update
 from sqlalchemy.sql.schema import Table
 
 from camcops_server.cc_modules import cc_audit  # avoids "audit" name clash
@@ -99,7 +98,7 @@ from .cc_constants import (
 )
 from .cc_convert import decode_values, encode_single_value
 from .cc_device import Device
-from .cc_dirtytables import DirtyTable
+from .cc_dirtytables import DirtyTable, UploadAdditionTable, UploadRemovalTable
 from .cc_group import Group
 from .cc_patient import Patient
 from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
@@ -1114,35 +1113,25 @@ def commit_all(req: CamcopsRequest,
     """
     tables = get_dirty_tables(req)
     # Ensure we do the "patient" and "patient_idnum" tables first; task
-    # indexing depends on referring to those correctly.
+    # indexing depends on referring to those correctly, and so does ID number
+    # indexing.
     tables.sort(key=lambda x: (x.name != Patient.__tablename__,
                                x.name != PatientIdNum.__tablename__,
                                x.name))
     # ... https://stackoverflow.com/questions/23090664/sorting-a-list-of-string-in-python-such-that-a-specific-string-if-present-appea  # noqa
 
     auditsegments = []  # type: List[str]
-    idnum_pks_added = []  # type: List[int]
-    idnum_pks_removed = []  # type: List[int]
     for table in tables:
-        pks_added, pks_removed, n_preserved = commit_table(
+        n_added, n_removed, n_preserved = commit_table(
             req, batchtime, preserving, table, clear_dirty=False)
-        if table.name == PatientIdNum.__tablename__:
-            idnum_pks_added = pks_added
-            idnum_pks_removed = pks_removed
         auditsegments.append(
             "{tablename} ({n_added},{n_removed},{n_preserved})".format(
                 tablename=table.name,
-                n_added=len(pks_added),
-                n_removed=len(pks_removed),
+                n_added=n_added,
+                n_removed=n_removed,
                 n_preserved=n_preserved,
             )
         )
-    PatientIdNumIndexEntry.update_idnum_index_for_upload(
-        session=req.dbsession,
-        indexed_at_utc=batchtime,
-        idnum_pks_added=idnum_pks_added,
-        idnum_pks_removed=idnum_pks_removed
-    )  # after the commit
 
     clear_dirty_tables(req)
     details = "Upload [table (n_added,n_removed,n_preserved)]: {}".format(
@@ -1155,7 +1144,7 @@ def commit_table(req: CamcopsRequest,
                  batchtime: Pendulum,
                  preserving: bool,
                  table: Table,
-                 clear_dirty: bool = True) -> Tuple[List[int], List[int], int]:
+                 clear_dirty: bool = True) -> Tuple[int, int, int]:
     """
     Commits additions, removals, and preservations for one table.
 
@@ -1174,7 +1163,7 @@ def commit_table(req: CamcopsRequest,
             device simultaneously than one-by-one.)
 
     Returns:
-        tuple ``pks_added, pks_n_removed, n_preserved``
+        tuple ``n_added, n_removed, n_preserved``
     """
     # log.debug("commit_table: {}", table.name)
     user_id = req.user_id
@@ -1183,19 +1172,51 @@ def commit_table(req: CamcopsRequest,
     dbsession = req.dbsession
     tablename = table.name
 
+    # noinspection PyUnresolvedReferences
+    additiontable = UploadAdditionTable.__table__
+    # noinspection PyUnresolvedReferences
+    removaltable = UploadRemovalTable.__table__
+
+    # -------------------------------------------------------------------------
+    # Before we cache key values:
+    # -------------------------------------------------------------------------
+    clear_upload_key_tables(req)
+
+    # -------------------------------------------------------------------------
     # Additions
+    # -------------------------------------------------------------------------
+    # Make a note of PKs we're adding, in our temporary additions table.
+    # Avoid large IN clauses; see e.g.
+    # https://www.xaprb.com/blog/2006/06/28/why-large-in-clauses-are-problematic/  # noqa
     # noinspection PyProtectedMember
-    pks_added = fetchallfirstvalues(dbsession.execute(
-        select([table.c._pk])
-        .select_from(table)
-        .where(table.c._device_id == device_id)
-        .where(table.c._addition_pending)
-    ))  # type: List[int]
+    dbsession.execute(
+        additiontable.insert().from_select(
+            # Target:
+            [additiontable.c.device_id, additiontable.c.pkvalue],
+            # Source:
+            (
+                select([literal(device_id), table.c._pk])
+                .select_from(table)
+                .where(table.c._device_id == device_id)
+                .where(table.c._addition_pending)
+            )
+        )
+    )
+    # Count additions
+    n_added = dbsession.execute(
+        select([func.count()])
+        .select_from(additiontable)
+        .where(additiontable.c.device_id == device_id)
+    ).scalar()  # type: int
+    # Update the records we're adding
     # noinspection PyProtectedMember
     dbsession.execute(
         update(table)
-        .where(table.c._device_id == device_id)
-        .where(table.c._addition_pending)
+        .where(table.c._pk.in_(
+            select([additiontable.c.pkvalue])
+            .select_from(additiontable)
+            .where(additiontable.c.device_id == device_id)
+        ))
         .values(_current=1,
                 _addition_pending=0,
                 _adding_user_id=user_id,
@@ -1203,19 +1224,39 @@ def commit_table(req: CamcopsRequest,
                 _when_added_batch_utc=batchtime)
     )  # type: ResultProxy
 
+    # -------------------------------------------------------------------------
     # Removals
+    # -------------------------------------------------------------------------
+    # Make a note of PKs in a temporary table
     # noinspection PyProtectedMember
-    pks_removed = fetchallfirstvalues(dbsession.execute(
-        select([table.c._pk])
-        .select_from(table)
-        .where(table.c._device_id == device_id)
-        .where(table.c._removal_pending)
-    ))  # type: List[int]
+    dbsession.execute(
+        removaltable.insert().from_select(
+            # Target:
+            [removaltable.c.device_id, removaltable.c.pkvalue],
+            # Source:
+            (
+                select([literal(device_id), table.c._pk])
+                .select_from(table)
+                .where(table.c._device_id == device_id)
+                .where(table.c._removal_pending)
+            )
+        )
+    )
+    # Count removals
+    n_removed = dbsession.execute(
+        select([func.count()])
+        .select_from(removaltable)
+        .where(removaltable.c.device_id == device_id)
+    ).scalar()  # type: int
+    # Update the records we're removing
     # noinspection PyProtectedMember
     dbsession.execute(
         update(table)
-        .where(table.c._device_id == device_id)
-        .where(table.c._removal_pending)
+        .where(table.c._pk.in_(
+            select([removaltable.c.pkvalue])
+            .select_from(removaltable)
+            .where(removaltable.c.device_id == device_id)
+        ))
         .values(_current=0,
                 _removal_pending=0,
                 _removing_user_id=user_id,
@@ -1223,7 +1264,9 @@ def commit_table(req: CamcopsRequest,
                 _when_removed_batch_utc=batchtime)
     )  # type: ResultProxy
 
+    # -------------------------------------------------------------------------
     # Preservation
+    # -------------------------------------------------------------------------
     new_era = format_datetime(batchtime, DateFormat.ERA)
     if preserving:
         # Preserve all relevant records
@@ -1275,16 +1318,27 @@ def commit_table(req: CamcopsRequest,
             .values(era=new_era)
         )
 
-    # Update task index
-    if tablename in all_task_tablenames():
+    # -------------------------------------------------------------------------
+    # Update special indexes
+    # -------------------------------------------------------------------------
+    if tablename == PatientIdNum.__tablename__:
+        # Update idnum index
+        PatientIdNumIndexEntry.update_idnum_index_for_upload(
+            session=req.dbsession,
+            indexed_at_utc=batchtime,
+            device_id=device_id,
+        )
+    elif tablename in all_task_tablenames():
+        # Update task index
         TaskIndexEntry.update_task_index_for_upload(session=dbsession,
                                                     tasktablename=tablename,
-                                                    pks_added=pks_added,
-                                                    pks_removed=pks_removed,
+                                                    device_id=device_id,
                                                     adding_user_id=user_id,
                                                     indexed_at_utc=batchtime)
 
+    # -------------------------------------------------------------------------
     # Remove individually from list of dirty tables?
+    # -------------------------------------------------------------------------
     if clear_dirty:
         # noinspection PyUnresolvedReferences
         dbsession.execute(
@@ -1294,7 +1348,7 @@ def commit_table(req: CamcopsRequest,
         )
         # ... otherwise a call to clear_dirty_tables() must be made.
 
-    return pks_added, pks_removed, n_preserved
+    return n_added, n_removed, n_preserved
 
 
 def rollback_all(req: CamcopsRequest) -> None:
@@ -1340,15 +1394,34 @@ def rollback_table(req: CamcopsRequest, table: Table) -> None:
     )
 
 
+def clear_upload_key_tables(req: CamcopsRequest) -> None:
+    """
+    Clears the temporary upload tables for a device.
+    """
+    device_id = req.tabletsession.device_id
+    # noinspection PyUnresolvedReferences
+    req.dbsession.execute(
+        UploadAdditionTable.__table__.delete()
+        .where(UploadAdditionTable.device_id == device_id)
+    )
+    # noinspection PyUnresolvedReferences
+    req.dbsession.execute(
+        UploadRemovalTable.__table__.delete()
+        .where(UploadRemovalTable.device_id == device_id)
+    )
+
+
 def clear_dirty_tables(req: CamcopsRequest) -> None:
     """
     Clears the dirty-table list for a device.
     """
+    device_id = req.tabletsession.device_id
     # noinspection PyUnresolvedReferences
     req.dbsession.execute(
         DirtyTable.__table__.delete()
-        .where(DirtyTable.device_id == req.tabletsession.device_id)
+        .where(DirtyTable.device_id == device_id)
     )
+    clear_upload_key_tables(req)
 
 
 # =============================================================================

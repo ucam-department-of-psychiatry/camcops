@@ -121,20 +121,13 @@ Client core
 
 **May not be worth it**
 
-- Client-side task index, to speed up the patient summary view? (Not clear that
-  this is a major performance problem!)
+- Client-side task index, to speed up the client's patient summary view? (Not
+  clear that this is a major performance problem!)
 
 Server
 ------
 
 **Priority**
-
-- Test task index. In particular (1) check group permissions; (2) check that upload works correctly and
-  updates indexes.
-
-  Design note: we should not have a client-side index that gets uploaded. This
-  is a bit risky (trusting clients with the server's index); the client's index
-  couldn't use server PKs (which we'd want); etc.
 
 - Facility to dump entire groups e.g. daily to a database.
 
