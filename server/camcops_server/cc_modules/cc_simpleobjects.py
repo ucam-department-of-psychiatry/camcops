@@ -32,7 +32,10 @@ from typing import List, TYPE_CHECKING
 
 from pendulum import Date
 
+from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.reprfunc import auto_repr
+
+from .cc_constants import DateFormat
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
@@ -60,6 +63,9 @@ class IdNumReference(object):
     def __init__(self, which_idnum: int, idnum_value: int) -> None:
         self.which_idnum = which_idnum
         self.idnum_value = idnum_value
+
+    def __str__(self) -> str:
+        return "idnum{}={}".format(self.which_idnum, self.idnum_value)
 
     def __repr__(self) -> str:
         return auto_repr(self)
@@ -133,8 +139,33 @@ class BarePatientInfo(object):
         self.otherdetails = other
         self.idnum_definitions = idnum_definitions or []  # type: List[IdNumReference]  # noqa
 
+    def __str__(self) -> str:
+        return (
+            "Patient(forename={f!r}, surname={sur!r}, sex={sex}, DOB={dob}, "
+            "address={a!r}, gp={gp!r}, other={o!r}, idnums={i})".format(
+                f=self.forename,
+                sur=self.surname,
+                sex=self.sex,
+                dob=format_datetime(self.dob, DateFormat.ISO8601_DATE_ONLY),
+                a=self.address,
+                gp=self.gp,
+                o=self.otherdetails,
+                i="[{}]".format(", ".join(
+                    str(idnum) for idnum in self.idnum_definitions)),
+            )
+        )
+
     def __repr__(self) -> str:
         return auto_repr(self)
+
+    def add_idnum(self, idref: IdNumReference) -> None:
+        """
+        Adds an ID number. No checks in relation to what's already present.
+
+        Args:
+            idref: a :class:`IdNumReference`
+        """
+        self.idnum_definitions.append(idref)
 
 
 # =============================================================================

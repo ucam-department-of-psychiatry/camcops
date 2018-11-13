@@ -497,6 +497,13 @@ void alertLogMessageBox(const QStringList& lines, const QString& title,
 }
 
 
+void alertNotWhenLocked()
+{
+    alert(tr("Can’t perform this action when CamCOPS is locked"),
+          tr("Unlock first"));
+}
+
+
 // ============================================================================
 // Confirmation
 // ============================================================================

@@ -20,6 +20,7 @@
 #pragma once
 #include "db/databaseobject.h"
 #include <QDate>
+#include <QJsonObject>
 #include <QMap>
 #include <QPointer>
 class CamcopsApp;
@@ -84,6 +85,7 @@ public:
     qlonglong idnumInteger(int which_idnum) const;  // 64-bit signed integer: up to 2^63 - 1 = 9,223,372,036,854,775,807
     AttributesType policyAttributes(
             const QVector<int>& policy_mentioned_idnums) const;
+    QJsonObject jsonDescription() const;
     bool compliesWith(const IdPolicy& policy) const;
     bool compliesWithTablet() const;
     bool compliesWithUpload() const;

@@ -26,7 +26,7 @@ namespace camcopsversion {  // http://semver.org/
 // ----------------------------------------------------------------------------
 // Increase this when the client is changed:
 
-const Version CAMCOPS_CLIENT_VERSION(2, 2, 9);
+const Version CAMCOPS_CLIENT_VERSION(2, 3, 0);
 const QDate CAMCOPS_CLIENT_CHANGEDATE(2018, 9, 28);
 
 // +++ NOW ALSO UPDATE: +++
@@ -48,7 +48,7 @@ const QDate CAMCOPS_CLIENT_CHANGEDATE(2018, 9, 28);
 // client; they should still be able to operate as long as they're not trying
 // to create/upload tasks that you don't yet support.)
 
-const Version MINIMUM_SERVER_VERSION(2, 2, 0);
+const Version MINIMUM_SERVER_VERSION(2, 3, 0);
 
 }  // namespace camcopsversion
 

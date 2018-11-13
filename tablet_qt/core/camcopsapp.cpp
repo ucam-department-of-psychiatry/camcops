@@ -1988,6 +1988,10 @@ void CamcopsApp::offerTerms()
 
 void CamcopsApp::upload()
 {
+    if (m_lockstate == CamcopsApp::LockState::Locked) {
+        uifunc::alertNotWhenLocked();
+        return;
+    }
     QString text =
             "Copy data to server, or move it to server?\n"
             "\n"

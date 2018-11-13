@@ -123,6 +123,7 @@ void alertLogMessageBox(const QString& text, const QString& title,
                         bool as_html = true);
 void alertLogMessageBox(const QStringList& lines, const QString& title,
                         bool as_html = true);
+void alertNotWhenLocked();
 
 // ============================================================================
 // Confirmation

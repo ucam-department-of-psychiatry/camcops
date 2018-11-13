@@ -51,7 +51,7 @@ from .cc_taskfilter import TaskFilter
 from .cc_taskindex import TaskIndexEntry
 
 if TYPE_CHECKING:
-    from sqlalchemy.sql.elements import ColumnElement
+    from sqlalchemy.sql.elements import ClauseElement, ColumnElement
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -725,7 +725,7 @@ class TaskCollection(object):
                 # noinspection PyPep8
                 liberal_or_anon_criteria = [
                     TaskIndexEntry.patient_pk == None  # anonymous OK
-                ]
+                ]  # type: List[ClauseElement]
                 for gid in liberal_group_ids:
                     liberal_or_anon_criteria.append(
                         TaskIndexEntry.group_id == gid  # this group OK

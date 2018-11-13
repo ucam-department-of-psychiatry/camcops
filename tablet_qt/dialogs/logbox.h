@@ -36,7 +36,7 @@ class LogBox : public QDialog
 public:
     LogBox(QWidget* parent, const QString& title, bool offer_cancel = true,
            bool offer_ok_at_end = true, int maximum_block_count = 1000,
-           bool scroll_to_end_on_insert = true, bool word_wrap = false);
+           bool scroll_to_end_on_insert = true, bool word_wrap = true);
     ~LogBox() override;
     void useWaitCursor(bool use_wait_cursor = true);
     void statusMessage(const QString& msg, bool as_html = false);

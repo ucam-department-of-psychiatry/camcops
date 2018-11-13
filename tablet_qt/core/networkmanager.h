@@ -143,6 +143,7 @@ protected:
     void checkDeviceRegistered();
     void checkUploadUser();
     void uploadFetchServerIdInfo();
+    void uploadValidatePatients();
     void uploadFetchAllowedTables();
     void startUpload();
     void startPreservation();
@@ -201,6 +202,7 @@ protected:
         Invalid,
         CheckUser,
         FetchServerIdInfo,
+        ValidatePatients,  // v2.3.0
         FetchAllowedTables,
         CheckPoliciesThenStartUpload,
         StartPreservation,
@@ -221,4 +223,5 @@ protected:
     QVector<int> m_upload_recordwise_pks_to_send;
     int m_upload_n_records;  // cached as m_upload_recordwise_pks_to_send shrinks during upload
     QStringList m_upload_tables_to_wipe;
+    QString m_upload_patient_info_json;
 };

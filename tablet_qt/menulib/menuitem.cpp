@@ -539,8 +539,7 @@ void MenuItem::act(CamcopsApp& app) const
         return;
     }
     if (m_not_if_locked && app.locked()) {
-        uifunc::alert(tr("Can’t perform this action when CamCOPS is locked"),
-                      tr("Unlock first"));
+        uifunc::alertNotWhenLocked();
         return;
     }
     // ========================================================================

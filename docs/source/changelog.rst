@@ -1368,7 +1368,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - OS information.
 
-**Client v2.2.8, in progress (from 2018-09-10)**
+**Client v2.2.8 to 2.3.0, in progress (from 2018-09-10)**
 
 - Bugfix to CISR client: page colour was clinician, now patient.
 
@@ -1434,7 +1434,21 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - New task: :ref:`EQ-5D-5L <eq5d5l>`.
 
-**Server v2.2.8, in progress (from 2018-09-14)**
+- Client validates patients with the server on upload. This supports future
+  "predefined patient" support. This is a "client asks", not "server tells"
+  feature at present.
+
+- Version bumped to 2.3.0, with minimum server version 2.3.0, with the new
+  "validate patients on upload" feature (2018-11-13).
+
+- Word wrap on for log box by default (better legibility in upload).
+
+- Since the server can now report PID when providing error messages (patients
+  that don't validate), the "upload" function is now restricted to unlocked
+  devices.
+
+
+**Server v2.2.8 to 2.3.0, in progress (from 2018-09-14)**
 
 - ``GROUP_NAME_MAX_LEN``, ``DEVICE_NAME_MAX_LEN`` and ``USER_NAME_MAX_LEN`` 
   changed from 255 to 191 because MySQL<=5.6 only supports indexing of 191

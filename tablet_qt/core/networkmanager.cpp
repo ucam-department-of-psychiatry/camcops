@@ -21,10 +21,15 @@
 // #define DEBUG_NETWORK_REPLIES_RAW
 // #define DEBUG_NETWORK_REPLIES_DICT
 // #define DEBUG_ACTIVITY
+// #define DEBUG_JSON
 #define USE_BACKGROUND_DATABASE
 
 #include "networkmanager.h"
 #include <functional>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QObject>
 #include <QSqlQuery>
 #include <QtNetwork/QNetworkAccessManager>
@@ -53,6 +58,7 @@
 using dbfunc::delimit;
 
 // Keys used by server or client (S server, C client, B bidirectional)
+// SEE ALSO patient.cpp, for the JSON ones.
 const QString KEY_CAMCOPS_VERSION("camcops_version");  // C->S
 const QString KEY_DATABASE_TITLE("databaseTitle");  // S->C
 const QString KEY_DATEVALUES("datevalues");  // C->S
@@ -60,8 +66,10 @@ const QString KEY_DEVICE("device");  // C->S
 const QString KEY_DEVICE_FRIENDLY_NAME("devicefriendlyname");  // C->S
 const QString KEY_ERROR("error");  // S->C
 const QString KEY_FIELDS("fields");    // B; fieldnames
+const QString KEY_FINALIZING("finalizing");  // C->S, in JSON, v2.3.0
 const QString KEY_ID_POLICY_UPLOAD("idPolicyUpload");  // S->C
 const QString KEY_ID_POLICY_FINALIZE("idPolicyFinalize");  // S->C
+const QString KEY_JSON("json");  // C->S, new in v2.3.0
 const QString KEY_NFIELDS("nfields");  // B
 const QString KEY_NRECORDS("nrecords");  // B
 const QString KEY_OPERATION("operation");  // C->S
@@ -99,6 +107,7 @@ const QString OP_START_UPLOAD("start_upload");
 const QString OP_UPLOAD_TABLE("upload_table");
 const QString OP_UPLOAD_RECORD("upload_record");
 const QString OP_UPLOAD_EMPTY_TABLES("upload_empty_tables");
+const QString OP_VALIDATE_PATIENTS("validate_patients");  // v2.3.0
 const QString OP_WHICH_KEYS_TO_SEND("which_keys_to_send");
 
 // Notification text:
@@ -581,6 +590,7 @@ void NetworkManager::cleanup()
     m_upload_recordwise_pks_to_send.clear();
     m_upload_n_records = 0;
     m_upload_tables_to_wipe.clear();
+    m_upload_patient_info_json = "";
 }
 
 
@@ -870,7 +880,7 @@ void NetworkManager::upload(const UploadMethod method)
     m_upload_method = method;
 
     // Offline things first:
-    if (!isPatientInfoComplete()) {
+    if (!isPatientInfoComplete()) {  // also sets m_patient_info_json
         fail();
         return;
     }
@@ -941,18 +951,27 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
         //      which ID numbers, ID policies)
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         uploadFetchServerIdInfo();
-        m_upload_next_stage = NextUploadStage::FetchAllowedTables;
+        m_upload_next_stage = NextUploadStage::ValidatePatients;
         break;
 
-    case NextUploadStage::FetchAllowedTables:
+    case NextUploadStage::ValidatePatients:
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // FROM: fetch server ID info
-        // TO: fetch allowed tables/minimum client versions
+        // TO: ask server to validate patients
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (!isServerVersionOK() || !arePoliciesOK() || !areDescriptionsOK()) {
             fail();
             return;
         }
+        uploadValidatePatients();  // v2.3.0
+        m_upload_next_stage = NextUploadStage::FetchAllowedTables;
+        break;
+
+    case NextUploadStage::FetchAllowedTables:
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // FROM: ask server to validate patients
+        // TO: fetch allowed tables/minimum client versions
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         uploadFetchAllowedTables();
         m_upload_next_stage = NextUploadStage::CheckPoliciesThenStartUpload;
         break;
@@ -1084,6 +1103,17 @@ void NetworkManager::uploadFetchServerIdInfo()
     statusMessage("Fetching server's version/ID policies/ID descriptions");
     Dict dict;
     dict[KEY_OPERATION] = OP_GET_ID_INFO;
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::uploadValidatePatients()
+{
+    // Added in v2.3.0
+    statusMessage("Validating patients for upload");
+    Dict dict;
+    dict[KEY_OPERATION] = OP_VALIDATE_PATIENTS;
+    dict[KEY_JSON] = m_upload_patient_info_json;
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
@@ -1265,14 +1295,18 @@ bool NetworkManager::isPatientInfoComplete()
         queryFail(sqlargs.sql);
         return false;
     }
+
+    const bool finalizing = m_upload_method != UploadMethod::Copy;
     int nfailures_upload = 0;
     int nfailures_finalize = 0;
     int nfailures_clash = 0;
     int nfailures_move_off = 0;
+    QJsonArray patients_json_array;
     const int nrows = result.nRows();
     for (int row = 0; row < nrows; ++row) {
         Patient patient(m_app, m_db);
         patient.setFromQuery(result, row, true);
+        const bool finalizing_this_pt = patient.shouldMoveOffTablet();
         if (!patient.compliesWithUpload()) {
             ++nfailures_upload;
         }
@@ -1285,8 +1319,7 @@ bool NetworkManager::isPatientInfoComplete()
             // However, this gives us the number of patients clashing.
             ++nfailures_clash;
         }
-        if (m_upload_method != UploadMethod::Move &&
-                patient.shouldMoveOffTablet()) {
+        if (m_upload_method != UploadMethod::Move && finalizing_this_pt) {
             // To move a patient off, it must comply with the finalize policy.
             if (!complies_with_finalize) {
                 ++nfailures_move_off;
@@ -1294,7 +1327,13 @@ bool NetworkManager::isPatientInfoComplete()
                 m_upload_patient_ids_to_move_off.append(patient.pkvalue().toInt());
             }
         }
+
+        // Set JSON too. See below.
+        QJsonObject ptjson = patient.jsonDescription();
+        ptjson[KEY_FINALIZING] = finalizing || finalizing_this_pt;
+        patients_json_array.append(ptjson);
     }
+
     if (nfailures_clash > 0) {
         statusMessage(QString("Failure: %1 patient(s) having clashing ID "
                               "numbers")
@@ -1319,8 +1358,7 @@ bool NetworkManager::isPatientInfoComplete()
                       .arg(m_app.uploadPolicy().pretty()));
         return false;
     }
-    if (m_upload_method != UploadMethod::Copy &&
-            (nfailures_upload + nfailures_finalize) > 0) {
+    if (finalizing && nfailures_upload + nfailures_finalize > 0) {
         // Finalizing; must meet all requirements
         statusMessage(QString(
             "Failure: %1 patient(s) do not meet the server's upload ID policy "
@@ -1331,6 +1369,24 @@ bool NetworkManager::isPatientInfoComplete()
                       .arg(m_app.finalizePolicy().pretty()));
         return false;
     }
+
+    // We also set the patient info JSON here, so we only iterate through
+    // patients once.
+    //
+    // Compare camcops_server.cc_modules.client_api.validate_patients() on the
+    // server.
+    //
+    // Top-level JSON can be an object or an array.
+    // - https://stackoverflow.com/questions/3833299/can-an-array-be-top-level-json-text
+    // - http://www.ietf.org/rfc/rfc4627.txt?number=4627
+    const QJsonDocument jsondoc(patients_json_array);
+    m_upload_patient_info_json  = jsondoc.toJson(QJsonDocument::Compact);
+    //                                    ^^^^^^ ... a QByteArray in UTF-8
+    // - https://stackoverflow.com/questions/28181627/how-to-convert-a-qjsonobject-to-qstring
+#ifdef DEBUG_JSON
+    qDebug().noquote() << "Patient info JSON:" << m_upload_patient_info_json;
+#endif
+
     return true;
 }
 

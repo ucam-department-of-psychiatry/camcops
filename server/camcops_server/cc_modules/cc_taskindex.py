@@ -40,13 +40,19 @@ from cardinal_pythonlib.reprfunc import simple_repr
 from pendulum import DateTime as Pendulum
 import pyramid.httpexceptions as exc
 from sqlalchemy.orm import relationship, Session as SqlASession
-from sqlalchemy.sql.expression import and_, join, literal, select
+from sqlalchemy.sql.expression import and_, join, literal, or_, select
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
+from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.sqltypes import BigInteger, Boolean, DateTime, Integer
 
 from .cc_client_api_core import fail_user_error
 from .cc_constants import ERA_NOW
-from .cc_dirtytables import UploadAdditionTable, UploadRemovalTable
+from .cc_dirtytables import (
+    select_pks_from_upload_temptable,
+    UploadAdditionTable,
+    UploadPreservationTable,
+    UploadRemovalTable,
+)
 from .cc_idnumdef import IdNumDefinition
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
@@ -694,8 +700,10 @@ class TaskIndexEntry(Base):
 
         - Deletes index entries for records that are on the way out.
         - Creates index entries for records that are on the way in.
+        - Deletes/recreates index entries for records being preserved.
         - Reads its PKs from
           :class:`camcops_server.cc_modules.cc_dirtytables.UploadAdditionTable`,
+          :class:`camcops_server.cc_modules.cc_dirtytables.UploadPreservationTable`,
           :class:`camcops_server.cc_modules.cc_dirtytables.UploadRemovalTable`.
 
         Args:
@@ -712,6 +720,14 @@ class TaskIndexEntry(Base):
                 stored with the task -- but in practice is used by the upload
                 API at a point when the task's adding-user ID is still blank)
         """  # noqa
+
+        def select_pks_from(temptable: Table) -> Select:
+            """
+            Returns an SQL clause to select relevant PK values (for this
+            device) from the temporary table.
+            """
+            return select_pks_from_upload_temptable(temptable, device_id)
+
         d = tablename_to_task_class_dict()
         try:
             taskclass = d[tasktablename]  # may raise KeyError
@@ -726,16 +742,17 @@ class TaskIndexEntry(Base):
         additiontable = UploadAdditionTable.__table__
         # noinspection PyUnresolvedReferences
         removaltable = UploadRemovalTable.__table__
+        # noinspection PyUnresolvedReferences
+        preservationtable = UploadPreservationTable.__table__
 
         # Delete the old:
         # noinspection PyProtectedMember
         session.execute(
             idxtable.delete()
             .where(idxcols.task_table_name == tasktablename)
-            .where(idxcols.task_pk.in_(
-                select([removaltable.c.pkvalue])
-                .select_from(removaltable)
-                .where(removaltable.c.device_id == device_id)
+            .where(or_(
+                idxcols.task_pk.in_(select_pks_from(removaltable)),
+                idxcols.task_pk.in_(select_pks_from(preservationtable))
             ))
         )
 
@@ -743,10 +760,9 @@ class TaskIndexEntry(Base):
         # noinspection PyUnboundLocalVariable
         q = (
             session.query(taskclass)
-            .filter(taskclass._pk.in_(
-                select([additiontable.c.pkvalue])
-                .select_from(additiontable)
-                .where(additiontable.c.device_id == device_id)
+            .filter(or_(
+                taskclass._pk.in_(select_pks_from(additiontable)),
+                taskclass._pk.in_(select_pks_from(preservationtable))
             ))
             .order_by(isotzdatetime_to_utcdatetime(taskclass.when_created))
         )

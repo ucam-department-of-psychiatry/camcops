@@ -395,34 +395,34 @@ class TaskFilter(Base):
         """
         Get the names of any groups to which we are restricting.
         """
-        names = []  # type: List[str]
-        dbsession = req.dbsession
-        for group_id in self.group_ids:
-            group = dbsession.query(Group).filter(Group.id == group_id).first()
-            names.append(group.name if group and group.name else "")
-        return names
+        groups = (
+            req.dbsession.query(Group)
+            .filter(Group.id.in_(self.group_ids))
+            .all()
+        )  # type: List[Group]
+        return [g.name if g and g.name else "" for g in groups]
 
     def get_user_names(self, req: CamcopsRequest) -> List[str]:
         """
         Get the usernames of any uploading users to which we are restricting.
         """
-        names = []  # type: List[str]
-        dbsession = req.dbsession
-        for user_id in self.adding_user_ids:
-            user = dbsession.query(User).filter(User.id == user_id).first()
-            names.append(user.username if user and user.username else "")
-        return names
+        users = (
+            req.dbsession.query(User)
+            .filter(User.id.in_(self.adding_user_ids))
+            .all()
+        )  # type: List[User]
+        return [u.username if u and u.username else "" for u in users]
 
     def get_device_names(self, req: CamcopsRequest) -> List[str]:
         """
         Get the names of any devices to which we are restricting.
         """
-        names = []  # type: List[str]
-        dbsession = req.dbsession
-        for dev_id in self.device_ids:
-            dev = dbsession.query(Device).filter(Device.id == dev_id).first()
-            names.append(dev.name if dev and dev.name else "")
-        return names
+        devices = (
+            req.dbsession.query(Device)
+            .filter(Device.id.in_(self.device_ids))
+            .all()
+        )  # type: List[Device]
+        return [d.name if d and d.name else "" for d in devices]
 
     def clear(self) -> None:
         """

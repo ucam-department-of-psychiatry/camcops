@@ -40,21 +40,29 @@ class TabletParam(object):
     Keys used by server or client (in the comments: S server, C client, B
     bidirectional).
     """
+    ADDRESS = "address"  # C->S, in JSON, v2.3.0
     CAMCOPS_VERSION = "camcops_version"  # C->S
     DATABASE_TITLE = "databaseTitle"  # S->C
     DATEVALUES = "datevalues"  # C->S
     DEVICE = "device"  # C->S
     DEVICE_FRIENDLY_NAME = "devicefriendlyname"  # C->S
+    DOB = "dob"  # C->S, in JSON, v2.3.0
     ERROR = "error"  # S->C
     FIELDS = "fields"  # B
+    FINALIZING = "finalizing"  # C->S, in JSON, v2.3.0
+    FORENAME = "forename"  # C->S, in JSON, v2.3.0
+    GP = "gp"  # C->S, in JSON, v2.3.0
     ID_DESCRIPTION_PREFIX = "idDescription"  # S->C
     ID_POLICY_FINALIZE = "idPolicyFinalize"  # S->C
     ID_POLICY_UPLOAD = "idPolicyUpload"  # S->C
     ID_SHORT_DESCRIPTION_PREFIX = "idShortDescription"  # S->C
     ID_VALIDATION_METHOD_PREFIX = "idValidationMethod"  # S->C; new in v2.2.8
+    IDNUM_PREFIX = "idnum"  # C->S, in JSON, v2.3.0
+    JSON = "json"  # C->S; new in v2.3.0
     NFIELDS = "nfields"  # B
     NRECORDS = "nrecords"  # B
     OPERATION = "operation"  # C->S
+    OTHER = "other"  # C->S, in JSON, v2.3.0
     PASSWORD = "password"  # C->S
     PKNAME = "pkname"  # C->S
     PKVALUES = "pkvalues"  # C->S
@@ -63,7 +71,9 @@ class TabletParam(object):
     SERVER_CAMCOPS_VERSION = "serverCamcopsVersion"  # S->C
     SESSION_ID = "session_id"  # B
     SESSION_TOKEN = "session_token"  # B
+    SEX = "sex"  # C->S, in JSON, v2.3.0
     SUCCESS = "success"  # S->C
+    SURNAME = "surname"  # C->S, in JSON, v2.3.0
     TABLE = "table"  # C->S
     TABLES = "tables"  # C->S
     USER = "user"  # C->S

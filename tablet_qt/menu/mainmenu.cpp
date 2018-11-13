@@ -59,7 +59,7 @@ MainMenu::MainMenu(CamcopsApp& app)
             tr("Upload data to server"),
             std::bind(&MainMenu::upload, this),
             uifunc::iconFilename(uiconst::ICON_UPLOAD)
-        ),
+        ).setNotIfLocked(),
         MAKE_MENU_MENU_ITEM(HelpMenu, app),
         MAKE_MENU_MENU_ITEM(SettingsMenu, app),
         MAKE_MENU_MENU_ITEM(ClinicalMenu, app),

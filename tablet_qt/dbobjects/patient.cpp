@@ -85,6 +85,17 @@ const QString TAG_IDCLASH_DETAIL("idclash_detail");
 
 const QString DELETE_ID_NUM(QObject::tr("Delete ID#"));
 
+// Keys used by server or client (S server, C client, B bidirectional)
+// SEE ALSO patient.cpp, for the JSON ones.
+const QString KEY_ADDRESS("address");  // C->S, in JSON, v2.3.0
+const QString KEY_DOB("dob");  // C->S, in JSON, v2.3.0
+const QString KEY_FORENAME("forename");  // C->S, in JSON, v2.3.0
+const QString KEY_GP("gp");  // C->S, in JSON, v2.3.0
+const QString KEY_IDNUM_PREFIX("idnum");  // C->S, in JSON, v2.3.0
+const QString KEY_OTHER("other");  // C->S, in JSON, v2.3.0
+const QString KEY_SEX("sex");  // C->S, in JSON, v2.3.0
+const QString KEY_SURNAME("surname");  // C->S, in JSON, v2.3.0
+
 
 // ============================================================================
 // Creation
@@ -321,6 +332,34 @@ Patient::AttributesType Patient::policyAttributes(
     map[ANY_IDNUM] = any_idnum;
     map[OTHER_IDNUM] = other_idnum;
     return map;
+}
+
+
+QJsonObject Patient::jsonDescription() const
+{
+    QJsonObject j;
+    j[KEY_FORENAME] = forename();
+    j[KEY_SURNAME] = surname();
+    j[KEY_SEX] = sex();
+    const QVariant dob = value(DOB_FIELD);
+    if (dob.isNull()) {
+        j[KEY_DOB] = QJsonValue::Null;
+    } else {
+        j[KEY_DOB] = datetime::dateToIso(dob.toDate());
+    }
+    j[KEY_ADDRESS] = valueString(ADDRESS_FIELD);
+    j[KEY_GP] = valueString(GP_FIELD);
+    for (const PatientIdNumPtr& idnum : m_idnums) {
+        if (!idnum->idnumIsPresent()) {
+            continue;
+        }
+        const int which_idnum = idnum->whichIdNum();
+        const qlonglong idnum_value = idnum->idnumAsInteger();
+        const QString idkey = QString("%1%2").arg(
+                    KEY_IDNUM_PREFIX, QString::number(which_idnum));
+        j[idkey] = idnum_value;
+    }
+    return j;
 }
 
 

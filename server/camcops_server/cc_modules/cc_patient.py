@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_patient.py
 """
 
 import logging
-from typing import Generator, List, Optional, Set, TYPE_CHECKING, Union
+from typing import Generator, List, Optional, Set, Tuple, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -354,7 +354,8 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def get_bare_ptinfo(self) -> BarePatientInfo:
         """
-        Get basic identifying information, as a :class:`BarePatientInfo`
+        Get basic identifying information, as a
+        :class:`camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
         object.
         """
         return BarePatientInfo(
@@ -693,6 +694,53 @@ class Patient(GenericTabletRecordMixin, Base):
         Does the current user have permission to edit this patient?
         """
         return req.user.may_administer_group(self._group_id)
+
+
+# =============================================================================
+# Validate candidate patient info for upload
+# =============================================================================
+
+def is_candidate_patient_valid(ptinfo: BarePatientInfo,
+                               group: "Group",
+                               finalizing: bool) -> Tuple[bool, str]:
+    """
+    Is the specified patient acceptable to upload into this group?
+    
+    Checks:
+    
+    - group upload or finalize policy
+    
+    .. todo:: check against predefined patients, if the group wants
+
+    Args:
+        ptinfo:
+            a :class:`camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
+            representing the patient info to check
+        group:
+            the :class:`camcops_server.cc_modules.cc_group.Group` into which
+            this patient will be uploaded, if allowed
+        req:
+            the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        finalizing:
+            finalizing, rather than uploading?
+
+    Returns:
+        tuple: valid, reason
+
+    """  # noqa
+    if not group:
+        return False, "Nonexistent group"
+
+    if finalizing:
+        if not group.tokenized_finalize_policy().satisfies_id_policy(ptinfo):
+            return False, "Fails finalizing ID policy"
+    else:
+        if not group.tokenized_upload_policy().satisfies_id_policy(ptinfo):
+            return False, "Fails upload ID policy"
+
+    # *** add checks against prevalidated patients here
+
+    return True, ""
 
 
 # =============================================================================

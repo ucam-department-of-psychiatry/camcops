@@ -116,6 +116,7 @@ from deform.widget import (
 from .cc_constants import (
     DEFAULT_ROWS_PER_PAGE,
     MINIMUM_PASSWORD_LENGTH,
+    SEX_CHOICES,
     USER_NAME_FOR_SYSTEM,
 )
 from .cc_group import Group
@@ -589,9 +590,6 @@ class IdNumSequenceUniquePerWhichIdnum(SequenceSchema):
             raise Invalid(
                 node,
                 "You have specified >1 value for one ID number type")
-
-
-SEX_CHOICES = [("F", "F"), ("M", "M"), ("X", "X")]
 
 
 class OptionalSexSelector(OptionalStringNode):

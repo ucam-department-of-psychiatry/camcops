@@ -80,6 +80,20 @@ Client core
   client validate its patients with the server, and refusing to upload if they
   don't match. This would be a per-group setting.
 
+  - Client validation check implemented.
+  - Just needs server-side extensions to
+    :func:`camcops_server.cc_modules.cc_patient.is_candidate_patient_valid`,
+    including a per-group setting for "should we validate", and a way of
+    getting suitable data in.
+  - Note that any patient unification should be external to CamCOPS (i.e.
+    addressing the question of "are these two patients the same person").
+  - Maybe implement as (1) a ``_known_patients`` table and (2) a
+    ``_known_patient_idnums`` table?
+  - Needs slightly more thought about what constitutes a "match" given a
+    variable set of input and a variable set of known information.
+    (Could have an ID policy for the known information too...)
+  - Should "known" patients be across groups, or per-group?
+
 - Consider a “chain of tasks” concept again (see e.g. ResearchMenu.js;
   MenuTableRow.js; QuestionnaireHeader.js...)... or is that pointless relative
   to a “set of tasks” concept?
@@ -128,6 +142,9 @@ Server
 ------
 
 **Priority**
+
+- Revamp export code. Per-group exports. Perhaps define exports in database,
+  rather than config file?
 
 - Facility to dump entire groups e.g. daily to a database.
 
@@ -181,7 +198,7 @@ Server
     - e.g. “Mr Jones starts today.... enrol!”
 
   - Tablets should fetch “what needs doing” for any patients defined on the
-     tablet, and display them nicely.
+    tablet, and display them nicely.
   - Tasks must be complete to satisfy the requirement.
 
 - … Relating to that: consider, on the client, a “single-patient” mode

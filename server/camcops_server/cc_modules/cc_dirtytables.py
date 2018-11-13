@@ -30,6 +30,9 @@ uploading to/preserving.**
 """
 
 from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.sql.expression import select
+from sqlalchemy.sql.schema import Table
+from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.sqltypes import Integer
 
 from .cc_device import Device
@@ -101,4 +104,39 @@ class UploadRemovalTable(Base):
         "pkvalue", Integer,
         index=True,
         comment="Temporarily stored PK value of records being removed"
+    )
+
+
+class UploadPreservationTable(Base):
+    """
+    Class to store, temporarily, server PKs being "preserved" (finalized)
+    during an upload.
+    """
+    __tablename__ = "_upload_preservation_keys"
+
+    id = Column(
+        "id", Integer, primary_key=True, autoincrement=True
+    )
+    device_id = Column(
+        "device_id", Integer,  # skip FK constraint
+        index=True,
+        comment="Source tablet device ID"
+    )
+    pkvalue = Column(
+        "pkvalue", Integer,
+        index=True,
+        comment="Temporarily stored PK value of records being preserved"
+    )
+
+
+def select_pks_from_upload_temptable(temptable: Table,
+                                     device_id: int) -> Select:
+    """
+    Returns an SQL clause to select relevant PK values (for this device)
+    from the temporary table.
+    """
+    return (
+        select([temptable.c.pkvalue])
+        .select_from(temptable)
+        .where(temptable.c.device_id == device_id)
     )

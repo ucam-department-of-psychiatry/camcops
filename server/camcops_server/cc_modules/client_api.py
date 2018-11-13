@@ -36,6 +36,7 @@ We use primarily SQLAlchemy Core here (in contrast to the ORM used elsewhere).
 # =============================================================================
 
 import logging
+import json
 # from pprint import pformat
 import time
 from typing import (Any, Dict, Iterable, List, Optional, Sequence, Tuple,
@@ -46,7 +47,11 @@ from cardinal_pythonlib.convert import (
     base64_64format_encode,
     hex_xformat_encode,
 )
-from cardinal_pythonlib.datetimefunc import coerce_to_pendulum, format_datetime
+from cardinal_pythonlib.datetimefunc import (
+    coerce_to_pendulum,
+    coerce_to_pendulum_date,
+    format_datetime,
+)
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
@@ -67,6 +72,7 @@ from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.expression import exists, func, literal, select, update
 from sqlalchemy.sql.schema import Table
+from sqlalchemy.sql.selectable import Select
 
 from camcops_server.cc_modules import cc_audit  # avoids "audit" name clash
 from .cc_all_models import CLIENT_TABLE_MAP, RESERVED_FIELDS
@@ -94,16 +100,24 @@ from .cc_constants import (
     FP_ID_SHORT_DESC,
     MOVE_OFF_TABLET_FIELD,
     NUMBER_OF_IDNUMS_DEFUNCT,  # allowed; for old tablet versions
+    POSSIBLE_SEX_VALUES,
     TABLET_ID_FIELD,
 )
 from .cc_convert import decode_values, encode_single_value
 from .cc_device import Device
-from .cc_dirtytables import DirtyTable, UploadAdditionTable, UploadRemovalTable
+from .cc_dirtytables import (
+    DirtyTable,
+    select_pks_from_upload_temptable,
+    UploadAdditionTable,
+    UploadPreservationTable,
+    UploadRemovalTable,
+)
 from .cc_group import Group
-from .cc_patient import Patient
+from .cc_patient import Patient, is_candidate_patient_valid
 from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
 from .cc_pyramid import Routes
 from .cc_request import CamcopsRequest
+from .cc_simpleobjects import BarePatientInfo, IdNumReference
 from .cc_specialnote import SpecialNote
 from .cc_task import (
     all_task_tablenames,
@@ -459,6 +473,42 @@ def get_fields_and_values(req: CamcopsRequest,
             "({v})".format(f=len(fields), v=len(values))
         )
     return dict(list(zip(fields, values)))
+
+
+def get_json_from_post_var(req: CamcopsRequest, key: str,
+                           decoder: json.JSONDecoder = None,
+                           mandatory: bool = True) -> Any:
+    """
+    Returns a Python object from a JSON-encoded value.
+
+    Args:
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        key: the name of the variable to retrieve
+        decoder: the JSON decoder object to use; if ``None``, a default is
+            created
+        mandatory: if ``True``, raise an exception if the variable is missing
+
+    Returns:
+        Python object, e.g. a list of values, or ``None`` if the object is
+        invalid and not mandatory
+
+    Raises:
+        :exc:`UserErrorException` if the variable was mandatory and
+        no value was provided or the value was invalid JSON
+    """
+    decoder = decoder or json.JSONDecoder()
+    j = get_str_var(req, key, mandatory=mandatory)  # may raise
+    if not j:  # missing but not mandatory
+        return None
+    try:
+        return decoder.decode(j)
+    except json.JSONDecodeError:
+        msg = "Bad JSON for key {!r}".format(key)
+        if mandatory:
+            fail_user_error(msg)
+        else:
+            log.warning(msg)
+            return None
 
 
 # =============================================================================
@@ -1165,6 +1215,9 @@ def commit_table(req: CamcopsRequest,
     Returns:
         tuple ``n_added, n_removed, n_preserved``
     """
+    # -------------------------------------------------------------------------
+    # Helpful temporary variables
+    # -------------------------------------------------------------------------
     # log.debug("commit_table: {}", table.name)
     user_id = req.user_id
     device_id = req.tabletsession.device_id
@@ -1176,6 +1229,29 @@ def commit_table(req: CamcopsRequest,
     additiontable = UploadAdditionTable.__table__
     # noinspection PyUnresolvedReferences
     removaltable = UploadRemovalTable.__table__
+    # noinspection PyUnresolvedReferences
+    preservationtable = UploadPreservationTable.__table__
+
+    # -------------------------------------------------------------------------
+    # Helpful functions
+    # -------------------------------------------------------------------------
+    def count_for_device(temptable: Table) -> int:
+        """
+        Returns the number of temporary records for the current device in this
+        table.
+        """
+        return dbsession.execute(
+            select([func.count()])
+            .select_from(temptable)
+            .where(temptable.c.device_id == device_id)
+        ).scalar()  # type: int
+
+    def select_pks_from(temptable: Table) -> Select:
+        """
+        Returns an SQL clause to select relevant PK values (for this device)
+        from the temporary table.
+        """
+        return select_pks_from_upload_temptable(temptable, device_id)
 
     # -------------------------------------------------------------------------
     # Before we cache key values:
@@ -1203,20 +1279,12 @@ def commit_table(req: CamcopsRequest,
         )
     )
     # Count additions
-    n_added = dbsession.execute(
-        select([func.count()])
-        .select_from(additiontable)
-        .where(additiontable.c.device_id == device_id)
-    ).scalar()  # type: int
+    n_added = count_for_device(additiontable)
     # Update the records we're adding
     # noinspection PyProtectedMember
     dbsession.execute(
         update(table)
-        .where(table.c._pk.in_(
-            select([additiontable.c.pkvalue])
-            .select_from(additiontable)
-            .where(additiontable.c.device_id == device_id)
-        ))
+        .where(table.c._pk.in_(select_pks_from(additiontable)))
         .values(_current=1,
                 _addition_pending=0,
                 _adding_user_id=user_id,
@@ -1243,20 +1311,12 @@ def commit_table(req: CamcopsRequest,
         )
     )
     # Count removals
-    n_removed = dbsession.execute(
-        select([func.count()])
-        .select_from(removaltable)
-        .where(removaltable.c.device_id == device_id)
-    ).scalar()  # type: int
+    n_removed = count_for_device(removaltable)
     # Update the records we're removing
     # noinspection PyProtectedMember
     dbsession.execute(
         update(table)
-        .where(table.c._pk.in_(
-            select([removaltable.c.pkvalue])
-            .select_from(removaltable)
-            .where(removaltable.c.device_id == device_id)
-        ))
+        .where(table.c._pk.in_(select_pks_from(removaltable)))
         .values(_current=0,
                 _removal_pending=0,
                 _removing_user_id=user_id,
@@ -1270,53 +1330,75 @@ def commit_table(req: CamcopsRequest,
     new_era = format_datetime(batchtime, DateFormat.ERA)
     if preserving:
         # Preserve all relevant records
+        #
+        # Make a note of PKs in a temporary table
         # noinspection PyProtectedMember
-        preserve_rp = dbsession.execute(
-            update(table)
-            .where(table.c._device_id == device_id)
-            .where(table.c._era == ERA_NOW)
-            .values(_era=new_era,
-                    _preserving_user_id=user_id,
-                    _move_off_tablet=0)
-        )  # type: ResultProxy
-        n_preserved = preserve_rp.rowcount
-
-        # Also preserve/finalize any corresponding special notes (2015-02-01)
-        # noinspection PyUnresolvedReferences
         dbsession.execute(
-            update(SpecialNote.__table__)
-            .where(SpecialNote.basetable == tablename)
-            .where(SpecialNote.device_id == device_id)
-            .where(SpecialNote.era == ERA_NOW)
-            .values(era=new_era)
+            preservationtable.insert().from_select(
+                # Target:
+                [preservationtable.c.device_id, preservationtable.c.pkvalue],
+                # Source:
+                (
+                    select([literal(device_id), table.c._pk])
+                    .select_from(table)
+                    .where(table.c._device_id == device_id)
+                    .where(table.c._era == ERA_NOW)
+                )
+            )
+        )
+    else:
+        # Preserve any individual records, via _move_off_tablet
+        #
+        # Make a note of PKs in a temporary table
+        # noinspection PyProtectedMember
+        dbsession.execute(
+            preservationtable.insert().from_select(
+                # Target:
+                [preservationtable.c.device_id, preservationtable.c.pkvalue],
+                # Source:
+                (
+                    select([literal(device_id), table.c._pk])
+                    .select_from(table)
+                    .where(table.c._device_id == device_id)
+                    .where(table.c._move_off_tablet)
+                )
+            )
         )
 
-    else:
-        # Preserve any individual records
-        # noinspection PyProtectedMember
-        preserve_rp = dbsession.execute(
-            update(table)
-            .where(table.c._device_id == device_id)
-            .where(table.c._move_off_tablet)
-            .values(_era=new_era,
-                    _preserving_user_id=user_id,
-                    _move_off_tablet=0)
-        )  # type: ResultProxy
-        n_preserved = preserve_rp.rowcount
+    # Shared preservation code:
 
-        # Also preserve/finalize any corresponding special notes (2015-02-01)
-        # noinspection PyProtectedMember,PyUnresolvedReferences
-        dbsession.execute(
-            update(SpecialNote.__table__)
-            .where(SpecialNote.basetable == tablename)
-            .where(SpecialNote.device_id == device_id)
-            .where(SpecialNote.era == ERA_NOW)
+    # Count number of records being preserved
+    n_preserved = count_for_device(preservationtable)
+    # Preserve them
+    # noinspection PyProtectedMember
+    dbsession.execute(
+        update(table)
+        .where(table.c._pk.in_(select_pks_from(preservationtable)))
+        .values(_era=new_era,
+                _preserving_user_id=user_id,
+                _move_off_tablet=0)
+    )  # type: ResultProxy
+
+    # Also preserve/finalize any corresponding special notes (2015-02-01)
+    # noinspection PyUnresolvedReferences
+    update_specialnote_cmd = (
+        update(SpecialNote.__table__)
+        .where(SpecialNote.basetable == tablename)
+        .where(SpecialNote.device_id == device_id)
+        .where(SpecialNote.era == ERA_NOW)
+        .values(era=new_era)
+    )
+    if not preserving:
+        # extra SQL clause required to restrict the updates
+        # noinspection PyProtectedMember
+        update_specialnote_cmd = (
+            update_specialnote_cmd
             .where(exists().select_from(table)
                    .where(table.c.id == SpecialNote.task_id)
                    .where(table.c._device_id == SpecialNote.device_id)
                    .where(table.c._era == new_era))
-            .values(era=new_era)
         )
+    dbsession.execute(update_specialnote_cmd)
 
     # -------------------------------------------------------------------------
     # Update special indexes
@@ -1408,6 +1490,11 @@ def clear_upload_key_tables(req: CamcopsRequest) -> None:
     req.dbsession.execute(
         UploadRemovalTable.__table__.delete()
         .where(UploadRemovalTable.device_id == device_id)
+    )
+    # noinspection PyUnresolvedReferences
+    req.dbsession.execute(
+        UploadPreservationTable.__table__.delete()
+        .where(UploadPreservationTable.device_id == device_id)
     )
 
 
@@ -1858,6 +1945,107 @@ def which_keys_to_send(req: CamcopsRequest) -> str:
     return pk_csv_list
 
 
+PATIENT_INFO_JSON_DECODER = json.JSONDecoder()  # just a plain one
+
+
+def validate_patients(req: CamcopsRequest) -> str:
+    """
+    As of v2.3.0, the client can use this command to validate patients against
+    arbitrary server criteria -- definitely the upload/finalize ID policies,
+    but potentially also other criteria of the server's (like matching against
+    a bank of predefined patients).
+
+    Compare ``NetworkManager::getPatientInfoJson()`` on the client.
+    """
+    def ensure_string(value: Any, allow_none: bool = True) -> None:
+        if not allow_none and value is None:
+            fail_user_error("Patient JSON contains absent string")
+        if not isinstance(value, str):
+            fail_user_error("Patient JSON contains invalid non-string")
+
+    pt_json_list = get_json_from_post_var(req, TabletParam.JSON,
+                                          decoder=PATIENT_INFO_JSON_DECODER,
+                                          mandatory=True)
+    if not isinstance(pt_json_list, list):
+        fail_user_error("Top-level JSON is not a list")
+
+    group = Group.get_group_by_id(req.dbsession, req.user.upload_group_id)
+    valid_which_idnums = req.valid_which_idnums
+
+    errors = []  # type: List[str]
+    finalizing = None
+    for pt_dict in pt_json_list:
+        if not isinstance(pt_dict, dict):
+            fail_user_error("Patient JSON is not a dict")
+        if not pt_dict:
+            fail_user_error("Patient JSON is empty")
+        ptinfo = BarePatientInfo()
+        for k, v in pt_dict.items():
+            ensure_string(k, allow_none=False)
+            if k == TabletParam.FORENAME:
+                ensure_string(v)
+                ptinfo.forename = v
+            elif k == TabletParam.SURNAME:
+                ensure_string(v)
+                ptinfo.surname = v
+            elif k == TabletParam.SEX:
+                if v not in POSSIBLE_SEX_VALUES:
+                    fail_user_error("Bad sex value: {!r}".format(v))
+                ptinfo.sex = v
+            elif k == TabletParam.DOB:
+                ensure_string(v)
+                if v:
+                    dob = coerce_to_pendulum_date(v)
+                    if dob is None:
+                        fail_user_error("Invalid DOB: {!r}".format(v))
+                else:
+                    dob = None
+                ptinfo.dob = dob
+            elif k == TabletParam.ADDRESS:
+                ensure_string(v)
+                ptinfo.address = v
+            elif k == TabletParam.GP:
+                ensure_string(v)
+                ptinfo.gp = v
+            elif k == TabletParam.OTHER:
+                ensure_string(v)
+                ptinfo.otherdetails = v
+            elif k.startswith(TabletParam.IDNUM_PREFIX):
+                nstr = k[len(TabletParam.IDNUM_PREFIX):]
+                try:
+                    which_idnum = int(nstr)
+                except (TypeError, ValueError):
+                    fail_user_error("Bad idnum key: {!r}".format(k))
+                # noinspection PyUnboundLocalVariable
+                if which_idnum not in valid_which_idnums:
+                    fail_user_error("Bad ID number type: {}".format(
+                        which_idnum))
+                if v is not None and not isinstance(v, int):
+                    fail_user_error("Bad ID number value: {!r}".format(v))
+                idref = IdNumReference(which_idnum, v)
+                if not idref.is_valid():
+                    fail_user_error("Bad ID number: {!r}".format(idref))
+                ptinfo.add_idnum(idref)
+            elif k == TabletParam.FINALIZING:
+                if not isinstance(v, bool):
+                    fail_user_error("Bad {!r} value: {!r}".format(k, v))
+                finalizing = v
+            else:
+                fail_user_error("Unknown JSON key: {!r}".format(k))
+
+        if finalizing is None:
+            fail_user_error("Missing {!r} JSON key".format(
+                TabletParam.FINALIZING))
+
+        pt_ok, reason = is_candidate_patient_valid(ptinfo, group, finalizing)
+        if not pt_ok:
+            errors.append("{} -> {}".format(ptinfo, reason))
+    if errors:
+        fail_user_error("Invalid patients: {}".format(" // ".join(errors)))
+    else:
+        return "Success"
+
+
 # =============================================================================
 # Action maps
 # =============================================================================
@@ -1879,6 +2067,7 @@ class Operations:
     UPLOAD_TABLE = "upload_table"
     UPLOAD_RECORD = "upload_record"
     UPLOAD_EMPTY_TABLES = "upload_empty_tables"
+    VALIDATE_PATIENTS = "validate_patients"  # v2.3.0
     WHICH_KEYS_TO_SEND = "which_keys_to_send"
 
 
@@ -1886,7 +2075,7 @@ OPERATIONS_ANYONE = {
     Operations.CHECK_DEVICE_REGISTERED: check_device_registered,
 }
 OPERATIONS_REGISTRATION = {
-    Operations.GET_ALLOWED_TABLES: get_allowed_tables,  # v2.2.0  # noqa
+    Operations.GET_ALLOWED_TABLES: get_allowed_tables,  # v2.2.0
     Operations.GET_EXTRA_STRINGS: get_extra_strings,
     Operations.REGISTER: register,
 }
@@ -1900,6 +2089,7 @@ OPERATIONS_UPLOAD = {
     Operations.UPLOAD_EMPTY_TABLES: upload_empty_tables,
     Operations.UPLOAD_RECORD: upload_record,
     Operations.UPLOAD_TABLE: upload_table,
+    Operations.VALIDATE_PATIENTS: validate_patients,  # v2.3.0
     Operations.WHICH_KEYS_TO_SEND: which_keys_to_send,
 }
 
