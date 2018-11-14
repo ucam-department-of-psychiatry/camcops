@@ -53,12 +53,7 @@ from .cc_audit import AuditEntry
 # noinspection PyUnresolvedReferences
 from .cc_blob import Blob
 from .cc_device import Device
-from .cc_dirtytables import (
-    DirtyTable,
-    UploadAdditionTable,
-    UploadPreservationTable,
-    UploadRemovalTable,
-)
+from .cc_dirtytables import DirtyTable
 from .cc_group import Group, group_group_table
 from .cc_hl7 import HL7Message, HL7Run
 from .cc_idnumdef import IdNumDefinition
@@ -140,9 +135,6 @@ RESERVED_TABLE_NAMES = [
     SpecialNote.__tablename__,
     TaskIndexEntry.__tablename__,
     TaskFilter.__tablename__,
-    UploadAdditionTable.__tablename__,
-    UploadPreservationTable.__tablename__,
-    UploadRemovalTable.__tablename__,
     User.__tablename__,
     UserGroupMembership.__tablename__,
 ]

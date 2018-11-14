@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_tabletsession.py
 """
 
 import logging
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, Set, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
@@ -105,6 +105,9 @@ class TabletSession(object):
                     v=self.tablet_version_str,
                     r=MINIMUM_TABLET_VERSION))
         # Other version things are done via properties
+
+        # Upload efficiency
+        self._dirty_table_names = set()  # type: Set[str]
 
         # Report
         log.info("Incoming client API connection from IP={i}, port={p}, "
@@ -213,6 +216,24 @@ class TabletSession(object):
         """
         self.session_id = session_id
         self.session_token = session_token
+
+    # -------------------------------------------------------------------------
+    # Upload efficiency
+    # -------------------------------------------------------------------------
+
+    def note_table_dirty(self, tablename: str) -> None:
+        """
+        Note that an upload table is dirty. See ``client_api.py``.
+        """
+        self._dirty_table_names.add(tablename)
+
+    def is_table_dirty(self, tablename: str) -> bool:
+        """
+        Have we marked the table as dirty in the :class:`TabletSession`? Note
+        that this is just an efficiency proxy for the database. See
+        :func:`camcops_server.cc_modules.client_api.mark_table_dirty`.
+        """
+        return tablename in self._dirty_table_names
 
     # -------------------------------------------------------------------------
     # Version information (via property as not always needed)

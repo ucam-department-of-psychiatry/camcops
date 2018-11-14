@@ -1542,3 +1542,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - Design note: we should not have a client-side index that gets uploaded.
     This would be a bit risky (trusting clients with the server's index); also,
     the client's index couldn't use server PKs (which we'd want); etc.
+
+- Upload speedup.

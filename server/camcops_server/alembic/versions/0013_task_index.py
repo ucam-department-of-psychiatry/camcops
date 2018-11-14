@@ -111,45 +111,6 @@ def upgrade():
         batch_op.create_index(batch_op.f('ix__task_index_when_created_iso'), ['when_created_iso'], unique=False)
         batch_op.create_index(batch_op.f('ix__task_index_when_created_utc'), ['when_created_utc'], unique=False)
 
-    op.create_table('_upload_addition_keys',
-        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column('device_id', sa.Integer(), nullable=True),
-        sa.Column('pkvalue', sa.Integer(), nullable=True),
-        sa.PrimaryKeyConstraint('id', name=op.f('pk__upload_addition_keys')),
-        mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
-        mysql_engine='InnoDB',
-        mysql_row_format='DYNAMIC'
-    )
-    with op.batch_alter_table('_upload_addition_keys', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix__upload_addition_keys_device_id'), ['device_id'], unique=False)
-        batch_op.create_index(batch_op.f('ix__upload_addition_keys_pkvalue'), ['pkvalue'], unique=False)
-
-    op.create_table('_upload_removal_keys',
-        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column('device_id', sa.Integer(), nullable=True),
-        sa.Column('pkvalue', sa.Integer(), nullable=True),
-        sa.PrimaryKeyConstraint('id', name=op.f('pk__upload_removal_keys')),
-        mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
-        mysql_engine='InnoDB',
-        mysql_row_format='DYNAMIC'
-    )
-    with op.batch_alter_table('_upload_removal_keys', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix__upload_removal_keys_device_id'), ['device_id'], unique=False)
-        batch_op.create_index(batch_op.f('ix__upload_removal_keys_pkvalue'), ['pkvalue'], unique=False)
-
-    op.create_table('_upload_preservation_keys',
-        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column('device_id', sa.Integer(), nullable=True),
-        sa.Column('pkvalue', sa.Integer(), nullable=True),
-        sa.PrimaryKeyConstraint('id', name=op.f('pk__upload_preservation_keys')),
-        mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
-        mysql_engine='InnoDB',
-        mysql_row_format='DYNAMIC'
-    )
-    with op.batch_alter_table('_upload_preservation_keys', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix__upload_preservation_keys_device_id'), ['device_id'], unique=False)
-        batch_op.create_index(batch_op.f('ix__upload_preservation_keys_pkvalue'), ['pkvalue'], unique=False)
-
     # ### end Alembic commands ###
 
     cfg = get_default_config_from_os_env()
@@ -159,8 +120,5 @@ def upgrade():
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    op.drop_table('_upload_preservation_keys')
-    op.drop_table('_upload_removal_keys')
-    op.drop_table('_upload_addition_keys')
     op.drop_table('_task_index')
     op.drop_table('_idnum_index')

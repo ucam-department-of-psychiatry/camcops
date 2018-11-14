@@ -70,9 +70,8 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from semantic_version import Version
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.sql.expression import exists, func, literal, select, update
+from sqlalchemy.sql.expression import exists, select, update
 from sqlalchemy.sql.schema import Table
-from sqlalchemy.sql.selectable import Select
 
 from camcops_server.cc_modules import cc_audit  # avoids "audit" name clash
 from .cc_all_models import CLIENT_TABLE_MAP, RESERVED_FIELDS
@@ -105,13 +104,7 @@ from .cc_constants import (
 )
 from .cc_convert import decode_values, encode_single_value
 from .cc_device import Device
-from .cc_dirtytables import (
-    DirtyTable,
-    select_pks_from_upload_temptable,
-    UploadAdditionTable,
-    UploadPreservationTable,
-    UploadRemovalTable,
-)
+from .cc_dirtytables import DirtyTable
 from .cc_group import Group
 from .cc_patient import Patient, is_candidate_patient_valid
 from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
@@ -164,6 +157,32 @@ IGNORING_ANTIQUE_TABLE_MESSAGE = (
 
 SUCCESS_CODE = "1"
 FAILURE_CODE = "0"
+
+
+# =============================================================================
+# Info passing classes
+# =============================================================================
+
+class ServerRecord(object):
+    """
+    Class to represent whether a server record exists.
+    """
+    def __init__(self,
+                 client_pk: int,
+                 exists_on_server: bool,
+                 server_pk: Optional[int] = None,
+                 server_when: Optional[Pendulum] = None) -> None:
+        """
+        Args:
+            client_pk: client's PK
+            exists_on_server: does the record exist on the server?
+            server_pk: if it exists, what's the server PK?
+            server_when: if it exists, what's the server's "when" field?
+        """
+        self.client_pk = client_pk
+        self.exists = exists_on_server
+        self.server_pk = server_pk
+        self.server_when = server_when
 
 
 # =============================================================================
@@ -588,31 +607,48 @@ def get_select_reply(fields: Sequence[str],
 # CamCOPS table functions
 # =============================================================================
 
-def get_server_pks_of_active_records(req: CamcopsRequest,
-                                     table: Table) -> List[int]:
+def get_server_active_records(req: CamcopsRequest,
+                              table: Table,
+                              clientpk_name: str) -> List[ServerRecord]:
     """
+    Gets details of all active records on the server, for the specified table,
+    that are relevant to this client device.
+
     Args:
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         table: an SQLAlchemy :class:`Table`
+        clientpk_name: the column name of the client's PK
 
     Returns:
-        Server PKs of active records (``_current`` and in the 'NOW' era) for
-        the specified device/table.
+        :class:`ServerRecord` objects for active records (``_current`` and in
+        the 'NOW' era) for the specified device/table.
     """
     # noinspection PyProtectedMember
+    recs = []  # type: List[ServerRecord]
+    # noinspection PyProtectedMember
     query = (
-        select([table.c._pk])
+        select([
+            table.c._pk,  # server PK
+            table.c[clientpk_name],  # client PK
+            table.c[CLIENT_DATE_FIELD],  # when last modified (on the server)
+        ])
         .where(table.c._device_id == req.tabletsession.device_id)
         .where(table.c._current)
         .where(table.c._era == ERA_NOW)
     )
-    return fetch_all_first_values(req.dbsession, query)
+    rows = req.dbsession.execute(query)
+    for row in rows:
+        server_pk = row[0]
+        client_pk = row[1]
+        server_when = row[2]
+        recs.append(ServerRecord(client_pk, True, server_pk, server_when))
+    return recs
 
 
 def record_exists(req: CamcopsRequest,
                   table: Table,
                   clientpk_name: str,
-                  clientpk_value: Any) -> Tuple[bool, Optional[int]]:
+                  clientpk_value: Any) -> ServerRecord:
     """
     Checks if a record exists, using the device's perspective of a
     table/client PK combination.
@@ -624,24 +660,25 @@ def record_exists(req: CamcopsRequest,
         clientpk_value: the client's PK value
 
     Returns:
-        the tuple ``exists, serverpk``, where exists is Boolean.
-        If ``exists`` is False, serverpk will be ``None``.
+        a :class:`ServerRecord` with the required information
 
     """
-    # log.debug("record_exists: checking table={}, {}={}",
-    #           table.name, clientpk_name, clientpk_value)
     # noinspection PyProtectedMember
     query = (
-        select([table.c._pk])
+        select([
+            table.c._pk,
+            table.c[CLIENT_DATE_FIELD]
+        ])
         .where(table.c._device_id == req.tabletsession.device_id)
         .where(table.c._current)
         .where(table.c._era == ERA_NOW)
         .where(table.c[clientpk_name] == clientpk_value)
     )
-    pklist = fetch_all_first_values(req.dbsession, query)
-    rec_exists = bool(len(pklist) >= 1)
-    serverpk = pklist[0] if rec_exists else None
-    return rec_exists, serverpk
+    row = req.dbsession.execute(query).fetchone()
+    if not row:
+        return ServerRecord(clientpk_value, False)
+    server_pk, server_when = row
+    return ServerRecord(clientpk_value, True, server_pk, server_when)
     # Consider a warning/failure if we have >1 row meeting these criteria.
     # Not currently checked for.
 
@@ -649,11 +686,11 @@ def record_exists(req: CamcopsRequest,
 def client_pks_that_exist(req: CamcopsRequest,
                           table: Table,
                           clientpk_name: str,
-                          clientpk_values: List[int]) -> Dict[int, int]:
+                          clientpk_values: List[int]) \
+        -> Dict[int, ServerRecord]:
     """
     Searches for client PK values (for this device, current, and 'now')
-    matching the input list. Returns a dictionary of {clientpk: serverpk}
-    values for those that do.
+    matching the input list.
 
     Args:
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
@@ -662,79 +699,26 @@ def client_pks_that_exist(req: CamcopsRequest,
         clientpk_values: a list of the client's PK values
 
     Returns:
-        a dictionary of {clientpk: serverpk} values, as above
+        a dictionary mapping client_pk to a :class:`ServerRecord` objects, for
+        those records that match
     """
     # noinspection PyProtectedMember
     query = (
-        select([table.c[clientpk_name], table.c._pk])
+        select([
+            table.c[clientpk_name],  # client PK
+            table.c._pk,  # server PK
+            table.c[CLIENT_DATE_FIELD]  # when
+        ])
         .where(table.c._device_id == req.tabletsession.device_id)
         .where(table.c._current)
         .where(table.c._era == ERA_NOW)
         .where(table.c[clientpk_name].in_(clientpk_values))
     )
     rows = req.dbsession.execute(query)
-    clientpkdict = {}  # type: Dict[int, int]
-    for client_pk, server_pk in rows:
-        clientpkdict[client_pk] = server_pk
-    return clientpkdict
-
-
-def record_identical_full(req: CamcopsRequest,
-                          table: Table,
-                          serverpk: int,
-                          wheredict: Dict) -> bool:
-    """
-    If a record with the specified server PK exists in the specified table
-    having all its values matching the field/value combinations in wheredict
-    (joined with AND), returns ``True``. Otherwise, returns ``False``.
-    Used to detect if an incoming record matches the database record.
-
-    Args:
-        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        table: an SQLAlchemy :class:`Table`
-        serverpk: integer server PK
-        wheredict: a set of {columnname: value} pairs, to be joined with
-            ``AND``
-
-    Returns:
-        is the record present and identical?
-
-    CURRENTLY UNUSED.
-    """
-    # noinspection PyProtectedMember
-    criteria = [table.c._pk == serverpk]
-    for fieldname, value in wheredict.items():
-        criteria.append(table.c[fieldname] == value)
-    return exists_in_table(req.dbsession, table, *criteria)
-
-
-def record_identical_by_date(req: CamcopsRequest,
-                             table: Table,
-                             serverpk: int,
-                             client_date_value: Pendulum) -> bool:
-    """
-    Shortcut to detecting a record being identical. Returns true if the
-    record (defined by its table/server PK) has a CLIENT_DATE_FIELD field
-    (``when_last_modified``) that matches that of the incoming record. As long
-    as the tablet always updates the CLIENT_DATE_FIELD when it saves a record,
-    and the clock on the device doesn't go backwards by a certain exact
-    millisecond-precision value, this is a valid method.
-
-    Args:
-        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        table: an SQLAlchemy :class:`Table`
-        serverpk: integer server PK
-        client_date_value: "when updated" Pendulum date/time from the client
-
-    Returns:
-        is the record present and identical?
-    """
-    # noinspection PyProtectedMember
-    criteria = [
-        table.c._pk == serverpk,
-        table.c[CLIENT_DATE_FIELD] == client_date_value,
-    ]
-    return exists_in_table(req.dbsession, table, *criteria)
+    d = {}  # type: Dict[int, ServerRecord]
+    for client_pk, server_pk, server_when in rows:
+        d[client_pk] = ServerRecord(client_pk, True, server_pk, server_when)
+    return d
 
 
 def process_upload_record_special(req: CamcopsRequest,
@@ -836,7 +820,9 @@ def upload_record_core(req: CamcopsRequest,
                        table: Table,
                        clientpk_name: str,
                        valuedict: Dict[str, Any],
-                       recordnum: int) -> Tuple[Optional[int], int]:
+                       recordnum: int,
+                       server_active_records: List[ServerRecord] = None) \
+        -> Tuple[Optional[int], int]:
     """
     Uploads a record. Deals with IDENTICAL, NEW, and MODIFIED records.
 
@@ -849,6 +835,8 @@ def upload_record_core(req: CamcopsRequest,
         valuedict: a dictionary of {colname: value} pairs from the client
         recordnum: record index from within the records being uploaded; only
             used for debugging
+        server_active_records: list of :class:`ServerRecord` objects for the
+            active records on the server for this client, in this table
 
     Returns:
         The tuple ``oldserverpk, newserverpk``.
@@ -862,14 +850,21 @@ def upload_record_core(req: CamcopsRequest,
     require_keys(valuedict, [clientpk_name, CLIENT_DATE_FIELD,
                              MOVE_OFF_TABLET_FIELD])
     clientpk_value = valuedict[clientpk_name]
-    found, oldserverpk = record_exists(req, table, clientpk_name,
-                                       clientpk_value)
+
+    if server_active_records:
+        serverrec = next((r for r in server_active_records
+                          if r.client_pk == clientpk_value), None)
+        if serverrec is None:
+            serverrec = ServerRecord(clientpk_value, False)
+    else:
+        serverrec = record_exists(req, table, clientpk_name, clientpk_value)
+
+    oldserverpk = serverrec.server_pk
     newserverpk = None
-    if found:
+    if serverrec.exists:
         # There's an existing record, which is either identical or not.
-        client_date_value = valuedict[CLIENT_DATE_FIELD]
-        if record_identical_by_date(req, table, oldserverpk,
-                                    client_date_value):
+        client_date_value = coerce_to_pendulum(valuedict[CLIENT_DATE_FIELD])
+        if serverrec.server_when == client_date_value:
             # The existing record is identical.
             # No action needed unless MOVE_OFF_TABLET_FIELDNAME is set.
             if valuedict[MOVE_OFF_TABLET_FIELD]:
@@ -1020,21 +1015,28 @@ def mark_table_dirty(req: CamcopsRequest, table: Table) -> None:
     """
     Marks a table as having been modified during the current upload.
     """
-    dbsession = req.dbsession
     ts = req.tabletsession
+    tablename = table.name
+    if ts.is_table_dirty(tablename):
+        # Already marked as dirty during this session.
+        return
+    ts.note_table_dirty(tablename)  # For next time!
+    # Now proceed to the database:
+    device_id = ts.device_id
+    dbsession = req.dbsession
     # noinspection PyUnresolvedReferences
     table_already_dirty = exists_in_table(
         dbsession,
         DirtyTable.__table__,
-        DirtyTable.device_id == ts.device_id,
-        DirtyTable.tablename == table.name
+        DirtyTable.device_id == device_id,
+        DirtyTable.tablename == tablename
     )
     if not table_already_dirty:
         # noinspection PyUnresolvedReferences
         dbsession.execute(
             DirtyTable.__table__.insert()
-            .values(device_id=ts.device_id,
-                    tablename=table.name)
+            .values(device_id=device_id,
+                    tablename=tablename)
         )
 
 
@@ -1057,7 +1059,7 @@ def flag_deleted(req: CamcopsRequest, table: Table,
     Marks record(s) as deleted, specified by a list of server PKs within a
     table.
     """
-    mark_table_dirty(req, table)
+    mark_table_dirty(req, table)  # also done by caller
     # noinspection PyProtectedMember
     req.dbsession.execute(
         update(table)
@@ -1072,16 +1074,18 @@ def flag_all_records_deleted(req: CamcopsRequest, table: Table) -> None:
     Marks all records in a table as deleted (that are current and in the
     current era).
     """
-    mark_table_dirty(req, table)
     # noinspection PyProtectedMember
-    req.dbsession.execute(
+    rp = req.dbsession.execute(
         update(table)
         .where(table.c._device_id == req.tabletsession.device_id)
         .where(table.c._current)
         .where(table.c._era == ERA_NOW)
         .values(_removal_pending=1,
                 _successor_pk=None)
-    )
+    )  # type: ResultProxy
+    if rp.rowcount > 0:
+        # https://docs.sqlalchemy.org/en/latest/core/connections.html?highlight=rowcount#sqlalchemy.engine.ResultProxy.rowcount  # noqa
+        mark_table_dirty(req, table)
 
 
 def flag_deleted_where_clientpk_not(req: CamcopsRequest,
@@ -1093,9 +1097,8 @@ def flag_deleted_where_clientpk_not(req: CamcopsRequest,
     specific table, defined by a list of client-side PK values (and the name of
     the client-side PK column).
     """
-    mark_table_dirty(req, table)
     # noinspection PyProtectedMember
-    req.dbsession.execute(
+    rp = req.dbsession.execute(
         update(table)
         .where(table.c._device_id == req.tabletsession.device_id)
         .where(table.c._current)
@@ -1103,7 +1106,9 @@ def flag_deleted_where_clientpk_not(req: CamcopsRequest,
         .where(table.c[clientpk_name].notin_(clientpk_values))
         .values(_removal_pending=1,
                 _successor_pk=None)
-    )
+    )  # type: ResultProxy
+    if rp.rowcount > 0:
+        mark_table_dirty(req, table)
 
 
 def flag_modified(req: CamcopsRequest,
@@ -1141,6 +1146,7 @@ def flag_record_for_preservation(req: CamcopsRequest,
         table: SQLAlchemy :class:`Table`
         pk: server PK of the record to mark
     """
+    mark_table_dirty(req, table)
     # noinspection PyProtectedMember
     req.dbsession.execute(
         update(table)
@@ -1183,11 +1189,38 @@ def commit_all(req: CamcopsRequest,
             )
         )
 
+    if preserving:
+        # Also preserve/finalize any corresponding special notes (2015-02-01),
+        # but all in one go (2018-11-13).
+        dbsession = req.dbsession
+        device_id = req.tabletsession.device_id
+        new_era = format_datetime(batchtime, DateFormat.ERA)
+        # noinspection PyUnresolvedReferences
+        dbsession.execute(
+            update(SpecialNote.__table__)
+            .where(SpecialNote.device_id == device_id)
+            .where(SpecialNote.era == ERA_NOW)
+            .values(era=new_era)
+        )
+
     clear_dirty_tables(req)
     details = "Upload [table (n_added,n_removed,n_preserved)]: {}".format(
         ", ".join(auditsegments)
     )
     audit(req, details)
+
+    # Performance 2018-11-13:
+    # - start at 2.407 s
+    # - remove final temptable clearance and COUNT(*): 1.626 to 2.118 s
+    # - IN clause using Python literal not temptable: 1.18 to 1.905 s
+    # - minor tidy: 1.075 to 1.65
+    # - remove ORDER BY from task indexing: 1.093 to 1.607
+    # - optimize special note code won't affect this: 1.076 to 1.617
+    # At this point, entire upload process ~5s.
+    # - big difference from commit_table() query optimization
+    # - huge difference from being more careful with mark_table_dirty()
+    # - further table scanning optimizations: fewer queries
+    # Overall upload down to ~2.4s
 
 
 def commit_table(req: CamcopsRequest,
@@ -1197,6 +1230,8 @@ def commit_table(req: CamcopsRequest,
                  clear_dirty: bool = True) -> Tuple[int, int, int]:
     """
     Commits additions, removals, and preservations for one table.
+
+    Should ONLY be called by :func:`commit_all`.
 
     Also updates task indexes.
 
@@ -1215,190 +1250,119 @@ def commit_table(req: CamcopsRequest,
     Returns:
         tuple ``n_added, n_removed, n_preserved``
     """
+
+    # Tried storing PKs in temporary tables, rather than using an IN clause
+    # with Python values, as per
+    # https://www.xaprb.com/blog/2006/06/28/why-large-in-clauses-are-problematic/  # noqa
+    # However, it was slow.
+    # We can gain a lot of efficiency (empirically) by:
+    # - Storing PKs in Python
+    # - Only performing updates when we need to
+    # - Using a single query per table to get "add/remove/preserve" PKs
+
     # -------------------------------------------------------------------------
     # Helpful temporary variables
     # -------------------------------------------------------------------------
-    # log.debug("commit_table: {}", table.name)
     user_id = req.user_id
     device_id = req.tabletsession.device_id
     exacttime = req.now
     dbsession = req.dbsession
     tablename = table.name
 
-    # noinspection PyUnresolvedReferences
-    additiontable = UploadAdditionTable.__table__
-    # noinspection PyUnresolvedReferences
-    removaltable = UploadRemovalTable.__table__
-    # noinspection PyUnresolvedReferences
-    preservationtable = UploadPreservationTable.__table__
-
     # -------------------------------------------------------------------------
-    # Helpful functions
+    # Fetch addition, removal, preservation PKs in a single query
     # -------------------------------------------------------------------------
-    def count_for_device(temptable: Table) -> int:
-        """
-        Returns the number of temporary records for the current device in this
-        table.
-        """
-        return dbsession.execute(
-            select([func.count()])
-            .select_from(temptable)
-            .where(temptable.c.device_id == device_id)
-        ).scalar()  # type: int
-
-    def select_pks_from(temptable: Table) -> Select:
-        """
-        Returns an SQL clause to select relevant PK values (for this device)
-        from the temporary table.
-        """
-        return select_pks_from_upload_temptable(temptable, device_id)
-
-    # -------------------------------------------------------------------------
-    # Before we cache key values:
-    # -------------------------------------------------------------------------
-    clear_upload_key_tables(req)
+    if preserving:
+        # noinspection PyProtectedMember
+        preserving_criterion = table.c._era == ERA_NOW
+    else:
+        # noinspection PyProtectedMember
+        preserving_criterion = table.c._move_off_tablet
+    # noinspection PyProtectedMember
+    arp_rows = dbsession.execute(
+        select([
+            table.c._pk,  # pk
+            table.c._addition_pending,  # add?
+            table.c._removal_pending,  # remove?
+            preserving_criterion,  # preserve?
+        ])
+        .select_from(table)
+        .where(table.c._device_id == device_id)
+    ).fetchall()
+    addition_pks = []  # type: List[int]
+    removal_pks = []  # type: List[int]
+    preservation_pks = []  # type: List[int]
+    for pk, add, remove, preserve in arp_rows:
+        if add:
+            addition_pks.append(pk)
+        elif remove:
+            removal_pks.append(pk)
+        if preserve:
+            preservation_pks.append(pk)
 
     # -------------------------------------------------------------------------
     # Additions
     # -------------------------------------------------------------------------
-    # Make a note of PKs we're adding, in our temporary additions table.
-    # Avoid large IN clauses; see e.g.
-    # https://www.xaprb.com/blog/2006/06/28/why-large-in-clauses-are-problematic/  # noqa
-    # noinspection PyProtectedMember
-    dbsession.execute(
-        additiontable.insert().from_select(
-            # Target:
-            [additiontable.c.device_id, additiontable.c.pkvalue],
-            # Source:
-            (
-                select([literal(device_id), table.c._pk])
-                .select_from(table)
-                .where(table.c._device_id == device_id)
-                .where(table.c._addition_pending)
-            )
-        )
-    )
-    # Count additions
-    n_added = count_for_device(additiontable)
     # Update the records we're adding
-    # noinspection PyProtectedMember
-    dbsession.execute(
-        update(table)
-        .where(table.c._pk.in_(select_pks_from(additiontable)))
-        .values(_current=1,
-                _addition_pending=0,
-                _adding_user_id=user_id,
-                _when_added_exact=exacttime,
-                _when_added_batch_utc=batchtime)
-    )  # type: ResultProxy
+    if addition_pks:
+        # noinspection PyProtectedMember
+        dbsession.execute(
+            update(table)
+            .where(table.c._pk.in_(addition_pks))
+            .values(_current=1,
+                    _addition_pending=0,
+                    _adding_user_id=user_id,
+                    _when_added_exact=exacttime,
+                    _when_added_batch_utc=batchtime)
+        )
 
     # -------------------------------------------------------------------------
     # Removals
     # -------------------------------------------------------------------------
-    # Make a note of PKs in a temporary table
-    # noinspection PyProtectedMember
-    dbsession.execute(
-        removaltable.insert().from_select(
-            # Target:
-            [removaltable.c.device_id, removaltable.c.pkvalue],
-            # Source:
-            (
-                select([literal(device_id), table.c._pk])
-                .select_from(table)
-                .where(table.c._device_id == device_id)
-                .where(table.c._removal_pending)
-            )
-        )
-    )
-    # Count removals
-    n_removed = count_for_device(removaltable)
     # Update the records we're removing
-    # noinspection PyProtectedMember
-    dbsession.execute(
-        update(table)
-        .where(table.c._pk.in_(select_pks_from(removaltable)))
-        .values(_current=0,
-                _removal_pending=0,
-                _removing_user_id=user_id,
-                _when_removed_exact=exacttime,
-                _when_removed_batch_utc=batchtime)
-    )  # type: ResultProxy
+    if removal_pks:
+        # noinspection PyProtectedMember
+        dbsession.execute(
+            update(table)
+            .where(table.c._pk.in_(removal_pks))
+            .values(_current=0,
+                    _removal_pending=0,
+                    _removing_user_id=user_id,
+                    _when_removed_exact=exacttime,
+                    _when_removed_batch_utc=batchtime)
+        )
 
     # -------------------------------------------------------------------------
     # Preservation
     # -------------------------------------------------------------------------
-    new_era = format_datetime(batchtime, DateFormat.ERA)
-    if preserving:
-        # Preserve all relevant records
-        #
-        # Make a note of PKs in a temporary table
+    # Preserve necessary records
+    if preservation_pks:
+        new_era = format_datetime(batchtime, DateFormat.ERA)
         # noinspection PyProtectedMember
         dbsession.execute(
-            preservationtable.insert().from_select(
-                # Target:
-                [preservationtable.c.device_id, preservationtable.c.pkvalue],
-                # Source:
-                (
-                    select([literal(device_id), table.c._pk])
-                    .select_from(table)
-                    .where(table.c._device_id == device_id)
-                    .where(table.c._era == ERA_NOW)
-                )
+            update(table)
+            .where(table.c._pk.in_(preservation_pks))
+            .values(_era=new_era,
+                    _preserving_user_id=user_id,
+                    _move_off_tablet=0)
+        )
+        if not preserving:
+            # Also preserve/finalize any corresponding special notes
+            # (2015-02-01), just for records being specifically preserved. If
+            # we are preserving, this step happens in one go in commit_all()
+            # (2018-11-13).
+            # noinspection PyProtectedMember,PyUnresolvedReferences
+            dbsession.execute(
+                update(SpecialNote.__table__)
+                .where(SpecialNote.basetable == tablename)
+                .where(SpecialNote.device_id == device_id)
+                .where(SpecialNote.era == ERA_NOW)
+                .where(exists().select_from(table)
+                       .where(table.c.id == SpecialNote.task_id)
+                       .where(table.c._device_id == SpecialNote.device_id)
+                       .where(table.c._era == new_era))
+                .values(era=new_era)
             )
-        )
-    else:
-        # Preserve any individual records, via _move_off_tablet
-        #
-        # Make a note of PKs in a temporary table
-        # noinspection PyProtectedMember
-        dbsession.execute(
-            preservationtable.insert().from_select(
-                # Target:
-                [preservationtable.c.device_id, preservationtable.c.pkvalue],
-                # Source:
-                (
-                    select([literal(device_id), table.c._pk])
-                    .select_from(table)
-                    .where(table.c._device_id == device_id)
-                    .where(table.c._move_off_tablet)
-                )
-            )
-        )
-
-    # Shared preservation code:
-
-    # Count number of records being preserved
-    n_preserved = count_for_device(preservationtable)
-    # Preserve them
-    # noinspection PyProtectedMember
-    dbsession.execute(
-        update(table)
-        .where(table.c._pk.in_(select_pks_from(preservationtable)))
-        .values(_era=new_era,
-                _preserving_user_id=user_id,
-                _move_off_tablet=0)
-    )  # type: ResultProxy
-
-    # Also preserve/finalize any corresponding special notes (2015-02-01)
-    # noinspection PyUnresolvedReferences
-    update_specialnote_cmd = (
-        update(SpecialNote.__table__)
-        .where(SpecialNote.basetable == tablename)
-        .where(SpecialNote.device_id == device_id)
-        .where(SpecialNote.era == ERA_NOW)
-        .values(era=new_era)
-    )
-    if not preserving:
-        # extra SQL clause required to restrict the updates
-        # noinspection PyProtectedMember
-        update_specialnote_cmd = (
-            update_specialnote_cmd
-            .where(exists().select_from(table)
-                   .where(table.c.id == SpecialNote.task_id)
-                   .where(table.c._device_id == SpecialNote.device_id)
-                   .where(table.c._era == new_era))
-        )
-    dbsession.execute(update_specialnote_cmd)
 
     # -------------------------------------------------------------------------
     # Update special indexes
@@ -1408,15 +1372,19 @@ def commit_table(req: CamcopsRequest,
         PatientIdNumIndexEntry.update_idnum_index_for_upload(
             session=req.dbsession,
             indexed_at_utc=batchtime,
-            device_id=device_id,
+            addition_pks=addition_pks,
+            removal_pks=removal_pks,
         )
     elif tablename in all_task_tablenames():
         # Update task index
-        TaskIndexEntry.update_task_index_for_upload(session=dbsession,
-                                                    tasktablename=tablename,
-                                                    device_id=device_id,
-                                                    adding_user_id=user_id,
-                                                    indexed_at_utc=batchtime)
+        TaskIndexEntry.update_task_index_for_upload(
+            session=dbsession,
+            tasktablename=tablename,
+            addition_pks=addition_pks,
+            removal_pks=removal_pks,
+            preservation_pks=preservation_pks,
+            adding_user_id=user_id,
+            indexed_at_utc=batchtime)
 
     # -------------------------------------------------------------------------
     # Remove individually from list of dirty tables?
@@ -1430,7 +1398,7 @@ def commit_table(req: CamcopsRequest,
         )
         # ... otherwise a call to clear_dirty_tables() must be made.
 
-    return n_added, n_removed, n_preserved
+    return len(addition_pks), len(removal_pks), len(preservation_pks)
 
 
 def rollback_all(req: CamcopsRequest) -> None:
@@ -1476,28 +1444,6 @@ def rollback_table(req: CamcopsRequest, table: Table) -> None:
     )
 
 
-def clear_upload_key_tables(req: CamcopsRequest) -> None:
-    """
-    Clears the temporary upload tables for a device.
-    """
-    device_id = req.tabletsession.device_id
-    # noinspection PyUnresolvedReferences
-    req.dbsession.execute(
-        UploadAdditionTable.__table__.delete()
-        .where(UploadAdditionTable.device_id == device_id)
-    )
-    # noinspection PyUnresolvedReferences
-    req.dbsession.execute(
-        UploadRemovalTable.__table__.delete()
-        .where(UploadRemovalTable.device_id == device_id)
-    )
-    # noinspection PyUnresolvedReferences
-    req.dbsession.execute(
-        UploadPreservationTable.__table__.delete()
-        .where(UploadPreservationTable.device_id == device_id)
-    )
-
-
 def clear_dirty_tables(req: CamcopsRequest) -> None:
     """
     Clears the dirty-table list for a device.
@@ -1508,7 +1454,6 @@ def clear_dirty_tables(req: CamcopsRequest) -> None:
         DirtyTable.__table__.delete()
         .where(DirtyTable.device_id == device_id)
     )
-    clear_upload_key_tables(req)
 
 
 # =============================================================================
@@ -1725,8 +1670,8 @@ def upload_table(req: CamcopsRequest) -> str:
     n_new = 0
     n_modified = 0
     n_identical = 0
-    server_active_record_pks = get_server_pks_of_active_records(req, table)
-    mark_table_dirty(req, table)
+    serverrecs = get_server_active_records(req, table, clientpk_name)
+    server_active_record_pks = [r.server_pk for r in serverrecs]
     for r in range(nrecords):
         recname = TabletParam.RECORD_PREFIX + str(r)
         values = get_values_from_post_var(req, recname)
@@ -1744,7 +1689,8 @@ def upload_table(req: CamcopsRequest) -> str:
         # log.debug("table {!r}, record {}: {!r}", table.name, r, valuedict)
         # CORE: CALLS upload_record_core
         oldserverpk, newserverpk = upload_record_core(
-            req, table, clientpk_name, valuedict, r)
+            req, table, clientpk_name, valuedict, r,
+            server_active_records=serverrecs)
         if oldserverpk is not None:
             server_pks_uploaded.append(oldserverpk)
             if newserverpk is None:
@@ -1760,6 +1706,9 @@ def upload_table(req: CamcopsRequest) -> str:
     n_deleted = len(server_pks_for_deletion)
     if n_deleted > 0:
         flag_deleted(req, table, server_pks_for_deletion)
+
+    if n_new > 0 or n_modified > 0 or n_deleted > 0:
+        mark_table_dirty(req, table)
 
     # Special for old tablets:
     # noinspection PyUnresolvedReferences
@@ -1780,18 +1729,6 @@ def upload_table(req: CamcopsRequest) -> str:
                     _successor_pk=None)
         )
 
-    # Success
-    # log.debug(
-    #     "Table {t}: server_active_record_pks: {a}; server_pks_uploaded: {u}; "
-    #     "server_pks_for_deletion: {d}; "
-    #     "number of missing records (deleted): {nd}".format(
-    #         t=table.name,
-    #         a=server_active_record_pks,
-    #         u=server_pks_uploaded,
-    #         d=server_pks_for_deletion,
-    #         nd=n_deleted
-    #     )
-    # )
     # Auditing occurs at commit_all.
     log.info("Upload successful; {n} records uploaded to table {t} "
              "({new} new, {mod} modified, {i} identical, {nd} deleted)",
@@ -1906,7 +1843,7 @@ def which_keys_to_send(req: CamcopsRequest) -> str:
             "Number of PK values ({npk}) doesn't match number of dates "
             "({nd})".format(npk=npkvalues, nd=ndatevalues))
 
-    client_pk_to_datetime = {}  # type: Dict[int, Pendulum]
+    client_pk_to_client_when = {}  # type: Dict[int, Pendulum]
     for i in range(npkvalues):
         cpkv = clientpk_values[i]
         if not isinstance(cpkv, int):
@@ -1916,7 +1853,7 @@ def which_keys_to_send(req: CamcopsRequest) -> str:
             if dt is None:
                 fail_user_error("Missing date/time for client "
                                 "PK {}".format(cpkv))
-            client_pk_to_datetime[cpkv] = dt
+            client_pk_to_client_when[cpkv] = dt
         except ValueError:
             fail_user_error("Bad date/time: {!r}".format(client_dates[i]))
 
@@ -1927,20 +1864,19 @@ def which_keys_to_send(req: CamcopsRequest) -> str:
     flag_deleted_where_clientpk_not(req, table, clientpk_name, clientpk_values)
 
     # 2. See which ones are new or updates.
-    pks_needed = []
-    client_pks_on_server_to_spk = client_pks_that_exist(
+    client_pks_needed = []  # type: List[int]
+    client_pk_to_serverrec = client_pks_that_exist(
         req, table, clientpk_name, clientpk_values)
-    for clientpkval in clientpk_values:
-        if clientpkval not in client_pks_on_server_to_spk:
-            pks_needed.append(clientpkval)
+    for client_pk, client_when in client_pk_to_client_when.items():
+        if client_pk not in client_pk_to_serverrec:
+            client_pks_needed.append(client_pk)
         else:
-            serverpk = client_pks_on_server_to_spk[clientpkval]
-            when = client_pk_to_datetime[clientpkval]
-            if not record_identical_by_date(req, table, serverpk, when):
-                pks_needed.append(clientpkval)
+            serverrec = client_pk_to_serverrec[client_pk]
+            if serverrec.server_when != client_when:
+                client_pks_needed.append(client_pk)
 
     # Success
-    pk_csv_list = ",".join([str(x) for x in pks_needed if x is not None])
+    pk_csv_list = ",".join([str(x) for x in client_pks_needed if x is not None])  # noqa
     # log.info("which_keys_to_send successful: table {}", table.name)
     return pk_csv_list
 

@@ -143,6 +143,8 @@ Server
 
 **Priority**
 
+- **Thorough recheck of revamped upload code.**
+
 - Revamp export code. Per-group exports. Perhaps define exports in database,
   rather than config file?
 
