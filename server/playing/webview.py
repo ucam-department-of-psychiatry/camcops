@@ -83,6 +83,7 @@ class ErrorReportingMiddleware(object):
             )
             return self.format_exception(exc_info)
 
+
 # =============================================================================
 # WSGI entry point
 # =============================================================================

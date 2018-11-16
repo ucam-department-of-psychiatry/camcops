@@ -92,11 +92,7 @@ class TabletSession(object):
             fail_user_error("Tablets cannot use the username {!r}".format(
                 USER_NAME_FOR_SYSTEM))
 
-        # Look up device and user
-        dbsession = req.dbsession
-        self._device_obj = Device.get_device_by_name(dbsession,
-                                                     self.device_name)
-        self._user_obj = User.get_user_by_name(dbsession, self.username)
+        self._device_obj = None  # type: Device
 
         # Ensure table version is OK
         if self.tablet_version_ver < MINIMUM_TABLET_VERSION:
@@ -111,13 +107,14 @@ class TabletSession(object):
 
         # Report
         log.info("Incoming client API connection from IP={i}, port={p}, "
-                 "device_name={dn!r}, device_id={di}, "
+                 "device_name={dn!r}, "
+                 # "device_id={di}, "
                  "camcops_version={v}, "
-                 "user={u}, operation={o}",
+                 "username={u}, operation={o}",
                  i=req.remote_addr,
                  p=req.remote_port,
                  dn=self.device_name,
-                 di=self.device_id,
+                 # di=self.device_id,
                  v=self.tablet_version_str,
                  u=self.username,
                  o=self.operation)
@@ -131,6 +128,22 @@ class TabletSession(object):
         )
 
     # -------------------------------------------------------------------------
+    # Database objects, accessed on demand
+    # -------------------------------------------------------------------------
+
+    @property
+    def device(self) -> Optional[Device]:
+        """
+        Returns the :class:`camcops_server.cc_modules.cc_device.Device`
+        associated with this request/session, or ``None``.
+        """
+        if self._device_obj is None:
+            dbsession = self.req.dbsession
+            self._device_obj = Device.get_device_by_name(dbsession,
+                                                         self.device_name)
+        return self._device_obj
+
+    # -------------------------------------------------------------------------
     # Permissions and similar
     # -------------------------------------------------------------------------
 
@@ -139,31 +152,33 @@ class TabletSession(object):
         """
         Returns the integer device ID, if known.
         """
-        if not self._device_obj:
+        device = self.device
+        if not device:
             return None
-        return self._device_obj.id
+        return device.id
 
     @property
     def user_id(self) -> Optional[int]:
         """
         Returns the integer user ID, if known.
         """
-        if self._user_obj is None:
+        user = self.req.user
+        if not user:
             return None
-        return self._user_obj.id
+        return user.id
 
     def is_device_registered(self) -> bool:
         """
         Is the device registered with our server?
         """
-        return self._device_obj is not None
+        return self.device is not None
 
     def reload_device(self):
         """
         Re-fetch the device information from the database.
+        (Or, at least, do so when it's next required.)
         """
-        self._device_obj = Device.get_device_by_name(self.req.dbsession,
-                                                     self.device_name)
+        self._device_obj = None
 
     def ensure_device_registered(self) -> None:
         """
@@ -216,24 +231,6 @@ class TabletSession(object):
         """
         self.session_id = session_id
         self.session_token = session_token
-
-    # -------------------------------------------------------------------------
-    # Upload efficiency
-    # -------------------------------------------------------------------------
-
-    def note_table_dirty(self, tablename: str) -> None:
-        """
-        Note that an upload table is dirty. See ``client_api.py``.
-        """
-        self._dirty_table_names.add(tablename)
-
-    def is_table_dirty(self, tablename: str) -> bool:
-        """
-        Have we marked the table as dirty in the :class:`TabletSession`? Note
-        that this is just an efficiency proxy for the database. See
-        :func:`camcops_server.cc_modules.client_api.mark_table_dirty`.
-        """
-        return tablename in self._dirty_table_names
 
     # -------------------------------------------------------------------------
     # Version information (via property as not always needed)

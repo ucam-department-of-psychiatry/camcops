@@ -19,6 +19,7 @@
 
 // #define DEBUG_SPECIMEN_CREATION
 // #define DEBUG_SAVES
+#define DEBUG_TRIGGERS_NEEDS_UPLOAD
 #define SAVE_UPDATE_BACKGROUND  // .. this is the main point of multithreading
     // databases; to improve GUI response speed while still being able to
     // save at each touch to avoid data loss through user error.
@@ -170,6 +171,10 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
     if (dirty && touch_record) {
         touch();
         if (m_triggers_need_upload) {
+#ifdef DEBUG_TRIGGERS_NEEDS_UPLOAD
+            qDebug() << "Triggering setNeedsUpload() from field" << fieldname
+                     << "value" << value;
+#endif
             m_app.setNeedsUpload(true);
         }
     }

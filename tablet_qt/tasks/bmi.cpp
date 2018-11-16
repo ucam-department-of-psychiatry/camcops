@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_DATA_FLOW
+
 #include "bmi.h"
 #include "common/textconst.h"
 #include "lib/convert.h"
@@ -349,6 +351,10 @@ QString Bmi::category() const
 
 void Bmi::massUnitsChanged()
 {
+    // Update the display to show "mass" units: metric/imperial/both.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO;
+#endif
     if (!m_questionnaire) {
         return;
     }
@@ -361,6 +367,10 @@ void Bmi::massUnitsChanged()
 
 void Bmi::heightUnitsChanged()
 {
+    // Update the display to show "height" units: metric/imperial/both.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO;
+#endif
     if (!m_questionnaire) {
         return;
     }
@@ -402,6 +412,9 @@ QVariant Bmi::getHeightIn() const
 
 bool Bmi::setHeightUnits(const QVariant& value)  // returns: changed?
 {
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
     int height_units = value.toInt();
     if (height_units != METRIC && height_units != IMPERIAL &&
             height_units != BOTH) {
@@ -415,6 +428,10 @@ bool Bmi::setHeightUnits(const QVariant& value)  // returns: changed?
 
 bool Bmi::setHeightM(const QVariant& value)
 {
+    // Sets the height in metres, and if it's changed, update the imperial units.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
     const bool changed = setValue(FN_HEIGHT_M, value);
     if (changed) {
         updateImperialHeight();
@@ -425,6 +442,10 @@ bool Bmi::setHeightM(const QVariant& value)
 
 bool Bmi::setHeightFt(const QVariant& value)
 {
+    // Sets the height in feet, and if it's changed, update the metric units.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
     Q_ASSERT(m_fr_height_m);
     const bool changed = value != m_height_ft;
     if (changed) {
@@ -437,6 +458,10 @@ bool Bmi::setHeightFt(const QVariant& value)
 
 bool Bmi::setHeightIn(const QVariant& value)
 {
+    // Sets the height in inches, and if it's changed, update the metric units.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
     Q_ASSERT(m_fr_height_m);
     const bool changed = value != m_height_in;
     if (changed) {
@@ -449,9 +474,13 @@ bool Bmi::setHeightIn(const QVariant& value)
 
 void Bmi::updateMetricHeight()
 {
+    // Called when imperial units have been changed.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO;
+#endif
     Q_ASSERT(m_fr_height_m);
     if (m_height_ft.isNull() && m_height_in.isNull()) {
-        setValue(FN_HEIGHT_M, m_height_ft);
+        setValue(FN_HEIGHT_M, QVariant());
     } else {
         const int feet = m_height_ft.toInt();
         const double inches = m_height_in.toDouble();
@@ -463,6 +492,12 @@ void Bmi::updateMetricHeight()
 
 void Bmi::updateImperialHeight()
 {
+    // Called when we create the editor, to set imperial units from the
+    // underlying (database) metric units. Also called when metric height has
+    // been changed. Sets the internal imperial representations.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO;
+#endif
     Q_ASSERT(m_fr_height_ft);
     Q_ASSERT(m_fr_height_in);
     const QVariant height_m_var = value(FN_HEIGHT_M);
@@ -514,6 +549,9 @@ QVariant Bmi::getMassOz() const
 
 bool Bmi::setMassUnits(const QVariant& value)
 {
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
     int mass_units = value.toInt();
     if (mass_units != METRIC && mass_units != IMPERIAL && mass_units != BOTH) {
         mass_units = METRIC;
@@ -526,6 +564,9 @@ bool Bmi::setMassUnits(const QVariant& value)
 
 bool Bmi::setMassKg(const QVariant& value)
 {
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
     const bool changed = setValue(FN_MASS_KG, value);
     if (changed) {
         updateImperialMass();
@@ -536,6 +577,9 @@ bool Bmi::setMassKg(const QVariant& value)
 
 bool Bmi::setMassSt(const QVariant& value)
 {
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
     const bool changed = value != m_mass_st;
     if (changed) {
         m_mass_st = value;
@@ -547,6 +591,9 @@ bool Bmi::setMassSt(const QVariant& value)
 
 bool Bmi::setMassLb(const QVariant& value)
 {
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
     Q_ASSERT(m_fr_mass_kg);
     const bool changed = value != m_mass_lb;
     if (changed) {
@@ -559,6 +606,9 @@ bool Bmi::setMassLb(const QVariant& value)
 
 bool Bmi::setMassOz(const QVariant& value)
 {
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
     Q_ASSERT(m_fr_mass_kg);
     const bool changed = value != m_mass_oz;
     if (changed) {
@@ -571,9 +621,13 @@ bool Bmi::setMassOz(const QVariant& value)
 
 void Bmi::updateMetricMass()
 {
+    // Called when imperial units have been changed.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO;
+#endif
     Q_ASSERT(m_fr_mass_kg);
     if (m_mass_st.isNull() && m_mass_lb.isNull() && m_mass_oz.isNull()) {
-        setValue(FN_MASS_KG, m_mass_st);
+        setValue(FN_MASS_KG, QVariant());
     } else {
         const int stones = m_mass_st.toInt();
         const int pounds = m_mass_lb.toInt();
@@ -587,6 +641,12 @@ void Bmi::updateMetricMass()
 
 void Bmi::updateImperialMass()
 {
+    // Called when we create the editor, to set imperial units from the
+    // underlying (database) metric units. Also called when metric height has
+    // been changed. Sets the internal imperial representations.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO;
+#endif
     Q_ASSERT(m_fr_mass_st);
     Q_ASSERT(m_fr_mass_lb);
     Q_ASSERT(m_fr_mass_oz);

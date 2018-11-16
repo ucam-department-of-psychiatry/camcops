@@ -56,7 +56,7 @@ public:
     virtual QString menusubtitle() const = 0;  // descriptive
     virtual QString infoFilenameStem() const;  // default: tablename
     virtual QString xstringTaskname() const;  // default: tablename
-    virtual QString instanceTitle() const;
+    virtual QString instanceTitle(bool with_pid = true) const;
     virtual bool isAnonymous() const;
     virtual bool hasClinician() const;
     virtual bool hasRespondent() const;

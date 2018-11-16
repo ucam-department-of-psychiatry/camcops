@@ -146,6 +146,7 @@ RESERVED_FIELDS = GenericTabletRecordMixin.RESERVED_FIELDS
 # =============================================================================
 
 CLIENT_TABLE_MAP = {}  # type: Dict[str, Table]
+ANCILLARY_AND_BLOB_TABLENAMES = []  # type: List[str]
 
 # Add all tables that clients may upload to (including ancillary tables).
 for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
@@ -160,6 +161,11 @@ for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
             # noinspection PyUnresolvedReferences
             __table = __orm_class.__table__  # type: Table
             CLIENT_TABLE_MAP[__tablename] = __table
+            if not issubclass(__orm_class, Task):
+                ANCILLARY_AND_BLOB_TABLENAMES.append(__tablename)
+ANCILLARY_AND_BLOB_TABLENAMES.sort()
+# log.debug("ANCILLARY_AND_BLOB_TABLENAMES: {}".format(
+#     ANCILLARY_AND_BLOB_TABLENAMES))
 
 
 # =============================================================================

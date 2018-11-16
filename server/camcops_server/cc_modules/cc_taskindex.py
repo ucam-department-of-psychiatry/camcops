@@ -717,9 +717,18 @@ class TaskIndexEntry(Base):
         idxtable = cls.__table__  # type: Table
         idxcols = idxtable.columns
 
-        # Delete the old:
-        delete_index_pks = removal_pks + preservation_pks
+        set_addition_pks = set(addition_pks)
+        set_removal_pks = set(removal_pks)
+        set_preservation_pks = set(preservation_pks)
+
+        # Delete the old.
+        delete_index_pks = sorted(list(
+            (set_removal_pks | set_preservation_pks) -
+            set_addition_pks
+        ))
         if delete_index_pks:
+            log.debug("Deleting old task indexes: {}, server PKs {}".format(
+                tasktablename, delete_index_pks))
             # noinspection PyProtectedMember
             session.execute(
                 idxtable.delete()
@@ -727,9 +736,16 @@ class TaskIndexEntry(Base):
                 .where(idxcols.task_pk.in_(delete_index_pks))
             )
 
-        # Create the new:
-        reindex_pks = addition_pks + preservation_pks
+        # Create the new.
+        # We include records being preserved, because their era has changed,
+        # and the index includes era. Unless they are being removed!
+        reindex_pks = sorted(list(
+            (set_addition_pks | set_preservation_pks) -
+            set_removal_pks
+        ))
         if reindex_pks:
+            log.debug("Recreating task indexes: {}, server PKs {}".format(
+                tasktablename, reindex_pks))
             # noinspection PyUnboundLocalVariable
             q = (
                 session.query(taskclass)

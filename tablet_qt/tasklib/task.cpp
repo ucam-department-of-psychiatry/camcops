@@ -145,9 +145,9 @@ QString Task::xstringTaskname() const
 }
 
 
-QString Task::instanceTitle() const
+QString Task::instanceTitle(bool with_pid) const
 {
-    if (isAnonymous()) {
+    if (isAnonymous() || !with_pid) {
         return QString("%1; %2").arg(
             shortname(),
             whenCreated().toString(datetime::SHORT_DATETIME_FORMAT));

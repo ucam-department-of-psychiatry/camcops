@@ -185,9 +185,12 @@ class CamcopsSession(Base):
     @classmethod
     def get_session_for_tablet(cls, ts: "TabletSession") -> "CamcopsSession":
         """
-        For a given :class:`camcops_server.cc_modules.cc_tabletsession.TabletSession` (used by tablet client devices),
-        returns a corresponding
+        For a given
+        :class:`camcops_server.cc_modules.cc_tabletsession.TabletSession` (used
+        by tablet client devices), returns a corresponding
         :class:`camcops_server.cc_modules.cc_session.CamcopsSession`.
+
+        This also performs user authorization.
 
         User authentication is via the
         :class:`camcops_server.cc_modules.cc_session.CamcopsSession`.

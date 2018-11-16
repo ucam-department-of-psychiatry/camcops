@@ -364,6 +364,7 @@ class CamcopsRequest(Request):
         from .cc_session import CamcopsSession  # delayed import
         ts = TabletSession(self)
         new_cc_session = CamcopsSession.get_session_for_tablet(ts)
+        # ... does login
         self.replace_camcops_session(new_cc_session)
         ts.set_session_id_token(new_cc_session.id, new_cc_session.token)
         if DEBUG_TABLET_SESSION:

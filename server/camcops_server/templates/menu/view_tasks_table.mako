@@ -80,7 +80,7 @@ OFFER_PDF_ANON_VERSION = False
                 %else:
                     %if patient:
                         %for idobj in patient.idnums:
-                            ${ idobj.short_description(request) }: ${ idobj.idnum_value }
+                            ${ idobj.short_description(request) }: ${ idobj.idnum_value }.
                         %endfor
                     %else:
                         ?

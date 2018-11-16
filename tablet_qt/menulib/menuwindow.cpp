@@ -19,6 +19,7 @@
 
 // #define DEBUG_SELECTIONS
 // #define OFFER_LAYOUT_DEBUG_BUTTON
+// #define SHOW_PID_TO_DEBUG_STREAM  // should be disabled for production
 #define SHOW_TASK_TIMING
 
 #include "menuwindow.h"
@@ -426,7 +427,12 @@ void MenuWindow::viewTask()
         return;
     }
     const bool facsimile_available = task->isEditable();
-    const QString instance_title = task->instanceTitle();
+#ifdef SHOW_PID_TO_DEBUG_STREAM
+    const bool with_pid = true;
+#else
+    const bool with_pid = false;
+#endif
+    const QString instance_title = task->instanceTitle(with_pid);
     ScrollMessageBox msgbox(
                 QMessageBox::Question,
                 tr("View task"),
@@ -498,7 +504,12 @@ void MenuWindow::editTask()
 
 void MenuWindow::editTaskConfirmed(const TaskPtr& task)
 {
-    const QString instance_title = task->instanceTitle();
+#ifdef SHOW_PID_TO_DEBUG_STREAM
+    const bool with_pid = true;
+#else
+    const bool with_pid = false;
+#endif
+    const QString instance_title = task->instanceTitle(with_pid);
     qInfo() << "Edit:" << instance_title;
     OpenableWidget* widget = task->editor(false);
     if (!widget) {
@@ -544,11 +555,11 @@ void MenuWindow::deleteTask()
     if (!task) {
         return;
     }
-    const QString instance_title = task->instanceTitle();
+    const QString instance_title_for_user = task->instanceTitle();
     ScrollMessageBox msgbox(
                 QMessageBox::Warning,
                 tr("Delete"),
-                tr("Delete this task?") + "\n\n" +  instance_title,
+                tr("Delete this task?") + "\n\n" +  instance_title_for_user,
                 this);
     QAbstractButton* yes = msgbox.addButton(tr("Yes, delete"),
                                             QMessageBox::YesRole);
@@ -560,7 +571,12 @@ void MenuWindow::deleteTask()
     {
         SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Deleting task"),
                                                    textconst::PLEASE_WAIT);
-        qInfo() << "Delete:" << instance_title;
+#ifdef SHOW_PID_TO_DEBUG_STREAM
+        const QString& instance_title_for_debug = instance_title_for_user;
+#else
+        const QString instance_title_for_debug = task->instanceTitle(false);
+#endif
+        qInfo() << "Delete:" << instance_title_for_debug;
         DbNestableTransaction trans(m_app.db());
         task->deleteFromDatabase();
         build();

@@ -29,6 +29,74 @@ download data.**
 
 We use primarily SQLAlchemy Core here (in contrast to the ORM used elsewhere).
 
+This code is optimized to a degree for speed over clarity, aiming primarily to
+reduce the number of database hits.
+
+The overall upload method is as follows. Everything that follows refers to
+records relating to a specific client device in the "current" era, only.
+
+- Client verifies authorization, ID information, patients acceptable, which
+  tables are permitted, etc.
+- :func:`start_upload`
+
+  - Rolls back any previous incomplete changes via :func:`rollback_all`.
+  - Creates an upload batch, via :func:`get_batch_details_start_if_needed`.
+
+- If were are in a preserving/finalizing upload: :func:`start_preservation`.
+
+  - Marks all tables as dirty.
+  - Marks the upload batch as a "preserving" batch.
+
+- Then call some or all of:
+
+  - For tables that are empty on the client, :func:`upload_empty_tables`.
+
+    - Current client records are marked as ``_removal_pending``.
+    - Any table that had previous client records is marked as dirty.
+    - If preserving, any table without current records is marked as clean.
+
+  - For tables that the client wishes to send in one go, :func:`upload_table`.
+
+    - Find current server records.
+    - Use :func:`upload_record_core` to add new records and modify existing
+      ones, and :func:`flag_deleted` to delete ones that weren't on the client.
+    - If any records are new, modified, or deleted, mark the table as dirty.
+    - If preserving and there were no server records in this table, mark the
+      table as clean.
+
+  - For tables (e.g. BLOBs) that might be too big to send in one go:
+
+    - client sends PKs to :func:`delete_where_key_not`, which "deletes" all
+      other records, via :func:`flag_deleted_where_clientpk_not`.
+    - client sends PK and timestamp values to :func:`which_keys_to_send`
+    - server "deletes" records that are not in the list (via
+      :func:`flag_deleted_where_clientpk_not`, which marks the table as dirty
+      if any records were thus modified). Note REDUNDANCY here re
+      :func:`delete_where_key_not`.
+    - server tells the client which records are new or need to be updated
+    - client sends each of those via :func:`upload_record`
+
+      - Calls :func`upload_record_core`.
+      - Marks the table as dirty, unless the client erroneously sent an
+        unchanged record.
+
+- In addition, specific records can be marked as ``_move_off_tablet``.
+
+  - :func:`upload_record_core` checks this for otherwise "identical" records
+    and applies that flag to the server.
+
+- When the client's finished, it calls :func:`end_upload`.
+
+  - Calls :func:`commit_all`;
+  - ... which, for all dirty tables, calls :func:`commit_table`;
+  - ... which executes the "add", "remove", and "preserve" functions for the
+    table;
+  - ... and triggers the updating of special server indexes on patient ID
+    numbers and tasks.
+  - At the end, :func:`commit_all` clears the dirty-table list.
+
+There's a little bit of special code to handle old tablet software, too.
+
 """
 
 # =============================================================================
@@ -57,6 +125,7 @@ from cardinal_pythonlib.logs import (
     main_only_quicksetup_rootlogger,
 )
 from cardinal_pythonlib.pyramid.responses import TextResponse
+from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.sql.literals import sql_quote_string
 from cardinal_pythonlib.sqlalchemy.core_query import (
     exists_in_table,
@@ -74,10 +143,14 @@ from sqlalchemy.sql.expression import exists, select, update
 from sqlalchemy.sql.schema import Table
 
 from camcops_server.cc_modules import cc_audit  # avoids "audit" name clash
-from .cc_all_models import CLIENT_TABLE_MAP, RESERVED_FIELDS
-from .cc_blob import Blob
-from .cc_cache import cache_region_static, fkg
-from .cc_client_api_core import (
+from camcops_server.cc_modules.cc_all_models import (
+    ANCILLARY_AND_BLOB_TABLENAMES,
+    CLIENT_TABLE_MAP,
+    RESERVED_FIELDS,
+)
+from camcops_server.cc_modules.cc_blob import Blob
+from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
+from camcops_server.cc_modules.cc_client_api_core import (
     AllowedTablesFieldNames,
     exception_description,
     ExtraStringFieldNames,
@@ -90,7 +163,7 @@ from .cc_client_api_core import (
     TabletParam,
     UserErrorException,
 )
-from .cc_constants import (
+from camcops_server.cc_modules.cc_constants import (
     CLIENT_DATE_FIELD,
     DateFormat,
     ERA_NOW,
@@ -102,26 +175,44 @@ from .cc_constants import (
     POSSIBLE_SEX_VALUES,
     TABLET_ID_FIELD,
 )
-from .cc_convert import decode_values, encode_single_value
-from .cc_device import Device
-from .cc_dirtytables import DirtyTable
-from .cc_group import Group
-from .cc_patient import Patient, is_candidate_patient_valid
-from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
-from .cc_pyramid import Routes
-from .cc_request import CamcopsRequest
-from .cc_simpleobjects import BarePatientInfo, IdNumReference
-from .cc_specialnote import SpecialNote
-from .cc_task import (
+from camcops_server.cc_modules.cc_convert import (
+    decode_values,
+    encode_single_value,
+)
+from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_dirtytables import DirtyTable
+from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_patient import (
+    Patient,
+    is_candidate_patient_valid,
+)
+from camcops_server.cc_modules.cc_patientidnum import (
+    fake_tablet_id_for_patientidnum,
+    PatientIdNum,
+)
+from camcops_server.cc_modules.cc_pyramid import Routes
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_simpleobjects import (
+    BarePatientInfo,
+    IdNumReference,
+)
+from camcops_server.cc_modules.cc_specialnote import SpecialNote
+from camcops_server.cc_modules.cc_task import (
     all_task_tablenames,
     all_task_tables_with_min_client_version,
 )
-from .cc_taskindex import PatientIdNumIndexEntry, TaskIndexEntry
-from .cc_unittest import DemoDatabaseTestCase
-from .cc_version import CAMCOPS_SERVER_VERSION_STRING, MINIMUM_TABLET_VERSION
+from camcops_server.cc_modules.cc_taskindex import (
+    PatientIdNumIndexEntry,
+    TaskIndexEntry,
+)
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_version import (
+    CAMCOPS_SERVER_VERSION_STRING,
+    MINIMUM_TABLET_VERSION,
+)
 
 if TYPE_CHECKING:
-    from .cc_tabletsession import TabletSession
+    from camcops_server.cc_modules.cc_tabletsession import TabletSession
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -171,7 +262,8 @@ class ServerRecord(object):
                  client_pk: int,
                  exists_on_server: bool,
                  server_pk: Optional[int] = None,
-                 server_when: Optional[Pendulum] = None) -> None:
+                 server_when: Optional[Pendulum] = None,
+                 move_off_tablet: bool = False) -> None:
         """
         Args:
             client_pk: client's PK
@@ -183,6 +275,74 @@ class ServerRecord(object):
         self.exists = exists_on_server
         self.server_pk = server_pk
         self.server_when = server_when
+        self.move_off_tablet = move_off_tablet
+
+    def __repr__(self) -> str:
+        return simple_repr(self, ["client_pk", "exists",
+                                  "server_pk", "server_when",
+                                  "move_off_tablet"])
+
+
+class BatchDetails(object):
+    """
+    Represents a current upload batch.
+    """
+    def __init__(self,
+                 batchtime: Optional[Pendulum] = None,
+                 preserving: bool = False) -> None:
+        """
+        Args:
+            batchtime:
+                the batchtime; UTC time this upload batch started; will be
+                applied to all changes
+            preserving:
+                are we preserving (finalizing) the records -- that is, moving
+                them from the current era (``NOW``) to the ``batchtime`` era,
+                so they can be deleted from the tablet without apparent loss on
+                the server?
+        """
+        self.batchtime = batchtime
+        self.preserving = preserving
+
+    def __repr__(self) -> str:
+        return simple_repr(self, ["batchtime", "preserving"])
+
+    @property
+    def new_era(self) -> str:
+        """
+        Returns the string used for the new era for this batch, in case we
+        are preserving records.
+        """
+        return format_datetime(self.batchtime, DateFormat.ERA)
+
+
+class UploadRecordResult(object):
+    """
+    Represents the result of uploading a record.
+    """
+    def __init__(self,
+                 oldserverpk: Optional[int] = None,
+                 newserverpk: Optional[int] = None,
+                 dirty: bool = False):
+        """
+
+        Args:
+            oldserverpk:
+                the server's PK of the old version of the record; ``None`` if
+                the record is new
+            newserverpk:
+                the server's PK of the new version of the record; ``None`` if
+                the record was unmodified
+            dirty:
+                was the database table modified? (May be true even if
+                ``newserverpk`` is ``None``, if ``_move_off_tablet`` was set.
+        """
+        self.oldserverpk = oldserverpk
+        self.newserverpk = newserverpk
+        self.dirty = dirty
+
+    def __repr__(self) -> str:
+        return simple_repr(self, ["oldserverpk", "newserverpk", "dirty"])
 
 
 # =============================================================================
@@ -631,17 +791,16 @@ def get_server_active_records(req: CamcopsRequest,
             table.c._pk,  # server PK
             table.c[clientpk_name],  # client PK
             table.c[CLIENT_DATE_FIELD],  # when last modified (on the server)
+            table.c._move_off_tablet,  # move_off_tablet
         ])
         .where(table.c._device_id == req.tabletsession.device_id)
         .where(table.c._current)
         .where(table.c._era == ERA_NOW)
     )
     rows = req.dbsession.execute(query)
-    for row in rows:
-        server_pk = row[0]
-        client_pk = row[1]
-        server_when = row[2]
-        recs.append(ServerRecord(client_pk, True, server_pk, server_when))
+    for server_pk, client_pk, server_when, move_off_tablet in rows:
+        recs.append(ServerRecord(client_pk, True, server_pk, server_when,
+                                 move_off_tablet))
     return recs
 
 
@@ -666,8 +825,9 @@ def record_exists(req: CamcopsRequest,
     # noinspection PyProtectedMember
     query = (
         select([
-            table.c._pk,
-            table.c[CLIENT_DATE_FIELD]
+            table.c._pk,  # server PK
+            table.c[CLIENT_DATE_FIELD],  # when last modified (on the server)
+            table.c._move_off_tablet  # move_off_tablet
         ])
         .where(table.c._device_id == req.tabletsession.device_id)
         .where(table.c._current)
@@ -677,8 +837,9 @@ def record_exists(req: CamcopsRequest,
     row = req.dbsession.execute(query).fetchone()
     if not row:
         return ServerRecord(clientpk_value, False)
-    server_pk, server_when = row
-    return ServerRecord(clientpk_value, True, server_pk, server_when)
+    server_pk, server_when, move_off_tablet = row
+    return ServerRecord(clientpk_value, True, server_pk, server_when,
+                        move_off_tablet)
     # Consider a warning/failure if we have >1 row meeting these criteria.
     # Not currently checked for.
 
@@ -705,9 +866,10 @@ def client_pks_that_exist(req: CamcopsRequest,
     # noinspection PyProtectedMember
     query = (
         select([
-            table.c[clientpk_name],  # client PK
             table.c._pk,  # server PK
-            table.c[CLIENT_DATE_FIELD]  # when
+            table.c[clientpk_name],  # client PK
+            table.c[CLIENT_DATE_FIELD],  # when last modified (on the server)
+            table.c._move_off_tablet  # move_off_tablet
         ])
         .where(table.c._device_id == req.tabletsession.device_id)
         .where(table.c._current)
@@ -716,8 +878,9 @@ def client_pks_that_exist(req: CamcopsRequest,
     )
     rows = req.dbsession.execute(query)
     d = {}  # type: Dict[int, ServerRecord]
-    for client_pk, server_pk, server_when in rows:
-        d[client_pk] = ServerRecord(client_pk, True, server_pk, server_when)
+    for server_pk, client_pk, server_when, move_off_tablet in rows:
+        d[client_pk] = ServerRecord(client_pk, True, server_pk, server_when,
+                                    move_off_tablet)
     return d
 
 
@@ -775,7 +938,7 @@ def process_upload_record_special(req: CamcopsRequest,
                 # noinspection PyUnresolvedReferences
                 mark_table_dirty(req, PatientIdNum.__table__)
                 # noinspection PyUnresolvedReferences
-                _, _ = upload_record_core(
+                upload_record_core(
                     req=req,
                     table=PatientIdNum.__table__,
                     clientpk_name='id',
@@ -822,7 +985,7 @@ def upload_record_core(req: CamcopsRequest,
                        valuedict: Dict[str, Any],
                        recordnum: int,
                        server_active_records: List[ServerRecord] = None) \
-        -> Tuple[Optional[int], int]:
+        -> UploadRecordResult:
     """
     Uploads a record. Deals with IDENTICAL, NEW, and MODIFIED records.
 
@@ -839,12 +1002,7 @@ def upload_record_core(req: CamcopsRequest,
             active records on the server for this client, in this table
 
     Returns:
-        The tuple ``oldserverpk, newserverpk``.
-
-        - ``oldserverpk`` may be ``None`` if the record is new.
-        - ``newserverpk`` may be ``None`` if the record was identical to an
-          existing one.
-
+        a :class:`UploadRecordResult` object
     """
     ts = req.tabletsession
     require_keys(valuedict, [clientpk_name, CLIENT_DATE_FIELD,
@@ -859,8 +1017,10 @@ def upload_record_core(req: CamcopsRequest,
     else:
         serverrec = record_exists(req, table, clientpk_name, clientpk_value)
 
+    # log.debug("upload_record_core: {}, {}".format(table.name, serverrec))
+
     oldserverpk = serverrec.server_pk
-    newserverpk = None
+    urr = UploadRecordResult(oldserverpk=oldserverpk)
     if serverrec.exists:
         # There's an existing record, which is either identical or not.
         client_date_value = coerce_to_pendulum(valuedict[CLIENT_DATE_FIELD])
@@ -869,20 +1029,24 @@ def upload_record_core(req: CamcopsRequest,
             # No action needed unless MOVE_OFF_TABLET_FIELDNAME is set.
             if valuedict[MOVE_OFF_TABLET_FIELD]:
                 flag_record_for_preservation(req, table, oldserverpk)
+                urr.dirty = True
             else:
                 pass
         else:
             # The existing record is different. We need a logical UPDATE, but
             # maintaining an audit trail.
             process_upload_record_special(req, ts, table, valuedict, recordnum)
-            newserverpk = insert_record(req, table, valuedict, oldserverpk)
-            flag_modified(req, table, oldserverpk, newserverpk)
+            urr.newserverpk = insert_record(req, table, valuedict, oldserverpk)
+            urr.dirty = True
+            flag_modified(req, table, oldserverpk, urr.newserverpk)
     else:
         # The record is NEW. We need to INSERT it.
         process_upload_record_special(req, ts, table, valuedict, recordnum)
-        newserverpk = insert_record(req, table, valuedict, None)
+        urr.newserverpk = insert_record(req, table, valuedict, None)
+        urr.dirty = True
 
-    return oldserverpk, newserverpk
+    # log.debug("{!r}".format(urr))
+    return urr
 
 
 def insert_record(req: CamcopsRequest,
@@ -901,7 +1065,6 @@ def insert_record(req: CamcopsRequest,
     Returns:
         the server PK of the new record
     """
-    mark_table_dirty(req, table)
     ts = req.tabletsession
     valuedict.update({
         "_device_id": ts.device_id,
@@ -916,48 +1079,47 @@ def insert_record(req: CamcopsRequest,
     rp = req.dbsession.execute(
         table.insert().values(valuedict)
     )  # type: ResultProxy
-    return rp.inserted_primary_key
+    inserted_pks = rp.inserted_primary_key
+    assert(isinstance(inserted_pks, list) and len(inserted_pks) == 1)
+    return inserted_pks[0]
 
 
 # =============================================================================
 # Batch (atomic) upload and preserving
 # =============================================================================
 
-def get_batch_details_start_if_needed(req: CamcopsRequest) \
-        -> Tuple[Optional[Pendulum], Optional[bool]]:
+def get_batch_details_start_if_needed(req: CamcopsRequest) -> BatchDetails:
     """
-    Gets a tuple: ``upload_batch_utc, currently_preserving``.
-
-    ``upload_batch_utc``: the batchtime; UTC date/time of the current upload
-    batch.
-
-    ``currently_preserving``: Boolean; whether preservation (shifting to an
-    older era) is currently taking place.
+    Returns the :class:`BatchDetails` for the current upload.
 
     SIDE EFFECT: if the username is different from the username that started
     a previous upload batch for this device, we restart the upload batch (thus
     rolling back previous pending changes).
+
+    Raises:
+        :exc:`camcops_server.cc_modules.cc_client_api_core.ServerErrorException`
+        if the device doesn't exist
     """
+    device_id = req.tabletsession.device_id
     # noinspection PyUnresolvedReferences
     query = (
         select([Device.ongoing_upload_batch_utc,
                 Device.uploading_user_id,
                 Device.currently_preserving])
         .select_from(Device.__table__)
-        .where(Device.id == req.tabletsession.device_id)
+        .where(Device.id == device_id)
     )
     row = req.dbsession.execute(query).fetchone()
     if not row:
-        return None, None
+        fail_server_error("Device {} missing from Device table".format(
+            device_id))  # will raise
     upload_batch_utc, uploading_user_id, currently_preserving = row
     if not upload_batch_utc or uploading_user_id != req.user_id:
         # SIDE EFFECT: if the username changes, we restart (and thus roll back
         # previous pending changes)
         start_device_upload_batch(req)
-        return req.now_utc, False
-    # log.debug("get_batch_details_start_if_needed: upload_batch_utc = {!r}",
-    #           upload_batch_utc)
-    return upload_batch_utc, currently_preserving
+        return BatchDetails(req.now_utc, False)
+    return BatchDetails(upload_batch_utc, currently_preserving)
 
 
 def start_device_upload_batch(req: CamcopsRequest) -> None:
@@ -976,18 +1138,15 @@ def start_device_upload_batch(req: CamcopsRequest) -> None:
 
 
 def end_device_upload_batch(req: CamcopsRequest,
-                            batchtime: Pendulum,
-                            preserving: bool) -> None:
+                            batchdetails: BatchDetails) -> None:
     """
     Ends an upload batch, committing all changes made thus far.
 
     Args:
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        batchtime: the UTC batch time to apply to all changes
-        preserving: are we preserving the records (see
-            :func:`start_preserving`, :func:`commit_table`)?
+        batchdetails: the :class:`BatchDetails`
     """
-    commit_all(req, batchtime, preserving)
+    commit_all(req, batchdetails)
     # noinspection PyUnresolvedReferences
     req.dbsession.execute(
         update(Device.__table__)
@@ -1002,6 +1161,11 @@ def start_preserving(req: CamcopsRequest) -> None:
     """
     Starts preservation (the process of moving records from the NOW era to
     an older era, so they can be removed safely from the tablet).
+
+    Called by :func:`start_preservation`.
+
+    In this situation, we start by assuming that ALL tables are "dirty",
+    because they may have live records from a previous upload.
     """
     # noinspection PyUnresolvedReferences
     req.dbsession.execute(
@@ -1009,20 +1173,15 @@ def start_preserving(req: CamcopsRequest) -> None:
         .where(Device.id == req.tabletsession.device_id)
         .values(currently_preserving=1)
     )
+    mark_all_tables_dirty(req)
 
 
 def mark_table_dirty(req: CamcopsRequest, table: Table) -> None:
     """
     Marks a table as having been modified during the current upload.
     """
-    ts = req.tabletsession
     tablename = table.name
-    if ts.is_table_dirty(tablename):
-        # Already marked as dirty during this session.
-        return
-    ts.note_table_dirty(tablename)  # For next time!
-    # Now proceed to the database:
-    device_id = ts.device_id
+    device_id = req.tabletsession.device_id
     dbsession = req.dbsession
     # noinspection PyUnresolvedReferences
     table_already_dirty = exists_in_table(
@@ -1038,6 +1197,94 @@ def mark_table_dirty(req: CamcopsRequest, table: Table) -> None:
             .values(device_id=device_id,
                     tablename=tablename)
         )
+
+
+def mark_tables_dirty(req: CamcopsRequest, tables: List[Table]) -> None:
+    """
+    Marks multiple tables as dirty.
+    """
+    if not tables:
+        return
+    device_id = req.tabletsession.device_id
+    tablenames = [t.name for t in tables]
+    # Delete first
+    # noinspection PyUnresolvedReferences
+    req.dbsession.execute(
+        DirtyTable.__table__.delete()
+        .where(DirtyTable.device_id == device_id)
+        .where(DirtyTable.tablename.in_(tablenames))
+    )
+    # Then insert
+    insert_values = [
+        {"device_id": device_id, "tablename": tn}
+        for tn in tablenames
+    ]
+    # noinspection PyUnresolvedReferences
+    req.dbsession.execute(
+        DirtyTable.__table__.insert(),
+        insert_values
+    )
+
+
+def mark_all_tables_dirty(req: CamcopsRequest) -> None:
+    """
+    If we are preserving, we assume that all tables are "dirty" (require work
+    when we complete the upload) unless we specifically mark them clean.
+    """
+    device_id = req.tabletsession.device_id
+    # Delete first
+    # noinspection PyUnresolvedReferences
+    req.dbsession.execute(
+        DirtyTable.__table__.delete()
+        .where(DirtyTable.device_id == device_id)
+    )
+    # Now insert
+    # https://docs.sqlalchemy.org/en/latest/core/tutorial.html#execute-multiple
+    all_client_tablenames = list(CLIENT_TABLE_MAP.keys())
+    insert_values = [
+        {"device_id": device_id, "tablename": tn}
+        for tn in all_client_tablenames
+    ]
+    # noinspection PyUnresolvedReferences
+    req.dbsession.execute(
+        DirtyTable.__table__.insert(),
+        insert_values
+    )
+
+
+def mark_table_clean(req: CamcopsRequest, table: Table) -> None:
+    """
+    Marks a table as being clean: that is,
+
+    - the table has been scanned during the current upload
+    - there is nothing to do (either from the current upload, OR A PREVIOUS
+      UPLOAD).
+    """
+    tablename = table.name
+    device_id = req.tabletsession.device_id
+    # noinspection PyUnresolvedReferences
+    req.dbsession.execute(
+        DirtyTable.__table__.delete()
+        .where(DirtyTable.device_id == device_id)
+        .where(DirtyTable.tablename == tablename)
+    )
+
+
+def mark_tables_clean(req: CamcopsRequest, tables: List[Table]) -> None:
+    """
+    Marks multiple tables as clean.
+    """
+    if not tables:
+        return
+    device_id = req.tabletsession.device_id
+    tablenames = [t.name for t in tables]
+    # Delete first
+    # noinspection PyUnresolvedReferences
+    req.dbsession.execute(
+        DirtyTable.__table__.delete()
+        .where(DirtyTable.device_id == device_id)
+        .where(DirtyTable.tablename.in_(tablenames))
+    )
 
 
 def get_dirty_tables(req: CamcopsRequest) -> List[Table]:
@@ -1059,7 +1306,6 @@ def flag_deleted(req: CamcopsRequest, table: Table,
     Marks record(s) as deleted, specified by a list of server PKs within a
     table.
     """
-    mark_table_dirty(req, table)  # also done by caller
     # noinspection PyProtectedMember
     req.dbsession.execute(
         update(table)
@@ -1069,10 +1315,13 @@ def flag_deleted(req: CamcopsRequest, table: Table,
     )
 
 
-def flag_all_records_deleted(req: CamcopsRequest, table: Table) -> None:
+def flag_all_records_deleted(req: CamcopsRequest,
+                             table: Table) -> int:
     """
     Marks all records in a table as deleted (that are current and in the
     current era).
+
+    Returns the number of rows affected.
     """
     # noinspection PyProtectedMember
     rp = req.dbsession.execute(
@@ -1083,9 +1332,8 @@ def flag_all_records_deleted(req: CamcopsRequest, table: Table) -> None:
         .values(_removal_pending=1,
                 _successor_pk=None)
     )  # type: ResultProxy
-    if rp.rowcount > 0:
-        # https://docs.sqlalchemy.org/en/latest/core/connections.html?highlight=rowcount#sqlalchemy.engine.ResultProxy.rowcount  # noqa
-        mark_table_dirty(req, table)
+    return rp.rowcount
+    # https://docs.sqlalchemy.org/en/latest/core/connections.html?highlight=rowcount#sqlalchemy.engine.ResultProxy.rowcount  # noqa
 
 
 def flag_deleted_where_clientpk_not(req: CamcopsRequest,
@@ -1109,6 +1357,8 @@ def flag_deleted_where_clientpk_not(req: CamcopsRequest,
     )  # type: ResultProxy
     if rp.rowcount > 0:
         mark_table_dirty(req, table)
+    # ... but if we are preserving, do NOT mark this table as clean; there may
+    # be other records that still require preserving.
 
 
 def flag_modified(req: CamcopsRequest,
@@ -1124,7 +1374,6 @@ def flag_modified(req: CamcopsRequest,
         pk: server PK of the record to mark as old
         successor_pk: server PK of its successor
     """
-    mark_table_dirty(req, table)
     # noinspection PyProtectedMember
     req.dbsession.execute(
         update(table)
@@ -1146,7 +1395,6 @@ def flag_record_for_preservation(req: CamcopsRequest,
         table: SQLAlchemy :class:`Table`
         pk: server PK of the record to mark
     """
-    mark_table_dirty(req, table)
     # noinspection PyProtectedMember
     req.dbsession.execute(
         update(table)
@@ -1155,31 +1403,31 @@ def flag_record_for_preservation(req: CamcopsRequest,
     )
 
 
-def commit_all(req: CamcopsRequest,
-               batchtime: Pendulum,
-               preserving: bool) -> None:
+def commit_all(req: CamcopsRequest, batchdetails: BatchDetails) -> None:
     """
     Commits additions, removals, and preservations for all tables.
 
     Args:
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        batchtime: the UTC batch time to apply to all changes
-        preserving: are we preserving the records (see
-            :func:`start_preserving`, :func:`commit_table`)?
+        batchdetails: the :class:`BatchDetails`
     """
     tables = get_dirty_tables(req)
+    # log.debug("Dirty tables: {}".format(list(t.name for t in tables)))
     # Ensure we do the "patient" and "patient_idnum" tables first; task
     # indexing depends on referring to those correctly, and so does ID number
-    # indexing.
+    # indexing. Similarly, ancillary tables need to come before main task
+    # tables, or the Task.is_complete() function may go wrong.
     tables.sort(key=lambda x: (x.name != Patient.__tablename__,
                                x.name != PatientIdNum.__tablename__,
+                               x.name not in ANCILLARY_AND_BLOB_TABLENAMES,
                                x.name))
+    # False sorts before True:
     # ... https://stackoverflow.com/questions/23090664/sorting-a-list-of-string-in-python-such-that-a-specific-string-if-present-appea  # noqa
 
     auditsegments = []  # type: List[str]
     for table in tables:
         n_added, n_removed, n_preserved = commit_table(
-            req, batchtime, preserving, table, clear_dirty=False)
+            req, batchdetails, table, clear_dirty=False)
         auditsegments.append(
             "{tablename} ({n_added},{n_removed},{n_preserved})".format(
                 tablename=table.name,
@@ -1189,18 +1437,15 @@ def commit_all(req: CamcopsRequest,
             )
         )
 
-    if preserving:
+    if batchdetails.preserving:
         # Also preserve/finalize any corresponding special notes (2015-02-01),
         # but all in one go (2018-11-13).
-        dbsession = req.dbsession
-        device_id = req.tabletsession.device_id
-        new_era = format_datetime(batchtime, DateFormat.ERA)
         # noinspection PyUnresolvedReferences
-        dbsession.execute(
+        req.dbsession.execute(
             update(SpecialNote.__table__)
-            .where(SpecialNote.device_id == device_id)
+            .where(SpecialNote.device_id == req.tabletsession.device_id)
             .where(SpecialNote.era == ERA_NOW)
-            .values(era=new_era)
+            .values(era=batchdetails.new_era)
         )
 
     clear_dirty_tables(req)
@@ -1224,8 +1469,7 @@ def commit_all(req: CamcopsRequest,
 
 
 def commit_table(req: CamcopsRequest,
-                 batchtime: Pendulum,
-                 preserving: bool,
+                 batchdetails: BatchDetails,
                  table: Table,
                  clear_dirty: bool = True) -> Tuple[int, int, int]:
     """
@@ -1237,10 +1481,7 @@ def commit_table(req: CamcopsRequest,
 
     Args:
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        batchtime: the UTC batch time to apply to all changes
-        preserving: are we preserving the records -- that is, moving them
-            from the current era (``NOW``) to the ``batchtime`` era, so they
-            can be deleted from the tablet without apparent loss on the server?
+        batchdetails: the :class:`BatchDetails`
         table: SQLAlchemy :class:`Table`
         clear_dirty: remove the table from the record of dirty tables for
             this device? (If called from :func:`commit_all`, this should be
@@ -1268,13 +1509,15 @@ def commit_table(req: CamcopsRequest,
     exacttime = req.now
     dbsession = req.dbsession
     tablename = table.name
+    batchtime = batchdetails.batchtime
+    preserving = batchdetails.preserving
 
     # -------------------------------------------------------------------------
     # Fetch addition, removal, preservation PKs in a single query
     # -------------------------------------------------------------------------
     if preserving:
         # noinspection PyProtectedMember
-        preserving_criterion = table.c._era == ERA_NOW
+        preserving_criterion = True
     else:
         # noinspection PyProtectedMember
         preserving_criterion = table.c._move_off_tablet
@@ -1288,6 +1531,7 @@ def commit_table(req: CamcopsRequest,
         ])
         .select_from(table)
         .where(table.c._device_id == device_id)
+        .where(table.c._era == ERA_NOW)
     ).fetchall()
     addition_pks = []  # type: List[int]
     removal_pks = []  # type: List[int]
@@ -1305,6 +1549,8 @@ def commit_table(req: CamcopsRequest,
     # -------------------------------------------------------------------------
     # Update the records we're adding
     if addition_pks:
+        # log.debug("commit_table: {}, adding server PKs {}".format(
+        #     tablename, addition_pks))
         # noinspection PyProtectedMember
         dbsession.execute(
             update(table)
@@ -1321,6 +1567,8 @@ def commit_table(req: CamcopsRequest,
     # -------------------------------------------------------------------------
     # Update the records we're removing
     if removal_pks:
+        # log.debug("commit_table: {}, removing server PKs {}".format(
+        #     tablename, removal_pks))
         # noinspection PyProtectedMember
         dbsession.execute(
             update(table)
@@ -1337,7 +1585,9 @@ def commit_table(req: CamcopsRequest,
     # -------------------------------------------------------------------------
     # Preserve necessary records
     if preservation_pks:
-        new_era = format_datetime(batchtime, DateFormat.ERA)
+        # log.debug("commit_table: {}, preserving server PKs {}".format(
+        #     tablename, preservation_pks))
+        new_era = batchdetails.new_era
         # noinspection PyProtectedMember
         dbsession.execute(
             update(table)
@@ -1624,9 +1874,9 @@ def end_upload(req: CamcopsRequest) -> None:
     """
     Ends an upload and commits changes.
     """
-    batchtime, preserving = get_batch_details_start_if_needed(req)
+    batchdetails = get_batch_details_start_if_needed(req)
     # ensure it's the same user finishing as starting!
-    end_device_upload_batch(req, batchtime, preserving)
+    end_device_upload_batch(req, batchdetails)
 
 
 def upload_table(req: CamcopsRequest) -> str:
@@ -1652,7 +1902,7 @@ def upload_table(req: CamcopsRequest) -> str:
         fail_user_error("{}={}: can't be less than 0".format(
             TabletParam.NRECORDS, nrecords))
 
-    _, _ = get_batch_details_start_if_needed(req)
+    batchdetails = get_batch_details_start_if_needed(req)
 
     ts = req.tabletsession
     if ts.explicit_pkname_for_upload_table:  # q.v.
@@ -1670,8 +1920,8 @@ def upload_table(req: CamcopsRequest) -> str:
     n_new = 0
     n_modified = 0
     n_identical = 0
+    dirty = False
     serverrecs = get_server_active_records(req, table, clientpk_name)
-    server_active_record_pks = [r.server_pk for r in serverrecs]
     for r in range(nrecords):
         recname = TabletParam.RECORD_PREFIX + str(r)
         values = get_values_from_post_var(req, recname)
@@ -1688,27 +1938,36 @@ def upload_table(req: CamcopsRequest) -> str:
         valuedict = dict(zip(fields, values))
         # log.debug("table {!r}, record {}: {!r}", table.name, r, valuedict)
         # CORE: CALLS upload_record_core
-        oldserverpk, newserverpk = upload_record_core(
+        urr = upload_record_core(
             req, table, clientpk_name, valuedict, r,
             server_active_records=serverrecs)
-        if oldserverpk is not None:
-            server_pks_uploaded.append(oldserverpk)
-            if newserverpk is None:
+        if urr.oldserverpk is not None:  # was an existing record
+            server_pks_uploaded.append(urr.oldserverpk)
+            if urr.newserverpk is None:
                 n_identical += 1
             else:
                 n_modified += 1
-        else:
+        else:  # entirely new
             n_new += 1
+        if urr.dirty:
+            dirty = True
 
     # Now deal with any ABSENT (not in uploaded data set) conditions.
+    server_active_record_pks = [r.server_pk for r in serverrecs]
     server_pks_for_deletion = [x for x in server_active_record_pks
                                if x not in server_pks_uploaded]
     n_deleted = len(server_pks_for_deletion)
     if n_deleted > 0:
         flag_deleted(req, table, server_pks_for_deletion)
 
-    if n_new > 0 or n_modified > 0 or n_deleted > 0:
+    if (dirty or n_new > 0 or n_modified > 0 or n_deleted > 0 or
+            any(sr.move_off_tablet for sr in serverrecs)):
+        # ... checks on n_new and n_modified are redundant; dirty will be True
         mark_table_dirty(req, table)
+    elif batchdetails.preserving and not serverrecs:
+        # We've scanned this table, and there would be no work to do to
+        # preserve records from previous uploads.
+        mark_table_clean(req, table)
 
     # Special for old tablets:
     # noinspection PyUnresolvedReferences
@@ -1748,15 +2007,17 @@ def upload_record(req: CamcopsRequest) -> str:
                                                    TabletParam.PKNAME)
     valuedict = get_fields_and_values(req, table,
                                       TabletParam.FIELDS, TabletParam.VALUES)
-    oldserverpk, newserverpk = upload_record_core(
+    urr = upload_record_core(
         req, table, clientpk_name, valuedict,
         recordnum=1  # single-record upload
     )
-    if oldserverpk is None:
+    if urr.dirty:
+        mark_table_dirty(req, table)
+    if urr.oldserverpk is None:
         log.info("upload-insert")
         return "UPLOAD-INSERT"
     else:
-        if newserverpk is None:
+        if urr.newserverpk is None:
             log.info("upload-update: skipping existing record")
         else:
             log.info("upload-update")
@@ -1771,9 +2032,19 @@ def upload_empty_tables(req: CamcopsRequest) -> str:
     requests.
     """
     tables = get_tables_from_post_var(req, TabletParam.TABLES)
-    _, _ = get_batch_details_start_if_needed(req)
+    batchdetails = get_batch_details_start_if_needed(req)
+    to_dirty = []  # type: List[Table]
+    to_clean = []  # type: List[Table]
     for table in tables:
-        flag_all_records_deleted(req, table)
+        nrows_affected = flag_all_records_deleted(req, table)
+        if nrows_affected > 0:
+            to_dirty.append(table)
+        elif batchdetails.preserving:
+            # There are no records in the current era for this device.
+            to_clean.append(table)
+    # In the fewest number of queries:
+    mark_tables_dirty(req, to_dirty)
+    mark_tables_clean(req, to_clean)
     log.info("upload_empty_tables")
     # Auditing occurs at commit_all.
     return "UPLOAD-EMPTY-TABLES"
@@ -1789,7 +2060,7 @@ def start_preservation(req: CamcopsRequest) -> str:
     their MOVE_OFF_TABLET_FIELD field (``_move_off_tablet``) is set; see
     :func:`upload_record` and the functions it calls.
     """
-    _, _ = get_batch_details_start_if_needed(req)
+    get_batch_details_start_if_needed(req)
     start_preserving(req)
     log.info("start_preservation successful")
     # Auditing occurs at commit_all.
@@ -1806,7 +2077,7 @@ def delete_where_key_not(req: CamcopsRequest) -> str:
         req, table, TabletParam.PKNAME)
     clientpk_values = get_values_from_post_var(req, TabletParam.PKVALUES)
 
-    _, _ = get_batch_details_start_if_needed(req)
+    get_batch_details_start_if_needed(req)
     flag_deleted_where_clientpk_not(req, table, clientpk_name, clientpk_values)
     # Auditing occurs at commit_all.
     # log.info("delete_where_key_not successful; table {} trimmed", table)
@@ -1857,7 +2128,7 @@ def which_keys_to_send(req: CamcopsRequest) -> str:
         except ValueError:
             fail_user_error("Bad date/time: {!r}".format(client_dates[i]))
 
-    _, _ = get_batch_details_start_if_needed(req)
+    get_batch_details_start_if_needed(req)
 
     # 1. The client sends us all its PKs. So "delete" anything not in that
     #    list.

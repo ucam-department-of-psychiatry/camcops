@@ -166,6 +166,13 @@ class TaskHasPatientMixin(object):
     def patient(cls) -> RelationshipProperty:
         """
         SQLAlchemy relationship: "the patient for this task".
+
+        Note that this refers to the CURRENT version of the patient. If there
+        is an editing chain, older patient versions are not retrieved.
+
+        Compare :func:`camcops_server.cc_modules.cc_blob.blob_relationship`,
+        which uses the same strategy, as do several other similar functions.
+
         """
         return relationship(
             "Patient",
@@ -2234,6 +2241,7 @@ def get_from_dict(d: Dict, key: Any, default: Any = INVALID_VALUE) -> Any:
         default: value to return if none is provided
     """
     return d.get(key, default)
+
 
 # =============================================================================
 # Unit testing
