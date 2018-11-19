@@ -21,7 +21,7 @@
 // #define DEBUG_NETWORK_REPLIES_RAW
 // #define DEBUG_NETWORK_REPLIES_DICT
 // #define DEBUG_ACTIVITY
-// #define DEBUG_JSON
+#define DEBUG_JSON
 #define USE_BACKGROUND_DATABASE
 
 #include "networkmanager.h"
@@ -62,6 +62,7 @@ using dbfunc::delimit;
 const QString KEY_CAMCOPS_VERSION("camcops_version");  // C->S
 const QString KEY_DATABASE_TITLE("databaseTitle");  // S->C
 const QString KEY_DATEVALUES("datevalues");  // C->S
+const QString KEY_DBDATA("dbdata");  // C->S, new in v2.3.0
 const QString KEY_DEVICE("device");  // C->S
 const QString KEY_DEVICE_FRIENDLY_NAME("devicefriendlyname");  // C->S
 const QString KEY_ERROR("error");  // S->C
@@ -69,12 +70,13 @@ const QString KEY_FIELDS("fields");    // B; fieldnames
 const QString KEY_FINALIZING("finalizing");  // C->S, in JSON, v2.3.0
 const QString KEY_ID_POLICY_UPLOAD("idPolicyUpload");  // S->C
 const QString KEY_ID_POLICY_FINALIZE("idPolicyFinalize");  // S->C
-const QString KEY_JSON("json");  // C->S, new in v2.3.0
 const QString KEY_NFIELDS("nfields");  // B
 const QString KEY_NRECORDS("nrecords");  // B
 const QString KEY_OPERATION("operation");  // C->S
 const QString KEY_PASSWORD("password");  // C->S
+const QString KEY_PATIENT_INFO("patient_info");  // C->S, new in v2.3.0
 const QString KEY_PKNAME("pkname");  // C->S
+const QString KEY_PKNAMEINFO("pknameinfo");  // C->S
 const QString KEY_PKVALUES("pkvalues");  // C->S
 const QString KEY_RESULT("result");  // S->C
 const QString KEY_SERVER_CAMCOPS_VERSION("serverCamcopsVersion");  // S->C
@@ -104,6 +106,7 @@ const QString OP_GET_ALLOWED_TABLES("get_allowed_tables");  // v2.2.0
 const QString OP_REGISTER("register");
 const QString OP_START_PRESERVATION("start_preservation");
 const QString OP_START_UPLOAD("start_upload");
+const QString OP_UPLOAD_ENTIRE_DATABASE("upload_entire_database");  // v2.3.0
 const QString OP_UPLOAD_TABLE("upload_table");
 const QString OP_UPLOAD_RECORD("upload_record");
 const QString OP_UPLOAD_EMPTY_TABLES("upload_empty_tables");
@@ -112,6 +115,11 @@ const QString OP_WHICH_KEYS_TO_SEND("which_keys_to_send");
 
 // Notification text:
 const QString PLEASE_REREGISTER(QObject::tr("Please re-register with the server."));
+
+const Version MIN_SERVER_VERSION_FOR_ONE_STEP_UPLOAD("2.3.0");
+
+const QString ENCODE_TRUE("1");
+const QString ENCODE_FALSE("0");
 
 
 // ============================================================================
@@ -987,13 +995,18 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
             fail();
             return;
         }
-        startUpload();
-        if (m_upload_method == UploadMethod::Copy) {
-            // If we copy, we proceed to uploading
-            m_upload_next_stage = NextUploadStage::Uploading;
+        if (shouldUseOneStepUpload()) {
+            uploadOneStep();
+            m_upload_next_stage = NextUploadStage::Finished;
         } else {
-            // If we're moving, we preserve records.
-            m_upload_next_stage = NextUploadStage::StartPreservation;
+            startUpload();
+            if (m_upload_method == UploadMethod::Copy) {
+                // If we copy, we proceed to uploading
+                m_upload_next_stage = NextUploadStage::Uploading;
+            } else {
+                // If we're moving, we preserve records.
+                m_upload_next_stage = NextUploadStage::StartPreservation;
+            }
         }
         break;
 
@@ -1057,16 +1070,15 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
 
     case NextUploadStage::Finished:
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // FROM: upload
+        // FROM: upload, or uploadOneStep()
         // All done successfully!
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         wipeTables();
         statusMessage("Finished");
         m_app.setVar(varconst::LAST_SUCCESSFUL_UPLOAD, datetime::now());
         m_app.setNeedsUpload(false);
-        if (m_upload_method != UploadMethod::Copy) {
-            m_app.deselectPatient();
-        }
+        m_app.deselectPatient(true);  // even for "copy" method; see changelog
+        m_app.forceRefreshPatientList();
         succeed();
         break;
 
@@ -1113,7 +1125,7 @@ void NetworkManager::uploadValidatePatients()
     statusMessage("Validating patients for upload");
     Dict dict;
     dict[KEY_OPERATION] = OP_VALIDATE_PATIENTS;
-    dict[KEY_JSON] = m_upload_patient_info_json;
+    dict[KEY_PATIENT_INFO] = m_upload_patient_info_json;
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
@@ -2025,4 +2037,61 @@ bool NetworkManager::pruneDeadBlobs()
     }
 #endif
     return true;
+}
+
+
+// ============================================================================
+// One-step upload
+// ============================================================================
+
+bool NetworkManager::serverSupportsOneStepUpload() const
+{
+    return m_app.serverVersion() >= MIN_SERVER_VERSION_FOR_ONE_STEP_UPLOAD;
+}
+
+
+bool NetworkManager::shouldUseOneStepUpload() const
+{
+    if (!serverSupportsOneStepUpload()) {
+        return false;
+    }
+    const int method = m_app.varInt(varconst::UPLOAD_METHOD);
+    // Can't use switch; const int is not const enough.
+    // Can't use enums; have to store in an int field.
+    if (method == varconst::UPLOAD_METHOD_ONESTEP) {
+        return true;
+    } else if (method == varconst::UPLOAD_METHOD_BYSIZE) {
+        return m_db.approximateDatabaseSize() <= m_app.varLongLong(
+                    varconst::MAX_DBSIZE_FOR_ONESTEP_UPLOAD);
+    } else {
+        // e.g. varconst::UPLOAD_METHOD_MULTISTEP or bad value
+        return false;
+    }
+}
+
+
+void NetworkManager::uploadOneStep()
+{
+    statusMessage("Starting one-step upload");
+    const bool preserving = m_upload_method != UploadMethod::Copy;
+    Dict dict;
+    dict[KEY_OPERATION] = OP_UPLOAD_ENTIRE_DATABASE;
+    dict[KEY_FINALIZING] = preserving ? ENCODE_TRUE : ENCODE_FALSE;
+    dict[KEY_PKNAMEINFO] = getPkInfoAsJson();
+    dict[KEY_DBDATA] = m_db.getDatabaseAsJson();
+#ifdef DEBUG_JSON
+    qDebug().noquote() << Q_FUNC_INFO << dict[KEY_DBDATA];
+#endif
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+QString NetworkManager::getPkInfoAsJson()
+{
+    QJsonObject root;
+    for (const QString& tablename : m_db.getAllTables()) {
+        root[tablename] = dbconst::PK_FIELDNAME;  // they're all the same...
+    }
+    const QJsonDocument jsondoc(root);
+    return jsondoc.toJson(QJsonDocument::Compact);
 }

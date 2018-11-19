@@ -1447,6 +1447,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
   that don't validate), the "upload" function is now restricted to unlocked
   devices.
 
+- Databases were not being vacuumed (call was being made after database thread
+  had been shut down). Fixed.
+
+- Fixed bug: patient was not deselected (in ``NetworkManager::uploadNext()``)
+  with a "copy" upload, but that failed to take account of patients/tasks
+  marked as "individually finished". Now always deselected (also triggers
+  refresh of anonymous task list).
+
 
 **Server v2.2.8 to 2.3.0, in progress (from 2018-09-14)**
 
@@ -1544,3 +1552,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
     the client's index couldn't use server PKs (which we'd want); etc.
 
 - Upload speedup.
+
+- Fixed bug where predecessor records of individually-preserved client records
+  were not themselves preserved properly.

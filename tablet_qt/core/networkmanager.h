@@ -167,6 +167,10 @@ protected:
     void queryFailClearingMoveOffFlag(const QString& tablename);
     bool clearMoveOffTabletFlag(const QString& tablename);
     bool pruneDeadBlobs();
+    bool serverSupportsOneStepUpload() const;
+    bool shouldUseOneStepUpload() const;
+    void uploadOneStep();
+    QString getPkInfoAsJson();
 
     // ------------------------------------------------------------------------
     // Signals

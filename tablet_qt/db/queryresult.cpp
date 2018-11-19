@@ -19,9 +19,12 @@
 
 #include "queryresult.h"
 #include <QDebug>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include "lib/convert.h"
+#include "lib/uifunc.h"
 
 
 QueryResult::QueryResult(QSqlQuery& query,
@@ -102,6 +105,12 @@ bool QueryResult::isEmpty() const
 }
 
 
+QStringList QueryResult::columnNames() const
+{
+    return m_column_names;
+}
+
+
 QVector<QVariant> QueryResult::row(const int row) const
 {
     Q_ASSERT(row >= 0 && row <= m_n_rows);
@@ -130,6 +139,7 @@ QVariant QueryResult::at(const int row, const int col) const
 
 QVariant QueryResult::at(const int row, const QString& colname) const
 {
+    requireColumnNames();
     const int col = m_column_names.indexOf(colname);
     return at(row, col);
 }
@@ -185,12 +195,19 @@ QVariant QueryResult::lastInsertId() const
 
 QString QueryResult::csvHeader(const char sep) const
 {
-    if (m_column_names.length() < nCols()) {
-        qCritical() <<
-                "Column names were discarded from the QueryResult but are "
-                "now being requested for a CSV header!";
-    }
+    requireColumnNames();
     return m_column_names.join(sep);
+}
+
+
+void QueryResult::requireColumnNames() const
+{
+    if (m_column_names.length() < nCols()) {
+        uifunc::stopApp(
+            "Column names were discarded from a QueryResult but are "
+            "now required!"
+        );
+    }
 }
 
 
@@ -233,6 +250,34 @@ QString QueryResult::fetchModeDescription(const FetchMode fetch_mode)
     default:
         return "?";
     }
+}
+
+
+// ========================================================================
+// JSON
+// ========================================================================
+
+QJsonArray QueryResult::jsonRows() const
+{
+    QJsonArray rows;
+    const int nrows = nRows();
+    for (int row = 0; row < nrows; ++row) {
+        rows.append(jsonRow(row));
+    }
+    return rows;
+}
+
+
+QJsonObject QueryResult::jsonRow(int row) const
+{
+    requireColumnNames();
+    const int ncols = nCols();
+    QJsonObject jsonrow;
+    for (int col = 0; col < ncols; ++col) {
+        const QString& colname = m_column_names.at(col);
+        jsonrow[colname] = convert::toSqlLiteral(at(row, col));
+    }
+    return jsonrow;
 }
 
 

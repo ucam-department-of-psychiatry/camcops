@@ -27,6 +27,9 @@
 #include "databasemanager.h"
 #include <QDateTime>
 #include <QDebug>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -169,6 +172,9 @@ void DatabaseManager::closeDatabase()
 #ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
+    if (m_vacuum_on_close) {
+        vacuum();
+    }
     if (m_threaded) {
         if (m_thread) {
             ThreadedQueryRequest request(SqlArgs(),
@@ -192,9 +198,6 @@ void DatabaseManager::closeDatabaseActual()
     qDebug() << Q_FUNC_INFO;
 #endif
     if (m_db.isOpen()) {
-        if (m_vacuum_on_close) {
-            vacuum();
-        }
         m_db.close();
         qInfo()<< "Qt will give a warning next (... \"all queries will cease "
                   "to work\") as we're about to call removeDatabase(); "
@@ -692,6 +695,15 @@ QString DatabaseManager::dbTableDefinitionSql(const QString& tablename)
 }
 
 
+qlonglong DatabaseManager::approximateDatabaseSize()
+{
+    // NB includes dead pages; VACUUM first for a better answer
+    const QString sql = "SELECT page_count * page_size AS size "
+                        "FROM pragma_page_count(), pragma_page_size()";
+    return fetchFirstValue(sql).toLongLong();
+}
+
+
 // ----------------------------------------------------------------------------
 // Altering schema/structure
 // ----------------------------------------------------------------------------
@@ -1092,4 +1104,28 @@ bool DatabaseManager::encryptToAnother(const QString& filename,
                      convert::toSqlLiteral(passphrase))) &&
             exec("SELECT sqlcipher_export('encrypted')") &&
             exec("DETACH DATABASE encrypted");
+}
+
+
+// ----------------------------------------------------------------------------
+// JSON output
+// ----------------------------------------------------------------------------
+
+QString DatabaseManager::getDatabaseAsJson()
+{
+    QJsonObject root;
+    for (const QString& tablename : getAllTables()) {
+        root[tablename] = getTableAsJson(tablename);
+    }
+    const QJsonDocument jsondoc(root);
+    return jsondoc.toJson(QJsonDocument::Compact);
+}
+
+
+QJsonArray DatabaseManager::getTableAsJson(const QString& tablename)
+{
+    SqlArgs sqlargs(QString("SELECT * FROM %1").arg(delimit(tablename)));
+    const QueryResult result = query(sqlargs, QueryResult::FetchMode::FetchAll,
+                                     true);
+    return result.jsonRows();
 }

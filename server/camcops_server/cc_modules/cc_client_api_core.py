@@ -44,12 +44,13 @@ class TabletParam(object):
     CAMCOPS_VERSION = "camcops_version"  # C->S
     DATABASE_TITLE = "databaseTitle"  # S->C
     DATEVALUES = "datevalues"  # C->S
+    DBDATA = "dbdata"  # C->S, v2.3.0
     DEVICE = "device"  # C->S
     DEVICE_FRIENDLY_NAME = "devicefriendlyname"  # C->S
     DOB = "dob"  # C->S, in JSON, v2.3.0
     ERROR = "error"  # S->C
     FIELDS = "fields"  # B
-    FINALIZING = "finalizing"  # C->S, in JSON, v2.3.0
+    FINALIZING = "finalizing"  # C->S, in JSON and upload_entire_database, v2.3.0; synonym for preserving  # noqa
     FORENAME = "forename"  # C->S, in JSON, v2.3.0
     GP = "gp"  # C->S, in JSON, v2.3.0
     ID_DESCRIPTION_PREFIX = "idDescription"  # S->C
@@ -58,13 +59,14 @@ class TabletParam(object):
     ID_SHORT_DESCRIPTION_PREFIX = "idShortDescription"  # S->C
     ID_VALIDATION_METHOD_PREFIX = "idValidationMethod"  # S->C; new in v2.2.8
     IDNUM_PREFIX = "idnum"  # C->S, in JSON, v2.3.0
-    JSON = "json"  # C->S; new in v2.3.0
     NFIELDS = "nfields"  # B
     NRECORDS = "nrecords"  # B
     OPERATION = "operation"  # C->S
     OTHER = "other"  # C->S, in JSON, v2.3.0
     PASSWORD = "password"  # C->S
+    PATIENT_INFO = "patient_info"  # C->S; new in v2.3.0
     PKNAME = "pkname"  # C->S
+    PKNAMEINFO = "pknameinfo"  # C->S, new in v2.3.0
     PKVALUES = "pkvalues"  # C->S
     RECORD_PREFIX = "record"  # B
     RESULT = "result"  # S->C
@@ -78,6 +80,7 @@ class TabletParam(object):
     TABLES = "tables"  # C->S
     USER = "user"  # C->S
     VALUES = "values"  # C->S
+
     # Retired (part of defunct mobileweb interface):
     # WHEREFIELDS = "wherefields"
     # WHERENOTFIELDS = "wherenotfields"
@@ -96,7 +99,7 @@ class ExtraStringFieldNames(object):
 
 class AllowedTablesFieldNames(object):
     """
-    To match allowedservertable.cpp on the tablet
+    To match ``allowedservertable.cpp`` on the tablet
     """
     TABLENAME = "tablename"
     MIN_CLIENT_VERSION = "min_client_version"

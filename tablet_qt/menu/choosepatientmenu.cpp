@@ -40,6 +40,9 @@ ChoosePatientMenu::ChoosePatientMenu(CamcopsApp& app) :
     connect(&m_app, &CamcopsApp::selectedPatientDetailsChanged,
             this, &ChoosePatientMenu::selectedPatientDetailsChanged,
             Qt::UniqueConnection);
+    connect(&m_app, &CamcopsApp::refreshPatientList,
+            this, &ChoosePatientMenu::refreshPatientList,
+            Qt::UniqueConnection);
 
     // Set other header buttons
     m_p_header->offerAdd(true);
@@ -191,6 +194,12 @@ void ChoosePatientMenu::deletePatient()
 void ChoosePatientMenu::selectedPatientDetailsChanged(const Patient* patient)
 {
     Q_UNUSED(patient);
+    build();  // refresh patient list
+}
+
+
+void ChoosePatientMenu::refreshPatientList()
+{
     build();  // refresh patient list
 }
 

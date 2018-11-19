@@ -22,6 +22,8 @@
 #include <QString>
 #include <QVector>
 #include <QVariant>
+class QJsonArray;
+class QJsonObject;
 class QSqlQuery;
 
 
@@ -42,6 +44,7 @@ public:
     int nCols() const;
     int nRows() const;
     bool isEmpty() const;
+    QStringList columnNames() const;
     QVector<QVariant> row(int row) const;  // efficient
     QVector<QVariant> col(int col) const;  // inefficient
     QVariant at(int row, int col) const;
@@ -56,6 +59,10 @@ public:
     QString csvRow(int row, const char sep = ',') const;
     QString csv(const char sep = ',', const char linesep = '\n') const;
     static QString fetchModeDescription(FetchMode fetch_mode);
+    QJsonArray jsonRows() const;
+    QJsonObject jsonRow(int row) const;
+protected:
+    void requireColumnNames() const;
 protected:
     bool m_success;
     int m_n_cols;  // cached

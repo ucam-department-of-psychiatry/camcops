@@ -74,6 +74,29 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 T = TypeVar('T')
 
+# Database fieldname constants. Do not change. Used here and in client_api.py
+FN_PK = "_pk"
+FN_DEVICE_ID = "_device_id"
+FN_ERA = "_era"
+FN_CURRENT = "_current"
+FN_WHEN_ADDED_EXACT = "_when_added_exact"
+FN_WHEN_ADDED_BATCH_UTC = "_when_added_batch_utc"
+FN_ADDING_USER_ID = "_adding_user_id"
+FN_WHEN_REMOVED_EXACT = "_when_removed_exact"
+FN_WHEN_REMOVED_BATCH_UTC = "_when_removed_batch_utc"
+FN_REMOVING_USER_ID = "_removing_user_id"
+FN_PRESERVING_USER_ID = "_preserving_user_id"
+FN_FORCIBLY_PRESERVED = "_forcibly_preserved"
+FN_PREDECESSOR_PK = "_predecessor_pk"
+FN_SUCCESSOR_PK = "_successor_pk"
+FN_MANUALLY_ERASED = "_manually_erased"
+FN_MANUALLY_ERASED_AT = "_manually_erased_at"
+FN_MANUALLY_ERASING_USER_ID = "_manually_erasing_user_id"
+FN_CAMCOPS_VERSION = "_camcops_version"
+FN_ADDITION_PENDING = "_addition_pending"
+FN_REMOVAL_PENDING = "_removal_pending"
+FN_GROUP_ID = "_group_id"
+
 
 # =============================================================================
 # Base classes implementing common fields
@@ -103,7 +126,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _pk(cls) -> Column:
         return Column(
-            "_pk", Integer,
+            FN_PK, Integer,
             primary_key=True, autoincrement=True, index=True,
             comment="(SERVER) Primary key (on the server)"
         )
@@ -112,7 +135,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _device_id(cls) -> Column:
         return Column(
-            "_device_id", Integer, ForeignKey("_security_devices.id"),
+            FN_DEVICE_ID, Integer, ForeignKey("_security_devices.id"),
             nullable=False, index=True,
             comment="(SERVER) ID of the source tablet device"
         )
@@ -121,7 +144,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _era(cls) -> Column:
         return Column(
-            "_era", EraColType,
+            FN_ERA, EraColType,
             nullable=False, index=True,
             comment="(SERVER) 'NOW', or when this row was preserved and "
                     "removed from the source device (UTC ISO 8601)",
@@ -134,7 +157,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _current(cls) -> Column:
         return Column(
-            "_current", Boolean,
+            FN_CURRENT, Boolean,
             nullable=False, index=True,
             comment="(SERVER) Is the row current (1) or not (0)?"
         )
@@ -143,7 +166,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _when_added_exact(cls) -> Column:
         return Column(
-            "_when_added_exact", PendulumDateTimeAsIsoTextColType,
+            FN_WHEN_ADDED_EXACT, PendulumDateTimeAsIsoTextColType,
             comment="(SERVER) Date/time this row was added (ISO 8601)"
         )
 
@@ -151,7 +174,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _when_added_batch_utc(cls) -> Column:
         return Column(
-            "_when_added_batch_utc", DateTime,
+            FN_WHEN_ADDED_BATCH_UTC, DateTime,
             comment="(SERVER) Date/time of the upload batch that added this "
                     "row (DATETIME in UTC)"
         )
@@ -160,7 +183,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _adding_user_id(cls) -> Column:
         return Column(
-            "_adding_user_id", Integer,
+            FN_ADDING_USER_ID, Integer,
             ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that added this row",
         )
@@ -169,7 +192,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _when_removed_exact(cls) -> Column:
         return Column(
-            "_when_removed_exact", PendulumDateTimeAsIsoTextColType,
+            FN_WHEN_REMOVED_EXACT, PendulumDateTimeAsIsoTextColType,
             comment="(SERVER) Date/time this row was removed, i.e. made "
                     "not current (ISO 8601)"
         )
@@ -178,7 +201,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _when_removed_batch_utc(cls) -> Column:
         return Column(
-            "_when_removed_batch_utc", DateTime,
+            FN_WHEN_REMOVED_BATCH_UTC, DateTime,
             comment="(SERVER) Date/time of the upload batch that removed "
                     "this row (DATETIME in UTC)"
         )
@@ -187,7 +210,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _removing_user_id(cls) -> Column:
         return Column(
-            "_removing_user_id", Integer,
+            FN_REMOVING_USER_ID, Integer,
             ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that removed this row"
         )
@@ -196,7 +219,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _preserving_user_id(cls) -> Column:
         return Column(
-            "_preserving_user_id", Integer,
+            FN_PRESERVING_USER_ID, Integer,
             ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that preserved this row"
         )
@@ -205,7 +228,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _forcibly_preserved(cls) -> Column:
         return Column(
-            "_forcibly_preserved", Boolean, default=False,
+            FN_FORCIBLY_PRESERVED, Boolean, default=False,
             comment="(SERVER) Forcibly preserved by superuser (rather than "
                     "normally preserved by tablet)?"
         )
@@ -214,7 +237,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _predecessor_pk(cls) -> Column:
         return Column(
-            "_predecessor_pk", Integer,
+            FN_PREDECESSOR_PK, Integer,
             comment="(SERVER) PK of predecessor record, prior to modification"
         )
 
@@ -222,7 +245,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _successor_pk(cls) -> Column:
         return Column(
-            "_successor_pk", Integer,
+            FN_SUCCESSOR_PK, Integer,
             comment="(SERVER) PK of successor record  (after modification) "
                     "or NULL (whilst live, or after deletion)"
         )
@@ -231,7 +254,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _manually_erased(cls) -> Column:
         return Column(
-            "_manually_erased", Boolean, default=False,
+            FN_MANUALLY_ERASED, Boolean, default=False,
             comment="(SERVER) Record manually erased (content destroyed)?"
         )
 
@@ -239,7 +262,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _manually_erased_at(cls) -> Column:
         return Column(
-            "_manually_erased_at", PendulumDateTimeAsIsoTextColType,
+            FN_MANUALLY_ERASED_AT, PendulumDateTimeAsIsoTextColType,
             comment="(SERVER) Date/time of manual erasure (ISO 8601)"
         )
 
@@ -247,7 +270,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _manually_erasing_user_id(cls) -> Column:
         return Column(
-            "_manually_erasing_user_id", Integer,
+            FN_MANUALLY_ERASING_USER_ID, Integer,
             ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that erased this row manually"
         )
@@ -256,7 +279,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _camcops_version(cls) -> Column:
         return Column(
-            "_camcops_version", SemanticVersionColType,
+            FN_CAMCOPS_VERSION, SemanticVersionColType,
             default=CAMCOPS_SERVER_VERSION,
             comment="(SERVER) CamCOPS version number of the uploading device"
         )
@@ -265,7 +288,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _addition_pending(cls) -> Column:
         return Column(
-            "_addition_pending", Boolean, nullable=False, default=False,
+            FN_ADDITION_PENDING, Boolean, nullable=False, default=False,
             comment="(SERVER) Addition pending?"
         )
 
@@ -273,7 +296,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _removal_pending(cls) -> Column:
         return Column(
-            "_removal_pending", Boolean, default=False,
+            FN_REMOVAL_PENDING, Boolean, default=False,
             comment="(SERVER) Removal pending?"
         )
 
@@ -281,34 +304,35 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _group_id(cls) -> Column:
         return Column(
-            "_group_id", Integer, ForeignKey("_security_groups.id"),
+            FN_GROUP_ID, Integer, ForeignKey("_security_groups.id"),
             nullable=False, index=True,
             comment="(SERVER) ID of group to which this record belongs"
         )
 
     RESERVED_FIELDS = [  # fields that tablets can't upload
-        "_pk",
-        "_device_id",
-        "_era",
-        "_current",
-        "_when_added_exact",
-        "_when_added_batch_utc",
-        "_adding_user_id",
-        "_when_removed_exact",
-        "_when_removed_batch_utc",
-        "_removing_user_id",
-        "_preserving_user_id",
-        "_forcibly_preserved",
-        "_predecessor_pk",
-        "_successor_pk",
-        "_manually_erased",
-        "_manually_erased_at",
-        "_manually_erasing_user_id",
-        "_camcops_version",
-        "_addition_pending",
-        "_removal_pending",
-        "_group_id",
+        FN_PK,
+        FN_DEVICE_ID,
+        FN_ERA,
+        FN_CURRENT,
+        FN_WHEN_ADDED_EXACT,
+        FN_WHEN_ADDED_BATCH_UTC,
+        FN_ADDING_USER_ID,
+        FN_WHEN_REMOVED_EXACT,
+        FN_WHEN_REMOVED_BATCH_UTC,
+        FN_REMOVING_USER_ID,
+        FN_PRESERVING_USER_ID,
+        FN_FORCIBLY_PRESERVED,
+        FN_PREDECESSOR_PK,
+        FN_SUCCESSOR_PK,
+        FN_MANUALLY_ERASED,
+        FN_MANUALLY_ERASED_AT,
+        FN_MANUALLY_ERASING_USER_ID,
+        FN_CAMCOPS_VERSION,
+        FN_ADDITION_PENDING,
+        FN_REMOVAL_PENDING,
+        FN_GROUP_ID,
     ]  # but more generally: they start with "_"...
+    assert(all(x.startswith("_") for x in RESERVED_FIELDS))
 
     # -------------------------------------------------------------------------
     # Fields that *all* client tables have:

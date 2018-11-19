@@ -183,8 +183,9 @@ signals:
     // ------------------------------------------------------------------------
 public:
     bool isPatientSelected() const;
-    void setSelectedPatient(int patient_id);
-    void deselectPatient();
+    void setSelectedPatient(int patient_id, bool force_refresh = false);
+    void deselectPatient(bool force_refresh = false);
+    void forceRefreshPatientList();
     void patientHasBeenEdited(int patient_id);
     Patient* selectedPatient() const;
     int selectedPatientId() const;
@@ -194,6 +195,7 @@ protected:
 signals:
     void selectedPatientChanged(const Patient* patient);
     void selectedPatientDetailsChanged(const Patient* patient);
+    void refreshPatientList();
 
     // ------------------------------------------------------------------------
     // CSS convenience; fonts etc.
@@ -268,6 +270,7 @@ public:
     QString varString(const QString& name) const;
     bool varBool(const QString& name) const;
     int varInt(const QString& name) const;
+    qlonglong varLongLong(const QString& name) const;
     bool setVar(const QString& name, const QVariant& value,
                 bool save_to_db = true);
 

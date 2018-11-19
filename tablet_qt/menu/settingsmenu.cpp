@@ -47,6 +47,7 @@
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
+#include "questionnairelib/qulineeditlonglong.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quslider.h"
@@ -250,13 +251,6 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
     const QString ssl_proto_t = tr("HTTPS (TLS/SSL) protocol?");
     const QString ssl_proto_h = tr("Stick with the default unless your server "
                                    "can’t cope with it.");
-
-    FieldRefPtr storepw_fr = app.storedVarFieldRef(varconst::STORE_SERVER_PASSWORD);
-    const QString storepw_t = tr("Store user’s server password?");
-    const QString storepw_h = tr(
-                "NO = fractionally more secure; YES = more convenient/"
-                "fractionally less secure, but still AES-256-encrypted.");
-
     const NameValueOptions options_ssl_protocol{
         // http://doc.qt.io/qt-5/qssl.html#SslProtocol-enum
         {"Known secure [default]", convert::SSLPROTODESC_SECUREPROTOCOLS},
@@ -272,6 +266,27 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
         {"(†) TLS v1.0 or SSL v3", convert::SSLPROTODESC_TLSV1_SSLV3},
     };
     const QString ssl_proto_explanation = "(†) Insecure, deprecated.";
+
+    FieldRefPtr storepw_fr = app.storedVarFieldRef(varconst::STORE_SERVER_PASSWORD);
+    const QString storepw_t = tr("Store user’s server password?");
+    const QString storepw_h = tr(
+                "NO = fractionally more secure; YES = more convenient/"
+                "fractionally less secure, but still AES-256-encrypted.");
+
+    FieldRefPtr uploadmethod_fr = app.storedVarFieldRef(
+                varconst::UPLOAD_METHOD);
+    const QString uploadmethod_t = tr("Upload method");
+    const NameValueOptions options_upload_method{
+        {"Multi-step (original)", varconst::UPLOAD_METHOD_MULTISTEP},
+        {"Always one-step (faster)", varconst::UPLOAD_METHOD_ONESTEP},
+        {"One-step if small enough (default)", varconst::UPLOAD_METHOD_BYSIZE},
+    };
+
+    FieldRefPtr maxsizeonestep_fr = app.storedVarFieldRef(
+                varconst::MAX_DBSIZE_FOR_ONESTEP_UPLOAD);
+    const QString maxsizeonestep_t = tr(
+            "Maximum (approximate) database size for one-step upload (bytes)");
+    const QString maxsizeonestep_h = tr("e.g. 2000000 for ~2Mb");
 
     QuPagePtr page(new QuPage{
         questionnairefunc::defaultGridRawPointer({
@@ -322,6 +337,20 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
                        ->setHorizontal(true)
                        ->setAsTextButton(true),
 
+        new QuHorizontalLine(),
+
+        new QuText(makeTitle(uploadmethod_t)),
+        (new QuMcq(uploadmethod_fr, options_upload_method))
+                       ->setHorizontal(true)
+                       ->setAsTextButton(true),
+
+        questionnairefunc::defaultGridRawPointer({
+            {
+                makeTitle(maxsizeonestep_t, maxsizeonestep_h, true),
+                (new QuLineEditLongLong(maxsizeonestep_fr))->setHint(
+                    makeHint(maxsizeonestep_t, maxsizeonestep_h))
+            }
+        }, 1, 1),
     });
     page->setTitle(tr("Configure server settings"));
     page->setType(QuPage::PageType::Config);

@@ -36,6 +36,14 @@ const QString VALIDATE_SSL_CERTIFICATES("validateSSLCertificates");
 const QString SSL_PROTOCOL("sslProtocol");
 const QString DEBUG_USE_HTTPS_TO_SERVER("debugUseHttpsToServer");
 const QString STORE_SERVER_PASSWORD("storeServerPassword");
+const QString UPLOAD_METHOD("uploadMethod");
+const QString MAX_DBSIZE_FOR_ONESTEP_UPLOAD("maxDbSizeForOneStepUpload");
+
+const int UPLOAD_METHOD_MULTISTEP = 0;
+const int UPLOAD_METHOD_ONESTEP = 1;
+const int UPLOAD_METHOD_BYSIZE = 2;
+const int DEFAULT_UPLOAD_METHOD = UPLOAD_METHOD_BYSIZE;
+const qlonglong DEFAULT_MAX_DBSIZE_FOR_ONESTEP_UPLOAD = 2000000;  // ~2 Mb
 
 // Uploading flag
 const QString NEEDS_UPLOAD("needsUpload");

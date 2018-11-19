@@ -24,6 +24,8 @@
 class QuLineEditULongLong : public QuLineEdit
 {
     // Offers a one-line text editor, for an integer.
+    // WATCH OUT, though; SQLite is limited to 64-bit signed integers,
+    // and this is 64-bit signed.
 
     Q_OBJECT
 public:

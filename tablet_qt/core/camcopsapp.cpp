@@ -565,6 +565,10 @@ void CamcopsApp::createStoredVars()
               convert::SSLPROTODESC_SECUREPROTOCOLS);
     createVar(varconst::DEBUG_USE_HTTPS_TO_SERVER, QVariant::Bool, true);
     createVar(varconst::STORE_SERVER_PASSWORD, QVariant::Bool, true);
+    createVar(varconst::UPLOAD_METHOD, QVariant::Int,
+              varconst::DEFAULT_UPLOAD_METHOD);
+    createVar(varconst::MAX_DBSIZE_FOR_ONESTEP_UPLOAD, QVariant::LongLong,
+              varconst::DEFAULT_MAX_DBSIZE_FOR_ONESTEP_UPLOAD);
 
     // Uploading "dirty" flag
     createVar(varconst::NEEDS_UPLOAD, QVariant::Bool, false);
@@ -1401,12 +1405,12 @@ bool CamcopsApp::isPatientSelected() const
 }
 
 
-void CamcopsApp::setSelectedPatient(const int patient_id)
+void CamcopsApp::setSelectedPatient(const int patient_id, bool force_refresh)
 {
     // We do this by ID so there's no confusion about who owns it; we own
     // our own private copy here.
     const bool changed = patient_id != selectedPatientId();
-    if (changed) {
+    if (changed || force_refresh) {
         reloadPatient(patient_id);
 #ifdef DEBUG_EMIT
         qDebug() << Q_FUNC_INFO << "emitting selectedPatientChanged "
@@ -1417,9 +1421,15 @@ void CamcopsApp::setSelectedPatient(const int patient_id)
 }
 
 
-void CamcopsApp::deselectPatient()
+void CamcopsApp::deselectPatient(bool force_refresh)
 {
-    setSelectedPatient(dbconst::NONEXISTENT_PK);
+    setSelectedPatient(dbconst::NONEXISTENT_PK, force_refresh);
+}
+
+
+void CamcopsApp::forceRefreshPatientList()
+{
+    emit refreshPatientList();
 }
 
 
@@ -1876,6 +1886,12 @@ bool CamcopsApp::varBool(const QString &name) const
 int CamcopsApp::varInt(const QString &name) const
 {
     return var(name).toInt();
+}
+
+
+qlonglong CamcopsApp::varLongLong(const QString& name) const
+{
+    return var(name).toLongLong();
 }
 
 

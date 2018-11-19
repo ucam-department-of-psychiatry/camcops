@@ -43,6 +43,7 @@ const QMap<QVariant::Type, QString> COLMAP{
     {QVariant::DateTime, VALUE_TEXT_FIELDNAME},
     {QVariant::Double, VALUE_REAL_FIELDNAME},
     {QVariant::Int, VALUE_INTEGER_FIELDNAME},
+    {QVariant::LongLong, VALUE_INTEGER_FIELDNAME},
     {QVariant::String, VALUE_TEXT_FIELDNAME},
     {QVariant::Uuid, VALUE_TEXT_FIELDNAME},
 };
@@ -54,6 +55,7 @@ const QMap<QVariant::Type, QString> TYPEMAP{
     {QVariant::DateTime, "DateTime"},
     {QVariant::Double, "Double"},
     {QVariant::Int, "Int"},
+    {QVariant::LongLong, "LongLong"},
     {QVariant::String, "String"},
     {QVariant::Uuid, "Uuid"},
 };
@@ -97,7 +99,7 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
             "StoredVar::StoredVar: m_value_fieldname unknown to StoredVar "
             "with name=%1, type=%2; is the type missing from COLMAP "
             "(in storedvar.cpp)?")
-                        .arg(name, type));
+                        .arg(name, QString::number(type)));
     }
     if (!TYPEMAP.contains(type)) {
         qCritical() << Q_FUNC_INFO << "QVariant type unknown:" << type;

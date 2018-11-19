@@ -131,7 +131,7 @@ SEX_CHOICES = [("F", "F"), ("M", "M"), ("X", "X")]
 # Field names/specifications
 # =============================================================================
 
-PKNAME = "_pk"
+# defunct # PKNAME = "_pk"
 TABLET_ID_FIELD = "id"
 MOVE_OFF_TABLET_FIELD = "_move_off_tablet"
 CLIENT_DATE_FIELD = "when_last_modified"

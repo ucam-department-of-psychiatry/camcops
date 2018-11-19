@@ -33,6 +33,7 @@
 #include "db/whichdb.h"
 class DatabaseWorkerThread;
 class Field;
+class QJsonArray;
 
 
 class DatabaseManager
@@ -217,6 +218,7 @@ public:
     QVector<SqlitePragmaInfoField> getPragmaInfo(const QString& tablename);
     QStringList getFieldNames(const QString& tablename);
     QString dbTableDefinitionSql(const QString& tablename);
+    qlonglong approximateDatabaseSize();
 
     // ------------------------------------------------------------------------
     // Altering schema/structure
@@ -252,6 +254,12 @@ public:
     bool databaseIsEmpty();
     bool encryptToAnother(const QString& filename, const QString& passphrase);
 
+    // ------------------------------------------------------------------------
+    // JSON output
+    // ------------------------------------------------------------------------
+    QString getDatabaseAsJson();
+    QJsonArray getTableAsJson(const QString& tablename);
+
     // ========================================================================
     // Internals
     // ========================================================================
@@ -273,6 +281,7 @@ protected:
     void work();
     void execute(const ThreadedQueryRequest& request);
     void pushResult(const QueryResult& result);
+
 
     // Debugging and DANGEROUS internals
     QSqlDriver* driver() const;  // UNCERTAIN IF THIS IS OK to return the driver on the GUI thread, even if it lives in another
