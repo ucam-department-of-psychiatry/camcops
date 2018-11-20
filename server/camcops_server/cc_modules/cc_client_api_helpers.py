@@ -34,7 +34,6 @@ from typing import Tuple
 from sqlalchemy.sql.schema import Table
 
 from camcops_server.cc_modules.cc_all_models import NONTASK_CLIENT_TABLENAMES
-from camcops_server.cc_modules.cc_blob import Blob
 from camcops_server.cc_modules.cc_patient import Patient, PatientIdNum
 
 
@@ -42,22 +41,22 @@ from camcops_server.cc_modules.cc_patient import Patient, PatientIdNum
 # Table sort order
 # =============================================================================
 
-def upload_commit_order_sorter(x: Table) -> Tuple:
+def upload_commit_order_sorter(x: Table) -> Tuple[bool, bool, bool, str]:
     """
     Function to sort tables for the commit phase of the upload.
+    
+    - "patient" must come before "patient_idnum", since ID number indexing
+      looks at the associated Patient.
+      
+    - All of "patient", "blobs", and all ancillary tables must come before task
+      tables, because task indexes depend on tasks correctly retrieving their
+      subsidiary information to determine their
+      :meth:`camcops_server.cc_modules.cc_task.Task.is_complete` status.
+      (However, even though ancillary tables can refer to BLOBs, as long as
+      both are complete before the task tables are examined, their relative
+      order doesn't matter.)
 
-    Ensure we do the "patient" and "patient_idnum" tables first; task
-    indexing depends on referring to those correctly, and so does ID number
-    indexing.
-
-    BLOBs also need to come early, as ancillary and task tables may both
-    refer to them.
-
-    Ancillary tables need to come before main task tables, or the
-    :meth:`camcops_server.cc_modules.cc_task.Task.is_complete` function may go
-    wrong.
-
-    Task tables come last.
+    - Task tables come last.
 
     Args:
         x: an SQLAlchemy :class:`Table`
@@ -71,8 +70,5 @@ def upload_commit_order_sorter(x: Table) -> Tuple:
     """  # noqa
     return (x.name != Patient.__tablename__,
             x.name != PatientIdNum.__tablename__,
-            x.name != Blob.__tablename__,
             x.name not in NONTASK_CLIENT_TABLENAMES,
             x.name)
-
-

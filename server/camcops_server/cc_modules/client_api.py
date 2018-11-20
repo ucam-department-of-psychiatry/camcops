@@ -141,9 +141,11 @@ step (faster; for use if the network packets are not excessively large).
 Perform the following steps both (1) with the client forced to the stepwise
 upload method, and (2) with it forced to one-step upload.
 
+Note that the number of patient ID numbers uploaded (etc.) is ignored below.
+
 *Single record*
 
-[Checked for one-step and multi-step upload, 2018-11-20.]
+[Checked for one-step and multi-step upload, 2018-11-21.]
 
 #.  Create a blank ReferrerSatisfactionSurvery (table ``ref_satis_gen``).
     This has the advantage of being an anonymous single-record task.
@@ -186,7 +188,7 @@ upload method, and (2) with it forced to one-step upload.
 
 *With a patient*
 
-[Checked for one-step and multi-step upload, 2018-11-20.]
+[Checked for one-step and multi-step upload, 2018-11-21.]
 
 #.  Create a dummy patient that the server will accept.
 
@@ -197,7 +199,7 @@ upload method, and (2) with it forced to one-step upload.
 
 #.  Create a third Progress Note with location "loc3" and contents "note3".
 
-#.  **Upload/copy.** Verify. This checks *addition*.
+#.  Upload/copy. Verify. This checks *addition*.
 
     - The server log should show 1 × patient added; 3 × progressnote added.
       (Also however many patientidnum records you chose.)
@@ -208,7 +210,7 @@ upload method, and (2) with it forced to one-step upload.
 
 #.  Delete the second note.
 
-#.  **Upload/copy.** Verify. This checks *modification*, *deletion*,
+#.  Upload/copy. Verify. This checks *modification*, *deletion*,
     *no-change detection*, and *reindexing*.
 
     - The server log should show 1 × progressnote added, 1 × progressnote
@@ -220,7 +222,7 @@ upload method, and (2) with it forced to one-step upload.
 
 #.  Delete the contents from the first note again.
 
-#.  **Upload/move** (or move-keeping-patients; that's only different on the
+#.  Upload/move (or move-keeping-patients; that's only different on the
     client side). Verify. This checks *preservation (finalizing)* and
     *reindexing*.
 
@@ -233,7 +235,7 @@ upload method, and (2) with it forced to one-step upload.
 
 #.  Upload/copy.
 
-#.  **Force-finalize** from the server. This tests force-finalizing including
+#.  Force-finalize from the server. This tests force-finalizing including
     reindexing.
 
     - The "tasks to finalize" list should have just two tasks in it.
@@ -242,7 +244,12 @@ upload method, and (2) with it forced to one-step upload.
 
 #.  Upload/move to get rid of the residual tasks on the client.
 
-*With BLOBs*
+    - The server log should show 1 × patient added, 1 × patient preserved; 2 ×
+      progressnote added, 2 × progressnote preserved.
+
+*With ancillary tables and BLOBs*
+
+[Checked for one-step and multi-step upload, 2018-11-21.]
 
 #.  Create a PhotoSequence with text "t1", one photo named "p1" of you holding
     up one finger vertically, and another photo named "p2" of you holding up
@@ -281,9 +288,6 @@ upload method, and (2) with it forced to one-step upload.
     - The server log should show:
 
       - 1 × blobs added, 1 × blobs modified out, 4 × blobs preserved;
-
-        *** problem here with stepwise; only 3 blobs preserved
-
       - 1 × patient preserved;
       - 1 × photosequence added, 1 × photosequence modified out, 3 ×
         photosequence preserved;
@@ -300,10 +304,29 @@ upload method, and (2) with it forced to one-step upload.
 
 #.  Force-finalize.
 
-    - Should finalize: 1 × blobs, 1 × patient_idnum, 1 × patient, 1 ×
-      photosequence, 1 × photosequence_photos.
+    - Should finalize: 1 × blobs, 1 × patient, 1 × photosequence, 1 ×
+      photosequence_photos.
 
 #.  Upload/move.
+
+During any MySQL debugging, remember:
+
+.. code-block:: none
+
+    -- For better display:
+    pager less -SFX;
+
+    -- To view relevant parts of the BLOB table without the actual BLOB:
+
+    SELECT
+        _pk, _group_id, _device_id, _era,
+        _current, _predecessor_pk, _successor_pk,
+        _addition_pending, _when_added_batch_utc, _adding_user_id,
+        _removal_pending, _when_removed_batch_utc, _removing_user_id,
+        _move_off_tablet,
+        _preserving_user_id, _forcibly_preserved,
+        id, tablename, tablepk, fieldname, mimetype, when_last_modified
+    FROM blobs;
 
 """
 
@@ -337,7 +360,6 @@ from cardinal_pythonlib.sqlalchemy.core_query import (
     fetch_all_first_values,
 )
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
-from pendulum import DateTime as Pendulum
 from pyramid.view import view_config
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -374,6 +396,7 @@ from camcops_server.cc_modules.cc_client_api_core import (
     values_delete_later,
     values_delete_now,
     values_preserve_now,
+    WhichKeyToSendInfo,
 )
 from camcops_server.cc_modules.cc_client_api_helpers import (
     upload_commit_order_sorter,
@@ -1469,7 +1492,7 @@ def audit_upload(req: CamcopsRequest,
     changes = [x for x in changes if x.any_changes]
     if changes:
         changes.sort(key=lambda x: x.tablename)
-        msg += ", ".join(str(x) for x in changes)
+        msg += ", ".join(x.description() for x in changes)
     else:
         msg += "No changes"
     log.info("audit_upload: {}".format(msg))
@@ -2362,7 +2385,13 @@ def op_which_keys_to_send(req: CamcopsRequest) -> str:
 
     Used particularly for BLOBs, to reduce traffic, i.e. so we don't have to
     send a lot of BLOBs.
+
+    Note new ``TabletParam.MOVE_OFF_TABLET_VALUES`` parameter in server v2.3.0,
+    with bugfix for pre-2.3.0 clients that won't send this; see changelog.
     """
+    # -------------------------------------------------------------------------
+    # Get details
+    # -------------------------------------------------------------------------
     try:
         table = get_table_from_req(req, TabletParam.TABLE)
     except IgnoringAntiqueTableException:
@@ -2383,20 +2412,56 @@ def op_which_keys_to_send(req: CamcopsRequest) -> str:
             "Number of PK values ({npk}) doesn't match number of dates "
             "({nd})".format(npk=npkvalues, nd=ndatevalues))
 
-    client_pk_to_client_when = {}  # type: Dict[int, Pendulum]
+    # v2.3.0:
+    move_off_tablet_values = []  # type: List[int]  # for type checker
+    if req.has_param(TabletParam.MOVE_OFF_TABLET_VALUES):
+        client_reports_move_off_tablet = True
+        move_off_tablet_values = get_values_from_post_var(
+            req, TabletParam.MOVE_OFF_TABLET_VALUES, mandatory=True)
+        # ... should be autoconverted to int
+        n_motv = len(move_off_tablet_values)
+        if n_motv != npkvalues:
+            fail_user_error(
+                "Number of move-off-tablet values ({n_motv}) doesn't match "
+                "number of PKs ({npk})".format(n_motv=n_motv, npk=npkvalues))
+        try:
+            move_off_tablet_values = [bool(x) for x in move_off_tablet_values]
+        except (TypeError, ValueError):
+            fail_user_error("Bad move-off-tablet values: {!r}".format(
+                move_off_tablet_values))
+    else:
+        client_reports_move_off_tablet = False
+        log.warning(
+            "op_which_keys_to_send: old client not reporting "
+            "{}; requesting all records".format(
+                TabletParam.MOVE_OFF_TABLET_VALUES))
+
+    clientinfo = []  # type: List[WhichKeyToSendInfo]
+
     for i in range(npkvalues):
         cpkv = clientpk_values[i]
         if not isinstance(cpkv, int):
             fail_user_error("Bad (non-integer) client PK: {!r}".format(cpkv))
+        dt = None  # for type checker
         try:
             dt = coerce_to_pendulum(client_dates[i])
             if dt is None:
                 fail_user_error("Missing date/time for client "
                                 "PK {}".format(cpkv))
-            client_pk_to_client_when[cpkv] = dt
         except ValueError:
             fail_user_error("Bad date/time: {!r}".format(client_dates[i]))
+        clientinfo.append(WhichKeyToSendInfo(
+            client_pk=cpkv,
+            client_when=dt,
+            client_move_off_tablet=(
+                move_off_tablet_values[i]
+                if client_reports_move_off_tablet else False
+            )
+        ))
 
+    # -------------------------------------------------------------------------
+    # Work out the answer
+    # -------------------------------------------------------------------------
     get_batch_details(req)
 
     # 1. The client sends us all its PKs. So "delete" anything not in that
@@ -2407,13 +2472,21 @@ def op_which_keys_to_send(req: CamcopsRequest) -> str:
     client_pks_needed = []  # type: List[int]
     client_pk_to_serverrec = client_pks_that_exist(
         req, table, clientpk_name, clientpk_values)
-    for client_pk, client_when in client_pk_to_client_when.items():
-        if client_pk not in client_pk_to_serverrec:
-            client_pks_needed.append(client_pk)
+    for wk in clientinfo:
+        if client_reports_move_off_tablet:
+            if wk.client_pk not in client_pk_to_serverrec:
+                # New on the client; we want it
+                client_pks_needed.append(wk.client_pk)
+            else:
+                serverrec = client_pk_to_serverrec[wk.client_pk]
+                if (serverrec.server_when != wk.client_when or
+                        serverrec.move_off_tablet != wk.client_move_off_tablet):  # noqa
+                    # Modified on the client; we want it
+                    client_pks_needed.append(wk.client_pk)
         else:
-            serverrec = client_pk_to_serverrec[client_pk]
-            if serverrec.server_when != client_when:
-                client_pks_needed.append(client_pk)
+            # Client hasn't told us about the _move_off_tablet flag. Always
+            # request the record (workaround potential bug in old clients).
+            client_pks_needed.append(wk.client_pk)
 
     # Success
     pk_csv_list = ",".join([str(x) for x in client_pks_needed if x is not None])  # noqa

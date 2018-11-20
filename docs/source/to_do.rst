@@ -143,8 +143,6 @@ Server
 
 **Priority**
 
-- **Thorough recheck of revamped upload code.**
-
 - Revamp export code. Per-group exports. Perhaps define exports in database,
   rather than config file?
 
@@ -167,8 +165,6 @@ Server
 
 - Ensure that the “system user” and “server device” are used everywhere they
   should be.
-
-- Finish manual.
 
 - (SERVER + CLIENT) Concept of “tasks that need doing” in the context of a
   research study.
@@ -226,7 +222,14 @@ Server
   in the master command-line handler.)
 
 
+Documentation
+-------------
+
+- Finish manual esp. web site user guide.
+
 Documentation to-do list
 ------------------------
+
+Things to do collected from elsewhere in this documentation.
 
 .. todolist::

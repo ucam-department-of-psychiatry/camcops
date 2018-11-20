@@ -490,6 +490,15 @@ class CamcopsRequest(Request):
     # HTTP request convenience functions
     # -------------------------------------------------------------------------
 
+    def has_param(self, key: str) -> bool:
+        """
+        Is the parameter in the request?
+
+        Args:
+            key: the parameter's name
+        """
+        return key in self.params
+
     def get_str_param(self,
                       key: str,
                       default: str = None,

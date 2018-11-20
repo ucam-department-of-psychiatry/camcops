@@ -32,6 +32,7 @@
 #include <QJsonValue>
 #include <QObject>
 #include <QSqlQuery>
+#include <QtGlobal>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
@@ -70,6 +71,7 @@ const QString KEY_FIELDS("fields");    // B; fieldnames
 const QString KEY_FINALIZING("finalizing");  // C->S, in JSON, v2.3.0
 const QString KEY_ID_POLICY_UPLOAD("idPolicyUpload");  // S->C
 const QString KEY_ID_POLICY_FINALIZE("idPolicyFinalize");  // S->C
+const QString KEY_MOVE_OFF_TABLET_VALUES("move_off_tablet_values");  // C->S, v2.3.0
 const QString KEY_NFIELDS("nfields");  // B
 const QString KEY_NRECORDS("nrecords");  // B
 const QString KEY_OPERATION("operation");  // C->S
@@ -116,6 +118,7 @@ const QString OP_WHICH_KEYS_TO_SEND("which_keys_to_send");
 // Notification text:
 const QString PLEASE_REREGISTER(QObject::tr("Please re-register with the server."));
 
+const Version MIN_SERVER_VERSION_FOR_VALIDATE_PATIENTS("2.3.0");
 const Version MIN_SERVER_VERSION_FOR_ONE_STEP_UPLOAD("2.3.0");
 
 const QString ENCODE_TRUE("1");
@@ -966,14 +969,31 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // FROM: fetch server ID info
         // TO: ask server to validate patients
+        //     ... or if the server doesn't support that, move on another step
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (!isServerVersionOK() || !arePoliciesOK() || !areDescriptionsOK()) {
             fail();
             return;
         }
-        uploadValidatePatients();  // v2.3.0
-        m_upload_next_stage = NextUploadStage::FetchAllowedTables;
-        break;
+        if (serverSupportsValidatePatients()) {
+            uploadValidatePatients();  // v2.3.0
+            m_upload_next_stage = NextUploadStage::FetchAllowedTables;
+            break;
+        } else {
+            // Otherwise:
+
+            // [[fallthrough]];
+            // ... C++17 syntax!
+            // - https://en.cppreference.com/w/cpp/language/attributes
+            // - https://en.cppreference.com/w/cpp/language/attributes/fallthrough
+
+            // [[clang::fallthrough]];
+            // ... compiler-specific
+
+            Q_FALLTHROUGH();
+            // ... well done, Qt
+            // - http://doc.qt.io/qt-5/qtglobal.html#Q_FALLTHROUGH
+        }
 
     case NextUploadStage::FetchAllowedTables:
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1119,6 +1139,12 @@ void NetworkManager::uploadFetchServerIdInfo()
 }
 
 
+bool NetworkManager::serverSupportsValidatePatients() const
+{
+    return m_app.serverVersion() >= MIN_SERVER_VERSION_FOR_VALIDATE_PATIENTS;
+}
+
+
 void NetworkManager::uploadValidatePatients()
 {
     // Added in v2.3.0
@@ -1229,19 +1255,22 @@ void NetworkManager::sendTableRecordwise(const QString& tablename)
 
 void NetworkManager::requestRecordwisePkPrune()
 {
-    const QString sql = QString("SELECT %1, %2 FROM %3")
-            .arg(delimit(dbconst::PK_FIELDNAME),
-                 delimit(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME),
+    const QString sql = QString("SELECT %1, %2, %3 FROM %4")
+            .arg(delimit(dbconst::PK_FIELDNAME),  // result column 0
+                 delimit(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME),  // result column 1
+                 delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),  // result column 2
                  delimit(m_upload_recordwise_table_in_progress));
     const QueryResult result = m_db.query(sql);
     const QStringList pkvalues = result.columnAsStringList(0);
     const QStringList datevalues = result.columnAsStringList(1);
+    const QStringList move_off_tablet_values = result.columnAsStringList(2);
     Dict dict;
     dict[KEY_OPERATION] = OP_WHICH_KEYS_TO_SEND;
     dict[KEY_TABLE] = m_upload_recordwise_table_in_progress;
     dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;
     dict[KEY_PKVALUES] = pkvalues.join(",");
     dict[KEY_DATEVALUES] = datevalues.join(",");
+    dict[KEY_MOVE_OFF_TABLET_VALUES] = move_off_tablet_values.join(",");  // v2.3.0
     m_recordwise_prune_req_sent = true;
     statusMessage("Sending message: " + OP_WHICH_KEYS_TO_SEND);
     serverPost(dict, &NetworkManager::uploadNext);

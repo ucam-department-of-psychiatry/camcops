@@ -1438,8 +1438,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   "predefined patient" support. This is a "client asks", not "server tells"
   feature at present.
 
-- Version bumped to 2.3.0, with minimum server version 2.3.0, with the new
-  "validate patients on upload" feature (2018-11-13).
+- Version bumped to 2.3.0. If server is at least 2.3.0, uses the new "validate
+  patients on upload" feature (2018-11-13). Minimum server version remains at
+  2.2.0.
 
 - Word wrap on for log box by default (better legibility in upload).
 
@@ -1457,6 +1458,21 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - ProgressNote now reports itself as incomplete if the note is empty, in
   addition to if it is NULL. Corresponding change on the server.
+
+- Bug found in upload process relating to BLOB upload in the "per-record"
+  fashion. Specifically, when the client set the ``_move_off_tablet`` flag on
+  a BLOB (in ``NetworkManager::applyPatientMoveOffTabletFlagsToTasks()``), it
+  then asked the server "which records to send?" via
+  :func:`camcops_server.cc_modules.client_api.op_which_keys_to_send`. This
+  took account of actual modifications, but not changes to the
+  ``_move_off_tablet`` flag; so the record wasn't resent; so older client BLOBs
+  that were not being modified in that upload were not correctly marked as
+  preserved. Solution: new ``TabletParam.MOVE_OFF_TABLET_VALUES`` parameter to
+  this command. Modifications to ``NetworkManager::requestRecordwisePkPrune()``
+  and, on the server,
+  :func:`camcops_server.cc_modules.client_api.op_which_keys_to_send`. To make
+  this safe retrospectively, the server insists on all records being sent if
+  this field is not present in the request.
 
 
 **Server v2.2.8 to 2.3.0, in progress (from 2018-09-14)**

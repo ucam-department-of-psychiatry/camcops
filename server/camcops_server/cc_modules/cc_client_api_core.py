@@ -90,6 +90,7 @@ class TabletParam(object):
     ID_SHORT_DESCRIPTION_PREFIX = "idShortDescription"  # S->C
     ID_VALIDATION_METHOD_PREFIX = "idValidationMethod"  # S->C; new in v2.2.8
     IDNUM_PREFIX = "idnum"  # C->S, in JSON, v2.3.0
+    MOVE_OFF_TABLET_VALUES = "move_off_tablet_values"  # C->S, v2.3.0
     NFIELDS = "nfields"  # B
     NRECORDS = "nrecords"  # B
     OPERATION = "operation"  # C->S
@@ -283,6 +284,20 @@ class BatchDetails(object):
         are preserving records.
         """
         return format_datetime(self.batchtime, DateFormat.ERA)
+
+
+class WhichKeyToSendInfo(object):
+    """
+    Represents information the client has sent, asking us which records it
+    needs to upload recordwise.
+    """
+    def __init__(self,
+                 client_pk: int,
+                 client_when: Pendulum,
+                 client_move_off_tablet: bool) -> None:
+        self.client_pk = client_pk
+        self.client_when = client_when
+        self.client_move_off_tablet = client_move_off_tablet
 
 
 class ServerRecord(object):
@@ -679,12 +694,15 @@ class UploadTableChanges(object):
 
     @property
     def any_changes(self) -> bool:
+        """
+        Has anything changed that we're aware of?
+        """
         return (self.n_added > 0 or self.n_removed_modified > 0 or
                 self.n_removed_deleted > 0 or self.n_preserved > 0)
 
     def __str__(self) -> str:
         return (
-            "{tablename} "
+            "{tablename}: "
             "({n_added} added, PKs {pks_added}; "
             "{n_modified} modified out, PKs {pks_modified}; "
             "{n_deleted} deleted, PKs {pks_deleted}; "
@@ -702,6 +720,29 @@ class UploadTableChanges(object):
                 current_pks=self.current_pks,
             )
         )
+
+    def description(self, always_show_current_pks: bool = True) -> str:
+        """
+        Short description, only including bits that have changed.
+        """
+        parts = []  # type: List[str]
+        if self._addition_pks:
+            parts.append("{} added, PKs {}".format(
+                self.n_added, self.addition_pks))
+        if self._removal_modified_pks:
+            parts.append("{} modified out, PKs {}".format(
+                self.n_removed_modified, self.removal_modified_pks))
+        if self._removal_deleted_pks:
+            parts.append("{} deleted, PKs {}".format(
+                self.n_removed_deleted, self.removal_deleted_pks))
+        if self._preservation_pks:
+            parts.append("{} preserved, PKs {}".format(
+                self.n_preserved, self.preservation_pks))
+        if not parts:
+            parts.append("no changes")
+        if always_show_current_pks or self.any_changes:
+            parts.append("current PKs {}".format(self.current_pks))
+        return "{} ({})".format(self.tablename, "; ".join(parts))
 
 
 # =============================================================================

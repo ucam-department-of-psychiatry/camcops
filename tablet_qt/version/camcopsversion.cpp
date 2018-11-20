@@ -47,8 +47,9 @@ const QDate CAMCOPS_CLIENT_CHANGEDATE(2018, 9, 28);
 // (Why? Suppose you are running an old server, and your users download a newer
 // client; they should still be able to operate as long as they're not trying
 // to create/upload tasks that you don't yet support.)
+// See also other upload-related version constants in networkmanager.cpp.
 
-const Version MINIMUM_SERVER_VERSION(2, 3, 0);
+const Version MINIMUM_SERVER_VERSION(2, 2, 0);
 
 }  // namespace camcopsversion
 
