@@ -9,7 +9,8 @@
 
 <%include file="view_tasks_table.mako" args="tasks=tasks"/>
 
-<div class="important">${ len(tasks) } tasks will be affected.</div>
+<div class="important">${ len(tasks) } tasks will be affected (plus any
+    uploaded while you watch this message).</div>
 
 <h2>Step 3 (FINAL STEP): proceed to finalize?</h2>
 

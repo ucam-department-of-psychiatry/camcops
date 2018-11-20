@@ -62,7 +62,7 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         return [CtvInfo(content=ws.webify(self.note))]
 
     def is_complete(self) -> bool:
-        return self.note is not None
+        return bool(self.note)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         # Avoid tables - PDF generator crashes if text is too long.

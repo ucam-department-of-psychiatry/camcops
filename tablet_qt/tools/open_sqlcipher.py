@@ -99,6 +99,7 @@ def main() -> None:
     # -------------------------------------------------------------------------
     # Password
     # -------------------------------------------------------------------------
+    log.warning("Password will be visible on SQLCipher command line")
     password = progargs.password
     if password:
         log.debug("Using password from command-line arguments (NB danger: "

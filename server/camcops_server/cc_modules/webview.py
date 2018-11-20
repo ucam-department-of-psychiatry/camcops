@@ -173,6 +173,13 @@ from sqlalchemy.sql.expression import (and_, desc, exists, not_, or_,
 from .cc_audit import audit, AuditEntry
 from .cc_all_models import CLIENT_TABLE_MAP
 from .cc_baseconstants import STATIC_ROOT_DIR
+from .cc_client_api_core import (
+    BatchDetails,
+    get_server_live_records,
+    UploadTableChanges,
+    values_preserve_now,
+)
+from .cc_client_api_helpers import upload_commit_order_sorter
 from .cc_constants import (
     CAMCOPS_URL,
     DateFormat,
@@ -180,7 +187,13 @@ from .cc_constants import (
     MINIMUM_PASSWORD_LENGTH,
     USER_NAME_FOR_SYSTEM,
 )
-from .cc_db import GenericTabletRecordMixin
+from .cc_db import (
+    GenericTabletRecordMixin,
+    FN_DEVICE_ID,
+    FN_ERA,
+    FN_GROUP_ID,
+    FN_PK,
+)
 from .cc_device import Device
 from .cc_dump import copy_tasks_and_summaries
 from .cc_forms import (
@@ -259,6 +272,7 @@ from .cc_taskfilter import (
     task_classes_from_table_names,
     TaskClassSortMethod,
 )
+from .cc_taskindex import update_indexes
 from .cc_tracker import ClinicalTextView, Tracker
 from .cc_tsv import TsvCollection
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
@@ -496,9 +510,10 @@ def login_view(req: CamcopsRequest) -> Response:
                 ccsession.logout(req)
                 return login_failed(req)
             # 2. Is the user locked?
-            if SecurityAccountLockout.is_user_locked_out(req, username):
-                return account_locked(req,
-                                      User.user_locked_out_until(username))
+            locked_out_until = SecurityAccountLockout.user_locked_out_until(
+                req, username)
+            if locked_out_until is not None:
+                return account_locked(req, locked_out_until)
             # 3. Is the username/password combination correct?
             user = User.get_user_from_username_password(
                 req, username, password)  # checks password
@@ -2055,6 +2070,7 @@ def query_users_that_i_manage(req: CamcopsRequest) -> Query:
         # LOGIC SHOULD MATCH assert_may_edit_user
         # Restrict to users who are members of groups that I am an admin for:
         groupadmin_group_ids = req.user.ids_of_groups_user_is_admin_for
+        # noinspection PyUnresolvedReferences
         ugm2 = UserGroupMembership.__table__.alias("ugm2")
         q = q.join(User.user_group_memberships)\
             .filter(not_(User.superuser))\
@@ -3314,7 +3330,8 @@ def forcibly_finalize(req: CamcopsRequest) -> Response:
                     req=req,
                     taskfilter=taskfilter,
                     sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
-                    current_only=False  # unusual option!
+                    current_only=False,  # unusual option!
+                    via_index=False  # required for current_only=False
                 )
                 tasks = collection.all_tasks
                 return render_to_response(
@@ -3330,13 +3347,12 @@ def forcibly_finalize(req: CamcopsRequest) -> Response:
             if not req.user.superuser:
                 admin_group_ids = req.user.ids_of_groups_user_is_admin_for
                 for clienttable in CLIENT_TABLE_MAP.values():
-                    # noinspection PyProtectedMember
                     count_query = (
                         select([func.count()])
                         .select_from(clienttable)
-                        .where(clienttable.c._device_id == device_id)
-                        .where(clienttable.c._era == ERA_NOW)
-                        .where(clienttable.c._group_id.notin_(admin_group_ids))
+                        .where(clienttable.c[FN_DEVICE_ID] == device_id)
+                        .where(clienttable.c[FN_ERA] == ERA_NOW)
+                        .where(clienttable.c[FN_GROUP_ID].notin_(admin_group_ids))  # noqa
                     )
                     n = dbsession.execute(count_query).scalar()
                     if n > 0:
@@ -3346,18 +3362,28 @@ def forcibly_finalize(req: CamcopsRequest) -> Response:
             # -----------------------------------------------------------------
             # Forcibly finalize
             # -----------------------------------------------------------------
-            new_era = req.now_iso8601_era_format
-            for clienttable in CLIENT_TABLE_MAP.values():
-                # noinspection PyProtectedMember
-                finalize_statement = (
+            msgs = []  # type: List[str]
+            batchdetails = BatchDetails(batchtime=req.now_utc)
+            alltables = sorted(CLIENT_TABLE_MAP.values(),
+                               key=upload_commit_order_sorter)
+            for clienttable in alltables:
+                liverecs = get_server_live_records(
+                    req, device_id, clienttable, current_only=False)
+                preservation_pks = [r.server_pk for r in liverecs]
+                if not preservation_pks:
+                    continue
+                current_pks = [r.server_pk for r in liverecs if r.current]
+                tablechanges = UploadTableChanges(clienttable)
+                tablechanges.note_preservation_pks(preservation_pks)
+                tablechanges.note_current_pks(current_pks)
+                dbsession.execute(
                     update(clienttable)
-                    .where(clienttable.c._device_id == device_id)
-                    .where(clienttable.c._era == ERA_NOW)
-                    .values(_era=new_era,
-                            _preserving_user_id=req.user_id,
-                            _forcibly_preserved=True)
+                    .where(clienttable.c[FN_PK].in_(preservation_pks))
+                    .values(values_preserve_now(req, batchdetails,
+                                                forcibly_preserved=True))
                 )
-                dbsession.execute(finalize_statement)
+                update_indexes(req, batchdetails, tablechanges)
+                msgs.append("{} {}".format(clienttable.name, preservation_pks))
             # Field names are different in server-side tables, so they need
             # special handling:
             SpecialNote.forcibly_preserve_special_notes_for_device(req,
@@ -3365,9 +3391,16 @@ def forcibly_finalize(req: CamcopsRequest) -> Response:
             # -----------------------------------------------------------------
             # Done
             # -----------------------------------------------------------------
-            msg = "Live records for device {} ({}) forcibly finalized".format(
-                device_id, device.friendly_name)
+            msg = (
+                "Live records for device {} ({}) forcibly finalized "
+                "(PKs: {})".format(
+                    device_id,
+                    device.friendly_name,
+                    "; ".join(msgs)
+                )
+            )
             audit(req, msg)
+            log.info(msg)
             return simple_success(req, msg)
 
         except ValidationFailure as e:

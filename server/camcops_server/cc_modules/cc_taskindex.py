@@ -44,7 +44,11 @@ from sqlalchemy.sql.expression import and_, join, literal, select
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import BigInteger, Boolean, DateTime, Integer
 
-from .cc_client_api_core import fail_user_error
+from .cc_client_api_core import (
+    BatchDetails,
+    fail_user_error,
+    UploadTableChanges,
+)
 from .cc_constants import ERA_NOW
 from .cc_idnumdef import IdNumDefinition
 from .cc_patient import Patient
@@ -56,12 +60,15 @@ from .cc_sqla_coltypes import (
     TableNameColType,
 )
 from .cc_sqlalchemy import Base
-from .cc_task import tablename_to_task_class_dict, Task
+from .cc_task import (
+    all_task_tablenames,
+    tablename_to_task_class_dict,
+    Task,
+)
 from .cc_user import User
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
-
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -247,10 +254,11 @@ class PatientIdNumIndexEntry(Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def update_idnum_index_for_upload(cls, session: SqlASession,
-                                      indexed_at_utc: Pendulum,
-                                      addition_pks: List[int],
-                                      removal_pks: List[int]) -> None:
+    def update_idnum_index_for_upload(
+            cls,
+            session: SqlASession,
+            indexed_at_utc: Pendulum,
+            tablechanges: UploadTableChanges) -> None:
         """
         Updates the index for a device's upload.
 
@@ -265,10 +273,9 @@ class PatientIdNumIndexEntry(Base):
                 an SQLAlchemy Session
             indexed_at_utc:
                 current time in UTC
-            addition_pks:
-                server PKs being added to the PatientIdNum table
-            removal_pks:
-                server PKs being "removed" from the PatientIdNum table
+            tablechanges:
+                a :class:`camcops_server.cc_modules.cc_client_api_core.UploadTableChanges`
+                object describing the changes to a table
         """  # noqa
         # noinspection PyUnresolvedReferences
         indextable = PatientIdNumIndexEntry.__table__  # type: Table
@@ -281,14 +288,20 @@ class PatientIdNumIndexEntry(Base):
         patientcols = patienttable.columns
 
         # Delete the old
+        removal_pks = tablechanges.idnum_delete_index_pks
         if removal_pks:
+            log.debug("Deleting old ID number indexes: server PKs {}".format(
+                removal_pks))
             session.execute(
                 indextable.delete()
                 .where(indextable.c.idnum_pk.in_(removal_pks))
             )
 
         # Create the new
+        addition_pks = tablechanges.idnum_add_index_pks
         if addition_pks:
+            log.debug("Adding ID number indexes: server PKs {}".format(
+                addition_pks))
             # noinspection PyPep8,PyProtectedMember
             session.execute(
                 indextable.insert().from_select(
@@ -395,6 +408,11 @@ class TaskIndexEntry(Base):
         index=True,
         comment="Date/time this task instance was created (ISO 8601)"
     )  # Pendulum on the Python side
+    when_added_batch_utc = Column(
+        "when_added_batch_utc", DateTime, nullable=False,
+        index=True,
+        comment="Date/time this task index was uploaded (UTC)"
+    )
     adding_user_id = Column(
         "adding_user_id", Integer, ForeignKey("_security_users.id"),
         comment="ID of user that added this task",
@@ -418,6 +436,7 @@ class TaskIndexEntry(Base):
         return simple_repr(self, [
             "index_entry_pk", "task_table_name", "task_pk", "patient_pk",
             "device_id", "era", "when_created_utc", "when_created_iso",
+            "when_added_batch_utc",
             "adding_user_id", "group_id", "task_is_complete",
         ])
 
@@ -528,9 +547,7 @@ class TaskIndexEntry(Base):
 
     @classmethod
     def make_from_task(cls, task: Task,
-                       indexed_at_utc: Pendulum,
-                       ignore_current: bool = False,
-                       adding_user_id: int = None) -> "TaskIndexEntry":
+                       indexed_at_utc: Pendulum) -> "TaskIndexEntry":
         """
         Returns a task index entry for the specified
         :class:`camcops_server.cc_modules.cc_task.Task`. The
@@ -541,15 +558,7 @@ class TaskIndexEntry(Base):
                 a :class:`camcops_server.cc_modules.cc_task.Task`
             indexed_at_utc:
                 current time in UTC
-            ignore_current:
-                ignore the _current flag; used by the upload API
-            adding_user_id:
-                ID of the user adding this row (overrides information already
-                stored with the task -- but in practice is used by the upload
-                API at a point when the task's adding-user ID is still blank)
         """
-        if not ignore_current:
-            assert task._current, "Only index current Task objects"
         assert indexed_at_utc is not None, "Missing indexed_at_utc"
 
         index = cls()
@@ -566,10 +575,8 @@ class TaskIndexEntry(Base):
         index.era = task.get_era()
         index.when_created_utc = task.get_creation_datetime_utc()
         index.when_created_iso = task.when_created
-        if adding_user_id is not None:
-            index.adding_user_id = adding_user_id
-        else:
-            index.adding_user_id = task.get_adding_user_id()
+        index.when_added_batch_utc = task._when_added_batch_utc
+        index.adding_user_id = task.get_adding_user_id()
         index.group_id = task.get_group_id()
         index.task_is_complete = task.is_complete()
 
@@ -577,9 +584,7 @@ class TaskIndexEntry(Base):
 
     @classmethod
     def index_task(cls, task: Task, session: SqlASession,
-                   indexed_at_utc: Pendulum,
-                   ignore_current: bool = False,
-                   adding_user_id: int = None) -> None:
+                   indexed_at_utc: Pendulum) -> None:
         """
         Indexes a task and inserts the index into the database.
 
@@ -590,17 +595,9 @@ class TaskIndexEntry(Base):
                 an SQLAlchemy Session
             indexed_at_utc:
                 current time in UTC
-            ignore_current:
-                ignore the _current flag; used by the upload API
-            adding_user_id:
-                ID of the user adding this row (overrides information already
-                stored with the task -- but in practice is used by the upload
-                API at a point when the task's adding-user ID is still blank)
         """
         index = cls.make_from_task(task,
-                                   indexed_at_utc=indexed_at_utc,
-                                   ignore_current=ignore_current,
-                                   adding_user_id=adding_user_id)
+                                   indexed_at_utc=indexed_at_utc)
         session.add(index)
 
     # -------------------------------------------------------------------------
@@ -673,13 +670,10 @@ class TaskIndexEntry(Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def update_task_index_for_upload(cls, session: SqlASession,
-                                     tasktablename: str,
-                                     addition_pks: List[int],
-                                     removal_pks: List[int],
-                                     preservation_pks: List[int],
-                                     indexed_at_utc: Pendulum,
-                                     adding_user_id: int = None) -> None:
+    def update_task_index_for_upload(cls,
+                                     session: SqlASession,
+                                     tablechanges: UploadTableChanges,
+                                     indexed_at_utc: Pendulum) -> None:
         """
         Updates the index for a device's upload.
 
@@ -690,22 +684,13 @@ class TaskIndexEntry(Base):
         Args:
             session:
                 an SQLAlchemy Session
-            tasktablename:
-                name of the task's base table
-            addition_pks:
-                server PKs being added
-            removal_pks:
-                server PKs being "removed"
-            preservation_pks:
-                server PKs being preserved/finalized
+            tablechanges:
+                a :class:`camcops_server.cc_modules.cc_client_api_core.UploadTableChanges`
+                object describing the changes to a table
             indexed_at_utc:
                 current time in UTC
-            adding_user_id:
-                ID of the user adding this row (overrides information already
-                stored with the task -- but in practice is used by the upload
-                API at a point when the task's adding-user ID is still blank)
         """  # noqa
-
+        tasktablename = tablechanges.tablename
         d = tablename_to_task_class_dict()
         try:
             taskclass = d[tasktablename]  # may raise KeyError
@@ -717,15 +702,8 @@ class TaskIndexEntry(Base):
         idxtable = cls.__table__  # type: Table
         idxcols = idxtable.columns
 
-        set_addition_pks = set(addition_pks)
-        set_removal_pks = set(removal_pks)
-        set_preservation_pks = set(preservation_pks)
-
         # Delete the old.
-        delete_index_pks = sorted(list(
-            (set_removal_pks | set_preservation_pks) -
-            set_addition_pks
-        ))
+        delete_index_pks = tablechanges.task_delete_index_pks
         if delete_index_pks:
             log.debug("Deleting old task indexes: {}, server PKs {}".format(
                 tasktablename, delete_index_pks))
@@ -737,12 +715,7 @@ class TaskIndexEntry(Base):
             )
 
         # Create the new.
-        # We include records being preserved, because their era has changed,
-        # and the index includes era. Unless they are being removed!
-        reindex_pks = sorted(list(
-            (set_addition_pks | set_preservation_pks) -
-            set_removal_pks
-        ))
+        reindex_pks = tablechanges.task_reindex_pks
         if reindex_pks:
             log.debug("Recreating task indexes: {}, server PKs {}".format(
                 tasktablename, reindex_pks))
@@ -752,12 +725,13 @@ class TaskIndexEntry(Base):
                 .filter(taskclass._pk.in_(reindex_pks))
             )
             for task in q:
-                cls.index_task(task,
-                               session,
-                               ignore_current=True,
-                               adding_user_id=adding_user_id,
+                cls.index_task(task, session,
                                indexed_at_utc=indexed_at_utc)
 
+
+# =============================================================================
+# Wide-ranging index update functions
+# =============================================================================
 
 def reindex_everything(session: SqlASession) -> None:
     """
@@ -770,3 +744,33 @@ def reindex_everything(session: SqlASession) -> None:
     log.info("Reindexing database; indexed_at_utc = {}".format(now))
     PatientIdNumIndexEntry.rebuild_idnum_index(session, now)
     TaskIndexEntry.rebuild_entire_task_index(session, now)
+
+
+def update_indexes(req: "CamcopsRequest",
+                   batchdetails: BatchDetails,
+                   tablechanges: UploadTableChanges) -> None:
+    """
+    Update server indexes, if required.
+
+    Args:
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        batchdetails: the :class:`BatchDetails`
+        tablechanges:
+            a :class:`camcops_server.cc_modules.cc_client_api_core.UploadTableChanges`
+            object describing the changes to a table
+    """  # noqa
+    tablename = tablechanges.tablename
+    if tablename == PatientIdNum.__tablename__:
+        # Update idnum index
+        PatientIdNumIndexEntry.update_idnum_index_for_upload(
+            session=req.dbsession,
+            indexed_at_utc=batchdetails.batchtime,
+            tablechanges=tablechanges,
+        )
+    elif tablename in all_task_tablenames():
+        # Update task index
+        TaskIndexEntry.update_task_index_for_upload(
+            session=req.dbsession,
+            tablechanges=tablechanges,
+            indexed_at_utc=batchdetails.batchtime
+        )

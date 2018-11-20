@@ -52,6 +52,7 @@ server/camcops_server
     cc_modules/cc_blob.py.rst
     cc_modules/cc_cache.py.rst
     cc_modules/cc_client_api_core.py.rst
+    cc_modules/cc_client_api_helpers.py.rst
     cc_modules/cc_config.py.rst
     cc_modules/cc_constants.py.rst
     cc_modules/cc_convert.py.rst

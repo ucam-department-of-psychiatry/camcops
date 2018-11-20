@@ -154,7 +154,7 @@ class SpecialNote(Base):
         http://docs.sqlalchemy.org/en/latest/orm/persistence_techniques.html
         """
         dbsession = req.dbsession
-        new_era = format_datetime(req.now_utc, DateFormat.ERA)
+        new_era = req.now_era_format
 
         # METHOD 1: use the ORM, object by object
         #
@@ -170,8 +170,9 @@ class SpecialNote(Base):
         # You can use update(table)... or table.update()...;
         # http://docs.sqlalchemy.org/en/latest/core/dml.html#sqlalchemy.sql.expression.update  # noqa
 
-        statement = update(cls.__table__)\
+        dbsession.execute(
+            update(cls.__table__)\
             .where(cls.device_id == device_id)\
             .where(cls.era == ERA_NOW)\
             .values(era=new_era)
-        dbsession.execute(statement)
+        )

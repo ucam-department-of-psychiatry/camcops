@@ -29,10 +29,11 @@ camcops_server/cc_modules/cc_taskfactory.py
 """
 
 from collections import OrderedDict
+import datetime
 from enum import Enum
 import logging
 from threading import Thread
-from typing import Dict, List, Optional, Type, TYPE_CHECKING, Union
+from typing import Dict, List, Optional, Tuple, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
@@ -70,13 +71,16 @@ if DEBUG_QUERY_TIMING:
 # Sorting helpers
 # =============================================================================
 
-def task_when_created_sorter(task: Task) -> Union[Pendulum, MinType]:
+def task_when_created_sorter(task: Task) \
+        -> Union[Tuple[Pendulum, datetime.datetime], MinType]:
     """
-    Function to sort tasks by their creation date.
+    Function to sort tasks by their creation date/time (with upload date/time
+    as a tiebreak for consistent ordering).
     """
     # For sorting of tasks
-    when_created = task.when_created
-    return MINTYPE_SINGLETON if when_created is None else when_created
+    created = task.when_created
+    uploaded = task._when_added_batch_utc
+    return MINTYPE_SINGLETON if created is None else (created, uploaded)
 
 
 class TaskSortMethod(Enum):
@@ -770,8 +774,10 @@ class TaskCollection(object):
 
         # When we use indexes, we embed the global sort criteria in the query.
         if self._sort_method_global == TaskSortMethod.CREATION_DATE_ASC:
-            q = q.order_by(TaskIndexEntry.when_created_utc.asc())
+            q = q.order_by(TaskIndexEntry.when_created_utc.asc(),
+                           TaskIndexEntry.when_added_batch_utc.asc())
         elif self._sort_method_global == TaskSortMethod.CREATION_DATE_DESC:
-            q = q.order_by(TaskIndexEntry.when_created_utc.desc())
+            q = q.order_by(TaskIndexEntry.when_created_utc.desc(),
+                           TaskIndexEntry.when_added_batch_utc.desc())
 
         return q

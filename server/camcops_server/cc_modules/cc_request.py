@@ -397,12 +397,12 @@ class CamcopsRequest(Request):
         return convert_datetime_to_utc(p)
 
     @reify
-    def now_iso8601_era_format(self) -> str:
+    def now_era_format(self) -> str:
         """
         Returns the request time in an ISO-8601 format suitable for use as a
         CamCOPS ``era``.
         """
-        return format_datetime(self.now, DateFormat.ISO8601)
+        return format_datetime(self.now_utc, DateFormat.ERA)
 
     @property
     def today(self) -> Date:

@@ -575,7 +575,7 @@ class Patient(GenericTabletRecordMixin, Base):
         newid._device_id = self._device_id
         newid._era = self._era
         newid._current = True
-        newid._when_added_exact = req.now_iso8601_era_format
+        newid._when_added_exact = req.now_era_format
         newid._when_added_batch_utc = req.now_utc
         newid._adding_user_id = ccsession.user_id
         newid._camcops_version = CAMCOPS_SERVER_VERSION_STRING

@@ -30,6 +30,9 @@
     request.__dict__:<br>
     <pre>${pprint.pformat(request.__dict__) | h}</pre>
 
+    dir(request):<br>
+    <pre>${pprint.pformat(dir(request)) | h}</pre>
+
     callers:<br>
     <pre>${show_call_stack()}</pre>
 

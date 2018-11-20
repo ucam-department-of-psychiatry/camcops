@@ -89,6 +89,7 @@ def upgrade():
         sa.Column('era', sa.String(length=32), nullable=False),
         sa.Column('when_created_utc', sa.DateTime(), nullable=False),
         sa.Column('when_created_iso', camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(length=32), nullable=False),
+        sa.Column('when_added_batch_utc', sa.DateTime(), nullable=False),
         sa.Column('adding_user_id', sa.Integer(), nullable=True),
         sa.Column('group_id', sa.Integer(), nullable=False),
         sa.Column('task_is_complete', sa.Boolean(), nullable=False),

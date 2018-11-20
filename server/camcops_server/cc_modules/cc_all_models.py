@@ -43,25 +43,30 @@ from .cc_db import GenericTabletRecordMixin
 from .cc_sqlalchemy import Base, log_all_ddl
 
 # =============================================================================
-# Non-task model imports
+# Non-task model imports representing client-side tables
 # =============================================================================
 # How to suppress "Unused import statement"?
 # https://stackoverflow.com/questions/21139329/false-unused-import-statement-in-pycharm  # noqa
 # http://codeoptimism.com/blog/pycharm-suppress-inspections-list/
 
-from .cc_audit import AuditEntry
 # noinspection PyUnresolvedReferences
 from .cc_blob import Blob
+# noinspection PyUnresolvedReferences
+from .cc_patientidnum import PatientIdNum
+# noinspection PyUnresolvedReferences
+from .cc_patient import Patient
+
+# =============================================================================
+# Other non-task model imports
+# =============================================================================
+
+from .cc_audit import AuditEntry
 from .cc_device import Device
 from .cc_dirtytables import DirtyTable
 from .cc_group import Group, group_group_table
 from .cc_hl7 import HL7Message, HL7Run
 from .cc_idnumdef import IdNumDefinition
 from .cc_membership import UserGroupMembership
-# noinspection PyUnresolvedReferences
-from .cc_patientidnum import PatientIdNum
-# noinspection PyUnresolvedReferences
-from .cc_patient import Patient
 from .cc_session import CamcopsSession
 from .cc_specialnote import SpecialNote
 from .cc_serversettings import ServerSettings
@@ -72,7 +77,6 @@ from .cc_taskfilter import TaskFilter
 from .cc_taskindex import PatientIdNumIndexEntry, TaskIndexEntry
 from .cc_unittest import DemoDatabaseTestCase
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
-
 
 # =============================================================================
 # Task imports
@@ -89,11 +93,11 @@ from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 # noinspection PyUnresolvedReferences
 from camcops_server.tasks import *  # see tasks/__init__.py
 
-
 # =============================================================================
 # Other report imports
 # =============================================================================
 
+# noinspection PyUnresolvedReferences
 from camcops_server.cc_modules.cc_taskreports import TaskCountReport
 
 # =============================================================================
@@ -104,14 +108,12 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # log.critical("Loading cc_all_models")
 
-
 # =============================================================================
 # Ensure that anything with an AbstractConcreteBase gets its mappers
 # registered (i.e. Task).
 # =============================================================================
 
 configure_mappers()
-
 
 # =============================================================================
 # Tables (and fields) that clients can't touch
@@ -140,13 +142,12 @@ RESERVED_TABLE_NAMES = [
 ]
 RESERVED_FIELDS = GenericTabletRecordMixin.RESERVED_FIELDS
 
-
 # =============================================================================
-# Tables that clients use
+# Catalogue tables that clients use
 # =============================================================================
 
 CLIENT_TABLE_MAP = {}  # type: Dict[str, Table]
-ANCILLARY_AND_BLOB_TABLENAMES = []  # type: List[str]
+NONTASK_CLIENT_TABLENAMES = []  # type: List[str]
 
 # Add all tables that clients may upload to (including ancillary tables).
 for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
@@ -162,10 +163,9 @@ for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
             __table = __orm_class.__table__  # type: Table
             CLIENT_TABLE_MAP[__tablename] = __table
             if not issubclass(__orm_class, Task):
-                ANCILLARY_AND_BLOB_TABLENAMES.append(__tablename)
-ANCILLARY_AND_BLOB_TABLENAMES.sort()
-# log.debug("ANCILLARY_AND_BLOB_TABLENAMES: {}".format(
-#     ANCILLARY_AND_BLOB_TABLENAMES))
+                NONTASK_CLIENT_TABLENAMES.append(__tablename)
+NONTASK_CLIENT_TABLENAMES.sort()
+# log.debug("NONTASK_CLIENT_TABLENAMES: {}".format(NONTASK_CLIENT_TABLENAMES))
 
 
 # =============================================================================

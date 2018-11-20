@@ -1455,6 +1455,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   marked as "individually finished". Now always deselected (also triggers
   refresh of anonymous task list).
 
+- ProgressNote now reports itself as incomplete if the note is empty, in
+  addition to if it is NULL. Corresponding change on the server.
+
 
 **Server v2.2.8 to 2.3.0, in progress (from 2018-09-14)**
 

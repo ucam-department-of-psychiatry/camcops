@@ -83,7 +83,7 @@ QString ProgressNote::infoFilenameStem() const
 
 bool ProgressNote::isComplete() const
 {
-    return !valueIsNull(NOTE);
+    return !valueIsNullOrEmpty(NOTE);
 }
 
 
