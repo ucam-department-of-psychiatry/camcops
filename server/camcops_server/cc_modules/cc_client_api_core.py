@@ -537,14 +537,47 @@ class UploadTableChanges(object):
     def note_urr(self, urr: UploadRecordResult,
                  preserving_new_records: bool) -> None:
         """
-        Records information from a :class:`UploadRecordResult`.
-        """
+        Records information from a :class:`UploadRecordResult`, which is itself
+        the result of calling
+        :func:`camcops_server.cc_modules.client_api.upload_record_core`.
+        
+        Called by
+        :func:`camcops_server.cc_modules.client_api.process_table_for_onestep_upload`.
+        
+        Args:
+            urr: a :class:`UploadRecordResult`
+            preserving_new_records: are new records being preserved?
+        """  # noqa
         self.note_addition_pks(urr.addition_pks)
         self.note_removal_modified_pks(urr.removal_modified_pks)
         if preserving_new_records:
             self.note_preservation_pks(urr.addition_pks)
         self.note_preservation_pks(urr.specifically_marked_preservation_pks)
         self.note_current_pks(urr.current_pks)
+
+    def note_serverrec(self, sr: ServerRecord,
+                       preserving: bool) -> None:
+        """
+        Records information from a :class:`ServerRecord`. Called by
+        :func:`camcops_server.cc_modules.client_api.commit_table`.
+
+        Args:
+            sr: a :class:`ServerRecord`
+            preserving: are we preserving uploaded records?
+        """
+        pk = sr.server_pk
+        if sr.addition_pending:
+            self.note_addition_pk(pk)
+            self.note_current_pk(pk)
+        elif sr.removal_pending:
+            if sr.successor_pk is None:
+                self.note_removal_deleted_pk(pk)
+            else:
+                self.note_removal_modified_pk(pk)
+        elif sr.current:
+            self.note_current_pk(pk)
+        if preserving or sr.move_off_tablet:
+            self.note_preservation_pk(pk)
 
     # -------------------------------------------------------------------------
     # Counts

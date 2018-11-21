@@ -84,6 +84,17 @@ so the tablet needs to wait at least that long after starting to send it.
 Increase the tablet’s network timeout (e.g. to 60000 ms or more) in Settings →
 Server settings.
 
+A photo-based task says "No camera"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+CamCOPS asks Qt for available cameras. This message indicates that none were
+found. This is usually a hardware configuration problem.
+
+- Under Linux, run ``cheese``; does this find a camera?
+
+- If you're using a laptop, does it have a special function key combination to
+  enable/disable the camera?
+
 What if it crashes?
 ~~~~~~~~~~~~~~~~~~~
 

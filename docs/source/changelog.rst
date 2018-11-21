@@ -1549,11 +1549,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Added dependency ``bcrypt==3.1.4`` to ``setup.py``.
 
-- Bugfixes for operation under SQL Server.
-
-- **The minimum SQL Server version is 2008** (below that, there’s no time zone
-  conversion support).
-
 - :meth:`camcops_server.cc_modules.cc_config.CamcopsConfig.get_dbsession_context`
   re-raises exceptions.
 
@@ -1570,7 +1565,30 @@ Current C++/SQLite client, Python/SQLAlchemy server
     This would be a bit risky (trusting clients with the server's index); also,
     the client's index couldn't use server PKs (which we'd want); etc.
 
-- Upload speedup.
+- Upload speedup by optimizing existing upload method and via new one-step
+  upload.
 
 - Fixed bug where predecessor records of individually-preserved client records
   were not themselves preserved properly.
+
+- Documentation of structured upload testing method in ``client_api.py``
+  (q.v.).
+
+- SQL Server support.
+
+  - Bugfixes for operation under SQL Server.
+
+  - **The minimum SQL Server version is 2008** (below that, there’s no time
+    zone conversion support).
+
+  - SQL Server testing:
+
+    - Install free SQL Server 2017 Developer Edition from
+      https://www.microsoft.com/en-us/sql-server/sql-server-downloads; basic
+      install, default options.
+
+    - Discover that it fails to install. Fix by removing VC 2017
+      redistributables first, as per
+      https://dba.stackexchange.com/questions/190090/, and reinstall.
+
+    - Install SSMS (SQL Server Management Studio) too.

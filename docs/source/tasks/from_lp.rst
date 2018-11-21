@@ -26,26 +26,60 @@ This is part of the FROM-LP framework.
 
 .. include:: include_from_lp_generic.rst
 
+
 .. _from_lp:
 
-The FROM-LP generic measures include:
+The FROM-LP framework
+~~~~~~~~~~~~~~~~~~~~~
+
+**The FROM-LP generic measures are:**
+
+*Process*
+
+- a measure of response time;
+
+- IRAC: Identify and Rate the Aim of the Contact (Trigwell P, 2014a).
+
+*Outcomes (clinician-rated)*
 
 - CGI-I: Clinical Global Impression – Improvement scale; see :ref:`CGI-I
   <cgi_i>`.
 
+*Outcomes (patient-rated)*
+
 - :ref:`CORE-10 <core10>`
 
-- :ref:`Friends and Family Test (FFT) <fft>` (Department of Health, 2012).
-
-- IRAC: Identify and Rate the Aim of the Contact (Trigwell P, 2014a).
+*Patient satisfaction*
 
 - :ref:`Patient Satisfaction Scale (PSS) <pss>` (Persaud A et al. 2008).
 
-- Referrer Satisfaction Scale (RSS) (Trigwell P, 2014b, after Persaud A et al.
-  2008).
+- :ref:`Friends and Family Test (FFT) <fft>` (Department of Health, 2012).
 
-  - CamCOPS supports two versions of the RSS: a :ref:`patient-specific version
-    <rss_patient_specific>` and a :ref:`survey version <rss_survey>`.
+*Referrer satisfaction*
+
+- Referrer Satisfaction Scale (RSS) (Trigwell P, 2014b, after Persaud A et al.
+  2008). (CamCOPS supports two versions of the RSS: a :ref:`patient-specific
+  version <rss_patient_specific>` and a :ref:`survey version <rss_survey>`.)
+
+**The FROM-LP condition-specific measures are:**
+
+- Dementia: the :ref:`ACE-R <ace_r>`. (In CamCOPS, see the :ref:`ACE-III
+  <ace3>` instead.)
+
+- Depressive disorders: the :ref:`PHQ-9 <phq9>`.
+
+- Postnatal depression: the :ref:`EPDS <epds>`.
+
+- Anxiety disorders: the :ref:`GAD-7 <gad7>`.
+
+- Psychosis: the :ref:`HoNOS <honos>`.
+
+- Alcohol: the :ref:`AUDIT-C <audit>`.
+
+- Eating disorders: :ref:`BMI <bmi>`.
+
+- Medically unexplained symptoms: the :ref:`EQ-5D-5L <eq5d5l>`.
+
 
 History and guide
 ~~~~~~~~~~~~~~~~~

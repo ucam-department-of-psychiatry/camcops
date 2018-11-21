@@ -259,10 +259,10 @@ Note that the number of patient ID numbers uploaded (etc.) is ignored below.
 
     - The server log should show:
 
-      - 2 × blobs added;
-      - 1 × patient added;
-      - 1 × photosequence added;
-      - 2 × photosequence_photos added.
+      - blobs: 2 × added;
+      - patient: 1 × added;
+      - photosequence: 1 × added;
+      - photosequence_photos: 2 × added.
 
     - The task lists should look sensible.
 
@@ -273,9 +273,9 @@ Note that the number of patient ID numbers uploaded (etc.) is ignored below.
 
     - The server log should show:
 
-      - 1 × blobs added, 1 × blobs modified out;
-      - 1 × photosequence added, 1 × photosequence modified out;
-      - 1 × photosequence_photos added, 1 × photosequence_photos modified out.
+      - blobs: 1 × added, 1 × modified out;
+      - photosequence: 1 × added, 1 × modified out;
+      - photosequence_photos: 1 × added, 1 × modified out.
 
     - The task lists should look sensible.
 
@@ -287,12 +287,10 @@ Note that the number of patient ID numbers uploaded (etc.) is ignored below.
 
     - The server log should show:
 
-      - 1 × blobs added, 1 × blobs modified out, 4 × blobs preserved;
-      - 1 × patient preserved;
-      - 1 × photosequence added, 1 × photosequence modified out, 3 ×
-        photosequence preserved;
-      - 1 × photosequence_photos added, 1 × photosequence_photos modified out,
-        4 × photosequence_photos preserved.
+      - blobs: 1 × added, 1 × modified out, 4 × preserved;
+      - patient: 1 × preserved;
+      - photosequence: 1 × added, 1 × modified out, 3 × preserved;
+      - photosequence_photos: 1 × added, 1 × modified out, 4 × preserved.
 
     - The tasks should no longer be current.
     - A fresh "vertical fingers" photo should be visible.
@@ -1834,18 +1832,7 @@ def commit_table(req: CamcopsRequest,
     serverrecs = get_server_live_records(req, device_id, table,
                                          current_only=False)
     for sr in serverrecs:
-        if sr.addition_pending:
-            tablechanges.note_addition_pk(sr.server_pk)
-            tablechanges.note_current_pk(sr.server_pk)
-        elif sr.removal_pending:
-            if sr.successor_pk is None:
-                tablechanges.note_removal_deleted_pk(sr.server_pk)
-            else:
-                tablechanges.note_removal_modified_pk(sr.server_pk)
-        elif sr.current:
-            tablechanges.note_current_pk(sr.server_pk)
-        if preserving or sr.move_off_tablet:
-            tablechanges.note_preservation_pk(sr.server_pk)
+        tablechanges.note_serverrec(sr, preserving=preserving)
 
     # -------------------------------------------------------------------------
     # Additions
@@ -2462,7 +2449,7 @@ def op_which_keys_to_send(req: CamcopsRequest) -> str:
     # -------------------------------------------------------------------------
     # Work out the answer
     # -------------------------------------------------------------------------
-    get_batch_details(req)
+    batchdetails = get_batch_details(req)
 
     # 1. The client sends us all its PKs. So "delete" anything not in that
     #    list.
@@ -2478,11 +2465,18 @@ def op_which_keys_to_send(req: CamcopsRequest) -> str:
                 # New on the client; we want it
                 client_pks_needed.append(wk.client_pk)
             else:
+                # We know about some version of this client record.
                 serverrec = client_pk_to_serverrec[wk.client_pk]
-                if (serverrec.server_when != wk.client_when or
-                        serverrec.move_off_tablet != wk.client_move_off_tablet):  # noqa
+                if serverrec.server_when != wk.client_when:
                     # Modified on the client; we want it
                     client_pks_needed.append(wk.client_pk)
+                elif serverrec.move_off_tablet != wk.client_move_off_tablet:
+                    # Not modified on the client. But it is being preserved.
+                    # We don't need to ask the client for it again, but we do
+                    # need to mark the preservation.
+                    flag_record_for_preservation(req, batchdetails, table,
+                                                 serverrec.server_pk)
+
         else:
             # Client hasn't told us about the _move_off_tablet flag. Always
             # request the record (workaround potential bug in old clients).
