@@ -1,8 +1,0 @@
-camcops (2.1.0) all; urgency=low
-
-  * PLEASE SEE documentation/source/changelog.rst FOR ALL CHANGES.
-  * This file has a very precise format:
-    http://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgchangelog
-  * Note that newer entries are at the top.
-
- -- Rudolf Cardinal <rudolf@pobox.com>  Tue, 17 Oct 2017 17:12:00 +0100

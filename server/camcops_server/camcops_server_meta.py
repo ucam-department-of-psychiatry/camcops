@@ -89,7 +89,7 @@ def meta_main() -> None:
             did_something = True
             log.info("Processing: {}".format(filename))
             sys.argv = (
-                ['camcops',  # dummy argv[0]
+                ['camcops_server',  # dummy argv[0]
                  args.cc_command,
                  "--config", filename] +
                 ['--{}'.format(x) for x in args.ccargs or []]

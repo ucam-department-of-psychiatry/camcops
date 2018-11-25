@@ -211,14 +211,14 @@ All operating systems
   .. code-block:: bash
 
     # Linux
-    python3 -m virtualenv $CAMCOPS_VENV
+    python3 -m venv $CAMCOPS_VENV
     . $CAMCOPS_VENV/bin/activate
     pip install cardinal_pythonlib==1.0.23
 
   .. code-block:: bat
 
     REM Windows
-    python -m virtualenv %CAMCOPS_VENV%
+    python -m venv %CAMCOPS_VENV%
     %CAMCOPS_VENV%\Scripts\activate
     pip install cardinal_pythonlib==1.0.23
 

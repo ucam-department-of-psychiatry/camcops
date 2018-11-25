@@ -831,9 +831,6 @@ def add_sub(sp: "_SubParsersAction",
         description=description,
         formatter_class=ArgumentDefaultsHelpFormatter
     )  # type: ArgumentParser
-    subparser.add_argument(
-        '-v', '--verbose', action='store_true',
-        help="Be verbose")
     if config_mandatory:  # True
         cfg_help = "Configuration file"
     else:  # None, False
@@ -1013,6 +1010,9 @@ def camcops_main() -> None:
     parser.add_argument(
         "--version", action="version",
         version="CamCOPS {}".format(CAMCOPS_SERVER_VERSION))
+    parser.add_argument(
+        '-v', '--verbose', action='store_true',
+        help="Be verbose")
 
     # -------------------------------------------------------------------------
     # Subcommand subparser
@@ -1035,6 +1035,7 @@ def camcops_main() -> None:
     # Getting started commands
     # -------------------------------------------------------------------------
 
+    # Launch documentation
     docs_parser = add_sub(
         subparsers, "docs", config_mandatory=None,
         help="Launch the main documentation (CamCOPS manual)"
@@ -1042,30 +1043,35 @@ def camcops_main() -> None:
     docs_parser.set_defaults(
         func=lambda args: launch_manual())
 
+    # Print demo CamCOPS config
     democonfig_parser = add_sub(
         subparsers, "demo_camcops_config", config_mandatory=None,
         help="Print a demo CamCOPS config file")
     democonfig_parser.set_defaults(
         func=lambda args: print_demo_camcops_config())
 
+    # Print demo supervisor config
     demosupervisorconf_parser = add_sub(
         subparsers, "demo_supervisor_config", config_mandatory=None,
         help="Print a demo 'supervisor' config file for CamCOPS")
     demosupervisorconf_parser.set_defaults(
         func=lambda args: print_demo_supervisor_config())
 
+    # Print demo Apache config section
     demoapacheconf_parser = add_sub(
         subparsers, "demo_apache_config", config_mandatory=None,
         help="Print a demo Apache config file section for CamCOPS")
     demoapacheconf_parser.set_defaults(
         func=lambda args: print_demo_apache_config())
 
+    # Print demo MySQL database creation commands
     demo_mysql_create_db_parser = add_sub(
         subparsers, "demo_mysql_create_db", config_mandatory=None,
         help="Print demo instructions to create a MySQL database for CamCOPS")
     demo_mysql_create_db_parser.set_defaults(
         func=lambda args: print_demo_mysql_create_db())
 
+    # Print demo Bash MySQL dump script
     demo_mysql_dump_script_parser = add_sub(
         subparsers, "demo_mysql_dump_script", config_mandatory=None,
         help="Print demo instructions to dump all current MySQL databases")
@@ -1076,6 +1082,7 @@ def camcops_main() -> None:
     # Database commands
     # -------------------------------------------------------------------------
 
+    # Upgrade database
     upgradedb_parser = add_sub(
         subparsers, "upgrade_db", config_mandatory=True,
         help="Upgrade database to most recent version (via Alembic)")
@@ -1089,6 +1096,7 @@ def camcops_main() -> None:
         )
     )
 
+    # Developer: upgrade database to a specific revision
     dev_upgrade_to_parser = add_sub(
         subparsers, "dev_upgrade_to", config_mandatory=True,
         help="(DEVELOPER OPTION ONLY.) Upgrade a database to "
@@ -1109,6 +1117,7 @@ def camcops_main() -> None:
         )
     )
 
+    # Developer: downgrade database
     dev_downgrade_parser = add_sub(
         subparsers, "dev_downgrade_db", config_mandatory=True,
         help="(DEVELOPER OPTION ONLY.) Downgrades a database to "
@@ -1133,12 +1142,14 @@ def camcops_main() -> None:
         )
     )
 
+    # Show database title
     showdbtitle_parser = add_sub(
         subparsers, "show_db_title",
         help="Show database title")
     showdbtitle_parser.set_defaults(
         func=lambda args: print_database_title())
 
+    # Merge in data fom another database
     mergedb_parser = add_sub(
         subparsers, "merge_db", config_mandatory=True,
         help="Merge in data from an old or recent CamCOPS database")
@@ -1208,6 +1219,7 @@ def camcops_main() -> None:
     # So the simplest thing is only to register the debug toolbar for stuff
     # that might need it...
 
+    # Create database
     createdb_parser = add_sub(
         subparsers, "create_db", config_mandatory=True,
         help="Create CamCOPS database from scratch (AVOID; use the upgrade "
@@ -1222,6 +1234,7 @@ def camcops_main() -> None:
         )
     )
 
+    # Rebuild server indexes
     reindex_parser = add_sub(
         subparsers, "reindex",
         help="Recreate task index"
@@ -1232,14 +1245,11 @@ def camcops_main() -> None:
         )
     )
 
-    # db_group.add_argument(
-    #     "-s", "--summarytables", action="store_true", default=False,
-    #     help="Make summary tables")
-
     # -------------------------------------------------------------------------
     # User commands
     # -------------------------------------------------------------------------
 
+    # Make superuser
     superuser_parser = add_sub(
         subparsers, "make_superuser",
         help="Make superuser, or give superuser status to an existing user")
@@ -1251,6 +1261,7 @@ def camcops_main() -> None:
         username=args.username
     ))
 
+    # Reset a user's password
     password_parser = add_sub(
         subparsers, "reset_password",
         help="Reset a user's password")
@@ -1262,6 +1273,7 @@ def camcops_main() -> None:
         username=args.username
     ))
 
+    # Re-enable a locked account
     enableuser_parser = add_sub(
         subparsers, "enable_user",
         help="Re-enable a locked user account")
@@ -1277,6 +1289,7 @@ def camcops_main() -> None:
     # Export options
     # -------------------------------------------------------------------------
 
+    # Print database schema
     ddl_parser = add_sub(
         subparsers, "ddl",
         help="Print database schema (data definition language; DDL)")
@@ -1286,12 +1299,14 @@ def camcops_main() -> None:
     ddl_parser.set_defaults(
         func=lambda args: print(get_all_ddl(dialect_name=args.dialect)))
 
+    # Send HL7 messages
     hl7_parser = add_sub(
         subparsers, "hl7",
         help="Send pending HL7 messages and outbound files")
     hl7_parser.set_defaults(
         func=lambda args: send_hl7(show_queue_only=False))
 
+    # Show HL7 queue
     showhl7queue_parser = add_sub(
         subparsers, "show_hl7_queue",
         help="View outbound HL7/file queue (without sending)")
@@ -1309,16 +1324,19 @@ def camcops_main() -> None:
     # Test options
     # -------------------------------------------------------------------------
 
+    # Show available self-tests
     showtests_parser = add_sub(
         subparsers, "show_tests", config_mandatory=None,
         help="Show available self-tests")
     showtests_parser.set_defaults(func=lambda args: self_test(show_only=True))
 
+    # Self-test
     selftest_parser = add_sub(
         subparsers, "self_test", config_mandatory=None,
         help="Test internal code")
     selftest_parser.set_defaults(func=lambda args: self_test())
 
+    # Serve via the Pyramid test server
     serve_pyr_parser = add_sub(
         subparsers, "serve_pyramid",
         help="Test web server (single-thread, single-process, HTTP-only, "
@@ -1336,6 +1354,7 @@ def camcops_main() -> None:
         port=args.port
     ))
 
+    # Launch a Python command line
     dev_cli_parser = add_sub(
         subparsers, "dev_cli",
         help="Developer command-line interface, with config loaded as "
@@ -1347,6 +1366,7 @@ def camcops_main() -> None:
     # Web server options
     # -------------------------------------------------------------------------
 
+    # Serve via CherryPy
     serve_cp_parser = add_sub(
         subparsers, "serve_cherrypy",
         help="Start web server (via CherryPy)")
@@ -1415,8 +1435,8 @@ def camcops_main() -> None:
         root_path=args.root_path,
     ))
 
+    # Serve via Gunicorn
     cpu_count = multiprocessing.cpu_count()
-
     serve_gu_parser = add_sub(
         subparsers, "serve_gunicorn",
         help="Start web server (via Gunicorn) (not available under Windows)")
@@ -1471,9 +1491,8 @@ def camcops_main() -> None:
     ))
 
     # -------------------------------------------------------------------------
-    # OK; parse the arguments
+    # OK; parser built; now parse the arguments
     # -------------------------------------------------------------------------
-
     progargs = parser.parse_args()
 
     # Initial log level (overridden later by config file but helpful for start)
@@ -1484,9 +1503,10 @@ def camcops_main() -> None:
     # Say hello
     log.info("CamCOPS server version {}", CAMCOPS_SERVER_VERSION)
     log.info("Created by Rudolf Cardinal. See {}", CAMCOPS_URL)
-    log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
+    log.debug("Python interpreter: {!r}".format(sys.executable))
+    log.debug("This program: {!r}".format(__file__))
     log.debug("Command-line arguments: {!r}", progargs)
-
+    log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
     if DEBUG_LOG_CONFIG:
         print_report_on_all_logs()
 
@@ -1497,6 +1517,7 @@ def camcops_main() -> None:
     cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
     log.info("Using configuration file: {!r}", cfg_name)
 
+    # Call the subparser function for the chosen command
     if progargs.func is None:
         raise NotImplementedError("Command-line function not implemented!")
     success = progargs.func(progargs)  # type: Optional[bool]

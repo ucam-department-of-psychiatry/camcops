@@ -123,7 +123,7 @@ Installation for any OS
     .. code-block:: bash
 
         export CAMCOPS_VENV=~/dev/camcops_venv
-        python3 -m virtualenv $CAMCOPS_VENV
+        python3 -m venv $CAMCOPS_VENV
         . $CAMCOPS_VENV/bin/activate
 
 - Install the CamCOPS server package:
@@ -146,3 +146,14 @@ front-end web server and MySQL as your database:
     sudo apt-get install apache2 mysql-client mysql-server
 
 See also the :ref:`more detailed MySQL configuration tips <linux_mysql_setup>`.
+
+
+Specimen installations
+======================
+
+Ubuntu 18.04 LTS
+~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    

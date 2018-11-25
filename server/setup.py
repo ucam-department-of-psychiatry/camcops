@@ -288,16 +288,18 @@ if getattr(our_args, EXTRAS_ARG):
     MANIFEST_LINES = ['include camcops_server/' + x for x in extra_files]
     with open(MANIFEST_FILE, 'wt') as manifest:
         manifest.writelines([
-            "# This is an AUTOCREATED file, MANIFEST.in; see setup.py and DO "
-            "NOT EDIT BY HAND"])
+            "# This is an AUTOCREATED file, MANIFEST.in; see setup.py "
+            "and DO NOT EDIT BY HAND"])
         manifest.write("\n\n" + "\n".join(MANIFEST_LINES) + "\n")
 
     # -------------------------------------------------------------------------
     # Write requirements.txt
     # -------------------------------------------------------------------------
     with open(PIP_REQ_FILE, "w") as req_file:
-        for line in INSTALL_REQUIRES:
-            req_file.write(line + "\n")
+        req_file.writelines([
+            "# This is an AUTOCREATED file, requirements.txt; see setup.py "
+            "and DO NOT EDIT BY HAND"])
+        req_file.write("\n\n" + "\n".join(INSTALL_REQUIRES) + "\n")
 
 
 # =============================================================================

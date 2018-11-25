@@ -69,7 +69,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from typing import List
 
+from cardinal_pythonlib.datetimefunc import get_now_localtz_pendulum
 from cardinal_pythonlib.file_io import (
     get_lines_without_comments,
     remove_gzip_timestamp,
@@ -106,13 +108,14 @@ if sys.version_info[1] < 5:
 # URL defaults and other constants
 # =============================================================================
 
-PACKAGE = "camcops_server"
-DSTSYSTEMPYTHON = 'python3'
-# ... must be present on the path on the destination system
+PACKAGE_DEB_NAME = "camcops-server"  # no underscores for Debian
+PACKAGE_DIR_NAME = "camcops_server"
+ETC_DIR_NAME = "camcops"
+CAMCOPS_EXECUTABLE = "camcops_server"
 
 
 # =============================================================================
-# Helper functions
+# Python helper functions
 # =============================================================================
 
 def workpath(workdir: str, destpath: str) -> str:
@@ -127,6 +130,18 @@ def workpath(workdir: str, destpath: str) -> str:
     else:
         return join(workdir, destpath)
 
+
+def call(cmdargs: List[str], **kwargs) -> None:
+    if kwargs:
+        log.debug("With kwargs to subprocess.check_call of {!r}".format(
+            kwargs))
+    log.debug("Calling external program: {!r}".format(cmdargs))
+    subprocess.check_call(cmdargs, **kwargs)
+
+
+# =============================================================================
+# Bash helper functions, to go into other scripts
+# =============================================================================
 
 BASHFUNC = r"""
 
@@ -156,20 +171,45 @@ running_centos()
 
 service_exists()
 {
-    # Ubuntu used to give "unrecognized service" and now gives "not-found" (16.10)
-    # grep for multiple patterns: http://unix.stackexchange.com/questions/37313/how-do-i-grep-for-multiple-patterns
-
     # arguments: $1 is the service being tested
-    if service $1 status 2>&1 | grep -E 'unrecognized service|not-found' >/dev/null ; then
+    
+    servicename=$1
+
+    # Ubuntu used to give "unrecognized service"
+    # ... and now gives "not-found" (16.10)
+    # ... or "Unit <something>.service could not be found" (18.04)
+    # So a bad method is to grep for multiple patterns [1] like this:
+    #
+    # if service $1 status 2>&1 | grep -E 'unrecognized service|not-found' >/dev/null ; then
+    #     return 1  # false
+    # fi
+    # return 0  # true
+
+    # And a better way: return codes; will be 4 for an unknown service [2, 3]:
+    
+    service $servicename status >/dev/null 2>&1
+    exitcode=$?
+    if [ $exitcode -eq 4 ]; then
+        # 4 means "does not exist"
+        echo "Service $servicename does not exist"
         return 1  # false
     fi
+    # Other codes mean e.g. "running" (0) or "not running" (e.g. 1, 2, 3)
+    echo "Service $servicename exists"
     return 0  # true
+    
+    # [1] http://unix.stackexchange.com/questions/37313/how-do-i-grep-for-multiple-patterns
+    # [2] https://unix.stackexchange.com/questions/226484/does-an-init-script-always-return-a-proper-exit-code-when-running-status
+    # [3] http://refspecs.linuxbase.org/LSB_3.0.0/LSB-PDA/LSB-PDA/iniscrptact.html
 }
 
 service_supervisord_command()
 {
+    # argument: argument to "service", such as "start", "stop", "restart"
+
     # The exact supervisor program name is impossible to predict (e.g. in
-    # "supervisorctl stop camcops-gunicorn"), so we just start/stop everything.
+    # "supervisorctl stop camcops-gunicorn"), as it's user-defined, so we just 
+    # start/stop everything.
     # Ubuntu: service supervisor
     # CentOS: service supervisord
 
@@ -197,6 +237,24 @@ restart_supervisord()
     service_supervisord_command restart
 }
 
+system_python_executable()
+{
+    # Echoes the preferred Python executable on the destination system.
+    # Use as: $(system_python_executable) ...
+    
+    python_options=(python3.6 python36 python3.5 python35 python3 python)
+    for option in ${python_options[@]}; do
+        python_exe=$(which $option)
+        if [ ! -z "${python_exe}" ]; then
+            >&2 echo "CamCOPS: found system Python at ${python_exe}"
+            echo ${python_exe}
+            return 0  # success
+        fi
+    done
+    >&2 echo "Error: CamCOPS unable to determine system Python. Tried: ${python_options[@]}"
+}
+
+
 """  # noqa
 
 
@@ -219,7 +277,7 @@ SRCSERVERDIR = join(PROJECT_BASE_DIR, 'server')
 DOCROOTDIR = join(PROJECT_BASE_DIR, 'documentation')
 PACKAGEDIR = join(SRCSERVERDIR, 'packagebuild')
 
-DSTDOCDIR = join('/usr/share/doc', PACKAGE)
+DSTDOCDIR = join('/usr/share/doc', PACKAGE_DEB_NAME)
 WRKDOCDIR = workpath(WRKDIR, DSTDOCDIR)
 
 WRKBASEDIR = workpath(WRKDIR, DSTBASEDIR)
@@ -229,7 +287,7 @@ DEBDIR = join(WRKDIR, 'DEBIAN')
 DEBOVERRIDEDIR = workpath(WRKDIR, '/usr/share/lintian/overrides')
 
 DSTCONSOLEFILEDIR = '/usr/bin'
-SETUPSCRIPTNAME = PACKAGE
+SETUPSCRIPTNAME = CAMCOPS_EXECUTABLE
 WRKCONSOLEFILEDIR = workpath(WRKDIR, DSTCONSOLEFILEDIR)
 
 DSTTEMPDIR = join(DSTBASEDIR, 'tmp')
@@ -242,12 +300,12 @@ WKHTMLTOPDFSCRIPT = 'install_wkhtmltopdf.py'
 DSTVENVSCRIPT = join(DSTTOOLDIR, VENVSCRIPT)
 DSTWKHTMLTOPDFSCRIPT = join(DSTTOOLDIR, WKHTMLTOPDFSCRIPT)
 
-METASCRIPTNAME = '{}_meta'.format(PACKAGE)
+METASCRIPTNAME = '{}_meta'.format(CAMCOPS_EXECUTABLE)
 
 DSTMANDIR = '/usr/share/man/man1'  # section 1 for user commands
 WRKMANDIR = workpath(WRKDIR, DSTMANDIR)
 
-DSTCONFIGDIR = join('/etc', PACKAGE)
+DSTCONFIGDIR = join('/etc', ETC_DIR_NAME)
 WRKCONFIGDIR = workpath(WRKDIR, DSTCONFIGDIR)
 
 DSTDPKGDIR = '/var/lib/dpkg/info'
@@ -299,7 +357,7 @@ CHANGEDATE = CAMCOPS_SERVER_CHANGEDATE
 DEBVERSION = MAINVERSION + '-1'
 PACKAGENAME = join(
     PACKAGEDIR,
-    '{PACKAGE}_{DEBVERSION}_all.deb'.format(PACKAGE=PACKAGE,
+    '{PACKAGE}_{DEBVERSION}_all.deb'.format(PACKAGE=PACKAGE_DEB_NAME,
                                             DEBVERSION=DEBVERSION)
 )
 # upstream_version-debian_revision --
@@ -307,189 +365,64 @@ PACKAGENAME = join(
 
 
 # =============================================================================
-# Check prerequisites
+# Prerequisites
 # =============================================================================
-# http://stackoverflow.com/questions/2806897
-if os.geteuid() == 0:
-    log.critical("This script should not be run using sudo or as the root user")
-    sys.exit(1)
 
-log.info("Checking prerequisites")
 PREREQUISITES = ("alien dpkg-deb fakeroot find git gzip lintian "
                  "rpmrebuild".split())
-for cmd in PREREQUISITES:
-    if shutil.which(cmd) is None:
-        log.warning("""
-To install Alien:
-    sudo apt-get install alien
-To install rpmrebuild:
-    1. Download RPM from http://rpmrebuild.sourceforge.net/, e.g.
-        cd /tmp
-        wget http://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.11/rpmrebuild-2.11-1.noarch.rpm
-    2. Convert to DEB:
-        fakeroot alien --to-deb rpmrebuild-2.11-1.noarch.rpm
-    3. Install:
-        sudo dpkg --install rpmrebuild_2.11-2_all.deb
-        """)  # noqa
-        log.critical("{} command not found; stopping".format(cmd))
+
+
+def check_prerequisites() -> None:
+    """
+    Check prerequisites are in place.
+    """
+    # http://stackoverflow.com/questions/2806897
+    if os.geteuid() == 0:
+        log.critical(
+            "This script should not be run using sudo or as the root user")
         sys.exit(1)
 
+    log.info("Checking prerequisites")
+    for cmd in PREREQUISITES:
+        if shutil.which(cmd) is None:
+            log.warning("""
+    To install Alien:
+        sudo apt-get install alien
+    To install rpmrebuild:
+        1. Download RPM from http://rpmrebuild.sourceforge.net/, e.g.
+            cd /tmp
+            wget http://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.11/rpmrebuild-2.11-1.noarch.rpm
+        2. Convert to DEB:
+            fakeroot alien --to-deb rpmrebuild-2.11-1.noarch.rpm
+        3. Install:
+            sudo dpkg --install rpmrebuild_2.11-2_all.deb
+            """)  # noqa
+            log.critical("{} command not found; stopping".format(cmd))
+            sys.exit(1)
 
-# RPM issues
-# 1. A dummy camcops-prerequisites package works but is inelegant.
-# 2. Alien seems to strip dependencies.
-# 3. rpmrebuild does the job albeit not wholly intuitive documentation!
-#    It also allows you to see what Alien was doing.
-
-
-# =============================================================================
-# Check command-line arguments +/- provide help
-# =============================================================================
-
-parser = argparse.ArgumentParser(
-    description="""
-- Creates a Debian (.deb) and RPM (.rpm) distribution file for the CamCOPS
-  server, for distribution under Linux.
-
-- In brief, the following sequence is followed as the package is built:
-
-  * The CamCOPS server is packaged up from source using
-        python setup.py sdist --extras
-            # ... where "--extras" is a special custom option that copies the
-            # tablet source code and packages that, plus all static files
-    and zipped in a Debian-safe way.
-
-  * The principle is that the Python package should do all the work, not the
-    Debian framework. This also means that a user who elects to install via pip
-    gets exactly the same functional file structure.
-
-  * A Debian package is built, containing all the usual Debian goodies (man
-    packages, the preinst/postinst/prerm/postrm files, cataloguing and control
-    files, etc.).
-
-  * The package is checked with Lintian.
-
-  * An RPM is built from the .deb package.
-
-- The user then installs the DEB or RPM file. In addition to installing
-  standard things like man pages, this then:
-
-  * attempts to stop supervisord for the duration of the installation (because
-    that's the usual way to run a CamCOPS server);
-
-  * creates a few standard directories (e.g. for CamCOPS configuration and
-    lock files), including
-        {LINUX_DEFAULT_CAMCOPS_CONFIG_DIR}
-        {LINUX_DEFAULT_CAMCOPS_DIR}
-        {LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}
-        {LINUX_DEFAULT_LOCK_DIR}
-
-  * checks that Python 3.5 is available on the system;
-
-  * uses the system Python to create a Python virtual environment within
-    {LINUX_DEFAULT_CAMCOPS_DIR};
-
-  * uses the virtual environment's "pip" command to install the distributed
-    CamCOPS Python package within that virtual environment;
-    ... which also appears to compile .py to .pyc files automatically;
-
-  * creates master executable scripts (which call corresponding Python
-    scripts):
-        {DSTCONSOLEFILE}
-        {DSTMETACONSOLEFILE}
-
-  * sets some permissions (to default users such as "www-data" on Ubuntu, or
-    "apache" on CentOS);
-
-  * restarts supervisord.
-
-    """.format(
-        DSTCONSOLEFILE=DSTCONSOLEFILE,
-        DSTMETACONSOLEFILE=DSTMETACONSOLEFILE,
-        LINUX_DEFAULT_CAMCOPS_CONFIG_DIR=LINUX_DEFAULT_CAMCOPS_CONFIG_DIR,
-        LINUX_DEFAULT_CAMCOPS_DIR=LINUX_DEFAULT_CAMCOPS_DIR,
-        LINUX_DEFAULT_LOCK_DIR=LINUX_DEFAULT_LOCK_DIR,
-        LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR=LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
-    ),
-    formatter_class=argparse.RawDescriptionHelpFormatter,
-)
-parser.add_argument('--verbose', '-v', action='store_true')
-args = parser.parse_args()
-main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
-                                else logging.INFO)
-
-log.info("mainversion: {}".format(MAINVERSION))
-log.info("changedate: {}".format(CHANGEDATE))
+    # RPM issues
+    # 1. A dummy camcops-prerequisites package works but is inelegant.
+    # 2. Alien seems to strip dependencies.
+    # 3. rpmrebuild does the job albeit not wholly intuitive documentation!
+    #    It also allows you to see what Alien was doing.
 
 
 # =============================================================================
-log.info("Building Python package")
+# Debian control files
 # =============================================================================
 
-SETUP_PY = join(SRCSERVERDIR, 'setup.py')
-SDIST_BASEFILENAME = ('camcops_server-{}.tar.gz'.format(MAINVERSION))
-SRC_SDIST_FILE = join(SRCSERVERDIR, 'dist', SDIST_BASEFILENAME)
-WRK_SDIST_FILE = join(WRKBASEDIR, SDIST_BASEFILENAME)
-DST_SDIST_FILE = join(DSTBASEDIR, SDIST_BASEFILENAME)
-
-try:
-    log.info("Deleting old {} if it exists".format(SRC_SDIST_FILE))
-    os.remove(SRC_SDIST_FILE)
-except OSError:
-    pass
-os.chdir(SETUP_PY_DIR)  # or setup.py looks in wrong places?
-cmdargs = ['python', SETUP_PY, 'sdist', '--extras']  # special!
-log.info("Command: {}".format(cmdargs))
-subprocess.check_call(cmdargs)
-remove_gzip_timestamp(SRC_SDIST_FILE)
-
-
-# =============================================================================
-log.info("Making directories")
-# =============================================================================
-mkdir_p(DEBDIR)
-mkdir_p(DEBOVERRIDEDIR)
-mkdir_p(PACKAGEDIR)
-mkdir_p(RPMTOPDIR)
-mkdir_p(WRKCONFIGDIR)
-mkdir_p(WRKCONSOLEFILEDIR)
-mkdir_p(WRKDIR)
-mkdir_p(WRKDOCDIR)
-mkdir_p(WRKMANDIR)
-mkdir_p(WRKMPLCONFIGDIR)
-mkdir_p(WRKBASEDIR)
-mkdir_p(WRKTOOLDIR)
-for d in "BUILD,BUILDROOT,RPMS,RPMS/noarch,SOURCES,SPECS,SRPMS".split(","):
-    mkdir_p(join(RPMTOPDIR, d))
-
-
-# =============================================================================
-log.info("Copying files")
-# =============================================================================
-# copyglob(join(SRCSERVERDIR, 'requirements*.txt'), WRKBASEDIR)
-copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WRKDOCDIR)
-subprocess.check_call(['gzip', '-n', '-9',
-                       join(WRKDOCDIR, 'changelog.Debian')])
-# copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WEB_VERSION_FILES_DIR)
-# ... for the web site
-
-copyglob(join(SRCTOOLDIR, VENVSCRIPT), WRKTOOLDIR)
-copyglob(join(SRCTOOLDIR, WKHTMLTOPDFSCRIPT), WRKTOOLDIR)
-
-shutil.copyfile(SRC_SDIST_FILE, WRK_SDIST_FILE)
-
-
-# =============================================================================
-log.info("Creating man page for camcops. Will be installed as " + DSTMANFILE)
-# =============================================================================
+# -----------------------------------------------------------------------------
+# man pages
+# -----------------------------------------------------------------------------
 # http://www.fnal.gov/docs/products/ups/ReferenceManual/html/manpages.html
 
-write_gzipped_text(WRKMANFILE_BASE, r""".\" Manpage for {SETUPSCRIPTNAME}.
+def get_man_page_camcops_server() -> str:
+    return r""".\" Manpage for {SETUPSCRIPTNAME}.
 .\" Contact rudolf@pobox.com to correct errors or typos.
 .TH man 1 "{CHANGEDATE}" "{MAINVERSION}" "{SETUPSCRIPTNAME} man page"
 
 .SH NAME
-{SETUPSCRIPTNAME} \- run the CamCOPS command-line tool
+{SETUPSCRIPTNAME} \- run the CamCOPS server command-line tool
 
 .SH SYNOPSIS
 .B {SETUPSCRIPTNAME} [
@@ -499,23 +432,22 @@ write_gzipped_text(WRKMANFILE_BASE, r""".\" Manpage for {SETUPSCRIPTNAME}.
 .B ]
 
 .SH DESCRIPTION
-The CamCOPS command-line tool allows you to create main tables (also specifying
-the meaning of ID numbers), temporary summary tables, and superusers. It can
-send HL7 messages and export files. It can perform some other test functions
-and perform some user administration tasks. All other administration is via the
+The CamCOPS server command-line tool allows you to create tables and
+superusers, launch the web service, and perform some data exports, test
+functions, and user administration tasks. All other administration is via the
 web interface.
 
 There are prerequisites, such as setting up a database. See
-http://www.camcops.org/ and the manual (use: 'camcops docs').
+https://camcops.readthedocs.io/.
 
 For help, use
 
-    camcops --help
-    camcops docs
+    camcops_server --help
+    camcops_server docs
 
 To create a demonstration config file, run
 
-    camcops demo_camcops_config
+    camcops_server demo_camcops_config
 
 Typically one would put the real configuration file in /etc/camcops/, and make
 it readable only by the Apache user (typically www-data on Debian/Ubuntu
@@ -524,107 +456,70 @@ and apache on CentOS).
 To create demonstration configuration files for support programs such as
 supervisord and Apache, try
 
-    camcops demo_supervisor_config
-    camcops demo_apache_config
+    camcops_server demo_supervisor_config
+    camcops_server demo_apache_config
 
 You will also need to point your web server (e.g. Apache) at the CamCOPS
-program itself; see http://www.camcops.org/ and the manual.
+program itself; see https://camcops.readthedocs.io/.
 
 .SH FOR DETAILS
-.IP "camcops --help"
+.IP "camcops_server --help"
 show all options
 
 .SH SEE ALSO
-http://www.camcops.org/
+http://www.camcops.org/; https://camcops.readthedocs.io/
 
 .SH AUTHOR
 Rudolf Cardinal (rudolf@pobox.com)
-""".format(
-    SETUPSCRIPTNAME=SETUPSCRIPTNAME,
-    CHANGEDATE=CHANGEDATE,
-    MAINVERSION=MAINVERSION,
-))
+    """.format(
+        SETUPSCRIPTNAME=SETUPSCRIPTNAME,
+        CHANGEDATE=CHANGEDATE,
+        MAINVERSION=MAINVERSION,
+    )
 
 
-# =============================================================================
-log.info("Creating man page for camcops_server_meta. Will be installed as " +
-         DSTMETAMANFILE)
-# =============================================================================
-# http://www.fnal.gov/docs/products/ups/ReferenceManual/html/manpages.html
-
-write_gzipped_text(WRKMETAMANFILE_BASE, r""".\" Manpage for {METASCRIPTNAME}.
+def get_man_page_camcops_server_meta() -> str:
+    return r""".\" Manpage for {METASCRIPTNAME}.
 .\" Contact rudolf@pobox.com to correct errors or typos.
 .TH man 1 "{CHANGEDATE}" "{MAINVERSION}" "{METASCRIPTNAME} man page"
 
 .SH NAME
-{METASCRIPTNAME} \- run the CamCOPS meta-command-line
+{METASCRIPTNAME} \- run the CamCOPS server meta-command-line tool
 
 .IP "{METASCRIPTNAME} --help"
 show all options
 
 .SH SEE ALSO
-http://www.camcops.org/
+http://www.camcops.org/; https://camcops.readthedocs.io/
 
 .SH AUTHOR
 Rudolf Cardinal (rudolf@pobox.com)
-""".format(
-    METASCRIPTNAME=METASCRIPTNAME,
-    CHANGEDATE=CHANGEDATE,
-    MAINVERSION=MAINVERSION,
-))
+    """.format(
+        METASCRIPTNAME=METASCRIPTNAME,
+        CHANGEDATE=CHANGEDATE,
+        MAINVERSION=MAINVERSION,
+    )
 
 
-# =============================================================================
-log.info("Creating links to documentation. Will be installed as " + DSTREADME)
-# =============================================================================
-write_text(WRKREADME, """
+# -----------------------------------------------------------------------------
+# README
+# -----------------------------------------------------------------------------
+
+def get_readme() -> str:
+    return """
 CamCOPS: the Cambridge Cognitive and Psychiatric Test Kit
 
-See http://www.camcops.org for documentation, or the manual (for which, use
-'camcops_server docs').
-""")
+See https://camcops.readthedocs.io/ for documentation.
+    """
 
 
-# =============================================================================
-log.info("Creating camcops_server launch script. Will be installed as " +
-         DSTCONSOLEFILE)
-# =============================================================================
-write_text(WRKCONSOLEFILE, """#!/bin/bash
-# Launch script for CamCOPS command-line tool.
+# -----------------------------------------------------------------------------
+# control
+# -----------------------------------------------------------------------------
 
-echo 'Launching CamCOPS command-line tool...' >&2
-
-{DST_CAMCOPS_LAUNCHER} "$@"
-
-""".format(
-    DST_CAMCOPS_LAUNCHER=DST_CAMCOPS_LAUNCHER,
-))
-
-
-# =============================================================================
-log.info("Creating camcops_server_meta launch script. Will be installed as "
-         "{}".format(DSTMETACONSOLEFILE))
-# =============================================================================
-write_text(WRKMETACONSOLEFILE, """#!/bin/bash
-# Launch script for CamCOPS meta-command tool tool.
-
-echo 'Launching CamCOPS meta-command tool...' >&2
-
-{DST_CAMCOPS_META_LAUNCHER} "$@"
-
-""".format(
-    DST_CAMCOPS_META_LAUNCHER=DST_CAMCOPS_META_LAUNCHER,
-))
-
-
-# =============================================================================
-log.info("Creating Debian control file")
-# =============================================================================
-
-DEPENDS_DEB = get_lines_without_comments(DEB_REQ_FILE)
-DEPENDS_RPM = get_lines_without_comments(RPM_REQ_FILE)
-
-write_text(join(DEBDIR, 'control'), """Package: {PACKAGE}
+def get_debian_control() -> str:
+    depends_deb = get_lines_without_comments(DEB_REQ_FILE)
+    return """Package: {PACKAGE}
 Version: {DEBVERSION}
 Section: science
 Priority: optional
@@ -639,30 +534,47 @@ Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  .
  For more details, see http://www.camcops.org/
 """.format(
-    PACKAGE=PACKAGE,
-    DEBVERSION=DEBVERSION,
-    DEPENDENCIES=", ".join(DEPENDS_DEB),
-))
+        PACKAGE=PACKAGE_DEB_NAME,
+        DEBVERSION=DEBVERSION,
+        DEPENDENCIES=", ".join(depends_deb),
+    )
 
 
-# =============================================================================
-# log.info("Creating conffiles file. Will be installed as " +
-#          join(DSTDPKGDIR, PACKAGE + '.conffiles'))
-# =============================================================================
-# configfiles = [DSTCONFIGFILE,
-#                DST_SUPERVISOR_CONF_FILE]
-# write_text(join(DEBDIR, 'conffiles'), "\n".join(configfiles))
-#
-# If a configuration file is removed by the user, it won't be reinstalled:
-#   http://www.debian.org/doc/debian-policy/ap-pkg-conffiles.html
-# In this situation, do "sudo aptitude purge camcops" then reinstall.
+# -----------------------------------------------------------------------------
+# changelog
+# -----------------------------------------------------------------------------
+
+DEBIAN_DATETIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
+# e.g. Tue, 17 Oct 2017 17:12:00 +0100
+# strftime: http://man7.org/linux/man-pages/man3/strftime.3.html
 
 
-# =============================================================================
-log.info("Creating preinst file. Will be installed as " +
-         join(DSTDPKGDIR, PACKAGE + '.preinst'))
-# =============================================================================
-write_text(join(DEBDIR, 'preinst'), """#!/bin/bash
+def get_changelog() -> str:
+    now = get_now_localtz_pendulum()
+    return """camcops-server ({CAMCOPS_SERVER_VERSION_STRING}) all; urgency=low
+
+  * Change date: {CAMCOPS_SERVER_CHANGEDATE}.
+  * PLEASE SEE docs/source/changelog.rst FOR ALL CHANGES, or the online version
+    at https://camcops.readthedocs.io/.
+  * This file (changelog.Debian) has a very precise format:
+    http://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgchangelog
+  * Note that newer entries are at the top.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  {now}
+
+    """.format(
+        CAMCOPS_SERVER_VERSION_STRING=CAMCOPS_SERVER_VERSION_STRING,
+        CAMCOPS_SERVER_CHANGEDATE=CAMCOPS_SERVER_CHANGEDATE,
+        now=now.strftime(DEBIAN_DATETIME_FORMAT),
+    )
+
+
+# -----------------------------------------------------------------------------
+# preinst
+# -----------------------------------------------------------------------------
+
+def get_preinst() -> str:
+    return """#!/bin/bash
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
@@ -678,19 +590,20 @@ echo '{PACKAGE}: preinst file executing'
 stop_supervisord
 
 echo '{PACKAGE}: preinst file finished'
+    
+    """.format(
+        BASHFUNC=BASHFUNC,
+        PACKAGE=PACKAGE_DEB_NAME,
+    )
 
-""".format(
-    BASHFUNC=BASHFUNC,
-    PACKAGE=PACKAGE,
-))
 
+# -----------------------------------------------------------------------------
+# postinst
+# -----------------------------------------------------------------------------
 
-# =============================================================================
-log.info("Creating postinst file. Will be installed as " +
-         join(DSTDPKGDIR, PACKAGE + '.postinst'))
-# =============================================================================
-
-write_text(join(DEBDIR, 'postinst'), """#!/bin/bash
+def get_postinst(sdist_basefilename: str) -> str:
+    dst_sdist_file = join(DSTBASEDIR, sdist_basefilename)
+    return """#!/bin/bash
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
@@ -704,10 +617,10 @@ echo '{PACKAGE}: postinst file executing'
 
 echo 'About to install virtual environment'
 export XDG_CACHE_HOME={DSTPYTHONCACHE}
-{DSTSYSTEMPYTHON} {DSTVENVSCRIPT} {DSTPYTHONVENV} --skippackagechecks
+$(system_python_executable) {DSTVENVSCRIPT} {DSTPYTHONVENV} --skippackagechecks
 
 echo 'About to install CamCOPS into virtual environment'
-{DSTVENVPIP} install {DST_SDIST_FILE}
+{DSTVENVPIP} install {dst_sdist_file}
 
 #------------------------------------------------------------------------------
 echo 'Creating lockfile directory'
@@ -766,31 +679,31 @@ echo "        sudo yum install mysql55 mysql55-server libmysqlclient-dev"
 echo
 echo "2.  Can't install wkhtmltopdf right now (dpkg database will be locked)."
 echo "    Later, run this once:"
-echo "    sudo {DSTSYSTEMPYTHON} {DSTWKHTMLTOPDFSCRIPT}"
+echo "    sudo $(system_python_executable) {DSTWKHTMLTOPDFSCRIPT}"
 echo "========================================================================"
 
 echo '{PACKAGE}: postinst file finished'
 
-""".format(  # noqa
-    BASHFUNC=BASHFUNC,
-    DSTLOCKDIR=DSTLOCKDIR,
-    DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
-    DSTPYTHONCACHE=DSTPYTHONCACHE,
-    DSTPYTHONVENV=DSTPYTHONVENV,
-    DST_SDIST_FILE=DST_SDIST_FILE,
-    DSTSYSTEMPYTHON=DSTSYSTEMPYTHON,
-    DSTVENVPIP=DSTVENVPIP,
-    DSTVENVSCRIPT=DSTVENVSCRIPT,
-    DSTWKHTMLTOPDFSCRIPT=DSTWKHTMLTOPDFSCRIPT,
-    PACKAGE=PACKAGE,
-))
+    """.format(  # noqa
+        BASHFUNC=BASHFUNC,
+        DSTLOCKDIR=DSTLOCKDIR,
+        DSTMPLCONFIGDIR=DSTMPLCONFIGDIR,
+        DSTPYTHONCACHE=DSTPYTHONCACHE,
+        DSTPYTHONVENV=DSTPYTHONVENV,
+        dst_sdist_file=dst_sdist_file,
+        DSTVENVPIP=DSTVENVPIP,
+        DSTVENVSCRIPT=DSTVENVSCRIPT,
+        DSTWKHTMLTOPDFSCRIPT=DSTWKHTMLTOPDFSCRIPT,
+        PACKAGE=PACKAGE_DEB_NAME,
+    )
 
 
-# =============================================================================
-log.info("Creating prerm file. Will be installed as " +
-         join(DSTDPKGDIR, PACKAGE + '.prerm'))
-# =============================================================================
-write_text(join(DEBDIR, 'prerm'), """#!/bin/bash
+# -----------------------------------------------------------------------------
+# prerm
+# -----------------------------------------------------------------------------
+
+def get_prerm() -> str:
+    return """#!/bin/bash
 set -e
 
 {BASHFUNC}
@@ -811,19 +724,20 @@ find {DSTBASEDIR} -name '*.pyo' -delete
 
 echo '{PACKAGE}: prerm file finished'
 
-""".format(
-    BASHFUNC=BASHFUNC,
-    PACKAGE=PACKAGE,
-    DSTBASEDIR=DSTBASEDIR,
-    DSTVENVPIP=DSTVENVPIP,
-))
+    """.format(
+        BASHFUNC=BASHFUNC,
+        PACKAGE=PACKAGE_DEB_NAME,
+        DSTBASEDIR=DSTBASEDIR,
+        DSTVENVPIP=DSTVENVPIP,
+    )
 
 
-# =============================================================================
-log.info("Creating postrm file. Will be installed as " +
-         join(DSTDPKGDIR, PACKAGE + '.postrm'))
-# =============================================================================
-write_text(join(DEBDIR, 'postrm'), """#!/bin/bash
+# -----------------------------------------------------------------------------
+# postrm
+# -----------------------------------------------------------------------------
+
+def get_postrm() -> str:
+    return """#!/bin/bash
 set -e
 
 {BASHFUNC}
@@ -834,31 +748,34 @@ restart_supervisord
 
 echo '{PACKAGE}: postrm file finished'
 
-""".format(
-    BASHFUNC=BASHFUNC,
-    PACKAGE=PACKAGE,
-    DSTBASEDIR=DSTBASEDIR,
-))
+    """.format(
+        BASHFUNC=BASHFUNC,
+        PACKAGE=PACKAGE_DEB_NAME,
+        DSTBASEDIR=DSTBASEDIR,
+    )
 
 
-# =============================================================================
-log.info("Creating Lintian override file")
-# =============================================================================
-write_text(join(DEBOVERRIDEDIR, PACKAGE), """
+# -----------------------------------------------------------------------------
+# override
+# -----------------------------------------------------------------------------
+
+def get_override() -> str:
+    return """
 # Not an official new Debian package, so ignore this one.
 # If we did want to close a new-package ITP bug:
-# http://www.debian.org/doc/manuals/developers-reference/pkgs.html#upload-bugfix  # noqa
+# http://www.debian.org/doc/manuals/developers-reference/pkgs.html#upload-bugfix
 {PACKAGE} binary: new-package-should-close-itp-bug
-""".format(
-    PACKAGE=PACKAGE,
-))
+    """.format(  # noqa
+        PACKAGE=PACKAGE_DEB_NAME,
+    )
 
 
-# =============================================================================
-log.info("Creating copyright file. Will be installed as " +
-         join(DSTDOCDIR, 'copyright'))
-# =============================================================================
-write_text(join(WRKDOCDIR, 'copyright'), """{PACKAGE}
+# -----------------------------------------------------------------------------
+# copyright
+# -----------------------------------------------------------------------------
+
+def get_copyright() -> str:
+    return """{PACKAGE}
 
 CAMCOPS
 ===============================================================================
@@ -892,113 +809,303 @@ TEXT FOR SPECIFIC ASSESSMENT SCALES
 
     Public domain or copyright (C) their respective authors; see details in
     source code/string files distributed with this software.
-""".format(
-    PACKAGE=PACKAGE,
-    # DSTSTRINGFILE=DSTSTRINGFILE,
-))
+    """.format(
+        PACKAGE=PACKAGE_DEB_NAME,
+        # DSTSTRINGFILE=DSTSTRINGFILE,
+    )
 
 
 # =============================================================================
-log.info("Setting ownership and permissions")
+# CamCOPS launch scripts
 # =============================================================================
-# sudo chown -R $USER:$USER $WRKDIR
-subprocess.check_call(
-    ['find', WRKDIR, '-type', 'd', '-exec', 'chmod', '755', '{}', ';'])
-# ... make directories executabe: must do that first, or all the subsequent
-# recursions fail
-subprocess.check_call(
-    ['find', WRKDIR, '-type', 'f', '-exec', 'chmod', '644', '{}', ';'])
-subprocess.check_call([
-    "chmod",
-    "a+x",
-    WRKCONSOLEFILE,
-    WRKMETACONSOLEFILE,
-    join(DEBDIR, 'prerm'),
-    join(DEBDIR, 'postrm'),
-    join(DEBDIR, 'preinst'),
-    join(DEBDIR, 'postinst'),
-])
-subprocess.check_call(
-    ['find', WRKDIR, '-iname', '*.py', '-exec', 'chmod', 'a+x', '{}', ';'])
-subprocess.check_call(
-    ['find', WRKDIR, '-iname', '*.pl', '-exec', 'chmod', 'a+x', '{}', ';'])
+
+def get_camcops_server_launcher() -> str:
+    return """#!/bin/bash
+# Launch script for CamCOPS command-line tool.
+
+echo 'Launching CamCOPS command-line tool...' >&2
+
+{DST_CAMCOPS_LAUNCHER} "$@"
+    
+    """.format(
+        DST_CAMCOPS_LAUNCHER=DST_CAMCOPS_LAUNCHER,
+    )
 
 
-# =============================================================================
-log.info("Removing junk")
-# =============================================================================
-subprocess.check_call(
-    ['find', WRKDIR, '-name', '*.svn', '-exec', 'rm', '-rf', '{}', ';'])
-subprocess.check_call(
-    ['find', WRKDIR, '-name', '.git', '-exec', 'rm', '-rf', '{}', ';'])
-subprocess.check_call(
-    ['find', WRKDOCDIR, '-name', 'LICENSE', '-exec', 'rm', '-rf', '{}', ';'])
+def get_camcops_server_meta_launcher() -> str:
+    return """#!/bin/bash
+# Launch script for CamCOPS meta-command tool tool.
+
+echo 'Launching CamCOPS meta-command tool...' >&2
+
+{DST_CAMCOPS_META_LAUNCHER} "$@"
+    
+    """.format(
+        DST_CAMCOPS_META_LAUNCHER=DST_CAMCOPS_META_LAUNCHER,
+    )
 
 
 # =============================================================================
-log.info("Building package")
+# Build package
 # =============================================================================
-subprocess.check_call(['fakeroot', 'dpkg-deb', '--build', WRKDIR, PACKAGENAME])
-# ... "fakeroot" prefix makes all files installed as root:root
+
+def build_package() -> None:
+    """
+    Builds the package.
+    """
+    log.info("Building Python package")
+
+    setup_py = join(SRCSERVERDIR, 'setup.py')
+    sdist_basefilename = ('camcops_server-{}.tar.gz'.format(MAINVERSION))
+    src_sdist_file = join(SRCSERVERDIR, 'dist', sdist_basefilename)
+    wrk_sdist_file = join(WRKBASEDIR, sdist_basefilename)
+
+    try:
+        log.info("Deleting old {} if it exists".format(src_sdist_file))
+        os.remove(src_sdist_file)
+    except OSError:
+        pass
+    os.chdir(SETUP_PY_DIR)  # or setup.py looks in wrong places?
+    cmdargs = ['python', setup_py, 'sdist', '--extras']  # special!
+    call(cmdargs)
+    remove_gzip_timestamp(src_sdist_file)
+
+    log.info("Making directories")
+    mkdir_p(DEBDIR)
+    mkdir_p(DEBOVERRIDEDIR)
+    mkdir_p(PACKAGEDIR)
+    mkdir_p(RPMTOPDIR)
+    mkdir_p(WRKCONFIGDIR)
+    mkdir_p(WRKCONSOLEFILEDIR)
+    mkdir_p(WRKDIR)
+    mkdir_p(WRKDOCDIR)
+    mkdir_p(WRKMANDIR)
+    mkdir_p(WRKMPLCONFIGDIR)
+    mkdir_p(WRKBASEDIR)
+    mkdir_p(WRKTOOLDIR)
+    for d in "BUILD,BUILDROOT,RPMS,RPMS/noarch,SOURCES,SPECS,SRPMS".split(","):
+        mkdir_p(join(RPMTOPDIR, d))
+
+    log.info("Copying files")
+    write_gzipped_text(join(WRKDOCDIR, 'changelog.Debian'), get_changelog())
+    copyglob(join(SRCTOOLDIR, VENVSCRIPT), WRKTOOLDIR)
+    copyglob(join(SRCTOOLDIR, WKHTMLTOPDFSCRIPT), WRKTOOLDIR)
+    shutil.copyfile(src_sdist_file, wrk_sdist_file)
+
+    log.info("Creating man page for camcops. "
+             "Will be installed as " + DSTMANFILE)
+    write_gzipped_text(WRKMANFILE_BASE, get_man_page_camcops_server())
+
+    log.info("Creating man page for camcops_server_meta. "
+             "Will be installed as " + DSTMETAMANFILE)
+    write_gzipped_text(WRKMETAMANFILE_BASE, get_man_page_camcops_server_meta())
+
+    log.info("Creating links to documentation. "
+             "Will be installed as " + DSTREADME)
+    write_text(WRKREADME, get_readme())
+
+    log.info("Creating camcops_server launch script. "
+             "Will be installed as " + DSTCONSOLEFILE)
+    write_text(WRKCONSOLEFILE, get_camcops_server_launcher())
+
+    log.info("Creating camcops_server_meta launch script. "
+             "Will be installed as " + DSTMETACONSOLEFILE)
+    write_text(WRKMETACONSOLEFILE, get_camcops_server_meta_launcher())
+
+    log.info("Creating Debian control file")
+
+    write_text(join(DEBDIR, 'control'), get_debian_control())
+
+    log.info("Creating preinst file. Will be installed as " +
+             join(DSTDPKGDIR, PACKAGE_DEB_NAME + '.preinst'))
+    write_text(join(DEBDIR, 'preinst'), get_preinst())
+
+    log.info("Creating postinst file. Will be installed as " +
+             join(DSTDPKGDIR, PACKAGE_DEB_NAME + '.postinst'))
+    write_text(join(DEBDIR, 'postinst'), get_postinst(sdist_basefilename))
+
+    log.info("Creating prerm file. Will be installed as " +
+             join(DSTDPKGDIR, PACKAGE_DEB_NAME + '.prerm'))
+    write_text(join(DEBDIR, 'prerm'), get_prerm())
+
+    log.info("Creating postrm file. Will be installed as " +
+             join(DSTDPKGDIR, PACKAGE_DEB_NAME + '.postrm'))
+    write_text(join(DEBDIR, 'postrm'), get_postrm())
+
+    log.info("Creating Lintian override file")
+    write_text(join(DEBOVERRIDEDIR, PACKAGE_DEB_NAME), get_override())
+
+    log.info("Creating copyright file. Will be installed as " +
+             join(DSTDOCDIR, 'copyright'))
+    write_text(join(WRKDOCDIR, 'copyright'), get_copyright())
+
+    log.info("Setting ownership and permissions")
+    call(['find', WRKDIR, '-type', 'd', '-exec', 'chmod', '755', '{}', ';'])
+    # ... make directories executabe: must do that first, or all the subsequent
+    # recursions fail
+    call(['find', WRKDIR, '-type', 'f', '-exec', 'chmod', '644', '{}', ';'])
+    call([
+        "chmod",
+        "a+x",
+        WRKCONSOLEFILE,
+        WRKMETACONSOLEFILE,
+        join(DEBDIR, 'prerm'),
+        join(DEBDIR, 'postrm'),
+        join(DEBDIR, 'preinst'),
+        join(DEBDIR, 'postinst'),
+    ])
+    call(['find', WRKDIR, '-iname', '*.py', '-exec', 'chmod', 'a+x', '{}', ';'])
+    call(['find', WRKDIR, '-iname', '*.pl', '-exec', 'chmod', 'a+x', '{}', ';'])
+
+    log.info("Removing junk")
+    call(['find', WRKDIR, '-name', '*.svn', '-exec', 'rm', '-rf', '{}', ';'])
+    call(['find', WRKDIR, '-name', '.git', '-exec', 'rm', '-rf', '{}', ';'])
+    call(['find', WRKDOCDIR, '-name', 'LICENSE',
+          '-exec', 'rm', '-rf', '{}', ';'])
+
+    log.info("Building package")
+    call(['fakeroot', 'dpkg-deb', '--build', WRKDIR, PACKAGENAME])
+    # ... "fakeroot" prefix makes all files installed as root:root
+
+    log.info("Checking with Lintian")
+    call(['lintian', '--fail-on-warnings', PACKAGENAME])
+
+    log.info("Converting to RPM")
+    call(['fakeroot', 'alien', '--to-rpm', '--scripts', PACKAGENAME],
+         cwd=PACKAGEDIR)
+    # see "man alien"
+    # NOTE: needs to be run as root for correct final permissions
+    expected_main_rpm_name = "{PACKAGE}-{MAINVERSION}-2.noarch.rpm".format(
+        PACKAGE=PACKAGE_DEB_NAME,
+        MAINVERSION=MAINVERSION,
+    )
+    full_rpm_path = join(PACKAGEDIR, expected_main_rpm_name)
+    myuser = getpass.getuser()
+    shutil.chown(full_rpm_path, myuser, myuser)
+
+    log.info("Changing dependencies within RPM")
+    # Alien does not successfully translate the dependencies, and anyway the
+    # names for packages are different on CentOS. A dummy prerequisite package
+    # works (below) but is inelegant.
+    # The rpmbuild commands are filters (text in via stdin, text out to
+    # stdout), so replacement just needs the echo command.
+
+    depends_rpm = get_lines_without_comments(RPM_REQ_FILE)
+    echoparam = repr("Requires: {}".format(" ".join(depends_rpm)))
+    call([
+        'rpmrebuild',
+        '--define', '_topdir ' + RPMTOPDIR,
+        '--package',
+        '--change-spec-requires=/bin/echo {}'.format(echoparam),
+        full_rpm_path,
+    ])
+    # ... add "--edit-whole" as the last option before the RPM name to see what
+    #     you're getting
+    # ... define topdir, or it builds in ~/rpmbuild/...
+    # ... --package, or it looks for an installed RPM rather than a package
+    #     file
+    # ... if echo parameter has brackets in, ensure it's quoted
+
+    shutil.move(join(RPMTOPDIR, 'RPMS', 'noarch', expected_main_rpm_name),
+                join(PACKAGEDIR, expected_main_rpm_name))
+    # ... will overwrite its predecessor
+
+    log.info("Deleting temporary workspace")
+    shutil.rmtree(TMPDIR, ignore_errors=True)  # CAUTION!
+
+    # Done
+    log.info("=" * 79)
+    log.info("Debian package should be: " + PACKAGENAME)
+    log.info("RPM should be: " + full_rpm_path)
 
 
 # =============================================================================
-log.info("Checking with Lintian")
+# Check command-line arguments +/- provide help
 # =============================================================================
-subprocess.check_call(['lintian', '--fail-on-warnings', PACKAGENAME])
+
+def main():
+    """
+    Command-line entry point.
+    """
+    check_prerequisites()
+
+    parser = argparse.ArgumentParser(
+        description="""
+- Creates a Debian (.deb) and RPM (.rpm) distribution file for the CamCOPS
+  server, for distribution under Linux.
+
+- In brief, the following sequence is followed as the package is built:
+
+  * The CamCOPS server is packaged up from source using
+        python setup.py sdist --extras
+            # ... where "--extras" is a special custom option that copies the
+            # tablet source code and packages that, plus all static files
+    and zipped in a Debian-safe way.
+
+  * The principle is that the Python package should do all the work, not the
+    Debian framework. This also means that a user who elects to install via pip
+    gets exactly the same functional file structure.
+
+  * A Debian package is built, containing all the usual Debian goodies (man
+    packages, the preinst/postinst/prerm/postrm files, cataloguing and control
+    files, etc.).
+
+  * The package is checked with Lintian.
+
+  * An RPM is built from the .deb package.
+
+- The user then installs the DEB or RPM file. In addition to installing
+  standard things like man pages, this then:
+
+  * attempts to stop supervisord for the duration of the installation (because
+    that's the usual way to run a CamCOPS server);
+
+  * creates a few standard directories (e.g. for CamCOPS configuration and
+    lock files), including
+        {LINUX_DEFAULT_CAMCOPS_CONFIG_DIR}
+        {LINUX_DEFAULT_CAMCOPS_DIR}
+        {LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}
+        {LINUX_DEFAULT_LOCK_DIR}
+
+  * checks that Python 3.5 is available on the system;
+
+  * uses the system Python to create a Python virtual environment within
+    {LINUX_DEFAULT_CAMCOPS_DIR};
+
+  * uses the virtual environment's "pip" command to install the distributed
+    CamCOPS Python package within that virtual environment;
+    ... which also appears to compile .py to .pyc files automatically;
+
+  * creates master executable scripts (which call corresponding Python
+    scripts):
+        {DSTCONSOLEFILE}
+        {DSTMETACONSOLEFILE}
+
+  * sets some permissions (to default users such as "www-data" on Ubuntu, or
+    "apache" on CentOS);
+
+  * restarts supervisord.
+
+        """.format(
+            DSTCONSOLEFILE=DSTCONSOLEFILE,
+            DSTMETACONSOLEFILE=DSTMETACONSOLEFILE,
+            LINUX_DEFAULT_CAMCOPS_CONFIG_DIR=LINUX_DEFAULT_CAMCOPS_CONFIG_DIR,
+            LINUX_DEFAULT_CAMCOPS_DIR=LINUX_DEFAULT_CAMCOPS_DIR,
+            LINUX_DEFAULT_LOCK_DIR=LINUX_DEFAULT_LOCK_DIR,
+            LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR=LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,  # noqa
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument('--verbose', '-v', action='store_true')
+    args = parser.parse_args()
+    main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
+                                    else logging.INFO)
+
+    log.info("mainversion: {}".format(MAINVERSION))
+    log.info("changedate: {}".format(CHANGEDATE))
+
+    build_package()
 
 
-# =============================================================================
-log.info("Converting to RPM")
-# =============================================================================
-subprocess.check_call(
-    ['fakeroot', 'alien', '--to-rpm', '--scripts', PACKAGENAME],
-    cwd=PACKAGEDIR)
-# see "man alien"/NOTES: needs to be run as root for correct final permissions
-EXPECTED_MAIN_RPM_NAME = "{PACKAGE}-{MAINVERSION}-2.noarch.rpm".format(
-    PACKAGE=PACKAGE,
-    MAINVERSION=MAINVERSION,
-)
-FULL_RPM_PATH = join(PACKAGEDIR, EXPECTED_MAIN_RPM_NAME)
-myuser = getpass.getuser()
-shutil.chown(FULL_RPM_PATH, myuser, myuser)
-
-
-# =============================================================================
-log.info("Changing dependencies within RPM")
-# =============================================================================
-# Alien does not successfully translate the dependencies, and anyway the names
-# for packages are different on CentOS. A dummy prerequisite package works
-# (below) but is inelegant.
-# The rpmbuild commands are filters (text in via stdin, text out to stdout),
-# so replacement just needs the echo command.
-
-subprocess.check_call([
-    'rpmrebuild',
-    '--define', '_topdir ' + RPMTOPDIR,
-    '--package',
-    '--change-spec-requires=/bin/echo Requires: {}'.format(
-        " ".join(DEPENDS_RPM)),
-    FULL_RPM_PATH,
-])
-# ... add "--edit-whole" as the last option before the RPM name to see what
-#     you're getting
-# ... define topdir, or it builds in ~/rpmbuild/...
-# ... --package, or it looks for an installed RPM rather than a package file
-
-shutil.move(join(RPMTOPDIR, 'RPMS', 'noarch', EXPECTED_MAIN_RPM_NAME),
-            join(PACKAGEDIR, EXPECTED_MAIN_RPM_NAME))
-# ... will overwrite its predecessor
-
-
-# =============================================================================
-log.info("Deleting temporary workspace")
-# =============================================================================
-shutil.rmtree(TMPDIR, ignore_errors=True)  # CAUTION!
-
-
-# =============================================================================
-log.info("=" * 79)
-log.info("Debian package should be: " + PACKAGENAME)
-log.info("RPM should be: " + FULL_RPM_PATH)
-# =============================================================================
+if __name__ == "__main__":
+    main()

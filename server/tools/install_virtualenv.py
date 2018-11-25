@@ -26,6 +26,10 @@ tools/install_virtualenv.py
 
 **Creates a Python virtual environment.**
 
+As of 2018-11-24, uses ``venv`` not ``virtualenv``; see
+https://www.reddit.com/r/learnpython/comments/4hsudz/pyvenv_vs_virtualenv/.
+This is present in the Python system library from Python 3.3+
+
 """
 
 import argparse
@@ -43,6 +47,8 @@ except ImportError:
 
 if sys.version_info[0] < 3:
     raise AssertionError("Need Python 3")
+if sys.version_info[1] < 5:
+    raise AssertionError("Need Python 3.5 or higher")
 LINUX = platform.system() == 'Linux'
 if distro:
     LINUX_DIST = distro.linux_distribution()[0].lower()
@@ -164,7 +170,8 @@ def main() -> None:
                              "example).")
     args = parser.parse_args()
 
-    venv_tool = 'virtualenv'
+    # venv_tool = 'virtualenv'
+    venv_tool = 'venv'  # Python 3.3+
     venv_python = os.path.join(args.virtualenv, 'bin', 'python')
     venv_pip = os.path.join(args.virtualenv, 'bin', 'pip')
     activate = "source " + os.path.join(args.virtualenv, 'bin', 'activate')
@@ -186,13 +193,13 @@ def main() -> None:
             raise AssertionError("Not DEB, not RPM; don't know what to do")
         print('OK')
 
-    title("Ensuring virtualenv is installed for system"
-          " Python ({})".format(PYTHON))
-    check_call([PIP, 'install',
-                'virtualenv>={}'.format(args.virtualenv_minimum_version)])
-    print('OK')
+    # title("Ensuring virtualenv is installed for system"
+    #       " Python ({})".format(PYTHON))
+    # check_call([PIP, 'install',
+    #             'virtualenv>={}'.format(args.virtualenv_minimum_version)])
+    # print('OK')
 
-    title("Using system Python ({}) and virtualenv ({}) to make {}".format(
+    title("Using system Python ({}) and venv ({}) to make {}".format(
           PYTHON, venv_tool, args.virtualenv))
     check_call([PYTHON, '-m', venv_tool, args.virtualenv])
     print('OK')

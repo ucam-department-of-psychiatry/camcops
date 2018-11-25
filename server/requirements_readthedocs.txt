@@ -1,5 +1,5 @@
-# server/requirements_readthedocs.txt
-
+# requirements_readthedocs.txt
+#
 # Point readthedocs towards setup.py.
 # As per https://docs.readthedocs.io/en/latest/faq.html
 # (1) Configure it to use "server/requirements_readthedocs.txt" as a

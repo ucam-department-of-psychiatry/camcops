@@ -216,6 +216,8 @@ Server
 - Make tasks support SNOMED coding. Should each task return multiple SNOMED
   rows e.g. code, value (+/- originator type e.g. clinician/patient)?
 
+  - A/w reply from NHS Information Standards 24/11/2018 re permissions.
+
 - Implement (from command line) “export to anonymisation staging database” =
   with patient info per table. (Extend ``cc_dump.py``. See
   ``generate_anonymisation_staging_db()``, and it's also temporarily disabled

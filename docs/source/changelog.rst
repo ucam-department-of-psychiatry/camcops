@@ -1574,6 +1574,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Documentation of structured upload testing method in ``client_api.py``
   (q.v.).
 
+- Improvements to Debian/RPM packaging, including use of ``venv`` from the
+  Python 3.3+ standard library rather than ``virtualenv``.
+
 - SQL Server support.
 
   - Bugfixes for operation under SQL Server.
@@ -1592,3 +1595,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
       https://dba.stackexchange.com/questions/190090/, and reinstall.
 
     - Install SSMS (SQL Server Management Studio) too.
+
+    - **ONGOING**
