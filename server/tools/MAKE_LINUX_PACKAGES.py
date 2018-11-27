@@ -296,9 +296,7 @@ SRCTOOLDIR = join(SRCSERVERDIR, 'tools')
 WRKTOOLDIR = join(WRKBASEDIR, 'tools')
 DSTTOOLDIR = join(DSTBASEDIR, 'tools')
 VENVSCRIPT = 'install_virtualenv.py'
-WKHTMLTOPDFSCRIPT = 'install_wkhtmltopdf.py'
 DSTVENVSCRIPT = join(DSTTOOLDIR, VENVSCRIPT)
-DSTWKHTMLTOPDFSCRIPT = join(DSTTOOLDIR, WKHTMLTOPDFSCRIPT)
 
 METASCRIPTNAME = '{}_meta'.format(CAMCOPS_EXECUTABLE)
 
@@ -677,9 +675,10 @@ echo "        sudo yum install httpd mod_proxy mod_xsendfile"
 # mod_wsgi
 echo "        sudo yum install mysql55 mysql55-server libmysqlclient-dev"
 echo
-echo "2.  Can't install wkhtmltopdf right now (dpkg database will be locked)."
-echo "    Later, run this once:"
-echo "    sudo $(system_python_executable) {DSTWKHTMLTOPDFSCRIPT}"
+echo "2.  You also need to install a version of wkhtmltopdf with 'patched Qt',"
+echo "    and at least version 0.12.2.1. Download and install a recent version"
+echo "    from"
+echo "        https://wkhtmltopdf.org/downloads.html"
 echo "========================================================================"
 
 echo '{PACKAGE}: postinst file finished'
@@ -693,7 +692,6 @@ echo '{PACKAGE}: postinst file finished'
         dst_sdist_file=dst_sdist_file,
         DSTVENVPIP=DSTVENVPIP,
         DSTVENVSCRIPT=DSTVENVSCRIPT,
-        DSTWKHTMLTOPDFSCRIPT=DSTWKHTMLTOPDFSCRIPT,
         PACKAGE=PACKAGE_DEB_NAME,
     )
 
@@ -889,7 +887,6 @@ def build_package() -> None:
     log.info("Copying files")
     write_gzipped_text(join(WRKDOCDIR, 'changelog.Debian'), get_changelog())
     copyglob(join(SRCTOOLDIR, VENVSCRIPT), WRKTOOLDIR)
-    copyglob(join(SRCTOOLDIR, WKHTMLTOPDFSCRIPT), WRKTOOLDIR)
     shutil.copyfile(src_sdist_file, wrk_sdist_file)
 
     log.info("Creating man page for camcops. "
