@@ -7,7 +7,9 @@
 # - http://ftp.rpm.org/api/4.4.2.2/dependencies.html
 # - https://serverfault.com/questions/299179/can-one-require-this-or-that-package-in-an-rpm-spec-file
 # - http://rpm.org/user_doc/boolean_dependencies.html
-#   ... "or" allowed from rpm-4.13 (Nov 2016);
+#   ... "or" allowed from rpm-4.13 (Nov 2016)
+#
+# Order is the same as requirements-deb.txt:
 
 gcc  # gcc is not standard on CentOS, but is necessary for installation of other packages
 ImageMagick-devel
@@ -15,14 +17,16 @@ openssl-devel
 libxml2-devel
 libxslt-devel
 python
-# python34u  # python3 isn't a standard package on Centos 6.5, but python34u (Python 3.4) is available via an additional repository
 (python35u or python36u)
-python-devel
+python3-devel
+python3-tkinter
 # DO WE NEED SOMETHING EQUIVALENT TO DEBIAN python3-venv?
 supervisor
 swig
 wget
 
 
-# For yum, some different names. Search e.g. with "yum list scip\*" or "yum search scipy" to find scipy
-# pyodbc requires {sql.h sqlext.h} which requires unixodbc-dev (Debian) or unixODBC-devel (CentOS)
+# - For yum, some different names.
+#   Search e.g. with "yum list scip\*" or "yum search scipy" to find scipy.
+# - pyodbc requires {sql.h sqlext.h} which requires unixodbc-dev (Debian) or
+#   unixODBC-devel (CentOS)
