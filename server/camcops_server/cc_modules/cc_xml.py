@@ -58,15 +58,6 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Constants
 # =============================================================================
 
-XML_COMMENT_ANCILLARY = "<!-- Ancillary records -->"
-XML_COMMENT_ANONYMOUS = "<!-- Anonymous task; no patient info -->"
-XML_COMMENT_BLOBS = "<!-- Associated BLOBs -->"
-XML_COMMENT_CALCULATED = "<!-- Calculated fields -->"
-XML_COMMENT_PATIENT = "<!-- Associated patient details -->"
-XML_COMMENT_SNOMED_CT = "<!-- SNOMED-CT codes -->"
-XML_COMMENT_SPECIAL_NOTES = "<!-- Any special notes added -->"
-XML_COMMENT_STORED = "<!-- Stored fields -->"
-
 XML_NAME_SNOMED_CODES = "snomed_ct_codes"
 
 XML_NAMESPACES = [
@@ -154,7 +145,7 @@ class XmlElement(object):
     Represents XML data in a tree.
     """
     def __init__(self, name: str, value: Any = None, datatype: str = None,
-                 comment: str = None) -> None:
+                 comment: str = None, literal: str = None) -> None:
         """
         Args:
             name: name of this XML element
@@ -163,6 +154,7 @@ class XmlElement(object):
                 (default: ``None``)
             datatype: data type of this element (default: ``None``)
             comment: description of this element (default: ``None``)
+            literal: literal XML; overrides all other options
         """
         # Special: boolean requires lower case "true"/"false" (or 0/1)
         if datatype == XmlDataTypes.BOOLEAN and value is not None:
@@ -171,12 +163,35 @@ class XmlElement(object):
         self.value = value
         self.datatype = datatype
         self.comment = comment
+        self.literal = literal
 
     def __repr__(self) -> str:
         """
         Shows just this element.
         """
         return auto_repr(self, with_addr=True)
+
+
+class XmlLiteral(XmlElement):
+    """
+    Represents literal XML.
+    """
+    def __init__(self, literal: str) -> None:
+        super().__init__(name="", literal=literal)
+
+
+# =============================================================================
+# Some literals
+# =============================================================================
+
+XML_COMMENT_ANCILLARY = XmlLiteral("<!-- Ancillary records -->")
+XML_COMMENT_ANONYMOUS = XmlLiteral("<!-- Anonymous task; no patient info -->")
+XML_COMMENT_BLOBS = XmlLiteral("<!-- Associated BLOBs -->")
+XML_COMMENT_CALCULATED = XmlLiteral("<!-- Calculated fields -->")
+XML_COMMENT_PATIENT = XmlLiteral("<!-- Associated patient details -->")
+XML_COMMENT_SNOMED_CT = XmlLiteral("<!-- SNOMED-CT codes -->")
+XML_COMMENT_SPECIAL_NOTES = XmlLiteral("<!-- Any special notes added -->")
+XML_COMMENT_STORED = XmlLiteral("<!-- Stored fields -->")
 
 
 # =============================================================================
@@ -375,8 +390,8 @@ def xml_quote_attribute(attr: str) -> str:
     return xml.sax.saxutils.quoteattr(attr)
 
 
-def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
-                                List[Union[XmlElement, XmlSimpleValue, str]]],
+def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
+                                List[Union[XmlElement, XmlSimpleValue]]],
                  level: int = 0,
                  indent_spaces: int = 4,
                  eol: str = '\n',
@@ -407,62 +422,70 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
 
     if isinstance(element, XmlElement):
 
-        # Attributes
-        namespaces = []
-        if level == 0:  # root
-            # Apply namespace to root element (will inherit):
-            namespaces.extend(XML_NAMESPACES)
-            if include_comments:
-                namespaces.extend(XML_IGNORE_NAMESPACES)
-        namespace = " ".join(namespaces)
-        if element.datatype:
-            dt = ' xsi:type="{}"'.format(element.datatype)
-        else:
-            # log.warning("XmlElement has no datatype: {!r}", element)
-            dt = ""
-        cmt = ""
-        if include_comments and element.comment:
-            cmt = ' ignore:comment={}'.format(
-                xml_quote_attribute(element.comment))
-        attributes = "{ns}{dt}{cmt}".format(ns=namespace, dt=dt, cmt=cmt)
+        if element.literal:
+            # A user-inserted piece of XML. Insert, but indent.
+            xmltext += prefix + element.literal + eol
 
-        # Assemble
-        if element.value is None:
-            # NULL handling
-            xmltext += '{pr}<{name}{attributes} xsi:nil="true"/>{eol}'.format(
-                name=element.name,
-                pr=prefix,
-                eol=eol,
-                attributes=attributes,
-            )
         else:
-            complex_value = isinstance(element.value, XmlElement) \
-                or isinstance(element.value, list)
-            value_to_recurse = element.value if complex_value else \
-                XmlSimpleValue(element.value)
-            # ... XmlSimpleValue is a marker that subsequently distinguishes
-            # things that were part of an XmlElement from user-inserted
-            # raw XML.
-            nl = eol if complex_value else ""
-            pr2 = prefix if complex_value else ""
-            xmltext += (
-                '{pr}<{name}{attributes}>{nl}'
-                '{value}{pr2}</{name}>{eol}'.format(
-                    name=element.name,
-                    pr=prefix,
-                    eol=eol,
-                    pr2=pr2,
-                    nl=nl,
-                    value=get_xml_tree(
-                        value_to_recurse,
-                        level=level + 1,
-                        indent_spaces=indent_spaces,
+
+            # Attributes
+            namespaces = []
+            if level == 0:  # root
+                # Apply namespace to root element (will inherit):
+                namespaces.extend(XML_NAMESPACES)
+                if include_comments:
+                    namespaces.extend(XML_IGNORE_NAMESPACES)
+            namespace = " ".join(namespaces)
+            if element.datatype:
+                dt = ' xsi:type="{}"'.format(element.datatype)
+            else:
+                # log.warning("XmlElement has no datatype: {!r}", element)
+                dt = ""
+            cmt = ""
+            if include_comments and element.comment:
+                cmt = ' ignore:comment={}'.format(
+                    xml_quote_attribute(element.comment))
+            attributes = "{ns}{dt}{cmt}".format(ns=namespace, dt=dt, cmt=cmt)
+
+            # Assemble
+            if element.value is None:
+                # NULL handling
+                xmltext += (
+                    '{pr}<{name}{attributes} xsi:nil="true"/>{eol}'.format(
+                        name=element.name,
+                        pr=prefix,
                         eol=eol,
-                        include_comments=include_comments
-                    ),
-                    attributes=attributes,
+                        attributes=attributes,
+                    )
                 )
-            )
+            else:
+                complex_value = isinstance(element.value, XmlElement) \
+                    or isinstance(element.value, list)
+                value_to_recurse = element.value if complex_value else \
+                    XmlSimpleValue(element.value)
+                # ... XmlSimpleValue is a marker that subsequently
+                # distinguishes things that were part of an XmlElement from
+                # user-inserted raw XML.
+                nl = eol if complex_value else ""
+                pr2 = prefix if complex_value else ""
+                xmltext += (
+                    '{pr}<{name}{attributes}>{nl}'
+                    '{value}{pr2}</{name}>{eol}'.format(
+                        name=element.name,
+                        pr=prefix,
+                        eol=eol,
+                        pr2=pr2,
+                        nl=nl,
+                        value=get_xml_tree(
+                            value_to_recurse,
+                            level=level + 1,
+                            indent_spaces=indent_spaces,
+                            eol=eol,
+                            include_comments=include_comments
+                        ),
+                        attributes=attributes,
+                    )
+                )
 
     elif isinstance(element, list):
         for subelement in element:
@@ -481,8 +504,7 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
         # ... just try saving and inspecting the results with a text editor.
 
     else:
-        # A user-inserted piece of XML. Insert, but indent.
-        xmltext += prefix + str(element) + eol
+        raise ValueError("Bad value to get_xml_tree: {!r}".format(element))
 
     return xmltext
 

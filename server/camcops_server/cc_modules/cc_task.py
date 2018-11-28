@@ -135,6 +135,7 @@ from .cc_xml import (
     XML_COMMENT_SPECIAL_NOTES,
     XML_NAME_SNOMED_CODES,
     XmlElement,
+    XmlLiteral,
 )
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -1467,7 +1468,7 @@ class Task(GenericTabletRecordMixin, Base):
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
         """
-        def add_comment(comment: str) -> None:
+        def add_comment(comment: XmlLiteral) -> None:
             if options.with_header_comments:
                 branches.append(comment)
 
