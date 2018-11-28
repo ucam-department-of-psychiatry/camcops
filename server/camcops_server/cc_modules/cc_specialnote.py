@@ -135,9 +135,9 @@ class SpecialNote(Base):
 
     def get_xml_root(self, skip_fields: List[str] = None) -> XmlElement:
         """
-        Get root of XML tree, as an :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
+        Get root of XML tree, as an
+        :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
         """
-        skip_fields = skip_fields or []
         branches = make_xml_branches_from_columns(
             self, skip_fields=skip_fields)
         return XmlElement(name=self.__tablename__, value=branches)
@@ -171,8 +171,8 @@ class SpecialNote(Base):
         # http://docs.sqlalchemy.org/en/latest/core/dml.html#sqlalchemy.sql.expression.update  # noqa
 
         dbsession.execute(
-            update(cls.__table__)\
-            .where(cls.device_id == device_id)\
-            .where(cls.era == ERA_NOW)\
+            update(cls.__table__)
+            .where(cls.device_id == device_id)
+            .where(cls.era == ERA_NOW)
             .values(era=new_era)
         )

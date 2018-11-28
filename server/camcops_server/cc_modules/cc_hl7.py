@@ -740,6 +740,7 @@ class MLLPTimeoutClient(object):
             if timeout_ms is not None else None
         self.socket.settimeout(timeout_s)
         self.socket.connect((host, port))
+        self.encoding = "utf-8"
 
     def __enter__(self):
         """
@@ -775,7 +776,7 @@ class MLLPTimeoutClient(object):
         # ... the CR immediately after the message is my addition, because
         # HL7 Inspector otherwise says: "Warning: last segment have no segment
         # termination char 0x0d !" (sic).
-        return self.send(data.encode('utf-8'))
+        return self.send(data.encode(self.encoding))
 
     def send(self, data: bytes) -> Tuple[bool, Optional[str]]:
         """
@@ -789,7 +790,7 @@ class MLLPTimeoutClient(object):
         self.socket.send(data)
         # wait for the ACK/NACK
         try:
-            ack_msg = self.socket.recv(RECV_BUFFER)
+            ack_msg = self.socket.recv(RECV_BUFFER).decode(self.encoding)
             return True, ack_msg
         except socket.timeout:
             return False, None
@@ -812,8 +813,7 @@ def send_all_pending_hl7_messages(cfg: CamcopsConfig,
                   " in config; can't proceed")
         return
     # On UNIX, lockfile uses LinkLockFile
-    # https://github.com/smontanaro/pylockfile/blob/master/lockfile/
-    #         linklockfile.py
+    # https://github.com/smontanaro/pylockfile/blob/master/lockfile/linklockfile.py  # noqa
     lock = lockfile.FileLock(cfg.hl7_lockfile)
     if lock.is_locked():
         log.warning("send_all_pending_hl7_messages: locked by another"

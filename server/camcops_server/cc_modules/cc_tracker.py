@@ -60,7 +60,7 @@ from .cc_taskcollection import (
 )
 from .cc_trackerhelpers import TrackerInfo
 from .cc_unittest import DemoDatabaseTestCase
-from .cc_xml import get_xml_document, XmlDataTypes, XmlElement
+from .cc_xml import get_xml_document, TaskXmlOptions, XmlDataTypes, XmlElement
 
 import matplotlib.dates  # delayed until after the cc_plot import
 
@@ -136,7 +136,8 @@ def consistency_idnums(idnum_lists: List[List[PatientIdNum]]) \
     "Are all these records from the same patient?"
 
     Args:
-        idnum_lists: a list of lists (one per :class:`camcops_server.cc_modules.cc_patient.Patient` instance) of
+        idnum_lists: a list of lists (one per
+            :class:`camcops_server.cc_modules.cc_patient.Patient` instance) of
             :class:`PatientIdNum` objects
 
     Returns:
@@ -238,7 +239,8 @@ class ConsistencyInfo(object):
 
     def get_xml_root(self) -> XmlElement:
         """
-        XML tree (as root :class:`camcops_server.cc_modules.cc_xml.XmlElement`) of consistency information.
+        XML tree (as root :class:`camcops_server.cc_modules.cc_xml.XmlElement`)
+        of consistency information.
         """
         branches = [
             XmlElement(
@@ -261,7 +263,8 @@ class ConsistencyInfo(object):
 
 class TrackerCtvCommon(object):
     """
-    Base class for :class:`camcops_server.cc_modules.cc_tracker.Tracker` and :class:`camcops_server.cc_modules.cc_tracker.ClinicalTextView`.
+    Base class for :class:`camcops_server.cc_modules.cc_tracker.Tracker` and
+    :class:`camcops_server.cc_modules.cc_tracker.ClinicalTextView`.
     """
 
     def __init__(self,
@@ -422,10 +425,11 @@ class TrackerCtvCommon(object):
                 ]
             )
         ]
+        options = TaskXmlOptions(include_plain_columns=True,
+                                 include_calculated=True,
+                                 include_blobs=False)
         for t in self.collection.all_tasks:
-            branches.append(t.get_xml_root(self.req,
-                                           include_calculated=True,
-                                           include_blobs=False))
+            branches.append(t.get_xml_root(self.req, options))
             audit(
                 self.req,
                 audit_string,

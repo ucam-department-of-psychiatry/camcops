@@ -35,6 +35,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
+    Blob,
     blob_relationship,
     get_blob_img_html,
 )
@@ -85,7 +86,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         comment="Rotation (clockwise, in degrees) to be applied for viewing"
     )
 
-    photo = blob_relationship("Photo", "photo_blobid")
+    photo = blob_relationship("Photo", "photo_blobid")  # type: Optional[Blob]
 
     def is_complete(self) -> bool:
         return self.photo_blobid is not None
@@ -181,7 +182,7 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         ancillary_class_name="PhotoSequenceSinglePhoto",
         ancillary_fk_to_parent_attr_name="photosequence_id",
         ancillary_order_by_attr_name="seqnum"
-    )
+    )  # type: List[PhotoSequenceSinglePhoto]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         infolist = [CtvInfo(content=self.sequence_description)]

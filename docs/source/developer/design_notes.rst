@@ -65,7 +65,7 @@ Anonymisation
 
 Proper anonymisation is Somebody Else’s Business; CamCOPS supports convenient
 export for subsequent anonymisation (see, for example, CRATE;
-https://github.com/RudolfCardinal/crate).
+https://crateanon.readthedocs.io/).
 
 BLOB handling
 -------------

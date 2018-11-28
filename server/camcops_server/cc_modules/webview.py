@@ -277,6 +277,7 @@ from .cc_tracker import ClinicalTextView, Tracker
 from .cc_tsv import TsvCollection
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 from .cc_version import CAMCOPS_SERVER_VERSION
+from .cc_xml import TaskXmlOptions
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -1045,18 +1046,21 @@ def serve_task(req: CamcopsRequest) -> Response:
             task.get_pdf_html(req, anonymise=anonymise)
         )
     elif viewtype == ViewArg.XML:
-        include_blobs = req.get_bool_param(ViewParam.INCLUDE_BLOBS, True)
-        include_calculated = req.get_bool_param(ViewParam.INCLUDE_CALCULATED,
-                                                True)
-        include_patient = req.get_bool_param(ViewParam.INCLUDE_PATIENT, True)
-        include_comments = req.get_bool_param(ViewParam.INCLUDE_COMMENTS, True)
-        return XmlResponse(
-            task.get_xml(req=req,
-                         include_blobs=include_blobs,
-                         include_calculated=include_calculated,
-                         include_patient=include_patient,
-                         include_comments=include_comments)
+        options = TaskXmlOptions(
+            include_ancillary=True,
+            include_blobs=req.get_bool_param(ViewParam.INCLUDE_BLOBS, True),
+            include_calculated=req.get_bool_param(
+                ViewParam.INCLUDE_CALCULATED, True),
+            include_patient=req.get_bool_param(
+                ViewParam.INCLUDE_PATIENT, True),
+            include_plain_columns=True,
+            include_snomed=req.get_bool_param(
+                ViewParam.INCLUDE_SNOMED, True),
+            with_header_comments=True,
         )
+        include_comments = req.get_bool_param(ViewParam.INCLUDE_COMMENTS, True)
+        return XmlResponse(task.get_xml(req=req, options=options,
+                                        include_comments=include_comments))
     else:
         assert False, "Bug in logic above"
 
@@ -1607,6 +1611,7 @@ def sql_dump(req: CamcopsRequest) -> Response:
         else:  # SQL
             con = sqlite3.connect(db_filename)
             with io.StringIO() as f:
+                # noinspection PyTypeChecker
                 for line in con.iterdump():
                     f.write(line + "\n")
                 con.close()
@@ -1645,6 +1650,7 @@ def view_ddl(req: CamcopsRequest) -> Response:
             dialect = appstruct.get(ViewParam.DIALECT)
             ddl = get_all_ddl(dialect_name=dialect)
             lexer = LEXERMAP[dialect]()
+            # noinspection PyUnresolvedReferences
             formatter = pygments.formatters.HtmlFormatter()
             html = pygments.highlight(ddl, lexer, formatter)
             css = formatter.get_style_defs('.highlight')
@@ -2204,6 +2210,7 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
             new_user_name = appstruct.get(ViewParam.USERNAME)
             existing_user = User.get_user_by_name(dbsession, new_user_name)
             if existing_user and existing_user.id != user.id:
+                # noinspection PyUnresolvedReferences
                 raise HTTPBadRequest(
                     "Can't rename user {!r} (ID {!r}) to {!r}; that "
                     "conflicts with existing user with ID {!r}".format(
@@ -2381,6 +2388,7 @@ def add_user(req: CamcopsRequest) -> Dict[str, Any]:
             dbsession.add(user)
             group_ids = appstruct.get(ViewParam.GROUP_IDS)
             for gid in group_ids:
+                # noinspection PyUnresolvedReferences
                 user.user_group_memberships.append(UserGroupMembership(
                     user_id=user.id,
                     group_id=gid

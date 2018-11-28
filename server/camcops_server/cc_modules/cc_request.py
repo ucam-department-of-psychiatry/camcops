@@ -97,6 +97,7 @@ from .cc_pyramid import (
     STATIC_CAMCOPS_PACKAGE_PATH,
 )
 from .cc_serversettings import get_server_settings, ServerSettings
+from .cc_snomed import get_snomed_concept, SnomedConcept
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 from .cc_tabletsession import TabletSession
 from .cc_user import User
@@ -1063,7 +1064,9 @@ class CamcopsRequest(Request):
     @reify
     def server_settings(self) -> ServerSettings:
         """
-        Return the :class:`camcops_server.cc_modules.cc_serversettings.ServerSettings` for the server.
+        Return the
+        :class:`camcops_server.cc_modules.cc_serversettings.ServerSettings` for
+        the server.
         """
         return get_server_settings(self)
 
@@ -1081,6 +1084,34 @@ class CamcopsRequest(Request):
         """
         ss = self.server_settings
         ss.database_title = title
+
+    # -------------------------------------------------------------------------
+    # SNOMED-CT
+    # -------------------------------------------------------------------------
+
+    @reify
+    def snomed_supported(self) -> bool:
+        """
+        Is SNOMED-CT supported?
+        """
+        return bool(self.config.snomed_xml_filename)
+
+    def snomed(self, lookup: str) -> SnomedConcept:
+        """
+        Fetches a SNOMED-CT concept.
+
+        Args:
+            lookup: a CamCOPS SNOMED lookup string
+
+        Returns:
+            a :class:`SnomedConcept`
+
+        Raises:
+            :exc:`KeyError`, if the lookup cannot be found (e.g. UK data not
+                installed)
+        """
+        assert self.snomed_supported, "No SNOMED-CT data available"
+        return get_snomed_concept(lookup, self.config.snomed_xml_filename)
 
 
 # noinspection PyUnusedLocal

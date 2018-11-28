@@ -104,6 +104,7 @@ from camcops_server.cc_modules.cc_baseconstants import (
 import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # nopep8
 from camcops_server.cc_modules.cc_config import (
     CamcopsConfig,
+    get_config_filename_from_os_env,
     get_default_config_from_os_env,  # nopep8
     get_demo_apache_config,
     get_demo_config,
@@ -124,7 +125,9 @@ from camcops_server.cc_modules.cc_request import (
     command_line_request_context,
     pyramid_configurator_context,
 )  # nopep8
+from camcops_server.cc_modules.cc_snomed import get_all_snomed_concepts  # nopep8
 from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl  # nopep8
+from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # nopep8
 from camcops_server.cc_modules.cc_task import Task  # nopep8
 from camcops_server.cc_modules.cc_taskindex import reindex_everything  # nopep8
 from camcops_server.cc_modules.cc_unittest import (
@@ -198,6 +201,18 @@ def join_url_fragments(*fragments: str) -> str:
     """
     newfrags = [f[1:] if f.startswith("/") else f for f in fragments]
     return "/".join(newfrags)
+
+
+def precache() -> None:
+    """
+    Populates the major caches.
+    """
+    log.info("Prepopulating caches")
+    config_filename = get_config_filename_from_os_env()
+    config = get_default_config_from_os_env()
+    _ = all_extra_strings_as_dicts(config_filename)
+    if config.snomed_xml_filename:
+        _ = get_all_snomed_concepts(config.snomed_xml_filename)
 
 
 # =============================================================================
@@ -291,6 +306,7 @@ def test_serve_pyramid(application: Router,
     ``wsgiref.make_server``).
     """
     ensure_database_is_ok()
+    precache()
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}".format(host, port))
     server.serve_forever()
@@ -314,6 +330,7 @@ def serve_cherrypy(application: Router,
     - Any platform.
     """
     ensure_database_is_ok()
+    precache()
 
     # Report on options
     if unix_domain_socket_filename:
@@ -393,6 +410,7 @@ def serve_gunicorn(application: Router,
                             "(It relies on the UNIX fork() facility.)")
 
     ensure_database_is_ok()
+    precache()
 
     # Report on options, and calculate Gunicorn versions
     if unix_domain_socket_filename:
@@ -776,7 +794,9 @@ def dev_cli() -> None:
     Fire up a developer debug command-line.
     """
     config = get_default_config_from_os_env()
+    # noinspection PyUnusedLocal
     engine = config.get_sqla_engine()
+    # noinspection PyUnusedLocal
     dbsession = config.get_dbsession_raw()
     log.error("""Entering developer command-line.
     - Config is available in 'config'.
@@ -831,6 +851,12 @@ def add_sub(sp: "_SubParsersAction",
         description=description,
         formatter_class=ArgumentDefaultsHelpFormatter
     )  # type: ArgumentParser
+    # This needs to be in the top-level parser and the sub-parsers (it does not
+    # appear in the subparsers just because it's in the top-level parser, which
+    # sounds like an argparse bug given its help, but there you go).
+    subparser.add_argument(
+        '-v', '--verbose', action='store_true',
+        help="Be verbose")
     if config_mandatory:  # True
         cfg_help = "Configuration file"
     else:  # None, False
@@ -1497,6 +1523,7 @@ def camcops_main() -> None:
 
     # Initial log level (overridden later by config file but helpful for start)
     loglevel = logging.DEBUG if progargs.verbose else logging.INFO
+    print(loglevel)
     rootlogger = logging.getLogger()
     set_level_for_logger_and_its_handlers(rootlogger, loglevel)
 

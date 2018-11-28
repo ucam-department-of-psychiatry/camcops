@@ -514,6 +514,8 @@ def next_enum() -> int:
 
 
 class CisrQuestion(Enum):
+    # The values below look like integers, but they aren't; they are of type
+    # CisrQuestion, and have attributes like ".value".
     START_MARKER = next_enum()
 
     INTRO_1 = START_MARKER
@@ -4330,9 +4332,11 @@ class Cisr(TaskHasPatientMixin, Task):
 
         demographics_html_list = []  # type: List[str]
         question_html_list = []  # type: List[str]
-        q = CQ.ETHNIC
+        q = CQ.ETHNIC  # type: CisrQuestion
         result = CisrResult(record_decisions=True)
         while (not result.incomplete) and q != CQ.END_MARKER:
+            # Iterate until we get to the end or the result declares itself
+            # incomplete.
             # noinspection PyTypeChecker
             target_list = (
                 demographics_html_list if q.value < CQ.HEALTH_WELLBEING.value

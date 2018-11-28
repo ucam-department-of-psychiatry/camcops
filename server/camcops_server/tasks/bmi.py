@@ -36,6 +36,11 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import (
+    SnomedAttributeGroup,
+    SnomedExpression,
+    SnomedLookup,
+)
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
@@ -298,3 +303,33 @@ class Bmi(TaskHasPatientMixin, Task):
             comment=tr_qa("Comment", ws.webify(self.comment)),
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        procedure = req.snomed(SnomedLookup.BMI_PROCEDURE_MEASUREMENT)
+        if self.is_complete():
+            unit = req.snomed(SnomedLookup.UNIT_OF_MEASURE)
+            kg = req.snomed(SnomedLookup.KILOGRAM)
+            m = req.snomed(SnomedLookup.METRE)
+            kg_per_sq_m = req.snomed(SnomedLookup.KG_PER_SQ_M)
+            qty_bmi = req.snomed(SnomedLookup.BMI_OBSERVABLE)
+            qty_height = req.snomed(SnomedLookup.BODY_HEIGHT_OBSERVABLE)
+            qty_weight = req.snomed(SnomedLookup.BODY_WEIGHT_OBSERVABLE)
+            return [SnomedExpression(
+                procedure,
+                [
+                    SnomedAttributeGroup({
+                        qty_bmi: self.bmi(),
+                        unit: kg_per_sq_m,
+                    }),
+                    SnomedAttributeGroup({
+                        qty_weight: self.mass_kg,
+                        unit: kg,
+                    }),
+                    SnomedAttributeGroup({
+                        qty_height: self.height_m,
+                        unit: m,
+                    }),
+                ]
+            )]
+        else:
+            return [SnomedExpression(procedure)]

@@ -116,7 +116,9 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
 
     def get_idnum_reference(self) -> IdNumReference:
         """
-        Returns an :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference` object summarizing this ID number.
+        Returns an
+        :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference`
+        object summarizing this ID number.
         """
         return IdNumReference(which_idnum=self.which_idnum,
                               idnum_value=self.idnum_value)

@@ -94,8 +94,8 @@ class TaskCountReport(Report):
             query = (
                 select([
                     TaskIndexEntry.task_table_name.label("task"),
-                    extract_year(TaskIndexEntry.when_created_utc).label("year"),
-                    extract_month(TaskIndexEntry.when_created_utc).label("month"),
+                    extract_year(TaskIndexEntry.when_created_utc).label("year"),  # noqa
+                    extract_month(TaskIndexEntry.when_created_utc).label("month"),  # noqa
                     func.count().label("num_tasks_added"),
                 ])
                 .select_from(TaskIndexEntry.__table__)

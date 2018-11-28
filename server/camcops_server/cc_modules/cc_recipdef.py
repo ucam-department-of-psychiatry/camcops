@@ -327,7 +327,7 @@ class RecipientDefinition(object):
             finalize_policy = group.tokenized_finalize_policy()
             if not finalize_policy.is_idnum_mandatory_in_policy(
                     which_idnum=self.primary_idnum,
-                    valid_which_idnums=valid_which_idnums):
+                    valid_idnums=valid_which_idnums):
                 self.report_error(
                     "primary_idnum ({}) not mandatory in finalizing policy, "
                     "but needs to be".format(self.primary_idnum))
@@ -338,7 +338,7 @@ class RecipientDefinition(object):
                 upload_policy = group.tokenized_upload_policy()
                 if not upload_policy.is_idnum_mandatory_in_policy(
                         which_idnum=self.primary_idnum,
-                        valid_which_idnums=valid_which_idnums):
+                        valid_idnums=valid_which_idnums):
                     self.report_error(
                         "primary_idnum ({}) not mandatory in upload policy, "
                         "but needs to be".format(self.primary_idnum))

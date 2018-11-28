@@ -427,5 +427,4 @@ def get_correct_incorrect_none(x: Any) -> Optional[str]:
     Returns None if ``x`` is None, "Correct" if it's truthy, or "Incorrect" if
     it's falsy.
     """
-    # noinspection PyTypeChecker
-    return get_ternary(x, "Correct", "Incorrect", None)
+    return get_ternary(x, "Correct", "Incorrect", None)  # type: str

@@ -140,6 +140,7 @@ class ConfigParamMain(object):
     PATIENT_SPEC_IF_ANONYMOUS = "PATIENT_SPEC_IF_ANONYMOUS"
     SESSION_COOKIE_SECRET = "SESSION_COOKIE_SECRET"
     SESSION_TIMEOUT_MINUTES = "SESSION_TIMEOUT_MINUTES"
+    SNOMED_XML_FILENAME = "SNOMED_XML_FILENAME"
     SUMMARY_TABLES_LOCKFILE = "SUMMARY_TABLES_LOCKFILE"
     TASK_FILENAME_SPEC = "TASK_FILENAME_SPEC"
     TRACKER_FILENAME_SPEC = "TRACKER_FILENAME_SPEC"
@@ -288,6 +289,13 @@ def get_demo_config(extra_strings_dir: str = None,
     # https://docs.python.org/3.5/library/glob.html).
 
 {cp.EXTRA_STRING_FILES} = {extra_strings_spec}
+
+    # {cp.SNOMED_XML_FILENAME}:
+    # Filename of special XML file containing SNOMED-CT codes used by CamCOPS.
+    # This file is OK to use in the UK, but not necessarily elsewhere. See the
+    # SNOMED-CT licensing terms.
+    
+{cp.SNOMED_XML_FILENAME} =
 
     # {cp.HL7_LOCKFILE}:
     # filename stem used for process locking for HL7 message transmission.
@@ -1389,6 +1397,8 @@ class CamcopsConfig(object):
             config, section, cp.SESSION_COOKIE_SECRET, str, None)
         self.session_timeout = datetime.timedelta(
             minutes=session_timeout_minutes)
+        self.snomed_xml_filename = get_config_parameter(
+            config, section, cp.SNOMED_XML_FILENAME, str, None)
         self.summary_tables_lockfile = get_config_parameter(
             config, section, cp.SUMMARY_TABLES_LOCKFILE, str, None)
 
@@ -1492,6 +1502,7 @@ class CamcopsConfig(object):
         """
         Returns all table names from the database.
         """
+        log.debug("Fetching database table names")
         engine = self.get_sqla_engine()
         return get_table_names(engine=engine)
 
@@ -1596,7 +1607,8 @@ def get_config_filename_from_os_env() -> str:
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_config(config_filename: str) -> CamcopsConfig:
     """
-    Returns a :class:`camcops_server.cc_modules.cc_config.CamcopsConfig` from the specified config filename.
+    Returns a :class:`camcops_server.cc_modules.cc_config.CamcopsConfig` from
+    the specified config filename.
 
     Cached.
     """
@@ -1609,8 +1621,9 @@ def get_config(config_filename: str) -> CamcopsConfig:
 
 def get_default_config_from_os_env() -> CamcopsConfig:
     """
-    Returns the :class:`camcops_server.cc_modules.cc_config.CamcopsConfig` representing the config filename that
-    we read from our operating system environment variable.
+    Returns the :class:`camcops_server.cc_modules.cc_config.CamcopsConfig`
+    representing the config filename that we read from our operating system
+    environment variable.
     """
     return get_config(get_config_filename_from_os_env())
 

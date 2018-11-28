@@ -1475,7 +1475,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   this field is not present in the request.
 
 
-**Server v2.2.8 to 2.3.0, in progress (from 2018-09-14)**
+**Server v2.2.8 to 2.3.0 (2018-09-14 to 2018-11-26)**
 
 - ``GROUP_NAME_MAX_LEN``, ``DEVICE_NAME_MAX_LEN`` and ``USER_NAME_MAX_LEN`` 
   changed from 255 to 191 because MySQL<=5.6 only supports indexing of 191
@@ -1576,6 +1576,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Improvements to Debian/RPM packaging, including use of ``venv`` from the
   Python 3.3+ standard library rather than ``virtualenv``.
+
+**Server v2.3.1 (in progress, from 2018-11-27)**
+
+- SNOMED-CT support.
+
+    - **ONGOING**
 
 - SQL Server support.
 

@@ -422,8 +422,8 @@ class User(Base):
     #     back_populates="users"  # see Group.users
     # )
     user_group_memberships = relationship(
-        "UserGroupMembership", back_populates="user")
-    groups = association_proxy("user_group_memberships", "group")
+        "UserGroupMembership", back_populates="user")  # type: List[UserGroupMembership]  # noqa
+    groups = association_proxy("user_group_memberships", "group")  # type: List[Group]
 
     upload_group = relationship("Group", foreign_keys=[upload_group_id])
 

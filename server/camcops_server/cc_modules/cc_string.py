@@ -164,7 +164,7 @@ def all_extra_strings_as_dicts(
                             "config is misconfigured; aborting")
     allstrings = {}  # type: Dict[str, Dict[str, str]]
     for filename in filenames:
-        log.info("Loading XML file: " + filename)
+        log.info("Loading string XML file: " + filename)
         parser = ElementTree.XMLParser(encoding="UTF-8")
         tree = ElementTree.parse(filename, parser=parser)
         root = tree.getroot()

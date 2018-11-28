@@ -188,6 +188,7 @@ class ViewParam(object):
     INCLUDE_CALCULATED = "include_calculated"
     INCLUDE_COMMENTS = "include_comments"
     INCLUDE_PATIENT = "include_patient"
+    INCLUDE_SNOMED = "include_snomed"
     MANUAL = "manual"
     MAY_ADD_NOTES = "may_add_notes"
     MAY_DUMP_DATA = "may_dump_data"
@@ -1249,7 +1250,7 @@ def make_page_url(path: str, params: Dict[str, str], page: int,
     they'll be in whatever order the dict iterates them.
     """
     params = params.copy()
-    params["page"] = page
+    params["page"] = str(page)
     if partial:
         params["partial"] = "1"
     if sort:

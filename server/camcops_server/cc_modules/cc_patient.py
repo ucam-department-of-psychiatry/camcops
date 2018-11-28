@@ -81,7 +81,7 @@ from .cc_sqlalchemy import Base
 from .cc_tsv import TsvPage
 from .cc_unittest import DemoDatabaseTestCase
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING
-from .cc_xml import XML_COMMENT_SPECIAL_NOTES, XmlElement
+from .cc_xml import TaskXmlOptions, XML_COMMENT_SPECIAL_NOTES, XmlElement
 
 if TYPE_CHECKING:
     from .cc_group import Group
@@ -160,7 +160,7 @@ class Patient(GenericTabletRecordMixin, Base):
         uselist=True,
         viewonly=True,
         # Not profiled - any benefit unclear # lazy="joined"
-    )
+    )  # type: List[PatientIdNum]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN
@@ -297,18 +297,24 @@ class Patient(GenericTabletRecordMixin, Base):
         return [x.idnum_value for x in idnums if x.is_superficially_valid()]
 
     def get_xml_root(self, req: CamcopsRequest,
-                     skip_fields: List[str] = None) -> XmlElement:
+                     options: TaskXmlOptions = None) -> XmlElement:
         """
         Get root of XML tree, as an
         :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
         """
-        skip_fields = skip_fields or []
         # No point in skipping old ID columns (1-8) now; they're gone.
-        branches = self._get_xml_branches(req, skip_attrs=skip_fields)
+        branches = self._get_xml_branches(req, options=options)
         # Now add new-style IDs:
         pidnum_branches = []  # type: List[XmlElement]
+        pidnum_options = TaskXmlOptions(include_plain_columns=True,
+                                        with_header_comments=False)
         for pidnum in self.idnums:  # type: PatientIdNum
-            pidnum_branches.append(pidnum._get_xml_root(req))
+            pidnum_branches.append(pidnum._get_xml_root(
+                req, options=pidnum_options))
         branches.append(XmlElement(
             name="idnums",
             value=pidnum_branches
@@ -372,7 +378,8 @@ class Patient(GenericTabletRecordMixin, Base):
     @property
     def group(self) -> Optional["Group"]:
         """
-        Returns the :class:`camcops_server.cc_modules.cc_group.Group` to which this patient's record belongs.
+        Returns the :class:`camcops_server.cc_modules.cc_group.Group` to which
+        this patient's record belongs.
         """
         return self._group
 
@@ -661,6 +668,7 @@ class Patient(GenericTabletRecordMixin, Base):
             for lineage_member in live_pidnum.get_lineage():
                 if lineage_member in seen:
                     continue
+                # noinspection PyTypeChecker
                 seen.add(lineage_member)
                 yield lineage_member
 
@@ -719,8 +727,6 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
         group:
             the :class:`camcops_server.cc_modules.cc_group.Group` into which
             this patient will be uploaded, if allowed
-        req:
-            the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         finalizing:
             finalizing, rather than uploading?
 
@@ -776,6 +782,7 @@ class DistinctPatientReport(Report):
             Patient.dob.label("dob"),
             Patient.sex.label("sex"),
         ]
+        # noinspection PyUnresolvedReferences
         select_from = Patient.__table__
         wheres = [Patient._current == True]  # type: List[ClauseElement]  # nopep8
         if not req.user.superuser:
@@ -785,6 +792,7 @@ class DistinctPatientReport(Report):
         for iddef in req.idnum_definitions:
             n = iddef.which_idnum
             desc = iddef.short_description
+            # noinspection PyUnresolvedReferences
             aliased_table = PatientIdNum.__table__.alias("i{}".format(n))
             select_fields.append(aliased_table.c.idnum_value.label(desc))
             select_from = select_from.outerjoin(aliased_table, and_(

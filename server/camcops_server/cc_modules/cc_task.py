@@ -105,6 +105,7 @@ from .cc_pdf import pdf_from_html
 from .cc_pyramid import ViewArg
 from .cc_recipdef import RecipientDefinition
 from .cc_request import CamcopsRequest
+from .cc_snomed import SnomedExpression
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
     CamcopsColumn,
@@ -124,12 +125,15 @@ from .cc_version import CAMCOPS_SERVER_VERSION, MINIMUM_TABLET_VERSION
 from .cc_unittest import DemoDatabaseTestCase
 from .cc_xml import (
     get_xml_document,
+    TaskXmlOptions,
     XML_COMMENT_ANCILLARY,
     XML_COMMENT_ANONYMOUS,
     XML_COMMENT_BLOBS,
     XML_COMMENT_CALCULATED,
     XML_COMMENT_PATIENT,
+    XML_COMMENT_SNOMED_CT,
     XML_COMMENT_SPECIAL_NOTES,
+    XML_NAME_SNOMED_CODES,
     XmlElement,
 )
 
@@ -467,6 +471,10 @@ class Task(GenericTabletRecordMixin, Base):
     # =========================================================================
     # PART 1: THINGS THAT DERIVED CLASSES MAY CARE ABOUT
     # =========================================================================
+    #
+    # Notes:
+    #
+    # - for summaries, see GenericTabletRecordMixin.get_summaries
 
     # -------------------------------------------------------------------------
     # Attributes that must be provided
@@ -555,6 +563,27 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return []
 
+    # -------------------------------------------------------------------------
+    # Implement if you provide SNOMED-CT codes
+    # -------------------------------------------------------------------------
+
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        """
+        Returns all SNOMED-CT codes for this task.
+
+        Args:
+            req: the
+                :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+
+        Returns:
+            a list of
+            :class:`camcops_server.cc_modules.cc_snomed.SnomedExpression`
+            objects
+
+        """
+        return []
+
     # =========================================================================
     # PART 2: INTERNALS
     # =========================================================================
@@ -583,6 +612,7 @@ class Task(GenericTabletRecordMixin, Base):
         ``__tablename__``. See
         https://docs.sqlalchemy.org/en/latest/orm/inheritance.html#abstract-concrete-classes
         """  # noqa
+        # noinspection PyTypeChecker
         return gen_orm_classes_from_base(cls)
 
     @classmethod
@@ -1088,6 +1118,7 @@ class Task(GenericTabletRecordMixin, Base):
         if self._pk is None:
             return
         from .cc_hl7 import HL7Message  # delayed import
+        # noinspection PyUnresolvedReferences
         statement = update(HL7Message.__table__)\
             .where(HL7Message.basetable == self.tablename)\
             .where(HL7Message.serverpk == self._pk)\
@@ -1377,11 +1408,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_xml(self,
                 req: CamcopsRequest,
-                include_calculated: bool = True,
-                include_blobs: bool = True,
-                include_patient: bool = True,
-                include_ancillary: bool = True,
-                skip_fields: List[str] = None,
+                options: TaskXmlOptions = None,
                 indent_spaces: int = 4,
                 eol: str = '\n',
                 include_comments: bool = False) -> str:
@@ -1390,11 +1417,7 @@ class Task(GenericTabletRecordMixin, Base):
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            include_calculated: include fields calculated by the task
-            include_blobs: include binary large objects (BLOBs)
-            include_patient: include patient details?
-            include_ancillary: include ancillary tables as well as the main?
-            skip_fields: fieldnames to skip
+            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
 
             indent_spaces: number of spaces to indent formatted XML
             eol: end-of-line string
@@ -1404,13 +1427,7 @@ class Task(GenericTabletRecordMixin, Base):
             an XML UTF-8 document representing the task.
 
         """
-        skip_fields = skip_fields or []
-        tree = self.get_xml_root(req=req,
-                                 include_calculated=include_calculated,
-                                 include_blobs=include_blobs,
-                                 include_patient=include_patient,
-                                 include_ancillary=include_ancillary,
-                                 skip_fields=skip_fields)
+        tree = self.get_xml_root(req=req, options=options)
         return get_xml_document(
             tree,
             indent_spaces=indent_spaces,
@@ -1420,11 +1437,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_xml_root(self,
                      req: CamcopsRequest,
-                     include_calculated: bool = True,
-                     include_blobs: bool = True,
-                     include_patient: bool = True,
-                     include_ancillary: bool = True,
-                     skip_fields: List[str] = None) -> XmlElement:
+                     options: TaskXmlOptions) -> XmlElement:
         """
         Returns an XML tree. The return value is the root
         :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
@@ -1434,33 +1447,17 @@ class Task(GenericTabletRecordMixin, Base):
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            include_calculated: include fields calculated by the task
-            include_blobs: include binary large objects (BLOBs)
-            include_patient: include patient details?
-            include_ancillary: include ancillary tables as well as the main?
-            skip_fields: fieldnames to skip
+            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
         """
-        skip_fields = skip_fields or []
-
         # Core (inc. core BLOBs)
-        branches = self.get_xml_core_branches(
-            req=req,
-            include_calculated=include_calculated,
-            include_blobs=include_blobs,
-            include_patient=include_patient,
-            include_ancillary=include_ancillary,
-            skip_fields=skip_fields)
+        branches = self.get_xml_core_branches(req=req, options=options)
         tree = XmlElement(name=self.tablename, value=branches)
         return tree
 
     def get_xml_core_branches(
             self,
             req: CamcopsRequest,
-            include_calculated: bool = True,
-            include_blobs: bool = True,
-            include_patient: bool = True,
-            include_ancillary: bool = True,
-            skip_fields: List[str] = None) -> List[XmlElement]:
+            options: TaskXmlOptions) -> List[XmlElement]:
         """
         Returns a list of :class:`camcops_server.cc_modules.cc_xml.XmlElement`
         elements representing stored, calculated, patient, and/or BLOB fields,
@@ -1468,48 +1465,70 @@ class Task(GenericTabletRecordMixin, Base):
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            include_calculated: include fields calculated by the task
-            include_blobs: include binary large objects (BLOBs)
-            include_patient: include patient details?
-            include_ancillary: include ancillary tables as well as the main?
-            skip_fields: fieldnames to skip
+            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
         """
-        skip_fields = skip_fields or []
+        def add_comment(comment: str) -> None:
+            if options.with_header_comments:
+                branches.append(comment)
+
+        options = options or TaskXmlOptions(include_plain_columns=True,
+                                            include_ancillary=True,
+                                            include_blobs=False,
+                                            include_calculated=True,
+                                            include_patient=True,
+                                            include_snomed=True)
 
         # Stored values +/- calculated values
-        branches = self._get_xml_branches(
-            req=req,
-            skip_attrs=skip_fields,
-            include_plain_columns=True,
-            include_blobs=False,
-            include_calculated=include_calculated
-        )
+        core_options = options.clone()
+        core_options.include_blobs = False
+        branches = self._get_xml_branches(req=req, options=core_options)
+
+        # SNOMED-CT codes
+        if options.include_snomed and req.snomed_supported:
+            add_comment(XML_COMMENT_SNOMED_CT)
+            snomed_codes = self.get_snomed_codes(req)
+            snomed_branches = []  # type: List[XmlElement]
+            for code in snomed_codes:
+                snomed_branches.append(code.xml_element())
+            branches.append(XmlElement(name=XML_NAME_SNOMED_CODES,
+                                       value=snomed_branches))
 
         # Special notes
-        branches.append(XML_COMMENT_SPECIAL_NOTES)
+        add_comment(XML_COMMENT_SPECIAL_NOTES)
         for sn in self.special_notes:
             branches.append(sn.get_xml_root())
 
         # Patient details
         if self.is_anonymous:
-            branches.append(XML_COMMENT_ANONYMOUS)
-        elif include_patient:
-            branches.append(XML_COMMENT_PATIENT)
+            add_comment(XML_COMMENT_ANONYMOUS)
+        elif options.include_patient:
+            add_comment(XML_COMMENT_PATIENT)
+            patient_options = TaskXmlOptions(
+                include_plain_columns=True,
+                with_header_comments=options.with_header_comments)
             if self.patient:
-                branches.append(self.patient.get_xml_root(req))
+                branches.append(self.patient.get_xml_root(
+                    req, patient_options))
 
         # BLOBs
-        if include_blobs:
-            branches.append(XML_COMMENT_BLOBS)
-            branches += self._get_xml_branches(req=req,
-                                               skip_attrs=skip_fields,
-                                               include_plain_columns=False,
-                                               include_blobs=True,
-                                               include_calculated=False,
-                                               sort_by_attr=True)
+        if options.include_blobs:
+            add_comment(XML_COMMENT_BLOBS)
+            blob_options = TaskXmlOptions(include_blobs=True,
+                                          skip_fields=options.skip_fields,
+                                          sort_by_name=True,
+                                          with_header_comments=False)
+            branches += self._get_xml_branches(req=req, options=blob_options)
 
         # Ancillary objects
-        if include_ancillary:
+        if options.include_ancillary:
+            ancillary_options = TaskXmlOptions(
+                include_plain_columns=True,
+                include_ancillary=True,
+                include_blobs=options.include_blobs,
+                include_calculated=options.include_calculated,
+                sort_by_name=True,
+                with_header_comments=options.with_header_comments,
+            )
             item_collections = []  # type: List[XmlElement]
             found_ancillary = False
             # We use a slightly more manual iteration process here so that
@@ -1518,7 +1537,7 @@ class Task(GenericTabletRecordMixin, Base):
             # collections).
             for attrname, rel_prop, rel_cls in gen_ancillary_relationships(self):  # noqa
                 if not found_ancillary:
-                    branches.append(XML_COMMENT_ANCILLARY)
+                    add_comment(XML_COMMENT_ANCILLARY)
                     found_ancillary = True
                 itembranches = []  # type: List[XmlElement]
                 if rel_prop.uselist:
@@ -1527,14 +1546,8 @@ class Task(GenericTabletRecordMixin, Base):
                     ancillaries = [getattr(self, attrname)]  # type: List[GenericTabletRecordMixin]  # noqa
                 for ancillary in ancillaries:
                     itembranches.append(
-                        ancillary._get_xml_root(
-                            req=req,
-                            skip_attrs=skip_fields,
-                            include_plain_columns=True,
-                            include_blobs=True,
-                            include_calculated=include_calculated,
-                            sort_by_attr=True
-                        )
+                        ancillary._get_xml_root(req=req,
+                                                options=ancillary_options)
                     )
                 itemcollection = XmlElement(name=attrname, value=itembranches)
                 item_collections.append(itemcollection)
@@ -1542,12 +1555,12 @@ class Task(GenericTabletRecordMixin, Base):
             branches += item_collections
 
         # Completely separate additional summary tables
-        if include_calculated:
+        if options.include_calculated:
             item_collections = []  # type: List[XmlElement]
             found_est = False
             for est in self.get_extra_summary_tables(req):
                 if not found_est and est.rows:
-                    branches.append(XML_COMMENT_CALCULATED)
+                    add_comment(XML_COMMENT_CALCULATED)
                     found_est = True
                 item_collections.append(est.get_xml_element())
             item_collections.sort(key=lambda el: el.name)
@@ -2282,6 +2295,7 @@ class TaskTests(DemoDatabaseTestCase):
 
             self.assertIsNotNone(t, "Missing task!")
 
+            # Core functions
             self.assertIsInstance(t.is_complete(), bool)
             self.assertIsInstance(t.get_task_html(req), str)
             for trackerinfo in t.get_trackers(req):
@@ -2322,11 +2336,22 @@ class TaskTests(DemoDatabaseTestCase):
             self.assertIsInstance(t.get_preserving_user_username(), str)
             self.assertIsInstance(t.get_manually_erasing_user_username(), str)
 
+            # Summaries
             for se in t.standard_task_summary_fields():
                 self.assertIsInstance(se, SummaryElement)
 
+            # SNOMED-CT
+            if req.snomed_supported:
+                for snomed_code in t.get_snomed_codes(req):
+                    self.assertIsInstance(snomed_code, SnomedExpression)
+
+            # Clinician
             self.assertIsInstance(t.get_clinician_name(), str)
+
+            # Respondent
             self.assertIsInstance(t.is_respondent_complete(), bool)
+
+            # Patient
             self.assertIsInstanceOrNone(t.patient, Patient)
             self.assertIsInstance(t.is_female(), bool)
             self.assertIsInstance(t.is_male(), bool)
@@ -2349,17 +2374,23 @@ class TaskTests(DemoDatabaseTestCase):
                 self.assertIsInstance(idnum.description(req), str)
                 self.assertIsInstance(idnum.short_description(req), str)
                 self.assertIsInstance(idnum.get_filename_component(req), str)
+
+            # HL7
             pidseg = t.get_patient_hl7_pid_segment(req, recipdef)
             assert isinstance(pidseg, str) or isinstance(pidseg, hl7.Segment)
             for dataseg in t.get_hl7_data_segments(req, recipdef):
                 self.assertIsInstance(dataseg, hl7.Segment)
             for dataseg in t.get_hl7_extra_data_segments(recipdef):
                 self.assertIsInstance(dataseg, hl7.Segment)
+
+            # Other properties
             self.assertIsInstance(t.is_erased(), bool)
             self.assertIsInstance(t.is_live_on_tablet(), bool)
             for attrname, col in t.gen_text_filter_columns():
                 self.assertIsInstance(attrname, str)
                 self.assertIsInstance(col, Column)
+
+            # Views
             for page in t.get_tsv_pages(req):
                 self.assertIsInstance(page.get_tsv(), str)
             # *** replace test when anonymous export redone: get_cris_dd_rows

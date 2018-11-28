@@ -50,7 +50,7 @@ from .cc_sqla_coltypes import (
 from .cc_sqla_coltypes import LongBlob, RelationshipInfo
 from .cc_sqlalchemy import Base
 from .cc_unittest import DemoDatabaseTestCase
-from .cc_xml import get_xml_blob_element, XmlElement
+from .cc_xml import get_xml_blob_element, TaskXmlOptions, XmlElement
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
@@ -195,22 +195,17 @@ class Blob(GenericTabletRecordMixin, Base):
         Returns an :class:`camcops_server.cc_modules.cc_xml.XmlElement`
         representing this BLOB.
         """
-        branches = self._get_xml_branches(
-            req,
-            skip_attrs=["theblob"],
-            include_plain_columns=True,
-            include_blobs=False
-        )
+        options = TaskXmlOptions(skip_fields=["theblob"],
+                                 include_plain_columns=True,
+                                 include_blobs=False)
+        branches = self._get_xml_branches(req, options)
         blobdata = self._get_xml_theblob_value_binary()
         branches.append(get_xml_blob_element(
             name="theblob",
             blobdata=blobdata,
             comment=Blob.theblob.comment
         ))
-        return XmlElement(
-            name=self.__tablename__,
-            value=branches
-        )
+        return XmlElement(name=self.__tablename__, value=branches)
 
     def _get_xml_theblob_value_binary(self) -> Optional[bytes]:
         """

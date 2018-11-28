@@ -29,6 +29,7 @@ camcops_server/cc_modules/cc_xml.py
 """
 
 import base64
+import copy
 import datetime
 import logging
 from typing import Any, List, Optional, TYPE_CHECKING, Union
@@ -62,8 +63,11 @@ XML_COMMENT_ANONYMOUS = "<!-- Anonymous task; no patient info -->"
 XML_COMMENT_BLOBS = "<!-- Associated BLOBs -->"
 XML_COMMENT_CALCULATED = "<!-- Calculated fields -->"
 XML_COMMENT_PATIENT = "<!-- Associated patient details -->"
+XML_COMMENT_SNOMED_CT = "<!-- SNOMED-CT codes -->"
 XML_COMMENT_SPECIAL_NOTES = "<!-- Any special notes added -->"
 XML_COMMENT_STORED = "<!-- Stored fields -->"
+
+XML_NAME_SNOMED_CODES = "snomed_ct_codes"
 
 XML_NAMESPACES = [
     ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
@@ -91,6 +95,54 @@ class XmlDataTypes(object):
     INTEGER = "integer"
     STRING = "string"
     TIME = "time"
+
+
+# =============================================================================
+# Display options
+# =============================================================================
+
+class TaskXmlOptions(object):
+    """
+    Information-holding object for options controlling XML representations of
+    tasks.
+    """
+    def __init__(self,
+                 include_plain_columns: bool = False,
+                 include_ancillary: bool = False,
+                 include_blobs: bool = False,
+                 include_calculated: bool = False,
+                 include_patient: bool = False,
+                 include_snomed: bool = False,
+                 skip_fields: List[str] = None,
+                 sort_by_name: bool = True,
+                 with_header_comments: bool = False) -> None:
+        """
+        Args:
+            include_plain_columns: include the base columns
+            include_ancillary: include ancillary tables as well as the main?
+            include_blobs: include binary large objects (BLOBs)
+            include_calculated: include fields calculated by the task
+            include_patient: include patient details?
+            include_snomed: include SNOMED-CT codes, if available?
+            skip_fields: fieldnames to skip
+            sort_by_name: sort by field/attribute names?
+            with_header_comments: include header-style comments?
+        """
+        self.include_plain_columns = include_plain_columns
+        self.include_calculated = include_calculated
+        self.include_blobs = include_blobs
+        self.include_patient = include_patient
+        self.include_ancillary = include_ancillary
+        self.include_snomed = include_snomed
+        self.skip_fields = skip_fields or []  # type: List[str]
+        self.sort_by_name = sort_by_name
+        self.with_header_comments = with_header_comments
+
+    def clone(self) -> "TaskXmlOptions":
+        """
+        Returns a copy of this object.
+        """
+        return copy.copy(self)
 
 
 # =============================================================================

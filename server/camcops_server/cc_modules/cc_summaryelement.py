@@ -104,7 +104,8 @@ class ExtraSummaryTable(object):
 
     def get_xml_element(self) -> XmlElement:
         """
-        Returns an :class:`camcops_server.cc_modules.cc_xml.XmlElement` representing this summary table.
+        Returns an :class:`camcops_server.cc_modules.cc_xml.XmlElement`
+        representing this summary table.
         """
         itembranches = []  # type: List[XmlElement]
         for valuedict in self.rows:
@@ -117,7 +118,8 @@ class ExtraSummaryTable(object):
 
     def get_tsv_page(self) -> TsvPage:
         """
-        Returns an :class:`camcops_server.cc_modules.cc_tsv.TsvPage` representing this summary table.
+        Returns an :class:`camcops_server.cc_modules.cc_tsv.TsvPage`
+        representing this summary table.
         """
         return TsvPage(name=self.tablename, rows=self.rows)
 

@@ -24,7 +24,7 @@ camcops_server/tasks_discarded/bfcrs.py
 
 ===============================================================================
 
-**BFCRS task.***
+**BFCRS task.**
 
 """
 

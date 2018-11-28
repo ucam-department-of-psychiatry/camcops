@@ -385,7 +385,9 @@ class TaskFilter(Base):
     def get_only_iddef(self) -> Optional[IdNumReference]:
         """
         If a single ID number type/value restriction is being applied, return
-        it, as an :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference`. Otherwise, return ``None``.
+        it, as an
+        :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference`.
+        Otherwise, return ``None``.
         """
         if len(self.idnum_criteria) != 1:
             return None

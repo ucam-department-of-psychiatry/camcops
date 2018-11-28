@@ -32,7 +32,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Date, Float, Integer, Time, UnicodeText
 
-from camcops_server.cc_modules.cc_blob import blob_relationship
+from camcops_server.cc_modules.cc_blob import Blob, blob_relationship
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer
@@ -130,9 +130,9 @@ class DemoQuestionnaire(Task,
     spinbox_real = Column("spinbox_real", Float)  # v2
     time_only = Column("time_only", Time)  # v2
 
-    photo = blob_relationship("DemoQuestionnaire", "photo_blobid")
-    canvas = blob_relationship("DemoQuestionnaire", "canvas_blobid")
-    canvas2 = blob_relationship("DemoQuestionnaire", "canvas2_blobid")
+    photo = blob_relationship("DemoQuestionnaire", "photo_blobid")  # type: Optional[Blob]  # noqa
+    canvas = blob_relationship("DemoQuestionnaire", "canvas_blobid")  # type: Optional[Blob]  # noqa
+    canvas2 = blob_relationship("DemoQuestionnaire", "canvas2_blobid")  # type: Optional[Blob]  # noqa
 
     # noinspection PyMethodOverriding
     @staticmethod

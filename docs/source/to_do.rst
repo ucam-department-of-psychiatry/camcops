@@ -35,7 +35,10 @@ Tasks
 - Perinatal: Session Rating Scale (SRS); see
   https://www.corc.uk.net/outcome-experience-measures/ and
   https://digital.nhs.uk/National-Clinical-Content-Repository
-- Perinatal: an infant/mother relationship indicator (Zeyn, TBC)
+- Perinatal: an infant/mother relationship indicator (Zeyn, TBC); likely the
+  Parent–Infant Interaction Observation Scale (PIIOS);
+  clinician-rated and needs training;
+  https://dx.doi.org/10.1080/02646838.2012.751586
 
 **To be prioritized**
 
@@ -52,6 +55,7 @@ Tasks
 
 **Consider**
 
+- new task: ReQoL (https://www.reqol.org.uk/p/overview.html)
 - new task: mini-ACE (subset of the ACE-III)
 - new task: Andy Foster / eating disorders; e-mail of 24/5/16
 - new task: AQ10 autistic spectrum screening
@@ -163,6 +167,11 @@ Server
   “previously sent” and “needs to be sent” in the context of re-sending stuff
   that changes in important ways (if we continue to allow this).
 
+  General design points:
+
+  - Reasonable to implement "export destination" configuration either in config
+    file or web front end.
+
 - Ensure that the “system user” and “server device” are used everywhere they
   should be.
 
@@ -216,7 +225,24 @@ Server
 - Make tasks support SNOMED coding. Should each task return multiple SNOMED
   rows e.g. code, value (+/- originator type e.g. clinician/patient)?
 
-  - A/w reply from NHS Information Standards 24/11/2018 re permissions.
+  - See ``cc_snomed.py``.
+
+  - Build some sort of UK-specific external data file, with keys as per
+    :class:`camcops_server.cc_modules.cc_snomed.SnomedLookup`.
+    See reply from NHS Information Standards 25/11/2018 re permissions.
+    See ``snomed_ct.xml`` (not in main repository).
+    Document this/create a blank.
+
+  - Build config options.
+
+  - Map rest of relevant SNOMED-CT codes.
+
+  - Plan export mechanisms.
+
+  - Implement in tasks.
+
+  - If ``config.snomed_xml_filename`` is not specified, don't ask tasks for
+    SNOMED-CT codes.
 
 - Implement (from command line) “export to anonymisation staging database” =
   with patient info per table. (Extend ``cc_dump.py``. See

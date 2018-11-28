@@ -84,6 +84,7 @@ server/camcops_server
     cc_modules/cc_serversettings.py.rst
     cc_modules/cc_session.py.rst
     cc_modules/cc_simpleobjects.py.rst
+    cc_modules/cc_snomed.py.rst
     cc_modules/cc_specialnote.py.rst
     cc_modules/cc_sqla_coltypes.py.rst
     cc_modules/cc_sqlalchemy.py.rst

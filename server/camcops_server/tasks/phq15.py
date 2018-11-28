@@ -37,6 +37,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import SummaryCategoryColType
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -235,3 +236,12 @@ class Phq15(TaskHasPatientMixin, Task,
             q_a=q_a,
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        procedure = req.snomed(SnomedLookup.PHQ15_PROCEDURE)
+        codes = [SnomedExpression(procedure)]
+        if self.is_complete():
+            scale = req.snomed(SnomedLookup.PHQ15_SCALE)
+            score = req.snomed(SnomedLookup.PHQ15_SCORE)
+            codes.append(SnomedExpression(scale, {score: self.total_score()}))
+        return codes

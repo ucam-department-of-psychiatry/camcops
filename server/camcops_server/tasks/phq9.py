@@ -37,6 +37,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     SummaryCategoryColType,
@@ -315,3 +316,19 @@ class Phq9(TaskHasPatientMixin, Task,
             q_a=q_a,
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        procedure = req.snomed(SnomedLookup.PHQ9_PROCEDURE_DEPRESSION_SCREENING)  # noqa
+        codes = [SnomedExpression(procedure)]
+        if self.is_complete():
+            scale = req.snomed(SnomedLookup.PHQ9_SCALE)
+            score = req.snomed(SnomedLookup.PHQ9_SCORE)
+            screen_negative = req.snomed(SnomedLookup.PHQ9_FINDING_NEGATIVE_SCREENING_FOR_DEPRESSION)  # noqa
+            screen_positive = req.snomed(SnomedLookup.PHQ9_FINDING_POSITIVE_SCREENING_FOR_DEPRESSION)  # noqa
+            if self.is_mds() or self.is_ods():
+                procedure_result = screen_positive
+            else:
+                procedure_result = screen_negative
+            codes.append(SnomedExpression(scale, {score: self.total_score()}))
+            codes.append(SnomedExpression(procedure_result))
+        return codes

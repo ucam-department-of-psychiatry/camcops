@@ -408,7 +408,7 @@ tablet will talk to.
    :width: 80%
 
 
-**Registering...*** When you point the device at a server for the first
+**Registering...** When you point the device at a server for the first
 time, you must register the device with the server (and your username must
 be approved to register new devices).
 

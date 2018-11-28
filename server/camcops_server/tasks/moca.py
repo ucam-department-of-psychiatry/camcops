@@ -34,6 +34,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
+    Blob,
     blob_relationship,
     get_blob_img_html,
 )
@@ -184,9 +185,9 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         comment="Clinician's comments"
     )
 
-    trailpicture = blob_relationship("Moca", "trailpicture_blobid")
-    cubepicture = blob_relationship("Moca", "cubepicture_blobid")
-    clockpicture = blob_relationship("Moca", "clockpicture_blobid")
+    trailpicture = blob_relationship("Moca", "trailpicture_blobid")  # type: Optional[Blob]  # noqa
+    cubepicture = blob_relationship("Moca", "cubepicture_blobid")  # type: Optional[Blob]  # noqa
+    clockpicture = blob_relationship("Moca", "clockpicture_blobid")  # type: Optional[Blob]  # noqa
 
     NQUESTIONS = 28
     MAX_SCORE = 30

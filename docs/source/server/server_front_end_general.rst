@@ -298,8 +298,8 @@ Click “Log out” to end your CamCOPS session.
 .. [#crate]
     For a software product that takes de-identification seriously, see e.g.
     CRATE, described in Cardinal RN (2017),
-    https://doi.org/10.1186/s12911-017-0437-1, and available at
-    https://github.com/RudolfCardinal/crate.
+    https://doi.org/10.1186/s12911-017-0437-1, and available from
+    https://crateanon.readthedocs.io/.
 
 .. [#databasenormalization]
     https://en.wikipedia.org/wiki/Database_normalization

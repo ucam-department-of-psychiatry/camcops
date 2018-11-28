@@ -2185,7 +2185,7 @@ class EditIdDefinitionSchema(CSRFSchema):
     which_idnum = HiddenIntegerNode()  # must match ViewParam.WHICH_IDNUM
     description = IdDefinitionDescriptionNode()  # must match ViewParam.DESCRIPTION  # noqa
     short_description = IdDefinitionShortDescriptionNode()  # must match ViewParam.SHORT_DESCRIPTION  # noqa
-    validation_method = IdValidationMethodNode()  # must match ViewParam.VALIDATION_METHOD
+    validation_method = IdValidationMethodNode()  # must match ViewParam.VALIDATION_METHOD  # noqa
     hl7_id_type = Hl7IdTypeNode()  # must match ViewParam.HL7_ID_TYPE
     hl7_assigning_authority = Hl7AssigningAuthorityNode()  # must match ViewParam.HL7_ASSIGNING_AUTHORITY  # noqa
 

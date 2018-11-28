@@ -24,7 +24,7 @@ camcops_server/tasks_discarded/madrs.py
 
 ===============================================================================
 
-**MADRS task.***
+**MADRS task.**
 
 """
 

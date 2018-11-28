@@ -428,13 +428,13 @@ class IDED3D(TaskHasPatientMixin, Task):
         ancillary_class_name="IDED3DTrial",
         ancillary_fk_to_parent_attr_name="ided3d_id",
         ancillary_order_by_attr_name="trial"
-    )
+    )  # type: List[IDED3DTrial]
     stages = ancillary_relationship(
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DStage",
         ancillary_fk_to_parent_attr_name="ided3d_id",
         ancillary_order_by_attr_name="stage"
-    )
+    )  # type: List[IDED3DStage]
 
     def is_complete(self) -> bool:
         return bool(self.debug_display_stimuli_only) or bool(self.finished)

@@ -24,7 +24,7 @@ camcops_server/tasks_discarded/lunsers.py
 
 ===============================================================================
 
-**LUNSERS task.***
+**LUNSERS task.**
 
 """
 

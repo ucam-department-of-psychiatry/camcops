@@ -26,7 +26,7 @@ camcops_server/tasks/ace3.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
@@ -55,6 +55,7 @@ from camcops_server.cc_modules.cc_html import (
     tr_span_col,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
@@ -67,6 +68,9 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasPatientMixin,
 )
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_blob import Blob
 
 
 # =============================================================================
@@ -312,8 +316,8 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         comment="Clinician's comments"
     )
 
-    picture1 = blob_relationship("Ace3", "picture1_blobid")
-    picture2 = blob_relationship("Ace3", "picture2_blobid")
+    picture1 = blob_relationship("Ace3", "picture1_blobid")  # type: Optional[Blob]  # noqa
+    picture2 = blob_relationship("Ace3", "picture2_blobid")  # type: Optional[Blob]  # noqa
 
     ATTN_SCORE_FIELDS = (strseq("attn_time", 1, 5) +
                          strseq("attn_place", 1, 5) +
@@ -783,3 +787,30 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 </div>
             """.format(CssClass=CssClass)
         )
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.ACE_R_PROCEDURE_ASSESSMENT))]  # noqa
+        # add(SnomedLookup.ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_ATTENTION_ORIENTATION)  # noqa
+        # add(SnomedLookup.ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_MEMORY)
+        # add(SnomedLookup.ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_FLUENCY)
+        # add(SnomedLookup.ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_LANGUAGE)
+        # add(SnomedLookup.ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_VISUOSPATIAL)
+        if self.is_complete():  # could refine: is each subscale complete?
+            a = self.attn_score()
+            m = self.mem_score()
+            f = self.fluency_score()
+            lang = self.lang_score()
+            v = self.vsp_score()
+            t = a + m + f + lang + v
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.ACE_R_SCALE),
+                {
+                    req.snomed(SnomedLookup.ACE_R_SCORE): t,
+                    req.snomed(SnomedLookup.ACE_R_SUBSCORE_ATTENTION_ORIENTATION): a,  # noqa
+                    req.snomed(SnomedLookup.ACE_R_SUBSCORE_MEMORY): m,
+                    req.snomed(SnomedLookup.ACE_R_SUBSCORE_FLUENCY): f,
+                    req.snomed(SnomedLookup.ACE_R_SUBSCORE_LANGUAGE): lang,
+                    req.snomed(SnomedLookup.ACE_R_SUBSCORE_VISUOSPATIAL): v,
+                }
+            ))
+        return codes

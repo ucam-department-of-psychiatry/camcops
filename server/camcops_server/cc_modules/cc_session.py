@@ -377,7 +377,8 @@ class CamcopsSession(Base):
 
     def get_task_filter(self) -> TaskFilter:
         """
-        Returns the :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter` in use for this session.
+        Returns the :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter`
+        in use for this session.
         """
         if not self.task_filter:
             dbsession = SqlASession.object_session(self)

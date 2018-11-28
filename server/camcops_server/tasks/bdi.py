@@ -42,6 +42,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, bold, td, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
@@ -352,3 +353,23 @@ class Bdi(TaskHasPatientMixin, Task,
             data_collection_only_div=DATA_COLLECTION_ONLY_DIV
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        scale_lookup = SnomedLookup.BDI_SCALE
+        if self.bdi_scale in [SCALE_BDI_I, SCALE_BDI_IA]:
+            score_lookup = SnomedLookup.BDI_SCORE
+            proc_lookup = SnomedLookup.BDI_PROCEDURE_ASSESSMENT
+        elif self.bdi_scale == SCALE_BDI_II:
+            score_lookup = SnomedLookup.BDI_II_SCORE
+            proc_lookup = SnomedLookup.BDI_II_PROCEDURE_ASSESSMENT
+        else:
+            return []
+        codes = [SnomedExpression(req.snomed(proc_lookup))]
+        if self.is_complete():
+            codes.append(SnomedExpression(
+                req.snomed(scale_lookup),
+                {
+                    req.snomed(score_lookup): self.total_score(),
+                }
+            ))
+        return codes

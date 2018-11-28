@@ -153,8 +153,9 @@ def get_src_iddefs(src_engine: Engine,
 
     Returns:
         dictionary: ``{which_idnum: idnumdef}`` mappings, where each
-        ``idnumdef`` is a :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition` not attached to any database
-        session
+        ``idnumdef`` is a
+        :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition` not
+        attached to any database session
     """
     iddefs = {}  # type: Dict[int, IdNumDefinition]
     if IdNumDefinition.__tablename__ in src_tables:
@@ -320,7 +321,8 @@ def get_dst_iddef(dst_session: Session,
         which_idnum: integer expressing which ID number type to look up
 
     Returns:
-        an :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`, or ``None`` if none was found
+        an :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`, or
+        ``None`` if none was found
 
     """
     return dst_session.query(IdNumDefinition)\
@@ -343,7 +345,8 @@ def ensure_idnumdef(trcon: TranslationContext,
         which_idnum: integer expressing which ID number type to look up
 
     Returns:
-        the :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`, attached to the destination database
+        the :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`,
+        attached to the destination database
 
     """
     dst_iddef = get_dst_iddef(trcon.dst_session, which_idnum=which_idnum)
@@ -381,8 +384,10 @@ def ensure_no_iddef_clash(src_iddef: IdNumDefinition,
     description, or raise :exc:`ValueError`.
 
     Args:
-        src_iddef: source :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`
-        dst_iddef: destination :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`
+        src_iddef: source
+            :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`
+        dst_iddef: destination
+            :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`
     """
     assert src_iddef.which_idnum == dst_iddef.which_idnum, (
         "Bug: ensure_no_iddef_clash() called with IdNumDefinition objects"
@@ -423,28 +428,31 @@ def translate_fn(trcon: TranslationContext) -> None:
 
     - For any records uploaded from tablets: set ``_group_id``, if it's blank.
 
-    - For :class:`camcops_server.cc_modules.cc_user.User` objects: if an identical user is found in the
-      destination database, merge on it rather than creating a new one. Users
-      with matching usernames are considered to be identical.
+    - For :class:`camcops_server.cc_modules.cc_user.User` objects: if an
+      identical user is found in the destination database, merge on it rather
+      than creating a new one. Users with matching usernames are considered to
+      be identical.
 
     - For :class:`Device` objects: if an identical device is found, merge on it
       rather than creating a new one. Devices with matching names are
       considered to be identical.
 
-    - For :class:`camcops_server.cc_modules.cc_group.Group` objects: if an identical group is found, merge on it
-      rather than creating a new one. Groups with matching names are considered
-      to be identical.
+    - For :class:`camcops_server.cc_modules.cc_group.Group` objects: if an
+      identical group is found, merge on it rather than creating a new one.
+      Groups with matching names are considered to be identical.
 
-    - For :class:`camcops_server.cc_modules.cc_patient.Patient` objects: if any have ID numbers in the old format
-      (as columns in the Patient table), convert them to the
-      :class:`PatientIdNum` system.
+    - For :class:`camcops_server.cc_modules.cc_patient.Patient` objects: if any
+      have ID numbers in the old format (as columns in the Patient table),
+      convert them to the :class:`PatientIdNum` system.
 
     - If we're inserting a :class:`PatientIdNum`, make sure there is a
-      corresponding :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`, and that it's valid.
+      corresponding
+      :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`, and that
+      it's valid.
 
     - If we're merging from a more modern database with the
-      :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition` table, check our ID number definitions don't
-      conflict.
+      :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition` table,
+      check our ID number definitions don't conflict.
 
     - Check we're not creating duplicates for anything uploaded.
 

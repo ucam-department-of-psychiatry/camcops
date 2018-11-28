@@ -32,6 +32,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
+    Blob,
     blob_relationship,
     get_blob_img_html,
 )
@@ -213,8 +214,8 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         comment="Clinician's comments"
     )
 
-    clockpicture = blob_relationship("Slums", "clockpicture_blobid")
-    shapespicture = blob_relationship("Slums", "shapespicture_blobid")
+    clockpicture = blob_relationship("Slums", "clockpicture_blobid")  # type: Optional[Blob]  # noqa
+    shapespicture = blob_relationship("Slums", "shapespicture_blobid")  # type: Optional[Blob]  # noqa
 
     PREAMBLE_FIELDS = ["alert", "highschooleducation"]
     SCORED_FIELDS = [

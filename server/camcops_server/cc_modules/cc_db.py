@@ -61,6 +61,7 @@ from .cc_xml import (
     make_xml_branches_from_blobs,
     make_xml_branches_from_columns,
     make_xml_branches_from_summaries,
+    TaskXmlOptions,
     XML_COMMENT_STORED,
     XML_COMMENT_CALCULATED,
     XmlElement,
@@ -437,65 +438,65 @@ class GenericTabletRecordMixin(object):
 
     def _get_xml_root(self,
                       req: "CamcopsRequest",
-                      skip_attrs: List[str] = None,
-                      include_plain_columns: bool=True,
-                      include_blobs: bool = True,
-                      include_calculated: bool = True,
-                      sort_by_attr: bool = True) -> XmlElement:
+                      options: TaskXmlOptions) -> XmlElement:
         """
         Called to create an XML root object for records ancillary to Task
         objects. Tasks themselves use a more complex mechanism.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
         """
-        skip_attrs = skip_attrs or []  # type: List[str]
         # "__tablename__" will make the type checker complain, as we're
         # defining a function for a mixin that assumes it's mixed in to a
         # SQLAlchemy Base-derived class
         # noinspection PyUnresolvedReferences
         return XmlElement(
             name=self.__tablename__,
-            value=self._get_xml_branches(
-                req=req,
-                skip_attrs=skip_attrs,
-                include_plain_columns=include_plain_columns,
-                include_blobs=include_blobs,
-                include_calculated=include_calculated,
-                sort_by_attr=sort_by_attr
-            )
+            value=self._get_xml_branches(req=req, options=options)
         )
 
     def _get_xml_branches(self,
                           req: "CamcopsRequest",
-                          skip_attrs: List[str],
-                          include_plain_columns: bool = True,
-                          include_blobs: bool = True,
-                          include_calculated: bool = True,
-                          sort_by_attr: bool = True) -> List[XmlElement]:
+                          options: TaskXmlOptions) -> List[XmlElement]:
         """
         Gets the values of SQLAlchemy columns as XmlElement objects.
         Optionally, find any SQLAlchemy relationships that are relationships
         to Blob objects, and include them too.
 
         Used by :func:`_get_xml_root` above, but also by Tasks themselves.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
         """
         # log.debug("_get_xml_branches for {!r}", self)
-        skip_attrs = skip_attrs or []  # type: List[str]
-        stored_branches = []  # type: List[XmlElement]
-        if include_plain_columns:
-            stored_branches += make_xml_branches_from_columns(
-                self, skip_fields=skip_attrs)
-        if include_blobs:
-            stored_branches += make_xml_branches_from_blobs(
-                req, self, skip_fields=skip_attrs)
-        if sort_by_attr:
-            stored_branches.sort(key=lambda el: el.name)
-        branches = [XML_COMMENT_STORED] + stored_branches
+        options = options or TaskXmlOptions(include_plain_columns=True,
+                                            include_calculated=True,
+                                            sort_by_name=True)
+        branches = []  # type: List[XmlElement]
+        if options.with_header_comments:
+            branches.append(XML_COMMENT_STORED)
+        if options.include_plain_columns:
+            new_branches = make_xml_branches_from_columns(
+                self, skip_fields=options.skip_fields)
+            if options.sort_by_name:
+                new_branches.sort(key=lambda el: el.name)
+            branches += new_branches
+        if options.include_blobs:
+            new_branches = make_xml_branches_from_blobs(
+                req, self, skip_fields=options.skip_fields)
+            if options.sort_by_name:
+                new_branches.sort(key=lambda el: el.name)
+            branches += new_branches
         # Calculated
-        if include_calculated:
-            branches.append(XML_COMMENT_CALCULATED)
+        if options.include_calculated:
+            if options.with_header_comments:
+                branches.append(XML_COMMENT_CALCULATED)
             branches.extend(make_xml_branches_from_summaries(
                 self.get_summaries(req),
-                skip_fields=skip_attrs,
-                sort_by_name=sort_by_attr
+                skip_fields=options.skip_fields,
+                sort_by_name=options.sort_by_name
             ))
         # log.debug("... branches for {!r}: {!r}", self, branches)
         return branches
@@ -633,6 +634,7 @@ class GenericTabletRecordMixin(object):
             for lineage_member in blob.get_lineage():
                 if lineage_member in seen:
                     continue
+                # noinspection PyTypeChecker
                 seen.add(lineage_member)
                 yield lineage_member
 
@@ -733,6 +735,10 @@ class GenericTabletRecordMixin(object):
         """
         Return a list of :class:`SummaryElement` objects, for this database
         object (not any dependent classes/tables).
+
+        Note that this is implemented on :class:`GenericTabletRecordMixin`,
+        not :class:`camcops_server.cc_modules.cc_task.Task`, so that ancillary
+        objects can also provide summaries.
         """
         return []  # type: List[SummaryElement]
 

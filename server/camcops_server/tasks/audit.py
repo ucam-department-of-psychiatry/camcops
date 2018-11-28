@@ -42,6 +42,7 @@ from camcops_server.cc_modules.cc_html import (
     tr_qa,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
@@ -196,6 +197,17 @@ class Audit(TaskHasPatientMixin, Task,
         )
         return h
 
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.AUDIT_PROCEDURE_ASSESSMENT))]  # noqa
+        if self.is_complete():
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.AUDIT_SCALE),
+                {
+                    req.snomed(SnomedLookup.AUDIT_SCORE): self.total_score(),
+                }
+            ))
+        return codes
+
 
 # =============================================================================
 # AUDIT-C
@@ -312,3 +324,14 @@ class AuditC(TaskHasPatientMixin, Task,
                      get_from_dict(q3_dict, self.q3)),
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.AUDITC_PROCEDURE_ASSESSMENT))]  # noqa
+        if self.is_complete():
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.AUDITC_SCALE),
+                {
+                    req.snomed(SnomedLookup.AUDITC_SCORE): self.total_score(),
+                }
+            ))
+        return codes
