@@ -1583,6 +1583,61 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
     - **ONGOING**
 
+- Fixed trivial bugs and added clarity about item sequencing.
+
+  - The bug was: PhotoSequence used zero-based numbering for the ``seqnum``
+    field until something was re-ordered, at which point it went to one-based
+    numbering (``renumberPhotos()`` versus ``addPhoto()``). The server assumed
+    zero-based numbering. Similarly in the diagnosis tasks (``renumberItems()``
+    versus ``addItem()``).
+
+  - Regardless of the mathematical or computing merits, our experience of
+    research users is that they are more far comfortable with one-based
+    numbering. (Both 0-based and 1-based approaches are clearly possible. A
+    nice essay by van Glabeek, 1999, in support of 1-based numbering is "Do we
+    count from 0 or from 1? The ordinal use of cardinal expressions" at
+    http://kilby.stanford.edu/~rvg/ordinal.html. Part of his point is that the
+    ambiguity arises when we move from an ordinal, "1st", to a cardinal, "1".
+    Dijkstra's more famous 1982 argument for 0-based numbering, at
+    http://www.cs.utexas.edu/users/EWD/transcriptions/EWD08xx/EWD831.html, is
+    pretty weak for this purpose.)
+
+  - So, we will use **one-based numbering for sequence numbers of database
+    objects** for all future tasks and as the decision for previously
+    inconsistent tasks. We will allow zero-based numbering to persist for older
+    specialist tasks. Changes therefore as follows:
+
+  - ``photo.py``: clarified column comment to make 1-based numbering explicit;
+    HTML display now uses ``seqnum`` not ``seqnum + 1``.
+
+  - ``photosequence.cpp``: fixed bug in ``addPhoto()`` so it uses 1-based
+    numbering
+
+  - ``diagnosis.py``: clarified column comment to make 1-based numbering
+    explicit; HTML display now uses ``seqnum`` not ``seqnum + 1``.
+
+  - ``diagnosistaskbase.cpp``: fixed bug in ``addItem()`` so it uses 1-based
+    numbering
+
+  - ``cardinal_expdetthreshold.py``: no change except cosmetically to clarify
+    zero-based trial numbering; not worth changing
+
+  - ``cardinalexpdetthreshold.cpp``: no change; continues with zero-based
+    trial numbering; not worth changing
+
+  - ``cardinal_expectationdetection.py``: no change except cosmetically to
+    clarify zero-based trial numbering; not worth changing
+
+  - ``cardinalexpectationdetection.cpp``: no change; continues with zero-based
+    trial numbering; not worth changing
+
+  - ``ided3d.py``: was already happily using 1-based numbering with clear
+    database/XML comments
+
+  - ``ided3d.cpp``: was already happily using 1-based numbering in the
+    database, and maintaining clearly labelled 0- and 1-based numbering for
+    internal purposes (e.g. ``ided3dtrial.h``; ``ided3dstage.h``).
+
 - SQL Server support.
 
   - Bugfixes for operation under SQL Server.

@@ -89,7 +89,8 @@ protected:
     QString getPromptText(int modality,  int target_number) const;
     void reportCounterbalancing() const;
     QVector<CardinalExpDetTrialPtr> makeTrialGroup(
-            int block, int groupnum,
+            int block,  // zero-based block numbering
+            int groupnum,  // zero-based group numbering
             const CardinalExpDetTrialGroupSpecPtr& groupspec) const;
     void createTrials();
     void estimateRemaining(int& n_trials_left, double& time_min) const;
@@ -135,7 +136,7 @@ protected:
     QSharedPointer<QMediaPlayer> m_player_target_1;
     QVector<CardinalExpDetTrialGroupSpecPtr> m_groups;
     QVector<CardinalExpDetTrialPtr> m_trials;
-    int m_current_trial;
+    int m_current_trial;  // zero-based trial number
     QVector<int> m_raw_cue_indices;  // Means of counterbalancing
     QVector<CardinalExpDetRating> m_ratings;
 

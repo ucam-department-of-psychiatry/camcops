@@ -155,8 +155,8 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
         return """
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
-                    <th>Trial</th>
-                    <th>Stage</th>
+                    <th>Trial#</th>
+                    <th>Stage#</th>
                     <th>Correct location</th>
                     <th>Incorrect location</th>
                     <th>Correct shape</th>

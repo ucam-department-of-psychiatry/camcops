@@ -108,25 +108,25 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
     trial = Column(
         "trial", Integer,
         nullable=False,
-        comment="Trial number"
+        comment="Trial number (0-based)"
     )
 
     # Config determines these (via an autogeneration process):
     block = Column(
         "block", Integer,
-        comment="Block number"
+        comment="Block number (0-based)"
     )
     group_num = Column(
         "group_num", Integer,
-        comment="Group number"
+        comment="Group number (0-based)"
     )
     cue = Column(
         "cue", Integer,
-        comment="Cue number"
+        comment="Cue number (0-based)"
     )
     raw_cue_number = Column(
         "raw_cue_number", Integer,
-        comment="Raw cue number (following counterbalancing)"
+        comment="Raw cue number (following counterbalancing) (0-based)"
     )
     target_modality = Column(
         "target_modality", Integer,
@@ -134,7 +134,7 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
     )
     target_number = Column(
         "target_number", Integer,
-        comment="Target number"
+        comment="Target number (0-based)"
     )
     target_present = Column(
         "target_present", Integer,
@@ -222,9 +222,9 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
         return """
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
-                    <th>Trial</th>
-                    <th>Block</th>
-                    <th>Group#</th>
+                    <th>Trial# (0-based)</th>
+                    <th>Block# (0-based)</th>
+                    <th>Group# (0-based)</th>
                     <th>Cue</th>
                     <th>Raw cue</th>
                     <th>Target modality</th>
@@ -327,13 +327,13 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, Base):
     group_num = Column(
         "group_num", Integer,
         nullable=False,
-        comment="Group number"
+        comment="Group number (0-based)"
     )
 
     # Group spec
     cue = Column(
         "cue", Integer,
-        comment="Cue number"
+        comment="Cue number (0-based)"
     )
     target_modality = Column(
         "target_modality", Integer,
@@ -341,7 +341,7 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, Base):
     )
     target_number = Column(
         "target_number", Integer,
-        comment="Target number"
+        comment="Target number (0-based)"
     )
     n_target = Column(
         "n_target", Integer,
@@ -359,10 +359,10 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, Base):
         return """
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
-                    <th>Group#</th>
-                    <th>Cue</th>
+                    <th>Group# (0-based)</th>
+                    <th>Cue (0-based)</th>
                     <th>Target modality (0 auditory, 1 visual)</th>
-                    <th>Target#</th>
+                    <th>Target# (0-based)</th>
                     <th># target trials</th>
                     <th># no-target trials</th>
                 </tr>
@@ -979,7 +979,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             </i></div>
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
-                    <th>Block</th>
+                    <th>Block (0-based)</th>
                     <th>Target probability given stimulus (0 low, 1 high)</th>
                     <th>P(detected | present)</th>
                     <th>P(detected | absent)</th>

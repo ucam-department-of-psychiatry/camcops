@@ -129,9 +129,9 @@ protected:
     QSharedPointer<QMediaPlayer> m_player_background;
     QSharedPointer<QMediaPlayer> m_player_target;
     QVector<CardinalExpDetThresholdTrialPtr> m_trials;
-    int m_current_trial;
-    int m_current_trial_ignoring_catch_trials;
-    int m_trial_last_y_b4_first_n;
+    int m_current_trial;  // zero-based trial number
+    int m_current_trial_ignoring_catch_trials;  // zero-based
+    int m_trial_last_y_b4_first_n;  // zero-based
 
     // ------------------------------------------------------------------------
     // Constants

@@ -163,7 +163,7 @@ const int N_TRIAL_GROUPS = 8;
 const qreal PROMPT_X(0.5 * SCENE_WIDTH);
 const QPointF PROMPT_1(PROMPT_X, 0.20 * SCENE_HEIGHT);
 const QPointF PROMPT_2(PROMPT_X, 0.25 * SCENE_HEIGHT);
-const QPointF PROMPT_3(PROMPT_X, 0.30 * SCENE_HEIGHT);
+// const QPointF PROMPT_3(PROMPT_X, 0.30 * SCENE_HEIGHT);
 const QRectF START_BTN_RECT(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
                             0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
 const QRectF CONTINUE_BTN_RECT(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
@@ -673,6 +673,7 @@ void CardinalExpectationDetection::createTrials()
     for (int b = 0; b < num_blocks; ++b) {
         QVector<CardinalExpDetTrialPtr> block_of_trials;
         for (int g = 0; g < m_groups.length(); ++g) {
+            // zero-based block and group numbering
             QVector<CardinalExpDetTrialPtr> group_of_trials = makeTrialGroup(
                         b, g, m_groups.at(g));
             block_of_trials += group_of_trials;
@@ -682,6 +683,7 @@ void CardinalExpectationDetection::createTrials()
     }
     // Write trial numbers
     for (int i = 0; i < m_trials.size(); ++i) {
+        // zero-based trial numbering
         m_trials.at(i)->setTrialNum(i);  // will save
     }
 }

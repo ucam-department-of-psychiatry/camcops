@@ -100,7 +100,7 @@ Intellectual property rights for ICD-10
 - Reproduced with permission (personal communication, WHO to Rudolf Cardinal,
   2013-05-08 and 2013-08-28); see below.
 
-- Current permissions cover diagnostic criteria for:
+- Current permissions cover *diagnostic criteria* for:
 
   - schizophrenia (F20)
 
@@ -133,7 +133,7 @@ Intellectual property rights for ICD-10
 
   - dependent PD (F60.7)
 
-- ICD-10 codes:
+- ICD-10 *codes*:
 
   - **The ICD-10 Classification of Mental and Behavioural Disorders Copyright ©
     1992 World Health Organization**

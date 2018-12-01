@@ -863,7 +863,7 @@ void CardinalExpDetThreshold::startTrial()
             : m_current_trial_ignoring_catch_trials;
     CardinalExpDetThresholdTrialPtr tr(new CardinalExpDetThresholdTrial(
                                            pkvalueInt(),
-                                           m_current_trial,
+                                           m_current_trial,  // zero-based trial number
                                            trial_ignoring_catch_trials,
                                            present_target,
                                            m_app,

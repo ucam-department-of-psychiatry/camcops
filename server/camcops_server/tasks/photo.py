@@ -130,7 +130,8 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
     )
     seqnum = Column(
         "seqnum", Integer, nullable=False,
-        comment="Sequence number of this photo"
+        comment="Sequence number of this photo "
+                "(consistently 1-based as of 2018-12-01)"
     )
     description = Column(
         "description", UnicodeText,
@@ -145,7 +146,8 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
     rotation = Column(  # *** DEFUNCT as of v2.0.0  # noqa
         "rotation", Integer,
-        comment="Rotation (clockwise, in degrees) to be applied for viewing"
+        comment="(DEFUNCT COLUMN) "
+                "Rotation (clockwise, in degrees) to be applied for viewing"
     )
 
     photo = blob_relationship("PhotoSequenceSinglePhoto", "photo_blobid")
@@ -158,7 +160,7 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
             <tr><td>{photo}</td></tr>
         """.format(
             CssClass=CssClass,
-            num=self.seqnum + 1,
+            num=self.seqnum,
             description=ws.webify(self.description),
             photo=get_blob_img_html(self.photo)
         )

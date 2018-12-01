@@ -80,13 +80,13 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
     trial = Column(
         "trial", Integer,
         nullable=False,
-        comment="Trial number"
+        comment="Trial number (0-based)"
     )
 
     # Results
     trial_ignoring_catch_trials = Column(
         "trial_ignoring_catch_trials", Integer,
-        comment="Trial number, ignoring catch trials"
+        comment="Trial number, ignoring catch trials (0-based)"
     )
     target_presented = Column(
         "target_presented", Integer,
@@ -138,8 +138,8 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
         return """
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
-                    <th>Trial</th>
-                    <th>Trial (ignoring catch trials)</th>
+                    <th>Trial# (0-based)</th>
+                    <th>Trial# (ignoring catch trials) (0-based)</th>
                     <th>Target presented?</th>
                     <th>Target time</th>
                     <th>Intensity</th>
@@ -356,7 +356,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
             prop=req.fontprops
         )
         leg.get_frame().set_alpha(0.5)
-        trialax.set_xlabel("Trial number", fontdict=req.fontdict)
+        trialax.set_xlabel("Trial number (0-based)", fontdict=req.fontdict)
         trialax.set_ylabel("Intensity", fontdict=req.fontdict)
         trialax.set_ylim(0 - y_extra_space, 1 + y_extra_space)
         trialax.set_xlim(-0.5, len(trialarray) - 0.5)

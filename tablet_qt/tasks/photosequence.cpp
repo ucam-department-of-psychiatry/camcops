@@ -36,6 +36,9 @@ const QString PhotoSequence::PHOTOSEQUENCE_TABLENAME("photosequence");
 
 const QString SEQUENCE_DESCRIPTION("sequence_description");
 
+// As of 2018-12-01, photo sequence numbers should be consistently 1-based.
+// See changelog.
+
 
 void initializePhotoSequence(TaskFactory& factory)
 {
@@ -272,7 +275,7 @@ void PhotoSequence::renumberPhotos()
     const int n = m_photos.size();
     for (int i = 0; i < n; ++i) {
         PhotoSequencePhotoPtr photo = m_photos.at(i);
-        photo->setSeqnum(i + 1);
+        photo->setSeqnum(i + 1);  // 1-based seqnum
         photo->save();
     }
 }
@@ -293,7 +296,7 @@ void PhotoSequence::addPhoto()
     }
     PhotoSequencePhotoPtr photo(new PhotoSequencePhoto(
                                     pkvalueInt(), m_app, m_db));
-    photo->setSeqnum(m_photos.size());
+    photo->setSeqnum(m_photos.size() + 1);  // bugfix 2018-12-01; now always 1-based seqnum
     photo->save();
     m_photos.append(photo);
     if (m_photos.size() > 1) {

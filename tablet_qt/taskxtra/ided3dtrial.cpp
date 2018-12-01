@@ -62,7 +62,7 @@ IDED3DTrial::IDED3DTrial(CamcopsApp& app, DatabaseManager& db,
     addField(FN_FK_TO_TASK, QVariant::Int);
     // More keys
     addField(FN_TRIAL, QVariant::Int, true);  // 1-based trial number within this session
-    addField(FN_STAGE, QVariant::Int, true);
+    addField(FN_STAGE, QVariant::Int, true);  // 1-based stage number within this session
     // Locations
     addField(FN_CORRECT_LOCATION, QVariant::Int);
     addField(FN_INCORRECT_LOCATION, QVariant::Int);

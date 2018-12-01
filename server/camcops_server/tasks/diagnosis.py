@@ -107,7 +107,7 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
         return Column(
             "seqnum", Integer,
             nullable=False,
-            comment="Sequence number"
+            comment="Sequence number (consistently 1-based as of 2018-12-01)"
         )
 
     # noinspection PyMethodParameters
@@ -136,7 +136,7 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
 
     def get_html_table_row(self) -> str:
         return tr(
-            self.seqnum + 1,
+            self.seqnum,
             answer(ws.webify(self.code)),
             answer(ws.webify(self.description)),
             answer(ws.webify(self.comment)),

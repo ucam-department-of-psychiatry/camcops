@@ -158,7 +158,7 @@ void DiagnosisTaskBase::addItem()
         return;
     }
     DiagnosisItemBasePtr item = makeItem();
-    item->setSeqnum(m_items.size());
+    item->setSeqnum(m_items.size() + 1);  // bugfix 2018-12-01; now always 1-based seqnum
     item->save();
     m_items.append(item);
     refreshQuestionnaire();
@@ -363,7 +363,7 @@ void DiagnosisTaskBase::renumberItems()
     const int n = m_items.size();
     for (int i = 0; i < n; ++i) {
         DiagnosisItemBasePtr item = m_items.at(i);
-        item->setSeqnum(i + 1);
+        item->setSeqnum(i + 1);  // 1-based seqnum
         item->save();
     }
 }
