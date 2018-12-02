@@ -194,7 +194,19 @@ Windows 10
       upgrade to Python 3.5.3+ as per
       https://github.com/python/typing/issues/266.
 
-- Configure the server
+- Edit the configuration file. In particular, as an absolute minimum you must
+  set:
+
+  - ``DB_URL``
+
+- Create the database structure:
+
+  .. code-block:: bat
+
+    camcops_server upgrade_db --config \some_path\my_camcops_config.ini
+
+  You should specify this filename as an **absolute** path (Alembic does some
+  directory changing that makes relative filenames fail!).
 
 - Create a dummy ("snake oil") SSL certificate and key, with some variation on
   this theme:
@@ -211,7 +223,7 @@ Windows 10
 
     REM Note that the country code (in this case "UK") must be 2 characters max.
 
-- Launch it like this (directly or via a batch file):
+- Launch a test server like this (directly or via a batch file):
 
   .. code-block:: bat
 
@@ -233,3 +245,5 @@ Windows 10
         --verbose ^
         --ssl_certificate %SSL_CERTIFICATE% ^
         --ssl_private_key %SSL_KEY%
+
+.. todo:: Current Windows problems: SQL DELETE taking forever during upgrade_db.

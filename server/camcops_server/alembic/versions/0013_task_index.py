@@ -38,7 +38,7 @@ Creation date: 2018-11-10 22:54:18.529528
 # Imports
 # =============================================================================
 
-from alembic import op
+from alembic import context, op
 import sqlalchemy as sa
 from camcops_server.cc_modules.cc_config import get_default_config_from_os_env
 import camcops_server.cc_modules.cc_sqla_coltypes
@@ -114,9 +114,12 @@ def upgrade():
 
     # ### end Alembic commands ###
 
-    cfg = get_default_config_from_os_env()
-    with cfg.get_dbsession_context() as dbsession:
-        reindex_everything(dbsession)
+    if not context.is_offline_mode():
+        # Offline mode means "print SQL only". So we only execute the following
+        # in online ("talk to the database") mode:
+        cfg = get_default_config_from_os_env()
+        with cfg.get_dbsession_context() as dbsession:
+            reindex_everything(dbsession)
 
 
 # noinspection PyPep8,PyTypeChecker

@@ -66,43 +66,43 @@ limit
 Installing ImageMagick for Windows
 ----------------------------------
 
-- ImageMagick: see
-  http://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows.
+See
+http://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows.
 
-- Note that for Wand 0.4.x, you need ImageMagick 6.x (7.x won't work).
-  ImageMagick 7 support is in Wand 0.5, as yet unreleased as of 2018-12-02.
+Note that for Wand 0.4.x, you need ImageMagick 6.x (7.x won't work).
+ImageMagick 7 support is in Wand 0.5, as yet unreleased as of 2018-12-02.
 
-- If, despite installing ImageMagick, CamCOPS fails to start regardless with
-  the message:
+If, despite installing ImageMagick, CamCOPS fails to start regardless with the
+message:
 
-  .. code-block:: none
+.. code-block:: none
 
     ImportError: MagickWand shared library not found.
     You probably had not installed ImageMagick library.
     Try to install:
       http://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows
 
-  then
+then
 
-  - one possibility is that your Python interpreter and your ImageMagick
-    libraries do not match in terms of 32- versus 64-bitness.
+- one possibility is that your Python interpreter and your ImageMagick
+  libraries do not match in terms of 32- versus 64-bitness.
 
-    To check Python, run ``python`` then check if ``sys.maxsize > 2**32`` (see
-    https://stackoverflow.com/questions/1405913/); if so, it's 64-bit Python.
-    To check ImageMagick, a quick way is to run its ImageMagick Display
-    (IMDisplay) program, then :menuselection:`Help --> About`.
+  To check Python, run ``python`` then check if ``sys.maxsize > 2**32`` (see
+  https://stackoverflow.com/questions/1405913/); if so, it's 64-bit Python. To
+  check ImageMagick, a quick way is to run its ImageMagick Display (IMDisplay)
+  program, then :menuselection:`Help --> About`.
 
-  - Another possibility is that you failed to tick **"Install development
-    headers and libraries for C and C++"** (see the Wand instructions). Retry
-    with that ticked.
+- Another possibility is that you failed to tick **"Install development headers
+  and libraries for C and C++"** (see the Wand instructions). Retry with that
+  ticked.
 
-  - ImageMagick 7.x doesn't work with Wand 0.4.x; you need ImageMagick 6.x
-    (e.g. 6.9.10) (see https://stackoverflow.com/questions/25003117/;
-    http://docs.wand-py.org/en/latest/changes.html). Binary downloads are at
-    https://www.imagemagick.org/download/binaries/. This fixed it for us. Use
-    e.g.
-    ``https://imagemagick.org/download/binaries/ImageMagick-6.9.10-14-Q16-x64-dll.exe``
-    for a 64-bit system.
+- ImageMagick 7.x doesn't work with Wand 0.4.x; you need ImageMagick 6.x (e.g.
+  6.9.10) (see https://stackoverflow.com/questions/25003117/;
+  http://docs.wand-py.org/en/latest/changes.html). Binary downloads are at
+  https://www.imagemagick.org/download/binaries/. This fixed it for us. Use
+  e.g.
+  ``https://imagemagick.org/download/binaries/ImageMagick-6.9.10-14-Q16-x64-dll.exe``
+  for a 64-bit system.
 
 
 
@@ -111,7 +111,7 @@ Installing ImageMagick for Windows
 Installing SQL Server for Windows
 ---------------------------------
 
-A short version for the Developer edition of SQL Server:
+A short guide to installing the Developer edition of SQL Server:
 
 - SQL Server 2017 Developer Edition won't install with the Visual C++ 2017
   redistributables installed (see
@@ -143,12 +143,11 @@ Creating an SQL Server database with an ODBC connection
 -------------------------------------------------------
 
 First install SQL Server (see :ref:`Installing SQL Server for Windows
-<windows_install_sql_server>`). Then, for a database named ``camcops_db``:
-
-Create a database and an ODBC data source
+<windows_install_sql_server>`). Then, to create a database named
+``camcops_db`` and create an ODBC connection to it:
 
 - Create a database named ``camcops_db``: :menuselection:`[right-click]
-  Databases --> New database`` and supply the name.
+  Databases --> New database` and supply the name.
 
 - Create a user named ``camcops_user``: :menuselection:`Security -->
   [right-click] Logins -> New login`; supply the name; choose "SQL Server
@@ -161,6 +160,18 @@ Create a database and an ODBC data source
   camcops", tick ``db_owner`` or some other suitable combination (e.g.
   ``db_ddladmin + db_datareader + db_datawriter``). See
   https://docs.microsoft.com/en-us/sql/relational-databases/security/authentication-access/database-level-roles?view=sql-server-2017.
+
+- Ensure the server allows logins via username/password combinations.
+
+  - Right-click the top-level database object in the SSMS tree.
+  - :menuselection:`Properties --> Security`
+  - Ensure "Server authentication" is set to "SQL Server and Windows
+    Authentication mode" (not "Windows Authentication mode").
+  - Restart SQL Server (from Windows Services; the "SQL Server (MSSQLSERVER)"
+    services).
+
+  Without this, you will get errors like ``[Microsoft][ODBC Driver 13 for SQL
+  Server][SQL Server]Login failed for user 'camcops_user'. (18456)``.
 
 - Create an ODBC data source.
 
@@ -191,3 +202,68 @@ database should now be:
 .. code-block:: none
 
     mssql+pyodbc://camcops_user:PASSWORD@camcops_dsn
+
+
+SQL Server tips
+---------------
+
+Show running queries
+~~~~~~~~~~~~~~~~~~~~
+
+Modified from
+https://blog.sqlauthority.com/2009/01/07/sql-server-find-currently-running-query-t-sql/:
+
+.. code-block:: sql
+
+    SELECT
+        sqltext.text,
+        req.start_time,
+        req.session_id,
+        req.status,
+        req.command,
+        req.cpu_time,
+        req.total_elapsed_time  -- this is in milliseconds
+    FROM sys.dm_exec_requests req
+    CROSS APPLY sys.dm_exec_sql_text(req.sql_handle) AS sqltext
+    ORDER BY req.start_time ASC
+
+For details, see
+https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-requests-transact-sql?view=sql-server-2017.
+
+Note that this query contributes exactly one row to its own results.
+
+DELETE takes forever
+~~~~~~~~~~~~~~~~~~~~
+
+(By "forever" I mean at more than half an hour to delete zero rows.)
+
+- Lots of foreign key checks? See
+
+  - https://stackoverflow.com/questions/56070/delete-statement-hangs-on-sql-server-for-no-apparent-reason
+  - https://stackoverflow.com/questions/10901299/delete-statement-in-sql-is-very-slow
+
+- Use the query above to show all running queries and find the ``session_id``
+  for the query that's freezing.
+
+  To show more detail for that session:
+
+  .. code-block:: sql
+
+    SELECT *
+    FROM sys.dm_exec_requests
+    WHERE session_id = <session_id>
+
+- In an example we had, a query ``DELETE FROM _idnum_index`` was taking a
+  phenomenally long time and was suspended; serially, a lot of queries were
+  being executed like ``SELECT tr.name AS [Name], tr.object_id AS [ID] FROM
+  sys.triggers AS tr WHERE (tr.parent_class = 0) ORDER BY [Name] ASC``. So
+  that's an indication that the ``DELETE`` is causing a large set of triggers
+  to be searched.
+
+- Remember that any working CamCOPS server its DDL (for any supported database
+  engine), so you can use a working Linux/MySQL server to show DDL for SQL
+  Server.
+
+- Remember the ``DB_ECHO`` parameter in the CamCOPS config file for "routine"
+  SQL, and the ``--show_sql_only`` parameter to the ``upgrade_db`` command.
+
