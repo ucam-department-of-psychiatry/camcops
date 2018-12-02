@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""
+r"""
 camcops_server/cc_modules/cc_snomed.py
 
 ===============================================================================

@@ -52,6 +52,7 @@ securely to your server.
     client/client_troubleshooting.rst
 
     server/server_installation.rst
+    server/third_party_installation.rst
     server/server_configuration.rst
     server/server_config_file.rst
     server/server_front_end_admin.rst

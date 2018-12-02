@@ -1523,7 +1523,6 @@ def camcops_main() -> None:
 
     # Initial log level (overridden later by config file but helpful for start)
     loglevel = logging.DEBUG if progargs.verbose else logging.INFO
-    print(loglevel)
     rootlogger = logging.getLogger()
     set_level_for_logger_and_its_handlers(rootlogger, loglevel)
 

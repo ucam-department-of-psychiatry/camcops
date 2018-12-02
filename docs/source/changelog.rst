@@ -1643,18 +1643,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - Bugfixes for operation under SQL Server.
 
   - **The minimum SQL Server version is 2008** (below that, there’s no time
-    zone conversion support).
+    zone conversion support; see
+    :func:`camcops_server.cc_modules.cc_sqla_coltypes.isotzdatetime_to_utcdatetime_sqlserver`).
 
-  - SQL Server testing:
-
-    - Install free SQL Server 2017 Developer Edition from
-      https://www.microsoft.com/en-us/sql-server/sql-server-downloads; basic
-      install, default options.
-
-    - Discover that it fails to install. Fix by removing VC 2017
-      redistributables first, as per
-      https://dba.stackexchange.com/questions/190090/, and reinstall.
-
-    - Install SSMS (SQL Server Management Studio) too.
+  - SQL Server testing: see :ref:`Windows 10 specimen installation
+    <server_installation_win10_specimen>`.
 
     - **ONGOING**

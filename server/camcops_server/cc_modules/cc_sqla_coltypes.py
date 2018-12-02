@@ -476,8 +476,8 @@ def isotzdatetime_to_utcdatetime_sqlserver(
 
     **Converting strings to DATETIME values**
 
-    - CAST():     Part of ANSI SQL.
-    - CONVERT():  Not part of ANSI SQL; has some extra formatting options.
+    - ``CAST()``: Part of ANSI SQL.
+    - ``CONVERT()``: Not part of ANSI SQL; has some extra formatting options.
 
     Both methods work:
 
@@ -490,7 +490,7 @@ def isotzdatetime_to_utcdatetime_sqlserver(
     However, going beyond milliseconds doesn't fail gracefully, it causes an
     error (e.g. "...21:30.49.123456") both for CAST and CONVERT.
 
-    The DATETIME2 format accepts greater precision, but requires SQL Server
+    The ``DATETIME2`` format accepts greater precision, but requires SQL Server
     2008 or higher. Then this works:
 
     .. code-block:: sql
@@ -498,13 +498,14 @@ def isotzdatetime_to_utcdatetime_sqlserver(
       SELECT CAST('2001-01-31T21:30:49.123456' AS DATETIME2) AS via_cast,
              CONVERT(DATETIME2, '2001-01-31T21:30:49.123456') AS via_convert;
 
-    So as not to be too optimistic: CAST(x AS DATETIME2) ignores (silently) any
-    timezone information in the string. So does CONVERT(DATETIME2, x, {0 or 1}).
+    So as not to be too optimistic: ``CAST(x AS DATETIME2)`` ignores (silently)
+    any timezone information in the string. So does ``CONVERT(DATETIME2, x, {0
+    or 1})``.
 
     **Converting between time zones**
 
     NO TIME ZONE SUPPORT in SQL Server 2005.
-    e.g. https://stackoverflow.com/questions/3200827/how-to-convert-timezones-in-sql-server-2005  # noqa
+    e.g. https://stackoverflow.com/questions/3200827/how-to-convert-timezones-in-sql-server-2005.
 
     .. code-block:: none
 
@@ -513,8 +514,8 @@ def isotzdatetime_to_utcdatetime_sqlserver(
               time_zone: integer minutes, or string hours/minutes e.g. "+13.00"
           -> produces a DATETIMEOFFSET value
 
-    Available from SQL Server 2008.
-    https://docs.microsoft.com/en-us/sql/t-sql/functions/todatetimeoffset-transact-sql  # noqa
+    Available from SQL Server 2008
+    (https://docs.microsoft.com/en-us/sql/t-sql/functions/todatetimeoffset-transact-sql).
 
     .. code-block:: none
 
@@ -526,28 +527,27 @@ def isotzdatetime_to_utcdatetime_sqlserver(
     .conversion to UTC is automatically achieved by ``CONVERT(DATETIME2,
     .some_datetimeoffset, 1)``
 
-    ... https://stackoverflow.com/questions/4953903/how-can-i-convert-a-sql-server-2008-datetimeoffset-to-a-datetime  # noqa
+    ... https://stackoverflow.com/questions/4953903/how-can-i-convert-a-sql-server-2008-datetimeoffset-to-a-datetime
 
     ... but not by ``CAST(some_datetimeoffset AS DATETIME2)``, and not by
     ``CONVERT(DATETIME2, some_datetimeoffset, 0)``
 
     ... and styles 0 and 1 are the only ones permissible from SQL Server 2012
-    and up, empirically and (documented for the reverse direction at:
-    https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-2017  # noqa
+    and up (empirically, and documented for the reverse direction at
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-2017)
 
     ... this is not properly documented re UTC conversion, as far as I can
-    see. Let's use SWITCHOFFSET -> CAST to be explicit and clear.
+    see. Let's use ``SWITCHOFFSET -> CAST`` to be explicit and clear.
 
-    AT TIME ZONE:
-    From SQL Server 2016 only.
+    ``AT TIME ZONE``: From SQL Server 2016 only.
     https://docs.microsoft.com/en-us/sql/t-sql/queries/at-time-zone-transact-sql?view=sql-server-2017
 
     **Therefore**
 
     - We need to require SQL Server 2008 or higher.
-    - Therefore we can use the DATETIME2 type.
-    - Note that LEN(), not LENGTH(), is ANSI SQL; SQL Server only supports
-      LEN.
+    - Therefore we can use the ``DATETIME2`` type.
+    - Note that ``LEN()``, not ``LENGTH()``, is ANSI SQL; SQL Server only
+      supports ``LEN``.
 
     **Example (tested on SQL Server 2014)**
 
@@ -566,7 +566,7 @@ def isotzdatetime_to_utcdatetime_sqlserver(
             AS DATETIME2
         )  -- 2001-01-31 14:30:49.1234560
 
-    """
+    """  # noqa
     x = fetch_processed_single_clause(element, compiler)
 
     date_time_part = "LEFT({x}, LEN({x}) - {tzl})".format(x=x, tzl=_TZ_LEN)  # a VARCHAR  # noqa

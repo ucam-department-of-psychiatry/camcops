@@ -17,6 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _server_installation:
+
 Installing CamCOPS on the server
 ================================
 
@@ -79,44 +81,14 @@ You should be able to type ``camcops`` and see something relevant.
 Windows prerequisites
 ~~~~~~~~~~~~~~~~~~~~~
 
-- ImageMagick: see
-  http://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows.
+- Install Python (see :ref:`Installing Python for Windows
+  <windows_install_python>`).
 
-  - If, despite installing ImageMagick, CamCOPS fails to start regardless with
-    the message:
+- Install ImageMagick (see :ref:`Installing ImageMagick for Windows
+  <windows_install_imagemagick>`).
 
-    .. code-block:: none
-
-        ImportError: MagickWand shared library not found.
-        You probably had not installed ImageMagick library.
-        Try to install:
-          http://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows
-
-    then one possibility is that your Python interpreter and your ImageMagick
-    libraries do not match in terms of 32- versus 64-bitness.
-
-    To check Python, run ``python`` then see
-    https://stackoverflow.com/questions/1405913/. To check ImageMagick, a quick
-    way is to run its ImageMagick Display (IMDisplay) program, then
-    :menuselection:`Help --> About`.
-
-    Another possibility is that you failed to tick "Install development headers
-    and libraries for C and C++" (see the Wand instructions). Retry with that
-    ticked.
-
-    If none of that works, it's possible that ImageMagick 7.x doesn't work with
-    Wand 0.4.4 and you need ImageMagick 6.x (e.g. 6.9.10); see
-    https://stackoverflow.com/questions/25003117/. Binary downloads are at
-    https://www.imagemagick.org/download/binaries/. This fixed it for us.
-
-.. todo::
-
-    ImageMagick still not being found by Wand under Windows despite
-    appropriate-looking PATH and bit-correctness.
-
-
-Installation for any OS
-~~~~~~~~~~~~~~~~~~~~~~~
+Generic installation for any OS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Create and activate a Python 3.5+ virtual environment:
 
@@ -152,8 +124,112 @@ Specimen installations
 ======================
 
 Ubuntu 18.04 LTS
-~~~~~~~~~~~~~~~~
+----------------
 
-.. code-block:: bash
+.. todo:: write Ubuntu specimen installation
 
-    
+
+
+.. _server_installation_win10_specimen:
+
+Windows 10
+----------
+
+- Install Python (see :ref:`Installing Python for Windows
+  <windows_install_python>`).
+
+- Install ImageMagick (see :ref:`Installing ImageMagick for Windows
+  <windows_install_imagemagick>`).
+
+- Install a database package, create a database, and create an ODBC connection
+  to that database.
+
+  - For SQL Server, see :ref:`Creating an SQL Server database
+    <windows_create_sql_server_database>`.
+
+- Install the CamCOPS server and a suitable database driver.
+
+  .. code-block:: bat
+
+    REM -----------------------------------------------------------------------
+    REM Make and activate a Python virtual environment
+    REM (Note that old versions of pip may fail, so upgrade just in case.)
+    REM -----------------------------------------------------------------------
+    \python36\python.exe -m venv \some_path\camcops_venv
+    \some_path\camcops_venv\Scripts\activate.bat
+    python -m pip install --upgrade pip
+
+    REM -----------------------------------------------------------------------
+    REM Install the CamCOPS server
+    REM -----------------------------------------------------------------------
+    REM pip install camcops_server
+    REM or install from a cloned git repository:
+    cd \some_path
+    git clone <REPOSITORY_URL>
+    cd camcops\server
+    pip install -e .
+
+    REM -----------------------------------------------------------------------
+    REM Install suitable database drivers
+    REM -----------------------------------------------------------------------
+    pip install pyodbc
+
+    REM -----------------------------------------------------------------------
+    REM Create/edit a default config file
+    REM -----------------------------------------------------------------------
+    camcops_server demo_camcops_config > \some_path\my_camcops_config.ini
+
+  .. note::
+
+      If you get the error ``ImportError: No module named 'tkinter'``, then you
+      probably said no to installing tk/tkinter when installing Python. Run the
+      installer again and say yes (e.g. :menuselection:`Python 3.6.7 (64-bit)
+      Setup --> Modify --> [✓] tcl/tk and IDLE: Installs tkinter and the IDLE
+      development environment --> Next --> Install`).
+
+  .. note::
+
+      If you get the error ``TypeError: descriptor '__subclasses__' of 'type'
+      object needs an argument``, using Python 3.5, then this is a Python bug;
+      upgrade to Python 3.5.3+ as per
+      https://github.com/python/typing/issues/266.
+
+- Configure the server
+
+- Create a dummy ("snake oil") SSL certificate and key, with some variation on
+  this theme:
+
+  .. code-block:: bat
+
+    openssl req ^
+        -nodes ^
+        -new ^
+        -x509 ^
+        -keyout dummy_ssl_private_key.key ^
+        -out dummy_ssl_certificate.cert ^
+        -subj "/C=UK/ST=my_state/L=my_location/O=CamCOPS testing/CN=Forename Surname"
+
+    REM Note that the country code (in this case "UK") must be 2 characters max.
+
+- Launch it like this (directly or via a batch file):
+
+  .. code-block:: bat
+
+    @echo off
+
+    set IP_ADDR=127.0.0.1
+    set PORT=8088
+    set SSL_CERTIFICATE=C:\some_path\dummy_ssl_certificate.cert
+    set SSL_KEY=C:\some_path\dummy_ssl_private_key.key
+    set CAMCOPS_CONFIG_FILE=C:\some_path\test_camcops_config.ini
+
+    REM Config location will be read directly from environment variable.
+    REM Could also specify it with --config.
+
+    camcops_server serve_cherrypy ^
+        --host %IP_ADDR% ^
+        --port %PORT% ^
+        --debug_toolbar ^
+        --verbose ^
+        --ssl_certificate %SSL_CERTIFICATE% ^
+        --ssl_private_key %SSL_KEY%
