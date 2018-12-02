@@ -1493,7 +1493,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Documentation now at https://camcops.readthedocs.io/.
 
-- ``cardinal_pythonlib`` to 1.0.37
+- ``cardinal_pythonlib`` to 1.0.38
 
 - ``alembic`` to 1.0.0
 
@@ -1577,11 +1577,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Improvements to Debian/RPM packaging, including use of ``venv`` from the
   Python 3.3+ standard library rather than ``virtualenv``.
 
-**Server v2.3.1 (in progress, from 2018-11-27)**
+**Server v2.3.1 and client v2.3.1 (in progress, from 2018-11-27)**
 
-- SNOMED-CT support.
+- ``cardinal_pythonlib`` to 1.0.39
 
-    - **ONGOING**
+  - Fixes misconversion of previous 24-hour filter times to their morning
+    equivalents, in the task filter view. To test, set e.g. a start time of
+    01:30 and an end time of 23:30; save the filter; re-edit the filter and
+    re-save it; check the end time stays correct.
 
 - Fixed trivial bugs and added clarity about item sequencing.
 
@@ -1648,5 +1651,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - SQL Server testing: see :ref:`Windows 10 specimen installation
     <server_installation_win10_specimen>`.
+
+  - Fully operational **except** ``upgrade_db`` command triggers reindexing for
+    revision ``0013`` and that executes a ``DELETE`` query that gets stuck.
+    Trigger problem. See link above. The ``create_db`` command works fine, and
+    so does manual reindexing, but this remains a problem.
+
+- SNOMED-CT support.
 
     - **ONGOING**

@@ -47,6 +47,7 @@ from camcops_server.cc_modules.cc_db import (
 )
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import (
@@ -115,6 +116,14 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             # ... xhtml2pdf crashes if the contents are empty...
             photo=get_blob_img_html(self.photo)
         )
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        if not self.is_complete():
+            return []
+        return [
+            SnomedExpression(req.snomed(SnomedLookup.PHOTOGRAPH_PROCEDURE)),
+            SnomedExpression(req.snomed(SnomedLookup.PHOTOGRAPH_PHYSICAL_OBJECT)),  # noqa
+        ]
 
 
 # =============================================================================
@@ -223,3 +232,11 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             </table>
         """
         return html
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        if not self.is_complete():
+            return []
+        return [
+            SnomedExpression(req.snomed(SnomedLookup.PHOTOGRAPH_PROCEDURE)),
+            SnomedExpression(req.snomed(SnomedLookup.PHOTOGRAPH_PHYSICAL_OBJECT)),  # noqa
+        ]

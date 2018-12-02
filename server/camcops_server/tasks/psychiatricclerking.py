@@ -35,6 +35,7 @@ from sqlalchemy.sql.sqltypes import UnicodeText
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -252,3 +253,7 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         for x in self.FIELDS_F:
             html += self.subhead_text(req, x)
         return html
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.PSYCHIATRIC_ASSESSMENT_PROCEDURE))]  # noqa
+        return codes

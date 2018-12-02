@@ -36,6 +36,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import answer, td, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
@@ -391,3 +392,15 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     def bright_perceptual_speed(self) -> Optional[float]:
         return self.predict(intercept=114.53, slope=-0.5285)
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.NART_PROCEDURE_ASSESSMENT))]  # noqa
+        if self.is_complete():
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.NART_SCALE),
+                {
+                    # Best value debatable:
+                    req.snomed(SnomedLookup.NART_SCORE): self.nelson_full_scale_iq(),  # noqa
+                }
+            ))
+        return codes

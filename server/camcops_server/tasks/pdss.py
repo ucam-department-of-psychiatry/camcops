@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
@@ -183,3 +184,13 @@ class Pdss(TaskHasPatientMixin, Task,
             </table>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        if not self.is_complete():
+            return []
+        return [SnomedExpression(
+            req.snomed(SnomedLookup.PDSS_SCALE),
+            {
+                req.snomed(SnomedLookup.PDSS_SCORE): self.total_score(),
+            }
+        )]

@@ -326,6 +326,9 @@ class Phq9(TaskHasPatientMixin, Task,
             screen_negative = req.snomed(SnomedLookup.PHQ9_FINDING_NEGATIVE_SCREENING_FOR_DEPRESSION)  # noqa
             screen_positive = req.snomed(SnomedLookup.PHQ9_FINDING_POSITIVE_SCREENING_FOR_DEPRESSION)  # noqa
             if self.is_mds() or self.is_ods():
+                # Threshold debatable, but if you have "other depressive
+                # syndrome", it seems wrong to say you've screened negative for
+                # depression.
                 procedure_result = screen_positive
             else:
                 procedure_result = screen_negative

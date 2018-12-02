@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_true_false, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
@@ -184,3 +185,21 @@ class Wsas(TaskHasPatientMixin, Task,
             DATA_COLLECTION_UNLESS_UPGRADED_DIV=DATA_COLLECTION_UNLESS_UPGRADED_DIV,  # noqa
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.WSAS_PROCEDURE_ASSESSMENT))]  # noqa
+        if self.is_complete():
+            d = {
+                req.snomed(SnomedLookup.WSAS_SCORE): self.total_score(),
+                req.snomed(SnomedLookup.WSAS_HOME_MANAGEMENT_SCORE): self.q2,
+                req.snomed(SnomedLookup.WSAS_SOCIAL_LEISURE_SCORE): self.q3,
+                req.snomed(SnomedLookup.WSAS_PRIVATE_LEISURE_SCORE): self.q4,
+                req.snomed(SnomedLookup.WSAS_RELATIONSHIPS_SCORE): self.q5,
+            }
+            if not self.retired_etc:
+                d[req.snomed(SnomedLookup.WSAS_WORK_SCORE)] = self.q1
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.WSAS_SCALE),
+                d
+            ))
+        return codes

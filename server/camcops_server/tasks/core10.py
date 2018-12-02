@@ -37,6 +37,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     ZERO_TO_FOUR_CHECKER,
@@ -249,3 +250,14 @@ class Core10(TaskHasPatientMixin, Task):
             q_a=q_a,
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.CORE10_PROCEDURE_ASSESSMENT))]  # noqa
+        if self.is_complete():
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.CORE10_SCALE),
+                {
+                    req.snomed(SnomedLookup.CORE10_SCORE): self.total_score(),
+                }
+            ))
+        return codes

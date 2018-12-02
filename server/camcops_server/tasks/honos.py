@@ -43,6 +43,7 @@ from camcops_server.cc_modules.cc_html import (
     tr_qa,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     CharColType,
@@ -123,14 +124,17 @@ class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                            comment="Total score (/{})".format(self.MAX_SCORE)),
         ]
 
-    def total_score(self) -> int:
+    def _total_score_for_fields(self, fieldnames: List[str]) -> int:
         total = 0
-        for qname in self.QFIELDS:
+        for qname in fieldnames:
             value = getattr(self, qname)
             if value is not None and 0 <= value <= 4:
                 # i.e. ignore null values and 9 (= not known)
                 total += value
         return total
+
+    def total_score(self) -> int:
+        return self._total_score_for_fields(self.QFIELDS)
 
     def get_q(self, req: CamcopsRequest, q: int) -> str:
         return self.wxstring(req, "q" + str(q) + "_s")
@@ -287,6 +291,29 @@ class Honos(HonosBase,
         )
         return h
 
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.HONOSWA_PROCEDURE_ASSESSMENT))]  # noqa
+        if self.is_complete():
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.HONOSWA_SCALE),
+                {
+                    req.snomed(SnomedLookup.HONOSWA_SCORE): self.total_score(),
+                    req.snomed(SnomedLookup.HONOSWA_1_OVERACTIVE_SCORE): self.q1,  # noqa
+                    req.snomed(SnomedLookup.HONOSWA_2_SELFINJURY_SCORE): self.q2,  # noqa
+                    req.snomed(SnomedLookup.HONOSWA_3_SUBSTANCE_SCORE): self.q3,  # noqa
+                    req.snomed(SnomedLookup.HONOSWA_4_COGNITIVE_SCORE): self.q4,  # noqa
+                    req.snomed(SnomedLookup.HONOSWA_5_PHYSICAL_SCORE): self.q5,
+                    req.snomed(SnomedLookup.HONOSWA_6_PSYCHOSIS_SCORE): self.q6,  # noqa
+                    req.snomed(SnomedLookup.HONOSWA_7_DEPRESSION_SCORE): self.q7,  # noqa
+                    req.snomed(SnomedLookup.HONOSWA_8_OTHERMENTAL_SCORE): self.q8,  # noqa
+                    req.snomed(SnomedLookup.HONOSWA_9_RELATIONSHIPS_SCORE): self.q9,  # noqa
+                    req.snomed(SnomedLookup.HONOSWA_10_ADL_SCORE): self.q10,
+                    req.snomed(SnomedLookup.HONOSWA_11_LIVINGCONDITIONS_SCORE): self.q11,  # noqa
+                    req.snomed(SnomedLookup.HONOSWA_12_OCCUPATION_SCORE): self.q12,  # noqa
+                }
+            ))
+        return codes
+
 
 # =============================================================================
 # HoNOS 65+
@@ -432,6 +459,17 @@ class Honos65(HonosBase,
         )
         return h
 
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.HONOS65_PROCEDURE_ASSESSMENT))]  # noqa
+        if self.is_complete():
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.HONOS65_SCALE),
+                {
+                    req.snomed(SnomedLookup.HONOS65_SCORE): self.total_score(),
+                }
+            ))
+        return codes
+
 
 # =============================================================================
 # HoNOSCA
@@ -479,7 +517,13 @@ class Honosca(HonosBase,
 
     NQUESTIONS = 15
     QFIELDS = strseq("q", 1, NQUESTIONS)
+    LAST_SECTION_A_Q = 13
+    FIRST_SECTION_B_Q = 14
+    SECTION_A_QFIELDS = strseq("q", 1, LAST_SECTION_A_Q)
+    SECTION_B_QFIELDS = strseq("q", FIRST_SECTION_B_Q, NQUESTIONS)
     MAX_SCORE = 60
+    MAX_SECTION_A = 4 * len(SECTION_A_QFIELDS)
+    MAX_SECTION_B = 4 * len(SECTION_B_QFIELDS)
     TASK_FIELDS = QFIELDS + ["period_rated"]
 
     def is_complete(self) -> bool:
@@ -487,6 +531,12 @@ class Honosca(HonosBase,
             self.are_all_fields_complete(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
+
+    def section_a_score(self) -> int:
+        return self._total_score_for_fields(self.SECTION_A_QFIELDS)
+
+    def section_b_score(self) -> int:
+        return self._total_score_for_fields(self.SECTION_B_QFIELDS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         section_a = ""
@@ -507,6 +557,8 @@ class Honosca(HonosBase,
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
                     {total_score}
+                    {section_a_total}
+                    {section_b_total}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -531,6 +583,16 @@ class Honosca(HonosBase,
                 req.wappstring("total_score"),
                 answer(self.total_score()) + " / {}".format(self.MAX_SCORE)
             ),
+            section_a_total=tr(
+                self.wxstring(req, "section_a_total"),
+                answer(self.section_a_score()) +
+                " / {}".format(self.MAX_SECTION_A)
+            ),
+            section_b_total=tr(
+                self.wxstring(req, "section_b_total"),
+                answer(self.section_b_score()) +
+                " / {}".format(self.MAX_SECTION_B)
+            ),
             period_rated=tr_qa(self.wxstring(req, "period_rated"),
                                self.period_rated),
             section_a_subhead=subheading_spanning_two_columns(
@@ -543,3 +605,20 @@ class Honosca(HonosBase,
             copyright_div=self.COPYRIGHT_DIV,
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.HONOSCA_PROCEDURE_ASSESSMENT))]  # noqa
+        if self.is_complete():
+            a = self.section_a_score()
+            b = self.section_b_score()
+            total = a + b
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.HONOSCA_SCALE),
+                {
+                    req.snomed(SnomedLookup.HONOSCA_SCORE): total,
+                    req.snomed(SnomedLookup.HONOSCA_SECTION_A_SCORE): a,
+                    req.snomed(SnomedLookup.HONOSCA_SECTION_B_SCORE): b,
+                    req.snomed(SnomedLookup.HONOSCA_SECTION_A_PLUS_B_SCORE): total,  # noqa
+                }
+            ))
+        return codes

@@ -37,6 +37,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CharColType,
     SummaryCategoryColType,
@@ -217,3 +218,8 @@ class Smast(TaskHasPatientMixin, Task,
             q_a=q_a,
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        if not self.is_complete():
+            return []
+        return [SnomedExpression(req.snomed(SnomedLookup.SMAST_SCALE))]

@@ -673,8 +673,6 @@ class SnomedLookup(object):
     BODY_HEIGHT_OBSERVABLE = "body_height_observable"
     BODY_WEIGHT_OBSERVABLE = "body_weight_observable"
 
-    # *** am here
-
     # BPRS, BPRS-E
     BPRS1962_SCALE = "bprs1962_scale"
     # no observable/procedure
@@ -756,8 +754,8 @@ class SnomedLookup(object):
 
     # GAD-7
     GAD7_SCALE = "gad7_scale"
-    gad7_observable_score = "gad7_observable_score"
-    gad7_procedure_assessment = "gad7_procedure_assessment"
+    GAD7_SCORE = "gad7_observable_score"
+    GAD7_PROCEDURE_ASSESSMENT = "gad7_procedure_assessment"
 
     # GAF
     GAF_SCALE = "gaf_scale"
@@ -794,9 +792,11 @@ class SnomedLookup(object):
     HONOSCA_SECTION_B_SCORE = "honos_childrenadolescents_observable_section_b_score"  # noqa
     HONOSCA_SECTION_A_PLUS_B_SCORE = "honos_childrenadolescents_observable_section_a_plus_b_score"  # noqa
     HONOSCA_PROCEDURE_ASSESSMENT = "honos_childrenadolescents_procedure_assessment"  # noqa
+    #
     HONOS65_SCALE = "honos_olderadults_scale"
     HONOS65_SCORE = "honos_olderadults_observable_score"
     HONOS65_PROCEDURE_ASSESSMENT = "honos_olderadults_procedure_assessment"
+    #
     HONOSWA_SCALE = "honos_workingage_scale"
     HONOSWA_SUBSCALE_1_OVERACTIVE = "honos_workingage_subscale_1_overactive"
     HONOSWA_SUBSCALE_2_SELFINJURY = "honos_workingage_subscale_2_selfinjury"
@@ -843,6 +843,7 @@ class SnomedLookup(object):
     MAST_SCALE = "mast_scale"
     MAST_SCORE = "mast_observable_score"
     MAST_PROCEDURE_ASSESSMENT = "mast_procedure_assessment"
+
     SMAST_SCALE = "smast_scale"
     # SMAST: no observable/procedure
 
@@ -873,6 +874,8 @@ class SnomedLookup(object):
     PDSS_SCORE = "pdss_observable_score"
     # PDSS: no procedure
 
+    # "Perinatal" and "scale": none
+
     # PHQ-9
     PHQ9_FINDING_NEGATIVE_SCREENING_FOR_DEPRESSION = "phq9_finding_negative_screening_for_depression"  # noqa
     PHQ9_FINDING_POSITIVE_SCREENING_FOR_DEPRESSION = "phq9_finding_positive_screening_for_depression"  # noqa
@@ -884,6 +887,8 @@ class SnomedLookup(object):
     PHQ15_SCORE = "phq15_observable_score"
     PHQ15_PROCEDURE = "phq15_procedure_assessment"
     PHQ15_SCALE = "phq15_scale"
+
+    # PIIOS or "parent infant scale": none
 
     # PSWQ
     PSWQ_SCALE = "pswq_scale"
@@ -903,6 +908,7 @@ class SnomedLookup(object):
     WEMWBS_SCALE = "wemwbs_scale"
     WEMWBS_SCORE = "wemwbs_observable_score"
     WEMWBS_PROCEDURE_ASSESSMENT = "wemwbs_procedure_assessment"
+    #
     SWEMWBS_SCALE = "swemwbs_scale"
     SWEMWBS_SCORE = "swemwbs_observable_score"
     SWEMWBS_PROCEDURE_ASSESSMENT = "swemwbs_procedure_assessment"

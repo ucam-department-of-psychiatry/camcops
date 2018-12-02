@@ -208,6 +208,18 @@ Windows 10
   You should specify this filename as an **absolute** path (Alembic does some
   directory changing that makes relative filenames fail!).
 
+  .. todo::
+
+    Current Windows problems: SQL DELETE taking forever during ``upgrade_db``.
+    Probably to do with constraints/triggers. Temporary workaround: use
+    ``create_db`` instead. (However, the ``reindex`` command works fine.)
+
+- Create a superuser
+
+  .. code-block:: bat
+
+    camcops_server make_superuser
+
 - Create a dummy ("snake oil") SSL certificate and key, with some variation on
   this theme:
 
@@ -246,4 +258,14 @@ Windows 10
         --ssl_certificate %SSL_CERTIFICATE% ^
         --ssl_private_key %SSL_KEY%
 
-.. todo:: Current Windows problems: SQL DELETE taking forever during upgrade_db.
+- Browse to https://127.0.0.1:8088/ to test it.
+
+- Create some ID number definitions, and a group. Ensure you have a user that
+  is uploading to that group.
+
+- Install the CamCOPS client. Configure and register it. Test settings:
+
+  - Server address: ``127.0.0.1``
+  - Server port: ``8088``
+  - Path on server: ``database``
+  - Validate HTTPS certificates? ``No``

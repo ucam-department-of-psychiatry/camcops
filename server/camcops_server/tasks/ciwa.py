@@ -43,6 +43,7 @@ from camcops_server.cc_modules.cc_html import (
     tr_qa,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     MIN_ZERO_CHECKER,
@@ -246,3 +247,14 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             rr=tr_qa(self.wxstring(req, "rr"), self.rr),
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.CIWA_AR_PROCEDURE_ASSESSMENT))]  # noqa
+        if self.is_complete():
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.CIWA_AR_SCALE),
+                {
+                    req.snomed(SnomedLookup.CIWA_AR_SCORE): self.total_score(),
+                }
+            ))
+        return codes

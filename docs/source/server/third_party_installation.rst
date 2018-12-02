@@ -267,3 +267,15 @@ DELETE takes forever
 - Remember the ``DB_ECHO`` parameter in the CamCOPS config file for "routine"
   SQL, and the ``--show_sql_only`` parameter to the ``upgrade_db`` command.
 
+
+MySQL tips
+----------
+
+Create an entity relationship (ER) diagram for a MySQL database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In MySQL Workbench, :menuselection:`Database --> Reverse Engineer`. Choose
+the connection and database. The default is to create a diagram of all tables.
+At the "Select Objects to Reverse Engineer / Import MySQL Table Objects" stage,
+click "Show Filter" to restrict which tables are used (left column to include,
+right column to exclude).

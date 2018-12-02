@@ -32,6 +32,7 @@ from sqlalchemy.sql.sqltypes import Integer, String
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     ONE_TO_FIVE_CHECKER,
@@ -57,7 +58,14 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 class Eq5d5l(TaskHasPatientMixin, Task):
     """
     Server implementation of the EQ-5D-5L task.
-    """
+
+    Note that the "index value" summary (e.g. SNOMED-CT code 736534008) is not
+    implemented. This is a country-specific conversion of the raw values to a
+    unitary health value; see
+
+    - https://euroqol.org/publications/key-euroqol-references/value-sets/
+    - https://euroqol.org/eq-5d-instruments/eq-5d-3l-about/valuation/choosing-a-value-set/
+    """  # noqa
     __tablename__ = "eq5d5l"
     shortname = "EQ-5D-5L"
     longname = "EuroQol 5-Dimension, 5-Level Health Scale"
@@ -207,3 +215,19 @@ class Eq5d5l(TaskHasPatientMixin, Task):
             q_a=q_a
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.EQ5D5L_PROCEDURE_ASSESSMENT))]  # noqa
+        if self.is_complete():
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.EQ5D5L_SCALE),
+                {
+                    # SnomedLookup.EQ5D5L_INDEX_VALUE: not used; see docstring above  # noqa
+                    req.snomed(SnomedLookup.EQ5D5L_MOBILITY_SCORE): self.q1,
+                    req.snomed(SnomedLookup.EQ5D5L_SELF_CARE_SCORE): self.q2,
+                    req.snomed(SnomedLookup.EQ5D5L_USUAL_ACTIVITIES_SCORE): self.q3,  # noqa
+                    req.snomed(SnomedLookup.EQ5D5L_PAIN_DISCOMFORT_SCORE): self.q4,  # noqa
+                    req.snomed(SnomedLookup.EQ5D5L_ANXIETY_DEPRESSION_SCORE): self.q5,  # noqa
+                }
+            ))
+        return codes

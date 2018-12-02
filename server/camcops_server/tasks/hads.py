@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -345,6 +346,18 @@ class Hads(HadsBase):
     shortname = "HADS"
     longname = "Hospital Anxiety and Depression Scale (data collection only)"
 
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        codes = [SnomedExpression(req.snomed(SnomedLookup.HADS_PROCEDURE_ASSESSMENT))]  # noqa
+        if self.is_complete():
+            codes.append(SnomedExpression(
+                req.snomed(SnomedLookup.HADS_SCALE),
+                {
+                    req.snomed(SnomedLookup.HADS_ANXIETY_SCORE): self.anxiety_score(),  # noqa
+                    req.snomed(SnomedLookup.HADS_DEPRESSION_SCORE): self.depression_score(),  # noqa
+                }
+            ))
+        return codes
+
 
 # =============================================================================
 # HadsRespondent
@@ -356,3 +369,5 @@ class HadsRespondent(TaskHasRespondentMixin, HadsBase):
     longname = "Hospital Anxiety and Depression Scale (data collection " \
                "only), non-patient respondent version"
     extrastring_taskname = "hads"
+
+    # No SNOMED codes; not for the patient!

@@ -25,7 +25,7 @@ Tasks
 
 **Priority**
 
-- Perinatal: POEM
+- Perinatal: Perinatal POEM (Patient-rated Outcome and Experience Measure)
 - Perinatal: Goal Based Outcomes (GBO); see
   https://www.corc.uk.net/outcome-experience-measures/ and
   https://digital.nhs.uk/National-Clinical-Content-Repository

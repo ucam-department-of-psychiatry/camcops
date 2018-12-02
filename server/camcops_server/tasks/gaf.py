@@ -37,6 +37,7 @@ from camcops_server.cc_modules.cc_constants import (
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     PermittedValueChecker,
@@ -114,3 +115,8 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             DATA_COLLECTION_ONLY_DIV=DATA_COLLECTION_ONLY_DIV,
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        if not self.is_complete():
+            return []
+        return [SnomedExpression(req.snomed(SnomedLookup.GAF_SCALE))]

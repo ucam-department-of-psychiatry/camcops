@@ -2811,6 +2811,9 @@ def add_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
                 which_idnum=appstruct.get(ViewParam.WHICH_IDNUM),
                 description=appstruct.get(ViewParam.DESCRIPTION),
                 short_description=appstruct.get(ViewParam.SHORT_DESCRIPTION),
+                # we skip hl7_id_type at this stage
+                # we skip hl7_assigning_authority at this stage
+                validation_method=appstruct.get(ViewParam.VALIDATION_METHOD),
             )
             # -----------------------------------------------------------------
             # Add ID definition

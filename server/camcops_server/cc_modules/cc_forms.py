@@ -2230,6 +2230,7 @@ class AddIdDefinitionSchema(CSRFSchema):
     )
     description = IdDefinitionDescriptionNode()  # must match ViewParam.DESCRIPTION  # noqa
     short_description = IdDefinitionShortDescriptionNode()  # must match ViewParam.SHORT_DESCRIPTION  # noqa
+    validation_method = IdValidationMethodNode()  # must match ViewParam.VALIDATION_METHOD  # noqa
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         req = self.bindings[Binding.REQUEST]  # type: CamcopsRequest

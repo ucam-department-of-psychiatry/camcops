@@ -181,6 +181,8 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
         return h
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        # The BADLS is ALWAYS carer-rated, so it's appropriate to put the
+        # SNOMED-CT codes in.
         codes = [SnomedExpression(req.snomed(SnomedLookup.BADLS_PROCEDURE_ASSESSMENT))]  # noqa
         if self.is_complete():
             codes.append(SnomedExpression(

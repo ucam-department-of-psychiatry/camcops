@@ -37,6 +37,7 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
@@ -423,3 +424,8 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             DATA_COLLECTION_ONLY_DIV=DATA_COLLECTION_ONLY_DIV,
         )
         return h
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        if not self.is_complete():
+            return []
+        return [SnomedExpression(req.snomed(SnomedLookup.UPDRS_SCALE))]
