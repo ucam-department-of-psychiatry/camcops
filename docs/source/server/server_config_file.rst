@@ -50,13 +50,16 @@ Format of the configuration file
 The config file is in standard `INI file format
 <https://en.wikipedia.org/wiki/INI_file>`_.
 
-Here’s a specimen configuration file, generated via the command `camcops
-demo_camcops_config > demo_camcops_config.ini`:
+Here’s a specimen configuration file, generated via the command
+
+.. code-block:: bash
+
+    camcops_server demo_camcops_config > demo_camcops_config.ini
 
 .. code-block:: ini
 
-    # Demonstration CamCOPS configuration file.
-    # Created by CamCOPS version 2.2.8 at 2018-11-05T12:05:57.034126+00:00.
+    # Demonstration CamCOPS server configuration file.
+    # Created by CamCOPS server version 2.3.1 at 2018-12-08T16:19:39.372095+00:00.
 
     # =============================================================================
     # Format of the CamCOPS configuration file
@@ -83,6 +86,8 @@ demo_camcops_config > demo_camcops_config.ini`:
     # Database connection/tools
     # -----------------------------------------------------------------------------
 
+    DB_URL = mysql+mysqldb://YYY_USERNAME_REPLACE_ME:ZZZ_PASSWORD_REPLACE_ME@localhost:3306/camcops?charset=utf8
+
         # DB_URL:
         #       SQLAlchemy connection URL.
         #
@@ -103,12 +108,10 @@ demo_camcops_config > demo_camcops_config.ini`:
         # - ... or via Windows authentication:
         #   DB_URL = mssql+pyodbc://@<odbc_dsn_name>
 
-    DB_URL = mysql+mysqldb://YYY_USERNAME_REPLACE_ME:ZZZ_PASSWORD_REPLACE_ME@localhost:3306/camcops?charset=utf8
+    DB_ECHO = False
 
         # DB_ECHO:
         # echo all SQL?
-
-    DB_ECHO = False
 
     # -----------------------------------------------------------------------------
     # URLs and paths
@@ -136,13 +139,15 @@ demo_camcops_config > demo_camcops_config.ini`:
         # (2), (3). We will follow others (e.g.
         # http://stackoverflow.com/questions/2005079) and use only relative URLs.
 
+    LOCAL_INSTITUTION_URL = http://www.mydomain/
+
         # LOCAL_INSTITUTION_URL:
         # Clicking on your institution's logo in the CamCOPS menu will take you to
         # this URL.
         #
-        # Edit the next line to point to your institution:
+        # Edit this to point to your institution:
 
-    LOCAL_INSTITUTION_URL = http://www.mydomain/
+    LOCAL_LOGO_FILE_ABSOLUTE = /home/rudolf/Documents/code/camcops/server/camcops_server/static/logo_local.png
 
         # LOCAL_LOGO_FILE_ABSOLUTE:
         # Specify the full path to your institution's logo file, e.g.
@@ -151,12 +156,12 @@ demo_camcops_config > demo_camcops_config.ini`:
         # file via the Apache configuration file).
         # Edit the next line to point to your local institution's logo file:
 
-    LOCAL_LOGO_FILE_ABSOLUTE = /usr/share/camcops/venv/lib/python3.6/site-packages/camcops_server/static/logo_local.png
+    # CAMCOPS_LOGO_FILE_ABSOLUTE = /home/rudolf/Documents/code/camcops/server/camcops_server/static/logo_camcops.png
 
         # CAMCOPS_LOGO_FILE_ABSOLUTE:
         # similarly, but for the CamCOPS logo. It's fine not to specify this.
 
-    # CAMCOPS_LOGO_FILE_ABSOLUTE = /usr/share/camcops/venv/lib/python3.6/site-packages/camcops_server/static/logo_camcops.png
+    EXTRA_STRING_FILES = /home/rudolf/Documents/code/camcops/server/camcops_server/extra_strings/*
 
         # EXTRA_STRING_FILES:
         # multiline list of filenames (with absolute paths), read by the server,
@@ -164,7 +169,26 @@ demo_camcops_config > demo_camcops_config.ini`:
         # file camcops.xml. May use "glob" pattern-matching (see
         # https://docs.python.org/3.5/library/glob.html).
 
-    EXTRA_STRING_FILES = /usr/share/camcops/venv/lib/python3.6/site-packages/camcops_server/extra_strings/*
+    SNOMED_TASK_XML_FILENAME =
+
+        # SNOMED_TASK_XML_FILENAME:
+        # Filename of special XML file containing SNOMED-CT codes used by CamCOPS
+        # tasks. This file is OK to use in the UK, but not necessarily elsewhere.
+        # See the SNOMED-CT licensing terms.
+
+    SNOMED_ICD9_XML_FILENAME =
+
+        # SNOMED_ICD9_XML_FILENAME:
+        # Name of XML file mapping ICD-9-CM codes to SNOMED-CT.
+        # Created by "camcops_server convert_athena_icd_snomed_to_xml"; q.v.
+
+    SNOMED_ICD10_XML_FILENAME =
+
+        # SNOMED_ICD10_XML_FILENAME:
+        # Name of XML file mapping ICD-10[-CM] codes to SNOMED-CT.
+        # Created by "camcops_server convert_athena_icd_snomed_to_xml"; q.v.
+
+    HL7_LOCKFILE = /var/lock/camcops/camcops.hl7
 
         # HL7_LOCKFILE:
         # filename stem used for process locking for HL7 message transmission.
@@ -176,19 +200,7 @@ demo_camcops_config > demo_camcops_config.ini`:
         # do so). The installation script will create the directory
         #     /var/lock/camcops
 
-    HL7_LOCKFILE = /var/lock/camcops/camcops.hl7
-
-        # SUMMARY_TABLES_LOCKFILE:
-        # file stem used for process locking for summary table generation. Default
-        # is /var/lock/camcops/camcops.summarytables.
-        # The lockfile will, in this case, be called
-        #     /var/lock/camcops/camcops.summarytables.lock
-        # and other process-specific files will be created in the same directory
-        # (so the CamCOPS script must have permission from the operating system to
-        # do so). The installation script will create the directory
-        #     /var/lock/camcops
-
-    SUMMARY_TABLES_LOCKFILE = /var/lock/camcops/camcops.summarytables
+    WKHTMLTOPDF_FILENAME =
 
         # WKHTMLTOPDF_FILENAME:
         # for the pdfkit PDF engine, specify a filename for wkhtmltopdf that
@@ -198,23 +210,23 @@ demo_camcops_config > demo_camcops_config.ini`:
         # default. Default is None, which usually ends up calling
         # /usr/bin/wkhtmltopdf
 
-    WKHTMLTOPDF_FILENAME =
-
     # -----------------------------------------------------------------------------
     # Login and session configuration
     # -----------------------------------------------------------------------------
+
+    SESSION_COOKIE_SECRET = camcops_autogenerated_secret_jQaW6t9xFKaZ6BsvkJQIWwMZhcEgum_WGhulUj6B783s0SW_KYL49ZLn3vJhhGyCXBWCFJq9v8J3cM7K5RrOkg==
 
         # SESSION_COOKIE_SECRET:
         # Secret used for HTTP cookie signing via Pyramid. Put something random in
         # here and keep it secret. (When you make a CamCOPS demo config, the value
         # shown is fresh and random.)
 
-    SESSION_COOKIE_SECRET = camcops_autogenerated_secret_ZPP2An7-T10L9MvIuZagETS1e6PTrXcoKEPFXuayBzBDWax27uGUpxWsIn-tJsfTtA6mWMNVki_9neJXm1Yjnw==
+    SESSION_TIMEOUT_MINUTES = 30
 
         # SESSION_TIMEOUT_MINUTES:
         # Time after which a session will expire (default 30).
 
-    SESSION_TIMEOUT_MINUTES = 30
+    PASSWORD_CHANGE_FREQUENCY_DAYS = 0
 
         # PASSWORD_CHANGE_FREQUENCY_DAYS:
         # Force password changes (at webview login) with this frequency (0 for
@@ -222,12 +234,12 @@ demo_camcops_config > demo_camcops_config.ini`:
         # but when the user next logs on, a password change will be forced before
         # they can do anything else.
 
-    PASSWORD_CHANGE_FREQUENCY_DAYS = 0
+    LOCKOUT_THRESHOLD = 10
 
         # LOCKOUT_THRESHOLD:
         # Lock user accounts after every n login failures (default 10).
 
-    LOCKOUT_THRESHOLD = 10
+    LOCKOUT_DURATION_INCREMENT_MINUTES = 10
 
         # LOCKOUT_DURATION_INCREMENT_MINUTES:
         # Account lockout time increment (default 10).
@@ -239,7 +251,7 @@ demo_camcops_config > demo_camcops_config.ini`:
         # After the next 10 failures, the account will be locked for 60 minutes, and so
         # on. Time and administrators can unlock accounts.
 
-    LOCKOUT_DURATION_INCREMENT_MINUTES = 10
+    DISABLE_PASSWORD_AUTOCOMPLETE = true
 
         # DISABLE_PASSWORD_AUTOCOMPLETE:
         # if true, asks browsers not to autocomplete the password field on the main
@@ -248,18 +260,18 @@ demo_camcops_config > demo_camcops_config.ini`:
         # better/unique passwords). Default: true.
         # Note that some browsers (e.g. Chrome v34 and up) may ignore this.
 
-    DISABLE_PASSWORD_AUTOCOMPLETE = true
-
     # -----------------------------------------------------------------------------
     # Suggested filenames for saving PDFs from the web view
     # -----------------------------------------------------------------------------
         # Try with Chrome, Firefox. Internet Explorer may be less obliging.
 
+    PATIENT_SPEC_IF_ANONYMOUS = anonymous
+
         # PATIENT_SPEC_IF_ANONYMOUS:
         # for anonymous tasks, this fixed string is used as the patient descriptor
         # (see also PATIENT_SPEC below). Typically "anonymous".
 
-    PATIENT_SPEC_IF_ANONYMOUS = anonymous
+    PATIENT_SPEC = {surname}_{forename}_{allidnums}
 
         # PATIENT_SPEC:
         # string, into which substitutions will be made, that defines the
@@ -295,7 +307,9 @@ demo_camcops_config > demo_camcops_config.ini`:
         #       would have the format
         #       idshortdesc1-idnum1_idshortdesc4-idnum4_idshortdesc5-idnum5
 
-    PATIENT_SPEC = {surname}_{forename}_{allidnums}
+    TASK_FILENAME_SPEC = CamCOPS_{patient}_{created}_{tasktype}-{serverpk}.{filetype}
+    TRACKER_FILENAME_SPEC = CamCOPS_{patient}_{now}_tracker.{filetype}
+    CTV_FILENAME_SPEC = CamCOPS_{patient}_{now}_clinicaltextview.{filetype}
 
         # TASK_FILENAME_SPEC:
         # TRACKER_FILENAME_SPEC:
@@ -349,33 +363,29 @@ demo_camcops_config > demo_camcops_config.ini`:
         #     operating-system-specific directory separator (Python's os.sep, a
         #     forward slash '/' on UNIX or a backslash '' under Windows).
 
-    TASK_FILENAME_SPEC = CamCOPS_{patient}_{created}_{tasktype}-{serverpk}.{filetype}
-    TRACKER_FILENAME_SPEC = CamCOPS_{patient}_{now}_tracker.{filetype}
-    CTV_FILENAME_SPEC = CamCOPS_{patient}_{now}_clinicaltextview.{filetype}
-
     # -----------------------------------------------------------------------------
     # Debugging options
     # -----------------------------------------------------------------------------
         # Possible log levels are (case-insensitive): "debug", "info", "warn"
         # (equivalent: "warning"), "error", and "critical" (equivalent: "fatal").
 
+    WEBVIEW_LOGLEVEL = info
+
         # WEBVIEW_LOGLEVEL:
         # Set the level of detail provided from the webview to the Apache server
         # log. (Loglevel option; see above.)
 
-    WEBVIEW_LOGLEVEL = info
+    CLIENT_API_LOGLEVEL = info
 
         # CLIENT_API_LOGLEVEL:
         # Set the log level for the tablet client database access script.
         # (Loglevel option; see above.)
 
-    CLIENT_API_LOGLEVEL = info
+    ALLOW_INSECURE_COOKIES = false
 
         # ALLOW_INSECURE_COOKIES:
         # DANGEROUS option that removes the requirement that cookies be HTTPS (SSL)
         # only.
-
-    ALLOW_INSECURE_COOKIES = false
 
     # =============================================================================
     # List of HL7/file recipients, and then details for each one
@@ -417,6 +427,8 @@ demo_camcops_config > demo_camcops_config.ini`:
 
     [recipient_A]
 
+    TYPE = hl7
+
         # TYPE:
         # One of the following methods:
         #
@@ -425,11 +437,11 @@ demo_camcops_config > demo_camcops_config.ini`:
         #   file
         #       Writes files to a local filesystem.
 
-    TYPE = hl7
-
     # -----------------------------------------------------------------------------
     # Options applicable to HL7 messages and file transfers
     # -----------------------------------------------------------------------------
+
+    GROUP_ID = 1
 
         # GROUP_ID:
         # CamCOPS group to export from.
@@ -438,14 +450,14 @@ demo_camcops_config > demo_camcops_config.ini`:
         # definition to export a second or subsequent group.)
         # This is an integer.
 
-    GROUP_ID = 1
+    PRIMARY_IDNUM = 1
 
         # PRIMARY_IDNUM:
         # Which ID number (1-8) should be considered the "internal" (primary) ID
         # number? Must be specified for HL7 messages. May be blank for file
         # transmission.
 
-    PRIMARY_IDNUM = 1
+    REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = true
 
         # REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY:
         # Defines behaviour relating to the primary ID number (as defined by
@@ -461,7 +473,7 @@ demo_camcops_config > demo_camcops_config.ini`:
         # - For file sending only, this setting does not apply to anonymous tasks,
         #   whose behaviour is controlled by INCLUDE_ANONYMOUS (see below).
 
-    REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = true
+    START_DATE =
 
         # START_DATE:
         # earliest date for which tasks will be sent. Assessed against the task's
@@ -469,14 +481,14 @@ demo_camcops_config > demo_camcops_config.ini`:
         # that is, this date is in UTC (beware if you are in a very different time
         # zone). Blank to apply no start date restriction.
 
-    START_DATE =
+    END_DATE =
 
         # END_DATE:
         # latest date for which tasks will be sent. In UTC. Assessed against
         # the task's "when_created" field (converted to UTC). Blank to apply no end
         # date restriction.
 
-    END_DATE =
+    FINALIZED_ONLY = true
 
         # FINALIZED_ONLY:
         # if true, only send tasks that are finalized (moved off their originating
@@ -484,12 +496,12 @@ demo_camcops_config > demo_camcops_config.ini`:
         # tasks that are uploaded but not yet finalized (they will then be sent
         # again if they are modified later).
 
-    FINALIZED_ONLY = true
+    TASK_FORMAT = pdf
 
         # TASK_FORMAT:
         # one of: pdf, html, xml
 
-    TASK_FORMAT = pdf
+    XML_FIELD_COMMENTS = true
 
         # XML_FIELD_COMMENTS:
         # if TASK_FORMAT is xml, then XML_FIELD_COMMENTS determines
@@ -497,46 +509,46 @@ demo_camcops_config > demo_camcops_config.ini`:
         # field, so they take space but they provide more information for
         # human readers. (Default true.)
 
-    XML_FIELD_COMMENTS = true
-
     # -----------------------------------------------------------------------------
     # Options applicable to HL7 only (TYPE = hl7)
     # -----------------------------------------------------------------------------
 
+    HOST = myhl7server.mydomain
+
         # HOST:
         # HL7 hostname or IP address
 
-    HOST = myhl7server.mydomain
+    PORT = 2575
 
         # PORT:
         # HL7 port (default 2575)
 
-    PORT = 2575
+    PING_FIRST = true
 
         # PING_FIRST:
         # if true, requires a successful ping to the server prior to
         # sending HL7 messages. (Note: this is a TCP/IP ping, and tests that the
         # machine is up, not that it is running an HL7 server.) Default: true.
 
-    PING_FIRST = true
+    NETWORK_TIMEOUT_MS = 10000
 
         # NETWORK_TIMEOUT_MS:
         # network time (in milliseconds). Default: 10000.
 
-    NETWORK_TIMEOUT_MS = 10000
+    KEEP_MESSAGE = false
 
         # KEEP_MESSAGE:
         # keep a copy of the entire message in the databaase. Default is
         # false. WARNING: may consume significant space in the database.
 
-    KEEP_MESSAGE = false
+    KEEP_REPLY = false
 
         # KEEP_REPLY:
         # keep a copy of the reply (e.g. acknowledgement) message
         # received from the server. Default is false. WARNING: may consume
         # significant space.
 
-    KEEP_REPLY = false
+    DIVERT_TO_FILE =
 
         # DIVERT_TO_FILE:
         # Override HOST/PORT options and send HL7 messages to this (single) file
@@ -544,7 +556,7 @@ demo_camcops_config > demo_camcops_config.ini`:
         # network transmission will be used). This is a debugging option, allowing
         # you to redirect HL7 messages to a file and inspect them.
 
-    DIVERT_TO_FILE =
+    TREAT_DIVERTED_AS_SENT = false
 
         # TREAT_DIVERTED_AS_SENT:
         # Any messages that are diverted to a file (using DIVERT_TO_FILE)
@@ -556,11 +568,11 @@ demo_camcops_config > demo_camcops_config.ini`:
         # minute) and you divert with this flag set to false, you will end up with
         # a great many message attempts!
 
-    TREAT_DIVERTED_AS_SENT = false
-
     # -----------------------------------------------------------------------------
     # Options applicable to file transfers only (TYPE = file)
     # -----------------------------------------------------------------------------
+
+    INCLUDE_ANONYMOUS = true
 
         # INCLUDE_ANONYMOUS:
         # include anonymous tasks.
@@ -569,14 +581,14 @@ demo_camcops_config > demo_camcops_config.ini`:
         # - Note also that this setting operates independently of the
         #   REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY setting.
 
-    INCLUDE_ANONYMOUS = true
+    PATIENT_SPEC_IF_ANONYMOUS = anonymous
 
         # PATIENT_SPEC_IF_ANONYMOUS:
         # for anonymous tasks, this string is used as the patient descriptor (see
         # also PATIENT_SPEC, FILENAME_SPEC below). Typically
         # "anonymous".
 
-    PATIENT_SPEC_IF_ANONYMOUS = anonymous
+    PATIENT_SPEC = {surname}_{forename}_{idshortdesc1}{idnum1}
 
         # PATIENT_SPEC:
         # string, into which substitutions will be made, that defines the
@@ -585,7 +597,7 @@ demo_camcops_config > demo_camcops_config.ini`:
         # PATIENT_SPEC in the main "[server]" section of
         # the configuration file (see above).
 
-    PATIENT_SPEC = {surname}_{forename}_{idshortdesc1}{idnum1}
+    FILENAME_SPEC = /my_nfs_mount/mypath/CamCOPS_{patient}_{created}_{tasktype}-{serverpk}.{filetype}
 
         # FILENAME_SPEC:
         # string into which substitutions will be made to determine the filename to
@@ -593,12 +605,12 @@ demo_camcops_config > demo_camcops_config.ini`:
         # in the main "[server]" section of the configuration
         # file (see above).
 
-    FILENAME_SPEC = /my_nfs_mount/mypath/CamCOPS_{patient}_{created}_{tasktype}-{serverpk}.{filetype}
+    MAKE_DIRECTORY = true
 
         # MAKE_DIRECTORY:
         # make the directory if it doesn't already exist. Default is false.
 
-    MAKE_DIRECTORY = true
+    OVERWRITE_FILES = false
 
         # OVERWRITE_FILES:
         # whether or not to attempt overwriting existing files of the same name
@@ -607,7 +619,10 @@ demo_camcops_config > demo_camcops_config.ini`:
         # are not task-unique; try ensuring that both the {tasktype} and
         # {serverpk} attributes are used in the filename.)
 
-    OVERWRITE_FILES = false
+    RIO_METADATA = false
+    RIO_IDNUM = 2
+    RIO_UPLOADING_USER = CamCOPS
+    RIO_DOCUMENT_TYPE = CC
 
         # RIO_METADATA:
         # whether or not to export a metadata file for Servelec's RiO (default
@@ -631,10 +646,7 @@ demo_camcops_config > demo_camcops_config.ini`:
         #       want a code that maps to "Clinical Correspondence", but the code
         #       will be defined within the local RiO system configuration.
 
-    RIO_METADATA = false
-    RIO_IDNUM = 2
-    RIO_UPLOADING_USER = CamCOPS
-    RIO_DOCUMENT_TYPE = CC
+    SCRIPT_AFTER_FILE_EXPORT =
 
         # SCRIPT_AFTER_FILE_EXPORT:
         # filename of a shell script or other executable to run after file export
@@ -666,5 +678,3 @@ demo_camcops_config > demo_camcops_config.ini`:
         #   ... then you could set:
         #
         #       SCRIPT_AFTER_FILE_EXPORT = /usr/local/bin/print_arguments
-
-    SCRIPT_AFTER_FILE_EXPORT =

@@ -1657,12 +1657,18 @@ Current C++/SQLite client, Python/SQLAlchemy server
     Trigger problem. See link above. The ``create_db`` command works fine, and
     so does manual reindexing, but this remains a problem.
 
+  .. todo::
+
+    understand SQL Server behaviour (?bug) that causes a neverending DELETE
+    during the ``upgrade_db`` command.
+
 - SNOMED-CT support.
 
   - For copyright reasons, SNOMED-CT codes for tasks held in a separate file
     and cross-referenced by arbitrary strings (not the codes themselves).
 
-  - For ICD-9-CM and ICD-10 codes,
+  - For ICD-9-CM and ICD-10 codes, we preconvert them from an Athena OHDSI
+    data set (if the user is permitted to use that).
 
   - Command-line options for the client to print its ICD diagnostic codes.
     These are then added to the server, hugely reducing the number of codes
@@ -1676,5 +1682,3 @@ Current C++/SQLite client, Python/SQLAlchemy server
       until the database is open (but then an overhead for everything); (3)
       have DiagnosticCodeSet not ask for xstrings if it's being created in "no
       xstring" mode. Went with (3).
-
-  - **ONGOING**

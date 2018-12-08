@@ -28,26 +28,27 @@ camcops_server
 --------------
 
 The ``camcops_server`` command is the main interface to the CamCOPS server.
-Options as of 2018-11-09 (output from ``camcops_server --allhelp``):
+Options as of 2018-12-08 (output from ``camcops_server --allhelp``):
 
 .. code-block:: none
 
-    usage: camcops_server [-h] [--allhelp] [--version]
-                          {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,show_upgrade_sql,show_db_title,merge_db,create_db,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,serve_cherrypy,serve_gunicorn}
+    usage: camcops_server [-h] [--allhelp] [--version] [-v]
+                          {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_to,dev_downgrade_db,show_db_title,merge_db,create_db,reindex,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,dev_cli,serve_cherrypy,serve_gunicorn,convert_athena_icd_snomed_to_xml}
                           ...
 
-    CamCOPS server version 2.2.8, by Rudolf Cardinal.
+    CamCOPS server, created by Rudolf Cardinal; version 2.3.1.
     Use 'camcops_server <COMMAND> --help' for more detail on each command.
 
     optional arguments:
       -h, --help            show this help message and exit
       --allhelp             show help for all commands and exit
       --version             show program's version number and exit
+      -v, --verbose         Be verbose
 
     commands:
       Valid CamCOPS commands are as follows.
 
-      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,show_upgrade_sql,show_db_title,merge_db,create_db,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,serve_cherrypy,serve_gunicorn}
+      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_to,dev_downgrade_db,show_db_title,merge_db,create_db,reindex,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,dev_cli,serve_cherrypy,serve_gunicorn,convert_athena_icd_snomed_to_xml}
                             Specify one command.
         docs                Launch the main documentation (CamCOPS manual)
         demo_camcops_config
@@ -62,11 +63,15 @@ Options as of 2018-11-09 (output from ``camcops_server --allhelp``):
                             Print demo instructions to dump all current MySQL
                             databases
         upgrade_db          Upgrade database to most recent version (via Alembic)
-        show_upgrade_sql    Show SQL for upgrading database (to stdout)
+        dev_upgrade_to      (DEVELOPER OPTION ONLY.) Upgrade a database to a
+                            specific revision.
+        dev_downgrade_db    (DEVELOPER OPTION ONLY.) Downgrades a database to a
+                            specific revision. May DESTROY DATA.
         show_db_title       Show database title
         merge_db            Merge in data from an old or recent CamCOPS database
         create_db           Create CamCOPS database from scratch (AVOID; use the
                             upgrade facility instead)
+        reindex             Recreate task index
         make_superuser      Make superuser, or give superuser status to an
                             existing user
         reset_password      Reset a user's password
@@ -78,9 +83,15 @@ Options as of 2018-11-09 (output from ``camcops_server --allhelp``):
         self_test           Test internal code
         serve_pyramid       Test web server (single-thread, single-process, HTTP-
                             only, Pyramid; for development use only
+        dev_cli             Developer command-line interface, with config loaded
+                            as 'config'.
         serve_cherrypy      Start web server (via CherryPy)
         serve_gunicorn      Start web server (via Gunicorn) (not available under
                             Windows)
+        convert_athena_icd_snomed_to_xml
+                            Fetch SNOMED-CT codes for ICD-9-CM and ICD-10 from the
+                            Athena OHDSI data set (http://athena.ohdsi.org/) and
+                            write them to the CamCOPS XML format
 
     ===============================================================================
     Help for command 'docs'
@@ -151,30 +162,64 @@ Options as of 2018-11-09 (output from ``camcops_server --allhelp``):
     ===============================================================================
     Help for command 'upgrade_db'
     ===============================================================================
-    usage: camcops_server upgrade_db [-h] [-v] --config CONFIG
+    usage: camcops_server upgrade_db [-h] [-v] --config CONFIG [--show_sql_only]
 
     Upgrade database to most recent version (via Alembic)
 
     optional arguments:
       -h, --help       show this help message and exit
       -v, --verbose    Be verbose (default: False)
+      --show_sql_only  Show SQL only (to stdout); don't execute it (default:
+                       False)
 
     required named arguments:
       --config CONFIG  Configuration file (default: None)
 
     ===============================================================================
-    Help for command 'show_upgrade_sql'
+    Help for command 'dev_upgrade_to'
     ===============================================================================
-    usage: camcops_server show_upgrade_sql [-h] [-v] --config CONFIG
+    usage: camcops_server dev_upgrade_to [-h] [-v] --config CONFIG
+                                         --destination_db_revision
+                                         DESTINATION_DB_REVISION [--show_sql_only]
 
-    Show SQL for upgrading database (to stdout)
+    (DEVELOPER OPTION ONLY.) Upgrade a database to a specific revision.
 
     optional arguments:
-      -h, --help       show this help message and exit
-      -v, --verbose    Be verbose (default: False)
+      -h, --help            show this help message and exit
+      -v, --verbose         Be verbose (default: False)
+      --destination_db_revision DESTINATION_DB_REVISION
+                            The target database revision (default: None)
+      --show_sql_only       Show SQL only (to stdout); don't execute it (default:
+                            False)
 
     required named arguments:
-      --config CONFIG  Configuration file (default: None)
+      --config CONFIG       Configuration file (default: None)
+
+    ===============================================================================
+    Help for command 'dev_downgrade_db'
+    ===============================================================================
+    usage: camcops_server dev_downgrade_db [-h] [-v] --config CONFIG
+                                           --destination_db_revision
+                                           DESTINATION_DB_REVISION
+                                           --confirm_downgrade_db
+                                           [--show_sql_only]
+
+    (DEVELOPER OPTION ONLY.) Downgrades a database to a specific revision. May
+    DESTROY DATA.
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -v, --verbose         Be verbose (default: False)
+      --destination_db_revision DESTINATION_DB_REVISION
+                            The target database revision (default: None)
+      --show_sql_only       Show SQL only (to stdout); don't execute it (default:
+                            False)
+
+    required named arguments:
+      --config CONFIG       Configuration file (default: None)
+      --confirm_downgrade_db
+                            Must specify this too, as a safety measure (default:
+                            False)
 
     ===============================================================================
     Help for command 'show_db_title'
@@ -246,6 +291,19 @@ Options as of 2018-11-09 (output from ``camcops_server --allhelp``):
                            False)
 
     ===============================================================================
+    Help for command 'reindex'
+    ===============================================================================
+    usage: camcops_server reindex [-h] [-v] [--config CONFIG]
+
+    Recreate task index
+
+    optional arguments:
+      -h, --help       show this help message and exit
+      -v, --verbose    Be verbose (default: False)
+      --config CONFIG  Configuration file (if not specified, the environment
+                       variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+
+    ===============================================================================
     Help for command 'make_superuser'
     ===============================================================================
     usage: camcops_server make_superuser [-h] [-v] [--config CONFIG]
@@ -308,8 +366,8 @@ Options as of 2018-11-09 (output from ``camcops_server --allhelp``):
       -v, --verbose      Be verbose (default: False)
       --config CONFIG    Configuration file (if not specified, the environment
                          variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-      --dialect DIALECT  SQL dialect (options: oracle, postgresql, mssql,
-                         firebird, sqlite, mysql, sybase) (default: mysql)
+      --dialect DIALECT  SQL dialect (options: mssql, sybase, mysql, postgresql,
+                         oracle, sqlite, firebird) (default: mysql)
 
     ===============================================================================
     Help for command 'hl7'
@@ -457,6 +515,19 @@ Options as of 2018-11-09 (output from ``camcops_server --allhelp``):
                             For --behind_reverse_proxy: show debugging information
                             as WSGI variables are rewritten. (default: False)
       --debug_toolbar       Enable the Pyramid debug toolbar (default: False)
+
+    ===============================================================================
+    Help for command 'dev_cli'
+    ===============================================================================
+    usage: camcops_server dev_cli [-h] [-v] [--config CONFIG]
+
+    Developer command-line interface, with config loaded as 'config'.
+
+    optional arguments:
+      -h, --help       show this help message and exit
+      -v, --verbose    Be verbose (default: False)
+      --config CONFIG  Configuration file (if not specified, the environment
+                       variable CAMCOPS_CONFIG_FILE is checked) (default: None)
 
     ===============================================================================
     Help for command 'serve_cherrypy'
@@ -634,7 +705,7 @@ Options as of 2018-11-09 (output from ``camcops_server --allhelp``):
                             if specified) (default: )
       --num_workers NUM_WORKERS
                             Number of worker processes for server to use (default:
-                            8)
+                            16)
       --debug_reload        Debugging option: reload Gunicorn upon code change
                             (default: False)
       --ssl_certificate SSL_CERTIFICATE
@@ -720,6 +791,41 @@ Options as of 2018-11-09 (output from ``camcops_server --allhelp``):
                             as WSGI variables are rewritten. (default: False)
       --debug_toolbar       Enable the Pyramid debug toolbar (default: False)
 
+    ===============================================================================
+    Help for command 'convert_athena_icd_snomed_to_xml'
+    ===============================================================================
+    usage: camcops_server convert_athena_icd_snomed_to_xml [-h] [-v]
+                                                           [--config CONFIG]
+                                                           --athena_concept_tsv_filename
+                                                           ATHENA_CONCEPT_TSV_FILENAME
+                                                           --athena_concept_relationship_tsv_filename
+                                                           ATHENA_CONCEPT_RELATIONSHIP_TSV_FILENAME
+                                                           --icd9_xml_filename
+                                                           ICD9_XML_FILENAME
+                                                           --icd10_xml_filename
+                                                           ICD10_XML_FILENAME
+
+    Fetch SNOMED-CT codes for ICD-9-CM and ICD-10 from the Athena OHDSI data set
+    (http://athena.ohdsi.org/) and write them to the CamCOPS XML format
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -v, --verbose         Be verbose (default: False)
+      --config CONFIG       Configuration file (if not specified, the environment
+                            variable CAMCOPS_CONFIG_FILE is checked) (default:
+                            None)
+      --athena_concept_tsv_filename ATHENA_CONCEPT_TSV_FILENAME
+                            Path to CONCEPT.csv file from Athena download
+                            (default: None)
+      --athena_concept_relationship_tsv_filename ATHENA_CONCEPT_RELATIONSHIP_TSV_FILENAME
+                            Path to CONCEPT_RELATIONSHIP.csv file from Athena
+                            download (default: None)
+      --icd9_xml_filename ICD9_XML_FILENAME
+                            Filename of ICD-9-CM/SNOMED-CT XML file to write
+                            (default: None)
+      --icd10_xml_filename ICD10_XML_FILENAME
+                            Filename of ICD-10/SNOMED-CT XML file to write
+                            (default: None)
 
 
 .. _camcops_server_meta:

@@ -304,18 +304,18 @@ def get_demo_config(extra_strings_dir: str = None,
     # tasks. This file is OK to use in the UK, but not necessarily elsewhere.
     # See the SNOMED-CT licensing terms.
     
-{cp.SNOMED_ICD10_XML_FILENAME} = 
-
-    # {cp.SNOMED_ICD10_XML_FILENAME}:
-    # Name of XML file mapping ICD-10[-CM] codes to SNOMED-CT.
-    # Created by "camcops_server convert_athena_icd_snomed_to_xml"; q.v.
-
 {cp.SNOMED_ICD9_XML_FILENAME} =
 
     # {cp.SNOMED_ICD9_XML_FILENAME}:
     # Name of XML file mapping ICD-9-CM codes to SNOMED-CT.
     # Created by "camcops_server convert_athena_icd_snomed_to_xml"; q.v.
     
+{cp.SNOMED_ICD10_XML_FILENAME} = 
+
+    # {cp.SNOMED_ICD10_XML_FILENAME}:
+    # Name of XML file mapping ICD-10[-CM] codes to SNOMED-CT.
+    # Created by "camcops_server convert_athena_icd_snomed_to_xml"; q.v.
+
 {cp.HL7_LOCKFILE} = {hl7_lockfile_stem}
 
     # {cp.HL7_LOCKFILE}:
