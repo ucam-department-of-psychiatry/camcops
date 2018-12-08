@@ -222,33 +222,18 @@ Server
 
 **Not a priority**
 
-- Make tasks support SNOMED coding. Should each task return multiple SNOMED
-  rows e.g. code, value (+/- originator type e.g. clinician/patient)?
+- SNOMED coding now supported (see XML views).
 
-  - See ``cc_snomed.py``.
+  - Now make it available in exports.
 
-  - Build some sort of UK-specific external data file, with keys as per
-    :class:`camcops_server.cc_modules.cc_snomed.SnomedLookup`.
-    See reply from NHS Information Standards 25/11/2018 re permissions.
-    See ``snomed_ct.xml`` (not in main repository).
-    Document this/create a blank.
-
-  - Build config options.
-
-  - Map rest of relevant SNOMED-CT codes.
-
-  - Plan export mechanisms.
-
-  - Implement in tasks.
-
-  - If ``config.snomed_xml_filename`` is not specified, don't ask tasks for
-    SNOMED-CT codes.
+  - and document (inc. UK-specific files/licensing).
 
 - Implement (from command line) “export to anonymisation staging database” =
   with patient info per table. (Extend ``cc_dump.py``. See
   ``generate_anonymisation_staging_db()``, and it's also temporarily disabled
   in the master command-line handler.)
 
+- Upgrade Qt to 5.12 LTS.
 
 Documentation
 -------------

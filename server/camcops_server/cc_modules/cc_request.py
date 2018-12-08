@@ -97,7 +97,7 @@ from .cc_pyramid import (
     STATIC_CAMCOPS_PACKAGE_PATH,
 )
 from .cc_serversettings import get_server_settings, ServerSettings
-from .cc_snomed import get_snomed_concept, SnomedConcept
+from .cc_snomed import SnomedConcept
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 from .cc_tabletsession import TabletSession
 from .cc_user import User
@@ -1092,13 +1092,13 @@ class CamcopsRequest(Request):
     @reify
     def snomed_supported(self) -> bool:
         """
-        Is SNOMED-CT supported?
+        Is SNOMED-CT supported for CamCOPS tasks?
         """
-        return bool(self.config.snomed_xml_filename)
+        return bool(self.config.get_task_snomed_concepts())
 
     def snomed(self, lookup: str) -> SnomedConcept:
         """
-        Fetches a SNOMED-CT concept.
+        Fetches a SNOMED-CT concept for a CamCOPS task.
 
         Args:
             lookup: a CamCOPS SNOMED lookup string
@@ -1110,8 +1110,59 @@ class CamcopsRequest(Request):
             :exc:`KeyError`, if the lookup cannot be found (e.g. UK data not
                 installed)
         """
-        assert self.snomed_supported, "No SNOMED-CT data available"
-        return get_snomed_concept(lookup, self.config.snomed_xml_filename)
+        concepts = self.config.get_task_snomed_concepts()
+        assert concepts, "No SNOMED-CT data available for CamCOPS tasks"
+        return concepts[lookup]
+
+    @reify
+    def icd9cm_snomed_supported(self) -> bool:
+        """
+        Is SNOMED-CT supported for ICD-9-CM codes?
+        """
+        return bool(self.config.get_icd9cm_snomed_concepts())
+
+    def icd9cm_snomed(self, code: str) -> List[SnomedConcept]:
+        """
+        Fetches a SNOMED-CT concept for an ICD-9-CM code
+
+        Args:
+            code: an ICD-9-CM code
+
+        Returns:
+            a :class:`SnomedConcept`
+
+        Raises:
+            :exc:`KeyError`, if the lookup cannot be found (e.g. data not
+                installed)
+        """
+        concepts = self.config.get_icd9cm_snomed_concepts()
+        assert concepts, "No SNOMED-CT data available for ICD-9-CM"
+        return concepts[code]
+
+    @reify
+    def icd10_snomed_supported(self) -> bool:
+        """
+        Is SNOMED-CT supported for ICD-10 codes?
+        """
+        return bool(self.config.get_icd9cm_snomed_concepts())
+
+    def icd10_snomed(self, code: str) -> List[SnomedConcept]:
+        """
+        Fetches a SNOMED-CT concept for an ICD-10 code
+
+        Args:
+            code: an ICD-10 code
+
+        Returns:
+            a :class:`SnomedConcept`
+
+        Raises:
+            :exc:`KeyError`, if the lookup cannot be found (e.g. data not
+                installed)
+        """
+        concepts = self.config.get_icd10_snomed_concepts()
+        assert concepts, "No SNOMED-CT data available for ICD-10"
+        return concepts[code]
 
 
 # noinspection PyUnusedLocal

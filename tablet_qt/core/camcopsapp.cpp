@@ -67,6 +67,8 @@
 #include "dbobjects/patientidnum.h"
 #include "dbobjects/patientsorter.h"
 #include "dbobjects/storedvar.h"
+#include "diagnosis/icd9cm.h"
+#include "diagnosis/icd10.h"
 #include "dialogs/scrollmessagebox.h"
 #include "layouts/layouts.h"
 #include "lib/convert.h"
@@ -246,7 +248,7 @@ QString CamcopsApp::defaultDatabaseDir() const
 bool CamcopsApp::processCommandLineArguments(int& retcode)
 {
     // https://stackoverflow.com/questions/3886105/how-to-print-to-console-when-using-qt
-    // QTextStream out(stdout);
+    QTextStream out(stdout);
     // QTextStream err(stderr);
 
     // const int retcode_fail = 1;
@@ -254,10 +256,18 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
 
     retcode = retcode_success;  // default failure code
 
+    // ------------------------------------------------------------------------
     // Build parser
+    // ------------------------------------------------------------------------
     QCommandLineParser parser;
+
+    // -h, --help
     parser.addHelpOption();
+
+    // -v, --version
     parser.addVersionOption();
+
+    // --dbdir <DBDIR>
     QCommandLineOption dbDirOption(
         "dbdir",  // makes "--dbdir" option
         QString(
@@ -272,23 +282,69 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             convert::stringToCppLiteral(defaultDatabaseDir())
         )
     );
-    dbDirOption.setValueName("DBDIR");
+    dbDirOption.setValueName("DBDIR");  // makes it take a parameter
     parser.addOption(dbDirOption);
 
+    // --print_icd9_codes
+    QCommandLineOption printIcd9Option(
+        "print_icd9_codes",
+        "Print ICD-9-CM (DSM-IV) codes used by CamCOPS, and quit."
+    );
+    // We don't use setValueName(), so it behaves like a flag.
+    parser.addOption(printIcd9Option);
+
+    // --print_icd10_codes
+    const QCommandLineOption printIcd10Option(
+        "print_icd10_codes",
+        "Print ICD-10 codes used by CamCOPS, and quit."
+    );
+    // We don't use setValueName(), so it behaves like a flag.
+    parser.addOption(printIcd10Option);
+
+    // ------------------------------------------------------------------------
     // Process the arguments
+    // ------------------------------------------------------------------------
     parser.process(*this);  // will exit directly upon failure
     // ... could also use parser.process(arguments()), or parser.parse(...)
 
-    // Defaults
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    // ------------------------------------------------------------------------
+    // Defaults from the environment
+    // ------------------------------------------------------------------------
+    const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     m_database_path = env.value(ENVVAR_DB_DIR, defaultDatabaseDir());
 
-    // Apply parsed arguments
-    QString db_dir = parser.value(dbDirOption);
+    // ------------------------------------------------------------------------
+    // Apply parsed arguments (may override environment variable)
+    // ------------------------------------------------------------------------
+    const QString db_dir = parser.value(dbDirOption);
     if (!db_dir.isEmpty()) {
         m_database_path = db_dir;
     }
 
+    // ------------------------------------------------------------------------
+    // Actions that make us do something and quit
+    // ------------------------------------------------------------------------
+    // We need to be sure the diagnostic code sets do not use xstring() and
+    // touch the database; hence the "dummy_creation_no_xstrings" parameter.
+    const bool print_icd9 = parser.isSet(printIcd9Option);
+    if (print_icd9) {
+        const Icd9cm icd9(*this, nullptr, true);
+        // qDebug() << icd9;
+        out << icd9;
+        return false;
+    }
+
+    const bool print_icd10 = parser.isSet(printIcd10Option);
+    if (print_icd10) {
+        const Icd10 icd10(*this, nullptr, true);
+        // qDebug() << icd10;
+        out << icd10;
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+    // Done; proceed to launch CamCOPS
+    // ------------------------------------------------------------------------
     return true;  // happy
 }
 

@@ -79,6 +79,11 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_recipdef import RecipientDefinition
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_report import Report
+from camcops_server.cc_modules.cc_snomed import (
+    SnomedConcept,
+    SnomedExpression,
+    SnomedFocusConcept,
+)
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import DiagnosticCodeColType
 
@@ -273,6 +278,65 @@ class DiagnosisIcd10(DiagnosisBase):
     hl7_coding_system = "I10"
     # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa
 
+    def get_snomed_codes(self, req: CamcopsRequest,
+                         fallback: bool = True) -> List[SnomedExpression]:
+        """
+        Returns all SNOMED-CT codes for this task.
+
+        Args:
+            req: the
+                :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            fallback: for example, if F32.10 is unknown, should we fall back to
+                F32.1?
+
+        Returns:
+            a list of
+            :class:`camcops_server.cc_modules.cc_snomed.SnomedExpression`
+            objects
+        """
+        if not req.icd10_snomed_supported:
+            return []
+        snomed_codes = []  # type: List[SnomedExpression]
+        for item in self.items:
+            concepts = self._get_snomed_concepts(item.code, req, fallback)
+            if not concepts:
+                continue
+            focusconcept = SnomedFocusConcept(concepts)
+            snomed_codes.append(SnomedExpression(focusconcept))
+        return snomed_codes
+
+    @staticmethod
+    def _get_snomed_concepts(icd10_code: str,
+                             req: CamcopsRequest,
+                             fallback: bool = True) -> List[SnomedConcept]:
+        """
+        Internal function to return :class:`SnomedConcept` objects for an
+        ICD-10 code.
+
+        Args:
+            icd10_code: the ICD-10 code
+            req: the
+                :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            fallback: for example, if F32.10 is unknown, should we fall back to
+                F32.1?
+
+        Returns:
+            list: of :class:`SnomedConcept` objects
+
+        """
+        concepts = []  # type: List[SnomedConcept]
+        while icd10_code:
+            try:
+                concepts = req.icd10_snomed(icd10_code)
+            except KeyError:  # no known code
+                pass
+            if concepts or not fallback:
+                return concepts
+            # Now fall back
+            icd10_code = icd10_code[:-1]
+        # Run out of code
+        return concepts
+
 
 # =============================================================================
 # DiagnosisIcd9CM
@@ -306,6 +370,21 @@ class DiagnosisIcd9CM(DiagnosisBase):
     dependent_classes = [DiagnosisIcd9CMItem]
     hl7_coding_system = "I9CM"
     # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa
+
+    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+        if not req.icd9cm_snomed_supported:
+            return []
+        snomed_codes = []  # type: List[SnomedExpression]
+        for item in self.items:
+            try:
+                concepts = req.icd9cm_snomed(item.code)
+            except KeyError:  # no known code
+                continue
+            if not concepts:
+                continue
+            focusconcept = SnomedFocusConcept(concepts)
+            snomed_codes.append(SnomedExpression(focusconcept))
+        return snomed_codes
 
 
 # =============================================================================

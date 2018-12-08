@@ -31,8 +31,10 @@ const QString RANGE_PREFIX("range");  // in string names
 // Main functions
 // ============================================================================
 
-Icd9cm::Icd9cm(CamcopsApp& app) :
-    DiagnosticCodeSet(app, XSTRING_TASKNAME, tr("ICD-9-CM"))
+Icd9cm::Icd9cm(CamcopsApp& app, QObject* parent,
+               bool dummy_creation_no_xstrings) :
+    DiagnosticCodeSet(app, XSTRING_TASKNAME, tr("ICD-9-CM"),
+                      parent, dummy_creation_no_xstrings)
 {
     m_creation_stack.push(DepthItemPair(0, nullptr));  // root: depth 0, no parent
     addIcd9cmCodes(BASE_CODES);

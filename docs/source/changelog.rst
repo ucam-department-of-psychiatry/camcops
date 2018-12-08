@@ -1659,4 +1659,22 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - SNOMED-CT support.
 
-    - **ONGOING**
+  - For copyright reasons, SNOMED-CT codes for tasks held in a separate file
+    and cross-referenced by arbitrary strings (not the codes themselves).
+
+  - For ICD-9-CM and ICD-10 codes,
+
+  - Command-line options for the client to print its ICD diagnostic codes.
+    These are then added to the server, hugely reducing the number of codes
+    we need to cache (e.g. ICD-9-CM: from 7,911 to 573; ICD-10: from 199,611 to
+    3,318).
+
+    - Internal design note: creating a DiagnosticCodeSet requires xstrings
+      from the CamcopsApp for its descriptions. Options are therefore (1) defer
+      code printing until the database is open (but that means security checks
+      required!); (2) have all calls to CamcopsApp::xstring() return blanks
+      until the database is open (but then an overhead for everything); (3)
+      have DiagnosticCodeSet not ask for xstrings if it's being created in "no
+      xstring" mode. Went with (3).
+
+  - **ONGOING**

@@ -125,7 +125,7 @@ from camcops_server.cc_modules.cc_request import (
     command_line_request_context,
     pyramid_configurator_context,
 )  # nopep8
-from camcops_server.cc_modules.cc_snomed import get_all_snomed_concepts  # nopep8
+from camcops_server.cc_modules.cc_snomed import send_athena_icd_snomed_to_xml  # nopep8
 from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl  # nopep8
 from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # nopep8
 from camcops_server.cc_modules.cc_task import Task  # nopep8
@@ -211,8 +211,9 @@ def precache() -> None:
     config_filename = get_config_filename_from_os_env()
     config = get_default_config_from_os_env()
     _ = all_extra_strings_as_dicts(config_filename)
-    if config.snomed_xml_filename:
-        _ = get_all_snomed_concepts(config.snomed_xml_filename)
+    _ = config.get_task_snomed_concepts()
+    _ = config.get_icd9cm_snomed_concepts()
+    _ = config.get_icd10_snomed_concepts()
 
 
 # =============================================================================
@@ -1515,6 +1516,39 @@ def camcops_main() -> None:
         timeout_s=args.timeout,
         debug_show_gunicorn_options=args.debug_show_gunicorn_options,
     ))
+
+    # Preprocessing options
+
+    athena_icd_snomed_to_xml_parser = add_sub(
+        subparsers, "convert_athena_icd_snomed_to_xml",
+        help="Fetch SNOMED-CT codes for ICD-9-CM and ICD-10 from the Athena "
+             "OHDSI data set (http://athena.ohdsi.org/) and write them to "
+             "the CamCOPS XML format"
+    )
+    athena_icd_snomed_to_xml_parser.add_argument(
+        "--athena_concept_tsv_filename", type=str, required=True,
+        help="Path to CONCEPT.csv file from Athena download"
+    )
+    athena_icd_snomed_to_xml_parser.add_argument(
+        "--athena_concept_relationship_tsv_filename", type=str, required=True,
+        help="Path to CONCEPT_RELATIONSHIP.csv file from Athena download"
+    )
+    athena_icd_snomed_to_xml_parser.add_argument(
+        "--icd9_xml_filename", type=str, required=True,
+        help="Filename of ICD-9-CM/SNOMED-CT XML file to write"
+    )
+    athena_icd_snomed_to_xml_parser.add_argument(
+        "--icd10_xml_filename", type=str, required=True,
+        help="Filename of ICD-10/SNOMED-CT XML file to write"
+    )
+    athena_icd_snomed_to_xml_parser.set_defaults(
+        func=lambda args: send_athena_icd_snomed_to_xml(
+            athena_concept_tsv_filename=args.athena_concept_tsv_filename,
+            athena_concept_relationship_tsv_filename=args.athena_concept_relationship_tsv_filename,  # noqa
+            icd9_xml_filename=args.icd9_xml_filename,
+            icd10_xml_filename=args.icd10_xml_filename,
+        )
+    )
 
     # -------------------------------------------------------------------------
     # OK; parser built; now parse the arguments

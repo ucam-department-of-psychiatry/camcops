@@ -30,7 +30,8 @@ class DiagnosticCodeSet : public QAbstractItemModel
     Q_OBJECT
 public:
     DiagnosticCodeSet(CamcopsApp& app, const QString& setname,
-                      const QString& title, QObject* parent = nullptr);
+                      const QString& title, QObject* parent = nullptr,
+                      bool dummy_creation_no_xstrings = false);
     ~DiagnosticCodeSet() override;
 
     QVariant data(const QModelIndex& index, int role) const override;
@@ -60,7 +61,9 @@ protected:
     QString m_setname;  // for xstring
     QString m_title;  // cosmetic
     DiagnosticCode* m_root_item;
+    bool m_dummy_creation_no_xstrings;
 
 public:
     friend QDebug operator<<(QDebug debug, const DiagnosticCodeSet& d);
+    friend QTextStream& operator<<(QTextStream& stream, const DiagnosticCodeSet& d);
 };

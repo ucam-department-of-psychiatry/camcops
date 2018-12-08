@@ -25,12 +25,15 @@ const QString BAD_STRING("[bad_string]");
 
 DiagnosticCodeSet::DiagnosticCodeSet(CamcopsApp& app,
                                      const QString& setname,
-                                     const QString& title,  QObject* parent) :
+                                     const QString& title,
+                                     QObject* parent,
+                                     bool dummy_creation_no_xstrings) :
     QAbstractItemModel(parent),
     m_app(app),
     m_setname(setname),
     m_title(title),
-    m_root_item(nullptr)
+    m_root_item(nullptr),
+    m_dummy_creation_no_xstrings(dummy_creation_no_xstrings)
 {
     m_root_item = new DiagnosticCode("", "", nullptr, 0, false, false);
 }
@@ -197,6 +200,16 @@ QDebug operator<<(QDebug debug, const DiagnosticCodeSet& d)
 }
 
 
+QTextStream& operator<<(QTextStream& stream, const DiagnosticCodeSet& d)
+{
+    // For output to stdout from the console app.
+    if (d.m_root_item) {
+        stream << *d.m_root_item;  // will recurse
+    }
+    return stream;
+}
+
+
 QString DiagnosticCodeSet::xstringTaskname() const
 {
     return m_setname;
@@ -205,6 +218,9 @@ QString DiagnosticCodeSet::xstringTaskname() const
 
 QString DiagnosticCodeSet::xstring(const QString& stringname)
 {
+    if (m_dummy_creation_no_xstrings) {
+        return "";
+    }
     return m_app.xstring(m_setname, stringname);
 }
 

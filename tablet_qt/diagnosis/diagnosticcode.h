@@ -78,4 +78,5 @@ protected:
 
 public:
     friend QDebug operator<<(QDebug debug, const DiagnosticCode& dc);
+    friend QTextStream& operator<<(QTextStream& stream, const DiagnosticCode& dc);
 };

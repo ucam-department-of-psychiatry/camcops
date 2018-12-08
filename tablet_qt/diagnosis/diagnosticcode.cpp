@@ -159,9 +159,22 @@ QDebug operator<<(QDebug debug, const DiagnosticCode& dc)
             << dc.code()
             << " (" << dc.description()
             << ") [depth " << dc.depth()
-            << "]\n";
+            << "] " << (dc.selectable() ? "selectable" : "not selectable")
+            << "\n";
     for (auto c : dc.m_children) {
         debug << *c;
     }
     return debug;
+}
+
+
+QTextStream& operator<<(QTextStream& stream, const DiagnosticCode& dc)
+{
+    if (dc.selectable()) {
+        stream << dc.code() << endl;
+    }
+    for (auto c : dc.m_children) {
+        stream << *c;
+    }
+    return stream;
 }

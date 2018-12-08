@@ -41,7 +41,7 @@ import contextlib
 import datetime
 import os
 import logging
-from typing import Generator, List
+from typing import Dict, Generator, List
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -99,6 +99,12 @@ from .cc_exception import raise_runtime_error
 from .cc_filename import FilenameSpecElement, PatientSpecElementForFilename
 from .cc_pyramid import MASTER_ROUTE_CLIENT_API
 from .cc_recipdef import ConfigParamRecipient, RecipientDefinition
+from .cc_snomed import (
+    get_all_task_snomed_concepts,
+    get_icd9_snomed_concepts_from_xml,
+    get_icd10_snomed_concepts_from_xml,
+    SnomedConcept,
+)
 from .cc_version_string import CAMCOPS_SERVER_VERSION_STRING
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -140,8 +146,9 @@ class ConfigParamMain(object):
     PATIENT_SPEC_IF_ANONYMOUS = "PATIENT_SPEC_IF_ANONYMOUS"
     SESSION_COOKIE_SECRET = "SESSION_COOKIE_SECRET"
     SESSION_TIMEOUT_MINUTES = "SESSION_TIMEOUT_MINUTES"
-    SNOMED_XML_FILENAME = "SNOMED_XML_FILENAME"
-    SUMMARY_TABLES_LOCKFILE = "SUMMARY_TABLES_LOCKFILE"
+    SNOMED_TASK_XML_FILENAME = "SNOMED_TASK_XML_FILENAME"
+    SNOMED_ICD9_XML_FILENAME = "SNOMED_ICD9_XML_FILENAME"
+    SNOMED_ICD10_XML_FILENAME = "SNOMED_ICD10_XML_FILENAME"
     TASK_FILENAME_SPEC = "TASK_FILENAME_SPEC"
     TRACKER_FILENAME_SPEC = "TRACKER_FILENAME_SPEC"
     WEBVIEW_LOGLEVEL = "WEBVIEW_LOGLEVEL"
@@ -207,6 +214,8 @@ def get_demo_config(extra_strings_dir: str = None,
 # Database connection/tools
 # -----------------------------------------------------------------------------
 
+{cp.DB_URL} = {db_url}
+
     # {cp.DB_URL}:
     #       SQLAlchemy connection URL.
     #
@@ -227,12 +236,10 @@ def get_demo_config(extra_strings_dir: str = None,
     # - ... or via Windows authentication:
     #   DB_URL = mssql+pyodbc://@<odbc_dsn_name>
 
-{cp.DB_URL} = {db_url}
+{cp.DB_ECHO} = {db_echo}
 
     # {cp.DB_ECHO}:
     # echo all SQL?
-
-{cp.DB_ECHO} = {db_echo}
 
 # -----------------------------------------------------------------------------
 # URLs and paths
@@ -260,13 +267,15 @@ def get_demo_config(extra_strings_dir: str = None,
     # (2), (3). We will follow others (e.g. 
     # http://stackoverflow.com/questions/2005079) and use only relative URLs.
 
+{cp.LOCAL_INSTITUTION_URL} = {DUMMY_INSTITUTION_URL}
+
     # {cp.LOCAL_INSTITUTION_URL}:
     # Clicking on your institution's logo in the CamCOPS menu will take you to 
     # this URL.
     #
-    # Edit the next line to point to your institution:
+    # Edit this to point to your institution:
 
-{cp.LOCAL_INSTITUTION_URL} = {DUMMY_INSTITUTION_URL}
+{cp.LOCAL_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_local.png
 
     # {cp.LOCAL_LOGO_FILE_ABSOLUTE}:
     # Specify the full path to your institution's logo file, e.g.
@@ -275,12 +284,12 @@ def get_demo_config(extra_strings_dir: str = None,
     # file via the Apache configuration file).
     # Edit the next line to point to your local institution's logo file:
 
-{cp.LOCAL_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_local.png
+# {cp.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
 
     # {cp.CAMCOPS_LOGO_FILE_ABSOLUTE}:
     # similarly, but for the CamCOPS logo. It's fine not to specify this.
 
-# {cp.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
+{cp.EXTRA_STRING_FILES} = {extra_strings_spec}
 
     # {cp.EXTRA_STRING_FILES}:
     # multiline list of filenames (with absolute paths), read by the server, 
@@ -288,14 +297,26 @@ def get_demo_config(extra_strings_dir: str = None,
     # file camcops.xml. May use "glob" pattern-matching (see
     # https://docs.python.org/3.5/library/glob.html).
 
-{cp.EXTRA_STRING_FILES} = {extra_strings_spec}
+{cp.SNOMED_TASK_XML_FILENAME} =
 
-    # {cp.SNOMED_XML_FILENAME}:
-    # Filename of special XML file containing SNOMED-CT codes used by CamCOPS.
-    # This file is OK to use in the UK, but not necessarily elsewhere. See the
-    # SNOMED-CT licensing terms.
+    # {cp.SNOMED_TASK_XML_FILENAME}:
+    # Filename of special XML file containing SNOMED-CT codes used by CamCOPS
+    # tasks. This file is OK to use in the UK, but not necessarily elsewhere.
+    # See the SNOMED-CT licensing terms.
     
-{cp.SNOMED_XML_FILENAME} =
+{cp.SNOMED_ICD10_XML_FILENAME} = 
+
+    # {cp.SNOMED_ICD10_XML_FILENAME}:
+    # Name of XML file mapping ICD-10[-CM] codes to SNOMED-CT.
+    # Created by "camcops_server convert_athena_icd_snomed_to_xml"; q.v.
+
+{cp.SNOMED_ICD9_XML_FILENAME} =
+
+    # {cp.SNOMED_ICD9_XML_FILENAME}:
+    # Name of XML file mapping ICD-9-CM codes to SNOMED-CT.
+    # Created by "camcops_server convert_athena_icd_snomed_to_xml"; q.v.
+    
+{cp.HL7_LOCKFILE} = {hl7_lockfile_stem}
 
     # {cp.HL7_LOCKFILE}:
     # filename stem used for process locking for HL7 message transmission.
@@ -307,19 +328,7 @@ def get_demo_config(extra_strings_dir: str = None,
     # do so). The installation script will create the directory
     #     {lock_dir}
 
-{cp.HL7_LOCKFILE} = {hl7_lockfile_stem}
-
-    # {cp.SUMMARY_TABLES_LOCKFILE}:
-    # file stem used for process locking for summary table generation. Default 
-    # is {summary_table_lock_file_stem}.
-    # The lockfile will, in this case, be called
-    #     {summary_table_lock_file_stem}.lock
-    # and other process-specific files will be created in the same directory 
-    # (so the CamCOPS script must have permission from the operating system to 
-    # do so). The installation script will create the directory
-    #     {lock_dir}
-
-{cp.SUMMARY_TABLES_LOCKFILE} = {summary_table_lock_file_stem}
+{cp.WKHTMLTOPDF_FILENAME} =
 
     # {cp.WKHTMLTOPDF_FILENAME}:
     # for the pdfkit PDF engine, specify a filename for wkhtmltopdf that 
@@ -329,23 +338,23 @@ def get_demo_config(extra_strings_dir: str = None,
     # default. Default is None, which usually ends up calling
     # /usr/bin/wkhtmltopdf
 
-{cp.WKHTMLTOPDF_FILENAME} =
-
 # -----------------------------------------------------------------------------
 # Login and session configuration
 # -----------------------------------------------------------------------------
+
+{cp.SESSION_COOKIE_SECRET} = camcops_autogenerated_secret_{session_cookie_secret}
 
     # {cp.SESSION_COOKIE_SECRET}: 
     # Secret used for HTTP cookie signing via Pyramid. Put something random in 
     # here and keep it secret. (When you make a CamCOPS demo config, the value 
     # shown is fresh and random.)
 
-{cp.SESSION_COOKIE_SECRET} = camcops_autogenerated_secret_{session_cookie_secret}
+{cp.SESSION_TIMEOUT_MINUTES} = 30
 
     # {cp.SESSION_TIMEOUT_MINUTES}:
     # Time after which a session will expire (default 30).
 
-{cp.SESSION_TIMEOUT_MINUTES} = 30
+{cp.PASSWORD_CHANGE_FREQUENCY_DAYS} = 0
 
     # {cp.PASSWORD_CHANGE_FREQUENCY_DAYS}:
     # Force password changes (at webview login) with this frequency (0 for
@@ -353,12 +362,12 @@ def get_demo_config(extra_strings_dir: str = None,
     # but when the user next logs on, a password change will be forced before
     # they can do anything else.
 
-{cp.PASSWORD_CHANGE_FREQUENCY_DAYS} = 0
+{cp.LOCKOUT_THRESHOLD} = 10
 
     # {cp.LOCKOUT_THRESHOLD}:
     # Lock user accounts after every n login failures (default 10).
 
-{cp.LOCKOUT_THRESHOLD} = 10
+{cp.LOCKOUT_DURATION_INCREMENT_MINUTES} = 10
 
     # {cp.LOCKOUT_DURATION_INCREMENT_MINUTES}:
     # Account lockout time increment (default 10).
@@ -370,7 +379,7 @@ def get_demo_config(extra_strings_dir: str = None,
     # After the next 10 failures, the account will be locked for 60 minutes, and so
     # on. Time and administrators can unlock accounts.
 
-{cp.LOCKOUT_DURATION_INCREMENT_MINUTES} = 10
+{cp.DISABLE_PASSWORD_AUTOCOMPLETE} = true
 
     # {cp.DISABLE_PASSWORD_AUTOCOMPLETE}:
     # if true, asks browsers not to autocomplete the password field on the main 
@@ -379,18 +388,18 @@ def get_demo_config(extra_strings_dir: str = None,
     # better/unique passwords). Default: true.
     # Note that some browsers (e.g. Chrome v34 and up) may ignore this.
 
-{cp.DISABLE_PASSWORD_AUTOCOMPLETE} = true
-
 # -----------------------------------------------------------------------------
 # Suggested filenames for saving PDFs from the web view
 # -----------------------------------------------------------------------------
     # Try with Chrome, Firefox. Internet Explorer may be less obliging.
 
+{cp.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
+
     # {cp.PATIENT_SPEC_IF_ANONYMOUS}:
     # for anonymous tasks, this fixed string is used as the patient descriptor 
     # (see also {cp.PATIENT_SPEC} below). Typically "anonymous".
 
-{cp.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
+{cp.PATIENT_SPEC} = {{{pse.SURNAME}}}_{{{pse.FORENAME}}}_{{{pse.ALLIDNUMS}}}
 
     # {cp.PATIENT_SPEC}:
     # string, into which substitutions will be made, that defines the
@@ -426,7 +435,9 @@ def get_demo_config(extra_strings_dir: str = None,
     #       would have the format
     #       {pse.IDSHORTDESC_PREFIX}1-{pse.IDNUM_PREFIX}1_{pse.IDSHORTDESC_PREFIX}4-{pse.IDNUM_PREFIX}4_{pse.IDSHORTDESC_PREFIX}5-{pse.IDNUM_PREFIX}5
 
-{cp.PATIENT_SPEC} = {{{pse.SURNAME}}}_{{{pse.FORENAME}}}_{{{pse.ALLIDNUMS}}}
+{cp.TASK_FILENAME_SPEC} = CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
+{cp.TRACKER_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_tracker.{{filetype}}
+{cp.CTV_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_clinicaltextview.{{filetype}}
 
     # {cp.TASK_FILENAME_SPEC}:
     # {cp.TRACKER_FILENAME_SPEC}:
@@ -480,33 +491,29 @@ def get_demo_config(extra_strings_dir: str = None,
     #     operating-system-specific directory separator (Python's os.sep, a 
     #     forward slash '/' on UNIX or a backslash '\' under Windows).
 
-{cp.TASK_FILENAME_SPEC} = CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
-{cp.TRACKER_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_tracker.{{filetype}}
-{cp.CTV_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_clinicaltextview.{{filetype}}
-
 # -----------------------------------------------------------------------------
 # Debugging options
 # -----------------------------------------------------------------------------
     # Possible log levels are (case-insensitive): "debug", "info", "warn"
     # (equivalent: "warning"), "error", and "critical" (equivalent: "fatal").
 
+{cp.WEBVIEW_LOGLEVEL} = info
+
     # {cp.WEBVIEW_LOGLEVEL}:
     # Set the level of detail provided from the webview to the Apache server 
     # log. (Loglevel option; see above.)
 
-{cp.WEBVIEW_LOGLEVEL} = info
+{cp.CLIENT_API_LOGLEVEL} = info
 
     # {cp.CLIENT_API_LOGLEVEL}:
     # Set the log level for the tablet client database access script. 
     # (Loglevel option; see above.)
 
-{cp.CLIENT_API_LOGLEVEL} = info
+{cp.ALLOW_INSECURE_COOKIES} = false
 
     # {cp.ALLOW_INSECURE_COOKIES}:
     # DANGEROUS option that removes the requirement that cookies be HTTPS (SSL) 
     # only.
-
-{cp.ALLOW_INSECURE_COOKIES} = false
 
 # =============================================================================
 # List of HL7/file recipients, and then details for each one
@@ -548,6 +555,8 @@ def get_demo_config(extra_strings_dir: str = None,
 
 [recipient_A]
 
+{cpr.TYPE} = hl7
+
     # {cpr.TYPE}:
     # One of the following methods:
     #
@@ -556,11 +565,11 @@ def get_demo_config(extra_strings_dir: str = None,
     #   file
     #       Writes files to a local filesystem.
 
-{cpr.TYPE} = hl7
-
 # -----------------------------------------------------------------------------
 # Options applicable to HL7 messages and file transfers
 # -----------------------------------------------------------------------------
+
+{cpr.GROUP_ID} = 1
 
     # {cpr.GROUP_ID}:
     # CamCOPS group to export from.
@@ -569,14 +578,14 @@ def get_demo_config(extra_strings_dir: str = None,
     # definition to export a second or subsequent group.)
     # This is an integer.
 
-{cpr.GROUP_ID} = 1
+{cpr.PRIMARY_IDNUM} = 1
 
     # {cpr.PRIMARY_IDNUM}:
     # Which ID number (1-8) should be considered the "internal" (primary) ID 
     # number? Must be specified for HL7 messages. May be blank for file 
     # transmission.
 
-{cpr.PRIMARY_IDNUM} = 1
+{cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY} = true
 
     # {cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY}:
     # Defines behaviour relating to the primary ID number (as defined by 
@@ -592,7 +601,7 @@ def get_demo_config(extra_strings_dir: str = None,
     # - For file sending only, this setting does not apply to anonymous tasks,
     #   whose behaviour is controlled by {cpr.INCLUDE_ANONYMOUS} (see below).
 
-{cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY} = true
+{cpr.START_DATE} =
 
     # {cpr.START_DATE}:
     # earliest date for which tasks will be sent. Assessed against the task's 
@@ -600,14 +609,14 @@ def get_demo_config(extra_strings_dir: str = None,
     # that is, this date is in UTC (beware if you are in a very different time
     # zone). Blank to apply no start date restriction.
 
-{cpr.START_DATE} =
+{cpr.END_DATE} =
 
     # {cpr.END_DATE}:
     # latest date for which tasks will be sent. In UTC. Assessed against
     # the task's "when_created" field (converted to UTC). Blank to apply no end
     # date restriction.
 
-{cpr.END_DATE} =
+{cpr.FINALIZED_ONLY} = true
 
     # {cpr.FINALIZED_ONLY}:
     # if true, only send tasks that are finalized (moved off their originating 
@@ -615,12 +624,12 @@ def get_demo_config(extra_strings_dir: str = None,
     # tasks that are uploaded but not yet finalized (they will then be sent
     # again if they are modified later).
 
-{cpr.FINALIZED_ONLY} = true
+{cpr.TASK_FORMAT} = pdf
 
     # {cpr.TASK_FORMAT}:
     # one of: pdf, html, xml
 
-{cpr.TASK_FORMAT} = pdf
+{cpr.XML_FIELD_COMMENTS} = true
 
     # {cpr.XML_FIELD_COMMENTS}:
     # if {cpr.TASK_FORMAT} is xml, then {cpr.XML_FIELD_COMMENTS} determines
@@ -628,46 +637,46 @@ def get_demo_config(extra_strings_dir: str = None,
     # field, so they take space but they provide more information for 
     # human readers. (Default true.)
 
-{cpr.XML_FIELD_COMMENTS} = true
-
 # -----------------------------------------------------------------------------
 # Options applicable to HL7 only ({cpr.TYPE} = hl7)
 # -----------------------------------------------------------------------------
 
+{cpr.HOST} = myhl7server.mydomain
+
     # {cpr.HOST}:
     # HL7 hostname or IP address
 
-{cpr.HOST} = myhl7server.mydomain
+{cpr.PORT} = 2575
 
     # {cpr.PORT}:
     # HL7 port (default 2575)
 
-{cpr.PORT} = 2575
+{cpr.PING_FIRST} = true
 
     # {cpr.PING_FIRST}:
     # if true, requires a successful ping to the server prior to
     # sending HL7 messages. (Note: this is a TCP/IP ping, and tests that the
     # machine is up, not that it is running an HL7 server.) Default: true.
 
-{cpr.PING_FIRST} = true
+{cpr.NETWORK_TIMEOUT_MS} = 10000
 
     # {cpr.NETWORK_TIMEOUT_MS}:
     # network time (in milliseconds). Default: 10000.
 
-{cpr.NETWORK_TIMEOUT_MS} = 10000
+{cpr.KEEP_MESSAGE} = false
 
     # {cpr.KEEP_MESSAGE}:
     # keep a copy of the entire message in the databaase. Default is
     # false. WARNING: may consume significant space in the database.
 
-{cpr.KEEP_MESSAGE} = false
+{cpr.KEEP_REPLY} = false
 
     # {cpr.KEEP_REPLY}:
     # keep a copy of the reply (e.g. acknowledgement) message 
     # received from the server. Default is false. WARNING: may consume 
     # significant space.
 
-{cpr.KEEP_REPLY} = false
+{cpr.DIVERT_TO_FILE} =
 
     # {cpr.DIVERT_TO_FILE}:
     # Override HOST/PORT options and send HL7 messages to this (single) file 
@@ -675,7 +684,7 @@ def get_demo_config(extra_strings_dir: str = None,
     # network transmission will be used). This is a debugging option, allowing 
     # you to redirect HL7 messages to a file and inspect them.
 
-{cpr.DIVERT_TO_FILE} =
+{cpr.TREAT_DIVERTED_AS_SENT} = false
 
     # {cpr.TREAT_DIVERTED_AS_SENT}:
     # Any messages that are diverted to a file (using {cpr.DIVERT_TO_FILE}) 
@@ -687,11 +696,11 @@ def get_demo_config(extra_strings_dir: str = None,
     # minute) and you divert with this flag set to false, you will end up with
     # a great many message attempts!
 
-{cpr.TREAT_DIVERTED_AS_SENT} = false
-
 # -----------------------------------------------------------------------------
 # Options applicable to file transfers only (TYPE = file)
 # -----------------------------------------------------------------------------
+
+{cpr.INCLUDE_ANONYMOUS} = true
 
     # {cpr.INCLUDE_ANONYMOUS}:
     # include anonymous tasks.
@@ -700,14 +709,14 @@ def get_demo_config(extra_strings_dir: str = None,
     # - Note also that this setting operates independently of the
     #   {cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY} setting.
 
-{cpr.INCLUDE_ANONYMOUS} = true
+{cpr.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
 
     # {cpr.PATIENT_SPEC_IF_ANONYMOUS}:
     # for anonymous tasks, this string is used as the patient descriptor (see
     # also {cpr.PATIENT_SPEC}, {cpr.FILENAME_SPEC} below). Typically
     # "anonymous".
 
-{cpr.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
+{cpr.PATIENT_SPEC} = {{surname}}_{{forename}}_{{idshortdesc1}}{{idnum1}}
 
     # {cpr.PATIENT_SPEC}:
     # string, into which substitutions will be made, that defines the
@@ -716,7 +725,7 @@ def get_demo_config(extra_strings_dir: str = None,
     # {cpr.PATIENT_SPEC} in the main "[{CONFIG_FILE_MAIN_SECTION}]" section of
     # the configuration file (see above).
 
-{cpr.PATIENT_SPEC} = {{surname}}_{{forename}}_{{idshortdesc1}}{{idnum1}}
+{cpr.FILENAME_SPEC} = /my_nfs_mount/mypath/CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
 
     # {cpr.FILENAME_SPEC}:
     # string into which substitutions will be made to determine the filename to
@@ -724,12 +733,12 @@ def get_demo_config(extra_strings_dir: str = None,
     # in the main "[{CONFIG_FILE_MAIN_SECTION}]" section of the configuration
     # file (see above).
 
-{cpr.FILENAME_SPEC} = /my_nfs_mount/mypath/CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
+{cpr.MAKE_DIRECTORY} = true
 
     # {cpr.MAKE_DIRECTORY}:
     # make the directory if it doesn't already exist. Default is false.
 
-{cpr.MAKE_DIRECTORY} = true
+{cpr.OVERWRITE_FILES} = false
 
     # {cpr.OVERWRITE_FILES}:
     # whether or not to attempt overwriting existing files of the same name
@@ -738,7 +747,10 @@ def get_demo_config(extra_strings_dir: str = None,
     # are not task-unique; try ensuring that both the {{tasktype}} and
     # {{serverpk}} attributes are used in the filename.)
 
-{cpr.OVERWRITE_FILES} = false
+{cpr.RIO_METADATA} = false
+{cpr.RIO_IDNUM} = 2
+{cpr.RIO_UPLOADING_USER} = CamCOPS
+{cpr.RIO_DOCUMENT_TYPE} = CC
 
     # {cpr.RIO_METADATA}:
     # whether or not to export a metadata file for Servelec's RiO (default
@@ -762,10 +774,7 @@ def get_demo_config(extra_strings_dir: str = None,
     #       want a code that maps to "Clinical Correspondence", but the code
     #       will be defined within the local RiO system configuration.
 
-{cpr.RIO_METADATA} = false
-{cpr.RIO_IDNUM} = 2
-{cpr.RIO_UPLOADING_USER} = CamCOPS
-{cpr.RIO_DOCUMENT_TYPE} = CC
+{cpr.SCRIPT_AFTER_FILE_EXPORT} =
 
     # {cpr.SCRIPT_AFTER_FILE_EXPORT}:
     # filename of a shell script or other executable to run after file export
@@ -797,8 +806,6 @@ def get_demo_config(extra_strings_dir: str = None,
     #   ... then you could set:
     #
     #       {cpr.SCRIPT_AFTER_FILE_EXPORT} = /usr/local/bin/print_arguments
-
-{cpr.SCRIPT_AFTER_FILE_EXPORT} =
 
     """.format(  # noqa
         cp=ConfigParamMain,
@@ -1397,10 +1404,13 @@ class CamcopsConfig(object):
             config, section, cp.SESSION_COOKIE_SECRET, str, None)
         self.session_timeout = datetime.timedelta(
             minutes=session_timeout_minutes)
-        self.snomed_xml_filename = get_config_parameter(
-            config, section, cp.SNOMED_XML_FILENAME, str, None)
-        self.summary_tables_lockfile = get_config_parameter(
-            config, section, cp.SUMMARY_TABLES_LOCKFILE, str, None)
+        self.snomed_task_xml_filename = get_config_parameter(
+            config, section, cp.SNOMED_TASK_XML_FILENAME, str, None)
+        self.snomed_icd9_xml_filename = get_config_parameter(
+            config, section, cp.SNOMED_ICD9_XML_FILENAME, str, None)
+        self.snomed_icd10_xml_filename = get_config_parameter(
+            config, section, cp.SNOMED_ICD10_XML_FILENAME,
+            str, None)
 
         self.task_filename_spec = get_config_parameter(
             config, section, cp.TASK_FILENAME_SPEC, str, None)
@@ -1462,6 +1472,10 @@ class CamcopsConfig(object):
         # Other attributes
         # ---------------------------------------------------------------------
         self._sqla_engine = None
+
+    # -------------------------------------------------------------------------
+    # Database functions
+    # -------------------------------------------------------------------------
 
     def get_sqla_engine(self) -> Engine:
         """
@@ -1579,6 +1593,45 @@ class CamcopsConfig(object):
         """
         self._assert_valid_database_engine()
         self._assert_database_is_at_head()
+
+    # -------------------------------------------------------------------------
+    # SNOMED-CT functions
+    # -------------------------------------------------------------------------
+
+    def get_task_snomed_concepts(self) -> Dict[str, SnomedConcept]:
+        """
+        Returns all SNOMED-CT concepts for tasks.
+
+        Returns:
+            dict: maps lookup strings to :class:`SnomedConcept` objects
+        """
+        if not self.snomed_task_xml_filename:
+            return {}
+        return get_all_task_snomed_concepts(self.snomed_task_xml_filename)
+
+    def get_icd9cm_snomed_concepts(self) -> Dict[str, List[SnomedConcept]]:
+        """
+        Returns all SNOMED-CT concepts for ICD-9-CM codes supported by CamCOPS.
+
+        Returns:
+            dict: maps ICD-9-CM codes to :class:`SnomedConcept` objects
+        """
+        if not self.snomed_icd9_xml_filename:
+            return {}
+        return get_icd9_snomed_concepts_from_xml(self.snomed_icd9_xml_filename)
+
+    def get_icd10_snomed_concepts(self) -> Dict[str, List[SnomedConcept]]:
+        """
+        Returns all SNOMED-CT concepts for ICD-10-CM codes supported by
+        CamCOPS.
+
+        Returns:
+            dict: maps ICD-10 codes to :class:`SnomedConcept` objects
+        """
+        if not self.snomed_icd10_xml_filename:
+            return {}
+        return get_icd10_snomed_concepts_from_xml(
+            self.snomed_icd10_xml_filename)
 
 
 # =============================================================================

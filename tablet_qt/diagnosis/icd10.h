@@ -31,7 +31,8 @@ class Icd10 : public DiagnosticCodeSet
     Q_OBJECT
 
 public:
-    Icd10(CamcopsApp& app, QObject* parent = nullptr);
+    Icd10(CamcopsApp& app, QObject* parent = nullptr,
+          bool dummy_creation_no_xstrings = false);
 
     using CodeDescriptionPair = QPair<QString, QString>;
     using DepthItemPair = QPair<int, DiagnosticCode*>;
