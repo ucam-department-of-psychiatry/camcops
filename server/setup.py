@@ -105,7 +105,7 @@ INSTALL_REQUIRES = [
     # # ... but adds dependency on C and mysql.h ***
     'numpy==1.14.5',  # Used by some tasks. SLOW INSTALLATION.
     'paginate==0.5.6',  # pagination for web server
-    'pendulum==2.0.2',  # better than Arrow
+    'pendulum==2.0.4',  # better than Arrow
     'pexpect==4.6.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt; now works under Windows too  # noqa
