@@ -800,21 +800,22 @@ class MLLPTimeoutClient(object):
 # Main functions
 # =============================================================================
 
-def send_all_pending_hl7_messages(cfg: CamcopsConfig,
-                                  show_queue_only: bool = False) -> None:
+def send_all_pending_incremental_export_messages(
+        cfg: CamcopsConfig,
+        show_queue_only: bool = False) -> None:
     """
-    Sends all pending HL7 or file messages.
+    Sends all pending incremental export (e.g. HL7, file) messages.
 
     Obtains a file lock, then iterates through all recipients.
     """
     queue_stdout = sys.stdout
-    if not cfg.hl7_lockfile:
+    if not cfg.export_lockfile:
         log.error("send_all_pending_hl7_messages: No HL7_LOCKFILE specified"
                   " in config; can't proceed")
         return
     # On UNIX, lockfile uses LinkLockFile
     # https://github.com/smontanaro/pylockfile/blob/master/lockfile/linklockfile.py  # noqa
-    lock = lockfile.FileLock(cfg.hl7_lockfile)
+    lock = lockfile.FileLock(cfg.export_lockfile)
     if lock.is_locked():
         log.warning("send_all_pending_hl7_messages: locked by another"
                     " process; aborting")
@@ -823,15 +824,16 @@ def send_all_pending_hl7_messages(cfg: CamcopsConfig,
         with cfg.get_dbsession_context() as dbsession:
             if show_queue_only:
                 print("recipient,basetable,_pk,when_created", file=queue_stdout)
-            for recipient_def in cfg.hl7_recipient_defs:
-                send_pending_hl7_messages(dbsession, recipient_def,
-                                          show_queue_only, queue_stdout)
+            for recipient_def in cfg.export_recipient_defs:
+                send_pending_incremental_export_messages(dbsession, recipient_def,
+                                                         show_queue_only, queue_stdout)
 
 
-def send_pending_hl7_messages(req: CamcopsRequest,
-                              recipient_def: RecipientDefinition,
-                              show_queue_only: bool,
-                              queue_stdout: TextIO) -> None:
+def send_pending_incremental_export_messages(
+        req: CamcopsRequest,
+        recipient_def: RecipientDefinition,
+        show_queue_only: bool,
+        queue_stdout: TextIO) -> None:
     """
     Pings recipient if necessary, opens any files required, creates an
     HL7Run, then sends all pending HL7/file messages to a specific

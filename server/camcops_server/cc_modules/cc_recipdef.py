@@ -88,7 +88,7 @@ class ConfigParamRecipient(object):
     FILENAME_SPEC = "FILENAME_SPEC"
     FINALIZED_ONLY = "FINALIZED_ONLY"
     GROUP_ID = "GROUP_ID"
-    HOST = "HOST"
+    HL7_HOST = "HL7_HOST"
     IDNUM_AA_PREFIX = "IDNUM_AA_"  # unusual
     IDNUM_TYPE_PREFIX = "IDNUM_TYPE_"  # unusual
     INCLUDE_ANONYMOUS = "INCLUDE_ANONYMOUS"
@@ -100,7 +100,7 @@ class ConfigParamRecipient(object):
     PATIENT_SPEC = "PATIENT_SPEC"
     PATIENT_SPEC_IF_ANONYMOUS = "PATIENT_SPEC_IF_ANONYMOUS"
     PING_FIRST = "PING_FIRST"
-    PORT = "PORT"
+    HL7_PORT = "HL7_PORT"
     PRIMARY_IDNUM = "PRIMARY_IDNUM"
     REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = "REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY"  # noqa
     RIO_DOCUMENT_TYPE = "RIO_DOCUMENT_TYPE"
@@ -238,9 +238,9 @@ class RecipientDefinition(object):
             # HL7
             if self.using_hl7():
                 self.host = get_config_parameter(
-                    config, section, cpr.HOST, str, None)
+                    config, section, cpr.HL7_HOST, str, None)
                 self.port = get_config_parameter(
-                    config, section, cpr.PORT, int, DEFAULT_HL7_PORT)
+                    config, section, cpr.HL7_PORT, int, DEFAULT_HL7_PORT)
                 self.ping_first = get_config_parameter_boolean(
                     config, section, cpr.PING_FIRST, True)
                 self.network_timeout_ms = get_config_parameter(

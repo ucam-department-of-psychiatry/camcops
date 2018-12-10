@@ -47,7 +47,7 @@ NUMBER_OF_IDNUMS_DEFUNCT = 8  # DEFUNCT BUT DO NOT REMOVE OR ALTER. EIGHT.
 # =============================================================================
 
 CONFIG_FILE_MAIN_SECTION = "server"
-CONFIG_FILE_RECIPIENTLIST_SECTION = "recipients"
+CONFIG_FILE_EXPORT_SECTION = "export"
 
 DEFAULT_DB_PORT = 3306
 DEFAULT_DB_SERVER = "localhost"

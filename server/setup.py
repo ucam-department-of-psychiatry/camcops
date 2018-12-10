@@ -94,6 +94,7 @@ INSTALL_REQUIRES = [
     # 'deform-bootstrap==0.2.9',  # deform with layout made easier
     'distro==1.3.0',  # detecting Linux distribution
     'dogpile.cache==0.6.6',  # web caching
+    'fhirclient==3.2.0',  # For FHIR export
     'gunicorn==19.8.1',
     # Alternative 'internal' web server. Installs fine under Windows, but won't run (ImportError: No module named 'fcntl').  # noqa
     'hl7==0.3.4',  # For HL7 export

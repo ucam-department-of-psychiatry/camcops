@@ -85,7 +85,7 @@ from .cc_baseconstants import (
 from .cc_cache import cache_region_static, fkg
 from .cc_constants import (
     CONFIG_FILE_MAIN_SECTION,
-    CONFIG_FILE_RECIPIENTLIST_SECTION,
+    CONFIG_FILE_EXPORT_SECTION,
     DEFAULT_CAMCOPS_LOGO_FILE,
     DEFAULT_LOCAL_INSTITUTION_URL,
     DEFAULT_LOCAL_LOGO_FILE,
@@ -126,7 +126,8 @@ DUMMY_INSTITUTION_URL = 'http://www.mydomain/'
 
 class ConfigParamMain(object):
     """
-    Parameters allowed in the main section of the CamCOPS config file.
+    Parameters allowed in the main ``[server]`` section of the CamCOPS config
+    file.
     """
     ALLOW_INSECURE_COOKIES = "ALLOW_INSECURE_COOKIES"
     CAMCOPS_LOGO_FILE_ABSOLUTE = "CAMCOPS_LOGO_FILE_ABSOLUTE"
@@ -136,7 +137,6 @@ class ConfigParamMain(object):
     DB_ECHO = "DB_ECHO"
     DISABLE_PASSWORD_AUTOCOMPLETE = "DISABLE_PASSWORD_AUTOCOMPLETE"
     EXTRA_STRING_FILES = "EXTRA_STRING_FILES"
-    HL7_LOCKFILE = "HL7_LOCKFILE"
     LOCAL_INSTITUTION_URL = "LOCAL_INSTITUTION_URL"
     LOCAL_LOGO_FILE_ABSOLUTE = "LOCAL_LOGO_FILE_ABSOLUTE"
     LOCKOUT_DURATION_INCREMENT_MINUTES = "LOCKOUT_DURATION_INCREMENT_MINUTES"
@@ -155,11 +155,18 @@ class ConfigParamMain(object):
     WKHTMLTOPDF_FILENAME = "WKHTMLTOPDF_FILENAME"
 
 
+class ConfigParamExport(object):
+    """
+    Parameters allowed in the ``[export]`` section of the CamCOPS config file.
+    """
+    EXPORT_LOCKFILE = "EXPORT_LOCKFILE"
+    RECIPIENTS = "RECIPIENTS"
+
+
 def get_demo_config(extra_strings_dir: str = None,
                     lock_dir: str = None,
-                    hl7_lockfile_stem: str = None,
+                    export_lockfile_stem: str = None,
                     static_dir: str = None,
-                    summary_table_lock_file_stem: str = None,
                     db_url: str = None,
                     db_echo: bool = False) -> str:
     """
@@ -168,14 +175,9 @@ def get_demo_config(extra_strings_dir: str = None,
     extra_strings_dir = extra_strings_dir or DEFAULT_EXTRA_STRINGS_DIR
     extra_strings_spec = os.path.join(extra_strings_dir, '*')
     lock_dir = lock_dir or LINUX_DEFAULT_LOCK_DIR
-    hl7_lockfile_stem = hl7_lockfile_stem or os.path.join(
-        lock_dir, 'camcops.hl7')
+    export_lockfile_stem = export_lockfile_stem or os.path.join(
+        lock_dir, 'camcops.export')
     static_dir = static_dir or STATIC_ROOT_DIR
-    summary_table_lock_file_stem = (
-        summary_table_lock_file_stem or os.path.join(
-            lock_dir, 'camcops.summarytables'
-        )
-    )
     # ...
     # http://www.debian.org/doc/debian-policy/ch-opersys.html#s-writing-init
     # https://people.canonical.com/~cjwatson/ubuntu-policy/policy.html/ch-opersys.html  # noqa
@@ -188,21 +190,7 @@ def get_demo_config(extra_strings_dir: str = None,
     return """
 # Demonstration CamCOPS server configuration file.
 # Created by CamCOPS server version {version} at {now}.
-
-# =============================================================================
-# Format of the CamCOPS configuration file
-# =============================================================================
-    # COMMENTS. Hashes (#) and semicolons (;) mark out comments.
-    # SECTIONS. Sections are indicated with: [section]
-    # NAME/VALUE (KEY/VALUE) PAIRS.
-    # - The parser used is ConfigParser (Python).
-    # - It allows "name=value" or "name:value".
-    # - BOOLEAN OPTIONS. For Boolean options, TRUE values are any of: 1, yes, 
-    #   true, on (case-insensitive). FALSE values are any of: 0, no, false, 
-    #   off.
-    # - UTF-8 encoding. Use this. For ConfigParser, the file is explicitly 
-    #   opened in UTF-8 mode.
-    # - Avoid indentation.
+# See help at https://camcops.readthedocs.io/.
 
 # =============================================================================
 # Main section: [{CONFIG_FILE_MAIN_SECTION}]
@@ -216,110 +204,65 @@ def get_demo_config(extra_strings_dir: str = None,
 
 {cp.DB_URL} = {db_url}
 
-    # {cp.DB_URL}:
-    #       SQLAlchemy connection URL.
-    #
-    # See http://docs.sqlalchemy.org/en/latest/core/engines.html
-    #
-    # Examples:
-    #
-    # - MySQL under Linux via mysqlclient
-    #   $$ pip install mysqlclient
-    #   DB_URL = mysql+mysqldb://<username>:<password>@<host>:<port>/<database>?charset=utf8
-    #
-    #   (The default MySQL port is 3306, and 'localhost' is often the right host.)
-    #
-    # - SQL Server under Windows via ODBC and username/password authentication
-    #   C:\> pip install pyodbc
-    #   DB_URL = mssql+pyodbc://<username>:<password>@<odbc_dsn_name>
-    #
-    # - ... or via Windows authentication:
-    #   DB_URL = mssql+pyodbc://@<odbc_dsn_name>
-
 {cp.DB_ECHO} = {db_echo}
-
-    # {cp.DB_ECHO}:
-    # echo all SQL?
 
 # -----------------------------------------------------------------------------
 # URLs and paths
 # -----------------------------------------------------------------------------
-    #
-    # A quick note on absolute and relative URLs, and how CamCOPS is mounted.
-    #
-    # Suppose your CamCOPS site is visible at
-    #       https://www.somewhere.ac.uk/camcops_smith_lab/webview
-    #       ^      ^^                 ^^                ^^      ^
-    #       +------++-----------------++----------------++------+
-    #       |       |                  |                 |
-    #       1       2                  3                 4
-    #
-    # Part 1 is the protocol, and part 2 the machine name.
-    # Part 3 is the mount point. The main server (e.g. Apache) knows where the
-    # CamCOPS script is mounted (in this case /camcops_smith_lab). It does NOT
-    # tell the script via the script's WSGI environment. Therefore, if the
-    # script sends HTML including links, the script can operate only in
-    # relative mode. For it to operate in absolute mode, it would need to know 
-    # (3). Part 4 is visible to the CamCOPS script.
-    #
-    # If CamCOPS emitted URLs starting with '/', it would need to be told at 
-    # least part (3). To use absolute URLs, it would need to know all of (1), 
-    # (2), (3). We will follow others (e.g. 
-    # http://stackoverflow.com/questions/2005079) and use only relative URLs.
 
 {cp.LOCAL_INSTITUTION_URL} = {DUMMY_INSTITUTION_URL}
-
-    # {cp.LOCAL_INSTITUTION_URL}:
-    # Clicking on your institution's logo in the CamCOPS menu will take you to 
-    # this URL.
-    #
-    # Edit this to point to your institution:
-
 {cp.LOCAL_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_local.png
-
-    # {cp.LOCAL_LOGO_FILE_ABSOLUTE}:
-    # Specify the full path to your institution's logo file, e.g.
-    # /var/www/logo_local_myinstitution.png . It's used for PDF generation; 
-    # HTML views use the fixed string "static/logo_local.png", aliased to your 
-    # file via the Apache configuration file).
-    # Edit the next line to point to your local institution's logo file:
-
 # {cp.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
-
-    # {cp.CAMCOPS_LOGO_FILE_ABSOLUTE}:
-    # similarly, but for the CamCOPS logo. It's fine not to specify this.
 
 {cp.EXTRA_STRING_FILES} = {extra_strings_spec}
 
-    # {cp.EXTRA_STRING_FILES}:
-    # multiline list of filenames (with absolute paths), read by the server, 
-    # and used as EXTRA STRING FILES. Should at the MINIMUM point to the string 
-    # file camcops.xml. May use "glob" pattern-matching (see
-    # https://docs.python.org/3.5/library/glob.html).
-
 {cp.SNOMED_TASK_XML_FILENAME} =
-
-    # {cp.SNOMED_TASK_XML_FILENAME}:
-    # Filename of special XML file containing SNOMED-CT codes used by CamCOPS
-    # tasks. This file is OK to use in the UK, but not necessarily elsewhere.
-    # See the SNOMED-CT licensing terms.
-    
 {cp.SNOMED_ICD9_XML_FILENAME} =
-
-    # {cp.SNOMED_ICD9_XML_FILENAME}:
-    # Name of XML file mapping ICD-9-CM codes to SNOMED-CT.
-    # Created by "camcops_server convert_athena_icd_snomed_to_xml"; q.v.
-    
 {cp.SNOMED_ICD10_XML_FILENAME} = 
 
-    # {cp.SNOMED_ICD10_XML_FILENAME}:
-    # Name of XML file mapping ICD-10[-CM] codes to SNOMED-CT.
-    # Created by "camcops_server convert_athena_icd_snomed_to_xml"; q.v.
+{cp.WKHTMLTOPDF_FILENAME} =
 
-{cp.HL7_LOCKFILE} = {hl7_lockfile_stem}
+# -----------------------------------------------------------------------------
+# Login and session configuration
+# -----------------------------------------------------------------------------
 
-    # {cp.HL7_LOCKFILE}:
-    # filename stem used for process locking for HL7 message transmission.
+{cp.SESSION_COOKIE_SECRET} = camcops_autogenerated_secret_{session_cookie_secret}
+{cp.SESSION_TIMEOUT_MINUTES} = 30
+{cp.PASSWORD_CHANGE_FREQUENCY_DAYS} = 0
+{cp.LOCKOUT_THRESHOLD} = 10
+{cp.LOCKOUT_DURATION_INCREMENT_MINUTES} = 10
+{cp.DISABLE_PASSWORD_AUTOCOMPLETE} = true
+
+# -----------------------------------------------------------------------------
+# Suggested filenames for saving PDFs from the web view
+# -----------------------------------------------------------------------------
+
+{cp.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
+{cp.PATIENT_SPEC} = {{{pse.SURNAME}}}_{{{pse.FORENAME}}}_{{{pse.ALLIDNUMS}}}
+
+{cp.TASK_FILENAME_SPEC} = CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
+{cp.TRACKER_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_tracker.{{filetype}}
+{cp.CTV_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_clinicaltextview.{{filetype}}
+
+# -----------------------------------------------------------------------------
+# Debugging options
+# -----------------------------------------------------------------------------
+
+{cp.WEBVIEW_LOGLEVEL} = info
+{cp.CLIENT_API_LOGLEVEL} = info
+{cp.ALLOW_INSECURE_COOKIES} = false
+
+
+# =============================================================================
+# Export options
+# =============================================================================
+
+[{CONFIG_FILE_EXPORT_SECTION}]
+
+{cpe.EXPORT_LOCKFILE} = {hl7_lockfile_stem}
+
+    # {cpe.EXPORT_LOCKFILE}:
+    # Filename stem used for process locking for HL7 message transmission.
     # Default is {hl7_lockfile_stem}
     # The actual lockfile will, in this case, be called
     #     {hl7_lockfile_stem}.lock
@@ -328,500 +271,94 @@ def get_demo_config(extra_strings_dir: str = None,
     # do so). The installation script will create the directory
     #     {lock_dir}
 
-{cp.WKHTMLTOPDF_FILENAME} =
-
-    # {cp.WKHTMLTOPDF_FILENAME}:
-    # for the pdfkit PDF engine, specify a filename for wkhtmltopdf that 
-    # incorporates any need for an X Server (not the default
-    # /usr/bin/wkhtmltopdf). See http://stackoverflow.com/questions/9604625/ .
-    # A suitable one is bundled with CamCOPS, so you shouldn't have to alter this
-    # default. Default is None, which usually ends up calling
-    # /usr/bin/wkhtmltopdf
-
-# -----------------------------------------------------------------------------
-# Login and session configuration
-# -----------------------------------------------------------------------------
-
-{cp.SESSION_COOKIE_SECRET} = camcops_autogenerated_secret_{session_cookie_secret}
-
-    # {cp.SESSION_COOKIE_SECRET}: 
-    # Secret used for HTTP cookie signing via Pyramid. Put something random in 
-    # here and keep it secret. (When you make a CamCOPS demo config, the value 
-    # shown is fresh and random.)
-
-{cp.SESSION_TIMEOUT_MINUTES} = 30
-
-    # {cp.SESSION_TIMEOUT_MINUTES}:
-    # Time after which a session will expire (default 30).
-
-{cp.PASSWORD_CHANGE_FREQUENCY_DAYS} = 0
-
-    # {cp.PASSWORD_CHANGE_FREQUENCY_DAYS}:
-    # Force password changes (at webview login) with this frequency (0 for
-    # never). Note that password expiry will not prevent uploads from tablets,
-    # but when the user next logs on, a password change will be forced before
-    # they can do anything else.
-
-{cp.LOCKOUT_THRESHOLD} = 10
-
-    # {cp.LOCKOUT_THRESHOLD}:
-    # Lock user accounts after every n login failures (default 10).
-
-{cp.LOCKOUT_DURATION_INCREMENT_MINUTES} = 10
-
-    # {cp.LOCKOUT_DURATION_INCREMENT_MINUTES}:
-    # Account lockout time increment (default 10).
-    #
-    # Suppose {cp.LOCKOUT_THRESHOLD} = 10 and
-    # {cp.LOCKOUT_DURATION_INCREMENT_MINUTES} = 20.
-    # After the first 10 failures, the account will be locked for 20 minutes.
-    # After the next 10 failures, the account will be locked for 40 minutes.
-    # After the next 10 failures, the account will be locked for 60 minutes, and so
-    # on. Time and administrators can unlock accounts.
-
-{cp.DISABLE_PASSWORD_AUTOCOMPLETE} = true
-
-    # {cp.DISABLE_PASSWORD_AUTOCOMPLETE}:
-    # if true, asks browsers not to autocomplete the password field on the main 
-    # login page. The correct setting for maximum security is debated (don't 
-    # cache passwords, versus allow a password manager so that users can use
-    # better/unique passwords). Default: true.
-    # Note that some browsers (e.g. Chrome v34 and up) may ignore this.
-
-# -----------------------------------------------------------------------------
-# Suggested filenames for saving PDFs from the web view
-# -----------------------------------------------------------------------------
-    # Try with Chrome, Firefox. Internet Explorer may be less obliging.
-
-{cp.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
-
-    # {cp.PATIENT_SPEC_IF_ANONYMOUS}:
-    # for anonymous tasks, this fixed string is used as the patient descriptor 
-    # (see also {cp.PATIENT_SPEC} below). Typically "anonymous".
-
-{cp.PATIENT_SPEC} = {{{pse.SURNAME}}}_{{{pse.FORENAME}}}_{{{pse.ALLIDNUMS}}}
-
-    # {cp.PATIENT_SPEC}:
-    # string, into which substitutions will be made, that defines the
-    # {{{fse.PATIENT}}} element available for substitution into the 
-    # *_FILENAME_SPEC variables (see below). Possible substitutions:
-    #
-    #   {{{pse.SURNAME}}}
-    #       Patient's surname in upper case
-    #
-    #   {{{pse.FORENAME}}}
-    #       Patient's forename in upper case
-    #
-    #   {{{pse.DOB}}}
-    #       Patient's date of birth (format "%Y-%m-%d", e.g. 2013-07-24)
-    #
-    #   {{{pse.SEX}}}          
-    #       Patient's sex (M, F, X)
-    #
-    #   {{{pse.IDSHORTDESC_PREFIX}1}}
-    #   {{{pse.IDSHORTDESC_PREFIX}2}}
-    #   ...                             
-    #       Short description of the relevant ID number, if that ID number is 
-    #       not blank; otherwise blank
-    #
-    #   {{{pse.IDNUM_PREFIX}1}}
-    #   {{{pse.IDNUM_PREFIX}2}}
-    #   ...
-    #       ID numbers
-    #
-    #   {{{pse.ALLIDNUMS}}}
-    #       All available ID numbers in "shortdesc-value" pairs joined by
-    #       "_". For example, if ID numbers 1, 4, and 5 are non-blank, this
-    #       would have the format
-    #       {pse.IDSHORTDESC_PREFIX}1-{pse.IDNUM_PREFIX}1_{pse.IDSHORTDESC_PREFIX}4-{pse.IDNUM_PREFIX}4_{pse.IDSHORTDESC_PREFIX}5-{pse.IDNUM_PREFIX}5
-
-{cp.TASK_FILENAME_SPEC} = CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
-{cp.TRACKER_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_tracker.{{filetype}}
-{cp.CTV_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_clinicaltextview.{{filetype}}
-
-    # {cp.TASK_FILENAME_SPEC}:
-    # {cp.TRACKER_FILENAME_SPEC}:
-    # {cp.CTV_FILENAME_SPEC}:
-    #
-    # Strings used for suggested filenames to save from the webview, for tasks,
-    # trackers, and clinical text views. Substitutions will be made to
-    # determine the filename to be used for each file. Possible substitutions:
-    #
-    #   {{{fse.PATIENT}}}
-    #       Patient string. If the task is anonymous, this is
-    #       {cp.PATIENT_SPEC_IF_ANONYMOUS}; otherwise, it is
-    #       defined by {cp.PATIENT_SPEC} above.
-    #
-    #   {{{fse.CREATED}}}
-    #       Date/time of task creation.  Dates/times are in the format 
-    #       "%Y-%m-%dT%H%M", e.g. 2013-07-24T2004. They are expressed in the 
-    #       timezone of creation (but without the timezone information for 
-    #       filename brevity).
-    #
-    #   {{{fse.NOW}}}
-    #       Time of access/download (i.e. time now), in local timezone.
-    #
-    #   {{{fse.TASKTYPE}}}
-    #       Base table name of the task (e.g. "phq9"). May contain an 
-    #       underscore. Blank for trackers/CTVs.
-    #
-    #   {{{fse.SERVERPK}}}
-    #       Server's primary key. (In combination with tasktype, this uniquely 
-    #       identifies not just a task but a version of that task.) Blank for 
-    #       trackers/CTVs.
-    #
-    #   {{{fse.FILETYPE}}}
-    #       e.g. "pdf", "html", "xml" (lower case)
-    #
-    #   {{{fse.ANONYMOUS}}}
-    #       evaluates to {cp.PATIENT_SPEC_IF_ANONYMOUS} if anonymous,
-    #       otherwise ""
-    #
-    #   ... plus all those substitutions applicable to {cp.PATIENT_SPEC}
-    #
-    # After these substitutions have been made, the entire filename is then
-    # processed to ensure that only characters generally acceptable to 
-    # filenames are used (see convert_string_for_filename() in the CamCOPS 
-    # source code). Specifically:
-    #
-    #   - Unicode converted to 7-bit ASCII (will mangle, e.g. removing accents)
-    #   - spaces converted to underscores
-    #   - characters are removed unless they are one of the following: all
-    #     alphanumeric characters (0-9, A-Z, a-z); '-'; '_'; '.'; and the
-    #     operating-system-specific directory separator (Python's os.sep, a 
-    #     forward slash '/' on UNIX or a backslash '\' under Windows).
-
-# -----------------------------------------------------------------------------
-# Debugging options
-# -----------------------------------------------------------------------------
-    # Possible log levels are (case-insensitive): "debug", "info", "warn"
-    # (equivalent: "warning"), "error", and "critical" (equivalent: "fatal").
-
-{cp.WEBVIEW_LOGLEVEL} = info
-
-    # {cp.WEBVIEW_LOGLEVEL}:
-    # Set the level of detail provided from the webview to the Apache server 
-    # log. (Loglevel option; see above.)
-
-{cp.CLIENT_API_LOGLEVEL} = info
-
-    # {cp.CLIENT_API_LOGLEVEL}:
-    # Set the log level for the tablet client database access script. 
-    # (Loglevel option; see above.)
-
-{cp.ALLOW_INSECURE_COOKIES} = false
-
-    # {cp.ALLOW_INSECURE_COOKIES}:
-    # DANGEROUS option that removes the requirement that cookies be HTTPS (SSL) 
-    # only.
+{cpe.RECIPIENTS} =
 
 # =============================================================================
-# List of HL7/file recipients, and then details for each one
+# Details for each export recipient
 # =============================================================================
-    # This section defines a list of recipients to which Health Level Seven
-    # (HL7) messages or raw files will be sent. Typically, you will send them 
-    # by calling "camcops -7 CONFIGFILE" regularly from the system's 
-    # /etc/crontab or other scheduling system. For example, a conventional 
-    # /etc/crontab file has these fields:
-    #
-    #   minutes, hours, day_of_month, month, day_of_week, user, command
-    #
-    # so you could add a line like this to /etc/crontab:
-    #
-    #   * * * * *  root  camcops -7 /etc/camcops/MYCONFIG.conf
-    #
-    # ... and CamCOPS would run its exports once per minute. See "man 5 
-    # crontab" or http://en.wikipedia.org/wiki/Cron for more options.
-    #
-    # In this section, keys are ignored; values are section headings (one per
-    # recipient).
-
-[{CONFIG_FILE_RECIPIENTLIST_SECTION}]
-
-    # Examples (commented out):
-
-# recipient=recipient_A
-# recipient=recipient_B
-
-# =============================================================================
-# Individual HL7/file recipient configurations
-# =============================================================================
-    # Dates are YYYY-MM-DD, e.g. 2013-12-31, or blank
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # First example
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Example (disabled because it's not in the list above)
+    # Example (disabled because it's not in the {cpe.RECIPIENTS} list above)
 
 [recipient_A]
 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Export type
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 {cpr.TYPE} = hl7
 
-    # {cpr.TYPE}:
-    # One of the following methods:
-    #
-    #   hl7
-    #       Sends HL7 messages across a TCP/IP network.
-    #   file
-    #       Writes files to a local filesystem.
-
-# -----------------------------------------------------------------------------
-# Options applicable to HL7 messages and file transfers
-# -----------------------------------------------------------------------------
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Options applicable to all or more incremental export types
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {cpr.GROUP_ID} = 1
 
-    # {cpr.GROUP_ID}:
-    # CamCOPS group to export from.
-    # HL7 messages are sent from one group at a time. Which group will this
-    # recipient definition use? (Note that you can just duplicate a recipient
-    # definition to export a second or subsequent group.)
-    # This is an integer.
-
 {cpr.PRIMARY_IDNUM} = 1
-
-    # {cpr.PRIMARY_IDNUM}:
-    # Which ID number (1-8) should be considered the "internal" (primary) ID 
-    # number? Must be specified for HL7 messages. May be blank for file 
-    # transmission.
-
 {cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY} = true
 
-    # {cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY}:
-    # Defines behaviour relating to the primary ID number (as defined by 
-    # {cpr.PRIMARY_IDNUM}).
-    #
-    # - If true, no message sending will be attempted unless the
-    #   {cpr.PRIMARY_IDNUM} is a mandatory part of the finalizing policy 
-    #   (and if {cpr.FINALIZED_ONLY} is false, also of the upload policy).
-    # - If false, messages will be sent, but ONLY FROM TASKS FOR WHICH THE
-    #   {cpr.PRIMARY_IDNUM} IS PRESENT; others will be ignored.
-    # - For file sending only, this will be ignored if {cpr.PRIMARY_IDNUM} is 
-    #   blank.
-    # - For file sending only, this setting does not apply to anonymous tasks,
-    #   whose behaviour is controlled by {cpr.INCLUDE_ANONYMOUS} (see below).
-
 {cpr.START_DATE} =
-
-    # {cpr.START_DATE}:
-    # earliest date for which tasks will be sent. Assessed against the task's 
-    # "when_created" field, converted to Universal Coordinated Time (UTC) --
-    # that is, this date is in UTC (beware if you are in a very different time
-    # zone). Blank to apply no start date restriction.
-
 {cpr.END_DATE} =
-
-    # {cpr.END_DATE}:
-    # latest date for which tasks will be sent. In UTC. Assessed against
-    # the task's "when_created" field (converted to UTC). Blank to apply no end
-    # date restriction.
 
 {cpr.FINALIZED_ONLY} = true
 
-    # {cpr.FINALIZED_ONLY}:
-    # if true, only send tasks that are finalized (moved off their originating 
-    # tablet and not susceptible to later modification). If false, also send 
-    # tasks that are uploaded but not yet finalized (they will then be sent
-    # again if they are modified later).
-
 {cpr.TASK_FORMAT} = pdf
-
-    # {cpr.TASK_FORMAT}:
-    # one of: pdf, html, xml
-
 {cpr.XML_FIELD_COMMENTS} = true
 
-    # {cpr.XML_FIELD_COMMENTS}:
-    # if {cpr.TASK_FORMAT} is xml, then {cpr.XML_FIELD_COMMENTS} determines
-    # whether field comments are included. These describe the meaning of each 
-    # field, so they take space but they provide more information for 
-    # human readers. (Default true.)
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Options applicable to HL7 only ({cpr.TYPE} = hl7)
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# -----------------------------------------------------------------------------
-# Options applicable to HL7 only ({cpr.TYPE} = hl7)
-# -----------------------------------------------------------------------------
-
-{cpr.HOST} = myhl7server.mydomain
-
-    # {cpr.HOST}:
-    # HL7 hostname or IP address
-
-{cpr.PORT} = 2575
-
-    # {cpr.PORT}:
-    # HL7 port (default 2575)
+{cpr.HL7_HOST} = myhl7server.mydomain
+{cpr.HL7_PORT} = 2575
 
 {cpr.PING_FIRST} = true
 
-    # {cpr.PING_FIRST}:
-    # if true, requires a successful ping to the server prior to
-    # sending HL7 messages. (Note: this is a TCP/IP ping, and tests that the
-    # machine is up, not that it is running an HL7 server.) Default: true.
-
 {cpr.NETWORK_TIMEOUT_MS} = 10000
 
-    # {cpr.NETWORK_TIMEOUT_MS}:
-    # network time (in milliseconds). Default: 10000.
-
 {cpr.KEEP_MESSAGE} = false
-
-    # {cpr.KEEP_MESSAGE}:
-    # keep a copy of the entire message in the databaase. Default is
-    # false. WARNING: may consume significant space in the database.
-
 {cpr.KEEP_REPLY} = false
 
-    # {cpr.KEEP_REPLY}:
-    # keep a copy of the reply (e.g. acknowledgement) message 
-    # received from the server. Default is false. WARNING: may consume 
-    # significant space.
-
 {cpr.DIVERT_TO_FILE} =
-
-    # {cpr.DIVERT_TO_FILE}:
-    # Override HOST/PORT options and send HL7 messages to this (single) file 
-    # instead. Each messages is appended to the file. Default is blank (meaning 
-    # network transmission will be used). This is a debugging option, allowing 
-    # you to redirect HL7 messages to a file and inspect them.
-
 {cpr.TREAT_DIVERTED_AS_SENT} = false
 
-    # {cpr.TREAT_DIVERTED_AS_SENT}:
-    # Any messages that are diverted to a file (using {cpr.DIVERT_TO_FILE}) 
-    # are treated as having been sent (thus allowing the file to mimic an 
-    # HL7-receiving server that's accepting messages happily). If set to false 
-    # (the default), a diversion will allow you to preview messages for 
-    # debugging purposes without "swallowing" them. BEWARE, though: if you have
-    # an automatically scheduled job (for example, to send messages every
-    # minute) and you divert with this flag set to false, you will end up with
-    # a great many message attempts!
-
-# -----------------------------------------------------------------------------
-# Options applicable to file transfers only (TYPE = file)
-# -----------------------------------------------------------------------------
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Options applicable to file transfers only ({cpr.TYPE} = file)
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {cpr.INCLUDE_ANONYMOUS} = true
 
-    # {cpr.INCLUDE_ANONYMOUS}:
-    # include anonymous tasks.
-    # - Note that anonymous tasks cannot be sent via HL7; the HL7 specification
-    #   is heavily tied to identification.
-    # - Note also that this setting operates independently of the
-    #   {cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY} setting.
-
 {cpr.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
-
-    # {cpr.PATIENT_SPEC_IF_ANONYMOUS}:
-    # for anonymous tasks, this string is used as the patient descriptor (see
-    # also {cpr.PATIENT_SPEC}, {cpr.FILENAME_SPEC} below). Typically
-    # "anonymous".
-
 {cpr.PATIENT_SPEC} = {{surname}}_{{forename}}_{{idshortdesc1}}{{idnum1}}
-
-    # {cpr.PATIENT_SPEC}:
-    # string, into which substitutions will be made, that defines the
-    # {{patient}} element available for substitution into the
-    # {cpr.FILENAME_SPEC} (see below). Possible substitutions: as for
-    # {cpr.PATIENT_SPEC} in the main "[{CONFIG_FILE_MAIN_SECTION}]" section of
-    # the configuration file (see above).
-
 {cpr.FILENAME_SPEC} = /my_nfs_mount/mypath/CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
 
-    # {cpr.FILENAME_SPEC}:
-    # string into which substitutions will be made to determine the filename to
-    # be used for each file. Possible substitutions: as for {cp.PATIENT_SPEC}
-    # in the main "[{CONFIG_FILE_MAIN_SECTION}]" section of the configuration
-    # file (see above).
-
 {cpr.MAKE_DIRECTORY} = true
-
-    # {cpr.MAKE_DIRECTORY}:
-    # make the directory if it doesn't already exist. Default is false.
-
 {cpr.OVERWRITE_FILES} = false
-
-    # {cpr.OVERWRITE_FILES}:
-    # whether or not to attempt overwriting existing files of the same name
-    # (default false). There is a DANGER of inadvertent data loss if you set
-    # this to true. (Needing to overwrite a file suggests that your filenames
-    # are not task-unique; try ensuring that both the {{tasktype}} and
-    # {{serverpk}} attributes are used in the filename.)
 
 {cpr.RIO_METADATA} = false
 {cpr.RIO_IDNUM} = 2
 {cpr.RIO_UPLOADING_USER} = CamCOPS
 {cpr.RIO_DOCUMENT_TYPE} = CC
 
-    # {cpr.RIO_METADATA}:
-    # whether or not to export a metadata file for Servelec's RiO (default
-    # false).
-    # Details of this file format are in cc_task.py / Task.get_rio_metadata().
-    # The metadata filename is that of its associated file, but with the
-    # extension replaced by ".metadata" (e.g. X.pdf is accompanied by
-    # X.metadata). If {cpr.RIO_METADATA} is true, the following options also
-    # apply:
-    #
-    #   {cpr.RIO_IDNUM}
-    #       which of the ID numbers (as above) is the RiO ID?
-    #
-    #   {cpr.RIO_UPLOADING_USER}
-    #       username for the uploading user (maximum of 10 characters)
-    #
-    #   {cpr.RIO_DOCUMENT_TYPE}
-    #       document type as defined in the receiving RiO system. This is a
-    #       code that maps to a human-readable document type; for example, the
-    #       code "APT" might map to "Appointment Letter". Typically we might
-    #       want a code that maps to "Clinical Correspondence", but the code
-    #       will be defined within the local RiO system configuration.
-
 {cpr.SCRIPT_AFTER_FILE_EXPORT} =
-
-    # {cpr.SCRIPT_AFTER_FILE_EXPORT}:
-    # filename of a shell script or other executable to run after file export
-    # is complete. You might use this script, for example, to move the files to
-    # a different location (such as across a network). If the parameter is
-    # blank, no script will be run. If no files are exported, the script will
-    # not be run.
-    #
-    # - Parameters passed to the script: a list of all the filenames exported.
-    #   (This includes any RiO metadata filenames.)
-    # - WARNING: the script will execute with the same permissions as the
-    #   instance of CamCOPS that's doing the export (so, for example, if you
-    #   run CamCOPS from your /etc/crontab as root, then this script will be
-    #   run as root; that can pose a risk!).
-    # - The script executes while the export lock is still held by CamCOPS
-    #   (i.e. further HL7/file transfers won't be started until the script(s)
-    #   is/are complete).
-    # - If the script fails, an error message is recorded, but the file
-    #   transfer is still considered to have been made (CamCOPS has done all it
-    #   can and the responsibility now lies elsewhere).
-    # - Example test script: suppose this is /usr/local/bin/print_arguments:
-    #
-    #       #!/bin/bash
-    #       for f in $$@
-    #       do
-    #           echo "CamCOPS has just exported this file: $$f"
-    #       done
-    #
-    #   ... then you could set:
-    #
-    #       {cpr.SCRIPT_AFTER_FILE_EXPORT} = /usr/local/bin/print_arguments
 
     """.format(  # noqa
         cp=ConfigParamMain,
+        cpe=ConfigParamExport,
         cpr=ConfigParamRecipient,
         CONFIG_FILE_MAIN_SECTION=CONFIG_FILE_MAIN_SECTION,
-        CONFIG_FILE_RECIPIENTLIST_SECTION=CONFIG_FILE_RECIPIENTLIST_SECTION,
+        CONFIG_FILE_EXPORT_SECTION=CONFIG_FILE_EXPORT_SECTION,
         db_echo=db_echo,
         db_url=db_url,
         DEFAULT_DB_NAME=DEFAULT_DB_NAME,
         DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
         DEFAULT_DB_USER=DEFAULT_DB_USER,
         extra_strings_spec=extra_strings_spec,
-        hl7_lockfile_stem=hl7_lockfile_stem,
+        hl7_lockfile_stem=export_lockfile_stem,
         lock_dir=lock_dir,
         static_dir=static_dir,
-        summary_table_lock_file_stem=summary_table_lock_file_stem,
         DUMMY_INSTITUTION_URL=DUMMY_INSTITUTION_URL,
         fse=FilenameSpecElement,
         now=str(Pendulum.now()),
@@ -1326,10 +863,11 @@ class CamcopsConfig(object):
         Initialize by reading the config file.
         """
         cp = ConfigParamMain
+        cpe = ConfigParamExport
 
-        # ---------------------------------------------------------------------
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Open config file
-        # ---------------------------------------------------------------------
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         self.camcops_config_file = config_filename
         if not self.camcops_config_file:
             raise AssertionError("{} not specified".format(ENVVAR_CONFIG_FILE))
@@ -1338,9 +876,9 @@ class CamcopsConfig(object):
         with codecs.open(self.camcops_config_file, "r", "utf8") as file:
             config.read_file(file)
 
-        # ---------------------------------------------------------------------
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Read from the config file: 1. Most stuff, in alphabetical order
-        # ---------------------------------------------------------------------
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         section = CONFIG_FILE_MAIN_SECTION
 
         self.allow_insecure_cookies = get_config_parameter_boolean(
@@ -1368,9 +906,6 @@ class CamcopsConfig(object):
 
         self.extra_string_files = get_config_parameter_multiline(
             config, section, cp.EXTRA_STRING_FILES, [])
-
-        self.hl7_lockfile = get_config_parameter(
-            config, section, cp.HL7_LOCKFILE, str, None)
 
         self.local_institution_url = get_config_parameter(
             config, section, cp.LOCAL_INSTITUTION_URL,
@@ -1424,26 +959,26 @@ class CamcopsConfig(object):
         self.wkhtmltopdf_filename = get_config_parameter(
             config, section, cp.WKHTMLTOPDF_FILENAME, str, None)
 
-        # ---------------------------------------------------------------------
-        # Read from the config file: 2. HL7 section
-        # ---------------------------------------------------------------------
-        # http://stackoverflow.com/questions/335695/lists-in-configparser
-        self.hl7_recipient_defs = []  # type: List[RecipientDefinition]
-        try:
-            hl7_items = config.items(CONFIG_FILE_RECIPIENTLIST_SECTION)
-            for key, recipientdef_name in hl7_items:
-                log.debug("HL7 config: key={}, recipientdef_name={}",
-                          key, recipientdef_name)
-                h = RecipientDefinition(config=config,
-                                        section=recipientdef_name)
-                self.hl7_recipient_defs.append(h)
-        except configparser.NoSectionError:
-            log.info("No config file section [{}]",
-                     CONFIG_FILE_RECIPIENTLIST_SECTION)
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Read from the config file: 2. export section
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        self.export_lockfile = get_config_parameter(
+            config, CONFIG_FILE_EXPORT_SECTION, cpe.EXPORT_LOCKFILE, str, None)
 
-        # ---------------------------------------------------------------------
+        recipient_names = get_config_parameter_multiline(
+            config, CONFIG_FILE_EXPORT_SECTION, cpe.RECIPIENTS, [])
+        # http://stackoverflow.com/questions/335695/lists-in-configparser
+        self.export_recipient_defs = []  # type: List[RecipientDefinition]
+        for recip_name in recipient_names:
+            assert " " not in recip_name, (
+                "No whitespace allowed in recipient names")
+            log.debug("Loading export config for recipient {!r}", recip_name)
+            h = RecipientDefinition(config=config, section=recip_name)
+            self.export_recipient_defs.append(h)
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # More validity checks
-        # ---------------------------------------------------------------------
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if not self.patient_spec_if_anonymous:
             raise_runtime_error("Blank PATIENT_SPEC_IF_ANONYMOUS in [server] "
                                 "section of config file")
@@ -1468,9 +1003,9 @@ class CamcopsConfig(object):
             raise_runtime_error("Missing/blank CTV_FILENAME_SPEC in "
                                 "[server] section of config file")
 
-        # ---------------------------------------------------------------------
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Other attributes
-        # ---------------------------------------------------------------------
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         self._sqla_engine = None
 
     # -------------------------------------------------------------------------

@@ -118,7 +118,7 @@ from camcops_server.cc_modules.cc_constants import (
     USER_NAME_FOR_SYSTEM,
 )  # nopep8
 from camcops_server.cc_modules.cc_exception import raise_runtime_error  # nopep8
-from camcops_server.cc_modules.cc_hl7 import send_all_pending_hl7_messages  # nopep8
+from camcops_server.cc_modules.cc_hl7 import send_all_pending_incremental_export_messages  # nopep8
 from camcops_server.cc_modules.cc_pyramid import RouteCollection  # nopep8
 from camcops_server.cc_modules.cc_request import (
     CamcopsRequest,
@@ -695,16 +695,16 @@ def enable_user_cli(username: str = None) -> bool:
         return True
 
 
-def send_hl7(show_queue_only: bool) -> None:
+def send_incremental_export(show_queue_only: bool) -> None:
     """
-    Send all outbound HL7 messages.
+    Send all outbound incremental export messages (e.g. HL7).
 
     Args:
         show_queue_only: don't send them; just show the outbound queue.
     """
     with command_line_request_context() as req:
-        send_all_pending_hl7_messages(req.config,
-                                      show_queue_only=show_queue_only)
+        send_all_pending_incremental_export_messages(req.config,
+                                                     show_queue_only=show_queue_only)
 
 
 def reindex(cfg: CamcopsConfig) -> None:
@@ -1330,19 +1330,19 @@ def camcops_main() -> None:
     ddl_parser.set_defaults(
         func=lambda args: print(get_all_ddl(dialect_name=args.dialect)))
 
-    # Send HL7 messages
-    hl7_parser = add_sub(
-        subparsers, "hl7",
-        help="Send pending HL7 messages and outbound files")
-    hl7_parser.set_defaults(
-        func=lambda args: send_hl7(show_queue_only=False))
+    # Send incremental export messages
+    incremental_export_parser = add_sub(
+        subparsers, "incremental_export",
+        help="Trigger pending exports")
+    incremental_export_parser.set_defaults(
+        func=lambda args: send_incremental_export(show_queue_only=False))
 
-    # Show HL7 queue
-    showhl7queue_parser = add_sub(
-        subparsers, "show_hl7_queue",
-        help="View outbound HL7/file queue (without sending)")
-    showhl7queue_parser.set_defaults(
-        func=lambda args: send_hl7(show_queue_only=True))
+    # Show incremental export queue
+    show_export_queue_parser = add_sub(
+        subparsers, "show_incremental_export_queue",
+        help="View outbound export queue (without sending)")
+    show_export_queue_parser.set_defaults(
+        func=lambda args: send_incremental_export(show_queue_only=True))
 
     # *** ANONYMOUS STAGING DATABASE DISABLED TEMPORARILY
     # anonstaging_parser = add_sub(

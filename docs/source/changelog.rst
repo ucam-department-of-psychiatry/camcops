@@ -1577,6 +1577,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Improvements to Debian/RPM packaging, including use of ``venv`` from the
   Python 3.3+ standard library rather than ``virtualenv``.
 
+
 **Server v2.3.1 and client v2.3.1 (in progress, from 2018-11-27)**
 
 - ``cardinal_pythonlib`` to 1.0.39
@@ -1682,3 +1683,48 @@ Current C++/SQLite client, Python/SQLAlchemy server
       until the database is open (but then an overhead for everything); (3)
       have DiagnosticCodeSet not ask for xstrings if it's being created in "no
       xstring" mode. Went with (3).
+
+- Config file documentation moved from demo file to docs.
+
+- Improve export facilities.
+
+  - Design decision: keep details in config file, or shift to web-based
+    configuration?
+
+    - Unimportant: need to launch from command line. (Could launch via a named
+      database record.) Not a factor.
+
+    - Less important: more work in writing/managing web-based configuration.
+      Fractional point for config file.
+
+    - Relevant: configuration on the fly? This is dangerous but could be
+      useful. However, the only thing likely to be edited is a destination
+      e-mail address. In general, export configuration feels like a slightly
+      high-risk thing to have editable only, even by a web-based superuser;
+      for example, it allows the specification of arbitrary shell scripts, and
+      if this were done online, the editing user might be unable to check that
+      filename. (Moreover, an editing user who is using ssh might find it
+      inconvenient to use a web interface.) Point for config file.
+
+    - Relevant: audit trail. We want the export log to be able to refer to an
+      export config. We probably want a true record of the export config used.
+      However, we don't want to duplicate thousands of config records (e.g. the
+      same config being run once per minute for years).
+
+      - Solution for database: create a new record when an export config is
+        changed; have run records refer to them by PK.
+
+      - Solution for config file: create a new record when an export config is
+        changed... have run records refer to them by PK...
+
+    - Decision: config file, with snapshot copied to database for auditing.
+
+  - **Breaking changes:**
+
+    - ``[recipients]`` config file section renamed ``[export]``
+    - ``HL7_LOCKFILE`` renamed to ``EXPORT_LOCKFILE`` and moved from the
+      ``[server]`` to the ``[export]`` section
+    - Then other changes to the actual export definitions (see docs for the
+      :ref:`server config file <server_config_file>`).
+
+  - **IN PROGRESS.**

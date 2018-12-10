@@ -484,8 +484,12 @@ class DeleteCancelForm(DangerousForm):
 
 
 # =============================================================================
-# Specialized SchemaNode classes
+# Specialized SchemaNode classes used in several contexts
 # =============================================================================
+
+# -----------------------------------------------------------------------------
+# Task types
+# -----------------------------------------------------------------------------
 
 class OptionalSingleTaskSelector(OptionalStringNode):
     """
@@ -564,6 +568,10 @@ class MultiTaskSelector(SchemaNode):
         return choices
 
 
+# -----------------------------------------------------------------------------
+# Use the task index?
+# -----------------------------------------------------------------------------
+
 class ViaIndexSelector(BooleanNode):
     """
     Node to choose whether we use the server index or not.
@@ -577,6 +585,10 @@ class ViaIndexSelector(BooleanNode):
             **kwargs
         )
 
+
+# -----------------------------------------------------------------------------
+# ID numbers
+# -----------------------------------------------------------------------------
 
 class MandatoryWhichIdNumSelector(SchemaNode):
     """
@@ -703,6 +715,10 @@ class IdNumSequenceUniquePerWhichIdnum(SequenceSchema):
                 "You have specified >1 value for one ID number type")
 
 
+# -----------------------------------------------------------------------------
+# Sex
+# -----------------------------------------------------------------------------
+
 class OptionalSexSelector(OptionalStringNode):
     """
     Optional node to choose sex.
@@ -730,6 +746,10 @@ class MandatorySexSelector(MandatoryStringNode):
         self.validator = OneOf(pv)
         super().__init__(*args, **kwargs)
 
+
+# -----------------------------------------------------------------------------
+# Users
+# -----------------------------------------------------------------------------
 
 class MandatoryUserIdSelectorUsersAllowedToSee(SchemaNode):
     """
@@ -792,6 +812,25 @@ class OptionalUserNameSelector(OptionalStringNode):
         self.validator = OneOf(pv)
 
 
+class UsernameNode(SchemaNode):
+    """
+    Node to enter a username.
+    """
+    schema_type = String
+    title = "Username"
+    _length_validator = Length(1, USERNAME_MAX_LEN)
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        if value == USER_NAME_FOR_SYSTEM:
+            raise Invalid(node, "Cannot use system username {!r}".format(
+                USER_NAME_FOR_SYSTEM))
+        self._length_validator(node, value)
+
+
+# -----------------------------------------------------------------------------
+# Devices
+# -----------------------------------------------------------------------------
+
 class MandatoryDeviceIdSelector(SchemaNode):
     """
     Mandatory node to select a client device ID.
@@ -818,12 +857,20 @@ class MandatoryDeviceIdSelector(SchemaNode):
         self.validator = OneOf(pv)
 
 
+# -----------------------------------------------------------------------------
+# Server PK
+# -----------------------------------------------------------------------------
+
 class ServerPkSelector(OptionalIntNode):
     """
     Optional node to request an integer, marked as a server PK.
     """
     title = "Server PK"
 
+
+# -----------------------------------------------------------------------------
+# Dates/times
+# -----------------------------------------------------------------------------
 
 class StartPendulumSelector(OptionalPendulumNode):
     """
@@ -867,6 +914,10 @@ class EndDateSelector(DateSelectorNode):
     title = "End date (UTC)"
 
 
+# -----------------------------------------------------------------------------
+# Rows per page
+# -----------------------------------------------------------------------------
+
 class RowsPerPageSelector(SchemaNode):
     """
     Node to select how many rows per page are shown.
@@ -880,92 +931,9 @@ class RowsPerPageSelector(SchemaNode):
     validator = OneOf(list(x[0] for x in _choices))
 
 
-class TaskTrackerOutputTypeSelector(SchemaNode):
-    """
-    Node to select the output format for a tracker.
-    """
-    _choices = ((ViewArg.HTML, "HTML"),
-                (ViewArg.PDF, "PDF"),
-                (ViewArg.XML, "XML"))
-
-    schema_type = String
-    default = ViewArg.HTML
-    missing = ViewArg.HTML
-    title = "View as"
-    widget = RadioChoiceWidget(values=_choices)
-    validator = OneOf(list(x[0] for x in _choices))
-
-
-class ReportOutputTypeSelector(SchemaNode):
-    """
-    Node to select the output format for a report.
-    """
-    _choices = ((ViewArg.HTML, "HTML"),
-                (ViewArg.TSV, "TSV (tab-separated values)"))
-
-    schema_type = String
-    default = ViewArg.HTML
-    missing = ViewArg.HTML
-    title = "View as"
-    widget = RadioChoiceWidget(values=_choices)
-    validator = OneOf(list(x[0] for x in _choices))
-
-
-class DumpTypeSelector(SchemaNode):
-    """
-    Node to select the filtering method for a data dump.
-    """
-    _choices = (
-        (ViewArg.EVERYTHING, "Everything"),
-        (ViewArg.USE_SESSION_FILTER, "Use the session filter settings"),
-        (ViewArg.SPECIFIC_TASKS_GROUPS, "Specify tasks/groups manually "
-                                        "(see below)")
-    )
-
-    schema_type = String
-    default = ViewArg.EVERYTHING
-    missing = ViewArg.EVERYTHING
-    title = "Dump method"
-    widget = RadioChoiceWidget(values=_choices)
-    validator = OneOf(list(x[0] for x in _choices))
-
-
-class UsernameNode(SchemaNode):
-    """
-    Node to enter a username.
-    """
-    schema_type = String
-    title = "Username"
-    _length_validator = Length(1, USERNAME_MAX_LEN)
-
-    def validator(self, node: SchemaNode, value: Any) -> None:
-        if value == USER_NAME_FOR_SYSTEM:
-            raise Invalid(node, "Cannot use system username {!r}".format(
-                USER_NAME_FOR_SYSTEM))
-        self._length_validator(node, value)
-
-
-class MustChangePasswordNode(SchemaNode):
-    """
-    Boolean node: must the user change their password?
-    """
-    schema_type = Boolean
-    label = "User must change password at next login"
-    title = "Must change password at next login?"
-    default = True
-    missing = True
-
-
-class NewPasswordNode(SchemaNode):
-    """
-    Node to enter a new password.
-    """
-    schema_type = String
-    validator = Length(min=MINIMUM_PASSWORD_LENGTH)
-    widget = CheckedPasswordWidget()
-    title = "New password"
-    description = "Type the new password and confirm it"
-
+# -----------------------------------------------------------------------------
+# Groups
+# -----------------------------------------------------------------------------
 
 class MandatoryGroupIdSelectorAllGroups(SchemaNode):
     """
@@ -1192,211 +1160,9 @@ class AllowedGroupsSequence(GroupsSequenceBase):
     description = OR_JOIN_DESCRIPTION
 
 
-class TextContentsSequence(SequenceSchema):
-    """
-    Sequence to capture multiple pieces of text (representing text contents
-    for a task filter).
-    """
-    text_sequence = SchemaNode(
-        String(),
-        title="Text contents criterion",
-        validator=Length(0, FILTER_TEXT_MAX_LEN)
-    )
-    title = "Text contents"
-    description = OR_JOIN_DESCRIPTION
-
-    # noinspection PyMethodMayBeStatic
-    def validator(self, node: SchemaNode, value: List[str]) -> None:
-        assert isinstance(value, list)
-        if len(value) != len(set(value)):
-            raise Invalid(node, "You have specified duplicate text filters")
-
-
-class UploadingUserSequence(SequenceSchema):
-    """
-    Sequence to capture multiple users (for task filters: "uploaded by one of
-    the following users...").
-    """
-    user_id_sequence = MandatoryUserIdSelectorUsersAllowedToSee()
-    title = "Uploading users"
-    description = OR_JOIN_DESCRIPTION
-
-    # noinspection PyMethodMayBeStatic
-    def validator(self, node: SchemaNode, value: List[int]) -> None:
-        assert isinstance(value, list)
-        if len(value) != len(set(value)):
-            raise Invalid(node, "You have specified duplicate users")
-
-
-class DevicesSequence(SequenceSchema):
-    """
-    Sequence to capture multiple client devices (for task filters: "uploaded by
-    one of the following devices...").
-    """
-    device_id_sequence = MandatoryDeviceIdSelector()
-    title = "Uploading devices"
-    description = OR_JOIN_DESCRIPTION
-
-    # noinspection PyMethodMayBeStatic
-    def validator(self, node: SchemaNode, value: List[int]) -> None:
-        assert isinstance(value, list)
-        if len(value) != len(set(value)):
-            raise Invalid(node, "You have specified duplicate devices")
-
-
-class SortTsvByHeadingsNode(SchemaNode):
-    """
-    Boolean node: sort TSV files by column name?
-    """
-    schema_type = Boolean
-    label = "Sort TSV files by heading (column) names?"
-    title = "Sort columns?"
-    default = False
-    missing = False
-
-
-DIALECT_CHOICES = (
-    # http://docs.sqlalchemy.org/en/latest/dialects/
-    (SqlaDialectName.MYSQL, "MySQL"),
-    (SqlaDialectName.MSSQL, "Microsoft SQL Server"),
-    (SqlaDialectName.ORACLE, "Oracle [WILL NOT WORK]"),
-    # ... Oracle doesn't work; SQLAlchemy enforces the Oracle rule of a 30-
-    # character limit for identifiers, only relaxed to 128 characters in
-    # Oracle 12.2 (March 2017).
-    (SqlaDialectName.FIREBIRD, "Firebird"),
-    (SqlaDialectName.POSTGRES, "PostgreSQL"),
-    (SqlaDialectName.SQLITE, "SQLite"),
-    (SqlaDialectName.SYBASE, "Sybase"),
-)
-
-
-class DatabaseDialectSelector(SchemaNode):
-    """
-    Node to choice an SQL dialect (for viewing DDL).
-    """
-    schema_type = String
-    default = SqlaDialectName.MYSQL
-    missing = SqlaDialectName.MYSQL
-    title = "SQL dialect to use (not all may be valid)"
-
-    def __init__(self, *args, **kwargs) -> None:
-        values, pv = get_values_and_permissible(DIALECT_CHOICES)
-        self.widget = RadioChoiceWidget(values=values)
-        self.validator = OneOf(pv)
-        super().__init__(*args, **kwargs)
-
-
-SQLITE_CHOICES = (
-    # http://docs.sqlalchemy.org/en/latest/dialects/
-    (ViewArg.SQLITE, "Binary SQLite database"),
-    (ViewArg.SQL, "SQL text to create SQLite database"),
-)
-
-
-class SqliteSelector(SchemaNode):
-    """
-    Node to select a way of downloading an SQLite database.
-    """
-    schema_type = String
-    default = ViewArg.SQLITE
-    missing = ViewArg.SQLITE
-    title = "Database download method"
-
-    def __init__(self, *args, **kwargs) -> None:
-        values, pv = get_values_and_permissible(SQLITE_CHOICES)
-        self.widget = RadioChoiceWidget(values=values)
-        self.validator = OneOf(pv)
-        super().__init__(*args, **kwargs)
-
-
-class IncludeBlobsNode(SchemaNode):
-    """
-    Boolean node: should BLOBs be included (for downloads)?
-    """
-    schema_type = Boolean
-    default = False
-    missing = False
-    title = "Include BLOBs?"
-    label = "Include binary large objects (BLOBs)? WARNING: may be large"
-
-
-class PolicyNode(MandatoryStringNode):
-    """
-    Node to capture a CamCOPS ID number policy, and make sure it is
-    syntactically valid.
-    """
-    def validator(self, node: SchemaNode, value: Any) -> None:
-        if not isinstance(value, str):
-            # unlikely!
-            raise Invalid(node, "Not a string")
-        req = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
-        policy = TokenizedPolicy(value)
-        if not policy.is_syntactically_valid():
-            raise Invalid(node, "Syntactically invalid policy")
-        if not policy.is_valid_from_req(req):
-            raise Invalid(
-                node,
-                "Invalid policy. (Have you referred to non-existent ID "
-                "numbers? Is the policy less restrictive than the tablet’s "
-                "minimum ID policy of {!r}?)".format(TABLET_ID_POLICY_STR)
-            )
-
-
-class IdDefinitionDescriptionNode(SchemaNode):
-    """
-    Node to capture the description of an ID number type.
-    """
-    schema_type = String
-    title = "Full description (e.g. “NHS number”)"
-    validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
-
-
-class IdDefinitionShortDescriptionNode(SchemaNode):
-    """
-    Node to capture the short description of an ID number type.
-    """
-    schema_type = String
-    title = "Short description (e.g. “NHS#”)"
-    description = "Try to keep it very short!"
-    validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
-
-
-class IdValidationMethodNode(OptionalStringNode):
-    """
-    Node to choose a build-in ID number validation method.
-    """
-    title = "Validation method"
-    description = "Built-in CamCOPS ID number validation method"
-    widget = SelectWidget(values=ID_NUM_VALIDATION_METHOD_CHOICES)
-    validator = OneOf(list(x[0] for x in ID_NUM_VALIDATION_METHOD_CHOICES))
-
-
-class Hl7AssigningAuthorityNode(OptionalStringNode):
-    """
-    Optional node to capture the name of an HL7 Assigning Authority.
-    """
-    title = "HL7 Assigning Authority"
-    description = (
-        "For HL7 messaging: "
-        "HL7 Assigning Authority for ID number (unique name of the "
-        "system/organization/agency/department that creates the data)."
-    )
-    validator = Length(0, HL7_AA_MAX_LEN)
-
-
-class Hl7IdTypeNode(OptionalStringNode):
-    """
-    Optional node to capture the name of an HL7 Identifier Type code.
-    """
-    title = "HL7 Identifier Type"
-    description = (
-        "For HL7 messaging: "
-        "HL7 Identifier Type code: ‘a code corresponding to the type "
-        "of identifier. In some cases, this code may be used as a "
-        "qualifier to the “Assigning Authority” component.’"
-    )
-    validator = Length(0, HL7_ID_TYPE_MAX_LEN)
-
+# -----------------------------------------------------------------------------
+# Validating dangerous operations
+# -----------------------------------------------------------------------------
 
 class HardWorkConfirmationSchema(CSRFSchema):
     """
@@ -1469,6 +1235,17 @@ class LoginForm(InformativeForm):
 CHANGE_PASSWORD_TITLE = "Change password"
 
 
+class MustChangePasswordNode(SchemaNode):
+    """
+    Boolean node: must the user change their password?
+    """
+    schema_type = Boolean
+    label = "User must change password at next login"
+    title = "Must change password at next login?"
+    default = True
+    missing = True
+
+
 class OldUserPasswordCheck(SchemaNode):
     """
     Schema to capture an old password (for when a password is being changed).
@@ -1483,6 +1260,17 @@ class OldUserPasswordCheck(SchemaNode):
         assert user is not None
         if not user.is_password_valid(value):
             raise Invalid(node, "Old password incorrect")
+
+
+class NewPasswordNode(SchemaNode):
+    """
+    Node to enter a new password.
+    """
+    schema_type = String
+    validator = Length(min=MINIMUM_PASSWORD_LENGTH)
+    widget = CheckedPasswordWidget()
+    title = "New password"
+    description = "Type the new password and confirm it"
 
 
 class ChangeOwnPasswordSchema(CSRFSchema):
@@ -1662,6 +1450,58 @@ class HL7RunLogForm(SimpleSubmitForm):
 # Task filters
 # =============================================================================
 
+class TextContentsSequence(SequenceSchema):
+    """
+    Sequence to capture multiple pieces of text (representing text contents
+    for a task filter).
+    """
+    text_sequence = SchemaNode(
+        String(),
+        title="Text contents criterion",
+        validator=Length(0, FILTER_TEXT_MAX_LEN)
+    )
+    title = "Text contents"
+    description = OR_JOIN_DESCRIPTION
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: List[str]) -> None:
+        assert isinstance(value, list)
+        if len(value) != len(set(value)):
+            raise Invalid(node, "You have specified duplicate text filters")
+
+
+class UploadingUserSequence(SequenceSchema):
+    """
+    Sequence to capture multiple users (for task filters: "uploaded by one of
+    the following users...").
+    """
+    user_id_sequence = MandatoryUserIdSelectorUsersAllowedToSee()
+    title = "Uploading users"
+    description = OR_JOIN_DESCRIPTION
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: List[int]) -> None:
+        assert isinstance(value, list)
+        if len(value) != len(set(value)):
+            raise Invalid(node, "You have specified duplicate users")
+
+
+class DevicesSequence(SequenceSchema):
+    """
+    Sequence to capture multiple client devices (for task filters: "uploaded by
+    one of the following devices...").
+    """
+    device_id_sequence = MandatoryDeviceIdSelector()
+    title = "Uploading devices"
+    description = OR_JOIN_DESCRIPTION
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: List[int]) -> None:
+        assert isinstance(value, list)
+        if len(value) != len(set(value)):
+            raise Invalid(node, "You have specified duplicate devices")
+
+
 class EditTaskFilterWhoSchema(Schema):
     """
     Schema to edit the "who" parts of a task filter.
@@ -1833,6 +1673,22 @@ class RefreshTasksForm(InformativeForm):
 # Trackers
 # =============================================================================
 
+class TaskTrackerOutputTypeSelector(SchemaNode):
+    """
+    Node to select the output format for a tracker.
+    """
+    _choices = ((ViewArg.HTML, "HTML"),
+                (ViewArg.PDF, "PDF"),
+                (ViewArg.XML, "XML"))
+
+    schema_type = String
+    default = ViewArg.HTML
+    missing = ViewArg.HTML
+    title = "View as"
+    widget = RadioChoiceWidget(values=_choices)
+    validator = OneOf(list(x[0] for x in _choices))
+
+
 class ChooseTrackerSchema(CSRFSchema):
     """
     Schema to select a tracker or CTV.
@@ -1875,6 +1731,21 @@ class ChooseTrackerForm(InformativeForm):
 # Reports, which use dynamically created forms
 # =============================================================================
 
+class ReportOutputTypeSelector(SchemaNode):
+    """
+    Node to select the output format for a report.
+    """
+    _choices = ((ViewArg.HTML, "HTML"),
+                (ViewArg.TSV, "TSV (tab-separated values)"))
+
+    schema_type = String
+    default = ViewArg.HTML
+    missing = ViewArg.HTML
+    title = "View as"
+    widget = RadioChoiceWidget(values=_choices)
+    validator = OneOf(list(x[0] for x in _choices))
+
+
 class ReportParamSchema(CSRFSchema):
     """
     Schema to embed a report type (ID) and output format (view type).
@@ -1899,6 +1770,37 @@ class ReportParamForm(SimpleSubmitForm):
 # =============================================================================
 # View DDL
 # =============================================================================
+
+DIALECT_CHOICES = (
+    # http://docs.sqlalchemy.org/en/latest/dialects/
+    (SqlaDialectName.MYSQL, "MySQL"),
+    (SqlaDialectName.MSSQL, "Microsoft SQL Server"),
+    (SqlaDialectName.ORACLE, "Oracle [WILL NOT WORK]"),
+    # ... Oracle doesn't work; SQLAlchemy enforces the Oracle rule of a 30-
+    # character limit for identifiers, only relaxed to 128 characters in
+    # Oracle 12.2 (March 2017).
+    (SqlaDialectName.FIREBIRD, "Firebird"),
+    (SqlaDialectName.POSTGRES, "PostgreSQL"),
+    (SqlaDialectName.SQLITE, "SQLite"),
+    (SqlaDialectName.SYBASE, "Sybase"),
+)
+
+
+class DatabaseDialectSelector(SchemaNode):
+    """
+    Node to choice an SQL dialect (for viewing DDL).
+    """
+    schema_type = String
+    default = SqlaDialectName.MYSQL
+    missing = SqlaDialectName.MYSQL
+    title = "SQL dialect to use (not all may be valid)"
+
+    def __init__(self, *args, **kwargs) -> None:
+        values, pv = get_values_and_permissible(DIALECT_CHOICES)
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
+        super().__init__(*args, **kwargs)
+
 
 class ViewDdlSchema(CSRFSchema):
     """
@@ -2117,6 +2019,28 @@ class DeleteUserForm(DeleteCancelForm):
 # Add/edit/delete groups
 # =============================================================================
 
+class PolicyNode(MandatoryStringNode):
+    """
+    Node to capture a CamCOPS ID number policy, and make sure it is
+    syntactically valid.
+    """
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        if not isinstance(value, str):
+            # unlikely!
+            raise Invalid(node, "Not a string")
+        req = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        policy = TokenizedPolicy(value)
+        if not policy.is_syntactically_valid():
+            raise Invalid(node, "Syntactically invalid policy")
+        if not policy.is_valid_from_req(req):
+            raise Invalid(
+                node,
+                "Invalid policy. (Have you referred to non-existent ID "
+                "numbers? Is the policy less restrictive than the tablet’s "
+                "minimum ID policy of {!r}?)".format(TABLET_ID_POLICY_STR)
+            )
+
+
 class EditGroupSchema(CSRFSchema):
     """
     Schema to edit a group.
@@ -2218,6 +2142,70 @@ class DeleteGroupForm(DeleteCancelForm):
 # Offer research dumps
 # =============================================================================
 
+class DumpTypeSelector(SchemaNode):
+    """
+    Node to select the filtering method for a data dump.
+    """
+    _choices = (
+        (ViewArg.EVERYTHING, "Everything"),
+        (ViewArg.USE_SESSION_FILTER, "Use the session filter settings"),
+        (ViewArg.SPECIFIC_TASKS_GROUPS, "Specify tasks/groups manually "
+                                        "(see below)")
+    )
+
+    schema_type = String
+    default = ViewArg.EVERYTHING
+    missing = ViewArg.EVERYTHING
+    title = "Dump method"
+    widget = RadioChoiceWidget(values=_choices)
+    validator = OneOf(list(x[0] for x in _choices))
+
+
+SQLITE_CHOICES = (
+    # http://docs.sqlalchemy.org/en/latest/dialects/
+    (ViewArg.SQLITE, "Binary SQLite database"),
+    (ViewArg.SQL, "SQL text to create SQLite database"),
+)
+
+
+class SqliteSelector(SchemaNode):
+    """
+    Node to select a way of downloading an SQLite database.
+    """
+    schema_type = String
+    default = ViewArg.SQLITE
+    missing = ViewArg.SQLITE
+    title = "Database download method"
+
+    def __init__(self, *args, **kwargs) -> None:
+        values, pv = get_values_and_permissible(SQLITE_CHOICES)
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
+        super().__init__(*args, **kwargs)
+
+
+class SortTsvByHeadingsNode(SchemaNode):
+    """
+    Boolean node: sort TSV files by column name?
+    """
+    schema_type = Boolean
+    label = "Sort TSV files by heading (column) names?"
+    title = "Sort columns?"
+    default = False
+    missing = False
+
+
+class IncludeBlobsNode(SchemaNode):
+    """
+    Boolean node: should BLOBs be included (for downloads)?
+    """
+    schema_type = Boolean
+    default = False
+    missing = False
+    title = "Include BLOBs?"
+    label = "Include binary large objects (BLOBs)? WARNING: may be large"
+
+
 class OfferDumpManualSchema(Schema):
     """
     Schema to offer the "manual" settings for a data dump (groups, task types).
@@ -2290,6 +2278,66 @@ class EditServerSettingsForm(ApplyCancelForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=EditServerSettingsSchema,
                          request=request, **kwargs)
+
+
+# =============================================================================
+# Edit ID number definitions
+# =============================================================================
+
+class IdDefinitionDescriptionNode(SchemaNode):
+    """
+    Node to capture the description of an ID number type.
+    """
+    schema_type = String
+    title = "Full description (e.g. “NHS number”)"
+    validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
+
+
+class IdDefinitionShortDescriptionNode(SchemaNode):
+    """
+    Node to capture the short description of an ID number type.
+    """
+    schema_type = String
+    title = "Short description (e.g. “NHS#”)"
+    description = "Try to keep it very short!"
+    validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
+
+
+class IdValidationMethodNode(OptionalStringNode):
+    """
+    Node to choose a build-in ID number validation method.
+    """
+    title = "Validation method"
+    description = "Built-in CamCOPS ID number validation method"
+    widget = SelectWidget(values=ID_NUM_VALIDATION_METHOD_CHOICES)
+    validator = OneOf(list(x[0] for x in ID_NUM_VALIDATION_METHOD_CHOICES))
+
+
+class Hl7AssigningAuthorityNode(OptionalStringNode):
+    """
+    Optional node to capture the name of an HL7 Assigning Authority.
+    """
+    title = "HL7 Assigning Authority"
+    description = (
+        "For HL7 messaging: "
+        "HL7 Assigning Authority for ID number (unique name of the "
+        "system/organization/agency/department that creates the data)."
+    )
+    validator = Length(0, HL7_AA_MAX_LEN)
+
+
+class Hl7IdTypeNode(OptionalStringNode):
+    """
+    Optional node to capture the name of an HL7 Identifier Type code.
+    """
+    title = "HL7 Identifier Type"
+    description = (
+        "For HL7 messaging: "
+        "HL7 Identifier Type code: ‘a code corresponding to the type "
+        "of identifier. In some cases, this code may be used as a "
+        "qualifier to the “Assigning Authority” component.’"
+    )
+    validator = Length(0, HL7_ID_TYPE_MAX_LEN)
 
 
 class EditIdDefinitionSchema(CSRFSchema):

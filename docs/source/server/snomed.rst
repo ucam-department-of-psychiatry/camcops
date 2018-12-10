@@ -24,6 +24,8 @@
 .. _SNOMED CT: https://en.wikipedia.org/wiki/SNOMED_CT
 .. _Systematized Nomenclature of Medicine: https://en.wikipedia.org/wiki/Systematized_Nomenclature_of_Medicine
 
+.. _snomed:
+
 SNOMED CT coding
 ================
 

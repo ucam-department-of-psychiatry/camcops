@@ -226,14 +226,18 @@ Server
 
   - Now make it available in exports.
 
-  - and document (inc. UK-specific files/licensing).
-
 - Implement (from command line) “export to anonymisation staging database” =
   with patient info per table. (Extend ``cc_dump.py``. See
   ``generate_anonymisation_staging_db()``, and it's also temporarily disabled
   in the master command-line handler.)
 
 - Upgrade Qt to 5.12 LTS.
+
+- FHIR support via ``fhirclient``.
+
+  - https://en.wikipedia.org/wiki/Fast_Healthcare_Interoperability_Resources
+  - https://www.hl7.org/fhir/overview.html
+  - CamCOPS will be a FHIR server, not a client.
 
 Documentation
 -------------
