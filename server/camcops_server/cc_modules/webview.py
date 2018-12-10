@@ -953,7 +953,7 @@ def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
     errors = False
 
     # "Number of tasks per page" form
-    tpp_form = TasksPerPageForm(request=req, css_class="form-inline")
+    tpp_form = TasksPerPageForm(request=req)
     if FormAction.SUBMIT_TASKS_PER_PAGE in req.POST:
         try:
             controls = list(req.POST.items())

@@ -51,6 +51,7 @@ camcops_server/cc_modules/cc_forms.py
 """
 
 import logging
+import os
 from pprint import pformat
 from typing import (Any, Callable, Dict, List, Optional,
                     Tuple, Type, TYPE_CHECKING)
@@ -99,9 +100,11 @@ from colander import (
     String,
 )
 from deform.form import Button
+from deform.field import Field  # delete me!
 from deform.widget import (
     CheckboxChoiceWidget,
     CheckedPasswordWidget,
+    FormWidget,
     HiddenWidget,
     MappingWidget,
     PasswordWidget,
@@ -113,6 +116,7 @@ from deform.widget import (
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 # We use some delayed imports here (search for "delayed import")
+from .cc_baseconstants import TEMPLATE_DIR
 from .cc_constants import (
     DEFAULT_ROWS_PER_PAGE,
     MINIMUM_PASSWORD_LENGTH,
@@ -168,7 +172,7 @@ OR_JOIN_DESCRIPTION = (
 )
 
 
-class Binding:
+class Binding(object):
     """
     Keys used for binding dictionaries with Colander schemas (schemata).
 
@@ -182,6 +186,16 @@ class Binding:
     REQUEST = "request"
     TRACKER_TASKS_ONLY = "tracker_tasks_only"
     USER = "user"
+
+
+class BootstrapCssClasses(object):
+    """
+    Constants from Bootstrap to control display.
+    """
+    FORM_INLINE = "form-inline"
+    RADIO_INLINE = "radio-inline"
+    LIST_INLINE = "list-inline"
+    CHECKBOX_INLINE = "checkbox-inline"
 
 
 # =============================================================================
@@ -259,6 +273,102 @@ class CSRFSchema(Schema):
     calling ``__init__()```...
     """
     csrf = CSRFToken()  # name must match ViewParam.CSRF_TOKEN
+
+
+# =============================================================================
+# Horizontal forms
+# =============================================================================
+
+class HorizontalFormWidget(FormWidget):
+    """
+    Widget to render a form horizontally, with custom templates.
+
+    See :class:`deform.template.ZPTRendererFactory`, which explains how strings
+    are resolved to Chameleon ZPT (Zope) templates.
+
+    See
+
+    - https://stackoverflow.com/questions/12201835/form-inline-inside-a-form-horizontal-in-twitter-bootstrap
+    - https://stackoverflow.com/questions/18429121/inline-form-nested-within-horizontal-form-in-bootstrap-3
+    - https://stackoverflow.com/questions/23954772/how-to-make-a-horizontal-form-with-deform-2
+    """  # noqa
+    basedir = os.path.join(TEMPLATE_DIR, "deform")
+    readonlydir = os.path.join(basedir, "readonly")
+    form = "horizontal_form.pt"
+    mapping_item = "horizontal_mapping_item.pt"
+
+    template = os.path.join(basedir, form)  # default "form" = deform/templates/form.pt  # noqa
+    readonly_template = os.path.join(readonlydir, form)  # default "readonly/form"  # noqa
+    item_template = os.path.join(basedir, mapping_item)  # default "mapping_item"  # noqa
+    readonly_item_template = os.path.join(readonlydir, mapping_item)  # default "readonly/mapping_item"  # noqa
+
+
+class HorizontalFormMixin(object):
+    """
+    Modification to a Deform form that displays itself with horizontal layout,
+    using custom templates via :class:`HorizontalFormWidget`. Not fantastic.
+    """
+    def __init__(self, schema: Schema, *args, **kwargs) -> None:
+        kwargs = kwargs or {}
+
+        # METHOD 1: add "form-inline" to the CSS classes.
+        # extra_classes = "form-inline"
+        # if "css_class" in kwargs:
+        #     kwargs["css_class"] += " " + extra_classes
+        # else:
+        #     kwargs["css_class"] = extra_classes
+
+        # Method 2: change the widget
+        schema.widget = HorizontalFormWidget()
+
+        # OK, proceed.
+        super().__init__(schema, *args, **kwargs)
+
+
+def add_css_class(kwargs: Dict[str, Any],
+                  extra_classes: str,
+                  param_name: str = "css_class") -> None:
+    """
+    Modifies a kwargs dictionary to add a CSS class to the ``css_class``
+    parameter.
+
+    Args:
+        kwargs: a dictionary
+        extra_classes: CSS classes to add (as a space-separated string)
+        param_name: parameter name to modify; by default, "css_class"
+    """
+    if param_name in kwargs:
+        kwargs[param_name] += " " + extra_classes
+    else:
+        kwargs[param_name] = extra_classes
+
+
+class FormInlineCssMixin(object):
+    """
+    Modification to a Deform form that makes it display "inline" via CSS. This
+    has the effect of wrapping everything horizontally.
+
+    Should PRECEDE the :class:`Form` (or something derived from it) in the
+    inheritance order.
+    """
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs = kwargs or {}
+        add_css_class(kwargs, BootstrapCssClasses.FORM_INLINE)
+        super().__init__(*args, **kwargs)
+
+
+def make_widget_horizontal(widget: Widget) -> None:
+    """
+    Applies Bootstrap "form-inline" styling to the widget.
+    """
+    widget.item_css_class = BootstrapCssClasses.FORM_INLINE
+
+
+def make_node_widget_horizontal(node: SchemaNode) -> None:
+    """
+    Applies Bootstrap "form-inline" styling to the schema node's widget.
+    """
+    make_widget_horizontal(node.widget)
 
 
 # =============================================================================
@@ -441,6 +551,7 @@ class MultiTaskSelector(SchemaNode):
             self.tracker_tasks_only = kw[Binding.TRACKER_TASKS_ONLY]
         values, pv = get_values_and_permissible(self.get_task_choices())
         self.widget = CheckboxChoiceWidget(values=values)
+        make_node_widget_horizontal(self)
         self.validator = Length(min=self.minimum_number)
 
     def get_task_choices(self) -> List[Tuple[str, str]]:
@@ -601,6 +712,7 @@ class OptionalSexSelector(OptionalStringNode):
     def __init__(self, *args, **kwargs) -> None:
         values, pv = get_values_and_permissible(SEX_CHOICES, True, "Any")
         self.widget = RadioChoiceWidget(values=values)
+        make_node_widget_horizontal(self)
         self.validator = OneOf(pv)
         super().__init__(*args, **kwargs)
 
@@ -614,6 +726,7 @@ class MandatorySexSelector(MandatoryStringNode):
     def __init__(self, *args, **kwargs) -> None:
         values, pv = get_values_and_permissible(SEX_CHOICES)
         self.widget = RadioChoiceWidget(values=values)
+        make_node_widget_horizontal(self)
         self.validator = OneOf(pv)
         super().__init__(*args, **kwargs)
 
@@ -1691,6 +1804,7 @@ class TasksPerPageForm(InformativeForm):
             schema,
             buttons=[Button(name=FormAction.SUBMIT_TASKS_PER_PAGE,
                             title="Set n/page")],
+            css_class=BootstrapCssClasses.FORM_INLINE,
             **kwargs
         )
 

@@ -123,6 +123,7 @@ from camcops_server.cc_modules.cc_pyramid import RouteCollection  # nopep8
 from camcops_server.cc_modules.cc_request import (
     CamcopsRequest,
     command_line_request_context,
+    get_command_line_request,
     pyramid_configurator_context,
 )  # nopep8
 from camcops_server.cc_modules.cc_snomed import send_athena_icd_snomed_to_xml  # nopep8
@@ -798,11 +799,14 @@ def dev_cli() -> None:
     # noinspection PyUnusedLocal
     engine = config.get_sqla_engine()
     # noinspection PyUnusedLocal
-    dbsession = config.get_dbsession_raw()
+    req = get_command_line_request()
+    # noinspection PyUnusedLocal
+    dbsession = req.dbsession
     log.error("""Entering developer command-line.
     - Config is available in 'config'.
     - Database engine is available in 'engine'.
-    - Database session is available in 'dbsession'. (Not working properly.)
+    - Dummy request is available in 'req'.
+    - Database session is available in 'dbsession'.
     """)
     import pdb
     pdb.set_trace()
