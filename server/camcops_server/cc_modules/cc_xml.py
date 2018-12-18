@@ -29,7 +29,6 @@ camcops_server/cc_modules/cc_xml.py
 """
 
 import base64
-import copy
 import datetime
 import logging
 from typing import Any, List, Optional, TYPE_CHECKING, Union
@@ -44,12 +43,12 @@ from semantic_version.base import Version
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
-from .cc_simpleobjects import XmlSimpleValue
-from .cc_sqla_coltypes import gen_camcops_blob_columns
+from camcops_server.cc_modules.cc_simpleobjects import XmlSimpleValue
+from camcops_server.cc_modules.cc_sqla_coltypes import gen_camcops_blob_columns
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
-    from .cc_summaryelement import SummaryElement
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -86,54 +85,6 @@ class XmlDataTypes(object):
     INTEGER = "integer"
     STRING = "string"
     TIME = "time"
-
-
-# =============================================================================
-# Display options
-# =============================================================================
-
-class TaskXmlOptions(object):
-    """
-    Information-holding object for options controlling XML representations of
-    tasks.
-    """
-    def __init__(self,
-                 include_plain_columns: bool = False,
-                 include_ancillary: bool = False,
-                 include_blobs: bool = False,
-                 include_calculated: bool = False,
-                 include_patient: bool = False,
-                 include_snomed: bool = False,
-                 skip_fields: List[str] = None,
-                 sort_by_name: bool = True,
-                 with_header_comments: bool = False) -> None:
-        """
-        Args:
-            include_plain_columns: include the base columns
-            include_ancillary: include ancillary tables as well as the main?
-            include_blobs: include binary large objects (BLOBs)
-            include_calculated: include fields calculated by the task
-            include_patient: include patient details?
-            include_snomed: include SNOMED-CT codes, if available?
-            skip_fields: fieldnames to skip
-            sort_by_name: sort by field/attribute names?
-            with_header_comments: include header-style comments?
-        """
-        self.include_plain_columns = include_plain_columns
-        self.include_calculated = include_calculated
-        self.include_blobs = include_blobs
-        self.include_patient = include_patient
-        self.include_ancillary = include_ancillary
-        self.include_snomed = include_snomed
-        self.skip_fields = skip_fields or []  # type: List[str]
-        self.sort_by_name = sort_by_name
-        self.with_header_comments = with_header_comments
-
-    def clone(self) -> "TaskXmlOptions":
-        """
-        Returns a copy of this object.
-        """
-        return copy.copy(self)
 
 
 # =============================================================================
@@ -270,7 +221,7 @@ def make_xml_branches_from_blobs(
     (e.g. task) that represent BLOBs.
 
     Args:
-        req: the :class:`CamcopsRequset`
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         obj: the SQLAlchemy ORM object
         skip_fields: database column names to skip
 

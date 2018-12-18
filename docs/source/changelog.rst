@@ -1580,12 +1580,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Server v2.3.1 and client v2.3.1 (in progress, from 2018-11-27)**
 
-- ``cardinal_pythonlib`` to 1.0.39
+- ``cardinal_pythonlib`` to 1.0.41
 
   - Fixes misconversion of previous 24-hour filter times to their morning
     equivalents, in the task filter view. To test, set e.g. a start time of
     01:30 and an end time of 23:30; save the filter; re-edit the filter and
     re-save it; check the end time stays correct.
+
+  - Improved e-mail handling, pro tem.
 
 - Fixed trivial bugs and added clarity about item sequencing.
 
@@ -1658,10 +1660,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
     Trigger problem. See link above. The ``create_db`` command works fine, and
     so does manual reindexing, but this remains a problem.
 
-  .. todo::
-
-    understand SQL Server behaviour (?bug) that causes a neverending DELETE
-    during the ``upgrade_db`` command.
+  .. todo:: understand SQL Server behaviour (?bug) that causes a neverending
+     DELETE during the ``upgrade_db`` command.
 
 - SNOMED-CT support.
 
@@ -1685,6 +1685,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
       xstring" mode. Went with (3).
 
 - Config file documentation moved from demo file to docs.
+
+- ``cherrypy`` from 18.0.1 to 18.1.0, to fix
+  https://github.com/cherrypy/cherrypy/issues/1618; nope, still not fixed. Must
+  be soon...
+
+- Removed relative imports, as per PEP8 and
+  https://stackoverflow.com/questions/4209641/absolute-vs-explicit-relative-import-of-python-module.
 
 - Improve export facilities.
 

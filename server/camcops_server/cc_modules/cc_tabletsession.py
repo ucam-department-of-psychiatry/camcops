@@ -35,12 +35,17 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 from pyramid.exceptions import HTTPBadRequest
 
-from .cc_client_api_core import fail_user_error, TabletParam
-from .cc_constants import DEVICE_NAME_FOR_SERVER, USER_NAME_FOR_SYSTEM
-from .cc_device import Device
-from .cc_pyramid import RequestMethod
-from .cc_user import User
-from .cc_version import (
+from camcops_server.cc_modules.cc_client_api_core import (
+    fail_user_error,
+    TabletParam,
+)
+from camcops_server.cc_modules.cc_constants import (
+    DEVICE_NAME_FOR_SERVER,
+    USER_NAME_FOR_SYSTEM,
+)
+from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_pyramid import RequestMethod
+from camcops_server.cc_modules.cc_version import (
     FIRST_CPP_TABLET_VER,
     FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE,
     FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE,
@@ -50,7 +55,7 @@ from .cc_version import (
 )
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

@@ -91,6 +91,7 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     TASK_FIELDS = strseq("severity", 1, 5) + strseq("change", 1, 5)
 
+    # noinspection PyUnresolvedReferences
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         prefix = "CGI-SCH severity: "
         ylabel = "Score (1-7)"
@@ -132,6 +133,7 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             ),
         ]
 
+    # noinspection PyUnresolvedReferences
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
@@ -164,6 +166,7 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             self.field_contents_valid()
         )
 
+    # noinspection PyUnresolvedReferences
     def get_task_html(self, req: CamcopsRequest) -> str:
         severity_dict = {
             None: None,

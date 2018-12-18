@@ -44,31 +44,31 @@ from sqlalchemy.sql.expression import and_, join, literal, select
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import BigInteger, Boolean, DateTime, Integer
 
-from .cc_client_api_core import (
+from camcops_server.cc_modules.cc_client_api_core import (
     BatchDetails,
     fail_user_error,
     UploadTableChanges,
 )
-from .cc_constants import ERA_NOW
-from .cc_idnumdef import IdNumDefinition
-from .cc_patient import Patient
-from .cc_patientidnum import PatientIdNum
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_constants import ERA_NOW
+from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     EraColType,
     isotzdatetime_to_utcdatetime,
     PendulumDateTimeAsIsoTextColType,
     TableNameColType,
 )
-from .cc_sqlalchemy import Base
-from .cc_task import (
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_task import (
     all_task_tablenames,
     tablename_to_task_class_dict,
     Task,
 )
-from .cc_user import User
+from camcops_server.cc_modules.cc_user import User
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -86,7 +86,7 @@ def task_factory_unfiltered(dbsession: SqlASession,
     :class:`camcops_server.cc_modules.cc_taskindex.TaskIndexEntry`.)
 
     Args:
-        dbsession: SQLAlchemy database session
+        dbsession: a :class:`sqlalchemy.orm.session.Session`
         basetable: name of the task's base table
         serverpk: server PK of the task
 
@@ -290,8 +290,8 @@ class PatientIdNumIndexEntry(Base):
         # Delete the old
         removal_pks = tablechanges.idnum_delete_index_pks
         if removal_pks:
-            log.debug("Deleting old ID number indexes: server PKs {}".format(
-                removal_pks))
+            log.debug("Deleting old ID number indexes: server PKs {}",
+                      removal_pks)
             session.execute(
                 indextable.delete()
                 .where(indextable.c.idnum_pk.in_(removal_pks))
@@ -300,8 +300,7 @@ class PatientIdNumIndexEntry(Base):
         # Create the new
         addition_pks = tablechanges.idnum_add_index_pks
         if addition_pks:
-            log.debug("Adding ID number indexes: server PKs {}".format(
-                addition_pks))
+            log.debug("Adding ID number indexes: server PKs {}", addition_pks)
             # noinspection PyPep8,PyProtectedMember
             session.execute(
                 indextable.insert().from_select(
@@ -625,7 +624,7 @@ class TaskIndexEntry(Base):
         idxtable = cls.__table__  # type: Table
         idxcols = idxtable.columns
         tasktablename = taskclass.tablename
-        log.info("Rebuilding task index for {}".format(tasktablename))
+        log.info("Rebuilding task index for {}", tasktablename)
         # Delete all entries for this task
         if delete_first:
             session.execute(
@@ -705,8 +704,8 @@ class TaskIndexEntry(Base):
         # Delete the old.
         delete_index_pks = tablechanges.task_delete_index_pks
         if delete_index_pks:
-            log.debug("Deleting old task indexes: {}, server PKs {}".format(
-                tasktablename, delete_index_pks))
+            log.debug("Deleting old task indexes: {}, server PKs {}",
+                      tasktablename, delete_index_pks)
             # noinspection PyProtectedMember
             session.execute(
                 idxtable.delete()
@@ -717,8 +716,8 @@ class TaskIndexEntry(Base):
         # Create the new.
         reindex_pks = tablechanges.task_reindex_pks
         if reindex_pks:
-            log.debug("Recreating task indexes: {}, server PKs {}".format(
-                tasktablename, reindex_pks))
+            log.debug("Recreating task indexes: {}, server PKs {}",
+                      tasktablename, reindex_pks)
             # noinspection PyUnboundLocalVariable
             q = (
                 session.query(taskclass)
@@ -741,7 +740,7 @@ def reindex_everything(session: SqlASession) -> None:
         session: an SQLAlchemy Session
     """
     now = Pendulum.utcnow()
-    log.info("Reindexing database; indexed_at_utc = {}".format(now))
+    log.info("Reindexing database; indexed_at_utc = {}", now)
     PatientIdNumIndexEntry.rebuild_idnum_index(session, now)
     TaskIndexEntry.rebuild_entire_task_index(session, now)
 

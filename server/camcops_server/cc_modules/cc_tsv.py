@@ -31,11 +31,11 @@ exports.**
 
 from collections import OrderedDict
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 
-from .cc_convert import tsv_escape
+from camcops_server.cc_modules.cc_convert import tsv_escape
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -73,7 +73,7 @@ class TsvPage(object):
         """
         return len(self.rows) == 0
 
-    def _add_headings_if_absent(self, headings: List[str]) -> None:
+    def _add_headings_if_absent(self, headings: Iterable[str]) -> None:
         """
         Add any headings we've not yet seen to our list of headings.
         """

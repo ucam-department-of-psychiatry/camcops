@@ -1389,7 +1389,7 @@ def upload_record_core(
         serverrec = record_exists(req, table, clientpk_name, clientpk_value)
 
     if DEBUG_UPLOAD:
-        log.debug("upload_record_core: {}, {}".format(table.name, serverrec))
+        log.debug("upload_record_core: {}, {}", table.name, serverrec)
 
     oldserverpk = serverrec.server_pk
     urr = UploadRecordResult(
@@ -1424,7 +1424,7 @@ def upload_record_core(
         urr.note_specifically_marked_preservation_pks(preservation_pks)
 
     if DEBUG_UPLOAD:
-        log.debug("upload_record_core: {}, {!r}".format(table.name, urr))
+        log.debug("upload_record_core: {}, {!r}", table.name, urr)
     return urr
 
 
@@ -1493,7 +1493,7 @@ def audit_upload(req: CamcopsRequest,
         msg += ", ".join(x.description() for x in changes)
     else:
         msg += "No changes"
-    log.info("audit_upload: {}".format(msg))
+    log.info("audit_upload: {}", msg)
     audit(req, msg)
 
 
@@ -1745,7 +1745,7 @@ def commit_all(req: CamcopsRequest, batchdetails: BatchDetails) -> None:
         batchdetails: the :class:`BatchDetails`
     """
     tables = get_dirty_tables(req)
-    # log.debug("Dirty tables: {}".format(list(t.name for t in tables)))
+    # log.debug("Dirty tables: {}", list(t.name for t in tables))
     tables.sort(key=upload_commit_order_sorter)
 
     changelist = []  # type: List[UploadTableChanges]
@@ -1840,8 +1840,8 @@ def commit_table(req: CamcopsRequest,
     # Update the records we're adding
     addition_pks = tablechanges.addition_pks
     if addition_pks:
-        # log.debug("commit_table: {}, adding server PKs {}".format(
-        #     tablename, addition_pks))
+        # log.debug("commit_table: {}, adding server PKs {}",
+        #           tablename, addition_pks)
         dbsession.execute(
             update(table)
             .where(table.c[FN_PK].in_(addition_pks))
@@ -1860,8 +1860,8 @@ def commit_table(req: CamcopsRequest,
     # Update the records we're removing
     removal_pks = tablechanges.removal_pks
     if removal_pks:
-        # log.debug("commit_table: {}, removing server PKs {}".format(
-        #     tablename, removal_pks))
+        # log.debug("commit_table: {}, removing server PKs {}",
+        #           tablename, removal_pks)
         dbsession.execute(
             update(table)
             .where(table.c[FN_PK].in_(removal_pks))
@@ -1874,8 +1874,8 @@ def commit_table(req: CamcopsRequest,
     # Preserve necessary records
     preservation_pks = tablechanges.preservation_pks
     if preservation_pks:
-        # log.debug("commit_table: {}, preserving server PKs {}".format(
-        #     tablename, preservation_pks))
+        # log.debug("commit_table: {}, preserving server PKs {}",
+        #           tablename, preservation_pks)
         new_era = batchdetails.new_era
         dbsession.execute(
             update(table)
@@ -1920,7 +1920,7 @@ def commit_table(req: CamcopsRequest,
         # ... otherwise a call to clear_dirty_tables() must be made.
 
     if DEBUG_UPLOAD:
-        log.debug("commit_table: {}".format(tablechanges))
+        log.debug("commit_table: {}", tablechanges)
 
     return tablechanges
 
@@ -2420,8 +2420,9 @@ def op_which_keys_to_send(req: CamcopsRequest) -> str:
         client_reports_move_off_tablet = False
         log.warning(
             "op_which_keys_to_send: old client not reporting "
-            "{}; requesting all records".format(
-                TabletParam.MOVE_OFF_TABLET_VALUES))
+            "{}; requesting all records",
+            TabletParam.MOVE_OFF_TABLET_VALUES
+        )
 
     clientinfo = []  # type: List[WhichKeyToSendInfo]
 
@@ -2705,7 +2706,7 @@ def process_table_for_onestep_upload(
     update_indexes(req, batchdetails, tablechanges)
 
     if DEBUG_UPLOAD:
-        log.debug("process_table_for_onestep_upload: {}".format(tablechanges))
+        log.debug("process_table_for_onestep_upload: {}", tablechanges)
 
     return tablechanges
 
@@ -2964,7 +2965,7 @@ class ClientApiTests(DemoDatabaseTestCase):
         self.assertEqual(unescape_newlines(escape_newlines(ts2)), ts2,
                          "Bug in escape_newlines() or unescape_newlines()")
 
-        # TODO: more tests here... ?
+        # TODO: client_api.ClientApiTests: more tests here... ?
 
     def test_client_api_antique_support_1(self):
         self.announce("test_client_api_antique_support_1")

@@ -113,6 +113,7 @@ class Audit(TaskHasPatientMixin, Task,
                            comment="Total score (/40)"),
         ]
 
+    # noinspection PyUnresolvedReferences
     def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
@@ -132,6 +133,7 @@ class Audit(TaskHasPatientMixin, Task,
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
+    # noinspection PyUnresolvedReferences
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         exceeds_cutoff = score >= 8
@@ -287,6 +289,7 @@ class AuditC(TaskHasPatientMixin, Task,
             q3_dict[option] = str(option) + " – " + \
                 self.wxstring(req, "q3to8_option" + str(option))
 
+        # noinspection PyUnresolvedReferences
         h = """
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">

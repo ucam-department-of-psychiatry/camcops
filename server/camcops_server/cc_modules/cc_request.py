@@ -66,26 +66,29 @@ from webob.multidict import MultiDict
 
 # Note: everything uder the sun imports this file, so keep the intra-package
 # imports as minimal as possible.
-from .cc_baseconstants import DOCUMENTATION_URL, ENVVAR_CONFIG_FILE
-from .cc_config import (
+from camcops_server.cc_modules.cc_baseconstants import (
+    DOCUMENTATION_URL,
+    ENVVAR_CONFIG_FILE,
+)
+from camcops_server.cc_modules.cc_config import (
     CamcopsConfig,
     get_config,
     get_config_filename_from_os_env,
 )
-from .cc_constants import (
+from camcops_server.cc_modules.cc_constants import (
     CSS_PAGED_MEDIA,
     DateFormat,
     DEFAULT_PLOT_DPI,
     USE_SVG_IN_HTML,
 )
-from .cc_idnumdef import (
+from camcops_server.cc_modules.cc_idnumdef import (
     get_idnum_definitions,
     IdNumDefinition,
     validate_id_number,
 )
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
-from .cc_pyramid import (
+from camcops_server.cc_modules.cc_pyramid import (
     camcops_add_mako_renderer,
     CamcopsAuthenticationPolicy,
     CamcopsAuthorizationPolicy,
@@ -96,18 +99,24 @@ from .cc_pyramid import (
     RouteCollection,
     STATIC_CAMCOPS_PACKAGE_PATH,
 )
-from .cc_serversettings import get_server_settings, ServerSettings
-from .cc_snomed import SnomedConcept
-from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
-from .cc_tabletsession import TabletSession
-from .cc_user import User
+from camcops_server.cc_modules.cc_serversettings import (
+    get_server_settings,
+    ServerSettings,
+)
+from camcops_server.cc_modules.cc_snomed import SnomedConcept
+from camcops_server.cc_modules.cc_string import (
+    all_extra_strings_as_dicts,
+    APPSTRING_TASKNAME,
+)
+from camcops_server.cc_modules.cc_tabletsession import TabletSession
+from camcops_server.cc_modules.cc_user import User
 
 if TYPE_CHECKING:
     from matplotlib.axis import Axis
     from matplotlib.axes import Axes
     # from matplotlib.figure import SubplotBase
     from matplotlib.text import Text
-    from .cc_session import CamcopsSession
+    from camcops_server.cc_modules.cc_session import CamcopsSession
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -209,7 +218,7 @@ class CamcopsRequest(Request):
             pyramid_session = request.session  # type: ISession
         """
         if self._camcops_session is None:
-            from .cc_session import CamcopsSession  # delayed import
+            from camcops_server.cc_modules.cc_session import CamcopsSession  # delayed import  # noqa
             self._camcops_session = CamcopsSession.get_session_using_cookies(
                 self)
             if DEBUG_CAMCOPS_SESSION:
@@ -362,7 +371,7 @@ class CamcopsRequest(Request):
         the information provided by the tablet in the POST request, not
         anything already loaded/reset via cookies.
         """
-        from .cc_session import CamcopsSession  # delayed import
+        from camcops_server.cc_modules.cc_session import CamcopsSession  # delayed import  # noqa
         ts = TabletSession(self)
         new_cc_session = CamcopsSession.get_session_for_tablet(ts)
         # ... does login
@@ -967,7 +976,7 @@ class CamcopsRequest(Request):
         Returns the integer user ID for the current request.
         """
         if self._debugging_user:
-            return self._debugging_user.user_id
+            return self._debugging_user.id
         return self.camcops_session.user_id
 
     # -------------------------------------------------------------------------
@@ -1503,7 +1512,7 @@ def _get_core_debugging_request() -> CamcopsDummyRequest:
     """
     Returns a basic :class:`CamcopsDummyRequest`.
     """
-    with pyramid_configurator_context(debug_toolbar=False) as config:
+    with pyramid_configurator_context(debug_toolbar=False) as pyr_config:
         req = CamcopsDummyRequest(
             environ={
                 ENVVAR_CONFIG_FILE: os.environ[ENVVAR_CONFIG_FILE],
@@ -1518,8 +1527,8 @@ def _get_core_debugging_request() -> CamcopsDummyRequest:
         # itself isn't OK ("TypeError: WSGI environ must be a dict; you passed
         # environ({'key1': 'value1', ...})
 
-        req.registry = config.registry
-        config.begin(request=req)
+        req.registry = pyr_config.registry
+        pyr_config.begin(request=req)
         return req
 
 
@@ -1536,6 +1545,9 @@ def get_command_line_request() -> CamcopsRequest:
     # If we proceed with an out-of-date database, we will have problems, and
     # those problems may not be immediately apparent, which is bad. So:
     req.config.assert_database_ok()
+
+    # Ensure we have a user
+    req._debugging_user = User.get_system_user(req.dbsession)
 
     return req
 

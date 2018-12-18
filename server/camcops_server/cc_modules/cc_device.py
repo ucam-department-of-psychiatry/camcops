@@ -36,19 +36,19 @@ from sqlalchemy.orm import Query, relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
 
-from .cc_constants import DEVICE_NAME_FOR_SERVER
-from .cc_report import Report
-from .cc_unittest import DemoDatabaseTestCase
-from .cc_user import User
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_constants import DEVICE_NAME_FOR_SERVER
+from camcops_server.cc_modules.cc_report import Report
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_user import User
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     DeviceNameColType,
     SemanticVersionColType,
 )
-from .cc_sqlalchemy import Base
-from .cc_version import CAMCOPS_SERVER_VERSION
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
 # =============================================================================

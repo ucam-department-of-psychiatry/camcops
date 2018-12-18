@@ -31,7 +31,7 @@ camcops_server/cc_modules/cc_version.py
 from typing import Union
 
 from semantic_version import Version
-from .cc_version_string import (
+from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
     MINIMUM_TABLET_VERSION_STRING,
 )

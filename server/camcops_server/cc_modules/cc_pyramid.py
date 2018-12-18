@@ -67,12 +67,12 @@ from sqlalchemy.orm import Query
 from sqlalchemy.sql.selectable import Select
 from zope.interface import implementer
 
-from .cc_baseconstants import TEMPLATE_DIR
-from .cc_cache import cache_region_static
-from .cc_constants import DEFAULT_ROWS_PER_PAGE
+from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR
+from camcops_server.cc_modules.cc_cache import cache_region_static
+from camcops_server.cc_modules.cc_constants import DEFAULT_ROWS_PER_PAGE
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

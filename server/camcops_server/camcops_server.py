@@ -60,7 +60,7 @@ import multiprocessing  # nopep8
 # from pprint import pformat  # nopep8
 import sys  # nopep8
 import tempfile  # nopep8
-from typing import Any, Dict, Optional, TYPE_CHECKING  # nopep8
+from typing import Any, Dict, List, Optional, TYPE_CHECKING  # nopep8
 import unittest  # nopep8
 
 import cherrypy  # nopep8
@@ -118,7 +118,10 @@ from camcops_server.cc_modules.cc_constants import (
     USER_NAME_FOR_SYSTEM,
 )  # nopep8
 from camcops_server.cc_modules.cc_exception import raise_runtime_error  # nopep8
-from camcops_server.cc_modules.cc_hl7 import send_all_pending_incremental_export_messages  # nopep8
+from camcops_server.cc_modules.cc_export import (
+    print_export_queue,
+    export,
+)  # nopep8
 from camcops_server.cc_modules.cc_pyramid import RouteCollection  # nopep8
 from camcops_server.cc_modules.cc_request import (
     CamcopsRequest,
@@ -310,7 +313,7 @@ def test_serve_pyramid(application: Router,
     ensure_database_is_ok()
     precache()
     server = make_server(host, port, application)
-    log.info("Serving on host={}, port={}".format(host, port))
+    log.info("Serving on host={}, port={}", host, port)
     server.serve_forever()
 
 
@@ -512,8 +515,7 @@ def get_username_from_cli(req: CamcopsRequest,
             log.error("... no such user!")
             continue
         if username == USER_NAME_FOR_SYSTEM:
-            log.error("... username {!r} is reserved".format(
-                USER_NAME_FOR_SYSTEM))
+            log.error("... username {!r} is reserved", USER_NAME_FOR_SYSTEM)
             continue
         return username
 
@@ -528,7 +530,7 @@ def get_new_password_from_cli(username: str) -> str:
                                       "{}".format(username))
         if not password1 or len(password1) < MINIMUM_PASSWORD_LENGTH:
             log.error("... passwords can't be blank or shorter than {} "
-                      "characters".format(MINIMUM_PASSWORD_LENGTH))
+                      "characters", MINIMUM_PASSWORD_LENGTH)
             continue
         password2 = ask_user_password("New password for user {} "
                                       "(again)".format(username))
@@ -594,6 +596,7 @@ def print_database_title() -> None:
         print(req.database_title)
 
 
+_ = '''
 def generate_anonymisation_staging_db() -> None:
     """
     Generates an anonymisation staging database -- that is, a database with
@@ -624,7 +627,8 @@ def generate_anonymisation_staging_db() -> None:
             for r in rows:
                 f.write(get_tsv_line_from_dict(r) + "\n")
     db.commit()
-    log.info("Draft data dictionary written to {}".format(ddfilename))
+    log.info("Draft data dictionary written to {}", ddfilename)
+'''
 
 
 def make_superuser(username: str = None) -> bool:
@@ -639,11 +643,11 @@ def make_superuser(username: str = None) -> bool:
         )
         existing_user = User.get_user_by_name(req.dbsession, username)
         if existing_user:
-            log.info("Giving superuser status to {!r}".format(username))
+            log.info("Giving superuser status to {!r}", username)
             existing_user.superuser = True
             success = True
         else:
-            log.info("Creating superuser {!r}".format(username))
+            log.info("Creating superuser {!r}", username)
             password = get_new_password_from_cli(username=username)
             success = User.create_superuser(req, username, password)
         if success:
@@ -665,7 +669,7 @@ def reset_password(username: str = None) -> bool:
             starting_username=username,
             must_exist=True,
         )
-        log.info("Resetting password for user {!r}".format(username))
+        log.info("Resetting password for user {!r}", username)
         password = get_new_password_from_cli(username)
         success = set_password_directly(req, username, password)
         if success:
@@ -688,23 +692,39 @@ def enable_user_cli(username: str = None) -> bool:
             )
         else:
             if not User.user_exists(req, username):
-                log.critical("No such user: {!r}".format(username))
+                log.critical("No such user: {!r}", username)
                 return False
         SecurityLoginFailure.enable_user(req, username)
         log.info("Enabled.")
         return True
 
 
-def send_incremental_export(show_queue_only: bool) -> None:
+def cmd_show_export_queue(recipient_names: List[str] = None,
+                          via_index: bool = True) -> None:
+    """
+    Shows tasks that would be exported.
+
+    Args:
+        recipient_names: list of export recipient names (as per the config
+            file); blank for "all"
+        via_index: use the task index (faster)?
+    """
+    with command_line_request_context() as req:
+        print_export_queue(req, recipient_names, via_index=via_index)
+
+
+def cmd_export(recipient_names: List[str] = None,
+               via_index: bool = True) -> None:
     """
     Send all outbound incremental export messages (e.g. HL7).
 
     Args:
-        show_queue_only: don't send them; just show the outbound queue.
+        recipient_names: list of export recipient names (as per the config
+            file); blank for "all"
+        via_index: use the task index (faster)?
     """
     with command_line_request_context() as req:
-        send_all_pending_incremental_export_messages(req.config,
-                                                     show_queue_only=show_queue_only)
+        export(req, recipient_names, via_index=via_index)
 
 
 def reindex(cfg: CamcopsConfig) -> None:
@@ -764,7 +784,7 @@ def self_test(show_only: bool = False) -> None:
         #       defined for this MetaData instance."
         # So, hack it is.
 
-        # noinspection PyProtectedMember
+        # noinspection PyProtectedMember,PyUnresolvedReferences
         skip_testclass_subclasses = [
             # The ugly hack: what you see from
             # unittest.TestCase.__subclasses__() from a clean import:
@@ -1223,7 +1243,7 @@ def camcops_main() -> None:
         report_every=args.report_every,
         dummy_run=args.dummy_run,
         info_only=args.info_only,
-        skip_hl7_logs=args.skip_hl7_logs,
+        skip_export_logs=args.skip_hl7_logs,
         skip_audit_logs=args.skip_audit_logs,
         default_group_id=args.default_group_id,
         default_group_name=args.default_group_name,
@@ -1330,26 +1350,36 @@ def camcops_main() -> None:
     ddl_parser.set_defaults(
         func=lambda args: print(get_all_ddl(dialect_name=args.dialect)))
 
+    def _add_export_options(sp: ArgumentParser) -> None:
+        sp.add_argument(
+            '--recipients', type=str, nargs="*",
+            help="Export recipients (as named in config file); "
+                 "ignore to show all")
+        sp.add_argument(
+            '--disable_task_index', action="store_true",
+            help="Disable use of the task index (for debugging only)")
+
     # Send incremental export messages
-    incremental_export_parser = add_sub(
-        subparsers, "incremental_export",
+    export_parser = add_sub(
+        subparsers, "export",
         help="Trigger pending exports")
-    incremental_export_parser.set_defaults(
-        func=lambda args: send_incremental_export(show_queue_only=False))
+    _add_export_options(export_parser)
+    export_parser.set_defaults(
+        func=lambda args: cmd_export(
+            args.recipients,
+            via_index=not args.disable_task_index,
+        ))
 
     # Show incremental export queue
     show_export_queue_parser = add_sub(
-        subparsers, "show_incremental_export_queue",
+        subparsers, "show_export_queue",
         help="View outbound export queue (without sending)")
+    _add_export_options(show_export_queue_parser)
     show_export_queue_parser.set_defaults(
-        func=lambda args: send_incremental_export(show_queue_only=True))
-
-    # *** ANONYMOUS STAGING DATABASE DISABLED TEMPORARILY
-    # anonstaging_parser = add_sub(
-    #     subparsers, "anonstaging",
-    #     help="Generate/regenerate anonymisation staging database")
-    # anonstaging_parser.set_defaults(
-    #     func=lambda args: generate_anonymisation_staging_db())
+        func=lambda args: cmd_show_export_queue(
+            recipient_names=args.recipients,
+            via_index=not args.disable_task_index,
+        ))
 
     # -------------------------------------------------------------------------
     # Test options
@@ -1567,8 +1597,8 @@ def camcops_main() -> None:
     # Say hello
     log.info("CamCOPS server version {}", CAMCOPS_SERVER_VERSION)
     log.info("Created by Rudolf Cardinal. See {}", CAMCOPS_URL)
-    log.debug("Python interpreter: {!r}".format(sys.executable))
-    log.debug("This program: {!r}".format(__file__))
+    log.debug("Python interpreter: {!r}", sys.executable)
+    log.debug("This program: {!r}", __file__)
     log.debug("Command-line arguments: {!r}", progargs)
     log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
     if DEBUG_LOG_CONFIG:

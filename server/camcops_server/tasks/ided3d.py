@@ -26,7 +26,7 @@ camcops_server/tasks/ided3d.py
 
 """
 
-from typing import Any
+from typing import Any, List
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
@@ -441,6 +441,7 @@ class IDED3D(TaskHasPatientMixin, Task):
 
     def get_stage_html(self) -> str:
         html = IDED3DStage.get_html_table_header()
+        # noinspection PyTypeChecker
         for s in self.stages:
             html += s.get_html_table_row()
         html += """</table>"""
@@ -448,6 +449,7 @@ class IDED3D(TaskHasPatientMixin, Task):
 
     def get_trial_html(self) -> str:
         html = IDED3DTrial.get_html_table_header()
+        # noinspection PyTypeChecker
         for t in self.trials:
             html += t.get_html_table_row()
         html += """</table>"""

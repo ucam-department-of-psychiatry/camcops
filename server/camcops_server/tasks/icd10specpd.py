@@ -360,6 +360,7 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                 comment="Meets criteria for dependent PD?"),
         ]
 
+    # noinspection PyUnresolvedReferences
     def is_pd_excluded(self) -> bool:
         return (
             is_false(self.g1) or
@@ -439,6 +440,7 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             return None
         return self.count_booleans(self.DISSOCIAL_FIELDS) >= 3
 
+    # noinspection PyUnresolvedReferences
     def has_eupd_i(self) -> Optional[bool]:
         hpd = self.has_pd()
         if not hpd:

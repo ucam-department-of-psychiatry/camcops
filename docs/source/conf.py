@@ -31,7 +31,10 @@ import sys
 import logging
 from typing import Any, Callable, Dict, List, Tuple
 
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 from docutils import nodes
 from docutils.nodes import Element, Node
 from docutils.parsers.rst.roles import register_canonical_role
@@ -40,7 +43,7 @@ from sphinx.application import Sphinx
 
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION_STRING
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # -- Path setup --------------------------------------------------------------

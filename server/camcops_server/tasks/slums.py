@@ -26,7 +26,7 @@ camcops_server/tasks/slums.py
 
 """
 
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
@@ -362,6 +362,7 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             <table class="{CssClass.TASKDETAIL}">
         """.format(CssClass=CssClass)
         h += subheading_spanning_two_columns("Images of tests: clock, shapes")
+        # noinspection PyTypeChecker
         h += tr(
             td(get_blob_img_html(self.clockpicture),
                td_width="50%", td_class=CssClass.PHOTO),

@@ -26,8 +26,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %else:
 
     <div class="ctv_datelimit_start">
-        Start date for search: ${ format_datetime(tracker.taskfilter.start_datetime,
-                                                  DateFormat.ISO8601_DATE_ONLY, default="−∞") }
+        Start date/time for search: ${ format_datetime(tracker.taskfilter.start_datetime,
+                                                       DateFormat.ISO8601_HUMANIZED_TO_MINUTES, default="−∞") }
     </div>
 
     %for task in tracker.collection.all_tasks:
@@ -118,7 +118,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     %endfor
 
     <div class="ctv_datelimit_end">
-        End date for search: ${ format_datetime(tracker.taskfilter.end_datetime,
-                                                DateFormat.ISO8601_DATE_ONLY, default="+∞") }
+        End date/time for search: ${ format_datetime(tracker.taskfilter.end_datetime,
+                                                     DateFormat.ISO8601_HUMANIZED_TO_MINUTES, default="+∞") }
     </div>
 %endif

@@ -29,17 +29,22 @@ camcops_server/cc_modules/cc_taskfactory.py
 """
 
 import logging
-from typing import Optional, Type, Union
+from typing import Optional, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pyramid.httpexceptions as exc
-from sqlalchemy.orm import Query
+from sqlalchemy.orm import Query, Session as SqlASession
 
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
-from .cc_request import CamcopsRequest
-from .cc_task import tablename_to_task_class_dict, Task
-from .cc_taskindex import TaskIndexEntry
+from camcops_server.cc_modules.cc_task import (
+    tablename_to_task_class_dict,
+    Task,
+)
+from camcops_server.cc_modules.cc_taskindex import TaskIndexEntry
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -49,7 +54,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 def task_query_restricted_to_permitted_users(
-        req: CamcopsRequest,
+        req: "CamcopsRequest",
         q: Query,
         cls: Union[Type[Task], Type[TaskIndexEntry]],
         as_dump: bool) -> Optional[Query]:
@@ -87,8 +92,8 @@ def task_query_restricted_to_permitted_users(
     if not group_ids:
         return None
 
-    # noinspection PyProtectedMember
     if cls is TaskIndexEntry:
+        # noinspection PyUnresolvedReferences
         q = q.filter(cls.group_id.in_(group_ids))
     else:  # a kind of Task
         q = q.filter(cls._group_id.in_(group_ids))
@@ -100,7 +105,7 @@ def task_query_restricted_to_permitted_users(
 # Make a single task given its base table name and server PK
 # =============================================================================
 
-def task_factory(req: CamcopsRequest, basetable: str,
+def task_factory(req: "CamcopsRequest", basetable: str,
                  serverpk: int) -> Optional[Task]:
     """
     Load a task from the database and return it.
@@ -127,4 +132,28 @@ def task_factory(req: CamcopsRequest, basetable: str,
     # noinspection PyProtectedMember
     q = dbsession.query(cls).filter(cls._pk == serverpk)
     q = task_query_restricted_to_permitted_users(req, q, cls, as_dump=False)
+    return q.first()
+
+
+def task_factory_no_security_checks(dbsession: SqlASession, basetable: str,
+                                    serverpk: int) -> Optional[Task]:
+    """
+    Load a task from the database and return it.
+    Filters to tasks permitted to the current user.
+
+    Args:
+        dbsession: a :class:`sqlalchemy.orm.session.Session`
+        basetable: name of the task's base table
+        serverpk: server PK of the task
+
+    Returns:
+        the task, or ``None`` if the PK doesn't exist
+
+    Raises:
+        :exc:`KeyError` if the table doesn't exist
+    """
+    d = tablename_to_task_class_dict()
+    cls = d[basetable]  # may raise KeyError
+    # noinspection PyProtectedMember
+    q = dbsession.query(cls).filter(cls._pk == serverpk)
     return q.first()

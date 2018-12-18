@@ -32,8 +32,11 @@ from typing import Any, Dict
 
 from cardinal_pythonlib.pdf import get_pdf_from_html
 
-from .cc_constants import PDF_ENGINE, WKHTMLTOPDF_OPTIONS
-from .cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_constants import (
+    PDF_ENGINE,
+    WKHTMLTOPDF_OPTIONS,
+)
+from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
 def pdf_from_html(req: CamcopsRequest,

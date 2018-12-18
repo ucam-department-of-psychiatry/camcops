@@ -28,6 +28,7 @@ camcops_server/cc_modules/cc_simpleobjects.py
 
 """
 
+import copy
 from typing import List, TYPE_CHECKING
 
 from pendulum import Date
@@ -35,10 +36,10 @@ from pendulum import Date
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.reprfunc import auto_repr
 
-from .cc_constants import DateFormat
+from camcops_server.cc_modules.cc_constants import DateFormat
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 # Prefer classes to collections.namedtuple; both support type checking but
 # classes support better parameter checking (and refactoring) via PyCharm.
@@ -178,3 +179,64 @@ class XmlSimpleValue(object):
     """
     def __init__(self, value) -> None:
         self.value = value
+
+
+# =============================================================================
+# TaskExportOptions
+# =============================================================================
+
+class TaskExportOptions(object):
+    """
+    Information-holding object for options controlling XML representations of
+    tasks.
+    """
+    def __init__(self,
+                 db_patient_id_in_each_row: bool = False,
+                 include_blobs: bool = False,
+                 xml_include_plain_columns: bool = False,
+                 xml_include_ancillary: bool = False,
+                 xml_include_calculated: bool = False,
+                 xml_include_patient: bool = False,
+                 xml_include_snomed: bool = False,
+                 xml_skip_fields: List[str] = None,
+                 xml_sort_by_name: bool = True,
+                 xml_with_header_comments: bool = False) -> None:
+        """
+        Args:
+            db_patient_id_in_each_row: generates an anonymisation staging
+                database -- that is, a database with patient IDs in every row
+                of every table, suitable for feeding into an anonymisation
+                system like CRATE
+                (https://dx.doi.org/10.1186%2Fs12911-017-0437-1).
+
+            include_blobs: include binary large objects (BLOBs) (applies to
+                several export formats)
+
+            xml_include_plain_columns: include the base columns
+            xml_include_ancillary: include ancillary tables as well as the main?
+            xml_include_calculated: include fields calculated by the task
+            xml_include_patient: include patient details?
+            xml_include_snomed: include SNOMED-CT codes, if available?
+            xml_skip_fields: fieldnames to skip
+            xml_sort_by_name: sort by field/attribute names?
+            xml_with_header_comments: include header-style comments?
+        """
+        self.db_patient_id_in_each_row = db_patient_id_in_each_row
+        # *** todo: implement db_patient_id_in_each_row
+
+        self.include_blobs = include_blobs
+
+        self.xml_include_plain_columns = xml_include_plain_columns
+        self.xml_include_calculated = xml_include_calculated
+        self.xml_include_patient = xml_include_patient
+        self.xml_include_ancillary = xml_include_ancillary
+        self.xml_include_snomed = xml_include_snomed
+        self.xml_skip_fields = xml_skip_fields or []  # type: List[str]
+        self.xml_sort_by_name = xml_sort_by_name
+        self.xml_with_header_comments = xml_with_header_comments
+
+    def clone(self) -> "TaskExportOptions":
+        """
+        Returns a copy of this object.
+        """
+        return copy.copy(self)

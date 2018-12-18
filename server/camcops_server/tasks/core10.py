@@ -166,7 +166,7 @@ class Core10(TaskHasPatientMixin, Task):
             content="CORE-10 clinical score {}/{}".format(
                 self.clinical_score(), self.MAX_SCORE)
         )]
-        # todo: add suicidality?
+        # todo: CORE10: add suicidality to clinical text?
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [

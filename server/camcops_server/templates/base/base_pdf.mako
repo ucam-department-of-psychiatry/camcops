@@ -30,11 +30,15 @@ from camcops_server.cc_modules.cc_constants import PDF_ENGINE
             <table>
                 <tr>
                     <td class="image_td">
-                        <img class="logo_left" src="file://${ request.config.camcops_logo_file_absolute }" />
+                        <img class="logo_left"
+                             src="file://${ request.config.camcops_logo_file_absolute }"
+                             alt="CamCOPS logo" />
                     </td>
                     <td class="centregap_td"></td>
                     <td class="image_td">
-                        <img class="logo_right" src="file://${ request.config.local_logo_file_absolute }" />
+                        <img class="logo_right"
+                             src="file://${ request.config.local_logo_file_absolute }"
+                             alt="Local institutional logo" />
                     </td>
                 </tr>
             </table>
@@ -55,13 +59,15 @@ from camcops_server.cc_modules.cc_constants import PDF_ENGINE
                     <td class="noborderphoto" width="45%">
                         <img src="file://${ request.config.camcops_logo_file_absolute }"
                              height="${ va.PDF_LOGO_HEIGHT }"
-                             align="left" />
+                             align="left"
+                             alt="CamCOPS logo" />
                     </td>
                     <td class="noborderphoto" width="10%"></td>
                     <td class="noborderphoto" width="45%">
                         <img src="file://${ request.config.local_logo_file_absolute }"
                              height="${ va.PDF_LOGO_HEIGHT }"
-                             align="right" />
+                             align="right"
+                             alt="Local institutional logo" />
                     </td>
                 </tr>
             </table>

@@ -32,19 +32,21 @@ import logging
 from typing import List, Optional, Set
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.reprfunc import simple_repr
+from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.sqlalchemy.orm_query import exists_orm
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import Integer
 
-from .cc_policy import TokenizedPolicy
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_policy import TokenizedPolicy
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     GroupNameColType,
     GroupDescriptionColType,
     IdPolicyColType,
 )
-from .cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -119,6 +121,13 @@ class Group(Base):
         lazy="joined"  # not sure this does anything here
     )
 
+    def __str__(self) -> str:
+        return "Group {} ({})".format(self.id, self.name)
+
+    def __repr__(self) -> str:
+        attrnames = sorted(attrname for attrname, _ in gen_columns(self))
+        return simple_repr(self, attrnames)
+
     def ids_of_other_groups_group_may_see(self) -> Set[int]:
         """
         Returns a list of group IDs for groups that this group has permission
@@ -166,6 +175,13 @@ class Group(Base):
         if group_id is None:
             return None
         return dbsession.query(cls).filter(cls.id == group_id).first()
+
+    @classmethod
+    def get_all_groups(cls, dbsession: SqlASession) -> List["Group"]:
+        """
+        Returns all groups.
+        """
+        return dbsession.query(Group).all()
 
     @classmethod
     def all_group_ids(cls, dbsession: SqlASession) -> List[int]:

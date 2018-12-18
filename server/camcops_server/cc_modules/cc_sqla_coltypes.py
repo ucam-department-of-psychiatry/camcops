@@ -149,15 +149,17 @@ from sqlalchemy.sql.sqltypes import (
 )
 from sqlalchemy.sql.type_api import TypeDecorator
 
-from .cc_constants import PV
-from .cc_simpleobjects import IdNumReference
-from .cc_sqlalchemy import LONG_COLUMN_NAME_WARNING_LIMIT
-from .cc_version import make_version
+from camcops_server.cc_modules.cc_constants import PV
+from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
+from camcops_server.cc_modules.cc_sqlalchemy import (
+    LONG_COLUMN_NAME_WARNING_LIMIT,
+)
+from camcops_server.cc_modules.cc_version import make_version
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ClauseElement
     from sqlalchemy.sql.compiler import SQLCompiler
-    from .cc_db import GenericTabletRecordMixin
+    from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -188,13 +190,19 @@ if any([DEBUG_DATETIME_AS_ISO_TEXT,
 
 AUDIT_SOURCE_MAX_LEN = 20  # our choice based on use in CamCOPS code
 
+CHARSET_MAX_LEN = 64
+# ... https://docs.python.org/3.7/library/codecs.html#standard-encodings
+# ... probably ~18 so give it some headroom
+
 DATABASE_TITLE_MAX_LEN = 255  # our choice
 DEVICE_NAME_MAX_LEN = 191  # our choice; must be compatible with tablet
 
 EMAIL_ADDRESS_MAX_LEN = 255  # https://en.wikipedia.org/wiki/Email_address
+EXPORT_RECIPIENT_NAME_MAX_LEN = 191  # our choice
 
 FILTER_TEXT_MAX_LEN = 255  # our choice
 FULLNAME_MAX_LEN = 255  # our choice; used for user full names on the server
+FILESPEC_MAX_LEN = 255  # our choice
 
 GROUP_DESCRIPTION_MAX_LEN = 255  # our choice
 GROUP_NAME_MAX_LEN = 191  # our choice
@@ -246,7 +254,11 @@ MIMETYPE_MAX_LEN = 255  # https://stackoverflow.com/questions/643690
 
 PATIENT_NAME_MAX_LEN = 255  # for forename and surname, each; our choice but must match tablet  # noqa
 
-SENDING_FORMAT_MAX_LEN = 50  # for HL7; our choice based on use in CamCOPS code
+RFC_2822_DATE_MAX_LEN = 31  # e.g. "Fri, 09 Nov 2001 01:08:47 -0000"
+# ... 3.3 in https://tools.ietf.org/html/rfc2822
+# ... assuming extra white space not added
+
+SENDING_FORMAT_MAX_LEN = 50  # for export; our choice based on use in CamCOPS code  # noqa
 SESSION_TOKEN_MAX_BYTES = 64  # our choice; 64 bytes => 512 bits, which is a lot in 2017  # noqa
 SESSION_TOKEN_MAX_LEN = len(
     create_base64encoded_randomness(SESSION_TOKEN_MAX_BYTES))
@@ -261,7 +273,9 @@ TASK_SUMMARY_TEXT_FIELD_DEFAULT_MAX_LEN = 50
 # Easy to change, since it's only used when exporting summaries, and not in
 # the core database.
 
-USERNAME_MAX_LEN = 191  # our choice
+URL_MAX_LEN = 255  # our choice
+USERNAME_CAMCOPS_MAX_LEN = 191  # our choice
+USERNAME_EXTERNAL_MAX_LEN = 255  # our choice
 
 
 class RelationshipInfo(object):
@@ -287,6 +301,7 @@ AuditSourceColType = String(length=AUDIT_SOURCE_MAX_LEN)
 #     BigInteger (2017-08-25).
 
 CharColType = String(length=1)
+CharsetColType = String(length=CHARSET_MAX_LEN)
 
 DatabaseTitleColType = Unicode(length=DATABASE_TITLE_MAX_LEN)
 DeviceNameColType = String(length=DEVICE_NAME_MAX_LEN)
@@ -294,8 +309,11 @@ DiagnosticCodeColType = String(length=DIAGNOSTIC_CODE_MAX_LEN)
 
 EmailAddressColType = Unicode(length=EMAIL_ADDRESS_MAX_LEN)
 EraColType = String(length=ISO8601_STRING_MAX_LEN)  # underlying SQL type
+ExportRecipientNameColType = String(length=EXPORT_RECIPIENT_NAME_MAX_LEN)
+ExportTransmissionMethodColType = String(length=SENDING_FORMAT_MAX_LEN)
 
 FilterTextColType = Unicode(length=FILTER_TEXT_MAX_LEN)
+FileSpecColType = Unicode(length=FILESPEC_MAX_LEN)
 FullNameColType = Unicode(length=FULLNAME_MAX_LEN)
 
 GroupDescriptionColType = Unicode(length=GROUP_DESCRIPTION_MAX_LEN)
@@ -336,14 +354,17 @@ MimeTypeColType = String(length=MIMETYPE_MAX_LEN)
 
 PatientNameColType = Unicode(length=PATIENT_NAME_MAX_LEN)
 
-SendingFormatColType = String(length=SENDING_FORMAT_MAX_LEN)
+Rfc2822DateColType = String(length=RFC_2822_DATE_MAX_LEN)
+
 SessionTokenColType = String(length=SESSION_TOKEN_MAX_LEN)
 SexColType = String(length=1)
 SummaryCategoryColType = String(length=TASK_SUMMARY_TEXT_FIELD_DEFAULT_MAX_LEN)  # pretty generic  # noqa
 
 TableNameColType = String(length=TABLENAME_MAX_LEN)
 
-UserNameColType = String(length=USERNAME_MAX_LEN)
+UrlColType = String(length=URL_MAX_LEN)
+UserNameCamcopsColType = String(length=USERNAME_CAMCOPS_MAX_LEN)
+UserNameExternalColType = String(length=USERNAME_EXTERNAL_MAX_LEN)
 
 
 # =============================================================================
@@ -1388,9 +1409,10 @@ class BoolColumn(CamcopsColumn):
         super().__init__(*args, **kwargs)
         if (not constraint_name_str and
                 len(self.name) >= LONG_COLUMN_NAME_WARNING_LIMIT):
-            log.warning("Long column name and no constraint name: {!r}".format(
+            log.warning(
+                "Long column name and no constraint name: {!r}",
                 self.name
-            ))
+            )
 
     def _constructor(self, *args: Any, **kwargs: Any) -> "BoolColumn":
         """

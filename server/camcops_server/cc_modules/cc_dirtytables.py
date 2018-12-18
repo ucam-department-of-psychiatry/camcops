@@ -32,9 +32,9 @@ uploading to/preserving.**
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer
 
-from .cc_device import Device
-from .cc_sqla_coltypes import TableNameColType
-from .cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_sqla_coltypes import TableNameColType
+from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 
 # =============================================================================

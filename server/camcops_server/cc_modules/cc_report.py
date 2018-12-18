@@ -29,7 +29,8 @@ camcops_server/cc_modules/cc_report.py
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING, Union
+from typing import (Any, Dict, List, Optional, Sequence, Type, TYPE_CHECKING,
+                    Union)
 
 from cardinal_pythonlib.classes import all_subclasses, classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -44,14 +45,25 @@ from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.selectable import SelectBase
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
-from .cc_convert import tsv_from_query
-from .cc_constants import DateFormat, DEFAULT_ROWS_PER_PAGE
-from .cc_pyramid import CamcopsPage, PageUrl, ViewArg, ViewParam
-from .cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_convert import tsv_from_query
+from camcops_server.cc_modules.cc_constants import (
+    DateFormat,
+    DEFAULT_ROWS_PER_PAGE,
+)
+from camcops_server.cc_modules.cc_pyramid import (
+    CamcopsPage,
+    PageUrl,
+    ViewArg,
+    ViewParam,
+)
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
-    from .cc_forms import ReportParamForm, ReportParamSchema
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_forms import (
+        ReportParamForm,
+        ReportParamSchema,
+    )
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -64,7 +76,8 @@ class PlainReportType(object):
     """
     Simple class to hold the results of a plain report.
     """
-    def __init__(self, rows: List[List[Any]], column_names: List[str]) -> None:
+    def __init__(self, rows: Sequence[Sequence[Any]],
+                 column_names: Sequence[str]) -> None:
         self.rows = rows
         self.column_names = column_names
 
@@ -175,7 +188,7 @@ class Report(object):
         extensive one (an example being in
         :class:`camcops_server.tasks.diagnosis.DiagnosisFinderReportBase`.
         """
-        from .cc_forms import ReportParamSchema  # delayed import
+        from camcops_server.cc_modules.cc_forms import ReportParamSchema  # delayed import  # noqa
         return ReportParamSchema
 
     def get_form(self, req: "CamcopsRequest") -> Form:
@@ -184,7 +197,7 @@ class Report(object):
         suffices, and it will use the schema specified in
         :func:`get_paramform_schema_class`.
         """
-        from .cc_forms import ReportParamForm  # delayed import
+        from camcops_server.cc_modules.cc_forms import ReportParamForm  # delayed import  # noqa
         schema_class = self.get_paramform_schema_class()
         return ReportParamForm(request=req, schema_class=schema_class)
 

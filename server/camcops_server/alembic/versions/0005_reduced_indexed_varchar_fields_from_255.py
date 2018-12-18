@@ -65,7 +65,7 @@ def upgrade():
     with op.batch_alter_table('_security_account_lockouts', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix__security_account_lockouts_username'))
         batch_op.alter_column('username',
-               existing_type=mysql.VARCHAR(collation='utf8mb4_unicode_ci', length=255),
+               existing_type=sa.String(length=255),
                type_=sa.String(length=191),
                existing_nullable=False)
         batch_op.create_index(batch_op.f('ix__security_account_lockouts_username'), ['username'], unique=False)
@@ -73,7 +73,7 @@ def upgrade():
     with op.batch_alter_table('_security_devices', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix__security_devices_name'))
         batch_op.alter_column('name',
-               existing_type=mysql.VARCHAR(collation='utf8mb4_unicode_ci', length=255),
+               existing_type=sa.String(length=255),
                type_=sa.String(length=191),
                existing_nullable=True)
         batch_op.create_index(batch_op.f('ix__security_devices_name'), ['name'], unique=True)
@@ -81,7 +81,7 @@ def upgrade():
     with op.batch_alter_table('_security_groups', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix__security_groups_name'))
         batch_op.alter_column('name',
-               existing_type=mysql.VARCHAR(collation='utf8mb4_unicode_ci', length=255),
+               existing_type=sa.Unicode(length=255),
                type_=sa.Unicode(length=191),
                existing_nullable=False)
         batch_op.create_index(batch_op.f('ix__security_groups_name'), ['name'], unique=True)
@@ -89,7 +89,7 @@ def upgrade():
     with op.batch_alter_table('_security_login_failures', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix__security_login_failures_username'))
         batch_op.alter_column('username',
-               existing_type=mysql.VARCHAR(collation='utf8mb4_unicode_ci', length=255),
+               existing_type=sa.String(length=255),
                type_=sa.String(length=191),
                existing_nullable=False)
         batch_op.create_index(batch_op.f('ix__security_login_failures_username'), ['username'], unique=False)
@@ -97,7 +97,7 @@ def upgrade():
     with op.batch_alter_table('_security_users', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix__security_users_username'))
         batch_op.alter_column('username',
-               existing_type=mysql.VARCHAR(collation='utf8mb4_unicode_ci', length=255),
+               existing_type=sa.String(length=255),
                type_=sa.String(length=191),
                existing_nullable=False)
         batch_op.create_index(batch_op.f('ix__security_users_username'), ['username'], unique=True)
@@ -115,7 +115,7 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix__security_users_username'))
         batch_op.alter_column('username',
                existing_type=sa.String(length=191),
-               type_=mysql.VARCHAR(collation='utf8mb4_unicode_ci', length=255),
+               type_=sa.String(length=255),
                existing_nullable=False)
         batch_op.create_index(batch_op.f('ix__security_users_username'), ['username'], unique=True)
 
@@ -123,7 +123,7 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix__security_login_failures_username'))
         batch_op.alter_column('username',
                existing_type=sa.String(length=191),
-               type_=mysql.VARCHAR(collation='utf8mb4_unicode_ci', length=255),
+               type_=sa.String(length=255),
                existing_nullable=False)
         batch_op.create_index(batch_op.f('ix__security_login_failures_username'), ['username'], unique=False)
 
@@ -131,7 +131,7 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix__security_groups_name'))
         batch_op.alter_column('name',
                existing_type=sa.Unicode(length=191),
-               type_=mysql.VARCHAR(collation='utf8mb4_unicode_ci', length=255),
+               type_=sa.Unicode(length=255),
                existing_nullable=False)
         batch_op.create_index(batch_op.f('ix__security_groups_name'), ['name'], unique=True)
 
@@ -139,7 +139,7 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix__security_devices_name'))
         batch_op.alter_column('name',
                existing_type=sa.String(length=191),
-               type_=mysql.VARCHAR(collation='utf8mb4_unicode_ci', length=255),
+               type_=sa.String(length=255),
                existing_nullable=True)
         batch_op.create_index(batch_op.f('ix__security_devices_name'), ['name'], unique=True)
 
@@ -147,7 +147,7 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix__security_account_lockouts_username'))
         batch_op.alter_column('username',
                existing_type=sa.String(length=191),
-               type_=mysql.VARCHAR(collation='utf8mb4_unicode_ci', length=255),
+               type_=sa.String(length=255),
                existing_nullable=False)
         batch_op.create_index(batch_op.f('ix__security_account_lockouts_username'), ['username'], unique=False)
 

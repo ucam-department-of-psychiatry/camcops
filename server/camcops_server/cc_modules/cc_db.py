@@ -43,8 +43,8 @@ from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
-from .cc_constants import ERA_NOW
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_constants import ERA_NOW
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     EraColType,
     gen_ancillary_relationships,
@@ -54,22 +54,22 @@ from .cc_sqla_coltypes import (
     RelationshipInfo,
     SemanticVersionColType,
 )
-from .cc_summaryelement import SummaryElement
-from .cc_tsv import TsvPage
-from .cc_version import CAMCOPS_SERVER_VERSION
-from .cc_xml import (
+from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
+from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
+from camcops_server.cc_modules.cc_xml import (
     make_xml_branches_from_blobs,
     make_xml_branches_from_columns,
     make_xml_branches_from_summaries,
-    TaskXmlOptions,
     XML_COMMENT_STORED,
     XML_COMMENT_CALCULATED,
     XmlElement,
 )
 
 if TYPE_CHECKING:
-    from .cc_blob import Blob
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_blob import Blob
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -438,15 +438,15 @@ class GenericTabletRecordMixin(object):
 
     def _get_xml_root(self,
                       req: "CamcopsRequest",
-                      options: TaskXmlOptions) -> XmlElement:
+                      options: TaskExportOptions) -> XmlElement:
         """
         Called to create an XML root object for records ancillary to Task
         objects. Tasks themselves use a more complex mechanism.
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
-        """
+            options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
+        """  # noqa
         # "__tablename__" will make the type checker complain, as we're
         # defining a function for a mixin that assumes it's mixed in to a
         # SQLAlchemy Base-derived class
@@ -458,7 +458,7 @@ class GenericTabletRecordMixin(object):
 
     def _get_xml_branches(self,
                           req: "CamcopsRequest",
-                          options: TaskXmlOptions) -> List[XmlElement]:
+                          options: TaskExportOptions) -> List[XmlElement]:
         """
         Gets the values of SQLAlchemy columns as XmlElement objects.
         Optionally, find any SQLAlchemy relationships that are relationships
@@ -468,35 +468,35 @@ class GenericTabletRecordMixin(object):
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
-        """
+            options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
+        """  # noqa
         # log.debug("_get_xml_branches for {!r}", self)
-        options = options or TaskXmlOptions(include_plain_columns=True,
-                                            include_calculated=True,
-                                            sort_by_name=True)
+        options = options or TaskExportOptions(xml_include_plain_columns=True,
+                                               xml_include_calculated=True,
+                                               xml_sort_by_name=True)
         branches = []  # type: List[XmlElement]
-        if options.with_header_comments:
+        if options.xml_with_header_comments:
             branches.append(XML_COMMENT_STORED)
-        if options.include_plain_columns:
+        if options.xml_include_plain_columns:
             new_branches = make_xml_branches_from_columns(
-                self, skip_fields=options.skip_fields)
-            if options.sort_by_name:
+                self, skip_fields=options.xml_skip_fields)
+            if options.xml_sort_by_name:
                 new_branches.sort(key=lambda el: el.name)
             branches += new_branches
         if options.include_blobs:
             new_branches = make_xml_branches_from_blobs(
-                req, self, skip_fields=options.skip_fields)
-            if options.sort_by_name:
+                req, self, skip_fields=options.xml_skip_fields)
+            if options.xml_sort_by_name:
                 new_branches.sort(key=lambda el: el.name)
             branches += new_branches
         # Calculated
-        if options.include_calculated:
-            if options.with_header_comments:
+        if options.xml_include_calculated:
+            if options.xml_with_header_comments:
                 branches.append(XML_COMMENT_CALCULATED)
             branches.extend(make_xml_branches_from_summaries(
                 self.get_summaries(req),
-                skip_fields=options.skip_fields,
-                sort_by_name=options.sort_by_name
+                skip_fields=options.xml_skip_fields,
+                sort_by_name=options.xml_sort_by_name
             ))
         # log.debug("... branches for {!r}: {!r}", self, branches)
         return branches

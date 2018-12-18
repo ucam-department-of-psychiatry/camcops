@@ -30,12 +30,12 @@ Largely superseded by CRATE (https://dx.doi.org/10.1186%2Fs12911-017-0437-1).
 
 """
 
-from collections import OrderedDict
+# from collections import OrderedDict
 import re
-from typing import Dict, List, Pattern, Tuple
+from typing import Pattern, Tuple
 
-from .cc_constants import TSV_PATIENT_FIELD_PREFIX
-from . import cc_db
+# from camcops_server.cc_modules.cc_constants import TSV_PATIENT_FIELD_PREFIX
+# from camcops_server.cc_modules import cc_db
 
 
 # =============================================================================
@@ -70,6 +70,7 @@ def get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
     return finaltype, size
 
 
+_ = '''
 def get_cris_dd_row(taskname: str,
                     tablename: str,
                     fieldspec: "FIELDSPEC_TYPE") -> Dict:
@@ -172,3 +173,5 @@ def get_cris_dd_rows_from_fieldspecs(
     for fs in fieldspecs:
         rows.append(get_cris_dd_row(taskname, tablename, fs))
     return rows
+
+'''

@@ -41,11 +41,11 @@ server/camcops_server
     alembic/versions/0011_add_eq5d5l_task.py.rst
     alembic/versions/0012_idnum_def_validation_method.py.rst
     alembic/versions/0013_task_index.py.rst
+    alembic/versions/0014_new_export_mechanism.py.rst
     camcops_server.py.rst
     camcops_server_meta.py.rst
     cc_modules/cc_alembic.py.rst
     cc_modules/cc_all_models.py.rst
-    cc_modules/cc_analytics.py.rst
     cc_modules/cc_anon.py.rst
     cc_modules/cc_audit.py.rst
     cc_modules/cc_baseconstants.py.rst
@@ -61,12 +61,15 @@ server/camcops_server
     cc_modules/cc_device.py.rst
     cc_modules/cc_dirtytables.py.rst
     cc_modules/cc_dump.py.rst
+    cc_modules/cc_email.py.rst
     cc_modules/cc_exception.py.rst
+    cc_modules/cc_export.py.rst
+    cc_modules/cc_exportmodels.py.rst
+    cc_modules/cc_exportrecipient.py.rst
     cc_modules/cc_filename.py.rst
     cc_modules/cc_forms.py.rst
     cc_modules/cc_group.py.rst
     cc_modules/cc_hl7.py.rst
-    cc_modules/cc_hl7core.py.rst
     cc_modules/cc_html.py.rst
     cc_modules/cc_idnumdef.py.rst
     cc_modules/cc_membership.py.rst
@@ -78,7 +81,6 @@ server/camcops_server
     cc_modules/cc_plot.py.rst
     cc_modules/cc_policy.py.rst
     cc_modules/cc_pyramid.py.rst
-    cc_modules/cc_recipdef.py.rst
     cc_modules/cc_report.py.rst
     cc_modules/cc_request.py.rst
     cc_modules/cc_serversettings.py.rst

@@ -41,19 +41,29 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
 import wand.image
 
-from .cc_db import GenericTabletRecordMixin
-from .cc_html import get_data_url, get_embedded_img_tag
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_html import (
+    get_data_url,
+    get_embedded_img_tag,
+)
+from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     MimeTypeColType,
     TableNameColType,
 )
-from .cc_sqla_coltypes import LongBlob, RelationshipInfo
-from .cc_sqlalchemy import Base
-from .cc_unittest import DemoDatabaseTestCase
-from .cc_xml import get_xml_blob_element, TaskXmlOptions, XmlElement
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    LongBlob,
+    RelationshipInfo,
+)
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_xml import (
+    get_xml_blob_element,
+    XmlElement,
+)
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -195,9 +205,9 @@ class Blob(GenericTabletRecordMixin, Base):
         Returns an :class:`camcops_server.cc_modules.cc_xml.XmlElement`
         representing this BLOB.
         """
-        options = TaskXmlOptions(skip_fields=["theblob"],
-                                 include_plain_columns=True,
-                                 include_blobs=False)
+        options = TaskExportOptions(xml_skip_fields=["theblob"],
+                                    xml_include_plain_columns=True,
+                                    include_blobs=False)
         branches = self._get_xml_branches(req, options)
         blobdata = self._get_xml_theblob_value_binary()
         branches.append(get_xml_blob_element(

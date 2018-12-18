@@ -17,6 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _ISO 8601: https://en.wikipedia.org/wiki/ISO_8601
+.. _RFC 5322: https://tools.ietf.org/html/rfc5322#section-3.6.2
+
 .. _server_config_file:
 
 The CamCOPS server configuration file
@@ -53,8 +56,8 @@ Format of the configuration file
 - **UTF-8 encoding.** Use this! The file is explicitly opened in UTF-8 mode.
 - **Comments.** Hashes (``#``) and semicolons (``;``) denote comments.
 - **Sections.** Sections are indicated with: ``[section]``
-- **Name/value (key/value) pairs.** The parser used is ConfigParser
-  (https://docs.python.org/3/library/configparser.html). It allows
+- **Name/value (key/value) pairs.** The parser used is `ConfigParser
+  <https://docs.python.org/3/library/configparser.html>`_. It allows
   ``name=value`` or ``name:value``.
 - **Avoid indentation of parameters.** (Indentation is used to indicate
   the continuation of previous parameters.)
@@ -73,6 +76,9 @@ Format of the configuration file
     (equivalent: ``fatal``).
   - **Date.** Dates are in the format ``YYYY-MM-DD``, e.g. ``2013-12-31``, or
     blank for "no date".
+  - **Date/time.** Date/time values are in the format ``YYYY-MM-DDTHH:MM`` or
+    other `ISO 8601`_-compatible syntax, e.g. ``2013-12-31T09:00``, or blank
+    for "no date/time".
 
 
 Config file sections
@@ -531,89 +537,20 @@ Options for each export recipient section
 The following options are applicable to a recipient definition section of the
 config file. Together, they define a single export recipient.
 
-Export type
-~~~~~~~~~~~~
+How to export
+~~~~~~~~~~~~~
 
-TYPE
-####
+TRANSMISSION_METHOD
+###################
 
 *String.*
 
 One of the following methods:
 
+- ``db``: Exports tasks to a relationship database.
+- ``email``: Sends tasks via e-mail.
 - ``hl7``: Sends HL7 messages across a TCP/IP network.
 - ``file``: Writes files to a local filesystem.
-
-Options applicable to all or most incremental export types
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-GROUP_ID
-########
-
-*Integer.*
-
-.. todo::
-
-    currently a single integer; change to a list of group names and call
-    it ``GROUPS``
-
-CamCOPS group(s) to export from.
-
-PRIMARY_IDNUM
-#############
-
-*Integer.*
-
-.. todo:: check/update
-
-Which ID number type should be considered the "internal" (primary) ID number?
-Must be specified for HL7 messages. May be blank for file transmission.
-
-REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY
-#########################################
-
-*Boolean.*
-
-Defines behaviour relating to the primary ID number (as defined by
-``PRIMARY_IDNUM``).
-
-- If true, no message sending will be attempted unless the ``PRIMARY_IDNUM`` is
-  a mandatory part of the finalizing policy (and if ``FINALIZED_ONLY`` is
-  false, also of the upload policy).
-- If false, messages will be sent, but ONLY FROM TASKS FOR WHICH THE
-  ``PRIMARY_IDNUM`` IS PRESENT; others will be ignored.
-- For file sending only, this will be ignored if ``PRIMARY_IDNUM`` is blank.
-- For file sending only, this setting does not apply to anonymous tasks,
-  whose behaviour is controlled by ``INCLUDE_ANONYMOUS`` (see below).
-
-START_DATE
-##########
-
-*Date. May be blank.*
-
-Earliest date for which tasks will be sent. Assessed against the task's
-``when_created`` field, converted to Universal Coordinated Time (UTC) -- that
-is, this date is in UTC (beware if you are in a very different time zone).
-Blank to apply no start date restriction.
-
-END_DATE
-########
-
-*Date. May be blank.*
-
-Latest date for which tasks will be sent. In UTC. Assessed against the task's
-``when_created`` field (converted to UTC). Blank to apply no end date
-restriction.
-
-FINALIZED_ONLY
-##############
-
-*Boolean.*
-
-If true, only send tasks that are finalized (moved off their originating tablet
-and not susceptible to later modification). If false, also send tasks that are
-uploaded but not yet finalized (they will then be sent again if they are
-modified later).
 
 TASK_FORMAT
 ###########
@@ -635,6 +572,280 @@ If ``TASK_FORMAT = xml``, then ``XML_FIELD_COMMENTS`` determines whether field
 comments are included. These describe the meaning of each field, so they take
 space but they provide more information for human readers. (Default is true.)
 
+What to export
+~~~~~~~~~~~~~~
+
+ALL_GROUPS
+##########
+
+*Boolean.*
+
+Export from all groups? If not, ``GROUPS`` will come into play (see below).
+Default is false.
+
+GROUPS
+######
+
+*Multiline string.*
+
+Names of CamCOPS group(s) to export from.
+
+Only applicable if ``ALL_GROUPS`` is false.
+
+START_DATETIME_UTC
+##################
+
+*Date/time. May be blank.*
+
+Earliest date/time (in UTC) for which tasks will be sent. Assessed against the
+task's ``when_created`` field, converted to Universal Coordinated Time (UTC) --
+that is, this date is in UTC (beware if you are in a very different time zone).
+Blank to apply no start date restriction.
+
+END_DATETIME_UTC
+################
+
+*Date/time. May be blank.*
+
+Date/time (in UTC) at/beyond which no tasks will be sent. In UTC. Assessed
+against the task's ``when_created`` field (converted to UTC). Blank to apply no
+end date restriction.
+
+FINALIZED_ONLY
+##############
+
+*Boolean.*
+
+If true, only send tasks that are finalized (moved off their originating tablet
+and not susceptible to later modification). If false, also send tasks that are
+uploaded but not yet finalized (they will then be sent again if they are
+modified later).
+
+INCLUDE_ANONYMOUS
+#################
+
+*Boolean.*
+
+Include anonymous tasks?
+
+- Note that anonymous tasks cannot be sent via HL7; the HL7 specification is
+  heavily tied to identification.
+
+- Note also that this setting operates independently of the
+  ``REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY`` setting.
+
+PRIMARY_IDNUM
+#############
+
+*Integer.*
+
+Which ID number type should be considered the "internal" (primary) ID number?
+If specified, only tasks with this ID number present will be exported.
+
+- Must be specified for HL7 messages.
+- May be blank for file and e-mail transmission.
+- For (e.g.) file/e-mail transmission, this does not control the behaviour of
+  anonymous tasks, which are instead controlled by ``INCLUDE_ANONYMOUS`` (see
+  below).
+
+REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY
+#########################################
+
+*Boolean.*
+
+Defines behaviour relating to the primary ID number. Applies only if
+``PRIMARY_IDNUM`` is set.
+
+- If true, no message sending will be attempted unless the ``PRIMARY_IDNUM`` is
+  a mandatory part of the finalizing policy (and if ``FINALIZED_ONLY`` is
+  false, also of the upload policy).
+- If false, messages will be sent, but ONLY FROM TASKS FOR WHICH THE
+  ``PRIMARY_IDNUM`` IS PRESENT; others will be ignored.
+- If you export from multiple groups simultaneously, setting this to true means
+  that the primary ID number must be present (as above) for *all* groups.
+
+Options applicable to database export only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+At present, only full (not incremental) database export is supported.
+
+DB_URL
+######
+
+*String.*
+
+SQLAlchemy URL to the receiving database.
+
+DB_ECHO
+#######
+
+*Boolean.*
+
+Echo SQL sent to the destination database. Default is false.
+
+DB_INCLUDE_BLOBS
+################
+
+*Boolean.*
+
+Include binary large objects (BLOBs) in the export? Default is true.
+
+DB_ADD_SUMMARIES
+################
+
+*Boolean.*
+
+Add summary information (including :ref:`SNOMED CT <snomed>` codes if
+available)? Default true.
+
+DB_PATIENT_ID_PER_ROW
+#####################
+
+*Boolean.*
+
+Add patient ID numbers to all patient rows? Used, for example, to export a
+database in a more convenient format for subsequent anonymisation. Default
+false.
+
+Options applicable to e-mail export only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+EMAIL_HOST
+##########
+
+*String.*
+
+Hostname of e-mail (SMTP) server.
+
+EMAIL_PORT
+##########
+
+*Integer.*
+
+Port number of e-mail (SMTP) server. Default 25, but consider something more
+secure (see below).
+
+EMAIL_USE_TLS
+#############
+
+*Boolean.*
+
+Use a TLS (secure) connection to talk to the SMTP server? Default false (but
+you should strongly consider using it!).
+
+This is used for explicit TLS connections, usually on port 587 (in which the
+connection is opened and then a ``STARTTLS`` command is issued).
+
+EMAIL_HOST_USERNAME
+###################
+
+*String.*
+
+Username on e-mail server.
+
+EMAIL_HOST_PASSWORD
+###################
+
+*String.*
+
+Password on e-mail server. (Not stored in database.)
+
+EMAIL_FROM
+##########
+
+*String.*
+
+"From:" address used in e-mails. See `RFC 5322`_. Only one is permitted here.
+
+EMAIL_SENDER
+############
+
+"Sender:" address used in e-mails. See `RFC 5322`_. Only one is permitted.
+
+EMAIL_REPLY_TO
+##############
+
+*String.*
+
+"Reply-To:" address used in e-mails. See `RFC 5322`_.
+
+EMAIL_TO
+########
+
+*Multiline string.*
+
+List of "To:" recipients.
+
+EMAIL_CC
+########
+
+*Multiline string.*
+
+List of "CC:" (carbon copy) recipients.
+
+EMAIL_BCC
+#########
+
+*Multiline string.*
+
+List of "BCC:" (blind carbon copy) recipients.
+
+EMAIL_PATIENT_SPEC_IF_ANONYMOUS
+###############################
+
+*String.*
+
+For anonymous tasks, this string is used as the patient descriptor (see
+``EMAIL_SUBJECT_PATIENT_SPEC``, ``EMAIL_SUBJECT_SPEC`` below). Typically "anonymous".
+
+(Thus: as for the main :ref:`PATIENT_SPEC_IF_ANONYMOUS
+<serverconfig_server_patient_spec_if_anonymous>` option.)
+
+EMAIL_PATIENT_SPEC
+##################
+
+*String.*
+
+String, into which substitutions will be made, that defines the ``patient``
+element available for substitution into the ``EMAIL_SUBJECT_SPEC`` (see below).
+
+Options are as for the main :ref:`PATIENT_SPEC
+<serverconfig_server_patient_spec>` option.
+
+EMAIL_SUBJECT
+#############
+
+*String.*
+
+Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
+<serverconfig_server_task_filename_spec>` option.
+
+EMAIL_BODY_IS_HTML
+##################
+
+*Boolean.*
+
+Is the body HTML, rather than plain text? Default false.
+
+EMAIL_BODY
+##########
+
+*Multiline string.*
+
+E-mail body contents. Possible substitutions are as for the main
+:ref:`TASK_FILENAME_SPEC <serverconfig_server_task_filename_spec>` option.
+
+Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
+<serverconfig_server_task_filename_spec>` option.
+
+EMAIL_KEEP_MESSAGE
+##################
+
+*Boolean.*
+
+Keep the entire message (including attachments). Default is false (because this
+consumes lots of database space!). Use only for debugging.
+
 Options applicable to HL7 only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -652,8 +863,8 @@ HL7_PORT
 
 HL7 port (default 2575).
 
-PING_FIRST
-##########
+HL7_PING_FIRST
+##############
 
 *Boolean.*
 
@@ -661,41 +872,42 @@ If true, requires a successful ping to the server prior to sending HL7
 messages. (Note: this is a TCP/IP ping, and tests that the machine is up, not
 that it is running an HL7 server.) Default: true.
 
-NETWORK_TIMEOUT_MS
-##################
+HL7_NETWORK_TIMEOUT_MS
+######################
 
 *Integer.*
 
 Network timeout (in milliseconds). Default: 10000.
 
-KEEP_MESSAGE
-############
+HL7_KEEP_MESSAGE
+################
 
 *Boolean.*
 
 Keep a copy of the entire message in the databaase. Default is false.
 **WARNING:** may consume significant space in the database.
 
-KEEP_REPLY
-##########
+HL7_KEEP_REPLY
+##############
 
 *Boolean.*
 
 Keep a copy of the reply (e.g. acknowledgement) message received from the
 server. Default is false. **WARNING:** may consume significant space.
 
-DIVERT_TO_FILE
-##############
+HL7_DEBUG_DIVERT_TO_FILE
+########################
 
-*Boolean.*
+*String.*
 
 Override ``HL7_HOST``/``HL7_PORT`` options and send HL7 messages to this
-(single) file instead. Each messages is appended to the file. Default is blank
-(meaning network transmission will be used). This is a **debugging option,**
-allowing you to redirect HL7 messages to a file and inspect them.
+(single) file instead. The parameter is the filename. Each messages is appended
+to the file. Default is blank (meaning network transmission will be used). This
+is a **debugging option,** allowing you to redirect HL7 messages to a file and
+inspect them.
 
-TREAT_DIVERTED_AS_SENT
-######################
+HL7_DEBUG_TREAT_DIVERTED_AS_SENT
+################################
 
 *Boolean.*
 
@@ -707,24 +919,11 @@ them. BEWARE, though: if you have an automatically scheduled job (for example,
 to send messages every minute) and you divert with this flag set to false, you
 will end up with a great many message attempts!
 
-Options applicable to file transfers only
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Options applicable to file transfers and attachments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-INCLUDE_ANONYMOUS
-#################
-
-*Boolean.*
-
-Include anonymous tasks?
-
-- Note that anonymous tasks cannot be sent via HL7; the HL7 specification is
-  heavily tied to identification.
-
-- Note also that this setting operates independently of the
-  ``REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY`` setting.
-
-PATIENT_SPEC_IF_ANONYMOUS
-#########################
+FILE_PATIENT_SPEC_IF_ANONYMOUS
+##############################
 
 *String.*
 
@@ -734,8 +933,8 @@ For anonymous tasks, this string is used as the patient descriptor (see
 (Thus: as for the main :ref:`PATIENT_SPEC_IF_ANONYMOUS
 <serverconfig_server_patient_spec_if_anonymous>` option.)
 
-PATIENT_SPEC
-############
+FILE_PATIENT_SPEC
+#################
 
 *String.*
 
@@ -745,8 +944,8 @@ element available for substitution into the ``FILENAME_SPEC`` (see below).
 Options are as for the main :ref:`PATIENT_SPEC
 <serverconfig_server_patient_spec>` option.
 
-FILENAME_SPEC
-#############
+FILE_FILENAME_SPEC
+##################
 
 *String.*
 
@@ -756,15 +955,15 @@ used for each file.
 Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
 <serverconfig_server_task_filename_spec>` option.
 
-MAKE_DIRECTORY
-##############
+FILE_MAKE_DIRECTORY
+###################
 
 *Boolean.*
 
 Make the directory if it doesn't already exist. Default is false.
 
-OVERWRITE_FILES
-###############
+FILE_OVERWRITE_FILES
+####################
 
 *Boolean.*
 
@@ -775,8 +974,8 @@ false). There is a **DANGER** of inadvertent data loss if you set this to true.
 try ensuring that both the ``tasktype`` and ``serverpk`` attributes are used in
 the filename.)
 
-RIO_METADATA
-############
+FILE_EXPORT_RIO_METADATA
+########################
 
 *Boolean.*
 
@@ -792,6 +991,52 @@ replaced by ``.metadata`` (e.g. ``X.pdf`` is accompanied by ``X.metadata``).
 
 If ``RIO_METADATA`` is true, the following options also apply: ``RIO_IDNUM``,
 ``RIO_UPLOADING_USER``, ``RIO_DOCUMENT_TYPE``.
+
+FILE_SCRIPT_AFTER_EXPORT
+########################
+
+*String.* Optional.
+
+Optional filename of a shell script or other executable to run after file
+export is complete. You might use this script, for example, to move the files
+to a different location (such as across a network). If the parameter is blank,
+no script will be run. If no files are exported, the script will not be run.
+
+The parameters passed to the script are all the filenames exported for a given
+task. (This includes any RiO metadata filenames.)
+
+Note:
+
+- **WARNING:** the script will execute with the same permissions as the
+  instance of CamCOPS that's doing the export (so, for example, if you run
+  CamCOPS from your ``/etc/crontab`` as root, then this script will be run as
+  root; that can pose a risk!).
+
+- The script executes while the export lock is still held by CamCOPS (i.e.
+  further exports won't be started until the script is complete).
+
+- If the script fails, an error message is recorded, but the file transfer is
+  still considered to have been made (CamCOPS has done all it can and the
+  responsibility now lies elsewhere).
+
+- Example test script: suppose this is ``/usr/local/bin/print_arguments``:
+
+  .. code-block:: bash
+
+    #!/bin/bash
+    for f in $$@
+    do
+       echo "CamCOPS has just exported this file: $$f"
+    done
+
+  ... then you could set:
+
+  .. code-block:: none
+
+    SCRIPT_AFTER_FILE_EXPORT = /usr/local/bin/print_arguments
+
+Extra options for RiO metadata for file-based export
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 RIO_IDNUM
 #########
@@ -817,50 +1062,6 @@ to a human-readable document type; for example, the code "APT" might map to
 "Appointment Letter". Typically we might want a code that maps to "Clinical
 Correspondence", but the code will be defined within the local RiO system
 configuration.
-
-SCRIPT_AFTER_FILE_EXPORT
-########################
-
-*String.* Optional.
-
-Optional filename of a shell script or other executable to run after file
-export is complete. You might use this script, for example, to move the files
-to a different location (such as across a network). If the parameter is blank,
-no script will be run. If no files are exported, the script will not be run.
-
-The parameters passed to the script are all the filenames exported. (This
-includes any RiO metadata filenames.)
-
-Note:
-
-- **WARNING:** the script will execute with the same permissions as the
-  instance of CamCOPS that's doing the export (so, for example, if you run
-  CamCOPS from your ``/etc/crontab`` as root, then this script will be run as
-  root; that can pose a risk!).
-
-- The script executes while the export lock is still held by CamCOPS (i.e.
-  further HL7/file transfers won't be started until the script(s) is/are
-  complete).
-
-- If the script fails, an error message is recorded, but the file transfer is
-  still considered to have been made (CamCOPS has done all it can and the
-  responsibility now lies elsewhere).
-
-- Example test script: suppose this is ``/usr/local/bin/print_arguments``:
-
-  .. code-block:: bash
-
-    #!/bin/bash
-    for f in $$@
-    do
-       echo "CamCOPS has just exported this file: $$f"
-    done
-
-  ... then you could set:
-
-  .. code-block:: none
-
-    SCRIPT_AFTER_FILE_EXPORT = /usr/local/bin/print_arguments
 
 
 Demonstration config file

@@ -67,7 +67,7 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.schema import MetaData
 
-from .cc_cache import cache_region_static, fkg
+from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

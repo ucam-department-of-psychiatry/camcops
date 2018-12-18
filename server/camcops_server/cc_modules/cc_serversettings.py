@@ -77,12 +77,12 @@ from sqlalchemy.sql.sqltypes import (
     DateTime, Float, Integer, String, UnicodeText,
 )
 
-from .cc_sqla_coltypes import DatabaseTitleColType
-from .cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_sqla_coltypes import DatabaseTitleColType
+from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
     from datetime import datetime
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

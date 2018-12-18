@@ -163,14 +163,15 @@ import csv
 import logging
 from typing import (Collection, Dict, Iterable, List, Optional, Set, Tuple,
                     Union)
-import xml.etree.cElementTree as ET
+import xml.etree.cElementTree as ElementTree
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_xml import XmlDataTypes, XmlElement
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -991,9 +992,9 @@ def get_snomed_concepts_from_xml(xml_filename: str) \
         :class:`SnomedConcept` objects
 
     """
-    log.info("Reading SNOMED-CT XML file: " + xml_filename)
-    parser = ET.XMLParser(encoding="UTF-8")
-    tree = ET.parse(xml_filename, parser=parser)
+    log.info("Reading SNOMED-CT XML file: {}", xml_filename)
+    parser = ElementTree.XMLParser(encoding="UTF-8")
+    tree = ElementTree.parse(xml_filename, parser=parser)
     root = tree.getroot()
     all_concepts = {}  # type: Dict[str, List[SnomedConcept]]
     find_lookup = "./{tag}[@{attr}]".format(tag=LOOKUP_TAG, attr=LOOKUP_NAME_ATTR)  # noqa
@@ -1030,19 +1031,20 @@ def write_snomed_concepts_to_xml(
         comment: comment for XML file
     """
     # https://stackoverflow.com/questions/3605680/creating-a-simple-xml-file-using-python
-    root = ET.Element(ROOT_TAG)
-    comment_element = ET.Comment(comment)
+    root = ElementTree.Element(ROOT_TAG)
+    comment_element = ElementTree.Comment(comment)
     root.insert(0, comment_element)
     for lookup, concepts_for_lookup in concepts.items():
-        l_el = ET.SubElement(root, LOOKUP_TAG, {LOOKUP_NAME_ATTR: lookup})
+        l_el = ElementTree.SubElement(
+            root, LOOKUP_TAG, {LOOKUP_NAME_ATTR: lookup})
         for concept in concepts_for_lookup:
-            c_el = ET.SubElement(l_el, CONCEPT_TAG)
-            i_el = ET.SubElement(c_el, ID_TAG)
+            c_el = ElementTree.SubElement(l_el, CONCEPT_TAG)
+            i_el = ElementTree.SubElement(c_el, ID_TAG)
             i_el.text = str(concept.identifier)
-            n_el = ET.SubElement(c_el, TERM_TAG)
+            n_el = ElementTree.SubElement(c_el, TERM_TAG)
             n_el.text = concept.term
-    tree = ET.ElementTree(root)
-    log.info("Writing to {!r}".format(xml_filename))
+    tree = ElementTree.ElementTree(root)
+    log.info("Writing to {!r}", xml_filename)
     tree.write(xml_filename)
 
 
@@ -1435,7 +1437,7 @@ def get_all_task_snomed_concepts(xml_filename: str) \
     for lookup, concepts in xml_concepts.items():
         # Check it
         if lookup not in VALID_SNOMED_LOOKUPS:
-            log.debug("Ignoring unknown SNOMED-CT lookup: {!r}".format(lookup))
+            log.debug("Ignoring unknown SNOMED-CT lookup: {!r}", lookup)
             continue
         assert len(concepts) == 1, (
             "More than one SNOMED-CT concept for lookup: {!r}".format(lookup)
@@ -1561,7 +1563,7 @@ def get_all_icd9cm_snomed_concepts_from_umls(
 
     NOT CURRENTLY USED.
     """
-    log.info("Loading SNOMED-CT ICD-9-CM codes from file: " + tsv_filename)
+    log.info("Loading SNOMED-CT ICD-9-CM codes from file: {}", tsv_filename)
     concepts = {}  # type: Dict[str, SnomedConcept]
     with open(tsv_filename, 'r') as tsvin:
         reader = csv.reader(tsvin, delimiter="\t")
@@ -1577,16 +1579,17 @@ def get_all_icd9cm_snomed_concepts_from_umls(
             if not entry.is_one_to_one_map:
                 continue
             if entry.icd_code in concepts:
-                log.warning("Duplicate ICD-9-CM code found in SNOMED file "
-                            "{!r}: {!r}".format(tsv_filename, entry.icd_code))
+                log.warning(
+                    "Duplicate ICD-9-CM code found in SNOMED file {!r}: {!r}",
+                    tsv_filename, entry.icd_code)
                 continue
             concept = entry.snomed_concept()
-            # log.debug(str(entry))
+            # log.debug("{}", entry)
             concepts[entry.icd_code] = concept
     missing = CLIENT_ICD9CM_CODES - set(concepts.keys())
     if missing:
-        log.info("No SNOMED-CT codes for ICD-9-CM codes: {}".format(
-            ", ".join(sorted(missing))))
+        log.info("No SNOMED-CT codes for ICD-9-CM codes: {}",
+                 ", ".join(sorted(missing)))
     return concepts
 
 
@@ -1719,7 +1722,7 @@ def get_all_icd10_snomed_concepts_from_umls(
 
     NOT CURRENTLY USED.
     """
-    log.info("Loading SNOMED-CT ICD-10-CM codes from file: " + tsv_filename)
+    log.info("Loading SNOMED-CT ICD-10-CM codes from file: {}", tsv_filename)
     concepts = {}  # type: Dict[str, SnomedConcept]
     with open(tsv_filename, 'r') as tsvin:
         reader = csv.reader(tsvin, delimiter="\t")
@@ -1733,16 +1736,17 @@ def get_all_icd10_snomed_concepts_from_umls(
             if entry.icd_code not in CLIENT_ICD10_CODES:
                 continue
             if entry.icd_code in concepts:
-                log.warning("Duplicate ICD-10-CM code found in SNOMED file "
-                            "{!r}: {!r}".format(tsv_filename, entry.icd_code))
+                log.warning(
+                    "Duplicate ICD-10-CM code found in SNOMED file {!r}: {!r}",
+                    tsv_filename, entry.icd_code)
                 continue
             concept = entry.snomed_concept()
-            # log.debug(str(entry))
+            # log.debug("{}", entry)
             concepts[entry.icd_code] = concept
     missing = CLIENT_ICD10_CODES - set(concepts.keys())
     if missing:
-        log.info("No SNOMED-CT codes for ICD-10 codes: {}".format(
-            ", ".join(sorted(missing))))
+        log.info("No SNOMED-CT codes for ICD-10 codes: {}",
+                 ", ".join(sorted(missing)))
     return concepts
 
 
@@ -1878,12 +1882,12 @@ class AthenaConceptRow(object):
             op = other.match_tuple(c)
             log.info(
                 "Tie-breaking to match {c}: {s} ({sp} points) vs "
-                "{o} ({op} points)".format(
-                    s=self, sp=sp, o=other, op=op, c=c
-                ))
+                "{o} ({op} points)",
+                s=self, sp=sp, o=other, op=op, c=c
+            )
             # More matching points is better
             return self.match_tuple(c) > other.match_tuple(c)
-        log.warning("Tie-breaking {} and {} by ID".format(self, other))
+        log.warning("Tie-breaking {} and {} by ID", self, other)
         # Arbitrarily, better to have an earlier (lower) concept ID.
         return self.concept_id < other.concept_id
 
@@ -1995,7 +1999,7 @@ def get_athena_concepts(
         list: of :class:`AthenaConceptRow` objects
 
     """
-    log.info("Loading Athena concepts from file: " + tsv_filename)
+    log.info("Loading Athena concepts from file: {}", tsv_filename)
     concepts = []  # type: List[AthenaConceptRow]
     n_rows_read = 0
     with open(tsv_filename, 'r') as tsvin:
@@ -2014,10 +2018,9 @@ def get_athena_concepts(
                 continue
             if concept_ids and concept.concept_id not in concept_ids:
                 continue
-            # log.debug(str(concept))
+            # log.debug("{}", concept)
             concepts.append(concept)
-    log.debug("Retrieved {} concepts from {} rows".format(
-        len(concepts), n_rows_read))
+    log.debug("Retrieved {} concepts from {} rows", len(concepts), n_rows_read)
     return concepts
 
 
@@ -2044,7 +2047,8 @@ def get_athena_concept_relationships(
         list: of :class:`AthenaConceptRelationshipRow` objects
 
     """
-    log.info("Loading Athena concept relationships from file: " + tsv_filename)
+    log.info("Loading Athena concept relationships from file: {}",
+             tsv_filename)
     relationships = []  # type: List[AthenaConceptRelationshipRow]
     n_rows_read = 0
     with open(tsv_filename, 'r') as tsvin:
@@ -2064,10 +2068,10 @@ def get_athena_concept_relationships(
                 continue
             if concept_id_2_values and rel.concept_id_2 not in concept_id_2_values:  # noqa
                 continue
-            # log.debug(str(rel))
+            # log.debug("{}", rel)
             relationships.append(rel)
-    log.debug("Retrieved {} relationships from {} rows".format(
-        len(relationships), n_rows_read))
+    log.debug("Retrieved {} relationships from {} rows",
+              len(relationships), n_rows_read)
     return relationships
 
 
@@ -2123,24 +2127,24 @@ def get_icd9cm_icd10_snomed_concepts_from_athena(
             else snomed_concepts_icd10
         )
         icd_code = icd.concept_code
-        # log.debug("Processing icd = {}".format(icd))
+        # log.debug("Processing icd = {}", icd)
         possible_snomed = []  # type: List[AthenaConceptRow]
         for rel in relationships:
             if rel.concept_id_1 != icd.concept_id:
                 continue
-            # log.debug("Processing rel = {}".format(rel))
+            # log.debug("Processing rel = {}", rel)
             for snomed in athena_snomed_concepts:
                 if snomed.concept_id != rel.concept_id_2:
                     continue
-                # log.debug("Processing snomed = {}".format(snomed))
+                # log.debug("Processing snomed = {}", snomed)
                 possible_snomed.append(snomed)
         if possible_snomed:
             sclist = [s.snomed_concept() for s in possible_snomed]
             sclist.sort(key=lambda sc: sc.identifier)
-            log.debug("Mapping {} -> {}".format(icd, sclist))
+            log.debug("Mapping {} -> {}", icd, sclist)
             target[icd_code] = sclist
         else:
-            log.debug("No SNOMED code found for {}".format(icd))
+            log.debug("No SNOMED code found for {}", icd)
     return snomed_concepts_icd9, snomed_concepts_icd10
 
 
@@ -2203,7 +2207,7 @@ def get_multiple_snomed_concepts_from_xml(xml_filename: str,
     for lookup, concepts in xml_concepts.items():
         # Check it
         if valid_lookups and lookup not in valid_lookups:
-            log.debug("Ignoring unknown SNOMED-CT lookup: {!r}".format(lookup))
+            log.debug("Ignoring unknown SNOMED-CT lookup: {!r}", lookup)
             continue
         # Stash it
         camcops_concepts[lookup] = concepts

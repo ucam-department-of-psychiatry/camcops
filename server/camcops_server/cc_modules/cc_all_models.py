@@ -31,16 +31,16 @@ they're registered (and also Task knows about all its subclasses).**
 
 import logging
 # from pprint import pformat
-from typing import Dict, Type
+from typing import Dict, List, Type
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from sqlalchemy.orm import configure_mappers
 from sqlalchemy.sql.schema import Table
 
-from .cc_baseconstants import ALEMBIC_VERSION_TABLE
-from .cc_db import GenericTabletRecordMixin
-from .cc_sqlalchemy import Base, log_all_ddl
+from camcops_server.cc_modules.cc_baseconstants import ALEMBIC_VERSION_TABLE
+from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_sqlalchemy import Base, log_all_ddl
 
 # =============================================================================
 # Non-task model imports representing client-side tables
@@ -50,33 +50,48 @@ from .cc_sqlalchemy import Base, log_all_ddl
 # http://codeoptimism.com/blog/pycharm-suppress-inspections-list/
 
 # noinspection PyUnresolvedReferences
-from .cc_blob import Blob
+from camcops_server.cc_modules.cc_blob import Blob
 # noinspection PyUnresolvedReferences
-from .cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 # noinspection PyUnresolvedReferences
-from .cc_patient import Patient
+from camcops_server.cc_modules.cc_patient import Patient
 
 # =============================================================================
 # Other non-task model imports
 # =============================================================================
 
-from .cc_audit import AuditEntry
-from .cc_device import Device
-from .cc_dirtytables import DirtyTable
-from .cc_group import Group, group_group_table
-from .cc_hl7 import HL7Message, HL7Run
-from .cc_idnumdef import IdNumDefinition
-from .cc_membership import UserGroupMembership
-from .cc_session import CamcopsSession
-from .cc_specialnote import SpecialNote
-from .cc_serversettings import ServerSettings
+from camcops_server.cc_modules.cc_audit import AuditEntry
+from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_dirtytables import DirtyTable
+from camcops_server.cc_modules.cc_email import Email
+from camcops_server.cc_modules.cc_group import Group, group_group_table
+from camcops_server.cc_modules.cc_exportmodels import (
+    ExportedTaskEmail,
+    ExportedTask,
+    ExportRun,
+    ExportedTaskFileGroup,
+    ExportedTaskHL7Message,
+)
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
+from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
+from camcops_server.cc_modules.cc_session import CamcopsSession
+from camcops_server.cc_modules.cc_specialnote import SpecialNote
+from camcops_server.cc_modules.cc_serversettings import ServerSettings
 # noinspection PyUnresolvedReferences
-from .cc_task import Task
-from .cc_taskfilter import TaskFilter
+from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_taskfilter import TaskFilter
 # noinspection PyUnresolvedReferences
-from .cc_taskindex import PatientIdNumIndexEntry, TaskIndexEntry
-from .cc_unittest import DemoDatabaseTestCase
-from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
+from camcops_server.cc_modules.cc_taskindex import (
+    PatientIdNumIndexEntry,
+    TaskIndexEntry,
+)
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_user import (
+    SecurityAccountLockout,
+    SecurityLoginFailure,
+    User,
+)
 
 # =============================================================================
 # Task imports
@@ -127,8 +142,13 @@ RESERVED_TABLE_NAMES = [
     DirtyTable.__tablename__,
     Group.__tablename__,
     group_group_table.name,
-    HL7Message.__tablename__,
-    HL7Run.__tablename__,
+    ExportedTaskHL7Message.__tablename__,
+    Email.__tablename__,
+    ExportedTaskEmail.__tablename__,
+    ExportedTask.__tablename__,
+    ExportRecipient.__tablename__,
+    ExportRun.__tablename__,
+    ExportedTaskFileGroup.__tablename__,
     IdNumDefinition.__tablename__,
     PatientIdNumIndexEntry.__tablename__,
     SecurityAccountLockout.__tablename__,
@@ -165,7 +185,7 @@ for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
             if not issubclass(__orm_class, Task):
                 NONTASK_CLIENT_TABLENAMES.append(__tablename)
 NONTASK_CLIENT_TABLENAMES.sort()
-# log.debug("NONTASK_CLIENT_TABLENAMES: {}".format(NONTASK_CLIENT_TABLENAMES))
+# log.debug("NONTASK_CLIENT_TABLENAMES: {}", NONTASK_CLIENT_TABLENAMES)
 
 
 # =============================================================================

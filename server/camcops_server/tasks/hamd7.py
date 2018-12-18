@@ -59,7 +59,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 class Hamd7Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
+    # noinspection PyInitNewSignature,PyUnresolvedReferences
     def __init__(cls: Type['Hamd7'],
                  name: str,
                  bases: Tuple[Type, ...],

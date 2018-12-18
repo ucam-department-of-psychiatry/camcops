@@ -48,22 +48,22 @@ from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
-from .cc_audit import audit
-from .cc_constants import USER_NAME_FOR_SYSTEM
-from .cc_group import Group
-from .cc_membership import UserGroupMembership
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_audit import audit
+from camcops_server.cc_modules.cc_constants import USER_NAME_FOR_SYSTEM
+from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     EmailAddressColType,
     FullNameColType,
     HashedPasswordColType,
     PendulumDateTimeAsIsoTextColType,
-    UserNameColType,
+    UserNameCamcopsColType,
 )
-from .cc_sqlalchemy import Base
-from .cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -102,7 +102,7 @@ class SecurityAccountLockout(Base):
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     username = Column(
-        "username", UserNameColType,
+        "username", UserNameCamcopsColType,
         nullable=False, index=True,
         comment="User name (which may be a non-existent user, to prevent "
                 "subtle username discovery by careful timing)"
@@ -214,7 +214,7 @@ class SecurityLoginFailure(Base):
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     username = Column(
-        "username", UserNameColType,
+        "username", UserNameCamcopsColType,
         nullable=False, index=True,
         comment="User name (which may be a non-existent user, to prevent "
                 "subtle username discovery by careful timing)"
@@ -368,7 +368,7 @@ class User(Base):
         comment="User ID"
     )
     username = Column(
-        "username", UserNameColType,
+        "username", UserNameCamcopsColType,
         nullable=False, index=True, unique=True,
         comment="User name"
     )
@@ -423,7 +423,7 @@ class User(Base):
     # )
     user_group_memberships = relationship(
         "UserGroupMembership", back_populates="user")  # type: List[UserGroupMembership]  # noqa
-    groups = association_proxy("user_group_memberships", "group")  # type: List[Group]
+    groups = association_proxy("user_group_memberships", "group")  # type: List[Group]  # noqa
 
     upload_group = relationship("Group", foreign_keys=[upload_group_id])
 
@@ -743,8 +743,7 @@ class User(Base):
         Return a list of group IDs for groups that the user may dump data
         from.
 
-        .. todo::
-            ids_of_groups_user_may_dump: check: no second-hand authority
+        .. todo:: ids_of_groups_user_may_dump: check: no second-hand authority
             given here via groups; should we? Also crosscheck to
             groups_user_may_dump
         """
@@ -760,9 +759,8 @@ class User(Base):
         Returns a list of group IDs for groups that the user may run reports
         on.
 
-        .. todo::
-            ids_of_groups_user_may_report_on: check: no second-hand authority
-            given here via groups; should we? Also crosscheck to
+        .. todo:: ids_of_groups_user_may_report_on: check: no second-hand
+            authority given here via groups; should we? Also crosscheck to
             groups_user_may_report_on
         """
         if self.superuser:
@@ -1101,7 +1099,7 @@ class UserTests(DemoDatabaseTestCase):
         self.assertIsInstanceOrNone(u.locked_out_until(req), Pendulum)
         u.enable(req)
         self.assertIsInstance(u.may_login_as_tablet, bool)
-        # TODO: etc... could do more here
+        # TODO: cc_user.UserTests: could do more here
         self.assertIsInstance(u.authorized_as_groupadmin, bool)
         self.assertIsInstance(u.may_use_webviewer, bool)
         self.assertIsInstance(u.authorized_to_add_special_note(g.id), bool)

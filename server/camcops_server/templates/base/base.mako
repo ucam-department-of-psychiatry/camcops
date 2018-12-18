@@ -1,7 +1,7 @@
 ## base.mako
 
 <!DOCTYPE html> <!-- HTML 5 -->
-<html>
+<html lang="en">
     <head>
         <%block name="head">
             <%block name="title">

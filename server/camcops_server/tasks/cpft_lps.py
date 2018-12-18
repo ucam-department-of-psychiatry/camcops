@@ -81,7 +81,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
-from .psychiatricclerking import PsychiatricClerking
+from camcops_server.tasks.psychiatricclerking import PsychiatricClerking
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -804,7 +804,7 @@ class LPSReportReferredNotDischarged(Report):
     def get_paramform_schema_class() -> Type[ReportParamSchema]:
         return LPSReportSchema
 
-    # noinspection PyProtectedMember
+    # noinspection PyProtectedMember,PyUnresolvedReferences
     def get_query(self, req: CamcopsRequest) -> SelectBase:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM, 1)
         if which_idnum is None:
@@ -925,7 +925,9 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         group_ids = req.user.ids_of_groups_user_may_report_on
 
         # Step 1: link referral and patient
+        # noinspection PyUnresolvedReferences
         p1 = Patient.__table__.alias("p1")
+        # noinspection PyUnresolvedReferences
         i1 = PatientIdNum.__table__.alias("i1")
         desc = req.get_id_shortdesc(which_idnum)
         select_fields = [
@@ -938,6 +940,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
             i1.c.idnum_value.label(desc),
             CPFTLPSReferral.patient_location,
         ]
+        # noinspection PyUnresolvedReferences
         select_from = p1.join(CPFTLPSReferral.__table__, and_(
             p1.c._current == True,
             CPFTLPSReferral.patient_id == p1.c.id,
@@ -959,8 +962,11 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
             wheres.append(CPFTLPSReferral._group_id.in_(group_ids))
 
         # Step 2: not yet discharged
+        # noinspection PyUnresolvedReferences
         p2 = Patient.__table__.alias("p2")
+        # noinspection PyUnresolvedReferences
         i2 = PatientIdNum.__table__.alias("i2")
+        # noinspection PyUnresolvedReferences
         discharge = (
             select(['*'])
             .select_from(
@@ -993,8 +999,11 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         wheres.append(~exists(discharge))
 
         # Step 3: not yet clerked
+        # noinspection PyUnresolvedReferences
         p3 = Patient.__table__.alias("p3")
+        # noinspection PyUnresolvedReferences
         i3 = PatientIdNum.__table__.alias("i3")
+        # noinspection PyUnresolvedReferences
         clerking = (
             select(['*'])
             .select_from(

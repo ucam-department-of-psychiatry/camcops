@@ -22,10 +22,9 @@
 Tour
 ====
 
-.. todo::
-    This tour is a little outdated; apologies! The screenshots are of the older
-    Javascript/Titanium application, not the newer C++/Qt application, and the
-    server front end has also improved. We'll update this when we can.
+.. todo:: This tour is a little outdated; apologies! The screenshots are of the
+    older Javascript/Titanium application, not the newer C++/Qt application,
+    and the server front end has also improved. We'll update this when we can.
 
 
 **The main menu.** No patient is selected. The application is locked (red

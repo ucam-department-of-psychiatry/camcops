@@ -36,13 +36,16 @@ from os import environ, pardir
 from os.path import abspath, dirname, join
 import textwrap
 
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 from cardinal_pythonlib.sqlalchemy.alembic_func import create_database_migration_numbered_style  # noqa
 
 from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from camcops_server.cc_modules.cc_config import get_default_config_from_os_env
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 N_SEQUENCE_CHARS = 4  # like Django
 CURRENT_DIR = dirname(abspath(__file__))  # camcops/server/tools
@@ -102,6 +105,24 @@ def main() -> None:
         message=args.message,
         n_sequence_chars=N_SEQUENCE_CHARS
     )
+    print(r"""
+Now:
+
+- Check the new migration file.
+- Check in particular for incorrectly dialect-specific stuff, e.g. with
+
+      grep "mysql\." *.py
+
+  ... should only show "sa.SOMETYPE().with_variant(mysql.MYSQLTYPE..."
+  
+- and
+
+      grep "sa\.Variant" *.py
+      
+  ... suggests an error that should be "Sometype().with_variant(...)"; see 
+  source here.
+
+    """)
 
 
 if __name__ == "__main__":

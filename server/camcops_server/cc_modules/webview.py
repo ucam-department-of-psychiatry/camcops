@@ -122,24 +122,17 @@ Quick tutorial on Pyramid views:
 """
 
 from collections import OrderedDict
-import io
 import logging
 import os
 # from pprint import pformat
-import sqlite3
-import tempfile
 from typing import Any, Dict, Iterable, List, Tuple, Type
-import zipfile
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
     PdfResponse,
-    SqliteBinaryResponse,
-    TextAttachmentResponse,
     XmlResponse,
-    ZipResponse,
 )
 from cardinal_pythonlib.sqlalchemy.dialect import (
     get_dialect_name,
@@ -164,39 +157,47 @@ import pygments.lexers
 import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
-from sqlalchemy.engine import create_engine
-from sqlalchemy.orm import Session as SqlASession, sessionmaker, Query
+from sqlalchemy.orm import Query
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import (and_, desc, exists, not_, or_,
                                        select, update)
 
-from .cc_audit import audit, AuditEntry
-from .cc_all_models import CLIENT_TABLE_MAP
-from .cc_baseconstants import STATIC_ROOT_DIR
-from .cc_client_api_core import (
+from camcops_server.cc_modules.cc_audit import audit, AuditEntry
+from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
+from camcops_server.cc_modules.cc_baseconstants import STATIC_ROOT_DIR
+from camcops_server.cc_modules.cc_client_api_core import (
     BatchDetails,
     get_server_live_records,
     UploadTableChanges,
     values_preserve_now,
 )
-from .cc_client_api_helpers import upload_commit_order_sorter
-from .cc_constants import (
+from camcops_server.cc_modules.cc_client_api_helpers import (
+    upload_commit_order_sorter,
+)
+from camcops_server.cc_modules.cc_constants import (
     CAMCOPS_URL,
     DateFormat,
     ERA_NOW,
     MINIMUM_PASSWORD_LENGTH,
     USER_NAME_FOR_SYSTEM,
 )
-from .cc_db import (
+from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
     FN_DEVICE_ID,
     FN_ERA,
     FN_GROUP_ID,
     FN_PK,
 )
-from .cc_device import Device
-from .cc_dump import copy_tasks_and_summaries
-from .cc_forms import (
+from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_export import (
+    task_collection_to_sqlite_response,
+    task_collection_to_tsv_zip_response,
+)
+from camcops_server.cc_modules.cc_exportmodels import (
+    ExportedTaskHL7Message,
+    ExportRun,
+)
+from camcops_server.cc_modules.cc_forms import (
     AddGroupForm,
     AddIdDefinitionForm,
     AddSpecialNoteForm,
@@ -237,15 +238,14 @@ from .cc_forms import (
     TasksPerPageForm,
     ViewDdlForm,
 )
-from .cc_group import Group
-from .cc_hl7 import HL7Message, HL7Run
-from .cc_idnumdef import IdNumDefinition
-from .cc_membership import UserGroupMembership
-from .cc_patient import Patient
-from .cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
-from .cc_pyramid import (
+from camcops_server.cc_modules.cc_pyramid import (
     CamcopsPage,
     FormAction,
     HTTPFoundDebugVersion,
@@ -256,28 +256,33 @@ from .cc_pyramid import (
     ViewArg,
     ViewParam,
 )
-from .cc_report import get_report_instance
-from .cc_request import CamcopsRequest
-from .cc_simpleobjects import IdNumReference
-from .cc_specialnote import SpecialNote
-from .cc_sqlalchemy import get_all_ddl
-from .cc_task import Task
-from .cc_taskcollection import (
+from camcops_server.cc_modules.cc_report import get_report_instance
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_simpleobjects import (
+    IdNumReference,
+    TaskExportOptions,
+)
+from camcops_server.cc_modules.cc_specialnote import SpecialNote
+from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl
+from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_taskcollection import (
     TaskFilter,
     TaskCollection,
     TaskSortMethod,
 )
-from .cc_taskfactory import task_factory
-from .cc_taskfilter import (
+from camcops_server.cc_modules.cc_taskfactory import task_factory
+from camcops_server.cc_modules.cc_taskfilter import (
     task_classes_from_table_names,
     TaskClassSortMethod,
 )
-from .cc_taskindex import update_indexes
-from .cc_tracker import ClinicalTextView, Tracker
-from .cc_tsv import TsvCollection
-from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
-from .cc_version import CAMCOPS_SERVER_VERSION
-from .cc_xml import TaskXmlOptions
+from camcops_server.cc_modules.cc_taskindex import update_indexes
+from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
+from camcops_server.cc_modules.cc_user import (
+    SecurityAccountLockout,
+    SecurityLoginFailure,
+    User,
+)
+from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -1046,17 +1051,17 @@ def serve_task(req: CamcopsRequest) -> Response:
             task.get_pdf_html(req, anonymise=anonymise)
         )
     elif viewtype == ViewArg.XML:
-        options = TaskXmlOptions(
-            include_ancillary=True,
+        options = TaskExportOptions(
+            xml_include_ancillary=True,
             include_blobs=req.get_bool_param(ViewParam.INCLUDE_BLOBS, True),
-            include_calculated=req.get_bool_param(
+            xml_include_calculated=req.get_bool_param(
                 ViewParam.INCLUDE_CALCULATED, True),
-            include_patient=req.get_bool_param(
+            xml_include_patient=req.get_bool_param(
                 ViewParam.INCLUDE_PATIENT, True),
-            include_plain_columns=True,
-            include_snomed=req.get_bool_param(
+            xml_include_plain_columns=True,
+            xml_include_snomed=req.get_bool_param(
                 ViewParam.INCLUDE_SNOMED, True),
-            with_header_comments=True,
+            xml_with_header_comments=True,
         )
         include_comments = req.get_bool_param(ViewParam.INCLUDE_COMMENTS, True)
         return XmlResponse(task.get_xml(req=req, options=options,
@@ -1384,58 +1389,11 @@ def serve_tsv_dump(req: CamcopsRequest) -> Response:
         sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
     )
 
-    # -------------------------------------------------------------------------
-    # Create memory file and ZIP file within it
-    # -------------------------------------------------------------------------
-    memfile = io.BytesIO()
-    z = zipfile.ZipFile(memfile, "w")
-
-    # -------------------------------------------------------------------------
-    # Iterate through tasks
-    # -------------------------------------------------------------------------
-    audit_descriptions = []  # type: List[str]
-    for cls in collection.task_classes():
-        tasks = collection.tasks_for_task_class(cls)
-        # Task may return >1 file for TSV output (e.g. for subtables).
-        tsvcoll = TsvCollection()
-        pks = []  # type: List[int]
-
-        for task in tasks:
-            # noinspection PyProtectedMember
-            pks.append(task._pk)
-            tsv_pages = task.get_tsv_pages(req)
-            tsvcoll.add_pages(tsv_pages)
-
-        if sort_by_heading:
-            tsvcoll.sort_headings_within_all_pages()
-
-        audit_descriptions.append("{}: {}".format(
-            cls.__tablename__, ",".join(str(pk) for pk in pks)))
-
-        # Write to ZIP.
-        # If there are no valid task instances, there'll be no TSV; that's OK.
-        for filename_stem in tsvcoll.get_page_names():
-            tsv_filename = filename_stem + ".tsv"
-            tsv_contents = tsvcoll.get_tsv_file(filename_stem)
-            z.writestr(tsv_filename, tsv_contents.encode("utf-8"))
-
-        # Attempt a little memory efficiency:
-        collection.forget_task_class(cls)
-
-    # -------------------------------------------------------------------------
-    # Finish and serve
-    # -------------------------------------------------------------------------
-    z.close()
-
-    # Audit
-    audit(req, "Basic dump: {}".format("; ".join(audit_descriptions)))
-
-    # Return the result
-    zip_contents = memfile.getvalue()
-    memfile.close()
-    zip_filename = "CamCOPS_dump_{}.zip".format(
-        format_datetime(req.now, DateFormat.FILENAME))
-    return ZipResponse(body=zip_contents, filename=zip_filename)
+    return task_collection_to_tsv_zip_response(
+        req=req,
+        collection=collection,
+        sort_by_heading=sort_by_heading,
+    )
 
 
 @view_config(route_name=Routes.OFFER_SQL_DUMP)
@@ -1514,111 +1472,14 @@ def sql_dump(req: CamcopsRequest) -> Response:
         raise HTTPBadRequest("Bad {} parameter".format(
             ViewParam.SQLITE_METHOD))
 
-    # -------------------------------------------------------------------------
-    # Create memory file, dumper, and engine
-    # -------------------------------------------------------------------------
-
-    # This approach failed:
-    #
-    #   memfile = io.StringIO()
-    #
-    #   def dump(querysql, *multiparams, **params):
-    #       compsql = querysql.compile(dialect=engine.dialect)
-    #       memfile.write("{};\n".format(compsql))
-    #
-    #   engine = create_engine('{dialect}://'.format(dialect=dialect_name),
-    #                          strategy='mock', executor=dump)
-    #   dst_session = sessionmaker(bind=engine)()  # type: SqlASession
-    #
-    # ... you get the error
-    #   AttributeError: 'MockConnection' object has no attribute 'begin'
-    # ... which is fair enough.
-    #
-    # Next best thing: SQLite database.
-    # Two ways to deal with it:
-    # (a) duplicate our C++ dump code (which itself duplicate the SQLite
-    #     command-line executable's dump facility), then create the database,
-    #     dump it to a string, serve the string; or
-    # (b) offer the binary SQLite file.
-    # Or... (c) both.
-    # Aha! pymysqlite.iterdump does this for us.
-    #
-    # If we create an in-memory database using create_engine('sqlite://'),
-    # can we get the binary contents out? Don't think so.
-    #
-    # So we should first create a temporary on-disk file, then use that.
-
-    # -------------------------------------------------------------------------
-    # Make temporary file (one whose filename we can know).
-    # We use tempfile.mkstemp() for security, or NamedTemporaryFile,
-    # which is a bit easier. However, you can't necessarily open the file
-    # again under all OSs, so that's no good. The final option is
-    # TemporaryDirectory, which is secure and convenient.
-    #
-    # https://docs.python.org/3/library/tempfile.html
-    # https://security.openstack.org/guidelines/dg_using-temporary-files-securely.html  # noqa
-    # https://stackoverflow.com/questions/3924117/how-to-use-tempfile-namedtemporaryfile-in-python  # noqa
-    # -------------------------------------------------------------------------
-    db_basename = "temp.sqlite3"
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        db_filename = os.path.join(tmpdirname, db_basename)
-        # ---------------------------------------------------------------------
-        # Make SQLAlchemy session
-        # ---------------------------------------------------------------------
-        url = "sqlite:///" + db_filename
-        engine = create_engine(url, echo=False)
-        dst_session = sessionmaker(bind=engine)()  # type: SqlASession
-        # ---------------------------------------------------------------------
-        # Iterate through tasks, creating tables as we need them.
-        # ---------------------------------------------------------------------
-        # Must treat tasks all together, because otherwise we will insert
-        # duplicate dependency objects like Group objects.
-        audit_descriptions = []  # type: List[str]
-        all_tasks = []  # type: List[Task]
-        for cls in collection.task_classes():
-            tasks = collection.tasks_for_task_class(cls)
-            all_tasks.extend(tasks)
-            # noinspection PyProtectedMember
-            audit_descriptions.append("{}: {}".format(
-                cls.__tablename__, ",".join(str(task._pk) for task in tasks)))
-        # ---------------------------------------------------------------------
-        # Next bit very tricky. We're trying to achieve several things:
-        # - a copy of part of the database structure
-        # - a copy of part of the data, with relationships intact
-        # - nothing sensitive (e.g. full User records) going through
-        # - adding new columns for Task objects offering summary values
-        # ---------------------------------------------------------------------
-        copy_tasks_and_summaries(tasks=all_tasks,
-                                 dst_engine=engine,
-                                 dst_session=dst_session,
-                                 include_blobs=include_blobs,
-                                 req=req)
-        dst_session.commit()
-        # ---------------------------------------------------------------------
-        # Audit
-        # ---------------------------------------------------------------------
-        audit(req, "SQL dump: {}".format("; ".join(audit_descriptions)))
-        # ---------------------------------------------------------------------
-        # Fetch file contents, either as binary, or as SQL
-        # ---------------------------------------------------------------------
-        filename_stem = "CamCOPS_dump_{}".format(
-            format_datetime(req.now, DateFormat.FILENAME))
-        if sqlite_method == ViewArg.SQLITE:
-            with open(db_filename, 'rb') as f:
-                binary_contents = f.read()
-            return SqliteBinaryResponse(body=binary_contents,
-                                        filename=filename_stem + ".sqlite3")
-        else:  # SQL
-            con = sqlite3.connect(db_filename)
-            with io.StringIO() as f:
-                # noinspection PyTypeChecker
-                for line in con.iterdump():
-                    f.write(line + "\n")
-                con.close()
-                f.flush()
-                sql_text = f.getvalue()
-            return TextAttachmentResponse(body=sql_text,
-                                          filename=filename_stem + ".sql")
+    as_sql_not_binary = sqlite_method == ViewArg.SQL
+    export_options = TaskExportOptions(include_blobs=include_blobs)
+    return task_collection_to_sqlite_response(
+        req=req,
+        collection=collection,
+        export_options=export_options,
+        as_sql_not_binary=as_sql_not_binary,
+    )
 
 
 # =============================================================================
@@ -1751,7 +1612,7 @@ def view_audit_trail(req: CamcopsRequest) -> Response:
         q = q.filter(AuditEntry.when_access_utc >= start_datetime)
         add_condition(ViewParam.START_DATETIME, start_datetime)
     if end_datetime:
-        q = q.filter(AuditEntry.when_access_utc <= end_datetime)
+        q = q.filter(AuditEntry.when_access_utc < end_datetime)
         add_condition(ViewParam.END_DATETIME, end_datetime)
     if source:
         q = q.filter(AuditEntry.source == source)
@@ -1849,24 +1710,26 @@ def view_hl7_message_log(req: CamcopsRequest) -> Response:
         conditions.append("{} = {}".format(key, value))
 
     dbsession = req.dbsession
-    q = dbsession.query(HL7Message)
+    q = dbsession.query(ExportedTaskHL7Message)
+
+    # TODO: *** fixme: view_hl7_message_log (and similar)
     if table_name:
-        q = q.filter(HL7Message.basetable == table_name)
+        q = q.filter(ExportedTaskHL7Message.basetable == table_name)
         add_condition(ViewParam.TABLE_NAME, table_name)
     if server_pk is not None:
-        q = q.filter(HL7Message.serverpk == server_pk)
+        q = q.filter(ExportedTaskHL7Message.serverpk == server_pk)
         add_condition(ViewParam.SERVER_PK, server_pk)
     if hl7_run_id is not None:
-        q = q.filter(HL7Message.run_id == hl7_run_id)
+        q = q.filter(ExportedTaskHL7Message.run_id == hl7_run_id)
         add_condition(ViewParam.HL7_RUN_ID, hl7_run_id)
     if start_datetime:
-        q = q.filter(HL7Message.sent_at_utc >= start_datetime)
+        q = q.filter(ExportedTaskHL7Message.sent_at_utc >= start_datetime)
         add_condition(ViewParam.START_DATETIME, start_datetime)
     if end_datetime:
-        q = q.filter(HL7Message.sent_at_utc <= end_datetime)
+        q = q.filter(ExportedTaskHL7Message.sent_at_utc < end_datetime)
         add_condition(ViewParam.END_DATETIME, end_datetime)
 
-    q = q.order_by(desc(HL7Message.msg_id))
+    q = q.order_by(desc(ExportedTaskHL7Message.id))
 
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
@@ -1886,8 +1749,8 @@ def view_hl7_message(req: CamcopsRequest) -> Response:
     """
     hl7_msg_id = req.get_int_param(ViewParam.HL7_MSG_ID, None)
     dbsession = req.dbsession
-    hl7msg = dbsession.query(HL7Message)\
-        .filter(HL7Message.msg_id == hl7_msg_id)\
+    hl7msg = dbsession.query(ExportedTaskHL7Message)\
+        .filter(ExportedTaskHL7Message.id == hl7_msg_id)\
         .first()
     if hl7msg is None:
         raise HTTPBadRequest("Bad HL7 message ID {}".format(hl7_msg_id))
@@ -1953,18 +1816,18 @@ def view_hl7_run_log(req: CamcopsRequest) -> Response:
         conditions.append("{} = {}".format(key, value))
 
     dbsession = req.dbsession
-    q = dbsession.query(HL7Run)
+    q = dbsession.query(ExportRun)
     if hl7_run_id is not None:
-        q = q.filter(HL7Run.run_id == hl7_run_id)
+        q = q.filter(ExportRun.id == hl7_run_id)
         add_condition("hl7_run_id", hl7_run_id)
     if start_datetime:
-        q = q.filter(HL7Run.start_at_utc >= start_datetime)
+        q = q.filter(ExportRun.start_at_utc >= start_datetime)
         add_condition("start_datetime", start_datetime)
     if end_datetime:
-        q = q.filter(HL7Run.start_at_utc <= end_datetime)
+        q = q.filter(ExportRun.start_at_utc <= end_datetime)
         add_condition("end_datetime", end_datetime)
 
-    q = q.order_by(desc(HL7Run.run_id))
+    q = q.order_by(desc(ExportRun.id))
 
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
@@ -1984,8 +1847,8 @@ def view_hl7_run(req: CamcopsRequest) -> Response:
     """
     hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
     dbsession = req.dbsession
-    hl7run = dbsession.query(HL7Run)\
-        .filter(HL7Run.run_id == hl7_run_id)\
+    hl7run = dbsession.query(ExportRun)\
+        .filter(ExportRun.id == hl7_run_id)\
         .first()
     if hl7run is None:
         raise HTTPBadRequest("Bad HL7 run ID {}".format(hl7_run_id))
@@ -2195,9 +2058,9 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
     user_fluid_group_ids = list(set(user_group_ids) & set(all_fluid_groups))
     # log.debug(
     #     "all_fluid_groups={}, user_group_ids={}, "
-    #     "user_frozen_group_ids={}, user_fluid_group_ids={}".format(
-    #         all_fluid_groups, user_group_ids,
-    #         user_frozen_group_ids, user_fluid_group_ids)
+    #     "user_frozen_group_ids={}, user_fluid_group_ids={}",
+    #     all_fluid_groups, user_group_ids,
+    #     user_frozen_group_ids, user_fluid_group_ids
     # )
     if FormAction.SUBMIT in req.POST:
         try:

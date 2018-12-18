@@ -46,23 +46,26 @@ from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, Integer
 
-from .cc_cache import cache_region_static, fkg
-from .cc_device import Device
-from .cc_group import Group
-from .cc_patient import Patient
-from .cc_patientidnum import PatientIdNum
-from .cc_request import CamcopsRequest
-from .cc_simpleobjects import IdNumReference
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
+from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
     IdNumReferenceListColType,
     PatientNameColType,
     SexColType,
 )
-from .cc_sqlalchemy import Base
-from .cc_task import tablename_to_task_class_dict, Task
-from .cc_taskindex import PatientIdNumIndexEntry
-from .cc_user import User
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_task import (
+    tablename_to_task_class_dict,
+    Task,
+)
+from camcops_server.cc_modules.cc_taskindex import PatientIdNumIndexEntry
+from camcops_server.cc_modules.cc_user import User
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ColumnElement
@@ -261,8 +264,10 @@ class TaskFilter(Base):
         # Or call it, of course, but we like to keep on the happy side of the
         # PyCharm type checker.
 
-        # Python-only (non-database) filtering attributes:
+        # Python-only filtering attributes (i.e. not saved to database)
         self.era = None  # type: str
+        self.finalized_only = False  # used for exports
+        self.must_have_idnum_type = None  # type: int
 
         # Other Python-only attributes
         self.sort_method = TaskClassSortMethod.NONE
@@ -274,6 +279,8 @@ class TaskFilter(Base):
         SQLAlchemy function to recreate after loading from the database.
         """
         self.era = None  # type: str
+        self.finalized_only = False
+        self.must_have_idnum_type = None  # type: int
 
         self.sort_method = TaskClassSortMethod.NONE
         self._task_classes = None  # type: List[Type[Task]]
@@ -493,21 +500,39 @@ class TaskFilter(Base):
             id_filter_parts = []  # type: List[ColumnElement]
             if via_index:
                 q = q.join(PatientIdNumIndexEntry)
+                # "Specify possible ID number values"
                 for iddef in self.idnum_criteria:
                     id_filter_parts.append(and_(
                         PatientIdNumIndexEntry.which_idnum == iddef.which_idnum,  # noqa
                         PatientIdNumIndexEntry.idnum_value == iddef.idnum_value
                     ))
+                # Use OR (disjunction) of the specified values:
+                q = q.filter(or_(*id_filter_parts))
+                # "Must have a value for a given ID number type"
+                if self.must_have_idnum_type:
+                    # noinspection PyComparisonWithNone,PyPep8
+                    q = q.filter(and_(
+                        PatientIdNumIndexEntry.which_idnum == self.must_have_idnum_type,  # noqa
+                        PatientIdNumIndexEntry.idnum_value != None
+                    ))
             else:
                 # q = q.join(PatientIdNum) # fails
                 q = q.join(Patient.idnums)
+                # "Specify possible ID number values"
                 for iddef in self.idnum_criteria:
                     id_filter_parts.append(and_(
                         PatientIdNum.which_idnum == iddef.which_idnum,
                         PatientIdNum.idnum_value == iddef.idnum_value
                     ))
-            # Use OR (disjunction) of the specified values:
-            q = q.filter(or_(*id_filter_parts))
+                # Use OR (disjunction) of the specified values:
+                q = q.filter(or_(*id_filter_parts))
+                # "Must have a value for a given ID number type"
+                if self.must_have_idnum_type:
+                    # noinspection PyComparisonWithNone,PyPep8
+                    q = q.filter(and_(
+                        PatientIdNum.which_idnum == self.must_have_idnum_type,
+                        PatientIdNum.idnum_value != None
+                    ))
 
         return q
 

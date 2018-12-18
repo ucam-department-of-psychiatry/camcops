@@ -38,12 +38,12 @@ from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, String
 
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     HL7AssigningAuthorityType,
     HL7IdTypeType,
     IdDescriptorColType,
 )
-from .cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

@@ -206,6 +206,7 @@ class Honos(HonosBase,
     QFIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 48
 
+    # noinspection PyUnresolvedReferences
     def is_complete(self) -> bool:
         if not self.are_all_fields_complete(self.QFIELDS):
             return False
@@ -291,6 +292,7 @@ class Honos(HonosBase,
         )
         return h
 
+    # noinspection PyUnresolvedReferences
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.HONOSWA_PROCEDURE_ASSESSMENT))]  # noqa
         if self.is_complete():
@@ -374,6 +376,7 @@ class Honos65(HonosBase,
     QFIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 48
 
+    # noinspection PyUnresolvedReferences
     def is_complete(self) -> bool:
         if not self.are_all_fields_complete(self.QFIELDS):
             return False

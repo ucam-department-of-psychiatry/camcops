@@ -52,8 +52,11 @@ from camcops_server.cc_modules.cc_constants import (
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
+from camcops_server.cc_modules.cc_exportmodels import (
+    ExportedTaskHL7Message,
+    ExportRun,
+)
 from camcops_server.cc_modules.cc_group import Group, group_group_table
-from camcops_server.cc_modules.cc_hl7 import HL7Message, HL7Run
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
@@ -741,13 +744,12 @@ def translate_fn(trcon: TranslationContext) -> None:
                 "id={i!r}, device_id={d!r}, era={e!r}, "
                 "_when_removed_exact={w!r}.\n"
                 "ARE YOU TRYING TO MERGE THE SAME DATABASE IN TWICE? "
-                "DON'T.".format(
-                    t=trcon.tablename,
-                    i=old_instance.id,
-                    d=old_instance._device_id,
-                    e=old_instance._era,
-                    w=old_instance._when_removed_exact,
-                )
+                "DON'T.",
+                t=trcon.tablename,
+                i=old_instance.id,
+                d=old_instance._device_id,
+                e=old_instance._era,
+                w=old_instance._when_removed_exact,
             )
             if (trcon.tablename == PatientIdNum.__tablename__ and
                     (old_instance.id % NUMBER_OF_IDNUMS_DEFUNCT == 0)):
@@ -760,10 +762,9 @@ def translate_fn(trcon: TranslationContext) -> None:
                     'patient_idnum.id = n * {n} themselves (or possibly were '
                     'all given patient_idnum.id = 0). '
                     'Fix this by running, on the source database:\n\n'
-                    '    UPDATE patient_idnum SET id = _pk;\n\n'.format(
-                        t=trcon.tablename,
-                        n=NUMBER_OF_IDNUMS_DEFUNCT,
-                    )
+                    '    UPDATE patient_idnum SET id = _pk;\n\n',
+                    t=trcon.tablename,
+                    n=NUMBER_OF_IDNUMS_DEFUNCT,
                 )
             # Print the actual instance last; accessing them via pformat can
             # lead to crashes if there are missing source fields, as an
@@ -822,7 +823,7 @@ def merge_camcops_db(src: str,
                      report_every: int,
                      dummy_run: bool,
                      info_only: bool,
-                     skip_hl7_logs: bool,
+                     skip_export_logs: bool,
                      skip_audit_logs: bool,
                      default_group_id: Optional[int],
                      default_group_name: Optional[str]) -> None:
@@ -846,8 +847,8 @@ def merge_camcops_db(src: str,
         info_only:
             show info, then stop
 
-        skip_hl7_logs:
-            skip HL7 export log tables
+        skip_export_logs:
+            skip export log tables
 
         skip_audit_logs:
             skip audit log table
@@ -904,10 +905,11 @@ def merge_camcops_db(src: str,
     ]
 
     # Tedious and bulky stuff the user may want to skip:
-    if skip_hl7_logs:
+    # *** todo: fix this in merge_camcops_db
+    if skip_export_logs:
         skip_tables.extend([
-            TableIdentity(tablename=HL7Message.__tablename__),
-            TableIdentity(tablename=HL7Run.__tablename__),
+            TableIdentity(tablename=ExportedTaskHL7Message.__tablename__),
+            TableIdentity(tablename=ExportRun.__tablename__),
         ])
     if skip_audit_logs:
         skip_tables.append(TableIdentity(tablename=AuditEntry.__tablename__))

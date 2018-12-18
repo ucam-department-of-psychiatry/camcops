@@ -38,13 +38,16 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
 from sqlalchemy.orm import Session as SqlASession
 
-from .cc_idnumdef import IdNumDefinition
-from .cc_sqlalchemy import Base, make_debug_sqlite_engine
-from .cc_version import CAMCOPS_SERVER_VERSION
+from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
+from camcops_server.cc_modules.cc_sqlalchemy import (
+    Base,
+    make_debug_sqlite_engine,
+)
+from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
-    from .cc_db import GenericTabletRecordMixin
-    from .cc_task import Task
+    from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+    from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -79,7 +82,7 @@ class ExtendedTestCase(unittest.TestCase):
         """
         Logs a message to the Python log.
         """
-        log.info(cls.__module__ + "." + cls.__name__ + ":" + msg)
+        log.info("{}.{}:{}", cls.__module__, cls.__name__, msg)
 
     def assertIsInstanceOrNone(self, obj: object, cls: Type, msg: str = None):
         """
@@ -100,14 +103,14 @@ class DemoRequestTestCase(ExtendedTestCase):
         self.announce("setUp")
         from sqlalchemy.orm.session import sessionmaker
         from camcops_server.cc_modules.cc_request import get_unittest_request
-        from camcops_server.cc_modules.cc_recipdef import RecipientDefinition
+        from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa
 
         # Create SQLite in-memory database
         self.engine = make_debug_sqlite_engine(echo=False)
         self.dbsession = sessionmaker()(bind=self.engine)  # type: SqlASession
 
         self.req = get_unittest_request(self.dbsession)
-        self.recipdef = RecipientDefinition()
+        self.recipdef = ExportRecipient()
 
 
 class DemoDatabaseTestCase(DemoRequestTestCase):

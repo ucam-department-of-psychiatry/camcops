@@ -104,6 +104,7 @@ class HamdMetaclass(DeclarativeMeta):
             qname = "q" + str(qnum)
             col = getattr(cls, qname)
             col.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)
+        # noinspection PyUnresolvedReferences
         cls.q20.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
 
         super().__init__(name, bases, classdict)
@@ -198,6 +199,7 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                            comment="Severity"),
         ]
 
+    # noinspection PyUnresolvedReferences
     def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False

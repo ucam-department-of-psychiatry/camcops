@@ -748,6 +748,7 @@ class PolicyTests(ExtendedTestCase):
             good10, good11,
         ]
         valid_idnums = [1, 2, 3]
+        # noinspection PyTypeChecker
         bpi = BarePatientInfo(
             forename="forename",
             surname="surname",
@@ -759,7 +760,7 @@ class PolicyTests(ExtendedTestCase):
             ],
         )
         for policy_string in all_policies:
-            log.info("Testing {!r}".format(policy_string))
+            log.info("Testing {!r}", policy_string)
             p = TokenizedPolicy(policy_string)
 
             x = p.is_syntactically_valid()

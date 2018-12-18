@@ -65,7 +65,7 @@ from camcops_server.cc_modules.cc_forms import (
     OR_JOIN_DESCRIPTION,
     ReportParamSchema,
 )
-from camcops_server.cc_modules.cc_hl7core import make_dg1_segment
+from camcops_server.cc_modules.cc_hl7 import make_dg1_segment
 from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_nlp import guess_name_components
 from camcops_server.cc_modules.cc_patient import Patient
@@ -76,7 +76,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
-from camcops_server.cc_modules.cc_recipdef import RecipientDefinition
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_snomed import (
@@ -224,7 +224,7 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return infolist
 
     # noinspection PyUnusedLocal
-    def get_hl7_extra_data_segments(self, recipient_def: RecipientDefinition) \
+    def get_hl7_extra_data_segments(self, recipient_def: ExportRecipient) \
             -> List[hl7.Segment]:
         segments = []
         clinician = guess_name_components(self.clinician_name)
@@ -297,6 +297,7 @@ class DiagnosisIcd10(DiagnosisBase):
         if not req.icd10_snomed_supported:
             return []
         snomed_codes = []  # type: List[SnomedExpression]
+        # noinspection PyTypeChecker
         for item in self.items:
             concepts = self._get_snomed_concepts(item.code, req, fallback)
             if not concepts:
@@ -375,6 +376,7 @@ class DiagnosisIcd9CM(DiagnosisBase):
         if not req.icd9cm_snomed_supported:
             return []
         snomed_codes = []  # type: List[SnomedExpression]
+        # noinspection PyTypeChecker
         for item in self.items:
             try:
                 concepts = req.icd9cm_snomed(item.code)
@@ -399,7 +401,7 @@ ORDER_BY = ["surname", "forename", "dob", "sex",
             "when_created", "system", "code"]
 
 
-# noinspection PyProtectedMember
+# noinspection PyProtectedMember,PyUnresolvedReferences
 def get_diagnosis_report_query(req: CamcopsRequest,
                                diagnosis_class: Type[DiagnosisBase],
                                item_class: Type[DiagnosisItemBase],
@@ -660,6 +662,7 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
         item_class.code.label("code"),
         item_class.description.label("description"),
     ]
+    # noinspection PyUnresolvedReferences
     select_from = (
         Patient.__table__
         .join(diagnosis_class.__table__, and_(
@@ -728,9 +731,13 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
     # multiple diagnoses for the same patient, so we need to use a linking
     # ID number.
     if exclusion_dx:
+        # noinspection PyUnresolvedReferences
         edx_items = item_class.__table__.alias("edx_items")
+        # noinspection PyUnresolvedReferences
         edx_sets = diagnosis_class.__table__.alias("edx_sets")
+        # noinspection PyUnresolvedReferences
         edx_patient = Patient.__table__.alias("edx_patient")
+        # noinspection PyUnresolvedReferences
         edx_idnum = PatientIdNum.__table__.alias("edx_idnum")
         edx_joined = (
             edx_items

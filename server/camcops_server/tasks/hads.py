@@ -29,6 +29,7 @@ camcops_server/tasks/hads.py
 import logging
 from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
@@ -50,7 +51,7 @@ from camcops_server.cc_modules.cc_task import (
 )
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================

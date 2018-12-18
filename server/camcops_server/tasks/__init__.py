@@ -26,93 +26,99 @@ camcops_server/tasks/__init__.py
 
 """
 
-from .ace3 import Ace3
-from .aims import Aims
-from .audit import Audit, AuditC
-from .badls import Badls
-from .bdi import Bdi
-from .bmi import Bmi
-from .bprs import Bprs
-from .bprse import Bprse
-from .cage import Cage
-from .cape42 import Cape42
-from .caps import Caps
-from .cardinal_expdetthreshold import CardinalExpDetThreshold
-from .cardinal_expectationdetection import CardinalExpectationDetection
-from .cbir import CbiR
-from .ceca import CecaQ3
-from .cesd import Cesd
-from .cesdr import Cesdr
-from .cgi_task import Cgi
-from .cgisch import CgiSch
-from .cisr import Cisr
-from .ciwa import Ciwa
-from .contactlog import ContactLog
-from .cope import CopeBrief
-from .core10 import Core10
-from .cpft_lps import (
+from camcops_server.tasks.ace3 import Ace3
+from camcops_server.tasks.aims import Aims
+from camcops_server.tasks.audit import Audit, AuditC
+from camcops_server.tasks.badls import Badls
+from camcops_server.tasks.bdi import Bdi
+from camcops_server.tasks.bmi import Bmi
+from camcops_server.tasks.bprs import Bprs
+from camcops_server.tasks.bprse import Bprse
+from camcops_server.tasks.cage import Cage
+from camcops_server.tasks.cape42 import Cape42
+from camcops_server.tasks.caps import Caps
+from camcops_server.tasks.cardinal_expdetthreshold import (
+    CardinalExpDetThreshold,
+)
+from camcops_server.tasks.cardinal_expectationdetection import (
+    CardinalExpectationDetection,
+)
+from camcops_server.tasks.cbir import CbiR
+from camcops_server.tasks.ceca import CecaQ3
+from camcops_server.tasks.cesd import Cesd
+from camcops_server.tasks.cesdr import Cesdr
+from camcops_server.tasks.cgi_task import Cgi
+from camcops_server.tasks.cgisch import CgiSch
+from camcops_server.tasks.cisr import Cisr
+from camcops_server.tasks.ciwa import Ciwa
+from camcops_server.tasks.contactlog import ContactLog
+from camcops_server.tasks.cope import CopeBrief
+from camcops_server.tasks.core10 import Core10
+from camcops_server.tasks.cpft_lps import (
     CPFTLPSReferral,
     CPFTLPSResetResponseClock,
     CPFTLPSDischarge,
 )
-from .dad import Dad
-from .dast import Dast
-from .deakin_1_healthreview import Deakin1HealthReview
-from .demoquestionnaire import DemoQuestionnaire
-from .demqol import Demqol
-from .diagnosis import DiagnosisIcd9CM, DiagnosisIcd10
-from .distressthermometer import DistressThermometer
-from .eq5d5l import Eq5d5l
-from .factg import Factg
-from .fast import Fast
-from .fft import Fft
-from .frs import Frs
-from .gad7 import Gad7
-from .gaf import Gaf
-from .gds import Gds15
-from .gmcpq import GMCPQ
-from .hads import Hads
-from .hama import Hama
-from .hamd import Hamd
-from .hamd7 import Hamd7
-from .honos import Honos, Honos65, Honosca
-from .icd10depressive import Icd10Depressive
-from .icd10manic import Icd10Manic
-from .icd10mixed import Icd10Mixed
-from .icd10schizophrenia import Icd10Schizophrenia
-from .icd10schizotypal import Icd10Schizotypal
-from .icd10specpd import Icd10SpecPD
-from .ided3d import IDED3D
-from .iesr import Iesr
-from .ifs import Ifs
-from .irac import Irac
-from .khandaker_1_medicalhistory import Khandaker1MedicalHistory
-from .mast import Mast
-from .mds_updrs import MdsUpdrs
-from .moca import Moca
-from .nart import Nart
-from .npiq import NpiQ
-from .panss import Panss
-from .pcl5 import Pcl5
-from .pcl import PclC, PclM, PclS
-from .pdss import Pdss
-from .photo import Photo, PhotoSequence
-from .phq9 import Phq9
-from .phq15 import Phq15
-from .progressnote import ProgressNote
-from .pswq import Pswq
-from .psychiatricclerking import PsychiatricClerking
-from .qolbasic import QolBasic
-from .qolsg import QolSG
-from .rand36 import Rand36
-from .service_satisfaction import (
+from camcops_server.tasks.dad import Dad
+from camcops_server.tasks.dast import Dast
+from camcops_server.tasks.deakin_1_healthreview import Deakin1HealthReview
+from camcops_server.tasks.demoquestionnaire import DemoQuestionnaire
+from camcops_server.tasks.demqol import Demqol
+from camcops_server.tasks.diagnosis import DiagnosisIcd9CM, DiagnosisIcd10
+from camcops_server.tasks.distressthermometer import DistressThermometer
+from camcops_server.tasks.eq5d5l import Eq5d5l
+from camcops_server.tasks.factg import Factg
+from camcops_server.tasks.fast import Fast
+from camcops_server.tasks.fft import Fft
+from camcops_server.tasks.frs import Frs
+from camcops_server.tasks.gad7 import Gad7
+from camcops_server.tasks.gaf import Gaf
+from camcops_server.tasks.gds import Gds15
+from camcops_server.tasks.gmcpq import GMCPQ
+from camcops_server.tasks.hads import Hads
+from camcops_server.tasks.hama import Hama
+from camcops_server.tasks.hamd import Hamd
+from camcops_server.tasks.hamd7 import Hamd7
+from camcops_server.tasks.honos import Honos, Honos65, Honosca
+from camcops_server.tasks.icd10depressive import Icd10Depressive
+from camcops_server.tasks.icd10manic import Icd10Manic
+from camcops_server.tasks.icd10mixed import Icd10Mixed
+from camcops_server.tasks.icd10schizophrenia import Icd10Schizophrenia
+from camcops_server.tasks.icd10schizotypal import Icd10Schizotypal
+from camcops_server.tasks.icd10specpd import Icd10SpecPD
+from camcops_server.tasks.ided3d import IDED3D
+from camcops_server.tasks.iesr import Iesr
+from camcops_server.tasks.ifs import Ifs
+from camcops_server.tasks.irac import Irac
+from camcops_server.tasks.khandaker_1_medicalhistory import (
+    Khandaker1MedicalHistory,
+)
+from camcops_server.tasks.mast import Mast
+from camcops_server.tasks.mds_updrs import MdsUpdrs
+from camcops_server.tasks.moca import Moca
+from camcops_server.tasks.nart import Nart
+from camcops_server.tasks.npiq import NpiQ
+from camcops_server.tasks.panss import Panss
+from camcops_server.tasks.pcl5 import Pcl5
+from camcops_server.tasks.pcl import PclC, PclM, PclS
+from camcops_server.tasks.pdss import Pdss
+from camcops_server.tasks.photo import Photo, PhotoSequence
+from camcops_server.tasks.phq9 import Phq9
+from camcops_server.tasks.phq15 import Phq15
+from camcops_server.tasks.progressnote import ProgressNote
+from camcops_server.tasks.pswq import Pswq
+from camcops_server.tasks.psychiatricclerking import PsychiatricClerking
+from camcops_server.tasks.qolbasic import QolBasic
+from camcops_server.tasks.qolsg import QolSG
+from camcops_server.tasks.rand36 import Rand36
+from camcops_server.tasks.service_satisfaction import (
     PatientSatisfaction,
     ReferrerSatisfactionGen,
     ReferrerSatisfactionSpec,
 )
-from .slums import Slums
-from .smast import Smast
-from .wemwbs import Swemwbs, Wemwbs
-from .wsas import Wsas
-from .ybocs import Ybocs, YbocsSc
-from .zbi import Zbi12
+from camcops_server.tasks.slums import Slums
+from camcops_server.tasks.smast import Smast
+from camcops_server.tasks.wemwbs import Swemwbs, Wemwbs
+from camcops_server.tasks.wsas import Wsas
+from camcops_server.tasks.ybocs import Ybocs, YbocsSc
+from camcops_server.tasks.zbi import Zbi12

@@ -36,15 +36,15 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime, Integer, UnicodeText
 
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     AuditSourceColType,
     IPAddressColType,
     TableNameColType,
 )
-from .cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
 # =============================================================================
@@ -136,6 +136,7 @@ def audit(req: "CamcopsRequest",
     else:
         source = "webviewer"
     now = req.now_utc
+    # noinspection PyTypeChecker
     entry = AuditEntry(
         when_access_utc=now,
         source=source,

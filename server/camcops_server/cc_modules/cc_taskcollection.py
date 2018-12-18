@@ -33,7 +33,8 @@ import datetime
 from enum import Enum
 import logging
 from threading import Thread
-from typing import Dict, List, Optional, Tuple, Type, TYPE_CHECKING, Union
+from typing import (Dict, Generator, List, Optional, Tuple, Type,
+                    TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
@@ -41,15 +42,22 @@ from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Query
 from sqlalchemy.orm.session import Session as SqlASession
 from sqlalchemy.sql.functions import func
-from sqlalchemy.sql.expression import and_, or_
+from sqlalchemy.sql.expression import and_, exists, or_
 
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
-from .cc_request import CamcopsRequest
-from .cc_task import tablename_to_task_class_dict, Task
-from .cc_taskfactory import task_query_restricted_to_permitted_users
-from .cc_taskfilter import TaskFilter
-from .cc_taskindex import TaskIndexEntry
+from camcops_server.cc_modules.cc_constants import ERA_NOW
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_task import (
+    tablename_to_task_class_dict,
+    Task,
+)
+from camcops_server.cc_modules.cc_taskfactory import (
+    task_query_restricted_to_permitted_users,
+)
+from camcops_server.cc_modules.cc_taskfilter import TaskFilter
+from camcops_server.cc_modules.cc_taskindex import TaskIndexEntry
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ClauseElement, ColumnElement
@@ -187,12 +195,13 @@ class TaskCollection(object):
     """
     def __init__(self,
                  req: CamcopsRequest,
-                 taskfilter: TaskFilter,
+                 taskfilter: TaskFilter = None,
                  as_dump: bool = False,
                  sort_method_by_class: TaskSortMethod = TaskSortMethod.NONE,
                  sort_method_global: TaskSortMethod = TaskSortMethod.NONE,
                  current_only: bool = True,
-                 via_index: bool = True) \
+                 via_index: bool = True,
+                 export_recipient: "ExportRecipient" = None) \
             -> None:
         """
         Args:
@@ -201,7 +210,9 @@ class TaskCollection(object):
                 :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             taskfilter:
                 a :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter`
-                object that contains any restrictions we may want to apply
+                object that contains any restrictions we may want to apply.
+                Must be supplied unless supplying ``export_recipient`` (in
+                which case, must not be supplied).
             as_dump:
                 use the "dump" permissions rather than the "view" permissions?
             sort_method_by_class:
@@ -212,7 +223,9 @@ class TaskCollection(object):
                 restrict to ``_current`` tasks only?
             via_index:
                 use the server's index (faster)?
-        """
+            export_recipient:
+                a :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
+        """  # noqa
         if via_index and not current_only:
             log.warning("Can't use index for non-current tasks")
             via_index = False
@@ -224,12 +237,27 @@ class TaskCollection(object):
         self._sort_method_global = sort_method_global
         self._current_only = current_only
         self._via_index = via_index
+        self._export_recipient = export_recipient
+
+        if export_recipient:
+            assert self._filter is None, (
+                "Can't supply taskfilter if you supply export_recipient")
+            # We can do lots of what we need with a TaskFilter().
+            self._filter = TaskFilter()
+            if not export_recipient.all_groups:
+                self._filter.group_ids = export_recipient.group_ids
+            self._filter.start_datetime = export_recipient.start_datetime_utc
+            self._filter.end_datetime = export_recipient.end_datetime_utc
+            self._filter.finalized_only = export_recipient.finalized_only
+            self._filter.tasks_with_patient_only = not export_recipient.anonymous_ok()  # noqa
+            self._filter.must_have_idnum_type = export_recipient.primary_idnum
+        else:
+            assert self._filter, (
+                "Must supply taskfilter unless you supply export_recipient")
 
         self._tasks_by_class = OrderedDict()  # type: Dict[Type[Task], List[Task]]  # noqa
         self._all_tasks = None  # type: List[Task]
         self._all_indexes = None  # type: Union[List[TaskIndexEntry], Query]
-
-        # log.debug("TaskCollection(): taskfilter={!r}", self._filter)
 
     # =========================================================================
     # Interface to read
@@ -290,12 +318,29 @@ class TaskCollection(object):
 
         return self._all_indexes  # indexes or a query to fetch them
 
-    def forget_task_class(self, task_class: Type[Task]) -> None:
+    # def forget_task_class(self, task_class: Type[Task]) -> None:
+    #     """
+    #     Ditch results for a specific task class (for memory efficiency).
+    #     """
+    #     self._tasks_by_class.pop(task_class, None)
+    #     # The "None" option prevents it from raising KeyError if the key
+    #     # doesn't exist.
+    #     # https://stackoverflow.com/questions/11277432/how-to-remove-a-key-from-a-python-dictionary  # noqa
+
+    def gen_tasks_by_class(self) -> Generator[Task, None, None]:
         """
-        Ditch results for a specific task class (for memory efficiency).
+        Generates all tasks, class-wise.
         """
-        self._tasks_by_class.pop(task_class, None)
-        # https://stackoverflow.com/questions/11277432/how-to-remove-a-key-from-a-python-dictionary  # noqa
+        for cls in self.task_classes():
+            for task in self.tasks_for_task_class(cls):
+                yield task
+
+    def gen_tasks_in_global_order(self) -> Generator[Task, None, None]:
+        """
+        Generates all tasks, in the global order.
+        """
+        for task in self.all_tasks:
+            yield task
 
     # =========================================================================
     # Internals: fetching Task objects
@@ -386,6 +431,8 @@ class TaskCollection(object):
         # Restrict to what is DESIRED
         if q:
             q = self._task_query_restricted_by_filter(q, task_class)
+        if q and self._export_recipient:
+            q = self._task_query_restricted_by_export_recipient(q, task_class)
 
         return q
 
@@ -465,6 +512,8 @@ class TaskCollection(object):
         if tf.era:
             # noinspection PyProtectedMember
             q = q.filter(cls._era == tf.era)
+        if tf.finalized_only:
+            q = q.filter(cls._era != ERA_NOW)
 
         if tf.adding_user_ids:
             # noinspection PyProtectedMember
@@ -477,10 +526,66 @@ class TaskCollection(object):
         if tf.start_datetime is not None:
             q = q.filter(cls.when_created >= tf.start_datetime)
         if tf.end_datetime is not None:
-            q = q.filter(cls.when_created <= tf.end_datetime)
+            q = q.filter(cls.when_created < tf.end_datetime)
 
         q = self._filter_query_for_text_contents(q, cls)
 
+        return q
+
+    def _task_query_restricted_by_export_recipient(
+            self, q: Query, cls: Type[Task]) -> Optional[Query]:
+        """
+        For exports.
+
+        Filters via our
+        :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`,
+        except for the bits already implemented via our
+        :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter`.
+
+        The main job here is for incremental exports: to find tasks that have
+        not yet been exported.
+
+        Compare :meth:`_index_query_restricted_by_export_recipient`.
+
+        Args:
+            q: the starting SQLAlchemy ORM Query
+            cls: the task class
+
+        Returns:
+            the original query, a modified query, or ``None`` if no tasks
+            would pass the filter
+        """
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportRun,
+        )  # delayed import
+
+        r = self._export_recipient
+        if not r.is_incremental():
+            # Full database export; no restrictions
+            return q
+        # Otherwise, restrict to tasks not yet sent to this recipient.
+        # noinspection PyUnresolvedReferences
+        q = q.filter(
+            # "There is not a successful export record for this task/recipient"
+            ~exists().select_from(
+                ExportedTask.__table__.join(
+                    ExportRun.__table__,
+                    ExportedTask.export_run_id == ExportRun.id
+                ).join(
+                    ExportRecipient.__table__,
+                    ExportRun.recipient_id == ExportRecipient.id
+                )
+            ).where(
+                and_(
+                    ExportRecipient.recipient_name == r.recipient_name,
+                    ExportedTask.basetable == cls.__tablename__,
+                    ExportedTask.task_server_pk == cls._pk,
+                    ExportedTask.success == True,  # nopep8
+                    ExportedTask.cancelled == False,  # nopep8
+                )
+            )
+        )
         return q
 
     def _filter_through_python(self, tasks: List[Task]) -> List[Task]:
@@ -624,7 +729,7 @@ class TaskCollection(object):
             try:
                 taskclass = d[tablename]
             except KeyError:
-                log.warning("Bad tablename in index: {!r}".format(tablename))
+                log.warning("Bad tablename in index: {!r}", tablename)
                 continue
             tasklist = self._tasks_by_class.setdefault(taskclass, [])
             task_pks = [i.task_pk for i in indexes if i.tablename == tablename]
@@ -656,12 +761,15 @@ class TaskCollection(object):
         assert self._current_only, "_current_only must be true to use index"
 
         # Restrict to what is PERMITTED
-        q = task_query_restricted_to_permitted_users(
-            self._req, q, TaskIndexEntry, as_dump=self._as_dump)
+        if not self._export_recipient:
+            q = task_query_restricted_to_permitted_users(
+                self._req, q, TaskIndexEntry, as_dump=self._as_dump)
 
         # Restrict to what is DESIRED
         if q:
             q = self._index_query_restricted_by_filter(q)
+        if q and self._export_recipient:
+            q = self._index_query_restricted_by_export_recipient(q)
 
         return q
 
@@ -751,6 +859,8 @@ class TaskCollection(object):
         if tf.era:
             # noinspection PyProtectedMember
             q = q.filter(TaskIndexEntry.era == tf.era)
+        if tf.finalized_only:
+            q = q.filter(TaskIndexEntry.era != ERA_NOW)
 
         if tf.adding_user_ids:
             # noinspection PyProtectedMember
@@ -763,7 +873,7 @@ class TaskCollection(object):
         if tf.start_datetime is not None:
             q = q.filter(TaskIndexEntry.when_created_utc >= tf.start_datetime_utc)  # noqa
         if tf.end_datetime is not None:
-            q = q.filter(TaskIndexEntry.when_created_utc <= tf.end_datetime_utc)  # noqa
+            q = q.filter(TaskIndexEntry.when_created_utc < tf.end_datetime_utc)  # noqa
 
         # text_contents is managed at the later fetch stage when using indexes
 
@@ -780,4 +890,63 @@ class TaskCollection(object):
             q = q.order_by(TaskIndexEntry.when_created_utc.desc(),
                            TaskIndexEntry.when_added_batch_utc.desc())
 
+        return q
+
+    def _index_query_restricted_by_export_recipient(self, q: Query) \
+            -> Optional[Query]:
+        """
+        For exports.
+
+        Filters via our
+        :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`,
+        except for the bits already implemented via our
+        :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter`.
+
+        The main job here is for incremental exports: to find tasks that have
+        not yet been exported.
+
+        Compare :meth:`_task_query_restricted_by_export_recipient`.
+
+        Args:
+            q: the starting SQLAlchemy ORM Query
+
+        Returns:
+            the original query, a modified query, or ``None`` if no tasks
+            would pass the filter
+
+        """
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportRun,
+        )  # delayed import
+
+        r = self._export_recipient
+        if not r.is_incremental():
+            # Full database export; no restrictions
+            return q
+        # Otherwise, restrict to tasks not yet sent to this recipient.
+        # Remember: q is a query on TaskIndexEntry.
+        # noinspection PyUnresolvedReferences
+        q = q.filter(
+            # "There is not a successful export record for this task/recipient"
+            ~exists().select_from(
+                ExportedTask.__table__.join(
+                    ExportRun.__table__,
+                    ExportedTask.export_run_id == ExportRun.id
+                ).join(
+                    ExportRecipient.__table__,
+                    ExportRun.recipient_id == ExportRecipient.id
+                )
+            ).where(
+                and_(
+                    ExportRecipient.recipient_name == r.recipient_name,
+                    ExportedTask.basetable == TaskIndexEntry.task_table_name,
+                    # ... don't use ".tablename" as a property doesn't play
+                    # nicely with SQLAlchemy here
+                    ExportedTask.task_server_pk == TaskIndexEntry.task_pk,
+                    ExportedTask.success == True,  # nopep8
+                    ExportedTask.cancelled == False,  # nopep8
+                )
+            )
+        )
         return q

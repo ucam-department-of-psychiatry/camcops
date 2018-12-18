@@ -38,8 +38,8 @@ from cardinal_pythonlib.reprfunc import auto_repr
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
-from .cc_tsv import TsvPage
-from .cc_xml import XmlElement
+from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_xml import XmlElement
 
 
 # =============================================================================

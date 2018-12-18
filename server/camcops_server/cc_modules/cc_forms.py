@@ -100,7 +100,6 @@ from colander import (
     String,
 )
 from deform.form import Button
-from deform.field import Field  # delete me!
 from deform.widget import (
     CheckboxChoiceWidget,
     CheckedPasswordWidget,
@@ -116,23 +115,26 @@ from deform.widget import (
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 # We use some delayed imports here (search for "delayed import")
-from .cc_baseconstants import TEMPLATE_DIR
-from .cc_constants import (
+from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR
+from camcops_server.cc_modules.cc_constants import (
     DEFAULT_ROWS_PER_PAGE,
     MINIMUM_PASSWORD_LENGTH,
     SEX_CHOICES,
     USER_NAME_FOR_SYSTEM,
 )
-from .cc_group import Group
-from .cc_idnumdef import (
+from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_idnumdef import (
     IdNumDefinition,
     ID_NUM_VALIDATION_METHOD_CHOICES,
 )
-from .cc_patient import Patient
-from .cc_patientidnum import PatientIdNum
-from .cc_policy import TABLET_ID_POLICY_STR, TokenizedPolicy
-from .cc_pyramid import FormAction, ViewArg, ViewParam
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_policy import (
+    TABLET_ID_POLICY_STR,
+    TokenizedPolicy,
+)
+from camcops_server.cc_modules.cc_pyramid import FormAction, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     DATABASE_TITLE_MAX_LEN,
     FILTER_TEXT_MAX_LEN,
     FULLNAME_MAX_LEN,
@@ -141,13 +143,13 @@ from .cc_sqla_coltypes import (
     HL7_AA_MAX_LEN,
     HL7_ID_TYPE_MAX_LEN,
     ID_DESCRIPTOR_MAX_LEN,
-    USERNAME_MAX_LEN,
+    USERNAME_CAMCOPS_MAX_LEN,
 )
-from .cc_unittest import DemoRequestTestCase
+from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
-    from .cc_user import User
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -519,7 +521,7 @@ class OptionalSingleTaskSelector(OptionalStringNode):
         self.validator = OneOf(pv)
 
     def get_task_choices(self) -> List[Tuple[str, str]]:
-        from .cc_task import Task  # delayed import
+        from camcops_server.cc_modules.cc_task import Task  # delayed import
         choices = []  # type: List[Tuple[str, str]]
         for tc in Task.all_subclasses_by_shortname():
             if self.tracker_tasks_only and not tc.provides_trackers:
@@ -559,7 +561,7 @@ class MultiTaskSelector(SchemaNode):
         self.validator = Length(min=self.minimum_number)
 
     def get_task_choices(self) -> List[Tuple[str, str]]:
-        from .cc_task import Task  # delayed import
+        from camcops_server.cc_modules.cc_task import Task  # delayed import
         choices = []  # type: List[Tuple[str, str]]
         for tc in Task.all_subclasses_by_shortname():
             if self.tracker_tasks_only and not tc.provides_trackers:
@@ -766,7 +768,7 @@ class MandatoryUserIdSelectorUsersAllowedToSee(SchemaNode):
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        from .cc_user import User  # delayed import
+        from camcops_server.cc_modules.cc_user import User  # delayed import
         req = kw[Binding.REQUEST]  # type: CamcopsRequest
         dbsession = req.dbsession
         user = req.user
@@ -800,7 +802,7 @@ class OptionalUserNameSelector(OptionalStringNode):
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        from .cc_user import User  # delayed import
+        from camcops_server.cc_modules.cc_user import User  # delayed import
         req = kw[Binding.REQUEST]  # type: CamcopsRequest
         dbsession = req.dbsession
         values = []  # type: List[Tuple[str, str]]
@@ -818,7 +820,7 @@ class UsernameNode(SchemaNode):
     """
     schema_type = String
     title = "Username"
-    _length_validator = Length(1, USERNAME_MAX_LEN)
+    _length_validator = Length(1, USERNAME_CAMCOPS_MAX_LEN)
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         if value == USER_NAME_FOR_SYSTEM:
@@ -845,7 +847,7 @@ class MandatoryDeviceIdSelector(SchemaNode):
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        from .cc_device import Device  # delayed import
+        from camcops_server.cc_modules.cc_device import Device  # delayed import  # noqa
         req = kw[Binding.REQUEST]  # type: CamcopsRequest
         dbsession = req.dbsession
         devices = dbsession.query(Device).order_by(Device.friendly_name)
@@ -876,42 +878,42 @@ class StartPendulumSelector(OptionalPendulumNode):
     """
     Optional node to select a start date/time.
     """
-    title = "Start date/time (local timezone)"
+    title = "Start date/time (local timezone; inclusive)"
 
 
 class EndPendulumSelector(OptionalPendulumNode):
     """
     Optional node to select an end date/time.
     """
-    title = "End date/time (local timezone)"
+    title = "End date/time (local timezone; exclusive)"
 
 
 class StartDateTimeSelector(DateTimeSelectorNode):
     """
     Optional node to select a start date/time (in UTC).
     """
-    title = "Start date/time (UTC)"
+    title = "Start date/time (UTC; inclusive)"
 
 
 class EndDateTimeSelector(DateTimeSelectorNode):
     """
     Optional node to select an end date/time (in UTC).
     """
-    title = "End date/time (UTC)"
+    title = "End date/time (UTC; exclusive)"
 
 
 class StartDateSelector(DateSelectorNode):
     """
     Optional node to select a start date (in UTC).
     """
-    title = "Start date (UTC)"
+    title = "Start date (UTC; inclusive)"
 
 
 class EndDateSelector(DateSelectorNode):
     """
     Optional node to select an end date (in UTC).
     """
-    title = "End date (UTC)"
+    title = "End date (UTC; inclusive)"
 
 
 # -----------------------------------------------------------------------------

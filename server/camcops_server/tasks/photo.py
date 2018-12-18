@@ -27,7 +27,7 @@ camcops_server/tasks/photo.py
 """
 
 # import logging
-from typing import List
+from typing import List, Optional
 
 # from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
@@ -100,6 +100,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return [CtvInfo(content=self.description)]
 
     def get_task_html(self, req: CamcopsRequest) -> str:
+        # noinspection PyTypeChecker
         return """
             <table class="{CssClass.TASKDETAIL}">
                 <tr class="{CssClass.SUBHEADING}"><td>Description</td></tr>
@@ -162,6 +163,7 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
     photo = blob_relationship("PhotoSequenceSinglePhoto", "photo_blobid")
 
     def get_html_table_rows(self) -> str:
+        # noinspection PyTypeChecker
         return """
             <tr class="{CssClass.SUBHEADING}">
                 <td>Photo {num}: <b>{description}</b></td>

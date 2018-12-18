@@ -52,8 +52,8 @@ from sqlalchemy.sql.selectable import SelectBase
 from sqlalchemy.sql import sqltypes
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from .cc_audit import audit
-from .cc_constants import (
+from camcops_server.cc_modules.cc_audit import audit
+from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     ERA_NOW,
     FP_ID_DESC,
@@ -61,30 +61,39 @@ from .cc_constants import (
     FP_ID_NUM,
     TSV_PATIENT_FIELD_PREFIX,
 )
-from .cc_db import GenericTabletRecordMixin
-from .cc_hl7core import make_pid_segment
-from .cc_html import answer
-from .cc_simpleobjects import BarePatientInfo, HL7PatientIdentifier
-from .cc_patientidnum import PatientIdNum
-from .cc_policy import TokenizedPolicy
-from .cc_recipdef import RecipientDefinition
-from .cc_report import Report
-from .cc_request import CamcopsRequest
-from .cc_simpleobjects import IdNumReference
-from .cc_specialnote import SpecialNote
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_hl7 import make_pid_segment
+from camcops_server.cc_modules.cc_html import answer
+from camcops_server.cc_modules.cc_simpleobjects import (
+    BarePatientInfo,
+    HL7PatientIdentifier,
+)
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_policy import TokenizedPolicy
+from camcops_server.cc_modules.cc_report import Report
+from camcops_server.cc_modules.cc_simpleobjects import (
+    IdNumReference,
+    TaskExportOptions,
+)
+from camcops_server.cc_modules.cc_specialnote import SpecialNote
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     PatientNameColType,
     SexColType,
 )
-from .cc_sqlalchemy import Base
-from .cc_tsv import TsvPage
-from .cc_unittest import DemoDatabaseTestCase
-from .cc_version import CAMCOPS_SERVER_VERSION_STRING
-from .cc_xml import TaskXmlOptions, XML_COMMENT_SPECIAL_NOTES, XmlElement
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION_STRING
+from camcops_server.cc_modules.cc_xml import (
+    XML_COMMENT_SPECIAL_NOTES,
+    XmlElement,
+)
 
 if TYPE_CHECKING:
-    from .cc_group import Group
+    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
+    from camcops_server.cc_modules.cc_group import Group
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -234,7 +243,7 @@ class Patient(GenericTabletRecordMixin, Base):
         Get all patients matching the specified ID number.
 
         Args:
-            dbsession: SQLAlchemy database session
+            dbsession: a :class:`sqlalchemy.orm.session.Session`
             which_idnum: which ID number type?
             idnum_value: actual value of the ID number
             group_id: optional group ID to restrict to
@@ -268,6 +277,14 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         return dbsession.query(cls).filter(cls._pk == server_pk).first()
 
+    def __str__(self) -> str:
+        return "{sf} ({sex}, {dob}, {ids})".format(
+            sf=self.get_surname_forename_upper(),
+            sex=self.sex,
+            dob=self.get_dob_str(),
+            ids=", ".join(str(i) for i in self.get_idnum_objects()),
+        )
+
     def get_idnum_objects(self) -> List[PatientIdNum]:
         """
         Returns all :class:`PatientIdNum` objects for the patient.
@@ -296,22 +313,22 @@ class Patient(GenericTabletRecordMixin, Base):
         idnums = self.idnums  # type: List[PatientIdNum]
         return [x.idnum_value for x in idnums if x.is_superficially_valid()]
 
-    def get_xml_root(self, req: CamcopsRequest,
-                     options: TaskXmlOptions = None) -> XmlElement:
+    def get_xml_root(self, req: "CamcopsRequest",
+                     options: TaskExportOptions = None) -> XmlElement:
         """
         Get root of XML tree, as an
         :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
-        """
+            options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
+        """  # noqa
         # No point in skipping old ID columns (1-8) now; they're gone.
         branches = self._get_xml_branches(req, options=options)
         # Now add new-style IDs:
         pidnum_branches = []  # type: List[XmlElement]
-        pidnum_options = TaskXmlOptions(include_plain_columns=True,
-                                        with_header_comments=False)
+        pidnum_options = TaskExportOptions(xml_include_plain_columns=True,
+                                           xml_with_header_comments=False)
         for pidnum in self.idnums:  # type: PatientIdNum
             pidnum_branches.append(pidnum._get_xml_root(
                 req, options=pidnum_options))
@@ -326,7 +343,7 @@ class Patient(GenericTabletRecordMixin, Base):
             branches.append(sn.get_xml_root())
         return XmlElement(name=self.__tablename__, value=branches)
 
-    def get_tsv_page(self, req: CamcopsRequest) -> TsvPage:
+    def get_tsv_page(self, req: "CamcopsRequest") -> TsvPage:
         """
         Get a :class:`camcops_server.cc_modules.cc_tsv.TsvPage` for the
         patient.
@@ -439,7 +456,7 @@ class Patient(GenericTabletRecordMixin, Base):
         return "DOB: {}.".format(format_datetime(
             self.dob, DateFormat.SHORT_DATE))
 
-    def get_age(self, req: CamcopsRequest,
+    def get_age(self, req: "CamcopsRequest",
                 default: str = "") -> Union[int, str]:
         """
         Age (in whole years) today, or default.
@@ -505,27 +522,36 @@ class Patient(GenericTabletRecordMixin, Base):
         return address or ""
 
     def get_hl7_pid_segment(self,
-                            req: CamcopsRequest,
-                            recipient_def: RecipientDefinition) -> hl7.Segment:
+                            req: "CamcopsRequest",
+                            recipient: "ExportRecipient") -> hl7.Segment:
         """
         Get HL7 patient identifier (PID) segment.
-        """
+
+        Args:
+            req:
+                a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            recipient:
+                a :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
+
+        Returns:
+            a :class:`hl7.Segment` object
+        """  # noqa
         # Put the primary one first:
         patient_id_tuple_list = [
             HL7PatientIdentifier(
-                id=str(self.get_idnum_value(recipient_def.primary_idnum)),
-                id_type=recipient_def.get_id_type(
+                id=str(self.get_idnum_value(recipient.primary_idnum)),
+                id_type=recipient.get_hl7_id_type(
                     req,
-                    recipient_def.primary_idnum),
-                assigning_authority=recipient_def.get_id_aa(
+                    recipient.primary_idnum),
+                assigning_authority=recipient.get_hl7_id_aa(
                     req,
-                    recipient_def.primary_idnum)
+                    recipient.primary_idnum)
             )
         ]
         # Then the rest:
         for idobj in self.idnums:
             which_idnum = idobj.which_idnum
-            if which_idnum == recipient_def.primary_idnum:
+            if which_idnum == recipient.primary_idnum:
                 continue
             idnum_value = idobj.idnum_value
             if idnum_value is None:
@@ -533,8 +559,8 @@ class Patient(GenericTabletRecordMixin, Base):
             patient_id_tuple_list.append(
                 HL7PatientIdentifier(
                     id=str(idnum_value),
-                    id_type=recipient_def.get_id_type(req, which_idnum),
-                    assigning_authority=recipient_def.get_id_aa(
+                    id_type=recipient.get_hl7_id_type(req, which_idnum),
+                    assigning_authority=recipient.get_hl7_id_aa(
                         req, which_idnum)
                 )
             )
@@ -557,6 +583,12 @@ class Patient(GenericTabletRecordMixin, Base):
                 return x
         return None
 
+    def has_idnum_type(self, which_idnum: int) -> bool:
+        """
+        Does the patient have an ID number of the specified type?
+        """
+        return self.get_idnum_object(which_idnum) is not None
+
     def get_idnum_value(self, which_idnum: int) -> Optional[int]:
         """
         Get value of a specific ID number, if present.
@@ -564,7 +596,7 @@ class Patient(GenericTabletRecordMixin, Base):
         idobj = self.get_idnum_object(which_idnum)
         return idobj.idnum_value if idobj else None
 
-    def set_idnum_value(self, req: CamcopsRequest,
+    def set_idnum_value(self, req: "CamcopsRequest",
                         which_idnum: int, idnum_value: int) -> None:
         """
         Sets an ID number value.
@@ -589,7 +621,7 @@ class Patient(GenericTabletRecordMixin, Base):
         dbsession.add(newid)
         self.idnums.append(newid)
 
-    def get_iddesc(self, req: CamcopsRequest,
+    def get_iddesc(self, req: "CamcopsRequest",
                    which_idnum: int) -> Optional[str]:
         """
         Get value of a specific ID description, if present.
@@ -597,7 +629,7 @@ class Patient(GenericTabletRecordMixin, Base):
         idobj = self.get_idnum_object(which_idnum)
         return idobj.description(req) if idobj else None
 
-    def get_idshortdesc(self, req: CamcopsRequest,
+    def get_idshortdesc(self, req: "CamcopsRequest",
                         which_idnum: int) -> Optional[str]:
         """
         Get value of a specific ID short description, if present.
@@ -615,7 +647,7 @@ class Patient(GenericTabletRecordMixin, Base):
     # Audit
     # -------------------------------------------------------------------------
 
-    def audit(self, req: CamcopsRequest,
+    def audit(self, req: "CamcopsRequest",
               details: str, from_console: bool = False) -> None:
         """
         Audits an action to this patient.
@@ -633,7 +665,7 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def apply_special_note(
             self,
-            req: CamcopsRequest,
+            req: "CamcopsRequest",
             note: str,
             audit_msg: str = "Special note applied manually") -> None:
         """
@@ -718,7 +750,8 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
     
     - group upload or finalize policy
     
-    .. todo:: check against predefined patients, if the group wants
+    .. todo:: is_candidate_patient_valid: check against predefined patients, if
+       the group wants
 
     Args:
         ptinfo:
@@ -775,7 +808,7 @@ class DistinctPatientReport(Report):
         return False
 
     # noinspection PyProtectedMember
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
+    def get_query(self, req: "CamcopsRequest") -> SelectBase:
         select_fields = [
             Patient.surname.label("surname"),
             Patient.forename.label("forename"),

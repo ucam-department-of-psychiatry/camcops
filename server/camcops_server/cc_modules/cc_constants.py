@@ -32,7 +32,7 @@ camcops_server/cc_modules/cc_constants.py
 
 import os
 
-from .cc_baseconstants import STATIC_ROOT_DIR
+from camcops_server.cc_modules.cc_baseconstants import STATIC_ROOT_DIR
 
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.
@@ -97,6 +97,7 @@ class DateFormat(object):
     SHORT_DATETIME_SECONDS = "%d %b %Y, %H:%M:%S %z"
     HOURS_MINUTES = "%H:%M"
     ISO8601 = "%Y-%m-%dT%H:%M:%S%z"  # e.g. 2013-07-24T20:04:07+0100
+    ISO8601_HUMANIZED_TO_MINUTES = "%Y-%m-%d %H:%M"  # e.g. 2013-07-24 20:04
     ISO8601_DATE_ONLY = "%Y-%m-%d"  # e.g. 2013-07-24
     FILENAME = "%Y-%m-%dT%H%M"  # e.g. 20130724T2004
     FILENAME_DATE_ONLY = "%Y-%m-%d"  # e.g. 20130724
@@ -264,13 +265,6 @@ class CssClass(object):
     WARNING = "warning"
     WEB_LOGO_HEADER = "web_logo_header"
 
-
-# =============================================================================
-# Table names used by modules that would otherwise have an interdependency, or
-# are defined elsewhere
-# =============================================================================
-
-HL7MESSAGE_TABLENAME = "_hl7_message_log"
 
 # =============================================================================
 # Task constants

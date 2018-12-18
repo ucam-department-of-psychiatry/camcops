@@ -24,695 +24,759 @@ camcops_server/cc_modules/cc_hl7.py
 
 ===============================================================================
 
-**HL7 export functions.**
+**Core HL7 functions, e.g. to build HL7 messages.**
+
+General HL7 sources:
+
+- http://python-hl7.readthedocs.org/en/latest/
+- http://www.interfaceware.com/manual/v3gen_python_library_details.html
+- http://www.interfaceware.com/hl7_video_vault.html#how
+- http://www.interfaceware.com/hl7-standard/hl7-segments.html
+- http://www.hl7.org/special/committees/vocab/v26_appendix_a.pdf
+- http://www.ncbi.nlm.nih.gov/pmc/articles/PMC130066/
+
+To consider
+
+- batched messages (HL7 batching protocol);
+  http://docs.oracle.com/cd/E23943_01/user.1111/e23486/app_hl7batching.htm
+- note: DG1 segment = diagnosis
+
+Basic HL7 message structure:
+
+- can package into HL7 2.X message as encapsulated PDF;
+  http://www.hl7standards.com/blog/2007/11/27/pdf-attachment-in-hl7-message/
+- message ORU^R01
+  http://www.corepointhealth.com/resource-center/hl7-resources/hl7-messages
+- MESSAGES: http://www.interfaceware.com/hl7-standard/hl7-messages.html
+- OBX segment = observation/result segment;
+  http://www.corepointhealth.com/resource-center/hl7-resources/hl7-obx-segment;
+  http://www.interfaceware.com/hl7-standard/hl7-segment-OBX.html
+- SEGMENTS:
+  http://www.corepointhealth.com/resource-center/hl7-resources/hl7-segments
+- ED field (= encapsulated data);
+  http://www.interfaceware.com/hl7-standard/hl7-fields.html
+- base-64 encoding
+
+We can then add an option for structure (XML), HTML, PDF export.
 
 """
 
-import errno
-import codecs
-import lockfile
+import base64
 import logging
-import os
 import socket
-import subprocess
-import sys
-from typing import List, Optional, TextIO, Tuple, TYPE_CHECKING, Union
+from typing import List, Optional, Tuple, TYPE_CHECKING, Union
 
-from cardinal_pythonlib.datetimefunc import (
-    format_datetime,
-    get_now_utc_datetime,
-)
+from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.network import ping
 import hl7
-from sqlalchemy.orm import reconstructor, relationship
-from sqlalchemy.sql.expression import or_, not_
-from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import (
-    BigInteger,
-    Boolean,
-    DateTime,
-    Integer,
-    Text,
-    UnicodeText,
-)
+from pendulum import Date, DateTime as Pendulum
 
-from .cc_constants import DateFormat, HL7MESSAGE_TABLENAME, ERA_NOW
-from .cc_filename import change_filename_ext, FileType
-from .cc_hl7core import (
-    make_msh_segment,
-    msg_is_successful_ack,
-    SEGMENT_SEPARATOR,
-)
-from .cc_config import CamcopsConfig
-from .cc_recipdef import RecipientDefinition
-from .cc_request import CamcopsRequest
-from .cc_sqla_coltypes import (
-    HostnameColType,
-    LongText,
-    SendingFormatColType,
-    TableNameColType,
-)
-from .cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_filename import FileType
+from camcops_server.cc_modules.cc_simpleobjects import HL7PatientIdentifier
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
-    from .cc_task import Task
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
-# General HL7 sources
-# =============================================================================
-# http://python-hl7.readthedocs.org/en/latest/
-# http://www.interfaceware.com/manual/v3gen_python_library_details.html
-# http://www.interfaceware.com/hl7_video_vault.html#how
-# http://www.interfaceware.com/hl7-standard/hl7-segments.html
-# http://www.hl7.org/special/committees/vocab/v26_appendix_a.pdf
-# http://www.ncbi.nlm.nih.gov/pmc/articles/PMC130066/
-
-# =============================================================================
-# HL7 design
+# Constants
 # =============================================================================
 
-# WHICH RECORDS TO SEND?
-# Most powerful mechanism is not to have a sending queue (which would then
-# require careful multi-instance locking), but to have a "sent" log. That way:
-# - A record needs sending if it's not in the sent log (for an appropriate
-#   server).
-# - You can add a new server and the system will know about the (new) backlog
-#   automatically.
-# - You can specify criteria, e.g. don't upload records before 1/1/2014, and
-#   modify that later, and it would catch up with the backlog.
-# - Successes and failures are logged in the same table.
-# - Multiple recipients are handled with ease.
-# - No need to alter database.pl code that receives from tablets.
-# - Can run with a simple cron job.
+# STRUCTURE OF HL7 MESSAGES
+# MESSAGE = list of segments, separated by carriage returns
+SEGMENT_SEPARATOR = "\r"
+# SEGMENT = list of fields (= composites), separated by pipes
+FIELD_SEPARATOR = "|"
+# FIELD (= COMPOSITE) = string, or list of components separated by carets
+COMPONENT_SEPARATOR = "^"
+# Component = string, or lists of subcomponents separated by ampersands
+SUBCOMPONENT_SEPARATOR = "&"
+# Subcomponents must be primitive data types (i.e. strings).
+# ... http://www.interfaceware.com/blog/hl7-composites/
 
-# LOCKING
-# - Don't use database locking:
-#   https://blog.engineyard.com/2011/5-subtle-ways-youre-using-mysql-as-a-queue-and-why-itll-bite-you  # noqa
-# - Locking via UNIX lockfiles:
-#       https://pypi.python.org/pypi/lockfile
-#       http://pythonhosted.org/lockfile/
-#           ... which also works on Windows.
+REPETITION_SEPARATOR = "~"
+ESCAPE_CHARACTER = "\\"
 
-# CALLING THE HL7 PROCESSOR
-# - Use "camcops -7 ..." or "camcops --hl7 ..."
-# - Call it via a cron job, e.g. every 5 minutes.
+# Fields are specified in terms of DATA TYPES:
+# http://www.corepointhealth.com/resource-center/hl7-resources/hl7-data-types
 
-# CONFIG FILE
-# q.v.
-
-# TO CONSIDER
-# - batched messages (HL7 batching protocol)
-#   http://docs.oracle.com/cd/E23943_01/user.1111/e23486/app_hl7batching.htm
-# - note: DG1 segment = diagnosis
-
-# BASIC MESSAGE STRUCTURE
-# - package into HL7 2.X message as encapsulated PDF
-#   http://www.hl7standards.com/blog/2007/11/27/pdf-attachment-in-hl7-message/
-# - message ORU^R01
-#   http://www.corepointhealth.com/resource-center/hl7-resources/hl7-messages
-#   MESSAGES: http://www.interfaceware.com/hl7-standard/hl7-messages.html
-# - OBX segment = observation/result segment
-#   http://www.corepointhealth.com/resource-center/hl7-resources/hl7-obx-segment  # noqa
-#   http://www.interfaceware.com/hl7-standard/hl7-segment-OBX.html
-# - SEGMENTS:
-#   http://www.corepointhealth.com/resource-center/hl7-resources/hl7-segments
-# - ED field (= encapsulated data)
-#   http://www.interfaceware.com/hl7-standard/hl7-fields.html
-# - base-64 encoding
-# - Option for structure (XML), HTML, PDF export.
+# Some of those are COMPOSITE TYPES:
+# http://amisha.pragmaticdata.com/~gunther/oldhtml/composites.html#COMPOSITES
 
 
 # =============================================================================
-# HL7Run class
+# HL7 helper functions
 # =============================================================================
 
-class HL7Run(Base):
+def get_mod11_checkdigit(strnum: str) -> str:
     """
-    Class representing an HL7/file run for a specific recipient.
+    Input: string containing integer. Output: MOD11 check digit (string).
 
-    May be associated with multiple HL7/file messages.
+    See:
+
+    - http://www.mexi.be/documents/hl7/ch200025.htm
+    - http://stackoverflow.com/questions/7006109
+    - http://www.pgrocer.net/Cis51/mod11.html
     """
-    __tablename__ = "_hl7_run_log"
-
-    run_id = Column(
-        "run_id", BigInteger,
-        primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
-    )
-    start_at_utc = Column(
-        "start_at_utc", DateTime,
-        nullable=False, index=True,
-        comment="Time run was started (UTC)"
-    )
-    finish_at_utc = Column(
-        "finish_at_utc", DateTime,
-        comment="Time run was finished (UTC)"
-    )
-    recipient = Column(
-        "recipient", HostnameColType,
-        index=True,
-        comment="Recipient definition name (determines uniqueness)"
-    )
-
-    # Common to all ways of sending:
-    type = Column(
-        "type", SendingFormatColType,
-        nullable=False,
-        comment="Recipient type (e.g. hl7, file)"
-    )
-    group_id = Column(
-        "group_id", Integer, ForeignKey("_security_groups.id"),
-        nullable=False, index=True,
-        comment="ID of CamCOPS group to export data from"
-    )
-    primary_idnum = Column(
-        "primary_idnum", Integer,
-        nullable=False,
-        comment="Which ID number was used as the primary ID?"
-    )
-    require_idnum_mandatory = Column(
-        "require_idnum_mandatory", Boolean,
-        comment="Must the primary ID number be mandatory in the relevant "
-                "policy?"
-    )
-    start_date = Column(
-        "start_date", DateTime,
-        comment="Start date for tasks (UTC)"
-    )
-    end_date = Column(
-        "end_date", DateTime,
-        comment="End date for tasks (UTC)"
-    )
-    finalized_only = Column(
-        "finalized_only", Boolean,
-        comment="Send only finalized tasks"
-    )
-    task_format = Column(
-        "task_format", SendingFormatColType,
-        comment="Format that task information was sent in (e.g. PDF)"
-    )
-    xml_field_comments = Column(
-        "xml_field_comments", Boolean,
-        comment="Whether to include field comments in XML output"
-    )
-
-    # For HL7 method:
-    host = Column(
-        "host", HostnameColType,
-        comment="(HL7) Destination host name/IP address"
-    )
-    port = Column(
-        "port", Integer,
-        comment="(HL7) Destination port number"
-    )
-    divert_to_file = Column(
-        "divert_to_file", Text,
-        comment="(HL7) Divert to file with this name"
-    )
-    treat_diverted_as_sent = Column(
-        "treat_diverted_as_sent", Boolean,
-        comment="(HL7) Treat messages diverted to file as sent"
-    )
-
-    # For file method:
-    include_anonymous = Column(
-        "include_anonymous", Boolean,
-        comment="(FILE) Include anonymous tasks"
-    )
-    overwrite_files = Column(
-        "overwrite_files", Boolean,
-        comment="(FILE) Overwrite existing files"
-    )
-    rio_metadata = Column(
-        "rio_metadata", Boolean,
-        comment="(FILE) Export RiO metadata file along with main file?"
-    )
-    rio_idnum = Column(
-        "rio_idnum", Integer,
-        comment="(FILE) RiO metadata: which ID number is the RiO ID?"
-    )
-    rio_uploading_user = Column(
-        "rio_uploading_user", Text,
-        comment="(FILE) RiO metadata: name of automatic upload user"
-    )
-    rio_document_type = Column(
-        "rio_document_type", Text,
-        comment="(FILE) RiO metadata: document type for RiO"
-    )
-    script_after_file_export = Column(
-        "script_after_file_export", Text,
-        comment="(FILE) Command/script to run after file export"
-    )
-
-    # More, beyond the recipient definition:
-    script_retcode = Column(
-        "script_retcode", Integer,
-        comment="Return code from the script_after_file_export script"
-    )
-    script_stdout = Column(
-        "script_stdout", UnicodeText,
-        comment="stdout from the script_after_file_export script"
-    )
-    script_stderr = Column(
-        "script_stderr", UnicodeText,
-        comment="stderr from the script_after_file_export script"
-    )
-
-    def __init__(self, recipdef: RecipientDefinition = None,
-                 *args, **kwargs) -> None:
-        """
-        Initialize from a RecipientDefinition, copying its fields.
-        (However, we must also support a no-parameter constructor, not least
-        for our :func:`merge_db` function.)
-        """
-        super().__init__(*args, **kwargs)
-        if recipdef:
-            # Copy:
-            # ... common
-            self.recipient = recipdef.recipient
-            self.type = recipdef.type
-            self.group_id = recipdef.group_id
-            self.primary_idnum = recipdef.primary_idnum
-            self.require_idnum_mandatory = recipdef.require_idnum_mandatory
-            self.start_date = recipdef.start_date
-            self.end_date = recipdef.end_date
-            self.finalized_only = recipdef.finalized_only
-            self.task_format = recipdef.task_format
-            self.xml_field_comments = recipdef.xml_field_comments
-
-            # ... HL7
-            self.host = recipdef.host
-            self.port = recipdef.port
-            self.divert_to_file = recipdef.divert_to_file
-            self.treat_diverted_as_sent = recipdef.treat_diverted_as_sent
-
-            # ... File
-            self.include_anonymous = recipdef.include_anonymous
-            self.overwrite_files = recipdef.overwrite_files
-            self.rio_metadata = recipdef.rio_metadata
-            self.rio_idnum = recipdef.rio_idnum
-            self.rio_uploading_user = recipdef.rio_uploading_user
-            self.rio_document_type = recipdef.rio_document_type
-            self.script_after_file_export = recipdef.script_after_file_export
-
-        # New things:
-        self.start_at_utc = get_now_utc_datetime()
-        self.finish_at_utc = None
-
-    def call_script(self, files_exported: Optional[List[str]]) -> None:
-        """
-        Calls the script (if one was specified) to be called once the files
-        have been exported.
-        """
-        if not self.script_after_file_export:
-            # No script to call
-            return
-        if not files_exported:
-            # Didn't export any files; nothing to do.
-            self.script_after_file_export = None  # wasn't called
-            return
-        args = [self.script_after_file_export] + files_exported
-        try:
-            encoding = sys.getdefaultencoding()
-            p = subprocess.Popen(args, stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-            out, err = p.communicate()
-            self.script_stdout = out.decode(encoding)
-            self.script_stderr = err.decode(encoding)
-            self.script_retcode = p.returncode
-        except Exception as e:
-            self.script_stdout = "Failed to run script"
-            self.script_stderr = str(e)
-
-    def finish(self) -> None:
-        """
-        Records the export finish time.
-        """
-        self.finish_at_utc = get_now_utc_datetime()
+    total = 0
+    multiplier = 2  # 2 for units digit, increases to 7, then resets to 2
+    try:
+        for i in reversed(range(len(strnum))):
+            total += int(strnum[i]) * multiplier
+            multiplier += 1
+            if multiplier == 8:
+                multiplier = 2
+        c = str(11 - (total % 11))
+        if c == "11":
+            c = "0"
+        elif c == "10":
+            c = "X"
+        return c
+    except (TypeError, ValueError):
+        # garbage in...
+        return ""
 
 
-# =============================================================================
-# HL7Message class
-# =============================================================================
-
-class HL7Message(Base):
+def make_msh_segment(message_datetime: Pendulum,
+                     message_control_id: str) -> hl7.Segment:
     """
-    Represents an individual HL7 message.
+    Creates an HL7 message header (MSH) segment.
+
+    - MSH: http://www.hl7.org/documentcenter/public/wg/conf/HL7MSH.htm
+
+    - We're making an ORU^R01 message = unsolicited result.
+
+      - ORU = Observational Report - Unsolicited
+      - ORU^R01 = Unsolicited transmission of an observation message
+      - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-oru-message
+      - http://www.hl7kit.com/joomla/index.php/hl7resources/examples/107-orur01
+    """  # noqa
+
+    segment_id = "MSH"
+    encoding_characters = (COMPONENT_SEPARATOR + REPETITION_SEPARATOR +
+                           ESCAPE_CHARACTER + SUBCOMPONENT_SEPARATOR)
+    sending_application = "CamCOPS"
+    sending_facility = ""
+    receiving_application = ""
+    receiving_facility = ""
+    date_time_of_message = format_datetime(message_datetime,
+                                           DateFormat.HL7_DATETIME)
+    security = ""
+    message_type = hl7.Field(COMPONENT_SEPARATOR, [
+        "ORU",  # message type ID = Observ result/unsolicited
+        "R01"   # trigger event ID = ORU/ACK - Unsolicited transmission
+                # of an observation message
+    ])
+    processing_id = "P"  # production (processing mode: current)
+    version_id = "2.3"  # HL7 version
+    sequence_number = ""
+    continuation_pointer = ""
+    accept_acknowledgement_type = ""
+    application_acknowledgement_type = "AL"  # always
+    country_code = ""
+    character_set = "UNICODE UTF-8"
+    # http://wiki.hl7.org/index.php?title=Character_Set_used_in_v2_messages
+    principal_language_of_message = ""
+
+    fields = [
+        segment_id,
+        # field separator inserted automatically; HL7 standard considers it a
+        # field but the python-hl7 processor doesn't when it parses
+        encoding_characters,
+        sending_application,
+        sending_facility,
+        receiving_application,
+        receiving_facility,
+        date_time_of_message,
+        security,
+        message_type,
+        message_control_id,
+        processing_id,
+        version_id,
+        sequence_number,
+        continuation_pointer,
+        accept_acknowledgement_type,
+        application_acknowledgement_type,
+        country_code,
+        character_set,
+        principal_language_of_message,
+    ]
+    segment = hl7.Segment(FIELD_SEPARATOR, fields)
+    return segment
+
+
+def make_pid_segment(
+        forename: str,
+        surname: str,
+        dob: Date,
+        sex: str,
+        address: str,
+        patient_id_list: List[HL7PatientIdentifier] = None) -> hl7.Segment:
     """
-    __tablename__ = HL7MESSAGE_TABLENAME  # indirected to resolve circular dependency  # noqa
+    Creates an HL7 patient identification (PID) segment.
 
-    msg_id = Column(
-        "msg_id", Integer,
-        primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
-    )
-    run_id = Column(
-        "run_id", BigInteger, ForeignKey("_hl7_run_log.run_id"),
-        comment="FK to _hl7_run_log.run_id"
-    )
-    hl7run = relationship("HL7Run")
-    basetable = Column(
-        "basetable", TableNameColType,
-        index=True,
-        comment="Base table of task concerned"
-    )
-    serverpk = Column(
-        "serverpk", Integer,
-        index=True,
-        comment="Server PK of task in basetable (_pk field)"
-    )
-    sent_at_utc = Column(
-        "sent_at_utc", DateTime,
-        comment="Time message was sent at (UTC)"
-    )
-    reply_at_utc = Column(
-        "reply_at_utc", DateTime,
-        comment="(HL7) Time message was replied to (UTC)"
-    )
-    success = Column(
-        "success", Boolean,
-        comment="Message sent successfully (and, for HL7, acknowledged)"
-    )
-    failure_reason = Column(
-        "failure_reason", Text,
-        comment="Reason for failure"
-    )
-    message = Column(
-        "message", LongText,
-        comment="(HL7) Message body, if kept"
-    )
-    reply = Column(
-        "reply", Text,
-        comment="(HL7) Server's reply, if kept"
-    )
-    filename = Column(
-        "filename", Text,
-        comment="(FILE) Destination filename"
-    )
-    rio_metadata_filename = Column(
-        "rio_metadata_filename", Text,
-        comment="(FILE) RiO metadata filename, if used"
-    )
-    cancelled = Column(
-        "cancelled", Boolean,
-        comment="Message subsequently invalidated (may trigger resend)"
-    )
-    cancelled_at_utc = Column(
-        "cancelled_at_utc", DateTime,
-        comment="Time message was cancelled at (UTC)"
-    )
+    - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-pid-segment
+    - http://www.hl7.org/documentcenter/public/wg/conf/Msgadt.pdf (s5.4.8)
 
-    def __init__(self,
-                 task: "Task" = None,
-                 recipient_def: RecipientDefinition = None,
-                 hl7run: HL7Run = None,
-                 show_queue_only: bool = False,
-                 *args, **kwargs) -> None:
-        """
-        Must support parameter-free construction, not least for
-        :func:`merge_db`.
-        """
-        super().__init__(*args, **kwargs)
-        # Internal attributes
-        self._host = None  # type: str
-        self._port = None  # type: int
-        self._msg = None  # type: str
-        self._recipient_def = recipient_def
-        self._show_queue_only = show_queue_only
-        self._task = task  # type: Task
-        # Columns
-        self.hl7run = hl7run
-        if task:
-            self.basetable = task.__tablename__
-            self.serverpk = task.get_pk()
-        else:
-            self.basetable = None
-            self.serverpk = None
+    - ID numbers...
+      http://www.cdc.gov/vaccines/programs/iis/technical-guidance/downloads/hl7guide-1-4-2012-08.pdf
+    """  # noqa
 
-    @reconstructor
-    def init_on_load(self) -> None:
-        """
-        SQLAlchemy function to recreate after loading from the database.
-        """
-        self._host = None  # type: str
-        self._port = None  # type: int
-        self._msg = None  # type: str
-        self._recipient_def = None  # type: RecipientDefinition
-        self._show_queue_only = True
-        self._task = None  # type: Task
+    patient_id_list = patient_id_list or []  # type: List[HL7PatientIdentifier]
 
-    def valid(self, req: CamcopsRequest) -> bool:
-        """
-        Checks for internal validity; returns a bool.
-        """
-        if not self._recipient_def or not self._recipient_def.valid(req):
-            return False
-        if not self.basetable or self.serverpk is None:
-            return False
-        if not self._task:
-            return False
-        anonymous_ok = (self._recipient_def.using_file() and
-                        self._recipient_def.include_anonymous)
-        task_is_anonymous = self._task.is_anonymous
-        if task_is_anonymous and not anonymous_ok:
-            return False
-        # After this point, all anonymous tasks must be OK. So:
-        task_has_primary_id = self._task.get_patient_idnum_value(
-            self._recipient_def.primary_idnum) is not None
-        if not task_is_anonymous and not task_has_primary_id:
-            return False
-        return True
+    segment_id = "PID"
+    set_id = ""
 
-    def divert_to_file(self, f: TextIO) -> None:
-        """
-        Write an HL7 message to a file.
-        """
-        infomsg = (
-            "OUTBOUND MESSAGE DIVERTED FROM RECIPIENT {} AT {}\n".format(
-                self._recipient_def.recipient,
-                format_datetime(self.sent_at_utc, DateFormat.ISO8601)
-            )
+    # External ID
+    patient_external_id = ""
+    # ... this one is deprecated
+    # http://www.j4jayant.com/articles/hl7/16-patient-id
+
+    # Internal ID
+    internal_id_element_list = []
+    for i in range(len(patient_id_list)):
+        if not patient_id_list[i].id:
+            continue
+        pid = patient_id_list[i].id  # type: str
+        check_digit = get_mod11_checkdigit(pid)
+        check_digit_scheme = "M11"  # Mod 11 algorithm
+        type_id = patient_id_list[i].id_type
+        assigning_authority = patient_id_list[i].assigning_authority
+        # Now, as per Table 4.6 "Extended composite ID" of
+        # hl7guide-1-4-2012-08.pdf:
+        internal_id_element = hl7.Field(COMPONENT_SEPARATOR, [
+            pid,
+            check_digit,
+            check_digit_scheme,
+            assigning_authority,
+            type_id  # length "2..5" meaning 2-5
+        ])
+        internal_id_element_list.append(internal_id_element)
+    patient_internal_id = hl7.Field(REPETITION_SEPARATOR,
+                                    internal_id_element_list)
+
+    # Alternate ID
+    alternate_patient_id = ""
+    # ... this one is deprecated
+    # http://www.j4jayant.com/articles/hl7/16-patient-id
+
+    patient_name = hl7.Field(COMPONENT_SEPARATOR, [
+        forename,  # surname
+        surname,  # forename
+        "",  # middle initial/name
+        "",  # suffix (e.g. Jr, III)
+        "",  # prefix (e.g. Dr)
+        "",  # degree (e.g. MD)
+    ])
+    mothers_maiden_name = ""
+    date_of_birth = format_datetime(dob, DateFormat.HL7_DATE)
+    alias = ""
+    race = ""
+    country_code = ""
+    home_phone_number = ""
+    business_phone_number = ""
+    language = ""
+    marital_status = ""
+    religion = ""
+    account_number = ""
+    social_security_number = ""
+    drivers_license_number = ""
+    mother_identifier = ""
+    ethnic_group = ""
+    birthplace = ""
+    birth_order = ""
+    citizenship = ""
+    veterans_military_status = ""
+
+    fields = [
+        segment_id,
+        set_id,  # PID.1
+        patient_external_id,  # PID.2
+        patient_internal_id,  # known as "PID-3" or "PID.3"
+        alternate_patient_id,  # PID.4
+        patient_name,
+        mothers_maiden_name,
+        date_of_birth,
+        sex,
+        alias,
+        race,
+        address,
+        country_code,
+        home_phone_number,
+        business_phone_number,
+        language,
+        marital_status,
+        religion,
+        account_number,
+        social_security_number,
+        drivers_license_number,
+        mother_identifier,
+        ethnic_group,
+        birthplace,
+        birth_order,
+        citizenship,
+        veterans_military_status,
+    ]
+    segment = hl7.Segment(FIELD_SEPARATOR, fields)
+    return segment
+
+
+# noinspection PyUnusedLocal
+def make_obr_segment(task: "Task") -> hl7.Segment:
+    """
+    Creates an HL7 observation request (OBR) segment.
+
+    - http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
+    - Required in ORU^R01 message:
+
+      - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-oru-message
+      - http://www.corepointhealth.com/resource-center/hl7-resources/hl7-obr-segment
+    """  # noqa
+
+    segment_id = "OBR"
+    set_id = "1"
+    placer_order_number = "CamCOPS"
+    filler_order_number = "CamCOPS"
+    universal_service_id = hl7.Field(COMPONENT_SEPARATOR, [
+        "CamCOPS",
+        "CamCOPS psychiatric/cognitive assessment"
+    ])
+    # unused below here, apparently
+    priority = ""
+    requested_date_time = ""
+    observation_date_time = ""
+    observation_end_date_time = ""
+    collection_volume = ""
+    collector_identifier = ""
+    specimen_action_code = ""
+    danger_code = ""
+    relevant_clinical_information = ""
+    specimen_received_date_time = ""
+    ordering_provider = ""
+    order_callback_phone_number = ""
+    placer_field_1 = ""
+    placer_field_2 = ""
+    filler_field_1 = ""
+    filler_field_2 = ""
+    results_report_status_change_date_time = ""
+    charge_to_practice = ""
+    diagnostic_service_section_id = ""
+    result_status = ""
+    parent_result = ""
+    quantity_timing = ""
+    result_copies_to = ""
+    parent = ""
+    transportation_mode = ""
+    reason_for_study = ""
+    principal_result_interpreter = ""
+    assistant_result_interpreter = ""
+    technician = ""
+    transcriptionist = ""
+    scheduled_date_time = ""
+    number_of_sample_containers = ""
+    transport_logistics_of_collected_samples = ""
+    collectors_comment = ""
+    transport_arrangement_responsibility = ""
+    transport_arranged = ""
+    escort_required = ""
+    planned_patient_transport_comment = ""
+
+    fields = [
+        segment_id,
+        set_id,
+        placer_order_number,
+        filler_order_number,
+        universal_service_id,
+        priority,
+        requested_date_time,
+        observation_date_time,
+        observation_end_date_time,
+        collection_volume,
+        collector_identifier,
+        specimen_action_code,
+        danger_code,
+        relevant_clinical_information,
+        specimen_received_date_time,
+        ordering_provider,
+        order_callback_phone_number,
+        placer_field_1,
+        placer_field_2,
+        filler_field_1,
+        filler_field_2,
+        results_report_status_change_date_time,
+        charge_to_practice,
+        diagnostic_service_section_id,
+        result_status,
+        parent_result,
+        quantity_timing,
+        result_copies_to,
+        parent,
+        transportation_mode,
+        reason_for_study,
+        principal_result_interpreter,
+        assistant_result_interpreter,
+        technician,
+        transcriptionist,
+        scheduled_date_time,
+        number_of_sample_containers,
+        transport_logistics_of_collected_samples,
+        collectors_comment,
+        transport_arrangement_responsibility,
+        transport_arranged,
+        escort_required,
+        planned_patient_transport_comment,
+    ]
+    segment = hl7.Segment(FIELD_SEPARATOR, fields)
+    return segment
+
+
+def make_obx_segment(req: "CamcopsRequest",
+                     task: "Task",
+                     task_format: str,
+                     observation_identifier: str,
+                     observation_datetime: Pendulum,
+                     responsible_observer: str,
+                     xml_field_comments: bool = True) -> hl7.Segment:
+    """
+    Creates an HL7 observation result (OBX) segment.
+
+    - http://www.hl7standards.com/blog/2006/10/18/how-do-i-send-a-binary-file-inside-of-an-hl7-message
+    - http://www.hl7standards.com/blog/2007/11/27/pdf-attachment-in-hl7-message/
+    - http://www.hl7standards.com/blog/2006/12/01/sending-images-or-formatted-documents-via-hl7-messaging/
+    - www.hl7.org/documentcenter/public/wg/ca/HL7ClmAttIG.PDF
+    - type of data:
+      http://www.hl7.org/implement/standards/fhir/v2/0191/index.html
+    - subtype of data:
+      http://www.hl7.org/implement/standards/fhir/v2/0291/index.html
+    """  # noqa
+
+    segment_id = "OBX"
+    set_id = str(1)
+
+    source_application = "CamCOPS"
+    if task_format == FileType.PDF:
+        value_type = "ED"  # Encapsulated data (ED) field
+        observation_value = hl7.Field(COMPONENT_SEPARATOR, [
+            source_application,
+            "Application",  # type of data
+            "PDF",  # data subtype
+            "Base64",  # base 64 encoding
+            base64.standard_b64encode(task.get_pdf(req))  # data
+        ])
+    elif task_format == FileType.HTML:
+        value_type = "ED"  # Encapsulated data (ED) field
+        observation_value = hl7.Field(COMPONENT_SEPARATOR, [
+            source_application,
+            "TEXT",  # type of data
+            "HTML",  # data subtype
+            "A",  # no encoding (see table 0299), but need to escape
+            escape_hl7_text(task.get_html(req))  # data
+        ])
+    elif task_format == FileType.XML:
+        value_type = "ED"  # Encapsulated data (ED) field
+        observation_value = hl7.Field(COMPONENT_SEPARATOR, [
+            source_application,
+            "TEXT",  # type of data
+            "XML",  # data subtype
+            "A",  # no encoding (see table 0299), but need to escape
+            escape_hl7_text(task.get_xml(
+                req,
+                indent_spaces=0,
+                eol="",
+                include_comments=xml_field_comments
+            ))  # data
+        ])
+    else:
+        raise AssertionError(
+            "make_obx_segment: invalid task_format: {}".format(task_format))
+
+    observation_sub_id = ""
+    units = ""
+    reference_range = ""
+    abnormal_flags = ""
+    probability = ""
+    nature_of_abnormal_test = ""
+    observation_result_status = ""
+    date_of_last_observation_normal_values = ""
+    user_defined_access_checks = ""
+    date_and_time_of_observation = format_datetime(
+        observation_datetime, DateFormat.HL7_DATETIME)
+    producer_id = ""
+    observation_method = ""
+    equipment_instance_identifier = ""
+    date_time_of_analysis = ""
+
+    fields = [
+        segment_id,
+        set_id,
+        value_type,
+        observation_identifier,
+        observation_sub_id,
+        observation_value,
+        units,
+        reference_range,
+        abnormal_flags,
+        probability,
+        nature_of_abnormal_test,
+        observation_result_status,
+        date_of_last_observation_normal_values,
+        user_defined_access_checks,
+        date_and_time_of_observation,
+        producer_id,
+        responsible_observer,
+        observation_method,
+        equipment_instance_identifier,
+        date_time_of_analysis,
+    ]
+    segment = hl7.Segment(FIELD_SEPARATOR, fields)
+    return segment
+
+
+def make_dg1_segment(set_id: int,
+                     diagnosis_datetime: Pendulum,
+                     coding_system: str,
+                     diagnosis_identifier: str,
+                     diagnosis_text: str,
+                     alternate_coding_system: str = "",
+                     alternate_diagnosis_identifier: str = "",
+                     alternate_diagnosis_text: str = "",
+                     diagnosis_type: str = "F",
+                     diagnosis_classification: str = "D",
+                     confidential_indicator: str = "N",
+                     clinician_id_number: Union[str, int] = None,
+                     clinician_surname: str = "",
+                     clinician_forename: str = "",
+                     clinician_middle_name_or_initial: str = "",
+                     clinician_suffix: str = "",
+                     clinician_prefix: str = "",
+                     clinician_degree: str = "",
+                     clinician_source_table: str = "",
+                     clinician_assigning_authority: str = "",
+                     clinician_name_type_code: str = "",
+                     clinician_identifier_type_code: str = "",
+                     clinician_assigning_facility: str = "",
+                     attestation_datetime: Pendulum = None) \
+        -> hl7.Segment:
+    """
+    Creates an HL7 diagnosis (DG1) segment.
+
+    Args:
+
+    .. code-block:: none
+
+        set_id: Diagnosis sequence number, starting with 1 (use higher numbers
+            for >1 diagnosis).
+        diagnosis_datetime: Date/time diagnosis was made.
+
+        coding_system: E.g. "I9C" for ICD9-CM; "I10" for ICD10.
+        diagnosis_identifier: Code.
+        diagnosis_text: Text.
+
+        alternate_coding_system: Optional alternate coding system.
+        alternate_diagnosis_identifier: Optional alternate code.
+        alternate_diagnosis_text: Optional alternate text.
+
+        diagnosis_type: A admitting, W working, F final.
+        diagnosis_classification: C consultation, D diagnosis, M medication,
+            O other, R radiological scheduling, S sign and symptom,
+            T tissue diagnosis, I invasive procedure not classified elsewhere.
+        confidential_indicator: Y yes, N no
+
+        clinician_id_number:              } Diagnosing clinician.
+        clinician_surname:                }
+        clinician_forename:               }
+        clinician_middle_name_or_initial: }
+        clinician_suffix:                 }
+        clinician_prefix:                 }
+        clinician_degree:                 }
+        clinician_source_table:           }
+        clinician_assigning_authority:    }
+        clinician_name_type_code:         }
+        clinician_identifier_type_code:   }
+        clinician_assigning_facility:     }
+
+        attestation_datetime: Date/time the diagnosis was attested.
+
+    - http://www.mexi.be/documents/hl7/ch600012.htm
+    - https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf
+    """
+
+    segment_id = "DG1"
+    try:
+        int(set_id)
+        set_id = str(set_id)
+    except:
+        raise AssertionError("make_dg1_segment: set_id invalid")
+    diagnosis_coding_method = ""
+    diagnosis_code = hl7.Field(COMPONENT_SEPARATOR, [
+        diagnosis_identifier,
+        diagnosis_text,
+        coding_system,
+        alternate_diagnosis_identifier,
+        alternate_diagnosis_text,
+        alternate_coding_system,
+    ])
+    diagnosis_description = ""
+    diagnosis_datetime = format_datetime(diagnosis_datetime,
+                                         DateFormat.HL7_DATETIME)
+    if diagnosis_type not in ["A", "W", "F"]:
+        raise AssertionError("make_dg1_segment: diagnosis_type invalid")
+    major_diagnostic_category = ""
+    diagnostic_related_group = ""
+    drg_approval_indicator = ""
+    drg_grouper_review_code = ""
+    outlier_type = ""
+    outlier_days = ""
+    outlier_cost = ""
+    grouper_version_and_type = ""
+    diagnosis_priority = ""
+
+    try:
+        clinician_id_number = (
+            str(int(clinician_id_number))
+            if clinician_id_number is not None else ""
         )
-        print(infomsg, file=f)
-        print(str(self._msg), file=f)
-        print("\n", file=f)
-        log.debug(infomsg)
-        self._host = self._recipient_def.divert_to_file
-        if self._recipient_def.treat_diverted_as_sent:
-            self.success = True
+    except:
+        raise AssertionError("make_dg1_segment: diagnosing_clinician_id_number"
+                             " invalid")
+    if clinician_id_number:
+        clinician_id_check_digit = get_mod11_checkdigit(clinician_id_number)
+        clinician_checkdigit_scheme = "M11"  # Mod 11 algorithm
+    else:
+        clinician_id_check_digit = ""
+        clinician_checkdigit_scheme = ""
+    diagnosing_clinician = hl7.Field(COMPONENT_SEPARATOR, [
+        clinician_id_number,
+        clinician_surname or "",
+        clinician_forename or "",
+        clinician_middle_name_or_initial or "",
+        clinician_suffix or "",
+        clinician_prefix or "",
+        clinician_degree or "",
+        clinician_source_table or "",
+        clinician_assigning_authority or "",
+        clinician_name_type_code or "",
+        clinician_id_check_digit or "",
+        clinician_checkdigit_scheme or "",
+        clinician_identifier_type_code or "",
+        clinician_assigning_facility or "",
+    ])
 
-    def send(self,
-             req: CamcopsRequest,
-             queue_file: TextIO = None,
-             divert_file: TextIO = None) -> Tuple[bool, bool]:
-        """
-        Send an outbound HL7/file message, by the appropriate method.
-        Returns the tuple ``tried, succeeded``.
-        """
-        if not self.valid(req):
-            return False, False
+    if diagnosis_classification not in ["C", "D", "M", "O", "R", "S", "T",
+                                        "I"]:
+        raise AssertionError(
+            "make_dg1_segment: diagnosis_classification invalid")
+    if confidential_indicator not in ["Y", "N"]:
+        raise AssertionError(
+            "make_dg1_segment: confidential_indicator invalid")
+    attestation_datetime = (
+        format_datetime(attestation_datetime, DateFormat.HL7_DATETIME)
+        if attestation_datetime else ""
+    )
 
-        if self._show_queue_only:
-            print("{},{},{},{},{}".format(
-                self._recipient_def.recipient,
-                self._recipient_def.type,
-                self.basetable,
-                self.serverpk,
-                self._task.when_created
-            ), file=queue_file)
-            return False, True
+    fields = [
+        segment_id,
+        set_id,
+        diagnosis_coding_method,
+        diagnosis_code,
+        diagnosis_description,
+        diagnosis_datetime,
+        diagnosis_type,
+        major_diagnostic_category,
+        diagnostic_related_group,
+        drg_approval_indicator,
+        drg_grouper_review_code,
+        outlier_type,
+        outlier_days,
+        outlier_cost,
+        grouper_version_and_type,
+        diagnosis_priority,
+        diagnosing_clinician,
+        diagnosis_classification,
+        confidential_indicator,
+        attestation_datetime,
+    ]
+    segment = hl7.Segment(FIELD_SEPARATOR, fields)
+    return segment
 
-        if not self.hl7run:
-            return True, False
 
-        if self.msg_id is None:
-            # The "self" object should be in the request's dbsession, so:
-            req.dbsession.flush()
-            assert self.msg_id is not None
+def escape_hl7_text(s: str) -> str:
+    """
+    Escapes HL7 special characters.
 
-        self.sent_at_utc = req.now_utc
+    - http://www.mexi.be/documents/hl7/ch200034.htm
+    - http://www.mexi.be/documents/hl7/ch200071.htm
+    """
+    esc_escape = ESCAPE_CHARACTER + ESCAPE_CHARACTER + ESCAPE_CHARACTER
+    esc_fieldsep = ESCAPE_CHARACTER + "F" + ESCAPE_CHARACTER
+    esc_componentsep = ESCAPE_CHARACTER + "S" + ESCAPE_CHARACTER
+    esc_subcomponentsep = ESCAPE_CHARACTER + "T" + ESCAPE_CHARACTER
+    esc_repetitionsep = ESCAPE_CHARACTER + "R" + ESCAPE_CHARACTER
 
-        if self._recipient_def.using_hl7():
-            self.make_hl7_message(req)  # will write its own error msg/flags
-            if self._recipient_def.divert_to_file:
-                self.divert_to_file(divert_file)
-            else:
-                self.transmit_hl7()
-        elif self._recipient_def.using_file():
-            self.send_to_filestore(req)
-        else:
-            raise AssertionError("HL7Message.send: invalid recipient_def.type")
-        self.save()
+    # Linebreaks:
+    # http://www.healthintersections.com.au/?p=344
+    # https://groups.google.com/forum/#!topic/ensemble-in-healthcare/wP2DWMeFrPA  # noqa
+    # http://www.hermetechnz.com/documentation/sqlschema/index.html?hl7_escape_rules.htm  # noqa
+    esc_linebreak = ESCAPE_CHARACTER + ".br" + ESCAPE_CHARACTER
 
-        log.debug("HL7Message.send: recipient={}, basetable={}, serverpk={}",
-                  self._recipient_def.recipient,
-                  self.basetable,
-                  self.serverpk)
-        return True, self.success
+    s = s.replace(ESCAPE_CHARACTER, esc_escape)  # this one first!
+    s = s.replace(FIELD_SEPARATOR, esc_fieldsep)
+    s = s.replace(COMPONENT_SEPARATOR, esc_componentsep)
+    s = s.replace(SUBCOMPONENT_SEPARATOR, esc_subcomponentsep)
+    s = s.replace(REPETITION_SEPARATOR, esc_repetitionsep)
+    s = s.replace("\n", esc_linebreak)
+    return s
 
-    def send_to_filestore(self, req: CamcopsRequest) -> None:
-        """
-        Send a file to a filestore.
-        """
-        self.filename = self._recipient_def.get_filename(
-            req=req,
-            is_anonymous=self._task.is_anonymous,
-            surname=self._task.get_patient_surname(),
-            forename=self._task.get_patient_forename(),
-            dob=self._task.get_patient_dob(),
-            sex=self._task.get_patient_sex(),
-            idnum_objects=self._task.get_patient_idnum_objects(),
-            creation_datetime=self._task.get_creation_datetime(),
-            basetable=self.basetable,
-            serverpk=self.serverpk,
-        )
 
-        filename = self.filename
-        directory = os.path.dirname(filename)
-        task = self._task
-        task_format = self._recipient_def.task_format
-        allow_overwrite = self._recipient_def.overwrite_files
+def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
+    """
+    Checks whether msg represents a successful acknowledgement message.
 
-        if task_format == FileType.PDF:
-            binary_data = task.get_pdf(req)
-            string_data = None
-        elif task_format == FileType.HTML:
-            binary_data = None
-            string_data = task.get_html(req)
-        elif task_format == FileType.XML:
-            binary_data = None
-            string_data = task.get_xml(req)
-        else:
-            raise AssertionError("write_to_filestore_file: bug")
+    - http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
+    """
 
-        if not allow_overwrite and os.path.isfile(filename):
-            self.failure_reason = "File already exists"
-            return
+    if msg is None:
+        return False, "Reply is None"
 
-        if self._recipient_def.make_directory:
-            try:
-                make_sure_path_exists(directory)
-            except Exception as e:
-                self.failure_reason = "Couldn't make directory {} ({})".format(
-                    directory, e)
-                return
+    # Get segments (MSH, MSA)
+    if len(msg) != 2:
+        return False, "Reply doesn't have 2 segments (has {})".format(len(msg))
+    msh_segment = msg[0]
+    msa_segment = msg[1]
 
-        try:
-            if task_format == FileType.PDF:
-                # binary for PDF
-                with open(filename, mode="wb") as f:
-                    f.write(binary_data)
-            else:
-                # UTF-8 for HTML, XML
-                with codecs.open(filename, mode="w", encoding="utf8") as f:
-                    f.write(string_data)
-        except Exception as e:
-            self.failure_reason = "Failed to open or write file: {}".format(e)
-            return
+    # Check MSH segment
+    if len(msh_segment) < 9:
+        return False, "First (MSH) segment has <9 fields (has {})".format(
+            len(msh_segment))
+    msh_segment_id = msh_segment[0]
+    msh_message_type = msh_segment[8]
+    if msh_segment_id != ["MSH"]:
+        return False, "First (MSH) segment ID is not 'MSH' (is {})".format(
+            msh_segment_id)
+    if msh_message_type != ["ACK"]:
+        return False, "MSH message type is not 'ACK' (is {})".format(
+            msh_message_type)
 
-        # RiO metadata too?
-        if self._recipient_def.rio_metadata:
-            # No spaces in filename
-            self.rio_metadata_filename = change_filename_ext(
-                self.filename, ".metadata").replace(" ", "")
-            self.rio_metadata_filename = self.rio_metadata_filename
-            metadata = task.get_rio_metadata(
-                self._recipient_def.rio_idnum,
-                self._recipient_def.rio_uploading_user,
-                self._recipient_def.rio_document_type
-            )
-            try:
-                dos_newline = "\r\n"
-                # ... Servelec say CR = "\r", but DOS is \r\n.
-                with codecs.open(self.rio_metadata_filename, mode="w",
-                                 encoding="ascii") as f:
-                    # codecs.open() means that file writing is in binary mode,
-                    # so newline conversion has to be manual:
-                    f.write(metadata.replace("\n", dos_newline))
-                # UTF-8 is NOT supported by RiO for metadata.
-            except Exception as e:
-                self.failure_reason = ("Failed to open or write RiO metadata "
-                                       "file: {}".format(e))
-                return
+    # Check MSA segment
+    if len(msa_segment) < 2:
+        return False, "Second (MSA) segment has <2 fields (has {})".format(
+            len(msa_segment))
+    msa_segment_id = msa_segment[0]
+    msa_acknowledgment_code = msa_segment[1]
+    if msa_segment_id != ["MSA"]:
+        return False, "Second (MSA) segment ID is not 'MSA' (is {})".format(
+            msa_segment_id)
+    if msa_acknowledgment_code != ["AA"]:
+        # AA for success, AE for error
+        return False, "MSA acknowledgement code is not 'AA' (is {})".format(
+            msa_acknowledgment_code)
 
-        self.success = True
-
-    def make_hl7_message(self, req: CamcopsRequest) -> None:
-        """
-        Makes an HL7 message and stores it in ``self.msg``.
-
-        May also store it in ``self.message`` (which is saved to the database),
-        if we're saving HL7 messages.
-        """
-        # http://python-hl7.readthedocs.org/en/latest/index.html
-
-        msh_segment = make_msh_segment(
-            message_datetime=req.now,
-            message_control_id=str(self.msg_id)
-        )
-        pid_segment = self._task.get_patient_hl7_pid_segment(
-            req, self._recipient_def)
-        other_segments = self._task.get_hl7_data_segments(
-            req, self._recipient_def)
-
-        # ---------------------------------------------------------------------
-        # Whole message
-        # ---------------------------------------------------------------------
-        segments = [msh_segment, pid_segment] + other_segments
-        self._msg = hl7.Message(SEGMENT_SEPARATOR, segments)
-        if self._recipient_def.keep_message:
-            self.message = str(self._msg)
-
-    def transmit_hl7(self) -> None:
-        """
-        Sends the HL7 message over TCP/IP.
-
-        - Default MLLP/HL7 port is 2575
-        - MLLP = minimum lower layer protocol
-
-          - http://www.cleo.com/support/byproduct/lexicom/usersguide/mllp_configuration.htm
-          - http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=hl7
-          - Essentially just a TCP socket with a minimal wrapper:
-            http://stackoverflow.com/questions/11126918
-        """  # noqa
-
-        self._host = self._recipient_def.host
-        self._port = self._recipient_def.port
-        self.success = False
-
-        # http://python-hl7.readthedocs.org/en/latest/api.html
-        # ... but we've modified that
-        try:
-            with MLLPTimeoutClient(self._recipient_def.host,
-                                   self._recipient_def.port,
-                                   self._recipient_def.network_timeout_ms) \
-                    as client:
-                server_replied, reply = client.send_message(self._msg)
-        except socket.timeout:
-            self.failure_reason = "Failed to send message via MLLP: timeout"
-            return
-        except Exception as e:
-            self.failure_reason = "Failed to send message via MLLP: {}".format(
-                str(e))
-            return
-
-        if not server_replied:
-            self.failure_reason = "No response from server"
-            return
-        self.reply_at_utc = get_now_utc_datetime()
-        if self._recipient_def.keep_reply:
-            self.reply = reply
-        try:
-            replymsg = hl7.parse(reply)
-        except Exception as e:
-            self.failure_reason = "Malformed reply: {}".format(e)
-            return
-
-        self.success, self.failure_reason = msg_is_successful_ack(replymsg)
+    return True, None
 
 
 # =============================================================================
@@ -797,199 +861,46 @@ class MLLPTimeoutClient(object):
 
 
 # =============================================================================
-# Main functions
+# Unit tests
 # =============================================================================
 
-def send_all_pending_incremental_export_messages(
-        cfg: CamcopsConfig,
-        show_queue_only: bool = False) -> None:
+class HL7CoreTests(DemoDatabaseTestCase):
     """
-    Sends all pending incremental export (e.g. HL7, file) messages.
-
-    Obtains a file lock, then iterates through all recipients.
+    Unit tests.
     """
-    queue_stdout = sys.stdout
-    if not cfg.export_lockfile:
-        log.error("send_all_pending_hl7_messages: No HL7_LOCKFILE specified"
-                  " in config; can't proceed")
-        return
-    # On UNIX, lockfile uses LinkLockFile
-    # https://github.com/smontanaro/pylockfile/blob/master/lockfile/linklockfile.py  # noqa
-    lock = lockfile.FileLock(cfg.export_lockfile)
-    if lock.is_locked():
-        log.warning("send_all_pending_hl7_messages: locked by another"
-                    " process; aborting")
-        return
-    with lock:  # calls lock.__enter__() and, later, lock.__exit__()
-        with cfg.get_dbsession_context() as dbsession:
-            if show_queue_only:
-                print("recipient,basetable,_pk,when_created", file=queue_stdout)
-            for recipient_def in cfg.export_recipient_defs:
-                send_pending_incremental_export_messages(dbsession, recipient_def,
-                                                         show_queue_only, queue_stdout)
+    def test_hl7core_func(self) -> None:
+        self.announce("test_hl7core_func")
+        from camcops_server.tasks.phq9 import Phq9
+        pitlist = [
+            HL7PatientIdentifier(id="1", id_type="TT", assigning_authority="AA")
+        ]
+        dob = Date.today()  # type: Date
+        now = Pendulum.now()
+        task = self.dbsession.query(Phq9).first()
+        assert task, "Missing Phq9 in demo database!"
 
-
-def send_pending_incremental_export_messages(
-        req: CamcopsRequest,
-        recipient_def: RecipientDefinition,
-        show_queue_only: bool,
-        queue_stdout: TextIO) -> None:
-    """
-    Pings recipient if necessary, opens any files required, creates an
-    HL7Run, then sends all pending HL7/file messages to a specific
-    recipient.
-
-    Called once per recipient.
-    """
-    log.debug("send_pending_hl7_messages: " + str(recipient_def))
-
-    use_ping = (recipient_def.using_hl7() and
-                not recipient_def.divert_to_file and
-                recipient_def.ping_first)
-    if use_ping:
-        # No HL7 PING method yet. Proposal is:
-        # http://hl7tsc.org/wiki/index.php?title=FTSD-ConCalls-20081028
-        # So use TCP/IP ping.
-        try:
-            timeout_s = min(recipient_def.network_timeout_ms // 1000, 1)
-            if not ping(hostname=recipient_def.host,
-                        timeout_s=timeout_s):
-                log.error("Failed to ping {}", recipient_def.host)
-                return
-        except socket.error:
-            log.error("Socket error trying to ping {}; likely need to "
-                      "run as root", recipient_def.host)
-            return
-
-    if show_queue_only:
-        hl7run = None
-    else:
-        hl7run = HL7Run(recipient_def)
-
-    # Do things, but with safe file closure if anything goes wrong
-    use_divert = (recipient_def.using_hl7() and recipient_def.divert_to_file)
-    if use_divert:
-        try:
-            with codecs.open(recipient_def.divert_to_file, "a", "utf8") as f:
-                send_pending_hl7_messages_2(req, recipient_def,
-                                            show_queue_only,
-                                            queue_stdout, hl7run, f)
-        except Exception as e:
-            log.error("Couldn't open file {} for appending: {}",
-                      recipient_def.divert_to_file, e)
-            return
-    else:
-        send_pending_hl7_messages_2(req, recipient_def, show_queue_only,
-                                    queue_stdout, hl7run, None)
-
-
-def send_pending_hl7_messages_2(
-        req: CamcopsRequest,
-        recipient_def: RecipientDefinition,
-        show_queue_only: bool,
-        queue_stdout: TextIO,
-        hl7run: HL7Run,
-        divert_file: Optional[TextIO]) -> None:
-    """
-    Sends all pending HL7/file messages to a specific recipient.
-
-    Also called once per recipient, but after diversion files safely
-    opened and recipient pinged successfully (if desired).
-    """
-    dbsession = req.dbsession
-    n_hl7_sent = 0
-    n_hl7_successful = 0
-    n_file_sent = 0
-    n_file_successful = 0
-    files_exported = []
-    for cls in Task.all_subclasses_by_tablename():
-        if cls.is_anonymous and not recipient_def.include_anonymous:
-            continue
-        basetable = cls.__tablename__
-
-        # FETCH TASKS TO SEND.
-
-        # Records from the correct group...
-        # Current records...
-        # noinspection PyProtectedMember, PyPep8
-        q = (
-            dbsession.query(cls)
-            .filter(cls._group_id == recipient_def.group_id)
-            .filter(cls._current == True)
-        )
-
-        # Having an appropriate date...
-        # Best to use when_created, or _when_added_batch_utc?
-        # The former. Because nobody would want a system that would miss
-        # amendments to records, and records are defined (date-wise) by
-        # when_created.
-        if recipient_def.start_date:
-            q = q.filter(cls.when_created >= recipient_def.start_date)
-        if recipient_def.end_date:
-            q = q.filter(cls.when_created <= recipient_def.end_date)
-
-        # That haven't already had a successful HL7 message sent to this
-        # server..
-        subquery = (
-            dbsession.query(HL7Message.serverpk)
-            .join(HL7Run)  # automatic: HL7Run.run_id == HL7Message.run_id
-            .filter(HL7Message.basetable == basetable)
-            .filter(HL7Run.recipient == recipient_def.recipient)
-            .filter(HL7Message.success == True)
-            .filter(or_(not_(HL7Message.cancelled),
-                        HL7Message.cancelled.is_(None)))
-        )  # nopep8
-        # noinspection PyProtectedMember
-        q = q.filter(cls._pk.notin_(subquery))
-        # http://explainextended.com/2009/09/18/not-in-vs-not-exists-vs-left-join-is-null-mysql/  # noqa
-
-        # That are finalized (i.e. aren't still on the tablet and potentially
-        # subject to modification)?
-        if recipient_def.finalized_only:
-            # noinspection PyProtectedMember
-            q = q.filter(cls._era != ERA_NOW)
-
-        # OK. Fetch PKs and send information.
-        for task in q:
-            msg = HL7Message(task=task,
-                             hl7run=hl7run,
-                             recipient_def=recipient_def,
-                             show_queue_only=show_queue_only)
-            dbsession.add(msg)
-            tried, succeeded = msg.send(req, queue_stdout, divert_file)
-            if not tried:
-                continue
-            if recipient_def.using_hl7():
-                n_hl7_sent += 1
-                n_hl7_successful += 1 if succeeded else 0
-            else:
-                n_file_sent += 1
-                n_file_successful += 1 if succeeded else 0
-                if succeeded:
-                    files_exported.append(msg.filename)
-                    if msg.rio_metadata_filename:
-                        files_exported.append(msg.rio_metadata_filename)
-
-    if hl7run:
-        hl7run.call_script(files_exported)
-        hl7run.finish()
-    log.info("{} HL7 messages sent, {} successful, {} failed",
-             n_hl7_sent, n_hl7_successful, n_hl7_sent - n_hl7_successful)
-    log.info("{} files sent, {} successful, {} failed",
-             n_file_sent, n_file_successful, n_file_sent - n_file_successful)
-
-
-# =============================================================================
-# File-handling functions
-# =============================================================================
-
-def make_sure_path_exists(path: str) -> None:
-    """
-    Creates a directory/directories if the path doesn't already exist.
-    """
-    # http://stackoverflow.com/questions/273192
-    try:
-        os.makedirs(path)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
+        self.assertIsInstance(get_mod11_checkdigit("12345"), str)
+        self.assertIsInstance(get_mod11_checkdigit("badnumber"), str)
+        self.assertIsInstance(get_mod11_checkdigit("None"), str)
+        self.assertIsInstance(make_msh_segment(now, "control_id"), hl7.Segment)
+        self.assertIsInstance(make_pid_segment(
+            forename="fname",
+            surname="sname",
+            dob=dob,
+            sex="M",
+            address="Somewhere",
+            patient_id_list=pitlist
+        ), hl7.Segment)
+        self.assertIsInstance(make_obr_segment(task), hl7.Segment)
+        for task_format in [FileType.PDF, FileType.HTML, FileType.XML]:
+            for comments in [True, False]:
+                self.assertIsInstance(make_obx_segment(
+                    req=self.req,
+                    task=task,
+                    task_format=task_format,
+                    observation_identifier="obs_id",
+                    observation_datetime=now,
+                    responsible_observer="responsible_observer",
+                    xml_field_comments=comments
+                ), hl7.Segment)
+        self.assertIsInstance(escape_hl7_text("blahblah"), str)

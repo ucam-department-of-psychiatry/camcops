@@ -30,7 +30,7 @@ camcops_server/cc_modules/cc_nhs.py
 
 from typing import Dict, Optional
 
-from .cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
 # =============================================================================

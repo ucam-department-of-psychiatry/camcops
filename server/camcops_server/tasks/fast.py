@@ -121,6 +121,7 @@ class Fast(TaskHasPatientMixin, Task,
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
+    # noinspection PyUnresolvedReferences
     def is_positive(self) -> bool:
         if self.q1 is not None:
             if self.q1 == 0:
@@ -129,6 +130,7 @@ class Fast(TaskHasPatientMixin, Task,
                 return True
         return self.total_score() >= 3
 
+    # noinspection PyUnresolvedReferences
     def get_task_html(self, req: CamcopsRequest) -> str:
         main_dict = {
             None: None,

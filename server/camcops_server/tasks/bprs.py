@@ -123,6 +123,7 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return self.sum_fields(Bprs.SCORED_FIELDS, ignorevalue=0)
         # "0" means "not rated"
 
+    # noinspection PyUnresolvedReferences
     def get_task_html(self, req: CamcopsRequest) -> str:
         main_dict = {
             None: None,

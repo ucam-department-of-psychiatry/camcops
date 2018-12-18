@@ -41,9 +41,9 @@ from xml.etree.ElementTree import Element, tostring
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.text import unescape_newlines
 
-from .cc_cache import cache_region_static, fkg
-from .cc_config import get_config
-from .cc_exception import raise_runtime_error
+from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
+from camcops_server.cc_modules.cc_config import get_config
+from camcops_server.cc_modules.cc_exception import raise_runtime_error
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -164,7 +164,7 @@ def all_extra_strings_as_dicts(
                             "config is misconfigured; aborting")
     allstrings = {}  # type: Dict[str, Dict[str, str]]
     for filename in filenames:
-        log.info("Loading string XML file: " + filename)
+        log.info("Loading string XML file: {}", filename)
         parser = ElementTree.XMLParser(encoding="UTF-8")
         tree = ElementTree.parse(filename, parser=parser)
         root = tree.getroot()

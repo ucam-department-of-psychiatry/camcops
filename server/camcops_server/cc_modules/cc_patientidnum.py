@@ -48,16 +48,16 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
-from .cc_constants import NUMBER_OF_IDNUMS_DEFUNCT
-from .cc_db import GenericTabletRecordMixin
-from .cc_idnumdef import IdNumDefinition
-from .cc_simpleobjects import IdNumReference
-from .cc_sqla_coltypes import CamcopsColumn
-from .cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_constants import NUMBER_OF_IDNUMS_DEFUNCT
+from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
+from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
+from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
+from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
-    from .cc_patient import Patient
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_patient import Patient
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -113,6 +113,9 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         uselist=False,
         viewonly=True,
     )
+
+    def __str__(self) -> str:
+        return "idnum{}={}".format(self.which_idnum, self.idnum_value)
 
     def get_idnum_reference(self) -> IdNumReference:
         """

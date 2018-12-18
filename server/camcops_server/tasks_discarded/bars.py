@@ -28,6 +28,8 @@ camcops_server/tasks_discarded/bars.py
 
 """
 
+_ = '''
+
 from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
@@ -45,8 +47,6 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasPatientMixin,
 )
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
-
-_ = '''
 
 # =============================================================================
 # BARS

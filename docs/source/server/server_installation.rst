@@ -105,6 +105,7 @@ Generic installation for any OS
         pip install camcops-server
 
 .. todo:: sort out MySQL dependencies and/or provide database driver advice
+
 .. todo:: implement Windows service
 
 Installing other prerequisites
@@ -208,11 +209,10 @@ Windows 10
   You should specify this filename as an **absolute** path (Alembic does some
   directory changing that makes relative filenames fail!).
 
-  .. todo::
-
-    Current Windows problems: SQL DELETE taking forever during ``upgrade_db``.
-    Probably to do with constraints/triggers. Temporary workaround: use
-    ``create_db`` instead. (However, the ``reindex`` command works fine.)
+  .. todo:: Current Windows problems: SQL DELETE taking forever during
+     ``upgrade_db``. Probably to do with constraints/triggers. Temporary
+     workaround: use ``create_db`` instead. (However, the ``reindex`` command
+     works fine.)
 
 - Create a superuser
 

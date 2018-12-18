@@ -36,7 +36,7 @@ import cardinal_pythonlib.rnc_web as ws
 from camcops_server.cc_modules.cc_constants import CssClass
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
 # =============================================================================

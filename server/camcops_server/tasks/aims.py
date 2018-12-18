@@ -127,6 +127,7 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def total_score(self) -> int:
         return self.sum_fields(self.SCORED_FIELDS)
 
+    # noinspection PyUnresolvedReferences
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         main_dict = {None: None}

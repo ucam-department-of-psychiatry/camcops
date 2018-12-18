@@ -47,16 +47,16 @@ from cardinal_pythonlib.sqlalchemy.alembic_func import (
     stamp_allowing_unusual_version_table,
 )
 
-from .cc_baseconstants import (
+from camcops_server.cc_modules.cc_baseconstants import (
     ALEMBIC_BASE_DIR,
     ALEMBIC_CONFIG_FILENAME,
     ALEMBIC_VERSION_TABLE,
 )
-from .cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.schema import MetaData
-    from .cc_config import CamcopsConfig
+    from camcops_server.cc_modules.cc_config import CamcopsConfig
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

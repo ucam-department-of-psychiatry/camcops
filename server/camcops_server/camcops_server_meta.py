@@ -38,9 +38,12 @@ import logging
 import os
 import sys
 
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 PROJECT_BASE_DIRECTORY = os.path.abspath(os.path.join(THIS_DIRECTORY,
@@ -77,7 +80,7 @@ def meta_main() -> None:
     args = parser.parse_args()
     main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
                                     else logging.INFO)
-    log.debug("Arguments: {}".format(args))
+    log.debug("Arguments: {}", args)
 
     # Delayed import so --help doesn't take ages
     from camcops_server.camcops_server import main as camcops_main  # delayed import  # noqa
@@ -87,14 +90,14 @@ def meta_main() -> None:
     for filespec in args.filespecs:
         for filename in glob.glob(filespec):
             did_something = True
-            log.info("Processing: {}".format(filename))
+            log.info("Processing: {}", filename)
             sys.argv = (
                 ['camcops_server',  # dummy argv[0]
                  args.cc_command,
                  "--config", filename] +
                 ['--{}'.format(x) for x in args.ccargs or []]
             )
-            log.debug("Executing command: {}".format(sys.argv))
+            log.debug("Executing command: {}", sys.argv)
             if args.dummyrun:
                 continue
             camcops_main()  # using the new sys.argv

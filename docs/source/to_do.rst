@@ -239,6 +239,9 @@ Server
   - https://www.hl7.org/fhir/overview.html
   - CamCOPS will be a FHIR server, not a client.
 
+- Restore autogeneration of CRIS and CRATE data dictionaries. See
+  ``cc_anon.py`` etc.
+
 Documentation
 -------------
 

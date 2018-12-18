@@ -41,17 +41,24 @@ from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime, Integer
 
-from .cc_constants import DateFormat
-from .cc_pyramid import CookieKey
-from .cc_sqla_coltypes import IPAddressColType, SessionTokenColType
-from .cc_sqlalchemy import Base
-from .cc_taskfilter import TaskFilter
-from .cc_unittest import DemoDatabaseTestCase
-from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
+from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_pyramid import CookieKey
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    IPAddressColType,
+    SessionTokenColType,
+)
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_taskfilter import TaskFilter
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_user import (
+    SecurityAccountLockout,
+    SecurityLoginFailure,
+    User,
+)
 
 if TYPE_CHECKING:
-    from .cc_request import CamcopsRequest
-    from .cc_tabletsession import TabletSession
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_tabletsession import TabletSession
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

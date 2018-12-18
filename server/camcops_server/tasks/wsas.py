@@ -186,6 +186,7 @@ class Wsas(TaskHasPatientMixin, Task,
         )
         return h
 
+    # noinspection PyUnresolvedReferences
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.WSAS_PROCEDURE_ASSESSMENT))]  # noqa
         if self.is_complete():

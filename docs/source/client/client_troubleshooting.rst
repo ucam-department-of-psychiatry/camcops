@@ -70,10 +70,9 @@ Windows client fails to start
 
   Not yet fixed.
 
-  .. todo::
-
-    fix Windows Server client problems (related to system DLLs), or declare
-    Windows Server an unsuitable OS.
+  **Decision:** Windows Server is an unsuitable OS for the CamCOPS client. (It
+  should be fine for the CamCOPS server!) Use a client edition of Windows for
+  the CamCOPS client.
 
 Tablet upload fails with error “Read timed out”
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

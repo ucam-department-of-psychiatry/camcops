@@ -28,20 +28,25 @@ camcops_server/cc_modules/cc_taskreports.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Sequence, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 from cardinal_pythonlib.sqlalchemy.sqlfunc import extract_month, extract_year
 from sqlalchemy.sql.expression import and_, desc, func, literal, select
 
-from .cc_sqla_coltypes import isotzdatetime_to_utcdatetime
-from .cc_forms import ReportParamSchema, ViaIndexSelector
-from .cc_pyramid import ViewParam
-from .cc_report import Report, PlainReportType
-from .cc_request import CamcopsRequest
-from .cc_task import Task
-from .cc_taskindex import TaskIndexEntry
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    isotzdatetime_to_utcdatetime,
+)
+from camcops_server.cc_modules.cc_forms import (
+    ReportParamSchema,
+    ViaIndexSelector,
+)
+from camcops_server.cc_modules.cc_pyramid import ViewParam
+from camcops_server.cc_modules.cc_report import Report, PlainReportType
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_taskindex import TaskIndexEntry
 
 
 # =============================================================================
@@ -83,8 +88,8 @@ class TaskCountReport(Report):
         ]
 
     def get_rows_colnames(self, req: CamcopsRequest) -> PlainReportType:
-        final_rows = []
-        colnames = []
+        final_rows = []  # type: List[Sequence[Sequence[Any]]]
+        colnames = []  # type: List[str]
         dbsession = req.dbsession
         group_ids = req.user.ids_of_groups_user_may_report_on
         superuser = req.user.superuser
@@ -139,6 +144,7 @@ class TaskCountReport(Report):
                     .where(and_(*wheres)) \
                     .group_by(*group_by) \
                     .order_by(*order_by)
-                rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
+                rows, colnames = get_rows_fieldnames_from_query(
+                    dbsession, query)
                 final_rows.extend(rows)
         return PlainReportType(rows=final_rows, column_names=colnames)

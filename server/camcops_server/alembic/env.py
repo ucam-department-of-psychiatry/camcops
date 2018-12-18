@@ -49,7 +49,10 @@ from alembic.operations.ops import (
     UpgradeOps,
 )
 from cardinal_pythonlib.sqlalchemy.alembic_func import get_current_revision
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_url
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.dialects.mysql.types import LONGTEXT, TINYINT
@@ -64,7 +67,7 @@ from camcops_server.cc_modules.cc_sqlalchemy import Base
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -155,12 +158,11 @@ def filter_column_ops(column_ops: Iterable[AlterColumnOp],
         if types_equivalent(database_type=database_type,
                             metadata_type=metadata_type):
             log.info(
-                "Skipping duff {} type change of {!r} to {!r} for "
-                "{}.{}".format(
-                    method,
-                    existing_type, modify_type,
-                    column_op.table_name, column_op.column_name
-                ))
+                "Skipping duff {} type change of {!r} to {!r} for {}.{}",
+                method,
+                existing_type, modify_type,
+                column_op.table_name, column_op.column_name
+            )
             continue  # skip this one!
 
         yield column_op
@@ -180,12 +182,11 @@ def filter_table_ops(table_ops: Iterable[ModifyTableOps], upgrade: bool) \
             yield table_op  # don't know what it is; yield it unmodified
             continue
 
-        log.warning("Filtering {} ops for table: {}".format(
-            method, table_op.table_name))
+        log.warning("Filtering {} ops for table: {}",
+                    method, table_op.table_name)
         table_op.ops = list(filter_column_ops(table_op.ops, upgrade=upgrade))
         if not table_op.ops:
-            log.warning("Nothing to do for table: {}".format(
-                table_op.table_name))
+            log.warning("Nothing to do for table: {}", table_op.table_name)
             continue
 
         yield table_op

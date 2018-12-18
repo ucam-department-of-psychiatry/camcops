@@ -30,9 +30,12 @@ OFFER_PDF_ANON_VERSION = False
             # Whether it's a Task or a TaskIndexEntry:
             task_tablename = task.tablename
             task_shortname = task.shortname
+            # noinspection PyProtectedMember
             task_pk = task._pk
             when_created = task.when_created
+            # noinspection PyProtectedMember
             adding_user = task._adding_user
+            # noinspection PyProtectedMember
             current = task._current
             is_live_on_tablet = task.is_live_on_tablet()
             patient = task.patient

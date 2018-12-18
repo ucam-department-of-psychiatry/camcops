@@ -431,6 +431,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             return "<i>1 (already recalled)</i>"
         return answer(recognized)
 
+    # noinspection PyUnresolvedReferences
     def get_mem_recognition_score(self) -> int:
         score = 0
         score += self.get_recog_score(
@@ -490,6 +491,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 self.lang_score() +
                 self.vsp_score())
 
+    # noinspection PyUnresolvedReferences
     def is_recognition_complete(self) -> bool:
         return (
             ((self.mem_recall_address1 == 1 and
@@ -516,6 +518,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             return False
         return self.is_recognition_complete()
 
+    # noinspection PyUnresolvedReferences
     def get_task_html(self, req: CamcopsRequest) -> str:
         def percent(score: int, maximum: int) -> str:
             return ws.number_to_dp(100 * score / maximum, PERCENT_DP)

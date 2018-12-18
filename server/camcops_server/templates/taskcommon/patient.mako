@@ -5,7 +5,6 @@
     <b>${ patient.get_surname_forename_upper() | h}</b>
         (${ patient.get_sex_verbose() })
         ${ patient.get_dob_html(longform=True)}
-    ## TODO: remove HTML from Python further?
     %for pt_id_num in patient.idnums:
         <!-- ID${ pt_id_num.which_idnum } -->
         <br>${ pt_id_num.description(req) | h }: <b>${ pt_id_num.idnum_value }</b>

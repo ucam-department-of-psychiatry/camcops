@@ -40,11 +40,11 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 from pendulum import Date, DateTime as Pendulum
 
-from .cc_constants import DateFormat
+from camcops_server.cc_modules.cc_constants import DateFormat
 
 if TYPE_CHECKING:
-    from .cc_patientidnum import PatientIdNum
-    from .cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -170,9 +170,11 @@ def get_export_filename(req: "CamcopsRequest",
                         idnum_objects: List['PatientIdNum'] = None,
                         creation_datetime: Pendulum = None,
                         basetable: str = None,
-                        serverpk: int = None) -> str:
+                        serverpk: int = None,
+                        skip_conversion_to_safe_filename: bool = False) -> str:
     """
     Get filename, for file exports/transfers.
+    Also used for e-mail headers and bodies.
 
     Args:
         req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
@@ -194,6 +196,9 @@ def get_export_filename(req: "CamcopsRequest",
         creation_datetime: date/time the task was created
         basetable: name of the task's base table
         serverpk: server PK of the task
+        skip_conversion_to_safe_filename: don't bother converting the result
+            to a safe filename (because it'll be used for something else, like
+            an e-mail subject)
 
     Returns:
         the generated filename
@@ -245,6 +250,8 @@ def get_export_filename(req: "CamcopsRequest",
     except FORMAT_FAIL_EXCEPTIONS:
         log.warning("Bad filename_spec: {!r}", filename_spec)
         formatted = "invalid_filename_spec"
+    if skip_conversion_to_safe_filename:
+        return formatted
     return convert_string_for_filename(formatted, allow_paths=True)
 
 

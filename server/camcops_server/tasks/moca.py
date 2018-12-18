@@ -26,7 +26,7 @@ camcops_server/tasks/moca.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -118,6 +118,7 @@ class MocaMetaclass(DeclarativeMeta):
             ]
         )
         # Fix maximum for Q12:
+        # noinspection PyUnresolvedReferences
         cls.q12.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
 
         add_multiple_columns(
@@ -280,6 +281,7 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return (req.wappstring("normal") if totalscore >= 26
                 else req.wappstring("abnormal"))
 
+    # noinspection PyUnresolvedReferences
     def get_task_html(self, req: CamcopsRequest) -> str:
         vsp = self.score_vsp()
         naming = self.score_naming()
@@ -429,6 +431,7 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
         h += subheading_spanning_two_columns(self.wxstring(req, "education_s"))
         h += tr_qa("≤12 years’ education?", self.education12y_or_less)
+        # noinspection PyTypeChecker
         h += """
             </table>
             <table class="{CssClass.TASKDETAIL}">

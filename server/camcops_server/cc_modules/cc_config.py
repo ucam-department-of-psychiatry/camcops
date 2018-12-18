@@ -36,12 +36,13 @@ Also contains various types of demonstration config file (CamCOPS, but also
 # client-side database script, rather than the webview.
 
 import codecs
+import collections
 import configparser
 import contextlib
 import datetime
 import os
 import logging
-from typing import Dict, Generator, List
+from typing import Dict, Generator, List, TYPE_CHECKING
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -70,7 +71,7 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session as SqlASession
 
-from .cc_baseconstants import (
+from camcops_server.cc_modules.cc_baseconstants import (
     ALEMBIC_BASE_DIR,
     ALEMBIC_CONFIG_FILENAME,
     ALEMBIC_VERSION_TABLE,
@@ -82,8 +83,8 @@ from .cc_baseconstants import (
     LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
     STATIC_ROOT_DIR,
 )
-from .cc_cache import cache_region_static, fkg
-from .cc_constants import (
+from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
+from camcops_server.cc_modules.cc_constants import (
     CONFIG_FILE_MAIN_SECTION,
     CONFIG_FILE_EXPORT_SECTION,
     DEFAULT_CAMCOPS_LOGO_FILE,
@@ -95,17 +96,28 @@ from .cc_constants import (
     DEFAULT_PLOT_FONTSIZE,
     DEFAULT_TIMEOUT_MINUTES,
 )
-from .cc_exception import raise_runtime_error
-from .cc_filename import FilenameSpecElement, PatientSpecElementForFilename
-from .cc_pyramid import MASTER_ROUTE_CLIENT_API
-from .cc_recipdef import ConfigParamRecipient, RecipientDefinition
-from .cc_snomed import (
+from camcops_server.cc_modules.cc_exception import raise_runtime_error
+from camcops_server.cc_modules.cc_filename import (
+    FilenameSpecElement,
+    PatientSpecElementForFilename,
+)
+from camcops_server.cc_modules.cc_pyramid import MASTER_ROUTE_CLIENT_API
+from camcops_server.cc_modules.cc_exportrecipient import (
+    ConfigParamExportRecipient,
+    ExportRecipient,
+)
+from camcops_server.cc_modules.cc_snomed import (
     get_all_task_snomed_concepts,
     get_icd9_snomed_concepts_from_xml,
     get_icd10_snomed_concepts_from_xml,
     SnomedConcept,
 )
-from .cc_version_string import CAMCOPS_SERVER_VERSION_STRING
+from camcops_server.cc_modules.cc_version_string import (
+    CAMCOPS_SERVER_VERSION_STRING,
+)
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -155,7 +167,7 @@ class ConfigParamMain(object):
     WKHTMLTOPDF_FILENAME = "WKHTMLTOPDF_FILENAME"
 
 
-class ConfigParamExport(object):
+class ConfigParamExportGeneral(object):
     """
     Parameters allowed in the ``[export]`` section of the CamCOPS config file.
     """
@@ -285,69 +297,118 @@ def get_demo_config(extra_strings_dir: str = None,
 [recipient_A]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Export type
+    # How to export
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-{cpr.TYPE} = hl7
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Options applicable to all or more incremental export types
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-{cpr.GROUP_ID} = 1
-
-{cpr.PRIMARY_IDNUM} = 1
-{cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY} = true
-
-{cpr.START_DATE} =
-{cpr.END_DATE} =
-
-{cpr.FINALIZED_ONLY} = true
-
+{cpr.TRANSMISSION_METHOD} = hl7
 {cpr.TASK_FORMAT} = pdf
 {cpr.XML_FIELD_COMMENTS} = true
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Options applicable to HL7 only ({cpr.TYPE} = hl7)
+    # What to export
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+{cpr.ALL_GROUPS} = false
+{cpr.GROUPS} =
+    myfirstgroup
+    mysecondgroup
+
+{cpr.START_DATETIME_UTC} =
+{cpr.END_DATETIME_UTC} =
+{cpr.FINALIZED_ONLY} = true
+{cpr.INCLUDE_ANONYMOUS} = true
+{cpr.PRIMARY_IDNUM} = 1
+{cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY} = true
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Options applicable to database exports
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+{cpr.DB_URL} = some_sqlalchemy_url
+{cpr.DB_ECHO} = false
+{cpr.DB_INCLUDE_BLOBS} = true
+{cpr.DB_ADD_SUMMARIES} = true
+{cpr.DB_PATIENT_ID_PER_ROW} = false
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Options applicable to e-mail exports
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+{cpr.EMAIL_HOST} = mysmtpserver.mydomain
+{cpr.EMAIL_PORT} = 587
+{cpr.EMAIL_USE_TLS} = true
+{cpr.EMAIL_HOST_USERNAME} = myusername
+{cpr.EMAIL_HOST_PASSWORD} = mypassword
+{cpr.EMAIL_FROM} = CamCOPS computer <noreply@myinstitution.mydomain>
+{cpr.EMAIL_SENDER} =
+{cpr.EMAIL_REPLY_TO} = CamCOPS clinical administrator <admin@myinstitution.mydomain>
+{cpr.EMAIL_TO} =
+    Perinatal Psychiatry Admin <perinatal@myinstitution.mydomain>
+
+{cpr.EMAIL_CC} =
+    Dr Alice Bradford <alice.bradford@myinstitution.mydomain>
+    Dr Charles Dogfoot <charles.dogfoot@myinstitution.mydomain>
+
+{cpr.EMAIL_BCC} =
+    superuser <root@myinstitution.mydomain>
+
+{cpr.EMAIL_PATIENT_SPEC_IF_ANONYMOUS} = anonymous
+{cpr.EMAIL_PATIENT_SPEC} = {{{pse.SURNAME}}}, {{{pse.FORENAME}}}, {{{pse.ALLIDNUMS}}}
+{cpr.EMAIL_SUBJECT} = CamCOPS task for {{patient}}, created {{created}}: {{tasktype}}, PK {{serverpk}}
+{cpr.EMAIL_BODY_IS_HTML} = false
+{cpr.EMAIL_BODY} =
+    Please find attached a new CamCOPS task for manual filing to the electronic
+    patient record of
+    
+        {{patient}}
+        
+    Task type: {{tasktype}}
+    Created: {{created}}
+    CamCOPS server primary key: {{serverpk}}
+    
+    Yours faithfully,
+    
+    The CamCOPS computer.
+    
+{cpr.EMAIL_KEEP_MESSAGE} = false
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Options applicable to HL7
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {cpr.HL7_HOST} = myhl7server.mydomain
 {cpr.HL7_PORT} = 2575
-
-{cpr.PING_FIRST} = true
-
-{cpr.NETWORK_TIMEOUT_MS} = 10000
-
-{cpr.KEEP_MESSAGE} = false
-{cpr.KEEP_REPLY} = false
-
-{cpr.DIVERT_TO_FILE} =
-{cpr.TREAT_DIVERTED_AS_SENT} = false
+{cpr.HL7_PING_FIRST} = true
+{cpr.HL7_NETWORK_TIMEOUT_MS} = 10000
+{cpr.HL7_KEEP_MESSAGE} = false
+{cpr.HL7_KEEP_REPLY} = false
+{cpr.HL7_DEBUG_DIVERT_TO_FILE} =
+{cpr.HL7_DEBUG_TREAT_DIVERTED_AS_SENT} = false
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Options applicable to file transfers only ({cpr.TYPE} = file)
+    # Options applicable to file transfers/attachments
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-{cpr.INCLUDE_ANONYMOUS} = true
+{cpr.FILE_PATIENT_SPEC} = {{surname}}_{{forename}}_{{idshortdesc1}}{{idnum1}}
+{cpr.FILE_PATIENT_SPEC_IF_ANONYMOUS} = anonymous
+{cpr.FILE_FILENAME_SPEC} = /my_nfs_mount/mypath/CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
+{cpr.FILE_MAKE_DIRECTORY} = true
+{cpr.FILE_OVERWRITE_FILES} = false
+{cpr.FILE_EXPORT_RIO_METADATA} = false
+{cpr.FILE_SCRIPT_AFTER_EXPORT} =
 
-{cpr.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
-{cpr.PATIENT_SPEC} = {{surname}}_{{forename}}_{{idshortdesc1}}{{idnum1}}
-{cpr.FILENAME_SPEC} = /my_nfs_mount/mypath/CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Extra options for RiO metadata for file-based export
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-{cpr.MAKE_DIRECTORY} = true
-{cpr.OVERWRITE_FILES} = false
-
-{cpr.RIO_METADATA} = false
 {cpr.RIO_IDNUM} = 2
 {cpr.RIO_UPLOADING_USER} = CamCOPS
 {cpr.RIO_DOCUMENT_TYPE} = CC
 
-{cpr.SCRIPT_AFTER_FILE_EXPORT} =
-
     """.format(  # noqa
         cp=ConfigParamMain,
-        cpe=ConfigParamExport,
-        cpr=ConfigParamRecipient,
+        cpe=ConfigParamExportGeneral,
+        cpr=ConfigParamExportRecipient,
         CONFIG_FILE_MAIN_SECTION=CONFIG_FILE_MAIN_SECTION,
         CONFIG_FILE_EXPORT_SECTION=CONFIG_FILE_EXPORT_SECTION,
         db_echo=db_echo,
@@ -850,6 +911,17 @@ chmod -R ug+rw *
 
 
 # =============================================================================
+# Helper functions
+# =============================================================================
+
+def raise_missing(section: str, parameter: str) -> None:
+    msg = "Config file: missing/blank parameter {} in section [{}]".format(
+        parameter, section
+    )
+    raise_runtime_error(msg)
+
+
+# =============================================================================
 # Configuration class. (It gets cached on a per-process basis.)
 # =============================================================================
 
@@ -862,19 +934,21 @@ class CamcopsConfig(object):
         """
         Initialize by reading the config file.
         """
-        cp = ConfigParamMain
-        cpe = ConfigParamExport
+        cpm = ConfigParamMain
+        cpe = ConfigParamExportGeneral
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Open config file
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self.camcops_config_file = config_filename
-        if not self.camcops_config_file:
-            raise AssertionError("{} not specified".format(ENVVAR_CONFIG_FILE))
-        log.info("Reading from {}", self.camcops_config_file)
-        config = configparser.ConfigParser()
-        with codecs.open(self.camcops_config_file, "r", "utf8") as file:
-            config.read_file(file)
+        self.camcops_config_filename = config_filename
+        if not self.camcops_config_filename:
+            raise AssertionError(
+                "Environment variable {} not specified (and no command-line "
+                "alternative given)".format(ENVVAR_CONFIG_FILE))
+        log.info("Reading from config: {}", self.camcops_config_filename)
+        parser = configparser.ConfigParser()
+        with codecs.open(self.camcops_config_filename, "r", "utf8") as file:
+            parser.read_file(file)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Read from the config file: 1. Most stuff, in alphabetical order
@@ -882,126 +956,120 @@ class CamcopsConfig(object):
         section = CONFIG_FILE_MAIN_SECTION
 
         self.allow_insecure_cookies = get_config_parameter_boolean(
-            config, section, cp.ALLOW_INSECURE_COOKIES, False)
+            parser, section, cpm.ALLOW_INSECURE_COOKIES, False)
 
         self.camcops_logo_file_absolute = get_config_parameter(
-            config, section, cp.CAMCOPS_LOGO_FILE_ABSOLUTE, str,
+            parser, section, cpm.CAMCOPS_LOGO_FILE_ABSOLUTE, str,
             DEFAULT_CAMCOPS_LOGO_FILE)
 
         self.ctv_filename_spec = get_config_parameter(
-            config, section, cp.CTV_FILENAME_SPEC, str, None)
+            parser, section, cpm.CTV_FILENAME_SPEC, str, None)
 
-        self.db_url = config.get(section, cp.DB_URL)
+        self.db_url = parser.get(section, cpm.DB_URL)
         # ... no default: will fail if not provided
         self.db_echo = get_config_parameter_boolean(
-            config, section, cp.DB_ECHO, False)
+            parser, section, cpm.DB_ECHO, False)
         self.client_api_loglevel = get_config_parameter_loglevel(
-            config, section, cp.CLIENT_API_LOGLEVEL, logging.INFO)
+            parser, section, cpm.CLIENT_API_LOGLEVEL, logging.INFO)
         logging.getLogger("camcops_server.cc_modules.client_api")\
             .setLevel(self.client_api_loglevel)
         # ... MUTABLE GLOBAL STATE (if relatively unimportant); *** fix
 
         self.disable_password_autocomplete = get_config_parameter_boolean(
-            config, section, cp.DISABLE_PASSWORD_AUTOCOMPLETE, True)
+            parser, section, cpm.DISABLE_PASSWORD_AUTOCOMPLETE, True)
 
         self.extra_string_files = get_config_parameter_multiline(
-            config, section, cp.EXTRA_STRING_FILES, [])
+            parser, section, cpm.EXTRA_STRING_FILES, [])
 
         self.local_institution_url = get_config_parameter(
-            config, section, cp.LOCAL_INSTITUTION_URL,
+            parser, section, cpm.LOCAL_INSTITUTION_URL,
             str, DEFAULT_LOCAL_INSTITUTION_URL)
         self.local_logo_file_absolute = get_config_parameter(
-            config, section, cp.LOCAL_LOGO_FILE_ABSOLUTE,
+            parser, section, cpm.LOCAL_LOGO_FILE_ABSOLUTE,
             str, DEFAULT_LOCAL_LOGO_FILE)
         self.lockout_threshold = get_config_parameter(
-            config, section, cp.LOCKOUT_THRESHOLD,
+            parser, section, cpm.LOCKOUT_THRESHOLD,
             int, DEFAULT_LOCKOUT_THRESHOLD)
         self.lockout_duration_increment_minutes = get_config_parameter(
-            config, section, cp.LOCKOUT_DURATION_INCREMENT_MINUTES,
+            parser, section, cpm.LOCKOUT_DURATION_INCREMENT_MINUTES,
             int, DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)
 
         self.password_change_frequency_days = get_config_parameter(
-            config, section, cp.PASSWORD_CHANGE_FREQUENCY_DAYS,
+            parser, section, cpm.PASSWORD_CHANGE_FREQUENCY_DAYS,
             int, DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS)
         self.patient_spec_if_anonymous = get_config_parameter(
-            config, section, cp.PATIENT_SPEC_IF_ANONYMOUS, str, "anonymous")
+            parser, section, cpm.PATIENT_SPEC_IF_ANONYMOUS, str, "anonymous")
         self.patient_spec = get_config_parameter(
-            config, section, cp.PATIENT_SPEC, str, None)
+            parser, section, cpm.PATIENT_SPEC, str, None)
         # currently not configurable, but easy to add in the future:
         self.plot_fontsize = DEFAULT_PLOT_FONTSIZE
 
         # self.send_analytics = get_config_parameter_boolean(
         #     config, section, "SEND_ANALYTICS", True)
         session_timeout_minutes = get_config_parameter(
-            config, section, cp.SESSION_TIMEOUT_MINUTES,
+            parser, section, cpm.SESSION_TIMEOUT_MINUTES,
             int, DEFAULT_TIMEOUT_MINUTES)
         self.session_cookie_secret = get_config_parameter(
-            config, section, cp.SESSION_COOKIE_SECRET, str, None)
+            parser, section, cpm.SESSION_COOKIE_SECRET, str, None)
         self.session_timeout = datetime.timedelta(
             minutes=session_timeout_minutes)
         self.snomed_task_xml_filename = get_config_parameter(
-            config, section, cp.SNOMED_TASK_XML_FILENAME, str, None)
+            parser, section, cpm.SNOMED_TASK_XML_FILENAME, str, None)
         self.snomed_icd9_xml_filename = get_config_parameter(
-            config, section, cp.SNOMED_ICD9_XML_FILENAME, str, None)
+            parser, section, cpm.SNOMED_ICD9_XML_FILENAME, str, None)
         self.snomed_icd10_xml_filename = get_config_parameter(
-            config, section, cp.SNOMED_ICD10_XML_FILENAME,
+            parser, section, cpm.SNOMED_ICD10_XML_FILENAME,
             str, None)
 
         self.task_filename_spec = get_config_parameter(
-            config, section, cp.TASK_FILENAME_SPEC, str, None)
+            parser, section, cpm.TASK_FILENAME_SPEC, str, None)
         self.tracker_filename_spec = get_config_parameter(
-            config, section, cp.TRACKER_FILENAME_SPEC, str, None)
+            parser, section, cpm.TRACKER_FILENAME_SPEC, str, None)
 
         self.webview_loglevel = get_config_parameter_loglevel(
-            config, section, cp.WEBVIEW_LOGLEVEL, logging.INFO)
+            parser, section, cpm.WEBVIEW_LOGLEVEL, logging.INFO)
         logging.getLogger().setLevel(self.webview_loglevel)  # root logger
         # ... MUTABLE GLOBAL STATE (if relatively unimportant) *** fix
         self.wkhtmltopdf_filename = get_config_parameter(
-            config, section, cp.WKHTMLTOPDF_FILENAME, str, None)
+            parser, section, cpm.WKHTMLTOPDF_FILENAME, str, None)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Read from the config file: 2. export section
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         self.export_lockfile = get_config_parameter(
-            config, CONFIG_FILE_EXPORT_SECTION, cpe.EXPORT_LOCKFILE, str, None)
+            parser, CONFIG_FILE_EXPORT_SECTION, cpe.EXPORT_LOCKFILE, str, None)
+        if not self.export_lockfile:
+            raise_missing(CONFIG_FILE_EXPORT_SECTION,
+                          ConfigParamExportGeneral.EXPORT_LOCKFILE)
 
-        recipient_names = get_config_parameter_multiline(
-            config, CONFIG_FILE_EXPORT_SECTION, cpe.RECIPIENTS, [])
+        self.export_recipient_names = get_config_parameter_multiline(
+            parser, CONFIG_FILE_EXPORT_SECTION, cpe.RECIPIENTS, [])
         # http://stackoverflow.com/questions/335695/lists-in-configparser
-        self.export_recipient_defs = []  # type: List[RecipientDefinition]
-        for recip_name in recipient_names:
+        duplicates = [name for name, count in
+                      collections.Counter(self.export_recipient_names).items()
+                      if count > 1]
+        if duplicates:
+            raise ValueError("Duplicate export recipients specified: "
+                             "{!r}".format(duplicates))
+        for recip_name in self.export_recipient_names:
             assert " " not in recip_name, (
                 "No whitespace allowed in recipient names")
-            log.debug("Loading export config for recipient {!r}", recip_name)
-            h = RecipientDefinition(config=config, section=recip_name)
-            self.export_recipient_defs.append(h)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # More validity checks
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if not self.patient_spec_if_anonymous:
-            raise_runtime_error("Blank PATIENT_SPEC_IF_ANONYMOUS in [server] "
-                                "section of config file")
-
+            raise_missing(section, cpm.PATIENT_SPEC_IF_ANONYMOUS)
         if not self.patient_spec:
-            raise_runtime_error("Missing/blank PATIENT_SPEC in [server] "
-                                "section of config file")
-
+            raise_missing(section, cpm.PATIENT_SPEC)
         if not self.session_cookie_secret:
-            raise_runtime_error("Invalid or missing SESSION_COOKIE_SECRET "
-                                "setting in [server] section of config file")
-
+            raise_missing(section, cpm.SESSION_COOKIE_SECRET)
         if not self.task_filename_spec:
-            raise_runtime_error("Missing/blank TASK_FILENAME_SPEC in "
-                                "[server] section of config file")
-
+            raise_missing(section, cpm.TASK_FILENAME_SPEC)
         if not self.tracker_filename_spec:
-            raise_runtime_error("Missing/blank TRACKER_FILENAME_SPEC in "
-                                "[server] section of config file")
-
+            raise_missing(section, cpm.TRACKER_FILENAME_SPEC)
         if not self.ctv_filename_spec:
-            raise_runtime_error("Missing/blank CTV_FILENAME_SPEC in "
-                                "[server] section of config file")
+            raise_missing(section, cpm.CTV_FILENAME_SPEC)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Other attributes
@@ -1041,8 +1109,8 @@ class CamcopsConfig(object):
                 pool_pre_ping=True,
                 # pool_size=0,  # no limit (for parallel testing, which failed)
             )
-            log.debug("Created SQLAlchemy engine for URL {}".format(
-                get_safe_url_from_engine(self._sqla_engine)))
+            log.debug("Created SQLAlchemy engine for URL {}",
+                      get_safe_url_from_engine(self._sqla_engine))
         return self._sqla_engine
 
     @property
@@ -1167,6 +1235,75 @@ class CamcopsConfig(object):
             return {}
         return get_icd10_snomed_concepts_from_xml(
             self.snomed_icd10_xml_filename)
+
+    # -------------------------------------------------------------------------
+    # Export functions
+    # -------------------------------------------------------------------------
+
+    def get_all_export_recipients(self, req: "CamcopsRequest") \
+            -> List[ExportRecipient]:
+        """
+        Returns all export recipients specified in the config.
+
+        This requires a database connection.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+
+        Returns:
+            list: of :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
+        """  # noqa
+        log.debug("Re-reading config file for export recipients")
+        cp = configparser.ConfigParser()
+        with codecs.open(self.camcops_config_filename, "r", "utf8") as file:
+            cp.read_file(file)
+        export_recipients = []  # type: List[ExportRecipient]
+        for recip_name in self.export_recipient_names:
+            log.debug("Loading export config for recipient {!r}", recip_name)
+            recipient = ExportRecipient.read_from_config(
+                req=req, parser=cp, recipient_name=recip_name)
+            export_recipients.append(recipient)
+        return export_recipients
+
+    def get_export_recipients(self,
+                              req: "CamcopsRequest",
+                              recipient_names: List[str] = None) \
+            -> List[ExportRecipient]:
+        """
+        Returns a list of export recipients matching the names supplied.
+
+        - If it's an empty list (or ``None``), return all.
+        - If any are invalid, raise an error.
+        - If any are duplicate, raise an error.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            recipient_names: recipient names
+
+        Returns:
+            list: of :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
+
+        Raises:
+            - :exc:`ValueError` if a name is invalid
+            - :exc:`ValueError` if a name is duplicated
+        """  # noqa
+        recipient_names = recipient_names or []  # type: List[str]
+        all_recipients = self.get_all_export_recipients(req)
+        if not recipient_names:
+            return all_recipients
+        duplicates = [name for name, count in
+                      collections.Counter(recipient_names).items()
+                      if count > 1]
+        if duplicates:
+            raise ValueError("Duplicate export recipients specified: "
+                             "{!r}".format(duplicates))
+        valid = set(r.recipient_name for r in all_recipients)
+        bad = [name for name in recipient_names if name not in valid]
+        if bad:
+            raise ValueError("Bad export recipients specified: "
+                             "{!r}".format(bad))
+        return [r for r in all_recipients
+                if r.recipient_name in recipient_names]
 
 
 # =============================================================================

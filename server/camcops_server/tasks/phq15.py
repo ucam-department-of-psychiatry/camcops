@@ -104,6 +104,7 @@ class Phq15(TaskHasPatientMixin, Task,
     FIVE_TO_END = strseq("q", 5, NQUESTIONS)
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
+    # noinspection PyUnresolvedReferences
     def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False

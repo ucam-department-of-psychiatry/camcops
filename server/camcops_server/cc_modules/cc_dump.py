@@ -40,15 +40,16 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey, MetaData, Table
 
-from .cc_blob import Blob
-from .cc_db import GenericTabletRecordMixin
-from .cc_device import Device
-from .cc_group import Group, group_group_table
-from .cc_membership import UserGroupMembership
-from .cc_request import CamcopsRequest
-from .cc_summaryelement import ExtraSummaryTable
-from .cc_task import Task
-from .cc_user import User
+from camcops_server.cc_modules.cc_blob import Blob
+from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_group import Group, group_group_table
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
+from camcops_server.cc_modules.cc_summaryelement import ExtraSummaryTable
+from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -313,7 +314,7 @@ class DumpController(object):
 def copy_tasks_and_summaries(tasks: Iterable[Task],
                              dst_engine: Engine,
                              dst_session: SqlASession,
-                             include_blobs: bool,
+                             export_options: TaskExportOptions,
                              req: CamcopsRequest) -> None:
     """
     Copy a set of tasks, and their associated related information (found by
@@ -323,9 +324,9 @@ def copy_tasks_and_summaries(tasks: Iterable[Task],
         tasks: tasks to copy
         dst_engine: destination SQLAlchemy Engine
         dst_session:  destination SQLAlchemy Session
-        include_blobs: include BLOBs in the dump?
+        export_options: :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
         req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-    """
+    """  # noqa
     # How best to create the structure that's required?
     #
     # https://stackoverflow.com/questions/21770829/sqlalchemy-copy-schema-and-data-of-subquery-to-another-database  # noqa
@@ -344,7 +345,7 @@ def copy_tasks_and_summaries(tasks: Iterable[Task],
 
     controller = DumpController(dst_engine=dst_engine,
                                 dst_session=dst_session,
-                                include_blobs=include_blobs,
+                                include_blobs=export_options.include_blobs,
                                 req=req)
 
     # We walk through all the objects.

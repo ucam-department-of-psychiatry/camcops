@@ -42,7 +42,6 @@ SQL     As part of an SQL or SQLite download.
 
 """
 
-import copy
 import logging
 import statistics
 from typing import (Any, Dict, Iterable, Generator, List, Optional,
@@ -71,27 +70,27 @@ from sqlalchemy.sql.expression import not_, update
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
-from .cc_anon import get_cris_dd_rows_from_fieldspecs
-from .cc_audit import audit
-from .cc_blob import Blob, get_blob_img_html
-from .cc_cache import cache_region_static, fkg
-from .cc_constants import (
-    CRIS_CLUSTER_KEY_FIELDSPEC,
-    CRIS_PATIENT_COMMENT_PREFIX,
-    CRIS_SUMMARY_COMMENT_PREFIX,
-    CRIS_TABLENAME_PREFIX,
+# from camcops_server.cc_modules.cc_anon import get_cris_dd_rows_from_fieldspecs
+from camcops_server.cc_modules.cc_audit import audit
+from camcops_server.cc_modules.cc_blob import Blob, get_blob_img_html
+from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
+from camcops_server.cc_modules.cc_constants import (
+    # CRIS_CLUSTER_KEY_FIELDSPEC,
+    # CRIS_PATIENT_COMMENT_PREFIX,
+    # CRIS_SUMMARY_COMMENT_PREFIX,
+    # CRIS_TABLENAME_PREFIX,
     CssClass,
     CSS_PAGED_MEDIA,
     DateFormat,
     ERA_NOW,
     INVALID_VALUE,
-    TSV_PATIENT_FIELD_PREFIX,
+    # TSV_PATIENT_FIELD_PREFIX,
 )
-from .cc_ctvinfo import CtvInfo
-from .cc_db import GenericTabletRecordMixin
-from .cc_filename import get_export_filename
-from .cc_hl7core import make_obr_segment, make_obx_segment
-from .cc_html import (
+from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
+from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_filename import get_export_filename
+from camcops_server.cc_modules.cc_hl7 import make_obr_segment, make_obx_segment
+from camcops_server.cc_modules.cc_html import (
     get_present_absent_none,
     get_true_false_none,
     get_yes_no,
@@ -99,15 +98,16 @@ from .cc_html import (
     tr,
     tr_qa,
 )
-from .cc_patient import Patient
-from .cc_patientidnum import PatientIdNum
-from .cc_pdf import pdf_from_html
-from .cc_pyramid import ViewArg
-from .cc_recipdef import RecipientDefinition
-from .cc_request import CamcopsRequest
-from .cc_snomed import SnomedExpression
-from .cc_specialnote import SpecialNote
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_pdf import pdf_from_html
+from camcops_server.cc_modules.cc_pyramid import ViewArg
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_snomed import SnomedExpression
+from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
+from camcops_server.cc_modules.cc_specialnote import SpecialNote
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     gen_ancillary_relationships,
     get_camcops_blob_column_attr_names,
@@ -117,15 +117,20 @@ from .cc_sqla_coltypes import (
     permitted_values_ok,
     SemanticVersionColType,
 )
-from .cc_sqlalchemy import Base
-from .cc_summaryelement import ExtraSummaryTable, SummaryElement
-from .cc_trackerhelpers import TrackerInfo
-from .cc_tsv import TsvPage
-from .cc_version import CAMCOPS_SERVER_VERSION, MINIMUM_TABLET_VERSION
-from .cc_unittest import DemoDatabaseTestCase
-from .cc_xml import (
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_summaryelement import (
+    ExtraSummaryTable,
+    SummaryElement,
+)
+from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
+from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_version import (
+    CAMCOPS_SERVER_VERSION,
+    MINIMUM_TABLET_VERSION,
+)
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_xml import (
     get_xml_document,
-    TaskXmlOptions,
     XML_COMMENT_ANCILLARY,
     XML_COMMENT_ANONYMOUS,
     XML_COMMENT_BLOBS,
@@ -588,6 +593,25 @@ class Task(GenericTabletRecordMixin, Base):
     # =========================================================================
     # PART 2: INTERNALS
     # =========================================================================
+
+    # -------------------------------------------------------------------------
+    # Representations
+    # -------------------------------------------------------------------------
+
+    def __str__(self) -> str:
+        if self.is_anonymous:
+            patient_str = ""
+        else:
+            patient_str = ", patient={p}".format(p=self.patient)
+        return "{t} (_pk={pk}, when_created={wc}{patient})".format(
+            t=self.tablename,
+            pk=self.get_pk(),
+            wc=(
+                format_datetime(self.when_created, DateFormat.ERA)
+                if self.when_created else "?"
+            ),
+            patient=patient_str,
+        )
 
     # -------------------------------------------------------------------------
     # Way to fetch all task types
@@ -1061,7 +1085,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_patient_hl7_pid_segment(self,
                                     req: CamcopsRequest,
-                                    recipient_def: RecipientDefinition) \
+                                    recipient_def: ExportRecipient) \
             -> Union[hl7.Segment, str]:
         """
         Get an HL7 PID segment for the patient, or "".
@@ -1074,7 +1098,7 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def get_hl7_data_segments(self, req: CamcopsRequest,
-                              recipient_def: RecipientDefinition) \
+                              recipient_def: ExportRecipient) \
             -> List[hl7.Segment]:
         """
         Returns a list of HL7 data segments.
@@ -1101,7 +1125,7 @@ class Task(GenericTabletRecordMixin, Base):
         ] + self.get_hl7_extra_data_segments(recipient_def)
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def get_hl7_extra_data_segments(self, recipient_def: RecipientDefinition) \
+    def get_hl7_extra_data_segments(self, recipient_def: ExportRecipient) \
             -> List[hl7.Segment]:
         """
         Return a list of any extra HL7 data segments. (See
@@ -1115,16 +1139,18 @@ class Task(GenericTabletRecordMixin, Base):
                                     from_console: bool = False) -> None:
         """
         Erases the object from the HL7 message log (so it will be resent).
+
+        .. todo: *** FIX delete_from_hl7_message_log
         """
         if self._pk is None:
             return
-        from .cc_hl7 import HL7Message  # delayed import
+        from camcops_server.cc_modules.cc_exportmodels import ExportedTaskHL7Message  # delayed import  # noqa
         # noinspection PyUnresolvedReferences
-        statement = update(HL7Message.__table__)\
-            .where(HL7Message.basetable == self.tablename)\
-            .where(HL7Message.serverpk == self._pk)\
-            .where(not_(HL7Message.cancelled) |
-                   HL7Message.cancelled.is_(None))\
+        statement = update(ExportedTaskHL7Message.__table__)\
+            .where(ExportedTaskHL7Message.basetable == self.tablename)\
+            .where(ExportedTaskHL7Message.serverpk == self._pk)\
+            .where(not_(ExportedTaskHL7Message.cancelled) |
+                   ExportedTaskHL7Message.cancelled.is_(None))\
             .values(cancelled=1,
                     cancelled_at_utc=req.now_utc)
         # ... this bit: ... AND (NOT cancelled OR cancelled IS NULL) ...:
@@ -1292,6 +1318,8 @@ class Task(GenericTabletRecordMixin, Base):
     # Data structure for CRIS data dictionary
     # -------------------------------------------------------------------------
 
+    _ = '''
+
     @classmethod
     def get_cris_dd_rows(cls, req: CamcopsRequest) -> List[Dict]:
         """
@@ -1318,10 +1346,14 @@ class Task(GenericTabletRecordMixin, Base):
             rows += get_cris_dd_rows_from_fieldspecs(taskname, deptable,
                                                      depfieldspecs)
         return rows
+        
+    '''
 
     # -------------------------------------------------------------------------
     # Data export for CRIS and other anonymisation systems
     # -------------------------------------------------------------------------
+
+    _ = '''
 
     @classmethod
     def make_cris_tables(cls, req: CamcopsRequest,
@@ -1402,6 +1434,8 @@ class Task(GenericTabletRecordMixin, Base):
             fieldspecs +
             summaries
         )
+        
+    '''
 
     # -------------------------------------------------------------------------
     # XML view
@@ -1409,7 +1443,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_xml(self,
                 req: CamcopsRequest,
-                options: TaskXmlOptions = None,
+                options: TaskExportOptions = None,
                 indent_spaces: int = 4,
                 eol: str = '\n',
                 include_comments: bool = False) -> str:
@@ -1418,7 +1452,7 @@ class Task(GenericTabletRecordMixin, Base):
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
+            options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
 
             indent_spaces: number of spaces to indent formatted XML
             eol: end-of-line string
@@ -1427,7 +1461,7 @@ class Task(GenericTabletRecordMixin, Base):
         Returns:
             an XML UTF-8 document representing the task.
 
-        """
+        """  # noqa
         tree = self.get_xml_root(req=req, options=options)
         return get_xml_document(
             tree,
@@ -1438,7 +1472,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_xml_root(self,
                      req: CamcopsRequest,
-                     options: TaskXmlOptions) -> XmlElement:
+                     options: TaskExportOptions) -> XmlElement:
         """
         Returns an XML tree. The return value is the root
         :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
@@ -1448,8 +1482,8 @@ class Task(GenericTabletRecordMixin, Base):
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
-        """
+            options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
+        """  # noqa
         # Core (inc. core BLOBs)
         branches = self.get_xml_core_branches(req=req, options=options)
         tree = XmlElement(name=self.tablename, value=branches)
@@ -1458,7 +1492,7 @@ class Task(GenericTabletRecordMixin, Base):
     def get_xml_core_branches(
             self,
             req: CamcopsRequest,
-            options: TaskXmlOptions) -> List[XmlElement]:
+            options: TaskExportOptions) -> List[XmlElement]:
         """
         Returns a list of :class:`camcops_server.cc_modules.cc_xml.XmlElement`
         elements representing stored, calculated, patient, and/or BLOB fields,
@@ -1466,18 +1500,18 @@ class Task(GenericTabletRecordMixin, Base):
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            options: a :class:`camcops_server.cc_modules.cc_xml.TaskXmlOptions`
-        """
+            options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
+        """  # noqa
         def add_comment(comment: XmlLiteral) -> None:
-            if options.with_header_comments:
+            if options.xml_with_header_comments:
                 branches.append(comment)
 
-        options = options or TaskXmlOptions(include_plain_columns=True,
-                                            include_ancillary=True,
-                                            include_blobs=False,
-                                            include_calculated=True,
-                                            include_patient=True,
-                                            include_snomed=True)
+        options = options or TaskExportOptions(xml_include_plain_columns=True,
+                                               xml_include_ancillary=True,
+                                               include_blobs=False,
+                                               xml_include_calculated=True,
+                                               xml_include_patient=True,
+                                               xml_include_snomed=True)
 
         # Stored values +/- calculated values
         core_options = options.clone()
@@ -1485,7 +1519,7 @@ class Task(GenericTabletRecordMixin, Base):
         branches = self._get_xml_branches(req=req, options=core_options)
 
         # SNOMED-CT codes
-        if options.include_snomed and req.snomed_supported:
+        if options.xml_include_snomed and req.snomed_supported:
             add_comment(XML_COMMENT_SNOMED_CT)
             snomed_codes = self.get_snomed_codes(req)
             snomed_branches = []  # type: List[XmlElement]
@@ -1502,11 +1536,11 @@ class Task(GenericTabletRecordMixin, Base):
         # Patient details
         if self.is_anonymous:
             add_comment(XML_COMMENT_ANONYMOUS)
-        elif options.include_patient:
+        elif options.xml_include_patient:
             add_comment(XML_COMMENT_PATIENT)
-            patient_options = TaskXmlOptions(
-                include_plain_columns=True,
-                with_header_comments=options.with_header_comments)
+            patient_options = TaskExportOptions(
+                xml_include_plain_columns=True,
+                xml_with_header_comments=options.xml_with_header_comments)
             if self.patient:
                 branches.append(self.patient.get_xml_root(
                     req, patient_options))
@@ -1514,21 +1548,23 @@ class Task(GenericTabletRecordMixin, Base):
         # BLOBs
         if options.include_blobs:
             add_comment(XML_COMMENT_BLOBS)
-            blob_options = TaskXmlOptions(include_blobs=True,
-                                          skip_fields=options.skip_fields,
-                                          sort_by_name=True,
-                                          with_header_comments=False)
+            blob_options = TaskExportOptions(
+                include_blobs=True,
+                xml_skip_fields=options.xml_skip_fields,
+                xml_sort_by_name=True,
+                xml_with_header_comments=False,
+            )
             branches += self._get_xml_branches(req=req, options=blob_options)
 
         # Ancillary objects
-        if options.include_ancillary:
-            ancillary_options = TaskXmlOptions(
-                include_plain_columns=True,
-                include_ancillary=True,
+        if options.xml_include_ancillary:
+            ancillary_options = TaskExportOptions(
+                xml_include_plain_columns=True,
+                xml_include_ancillary=True,
                 include_blobs=options.include_blobs,
-                include_calculated=options.include_calculated,
-                sort_by_name=True,
-                with_header_comments=options.with_header_comments,
+                xml_include_calculated=options.xml_include_calculated,
+                xml_sort_by_name=True,
+                xml_with_header_comments=options.xml_with_header_comments,
             )
             item_collections = []  # type: List[XmlElement]
             found_ancillary = False
@@ -1556,7 +1592,7 @@ class Task(GenericTabletRecordMixin, Base):
             branches += item_collections
 
         # Completely separate additional summary tables
-        if options.include_calculated:
+        if options.xml_include_calculated:
             item_collections = []  # type: List[XmlElement]
             found_est = False
             for est in self.get_extra_summary_tables(req):
@@ -1695,7 +1731,8 @@ class Task(GenericTabletRecordMixin, Base):
         Returns:
             a newline-terminated single line of CSV values; see below
 
-        Called by :func:`camcops_server.cc_modules.cc_hl7.send_to_filestore`.
+        Called by
+        :meth:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskFileGroup.export_task`.
 
         From Servelec (Lee Meredith) to Rudolf Cardinal, 2014-12-04:
 
@@ -1756,15 +1793,17 @@ class Task(GenericTabletRecordMixin, Base):
 
         - metadata files must be plain ASCII, not UTF-8
 
-            - ... here and cc_hl7.send_to_filestore()
+          - ... here and
+            :meth:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskFileGroup.export_task`
 
         - line terminator is <CR>
 
-            - ... cc_hl7.send_to_filestore()
+          - BUT see
+            :meth:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskFileGroup.export_task`
 
         - user name limit is 10 characters, despite incorrect example
 
-            - ... RecipientDefinition.check_valid()
+          - search for ``RIO_MAX_USER_LEN``
 
         - DocumentType is a code that maps to a human-readable document
           type; for example, "APT" might map to "Appointment Letter". These
@@ -1777,9 +1816,10 @@ class Task(GenericTabletRecordMixin, Base):
         - Filenames should avoid spaces, but otherwise any other standard
           ASCII code is fine within filenames.
 
-            - ... cc_hl7.send_to_filestore()
+          - see
+            :meth:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskFileGroup.export_task`
 
-        """
+        """  # noqa
 
         try:
             client_id = self.patient.get_idnum_value(which_idnum)

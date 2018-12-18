@@ -30,22 +30,24 @@ camcops_server/cc_modules/cc_specialnote.py
 
 from typing import List, Optional
 
-from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.expression import update
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from .cc_constants import DateFormat, ERA_NOW
-from .cc_request import CamcopsRequest
-from .cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_constants import ERA_NOW
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
     EraColType,
     TableNameColType,
 )
-from .cc_sqlalchemy import Base
-from .cc_xml import make_xml_branches_from_columns, XmlElement
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_xml import (
+    make_xml_branches_from_columns,
+    XmlElement,
+)
 
 
 # =============================================================================
@@ -170,6 +172,7 @@ class SpecialNote(Base):
         # You can use update(table)... or table.update()...;
         # http://docs.sqlalchemy.org/en/latest/core/dml.html#sqlalchemy.sql.expression.update  # noqa
 
+        # noinspection PyUnresolvedReferences
         dbsession.execute(
             update(cls.__table__)
             .where(cls.device_id == device_id)

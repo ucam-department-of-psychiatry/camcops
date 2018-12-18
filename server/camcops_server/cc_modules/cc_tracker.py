@@ -37,30 +37,35 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import DateTime as Pendulum
 from pyramid.renderers import render
 
-from .cc_audit import audit
-from .cc_constants import (
+from camcops_server.cc_modules.cc_audit import audit
+from camcops_server.cc_modules.cc_constants import (
     CssClass,
     CSS_PAGED_MEDIA,
     DateFormat,
     FULLWIDTH_PLOT_WIDTH,
     WHOLE_PANEL,
 )
-from .cc_filename import get_export_filename
-from .cc_plot import matplotlib
-from .cc_patient import Patient
-from .cc_patientidnum import PatientIdNum
-from .cc_pdf import pdf_from_html
-from .cc_pyramid import ViewArg, ViewParam
-from .cc_request import CamcopsRequest
-from .cc_task import Task
-from .cc_taskcollection import (
+from camcops_server.cc_modules.cc_filename import get_export_filename
+from camcops_server.cc_modules.cc_plot import matplotlib
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_pdf import pdf_from_html
+from camcops_server.cc_modules.cc_pyramid import ViewArg, ViewParam
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
+from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_taskcollection import (
     TaskCollection,
     TaskFilter,
     TaskSortMethod,
 )
-from .cc_trackerhelpers import TrackerInfo
-from .cc_unittest import DemoDatabaseTestCase
-from .cc_xml import get_xml_document, TaskXmlOptions, XmlDataTypes, XmlElement
+from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_xml import (
+    get_xml_document,
+    XmlDataTypes,
+    XmlElement,
+)
 
 import matplotlib.dates  # delayed until after the cc_plot import
 
@@ -174,11 +179,11 @@ def consistency_idnums(idnum_lists: List[List[PatientIdNum]]) \
 def format_daterange(start: Optional[Pendulum],
                      end: Optional[Pendulum]) -> str:
     """
-    Textual representation of an inclusive date range.
+    Textual representation of an inclusive-to-exclusive date range.
 
     Arguments are datetime values.
     """
-    return "[{}, {}]".format(
+    return "[{}, {})".format(
         format_datetime(start, DateFormat.ISO8601_DATE_ONLY, default="−∞"),
         format_datetime(end, DateFormat.ISO8601_DATE_ONLY, default="+∞")
     )
@@ -425,9 +430,9 @@ class TrackerCtvCommon(object):
                 ]
             )
         ]
-        options = TaskXmlOptions(include_plain_columns=True,
-                                 include_calculated=True,
-                                 include_blobs=False)
+        options = TaskExportOptions(xml_include_plain_columns=True,
+                                    xml_include_calculated=True,
+                                    include_blobs=False)
         for t in self.collection.all_tasks:
             branches.append(t.get_xml_root(self.req, options))
             audit(

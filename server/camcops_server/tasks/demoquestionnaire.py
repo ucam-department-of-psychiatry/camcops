@@ -26,7 +26,7 @@ camcops_server/tasks/demoquestionnaire.py
 
 """
 
-from typing import Any, Dict, Tuple, Type
+from typing import Any, Dict, Optional, Tuple, Type
 
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
@@ -191,8 +191,11 @@ class DemoQuestionnaire(Task,
         h += self.get_twocol_string_row("diagnosticcode_description")
         h += self.get_twocol_string_row("diagnosticcode2_code")
         h += self.get_twocol_string_row("diagnosticcode2_description")
+        # noinspection PyTypeChecker
         h += self.get_twocol_picture_row(self.photo, "photo")
+        # noinspection PyTypeChecker
         h += self.get_twocol_picture_row(self.canvas, "canvas")
+        # noinspection PyTypeChecker
         h += self.get_twocol_picture_row(self.canvas2, "canvas2")
         h += """
             </table>
