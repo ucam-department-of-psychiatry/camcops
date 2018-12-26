@@ -66,6 +66,7 @@ server/camcops_server
     cc_modules/cc_export.py.rst
     cc_modules/cc_exportmodels.py.rst
     cc_modules/cc_exportrecipient.py.rst
+    cc_modules/cc_exportrecipientinfo.py.rst
     cc_modules/cc_filename.py.rst
     cc_modules/cc_forms.py.rst
     cc_modules/cc_group.py.rst
@@ -107,6 +108,8 @@ server/camcops_server
     cc_modules/cc_version.py.rst
     cc_modules/cc_version_string.py.rst
     cc_modules/cc_xml.py.rst
+    cc_modules/celery.py.rst
+    cc_modules/celery_tasks.py.rst
     cc_modules/client_api.py.rst
     cc_modules/merge_db.py.rst
     cc_modules/webview.py.rst
