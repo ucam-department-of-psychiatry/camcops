@@ -110,7 +110,7 @@ class Report(object):
         Returns a identifying string, unique to this report, used in the HTML
         report selector.
         """
-        raise NotImplementedError()
+        raise NotImplementedError()  # implement in derived classes
 
     # noinspection PyMethodParameters
     @classproperty
@@ -118,7 +118,7 @@ class Report(object):
         """
         Descriptive title for display purposes.
         """
-        raise NotImplementedError()
+        raise NotImplementedError()  # implement in derived classes
 
     # noinspection PyMethodParameters
     @classproperty

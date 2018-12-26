@@ -79,7 +79,10 @@ from cardinal_pythonlib.file_io import (
     write_gzipped_text,
 )
 from cardinal_pythonlib.fileops import copyglob, mkdir_p
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 
 from camcops_server.cc_modules.cc_baseconstants import (
     LINUX_DEFAULT_CAMCOPS_CONFIG_DIR,
@@ -92,7 +95,7 @@ from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_CHANGEDATE,
 )
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # =============================================================================
 # Python version requirements
@@ -133,9 +136,8 @@ def workpath(workdir: str, destpath: str) -> str:
 
 def call(cmdargs: List[str], **kwargs) -> None:
     if kwargs:
-        log.debug("With kwargs to subprocess.check_call of {!r}".format(
-            kwargs))
-    log.debug("Calling external program: {!r}".format(cmdargs))
+        log.debug("With kwargs to subprocess.check_call of {!r}", kwargs)
+    log.debug("Calling external program: {!r}", cmdargs)
     subprocess.check_call(cmdargs, **kwargs)
 
 
@@ -395,7 +397,7 @@ def check_prerequisites() -> None:
         3. Install:
             sudo dpkg --install rpmrebuild_2.11-2_all.deb
             """)  # noqa
-            log.critical("{} command not found; stopping".format(cmd))
+            log.critical("{} command not found; stopping", cmd)
             sys.exit(1)
 
     # RPM issues
@@ -859,7 +861,7 @@ def build_package() -> None:
     wrk_sdist_file = join(WRKBASEDIR, sdist_basefilename)
 
     try:
-        log.info("Deleting old {} if it exists".format(src_sdist_file))
+        log.info("Deleting old {} if it exists", src_sdist_file)
         os.remove(src_sdist_file)
     except OSError:
         pass
@@ -1098,8 +1100,8 @@ def main():
     main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
                                     else logging.INFO)
 
-    log.info("mainversion: {}".format(MAINVERSION))
-    log.info("changedate: {}".format(CHANGEDATE))
+    log.info("mainversion: {}", MAINVERSION)
+    log.info("changedate: {}", CHANGEDATE)
 
     build_package()
 

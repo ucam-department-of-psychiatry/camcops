@@ -53,9 +53,12 @@ from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
 from camcops_server.cc_modules.cc_exportmodels import (
+    ExportedTask,
+    ExportedTaskEmail,
+    ExportedTaskFileGroup,
     ExportedTaskHL7Message,
-    ExportRun,
 )
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_group import Group, group_group_table
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
@@ -908,8 +911,11 @@ def merge_camcops_db(src: str,
     # *** todo: fix this in merge_camcops_db
     if skip_export_logs:
         skip_tables.extend([
+            TableIdentity(tablename=ExportRecipient.__tablename__),
+            TableIdentity(tablename=ExportedTask.__tablename__),
+            TableIdentity(tablename=ExportedTaskEmail.__tablename__),
+            TableIdentity(tablename=ExportedTaskFileGroup.__tablename__),
             TableIdentity(tablename=ExportedTaskHL7Message.__tablename__),
-            TableIdentity(tablename=ExportRun.__tablename__),
         ])
     if skip_audit_logs:
         skip_tables.append(TableIdentity(tablename=AuditEntry.__tablename__))

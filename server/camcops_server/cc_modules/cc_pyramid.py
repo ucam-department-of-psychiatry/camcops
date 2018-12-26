@@ -518,11 +518,12 @@ class Routes(object):
     # Hard-coded special paths
     STATIC = "static"
 
-    # Implemented
+    # Other
     ADD_GROUP = "add_group"
     ADD_ID_DEFINITION = "add_id_definition"
     ADD_SPECIAL_NOTE = "add_special_note"
     ADD_USER = "add_user"
+    AUDIT_MENU = "audit_menu"
     BUGFIX_DEFORM_MISSING_GLYPHS = "bugfix_deform_missing_glyphs"
     # ... test by visiting the Task Filters page
     CHANGE_OWN_PASSWORD = "change_own_password"
@@ -635,6 +636,7 @@ class RouteCollection(object):
                                   "/add_id_definition")
     ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE, "/add_special_note")
     ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
+    AUDIT_MENU = RoutePath(Routes.AUDIT_MENU, "/audit_menu")
     TSV_DUMP = RoutePath(Routes.TSV_DUMP, "/tsv_dump")
     BUGFIX_DEFORM_MISSING_GLYPHS = RoutePath(
         Routes.BUGFIX_DEFORM_MISSING_GLYPHS,
@@ -918,7 +920,7 @@ class CamcopsAuthorizationPolicy(object):
     @staticmethod
     def principals_allowed_by_permission(context: ILocation,
                                          permission: str) -> List[str]:
-        raise NotImplementedError()
+        raise NotImplementedError()  # don't care about this method
 
 
 # =============================================================================

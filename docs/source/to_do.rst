@@ -242,6 +242,12 @@ Server
 - Restore autogeneration of CRIS and CRATE data dictionaries. See
   ``cc_anon.py`` etc.
 
+- Introduce f-strings; requires Python 3.6+. Needs check against CPFT CentOS
+  version.
+
+- More generic e-mails to administrators, via backend task. (E-mail framework
+  now in place.)
+
 Documentation
 -------------
 

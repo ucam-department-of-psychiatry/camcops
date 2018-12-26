@@ -243,7 +243,10 @@ from cardinal_pythonlib.fileops import (
     # rmtree,
     which_with_envpath,
 )
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 from cardinal_pythonlib.platformfunc import (
     contains_unquoted_ampersand_dangerous_to_windows,
     require_debian_packages,
@@ -260,7 +263,7 @@ MINIMUM_CARDINAL_PYTHONLIB = "1.0.8"
 if Version(cardinal_pythonlib.version.VERSION) < Version(MINIMUM_CARDINAL_PYTHONLIB):  # noqa
     raise ImportError("Need cardinal_pythonlib >= {}".format(MINIMUM_CARDINAL_PYTHONLIB))  # noqa
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 PYTHON_3_6_OR_HIGHER = sys.version_info >= (3, 6)
 
 # =============================================================================
@@ -846,7 +849,7 @@ class Platform(object):
         #
         # ... looks OK
 
-        log.info("Verifying type of library file: {!r}".format(filename))
+        log.info("Verifying type of library file: {!r}", filename)
         if BUILD_PLATFORM.linux:
             if self.windows:
                 dumpcmd = [OBJDUMP, "-f", filename]
@@ -886,9 +889,9 @@ class Platform(object):
                     "File {} was built for ARM64".format(filename))
         else:
             log.warning("Don't know how to verify library under build "
-                        "platform {}".format(BUILD_PLATFORM))
+                        "platform {}", BUILD_PLATFORM)
             return
-        log.info("Library file is good: {!r}".format(filename))
+        log.info("Library file is good: {!r}", filename)
 
     # -------------------------------------------------------------------------
     # Android
@@ -1658,13 +1661,13 @@ class Config(object):
         sdks = [x for x in stdout.splitlines() if x]
         # log.debug(sdks)
         if not sdks:
-            log.warning("No iOS SDKs found in {}".format(sdkpath))
+            log.warning("No iOS SDKs found in {}", sdkpath)
             return default
         latest_sdk = sdks[-1]  # Last item will be the current SDK, since they are alphanumerically ordered  # noqa
         suffix = ".sdk"
         sdk_name = latest_sdk[:-len(suffix)]  # remove the trailing ".sdk"
         sdk_version = sdk_name[len(xcode_platform):]  # remove the leading prefix, e.g. "iPhoneOS"  # noqa
-        # log.debug("iOS SDK version: {!r}".format(sdk_version))
+        # log.debug("iOS SDK version: {!r}", sdk_version)
         return sdk_version
 
     def _get_ios_sdk_version(self, target_platform: Platform) -> str:
@@ -2209,12 +2212,12 @@ def delete_cmake_cache(directory: str) -> None:
     """
     Removes the CMake cache file from a directory.
     """
-    log.info("Deleting CMake cache files within: {!r}".format(directory))
+    log.info("Deleting CMake cache files within: {!r}", directory)
     delete_files_within_dir(directory, ["CMakeCache.txt"])
 
 
 # def delete_qmake_cache(directory: str) -> None:
-#     log.info("Deleting qmake cache files within: {!r}".format(directory))
+#     log.info("Deleting qmake cache files within: {!r}", directory)
 #     delete_files_within_dir(directory, [".qmake.cache"])
 #     delete_files_within_dir(directory, [".qmake.stash"])
 #     delete_files_within_dir(directory, [".qmake.super"])
@@ -2222,7 +2225,7 @@ def delete_cmake_cache(directory: str) -> None:
 
 # Nope! These are important.
 # def delete_qmake_conf(directory: str) -> None:
-#     log.info("Deleting qmake config files within: {!r}".format(directory))
+#     log.info("Deleting qmake config files within: {!r}", directory)
 #     delete_files_within_dir(directory, [".qmake.conf"])
 
 
@@ -2435,7 +2438,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
 
         https://wiki.openssl.org/index.php/Compilation_and_Installation
     """
-    log.info("Building OpenSSL for {}...".format(target_platform))
+    log.info("Building OpenSSL for {}...", target_platform)
 
     # -------------------------------------------------------------------------
     # OpenSSL: Prerequisites
@@ -2769,7 +2772,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # macOS:
     #       http://doc.qt.io/qt-5/osx.html
 
-    log.info("Building Qt for {}...".format(target_platform))
+    log.info("Building Qt for {}...", target_platform)
 
     # -------------------------------------------------------------------------
     # Qt: Setup
@@ -2830,8 +2833,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # -------------------------------------------------------------------------
     # Qt: Directories
     # -------------------------------------------------------------------------
-    log.info("Configuring {} build in {}".format(target_platform.description,
-                                                 builddir))
+    log.info("Configuring {} build in {}",
+             target_platform.description, builddir)
     mkdir_p(builddir)
     mkdir_p(installdir)
 
@@ -3260,7 +3263,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     [3] https://github.com/sqlcipher/sqlcipher/issues/176
     """
 
-    log.info("Building SQLCipher for {}...".format(target_platform))
+    log.info("Building SQLCipher for {}...", target_platform)
 
     # -------------------------------------------------------------------------
     # SQLCipher: setup
@@ -3741,9 +3744,9 @@ def master_builder(args) -> None:
     # Calculated args
     # =========================================================================
     cfg = Config(args)
-    log.debug("Args: {}".format(args))
-    log.debug("Config: {}".format(cfg))
-    log.info("Running on {}".format(BUILD_PLATFORM))
+    log.debug("Args: {}", args)
+    log.debug("Config: {}", cfg)
+    log.info("Running on {}", BUILD_PLATFORM)
 
     if cfg.show_config_only:
         sys.exit(0)

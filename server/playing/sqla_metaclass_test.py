@@ -60,7 +60,10 @@ Metaclass __new__ vs __init__:
 import logging
 from typing import Any, Dict, Tuple, Type
 
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_column_names
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -75,7 +78,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -173,7 +176,7 @@ class MetaSomeThing(DeclarativeMeta):
             log.debug("MetaSomeThing.__new__: adding b_from_new_cls, via cls")
             retval.b_from_new_cls = Column("b_from_new_cls", Integer)
         # ... DOES in this case need the "cls" parameter
-        log.debug("MetaSomeThing.__new__: returning {0!r}".format(retval))
+        log.debug("MetaSomeThing.__new__: returning {0!r}", retval)
         return retval
 
     def __init__(cls: Type,
@@ -232,16 +235,14 @@ class SomeThing(Base, metaclass=MetaSomeThing):
     c = Column("c", Integer)
 
     def __init__(self, *args, **kwargs):
-        log.debug("SomeThing.__init__: args={0!r}, kwargs={1!r}".format(
-            args, kwargs))
+        log.debug("SomeThing.__init__: args={0!r}, kwargs={1!r}", args, kwargs)
 
     def somefunc(self):
         self.a = 5
-        # log.info("b_from_init_classdict = {}".format(
-        #     self.b_from_init_classdict))
-        log.info("b_from_init_cls = {}".format(self.b_from_init_cls))
-        log.info("b_from_new_classdict = {}".format(self.b_from_new_classdict))
-        log.info("b_from_new_cls = {}".format(self.b_from_new_cls))
+        # log.info("b_from_init_classdict = {}", self.b_from_init_classdict)
+        log.info("b_from_init_cls = {}", self.b_from_init_cls)
+        log.info("b_from_new_classdict = {}", self.b_from_new_classdict)
+        log.info("b_from_new_cls = {}", self.b_from_new_cls)
 
 
 def act_with(blah: SomeThing) -> None:
@@ -320,10 +321,10 @@ class ComplexTask(ExtraMixin, PretendTaskBase, Base,
 
 if __name__ == '__main__':
     log.info("Classes declared; doing something else.")
-    log.info("SomeThing == " + repr(SomeThing))
-    log.info("dir(SomeThing) == " + repr(dir(SomeThing)))
-    log.info("get_orm_column_names(SomeThing) == {}".format(
-        get_orm_column_names(SomeThing, sort=True)))
+    log.info("SomeThing == {!r}", SomeThing)
+    log.info("dir(SomeThing) == {!r}", dir(SomeThing))
+    log.info("get_orm_column_names(SomeThing) == {}",
+             get_orm_column_names(SomeThing, sort=True))
     st = SomeThing()
     st.somefunc()
     # Now, which columns does the PyCharm type checker/autocomplete find?
@@ -336,33 +337,33 @@ if __name__ == '__main__':
     #   c                       YES         YES             YES
     #   d1 to d5                YES         NO              YES
     #   nonexistent             -           -               [yes!]
-    log.debug(st.a)
-    log.debug(st.b_from_init_cls)
-    log.debug(st.b_from_new_classdict)
-    log.debug(st.b_from_new_cls)
-    log.debug(st.c)
-    log.debug(st.d3)
+    log.debug("{}", st.a)
+    log.debug("{}", st.b_from_init_cls)
+    log.debug("{}", st.b_from_new_classdict)
+    log.debug("{}", st.b_from_new_cls)
+    log.debug("{}", st.c)
+    log.debug("{}", st.d3)
     act_with(st)
 
     x = SimpleTask()
-    log.info("get_orm_column_names(SimpleTask) == {}".format(
-        get_orm_column_names(SimpleTask, sort=True)))
+    log.info("get_orm_column_names(SimpleTask) == {}",
+             get_orm_column_names(SimpleTask, sort=True))
 
     ct = ComplexTask()
-    log.info("get_orm_column_names(ComplexTask) == {}".format(
-        get_orm_column_names(ComplexTask, sort=True)))
-    log.info("ct.has_extra_bits = {}".format(ct.has_extra_bits))
-    log.info("ComplexTask.__mro__ = {}".format(ComplexTask.__mro__))
+    log.info("get_orm_column_names(ComplexTask) == {}",
+             get_orm_column_names(ComplexTask, sort=True))
+    log.info("ct.has_extra_bits = {}", ct.has_extra_bits)
+    log.info("ComplexTask.__mro__ = {}", ComplexTask.__mro__)
 
     log.debug(ct.quick_check_static_inheritance())
 
-    log.info(repr(ct))
-    log.info("permitted_values_ok(ct) = {}".format(permitted_values_ok(ct)))
-    log.info("permitted_value_failure_msgs(ct) = {}".format(
-        permitted_value_failure_msgs(ct)))
+    log.info("{!r}", ct)
+    log.info("permitted_values_ok(ct) = {}", permitted_values_ok(ct))
+    log.info("permitted_value_failure_msgs(ct) = {}",
+             permitted_value_failure_msgs(ct))
 
     ct.checkme = 5
-    log.info(repr(ct))
-    log.info("permitted_values_ok(ct) = {}".format(permitted_values_ok(ct)))
-    log.info("permitted_value_failure_msgs(ct) = {}".format(
-        permitted_value_failure_msgs(ct)))
+    log.info("{!r}", ct)
+    log.info("permitted_values_ok(ct) = {}", permitted_values_ok(ct))
+    log.info("permitted_value_failure_msgs(ct) = {}",
+             permitted_value_failure_msgs(ct))

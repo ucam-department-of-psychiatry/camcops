@@ -54,10 +54,11 @@ from argparse import (
     Namespace,
     RawDescriptionHelpFormatter,
 )  # nopep8
-import codecs  # nopep8
 import os  # nopep8
 import multiprocessing  # nopep8
+import platform  # nopep8
 # from pprint import pformat  # nopep8
+import subprocess  # nopep8
 import sys  # nopep8
 import tempfile  # nopep8
 from typing import Any, Dict, List, Optional, TYPE_CHECKING  # nopep8
@@ -145,6 +146,7 @@ from camcops_server.cc_modules.cc_user import (
     User,
 )  # nopep8
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
+from camcops_server.cc_modules.celery import CELERY_APP_NAME
 from camcops_server.cc_modules.merge_db import merge_camcops_db  # nopep8
 
 log.info("Imports complete")
@@ -176,12 +178,15 @@ if DEBUG_LOG_CONFIG or DEBUG_RUN_WITH_PDB:
 # =============================================================================
 
 DEFAULT_CONFIG_FILENAME = "/etc/camcops/camcops.conf"
+DEFAULT_FLOWER_ADDRESS = "127.0.0.1"
+DEFAULT_FLOWER_PORT = 5555  # http://docs.celeryproject.org/en/latest/userguide/monitoring.html  # noqa
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_MAX_THREADS = 100
 # ... beware the default MySQL connection limit of 151;
 #     https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
 DEFAULT_PORT = 8000
 URL_PATH_ROOT = '/'
+WINDOWS = platform.system() == "Windows"
 
 
 # =============================================================================
@@ -218,6 +223,8 @@ def precache() -> None:
     _ = config.get_task_snomed_concepts()
     _ = config.get_icd9cm_snomed_concepts()
     _ = config.get_icd10_snomed_concepts()
+    with command_line_request_context() as req:
+        _ = req.get_export_recipients(all_recipients=True)
 
 
 # =============================================================================
@@ -303,6 +310,14 @@ def make_wsgi_app_from_argparse_args(args: Namespace) -> Router:
 # Web server launchers
 # =============================================================================
 
+def ensure_ok_for_webserver() -> None:
+    """
+    Prerequisites for firing up the web server.
+    """
+    ensure_database_is_ok()
+    precache()
+
+
 def test_serve_pyramid(application: Router,
                        host: str = DEFAULT_HOST,
                        port: int = DEFAULT_PORT) -> None:
@@ -310,8 +325,7 @@ def test_serve_pyramid(application: Router,
     Launches an extremely simple Pyramid web server (via
     ``wsgiref.make_server``).
     """
-    ensure_database_is_ok()
-    precache()
+    ensure_ok_for_webserver()
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}", host, port)
     server.serve_forever()
@@ -334,8 +348,7 @@ def serve_cherrypy(application: Router,
     - Multithreading.
     - Any platform.
     """
-    ensure_database_is_ok()
-    precache()
+    ensure_ok_for_webserver()
 
     # Report on options
     if unix_domain_socket_filename:
@@ -414,8 +427,7 @@ def serve_gunicorn(application: Router,
         raise_runtime_error("Gunicorn does not run under Windows. "
                             "(It relies on the UNIX fork() facility.)")
 
-    ensure_database_is_ok()
-    precache()
+    ensure_ok_for_webserver()
 
     # Report on options, and calculate Gunicorn versions
     if unix_domain_socket_filename:
@@ -700,31 +712,45 @@ def enable_user_cli(username: str = None) -> bool:
 
 
 def cmd_show_export_queue(recipient_names: List[str] = None,
-                          via_index: bool = True) -> None:
+                          all_recipients: bool = False,
+                          via_index: bool = True,
+                          pretty: bool = False) -> None:
     """
     Shows tasks that would be exported.
 
     Args:
         recipient_names: list of export recipient names (as per the config
-            file); blank for "all"
+            file)
+        all_recipients: use all recipients?
         via_index: use the task index (faster)?
+        pretty: use ``str(task)`` not ``repr(task)`` (prettier, slower because
+            it has to query the patient)
     """
     with command_line_request_context() as req:
-        print_export_queue(req, recipient_names, via_index=via_index)
+        print_export_queue(req,
+                           recipient_names=recipient_names,
+                           all_recipients=all_recipients,
+                           via_index=via_index,
+                           pretty=pretty)
 
 
 def cmd_export(recipient_names: List[str] = None,
+               all_recipients: bool = False,
                via_index: bool = True) -> None:
     """
     Send all outbound incremental export messages (e.g. HL7).
 
     Args:
         recipient_names: list of export recipient names (as per the config
-            file); blank for "all"
+            file)
+        all_recipients: use all recipients?
         via_index: use the task index (faster)?
     """
     with command_line_request_context() as req:
-        export(req, recipient_names, via_index=via_index)
+        export(req,
+               recipient_names=recipient_names,
+               all_recipients=all_recipients,
+               via_index=via_index)
 
 
 def reindex(cfg: CamcopsConfig) -> None:
@@ -737,6 +763,67 @@ def reindex(cfg: CamcopsConfig) -> None:
     ensure_database_is_ok()
     with cfg.get_dbsession_context() as dbsession:
         reindex_everything(dbsession)
+
+
+# =============================================================================
+# Celery
+# =============================================================================
+
+def launch_celery_workers(verbose: bool = False) -> None:
+    """
+    Launch Celery workers.
+    """
+    config = get_default_config_from_os_env()
+    cmdargs = [
+        "celery", "worker",
+        "--app", CELERY_APP_NAME,
+        "--loglevel", "DEBUG" if verbose else "INFO",
+    ]
+    if WINDOWS:
+        # See crate_anon/tools/launch_celery.py, and
+        # camcops_server/cc_modules/cc_export.py
+        os.environ["FORKED_BY_MULTIPROCESSING"] = "1"
+        cmdargs.extend([
+            "--concurrency", "1",
+            "--pool", "solo",
+        ])
+    cmdargs += config.celery_worker_extra_args
+    log.info("Launching: {!r}", cmdargs)
+    subprocess.call(cmdargs)
+
+
+def launch_celery_beat(verbose: bool = False) -> None:
+    """
+    Launch the Celery Beat scheduler.
+
+    (This can be combined with ``celery worker``, but that's not recommended;
+    http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#starting-the-scheduler).
+    """  # noqa
+    config = get_default_config_from_os_env()
+    cmdargs = [
+        "celery", "beat",
+        "--app", CELERY_APP_NAME,
+        "--schedule", config.celery_beat_schedule_database,
+        "--loglevel", "DEBUG" if verbose else "INFO",
+    ]
+    cmdargs += config.celery_beat_extra_args
+    log.info("Launching: {!r}", cmdargs)
+    subprocess.call(cmdargs)
+
+
+def launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
+                         port: int = DEFAULT_FLOWER_PORT) -> None:
+    """
+    Launch the Celery Flower monitor.
+    """
+    cmdargs = [
+        "celery", "flower",
+        "--app", CELERY_APP_NAME,
+        "--address {}".format(address),
+        "--port {}".format(port),
+    ]
+    log.info("Launching: {!r}", cmdargs)
+    subprocess.call(cmdargs)
 
 
 # =============================================================================
@@ -804,6 +891,7 @@ def self_test(show_only: bool = False) -> None:
                 # don't, for example, run cardinal_pythonlib self-tests
                 continue
             log.info("Discovered test: {}", cls)
+            # noinspection PyUnresolvedReferences
             suite.addTest(unittest.makeSuite(cls))
         if show_only:
             return
@@ -1178,8 +1266,7 @@ def camcops_main() -> None:
         "--destination_db_revision", type=str, required=True,
         help="The target database revision"
     )
-    add_req_named(
-        dev_downgrade_parser,
+    dev_downgrade_parser.add_argument(
         '--confirm_downgrade_db', action="store_true",
         help="Must specify this too, as a safety measure")
     dev_downgrade_parser.add_argument(
@@ -1189,7 +1276,8 @@ def camcops_main() -> None:
     dev_downgrade_parser.set_defaults(
         func=lambda args: downgrade_database_to_revision(
             revision=args.destination_db_revision,
-            show_sql_only=args.show_sql_only
+            show_sql_only=args.show_sql_only,
+            confirm_downgrade_db=args.confirm_downgrade_db,
         )
     )
 
@@ -1285,6 +1373,16 @@ def camcops_main() -> None:
         )
     )
 
+    # Print database schema
+    ddl_parser = add_sub(
+        subparsers, "ddl",
+        help="Print database schema (data definition language; DDL)")
+    ddl_parser.add_argument(
+        '--dialect', type=str, default=SqlaDialectName.MYSQL,
+        help="SQL dialect (options: {})".format(", ".join(ALL_SQLA_DIALECTS)))
+    ddl_parser.set_defaults(
+        func=lambda args: print(get_all_ddl(dialect_name=args.dialect)))
+
     # Rebuild server indexes
     reindex_parser = add_sub(
         subparsers, "reindex",
@@ -1340,21 +1438,13 @@ def camcops_main() -> None:
     # Export options
     # -------------------------------------------------------------------------
 
-    # Print database schema
-    ddl_parser = add_sub(
-        subparsers, "ddl",
-        help="Print database schema (data definition language; DDL)")
-    ddl_parser.add_argument(
-        '--dialect', type=str, default=SqlaDialectName.MYSQL,
-        help="SQL dialect (options: {})".format(", ".join(ALL_SQLA_DIALECTS)))
-    ddl_parser.set_defaults(
-        func=lambda args: print(get_all_ddl(dialect_name=args.dialect)))
-
     def _add_export_options(sp: ArgumentParser) -> None:
         sp.add_argument(
             '--recipients', type=str, nargs="*",
-            help="Export recipients (as named in config file); "
-                 "ignore to show all")
+            help="Export recipients (as named in config file)")
+        sp.add_argument(
+            '--all_recipients', action="store_true",
+            help="Use all recipients")
         sp.add_argument(
             '--disable_task_index', action="store_true",
             help="Disable use of the task index (for debugging only)")
@@ -1366,7 +1456,8 @@ def camcops_main() -> None:
     _add_export_options(export_parser)
     export_parser.set_defaults(
         func=lambda args: cmd_export(
-            args.recipients,
+            recipient_names=args.recipients,
+            all_recipients=args.all_recipients,
             via_index=not args.disable_task_index,
         ))
 
@@ -1375,53 +1466,16 @@ def camcops_main() -> None:
         subparsers, "show_export_queue",
         help="View outbound export queue (without sending)")
     _add_export_options(show_export_queue_parser)
+    show_export_queue_parser.add_argument(
+        '--pretty', action="store_true",
+        help="Pretty (but slower) formatting for tasks")
     show_export_queue_parser.set_defaults(
         func=lambda args: cmd_show_export_queue(
             recipient_names=args.recipients,
+            all_recipients=args.all_recipients,
             via_index=not args.disable_task_index,
+            pretty=args.pretty,
         ))
-
-    # -------------------------------------------------------------------------
-    # Test options
-    # -------------------------------------------------------------------------
-
-    # Show available self-tests
-    showtests_parser = add_sub(
-        subparsers, "show_tests", config_mandatory=None,
-        help="Show available self-tests")
-    showtests_parser.set_defaults(func=lambda args: self_test(show_only=True))
-
-    # Self-test
-    selftest_parser = add_sub(
-        subparsers, "self_test", config_mandatory=None,
-        help="Test internal code")
-    selftest_parser.set_defaults(func=lambda args: self_test())
-
-    # Serve via the Pyramid test server
-    serve_pyr_parser = add_sub(
-        subparsers, "serve_pyramid",
-        help="Test web server (single-thread, single-process, HTTP-only, "
-             "Pyramid; for development use only")
-    serve_pyr_parser.add_argument(
-        '--host', type=str, default=DEFAULT_HOST,
-        help="Hostname to listen on")
-    serve_pyr_parser.add_argument(
-        '--port', type=int, default=DEFAULT_PORT,
-        help="Port to listen on")
-    add_wsgi_options(serve_pyr_parser)
-    serve_pyr_parser.set_defaults(func=lambda args: test_serve_pyramid(
-        application=make_wsgi_app_from_argparse_args(args),
-        host=args.host,
-        port=args.port
-    ))
-
-    # Launch a Python command line
-    dev_cli_parser = add_sub(
-        subparsers, "dev_cli",
-        help="Developer command-line interface, with config loaded as "
-             "'config'."
-    )
-    dev_cli_parser.set_defaults(func=lambda args: dev_cli())
 
     # -------------------------------------------------------------------------
     # Web server options
@@ -1551,7 +1605,27 @@ def camcops_main() -> None:
         debug_show_gunicorn_options=args.debug_show_gunicorn_options,
     ))
 
+    # Serve via the Pyramid test server
+    serve_pyr_parser = add_sub(
+        subparsers, "serve_pyramid",
+        help="Test web server (single-thread, single-process, HTTP-only, "
+             "Pyramid; for development use only")
+    serve_pyr_parser.add_argument(
+        '--host', type=str, default=DEFAULT_HOST,
+        help="Hostname to listen on")
+    serve_pyr_parser.add_argument(
+        '--port', type=int, default=DEFAULT_PORT,
+        help="Port to listen on")
+    add_wsgi_options(serve_pyr_parser)
+    serve_pyr_parser.set_defaults(func=lambda args: test_serve_pyramid(
+        application=make_wsgi_app_from_argparse_args(args),
+        host=args.host,
+        port=args.port
+    ))
+
+    # -------------------------------------------------------------------------
     # Preprocessing options
+    # -------------------------------------------------------------------------
 
     athena_icd_snomed_to_xml_parser = add_sub(
         subparsers, "convert_athena_icd_snomed_to_xml",
@@ -1583,6 +1657,70 @@ def camcops_main() -> None:
             icd10_xml_filename=args.icd10_xml_filename,
         )
     )
+
+    # -------------------------------------------------------------------------
+    # Celery options
+    # -------------------------------------------------------------------------
+
+    # Launch Celery workers
+    celery_worker_parser = add_sub(
+        subparsers, "launch_workers",
+        help="Launch Celery workers, for background processing"
+    )
+    celery_worker_parser.set_defaults(func=lambda args: launch_celery_workers(
+        verbose=args.verbose,
+    ))
+
+    # Launch Celery Bear
+    celery_beat_parser = add_sub(
+        subparsers, "launch_scheduler",
+        help="Launch Celery Beat scheduler, to schedule background jobs"
+    )
+    celery_beat_parser.set_defaults(func=lambda args: launch_celery_beat(
+        verbose=args.verbose,
+    ))
+
+    # Launch Celery Flower monitor
+    celery_flower_parser = add_sub(
+        subparsers, "launch_monitor",
+        help="Launch Celery Flower monitor, to monitor background jobs"
+    )
+    celery_flower_parser.add_argument(
+        "--address", type=str, default=DEFAULT_FLOWER_ADDRESS,
+        help="Address to use for Flower"
+    )
+    celery_flower_parser.add_argument(
+        "--port", type=int, default=DEFAULT_FLOWER_PORT,
+        help="Port to use for Flower"
+    )
+    celery_flower_parser.set_defaults(func=lambda args: launch_celery_flower(
+        address=args.address,
+        port=args.port,
+    ))
+
+    # -------------------------------------------------------------------------
+    # Test options
+    # -------------------------------------------------------------------------
+
+    # Show available self-tests
+    showtests_parser = add_sub(
+        subparsers, "show_tests", config_mandatory=None,
+        help="Show available self-tests")
+    showtests_parser.set_defaults(func=lambda args: self_test(show_only=True))
+
+    # Self-test
+    selftest_parser = add_sub(
+        subparsers, "self_test", config_mandatory=None,
+        help="Test internal code")
+    selftest_parser.set_defaults(func=lambda args: self_test())
+
+    # Launch a Python command line
+    dev_cli_parser = add_sub(
+        subparsers, "dev_cli",
+        help="Developer command-line interface, with config loaded as "
+             "'config'."
+    )
+    dev_cli_parser.set_defaults(func=lambda args: dev_cli())
 
     # -------------------------------------------------------------------------
     # OK; parser built; now parse the arguments

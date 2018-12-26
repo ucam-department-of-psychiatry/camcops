@@ -484,20 +484,57 @@ http://en.wikipedia.org/wiki/Cron for more options.
 Export control options
 ~~~~~~~~~~~~~~~~~~~~~~
 
-EXPORT_LOCKFILE
-###############
+CELERY_BEAT_SCHEDULE_DATABASE
+#############################
 
 *String.*
 
-Filename stem used for process locking for export functions.
+Filename used by CamCOPS as the Celery Beat scheduler database. Celery may
+append ``.db`` (see ``celery beat --help``).
 
-A file-based lock is held during export, so that only one export process runs
-at once.
+CELERY_BEAT_EXTRA_ARGS
+######################
 
-Under Linux, the CamCOPS installation script will create a lock directory, and
-the filename used will be ``<lockdir>/<EXPORT_LOCKFILE>.lock``. The
-demonstration config file will show you where this is likely to be on your
-system.
+*Multiline string.*
+
+Each line of this multiline string is an extra option to the ``celery beat``
+command used by ``camcops_server launch_scheduler``, after ``celery worker
+--app camcops_server --loglevel <LOGLEVEL>``.
+
+CELERY_BROKER_URL
+#################
+
+*String.*
+
+Broker URL for Celery. The default is ``amqp://``. See
+http://docs.celeryproject.org/en/latest/userguide/configuration.html#conf-broker-settings.
+
+CELERY_WORKER_EXTRA_ARGS
+########################
+
+*Multiline string.*
+
+Each line of this multiline string is an extra option to the ``celery worker``
+command used by ``camcops_server launch_workers``, after ``celery worker --app
+camcops_server --loglevel <LOGLEVEL>``.
+
+EXPORT_LOCKDIR
+##############
+
+*String.*
+
+Directory name used for process locking for export functions.
+
+File-based locks are held during export, so that only one export process runs
+at once for mutually exclusive situations (e.g. exporting the same task to the
+same recipient).
+
+CamCOPS must have permissions to create files in this directory.
+
+Under Linux, the CamCOPS installation script will create a lock directory for
+you. The demonstration config file will show you where this is likely to be on
+your system.
+
 
 List of export recipients
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -530,6 +567,38 @@ then CamCOPS expects to see, elsewhere in the config file:
 
     # options defining recipient_B
 
+SCHEDULE_TIMEZONE
+#################
+
+*String.*
+
+Timezone used by Celery for the *crontab(5)*-style ``SCHEDULE`` (see below), as
+per
+http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#time-zones.
+Default is ``UTC``.
+
+SCHEDULE
+########
+
+*Multiline string.*
+
+Each line is in the format of *crontab(5)*, with five time-related entries
+(separated by whitespace) followed by a "what to run" entry -- in this case,
+the name of a single export recipient. Thus:
+
+.. code-block:: none
+
+    minute hour day_of_week day_of_month month_of_year recipient
+
+For example:
+
+.. code-block:: none
+
+    0 1 * * * perinatal_group_email_recipient
+
+which will trigger the ``perinatal_group_email_recipient`` recipient at 01:00
+every day. Lines beginning with ``#`` are ignored.
+
 
 Options for each export recipient section
 -----------------------------------------
@@ -551,6 +620,22 @@ One of the following methods:
 - ``email``: Sends tasks via e-mail.
 - ``hl7``: Sends HL7 messages across a TCP/IP network.
 - ``file``: Writes files to a local filesystem.
+
+PUSH
+####
+
+*Boolean.*
+
+Treat this as a "push" recipient?
+
+All recipients can be exported to via a manual (or automated) ``camcops_server
+export ...`` command. Push recipients support automatic incremental export when
+a task is uploaded (i.e. as soon as it's uploaded, it's exported).
+
+Not all transmission methods currently support push notifications: currently
+database export is not supported.
+
+.. todo:: push notification support
 
 TASK_FORMAT
 ###########
@@ -597,19 +682,28 @@ START_DATETIME_UTC
 
 *Date/time. May be blank.*
 
-Earliest date/time (in UTC) for which tasks will be sent. Assessed against the
-task's ``when_created`` field, converted to Universal Coordinated Time (UTC) --
-that is, this date is in UTC (beware if you are in a very different time zone).
-Blank to apply no start date restriction.
+Earliest date/time (in UTC unless otherwise specified) for which tasks will be
+sent. Assessed against the task's ``when_created`` field, converted to
+Universal Coordinated Time (UTC). Blank to apply no start date restriction.
+
+The parameter is named ``_UTC`` to remind you that it's UTC if you don't
+specify it more precisely (and because it's stored as UTC in the database).
+However, if you want a non-UTC timezone, specify the date/time in `ISO 8601`_
+format and it will be autoconverted to UTC.
 
 END_DATETIME_UTC
 ################
 
 *Date/time. May be blank.*
 
-Date/time (in UTC) at/beyond which no tasks will be sent. In UTC. Assessed
-against the task's ``when_created`` field (converted to UTC). Blank to apply no
-end date restriction.
+Date/time (in UTC unless other specified) at/beyond which no tasks will be
+sent. Assessed against the task's ``when_created`` field (converted to UTC).
+Blank to apply no end date restriction.
+
+The parameter is named ``_UTC`` to remind you that it's UTC if you don't
+specify it more precisely (and because it's stored as UTC in the database).
+However, if you want a non-UTC timezone, specify the date/time in `ISO 8601`_
+format and it will be autoconverted to UTC.
 
 FINALIZED_ONLY
 ##############
@@ -709,6 +803,9 @@ false.
 
 Options applicable to e-mail export only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Attachment filenames are based on ``FILE_FILENAME_SPEC``, but only the basename
+of the path is used.
 
 EMAIL_HOST
 ##########
@@ -898,13 +995,23 @@ server. Default is false. **WARNING:** may consume significant space.
 HL7_DEBUG_DIVERT_TO_FILE
 ########################
 
-*String.*
+*Boolean.*
 
-Override ``HL7_HOST``/``HL7_PORT`` options and send HL7 messages to this
-(single) file instead. The parameter is the filename. Each messages is appended
-to the file. Default is blank (meaning network transmission will be used). This
-is a **debugging option,** allowing you to redirect HL7 messages to a file and
-inspect them.
+Override ``HL7_HOST``/``HL7_PORT`` options and send HL7 messages to a
+(single) file instead? Default is false.
+
+This is a **debugging option,** allowing you to redirect HL7 messages to a file
+and inspect them. If chosen, the following options are used:
+
+.. code-block:: None
+
+    FILE_PATIENT_SPEC
+    FILE_PATIENT_SPEC_IF_ANONYMOUS
+    FILE_FILENAME_SPEC
+    FILE_MAKE_DIRECTORY
+    FILE_OVERWRITE_FILES
+
+and the files are named accordingly, but with ``filetype`` set to ``hl7``.
 
 HL7_DEBUG_TREAT_DIVERTED_AS_SENT
 ################################
@@ -950,7 +1057,8 @@ FILE_FILENAME_SPEC
 *String.*
 
 String into which substitutions will be made to determine the filename to be
-used for each file.
+used for each file. (Patient details are determined by ``FILE_PATIENT_SPEC``
+and ``FILE_PATIENT_SPEC_IF_ANONYMOUS``.)
 
 Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
 <serverconfig_server_task_filename_spec>` option.
@@ -1148,18 +1256,7 @@ Here’s a specimen configuration file, generated via the command
 
     [export]
 
-    EXPORT_LOCKFILE = /var/lock/camcops/camcops.export
-
-        # EXPORT_LOCKFILE:
-        # Filename stem used for process locking for HL7 message transmission.
-        # Default is /var/lock/camcops/camcops.export
-        # The actual lockfile will, in this case, be called
-        #     /var/lock/camcops/camcops.export.lock
-        # and other process-specific files will be created in the same directory
-        # (so the CamCOPS script must have permission from the operating system to
-        # do so). The installation script will create the directory
-        #     /var/lock/camcops
-
+    EXPORT_LOCKDIR = /var/lock/camcops/
     RECIPIENTS =
 
     # =============================================================================

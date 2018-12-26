@@ -95,9 +95,10 @@ def upgrade():
         sa.Column('recipient_name', sa.String(length=191), nullable=False),
         sa.Column('current', sa.Boolean(), nullable=False),
         sa.Column('transmission_method', sa.String(length=50), nullable=False),
+        sa.Column('push', sa.Boolean(), nullable=False),
         sa.Column('task_format', sa.String(length=50), nullable=True),
         sa.Column('xml_field_comments', sa.Boolean(), nullable=False),
-        sa.Column('active', sa.Boolean(), nullable=False),
+        sa.Column('all_groups', sa.Boolean(), nullable=False),
         sa.Column('group_ids', cardinal_pythonlib.sqlalchemy.list_types.IntListType(), nullable=True),
         sa.Column('start_datetime_utc', sa.DateTime(), nullable=True),
         sa.Column('end_datetime_utc', sa.DateTime(), nullable=True),
@@ -132,7 +133,7 @@ def upgrade():
         sa.Column('hl7_network_timeout_ms', sa.Integer(), nullable=True),
         sa.Column('hl7_keep_message', sa.Boolean(), nullable=False),
         sa.Column('hl7_keep_reply', sa.Boolean(), nullable=False),
-        sa.Column('hl7_debug_divert_to_file', sa.Text(), nullable=True),
+        sa.Column('hl7_debug_divert_to_file', sa.Boolean(), nullable=False),
         sa.Column('hl7_debug_treat_diverted_as_sent', sa.Boolean(), nullable=False),
         sa.Column('file_patient_spec', sa.Unicode(length=255), nullable=True),
         sa.Column('file_patient_spec_if_anonymous', sa.Unicode(length=255), nullable=True),
@@ -152,30 +153,18 @@ def upgrade():
     with op.batch_alter_table('_export_recipients', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix__export_recipients_id'), ['id'], unique=False)
 
-    op.create_table('_export_runs',
-        sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
-        sa.Column('recipient_id', sa.BigInteger(), nullable=False),
-        sa.Column('start_at_utc', sa.DateTime(), nullable=False),
-        sa.Column('finish_at_utc', sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(['recipient_id'], ['_export_recipients.id'], name=op.f('fk__export_runs_recipient_id')),
-        sa.PrimaryKeyConstraint('id', name=op.f('pk__export_runs')),
-        mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
-        mysql_engine='InnoDB',
-        mysql_row_format='DYNAMIC'
-    )
-    with op.batch_alter_table('_export_runs', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix__export_runs_start_at_utc'), ['start_at_utc'], unique=False)
-
     op.create_table('_exported_tasks',
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
-        sa.Column('export_run_id', sa.BigInteger(), nullable=True),
+        sa.Column('recipient_id', sa.BigInteger(), nullable=False),
         sa.Column('basetable', sa.String(length=128), nullable=False),
         sa.Column('task_server_pk', sa.Integer(), nullable=False),
+        sa.Column('start_at_utc', sa.DateTime(), nullable=False),
+        sa.Column('finish_at_utc', sa.DateTime(), nullable=True),
         sa.Column('success', sa.Boolean(), nullable=False),
         sa.Column('failure_reasons', cardinal_pythonlib.sqlalchemy.list_types.StringListType(), nullable=True),
         sa.Column('cancelled', sa.Boolean(), nullable=False),
         sa.Column('cancelled_at_utc', sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(['export_run_id'], ['_export_runs.id'], name=op.f('fk__exported_tasks_export_run_id')),
+        sa.ForeignKeyConstraint(['recipient_id'], ['_export_recipients.id'], name=op.f('fk__exported_tasks_recipient_id')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk__exported_tasks')),
         mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
         mysql_engine='InnoDB',
@@ -318,7 +307,6 @@ def downgrade():
     op.drop_table('_exported_task_filegroup')
     op.drop_table('_exported_task_email')
     op.drop_table('_exported_tasks')
-    op.drop_table('_export_runs')
     op.drop_table('_export_recipients')
     op.drop_table('_emails')
     # ### end Alembic commands ###

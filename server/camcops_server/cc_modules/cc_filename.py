@@ -161,7 +161,7 @@ def get_export_filename(req: "CamcopsRequest",
                         patient_spec_if_anonymous: str,
                         patient_spec: str,
                         filename_spec: str,
-                        task_format: str,
+                        filetype: str,
                         is_anonymous: bool = False,
                         surname: str = None,
                         forename: str = None,
@@ -185,7 +185,7 @@ def get_export_filename(req: "CamcopsRequest",
         filename_spec:
             specification to use to create the filename (may include
             patient information from the patient specification)
-        task_format:
+        filetype:
             task output format and therefore file type (e.g. HTML, PDF, XML)
         is_anonymous: is it an anonymous task?
         surname: patient's surname
@@ -232,7 +232,8 @@ def get_export_filename(req: "CamcopsRequest",
         try:
             patient = str(patient_spec).format(**d)
         except FORMAT_FAIL_EXCEPTIONS:
-            log.warning("Bad patient_spec: {!r}", patient_spec)
+            log.warning("Bad patient_spec: {!r}; dictionary was {!r}",
+                        patient_spec, d)
             patient = "invalid_patient_spec"
     d.update({
         fse.PATIENT: patient,
@@ -242,7 +243,7 @@ def get_export_filename(req: "CamcopsRequest",
                                  DateFormat.FILENAME),
         fse.TASKTYPE: str(basetable or ""),
         fse.SERVERPK: str(serverpk or ""),
-        fse.FILETYPE: task_format.lower(),
+        fse.FILETYPE: filetype.lower(),
         fse.ANONYMOUS: patient_spec_if_anonymous if is_anonymous else "",
     })
     try:

@@ -34,10 +34,13 @@ import os
 import shutil
 import sys
 
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 import pexpect
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 EXIT_FAIL = 1
 PASSWORD_ENV_VAR = "DECRYPT_SQLCIPHER_PASSWORD"
@@ -90,10 +93,10 @@ def main() -> None:
     # Check file existence
     # -------------------------------------------------------------------------
     if not os.path.isfile(progargs.encrypted):
-        log.critical("No such file: {}".format(repr(progargs.encrypted)))
+        log.critical("No such file: {!r}", progargs.encrypted)
         sys.exit(EXIT_FAIL)
     if not shutil.which(sqlcipher):
-        log.critical("Can't find SQLCipher at {}".format(repr(sqlcipher)))
+        log.critical("Can't find SQLCipher at {!r}", sqlcipher)
         sys.exit(EXIT_FAIL)
 
     # -------------------------------------------------------------------------
@@ -106,11 +109,11 @@ def main() -> None:
                   "visible to ps and similar tools)")
     elif PASSWORD_ENV_VAR in os.environ:
         password = os.environ[PASSWORD_ENV_VAR]
-        log.debug("Using password from environment variable {}".format(
-            PASSWORD_ENV_VAR))
+        log.debug("Using password from environment variable {}",
+                  PASSWORD_ENV_VAR)
     else:
         log.info("Password not on command-line or in environment variable {};"
-                 " please enter it manually.".format(PASSWORD_ENV_VAR))
+                 " please enter it manually.", PASSWORD_ENV_VAR)
         password = getpass.getpass()
 
     # -------------------------------------------------------------------------
@@ -128,7 +131,7 @@ SELECT COUNT(*) FROM sqlite_master;
     """.format(
         key=string_to_sql_literal(password),
     )
-    log.info("Calling SQLCipher ({})...".format(repr(sqlcipher)))
+    log.info("Calling SQLCipher ({!r})...", sqlcipher)
     child = pexpect.spawn(sqlcipher, [progargs.encrypted])
     log.debug("Spawned")
     for line in sql.splitlines():

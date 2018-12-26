@@ -33,12 +33,15 @@ import sys
 from typing import List
 
 from cardinal_pythonlib.fileops import rmtree
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 from cardinal_pythonlib.sphinxtools import AutodocIndex, AutodocMethod
 
 if sys.version_info[0] < 3:
     raise AssertionError("Need Python 3")
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # Work out directories
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))  # .../docs
@@ -110,11 +113,11 @@ def make_subindex(directory: str,
 def make_autodoc(make: bool, destroy_first: bool) -> None:
     if destroy_first:
         if make and os.path.exists(AUTODOC_DIR):
-            log.info("Deleting directory {!r}".format(AUTODOC_DIR))
+            log.info("Deleting directory {!r}", AUTODOC_DIR)
             rmtree(AUTODOC_DIR)
         else:
             log.warning("Would delete directory {!r} (not doing so as in mock "
-                        "mode)".format(AUTODOC_DIR))
+                        "mode)", AUTODOC_DIR)
     top_idx = AutodocIndex(
         index_filename=TOP_AUTODOC_INDEX,
         project_root_dir=PROJECT_ROOT_DIR,

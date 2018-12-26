@@ -195,7 +195,7 @@ from camcops_server.cc_modules.cc_export import (
 )
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTaskHL7Message,
-    ExportRun,
+    # todo:: fix webview for HL7 runs (no longer exist)
 )
 from camcops_server.cc_modules.cc_forms import (
     AddGroupForm,
@@ -470,6 +470,16 @@ def crash(req: CamcopsRequest) -> Response:
 def developer_page(req: CamcopsRequest) -> Dict[str, Any]:
     """
     Shows the developer menu.
+    """
+    return {}
+
+
+# noinspection PyUnusedLocal
+@view_config(route_name=Routes.AUDIT_MENU, permission=Permission.SUPERUSER,
+             renderer="audit_menu.mako")
+def audit_menu(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    Shows the auditing menu.
     """
     return {}
 

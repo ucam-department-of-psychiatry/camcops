@@ -175,10 +175,10 @@ def filter_table_ops(table_ops: Iterable[ModifyTableOps], upgrade: bool) \
     :func:`filter_column_ops`.
     """
     method = "upgrade" if upgrade else "downgrade"
-    log.warning("Filtering {} table operations".format(method))
+    log.warning("Filtering {} table operations", method)
     for table_op in table_ops:
         if not isinstance(table_op, ModifyTableOps):
-            log.info("Don't understand: {!r}".format(table_op))
+            log.info("Don't understand: {!r}", table_op)
             yield table_op  # don't know what it is; yield it unmodified
             continue
 
@@ -214,7 +214,7 @@ def process_revision_directives(context_: MigrationContext,  # empirically!
 
         # If no changes to the schema are produced, don't generate a revision
         # file:
-        log.info("upgrade_ops:\n{}".format(debug_op_object(upgrade_ops)))
+        log.info("upgrade_ops:\n{}", debug_op_object(upgrade_ops))
         if upgrade_ops.is_empty():
             log.info("No changes; not generating a revision file.")
             directives[:] = []
@@ -295,10 +295,10 @@ def run_alembic() -> None:
     camcops_config = get_default_config_from_os_env()
     dburl = camcops_config.db_url
     alembic_config.set_main_option('sqlalchemy.url', dburl)
-    log.warning("Applying migrations to database at URL: {}".format(
-        get_safe_url_from_url(dburl)))
-    log.info("Current database revision is {!r}".format(
-        get_current_revision(dburl, ALEMBIC_VERSION_TABLE)))
+    log.warning("Applying migrations to database at URL: {}",
+                get_safe_url_from_url(dburl))
+    log.info("Current database revision is {!r}",
+             get_current_revision(dburl, ALEMBIC_VERSION_TABLE))
 
     if context.is_offline_mode():
         run_migrations_offline(alembic_config, target_metadata)

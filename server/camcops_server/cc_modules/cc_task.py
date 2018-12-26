@@ -608,9 +608,19 @@ class Task(GenericTabletRecordMixin, Base):
             pk=self.get_pk(),
             wc=(
                 format_datetime(self.when_created, DateFormat.ERA)
-                if self.when_created else "?"
+                if self.when_created else "None"
             ),
             patient=patient_str,
+        )
+
+    def __repr__(self) -> str:
+        return "<{classname}(_pk={pk}, when_created={wc})>".format(
+            classname=self.__class__.__qualname__,
+            pk=self.get_pk(),
+            wc=(
+                format_datetime(self.when_created, DateFormat.ERA)
+                if self.when_created else "None"
+            ),
         )
 
     # -------------------------------------------------------------------------
@@ -1689,7 +1699,7 @@ class Task(GenericTabletRecordMixin, Base):
             patient_spec_if_anonymous=cfg.patient_spec_if_anonymous,
             patient_spec=cfg.patient_spec,
             filename_spec=cfg.task_filename_spec,
-            task_format=ViewArg.PDF,
+            filetype=ViewArg.PDF,
             is_anonymous=self.is_anonymous,
             surname=self.patient.get_surname() if self.patient else "",
             forename=self.patient.get_forename() if self.patient else "",

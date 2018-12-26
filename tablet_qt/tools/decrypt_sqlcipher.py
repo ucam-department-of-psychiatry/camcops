@@ -35,7 +35,9 @@ import shutil
 from subprocess import Popen, PIPE
 import sys
 
-log = logging.getLogger(__name__)
+from cardinal_pythonlib.logs import BraceStyleAdapter
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 EXIT_FAIL = 1
 PASSWORD_ENV_VAR = "DECRYPT_SQLCIPHER_PASSWORD"
@@ -91,14 +93,13 @@ def main() -> None:
     # Check file existence
     # -------------------------------------------------------------------------
     if not os.path.isfile(progargs.encrypted):
-        log.critical("No such file: {}".format(repr(progargs.encrypted)))
+        log.critical("No such file: {!r}", progargs.encrypted)
         sys.exit(EXIT_FAIL)
     if os.path.isfile(progargs.decrypted):
-        log.critical("Destination already exists: {}".format(
-            repr(progargs.decrypted)))
+        log.critical("Destination already exists: {!r}", progargs.decrypted)
         sys.exit(EXIT_FAIL)
     if not shutil.which(sqlcipher):
-        log.critical("Can't find SQLCipher at {}".format(repr(sqlcipher)))
+        log.critical("Can't find SQLCipher at {!r}", sqlcipher)
         sys.exit(EXIT_FAIL)
 
     # -------------------------------------------------------------------------
@@ -110,11 +111,11 @@ def main() -> None:
                   "visible to ps and similar tools)")
     elif PASSWORD_ENV_VAR in os.environ:
         password = os.environ[PASSWORD_ENV_VAR]
-        log.debug("Using password from environment variable {}".format(
-            PASSWORD_ENV_VAR))
+        log.debug("Using password from environment variable {}",
+                  PASSWORD_ENV_VAR)
     else:
         log.info("Password not on command-line or in environment variable {};"
-                 " please enter it manually.".format(PASSWORD_ENV_VAR))
+                 " please enter it manually.", PASSWORD_ENV_VAR)
         password = getpass.getpass()
 
     # -------------------------------------------------------------------------
@@ -146,7 +147,7 @@ DETACH DATABASE plaintext;
     cmdargs = [sqlcipher, progargs.encrypted]
     # log.debug("cmdargs: " + repr(cmdargs))
     # log.debug("stdin: " + sql)
-    log.info("Calling SQLCipher ({})...".format(repr(sqlcipher)))
+    log.info("Calling SQLCipher ({!r})...", sqlcipher)
     p = Popen(cmdargs, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdout_bytes, stderr_bytes = p.communicate(
         input=sql.encode(progargs.encoding))
@@ -159,8 +160,8 @@ DETACH DATABASE plaintext;
             "is not a database', as do non-database files.)")
         log.critical(stderr_str)
     else:
-        log.info("Success. (The decrypted database {} is now a standard SQLite"
-                 " plain-text database.)".format(repr(progargs.decrypted)))
+        log.info("Success. (The decrypted database {!r} is now a standard "
+                 "SQLite plain-text database.)", progargs.decrypted)
     sys.exit(retcode)
 
 

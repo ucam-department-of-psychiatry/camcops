@@ -68,7 +68,6 @@ from camcops_server.cc_modules.cc_group import Group, group_group_table
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTaskEmail,
     ExportedTask,
-    ExportRun,
     ExportedTaskFileGroup,
     ExportedTaskHL7Message,
 )
@@ -147,7 +146,6 @@ RESERVED_TABLE_NAMES = [
     ExportedTaskEmail.__tablename__,
     ExportedTask.__tablename__,
     ExportRecipient.__tablename__,
-    ExportRun.__tablename__,
     ExportedTaskFileGroup.__tablename__,
     IdNumDefinition.__tablename__,
     PatientIdNumIndexEntry.__tablename__,

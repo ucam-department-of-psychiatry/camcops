@@ -29,11 +29,43 @@ camcops_server/cc_modules/cc_config.py
 Also contains various types of demonstration config file (CamCOPS, but also
 ``supervisord``, Apache, etc.) and demonstration helper scripts (e.g. MySQL).
 
-"""
+There are CONDITIONAL AND IN-FUNCTION IMPORTS HERE; see below. This is to
+minimize the number of modules loaded when this is used in the context of the
+client-side database script, rather than the webview.
 
-# There are CONDITIONAL AND IN-FUNCTION IMPORTS HERE; see below. This is to
-# minimize the number of modules loaded when this is used in the context of the
-# client-side database script, rather than the webview.
+Moreover, it should not use SQLAlchemy objects directly; see ``celery.py``.
+
+In particular, I tried hard to use a "database-unaware" (unbound) SQLAlchemy
+ExportRecipient object. However, when the backend re-calls the config to get
+its recipients, we get errors like:
+
+.. code-block:: none
+
+    [2018-12-25 00:56:00,118: ERROR/ForkPoolWorker-7] Task camcops_server.cc_modules.celery_tasks.export_to_recipient_backend[ab2e2691-c2fa-4821-b8cd-2cbeb86ddc8f] raised unexpected: DetachedInstanceError('Instance <ExportRecipient at 0x7febbeeea7b8> is not bound to a Session; attribute refresh operation cannot proceed',)
+    Traceback (most recent call last):
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/celery/app/trace.py", line 382, in trace_task
+        R = retval = fun(*args, **kwargs)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/celery/app/trace.py", line 641, in __protected_call__
+        return self.run(*args, **kwargs)
+      File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/celery_tasks.py", line 103, in export_to_recipient_backend
+        schedule_via_backend=False)
+      File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py", line 255, in export
+        req, recipient_names=recipient_names, all_recipients=all_recipients)
+      File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_config.py", line 1460, in get_export_recipients
+        valid_names = set(r.recipient_name for r in recipients)
+      File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_config.py", line 1460, in <genexpr>
+        valid_names = set(r.recipient_name for r in recipients)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/sqlalchemy/orm/attributes.py", line 242, in __get__
+        return self.impl.get(instance_state(instance), dict_)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/sqlalchemy/orm/attributes.py", line 594, in get
+        value = state._load_expired(state, passive)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/sqlalchemy/orm/state.py", line 608, in _load_expired
+        self.manager.deferred_scalar_loader(self, toload)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/sqlalchemy/orm/loading.py", line 813, in load_scalar_attributes
+        (state_str(state)))
+    sqlalchemy.orm.exc.DetachedInstanceError: Instance <ExportRecipient at 0x7febbeeea7b8> is not bound to a Session; attribute refresh operation cannot proceed (Background on this error at: http://sqlalche.me/e/bhk3)
+
+"""  # noqa
 
 import codecs
 import collections
@@ -42,7 +74,8 @@ import contextlib
 import datetime
 import os
 import logging
-from typing import Dict, Generator, List, TYPE_CHECKING
+import re
+from typing import Dict, Generator, List, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -52,6 +85,7 @@ from cardinal_pythonlib.configfiles import (
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
+from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.alembic_func import (
     get_current_and_head_revision,
 )
@@ -65,6 +99,7 @@ from cardinal_pythonlib.sqlalchemy.session import (
     get_safe_url_from_engine,
     make_mysql_url,
 )
+import celery.schedules
 from pendulum import DateTime as Pendulum
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
@@ -85,6 +120,7 @@ from camcops_server.cc_modules.cc_baseconstants import (
 )
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_constants import (
+    ConfigParamExportRecipient,
     CONFIG_FILE_MAIN_SECTION,
     CONFIG_FILE_EXPORT_SECTION,
     DEFAULT_CAMCOPS_LOGO_FILE,
@@ -96,16 +132,16 @@ from camcops_server.cc_modules.cc_constants import (
     DEFAULT_PLOT_FONTSIZE,
     DEFAULT_TIMEOUT_MINUTES,
 )
+from camcops_server.cc_modules.cc_exportrecipientinfo import (
+    DEFAULT_PATIENT_SPEC_IF_ANONYMOUS,
+    ExportRecipientInfo,
+)
 from camcops_server.cc_modules.cc_exception import raise_runtime_error
 from camcops_server.cc_modules.cc_filename import (
     FilenameSpecElement,
     PatientSpecElementForFilename,
 )
 from camcops_server.cc_modules.cc_pyramid import MASTER_ROUTE_CLIENT_API
-from camcops_server.cc_modules.cc_exportrecipient import (
-    ConfigParamExportRecipient,
-    ExportRecipient,
-)
 from camcops_server.cc_modules.cc_snomed import (
     get_all_task_snomed_concepts,
     get_icd9_snomed_concepts_from_xml,
@@ -123,16 +159,27 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 pre_disable_sqlalchemy_extra_echo_log()
 
+# =============================================================================
+# Constants
+# =============================================================================
+
+VALID_RECIPIENT_NAME_REGEX = r"^[\w_-]+$"
+# ... because we'll use them for filenames, amongst other things
+# https://stackoverflow.com/questions/10944438/
+# https://regexr.com/
+
 
 # =============================================================================
 # Demo config
 # =============================================================================
 
+DEFAULT_CELERY_BROKER_URL = "amqp://"
 DEFAULT_DB_NAME = 'camcops'
 DEFAULT_DB_USER = 'YYY_USERNAME_REPLACE_ME'
 DEFAULT_DB_PASSWORD = 'ZZZ_PASSWORD_REPLACE_ME'
 DEFAULT_DB_READONLY_USER = 'QQQ_USERNAME_REPLACE_ME'
 DEFAULT_DB_READONLY_PASSWORD = 'PPP_PASSWORD_REPLACE_ME'
+DEFAULT_TIMEZONE = "UTC"
 DUMMY_INSTITUTION_URL = 'http://www.mydomain/'
 
 
@@ -171,24 +218,26 @@ class ConfigParamExportGeneral(object):
     """
     Parameters allowed in the ``[export]`` section of the CamCOPS config file.
     """
-    EXPORT_LOCKFILE = "EXPORT_LOCKFILE"
+    CELERY_BEAT_EXTRA_ARGS = "CELERY_BEAT_EXTRA_ARGS"
+    CELERY_BEAT_SCHEDULE_DATABASE = "CELERY_BEAT_SCHEDULE_DATABASE"
+    CELERY_BROKER_URL = "CELERY_BROKER_URL"
+    CELERY_WORKER_EXTRA_ARGS = "CELERY_WORKER_EXTRA_ARGS"
+    EXPORT_LOCKDIR = "EXPORT_LOCKDIR"
     RECIPIENTS = "RECIPIENTS"
+    SCHEDULE = "SCHEDULE"
+    SCHEDULE_TIMEZONE = "SCHEDULE_TIMEZONE"
 
 
 def get_demo_config(extra_strings_dir: str = None,
                     lock_dir: str = None,
-                    export_lockfile_stem: str = None,
                     static_dir: str = None,
-                    db_url: str = None,
-                    db_echo: bool = False) -> str:
+                    db_url: str = None) -> str:
     """
     Returns a demonstration config file based on the specified parameters.
     """
     extra_strings_dir = extra_strings_dir or DEFAULT_EXTRA_STRINGS_DIR
     extra_strings_spec = os.path.join(extra_strings_dir, '*')
     lock_dir = lock_dir or LINUX_DEFAULT_LOCK_DIR
-    export_lockfile_stem = export_lockfile_stem or os.path.join(
-        lock_dir, 'camcops.export')
     static_dir = static_dir or STATIC_ROOT_DIR
     # ...
     # http://www.debian.org/doc/debian-policy/ch-opersys.html#s-writing-init
@@ -216,7 +265,7 @@ def get_demo_config(extra_strings_dir: str = None,
 
 {cp.DB_URL} = {db_url}
 
-{cp.DB_ECHO} = {db_echo}
+{cp.DB_ECHO} = false
 
 # -----------------------------------------------------------------------------
 # URLs and paths
@@ -271,19 +320,16 @@ def get_demo_config(extra_strings_dir: str = None,
 
 [{CONFIG_FILE_EXPORT_SECTION}]
 
-{cpe.EXPORT_LOCKFILE} = {hl7_lockfile_stem}
-
-    # {cpe.EXPORT_LOCKFILE}:
-    # Filename stem used for process locking for HL7 message transmission.
-    # Default is {hl7_lockfile_stem}
-    # The actual lockfile will, in this case, be called
-    #     {hl7_lockfile_stem}.lock
-    # and other process-specific files will be created in the same directory 
-    # (so the CamCOPS script must have permission from the operating system to 
-    # do so). The installation script will create the directory
-    #     {lock_dir}
+{cpe.CELERY_BEAT_EXTRA_ARGS} =
+{cpe.CELERY_BEAT_SCHEDULE_DATABASE} = {lock_dir}/camcops_celerybeat_schedule
+{cpe.CELERY_BROKER_URL} = amqp://
+{cpe.CELERY_WORKER_EXTRA_ARGS} =
+{cpe.EXPORT_LOCKDIR} = {lock_dir}
 
 {cpe.RECIPIENTS} =
+
+{cpe.SCHEDULE_TIMEZONE} = {DEFAULT_TIMEZONE}
+{cpe.SCHEDULE} =
 
 # =============================================================================
 # Details for each export recipient
@@ -411,13 +457,12 @@ def get_demo_config(extra_strings_dir: str = None,
         cpr=ConfigParamExportRecipient,
         CONFIG_FILE_MAIN_SECTION=CONFIG_FILE_MAIN_SECTION,
         CONFIG_FILE_EXPORT_SECTION=CONFIG_FILE_EXPORT_SECTION,
-        db_echo=db_echo,
         db_url=db_url,
         DEFAULT_DB_NAME=DEFAULT_DB_NAME,
         DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
         DEFAULT_DB_USER=DEFAULT_DB_USER,
+        DEFAULT_TIMEZONE=DEFAULT_TIMEZONE,
         extra_strings_spec=extra_strings_spec,
-        hl7_lockfile_stem=export_lockfile_stem,
         lock_dir=lock_dir,
         static_dir=static_dir,
         DUMMY_INSTITUTION_URL=DUMMY_INSTITUTION_URL,
@@ -922,6 +967,94 @@ def raise_missing(section: str, parameter: str) -> None:
 
 
 # =============================================================================
+# CrontabEntry
+# =============================================================================
+
+class CrontabEntry(object):
+    """
+    Class to represent a ``crontab``-style entry.
+    """
+    def __init__(self,
+                 line: str = None,
+                 minute: Union[str, int, List[int]] = None,
+                 hour: Union[str, int, List[int]] = None,
+                 day_of_week: Union[str, int, List[int]] = None,
+                 day_of_month: Union[str, int, List[int]] = None,
+                 month_of_year: Union[str, int, List[int]] = None,
+                 content: str = None) -> None:
+        """
+        Args:
+            line:
+                line of the form ``m h dow dom moy content content content``.
+            minute:
+                crontab "minute" entry
+            hour:
+                crontab "hour" entry
+            day_of_week:
+                crontab "day_of_week" entry
+            day_of_month:
+                crontab "day_of_month" entry
+            month_of_year:
+                crontab "month_of_year" entry
+            content:
+                crontab "thing to run" entry
+        """
+        has_line = bool(line)
+        has_components = bool(minute and hour and day_of_week and
+                              day_of_month and month_of_year and content)
+        assert has_line != has_components, (
+            "Specify either a crontab line or all the time components"
+        )
+        if has_line:
+            components = line.split()
+            assert len(components) >= 6, (
+                "Must specify 5 time components and then contents"
+            )
+            minute, hour, day_of_week, day_of_month, month_of_year = (
+                components[0:5]
+            )
+            content = " ".join(components[5:])
+
+        self.minute = minute
+        self.hour = hour
+        self.day_of_week = day_of_week
+        self.day_of_month = day_of_month
+        self.month_of_year = month_of_year
+        self.content = content
+
+    def __repr__(self) -> str:
+        return auto_repr(self, sort_attrs=False)
+
+    def __str__(self) -> str:
+        return "{} {} {} {} {} {}".format(
+            self.minute,
+            self.hour,
+            self.day_of_week,
+            self.day_of_month,
+            self.month_of_year,
+            self.content
+        )
+
+    def get_celery_schedule(self) -> celery.schedules.crontab:
+        """
+        Returns the corresponding Celery schedule.
+
+        Returns:
+            a :class:`celery.schedules.crontab`
+
+        Raises:
+            :exc:`celery.schedules.ParseException` if the input can't be parsed
+        """
+        return celery.schedules.crontab(
+            minute=self.minute,
+            hour=self.hour,
+            day_of_week=self.day_of_week,
+            day_of_month=self.day_of_month,
+            month_of_year=self.month_of_year,
+        )
+
+
+# =============================================================================
 # Configuration class. (It gets cached on a per-process basis.)
 # =============================================================================
 
@@ -945,7 +1078,7 @@ class CamcopsConfig(object):
             raise AssertionError(
                 "Environment variable {} not specified (and no command-line "
                 "alternative given)".format(ENVVAR_CONFIG_FILE))
-        log.info("Reading from config: {}", self.camcops_config_filename)
+        log.info("Reading from config: {!r}", self.camcops_config_filename)
         parser = configparser.ConfigParser()
         with codecs.open(self.camcops_config_filename, "r", "utf8") as file:
             parser.read_file(file)
@@ -998,7 +1131,8 @@ class CamcopsConfig(object):
             parser, section, cpm.PASSWORD_CHANGE_FREQUENCY_DAYS,
             int, DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS)
         self.patient_spec_if_anonymous = get_config_parameter(
-            parser, section, cpm.PATIENT_SPEC_IF_ANONYMOUS, str, "anonymous")
+            parser, section, cpm.PATIENT_SPEC_IF_ANONYMOUS, str,
+            DEFAULT_PATIENT_SPEC_IF_ANONYMOUS)
         self.patient_spec = get_config_parameter(
             parser, section, cpm.PATIENT_SPEC, str, None)
         # currently not configurable, but easy to add in the future:
@@ -1036,11 +1170,23 @@ class CamcopsConfig(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Read from the config file: 2. export section
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self.export_lockfile = get_config_parameter(
-            parser, CONFIG_FILE_EXPORT_SECTION, cpe.EXPORT_LOCKFILE, str, None)
-        if not self.export_lockfile:
-            raise_missing(CONFIG_FILE_EXPORT_SECTION,
-                          ConfigParamExportGeneral.EXPORT_LOCKFILE)
+        es = CONFIG_FILE_EXPORT_SECTION
+
+        self.celery_beat_extra_args = get_config_parameter_multiline(
+            parser, es, cpe.CELERY_BEAT_EXTRA_ARGS, [])
+        self.celery_beat_schedule_database = get_config_parameter(
+            parser, es, cpe.CELERY_BEAT_SCHEDULE_DATABASE, str, None)
+        if not self.celery_beat_schedule_database:
+            raise_missing(es, cpe.CELERY_BEAT_SCHEDULE_DATABASE)
+        self.celery_broker_url = get_config_parameter(
+            parser, es, cpe.CELERY_BROKER_URL, str, DEFAULT_CELERY_BROKER_URL)
+        self.celery_worker_extra_args = get_config_parameter_multiline(
+            parser, es, cpe.CELERY_WORKER_EXTRA_ARGS, [])
+
+        self.export_lockdir = get_config_parameter(
+            parser, es, cpe.EXPORT_LOCKDIR, str, None)
+        if not self.export_lockdir:
+            raise_missing(es, ConfigParamExportGeneral.EXPORT_LOCKDIR)
 
         self.export_recipient_names = get_config_parameter_multiline(
             parser, CONFIG_FILE_EXPORT_SECTION, cpe.RECIPIENTS, [])
@@ -1052,8 +1198,30 @@ class CamcopsConfig(object):
             raise ValueError("Duplicate export recipients specified: "
                              "{!r}".format(duplicates))
         for recip_name in self.export_recipient_names:
-            assert " " not in recip_name, (
-                "No whitespace allowed in recipient names")
+            if re.match(VALID_RECIPIENT_NAME_REGEX, recip_name) is None:
+                raise ValueError(
+                    "Recipient names must be alphanumeric or _- only; was "
+                    "{!r}".format(recip_name))
+        if len(set(self.export_recipient_names)) != len(self.export_recipient_names):  # noqa
+            raise ValueError("Recipient names contain duplicates")
+        self._export_recipients = None  # type: List[ExportRecipientInfo]
+        self._read_export_recipients(parser)
+
+        self.schedule_timezone = get_config_parameter(
+            parser, es, cpe.SCHEDULE_TIMEZONE, str, DEFAULT_TIMEZONE)
+
+        self.crontab_entries = []  # type: List[CrontabEntry]
+        crontab_lines = get_config_parameter_multiline(
+            parser, es, cpe.SCHEDULE, [])
+        for crontab_line in crontab_lines:
+            if crontab_line.startswith("#"):  # comment line
+                continue
+            crontab_entry = CrontabEntry(line=crontab_line)
+            if crontab_entry.content not in self.export_recipient_names:
+                raise ValueError(
+                    "{} setting exists for non-existent recipient {}".format(
+                        cpe.SCHEDULE, crontab_entry.content))
+            self.crontab_entries.append(crontab_entry)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # More validity checks
@@ -1240,70 +1408,71 @@ class CamcopsConfig(object):
     # Export functions
     # -------------------------------------------------------------------------
 
-    def get_all_export_recipients(self, req: "CamcopsRequest") \
-            -> List[ExportRecipient]:
+    def _read_export_recipients(
+            self,
+            parser: configparser.ConfigParser = None) -> None:
         """
-        Returns all export recipients specified in the config.
+        Loads
+        :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
+        objects from the config file. Stores them in
+        ``self._export_recipients``.
 
-        This requires a database connection.
+        Note that these objects are **not** associated with a database session.
 
         Args:
-            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-
-        Returns:
-            list: of :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
-        """  # noqa
-        log.debug("Re-reading config file for export recipients")
-        cp = configparser.ConfigParser()
-        with codecs.open(self.camcops_config_filename, "r", "utf8") as file:
-            cp.read_file(file)
-        export_recipients = []  # type: List[ExportRecipient]
+            parser: optional :class:`configparser.ConfigParser` object.
+        """
+        self._export_recipients = []  # type: List[ExportRecipient]
         for recip_name in self.export_recipient_names:
             log.debug("Loading export config for recipient {!r}", recip_name)
-            recipient = ExportRecipient.read_from_config(
-                req=req, parser=cp, recipient_name=recip_name)
-            export_recipients.append(recipient)
-        return export_recipients
+            recipient = ExportRecipientInfo.read_from_config(
+                parser=parser, recipient_name=recip_name)
+            self._export_recipients.append(recipient)
 
-    def get_export_recipients(self,
-                              req: "CamcopsRequest",
-                              recipient_names: List[str] = None) \
-            -> List[ExportRecipient]:
+    def get_all_export_recipient_info(self) -> List["ExportRecipientInfo"]:
         """
-        Returns a list of export recipients matching the names supplied.
-
-        - If it's an empty list (or ``None``), return all.
-        - If any are invalid, raise an error.
-        - If any are duplicate, raise an error.
-
-        Args:
-            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            recipient_names: recipient names
+        Returns all export recipients (in their "database unaware" form)
+        specified in the config.
 
         Returns:
-            list: of :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
-
-        Raises:
-            - :exc:`ValueError` if a name is invalid
-            - :exc:`ValueError` if a name is duplicated
+            list: of
+            :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
         """  # noqa
-        recipient_names = recipient_names or []  # type: List[str]
-        all_recipients = self.get_all_export_recipients(req)
-        if not recipient_names:
-            return all_recipients
-        duplicates = [name for name, count in
-                      collections.Counter(recipient_names).items()
-                      if count > 1]
-        if duplicates:
-            raise ValueError("Duplicate export recipients specified: "
-                             "{!r}".format(duplicates))
-        valid = set(r.recipient_name for r in all_recipients)
-        bad = [name for name in recipient_names if name not in valid]
-        if bad:
-            raise ValueError("Bad export recipients specified: "
-                             "{!r}".format(bad))
-        return [r for r in all_recipients
-                if r.recipient_name in recipient_names]
+        return self._export_recipients
+
+    def get_export_lockfilename_db(self, recipient_name: str) -> str:
+        """
+        Returns a full path to a lockfile suitable for locking for a
+        whole-database export to a particular export recipient.
+
+        Args:
+            recipient_name: name of the recipient
+
+        Returns:
+            a filename
+        """
+        filename = "camcops_export_db_{}".format(recipient_name)
+        # ".lock" is appended automatically by the lockfile package
+        return os.path.join(self.export_lockdir, filename)
+
+    def get_export_lockfilename_task(self, recipient_name: str,
+                                     basetable: str, pk: int) -> str:
+        """
+        Returns a full path to a lockfile suitable for locking for a
+        single-task export to a particular export recipient.
+
+        Args:
+            recipient_name: name of the recipient
+            basetable: task base table name
+            pk: server PK of the task
+
+        Returns:
+            a filename
+        """
+        filename = "camcops_export_task_{}_{}_{}".format(
+            recipient_name, basetable, pk)
+        # ".lock" is appended automatically by the lockfile package
+        return os.path.join(self.export_lockdir, filename)
 
 
 # =============================================================================

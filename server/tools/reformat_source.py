@@ -33,10 +33,13 @@ import logging
 from os import pardir
 from os.path import abspath, dirname, join
 
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 from cardinal_pythonlib.source_reformatting import reformat_python_docstrings
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # =============================================================================
 # Directories

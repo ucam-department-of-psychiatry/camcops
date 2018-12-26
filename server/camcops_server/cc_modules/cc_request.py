@@ -28,6 +28,7 @@ camcops_server/cc_modules/cc_request.py
 
 """
 
+import collections
 from contextlib import contextmanager
 import logging
 import os
@@ -116,6 +117,7 @@ if TYPE_CHECKING:
     from matplotlib.axes import Axes
     # from matplotlib.figure import SubplotBase
     from matplotlib.text import Text
+    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
     from camcops_server.cc_modules.cc_session import CamcopsSession
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -1172,6 +1174,124 @@ class CamcopsRequest(Request):
         concepts = self.config.get_icd10_snomed_concepts()
         assert concepts, "No SNOMED-CT data available for ICD-10"
         return concepts[code]
+
+    # -------------------------------------------------------------------------
+    # Export recipients
+    # -------------------------------------------------------------------------
+
+    def get_export_recipients(self,
+                              recipient_names: List[str] = None,
+                              all_recipients: bool = False,
+                              all_push_recipients: bool = False,
+                              save: bool = True) \
+            -> List["ExportRecipient"]:
+        """
+        Returns a list of export recipients, with some filtering if desired.
+        Validates them against the database.
+
+        - If ``all_recipients``, return all.
+        - Otherwise, if ``all_push_recipients``, return all "push" recipients.
+        - Otherwise, return all named in ``recipient_names``.
+
+          - If any are invalid, raise an error.
+          - If any are duplicate, raise an error.
+
+        Args:
+            all_recipients: use all recipients?
+            all_push_recipients: use all "push" recipients?
+            recipient_names: recipient names
+            save: save any freshly created recipient records to the DB?
+
+        Returns:
+            list: of :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
+
+        Raises:
+            - :exc:`ValueError` if a name is invalid
+            - :exc:`ValueError` if a name is duplicated
+            - :exc:`camcops_server.cc_modules.cc_exportrecipient.InvalidExportRecipient`
+              if an export recipient configuration is invalid
+        """  # noqa
+        from camcops_server.cc_modules.cc_exportrecipient import \
+            ExportRecipient  # delayed import  # noqa
+        recipient_names = recipient_names or []  # type: List[str]
+        # Start with ExportRecipientInfo objects:
+        recipients_db_unaware = self.config.get_all_export_recipient_info()
+        # Convert to SQLAlchemy ORM ExportRecipient objects:
+        recipients = [ExportRecipient(x) for x in recipients_db_unaware]
+
+        # Restrict
+        if not all_recipients:
+            if all_push_recipients:
+                recipients = [r for r in recipients if r.push]
+            else:
+                # Specified by name
+                duplicates = [name for name, count in
+                              collections.Counter(recipient_names).items()
+                              if count > 1]
+                if duplicates:
+                    raise ValueError("Duplicate export recipients specified: "
+                                     "{!r}".format(duplicates))
+                valid_names = set(r.recipient_name for r in recipients)
+                bad_names = [name for name in recipient_names
+                             if name not in valid_names]
+                if bad_names:
+                    raise ValueError("Bad export recipients specified: "
+                                     "{!r}".format(bad_names))
+                recipients = [r for r in recipients
+                              if r.recipient_name in recipient_names]
+
+        # Complete validation and ensure we have "database" versions
+        for r in recipients:
+            r.validate(self)
+
+        if save:
+            final_recipients = []  # type: List[ExportRecipient]
+            dbsession = self.dbsession
+            for r in recipients:
+                other = ExportRecipient.get_existing_matching_recipient(
+                    dbsession, r)
+                if other:
+                    # This other one matches, and is already in the database.
+                    # Use it. But first...
+                    for attrname in ExportRecipient.NEEDS_RECOPYING_EACH_TIME_FROM_CONFIG_ATTRNAMES:  # noqa
+                        setattr(other, attrname, getattr(r, attrname))
+                    # OK.
+                    final_recipients.append(other)
+                else:
+                    # Our new object doesn't match. Save it and return it.
+                    log.debug(
+                        "Creating new ExportRecipient record in database")  # noqa
+                    dbsession.add(r)
+                    r.current = True
+                    final_recipients.append(r)
+        else:
+            final_recipients = recipients
+
+        # OK
+        return final_recipients
+
+    def get_export_recipient(self,
+                             recipient_name: str,
+                             save: bool = True) -> "ExportRecipient":
+        """
+        Returns a single validated export recipient, given its name.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            recipient_name: recipient name
+            save: save any freshly created recipient records to the DB?
+
+        Returns:
+            list: of :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
+
+        Raises:
+            - :exc:`ValueError` if a name is invalid
+            - :exc:`camcops_server.cc_modules.cc_exportrecipient.InvalidExportRecipient`
+              if an export recipient configuration is invalid
+        """  # noqa
+        recipients = self.get_export_recipients([recipient_name], save=save)
+        assert len(recipients) == 1
+        return recipients[0]
 
 
 # noinspection PyUnusedLocal

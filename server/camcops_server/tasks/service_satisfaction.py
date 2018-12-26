@@ -141,7 +141,7 @@ class AbstractSatisfaction(object):
         return h
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError()  # implement in derived classes
 
 
 # =============================================================================

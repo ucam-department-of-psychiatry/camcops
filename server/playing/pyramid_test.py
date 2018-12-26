@@ -165,6 +165,7 @@ import traceback
 from typing import Callable, Dict, List, Tuple
 
 import arrow
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.reprfunc import auto_repr
 from dogpile.cache import make_region
@@ -184,7 +185,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import DateTime, Integer, String
 from wsgiref.simple_server import make_server
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # =============================================================================
 # Constants
@@ -387,22 +388,16 @@ def xstring(task: str, stringname: str, default: str = None) -> str:
 
 def do_something() -> None:
     cfg = get_config()  # type: DummyConfig
-    log.info("Config filename: {}".format(repr(cfg.filename)))
-    log.info("Extra string {}.{}: {}".format(
-        TASKNAME_1,
-        STRINGNAME_1,
-        xstring(TASKNAME_1, STRINGNAME_1)
-    ))
+    log.info("Config filename: {!r}", cfg.filename)
+    log.info("Extra string {}.{}: {}",
+             TASKNAME_1, STRINGNAME_1, xstring(TASKNAME_1, STRINGNAME_1))
 
 
 def do_something_else() -> None:
     cfg = get_config()  # type: DummyConfig
-    log.info("Config something: {}".format(cfg.something))
-    log.info("Extra string {}.{}: {}".format(
-        TASKNAME_2,
-        STRINGNAME_2,
-        xstring(TASKNAME_2, STRINGNAME_2)
-    ))
+    log.info("Config something: {!r}", cfg.something)
+    log.info("Extra string {}.{}: {}",
+             TASKNAME_2, STRINGNAME_2, xstring(TASKNAME_2, STRINGNAME_2))
 
 
 # =============================================================================

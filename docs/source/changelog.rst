@@ -1693,6 +1693,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Removed relative imports, as per PEP8 and
   https://stackoverflow.com/questions/4209641/absolute-vs-explicit-relative-import-of-python-module.
 
+- Log tidy-up (for delayed evaluation via ``BraceStyleAdapter``).
+
+- Suppress ``wkhtmltopdf`` output with ``--quiet`` option; see
+  :data:`camcops_server.cc_modules.cc_constants.WKHTMLTOPDF_OPTIONS`.
+
+- CardinalExpDet task complains less when drawing graphs with missing data.
+
 - Improve export facilities.
 
   - Design decision: keep details in config file, or shift to web-based
@@ -1729,9 +1736,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - **Breaking changes:**
 
     - ``[recipients]`` config file section renamed ``[export]``
-    - ``HL7_LOCKFILE`` renamed to ``EXPORT_LOCKFILE`` and moved from the
+    - ``HL7_LOCKFILE`` system changed to ``EXPORT_LOCKDIR`` and moved from the
       ``[server]`` to the ``[export]`` section
     - Then other changes to the actual export definitions (see docs for the
       :ref:`server config file <server_config_file>`).
 
-  - **IN PROGRESS.**
+  - **IN PROGRESS. NEED TO TEST ALL EXPORT OPTIONS.**
+  - **MAKE MORE INTERNAL FUNCTIONS USE THE TaskExportOptions CLASS.**

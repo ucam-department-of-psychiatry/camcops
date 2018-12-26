@@ -51,12 +51,10 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <h3>Superuser options</h3>
     <ul>
         <li><a href="${request.route_url(Routes.VIEW_GROUPS)}">Group management</a></li>
-        <li><a href="${request.route_url(Routes.OFFER_AUDIT_TRAIL)}">Audit trail</a></li>
-        <li><a href="${request.route_url(Routes.OFFER_HL7_MESSAGE_LOG)}">HL7 message log</a></li>
-        <li><a href="${request.route_url(Routes.OFFER_HL7_RUN_LOG)}">HL7 run log</a></li>
+        <li><a href="${request.route_url(Routes.AUDIT_MENU)}">Audit menu</a></li>
         <li><a href="${request.route_url(Routes.VIEW_ID_DEFINITIONS)}">Manage ID number definitions</a></li>
         <li><a href="${request.route_url(Routes.EDIT_SERVER_SETTINGS)}">Edit server settings</a></li>
-        <li><a href="${request.route_url(Routes.DEVELOPER)}">Developer test page</a></li>
+        <li><a href="${request.route_url(Routes.DEVELOPER)}">Developer test pages</a></li>
     </ul>
 %endif
 

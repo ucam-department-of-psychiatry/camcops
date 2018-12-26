@@ -24,6 +24,15 @@ camcops_server/cc_modules/cc_export.py
 
 ===============================================================================
 
+.. _ActiveMQ: http://activemq.apache.org/
+.. _AMQP: https://www.amqp.org/
+.. _APScheduler: https://apscheduler.readthedocs.io/
+.. _Celery: http://www.celeryproject.org/
+.. _Dramatiq: https://dramatiq.io/
+.. _RabbitMQ: https://www.rabbitmq.com/
+.. _Redis: https://redis.io/
+.. _ZeroMQ: http://zeromq.org/
+
 **Export and research dump functions.**
 
 Export design:
@@ -52,6 +61,91 @@ require careful multi-instance locking), but to have a "sent" log. That way:
 
   - https://pypi.python.org/pypi/lockfile
   - http://pythonhosted.org/lockfile/ (which also works on Windows)
+  
+  - On UNIX, ``lockfile`` uses ``LinkLockFile``:
+    https://github.com/smontanaro/pylockfile/blob/master/lockfile/linklockfile.py
+  
+*MESSAGE QUEUE AND BACKEND*
+
+Thoughts as of 2018-12-22.
+
+- See https://www.fullstackpython.com/task-queues.html. Also http://queues.io/;
+  https://stackoverflow.com/questions/731233/activemq-or-rabbitmq-or-zeromq-or.
+
+- The "default" is Celery_, with ``celery beat`` for scheduling, via an
+  AMQP_ broker like RabbitMQ_.
+  
+  - Downside: no longer supported under Windows as of Celery 4.
+  
+    - There are immediate bugs when running the demo code with Celery 4.2.1,
+      fixed by setting the environment variable ``set
+      FORKED_BY_MULTIPROCESSING=1`` before running the worker; see
+      https://github.com/celery/celery/issues/4178 and
+      https://github.com/celery/celery/pull/4078.
+  
+  - Downside: backend is complex; e.g. Erlang dependency of RabbitMQ.
+  
+  - Celery also supports Redis_, but Redis_ doesn't support Windows directly
+    (except the Windows Subsystem for Linux in Windows 10+).
+  
+- Another possibility is Dramatiq_ with APScheduler_.
+
+  - Of note, APScheduler_ can use an SQLAlchemy database table as its job
+    store, which might be good.
+  - Dramatiq_ uses RabbitMQ_ or Redis_.
+  - Dramatiq_ 1.4.0 (2018-11-25) installs cleanly under Windows. Use ``pip
+    install --upgrade "dramatic[rabbitmq, watch]"`` (i.e. with double quotse,
+    not the single quotes it suggests, which don't work under Windows).
+  - However, the basic example (https://dramatiq.io/guide.html) fails under
+    Windows; when you fire up ``dramatic count_words`` (even with ``--processes
+    1 --threads 1``) it crashes with an error from ``ForkingPickler`` in
+    ``multiprocessing.reduction``, i.e.
+    https://docs.python.org/3/library/multiprocessing.html#windows. It also
+    emits a ``PermissionError: [WinError 5] Access is denied``. This is
+    discussed a bit at https://github.com/Bogdanp/dramatiq/issues/75;
+    https://github.com/Bogdanp/dramatiq/blob/master/docs/source/changelog.rst.
+    The changelog suggests 1.4.0 should work, but it doesn't.
+
+- Worth some thought about ZeroMQ_, which is a very different sort of thing.
+  Very cross-platform. Needs work to guard against message loss (i.e. messages
+  are unreliable by default). Dynamic "special socket" style.
+
+- Possibly also ActiveMQ_.
+
+- OK; so speed is not critical but we want message reliability, for it to work
+  under Windows, and decent Python bindings with job scheduling.
+  
+  - OUT: Redis (not Windows easily), ZeroMQ (fast but not by default reliable),
+    ActiveMQ (few Python frameworks?).
+  - REMAINING for message handling: RabbitMQ.
+  - Python options therefore: Celery (but Windows not officially supported from
+    4+); Dramatiq (but Windows also not very well supported and seems a bit
+    bleeding-edge).
+
+- This is looking like a mess from the Windows perspective.
+
+- An alternative is just to use the database, of course.
+
+  - https://softwareengineering.stackexchange.com/questions/351449/message-queue-database-vs-dedicated-mq
+  - http://mikehadlow.blogspot.com/2012/04/database-as-queue-anti-pattern.html
+  - https://blog.jooq.org/2014/09/26/using-your-rdbms-for-messaging-is-totally-ok/
+  - https://stackoverflow.com/questions/13005410/why-do-we-need-message-brokers-like-rabbitmq-over-a-database-like-postgresql
+  - https://www.quora.com/What-is-the-best-practice-using-db-tables-or-message-queues-for-moderation-of-content-approved-by-humans
+  
+- Let's take a step back and summarize the problem.
+
+  - Many web threads may upload tasks. This should trigger a prompt export for
+    all push recipients.
+  - Whichever way we schedule a backend task job, it should be as the
+    combination of recipient, basetable, task PK. (That way, if one recipient
+    fails, the others can proceed independently.)
+  - Every job should check that it's not been completed already (in case of
+    accidental job restarts), i.e. is idempotent as far as we can make it.
+  - How should this interact with the non-push recipients?
+  - We should use the same locking method for push and non-push recipients.
+  - We should make the locking granular and use file locks -- for example, for
+    each task/recipient combination (or each whole-database export for a given
+    recipient).
 
 """  # noqa
 
@@ -70,6 +164,7 @@ from cardinal_pythonlib.pyramid.responses import (
     TextAttachmentResponse,
     ZipResponse,
 )
+from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 import lockfile
 from pyramid.response import Response
 from sqlalchemy.engine import create_engine
@@ -79,12 +174,15 @@ from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_dump import copy_tasks_and_summaries
 from camcops_server.cc_modules.cc_exportmodels import (
-    ExportRun,
+    ExportedTask,
+    ExportRecipient,
+    gen_tasks_having_exportedtasks,
     get_collection_for_export,
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_tsv import TsvCollection
+from camcops_server.cc_modules.celery_tasks import export_task_backend
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -99,17 +197,28 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 def print_export_queue(req: "CamcopsRequest",
                        recipient_names: List[str] = None,
-                       via_index: bool = True) -> None:
+                       all_recipients: bool = False,
+                       via_index: bool = True,
+                       pretty: bool = False) -> None:
     """
+    Called from the command line.
+
     Shows tasks that would be exported.
 
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         recipient_names: list of export recipient names (as per the config
-            file); blank for "all"
+            file)
+        all_recipients: use all recipients?
         via_index: use the task index (faster)?
+        pretty: use ``str(task)`` not ``repr(task)`` (prettier, slower because
+            it has to query the patient)
     """
-    recipients = req.config.get_export_recipients(req, recipient_names)
+    recipients = req.get_export_recipients(
+        recipient_names=recipient_names,
+        all_recipients=all_recipients,
+        save=False
+    )
     if not recipients:
         log.warning("No export recipients")
         return
@@ -118,13 +227,18 @@ def print_export_queue(req: "CamcopsRequest",
         collection = get_collection_for_export(req, recipient,
                                                via_index=via_index)
         for task in collection.gen_tasks_by_class():
-            print(task)
+            print("{}: {}".format(recipient.recipient_name,
+                                  str(task) if pretty else repr(task)))
 
 
 def export(req: "CamcopsRequest",
            recipient_names: List[str] = None,
-           via_index: bool = True) -> None:
+           all_recipients: bool = False,
+           via_index: bool = True,
+           schedule_via_backend: bool = False) -> None:
     """
+    Called from the command line.
+
     Exports all relevant tasks (pending incremental exports, or everything if
     applicable) for specified export recipients.
 
@@ -133,27 +247,155 @@ def export(req: "CamcopsRequest",
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         recipient_names: list of export recipient names (as per the config
-            file); blank for "all"
+            file)
+        all_recipients: use all recipients?
         via_index: use the task index (faster)?
+        schedule_via_backend: schedule jobs via the backend instead?
     """
-    cfg = req.config
-    dbsession = req.dbsession
-    recipients = cfg.get_export_recipients(req, recipient_names)
+    recipients = req.get_export_recipients(
+        recipient_names=recipient_names,
+        all_recipients=all_recipients
+    )
     if not recipients:
         log.warning("No export recipients")
         return
-    # On UNIX, lockfile uses LinkLockFile
-    # https://github.com/smontanaro/pylockfile/blob/master/lockfile/linklockfile.py  # noqa
-    lock = lockfile.FileLock(cfg.export_lockfile)
-    if lock.is_locked():
-        log.warning("Export lockfile locked by another process; aborting")
-        return
-    with lock:  # calls lock.__enter__() and, later, lock.__exit__()
-        for recipient in recipients:
-            log.info("Exporting to recipient: {}", recipient)
-            export_run = ExportRun(recipient)
-            dbsession.add(export_run)
-            export_run.export(req, via_index=via_index)
+
+    for recipient in recipients:
+        log.info("Exporting to recipient: {}", recipient)
+        if recipient.using_db():
+            if schedule_via_backend:
+                raise NotImplementedError()  # todo: implement Celery here
+            else:
+                export_whole_database(
+                    req, recipient,
+                    via_index=via_index)
+        else:
+            # Non-database recipient.
+            export_tasks_individually(
+                req, recipient,
+                via_index=via_index, schedule_via_backend=schedule_via_backend)
+
+
+def export_whole_database(req: "CamcopsRequest",
+                          recipient: ExportRecipient,
+                          via_index: bool = True) -> None:
+    """
+    Exports to a database.
+    
+    Holds a recipient-specific file lock in the process.
+    
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
+        via_index: use the task index (faster)?
+    """  # noqa
+    cfg = req.config
+    lockfilename = cfg.get_export_lockfilename_db(
+        recipient_name=recipient.recipient_name)
+    try:
+        with lockfile.FileLock(lockfilename):
+            collection = get_collection_for_export(req, recipient,
+                                                   via_index=via_index)
+            dst_engine = create_engine(recipient.db_url,
+                                       echo=recipient.db_echo)
+            log.info("Exporting to database: {}",
+                     get_safe_url_from_engine(dst_engine))
+            dst_session = sessionmaker(bind=dst_engine)()  # type: SqlASession
+            task_generator = gen_tasks_having_exportedtasks(collection)
+            export_options = TaskExportOptions(
+                include_blobs=recipient.db_include_blobs,
+                # *** todo: other options, e.g. DB_PATIENT_ID_PER_ROW
+            )
+            copy_tasks_and_summaries(
+                tasks=task_generator,
+                dst_engine=dst_engine,
+                dst_session=dst_session,
+                export_options=export_options,
+                req=req,
+            )
+            dst_session.commit()
+    except lockfile.AlreadyLocked:
+        log.warning("Export logfile {!r} already locked by another process; "
+                    "aborting", lockfilename)
+
+
+def export_tasks_individually(req: "CamcopsRequest",
+                              recipient: ExportRecipient,
+                              via_index: bool = True,
+                              schedule_via_backend: bool = False) -> None:
+    """
+    Exports all necessary tasks for a recipient.
+    
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
+        via_index: use the task index (faster)?
+        schedule_via_backend: schedule jobs via the backend instead?
+    """  # noqa
+    collection = get_collection_for_export(req, recipient, via_index=via_index)
+    if schedule_via_backend:
+        recipient_name = recipient.recipient_name
+        for task_or_index in collection.gen_all_tasks_or_indexes():
+            if isinstance(task_or_index, Task):
+                basetable = task_or_index.tablename
+                task_pk = task_or_index.get_pk()
+            else:
+                basetable = task_or_index.task_table_name
+                task_pk = task_or_index.task_pk
+            log.info("Submitting background job to export task {}.{} to {}",
+                     basetable, task_pk, recipient_name)
+            export_task_backend.delay(
+                recipient_name=recipient_name,
+                basetable=basetable,
+                task_pk=task_pk
+            )
+    else:
+        for task in collection.gen_tasks_by_class():
+            # Do NOT use this to check the working of export_task_backend():
+            # export_task_backend(recipient.recipient_name, task.tablename, task.get_pk())  # noqa
+            # ... it will deadlock at the database (because we're already
+            # within a query of some sort, I presume)
+            export_task(req, recipient, task)
+
+
+def export_task(req: "CamcopsRequest",
+                recipient: ExportRecipient,
+                task: Task) -> None:
+    """
+    Exports a single task, checking that it remains valid to do so.
+    
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
+        task: a :class:`camcops_server.cc_modules.cc_task.Task` 
+    """  # noqa
+    cfg = req.config
+    lockfilename = cfg.get_export_lockfilename_task(
+        recipient_name=recipient.recipient_name,
+        basetable=task.tablename,
+        pk=task.get_pk(),
+    )
+    dbsession = req.dbsession
+    try:
+        with lockfile.FileLock(lockfilename):
+            # We recheck the export status once we hold the lock, in case
+            # multiple jobs are competing to export it.
+            if ExportedTask.task_already_exported(
+                    dbsession=dbsession,
+                    recipient_name=recipient.recipient_name,
+                    basetable=task.tablename,
+                    task_pk=task.get_pk()):
+                log.warning("Task {!r} already exported to recipient {!r}; "
+                            "ignoring", task, recipient)
+                return
+            # OK; safe to export now.
+            et = ExportedTask(recipient, task)
+            dbsession.add(et)
+            et.export(req)
+            dbsession.commit()  # so the ExportedTask is visible to others ASAP
+    except lockfile.AlreadyLocked:
+        log.warning("Export logfile {!r} already locked by another process; "
+                    "aborting", lockfilename)
 
 
 # =============================================================================

@@ -237,7 +237,7 @@ class TaskCollection(object):
         self._sort_method_global = sort_method_global
         self._current_only = current_only
         self._via_index = via_index
-        self._export_recipient = export_recipient
+        self.export_recipient = export_recipient
 
         if export_recipient:
             assert self._filter is None, (
@@ -327,6 +327,19 @@ class TaskCollection(object):
     #     # doesn't exist.
     #     # https://stackoverflow.com/questions/11277432/how-to-remove-a-key-from-a-python-dictionary  # noqa
 
+    def gen_all_tasks_or_indexes(self) \
+            -> Generator[Union[Task, TaskIndexEntry], None, None]:
+        """
+        Generates tasks or index entries.
+        """
+        tasks_or_indexes_or_query = self.all_tasks_or_indexes_or_query
+        if isinstance(tasks_or_indexes_or_query, Query):
+            for item in tasks_or_indexes_or_query.all():
+                yield item
+        else:
+            for item in tasks_or_indexes_or_query:
+                yield item
+
     def gen_tasks_by_class(self) -> Generator[Task, None, None]:
         """
         Generates all tasks, class-wise.
@@ -341,6 +354,13 @@ class TaskCollection(object):
         """
         for task in self.all_tasks:
             yield task
+
+    @property
+    def dbsession(self) -> SqlASession:
+        """
+        Returns the request's database session.
+        """
+        return self._req.dbsession
 
     # =========================================================================
     # Internals: fetching Task objects
@@ -431,7 +451,7 @@ class TaskCollection(object):
         # Restrict to what is DESIRED
         if q:
             q = self._task_query_restricted_by_filter(q, task_class)
-        if q and self._export_recipient:
+        if q and self.export_recipient:
             q = self._task_query_restricted_by_export_recipient(q, task_class)
 
         return q
@@ -555,12 +575,9 @@ class TaskCollection(object):
             the original query, a modified query, or ``None`` if no tasks
             would pass the filter
         """
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportRun,
-        )  # delayed import
+        from camcops_server.cc_modules.cc_exportmodels import ExportedTask  # delayed import  # noqa
 
-        r = self._export_recipient
+        r = self.export_recipient
         if not r.is_incremental():
             # Full database export; no restrictions
             return q
@@ -570,11 +587,8 @@ class TaskCollection(object):
             # "There is not a successful export record for this task/recipient"
             ~exists().select_from(
                 ExportedTask.__table__.join(
-                    ExportRun.__table__,
-                    ExportedTask.export_run_id == ExportRun.id
-                ).join(
                     ExportRecipient.__table__,
-                    ExportRun.recipient_id == ExportRecipient.id
+                    ExportedTask.recipient_id == ExportRecipient.id
                 )
             ).where(
                 and_(
@@ -761,14 +775,14 @@ class TaskCollection(object):
         assert self._current_only, "_current_only must be true to use index"
 
         # Restrict to what is PERMITTED
-        if not self._export_recipient:
+        if not self.export_recipient:
             q = task_query_restricted_to_permitted_users(
                 self._req, q, TaskIndexEntry, as_dump=self._as_dump)
 
         # Restrict to what is DESIRED
         if q:
             q = self._index_query_restricted_by_filter(q)
-        if q and self._export_recipient:
+        if q and self.export_recipient:
             q = self._index_query_restricted_by_export_recipient(q)
 
         return q
@@ -915,12 +929,9 @@ class TaskCollection(object):
             would pass the filter
 
         """
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportRun,
-        )  # delayed import
+        from camcops_server.cc_modules.cc_exportmodels import ExportedTask  # delayed import  # noqa
 
-        r = self._export_recipient
+        r = self.export_recipient
         if not r.is_incremental():
             # Full database export; no restrictions
             return q
@@ -931,11 +942,8 @@ class TaskCollection(object):
             # "There is not a successful export record for this task/recipient"
             ~exists().select_from(
                 ExportedTask.__table__.join(
-                    ExportRun.__table__,
-                    ExportedTask.export_run_id == ExportRun.id
-                ).join(
                     ExportRecipient.__table__,
-                    ExportRun.recipient_id == ExportRecipient.id
+                    ExportedTask.recipient_id == ExportRecipient.id
                 )
             ).where(
                 and_(

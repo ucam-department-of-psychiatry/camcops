@@ -103,14 +103,23 @@ def upgrade_database_to_revision(revision: str,
 
 
 def downgrade_database_to_revision(revision: str,
-                                   show_sql_only: bool = False) -> None:
+                                   show_sql_only: bool = False,
+                                   confirm_downgrade_db: bool = False) -> None:
     """
     Developer option. Takes the database to a specific revision.
 
     Args:
         revision: destination revision
         show_sql_only: just show the SQL; don't execute it
+        confirm_downgrade_db: has the user confirmed? Necessary for the
+            (destructive) database operation.
     """
+    if not show_sql_only and not confirm_downgrade_db:
+        log.critical("Destructive action not confirmed! Refusing.")
+        return
+    if show_sql_only:
+        log.warning("Current Alembic v1.0.0 bug in downgrading with "
+                    "as_sql=True; may fail")
     import_all_models()  # delayed, for command-line interfaces
     downgrade_database(alembic_base_dir=ALEMBIC_BASE_DIR,
                        alembic_config_filename=ALEMBIC_CONFIG_FILENAME,

@@ -355,19 +355,19 @@ class TrackerCtvCommon(object):
         Returns:
             an XML UTF-8 document representing our object.
         """
-        raise NotImplementedError()
+        raise NotImplementedError()  # implement in derived classes
 
     def _get_html(self) -> str:
         """
         Returns an HTML representation.
         """
-        raise NotImplementedError()
+        raise NotImplementedError()  # implement in derived classes
 
     def _get_pdf_html(self) -> str:
         """
         Returns HTML used for making PDFs.
         """
-        raise NotImplementedError()
+        raise NotImplementedError()  # implement in derived classes
 
     # -------------------------------------------------------------------------
     # XML view
@@ -513,7 +513,7 @@ class TrackerCtvCommon(object):
             patient_spec_if_anonymous=cfg.patient_spec_if_anonymous,
             patient_spec=cfg.patient_spec,
             filename_spec=cfg.ctv_filename_spec if self.as_ctv else cfg.tracker_filename_spec,  # noqa
-            task_format=ViewArg.PDF,
+            filetype=ViewArg.PDF,
             is_anonymous=self.patient is None,
             surname=self.patient.get_surname() if self.patient else "",
             forename=self.patient.get_forename() if self.patient else "",

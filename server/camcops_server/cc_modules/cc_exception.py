@@ -30,7 +30,9 @@ camcops_server/cc_modules/cc_exception.py
 
 import logging
 
-log = logging.getLogger(__name__)
+from cardinal_pythonlib.logs import BraceStyleAdapter
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 def raise_runtime_error(msg: str) -> None:

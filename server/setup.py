@@ -88,6 +88,7 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 INSTALL_REQUIRES = [
     'alembic==1.0.0',  # database migrations
     'cardinal_pythonlib==1.0.41',  # RNC libraries
+    'celery==4.2.1',  # background tasks
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.1.0',  # web server
     'deform==2.0.5',  # web forms
@@ -95,6 +96,7 @@ INSTALL_REQUIRES = [
     'distro==1.3.0',  # detecting Linux distribution
     'dogpile.cache==0.6.6',  # web caching
     # TO COME: 'fhirclient==3.2.0',  # For FHIR export
+    'flower==0.9.2',  # monitor for Celery
     'gunicorn==19.8.1',
     # Alternative 'internal' web server. Installs fine under Windows, but won't run (ImportError: No module named 'fcntl').  # noqa
     'hl7==0.3.4',  # For HL7 export

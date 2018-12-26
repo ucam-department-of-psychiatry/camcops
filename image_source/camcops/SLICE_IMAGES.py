@@ -66,10 +66,11 @@ import subprocess
 import tempfile
 from typing import List, Tuple
 
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,)
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -255,8 +256,8 @@ def crop_pdf(src_filename: str,
     (src_width_inches,
      src_height_inches) = get_pdf_print_size_inches(src_filename, autocrop,
                                                     verbose=verbose)
-    log.debug("Source PDF size: {} inches W x {} inches H".format(
-        src_width_inches, src_height_inches))
+    log.debug("Source PDF size: {} inches W x {} inches H",
+              src_width_inches, src_height_inches)
 
     img_aspect_ratio = (
         (final_img_lr.span * src_width_inches) /
@@ -301,8 +302,8 @@ def crop_pdf(src_filename: str,
     img_bottom_px = round(final_img_tb.b * src_height_px)
     img_height_px = img_bottom_px - img_top_px
 
-    log.info("Making {f} at {w}x{h}".format(
-        f=dest_filename, w=dest_width_px, h=dest_height_px))
+    log.info("Making {f} at {w}x{h}",
+             f=dest_filename, w=dest_width_px, h=dest_height_px)
     directory = os.path.dirname(dest_filename)
     if directory:
         mkdirp(directory)
@@ -375,7 +376,7 @@ def tile_pdf(src_filename: str,
              density_multiplier: int = 4,
              transparent: str = None,
              verbose: bool = False) -> None:
-    log.debug("Tiling {} -> {}".format(src_filename, dest_filename_format))
+    log.debug("Tiling {} -> {}", src_filename, dest_filename_format)
     if tile_width_px is None and tile_height_px is None:
         raise AssertionError("Must specify width/height/both")
 
@@ -383,8 +384,8 @@ def tile_pdf(src_filename: str,
     (src_width_inches,
      src_height_inches) = get_pdf_print_size_inches(src_filename, autocrop,
                                                     verbose=verbose)
-    log.debug("Source PDF size: {} inches W x {} inches H".format(
-        src_width_inches, src_height_inches))
+    log.debug("Source PDF size: {} inches W x {} inches H",
+              src_width_inches, src_height_inches)
 
     src_tile_width_inches = src_width_inches / n_wide
     src_tile_height_inches = src_height_inches / n_high
@@ -497,8 +498,8 @@ def make_splashscreen(filename: str,
                                                             verbose=verbose)
     src_aspect_ratio = src_width_in / src_height_in
     dest_aspect_ratio = width_px / height_px
-    log.debug("source aspect ratio: {}".format(src_aspect_ratio))
-    log.debug("destination aspect ratio: {}".format(dest_aspect_ratio))
+    log.debug("source aspect ratio: {}", src_aspect_ratio)
+    log.debug("destination aspect ratio: {}", dest_aspect_ratio)
     if dest_aspect_ratio == src_aspect_ratio:
         img_lr = ProportionPair(0, 1)
         img_tb = ProportionPair(0, 1)
@@ -563,7 +564,7 @@ def main() -> None:
         args.server = True
         args.tablet = True
         args.windows = True
-    log.info("Using base directory: {}".format(args.base_dir))
+    log.info("Using base directory: {}", args.base_dir)
 
     google_play_dir = join(args.base_dir, "working", "google_play_images")
 
@@ -846,7 +847,7 @@ def main() -> None:
                     if propername is not None:
                         for destdir in all_tablet_icon_dirs:
                             fullpath = join(destdir, propername)
-                            log.info("Creating {}".format(fullpath))
+                            log.info("Creating {}", fullpath)
                             shutil.copy(tilename, fullpath)
                         os.remove(tilename)
                     tilenum += 1

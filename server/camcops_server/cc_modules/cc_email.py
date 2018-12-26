@@ -236,12 +236,10 @@ class Email(Base):
         # Arguments
         # -------------------------------------------------------------------------
         if not date:
-            date = email.utils.formatdate(timeval=now_local, localtime=True)
-        assert isinstance(reply_to, str), (
-            "Only a single 'Reply-To:' address permitted")
+            date = email.utils.format_datetime(now_local)
         attachment_filenames = attachment_filenames or []  # type: List[str]
         attachments_binary = attachments_binary or []  # type: List[Tuple[str, bytes]]  # noqa
-        attachment_binaries, attachment_binary_filenames = zip(*attachments_binary)  # noqa
+        attachment_binary_filenames, attachment_binaries = zip(*attachments_binary)  # noqa
         # ... https://stackoverflow.com/questions/13635032/what-is-the-inverse-function-of-zip-in-python  # noqa
         # Other checks performed by our e-mail function below
 
@@ -272,9 +270,9 @@ class Email(Base):
         self.from_addr = from_addr
         self.sender = sender
         self.reply_to = reply_to
-        self.to = COMMASPACE.join(to)
-        self.cc = COMMASPACE.join(cc)
-        self.bcc = COMMASPACE.join(bcc)
+        self.to = to
+        self.cc = cc
+        self.bcc = bcc
         self.subject = subject
         self.body = body
         self.content_type = content_type
@@ -327,8 +325,14 @@ class Email(Base):
         self.use_tls = use_tls
         to_addrs = COMMASPACE.join(
             x for x in [self.to, self.cc, self.bcc] if x)
+        header_components = filter(None, [
+            "To: {}".format(self.to) if self.to else "",
+            "Cc: {}".format(self.cc) if self.cc else "",
+            "Bcc: {}".format(self.bcc) if self.bcc else "",  # noqa
+            "Subject: {}".format(self.subject) if self.subject else "",
+        ])
+        log.info("Sending email -- {}", " -- ".join(header_components))
         try:
-            log.debug("Sending e-mail to {}", self.from_addr)
             send_msg(
                 from_addr=self.from_addr,
                 to_addrs=to_addrs,
@@ -345,7 +349,7 @@ class Email(Base):
             self.sent_at_utc = get_now_utc_pendulum()
             self.sending_failure_reason = None
         except RuntimeError as e:
-            log.debug("... failed to send")
+            log.error("Failed to send e-mail: {!s}", e)
             if not self.sent:
                 self.sent = False
                 self.sending_failure_reason = str(e)

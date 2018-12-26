@@ -26,8 +26,10 @@ camcops_server/tasks/cardinal_expectationdetection.py
 
 """
 
+import logging
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from matplotlib.axes import Axes
 import numpy
 import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
@@ -62,6 +64,8 @@ from camcops_server.cc_modules.cc_summaryelement import (
     SummaryElement,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 CONVERT_0_P_TO = 0.001  # for Z-transformed ROC plot
@@ -558,36 +562,43 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
     def get_sdt_values(count_stimulus: Sequence[int],
                        count_nostimulus: Sequence[int]) -> Dict:
         # Probabilities and cumulative probabilities
-        p_stimulus = count_stimulus / numpy.sum(count_stimulus)
-        p_nostimulus = count_nostimulus / numpy.sum(count_nostimulus)
-        # ... may produce a RuntimeWarning in case of division by zero
-        cump_stimulus = numpy.cumsum(p_stimulus)  # hit rates
-        cump_nostimulus = numpy.cumsum(p_nostimulus)  # false alarm rates
-        # We're interested in all pairs except the last:
-        fa = cump_stimulus[:-1]
-        h = cump_nostimulus[:-1]
-        # WHICH WAY ROUND YOU ASSIGN THESE DETERMINES THE ROC'S APPEARANCE.
-        # However, it's arbitrary, in the sense that the left/right assignment
-        # of the ratings is arbitrary.
-        # To make the ROC look conventional (top left), assign this way round,
-        # so that "fa" starts low and grows, and "h" starts high and falls.
-        # Hmm...
-        fa[fa == 0] = CONVERT_0_P_TO
-        fa[fa == 1] = CONVERT_1_P_TO
-        h[h == 0] = CONVERT_0_P_TO
-        h[h == 1] = CONVERT_1_P_TO
-        z_fa = scipy.stats.norm.ppf(fa)
-        z_h = scipy.stats.norm.ppf(h)
+        sum_count_stimulus = numpy.sum(count_stimulus)
+        sum_count_nostimulus = numpy.sum(count_nostimulus)
+        if sum_count_stimulus == 0 or sum_count_nostimulus == 0:
+            fa = []
+            h = []
+            z_fa = []
+            z_h = []
+        else:
+            p_stimulus = count_stimulus / sum_count_stimulus
+            p_nostimulus = count_nostimulus / sum_count_nostimulus
+            # ... may produce a RuntimeWarning in case of division by zero
+            cump_stimulus = numpy.cumsum(p_stimulus)  # hit rates
+            cump_nostimulus = numpy.cumsum(p_nostimulus)  # false alarm rates
+            # We're interested in all pairs except the last:
+            fa = cump_stimulus[:-1]
+            h = cump_nostimulus[:-1]
+            # WHICH WAY ROUND YOU ASSIGN THESE DETERMINES THE ROC'S APPEARANCE.
+            # However, it's arbitrary, in the sense that the left/right
+            # assignment of the ratings is arbitrary. To make the ROC look
+            # conventional (top left), assign this way round, so that "fa"
+            # starts low and grows, and "h" starts high and falls. Hmm...
+            fa[fa == 0] = CONVERT_0_P_TO
+            fa[fa == 1] = CONVERT_1_P_TO
+            h[h == 0] = CONVERT_0_P_TO
+            h[h == 1] = CONVERT_1_P_TO
+            z_fa = scipy.stats.norm.ppf(fa)
+            z_h = scipy.stats.norm.ppf(h)
 
-        # log.debug("p_stimulus: " + str(p_stimulus))
-        # log.debug("p_nostimulus: " + str(p_nostimulus))
-        # log.debug("cump_stimulus: " + str(cump_stimulus))
-        # log.debug("cump_nostimulus: " + str(cump_nostimulus))
+            # log.debug("p_stimulus: " + str(p_stimulus))
+            # log.debug("p_nostimulus: " + str(p_nostimulus))
+            # log.debug("cump_stimulus: " + str(cump_stimulus))
+            # log.debug("cump_nostimulus: " + str(cump_nostimulus))
+
         # log.debug("h: " + str(h))
         # log.debug("fa: " + str(fa))
         # log.debug("z_h: " + str(z_h))
         # log.debug("z_fa: " + str(z_fa))
-
         return {
             "fa": fa,
             "h": h,

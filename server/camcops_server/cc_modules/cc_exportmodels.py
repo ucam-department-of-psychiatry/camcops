@@ -47,14 +47,13 @@ from cardinal_pythonlib.fileops import mkdir_p
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.network import ping
 from cardinal_pythonlib.sqlalchemy.list_types import StringListType
+from cardinal_pythonlib.sqlalchemy.orm_query import bool_from_exists_clause
 import hl7
 from pendulum import DateTime as Pendulum
-from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import (
     reconstructor,
     relationship,
     Session as SqlASession,
-    sessionmaker,
 )
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import (
@@ -66,11 +65,12 @@ from sqlalchemy.sql.sqltypes import (
     UnicodeText,
 )
 
-from camcops_server.cc_modules.cc_dump import copy_tasks_and_summaries
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_exportrecipient import (
-    ConfigParamExportRecipient,
     ExportRecipient,
+)
+from camcops_server.cc_modules.cc_exportrecipientinfo import (
+    ConfigParamExportRecipient,
     ExportTransmissionMethod,
 )
 from camcops_server.cc_modules.cc_filename import (
@@ -83,7 +83,6 @@ from camcops_server.cc_modules.cc_hl7 import (
     msg_is_successful_ack,
     SEGMENT_SEPARATOR,
 )
-from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     LongText,
     TableNameColType,
@@ -142,179 +141,44 @@ def get_collection_for_export(req: "CamcopsRequest",
     return collection
 
 
-def gen_exported_tasks(
-        export_run: "ExportRun",
-        dbsession: SqlASession,
-        collection: TaskCollection) -> Generator["ExportedTask", None, None]:
+def gen_exportedtasks(collection: TaskCollection) \
+        -> Generator["ExportedTask", None, None]:
     """
     Generates task export entries from a collection.
 
     Args:
-        export_run: an :class:`ExportRun`
-        dbsession: a :class:`sqlalchemy.orm.session.Session`
         collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
 
     Yields:
         :class:`ExportedTask` objects
 
     """  # noqa
+    dbsession = collection.dbsession
+    recipient = collection.export_recipient
+    assert recipient is not None, "TaskCollection has no export_recipient"
     for task in collection.gen_tasks_by_class():
-        log.debug("Exporting task: {}", task)
-        et = ExportedTask(export_run, task)
+        et = ExportedTask(recipient, task)
         dbsession.add(et)
         yield et
 
 
-def gen_tasks_from_exported_tasks(
-        export_run: "ExportRun",
-        dbsession: SqlASession,
-        collection: TaskCollection) -> Generator["Task", None, None]:
+def gen_tasks_having_exportedtasks(collection: TaskCollection) \
+        -> Generator["Task", None, None]:
     """
     Generates tasks from a collection, creating export logs as we go.
     
     Used for database exports.
 
     Args:
-        export_run: an :class:`ExportRun`
-        dbsession: a :class:`sqlalchemy.orm.session.Session`
         collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
 
     Yields:
         :class:`camcops_server.cc_modules.cc_task.Task` objects
 
     """  # noqa
-    for et in gen_exported_tasks(export_run, dbsession, collection):
+    for et in gen_exportedtasks(collection):
         yield et.task
         et.succeed()
-
-
-# =============================================================================
-# ExportRun class
-# =============================================================================
-
-class ExportRun(Base):
-    """
-    Class representing an export run for a specific recipient.
-
-    May be associated with multiple tasks being exported.
-    """
-    __tablename__ = "_export_runs"
-
-    id = Column(
-        "id", BigInteger, primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
-    )
-    recipient_id = Column(
-        "recipient_id", BigInteger, ForeignKey(ExportRecipient.id),
-        nullable=False,
-        comment="FK to {}.{}".format(ExportRecipient.__tablename__,
-                                     ExportRecipient.id.name)
-    )
-    start_at_utc = Column(
-        "start_at_utc", DateTime,
-        nullable=False, index=True,
-        comment="Time run was started (UTC)"
-    )
-    finish_at_utc = Column(
-        "finish_at_utc", DateTime,
-        comment="Time run was finished (UTC)"
-    )
-
-    recipient = relationship(ExportRecipient)
-    exported_tasks = relationship("ExportedTask")
-
-    def __init__(self, recipient: ExportRecipient = None,
-                 *args, **kwargs) -> None:
-        """
-        Initialize from an ExportRecipient, copying its fields.
-        (However, we must also support a no-parameter constructor, not least
-        for our :func:`merge_db` function.)
-        """
-        super().__init__(*args, **kwargs)
-        self.recipient = recipient
-
-        # New things:
-        self.start_at_utc = get_now_utc_datetime()
-        self.finish_at_utc = None
-        self.hl7_server_pinged = False
-
-    @reconstructor
-    def init_on_load(self) -> None:
-        """
-        Called when SQLAlchemy recreates an object; see
-        https://docs.sqlalchemy.org/en/latest/orm/constructors.html.
-        """
-        self.hl7_server_pinged = False
-
-    def export(self, req: "CamcopsRequest",
-               via_index: bool = True) -> None:
-        """
-        Performs the export.
-
-        Args:
-            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            via_index: use the task index (faster)?
-        """
-        dbsession = req.dbsession
-        recipient = self.recipient
-        collection = get_collection_for_export(req, recipient,
-                                               via_index=via_index)
-
-        if recipient.using_db():
-            # Database recipient.
-            dst_engine = create_engine(recipient.db_url,
-                                       echo=recipient.db_echo)
-            dst_session = sessionmaker(bind=dst_engine)()  # type: SqlASession
-            task_generator = gen_tasks_from_exported_tasks(
-                self, dbsession, collection)
-            export_options = TaskExportOptions(
-                include_blobs=recipient.db_include_blobs,
-                # *** todo: other options, e.g. DB_PATIENT_ID_PER_ROW
-            )
-            copy_tasks_and_summaries(
-                tasks=task_generator,
-                dst_engine=dst_engine,
-                dst_session=dst_session,
-                export_options=export_options,
-                req=req,
-            )
-            dst_session.commit()
-        else:
-            # Non-database recipient.
-            et_generator = gen_exported_tasks(self, dbsession, collection)
-            for exported_task in et_generator:
-                exported_task.export(req)
-
-        self.finish()
-
-    def finish(self) -> None:
-        """
-        Records the export finish time.
-        """
-        self.finish_at_utc = get_now_utc_datetime()
-
-    def ping_hl7_server(self) -> bool:
-        """
-        Performs a TCP/IP ping on our HL7 server; returns success. If we've
-        already pinged successfully during this run, don't bother doing it
-        again.
-
-        (No HL7 PING method yet. Proposal is
-        http://hl7tsc.org/wiki/index.php?title=FTSD-ConCalls-20081028
-        So use TCP/IP ping.)
-
-        Returns:
-            bool: success
-
-        """
-        if not self.hl7_server_pinged:
-            recipient = self.recipient
-            timeout_s = min(recipient.hl7_network_timeout_ms // 1000, 1)
-            if ping(hostname=recipient.hl7_host, timeout_s=timeout_s):
-                self.hl7_server_pinged = True
-            else:
-                log.error("Failed to ping {!r}", recipient.hl7_host)
-        return self.hl7_server_pinged
 
 
 # =============================================================================
@@ -334,10 +198,11 @@ class ExportedTask(Base):
         primary_key=True, autoincrement=True,
         comment="Arbitrary primary key"
     )
-    export_run_id = Column(
-        "export_run_id", BigInteger, ForeignKey(ExportRun.id),
-        comment="FK to {}.{}".format(ExportRun.__tablename__,
-                                     ExportRun.id.name)
+    recipient_id = Column(
+        "recipient_id", BigInteger, ForeignKey(ExportRecipient.id),
+        nullable=False,
+        comment="FK to {}.{}".format(ExportRecipient.__tablename__,
+                                     ExportRecipient.id.name)
     )
     basetable = Column(
         "basetable", TableNameColType, nullable=False, index=True,
@@ -346,6 +211,15 @@ class ExportedTask(Base):
     task_server_pk = Column(
         "task_server_pk", Integer, nullable=False, index=True,
         comment="Server PK of task in basetable (_pk field)"
+    )
+    start_at_utc = Column(
+        "start_at_utc", DateTime,
+        nullable=False, index=True,
+        comment="Time export was started (UTC)"
+    )
+    finish_at_utc = Column(
+        "finish_at_utc", DateTime,
+        comment="Time export was finished (UTC)"
     )
     success = Column(
         "success", Boolean, default=False, nullable=False,
@@ -361,16 +235,17 @@ class ExportedTask(Base):
     )
     cancelled_at_utc = Column(
         "cancelled_at_utc", DateTime,
-        comment="Time message was cancelled at (UTC)"
+        comment="Time export was cancelled at (UTC)"
     )
 
-    export_run = relationship(ExportRun)
+    recipient = relationship(ExportRecipient)
+
     hl7_messages = relationship("ExportedTaskHL7Message")
     filegroups = relationship("ExportedTaskFileGroup")
     emails = relationship("ExportedTaskEmail")
 
     def __init__(self,
-                 export_run: ExportRun = None,
+                 recipient: ExportRecipient = None,
                  task: "Task" = None,
                  basetable: str = None,
                  task_server_pk: int = None,
@@ -379,17 +254,19 @@ class ExportedTask(Base):
         Can initialize with a task, or a basetable/task_server_pk combination.
 
         Args:
-            export_run: an :class:`ExportRun` object
+            recipient: an :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
             task: a :class:`camcops_server.cc_modules.cc_task.Task` object
             basetable: base table name of the task
             task_server_pk: server PK of the task
 
         (However, we must also support a no-parameter constructor, not least
         for our :func:`merge_db` function.)
-        """
+        """  # noqa
         super().__init__(*args, **kwargs)
+        self.recipient = recipient
+        self.start_at_utc = get_now_utc_datetime()
+        self.finish_at_utc = None
         self.failure_reasons = []  # type: List[str]
-        self.export_run = export_run
         if task:
             assert (not basetable) and task_server_pk is None, (
                 "Task specified; mustn't specify basetable/task_server_pk"
@@ -434,17 +311,29 @@ class ExportedTask(Base):
         Register success.
         """
         self.success = True
+        self.finish()
 
-    def fail(self, msg: str) -> None:
+    def abort(self, msg: str) -> None:
         """
         Record failure, and why.
+
+        (Called ``abort`` not ``fail`` because PyCharm has a bug relating to
+        functions named ``fail``:
+        https://stackoverflow.com/questions/21954959/pycharm-unreachable-code.)
 
         Args:
             msg: why
         """
         self.success = False
-        log.debug("Task export failed: {}", msg)
+        log.error("Task export failed: {}", msg)
         self.failure_reasons.append(msg)
+        self.finish()
+
+    def finish(self) -> None:
+        """
+        Records the finish time.
+        """
+        self.finish_at_utc = get_now_utc_datetime()
 
     def export(self, req: "CamcopsRequest") -> None:
         """
@@ -454,8 +343,9 @@ class ExportedTask(Base):
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
         dbsession = req.dbsession
-        recipient = self.export_run.recipient
+        recipient = self.recipient
         transmission_method = recipient.transmission_method
+        log.info("Exporting task {!r} to recipient {}", self.task, recipient)
 
         if transmission_method == ExportTransmissionMethod.EMAIL:
             email = ExportedTaskEmail(self)
@@ -473,7 +363,7 @@ class ExportedTask(Base):
                 dbsession.add(ehl7)
                 ehl7.export_task(req)
             else:
-                self.fail("Task not valid for HL7 export")
+                self.abort("Task not valid for HL7 export")
 
         else:
             raise AssertionError("Bug: bad transmission_method")
@@ -484,9 +374,11 @@ class ExportedTask(Base):
         Returns a :class:`ExportedTaskFileGroup`, creating it if necessary.
         """
         if self.filegroups:
+            # noinspection PyUnresolvedReferences
             filegroup = self.filegroups[0]  # type: ExportedTaskFileGroup
         else:
             filegroup = ExportedTaskFileGroup(self)
+            # noinspection PyUnresolvedReferences
             self.filegroups.append(filegroup)
         return filegroup
 
@@ -494,7 +386,7 @@ class ExportedTask(Base):
                     filename: str,
                     text: str = None,
                     binary: bytes = None,
-                    text_encoding: str = UTF8) -> None:
+                    text_encoding: str = UTF8) -> bool:
         """
         Exports a file.
 
@@ -503,12 +395,14 @@ class ExportedTask(Base):
             text: text contents (specify this XOR ``binary``)
             binary: binary contents (specify this XOR ``text``)
             text_encoding: encoding to use when writing text
+
+        Returns: was it exported?
         """
         filegroup = self.filegroup
-        filegroup.export_file(filename=filename,
-                              text=text,
-                              binary=binary,
-                              text_encoding=text_encoding)
+        return filegroup.export_file(filename=filename,
+                                     text=text,
+                                     binary=binary,
+                                     text_encoding=text_encoding)
 
     def cancel(self) -> None:
         """
@@ -518,6 +412,36 @@ class ExportedTask(Base):
         """
         self.cancelled = True
         self.cancelled_at_utc = get_now_utc_datetime()
+
+    @classmethod
+    def task_already_exported(cls,
+                              dbsession: SqlASession,
+                              recipient_name: str,
+                              basetable: str,
+                              task_pk: int) -> bool:
+        """
+        Has the specified task already been successfully exported?
+
+        Args:
+            dbsession: a :class:`sqlalchemy.orm.session.Session`
+            recipient_name:
+            basetable: name of the task's base table
+            task_pk: server PK of the task
+
+        Returns:
+            does a successful export record exist for this task?
+
+        """
+        exists_q = (
+            dbsession.query(cls).join(cls.recipient)
+            .filter(ExportRecipient.recipient_name == recipient_name)
+            .filter(cls.basetable == basetable)
+            .filter(cls.task_server_pk == task_pk)
+            .filter(cls.success == True)  # nopep8
+            .filter(cls.cancelled == False)  # nopep8
+            .exists()
+        )
+        return bool_from_exists_clause(dbsession, exists_q)
 
 
 # =============================================================================
@@ -621,7 +545,7 @@ class ExportedTaskHL7Message(Base):
         """
         exported_task = self.exported_task
         task = exported_task.task
-        recipient = exported_task.export_run.recipient
+        recipient = exported_task.recipient
         return self.task_acceptable_for_hl7(recipient, task)
 
     def succeed(self, now: Pendulum = None) -> None:
@@ -633,16 +557,25 @@ class ExportedTaskHL7Message(Base):
         self.sent_at_utc = now
         self.exported_task.succeed()
 
-    def fail(self, msg: str) -> None:
+    def abort(self, msg: str, diverted_not_sent: bool = False) -> None:
         """
         Record that we failed, and so did our associated task export.
 
+        (Called ``abort`` not ``fail`` because PyCharm has a bug relating to
+        functions named ``fail``:
+        https://stackoverflow.com/questions/21954959/pycharm-unreachable-code.)
+
         Args:
             msg: reason for failure
+            diverted_not_sent: deliberately diverted (and not counted as sent)
+                rather than a sending failure?
         """
         self.success = False
         self.failure_reason = msg
-        self.exported_task.fail("HL7 sending failed")
+        self.exported_task.abort(
+            "HL7 message deliberately not sent; diverted to file"
+            if diverted_not_sent else "HL7 sending failed"
+        )
 
     def export_task(self, req: "CamcopsRequest") -> None:
         """
@@ -652,42 +585,41 @@ class ExportedTaskHL7Message(Base):
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
         if not self.valid():
-            self.fail(
+            self.abort(
                 "Unsuitable for HL7; should have been filtered out earlier")
             return
         self.make_hl7_message(req)
-        recipient = self.exported_task.export_run.recipient
+        recipient = self.exported_task.recipient
         if recipient.hl7_debug_divert_to_file:
-            self.divert_to_file()
+            self.divert_to_file(req)
         else:
             # Proper HL7 message
             self.transmit_hl7()
 
-    def divert_to_file(self) -> None:
+    def divert_to_file(self, req: "CamcopsRequest") -> None:
         """
         Write an HL7 message to a file. For debugging.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
         exported_task = self.exported_task
-        recipient = exported_task.export_run.recipient
-        filename = recipient.hl7_debug_divert_to_file
+        recipient = exported_task.recipient
+        filename = recipient.get_filename(req, exported_task.task,
+                                          override_task_format="hl7")
         now_utc = get_now_utc_pendulum()
-        infomsg = (
-            "OUTBOUND HL7 MESSAGE DIVERTED FROM RECIPIENT "
-            "{!r} TO FILE {!r} AT {}".format(
-                recipient.recipient_name,
-                filename,
-                now_utc
-            )
-        )
-        contents = infomsg + "\n" + str(self._hl7_msg) + "\n"
-        exported_task.export_file(filename=filename, text=contents)
-        log.info(infomsg)
+        log.info("Diverting HL7 message to file {!r}", filename)
+        written = exported_task.export_file(filename=filename,
+                                            text=str(self._hl7_msg))
+        if not written:
+            return
 
         if recipient.hl7_debug_treat_diverted_as_sent:
             self.sent_at_utc = now_utc
             self.succeed(now_utc)
         else:
-            self.fail("Exported to file as requested but not sent via HL7")
+            self.abort("Exported to file as requested but not sent via HL7",
+                       diverted_not_sent=True)
 
     def make_hl7_message(self, req: "CamcopsRequest") -> None:
         """
@@ -701,7 +633,7 @@ class ExportedTaskHL7Message(Base):
         - http://python-hl7.readthedocs.org/en/latest/index.html
         """
         task = self.exported_task.task
-        recipient = self.exported_task.export_run.recipient
+        recipient = self.exported_task.recipient
 
         # ---------------------------------------------------------------------
         # Parts
@@ -736,13 +668,12 @@ class ExportedTaskHL7Message(Base):
         - http://python-hl7.readthedocs.org/en/latest/api.html; however,
           we've modified that
         """  # noqa
-        export_run = self.exported_task.export_run
-        recipient = export_run.recipient
+        recipient = self.exported_task.recipient
 
         if recipient.hl7_ping_first:
-            pinged = export_run.ping_hl7_server()
+            pinged = self.ping_hl7_server(recipient)
             if not pinged:
-                self.fail("Could not ping HL7 host")
+                self.abort("Could not ping HL7 host")
                 return
 
         try:
@@ -753,14 +684,14 @@ class ExportedTaskHL7Message(Base):
                                    recipient.hl7_network_timeout_ms) as client:
                 server_replied, reply = client.send_message(self._hl7_msg)
         except socket.timeout:
-            self.fail("Failed to send message via MLLP: timeout")
+            self.abort("Failed to send message via MLLP: timeout")
             return
         except Exception as e:
-            self.fail("Failed to send message via MLLP: {}".format(e))
+            self.abort("Failed to send message via MLLP: {}".format(e))
             return
 
         if not server_replied:
-            self.fail("No response from server")
+            self.abort("No response from server")
             return
 
         self.reply_at_utc = get_now_utc_datetime()
@@ -770,14 +701,39 @@ class ExportedTaskHL7Message(Base):
         try:
             replymsg = hl7.parse(reply)
         except Exception as e:
-            self.fail("Malformed reply: {}".format(e))
+            self.abort("Malformed reply: {}".format(e))
             return
 
         success, failure_reason = msg_is_successful_ack(replymsg)
         if success:
             self.succeed()
         else:
-            self.fail(failure_reason)
+            self.abort(failure_reason)
+
+    @staticmethod
+    def ping_hl7_server(recipient: ExportRecipient) -> bool:
+        """
+        Performs a TCP/IP ping on our HL7 server; returns success. If we've
+        already pinged successfully during this run, don't bother doing it
+        again.
+
+        (No HL7 PING method yet. Proposal is
+        http://hl7tsc.org/wiki/index.php?title=FTSD-ConCalls-20081028
+        So use TCP/IP ping.)
+        
+        Args:
+            recipient: an :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
+
+        Returns:
+            bool: success
+
+        """  # noqa
+        timeout_s = min(recipient.hl7_network_timeout_ms // 1000, 1)
+        if ping(hostname=recipient.hl7_host, timeout_s=timeout_s):
+            return True
+        else:
+            log.error("Failed to ping {!r}", recipient.hl7_host)
+            return False
 
 
 # =============================================================================
@@ -839,7 +795,7 @@ class ExportedTaskFileGroup(Base):
                     filename: str,
                     text: str = None,
                     binary: bytes = None,
-                    text_encoding: str = UTF8) -> None:
+                    text_encoding: str = UTF8) -> False:
         """
         Exports the file.
 
@@ -848,24 +804,27 @@ class ExportedTaskFileGroup(Base):
             text: text contents (specify this XOR ``binary``)
             binary: binary contents (specify this XOR ``text``)
             text_encoding: encoding to use when writing text
+
+        Returns:
+            bool: was it exported?
         """
         assert bool(text) != bool(binary), "Specify text XOR binary"
         exported_task = self.exported_task
         filename = os.path.abspath(filename)
         directory = os.path.dirname(filename)
-        recipient = exported_task.export_run.recipient
+        recipient = exported_task.recipient
 
         if not recipient.file_overwrite_files and os.path.isfile(filename):
-            exported_task.fail("File already exists")
-            return
+            self.abort("File already exists: {!r}".format(filename))
+            return False
 
         if recipient.file_make_directory:
             try:
                 mkdir_p(directory)
             except Exception as e:
-                exported_task.fail("Couldn't make directory "
-                                   "{!r}: {}".format(directory, e))
-                return
+                self.abort("Couldn't make directory {!r}: {}".format(
+                    directory, e))
+                return False
 
         try:
             log.debug("Writing to {!r}", filename)
@@ -876,11 +835,12 @@ class ExportedTaskFileGroup(Base):
                 with open(filename, mode="wb") as f:
                     f.write(binary)
         except Exception as e:
-            exported_task.fail("Failed to open or write file {!r}: {}".format(
+            self.abort("Failed to open or write file {!r}: {}".format(
                 filename, e))
-            return
+            return False
 
         self.note_exported_file(filename)
+        return True
 
     def note_exported_file(self, *filenames: str) -> None:
         """
@@ -900,9 +860,23 @@ class ExportedTaskFileGroup(Base):
         """
         exported_task = self.exported_task
         task = exported_task.task
-        recipient = exported_task.export_run.recipient
+        recipient = exported_task.recipient
         task_format = recipient.task_format
         task_filename = recipient.get_filename(req, task)
+        rio_metadata_filename = change_filename_ext(
+            task_filename, ".metadata").replace(" ", "")
+        # ... in case we use it. No spaces in its filename.
+
+        # Before we calculate the PDF, etc., we can pre-check for existing
+        # files.
+        if not recipient.file_overwrite_files:
+            target_filenames = [task_filename]
+            if recipient.file_export_rio_metadata:
+                target_filenames.append(rio_metadata_filename)
+            for fname in target_filenames:
+                if os.path.isfile(os.path.abspath(fname)):
+                    self.abort("File already exists: {!r}".format(fname))
+                    return
 
         # Export task
         if task_format == FileType.PDF:
@@ -916,14 +890,14 @@ class ExportedTaskFileGroup(Base):
             text = task.get_xml(req)
         else:
             raise AssertionError("Unknown task_format")
-        self.export_file(task_filename,
-                         text=text, binary=binary, text_encoding=UTF8)
+        written = self.export_file(task_filename, text=text, binary=binary,
+                                   text_encoding=UTF8)
+        if not written:
+            return
 
         # RiO metadata too?
         if recipient.file_export_rio_metadata:
-            # No spaces in filename
-            rio_metadata_filename = change_filename_ext(
-                task_filename, ".metadata").replace(" ", "")
+
             metadata = task.get_rio_metadata(
                 recipient.rio_idnum,
                 recipient.rio_uploading_user,
@@ -938,7 +912,10 @@ class ExportedTaskFileGroup(Base):
             # ... Servelec say CR = "\r", but DOS is \r\n.
             metadata_binary = metadata.encode("ascii")
             # UTF-8 is NOT supported by RiO for metadata.
-            self.export_file(rio_metadata_filename, binary=metadata_binary)
+            written_metadata = self.export_file(rio_metadata_filename,
+                                                binary=metadata_binary)
+            if not written_metadata:
+                return
 
         self.finish_run_script_if_necessary()
 
@@ -948,42 +925,42 @@ class ExportedTaskFileGroup(Base):
         """
         self.exported_task.succeed()
 
-    def fail(self, msg: str) -> None:
+    def abort(self, msg: str) -> None:
         """
         Record failure, and why.
+
+        (Called ``abort`` not ``fail`` because PyCharm has a bug relating to
+        functions named ``fail``:
+        https://stackoverflow.com/questions/21954959/pycharm-unreachable-code.)
 
         Args:
             msg: why
         """
-        self.exported_task.fail(msg)
+        self.exported_task.abort(msg)
 
     def finish_run_script_if_necessary(self) -> None:
         """
         Completes the file export by running the external script, if required.
         """
-        if not self.filenames:
-            self.succeed()
-            return
-        exported_task = self.exported_task
-        recipient = exported_task.export_run.recipient
-        if not recipient.file_script_after_export:
-            return
-        args = [recipient.file_script_after_export] + self.filenames
-        try:
-            encoding = sys.getdefaultencoding()
-            p = subprocess.Popen(args, stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-            out, err = p.communicate()
-            self.script_called = True
-            self.script_stdout = out.decode(encoding)
-            self.script_stderr = err.decode(encoding)
-            self.script_retcode = p.returncode
-            self.succeed()
-        except Exception as e:
-            self.script_called = False
-            self.script_stdout = ""
-            self.script_stderr = str(e)
-            self.fail("Failed to run script")
+        recipient = self.exported_task.recipient
+        if self.filenames and recipient.file_script_after_export:
+            args = [recipient.file_script_after_export] + self.filenames
+            try:
+                encoding = sys.getdefaultencoding()
+                p = subprocess.Popen(args, stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
+                out, err = p.communicate()
+                self.script_called = True
+                self.script_stdout = out.decode(encoding)
+                self.script_stderr = err.decode(encoding)
+                self.script_retcode = p.returncode
+            except Exception as e:
+                self.script_called = False
+                self.script_stdout = ""
+                self.script_stderr = str(e)
+                self.abort("Failed to run script")
+                return
+        self.succeed()
 
 
 # =============================================================================
@@ -1031,9 +1008,10 @@ class ExportedTaskEmail(Base):
         """
         exported_task = self.exported_task
         task = exported_task.task
-        recipient = exported_task.export_run.recipient
+        recipient = exported_task.recipient
         task_format = recipient.task_format
-        task_filename = recipient.get_filename(req, task)
+        task_filename = os.path.basename(recipient.get_filename(req, task))
+        # ... we don't want a full path for e-mail!
         encoding = "utf8"
 
         # Export task
@@ -1076,4 +1054,4 @@ class ExportedTaskEmail(Base):
         if self.email.sent:
             exported_task.succeed()
         else:
-            exported_task.fail("Failed to send e-mail")
+            exported_task.abort("Failed to send e-mail")
