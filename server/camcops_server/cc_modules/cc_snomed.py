@@ -641,7 +641,7 @@ class SnomedBase(object):
         Args:
             longform: print SNOMED-CT concepts in long form?
         """
-        raise NotImplementedError()  # implement in derived classes
+        raise NotImplementedError("implement in subclass")
 
     @property
     def shortform(self) -> str:

@@ -30,12 +30,8 @@ Largely superseded by CRATE (https://dx.doi.org/10.1186%2Fs12911-017-0437-1).
 
 """
 
-# from collections import OrderedDict
 import re
 from typing import Pattern, Tuple
-
-# from camcops_server.cc_modules.cc_constants import TSV_PATIENT_FIELD_PREFIX
-# from camcops_server.cc_modules import cc_db
 
 
 # =============================================================================
@@ -63,7 +59,7 @@ def get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
     """
     size = ""
     finaltype = sqltype
-    m = re.match("(\w+)\((\w+)\)", sqltype)  # e.g. VARCHAR(10)
+    m = re.match(r"(\w+)\((\w+)\)", sqltype)  # e.g. VARCHAR(10)
     if m:
         finaltype = m.group(1)
         size = m.group(2)

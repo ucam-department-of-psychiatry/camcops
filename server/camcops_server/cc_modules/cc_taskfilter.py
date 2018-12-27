@@ -51,8 +51,6 @@ from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
     IdNumReferenceListColType,
@@ -69,6 +67,8 @@ from camcops_server.cc_modules.cc_user import User
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ColumnElement
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -389,7 +389,7 @@ class TaskFilter(Base):
             bool(self.idnum_criteria)
         )
 
-    def get_only_iddef(self) -> Optional[IdNumReference]:
+    def get_only_iddef(self) -> Optional["IdNumReference"]:
         """
         If a single ID number type/value restriction is being applied, return
         it, as an
@@ -400,7 +400,7 @@ class TaskFilter(Base):
             return None
         return self.idnum_criteria[0]
 
-    def get_group_names(self, req: CamcopsRequest) -> List[str]:
+    def get_group_names(self, req: "CamcopsRequest") -> List[str]:
         """
         Get the names of any groups to which we are restricting.
         """
@@ -411,7 +411,7 @@ class TaskFilter(Base):
         )  # type: List[Group]
         return [g.name if g and g.name else "" for g in groups]
 
-    def get_user_names(self, req: CamcopsRequest) -> List[str]:
+    def get_user_names(self, req: "CamcopsRequest") -> List[str]:
         """
         Get the usernames of any uploading users to which we are restricting.
         """
@@ -422,7 +422,7 @@ class TaskFilter(Base):
         )  # type: List[User]
         return [u.username if u and u.username else "" for u in users]
 
-    def get_device_names(self, req: CamcopsRequest) -> List[str]:
+    def get_device_names(self, req: "CamcopsRequest") -> List[str]:
         """
         Get the names of any devices to which we are restricting.
         """

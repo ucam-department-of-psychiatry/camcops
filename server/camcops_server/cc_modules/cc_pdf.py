@@ -28,7 +28,7 @@ camcops_server/cc_modules/cc_pdf.py
 
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, TYPE_CHECKING
 
 from cardinal_pythonlib.pdf import get_pdf_from_html
 
@@ -36,10 +36,12 @@ from camcops_server.cc_modules.cc_constants import (
     PDF_ENGINE,
     WKHTMLTOPDF_OPTIONS,
 )
-from camcops_server.cc_modules.cc_request import CamcopsRequest
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
-def pdf_from_html(req: CamcopsRequest,
+def pdf_from_html(req: "CamcopsRequest",
                   html: str,
                   header_html: str = None,
                   footer_html: str = None,

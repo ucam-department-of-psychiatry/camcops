@@ -69,7 +69,6 @@ from camcops_server.cc_modules.cc_simpleobjects import (
     HL7PatientIdentifier,
 )
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-from camcops_server.cc_modules.cc_policy import TokenizedPolicy
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
@@ -93,6 +92,7 @@ from camcops_server.cc_modules.cc_xml import (
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
     from camcops_server.cc_modules.cc_group import Group
+    from camcops_server.cc_modules.cc_policy import TokenizedPolicy
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -418,7 +418,7 @@ class Patient(GenericTabletRecordMixin, Base):
             return False
         return self.satisfies_id_policy(group.tokenized_finalize_policy())
 
-    def satisfies_id_policy(self, policy: TokenizedPolicy) -> bool:
+    def satisfies_id_policy(self, policy: "TokenizedPolicy") -> bool:
         """
         Does the patient satisfy a particular ID policy?
         """

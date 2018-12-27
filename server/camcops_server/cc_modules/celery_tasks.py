@@ -31,7 +31,34 @@ See also ``celery.py``.
 **In general, prefer delayed imports here. Otherwise circular imports are very
 hard to avoid.**
 
-"""
+Also **import this only after celery.py, or the decorators will fail.**
+
+If you see this error from ``camcops_server launch_workers``:
+
+.. code-block:: none
+
+    [2018-12-26 21:08:01,316: ERROR/MainProcess] Received unregistered task of type 'camcops_server.cc_modules.celery_tasks.export_to_recipient_backend'.
+    The message has been ignored and discarded.
+
+    Did you remember to import the module containing this task?
+    Or maybe you're using relative imports?
+
+    Please see
+    http://docs.celeryq.org/en/latest/internals/protocol.html
+    for more information.
+
+    The full contents of the message body was:
+    '[["recipient_email_rnc"], {}, {"callbacks": null, "errbacks": null, "chain": null, "chord": null}]' (98b)
+    Traceback (most recent call last):
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/celery/worker/consumer/consumer.py", line 558, in on_task_received
+        strategy = strategies[type_]
+    KeyError: 'camcops_server.cc_modules.celery_tasks.export_to_recipient_backend'
+
+then (1) run with ``--verbose``, which will show you the list of registered
+tasks; (2) note that everything here is absent; (3) insert a "crash" line at
+the top of this file and re-run; (4) note what's importing this file too early.
+
+"""  # noqa
 
 import logging
 
@@ -83,6 +110,10 @@ def export_task_backend(recipient_name: str,
         recipient = req.get_export_recipient(recipient_name)
         task = task_factory_no_security_checks(req.dbsession,
                                                basetable, task_pk)
+        if task is None:
+            log.error("export_task_backend for recipient {!r}: No task found "
+                      "for {} {}", recipient_name, basetable, task_pk)
+            return
         export_task(req, recipient, task)
 
 
@@ -96,11 +127,19 @@ def export_to_recipient_backend(recipient_name: str) -> None:
     ``schedule_via_backend=True``, this backend job fires up a whole bunch of
     other backend jobs, one per task to export. If we set
     ``schedule_via_backend=False``, our current backend job does all the work.
-    Which is best? Well, keeping it to one job is a bit simpler, perhaps, but
-    everything is locked independently so we can do the multi-job version, and
-    we may as well use all the workers available. So my thought was to use
-    ``schedule_via_backend=True``. However, that leads to database deadlocks!
-    So ``False``.
+
+    Which is best?
+
+    - Well, keeping it to one job is a bit simpler, perhaps.
+    - But everything is locked independently so we can do the multi-job
+      version, and we may as well use all the workers available. So my thought
+      was to use ``schedule_via_backend=True``.
+    - However, that led to database deadlocks (multiple processes trying to
+      write a new ExportRecipient).
+    - With some bugfixes to equality checking and a global lock (see
+      :meth:`camcops_server.cc_modules.cc_config.CamcopsConfig.get_master_export_recipient_lockfilename`),
+      we can try again with ``True``.
+    - Yup, works nicely.
 
     Args:
         recipient_name: export recipient name (as per the config file)
@@ -110,4 +149,4 @@ def export_to_recipient_backend(recipient_name: str) -> None:
 
     with command_line_request_context() as req:
         export(req, recipient_names=[recipient_name],
-               schedule_via_backend=False)
+               schedule_via_backend=True)

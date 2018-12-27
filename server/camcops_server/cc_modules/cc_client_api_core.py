@@ -59,6 +59,7 @@ from camcops_server.cc_modules.cc_db import (
 )
 
 if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
@@ -512,13 +513,13 @@ class UploadTableChanges(object):
 
     def note_preservation_pk(self, pk: int) -> None:
         """
-        Records a "preservation" PK.
+        Records a "preservation" PK (a record that's being finalized).
         """
         self._preservation_pks.add(pk)
 
     def note_preservation_pks(self, pks: Iterable[int]) -> None:
         """
-        Records multiple "preservation" PKs.
+        Records multiple "preservation" PKs (records that are being finalized).
         """
         self._preservation_pks.update(pks)
 
@@ -720,6 +721,33 @@ class UploadTableChanges(object):
         # & intersection (A and B)
         # ^ xor (A or B but not both)
         # - difference (A - B)
+
+    def get_task_export_pks(self,
+                            recipient: "ExportRecipient",
+                            uploading_group_id: int) -> List[int]:
+        """
+        Returns PKs for tasks matching the requirements of a particular
+        export recipient.
+
+        (In practice, only "push" recipients will come our way, so we can
+        ignore this.)
+        """
+        if not recipient.all_groups:
+            if uploading_group_id not in recipient.group_ids:
+                # Wrong group!
+                return []
+        if recipient.finalized_only:
+            return sorted(
+                self._preservation_pks  # finalized
+                & self._current_pks  # only send current tasks
+            )
+        else:
+            return sorted(
+                (
+                    self._addition_pks |  # new (may be unfinalized)
+                    self._preservation_pks  # finalized
+                ) & self._current_pks  # only send current tasks
+            )
 
     # -------------------------------------------------------------------------
     # Audit info

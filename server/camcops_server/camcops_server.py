@@ -146,7 +146,7 @@ from camcops_server.cc_modules.cc_user import (
     User,
 )  # nopep8
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
-from camcops_server.cc_modules.celery import CELERY_APP_NAME
+from camcops_server.cc_modules.celery import CELERY_APP_NAME  # nopep8
 from camcops_server.cc_modules.merge_db import merge_camcops_db  # nopep8
 
 log.info("Imports complete")
@@ -804,6 +804,7 @@ def launch_celery_beat(verbose: bool = False) -> None:
         "celery", "beat",
         "--app", CELERY_APP_NAME,
         "--schedule", config.celery_beat_schedule_database,
+        "--pidfile", config.get_celery_beat_pidfilename(),
         "--loglevel", "DEBUG" if verbose else "INFO",
     ]
     cmdargs += config.celery_beat_extra_args

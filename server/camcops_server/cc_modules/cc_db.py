@@ -55,7 +55,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     SemanticVersionColType,
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
-from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_tsv import TsvPage
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 from camcops_server.cc_modules.cc_xml import (
@@ -70,6 +69,7 @@ from camcops_server.cc_modules.cc_xml import (
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_blob import Blob
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -731,7 +731,7 @@ class GenericTabletRecordMixin(object):
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def get_summaries(self, req: "CamcopsRequest") -> List[SummaryElement]:
+    def get_summaries(self, req: "CamcopsRequest") -> List["SummaryElement"]:
         """
         Return a list of :class:`SummaryElement` objects, for this database
         object (not any dependent classes/tables).

@@ -30,7 +30,7 @@ showing text that a clinician might care about.**
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -47,11 +47,8 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_filename import get_export_filename
 from camcops_server.cc_modules.cc_plot import matplotlib
-from camcops_server.cc_modules.cc_patient import Patient
-from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_pdf import pdf_from_html
 from camcops_server.cc_modules.cc_pyramid import ViewArg, ViewParam
-from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_taskcollection import (
@@ -59,7 +56,6 @@ from camcops_server.cc_modules.cc_taskcollection import (
     TaskFilter,
     TaskSortMethod,
 )
-from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_xml import (
     get_xml_document,
@@ -68,6 +64,12 @@ from camcops_server.cc_modules.cc_xml import (
 )
 
 import matplotlib.dates  # delayed until after the cc_plot import
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_patient import Patient
+    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -134,7 +136,7 @@ def consistency(values: List[Any],
     )
 
 
-def consistency_idnums(idnum_lists: List[List[PatientIdNum]]) \
+def consistency_idnums(idnum_lists: List[List["PatientIdNum"]]) \
         -> Tuple[bool, str]:
     """
     Checks the consistency of a set of :class:`PatientIdNum` objects.
@@ -273,7 +275,7 @@ class TrackerCtvCommon(object):
     """
 
     def __init__(self,
-                 req: CamcopsRequest,
+                 req: "CamcopsRequest",
                  taskfilter: TaskFilter,
                  as_ctv: bool,
                  via_index: bool = True) -> None:
@@ -355,19 +357,19 @@ class TrackerCtvCommon(object):
         Returns:
             an XML UTF-8 document representing our object.
         """
-        raise NotImplementedError()  # implement in derived classes
+        raise NotImplementedError("implement in subclass")
 
     def _get_html(self) -> str:
         """
         Returns an HTML representation.
         """
-        raise NotImplementedError()  # implement in derived classes
+        raise NotImplementedError("implement in subclass")
 
     def _get_pdf_html(self) -> str:
         """
         Returns HTML used for making PDFs.
         """
-        raise NotImplementedError()  # implement in derived classes
+        raise NotImplementedError("implement in subclass")
 
     # -------------------------------------------------------------------------
     # XML view
@@ -536,7 +538,7 @@ class Tracker(TrackerCtvCommon):
     """
 
     def __init__(self,
-                 req: CamcopsRequest,
+                 req: "CamcopsRequest",
                  taskfilter: TaskFilter,
                  via_index: bool = True) -> None:
         super().__init__(
@@ -611,7 +613,7 @@ class Tracker(TrackerCtvCommon):
     def get_single_plot_html(self,
                              datetimes: List[Pendulum],
                              values: List[float],
-                             specimen_tracker: TrackerInfo) -> str:
+                             specimen_tracker: "TrackerInfo") -> str:
         """
         HTML for a single figure.
         """
@@ -732,7 +734,7 @@ class ClinicalTextView(TrackerCtvCommon):
     """
 
     def __init__(self,
-                 req: CamcopsRequest,
+                 req: "CamcopsRequest",
                  taskfilter: TaskFilter,
                  via_index: bool = True) -> None:
         super().__init__(

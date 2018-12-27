@@ -42,15 +42,17 @@ SQL     As part of an SQL or SQLite download.
 
 """
 
+import datetime
 import logging
 import statistics
 from typing import (Any, Dict, Iterable, Generator, List, Optional,
-                    Tuple, Type, Union)
+                    Tuple, Type, TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
     convert_datetime_to_utc,
     format_datetime,
+    pendulum_to_utc_datetime_without_tz,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
@@ -86,7 +88,6 @@ from camcops_server.cc_modules.cc_constants import (
     INVALID_VALUE,
     # TSV_PATIENT_FIELD_PREFIX,
 )
-from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_filename import get_export_filename
 from camcops_server.cc_modules.cc_hl7 import make_obr_segment, make_obx_segment
@@ -98,13 +99,8 @@ from camcops_server.cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from camcops_server.cc_modules.cc_patient import Patient
-from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_pdf import pdf_from_html
 from camcops_server.cc_modules.cc_pyramid import ViewArg
-from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
-from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_snomed import SnomedExpression
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -122,8 +118,6 @@ from camcops_server.cc_modules.cc_summaryelement import (
     ExtraSummaryTable,
     SummaryElement,
 )
-from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
-from camcops_server.cc_modules.cc_tsv import TsvPage
 from camcops_server.cc_modules.cc_version import (
     CAMCOPS_SERVER_VERSION,
     MINIMUM_TABLET_VERSION,
@@ -142,6 +136,16 @@ from camcops_server.cc_modules.cc_xml import (
     XmlElement,
     XmlLiteral,
 )
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
+    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
+    from camcops_server.cc_modules.cc_patient import Patient
+    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_snomed import SnomedExpression
+    from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
+    from camcops_server.cc_modules.cc_tsv import TsvPage
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -509,7 +513,7 @@ class Task(GenericTabletRecordMixin, Base):
         """
         raise NotImplementedError("Task.is_complete must be overridden")
 
-    def get_task_html(self, req: CamcopsRequest) -> str:
+    def get_task_html(self, req: "CamcopsRequest") -> str:
         """
         HTML for the main task content.
 
@@ -522,7 +526,7 @@ class Task(GenericTabletRecordMixin, Base):
     # Implement if you provide trackers
     # -------------------------------------------------------------------------
 
-    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
+    def get_trackers(self, req: "CamcopsRequest") -> List["TrackerInfo"]:
         """
         Tasks that provide quantitative information for tracking over time
         should override this and return a list of
@@ -541,14 +545,17 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def get_clinical_text(self, req: CamcopsRequest) -> Optional[List[CtvInfo]]:
+    def get_clinical_text(self, req: "CamcopsRequest") \
+            -> Optional[List["CtvInfo"]]:
         """
         Tasks that provide clinical text information should override this
-        to provide a list of :class:`CtvInfo` objects.
+        to provide a list of
+        :class:`camcops_server.cc_modules.cc_ctvinfo.CtvInfo` objects.
 
         Return ``None`` (default) for a task that doesn't provide clinical
         text, or ``[]`` for one that does in general but has no information for
-        this particular instance, or a list of :class:`CtvInfo` objects.
+        this particular instance, or a list of
+        :class:`camcops_server.cc_modules.cc_ctvinfo.CtvInfo` objects.
         """
         return None
 
@@ -558,7 +565,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def get_extra_summary_tables(
-            self, req: CamcopsRequest) -> List[ExtraSummaryTable]:
+            self, req: "CamcopsRequest") -> List[ExtraSummaryTable]:
         """
         Override if you wish to create extra summary tables, not just add
         summary columns to task/ancillary tables.
@@ -574,7 +581,8 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
+    def get_snomed_codes(self,
+                         req: "CamcopsRequest") -> List["SnomedExpression"]:
         """
         Returns all SNOMED-CT codes for this task.
 
@@ -836,6 +844,17 @@ class Task(GenericTabletRecordMixin, Base):
             return None
         return convert_datetime_to_utc(localtime)
 
+    def get_creation_datetime_utc_tz_unaware(self) -> \
+            Optional[datetime.datetime]:
+        """
+        Creation time as a :class:`datetime.datetime` object on UTC with no
+        timezone (i.e. an "offset-naive" datetime), or None.
+        """
+        localtime = self.get_creation_datetime()
+        if localtime is None:
+            return None
+        return pendulum_to_utc_datetime_without_tz(localtime)
+
     def get_seconds_from_creation_to_first_finish(self) -> Optional[float]:
         """
         Time in seconds from creation time to first finish (i.e. first exit
@@ -935,7 +954,7 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def apply_special_note(self,
-                           req: CamcopsRequest,
+                           req: "CamcopsRequest",
                            note: str,
                            from_console: bool = False) -> None:
         """
@@ -988,7 +1007,7 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     @property
-    def patient(self) -> Optional[Patient]:
+    def patient(self) -> Optional["Patient"]:
         """
         Returns the :class:`camcops_server.cc_modules.cc_patient.Patient` for
         this task.
@@ -1057,17 +1076,20 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return self.patient.get_address() if self.patient else ""
 
-    def get_patient_idnum_objects(self) -> List[PatientIdNum]:
+    def get_patient_idnum_objects(self) -> List["PatientIdNum"]:
         """
-        Gets all :class:`PatientIdNum` objects for the patient.
+        Gets all
+        :class:`camcops_server.cc_modules.cc_patientidnum.PatientIdNum` objects
+        for the patient.
         """
         return self.patient.get_idnum_objects() if self.patient else []
 
     def get_patient_idnum_object(self,
-                                 which_idnum: int) -> Optional[PatientIdNum]:
+                                 which_idnum: int) -> Optional["PatientIdNum"]:
         """
-        Get the patient's :class:`PatientIdNum` for the specified ID number
-        type (``which_idnum``), or None.
+        Get the patient's
+        :class:`camcops_server.cc_modules.cc_patientidnum.PatientIdNum` for the
+        specified ID number type (``which_idnum``), or None.
         """
         return (self.patient.get_idnum_object(which_idnum) if self.patient
                 else None)
@@ -1094,8 +1116,8 @@ class Task(GenericTabletRecordMixin, Base):
         return idobj.idnum_value if idobj else None
 
     def get_patient_hl7_pid_segment(self,
-                                    req: CamcopsRequest,
-                                    recipient_def: ExportRecipient) \
+                                    req: "CamcopsRequest",
+                                    recipient_def: "ExportRecipient") \
             -> Union[hl7.Segment, str]:
         """
         Get an HL7 PID segment for the patient, or "".
@@ -1107,8 +1129,8 @@ class Task(GenericTabletRecordMixin, Base):
     # HL7
     # -------------------------------------------------------------------------
 
-    def get_hl7_data_segments(self, req: CamcopsRequest,
-                              recipient_def: ExportRecipient) \
+    def get_hl7_data_segments(self, req: "CamcopsRequest",
+                              recipient_def: "ExportRecipient") \
             -> List[hl7.Segment]:
         """
         Returns a list of HL7 data segments.
@@ -1135,7 +1157,7 @@ class Task(GenericTabletRecordMixin, Base):
         ] + self.get_hl7_extra_data_segments(recipient_def)
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def get_hl7_extra_data_segments(self, recipient_def: ExportRecipient) \
+    def get_hl7_extra_data_segments(self, recipient_def: "ExportRecipient") \
             -> List[hl7.Segment]:
         """
         Return a list of any extra HL7 data segments. (See
@@ -1145,7 +1167,7 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return []
 
-    def delete_from_hl7_message_log(self, req: CamcopsRequest,
+    def delete_from_hl7_message_log(self, req: "CamcopsRequest",
                                     from_console: bool = False) -> None:
         """
         Erases the object from the HL7 message log (so it will be resent).
@@ -1177,7 +1199,7 @@ class Task(GenericTabletRecordMixin, Base):
     # Audit
     # -------------------------------------------------------------------------
 
-    def audit(self, req: CamcopsRequest, details: str,
+    def audit(self, req: "CamcopsRequest", details: str,
               from_console: bool = False) -> None:
         """
         Audits actions to this task.
@@ -1193,7 +1215,7 @@ class Task(GenericTabletRecordMixin, Base):
     # Erasure (wiping, leaving record as placeholder)
     # -------------------------------------------------------------------------
 
-    def manually_erase(self, req: CamcopsRequest) -> None:
+    def manually_erase(self, req: "CamcopsRequest") -> None:
         """
         Manually erases a task (including sub-tables).
         Also erases linked non-current records.
@@ -1219,7 +1241,7 @@ class Task(GenericTabletRecordMixin, Base):
     # Complete deletion
     # -------------------------------------------------------------------------
 
-    def delete_entirely(self, req: CamcopsRequest) -> None:
+    def delete_entirely(self, req: "CamcopsRequest") -> None:
         """
         Completely delete this task, its lineage, and its dependants.
         """
@@ -1304,7 +1326,7 @@ class Task(GenericTabletRecordMixin, Base):
     # TSV export for basic research dump
     # -------------------------------------------------------------------------
 
-    def get_tsv_pages(self, req: CamcopsRequest) -> List[TsvPage]:
+    def get_tsv_pages(self, req: "CamcopsRequest") -> List["TsvPage"]:
         """
         Returns information used for the basic research dump in TSV format.
         """
@@ -1331,7 +1353,7 @@ class Task(GenericTabletRecordMixin, Base):
     _ = '''
 
     @classmethod
-    def get_cris_dd_rows(cls, req: CamcopsRequest) -> List[Dict]:
+    def get_cris_dd_rows(cls, req: "CamcopsRequest") -> List[Dict]:
         """
         Returns rows for a CRIS data dictionary
         (https://doi.org/10.1186/1472-6947-13-71).
@@ -1366,7 +1388,7 @@ class Task(GenericTabletRecordMixin, Base):
     _ = '''
 
     @classmethod
-    def make_cris_tables(cls, req: CamcopsRequest,
+    def make_cris_tables(cls, req: "CamcopsRequest",
                          db: "DatabaseSupporter") -> None:
         """
         Makes database tables for a CRIS anonymisation database.
@@ -1426,7 +1448,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_cris_fieldspecs_values(
             self,
-            req: CamcopsRequest,
+            req: "CamcopsRequest",
             common_fsv: "FIELDSPECLIST_TYPE") -> "FIELDSPECLIST_TYPE":
         """
         Another broken CRIS-related function.
@@ -1452,7 +1474,7 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def get_xml(self,
-                req: CamcopsRequest,
+                req: "CamcopsRequest",
                 options: TaskExportOptions = None,
                 indent_spaces: int = 4,
                 eol: str = '\n',
@@ -1481,7 +1503,7 @@ class Task(GenericTabletRecordMixin, Base):
         )
 
     def get_xml_root(self,
-                     req: CamcopsRequest,
+                     req: "CamcopsRequest",
                      options: TaskExportOptions) -> XmlElement:
         """
         Returns an XML tree. The return value is the root
@@ -1501,7 +1523,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_xml_core_branches(
             self,
-            req: CamcopsRequest,
+            req: "CamcopsRequest",
             options: TaskExportOptions) -> List[XmlElement]:
         """
         Returns a list of :class:`camcops_server.cc_modules.cc_xml.XmlElement`
@@ -1619,7 +1641,7 @@ class Task(GenericTabletRecordMixin, Base):
     # HTML view
     # -------------------------------------------------------------------------
 
-    def get_html(self, req: CamcopsRequest, anonymise: bool = False) -> str:
+    def get_html(self, req: "CamcopsRequest", anonymise: bool = False) -> str:
         """
         Returns HTML representing the task, for our HTML view.
 
@@ -1639,7 +1661,7 @@ class Task(GenericTabletRecordMixin, Base):
     # PDF view
     # -------------------------------------------------------------------------
 
-    def get_pdf(self, req: CamcopsRequest, anonymise: bool = False) -> bytes:
+    def get_pdf(self, req: "CamcopsRequest", anonymise: bool = False) -> bytes:
         """
         Returns a PDF representing the task.
 
@@ -1674,7 +1696,7 @@ class Task(GenericTabletRecordMixin, Base):
                 }
             )
 
-    def get_pdf_html(self, req: CamcopsRequest,
+    def get_pdf_html(self, req: "CamcopsRequest",
                      anonymise: bool = False) -> str:
         """
         Gets the HTML used to make the PDF (slightly different from the HTML
@@ -1689,7 +1711,7 @@ class Task(GenericTabletRecordMixin, Base):
                            viewtype=ViewArg.PDF),
                       request=req)
 
-    def suggested_pdf_filename(self, req: CamcopsRequest) -> str:
+    def suggested_pdf_filename(self, req: "CamcopsRequest") -> str:
         """
         Suggested filename for the PDF copy (for downloads).
         """
@@ -1711,7 +1733,7 @@ class Task(GenericTabletRecordMixin, Base):
             serverpk=self._pk
         )
 
-    def write_pdf_to_disk(self, req: CamcopsRequest, filename: str) -> None:
+    def write_pdf_to_disk(self, req: "CamcopsRequest", filename: str) -> None:
         """
         Writes the PDF to disk, using ``filename``.
         """
@@ -1868,7 +1890,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     # noinspection PyMethodMayBeStatic
     def get_standard_clinician_comments_block(self,
-                                              req: CamcopsRequest,
+                                              req: "CamcopsRequest",
                                               comments: str) -> str:
         """
         HTML DIV for clinician's comments.
@@ -1877,7 +1899,7 @@ class Task(GenericTabletRecordMixin, Base):
                       dict(comment=comments),
                       request=req)
 
-    def get_is_complete_td_pair(self, req: CamcopsRequest) -> str:
+    def get_is_complete_td_pair(self, req: "CamcopsRequest") -> str:
         """
         HTML to indicate whether task is complete or not, and to make it
         very obvious visually when it isn't.
@@ -1888,7 +1910,7 @@ class Task(GenericTabletRecordMixin, Base):
             get_yes_no(req, c)
         )
 
-    def get_is_complete_tr(self, req: CamcopsRequest) -> str:
+    def get_is_complete_tr(self, req: "CamcopsRequest") -> str:
         """
         HTML table row to indicate whether task is complete or not, and to
         make it very obvious visually when it isn't.
@@ -1938,7 +1960,7 @@ class Task(GenericTabletRecordMixin, Base):
         return tr_qa(label, getattr(self, fieldname))
 
     def get_twocol_bool_row(self,
-                            req: CamcopsRequest,
+                            req: "CamcopsRequest",
                             fieldname: str,
                             label: str = None) -> str:
         """
@@ -1958,7 +1980,7 @@ class Task(GenericTabletRecordMixin, Base):
         return tr_qa(label, get_yes_no_none(req, getattr(self, fieldname)))
 
     def get_twocol_bool_row_true_false(self,
-                                       req: CamcopsRequest,
+                                       req: "CamcopsRequest",
                                        fieldname: str,
                                        label: str = None) -> str:
         """
@@ -1979,7 +2001,7 @@ class Task(GenericTabletRecordMixin, Base):
         return tr_qa(label, get_true_false_none(req, getattr(self, fieldname)))
 
     def get_twocol_bool_row_present_absent(self,
-                                           req: CamcopsRequest,
+                                           req: "CamcopsRequest",
                                            fieldname: str,
                                            label: str = None) -> str:
         """
@@ -2177,14 +2199,14 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return self.extrastring_taskname or self.tablename
 
-    def extrastrings_exist(self, req: CamcopsRequest) -> bool:
+    def extrastrings_exist(self, req: "CamcopsRequest") -> bool:
         """
         Does the server have any extra strings for this task?
         """
         return req.task_extrastrings_exist(self.get_extrastring_taskname())
 
     def wxstring(self,
-                 req: CamcopsRequest,
+                 req: "CamcopsRequest",
                  name: str,
                  defaultvalue: str = None,
                  provide_default_if_none: bool = True) -> str:
@@ -2210,7 +2232,7 @@ class Task(GenericTabletRecordMixin, Base):
             provide_default_if_none=provide_default_if_none)
 
     def xstring(self,
-                req: CamcopsRequest,
+                req: "CamcopsRequest",
                 name: str,
                 defaultvalue: str = None,
                 provide_default_if_none: bool = True) -> str:
@@ -2328,7 +2350,9 @@ class TaskTests(DemoDatabaseTestCase):
         import hl7
         from sqlalchemy.sql.schema import Column
         from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
+        from camcops_server.cc_modules.cc_patient import Patient
         from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
+        from camcops_server.cc_modules.cc_snomed import SnomedExpression
         from camcops_server.cc_modules.cc_summaryelement import SummaryElement
         from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
         from camcops_server.cc_modules.cc_tsv import TsvPage

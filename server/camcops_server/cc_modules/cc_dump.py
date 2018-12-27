@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_dump.py
 """
 
 import logging
-from typing import Any, Dict, Iterable, List, Set
+from typing import Any, Dict, Iterable, List, Set, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
@@ -45,11 +45,13 @@ from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group, group_group_table
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
-from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
-from camcops_server.cc_modules.cc_summaryelement import ExtraSummaryTable
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_user import User
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_summaryelement import ExtraSummaryTable
+    from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -120,7 +122,7 @@ class DumpController(object):
                  dst_engine: Engine,
                  dst_session: SqlASession,
                  include_blobs: bool,
-                 req: CamcopsRequest) -> None:
+                 req: "CamcopsRequest") -> None:
         """
         Args:
             dst_engine: destination SQLAlchemy Engine
@@ -267,7 +269,7 @@ class DumpController(object):
                 for row in est.rows:
                     self.dst_session.execute(dst_summary_table.insert(row))
 
-    def _get_or_insert_summary_table(self, est: ExtraSummaryTable) -> Table:
+    def _get_or_insert_summary_table(self, est: "ExtraSummaryTable") -> Table:
         """
         Add an additional summary table to the dump, if it's not there already.
         Return the table (from the destination database).
@@ -314,8 +316,8 @@ class DumpController(object):
 def copy_tasks_and_summaries(tasks: Iterable[Task],
                              dst_engine: Engine,
                              dst_session: SqlASession,
-                             export_options: TaskExportOptions,
-                             req: CamcopsRequest) -> None:
+                             export_options: "TaskExportOptions",
+                             req: "CamcopsRequest") -> None:
     """
     Copy a set of tasks, and their associated related information (found by
     walking the SQLAlchemy ORM tree), to the dump.

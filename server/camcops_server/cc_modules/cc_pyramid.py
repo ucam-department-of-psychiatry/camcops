@@ -1068,9 +1068,9 @@ class CamcopsPage(Page):
                  show_if_single_page: bool = False,
                  separator: str = ' ',
                  symbol_first: str = '&lt;&lt;',
-                 symbol_last: str ='&gt;&gt;',
+                 symbol_last: str = '&gt;&gt;',
                  symbol_previous: str = '&lt;',
-                 symbol_next: str='&gt;',
+                 symbol_next: str = '&gt;',
                  link_attr: Dict[str, str] = None,
                  curpage_attr: Dict[str, str] = None,
                  dotdot_attr: Dict[str, str] = None):

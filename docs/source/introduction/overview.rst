@@ -21,6 +21,8 @@
 Overview
 ========
 
+**Summary**
+
 CamCOPS is:
 
 - an application that runs on tablet devices including **iPads, Android
@@ -59,3 +61,71 @@ Internally,
 
 - The server is written in Python and will run on any suitably configured web
   server.
+
+**Features for patients**
+
+- Enter information electronically in a convenient format on a mobile or
+  desktop device.
+
+- See automatically calculated summary information.
+
+**Features for clinicians**
+
+- Enter information electronically in a convenient format on a mobile or
+  desktop device.
+
+- Lock a device so one patient can't see another's information.
+
+- Have summary scores automatically calculated for you.
+
+- Upload data to your institution when you have a network connection.
+
+- Find and view tasks on the CamCOPS server.
+
+- View tasks in a quick HTML format, or a printable PDF format.
+
+- Track numerical changes graphically over time.
+
+- View quick "clinical text view" summaries of pertinent information.
+
+**Features for researchers**
+
+- As for clinicians above.
+
+- View tasks with automatically calculated summary information.
+
+- Download detailed structured information in spreadsheet or database format.
+
+- View reports, including patient-finding queries.
+
+- A description of the database structure is built into the database itself
+  (visible via XML or SQL comments).
+
+**Features for system administrators**
+
+- Group security and group administrators.
+
+  - Create groups.
+  - Define a group's preferred ID policy. (Fully identifiable for clinical use?
+    Pseudonymised for a research study?)
+  - Allow users to see groups, or groups to see other groups.
+  - Create group administrators to manage groups independently.
+
+- Export facilities
+
+  - Export via files, e-mails, HL7.
+  - Export tasks as PDF, HTML, XML, or as a database.
+  - For database export, add summary information or denormalize for subsequent
+    anonymisation.
+  - Define export recipients: what's exported (e.g. by group, creation date),
+    what task format you prefer, how the export should proceed. For a given
+    export recipient, exports are typically incremental (i.e. only new stuff is
+    sent).
+  - Metadata support for Servelec's RiO.
+  - Export manually, or via a schedule (either via the operating system, e.g.
+    via `crontab`, or via CamCOPS's own scheduler).
+  - "Push" export: when a task is uploaded, it's exported.
+
+- Detailed audit trails.
+
+- Coding via SNOMED-CT.

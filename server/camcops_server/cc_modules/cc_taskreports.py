@@ -28,7 +28,7 @@ camcops_server/cc_modules/cc_taskreports.py
 
 """
 
-from typing import Any, List, Sequence, Type
+from typing import Any, List, Sequence, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
@@ -44,9 +44,11 @@ from camcops_server.cc_modules.cc_forms import (
 )
 from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_report import Report, PlainReportType
-from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_taskindex import TaskIndexEntry
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
 # =============================================================================
@@ -87,7 +89,7 @@ class TaskCountReport(Report):
             ViewParam.VIA_INDEX
         ]
 
-    def get_rows_colnames(self, req: CamcopsRequest) -> PlainReportType:
+    def get_rows_colnames(self, req: "CamcopsRequest") -> PlainReportType:
         final_rows = []  # type: List[Sequence[Sequence[Any]]]
         colnames = []  # type: List[str]
         dbsession = req.dbsession

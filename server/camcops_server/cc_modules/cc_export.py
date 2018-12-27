@@ -293,7 +293,7 @@ def export_whole_database(req: "CamcopsRequest",
     lockfilename = cfg.get_export_lockfilename_db(
         recipient_name=recipient.recipient_name)
     try:
-        with lockfile.FileLock(lockfilename):
+        with lockfile.FileLock(lockfilename, timeout=0):  # doesn't wait
             collection = get_collection_for_export(req, recipient,
                                                    via_index=via_index)
             dst_engine = create_engine(recipient.db_url,
@@ -369,6 +369,14 @@ def export_task(req: "CamcopsRequest",
         recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
         task: a :class:`camcops_server.cc_modules.cc_task.Task` 
     """  # noqa
+
+    # Double-check it's OK! Just in case, for example, an old backend task has
+    # persisted, or someone's managed to get an iffy back-end request in some
+    # other way.
+    if not recipient.is_task_suitable(task):
+        # Warning will already have been emitted.
+        return
+
     cfg = req.config
     lockfilename = cfg.get_export_lockfilename_task(
         recipient_name=recipient.recipient_name,
@@ -377,7 +385,7 @@ def export_task(req: "CamcopsRequest",
     )
     dbsession = req.dbsession
     try:
-        with lockfile.FileLock(lockfilename):
+        with lockfile.FileLock(lockfilename, timeout=0):  # doesn't wait
             # We recheck the export status once we hold the lock, in case
             # multiple jobs are competing to export it.
             if ExportedTask.task_already_exported(
@@ -385,8 +393,10 @@ def export_task(req: "CamcopsRequest",
                     recipient_name=recipient.recipient_name,
                     basetable=task.tablename,
                     task_pk=task.get_pk()):
-                log.warning("Task {!r} already exported to recipient {!r}; "
-                            "ignoring", task, recipient)
+                log.info("Task {!r} already exported to recipient {!r}; "
+                         "ignoring", task, recipient)
+                # Not a warning; it's normal to see these because it allows the
+                # client API to skip some checks for speed.
                 return
             # OK; safe to export now.
             et = ExportedTask(recipient, task)

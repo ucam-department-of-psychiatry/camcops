@@ -51,9 +51,9 @@ from markupsafe import escape, Markup
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
-REGEX_WHITESPACE = re.compile("\s")
-TAB_REGEX = re.compile("\t", re.MULTILINE)
-NEWLINE_REGEX = re.compile("\n", re.MULTILINE)
+REGEX_WHITESPACE = re.compile(r"\s")
+TAB_REGEX = re.compile(r"\t", re.MULTILINE)
+NEWLINE_REGEX = re.compile(r"\n", re.MULTILINE)
 
 
 # =============================================================================
@@ -179,14 +179,22 @@ def tsv_escape(value: Any) -> str:
     """
     Escapes ``value`` for tab-separated value (TSV) format.
 
-    Converts to ``str`` and escapes tabs/newlines.
+    Converts to ``str`` and escapes tabs (but not newlines).
+
+    Test:
+
+    .. code-block:: python
+
+        from camcops_server.cc_modules.cc_convert import *
+        print(tsv_escape("hello\nthere\tworld"))
     """
     if value is None:
         return ""
     s = str(value)
-    # escape tabs and newlines:
-    s = TAB_REGEX.sub("\\t", s)
-    s = NEWLINE_REGEX.sub("\\n", s)
+    # escape tabs:
+    s = TAB_REGEX.sub(r"\\t", s)
+    # but not newlines!
+    # s = NEWLINE_REGEX.sub(r"\\n", s)
     return s
 
 

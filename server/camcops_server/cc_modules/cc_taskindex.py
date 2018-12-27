@@ -130,6 +130,7 @@ class PatientIdNumIndexEntry(Base):
         comment="When this index entry was created"
     )
 
+    # noinspection PyProtectedMember
     patient_pk = Column(
         "patient_pk", Integer, ForeignKey(Patient._pk),
         index=True,
@@ -164,6 +165,7 @@ class PatientIdNumIndexEntry(Base):
         :class:`camcops_server.cc_modules.cc_patientidnum.PatientIdNum`. The
         returned index requires inserting into a database session.
         """
+        # noinspection PyProtectedMember
         assert idnum._current, "Only index current PatientIdNum objects"
         index = cls()
         index.idnum_pk = idnum.get_pk()
@@ -379,6 +381,7 @@ class TaskIndexEntry(Base):
     # and we are trying to be efficient. So let's do via task() below.
 
     # This links to the task's patient, if there is one:
+    # noinspection PyProtectedMember
     patient_pk = Column(
         "patient_pk", Integer, ForeignKey(Patient._pk),
         index=True,
@@ -574,6 +577,7 @@ class TaskIndexEntry(Base):
         index.era = task.get_era()
         index.when_created_utc = task.get_creation_datetime_utc()
         index.when_created_iso = task.when_created
+        # noinspection PyProtectedMember
         index.when_added_batch_utc = task._when_added_batch_utc
         index.adding_user_id = task.get_adding_user_id()
         index.group_id = task.get_group_id()
@@ -632,7 +636,7 @@ class TaskIndexEntry(Base):
                 .where(idxcols.table_name == tasktablename)
             )
         # Create new entries
-        # noinspection PyPep8,PyUnresolvedReferences
+        # noinspection PyPep8,PyUnresolvedReferences,PyProtectedMember
         q = (
             session.query(taskclass)
             .filter(taskclass._current == True)
@@ -718,7 +722,7 @@ class TaskIndexEntry(Base):
         if reindex_pks:
             log.debug("Recreating task indexes: {}, server PKs {}",
                       tasktablename, reindex_pks)
-            # noinspection PyUnboundLocalVariable
+            # noinspection PyUnboundLocalVariable,PyProtectedMember
             q = (
                 session.query(taskclass)
                 .filter(taskclass._pk.in_(reindex_pks))
@@ -745,11 +749,13 @@ def reindex_everything(session: SqlASession) -> None:
     TaskIndexEntry.rebuild_entire_task_index(session, now)
 
 
-def update_indexes(req: "CamcopsRequest",
-                   batchdetails: BatchDetails,
-                   tablechanges: UploadTableChanges) -> None:
+def update_indexes_and_push_exports(req: "CamcopsRequest",
+                                    batchdetails: BatchDetails,
+                                    tablechanges: UploadTableChanges) -> None:
     """
     Update server indexes, if required.
+    
+    Also triggers background jobs to export "new arrivals", if required.
 
     Args:
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
@@ -773,3 +779,14 @@ def update_indexes(req: "CamcopsRequest",
             tablechanges=tablechanges,
             indexed_at_utc=batchdetails.batchtime
         )
+        # Push exports
+        recipients = req.all_push_recipients
+        uploading_group_id = req.user.upload_group_id
+        for recipient in recipients:
+            recipient_name = recipient.recipient_name
+            for pk in tablechanges.get_task_export_pks(
+                    recipient=recipient,
+                    uploading_group_id=uploading_group_id):
+                req.add_export_push_request(recipient_name, tablename, pk)
+                # ... will be transmitted *after* the request performs COMMIT
+

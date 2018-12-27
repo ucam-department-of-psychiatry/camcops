@@ -48,7 +48,6 @@ from sqlalchemy.sql.expression import and_, exists, or_
 import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
-from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import (
     tablename_to_task_class_dict,
     Task,
@@ -61,6 +60,7 @@ from camcops_server.cc_modules.cc_taskindex import TaskIndexEntry
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ClauseElement, ColumnElement
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -87,6 +87,7 @@ def task_when_created_sorter(task: Task) \
     """
     # For sorting of tasks
     created = task.when_created
+    # noinspection PyProtectedMember
     uploaded = task._when_added_batch_utc
     return MINTYPE_SINGLETON if created is None else (created, uploaded)
 
@@ -147,7 +148,7 @@ class FetchThread(Thread):
     CURRENTLY UNUSED.
     """
     def __init__(self,
-                 req: CamcopsRequest,
+                 req: "CamcopsRequest",
                  task_class: Type[Task],
                  factory: "TaskCollection",
                  **kwargs) -> None:
@@ -194,7 +195,7 @@ class TaskCollection(object):
     by task class (e.g. trackers).
     """
     def __init__(self,
-                 req: CamcopsRequest,
+                 req: "CamcopsRequest",
                  taskfilter: TaskFilter = None,
                  as_dump: bool = False,
                  sort_method_by_class: TaskSortMethod = TaskSortMethod.NONE,
@@ -747,6 +748,7 @@ class TaskCollection(object):
                 continue
             tasklist = self._tasks_by_class.setdefault(taskclass, [])
             task_pks = [i.task_pk for i in indexes if i.tablename == tablename]
+            # noinspection PyProtectedMember
             qtask = (
                 dbsession.query(taskclass)
                 .filter(taskclass._pk.in_(task_pks))

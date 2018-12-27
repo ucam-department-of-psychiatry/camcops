@@ -28,9 +28,10 @@ camcops_server/cc_modules/cc_nhs.py
 
 """
 
-from typing import Dict, Optional
+from typing import Dict, Optional, TYPE_CHECKING
 
-from camcops_server.cc_modules.cc_request import CamcopsRequest
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
 # =============================================================================
@@ -46,7 +47,7 @@ PV_NHS_ETHNIC_CATEGORY = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
 
 
 def get_nhs_dd_person_marital_status(
-        req: CamcopsRequest) -> Dict[Optional[str], Optional[str]]:
+        req: "CamcopsRequest") -> Dict[Optional[str], Optional[str]]:
     """
     Returns a dictionary mapping NHS marital status codes to descriptive
     strings.
@@ -63,7 +64,7 @@ def get_nhs_dd_person_marital_status(
 
 
 def get_nhs_dd_ethnic_category_code(
-        req: CamcopsRequest) -> Dict[Optional[str], Optional[str]]:
+        req: "CamcopsRequest") -> Dict[Optional[str], Optional[str]]:
     """
     Returns a dictionary mapping NHS ethnicity codes to descriptive
     strings.

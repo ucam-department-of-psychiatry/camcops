@@ -75,7 +75,7 @@ import datetime
 import os
 import logging
 import re
-from typing import Dict, Generator, List, TYPE_CHECKING, Union
+from typing import Dict, Generator, List, Union
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -151,9 +151,6 @@ from camcops_server.cc_modules.cc_snomed import (
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
 )
-
-if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -1422,7 +1419,7 @@ class CamcopsConfig(object):
         Args:
             parser: optional :class:`configparser.ConfigParser` object.
         """
-        self._export_recipients = []  # type: List[ExportRecipient]
+        self._export_recipients = []  # type: List[ExportRecipientInfo]
         for recip_name in self.export_recipient_names:
             log.debug("Loading export config for recipient {!r}", recip_name)
             recipient = ExportRecipientInfo.read_from_config(
@@ -1439,6 +1436,10 @@ class CamcopsConfig(object):
             :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
         """  # noqa
         return self._export_recipients
+
+    # -------------------------------------------------------------------------
+    # File-based locks
+    # -------------------------------------------------------------------------
 
     def get_export_lockfilename_db(self, recipient_name: str) -> str:
         """
@@ -1472,6 +1473,28 @@ class CamcopsConfig(object):
         filename = "camcops_export_task_{}_{}_{}".format(
             recipient_name, basetable, pk)
         # ".lock" is appended automatically by the lockfile package
+        return os.path.join(self.export_lockdir, filename)
+
+    def get_master_export_recipient_lockfilename(self) -> str:
+        """
+        When we are modifying export recipients, we check "is this information
+        the same as the current version in the databse", and if not, we write
+        fresh information to the database. If lots of processes do that at the
+        same time, we have a problem (usually a database deadlock) -- hence
+        this lock.
+
+        Returns:
+            a filename
+        """
+        filename = "camcops_master_export_recipient"
+        # ".lock" is appended automatically by the lockfile package
+        return os.path.join(self.export_lockdir, filename)
+
+    def get_celery_beat_pidfilename(self) -> str:
+        """
+        Process ID file (pidfile) used by ``celery beat --pidfile ...``.
+        """
+        filename = "camcops_celerybeat.pid"
         return os.path.join(self.export_lockdir, filename)
 
 

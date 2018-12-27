@@ -336,7 +336,7 @@ import logging
 import json
 # from pprint import pformat
 import time
-from typing import Any, Dict, Iterable, List, Optional, Sequence
+from typing import Any, Dict, Iterable, List, Optional, Sequence, TYPE_CHECKING
 import unittest
 
 from cardinal_pythonlib.convert import (
@@ -445,7 +445,6 @@ from camcops_server.cc_modules.cc_patientidnum import (
     PatientIdNum,
 )
 from camcops_server.cc_modules.cc_pyramid import Routes
-from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_simpleobjects import (
     BarePatientInfo,
     IdNumReference,
@@ -454,12 +453,15 @@ from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_task import (
     all_task_tables_with_min_client_version,
 )
-from camcops_server.cc_modules.cc_taskindex import update_indexes
+from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_version import (
     CAMCOPS_SERVER_VERSION_STRING,
     MINIMUM_TABLET_VERSION,
 )
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -521,7 +523,7 @@ def all_tables_with_min_client_version() -> Dict[str, Version]:
 # Validators
 # =============================================================================
 
-def ensure_valid_table_name(req: CamcopsRequest, tablename: str) -> None:
+def ensure_valid_table_name(req: "CamcopsRequest", tablename: str) -> None:
     """
     Ensures a table name:
 
@@ -583,7 +585,7 @@ def ensure_valid_field_name(table: Table, fieldname: str) -> None:
 # Extracting information from the POST request
 # =============================================================================
 
-def get_str_var(req: CamcopsRequest,
+def get_str_var(req: "CamcopsRequest",
                 var: str,
                 mandatory: bool = True) -> Optional[str]:
     """
@@ -607,7 +609,7 @@ def get_str_var(req: CamcopsRequest,
     return val
 
 
-def get_int_var(req: CamcopsRequest, var: str) -> int:
+def get_int_var(req: "CamcopsRequest", var: str) -> int:
     """
     Retrieves an integer variable from the CamcopsRequest.
 
@@ -630,7 +632,7 @@ def get_int_var(req: CamcopsRequest, var: str) -> int:
             var, s))
 
 
-def get_bool_int_var(req: CamcopsRequest, var: str) -> bool:
+def get_bool_int_var(req: "CamcopsRequest", var: str) -> bool:
     """
     Retrieves a Boolean variable (encoded as an integer) from the
     CamcopsRequest. Zero represents false; nonzero represents true.
@@ -650,7 +652,7 @@ def get_bool_int_var(req: CamcopsRequest, var: str) -> bool:
     return bool(num)
 
 
-def get_table_from_req(req: CamcopsRequest, var: str) -> Table:
+def get_table_from_req(req: "CamcopsRequest", var: str) -> Table:
     """
     Retrieves a table name from a HTTP request, checks it's a valid client
     table, and returns that table.
@@ -676,7 +678,7 @@ def get_table_from_req(req: CamcopsRequest, var: str) -> Table:
     return CLIENT_TABLE_MAP[tablename]
 
 
-def get_tables_from_post_var(req: CamcopsRequest,
+def get_tables_from_post_var(req: "CamcopsRequest",
                              var: str,
                              mandatory: bool = True) -> List[Table]:
     """
@@ -711,7 +713,7 @@ def get_tables_from_post_var(req: CamcopsRequest,
     return tables
 
 
-def get_single_field_from_post_var(req: CamcopsRequest,
+def get_single_field_from_post_var(req: "CamcopsRequest",
                                    table: Table,
                                    var: str,
                                    mandatory: bool = True) -> str:
@@ -738,7 +740,7 @@ def get_single_field_from_post_var(req: CamcopsRequest,
     return field
 
 
-def get_fields_from_post_var(req: CamcopsRequest,
+def get_fields_from_post_var(req: "CamcopsRequest",
                              table: Table,
                              var: str,
                              mandatory: bool = True) -> List[str]:
@@ -771,7 +773,7 @@ def get_fields_from_post_var(req: CamcopsRequest,
     return fields
 
 
-def get_values_from_post_var(req: CamcopsRequest,
+def get_values_from_post_var(req: "CamcopsRequest",
                              var: str,
                              mandatory: bool = True) -> List[Any]:
     """
@@ -790,7 +792,7 @@ def get_values_from_post_var(req: CamcopsRequest,
     return decode_values(csvalues)
 
 
-def get_fields_and_values(req: CamcopsRequest,
+def get_fields_and_values(req: "CamcopsRequest",
                           table: Table,
                           fields_var: str,
                           values_var: str,
@@ -826,7 +828,7 @@ def get_fields_and_values(req: CamcopsRequest,
     return dict(list(zip(fields, values)))
 
 
-def get_json_from_post_var(req: CamcopsRequest, key: str,
+def get_json_from_post_var(req: "CamcopsRequest", key: str,
                            decoder: json.JSONDecoder = None,
                            mandatory: bool = True) -> Any:
     """
@@ -866,7 +868,7 @@ def get_json_from_post_var(req: CamcopsRequest, key: str,
 # Sending stuff to the client
 # =============================================================================
 
-def get_server_id_info(req: CamcopsRequest) -> Dict[str, str]:
+def get_server_id_info(req: "CamcopsRequest") -> Dict[str, str]:
     """
     Returns a reply for the tablet, as a variable-to-value dictionary, giving
     details of the server.
@@ -939,7 +941,7 @@ def get_select_reply(fields: Sequence[str],
 # CamCOPS table reading functions
 # =============================================================================
 
-def record_exists(req: CamcopsRequest,
+def record_exists(req: "CamcopsRequest",
                   table: Table,
                   clientpk_name: str,
                   clientpk_value: Any) -> ServerRecord:
@@ -978,7 +980,7 @@ def record_exists(req: CamcopsRequest,
     # Not currently checked for.
 
 
-def client_pks_that_exist(req: CamcopsRequest,
+def client_pks_that_exist(req: "CamcopsRequest",
                           table: Table,
                           clientpk_name: str,
                           clientpk_values: List[int]) \
@@ -1017,7 +1019,7 @@ def client_pks_that_exist(req: CamcopsRequest,
     return d
 
 
-def get_all_predecessor_pks(req: CamcopsRequest,
+def get_all_predecessor_pks(req: "CamcopsRequest",
                             table: Table,
                             last_pk: int,
                             include_last: bool = True) -> List[int]:
@@ -1057,7 +1059,7 @@ def get_all_predecessor_pks(req: CamcopsRequest,
 # Record modification functions
 # =============================================================================
 
-def flag_deleted(req: CamcopsRequest,
+def flag_deleted(req: "CamcopsRequest",
                  batchdetails: BatchDetails,
                  table: Table,
                  pklist: Iterable[int]) -> None:
@@ -1077,7 +1079,7 @@ def flag_deleted(req: CamcopsRequest,
     )
 
 
-def flag_all_records_deleted(req: CamcopsRequest,
+def flag_all_records_deleted(req: "CamcopsRequest",
                              table: Table) -> int:
     """
     Marks all records in a table as deleted (that are current and in the
@@ -1096,7 +1098,7 @@ def flag_all_records_deleted(req: CamcopsRequest,
     # https://docs.sqlalchemy.org/en/latest/core/connections.html?highlight=rowcount#sqlalchemy.engine.ResultProxy.rowcount  # noqa
 
 
-def flag_deleted_where_clientpk_not(req: CamcopsRequest,
+def flag_deleted_where_clientpk_not(req: "CamcopsRequest",
                                     table: Table,
                                     clientpk_name: str,
                                     clientpk_values: Sequence[Any]) -> None:
@@ -1119,7 +1121,7 @@ def flag_deleted_where_clientpk_not(req: CamcopsRequest,
     # be other records that still require preserving.
 
 
-def flag_modified(req: CamcopsRequest,
+def flag_modified(req: "CamcopsRequest",
                   batchdetails: BatchDetails,
                   table: Table,
                   pk: int,
@@ -1159,7 +1161,7 @@ def flag_modified(req: CamcopsRequest,
 
 
 def flag_multiple_records_for_preservation(
-        req: CamcopsRequest,
+        req: "CamcopsRequest",
         batchdetails: BatchDetails,
         table: Table,
         pks_to_preserve: List[int]) -> None:
@@ -1206,7 +1208,7 @@ def flag_multiple_records_for_preservation(
         )
 
 
-def flag_record_for_preservation(req: CamcopsRequest,
+def flag_record_for_preservation(req: "CamcopsRequest",
                                  batchdetails: BatchDetails,
                                  table: Table,
                                  pk: int) -> List[int]:
@@ -1232,7 +1234,7 @@ def flag_record_for_preservation(req: CamcopsRequest,
     return pks_to_preserve
 
 
-def preserve_all(req: CamcopsRequest,
+def preserve_all(req: "CamcopsRequest",
                  batchdetails: BatchDetails,
                  table: Table) -> None:
     """
@@ -1256,7 +1258,7 @@ def preserve_all(req: CamcopsRequest,
 # Upload helper functions
 # =============================================================================
 
-def process_upload_record_special(req: CamcopsRequest,
+def process_upload_record_special(req: "CamcopsRequest",
                                   batchdetails: BatchDetails,
                                   table: Table,
                                   valuedict: Dict[str, Any]) -> None:
@@ -1350,7 +1352,7 @@ def process_upload_record_special(req: CamcopsRequest,
 
 
 def upload_record_core(
-        req: CamcopsRequest,
+        req: "CamcopsRequest",
         batchdetails: BatchDetails,
         table: Table,
         clientpk_name: str,
@@ -1428,7 +1430,7 @@ def upload_record_core(
     return urr
 
 
-def insert_record(req: CamcopsRequest,
+def insert_record(req: "CamcopsRequest",
                   batchdetails: BatchDetails,
                   table: Table,
                   valuedict: Dict[str, Any],
@@ -1476,7 +1478,7 @@ def insert_record(req: CamcopsRequest,
     return inserted_pks[0]
 
 
-def audit_upload(req: CamcopsRequest,
+def audit_upload(req: "CamcopsRequest",
                  changes: List[UploadTableChanges]) -> None:
     """
     Writes audit information for an upload.
@@ -1501,7 +1503,7 @@ def audit_upload(req: CamcopsRequest,
 # Batch (atomic) upload and preserving
 # =============================================================================
 
-def get_batch_details(req: CamcopsRequest) -> BatchDetails:
+def get_batch_details(req: "CamcopsRequest") -> BatchDetails:
     """
     Returns the :class:`BatchDetails` for the current upload. If none exists,
     a new batch is created and returned.
@@ -1536,7 +1538,7 @@ def get_batch_details(req: CamcopsRequest) -> BatchDetails:
     return BatchDetails(upload_batch_utc, currently_preserving)
 
 
-def start_device_upload_batch(req: CamcopsRequest) -> None:
+def start_device_upload_batch(req: "CamcopsRequest") -> None:
     """
     Starts an upload batch for a device.
     """
@@ -1551,7 +1553,7 @@ def start_device_upload_batch(req: CamcopsRequest) -> None:
     )
 
 
-def _clear_ongoing_upload_batch_details(req: CamcopsRequest) -> None:
+def _clear_ongoing_upload_batch_details(req: "CamcopsRequest") -> None:
     """
     Clears upload batch details from the Device table.
 
@@ -1568,7 +1570,7 @@ def _clear_ongoing_upload_batch_details(req: CamcopsRequest) -> None:
     )
 
 
-def end_device_upload_batch(req: CamcopsRequest,
+def end_device_upload_batch(req: "CamcopsRequest",
                             batchdetails: BatchDetails) -> None:
     """
     Ends an upload batch, committing all changes made thus far.
@@ -1581,7 +1583,7 @@ def end_device_upload_batch(req: CamcopsRequest,
     _clear_ongoing_upload_batch_details(req)
 
 
-def clear_device_upload_batch(req: CamcopsRequest) -> None:
+def clear_device_upload_batch(req: "CamcopsRequest") -> None:
     """
     Ensures there is nothing pending. Rools back previous changes. Wipes any
     ongoing batch details.
@@ -1593,7 +1595,7 @@ def clear_device_upload_batch(req: CamcopsRequest) -> None:
     _clear_ongoing_upload_batch_details(req)
 
 
-def start_preserving(req: CamcopsRequest) -> None:
+def start_preserving(req: "CamcopsRequest") -> None:
     """
     Starts preservation (the process of moving records from the NOW era to
     an older era, so they can be removed safely from the tablet).
@@ -1612,7 +1614,7 @@ def start_preserving(req: CamcopsRequest) -> None:
     mark_all_tables_dirty(req)
 
 
-def mark_table_dirty(req: CamcopsRequest, table: Table) -> None:
+def mark_table_dirty(req: "CamcopsRequest", table: Table) -> None:
     """
     Marks a table as having been modified during the current upload.
     """
@@ -1635,7 +1637,7 @@ def mark_table_dirty(req: CamcopsRequest, table: Table) -> None:
         )
 
 
-def mark_tables_dirty(req: CamcopsRequest, tables: List[Table]) -> None:
+def mark_tables_dirty(req: "CamcopsRequest", tables: List[Table]) -> None:
     """
     Marks multiple tables as dirty.
     """
@@ -1662,7 +1664,7 @@ def mark_tables_dirty(req: CamcopsRequest, tables: List[Table]) -> None:
     )
 
 
-def mark_all_tables_dirty(req: CamcopsRequest) -> None:
+def mark_all_tables_dirty(req: "CamcopsRequest") -> None:
     """
     If we are preserving, we assume that all tables are "dirty" (require work
     when we complete the upload) unless we specifically mark them clean.
@@ -1688,7 +1690,7 @@ def mark_all_tables_dirty(req: CamcopsRequest) -> None:
     )
 
 
-def mark_table_clean(req: CamcopsRequest, table: Table) -> None:
+def mark_table_clean(req: "CamcopsRequest", table: Table) -> None:
     """
     Marks a table as being clean: that is,
 
@@ -1706,7 +1708,7 @@ def mark_table_clean(req: CamcopsRequest, table: Table) -> None:
     )
 
 
-def mark_tables_clean(req: CamcopsRequest, tables: List[Table]) -> None:
+def mark_tables_clean(req: "CamcopsRequest", tables: List[Table]) -> None:
     """
     Marks multiple tables as clean.
     """
@@ -1723,7 +1725,7 @@ def mark_tables_clean(req: CamcopsRequest, tables: List[Table]) -> None:
     )
 
 
-def get_dirty_tables(req: CamcopsRequest) -> List[Table]:
+def get_dirty_tables(req: "CamcopsRequest") -> List[Table]:
     """
     Returns tables marked as dirty for this device. (See
     :func:`mark_table_dirty`.)
@@ -1736,7 +1738,7 @@ def get_dirty_tables(req: CamcopsRequest) -> List[Table]:
     return [CLIENT_TABLE_MAP[tn] for tn in tablenames]
 
 
-def commit_all(req: CamcopsRequest, batchdetails: BatchDetails) -> None:
+def commit_all(req: "CamcopsRequest", batchdetails: BatchDetails) -> None:
     """
     Commits additions, removals, and preservations for all tables.
 
@@ -1781,7 +1783,7 @@ def commit_all(req: CamcopsRequest, batchdetails: BatchDetails) -> None:
     # Overall upload down to ~2.4s
 
 
-def commit_table(req: CamcopsRequest,
+def commit_table(req: "CamcopsRequest",
                  batchdetails: BatchDetails,
                  table: Table,
                  clear_dirty: bool = True) -> UploadTableChanges:
@@ -1905,7 +1907,7 @@ def commit_table(req: CamcopsRequest,
     # -------------------------------------------------------------------------
     # Update special indexes
     # -------------------------------------------------------------------------
-    update_indexes(req, batchdetails, tablechanges)
+    update_indexes_and_push_exports(req, batchdetails, tablechanges)
 
     # -------------------------------------------------------------------------
     # Remove individually from list of dirty tables?
@@ -1925,7 +1927,7 @@ def commit_table(req: CamcopsRequest,
     return tablechanges
 
 
-def rollback_all(req: CamcopsRequest) -> None:
+def rollback_all(req: "CamcopsRequest") -> None:
     """
     Rolls back all pending changes for a device.
     """
@@ -1935,7 +1937,7 @@ def rollback_all(req: CamcopsRequest) -> None:
     clear_dirty_tables(req)
 
 
-def rollback_table(req: CamcopsRequest, table: Table) -> None:
+def rollback_table(req: "CamcopsRequest", table: Table) -> None:
     """
     Rolls back changes for an individual table for a device.
     """
@@ -1969,7 +1971,7 @@ def rollback_table(req: CamcopsRequest, table: Table) -> None:
     )
 
 
-def clear_dirty_tables(req: CamcopsRequest) -> None:
+def clear_dirty_tables(req: "CamcopsRequest") -> None:
     """
     Clears the dirty-table list for a device.
     """
@@ -1985,7 +1987,7 @@ def clear_dirty_tables(req: CamcopsRequest) -> None:
 # Audit functions
 # =============================================================================
 
-def audit(req: CamcopsRequest,
+def audit(req: "CamcopsRequest",
           details: str,
           patient_server_pk: int = None,
           tablename: str = None,
@@ -2015,7 +2017,7 @@ def audit(req: CamcopsRequest,
 # the success message. Not returning anything is the same as returning None.
 # Authentication is performed in advance of these.
 
-def op_check_device_registered(req: CamcopsRequest) -> None:
+def op_check_device_registered(req: "CamcopsRequest") -> None:
     """
     Check that a device is registered, or raise
     :exc:`UserErrorException`.
@@ -2027,7 +2029,7 @@ def op_check_device_registered(req: CamcopsRequest) -> None:
 # Action processors that require REGISTRATION privilege
 # =============================================================================
 
-def op_register(req: CamcopsRequest) -> Dict[str, Any]:
+def op_register(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Register a device with the server.
 
@@ -2080,7 +2082,7 @@ def op_register(req: CamcopsRequest) -> Dict[str, Any]:
     return get_server_id_info(req)
 
 
-def op_get_extra_strings(req: CamcopsRequest) -> Dict[str, str]:
+def op_get_extra_strings(req: "CamcopsRequest") -> Dict[str, str]:
     """
     Fetch all local extra strings from the server.
 
@@ -2098,7 +2100,7 @@ def op_get_extra_strings(req: CamcopsRequest) -> Dict[str, str]:
 
 
 # noinspection PyUnusedLocal
-def op_get_allowed_tables(req: CamcopsRequest) -> Dict[str, str]:
+def op_get_allowed_tables(req: "CamcopsRequest") -> Dict[str, str]:
     """
     Returns the names of all possible tables on the server, each paired with
     the minimum client (tablet) version that will be accepted for each table.
@@ -2120,7 +2122,7 @@ def op_get_allowed_tables(req: CamcopsRequest) -> Dict[str, str]:
 # =============================================================================
 
 # noinspection PyUnusedLocal
-def op_check_upload_user_and_device(req: CamcopsRequest) -> None:
+def op_check_upload_user_and_device(req: "CamcopsRequest") -> None:
     """
     Stub function for the operation to check that a user is valid.
 
@@ -2131,21 +2133,21 @@ def op_check_upload_user_and_device(req: CamcopsRequest) -> None:
 
 
 # noinspection PyUnusedLocal
-def op_get_id_info(req: CamcopsRequest) -> Dict[str, Any]:
+def op_get_id_info(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Fetch server ID information; see :func:`get_server_id_info`.
     """
     return get_server_id_info(req)
 
 
-def op_start_upload(req: CamcopsRequest) -> None:
+def op_start_upload(req: "CamcopsRequest") -> None:
     """
     Begin an upload.
     """
     start_device_upload_batch(req)
 
 
-def op_end_upload(req: CamcopsRequest) -> None:
+def op_end_upload(req: "CamcopsRequest") -> None:
     """
     Ends an upload and commits changes.
     """
@@ -2154,7 +2156,7 @@ def op_end_upload(req: CamcopsRequest) -> None:
     end_device_upload_batch(req, batchdetails)
 
 
-def op_upload_table(req: CamcopsRequest) -> str:
+def op_upload_table(req: "CamcopsRequest") -> str:
     """
     Upload a table.
 
@@ -2255,7 +2257,7 @@ def op_upload_table(req: CamcopsRequest) -> str:
         mark_table_dirty(req, PatientIdNum.__table__)
         # Mark patient ID numbers for deletion if their parent Patient is
         # similarly being marked for deletion
-        # noinspection PyUnresolvedReferences
+        # noinspection PyUnresolvedReferences,PyProtectedMember
         req.dbsession.execute(
             update(PatientIdNum.__table__)
             .where(PatientIdNum._device_id == Patient._device_id)
@@ -2275,7 +2277,7 @@ def op_upload_table(req: CamcopsRequest) -> str:
     return "Table {} upload successful".format(table.name)
 
 
-def op_upload_record(req: CamcopsRequest) -> str:
+def op_upload_record(req: "CamcopsRequest") -> str:
     """
     Upload an individual record. (Typically used for BLOBs.)
     Incoming POST information includes a CSV list of fields and a CSV list of
@@ -2304,7 +2306,7 @@ def op_upload_record(req: CamcopsRequest) -> str:
     # Auditing occurs at commit_all.
 
 
-def op_upload_empty_tables(req: CamcopsRequest) -> str:
+def op_upload_empty_tables(req: "CamcopsRequest") -> str:
     """
     The tablet supplies a list of tables that are empty at its end, and we
     will 'wipe' all appropriate tables; this reduces the number of HTTP
@@ -2329,7 +2331,7 @@ def op_upload_empty_tables(req: CamcopsRequest) -> str:
     return "UPLOAD-EMPTY-TABLES"
 
 
-def op_start_preservation(req: CamcopsRequest) -> str:
+def op_start_preservation(req: "CamcopsRequest") -> str:
     """
     Marks this upload batch as one in which all records will be preserved
     (i.e. moved from NOW-era to an older era, so they can be deleted safely
@@ -2346,7 +2348,7 @@ def op_start_preservation(req: CamcopsRequest) -> str:
     return "STARTPRESERVATION"
 
 
-def op_delete_where_key_not(req: CamcopsRequest) -> str:
+def op_delete_where_key_not(req: "CamcopsRequest") -> str:
     """
     Marks records for deletion, for a device/table, where the client PK
     is not in a specified list.
@@ -2363,7 +2365,7 @@ def op_delete_where_key_not(req: CamcopsRequest) -> str:
     return "Trimmed"
 
 
-def op_which_keys_to_send(req: CamcopsRequest) -> str:
+def op_which_keys_to_send(req: "CamcopsRequest") -> str:
     """
     Intended use: "For my device, and a specified table, here are my client-
     side PKs (as a CSV list), and the modification dates for each corresponding
@@ -2492,7 +2494,7 @@ def op_which_keys_to_send(req: CamcopsRequest) -> str:
 PATIENT_INFO_JSON_DECODER = json.JSONDecoder()  # just a plain one
 
 
-def op_validate_patients(req: CamcopsRequest) -> str:
+def op_validate_patients(req: "CamcopsRequest") -> str:
     """
     As of v2.3.0, the client can use this command to validate patients against
     arbitrary server criteria -- definitely the upload/finalize ID policies,
@@ -2593,7 +2595,7 @@ def op_validate_patients(req: CamcopsRequest) -> str:
 DB_JSON_DECODER = json.JSONDecoder()  # just a plain one
 
 
-def op_upload_entire_database(req: CamcopsRequest) -> str:
+def op_upload_entire_database(req: "CamcopsRequest") -> str:
     """
     Perform a one-step upload of the entire database.
 
@@ -2647,13 +2649,16 @@ def op_upload_entire_database(req: CamcopsRequest) -> str:
 
 
 def process_table_for_onestep_upload(
-        req: CamcopsRequest,
+        req: "CamcopsRequest",
         batchdetails: BatchDetails,
         table: Table,
         clientpk_name: str,
         rows: List[Dict[str, Any]]) -> UploadTableChanges:
     """
     Performs all upload steps for a table.
+    
+    Note that we arrive here in a specific and safe table order; search for
+    :func:`camcops_server.cc_modules.cc_client_api_helpers.upload_commit_order_sorter`.
 
     Args:
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
@@ -2666,7 +2671,7 @@ def process_table_for_onestep_upload(
 
     Returns:
         an :class:`UploadTableChanges` object
-    """
+    """  # noqa
     serverrecs = get_server_live_records(
         req, req.tabletsession.device_id, table, clientpk_name,
         current_only=False)
@@ -2702,8 +2707,8 @@ def process_table_for_onestep_upload(
         # Note other preserved records, for indexing:
         tablechanges.note_preservation_pks(r.server_pk for r in serverrecs)
 
-    # (*) Indexing
-    update_indexes(req, batchdetails, tablechanges)
+    # (*) Indexing (and push exports)
+    update_indexes_and_push_exports(req, batchdetails, tablechanges)
 
     if DEBUG_UPLOAD:
         log.debug("process_table_for_onestep_upload: {}", tablechanges)
@@ -2765,7 +2770,7 @@ OPERATIONS_UPLOAD = {
 # Client API main functions
 # =============================================================================
 
-def main_client_api(req: CamcopsRequest) -> Dict[str, str]:
+def main_client_api(req: "CamcopsRequest") -> Dict[str, str]:
     """
     Main HTTP processor.
 
@@ -2801,7 +2806,7 @@ def main_client_api(req: CamcopsRequest) -> Dict[str, str]:
 
 
 @view_config(route_name=Routes.CLIENT_API, permission=NO_PERMISSION_REQUIRED)
-def client_api(req: CamcopsRequest) -> Response:
+def client_api(req: "CamcopsRequest") -> Response:
     """
     View for client API. All tablet interaction comes through here.
     Wraps :func:`main_client_api`.

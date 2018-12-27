@@ -62,6 +62,7 @@ from camcops_server.cc_modules.cc_sqlalchemy import Base
 if TYPE_CHECKING:
     from sqlalchemy.engine.base import Connection
     from sqlalchemy.orm.mapper import Mapper
+    from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -374,6 +375,59 @@ class ExportRecipient(ExportRecipientInfo, Base):
         attrnames = set([attrname for attrname, _ in gen_columns(self)])
         attrnames.update(key for key in self.__dict__ if not key.startswith('_'))  # noqa
         return sorted(attrnames)
+
+    def is_task_suitable(self, task: "Task") -> bool:
+        """
+        Used as a double-check that a task remains suitable.
+
+        Args:
+            task: a :class:`camcops_server.cc_modules.cc_task.Task`
+
+        Returns:
+            bool: is the task suitable for this recipient?
+        """
+        def _warn(reason: str) -> None:
+            log.info("For recipient {}, task {!r} is unsuitable: {}",
+                     self, task, reason)
+            # Not a warning, actually; it's normal to see these because it
+            # allows the client API to skip some checks for speed.
+
+        if not self.all_groups:
+            task_group_id = task.get_group_id()
+            if task_group_id not in self.group_ids:
+                _warn("group_id {} not permitted".format(task_group_id))
+                return False
+
+        if not self.include_anonymous and task.is_anonymous:
+            _warn("task is anonymous")
+            return False
+
+        if self.finalized_only and not task.is_preserved():
+            _warn("task not finalized")
+            return False
+
+        if self.start_datetime_utc or self.end_datetime_utc:
+            task_dt = task.get_creation_datetime_utc_tz_unaware()
+            if self.start_datetime_utc and task_dt < self.start_datetime_utc:
+                _warn("task created before recipient start_datetime_utc")
+                return False
+            if self.end_datetime_utc and task_dt >= self.end_datetime_utc:
+                _warn("task created at/after recipient end_datetime_utc")
+                return False
+
+        if (not task.is_anonymous and
+                self.primary_idnum is not None and
+                self.require_idnum_mandatory):
+            patient = task.patient
+            if not patient:
+                _warn("missing patient")
+                return False
+            if not patient.has_idnum_type(self.primary_idnum):
+                _warn("task's patient is missing ID number type {}".format(
+                    self.primary_idnum))
+                return False
+
+        return True
 
     @classmethod
     def get_existing_matching_recipient(cls,

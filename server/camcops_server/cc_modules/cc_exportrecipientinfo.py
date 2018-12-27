@@ -426,11 +426,11 @@ class ExportRecipientInfo(object):
         sd = get_config_parameter(
             parser, section, cpr.START_DATETIME_UTC, str, None)
         r.start_datetime_utc = pendulum_to_utc_datetime_without_tz(
-            coerce_to_pendulum(sd, assume_local=False))
+            coerce_to_pendulum(sd, assume_local=False)) if sd else None
         ed = get_config_parameter(
             parser, section, cpr.END_DATETIME_UTC, str, None)
         r.end_datetime_utc = pendulum_to_utc_datetime_without_tz(
-            coerce_to_pendulum(ed, assume_local=False))
+            coerce_to_pendulum(ed, assume_local=False)) if ed else None
         r.finalized_only = get_config_parameter_boolean(
             parser, section, cpr.FINALIZED_ONLY, True)
         r.include_anonymous = get_config_parameter_boolean(
@@ -604,13 +604,14 @@ class ExportRecipientInfo(object):
         def fail_missing(paramname: str) -> None:
             raise _Missing(self.recipient_name, paramname)
 
+        cpr = ConfigParamExportRecipient
+
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Export type
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if self.transmission_method not in ALL_TRANSMISSION_METHODS:
             fail_invalid("Missing/invalid {}: {}".format(
-                ConfigParamExportRecipient.TRANSMISSION_METHOD,
-                self.transmission_method))
+                cpr.TRANSMISSION_METHOD, self.transmission_method))
         no_push = [ExportTransmissionMethod.DATABASE]
         if self.push and self.transmission_method in no_push:
             fail_invalid("Push notifications not supported for these "
@@ -621,50 +622,46 @@ class ExportRecipientInfo(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if not self.all_groups and not self.group_names:
             fail_invalid("Missing group names (from {})".format(
-                ConfigParamExportRecipient.GROUPS))
+                cpr.GROUPS))
 
         if (self.transmission_method == ExportTransmissionMethod.HL7 and
                 not self.primary_idnum):
             fail_invalid("Must specify {} with {} = {}".format(
-                ConfigParamExportRecipient.PRIMARY_IDNUM,
-                ConfigParamExportRecipient.TRANSMISSION_METHOD,
+                cpr.PRIMARY_IDNUM,
+                cpr.TRANSMISSION_METHOD,
                 ExportTransmissionMethod.HL7
             ))
 
         if not self.task_format or self.task_format not in ALL_TASK_FORMATS:
             fail_invalid("Missing/invalid {}: {}".format(
-                ConfigParamExportRecipient.TASK_FORMAT,
-                self.task_format))
+                cpr.TASK_FORMAT, self.task_format))
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Database
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if self.transmission_method == ExportTransmissionMethod.DATABASE:
             if not self.db_url:
-                fail_missing(ConfigParamExportRecipient.DB_URL)
+                fail_missing(cpr.DB_URL)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Email
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if self.transmission_method == ExportTransmissionMethod.EMAIL:
             if not self.email_host:
-                fail_missing(ConfigParamExportRecipient.EMAIL_HOST)
+                fail_missing(cpr.EMAIL_HOST)
             if not self.email_host_username:
-                fail_missing(ConfigParamExportRecipient.EMAIL_HOST_USERNAME)
+                fail_missing(cpr.EMAIL_HOST_USERNAME)
             if not self.email_from:
-                fail_missing(ConfigParamExportRecipient.EMAIL_FROM)
+                fail_missing(cpr.EMAIL_FROM)
             if not any([self.email_to, self.email_cc, self.email_bcc]):
                 fail_invalid("Must specify some of: {}, {}, {}".format(
-                    ConfigParamExportRecipient.EMAIL_TO,
-                    ConfigParamExportRecipient.EMAIL_CC,
-                    ConfigParamExportRecipient.EMAIL_BCC,
-                ))
+                    cpr.EMAIL_TO, cpr.EMAIL_CC, cpr.EMAIL_BCC))
             if COMMA in self.email_reply_to:
                 fail_invalid("Only a single 'Reply-To:' address permitted; "
                              "was {!r}".format(self.email_reply_to))
 
             if not self.email_subject:
-                fail_missing(ConfigParamExportRecipient.EMAIL_SUBJECT)
+                fail_missing(cpr.EMAIL_SUBJECT)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # HL7
@@ -672,13 +669,12 @@ class ExportRecipientInfo(object):
         if self.transmission_method == ExportTransmissionMethod.HL7:
             if not self.hl7_debug_divert_to_file:
                 if not self.hl7_host:
-                    fail_missing(ConfigParamExportRecipient.HL7_HOST)
+                    fail_missing(cpr.HL7_HOST)
                 if not self.hl7_port or self.hl7_port <= 0:
                     fail_invalid("Missing/invalid {}: {}".format(
-                        ConfigParamExportRecipient.HL7_PORT,
-                        self.hl7_port))
+                        cpr.HL7_PORT, self.hl7_port))
             if not self.primary_idnum:
-                fail_missing(ConfigParamExportRecipient.PRIMARY_IDNUM)
+                fail_missing(cpr.PRIMARY_IDNUM)
             if self.include_anonymous:
                 fail_invalid("Can't include anonymous tasks for HL7")
 
@@ -688,11 +684,11 @@ class ExportRecipientInfo(object):
         if self._need_file_name():
             # Filename options
             if not self.file_patient_spec_if_anonymous:
-                fail_missing(ConfigParamExportRecipient.FILE_PATIENT_SPEC_IF_ANONYMOUS)  # noqa
+                fail_missing(cpr.FILE_PATIENT_SPEC_IF_ANONYMOUS)
             if not self.file_patient_spec:
-                fail_missing(ConfigParamExportRecipient.FILE_PATIENT_SPEC)
+                fail_missing(cpr.FILE_PATIENT_SPEC)
             if not self.file_filename_spec:
-                fail_missing(ConfigParamExportRecipient.FILE_FILENAME_SPEC)  # noqa
+                fail_missing(cpr.FILE_FILENAME_SPEC)
 
         if self._need_rio_metadata_options():
             # RiO metadata
@@ -703,11 +699,11 @@ class ExportRecipientInfo(object):
                     "Missing/invalid {}: {} (must be "
                     "present, contain no spaces, and max length "
                     "{})".format(
-                        ConfigParamExportRecipient.RIO_UPLOADING_USER,
+                        cpr.RIO_UPLOADING_USER,
                         self.rio_uploading_user,
                         RIO_MAX_USER_LEN))
             if not self.rio_document_type:
-                fail_missing(ConfigParamExportRecipient.RIO_DOCUMENT_TYPE)
+                fail_missing(cpr.RIO_DOCUMENT_TYPE)
 
     def validate_db_dependent(self, req: "CamcopsRequest") -> None:
         """
@@ -727,6 +723,7 @@ class ExportRecipientInfo(object):
 
         dbsession = req.dbsession
         valid_which_idnums = req.valid_which_idnums
+        cpr = ConfigParamExportRecipient
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Set group IDs from group names
@@ -755,8 +752,7 @@ class ExportRecipientInfo(object):
         if self.primary_idnum:
             if self.primary_idnum not in valid_which_idnums:
                 fail_invalid("Invalid {}: {}".format(
-                    ConfigParamExportRecipient.PRIMARY_IDNUM,
-                    self.primary_idnum))
+                    cpr.PRIMARY_IDNUM, self.primary_idnum))
 
             if self.require_idnum_mandatory:
                 # (a) ID number must be mandatory in finalized records
@@ -779,8 +775,11 @@ class ExportRecipientInfo(object):
                                 valid_idnums=valid_which_idnums):
                             fail_invalid(
                                 "primary_idnum ({}) must be mandatory in "
-                                "upload policy, but is not for group "
-                                "{}".format(self.primary_idnum, group))
+                                "upload policy (because {} is false), but is "
+                                "not for group {}".format(
+                                    self.primary_idnum,
+                                    cpr.FINALIZED_ONLY,
+                                    group))
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # File
@@ -791,21 +790,18 @@ class ExportRecipientInfo(object):
                     patient_spec=self.file_patient_spec,
                     valid_which_idnums=valid_which_idnums):
                 fail_invalid("Invalid {}: {}".format(
-                    ConfigParamExportRecipient.FILE_PATIENT_SPEC,
-                    self.file_patient_spec))
+                    cpr.FILE_PATIENT_SPEC, self.file_patient_spec))
             if not filename_spec_is_valid(
                     filename_spec=self.file_filename_spec,
                     valid_which_idnums=valid_which_idnums):
                 fail_invalid("Invalid {}: {}".format(
-                    ConfigParamExportRecipient.FILE_FILENAME_SPEC,
-                    self.file_filename_spec))
+                    cpr.FILE_FILENAME_SPEC, self.file_filename_spec))
 
         if self._need_rio_metadata_options():
             # RiO metadata
             if self.rio_idnum not in valid_which_idnums:
                 fail_invalid("Invalid ID number type for {}: {}".format(
-                    ConfigParamExportRecipient.RIO_IDNUM,
-                    self.rio_idnum))
+                    cpr.RIO_IDNUM, self.rio_idnum))
 
     def _need_file_name(self) -> bool:
         """

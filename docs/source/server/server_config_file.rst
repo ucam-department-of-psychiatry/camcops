@@ -459,27 +459,34 @@ only.
 Options for the "[export]" section
 ----------------------------------
 
-CamCOPS supports **incremental export**. For example, when a new task is
-uploaded, you may want it sent somewhere via a Health Level Seven (HL7)
-message, or saved to a PDF somewhere for another program to notice it, or
-e-mailed to a special location.
+CamCOPS defines **export recipients**. Each export recipient defines what to
+export, and how to export it. For example, you might create an export recipient
+called ``perinatal_admin_team`` that e-mails PDFs of tasks from your perinatal
+psychiatry group to your perinatal psychiatry administrative team (including
+immediately on receipt), for manual export to a clinical records system that
+doesn't support incoming electronic messages. You might create another called
+``smith_neutrophil_study`` that sends XML data via HL7 message, and a third
+called ``regular_database_dump`` that exports the entire CamCOPS database to
+a database on disk.
 
-You might trigger the export by calling ``camcops incremental_export``
-regularly from the system's ``/etc/crontab`` or other scheduling system. For
-example, a conventional ``/etc/crontab`` file has these fields:
+Most export recipients will use **incremental export**. Once CamCOPS has sent
+a task to a recipient, it won't send the same task again (unless you force it
+to).
 
-.. code-block:: none
+Exports can happen in several ways:
 
-    minutes, hours, day_of_month, month, day_of_week, user, command
+- You can trigger an export **manually,** e.g. via ``camcops_server export
+  --recipients regular_database_dump``.
 
-so you could add a line like this to /etc/crontab:
+- You can mark a recipient as a **"push"** recipient. Whenever a relevant task
+  is uploaded to CamCOPS, CamCOPS will export it immediately.
 
-.. code-block:: none
+- You can **schedule** an export. Obviously, you can do this by putting the
+  "manual" export call (as above) into an operating system schedule, such as
+  *crontab(5)* (see http://en.wikipedia.org/wiki/Cron). However, CamCOPS also
+  provides its own *crontab*-style scheduler, so you could have the
+  ``smith_neutrophil_study`` export run every Tuesday at 2am.
 
-    * * * * *  root  camcops_server incremental_export --config /etc/camcops/MYCONFIG.conf
-
-... and CamCOPS would run its exports once per minute. See ``man 5 crontab`` or
-http://en.wikipedia.org/wiki/Cron for more options.
 
 Export control options
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -599,6 +606,12 @@ For example:
 which will trigger the ``perinatal_group_email_recipient`` recipient at 01:00
 every day. Lines beginning with ``#`` are ignored.
 
+.. note::
+
+    For scheduled exports, you must be running the CamCOPS scheduler (via
+    ``camcops_server launch_scheduler``) and CamCOPS workers (via
+    ``camcops_server launch_workers``).
+
 
 Options for each export recipient section
 -----------------------------------------
@@ -635,7 +648,18 @@ a task is uploaded (i.e. as soon as it's uploaded, it's exported).
 Not all transmission methods currently support push notifications: currently
 database export is not supported.
 
-.. todo:: push notification support
+.. note::
+
+    For push exports to function, you must be running CamCOPS workers (via
+    ``camcops_server launch_workers``).
+
+.. note::
+
+    For speed, the front end does not check all task criteria against the
+    recipient. It sends some tasks to the back end that the back end will
+    reject (e.g. anonymous, out of time range, freshly finalized but previously
+    exported). This is normal. The back end double-checks all tasks that it's
+    asked to export.
 
 TASK_FORMAT
 ###########
@@ -714,6 +738,12 @@ If true, only send tasks that are finalized (moved off their originating tablet
 and not susceptible to later modification). If false, also send tasks that are
 uploaded but not yet finalized (they will then be sent again if they are
 modified later).
+
+.. warning::
+
+    It is unusual, and very likely undesirable, to set ``FINALIZED_ONLY`` to
+    False. You may end up exporting multiple copies of tasks, all slightly
+    different, if the user makes edits before finalizing.
 
 INCLUDE_ANONYMOUS
 #################

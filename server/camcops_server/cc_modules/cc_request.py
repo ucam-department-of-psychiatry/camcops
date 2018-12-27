@@ -32,7 +32,8 @@ import collections
 from contextlib import contextmanager
 import logging
 import os
-from typing import Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING
+from typing import (Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING,
+                    Union)
 import urllib.parse
 
 from cardinal_pythonlib.datetimefunc import (
@@ -48,6 +49,7 @@ from cardinal_pythonlib.plot import (
 )
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
+import lockfile
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
@@ -104,7 +106,6 @@ from camcops_server.cc_modules.cc_serversettings import (
     get_server_settings,
     ServerSettings,
 )
-from camcops_server.cc_modules.cc_snomed import SnomedConcept
 from camcops_server.cc_modules.cc_string import (
     all_extra_strings_as_dicts,
     APPSTRING_TASKNAME,
@@ -118,7 +119,9 @@ if TYPE_CHECKING:
     # from matplotlib.figure import SubplotBase
     from matplotlib.text import Text
     from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
+    from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo  # noqa
     from camcops_server.cc_modules.cc_session import CamcopsSession
+    from camcops_server.cc_modules.cc_snomed import SnomedConcept
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -195,6 +198,7 @@ class CamcopsRequest(Request):
         self._camcops_session = None
         self._debugging_db_session = None  # type: SqlASession  # for unit testing only  # noqa
         self._debugging_user = None  # type: User  # for unit testing only  # noqa
+        self._pending_export_push_requests = []  # type: List[Tuple[str, str, int]]  # noqa
         # Don't make the _camcops_session yet; it will want a Registry, and
         # we may not have one yet; see command_line_request().
         if DEBUG_REQUEST_CREATION:
@@ -336,6 +340,8 @@ class CamcopsRequest(Request):
             if DEBUG_DBSESSION_MANAGEMENT:
                 log.debug("Committing to database")
             session.commit()
+            if self._pending_export_push_requests:
+                self._process_pending_export_push_requests()
         if DEBUG_DBSESSION_MANAGEMENT:
             log.debug("Closing SQLAlchemy session")
         session.close()
@@ -421,6 +427,7 @@ class CamcopsRequest(Request):
         """
         Returns today's date.
         """
+        # noinspection PyTypeChecker
         return self.now.date()
 
     # -------------------------------------------------------------------------
@@ -1107,7 +1114,7 @@ class CamcopsRequest(Request):
         """
         return bool(self.config.get_task_snomed_concepts())
 
-    def snomed(self, lookup: str) -> SnomedConcept:
+    def snomed(self, lookup: str) -> "SnomedConcept":
         """
         Fetches a SNOMED-CT concept for a CamCOPS task.
 
@@ -1115,7 +1122,7 @@ class CamcopsRequest(Request):
             lookup: a CamCOPS SNOMED lookup string
 
         Returns:
-            a :class:`SnomedConcept`
+            a :class:`camcops_server.cc_modules.cc_snomed.SnomedConcept`
 
         Raises:
             :exc:`KeyError`, if the lookup cannot be found (e.g. UK data not
@@ -1132,7 +1139,7 @@ class CamcopsRequest(Request):
         """
         return bool(self.config.get_icd9cm_snomed_concepts())
 
-    def icd9cm_snomed(self, code: str) -> List[SnomedConcept]:
+    def icd9cm_snomed(self, code: str) -> List["SnomedConcept"]:
         """
         Fetches a SNOMED-CT concept for an ICD-9-CM code
 
@@ -1140,7 +1147,7 @@ class CamcopsRequest(Request):
             code: an ICD-9-CM code
 
         Returns:
-            a :class:`SnomedConcept`
+            a :class:`camcops_server.cc_modules.cc_snomed.SnomedConcept`
 
         Raises:
             :exc:`KeyError`, if the lookup cannot be found (e.g. data not
@@ -1157,7 +1164,7 @@ class CamcopsRequest(Request):
         """
         return bool(self.config.get_icd9cm_snomed_concepts())
 
-    def icd10_snomed(self, code: str) -> List[SnomedConcept]:
+    def icd10_snomed(self, code: str) -> List["SnomedConcept"]:
         """
         Fetches a SNOMED-CT concept for an ICD-10 code
 
@@ -1165,7 +1172,7 @@ class CamcopsRequest(Request):
             code: an ICD-10 code
 
         Returns:
-            a :class:`SnomedConcept`
+            a :class:`camcops_server.cc_modules.cc_snomed.SnomedConcept`
 
         Raises:
             :exc:`KeyError`, if the lookup cannot be found (e.g. data not
@@ -1183,8 +1190,9 @@ class CamcopsRequest(Request):
                               recipient_names: List[str] = None,
                               all_recipients: bool = False,
                               all_push_recipients: bool = False,
-                              save: bool = True) \
-            -> List["ExportRecipient"]:
+                              save: bool = True,
+                              database_versions: bool = True) \
+            -> List[Union["ExportRecipient", "ExportRecipientInfo"]]:
         """
         Returns a list of export recipients, with some filtering if desired.
         Validates them against the database.
@@ -1201,6 +1209,9 @@ class CamcopsRequest(Request):
             all_push_recipients: use all "push" recipients?
             recipient_names: recipient names
             save: save any freshly created recipient records to the DB?
+            database_versions: return ExportRecipient objects that are attached
+                to a database session (rather than ExportRecipientInfo objects
+                that aren't)?
 
         Returns:
             list: of :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
@@ -1211,13 +1222,17 @@ class CamcopsRequest(Request):
             - :exc:`camcops_server.cc_modules.cc_exportrecipient.InvalidExportRecipient`
               if an export recipient configuration is invalid
         """  # noqa
+        # Delayed imports
         from camcops_server.cc_modules.cc_exportrecipient import \
             ExportRecipient  # delayed import  # noqa
+
+        # Check parameters
         recipient_names = recipient_names or []  # type: List[str]
+        if save and not database_versions:
+            raise AssertionError("Can't save unless taking database versions")
+
         # Start with ExportRecipientInfo objects:
-        recipients_db_unaware = self.config.get_all_export_recipient_info()
-        # Convert to SQLAlchemy ORM ExportRecipient objects:
-        recipients = [ExportRecipient(x) for x in recipients_db_unaware]
+        recipients = self.config.get_all_export_recipient_info()
 
         # Restrict
         if not all_recipients:
@@ -1240,13 +1255,21 @@ class CamcopsRequest(Request):
                 recipients = [r for r in recipients
                               if r.recipient_name in recipient_names]
 
-        # Complete validation and ensure we have "database" versions
+        # Complete validation
         for r in recipients:
             r.validate(self)
 
-        if save:
-            final_recipients = []  # type: List[ExportRecipient]
-            dbsession = self.dbsession
+        # Does the caller want them as ExportRecipientInfo objects
+        if not database_versions:
+            return recipients
+
+        # Convert to SQLAlchemy ORM ExportRecipient objects:
+        recipients = [ExportRecipient(x) for x in recipients]  # type: List[ExportRecipient]  # noqa
+
+        final_recipients = []  # type: List[ExportRecipient]
+        dbsession = self.dbsession
+
+        def process_final_recipients(_save: bool) -> None:
             for r in recipients:
                 other = ExportRecipient.get_existing_matching_recipient(
                     dbsession, r)
@@ -1258,14 +1281,20 @@ class CamcopsRequest(Request):
                     # OK.
                     final_recipients.append(other)
                 else:
-                    # Our new object doesn't match. Save it and return it.
-                    log.debug(
-                        "Creating new ExportRecipient record in database")  # noqa
-                    dbsession.add(r)
+                    # Our new object doesn't match. Use (+/- save) it.
+                    if save:
+                        log.debug(
+                            "Creating new ExportRecipient record in database")
+                        dbsession.add(r)
                     r.current = True
                     final_recipients.append(r)
+
+        if save:
+            lockfilename = self.config.get_master_export_recipient_lockfilename()  # noqa
+            with lockfile.FileLock(lockfilename, timeout=None):  # waits forever if necessary  # noqa
+                process_final_recipients(_save=True)
         else:
-            final_recipients = recipients
+            process_final_recipients(_save=False)
 
         # OK
         return final_recipients
@@ -1277,7 +1306,6 @@ class CamcopsRequest(Request):
         Returns a single validated export recipient, given its name.
 
         Args:
-            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             recipient_name: recipient name
             save: save any freshly created recipient records to the DB?
 
@@ -1292,6 +1320,53 @@ class CamcopsRequest(Request):
         recipients = self.get_export_recipients([recipient_name], save=save)
         assert len(recipients) == 1
         return recipients[0]
+
+    @reify
+    def all_push_recipients(self) -> List["ExportRecipient"]:
+        """
+        Cached for speed (will potentially be called for multiple tables in
+        a bulk upload).
+        """
+        return self.get_export_recipients(
+            all_push_recipients=True,
+            save=False,
+            database_versions=True,  # we need group ID info somehow
+        )
+
+    def add_export_push_request(self,
+                                recipient_name: str,
+                                basetable: str,
+                                task_pk: int) -> None:
+        """
+        Adds a request to push a task to an export recipient.
+
+        The reason we use this slightly convoluted approach is because
+        otherwise, it's very easy to generate a backend request for a new task
+        before it's actually been committed (so the backend finds no task).
+
+        Args:
+            recipient_name: name of the recipient
+            basetable: name of the task's base table
+            task_pk: server PK of the task
+        """
+        self._pending_export_push_requests.append(
+            (recipient_name, basetable, task_pk)
+        )
+
+    def _process_pending_export_push_requests(self) -> None:
+        """
+        Sends pending export push requests to the backend.
+
+        Called after the COMMIT.
+        """
+        from camcops_server.cc_modules.celery_tasks import export_task_backend  # delayed import  # noqa
+
+        for recipient_name, basetable, task_pk in self._pending_export_push_requests:  # noqa
+            export_task_backend.delay(
+                recipient_name=recipient_name,
+                basetable=basetable,
+                task_pk=task_pk
+            )
 
 
 # noinspection PyUnusedLocal

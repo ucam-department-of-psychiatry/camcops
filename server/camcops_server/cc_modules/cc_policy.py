@@ -195,8 +195,7 @@ def gen_test_bpis(which_idnums_present_options: Iterable[Iterable[int]],
             gp=gp,
             other=other,
             idnum_definitions=[
-                IdNumReference(which_idnum=n,
-                               idnum_value=1)
+                IdNumReference(which_idnum=n, idnum_value=1)
                 for n in which_ids
             ]
         )

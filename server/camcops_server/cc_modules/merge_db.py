@@ -44,6 +44,7 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import column, func, select, table, text
+
 from camcops_server.cc_modules.cc_audit import AuditEntry
 from camcops_server.cc_modules.cc_constants import (
     FP_ID_NUM,
