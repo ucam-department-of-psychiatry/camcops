@@ -146,7 +146,10 @@ from camcops_server.cc_modules.cc_user import (
     User,
 )  # nopep8
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
-from camcops_server.cc_modules.celery import CELERY_APP_NAME  # nopep8
+from camcops_server.cc_modules.celery import (
+    CELERY_APP_NAME,
+    CELERY_SOFT_TIME_LIMIT_SEC,
+)  # nopep8
 from camcops_server.cc_modules.merge_db import merge_camcops_db  # nopep8
 
 log.info("Imports complete")
@@ -608,41 +611,6 @@ def print_database_title() -> None:
         print(req.database_title)
 
 
-_ = '''
-def generate_anonymisation_staging_db() -> None:
-    """
-    Generates an anonymisation staging database -- that is, a database with
-    patient IDs in every row of every table, suitable for feeding into an
-    anonymisation system like CRATE
-    (https://dx.doi.org/10.1186%2Fs12911-017-0437-1).
-
-    **BROKEN; NEEDS TO BE REPLACED.**
-    """
-    # generate_anonymisation_staging_db: *** BROKEN; REPLACE
-    db = pls.get_anonymisation_database()  # may raise
-    ddfilename = pls.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE
-    classes = get_all_task_classes()
-    with codecs.open(ddfilename, mode="w", encoding="utf8") as f:
-        written_header = False
-        for cls in classes:
-            if cls.is_anonymous:
-                continue
-            # Drop, make and populate tables
-            cls.make_cris_tables(db)
-            # Add info to data dictionary
-            rows = cls.get_cris_dd_rows()
-            if not rows:
-                continue
-            if not written_header:
-                f.write(get_tsv_header_from_dict(rows[0]) + "\n")
-                written_header = True
-            for r in rows:
-                f.write(get_tsv_line_from_dict(r) + "\n")
-    db.commit()
-    log.info("Draft data dictionary written to {}", ddfilename)
-'''
-
-
 def make_superuser(username: str = None) -> bool:
     """
     Make a superuser from the command line.
@@ -772,11 +740,21 @@ def reindex(cfg: CamcopsConfig) -> None:
 def launch_celery_workers(verbose: bool = False) -> None:
     """
     Launch Celery workers.
-    """
+    
+    See also advice in
+    
+    - https://medium.com/@taylorhughes/three-quick-tips-from-two-years-with-celery-c05ff9d7f9eb
+    
+    - Re ``-Ofair``:
+      http://docs.celeryproject.org/en/latest/userguide/optimizing.html
+
+    """  # noqa
     config = get_default_config_from_os_env()
     cmdargs = [
         "celery", "worker",
         "--app", CELERY_APP_NAME,
+        "-Ofair",
+        "--soft-time-limit", str(CELERY_SOFT_TIME_LIMIT_SEC),
         "--loglevel", "DEBUG" if verbose else "INFO",
     ]
     if WINDOWS:

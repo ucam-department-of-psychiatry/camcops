@@ -1359,7 +1359,7 @@ class CamcopsRequest(Request):
 
         Called after the COMMIT.
         """
-        from camcops_server.cc_modules.celery_tasks import export_task_backend  # delayed import  # noqa
+        from camcops_server.cc_modules.celery import export_task_backend  # delayed import  # noqa
 
         for recipient_name, basetable, task_pk in self._pending_export_push_requests:  # noqa
             export_task_backend.delay(

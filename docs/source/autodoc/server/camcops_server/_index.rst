@@ -109,7 +109,6 @@ server/camcops_server
     cc_modules/cc_version_string.py.rst
     cc_modules/cc_xml.py.rst
     cc_modules/celery.py.rst
-    cc_modules/celery_tasks.py.rst
     cc_modules/client_api.py.rst
     cc_modules/merge_db.py.rst
     cc_modules/webview.py.rst

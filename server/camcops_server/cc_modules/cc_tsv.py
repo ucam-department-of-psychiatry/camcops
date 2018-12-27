@@ -30,12 +30,12 @@ exports.**
 """
 
 from collections import OrderedDict
+import csv
+import io
 import logging
 from typing import Any, Dict, Iterable, List, Optional, Union
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-
-from camcops_server.cc_modules.cc_convert import tsv_escape
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -64,7 +64,7 @@ class TsvPage(object):
             self._add_headings_if_absent(row.keys())
 
     def __str__(self) -> str:
-        return "TsvPage: name={}\n{}\n".format(self.name, self.get_tsv())
+        return "TsvPage: name={}\n{}".format(self.name, self.get_tsv())
 
     @property
     def empty(self) -> bool:
@@ -140,37 +140,23 @@ class TsvPage(object):
         """
         self.headings.sort()
 
-    def get_tsv_headings(self) -> str:
-        """
-        Get the TSV header row (containing column names).
-        """
-        return "\t".join(tsv_escape(h) for h in self.headings)
-
-    def get_tsv_row(self, rownum: int) -> str:
-        """
-        Get a specific TSV row.
-
-        Args:
-            rownum: zero-based row index
-
-        Returns:
-            TSV row
-        """
-        assert 0 <= rownum < len(self.rows)
-        row = self.rows[rownum]  # type: OrderedDict
-        values = [tsv_escape(row.get(h)) for h in self.headings]
-        return "\t".join(values)
-
-    def get_tsv(self) -> str:
+    def get_tsv(self, dialect="excel-tab") -> str:
         """
         Returns the entire page (sheet) as TSV: one header row and then
         lots of data rows.
+
+        For the dialect, see
+        https://docs.python.org/3/library/csv.html#csv.excel_tab.
+
+        See also test code in docstring for
+        :func:`camcops_server.cc_modules.cc_convert.tsv_from_query`.
         """
-        lines = (
-            [self.get_tsv_headings()] +
-            [self.get_tsv_row(i) for i in range(len(self.rows))]
-        )
-        return "\n".join(lines)
+        f = io.StringIO()
+        writer = csv.writer(f, dialect=dialect)
+        writer.writerow(self.headings)
+        for row in self.rows:
+            writer.writerow([row.get(h) for h in self.headings])
+        return f.getvalue()
 
 
 class TsvCollection(object):

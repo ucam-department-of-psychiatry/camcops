@@ -1700,7 +1700,16 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - CardinalExpDet task complains less when drawing graphs with missing data.
 
-- Improve export facilities.
+- Shift to Python ``csv`` module for generating TSVs, using the ``excel-tab``
+  dialect. This works well.
+
+- Bugfix: newlines were not being unescaped properly on receipt from the
+  client (they were remaining in the database as escaped two-character ``\n``
+  strings). Call to ``unescape_newlines()`` added to
+  :func:`camcops_server.cc_modules.cc_convert.decode_single_value`. This
+  function reverses ``convert::toSqlLiteral()`` in the client.
+
+- Improved export facilities.
 
   - Design decision: keep details in config file, or shift to web-based
     configuration?
@@ -1741,5 +1750,4 @@ Current C++/SQLite client, Python/SQLAlchemy server
     - Then other changes to the actual export definitions (see docs for the
       :ref:`server config file <server_config_file>`).
 
-  - **IN PROGRESS. NEED TO TEST ALL EXPORT OPTIONS.**
   - **MAKE MORE INTERNAL FUNCTIONS USE THE TaskExportOptions CLASS.**

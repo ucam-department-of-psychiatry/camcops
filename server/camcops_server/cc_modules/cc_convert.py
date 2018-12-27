@@ -28,9 +28,11 @@ camcops_server/cc_modules/cc_convert.py
 
 """
 
+import csv
+import io
 import logging
 import re
-from typing import Any, Dict, Iterable, List
+from typing import Any, Iterable, List
 
 from cardinal_pythonlib.convert import (
     base64_64format_decode,
@@ -46,14 +48,12 @@ from cardinal_pythonlib.sql.literals import (
     sql_dequote_string,
     sql_quote_string,
 )
-from cardinal_pythonlib.text import escape_newlines
+from cardinal_pythonlib.text import escape_newlines, unescape_newlines
 from markupsafe import escape, Markup
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 REGEX_WHITESPACE = re.compile(r"\s")
-TAB_REGEX = re.compile(r"\t", re.MULTILINE)
-NEWLINE_REGEX = re.compile(r"\n", re.MULTILINE)
 
 
 # =============================================================================
@@ -81,7 +81,7 @@ def encode_single_value(v: Any, is_blob=False) -> str:
     if is_blob:
         return base64_64format_encode(v)
     if isinstance(v, str):
-        return escape_newlines(sql_quote_string(v))
+        return sql_quote_string(escape_newlines(v))
     # for int, float, etc.:
     return str(v)
 
@@ -139,7 +139,7 @@ def decode_single_value(v: str) -> Any:
 
     if len(v) >= 2 and v[0] == SQUOTE and v[-1] == SQUOTE:
         # v is a quoted string
-        s = sql_dequote_string(v)
+        s = unescape_newlines(sql_dequote_string(v))
         # s is the underlying string that the source started with
         # log.debug("UNDERLYING STRING: {}", s)
         return s
@@ -175,52 +175,45 @@ def decode_values(valuelist: str) -> List[Any]:
 # Conversion to TSV
 # =============================================================================
 
-def tsv_escape(value: Any) -> str:
+def tsv_from_query(rows: Iterable[Iterable[Any]],
+                   descriptions: Iterable[str],
+                   dialect: str = "excel-tab") -> str:
     """
-    Escapes ``value`` for tab-separated value (TSV) format.
+    Converts rows from an SQL query result to TSV format.
 
-    Converts to ``str`` and escapes tabs (but not newlines).
+    For the dialect, see
+    https://docs.python.org/3/library/csv.html#csv.excel_tab.
 
-    Test:
+    For CSV files, see RGC 4180: https://tools.ietf.org/html/rfc4180.
+
+    For TSV files, see
+    https://www.iana.org/assignments/media-types/text/tab-separated-values.
+
+    Test code:
 
     .. code-block:: python
 
-        from camcops_server.cc_modules.cc_convert import *
-        print(tsv_escape("hello\nthere\tworld"))
-    """
-    if value is None:
-        return ""
-    s = str(value)
-    # escape tabs:
-    s = TAB_REGEX.sub(r"\\t", s)
-    # but not newlines!
-    # s = NEWLINE_REGEX.sub(r"\\n", s)
-    return s
+        import io
+        import csv
+        from typing import List
+        
+        def test(row: List[str], dialect: str = "excel-tab") -> str:
+            f = io.StringIO()
+            writer = csv.writer(f, dialect=dialect)
+            writer.writerow(row)
+            return f.getvalue()
+        
+        test(["hello", "world"])
+        test(["hello\ttab", "world"])  # actual tab within double quotes
+        test(["hello\nnewline", "world"])  # actual newline within double quotes
+        test(['hello"doublequote', "world"])  # doubled double quote within double quotes
 
-
-def get_tsv_header_from_dict(d: Dict) -> str:
-    """
-    Returns a TSV header line from a dictionary.
-    """
-    return "\t".join([tsv_escape(x) for x in d.keys()])
-
-
-def get_tsv_line_from_dict(d: Dict) -> str:
-    """
-    Returns a TSV data line from a dictionary.
-    """
-    return "\t".join([tsv_escape(x) for x in d.values()])
-
-
-def tsv_from_query(rows: Iterable[Iterable[Any]],
-                   descriptions: Iterable[str]) -> str:
-    """
-    Converts rows from an SQL query result to TSV format.
-    """
-    tsv = "\t".join([tsv_escape(x) for x in descriptions]) + "\n"
-    for row in rows:
-        tsv += "\t".join([tsv_escape(x) for x in row]) + "\n"
-    return tsv
+    """  # noqa
+    f = io.StringIO()
+    writer = csv.writer(f, dialect=dialect)
+    writer.writerow(descriptions)
+    writer.writerows(rows)
+    return f.getvalue()
 
 
 # =============================================================================

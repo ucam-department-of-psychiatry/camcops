@@ -121,18 +121,18 @@ class DumpController(object):
     def __init__(self,
                  dst_engine: Engine,
                  dst_session: SqlASession,
-                 include_blobs: bool,
+                 export_options: "TaskExportOptions",
                  req: "CamcopsRequest") -> None:
         """
         Args:
             dst_engine: destination SQLAlchemy Engine
             dst_session:  destination SQLAlchemy Session
-            include_blobs: include BLOBs in the dump?
+            export_options: :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
             req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        """
+        """  # noqa
         self.dst_engine = dst_engine
         self.dst_session = dst_session
-        self.include_blobs = include_blobs
+        self.export_options = export_options
         self.req = req
 
         # We start with blank metadata.
@@ -287,7 +287,7 @@ class DumpController(object):
         """
         Should we skip this table (omit it from the dump)?
         """
-        if not self.include_blobs and tablename == Blob.__tablename__:
+        if not self.export_options.include_blobs and tablename == Blob.__tablename__:  # noqa
             return True
         if tablename in DUMP_SKIP_TABLES:
             return True
@@ -347,7 +347,7 @@ def copy_tasks_and_summaries(tasks: Iterable[Task],
 
     controller = DumpController(dst_engine=dst_engine,
                                 dst_session=dst_session,
-                                include_blobs=export_options.include_blobs,
+                                export_options=export_options,
                                 req=req)
 
     # We walk through all the objects.

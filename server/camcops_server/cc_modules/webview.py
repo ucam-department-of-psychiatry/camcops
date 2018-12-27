@@ -1066,6 +1066,8 @@ def serve_task(req: "CamcopsRequest") -> Response:
         options = TaskExportOptions(
             xml_include_ancillary=True,
             include_blobs=req.get_bool_param(ViewParam.INCLUDE_BLOBS, True),
+            xml_include_comments=req.get_bool_param(
+                ViewParam.INCLUDE_COMMENTS, True),
             xml_include_calculated=req.get_bool_param(
                 ViewParam.INCLUDE_CALCULATED, True),
             xml_include_patient=req.get_bool_param(
@@ -1075,9 +1077,7 @@ def serve_task(req: "CamcopsRequest") -> Response:
                 ViewParam.INCLUDE_SNOMED, True),
             xml_with_header_comments=True,
         )
-        include_comments = req.get_bool_param(ViewParam.INCLUDE_COMMENTS, True)
-        return XmlResponse(task.get_xml(req=req, options=options,
-                                        include_comments=include_comments))
+        return XmlResponse(task.get_xml(req=req, options=options))
     else:
         assert False, "Bug in logic above"
 

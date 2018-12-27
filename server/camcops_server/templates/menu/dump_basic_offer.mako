@@ -28,8 +28,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             Doesn’t provide BLOBs (e.g. pictures).
             NULL values are represented by blank fields and are therefore
             indistinguishable from blank strings.
-            Tabs are escaped to a literal <code>\t</code>.
-            Newlines are escaped to a literal <code>\n</code>.
+            The Excel dialect of TSV is used.
         </li>
         <li>
             Once you’ve unzipped the resulting file, you can import TSV files

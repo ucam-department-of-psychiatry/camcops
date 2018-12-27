@@ -367,6 +367,17 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
 
     - http://blog.galasoft.ch/posts/2010/02/quick-tip-commenting-out-properties-in-xaml/
     - http://stackoverflow.com/questions/2073140/
+    
+    Regarding newlines:
+    
+    - We do nothing special, i.e. newlines are provided in raw format.
+    - However, some browsers may fail to display them correctly (i.e. they look
+      like they're missing) -- e.g. Firefox, Chrome -- see
+      http://stackoverflow.com/questions/2004386. Just try saving and
+      inspecting the results with a text editor, or use the browser's "View
+      Source" function (which, for Chrome, shows both newlines and line numbers
+      too).
+
     """  # noqa
     xmltext = ""
     prefix = ' ' * level * indent_spaces
@@ -449,10 +460,6 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
     elif isinstance(element, XmlSimpleValue):
         # The lowest-level thing a value. No extra indent.
         xmltext += xml_escape_value(str(element.value))
-        # Regarding newlines: no need to do anything special (although some
-        # browsers may fail to display them correctly -- e.g. Firefox, Chrome):
-        # http://stackoverflow.com/questions/2004386
-        # ... just try saving and inspecting the results with a text editor.
 
     else:
         raise ValueError("Bad value to get_xml_tree: {!r}".format(element))

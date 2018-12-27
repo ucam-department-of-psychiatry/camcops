@@ -187,16 +187,17 @@ class XmlSimpleValue(object):
 
 class TaskExportOptions(object):
     """
-    Information-holding object for options controlling XML representations of
-    tasks.
+    Information-holding object for options controlling XML and other
+    representations of tasks.
     """
     def __init__(self,
                  db_patient_id_in_each_row: bool = False,
                  include_blobs: bool = False,
-                 xml_include_plain_columns: bool = False,
                  xml_include_ancillary: bool = False,
                  xml_include_calculated: bool = False,
+                 xml_include_comments: bool = True,
                  xml_include_patient: bool = False,
+                 xml_include_plain_columns: bool = False,
                  xml_include_snomed: bool = False,
                  xml_skip_fields: List[str] = None,
                  xml_sort_by_name: bool = True,
@@ -212,10 +213,11 @@ class TaskExportOptions(object):
             include_blobs: include binary large objects (BLOBs) (applies to
                 several export formats)
 
-            xml_include_plain_columns: include the base columns
             xml_include_ancillary: include ancillary tables as well as the main?
             xml_include_calculated: include fields calculated by the task
+            xml_include_comments: include comments in XML?
             xml_include_patient: include patient details?
+            xml_include_plain_columns: include the base columns
             xml_include_snomed: include SNOMED-CT codes, if available?
             xml_skip_fields: fieldnames to skip
             xml_sort_by_name: sort by field/attribute names?
@@ -226,10 +228,11 @@ class TaskExportOptions(object):
 
         self.include_blobs = include_blobs
 
-        self.xml_include_plain_columns = xml_include_plain_columns
-        self.xml_include_calculated = xml_include_calculated
-        self.xml_include_patient = xml_include_patient
         self.xml_include_ancillary = xml_include_ancillary
+        self.xml_include_calculated = xml_include_calculated
+        self.xml_include_comments = xml_include_comments
+        self.xml_include_patient = xml_include_patient
+        self.xml_include_plain_columns = xml_include_plain_columns
         self.xml_include_snomed = xml_include_snomed
         self.xml_skip_fields = xml_skip_fields or []  # type: List[str]
         self.xml_sort_by_name = xml_sort_by_name

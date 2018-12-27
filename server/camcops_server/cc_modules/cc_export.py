@@ -182,7 +182,7 @@ from camcops_server.cc_modules.cc_exportmodels import (
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_tsv import TsvCollection
-from camcops_server.cc_modules.celery_tasks import export_task_backend
+from camcops_server.cc_modules.celery import export_task_backend
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -613,24 +613,23 @@ def task_collection_to_tsv_zip_response(
     # Iterate through tasks
     # -------------------------------------------------------------------------
     audit_descriptions = []  # type: List[str]
+    # Task may return >1 file for TSV output (e.g. for subtables).
+    tsvcoll = TsvCollection()
     for cls in collection.task_classes():
-        # Task may return >1 file for TSV output (e.g. for subtables).
-        tsvcoll = TsvCollection()
-
         for task in gen_audited_tasks_for_task_class(collection, cls,
                                                      audit_descriptions):
             tsv_pages = task.get_tsv_pages(req)
             tsvcoll.add_pages(tsv_pages)
 
-        if sort_by_heading:
-            tsvcoll.sort_headings_within_all_pages()
+    if sort_by_heading:
+        tsvcoll.sort_headings_within_all_pages()
 
-        # Write to ZIP.
-        # If there are no valid task instances, there'll be no TSV; that's OK.
-        for filename_stem in tsvcoll.get_page_names():
-            tsv_filename = filename_stem + ".tsv"
-            tsv_contents = tsvcoll.get_tsv_file(filename_stem)
-            z.writestr(tsv_filename, tsv_contents.encode("utf-8"))
+    # Write to ZIP.
+    # If there are no valid task instances, there'll be no TSV; that's OK.
+    for filename_stem in tsvcoll.get_page_names():
+        tsv_filename = filename_stem + ".tsv"
+        tsv_contents = tsvcoll.get_tsv_file(filename_stem)
+        z.writestr(tsv_filename, tsv_contents.encode("utf-8"))
 
     # -------------------------------------------------------------------------
     # Finish and serve

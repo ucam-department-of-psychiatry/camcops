@@ -87,9 +87,9 @@ QString escapeNewlines(QString raw)
 {
     // Raw string literal, from C++ 11 (note the parentheses):
     // http://en.cppreference.com/w/cpp/language/string_literal
-    raw.replace(R"(\)", R"(\\)");
-    raw.replace("\n", R"(\n)");
-    raw.replace("\r", R"(\r)");
+    raw.replace(R"(\)", R"(\\)");  // escape backslashes
+    raw.replace("\n", R"(\n)");  // escape LF (\n) to "\n" two-char literal
+    raw.replace("\r", R"(\r)");  // escape CR (\r) to "\r" two-char literal
     return raw;
 }
 

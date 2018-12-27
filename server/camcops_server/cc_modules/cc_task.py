@@ -42,6 +42,7 @@ SQL     As part of an SQL or SQLite download.
 
 """
 
+from collections import OrderedDict
 import datetime
 import logging
 import statistics
@@ -118,6 +119,7 @@ from camcops_server.cc_modules.cc_summaryelement import (
     ExtraSummaryTable,
     SummaryElement,
 )
+from camcops_server.cc_modules.cc_tsv import TsvPage
 from camcops_server.cc_modules.cc_version import (
     CAMCOPS_SERVER_VERSION,
     MINIMUM_TABLET_VERSION,
@@ -145,12 +147,13 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_snomed import SnomedExpression
     from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
-    from camcops_server.cc_modules.cc_tsv import TsvPage
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 ANCILLARY_FWD_REF = "Ancillary"
 TASK_FWD_REF = "Task"
+
+SNOMED_TSV_PAGE_NAME = "_snomed_ct"
 
 
 # =============================================================================
@@ -1326,7 +1329,7 @@ class Task(GenericTabletRecordMixin, Base):
     # TSV export for basic research dump
     # -------------------------------------------------------------------------
 
-    def get_tsv_pages(self, req: "CamcopsRequest") -> List["TsvPage"]:
+    def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
         """
         Returns information used for the basic research dump in TSV format.
         """
@@ -1344,7 +1347,27 @@ class Task(GenericTabletRecordMixin, Base):
         # 4. +/- Extra summary tables
         for est in self.get_extra_summary_tables(req):
             tsv_pages.append(est.get_tsv_page())
+        # 5. +/- SNOMED
+        if req.snomed_supported:
+            tsv_pages.append(self.get_snomed_tsv_page(req))
+        # Done
         return tsv_pages
+
+    def get_snomed_tsv_page(self, req: "CamcopsRequest") -> TsvPage:
+        """
+        Returns a TSV page for this task's SNOMED CT codes.
+        """
+        codes = self.get_snomed_codes(req)
+        rows = []  # type: List[Dict[str, Any]]
+        for code in codes:
+            d = OrderedDict([
+                ("task_tablename", self.tablename),
+                ("task_pk", self.get_pk()),
+                ("when_created", self.when_created),
+                ("snomed_expression", code.as_string()),
+            ])
+            rows.append(d)
+        return TsvPage(name=SNOMED_TSV_PAGE_NAME, rows=rows)
 
     # -------------------------------------------------------------------------
     # Data structure for CRIS data dictionary
@@ -1477,8 +1500,7 @@ class Task(GenericTabletRecordMixin, Base):
                 req: "CamcopsRequest",
                 options: TaskExportOptions = None,
                 indent_spaces: int = 4,
-                eol: str = '\n',
-                include_comments: bool = False) -> str:
+                eol: str = '\n') -> str:
         """
         Returns XML describing the task.
 
@@ -1488,7 +1510,6 @@ class Task(GenericTabletRecordMixin, Base):
 
             indent_spaces: number of spaces to indent formatted XML
             eol: end-of-line string
-            include_comments: include comments describing each field?
 
         Returns:
             an XML UTF-8 document representing the task.
@@ -1499,7 +1520,7 @@ class Task(GenericTabletRecordMixin, Base):
             tree,
             indent_spaces=indent_spaces,
             eol=eol,
-            include_comments=include_comments
+            include_comments=options.include_comments
         )
 
     def get_xml_root(self,
