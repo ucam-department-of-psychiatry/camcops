@@ -75,7 +75,7 @@ import datetime
 import os
 import logging
 import re
-from typing import Dict, Generator, List, Union
+from typing import Dict, Generator, List, Optional, Union
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -333,11 +333,11 @@ def get_demo_config(extra_strings_dir: str = None,
 # =============================================================================
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# First example
+# Example recipient
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Example (disabled because it's not in the {cpe.RECIPIENTS} list above)
 
-[recipient_A]
+[recipient:recipient_A]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # How to export
@@ -1064,6 +1064,24 @@ class CamcopsConfig(object):
         """
         Initialize by reading the config file.
         """
+        def _get_str(section: str, paramname: str,
+                     default: str = None) -> Optional[str]:
+            return get_config_parameter(
+                parser, section, paramname, str, default)
+
+        def _get_bool(section: str, paramname: str, default: bool) -> bool:
+            return get_config_parameter_boolean(
+                parser, section, paramname, default)
+
+        def _get_int(section: str, paramname: str,
+                     default: int = None) -> Optional[int]:
+            return get_config_parameter(
+                parser, section, paramname, int, default)
+
+        def _get_multiline(section: str, paramname: str) -> List[str]:
+            return get_config_parameter_multiline(
+                parser, section, paramname, [])
+
         cpm = ConfigParamMain
         cpe = ConfigParamExportGeneral
 
@@ -1083,110 +1101,83 @@ class CamcopsConfig(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Read from the config file: 1. Most stuff, in alphabetical order
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        section = CONFIG_FILE_MAIN_SECTION
+        s = CONFIG_FILE_MAIN_SECTION
 
-        self.allow_insecure_cookies = get_config_parameter_boolean(
-            parser, section, cpm.ALLOW_INSECURE_COOKIES, False)
+        self.allow_insecure_cookies = _get_bool(s, cpm.ALLOW_INSECURE_COOKIES, False)  # noqa
 
-        self.camcops_logo_file_absolute = get_config_parameter(
-            parser, section, cpm.CAMCOPS_LOGO_FILE_ABSOLUTE, str,
-            DEFAULT_CAMCOPS_LOGO_FILE)
+        self.camcops_logo_file_absolute = _get_str(s, cpm.CAMCOPS_LOGO_FILE_ABSOLUTE, DEFAULT_CAMCOPS_LOGO_FILE)  # noqa
+        self.ctv_filename_spec = _get_str(s, cpm.CTV_FILENAME_SPEC)
 
-        self.ctv_filename_spec = get_config_parameter(
-            parser, section, cpm.CTV_FILENAME_SPEC, str, None)
-
-        self.db_url = parser.get(section, cpm.DB_URL)
+        self.db_url = parser.get(s, cpm.DB_URL)
         # ... no default: will fail if not provided
-        self.db_echo = get_config_parameter_boolean(
-            parser, section, cpm.DB_ECHO, False)
-        self.client_api_loglevel = get_config_parameter_loglevel(
-            parser, section, cpm.CLIENT_API_LOGLEVEL, logging.INFO)
-        logging.getLogger("camcops_server.cc_modules.client_api")\
-            .setLevel(self.client_api_loglevel)
+        self.db_echo = _get_bool(s, cpm.DB_ECHO, False)
+        self.client_api_loglevel = get_config_parameter_loglevel(parser, s, cpm.CLIENT_API_LOGLEVEL, logging.INFO)  # noqa
+        logging.getLogger("camcops_server.cc_modules.client_api").setLevel(self.client_api_loglevel)  # noqa
         # ... MUTABLE GLOBAL STATE (if relatively unimportant); *** fix
 
-        self.disable_password_autocomplete = get_config_parameter_boolean(
-            parser, section, cpm.DISABLE_PASSWORD_AUTOCOMPLETE, True)
+        self.disable_password_autocomplete = _get_bool(s, cpm.DISABLE_PASSWORD_AUTOCOMPLETE, True)  # noqa
 
-        self.extra_string_files = get_config_parameter_multiline(
-            parser, section, cpm.EXTRA_STRING_FILES, [])
+        self.extra_string_files = _get_multiline(s, cpm.EXTRA_STRING_FILES)
 
-        self.local_institution_url = get_config_parameter(
-            parser, section, cpm.LOCAL_INSTITUTION_URL,
-            str, DEFAULT_LOCAL_INSTITUTION_URL)
-        self.local_logo_file_absolute = get_config_parameter(
-            parser, section, cpm.LOCAL_LOGO_FILE_ABSOLUTE,
-            str, DEFAULT_LOCAL_LOGO_FILE)
-        self.lockout_threshold = get_config_parameter(
-            parser, section, cpm.LOCKOUT_THRESHOLD,
-            int, DEFAULT_LOCKOUT_THRESHOLD)
-        self.lockout_duration_increment_minutes = get_config_parameter(
-            parser, section, cpm.LOCKOUT_DURATION_INCREMENT_MINUTES,
-            int, DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)
+        self.local_institution_url = _get_str(s, cpm.LOCAL_INSTITUTION_URL, DEFAULT_LOCAL_INSTITUTION_URL)  # noqa
+        self.local_logo_file_absolute = _get_str(s, cpm.LOCAL_LOGO_FILE_ABSOLUTE, DEFAULT_LOCAL_LOGO_FILE)  # noqa
+        self.lockout_threshold = _get_int(s, cpm.LOCKOUT_THRESHOLD, DEFAULT_LOCKOUT_THRESHOLD)  # noqa
+        self.lockout_duration_increment_minutes = _get_int(s, cpm.LOCKOUT_DURATION_INCREMENT_MINUTES, DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)  # noqa
 
-        self.password_change_frequency_days = get_config_parameter(
-            parser, section, cpm.PASSWORD_CHANGE_FREQUENCY_DAYS,
-            int, DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS)
-        self.patient_spec_if_anonymous = get_config_parameter(
-            parser, section, cpm.PATIENT_SPEC_IF_ANONYMOUS, str,
-            DEFAULT_PATIENT_SPEC_IF_ANONYMOUS)
-        self.patient_spec = get_config_parameter(
-            parser, section, cpm.PATIENT_SPEC, str, None)
+        self.password_change_frequency_days = _get_int(s, cpm.PASSWORD_CHANGE_FREQUENCY_DAYS, DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS)  # noqa
+        self.patient_spec_if_anonymous = _get_str(s, cpm.PATIENT_SPEC_IF_ANONYMOUS, DEFAULT_PATIENT_SPEC_IF_ANONYMOUS)  # noqa
+        self.patient_spec = _get_str(s, cpm.PATIENT_SPEC)
         # currently not configurable, but easy to add in the future:
         self.plot_fontsize = DEFAULT_PLOT_FONTSIZE
 
-        # self.send_analytics = get_config_parameter_boolean(
-        #     config, section, "SEND_ANALYTICS", True)
-        session_timeout_minutes = get_config_parameter(
-            parser, section, cpm.SESSION_TIMEOUT_MINUTES,
-            int, DEFAULT_TIMEOUT_MINUTES)
-        self.session_cookie_secret = get_config_parameter(
-            parser, section, cpm.SESSION_COOKIE_SECRET, str, None)
-        self.session_timeout = datetime.timedelta(
-            minutes=session_timeout_minutes)
-        self.snomed_task_xml_filename = get_config_parameter(
-            parser, section, cpm.SNOMED_TASK_XML_FILENAME, str, None)
-        self.snomed_icd9_xml_filename = get_config_parameter(
-            parser, section, cpm.SNOMED_ICD9_XML_FILENAME, str, None)
-        self.snomed_icd10_xml_filename = get_config_parameter(
-            parser, section, cpm.SNOMED_ICD10_XML_FILENAME,
-            str, None)
+        session_timeout_minutes = _get_int(s, cpm.SESSION_TIMEOUT_MINUTES, DEFAULT_TIMEOUT_MINUTES)  # noqa
+        self.session_cookie_secret = _get_str(s, cpm.SESSION_COOKIE_SECRET)
+        self.session_timeout = datetime.timedelta(minutes=session_timeout_minutes)  # noqa
+        self.snomed_task_xml_filename = _get_str(s, cpm.SNOMED_TASK_XML_FILENAME)  # noqa
+        self.snomed_icd9_xml_filename = _get_str(s, cpm.SNOMED_ICD9_XML_FILENAME)  # noqa
+        self.snomed_icd10_xml_filename = _get_str(s, cpm.SNOMED_ICD10_XML_FILENAME)  # noqa
 
-        self.task_filename_spec = get_config_parameter(
-            parser, section, cpm.TASK_FILENAME_SPEC, str, None)
-        self.tracker_filename_spec = get_config_parameter(
-            parser, section, cpm.TRACKER_FILENAME_SPEC, str, None)
+        self.task_filename_spec = _get_str(s, cpm.TASK_FILENAME_SPEC)
+        self.tracker_filename_spec = _get_str(s, cpm.TRACKER_FILENAME_SPEC)
 
-        self.webview_loglevel = get_config_parameter_loglevel(
-            parser, section, cpm.WEBVIEW_LOGLEVEL, logging.INFO)
+        self.webview_loglevel = get_config_parameter_loglevel(parser, s, cpm.WEBVIEW_LOGLEVEL, logging.INFO)  # noqa
         logging.getLogger().setLevel(self.webview_loglevel)  # root logger
         # ... MUTABLE GLOBAL STATE (if relatively unimportant) *** fix
-        self.wkhtmltopdf_filename = get_config_parameter(
-            parser, section, cpm.WKHTMLTOPDF_FILENAME, str, None)
+        self.wkhtmltopdf_filename = _get_str(s, cpm.WKHTMLTOPDF_FILENAME)
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # More validity checks for the main section
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if not self.patient_spec_if_anonymous:
+            raise_missing(s, cpm.PATIENT_SPEC_IF_ANONYMOUS)
+        if not self.patient_spec:
+            raise_missing(s, cpm.PATIENT_SPEC)
+        if not self.session_cookie_secret:
+            raise_missing(s, cpm.SESSION_COOKIE_SECRET)
+        if not self.task_filename_spec:
+            raise_missing(s, cpm.TASK_FILENAME_SPEC)
+        if not self.tracker_filename_spec:
+            raise_missing(s, cpm.TRACKER_FILENAME_SPEC)
+        if not self.ctv_filename_spec:
+            raise_missing(s, cpm.CTV_FILENAME_SPEC)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Read from the config file: 2. export section
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         es = CONFIG_FILE_EXPORT_SECTION
 
-        self.celery_beat_extra_args = get_config_parameter_multiline(
-            parser, es, cpe.CELERY_BEAT_EXTRA_ARGS, [])
-        self.celery_beat_schedule_database = get_config_parameter(
-            parser, es, cpe.CELERY_BEAT_SCHEDULE_DATABASE, str, None)
+        self.celery_beat_extra_args = _get_multiline(es, cpe.CELERY_BEAT_EXTRA_ARGS)  # noqa
+        self.celery_beat_schedule_database = _get_str(es, cpe.CELERY_BEAT_SCHEDULE_DATABASE)  # noqa
         if not self.celery_beat_schedule_database:
             raise_missing(es, cpe.CELERY_BEAT_SCHEDULE_DATABASE)
-        self.celery_broker_url = get_config_parameter(
-            parser, es, cpe.CELERY_BROKER_URL, str, DEFAULT_CELERY_BROKER_URL)
-        self.celery_worker_extra_args = get_config_parameter_multiline(
-            parser, es, cpe.CELERY_WORKER_EXTRA_ARGS, [])
+        self.celery_broker_url = _get_str(es, cpe.CELERY_BROKER_URL, DEFAULT_CELERY_BROKER_URL)  # noqa
+        self.celery_worker_extra_args = _get_multiline(es, cpe.CELERY_WORKER_EXTRA_ARGS)  # noqa
 
-        self.export_lockdir = get_config_parameter(
-            parser, es, cpe.EXPORT_LOCKDIR, str, None)
+        self.export_lockdir = _get_str(es, cpe.EXPORT_LOCKDIR)
         if not self.export_lockdir:
             raise_missing(es, ConfigParamExportGeneral.EXPORT_LOCKDIR)
 
-        self.export_recipient_names = get_config_parameter_multiline(
-            parser, CONFIG_FILE_EXPORT_SECTION, cpe.RECIPIENTS, [])
+        self.export_recipient_names = _get_multiline(CONFIG_FILE_EXPORT_SECTION, cpe.RECIPIENTS)  # noqa
         # http://stackoverflow.com/questions/335695/lists-in-configparser
         duplicates = [name for name, count in
                       collections.Counter(self.export_recipient_names).items()
@@ -1204,12 +1195,10 @@ class CamcopsConfig(object):
         self._export_recipients = None  # type: List[ExportRecipientInfo]
         self._read_export_recipients(parser)
 
-        self.schedule_timezone = get_config_parameter(
-            parser, es, cpe.SCHEDULE_TIMEZONE, str, DEFAULT_TIMEZONE)
+        self.schedule_timezone = _get_str(es, cpe.SCHEDULE_TIMEZONE, DEFAULT_TIMEZONE)  # noqa
 
         self.crontab_entries = []  # type: List[CrontabEntry]
-        crontab_lines = get_config_parameter_multiline(
-            parser, es, cpe.SCHEDULE, [])
+        crontab_lines = _get_multiline(es, cpe.SCHEDULE)
         for crontab_line in crontab_lines:
             if crontab_line.startswith("#"):  # comment line
                 continue
@@ -1219,22 +1208,6 @@ class CamcopsConfig(object):
                     "{} setting exists for non-existent recipient {}".format(
                         cpe.SCHEDULE, crontab_entry.content))
             self.crontab_entries.append(crontab_entry)
-
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # More validity checks
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if not self.patient_spec_if_anonymous:
-            raise_missing(section, cpm.PATIENT_SPEC_IF_ANONYMOUS)
-        if not self.patient_spec:
-            raise_missing(section, cpm.PATIENT_SPEC)
-        if not self.session_cookie_secret:
-            raise_missing(section, cpm.SESSION_COOKIE_SECRET)
-        if not self.task_filename_spec:
-            raise_missing(section, cpm.TASK_FILENAME_SPEC)
-        if not self.tracker_filename_spec:
-            raise_missing(section, cpm.TRACKER_FILENAME_SPEC)
-        if not self.ctv_filename_spec:
-            raise_missing(section, cpm.CTV_FILENAME_SPEC)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Other attributes

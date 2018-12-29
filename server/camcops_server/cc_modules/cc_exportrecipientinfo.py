@@ -36,7 +36,7 @@ uses this, as it needs to be readable in the absence of a database connection
 import configparser
 import datetime
 import logging
-from typing import List, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -73,6 +73,7 @@ DEFAULT_HL7_MLLP_PORT = 2575
 DEFAULT_HL7_TIMEOUT_MS = 10000
 DEFAULT_PATIENT_SPEC_IF_ANONYMOUS = "anonymous"
 DEFAULT_SMTP_PORT = 25
+CONFIG_RECIPIENT_PREFIX = "recipient:"
 RIO_MAX_USER_LEN = 10
 
 
@@ -385,9 +386,25 @@ class ExportRecipientInfo(object):
         assert recipient_name
         log.debug("Loading export config for recipient {!r}", recipient_name)
 
-        section = recipient_name
+        section = CONFIG_RECIPIENT_PREFIX + recipient_name
         cpr = ConfigParamExportRecipient
         r = cls()
+
+        def _get_str(paramname: str, default: str = None) -> Optional[str]:
+            return get_config_parameter(
+                parser, section, paramname, str, default)
+
+        def _get_bool(paramname: str, default: bool) -> bool:
+            return get_config_parameter_boolean(
+                parser, section, paramname, default)
+
+        def _get_int(paramname: str, default: int = None) -> Optional[int]:
+            return get_config_parameter(
+                parser, section, paramname, int, default)
+
+        def _get_multiline(paramname: str) -> List[str]:
+            return get_config_parameter_multiline(
+                parser, section, paramname, [])
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Identity
@@ -397,8 +414,7 @@ class ExportRecipientInfo(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # How to export
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        r.transmission_method = get_config_parameter(
-            parser, section, cpr.TRANSMISSION_METHOD, str, None)
+        r.transmission_method = _get_str(cpr.TRANSMISSION_METHOD)
         r.transmission_method = str(r.transmission_method).lower()
         # Check this one immediately, since we use it in conditions below
         if r.transmission_method not in ALL_TRANSMISSION_METHODS:
@@ -407,151 +423,97 @@ class ExportRecipientInfo(object):
                 "Missing/invalid {}: {}".format(
                     ConfigParamExportRecipient.TRANSMISSION_METHOD,
                     r.transmission_method))
-        r.push = get_config_parameter_boolean(
-            parser, section, cpr.PUSH, False)
-        r.task_format = get_config_parameter(
-            parser, section, cpr.TASK_FORMAT, str, FileType.PDF)
-        r.xml_field_comments = get_config_parameter_boolean(
-            parser, section, cpr.XML_FIELD_COMMENTS, True)
+        r.push = _get_bool(cpr.PUSH, False)
+        r.task_format = _get_str(cpr.TASK_FORMAT, FileType.PDF)
+        r.xml_field_comments = _get_bool(cpr.XML_FIELD_COMMENTS, True)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # What to export
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        r.all_groups = get_config_parameter_boolean(
-            parser, section, cpr.ALL_GROUPS, False)
-        r.group_names = get_config_parameter_multiline(
-            parser, section, cpr.GROUPS, [])
+        r.all_groups = _get_bool(cpr.ALL_GROUPS, False)
+        r.group_names = _get_multiline(cpr.GROUPS)
         r.group_ids = []  # type: List[int]
         # ... read later by validate_db_dependent()
-        sd = get_config_parameter(
-            parser, section, cpr.START_DATETIME_UTC, str, None)
+        sd = _get_str(cpr.START_DATETIME_UTC)
         r.start_datetime_utc = pendulum_to_utc_datetime_without_tz(
             coerce_to_pendulum(sd, assume_local=False)) if sd else None
-        ed = get_config_parameter(
-            parser, section, cpr.END_DATETIME_UTC, str, None)
+        ed = _get_str(cpr.END_DATETIME_UTC)
         r.end_datetime_utc = pendulum_to_utc_datetime_without_tz(
             coerce_to_pendulum(ed, assume_local=False)) if ed else None
-        r.finalized_only = get_config_parameter_boolean(
-            parser, section, cpr.FINALIZED_ONLY, True)
-        r.include_anonymous = get_config_parameter_boolean(
-            parser, section, cpr.INCLUDE_ANONYMOUS, False)
-        r.primary_idnum = get_config_parameter(
-            parser, section, cpr.PRIMARY_IDNUM, int, None)
-        r.require_idnum_mandatory = get_config_parameter_boolean(
-            parser, section, cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY,
-            True)
+        r.finalized_only = _get_bool(cpr.FINALIZED_ONLY, True)
+        r.include_anonymous = _get_bool(cpr.INCLUDE_ANONYMOUS, False)
+        r.primary_idnum = _get_int(cpr.PRIMARY_IDNUM)
+        r.require_idnum_mandatory = _get_bool(cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY, True)  # noqa
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Database
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if r.transmission_method == ExportTransmissionMethod.DATABASE:
-            r.db_url = get_config_parameter(
-                parser, section, cpr.DB_URL, str, None)
-            r.db_echo = get_config_parameter_boolean(
-                parser, section, cpr.DB_ECHO, False)
-            r.db_include_blobs = get_config_parameter_boolean(
-                parser, section, cpr.DB_INCLUDE_BLOBS, True)
-            r.db_add_summaries = get_config_parameter_boolean(
-                parser, section, cpr.DB_ADD_SUMMARIES, True)
-            r.db_patient_id_per_row = get_config_parameter_boolean(
-                parser, section, cpr.DB_PATIENT_ID_PER_ROW, False)
+            r.db_url = _get_str(cpr.DB_URL)
+            r.db_echo = _get_bool(cpr.DB_ECHO, False)
+            r.db_include_blobs = _get_bool(cpr.DB_INCLUDE_BLOBS, True)
+            r.db_add_summaries = _get_bool(cpr.DB_ADD_SUMMARIES, True)
+            r.db_patient_id_per_row = _get_bool(cpr.DB_PATIENT_ID_PER_ROW, False)  # noqa
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Email
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         def _make_email_csv_list(paramname: str) -> str:
-            return ", ".join(
-                x for x in get_config_parameter_multiline(
-                    parser, section, paramname, [])
-            )
+            return ", ".join(x for x in _get_multiline(paramname))
 
         if r.transmission_method == ExportTransmissionMethod.EMAIL:
-            r.email_host = get_config_parameter(
-                parser, section, cpr.EMAIL_HOST, str, None)
-            r.email_port = get_config_parameter(
-                parser, section, cpr.EMAIL_PORT, int, DEFAULT_SMTP_PORT)
-            r.email_use_tls = get_config_parameter_boolean(
-                parser, section, cpr.EMAIL_USE_TLS, False)
-            r.email_host_username = get_config_parameter(
-                parser, section, cpr.EMAIL_HOST_USERNAME, str, None)
-            r.email_host_password = get_config_parameter(
-                parser, section, cpr.EMAIL_HOST_PASSWORD, str, "")
-            r.email_from = get_config_parameter(
-                parser, section, cpr.EMAIL_FROM, str, "")
-            r.email_sender = get_config_parameter(
-                parser, section, cpr.EMAIL_SENDER, str, "")
-            r.email_reply_to = get_config_parameter(
-                parser, section, cpr.EMAIL_REPLY_TO, str, "")
+            r.email_host = _get_str(cpr.EMAIL_HOST)
+            r.email_port = _get_int(cpr.EMAIL_PORT, DEFAULT_SMTP_PORT)
+            r.email_use_tls = _get_bool(cpr.EMAIL_USE_TLS, False)
+            r.email_host_username = _get_str(cpr.EMAIL_HOST_USERNAME)
+            r.email_host_password = _get_str(cpr.EMAIL_HOST_PASSWORD, "")
+            r.email_from = _get_str(cpr.EMAIL_FROM, "")
+            r.email_sender = _get_str(cpr.EMAIL_SENDER, "")
+            r.email_reply_to = _get_str(cpr.EMAIL_REPLY_TO, "")
             r.email_to = _make_email_csv_list(cpr.EMAIL_TO)
             r.email_cc = _make_email_csv_list(cpr.EMAIL_CC)
             r.email_bcc = _make_email_csv_list(cpr.EMAIL_BCC)
-            r.email_patient_spec_if_anonymous = get_config_parameter(
-                parser, section, cpr.EMAIL_PATIENT_SPEC_IF_ANONYMOUS, str, "")
-            r.email_patient_spec = get_config_parameter(
-                parser, section, cpr.EMAIL_PATIENT_SPEC, str, "")
-            r.email_subject = get_config_parameter(
-                parser, section, cpr.EMAIL_SUBJECT, str, "")
-            r.email_body_as_html = get_config_parameter_boolean(
-                parser, section, cpr.EMAIL_BODY_IS_HTML, False)
-            r.email_body = get_config_parameter(
-                parser, section, cpr.EMAIL_BODY, str, "")
-            r.email_keep_message = get_config_parameter_boolean(
-                parser, section, cpr.EMAIL_KEEP_MESSAGE, False)
+            r.email_patient_spec_if_anonymous = _get_str(cpr.EMAIL_PATIENT_SPEC_IF_ANONYMOUS, "")  # noqa
+            r.email_patient_spec = _get_str(cpr.EMAIL_PATIENT_SPEC, "")
+            r.email_subject = _get_str(cpr.EMAIL_SUBJECT, "")
+            r.email_body_as_html = _get_bool(cpr.EMAIL_BODY_IS_HTML, False)
+            r.email_body = _get_str(cpr.EMAIL_BODY, "")
+            r.email_keep_message = _get_bool(cpr.EMAIL_KEEP_MESSAGE, False)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # HL7
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if r.transmission_method == ExportTransmissionMethod.HL7:
-            r.hl7_host = get_config_parameter(
-                parser, section, cpr.HL7_HOST, str, None)
-            r.hl7_port = get_config_parameter(
-                parser, section, cpr.HL7_PORT, int, DEFAULT_HL7_MLLP_PORT)
-            r.hl7_ping_first = get_config_parameter_boolean(
-                parser, section, cpr.HL7_PING_FIRST, True)
-            r.hl7_network_timeout_ms = get_config_parameter(
-                parser, section, cpr.HL7_NETWORK_TIMEOUT_MS,
-                int, DEFAULT_HL7_TIMEOUT_MS)
-            r.hl7_keep_message = get_config_parameter_boolean(
-                parser, section, cpr.HL7_KEEP_MESSAGE, False)
-            r.hl7_keep_reply = get_config_parameter_boolean(
-                parser, section, cpr.HL7_KEEP_REPLY, False)
-            r.hl7_debug_divert_to_file = get_config_parameter_boolean(
-                parser, section, cpr.HL7_DEBUG_DIVERT_TO_FILE, False)
-            r.hl7_debug_treat_diverted_as_sent = get_config_parameter_boolean(
-                parser, section, cpr.HL7_DEBUG_TREAT_DIVERTED_AS_SENT, False)
+            r.hl7_host = _get_str(cpr.HL7_HOST)
+            r.hl7_port = _get_int(cpr.HL7_PORT, DEFAULT_HL7_MLLP_PORT)
+            r.hl7_ping_first = _get_bool(cpr.HL7_PING_FIRST, True)
+            r.hl7_network_timeout_ms = _get_int(cpr.HL7_NETWORK_TIMEOUT_MS, DEFAULT_HL7_TIMEOUT_MS)  # noqa
+            r.hl7_keep_message = _get_bool(cpr.HL7_KEEP_MESSAGE, False)
+            r.hl7_keep_reply = _get_bool(cpr.HL7_KEEP_REPLY, False)
+            r.hl7_debug_divert_to_file = _get_bool(cpr.HL7_DEBUG_DIVERT_TO_FILE, False)  # noqa
+            r.hl7_debug_treat_diverted_as_sent = _get_bool(cpr.HL7_DEBUG_TREAT_DIVERTED_AS_SENT, False)  # noqa
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # File
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if r._need_file_name():
-            r.file_patient_spec = get_config_parameter(
-                parser, section, cpr.FILE_PATIENT_SPEC, str, None)
-            r.file_patient_spec_if_anonymous = get_config_parameter(
-                parser, section, cpr.FILE_PATIENT_SPEC_IF_ANONYMOUS, str,
-                "anonymous")
-            r.file_filename_spec = get_config_parameter(
-                parser, section, cpr.FILE_FILENAME_SPEC, str, None)
+            r.file_patient_spec = _get_str(cpr.FILE_PATIENT_SPEC)
+            r.file_patient_spec_if_anonymous = _get_str(cpr.FILE_PATIENT_SPEC_IF_ANONYMOUS, "anonymous")  # noqa
+            r.file_filename_spec = _get_str(cpr.FILE_FILENAME_SPEC)
 
         if r._need_file_disk_options():
-            r.file_make_directory = get_config_parameter_boolean(
-                parser, section, cpr.FILE_MAKE_DIRECTORY, False)
-            r.file_overwrite_files = get_config_parameter_boolean(
-                parser, section, cpr.FILE_OVERWRITE_FILES, False)
+            r.file_make_directory = _get_bool(cpr.FILE_MAKE_DIRECTORY, False)
+            r.file_overwrite_files = _get_bool(cpr.FILE_OVERWRITE_FILES, False)
 
         if r.transmission_method == ExportTransmissionMethod.FILE:
-            r.file_export_rio_metadata = get_config_parameter_boolean(
-                parser, section, cpr.FILE_EXPORT_RIO_METADATA, False)
-            r.file_script_after_export = get_config_parameter(
-                parser, section, cpr.FILE_SCRIPT_AFTER_EXPORT, str, None)
+            r.file_export_rio_metadata = _get_bool(cpr.FILE_EXPORT_RIO_METADATA, False)  # noqa
+            r.file_script_after_export = _get_str(cpr.FILE_SCRIPT_AFTER_EXPORT)
 
         if r._need_rio_metadata_options():
             # RiO metadata
-            r.rio_idnum = get_config_parameter(
-                parser, section, cpr.RIO_IDNUM, int, None)
-            r.rio_uploading_user = get_config_parameter(
-                parser, section, cpr.RIO_UPLOADING_USER, str, None)
-            r.rio_document_type = get_config_parameter(
-                parser, section, cpr.RIO_DOCUMENT_TYPE, str, None)
+            r.rio_idnum = _get_int(cpr.RIO_IDNUM)
+            r.rio_uploading_user = _get_str(cpr.RIO_UPLOADING_USER)
+            r.rio_document_type = _get_str(cpr.RIO_DOCUMENT_TYPE)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Validate the basics and return

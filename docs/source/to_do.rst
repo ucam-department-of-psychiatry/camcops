@@ -104,6 +104,10 @@ Client core
 
 - Test task upload (and date filtering) under Windows/SQL Server.
 
+- See if "database upgrade" SQL Server bug is fixable; see changelog for server
+  v2.3.1. See also
+  https://stackoverflow.com/questions/155246/how-do-you-truncate-all-tables-in-a-database-using-tsql#156813
+
 **Medium priority**
 
 - iOS build.
@@ -147,30 +151,11 @@ Server
 
 **Priority**
 
-- Revamp export code. Per-group exports. Perhaps define exports in database,
-  rather than config file?
-
-- Facility to dump entire groups e.g. daily to a database.
-
-- Basic e-mail sending functions.
-
-- Facility to auto-email individual PDFS to defined group recipients (e.g.
-  admin teams).
-
-- Ensure autoscheduling facility is working properly.
+- supervisord demo config file needs to include ``camcops_server
+  launch_workers`` and ``camcops_server launch_scheduler``.
 
 - Facility to hide individual sticky notes (with audit trail), so they're not
   shown in HTML (+ PDF) and XML views. See e-mail RNC/JK/RE, 2018-10-12.
-
-- Test the HL7 backend. Think re HL7 implementation carefully; see
-  ``hl7_design.txt``. Also: ensure we can efficiently distinguish between
-  “previously sent” and “needs to be sent” in the context of re-sending stuff
-  that changes in important ways (if we continue to allow this).
-
-  General design points:
-
-  - Reasonable to implement "export destination" configuration either in config
-    file or web front end.
 
 - Ensure that the “system user” and “server device” are used everywhere they
   should be.
@@ -222,14 +207,14 @@ Server
 
 **Not a priority**
 
-- SNOMED coding now supported (see XML views).
-
-  - Now make it available in exports.
-
 - Implement (from command line) “export to anonymisation staging database” =
   with patient info per table. (Extend ``cc_dump.py``. See
   ``generate_anonymisation_staging_db()``, and it's also temporarily disabled
-  in the master command-line handler.)
+  in the master command-line handler.) Framework very partly done; search for
+  ``db_patient_id_per_row``.
+
+  - Best to implement by fixed column names for all ID numbers, e.g.
+    ``_patient_idnum1``, ``_patient_idnum17``, etc.? NULL if absent.
 
 - Upgrade Qt to 5.12 LTS.
 
@@ -247,6 +232,8 @@ Server
 
 - More generic e-mails to administrators, via backend task. (E-mail framework
   now in place.)
+
+- Move export dumps to backend (via e-mail)?
 
 Documentation
 -------------

@@ -1159,7 +1159,7 @@ class CamcopsColumn(Column):
         kwargs['is_blob_id_field'] = self.is_blob_id_field
         kwargs['blob_relationship_attr_name'] = self.blob_relationship_attr_name  # noqa
         kwargs['permitted_value_checker'] = self.permitted_value_checker
-        return CamcopsColumn(*args, **kwargs)
+        return self.__class__(*args, **kwargs)
 
     def __repr__(self) -> str:
         def kvp(attrname: str) -> str:
@@ -1171,7 +1171,7 @@ class CamcopsColumn(Column):
             kvp("is_blob_id_field"),
             kvp("blob_relationship_attr_name"),
             kvp("permitted_value_checker"),
-            super().__repr__(),
+            "super()={}".format(super().__repr__()),
         ]
         return "CamcopsColumn({})".format(", ".join(elements))
 
@@ -1396,30 +1396,42 @@ class BoolColumn(CamcopsColumn):
         # in args, so we must handle that, too...
 
         _, type_in_args = _name_type_in_column_args(args)
-        constraint_name_str = None
+        self.constraint_name = None  # type: str
         if not type_in_args:
-            constraint_name_str = kwargs.pop("constraint_name", None)
-            if constraint_name_str:
-                constraint_name_conv = conv(constraint_name_str)
+            self.constraint_name = kwargs.pop("constraint_name", None)
+            if self.constraint_name:
+                constraint_name_conv = conv(self.constraint_name)
                 # ... see help for ``conv``
             else:
                 constraint_name_conv = None
             kwargs['type_'] = Boolean(name=constraint_name_conv)
+            # The "name" parameter to Boolean() specifies the  name of the
+            # (0, 1) constraint.
         kwargs['permitted_value_checker'] = BIT_CHECKER
         super().__init__(*args, **kwargs)
-        if (not constraint_name_str and
+        if (not self.constraint_name and
                 len(self.name) >= LONG_COLUMN_NAME_WARNING_LIMIT):
             log.warning(
-                "Long column name and no constraint name: {!r}",
-                self.name
+                "BoolColumn with long column name and no constraint name: "
+                "{!r}", self.name
             )
+
+    def __repr__(self) -> str:
+        def kvp(attrname: str) -> str:
+            return "{}={!r}".format(attrname, getattr(self, attrname))
+        elements = [
+            kvp("constraint_name"),
+            "super()={}".format(super().__repr__()),
+        ]
+        return "BoolColumn({})".format(", ".join(elements))
 
     def _constructor(self, *args: Any, **kwargs: Any) -> "BoolColumn":
         """
         Make a copy; see
         https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass
         """
-        return BoolColumn(*args, **kwargs)
+        kwargs["constraint_name"] = self.constraint_name
+        return super()._constructor(*args, **kwargs)
 
 
 # =============================================================================

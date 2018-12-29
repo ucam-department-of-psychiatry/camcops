@@ -71,7 +71,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import not_, update
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Float, Integer, Text
 
 # from camcops_server.cc_modules.cc_anon import get_cris_dd_rows_from_fieldspecs
 from camcops_server.cc_modules.cc_audit import audit
@@ -113,13 +113,13 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     permitted_value_failure_msgs,
     permitted_values_ok,
     SemanticVersionColType,
+    TableNameColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_summaryelement import (
     ExtraSummaryTable,
     SummaryElement,
 )
-from camcops_server.cc_modules.cc_tsv import TsvPage
 from camcops_server.cc_modules.cc_version import (
     CAMCOPS_SERVER_VERSION,
     MINIMUM_TABLET_VERSION,
@@ -147,13 +147,19 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_snomed import SnomedExpression
     from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
+    from camcops_server.cc_modules.cc_tsv import TsvPage
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 ANCILLARY_FWD_REF = "Ancillary"
 TASK_FWD_REF = "Task"
 
-SNOMED_TSV_PAGE_NAME = "_snomed_ct"
+SNOMED_TABLENAME = "_snomed_ct"
+SNOMED_COLNAME_TASKTABLE = "task_tablename"
+SNOMED_COLNAME_TASKPK = "task_pk"
+SNOMED_COLNAME_WHENCREATED_UTC = "when_created"
+SNOMED_COLNAME_EXPRESSION = "snomed_expression"
+UNUSED_SNOMED_XML_NAME = "snomed_ct_expressions"
 
 
 # =============================================================================
@@ -936,6 +942,54 @@ class Task(GenericTabletRecordMixin, Base):
             ),
         ]
 
+    def get_all_summary_tables(self, req: "CamcopsRequest") \
+            -> List[ExtraSummaryTable]:
+        """
+        Returns all
+        :class:`camcops_server.cc_modules.cc_summaryelement.ExtraSummaryTable`
+        objects for this class, including any provided by subclasses, plus
+        SNOMED CT codes if enabled.
+        """
+        tables = self.get_extra_summary_tables(req)
+        if req.snomed_supported:
+            tables.append(self._get_snomed_extra_summary_table(req))
+        return tables
+
+    def _get_snomed_extra_summary_table(self, req: "CamcopsRequest") \
+            -> ExtraSummaryTable:
+        """
+        Returns a
+        :class:`camcops_server.cc_modules.cc_summaryelement.ExtraSummaryTable`
+        for this task's SNOMED CT codes.
+        """
+        codes = self.get_snomed_codes(req)
+        columns = [
+            Column(SNOMED_COLNAME_TASKTABLE, TableNameColType,
+                   comment="Task's base table name"),
+            Column(SNOMED_COLNAME_TASKPK, Integer,
+                   comment="Task's server primary key"),
+            Column(SNOMED_COLNAME_WHENCREATED_UTC, DateTime,
+                   comment="Task's creation date/time (UTC)"),
+            Column(SNOMED_COLNAME_EXPRESSION, Text,
+                   comment="SNOMED CT expression"),
+        ]
+        rows = []  # type: List[Dict[str, Any]]
+        for code in codes:
+            d = OrderedDict([
+                (SNOMED_COLNAME_TASKTABLE, self.tablename),
+                (SNOMED_COLNAME_TASKPK, self.get_pk()),
+                (SNOMED_COLNAME_WHENCREATED_UTC,
+                 self.get_creation_datetime_utc_tz_unaware()),
+                (SNOMED_COLNAME_EXPRESSION, code.as_string()),
+            ])
+            rows.append(d)
+        return ExtraSummaryTable(
+            tablename=SNOMED_TABLENAME,
+            xmlname=UNUSED_SNOMED_XML_NAME,  # though actual XML doesn't use this route  # noqa
+            columns=columns,
+            rows=rows,
+        )
+
     # -------------------------------------------------------------------------
     # Testing
     # -------------------------------------------------------------------------
@@ -1329,7 +1383,7 @@ class Task(GenericTabletRecordMixin, Base):
     # TSV export for basic research dump
     # -------------------------------------------------------------------------
 
-    def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
+    def get_tsv_pages(self, req: "CamcopsRequest") -> List["TsvPage"]:
         """
         Returns information used for the basic research dump in TSV format.
         """
@@ -1344,30 +1398,11 @@ class Task(GenericTabletRecordMixin, Base):
         for ancillary in self.gen_ancillary_instances():  # type: GenericTabletRecordMixin  # noqa
             page = ancillary._get_core_tsv_page(req)
             tsv_pages.append(page)
-        # 4. +/- Extra summary tables
-        for est in self.get_extra_summary_tables(req):
+        # 4. +/- Extra summary tables (inc. SNOMED)
+        for est in self.get_all_summary_tables(req):
             tsv_pages.append(est.get_tsv_page())
-        # 5. +/- SNOMED
-        if req.snomed_supported:
-            tsv_pages.append(self.get_snomed_tsv_page(req))
         # Done
         return tsv_pages
-
-    def get_snomed_tsv_page(self, req: "CamcopsRequest") -> TsvPage:
-        """
-        Returns a TSV page for this task's SNOMED CT codes.
-        """
-        codes = self.get_snomed_codes(req)
-        rows = []  # type: List[Dict[str, Any]]
-        for code in codes:
-            d = OrderedDict([
-                ("task_tablename", self.tablename),
-                ("task_pk", self.get_pk()),
-                ("when_created", self.when_created),
-                ("snomed_expression", code.as_string()),
-            ])
-            rows.append(d)
-        return TsvPage(name=SNOMED_TSV_PAGE_NAME, rows=rows)
 
     # -------------------------------------------------------------------------
     # Data structure for CRIS data dictionary
@@ -1538,11 +1573,11 @@ class Task(GenericTabletRecordMixin, Base):
             options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
         """  # noqa
         # Core (inc. core BLOBs)
-        branches = self.get_xml_core_branches(req=req, options=options)
+        branches = self._get_xml_core_branches(req=req, options=options)
         tree = XmlElement(name=self.tablename, value=branches)
         return tree
 
-    def get_xml_core_branches(
+    def _get_xml_core_branches(
             self,
             req: "CamcopsRequest",
             options: TaskExportOptions) -> List[XmlElement]:
@@ -1649,6 +1684,8 @@ class Task(GenericTabletRecordMixin, Base):
             item_collections = []  # type: List[XmlElement]
             found_est = False
             for est in self.get_extra_summary_tables(req):
+                # ... not get_all_summary_tables(); we handled SNOMED
+                # differently, above
                 if not found_est and est.rows:
                     add_comment(XML_COMMENT_CALCULATED)
                     found_est = True
@@ -2400,7 +2437,7 @@ class TaskTests(DemoDatabaseTestCase):
             if ctvlist is not None:
                 for ctvinfo in ctvlist:
                     self.assertIsInstance(ctvinfo, CtvInfo)
-            for est in t.get_extra_summary_tables(req):
+            for est in t.get_all_summary_tables(req):
                 self.assertIsInstance(est.get_tsv_page(), TsvPage)
                 self.assertIsInstance(est.get_xml_element(), XmlElement)
 

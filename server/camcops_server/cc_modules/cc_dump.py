@@ -263,7 +263,8 @@ class DumpController(object):
         #    offer (usually tables whose rows don't have a 1:1 correspondence
         #    to the task or its ancillary objects).
         if isinstance(src_obj, Task):
-            estables = src_obj.get_extra_summary_tables(self.req)
+            estables = src_obj.get_all_summary_tables(self.req)
+            # ... includes SNOMED
             for est in estables:
                 dst_summary_table = self._get_or_insert_summary_table(est)
                 for row in est.rows:

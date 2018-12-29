@@ -86,8 +86,9 @@ Config file sections
 
 - All server settings are in the main section, ``[server]``.
 - A list of export recipients is in the ``[recipients]`` section.
-- Each export recipient is defined in a section whose name is the user-defined
-  name of that recipient.
+- Each export recipient is defined in a section named
+  ``[recipient:RECIPIENT_NAME]`` where *RECIPIENT_NAME* user-defined name of
+  that recipient.
 
 
 Options for the "[server]" section
@@ -830,6 +831,8 @@ DB_PATIENT_ID_PER_ROW
 Add patient ID numbers to all patient rows? Used, for example, to export a
 database in a more convenient format for subsequent anonymisation. Default
 false.
+
+.. todo:: DB_PATIENT_ID_PER_ROW not currently implemented.
 
 Options applicable to e-mail export only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
