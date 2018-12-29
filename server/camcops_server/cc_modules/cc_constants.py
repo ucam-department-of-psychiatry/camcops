@@ -62,6 +62,19 @@ DEFAULT_PLOT_FONTSIZE = 8
 MINIMUM_PASSWORD_LENGTH = 8
 
 # =============================================================================
+# Launching
+# =============================================================================
+
+DEFAULT_FLOWER_ADDRESS = "127.0.0.1"
+DEFAULT_FLOWER_PORT = 5555  # http://docs.celeryproject.org/en/latest/userguide/monitoring.html  # noqa
+DEFAULT_HOST = "127.0.0.1"
+DEFAULT_MAX_THREADS = 100
+# ... beware the default MySQL connection limit of 151;
+#     https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
+DEFAULT_PORT = 8000
+URL_PATH_ROOT = '/'
+
+# =============================================================================
 # More filenames
 # =============================================================================
 

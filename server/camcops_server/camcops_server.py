@@ -28,85 +28,41 @@ camcops_server/camcops_server.py
 
 """
 
-# SET UP LOGGING BEFORE WE IMPORT CAMCOPS MODULES, allowing them to log during
-# imports (see e.g. cc_plot).
-# Currently sets up colour logging even if under WSGI environment. This is fine
-# for gunicorn from the command line; I'm less clear about whether the disk
-# logs look polluted by ANSI codes; needs checking.
+from argparse import (
+    ArgumentParser,
+    ArgumentDefaultsHelpFormatter,
+    Namespace,
+    RawDescriptionHelpFormatter,
+)
 import logging
+import os
+import multiprocessing
+import sys
+from typing import List, Optional, TYPE_CHECKING
+
+from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction
+from cardinal_pythonlib.debugging import pdb_run
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
     print_report_on_all_logs,
     set_level_for_logger_and_its_handlers,
 )
-main_only_quicksetup_rootlogger(
-    logging.INFO, with_process_id=True, with_thread_id=True
-)
-log = BraceStyleAdapter(logging.getLogger(__name__))
-log.info("CamCOPS starting")
-
-# Main imports
-
-from argparse import (
-    ArgumentParser,
-    ArgumentDefaultsHelpFormatter,
-    Namespace,
-    RawDescriptionHelpFormatter,
-)  # nopep8
-import os  # nopep8
-import multiprocessing  # nopep8
-import platform  # nopep8
-# from pprint import pformat  # nopep8
-import subprocess  # nopep8
-import sys  # nopep8
-import tempfile  # nopep8
-from typing import Any, Dict, List, Optional, TYPE_CHECKING  # nopep8
-import unittest  # nopep8
-
-import cherrypy  # nopep8
-try:
-    from gunicorn.app.base import BaseApplication
-except ImportError:
-    BaseApplication = None  # e.g. on Windows: "ImportError: no module named 'fcntl'".  # noqa
-from pyramid.router import Router  # nopep8
-from wsgiref.simple_server import make_server  # nopep8
-
-from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction  # nopep8
-from cardinal_pythonlib.classes import gen_all_subclasses  # nopep8
-from cardinal_pythonlib.debugging import pdb_run  # nopep8
-from cardinal_pythonlib.process import launch_external_file  # nopep8
-from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
+from cardinal_pythonlib.process import launch_external_file
 from cardinal_pythonlib.sqlalchemy.dialect import (
     ALL_SQLA_DIALECTS,
     SqlaDialectName,
-)  # nopep8
-from cardinal_pythonlib.wsgi.constants import WsgiEnvVar  # nopep8
-from cardinal_pythonlib.wsgi.reverse_proxied_mw import (
-    ReverseProxiedConfig,
-    ReverseProxiedMiddleware,
-)  # nopep8
+)
+from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
+from cardinal_pythonlib.wsgi.reverse_proxied_mw import ReverseProxiedMiddleware
 
-# Import this one early:
-# noinspection PyUnresolvedReferences
-import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
-
-from camcops_server.cc_modules.cc_alembic import (
-    create_database_from_scratch,
-    downgrade_database_to_revision,
-    upgrade_database_to_head,
-    upgrade_database_to_revision,
-)  # nopep8
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
     DOCUMENTATION_URL,
-)  # nopep8
-# noinspection PyUnresolvedReferences
-import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # nopep8
+)
 from camcops_server.cc_modules.cc_config import (
     CamcopsConfig,
-    get_config_filename_from_os_env,
-    get_default_config_from_os_env,  # nopep8
+    get_default_config_from_os_env,
     get_demo_apache_config,
     get_demo_config,
     get_demo_mysql_create_db,
@@ -115,56 +71,31 @@ from camcops_server.cc_modules.cc_config import (
 )
 from camcops_server.cc_modules.cc_constants import (
     CAMCOPS_URL,
-    MINIMUM_PASSWORD_LENGTH,
-    USER_NAME_FOR_SYSTEM,
-)  # nopep8
-from camcops_server.cc_modules.cc_exception import raise_runtime_error  # nopep8
-from camcops_server.cc_modules.cc_export import (
-    print_export_queue,
-    export,
-)  # nopep8
-from camcops_server.cc_modules.cc_pyramid import RouteCollection  # nopep8
-from camcops_server.cc_modules.cc_request import (
-    CamcopsRequest,
-    command_line_request_context,
-    get_command_line_request,
-    pyramid_configurator_context,
-)  # nopep8
-from camcops_server.cc_modules.cc_snomed import send_athena_icd_snomed_to_xml  # nopep8
-from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl  # nopep8
-from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # nopep8
-from camcops_server.cc_modules.cc_task import Task  # nopep8
-from camcops_server.cc_modules.cc_taskindex import reindex_everything  # nopep8
-from camcops_server.cc_modules.cc_unittest import (
-    DemoDatabaseTestCase,
-    DemoRequestTestCase,
-    ExtendedTestCase,
-)  # nopep8
-from camcops_server.cc_modules.cc_user import (
-    SecurityLoginFailure,
-    set_password_directly,
-    User,
-)  # nopep8
-from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
-from camcops_server.cc_modules.celery import (
-    CELERY_APP_NAME,
-    CELERY_SOFT_TIME_LIMIT_SEC,
-)  # nopep8
-from camcops_server.cc_modules.merge_db import merge_camcops_db  # nopep8
-
-log.info("Imports complete")
+    DEFAULT_FLOWER_ADDRESS,
+    DEFAULT_FLOWER_PORT,
+    DEFAULT_HOST,
+    DEFAULT_MAX_THREADS,
+    DEFAULT_PORT,
+    URL_PATH_ROOT,
+)
+from camcops_server.cc_modules.cc_exception import raise_runtime_error
+from camcops_server.cc_modules.cc_snomed import send_athena_icd_snomed_to_xml
+from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
     from argparse import _SubParsersAction
+    from pyramid.router import Router
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # =============================================================================
 # Check Python version (the shebang is not a guarantee)
 # =============================================================================
 
-if sys.version_info[0] != 3:
+if sys.version_info[0] < 3:
     raise_runtime_error(
-        "CamCOPS needs Python 3, and this Python version is: " + sys.version)
+        "CamCOPS needs Python 3+, and this Python version is: " + sys.version)
 
 # =============================================================================
 # Debugging options
@@ -173,390 +104,9 @@ if sys.version_info[0] != 3:
 DEBUG_LOG_CONFIG = False
 DEBUG_RUN_WITH_PDB = False
 
-if DEBUG_LOG_CONFIG or DEBUG_RUN_WITH_PDB:
-    log.warning("Debugging options enabled!")
 
 # =============================================================================
-# Other constants
-# =============================================================================
-
-DEFAULT_CONFIG_FILENAME = "/etc/camcops/camcops.conf"
-DEFAULT_FLOWER_ADDRESS = "127.0.0.1"
-DEFAULT_FLOWER_PORT = 5555  # http://docs.celeryproject.org/en/latest/userguide/monitoring.html  # noqa
-DEFAULT_HOST = "127.0.0.1"
-DEFAULT_MAX_THREADS = 100
-# ... beware the default MySQL connection limit of 151;
-#     https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
-DEFAULT_PORT = 8000
-URL_PATH_ROOT = '/'
-WINDOWS = platform.system() == "Windows"
-
-
-# =============================================================================
-# Helper functions for web server launcher
-# =============================================================================
-
-def ensure_database_is_ok() -> None:
-    """
-    Opens a link to the database and checks it's of the correct version
-    (or otherwise raises an assertion error).
-    """
-    config = get_default_config_from_os_env()
-    config.assert_database_ok()
-
-
-def join_url_fragments(*fragments: str) -> str:
-    """
-    Combines fragments to make a URL.
-
-    (``urllib.parse.urljoin`` doesn't do what we want.)
-    """
-    newfrags = [f[1:] if f.startswith("/") else f for f in fragments]
-    return "/".join(newfrags)
-
-
-def precache() -> None:
-    """
-    Populates the major caches.
-    """
-    log.info("Prepopulating caches")
-    config_filename = get_config_filename_from_os_env()
-    config = get_default_config_from_os_env()
-    _ = all_extra_strings_as_dicts(config_filename)
-    _ = config.get_task_snomed_concepts()
-    _ = config.get_icd9cm_snomed_concepts()
-    _ = config.get_icd10_snomed_concepts()
-    with command_line_request_context() as req:
-        _ = req.get_export_recipients(all_recipients=True)
-
-
-# =============================================================================
-# WSGI entry point
-# =============================================================================
-
-def make_wsgi_app(debug_toolbar: bool = False,
-                  reverse_proxied_config: ReverseProxiedConfig = None,
-                  debug_reverse_proxy: bool = False) -> Router:
-    """
-    Makes and returns a WSGI application, attaching all our special methods.
-
-    QUESTION: how do we access the WSGI environment (passed to the WSGI app)
-    from within a Pyramid request?
-
-    ANSWER:
-
-    .. code-block:: none
-
-        Configurator.make_wsgi_app() calls Router.__init__()
-        and returns: app = Router(...)
-        The WSGI framework uses: response = app(environ, start_response)
-        which therefore calls: Router.__call__(environ, start_response)
-        which does:
-              response = self.execution_policy(environ, self)
-              return response(environ, start_response)
-        So something LIKE this will be called:
-              Router.default_execution_policy(environ, router)
-                  with router.request_context(environ) as request:
-                      # ...
-        So the environ is handled by Router.request_context(environ)
-        which will call BaseRequest.__init__()
-        which does:
-              d = self.__dict__
-              d['environ'] = environ
-        so we should be able to use
-              request.environ  # type: Dict[str, str]
-
-    """
-    log.debug("Creating WSGI app")
-
-    # Make app
-    with pyramid_configurator_context(debug_toolbar=debug_toolbar) as config:
-        app = config.make_wsgi_app()
-
-    # Middleware above the Pyramid level
-    if reverse_proxied_config and reverse_proxied_config.necessary():
-        app = ReverseProxiedMiddleware(app=app,
-                                       config=reverse_proxied_config,
-                                       debug=debug_reverse_proxy)
-
-    log.debug("WSGI app created")
-    return app
-
-
-def make_wsgi_app_from_argparse_args(args: Namespace) -> Router:
-    """
-    Reads the command-line (argparse) arguments, and creates a WSGI
-    application.
-
-    Must match :func:`add_wsgi_options`, which sets up argparse
-    parsers.
-    """
-    reverse_proxied_config = ReverseProxiedConfig(
-        trusted_proxy_headers=args.trusted_proxy_headers,
-        http_host=args.proxy_http_host,
-        remote_addr=args.proxy_remote_addr,
-        script_name=(
-            args.proxy_script_name or
-            os.environ.get(WsgiEnvVar.SCRIPT_NAME, "")
-        ),
-        server_port=args.proxy_server_port,
-        server_name=args.proxy_server_name,
-        url_scheme=args.proxy_url_scheme,
-        rewrite_path_info=args.proxy_rewrite_path_info,
-    )
-    return make_wsgi_app(debug_toolbar=args.debug_toolbar,
-                         reverse_proxied_config=reverse_proxied_config,
-                         debug_reverse_proxy=args.debug_reverse_proxy)
-
-
-# =============================================================================
-# Web server launchers
-# =============================================================================
-
-def ensure_ok_for_webserver() -> None:
-    """
-    Prerequisites for firing up the web server.
-    """
-    ensure_database_is_ok()
-    precache()
-
-
-def test_serve_pyramid(application: Router,
-                       host: str = DEFAULT_HOST,
-                       port: int = DEFAULT_PORT) -> None:
-    """
-    Launches an extremely simple Pyramid web server (via
-    ``wsgiref.make_server``).
-    """
-    ensure_ok_for_webserver()
-    server = make_server(host, port, application)
-    log.info("Serving on host={}, port={}", host, port)
-    server.serve_forever()
-
-
-def serve_cherrypy(application: Router,
-                   host: str,
-                   port: int,
-                   unix_domain_socket_filename: str,
-                   threads_start: int,
-                   threads_max: int,  # -1 for no limit
-                   server_name: str,
-                   log_screen: bool,
-                   ssl_certificate: Optional[str],
-                   ssl_private_key: Optional[str],
-                   root_path: str) -> None:
-    """
-    Start CherryPy server.
-
-    - Multithreading.
-    - Any platform.
-    """
-    ensure_ok_for_webserver()
-
-    # Report on options
-    if unix_domain_socket_filename:
-        # If this is specified, it takes priority
-        log.info("Starting CherryPy server via UNIX domain socket at: {}",
-                 unix_domain_socket_filename)
-    else:
-        log.info("Starting CherryPy server on host {}, port {}", host, port)
-    log.info("Within this web server instance, CamCOPS will be at: {}",
-             root_path)
-    log.info(
-        "... webview at: {}",
-        # urllib.parse.urljoin is useless for this
-        join_url_fragments(root_path, RouteCollection.HOME.path))
-    log.info(
-        "... tablet client API at: {}",
-        join_url_fragments(root_path, RouteCollection.CLIENT_API.path))
-    log.info("Thread pool starting size: {}", threads_start)
-    log.info("Thread pool max size: {}", threads_max)
-
-    # Set up CherryPy
-    cherrypy.config.update({
-        # See http://svn.cherrypy.org/trunk/cherrypy/_cpserver.py
-        'server.socket_host': host,
-        'server.socket_port': port,
-        'server.socket_file': unix_domain_socket_filename,
-        'server.thread_pool': threads_start,
-        'server.thread_pool_max': threads_max,
-        'server.server_name': server_name,
-        'server.log_screen': log_screen,
-    })
-    if ssl_certificate and ssl_private_key:
-        cherrypy.config.update({
-            'server.ssl_module': 'builtin',
-            'server.ssl_certificate': ssl_certificate,
-            'server.ssl_private_key': ssl_private_key,
-        })
-
-    # Mount WSGI application
-    cherrypy.tree.graft(application, root_path)
-
-    # Start server
-    try:
-        # log.debug("cherrypy.server.thread_pool: {}",
-        #           cherrypy.server.thread_pool)
-        cherrypy.engine.start()
-        cherrypy.engine.block()
-    except KeyboardInterrupt:
-        cherrypy.engine.stop()
-
-
-def serve_gunicorn(application: Router,
-                   host: str,
-                   port: int,
-                   unix_domain_socket_filename: str,
-                   num_workers: int,
-                   ssl_certificate: Optional[str],
-                   ssl_private_key: Optional[str],
-                   reload: bool = False,
-                   timeout_s: int = 30,
-                   debug_show_gunicorn_options: bool = False) -> None:
-    """
-    Start Gunicorn server
-
-    - Multiprocessing; this is a Good Thing particularly in Python; see e.g.
-
-      - https://eli.thegreenplace.net/2012/01/16/python-parallelizing-cpu-bound-tasks-with-multiprocessing/
-      - http://www.dabeaz.com/python/UnderstandingGIL.pdf
-
-    - UNIX only.
-
-    - The Pyramid debug toolbar detects a multiprocessing web server and says
-      "shan't, because I use global state".
-    """  # noqa
-    if BaseApplication is None:
-        raise_runtime_error("Gunicorn does not run under Windows. "
-                            "(It relies on the UNIX fork() facility.)")
-
-    ensure_ok_for_webserver()
-
-    # Report on options, and calculate Gunicorn versions
-    if unix_domain_socket_filename:
-        # If this is specified, it takes priority
-        log.info("Starting Gunicorn server via UNIX domain socket at: {}",
-                 unix_domain_socket_filename)
-        bind = "unix:" + unix_domain_socket_filename
-    else:
-        log.info("Starting Gunicorn server on host {}, port {}", host, port)
-        bind = "{}:{}".format(host, port)
-    log.info("... using {} workers", num_workers)
-
-    # We encapsulate this class definition in the function, since it inherits
-    # from a class whose import will crash under Windows.
-
-    # http://docs.gunicorn.org/en/stable/custom.html
-
-    class StandaloneApplication(BaseApplication):
-        def __init__(self,
-                     app_: Router,
-                     options: Dict[str, Any] = None,
-                     debug_show_known_settings: bool = False) -> None:
-            self.options = options or {}  # type: Dict[str, Any]
-            self.application = app_
-            super().__init__()
-            if debug_show_known_settings:
-                # log.info("Gunicorn settings:\n{}", pformat(self.cfg.settings))
-                # ... which basically tells us to look in gunicorn/config.py
-                # at every class that inherits from Setting.
-                # Each has helpful documentation, as follows:
-                possible_keys = sorted(self.cfg.settings.keys())
-                for k in possible_keys:
-                    v = self.cfg.settings[k]
-                    log.info("{}:\n{}", k, v.desc)
-
-        def load_config(self) -> None:
-            # The Gunicorn example looks somewhat convoluted! Let's be simpler:
-            for key, value in self.options.items():
-                key_lower = key.lower()
-                if key_lower in self.cfg.settings and value is not None:
-                    self.cfg.set(key_lower, value)
-
-        def load(self) -> Router:
-            return self.application
-
-    opts = {
-        'bind': bind,
-        'certfile': ssl_certificate,
-        'keyfile': ssl_private_key,
-        'reload': reload,
-        'timeout': timeout_s,
-        'workers': num_workers,
-    }
-    app = StandaloneApplication(
-        application, opts,
-        debug_show_known_settings=debug_show_gunicorn_options)
-    app.run()
-
-
-# =============================================================================
-# Helper functions for command-line functions
-# =============================================================================
-
-def get_username_from_cli(req: CamcopsRequest,
-                          prompt: str,
-                          starting_username: str = "",
-                          must_exist: bool = False,
-                          must_not_exist: bool = False) -> str:
-    """
-    Asks the user (via stdout/stdin) for a username.
-
-    Args:
-        req: CamcopsRequest object
-        prompt: textual prompt
-        starting_username: try this username and ask only if it fails tests
-        must_exist: the username must exist
-        must_not_exist: the username must not exist
-
-    Returns:
-        the username
-
-    """
-    assert not (must_exist and must_not_exist)
-    first = True
-    while True:
-        if first:
-            username = starting_username
-            first = False
-        else:
-            username = ""
-        username = username or ask_user(prompt)
-        exists = User.user_exists(req, username)
-        if must_not_exist and exists:
-            log.error("... user already exists!")
-            continue
-        if must_exist and not exists:
-            log.error("... no such user!")
-            continue
-        if username == USER_NAME_FOR_SYSTEM:
-            log.error("... username {!r} is reserved", USER_NAME_FOR_SYSTEM)
-            continue
-        return username
-
-
-def get_new_password_from_cli(username: str) -> str:
-    """
-    Asks the user (via stdout/stdin) for a new password for the specified
-    username. Returns the password.
-    """
-    while True:
-        password1 = ask_user_password("New password for user "
-                                      "{}".format(username))
-        if not password1 or len(password1) < MINIMUM_PASSWORD_LENGTH:
-            log.error("... passwords can't be blank or shorter than {} "
-                      "characters", MINIMUM_PASSWORD_LENGTH)
-            continue
-        password2 = ask_user_password("New password for user {} "
-                                      "(again)".format(username))
-        if password1 != password2:
-            log.error("... passwords don't match; try again")
-            continue
-        return password1
-
-
-# =============================================================================
-# Command-line functions
+# Simple command-line functions
 # =============================================================================
 
 def launch_manual() -> None:
@@ -603,300 +153,234 @@ def print_demo_mysql_dump_script() -> None:
     print(get_demo_mysql_dump_script())
 
 
-def print_database_title() -> None:
-    """
-    Prints the database title (for the current config) to stdout.
-    """
-    with command_line_request_context() as req:
-        print(req.database_title)
+# =============================================================================
+# Stub command-line functions requiring more substantial imports
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Database
+# -----------------------------------------------------------------------------
+
+def _upgrade_database_to_head(show_sql_only: bool) -> None:
+    # noinspection PyUnresolvedReferences
+    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    from camcops_server.cc_modules.cc_alembic import upgrade_database_to_head  # delayed import  # noqa
+    upgrade_database_to_head(show_sql_only=show_sql_only)
 
 
-def make_superuser(username: str = None) -> bool:
-    """
-    Make a superuser from the command line.
-    """
-    with command_line_request_context() as req:
-        username = get_username_from_cli(
-            req=req,
-            prompt="Username for new superuser (or to gain superuser status)",
-            starting_username=username,
-        )
-        existing_user = User.get_user_by_name(req.dbsession, username)
-        if existing_user:
-            log.info("Giving superuser status to {!r}", username)
-            existing_user.superuser = True
-            success = True
-        else:
-            log.info("Creating superuser {!r}", username)
-            password = get_new_password_from_cli(username=username)
-            success = User.create_superuser(req, username, password)
-        if success:
-            log.info("Success")
-            return True
-        else:
-            log.critical("Failed to create superuser")
-            return False
+def _upgrade_database_to_revision(revision: str,
+                                  show_sql_only: bool = False) -> None:
+    # noinspection PyUnresolvedReferences
+    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    from camcops_server.cc_modules.cc_alembic import upgrade_database_to_revision  # delayed import  # noqa
+    upgrade_database_to_revision(revision=revision,
+                                 show_sql_only=show_sql_only)
 
 
-def reset_password(username: str = None) -> bool:
-    """
-    Reset a password from the command line.
-    """
-    with command_line_request_context() as req:
-        username = get_username_from_cli(
-            req=req,
-            prompt="Username to reset password for",
-            starting_username=username,
-            must_exist=True,
-        )
-        log.info("Resetting password for user {!r}", username)
-        password = get_new_password_from_cli(username)
-        success = set_password_directly(req, username, password)
-        if success:
-            log.info("Success")
-        else:
-            log.critical("Failure")
-        return success
+def _downgrade_database_to_revision(
+        revision: str,
+        show_sql_only: bool = False,
+        confirm_downgrade_db: bool = False) -> None:
+    # noinspection PyUnresolvedReferences
+    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    from camcops_server.cc_modules.cc_alembic import downgrade_database_to_revision  # delayed import  # noqa
+    downgrade_database_to_revision(
+        revision=revision,
+        show_sql_only=show_sql_only,
+        confirm_downgrade_db=confirm_downgrade_db)
 
 
-def enable_user_cli(username: str = None) -> bool:
-    """
-    Re-enable a locked user account from the command line.
-    """
-    with command_line_request_context() as req:
-        if username is None:
-            username = get_username_from_cli(
-                req=req,
-                prompt="Username to unlock",
-                must_exist=True,
-            )
-        else:
-            if not User.user_exists(req, username):
-                log.critical("No such user: {!r}", username)
-                return False
-        SecurityLoginFailure.enable_user(req, username)
-        log.info("Enabled.")
-        return True
+def _create_database_from_scratch(cfg: "CamcopsConfig") -> None:
+    # noinspection PyUnresolvedReferences
+    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    from camcops_server.cc_modules.cc_alembic import create_database_from_scratch  # delayed import  # noqa
+    create_database_from_scratch(cfg=cfg)
 
 
-def cmd_show_export_queue(recipient_names: List[str] = None,
-                          all_recipients: bool = False,
-                          via_index: bool = True,
-                          pretty: bool = False) -> None:
-    """
-    Shows tasks that would be exported.
+def _print_database_title() -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.print_database_title()
 
-    Args:
-        recipient_names: list of export recipient names (as per the config
-            file)
-        all_recipients: use all recipients?
-        via_index: use the task index (faster)?
-        pretty: use ``str(task)`` not ``repr(task)`` (prettier, slower because
-            it has to query the patient)
-    """
-    with command_line_request_context() as req:
-        print_export_queue(req,
-                           recipient_names=recipient_names,
+
+def _merge_camcops_db(src: str,
+                      echo: bool,
+                      report_every: int,
+                      dummy_run: bool,
+                      info_only: bool,
+                      skip_export_logs: bool,
+                      skip_audit_logs: bool,
+                      default_group_id: Optional[int],
+                      default_group_name: Optional[str]) -> None:
+    # noinspection PyUnresolvedReferences
+    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    from camcops_server.cc_modules.merge_db import merge_camcops_db  # delayed import  # noqa
+    merge_camcops_db(src=src,
+                     echo=echo,
+                     report_every=report_every,
+                     dummy_run=dummy_run,
+                     info_only=info_only,
+                     skip_export_logs=skip_export_logs,
+                     skip_audit_logs=skip_audit_logs,
+                     default_group_id=default_group_id,
+                     default_group_name=default_group_name)
+
+
+def _get_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> str:
+    # noinspection PyUnresolvedReferences
+    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl  # delayed import  # noqa
+    return get_all_ddl(dialect_name=dialect_name)
+
+
+def _reindex(cfg: CamcopsConfig) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.reindex(cfg=cfg)
+
+
+# -----------------------------------------------------------------------------
+# Users
+# -----------------------------------------------------------------------------
+
+def _make_superuser(username: str = None) -> bool:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    return core.make_superuser(username=username)
+
+
+def _reset_password(username: str = None) -> bool:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    return core.reset_password(username=username)
+
+
+def _enable_user_cli(username: str = None) -> bool:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    return core.enable_user_cli(username=username)
+
+
+# -----------------------------------------------------------------------------
+# Export
+# -----------------------------------------------------------------------------
+
+def _cmd_export(recipient_names: List[str] = None,
+                all_recipients: bool = False,
+                via_index: bool = True) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    return core.cmd_export(recipient_names=recipient_names,
                            all_recipients=all_recipients,
-                           via_index=via_index,
-                           pretty=pretty)
+                           via_index=via_index)
 
 
-def cmd_export(recipient_names: List[str] = None,
-               all_recipients: bool = False,
-               via_index: bool = True) -> None:
-    """
-    Send all outbound incremental export messages (e.g. HL7).
-
-    Args:
-        recipient_names: list of export recipient names (as per the config
-            file)
-        all_recipients: use all recipients?
-        via_index: use the task index (faster)?
-    """
-    with command_line_request_context() as req:
-        export(req,
-               recipient_names=recipient_names,
-               all_recipients=all_recipients,
-               via_index=via_index)
+def _cmd_show_export_queue(recipient_names: List[str] = None,
+                           all_recipients: bool = False,
+                           via_index: bool = True,
+                           pretty: bool = False) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.cmd_show_export_queue(recipient_names=recipient_names,
+                               all_recipients=all_recipients,
+                               via_index=via_index,
+                               pretty=pretty)
 
 
-def reindex(cfg: CamcopsConfig) -> None:
-    """
-    Drops and regenerates the server task index.
+# -----------------------------------------------------------------------------
+# Web server
+# -----------------------------------------------------------------------------
 
-    Args:
-        cfg: a :class:`camcops_server.cc_modules.cc_config.CamcopsConfig`
-    """
-    ensure_database_is_ok()
-    with cfg.get_dbsession_context() as dbsession:
-        reindex_everything(dbsession)
+def _make_wsgi_app_from_argparse_args(args: Namespace) -> "Router":
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    return core.make_wsgi_app_from_argparse_args(args=args)
 
 
-# =============================================================================
-# Celery
-# =============================================================================
-
-def launch_celery_workers(verbose: bool = False) -> None:
-    """
-    Launch Celery workers.
-    
-    See also advice in
-    
-    - https://medium.com/@taylorhughes/three-quick-tips-from-two-years-with-celery-c05ff9d7f9eb
-    
-    - Re ``-Ofair``:
-      http://docs.celeryproject.org/en/latest/userguide/optimizing.html
-
-    """  # noqa
-    config = get_default_config_from_os_env()
-    cmdargs = [
-        "celery", "worker",
-        "--app", CELERY_APP_NAME,
-        "-Ofair",
-        "--soft-time-limit", str(CELERY_SOFT_TIME_LIMIT_SEC),
-        "--loglevel", "DEBUG" if verbose else "INFO",
-    ]
-    if WINDOWS:
-        # See crate_anon/tools/launch_celery.py, and
-        # camcops_server/cc_modules/cc_export.py
-        os.environ["FORKED_BY_MULTIPROCESSING"] = "1"
-        cmdargs.extend([
-            "--concurrency", "1",
-            "--pool", "solo",
-        ])
-    cmdargs += config.celery_worker_extra_args
-    log.info("Launching: {!r}", cmdargs)
-    subprocess.call(cmdargs)
+def _test_serve_pyramid(application: "Router",
+                        host: str = DEFAULT_HOST,
+                        port: int = DEFAULT_PORT) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.test_serve_pyramid(application=application,
+                            host=host,
+                            port=port)
 
 
-def launch_celery_beat(verbose: bool = False) -> None:
-    """
-    Launch the Celery Beat scheduler.
-
-    (This can be combined with ``celery worker``, but that's not recommended;
-    http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#starting-the-scheduler).
-    """  # noqa
-    config = get_default_config_from_os_env()
-    cmdargs = [
-        "celery", "beat",
-        "--app", CELERY_APP_NAME,
-        "--schedule", config.celery_beat_schedule_database,
-        "--pidfile", config.get_celery_beat_pidfilename(),
-        "--loglevel", "DEBUG" if verbose else "INFO",
-    ]
-    cmdargs += config.celery_beat_extra_args
-    log.info("Launching: {!r}", cmdargs)
-    subprocess.call(cmdargs)
-
-
-def launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
-                         port: int = DEFAULT_FLOWER_PORT) -> None:
-    """
-    Launch the Celery Flower monitor.
-    """
-    cmdargs = [
-        "celery", "flower",
-        "--app", CELERY_APP_NAME,
-        "--address {}".format(address),
-        "--port {}".format(port),
-    ]
-    log.info("Launching: {!r}", cmdargs)
-    subprocess.call(cmdargs)
+def _serve_cherrypy(application: "Router",
+                    host: str,
+                    port: int,
+                    unix_domain_socket_filename: str,
+                    threads_start: int,
+                    threads_max: int,  # -1 for no limit
+                    server_name: str,
+                    log_screen: bool,
+                    ssl_certificate: Optional[str],
+                    ssl_private_key: Optional[str],
+                    root_path: str) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.serve_cherrypy(
+        application=application,
+        host=host,
+        port=port,
+        unix_domain_socket_filename=unix_domain_socket_filename,
+        threads_start=threads_start,
+        threads_max=threads_max,
+        server_name=server_name,
+        log_screen=log_screen,
+        ssl_certificate=ssl_certificate,
+        ssl_private_key=ssl_private_key,
+        root_path=root_path)
 
 
-# =============================================================================
-# Test rig
-# =============================================================================
-
-def self_test(show_only: bool = False) -> None:
-    """
-    Run all unit tests.
-    """
-
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        tmpconfigfilename = os.path.join(tmpdirname, "dummy_config.conf")
-        configtext = get_demo_config()
-        with open(tmpconfigfilename, "w") as file:
-            file.write(configtext)
-        # First, for safety:
-        os.environ[ENVVAR_CONFIG_FILE] = tmpconfigfilename
-        # ... we're going to be using a test (SQLite) database, but we want to
-        # be very sure that nothing writes to a real database! Also, we will
-        # want to read from this dummy config at some point.
-
-        # If you use this:
-        #       loader = TestLoader()
-        #       suite = loader.discover(CAMCOPS_SERVER_DIRECTORY)
-        # ... then it fails because submodules contain relative imports (e.g.
-        # "from ..cc_modules.something import x" and this gives "ValueError:
-        # attemped relative import beyond top-level package". As the unittest
-        # docs say, "In order to be compatible with test discovery, all of the
-        # test files must be modules or packages... importable from the
-        # top-level directory of the project".
-        #
-        # However, having imported everything, all our tests should be
-        # subclasses of TestCase... but so are some other things.
-        #
-        # So we have a choice:
-        # 1. manual test specification (yuk)
-        # 2. hack around TestCase.__subclasses__ to exclude "built-in" ones
-        # 3. abandon relative imports
-        #   ... not a bad general idea (they often seem to cause problems!)
-        #   ... however, the discovery process (a) fails with importing
-        #       "alembic.versions", but more problematically, imports tasks
-        #       twice, which gives errors like
-        #       "sqlalchemy.exc.InvalidRequestError: Table 'ace3' is already
-        #       defined for this MetaData instance."
-        # So, hack it is.
-
-        # noinspection PyProtectedMember,PyUnresolvedReferences
-        skip_testclass_subclasses = [
-            # The ugly hack: what you see from
-            # unittest.TestCase.__subclasses__() from a clean import:
-            unittest.case.FunctionTestCase,  # built in
-            unittest.case._SubTest,  # built in
-            unittest.loader._FailedTest,  # built in
-            # plus our extras:
-            DemoDatabaseTestCase,  # our base class
-            DemoRequestTestCase,  # also a base class
-            ExtendedTestCase,  # also a base class
-        ]
-        suite = unittest.TestSuite()
-        for cls in gen_all_subclasses(unittest.TestCase):
-            if cls in skip_testclass_subclasses:
-                continue
-            if not cls.__module__.startswith("camcops_server"):
-                # don't, for example, run cardinal_pythonlib self-tests
-                continue
-            log.info("Discovered test: {}", cls)
-            # noinspection PyUnresolvedReferences
-            suite.addTest(unittest.makeSuite(cls))
-        if show_only:
-            return
-        runner = unittest.TextTestRunner()
-        runner.run(suite)
+def _serve_gunicorn(application: "Router",
+                    host: str,
+                    port: int,
+                    unix_domain_socket_filename: str,
+                    num_workers: int,
+                    ssl_certificate: Optional[str],
+                    ssl_private_key: Optional[str],
+                    reload: bool = False,
+                    timeout_s: int = 30,
+                    debug_show_gunicorn_options: bool = False) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.serve_gunicorn(
+        application=application,
+        host=host,
+        port=port,
+        unix_domain_socket_filename=unix_domain_socket_filename,
+        num_workers=num_workers,
+        ssl_certificate=ssl_certificate,
+        ssl_private_key=ssl_private_key,
+        reload=reload,
+        timeout_s=timeout_s,
+        debug_show_gunicorn_options=debug_show_gunicorn_options)
 
 
-def dev_cli() -> None:
-    """
-    Fire up a developer debug command-line.
-    """
-    config = get_default_config_from_os_env()
-    # noinspection PyUnusedLocal
-    engine = config.get_sqla_engine()
-    # noinspection PyUnusedLocal
-    req = get_command_line_request()
-    # noinspection PyUnusedLocal
-    dbsession = req.dbsession
-    log.error("""Entering developer command-line.
-    - Config is available in 'config'.
-    - Database engine is available in 'engine'.
-    - Dummy request is available in 'req'.
-    - Database session is available in 'dbsession'.
-    """)
-    import pdb
-    pdb.set_trace()
+# -----------------------------------------------------------------------------
+# Celery etc.
+# -----------------------------------------------------------------------------
+
+def _launch_celery_workers(verbose: bool = False) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.launch_celery_workers(verbose=verbose)
+
+
+def _launch_celery_beat(verbose: bool = False) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.launch_celery_beat(verbose=verbose)
+
+
+def _launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
+                          port: int = DEFAULT_FLOWER_PORT) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.launch_celery_flower(address=address,
+                              port=port)
+
+
+# -----------------------------------------------------------------------------
+# Testing and development
+# -----------------------------------------------------------------------------
+
+def _self_test(show_only: bool = False) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.self_test(show_only=show_only)
+
+
+def _dev_cli() -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.dev_cli()
 
 
 # =============================================================================
@@ -1121,6 +605,11 @@ def camcops_main() -> None:
         formatter_class=RawDescriptionHelpFormatter,
         # add_help=False  # only do this if manually overriding the method
     )
+
+    # -------------------------------------------------------------------------
+    # Common arguments
+    # -------------------------------------------------------------------------
+
     parser.add_argument(
         '--allhelp',
         action=ShowAllSubparserHelpAction,
@@ -1150,7 +639,7 @@ def camcops_main() -> None:
     #   https://bugs.python.org/issue14037
 
     # -------------------------------------------------------------------------
-    # Getting started commands
+    # "Getting started" commands
     # -------------------------------------------------------------------------
 
     # Launch documentation
@@ -1209,7 +698,7 @@ def camcops_main() -> None:
         help="Show SQL only (to stdout); don't execute it"
     )
     upgradedb_parser.set_defaults(
-        func=lambda args: upgrade_database_to_head(
+        func=lambda args: _upgrade_database_to_head(
             show_sql_only=args.show_sql_only
         )
     )
@@ -1229,7 +718,7 @@ def camcops_main() -> None:
         help="Show SQL only (to stdout); don't execute it"
     )
     dev_upgrade_to_parser.set_defaults(
-        func=lambda args: upgrade_database_to_revision(
+        func=lambda args: _upgrade_database_to_revision(
             revision=args.destination_db_revision,
             show_sql_only=args.show_sql_only
         )
@@ -1253,7 +742,7 @@ def camcops_main() -> None:
         help="Show SQL only (to stdout); don't execute it"
     )
     dev_downgrade_parser.set_defaults(
-        func=lambda args: downgrade_database_to_revision(
+        func=lambda args: _downgrade_database_to_revision(
             revision=args.destination_db_revision,
             show_sql_only=args.show_sql_only,
             confirm_downgrade_db=args.confirm_downgrade_db,
@@ -1265,7 +754,7 @@ def camcops_main() -> None:
         subparsers, "show_db_title",
         help="Show database title")
     showdbtitle_parser.set_defaults(
-        func=lambda args: print_database_title())
+        func=lambda args: _print_database_title())
 
     # Merge in data fom another database
     mergedb_parser = add_sub(
@@ -1304,7 +793,7 @@ def camcops_main() -> None:
         help="Source database (specified as an SQLAlchemy URL). The contents "
              "of this database will be merged into the database specified "
              "in the config file.")
-    mergedb_parser.set_defaults(func=lambda args: merge_camcops_db(
+    mergedb_parser.set_defaults(func=lambda args: _merge_camcops_db(
         src=args.src,
         echo=args.echo,
         report_every=args.report_every,
@@ -1347,7 +836,7 @@ def camcops_main() -> None:
         '--confirm_create_db', action="store_true",
         help="Must specify this too, as a safety measure")
     createdb_parser.set_defaults(
-        func=lambda args: create_database_from_scratch(
+        func=lambda args: _create_database_from_scratch(
             cfg=get_default_config_from_os_env()
         )
     )
@@ -1360,7 +849,7 @@ def camcops_main() -> None:
         '--dialect', type=str, default=SqlaDialectName.MYSQL,
         help="SQL dialect (options: {})".format(", ".join(ALL_SQLA_DIALECTS)))
     ddl_parser.set_defaults(
-        func=lambda args: print(get_all_ddl(dialect_name=args.dialect)))
+        func=lambda args: print(_get_all_ddl(dialect_name=args.dialect)))
 
     # Rebuild server indexes
     reindex_parser = add_sub(
@@ -1368,7 +857,7 @@ def camcops_main() -> None:
         help="Recreate task index"
     )
     reindex_parser.set_defaults(
-        func=lambda args: reindex(
+        func=lambda args: _reindex(
             cfg=get_default_config_from_os_env()
         )
     )
@@ -1385,7 +874,7 @@ def camcops_main() -> None:
         '--username',
         help="Username of superuser to create/promote (if omitted, you will "
              "be asked to type it in)")
-    superuser_parser.set_defaults(func=lambda args: make_superuser(
+    superuser_parser.set_defaults(func=lambda args: _make_superuser(
         username=args.username
     ))
 
@@ -1397,7 +886,7 @@ def camcops_main() -> None:
         '--username',
         help="Username to change password for (if omitted, you will be asked "
              "to type it in)")
-    password_parser.set_defaults(func=lambda args: reset_password(
+    password_parser.set_defaults(func=lambda args: _reset_password(
         username=args.username
     ))
 
@@ -1409,7 +898,7 @@ def camcops_main() -> None:
         '--username',
         help="Username to enable (if omitted, you will be asked "
              "to type it in)")
-    enableuser_parser.set_defaults(func=lambda args: enable_user_cli(
+    enableuser_parser.set_defaults(func=lambda args: _enable_user_cli(
         username=args.username
     ))
 
@@ -1434,7 +923,7 @@ def camcops_main() -> None:
         help="Trigger pending exports")
     _add_export_options(export_parser)
     export_parser.set_defaults(
-        func=lambda args: cmd_export(
+        func=lambda args: _cmd_export(
             recipient_names=args.recipients,
             all_recipients=args.all_recipients,
             via_index=not args.disable_task_index,
@@ -1449,7 +938,7 @@ def camcops_main() -> None:
         '--pretty', action="store_true",
         help="Pretty (but slower) formatting for tasks")
     show_export_queue_parser.set_defaults(
-        func=lambda args: cmd_show_export_queue(
+        func=lambda args: _cmd_show_export_queue(
             recipient_names=args.recipients,
             all_recipients=args.all_recipients,
             via_index=not args.disable_task_index,
@@ -1515,8 +1004,8 @@ def camcops_main() -> None:
         )
     )
     add_wsgi_options(serve_cp_parser)
-    serve_cp_parser.set_defaults(func=lambda args: serve_cherrypy(
-        application=make_wsgi_app_from_argparse_args(args),
+    serve_cp_parser.set_defaults(func=lambda args: _serve_cherrypy(
+        application=_make_wsgi_app_from_argparse_args(args),
         host=args.host,
         port=args.port,
         threads_start=args.threads_start,
@@ -1571,8 +1060,8 @@ def camcops_main() -> None:
     )
     serve_gu_parser.set_defaults(log_screen=True)
     add_wsgi_options(serve_gu_parser)
-    serve_gu_parser.set_defaults(func=lambda args: serve_gunicorn(
-        application=make_wsgi_app_from_argparse_args(args),
+    serve_gu_parser.set_defaults(func=lambda args: _serve_gunicorn(
+        application=_make_wsgi_app_from_argparse_args(args),
         host=args.host,
         port=args.port,
         num_workers=args.num_workers,
@@ -1596,8 +1085,8 @@ def camcops_main() -> None:
         '--port', type=int, default=DEFAULT_PORT,
         help="Port to listen on")
     add_wsgi_options(serve_pyr_parser)
-    serve_pyr_parser.set_defaults(func=lambda args: test_serve_pyramid(
-        application=make_wsgi_app_from_argparse_args(args),
+    serve_pyr_parser.set_defaults(func=lambda args: _test_serve_pyramid(
+        application=_make_wsgi_app_from_argparse_args(args),
         host=args.host,
         port=args.port
     ))
@@ -1646,7 +1135,7 @@ def camcops_main() -> None:
         subparsers, "launch_workers",
         help="Launch Celery workers, for background processing"
     )
-    celery_worker_parser.set_defaults(func=lambda args: launch_celery_workers(
+    celery_worker_parser.set_defaults(func=lambda args: _launch_celery_workers(
         verbose=args.verbose,
     ))
 
@@ -1655,7 +1144,7 @@ def camcops_main() -> None:
         subparsers, "launch_scheduler",
         help="Launch Celery Beat scheduler, to schedule background jobs"
     )
-    celery_beat_parser.set_defaults(func=lambda args: launch_celery_beat(
+    celery_beat_parser.set_defaults(func=lambda args: _launch_celery_beat(
         verbose=args.verbose,
     ))
 
@@ -1672,7 +1161,7 @@ def camcops_main() -> None:
         "--port", type=int, default=DEFAULT_FLOWER_PORT,
         help="Port to use for Flower"
     )
-    celery_flower_parser.set_defaults(func=lambda args: launch_celery_flower(
+    celery_flower_parser.set_defaults(func=lambda args: _launch_celery_flower(
         address=args.address,
         port=args.port,
     ))
@@ -1685,13 +1174,13 @@ def camcops_main() -> None:
     showtests_parser = add_sub(
         subparsers, "show_tests", config_mandatory=None,
         help="Show available self-tests")
-    showtests_parser.set_defaults(func=lambda args: self_test(show_only=True))
+    showtests_parser.set_defaults(func=lambda args: _self_test(show_only=True))
 
     # Self-test
     selftest_parser = add_sub(
         subparsers, "self_test", config_mandatory=None,
         help="Test internal code")
-    selftest_parser.set_defaults(func=lambda args: self_test())
+    selftest_parser.set_defaults(func=lambda args: _self_test())
 
     # Launch a Python command line
     dev_cli_parser = add_sub(
@@ -1699,7 +1188,7 @@ def camcops_main() -> None:
         help="Developer command-line interface, with config loaded as "
              "'config'."
     )
-    dev_cli_parser.set_defaults(func=lambda args: dev_cli())
+    dev_cli_parser.set_defaults(func=lambda args: _dev_cli())
 
     # -------------------------------------------------------------------------
     # OK; parser built; now parse the arguments
@@ -1708,20 +1197,40 @@ def camcops_main() -> None:
 
     # Initial log level (overridden later by config file but helpful for start)
     loglevel = logging.DEBUG if progargs.verbose else logging.INFO
+    main_only_quicksetup_rootlogger(
+        level=loglevel, with_process_id=True, with_thread_id=True)
     rootlogger = logging.getLogger()
     set_level_for_logger_and_its_handlers(rootlogger, loglevel)
 
     # Say hello
-    log.info("CamCOPS server version {}", CAMCOPS_SERVER_VERSION)
-    log.info("Created by Rudolf Cardinal. See {}", CAMCOPS_URL)
-    log.debug("Python interpreter: {!r}", sys.executable)
-    log.debug("This program: {!r}", __file__)
-    log.debug("Command-line arguments: {!r}", progargs)
-    log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
+    log.info(
+        """
+# =============================================================================
+# CamCOPS server version {version}
+# Created by Rudolf Cardinal. See {url}
+# Python interpreter: {interpreter!r}
+# =============================================================================
+""",
+        version=CAMCOPS_SERVER_VERSION,
+        url=CAMCOPS_URL,
+        interpreter=sys.executable,
+    )
+    log.debug(
+        """
+# -----------------------------------------------------------------------------
+# This program: {thisprog!r}
+# Command-line arguments: {progargs!r}
+# -----------------------------------------------------------------------------
+""",
+        thisprog=__file__,
+        progargs=progargs,
+    )
+    if DEBUG_LOG_CONFIG or DEBUG_RUN_WITH_PDB:
+        log.warning("Debugging options enabled!")
     if DEBUG_LOG_CONFIG:
         print_report_on_all_logs()
 
-    # Finalize the config filename
+    # Finalize the config filename; ensure it's in the environment variable
     if hasattr(progargs, 'config') and progargs.config:
         # We want the the config filename in the environment from now on:
         os.environ[ENVVAR_CONFIG_FILE] = progargs.config
