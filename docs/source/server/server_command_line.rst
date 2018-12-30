@@ -28,12 +28,12 @@ camcops_server
 --------------
 
 The ``camcops_server`` command is the main interface to the CamCOPS server.
-Options as of 2018-12-08 (output from ``camcops_server --allhelp``):
+Options as of 2018-12-30 (output from ``camcops_server --allhelp``):
 
 .. code-block:: none
 
     usage: camcops_server [-h] [--allhelp] [--version] [-v]
-                          {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_to,dev_downgrade_db,show_db_title,merge_db,create_db,reindex,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,dev_cli,serve_cherrypy,serve_gunicorn,convert_athena_icd_snomed_to_xml}
+                          {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_to,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,make_superuser,reset_password,enable_user,export,show_export_queue,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
                           ...
 
     CamCOPS server, created by Rudolf Cardinal; version 2.3.1.
@@ -48,7 +48,7 @@ Options as of 2018-12-08 (output from ``camcops_server --allhelp``):
     commands:
       Valid CamCOPS commands are as follows.
 
-      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_to,dev_downgrade_db,show_db_title,merge_db,create_db,reindex,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,dev_cli,serve_cherrypy,serve_gunicorn,convert_athena_icd_snomed_to_xml}
+      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_to,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,make_superuser,reset_password,enable_user,export,show_export_queue,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
                             Specify one command.
         docs                Launch the main documentation (CamCOPS manual)
         demo_camcops_config
@@ -71,27 +71,32 @@ Options as of 2018-12-08 (output from ``camcops_server --allhelp``):
         merge_db            Merge in data from an old or recent CamCOPS database
         create_db           Create CamCOPS database from scratch (AVOID; use the
                             upgrade facility instead)
+        ddl                 Print database schema (data definition language; DDL)
         reindex             Recreate task index
         make_superuser      Make superuser, or give superuser status to an
                             existing user
         reset_password      Reset a user's password
         enable_user         Re-enable a locked user account
-        ddl                 Print database schema (data definition language; DDL)
-        hl7                 Send pending HL7 messages and outbound files
-        show_hl7_queue      View outbound HL7/file queue (without sending)
-        show_tests          Show available self-tests
-        self_test           Test internal code
-        serve_pyramid       Test web server (single-thread, single-process, HTTP-
-                            only, Pyramid; for development use only
-        dev_cli             Developer command-line interface, with config loaded
-                            as 'config'.
-        serve_cherrypy      Start web server (via CherryPy)
-        serve_gunicorn      Start web server (via Gunicorn) (not available under
+        export              Trigger pending exports
+        show_export_queue   View outbound export queue (without sending)
+        serve_cherrypy      Start web server via CherryPy
+        serve_gunicorn      Start web server via Gunicorn (not available under
                             Windows)
+        serve_pyramid       Start test web server via Pyramid (single-thread,
+                            single-process, HTTP-only; for development use only)
         convert_athena_icd_snomed_to_xml
                             Fetch SNOMED-CT codes for ICD-9-CM and ICD-10 from the
                             Athena OHDSI data set (http://athena.ohdsi.org/) and
                             write them to the CamCOPS XML format
+        launch_workers      Launch Celery workers, for background processing
+        launch_scheduler    Launch Celery Beat scheduler, to schedule background
+                            jobs
+        launch_monitor      Launch Celery Flower monitor, to monitor background
+                            jobs
+        show_tests          Show available self-tests
+        self_test           Test internal code
+        dev_cli             Developer command-line interface, with config loaded
+                            as 'config'.
 
     ===============================================================================
     Help for command 'docs'
@@ -201,7 +206,7 @@ Options as of 2018-12-08 (output from ``camcops_server --allhelp``):
     usage: camcops_server dev_downgrade_db [-h] [-v] --config CONFIG
                                            --destination_db_revision
                                            DESTINATION_DB_REVISION
-                                           --confirm_downgrade_db
+                                           [--confirm_downgrade_db]
                                            [--show_sql_only]
 
     (DEVELOPER OPTION ONLY.) Downgrades a database to a specific revision. May
@@ -212,14 +217,14 @@ Options as of 2018-12-08 (output from ``camcops_server --allhelp``):
       -v, --verbose         Be verbose (default: False)
       --destination_db_revision DESTINATION_DB_REVISION
                             The target database revision (default: None)
+      --confirm_downgrade_db
+                            Must specify this too, as a safety measure (default:
+                            False)
       --show_sql_only       Show SQL only (to stdout); don't execute it (default:
                             False)
 
     required named arguments:
       --config CONFIG       Configuration file (default: None)
-      --confirm_downgrade_db
-                            Must specify this too, as a safety measure (default:
-                            False)
 
     ===============================================================================
     Help for command 'show_db_title'
@@ -291,6 +296,21 @@ Options as of 2018-12-08 (output from ``camcops_server --allhelp``):
                            False)
 
     ===============================================================================
+    Help for command 'ddl'
+    ===============================================================================
+    usage: camcops_server ddl [-h] [-v] [--config CONFIG] [--dialect DIALECT]
+
+    Print database schema (data definition language; DDL)
+
+    optional arguments:
+      -h, --help         show this help message and exit
+      -v, --verbose      Be verbose (default: False)
+      --config CONFIG    Configuration file (if not specified, the environment
+                         variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+      --dialect DIALECT  SQL dialect (options: oracle, mysql, firebird, sybase,
+                         mssql, sqlite, postgresql) (default: mysql)
+
+    ===============================================================================
     Help for command 'reindex'
     ===============================================================================
     usage: camcops_server reindex [-h] [-v] [--config CONFIG]
@@ -355,85 +375,13 @@ Options as of 2018-12-08 (output from ``camcops_server --allhelp``):
                            type it in) (default: None)
 
     ===============================================================================
-    Help for command 'ddl'
+    Help for command 'export'
     ===============================================================================
-    usage: camcops_server ddl [-h] [-v] [--config CONFIG] [--dialect DIALECT]
+    usage: camcops_server export [-h] [-v] [--config CONFIG]
+                                 [--recipients [RECIPIENTS [RECIPIENTS ...]]]
+                                 [--all_recipients] [--disable_task_index]
 
-    Print database schema (data definition language; DDL)
-
-    optional arguments:
-      -h, --help         show this help message and exit
-      -v, --verbose      Be verbose (default: False)
-      --config CONFIG    Configuration file (if not specified, the environment
-                         variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-      --dialect DIALECT  SQL dialect (options: mssql, sybase, mysql, postgresql,
-                         oracle, sqlite, firebird) (default: mysql)
-
-    ===============================================================================
-    Help for command 'hl7'
-    ===============================================================================
-    usage: camcops_server hl7 [-h] [-v] [--config CONFIG]
-
-    Send pending HL7 messages and outbound files
-
-    optional arguments:
-      -h, --help       show this help message and exit
-      -v, --verbose    Be verbose (default: False)
-      --config CONFIG  Configuration file (if not specified, the environment
-                       variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-
-    ===============================================================================
-    Help for command 'show_hl7_queue'
-    ===============================================================================
-    usage: camcops_server show_hl7_queue [-h] [-v] [--config CONFIG]
-
-    View outbound HL7/file queue (without sending)
-
-    optional arguments:
-      -h, --help       show this help message and exit
-      -v, --verbose    Be verbose (default: False)
-      --config CONFIG  Configuration file (if not specified, the environment
-                       variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-
-    ===============================================================================
-    Help for command 'show_tests'
-    ===============================================================================
-    usage: camcops_server show_tests [-h] [-v]
-
-    Show available self-tests
-
-    optional arguments:
-      -h, --help     show this help message and exit
-      -v, --verbose  Be verbose (default: False)
-
-    ===============================================================================
-    Help for command 'self_test'
-    ===============================================================================
-    usage: camcops_server self_test [-h] [-v]
-
-    Test internal code
-
-    optional arguments:
-      -h, --help     show this help message and exit
-      -v, --verbose  Be verbose (default: False)
-
-    ===============================================================================
-    Help for command 'serve_pyramid'
-    ===============================================================================
-    usage: camcops_server serve_pyramid [-h] [-v] [--config CONFIG] [--host HOST]
-                                        [--port PORT]
-                                        [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
-                                        [--proxy_http_host PROXY_HTTP_HOST]
-                                        [--proxy_remote_addr PROXY_REMOTE_ADDR]
-                                        [--proxy_script_name PROXY_SCRIPT_NAME]
-                                        [--proxy_server_port PROXY_SERVER_PORT]
-                                        [--proxy_server_name PROXY_SERVER_NAME]
-                                        [--proxy_url_scheme PROXY_URL_SCHEME]
-                                        [--proxy_rewrite_path_info]
-                                        [--debug_reverse_proxy] [--debug_toolbar]
-
-    Test web server (single-thread, single-process, HTTP-only, Pyramid; for
-    development use only
+    Trigger pending exports
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -441,355 +389,77 @@ Options as of 2018-12-08 (output from ``camcops_server --allhelp``):
       --config CONFIG       Configuration file (if not specified, the environment
                             variable CAMCOPS_CONFIG_FILE is checked) (default:
                             None)
-      --host HOST           Hostname to listen on (default: 127.0.0.1)
-      --port PORT           Port to listen on (default: 8000)
-      --trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]
-                            Trust these WSGI environment variables for when the
-                            server is behind a reverse proxy (e.g. an Apache
-                            front-end web server). Options: ['HTTP_X_HOST',
-                            'HTTP_X_FORWARDED_HOST', 'HTTP_X_FORWARDED_PORT',
-                            'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP',
-                            'HTTP_X_FORWARDED_PROTO', 'HTTP_X_FORWARDED_PROTOCOL',
-                            'HTTP_X_FORWARDED_SCHEME', 'HTTP_X_SCHEME',
-                            'HTTP_X_FORWARDED_HTTPS', 'HTTP_X_FORWARDED_SSL',
-                            'HTTP_X_HTTPS', 'HTTP_X_SCRIPT_NAME',
-                            'HTTP_X_FORWARDED_SCRIPT_NAME',
-                            'HTTP_X_FORWARDED_SERVER'] (default: None)
-      --proxy_http_host PROXY_HTTP_HOST
-                            Option to set the WSGI HTTP host directly. This
-                            affects the WSGI variable HTTP_HOST. If not specified,
-                            trusted variables within ['HTTP_X_HOST',
-                            'HTTP_X_FORWARDED_HOST'] will be used. (default: None)
-      --proxy_remote_addr PROXY_REMOTE_ADDR
-                            Option to set the WSGI remote address directly. This
-                            affects the WSGI variable REMOTE_ADDR. If not
-                            specified, trusted variables within
-                            ['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP'] will be
-                            used. (default: None)
-      --proxy_script_name PROXY_SCRIPT_NAME
-                            Path at which this script is mounted. Set this if you
-                            are hosting this CamCOPS instance at a non-root path,
-                            unless you set trusted WSGI headers instead. For
-                            example, if you are running an Apache server and want
-                            this instance of CamCOPS to appear at
-                            /somewhere/camcops, then (a) configure your Apache
-                            instance to proxy requests to /somewhere/camcops/...
-                            to this server (e.g. via an internal TCP/IP port or
-                            UNIX socket) and specify this option. If this option
-                            is not set, then the OS environment variable
-                            SCRIPT_NAME will be checked as well, and if that is
-                            not set, trusted variables within
-                            ['HTTP_X_SCRIPT_NAME', 'HTTP_X_FORWARDED_SCRIPT_NAME']
-                            will be used. This option affects the WSGI variables
-                            SCRIPT_NAME and PATH_INFO. (default: None)
-      --proxy_server_port PROXY_SERVER_PORT
-                            Option to set the WSGI server port directly. This
-                            affects the WSGI variable SERVER_PORT. If not
-                            specified, trusted variables within
-                            ['HTTP_X_FORWARDED_PORT'] will be used. (default:
+      --recipients [RECIPIENTS [RECIPIENTS ...]]
+                            Export recipients (as named in config file) (default:
                             None)
-      --proxy_server_name PROXY_SERVER_NAME
-                            Option to set the WSGI server name directly. This
-                            affects the WSGI variable SERVER_NAME. If not
-                            specified, trusted variables within
-                            ['HTTP_X_FORWARDED_SERVER'] will be used. (default:
-                            None)
-      --proxy_url_scheme PROXY_URL_SCHEME
-                            Option to set the WSGI scheme (e.g. http, https)
-                            directly. This affects the WSGI variable
-                            wsgi.url_scheme. If not specified, trusted variables
-                            within ['HTTP_X_FORWARDED_PROTO',
-                            'HTTP_X_FORWARDED_PROTOCOL',
-                            'HTTP_X_FORWARDED_SCHEME', 'HTTP_X_SCHEME',
-                            'HTTP_X_FORWARDED_HTTPS', 'HTTP_X_FORWARDED_SSL',
-                            'HTTP_X_HTTPS'] will be used. (default: None)
-      --proxy_rewrite_path_info
-                            If SCRIPT_NAME is rewritten, this option causes
-                            PATH_INFO to be rewritten, if it starts with
-                            SCRIPT_NAME, to strip off SCRIPT_NAME. Appropriate for
-                            some front-end web browsers with limited reverse
-                            proxying support (but do not use for Apache with
-                            ProxyPass, because that rewrites incoming URLs
-                            properly). (default: False)
-      --debug_reverse_proxy
-                            For --behind_reverse_proxy: show debugging information
-                            as WSGI variables are rewritten. (default: False)
-      --debug_toolbar       Enable the Pyramid debug toolbar (default: False)
+      --all_recipients      Use all recipients (default: False)
+      --disable_task_index  Disable use of the task index (for debugging only)
+                            (default: False)
 
     ===============================================================================
-    Help for command 'dev_cli'
+    Help for command 'show_export_queue'
     ===============================================================================
-    usage: camcops_server dev_cli [-h] [-v] [--config CONFIG]
+    usage: camcops_server show_export_queue [-h] [-v] [--config CONFIG]
+                                            [--recipients [RECIPIENTS [RECIPIENTS ...]]]
+                                            [--all_recipients]
+                                            [--disable_task_index] [--pretty]
 
-    Developer command-line interface, with config loaded as 'config'.
+    View outbound export queue (without sending)
 
     optional arguments:
-      -h, --help       show this help message and exit
-      -v, --verbose    Be verbose (default: False)
-      --config CONFIG  Configuration file (if not specified, the environment
-                       variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+      -h, --help            show this help message and exit
+      -v, --verbose         Be verbose (default: False)
+      --config CONFIG       Configuration file (if not specified, the environment
+                            variable CAMCOPS_CONFIG_FILE is checked) (default:
+                            None)
+      --recipients [RECIPIENTS [RECIPIENTS ...]]
+                            Export recipients (as named in config file) (default:
+                            None)
+      --all_recipients      Use all recipients (default: False)
+      --disable_task_index  Disable use of the task index (for debugging only)
+                            (default: False)
+      --pretty              Pretty (but slower) formatting for tasks (default:
+                            False)
 
     ===============================================================================
     Help for command 'serve_cherrypy'
     ===============================================================================
-    usage: camcops_server serve_cherrypy [-h] [-v] [--config CONFIG] [--serve]
-                                         [--host HOST] [--port PORT]
-                                         [--unix_domain_socket UNIX_DOMAIN_SOCKET]
-                                         [--server_name SERVER_NAME]
-                                         [--threads_start THREADS_START]
-                                         [--threads_max THREADS_MAX]
-                                         [--ssl_certificate SSL_CERTIFICATE]
-                                         [--ssl_private_key SSL_PRIVATE_KEY]
-                                         [--log_screen] [--no_log_screen]
-                                         [--root_path ROOT_PATH]
-                                         [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
-                                         [--proxy_http_host PROXY_HTTP_HOST]
-                                         [--proxy_remote_addr PROXY_REMOTE_ADDR]
-                                         [--proxy_script_name PROXY_SCRIPT_NAME]
-                                         [--proxy_server_port PROXY_SERVER_PORT]
-                                         [--proxy_server_name PROXY_SERVER_NAME]
-                                         [--proxy_url_scheme PROXY_URL_SCHEME]
-                                         [--proxy_rewrite_path_info]
-                                         [--debug_reverse_proxy] [--debug_toolbar]
+    usage: camcops_server serve_cherrypy [-h] [-v] [--config CONFIG]
 
-    Start web server (via CherryPy)
+    Start web server via CherryPy
 
     optional arguments:
-      -h, --help            show this help message and exit
-      -v, --verbose         Be verbose (default: False)
-      --config CONFIG       Configuration file (if not specified, the environment
-                            variable CAMCOPS_CONFIG_FILE is checked) (default:
-                            None)
-      --serve
-      --host HOST           hostname to listen on (default: 127.0.0.1)
-      --port PORT           port to listen on (default: 8000)
-      --unix_domain_socket UNIX_DOMAIN_SOCKET
-                            UNIX domain socket to listen on (overrides host/port
-                            if specified) (default: )
-      --server_name SERVER_NAME
-                            CherryPy's SERVER_NAME environ entry (default:
-                            localhost)
-      --threads_start THREADS_START
-                            Number of threads for server to start with (default:
-                            10)
-      --threads_max THREADS_MAX
-                            Maximum number of threads for server to use (-1 for no
-                            limit) (BEWARE exceeding the permitted number of
-                            database connections) (default: 100)
-      --ssl_certificate SSL_CERTIFICATE
-                            SSL certificate file (e.g. /etc/ssl/certs/ssl-cert-
-                            snakeoil.pem) (default: None)
-      --ssl_private_key SSL_PRIVATE_KEY
-                            SSL private key file (e.g. /etc/ssl/private/ssl-cert-
-                            snakeoil.key) (default: None)
-      --log_screen          Log access requests etc. to terminal (default)
-                            (default: True)
-      --no_log_screen       Don't log access requests etc. to terminal (default:
-                            True)
-      --root_path ROOT_PATH
-                            Root path to serve CRATE at, WITHIN this CherryPy web
-                            server instance. (There is unlikely to be a reason to
-                            use something other than '/'; do not confuse this with
-                            the mount point within a wider, e.g. Apache,
-                            configuration, which is set instead by the WSGI
-                            variable SCRIPT_NAME; see the --trusted_proxy_headers
-                            and --proxy_script_name options.) (default: /)
-      --trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]
-                            Trust these WSGI environment variables for when the
-                            server is behind a reverse proxy (e.g. an Apache
-                            front-end web server). Options: ['HTTP_X_HOST',
-                            'HTTP_X_FORWARDED_HOST', 'HTTP_X_FORWARDED_PORT',
-                            'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP',
-                            'HTTP_X_FORWARDED_PROTO', 'HTTP_X_FORWARDED_PROTOCOL',
-                            'HTTP_X_FORWARDED_SCHEME', 'HTTP_X_SCHEME',
-                            'HTTP_X_FORWARDED_HTTPS', 'HTTP_X_FORWARDED_SSL',
-                            'HTTP_X_HTTPS', 'HTTP_X_SCRIPT_NAME',
-                            'HTTP_X_FORWARDED_SCRIPT_NAME',
-                            'HTTP_X_FORWARDED_SERVER'] (default: None)
-      --proxy_http_host PROXY_HTTP_HOST
-                            Option to set the WSGI HTTP host directly. This
-                            affects the WSGI variable HTTP_HOST. If not specified,
-                            trusted variables within ['HTTP_X_HOST',
-                            'HTTP_X_FORWARDED_HOST'] will be used. (default: None)
-      --proxy_remote_addr PROXY_REMOTE_ADDR
-                            Option to set the WSGI remote address directly. This
-                            affects the WSGI variable REMOTE_ADDR. If not
-                            specified, trusted variables within
-                            ['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP'] will be
-                            used. (default: None)
-      --proxy_script_name PROXY_SCRIPT_NAME
-                            Path at which this script is mounted. Set this if you
-                            are hosting this CamCOPS instance at a non-root path,
-                            unless you set trusted WSGI headers instead. For
-                            example, if you are running an Apache server and want
-                            this instance of CamCOPS to appear at
-                            /somewhere/camcops, then (a) configure your Apache
-                            instance to proxy requests to /somewhere/camcops/...
-                            to this server (e.g. via an internal TCP/IP port or
-                            UNIX socket) and specify this option. If this option
-                            is not set, then the OS environment variable
-                            SCRIPT_NAME will be checked as well, and if that is
-                            not set, trusted variables within
-                            ['HTTP_X_SCRIPT_NAME', 'HTTP_X_FORWARDED_SCRIPT_NAME']
-                            will be used. This option affects the WSGI variables
-                            SCRIPT_NAME and PATH_INFO. (default: None)
-      --proxy_server_port PROXY_SERVER_PORT
-                            Option to set the WSGI server port directly. This
-                            affects the WSGI variable SERVER_PORT. If not
-                            specified, trusted variables within
-                            ['HTTP_X_FORWARDED_PORT'] will be used. (default:
-                            None)
-      --proxy_server_name PROXY_SERVER_NAME
-                            Option to set the WSGI server name directly. This
-                            affects the WSGI variable SERVER_NAME. If not
-                            specified, trusted variables within
-                            ['HTTP_X_FORWARDED_SERVER'] will be used. (default:
-                            None)
-      --proxy_url_scheme PROXY_URL_SCHEME
-                            Option to set the WSGI scheme (e.g. http, https)
-                            directly. This affects the WSGI variable
-                            wsgi.url_scheme. If not specified, trusted variables
-                            within ['HTTP_X_FORWARDED_PROTO',
-                            'HTTP_X_FORWARDED_PROTOCOL',
-                            'HTTP_X_FORWARDED_SCHEME', 'HTTP_X_SCHEME',
-                            'HTTP_X_FORWARDED_HTTPS', 'HTTP_X_FORWARDED_SSL',
-                            'HTTP_X_HTTPS'] will be used. (default: None)
-      --proxy_rewrite_path_info
-                            If SCRIPT_NAME is rewritten, this option causes
-                            PATH_INFO to be rewritten, if it starts with
-                            SCRIPT_NAME, to strip off SCRIPT_NAME. Appropriate for
-                            some front-end web browsers with limited reverse
-                            proxying support (but do not use for Apache with
-                            ProxyPass, because that rewrites incoming URLs
-                            properly). (default: False)
-      --debug_reverse_proxy
-                            For --behind_reverse_proxy: show debugging information
-                            as WSGI variables are rewritten. (default: False)
-      --debug_toolbar       Enable the Pyramid debug toolbar (default: False)
+      -h, --help       show this help message and exit
+      -v, --verbose    Be verbose (default: False)
+      --config CONFIG  Configuration file (if not specified, the environment
+                       variable CAMCOPS_CONFIG_FILE is checked) (default: None)
 
     ===============================================================================
     Help for command 'serve_gunicorn'
     ===============================================================================
-    usage: camcops_server serve_gunicorn [-h] [-v] [--config CONFIG] [--serve]
-                                         [--host HOST] [--port PORT]
-                                         [--unix_domain_socket UNIX_DOMAIN_SOCKET]
-                                         [--num_workers NUM_WORKERS]
-                                         [--debug_reload]
-                                         [--ssl_certificate SSL_CERTIFICATE]
-                                         [--ssl_private_key SSL_PRIVATE_KEY]
-                                         [--timeout TIMEOUT]
-                                         [--debug_show_gunicorn_options]
-                                         [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
-                                         [--proxy_http_host PROXY_HTTP_HOST]
-                                         [--proxy_remote_addr PROXY_REMOTE_ADDR]
-                                         [--proxy_script_name PROXY_SCRIPT_NAME]
-                                         [--proxy_server_port PROXY_SERVER_PORT]
-                                         [--proxy_server_name PROXY_SERVER_NAME]
-                                         [--proxy_url_scheme PROXY_URL_SCHEME]
-                                         [--proxy_rewrite_path_info]
-                                         [--debug_reverse_proxy] [--debug_toolbar]
+    usage: camcops_server serve_gunicorn [-h] [-v] [--config CONFIG]
 
-    Start web server (via Gunicorn) (not available under Windows)
+    Start web server via Gunicorn (not available under Windows)
 
     optional arguments:
-      -h, --help            show this help message and exit
-      -v, --verbose         Be verbose (default: False)
-      --config CONFIG       Configuration file (if not specified, the environment
-                            variable CAMCOPS_CONFIG_FILE is checked) (default:
-                            None)
-      --serve
-      --host HOST           hostname to listen on (default: 127.0.0.1)
-      --port PORT           port to listen on (default: 8000)
-      --unix_domain_socket UNIX_DOMAIN_SOCKET
-                            UNIX domain socket to listen on (overrides host/port
-                            if specified) (default: )
-      --num_workers NUM_WORKERS
-                            Number of worker processes for server to use (default:
-                            16)
-      --debug_reload        Debugging option: reload Gunicorn upon code change
-                            (default: False)
-      --ssl_certificate SSL_CERTIFICATE
-                            SSL certificate file (e.g. /etc/ssl/certs/ssl-cert-
-                            snakeoil.pem) (default: None)
-      --ssl_private_key SSL_PRIVATE_KEY
-                            SSL private key file (e.g. /etc/ssl/private/ssl-cert-
-                            snakeoil.key) (default: None)
-      --timeout TIMEOUT     Gunicorn worker timeout (s) (default: 30)
-      --debug_show_gunicorn_options
-                            Debugging option: show possible Gunicorn settings
-                            (default: False)
-      --trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]
-                            Trust these WSGI environment variables for when the
-                            server is behind a reverse proxy (e.g. an Apache
-                            front-end web server). Options: ['HTTP_X_HOST',
-                            'HTTP_X_FORWARDED_HOST', 'HTTP_X_FORWARDED_PORT',
-                            'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP',
-                            'HTTP_X_FORWARDED_PROTO', 'HTTP_X_FORWARDED_PROTOCOL',
-                            'HTTP_X_FORWARDED_SCHEME', 'HTTP_X_SCHEME',
-                            'HTTP_X_FORWARDED_HTTPS', 'HTTP_X_FORWARDED_SSL',
-                            'HTTP_X_HTTPS', 'HTTP_X_SCRIPT_NAME',
-                            'HTTP_X_FORWARDED_SCRIPT_NAME',
-                            'HTTP_X_FORWARDED_SERVER'] (default: None)
-      --proxy_http_host PROXY_HTTP_HOST
-                            Option to set the WSGI HTTP host directly. This
-                            affects the WSGI variable HTTP_HOST. If not specified,
-                            trusted variables within ['HTTP_X_HOST',
-                            'HTTP_X_FORWARDED_HOST'] will be used. (default: None)
-      --proxy_remote_addr PROXY_REMOTE_ADDR
-                            Option to set the WSGI remote address directly. This
-                            affects the WSGI variable REMOTE_ADDR. If not
-                            specified, trusted variables within
-                            ['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP'] will be
-                            used. (default: None)
-      --proxy_script_name PROXY_SCRIPT_NAME
-                            Path at which this script is mounted. Set this if you
-                            are hosting this CamCOPS instance at a non-root path,
-                            unless you set trusted WSGI headers instead. For
-                            example, if you are running an Apache server and want
-                            this instance of CamCOPS to appear at
-                            /somewhere/camcops, then (a) configure your Apache
-                            instance to proxy requests to /somewhere/camcops/...
-                            to this server (e.g. via an internal TCP/IP port or
-                            UNIX socket) and specify this option. If this option
-                            is not set, then the OS environment variable
-                            SCRIPT_NAME will be checked as well, and if that is
-                            not set, trusted variables within
-                            ['HTTP_X_SCRIPT_NAME', 'HTTP_X_FORWARDED_SCRIPT_NAME']
-                            will be used. This option affects the WSGI variables
-                            SCRIPT_NAME and PATH_INFO. (default: None)
-      --proxy_server_port PROXY_SERVER_PORT
-                            Option to set the WSGI server port directly. This
-                            affects the WSGI variable SERVER_PORT. If not
-                            specified, trusted variables within
-                            ['HTTP_X_FORWARDED_PORT'] will be used. (default:
-                            None)
-      --proxy_server_name PROXY_SERVER_NAME
-                            Option to set the WSGI server name directly. This
-                            affects the WSGI variable SERVER_NAME. If not
-                            specified, trusted variables within
-                            ['HTTP_X_FORWARDED_SERVER'] will be used. (default:
-                            None)
-      --proxy_url_scheme PROXY_URL_SCHEME
-                            Option to set the WSGI scheme (e.g. http, https)
-                            directly. This affects the WSGI variable
-                            wsgi.url_scheme. If not specified, trusted variables
-                            within ['HTTP_X_FORWARDED_PROTO',
-                            'HTTP_X_FORWARDED_PROTOCOL',
-                            'HTTP_X_FORWARDED_SCHEME', 'HTTP_X_SCHEME',
-                            'HTTP_X_FORWARDED_HTTPS', 'HTTP_X_FORWARDED_SSL',
-                            'HTTP_X_HTTPS'] will be used. (default: None)
-      --proxy_rewrite_path_info
-                            If SCRIPT_NAME is rewritten, this option causes
-                            PATH_INFO to be rewritten, if it starts with
-                            SCRIPT_NAME, to strip off SCRIPT_NAME. Appropriate for
-                            some front-end web browsers with limited reverse
-                            proxying support (but do not use for Apache with
-                            ProxyPass, because that rewrites incoming URLs
-                            properly). (default: False)
-      --debug_reverse_proxy
-                            For --behind_reverse_proxy: show debugging information
-                            as WSGI variables are rewritten. (default: False)
-      --debug_toolbar       Enable the Pyramid debug toolbar (default: False)
+      -h, --help       show this help message and exit
+      -v, --verbose    Be verbose (default: False)
+      --config CONFIG  Configuration file (if not specified, the environment
+                       variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+
+    ===============================================================================
+    Help for command 'serve_pyramid'
+    ===============================================================================
+    usage: camcops_server serve_pyramid [-h] [-v] [--config CONFIG]
+
+    Start test web server via Pyramid (single-thread, single-process, HTTP-only;
+    for development use only)
+
+    optional arguments:
+      -h, --help       show this help message and exit
+      -v, --verbose    Be verbose (default: False)
+      --config CONFIG  Configuration file (if not specified, the environment
+                       variable CAMCOPS_CONFIG_FILE is checked) (default: None)
 
     ===============================================================================
     Help for command 'convert_athena_icd_snomed_to_xml'
@@ -826,6 +496,83 @@ Options as of 2018-12-08 (output from ``camcops_server --allhelp``):
       --icd10_xml_filename ICD10_XML_FILENAME
                             Filename of ICD-10/SNOMED-CT XML file to write
                             (default: None)
+
+    ===============================================================================
+    Help for command 'launch_workers'
+    ===============================================================================
+    usage: camcops_server launch_workers [-h] [-v] [--config CONFIG]
+
+    Launch Celery workers, for background processing
+
+    optional arguments:
+      -h, --help       show this help message and exit
+      -v, --verbose    Be verbose (default: False)
+      --config CONFIG  Configuration file (if not specified, the environment
+                       variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+
+    ===============================================================================
+    Help for command 'launch_scheduler'
+    ===============================================================================
+    usage: camcops_server launch_scheduler [-h] [-v] [--config CONFIG]
+
+    Launch Celery Beat scheduler, to schedule background jobs
+
+    optional arguments:
+      -h, --help       show this help message and exit
+      -v, --verbose    Be verbose (default: False)
+      --config CONFIG  Configuration file (if not specified, the environment
+                       variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+
+    ===============================================================================
+    Help for command 'launch_monitor'
+    ===============================================================================
+    usage: camcops_server launch_monitor [-h] [-v] [--config CONFIG]
+                                         [--address ADDRESS] [--port PORT]
+
+    Launch Celery Flower monitor, to monitor background jobs
+
+    optional arguments:
+      -h, --help         show this help message and exit
+      -v, --verbose      Be verbose (default: False)
+      --config CONFIG    Configuration file (if not specified, the environment
+                         variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+      --address ADDRESS  Address to use for Flower (default: 127.0.0.1)
+      --port PORT        Port to use for Flower (default: 5555)
+
+    ===============================================================================
+    Help for command 'show_tests'
+    ===============================================================================
+    usage: camcops_server show_tests [-h] [-v]
+
+    Show available self-tests
+
+    optional arguments:
+      -h, --help     show this help message and exit
+      -v, --verbose  Be verbose (default: False)
+
+    ===============================================================================
+    Help for command 'self_test'
+    ===============================================================================
+    usage: camcops_server self_test [-h] [-v]
+
+    Test internal code
+
+    optional arguments:
+      -h, --help     show this help message and exit
+      -v, --verbose  Be verbose (default: False)
+
+    ===============================================================================
+    Help for command 'dev_cli'
+    ===============================================================================
+    usage: camcops_server dev_cli [-h] [-v] [--config CONFIG]
+
+    Developer command-line interface, with config loaded as 'config'.
+
+    optional arguments:
+      -h, --help       show this help message and exit
+      -v, --verbose    Be verbose (default: False)
+      --config CONFIG  Configuration file (if not specified, the environment
+                       variable CAMCOPS_CONFIG_FILE is checked) (default: None)
 
 
 .. _camcops_server_meta:

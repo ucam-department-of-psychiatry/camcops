@@ -46,9 +46,6 @@ NUMBER_OF_IDNUMS_DEFUNCT = 8  # DEFUNCT BUT DO NOT REMOVE OR ALTER. EIGHT.
 # Configuration
 # =============================================================================
 
-CONFIG_FILE_MAIN_SECTION = "server"
-CONFIG_FILE_EXPORT_SECTION = "export"
-
 DEFAULT_DB_PORT = 3306
 DEFAULT_DB_SERVER = "localhost"
 DEFAULT_LOCAL_INSTITUTION_URL = "http://www.camcops.org/"
@@ -65,9 +62,12 @@ MINIMUM_PASSWORD_LENGTH = 8
 # Launching
 # =============================================================================
 
+DEFAULT_CHERRYPY_SERVER_NAME = "localhost"
 DEFAULT_FLOWER_ADDRESS = "127.0.0.1"
 DEFAULT_FLOWER_PORT = 5555  # http://docs.celeryproject.org/en/latest/userguide/monitoring.html  # noqa
+DEFAULT_GUNICORN_TIMEOUT_S = 30
 DEFAULT_HOST = "127.0.0.1"
+DEFAULT_START_THREADS = 10
 DEFAULT_MAX_THREADS = 100
 # ... beware the default MySQL connection limit of 151;
 #     https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html

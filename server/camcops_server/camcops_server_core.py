@@ -48,7 +48,6 @@ log.info("Imports starting")
 
 # Main imports
 
-from argparse import Namespace  # nopep8
 import os  # nopep8
 import platform  # nopep8
 import subprocess  # nopep8
@@ -65,7 +64,6 @@ from wsgiref.simple_server import make_server  # nopep8
 
 from cardinal_pythonlib.classes import gen_all_subclasses  # nopep8
 from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
-from cardinal_pythonlib.wsgi.constants import WsgiEnvVar  # nopep8
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import (
     ReverseProxiedConfig,
     ReverseProxiedMiddleware,
@@ -224,32 +222,6 @@ def make_wsgi_app(debug_toolbar: bool = False,
 
     log.debug("WSGI app created")
     return app
-
-
-def make_wsgi_app_from_argparse_args(args: Namespace) -> "Router":
-    """
-    Reads the command-line (argparse) arguments, and creates a WSGI
-    application.
-
-    Must match :func:`add_wsgi_options`, which sets up argparse
-    parsers.
-    """
-    reverse_proxied_config = ReverseProxiedConfig(
-        trusted_proxy_headers=args.trusted_proxy_headers,
-        http_host=args.proxy_http_host,
-        remote_addr=args.proxy_remote_addr,
-        script_name=(
-            args.proxy_script_name or
-            os.environ.get(WsgiEnvVar.SCRIPT_NAME, "")
-        ),
-        server_port=args.proxy_server_port,
-        server_name=args.proxy_server_name,
-        url_scheme=args.proxy_url_scheme,
-        rewrite_path_info=args.proxy_rewrite_path_info,
-    )
-    return make_wsgi_app(debug_toolbar=args.debug_toolbar,
-                         reverse_proxied_config=reverse_proxied_config,
-                         debug_reverse_proxy=args.debug_reverse_proxy)
 
 
 # =============================================================================

@@ -17,8 +17,15 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _Apache: https://httpd.apache.org/
+.. _CherryPy: https://cherrypy.org/
+.. _Gunicorn: https://gunicorn.org/
+.. _HTTPS: https://en.wikipedia.org/wiki/HTTPS
 .. _ISO 8601: https://en.wikipedia.org/wiki/ISO_8601
+.. _Pyramid: https://trypyramid.com/
 .. _RFC 5322: https://tools.ietf.org/html/rfc5322#section-3.6.2
+.. _TCP: https://en.wikipedia.org/wiki/Transmission_Control_Protocol
+.. _WSGI: https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface
 
 .. _server_config_file:
 
@@ -84,15 +91,16 @@ Format of the configuration file
 Config file sections
 --------------------
 
-- All server settings are in the main section, ``[server]``.
+- The main CamCOPS site settings are in ``[site]``.
+- Options for configuring the web server aspects are in ``[server]``.
 - A list of export recipients is in the ``[recipients]`` section.
 - Each export recipient is defined in a section named
   ``[recipient:RECIPIENT_NAME]`` where *RECIPIENT_NAME* user-defined name of
   that recipient.
 
 
-Options for the "[server]" section
-----------------------------------
+Options for the "[site]" section
+--------------------------------
 
 Database connection/tools
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -264,9 +272,9 @@ is fresh and random.)
 SESSION_TIMEOUT_MINUTES
 #######################
 
-*Integer.*
+*Integer.* Default: 30.
 
-Time after which a session will expire (default 30).
+Time (in minutes) after which a session will expire.
 
 PASSWORD_CHANGE_FREQUENCY_DAYS
 ##############################
@@ -281,16 +289,16 @@ else.
 LOCKOUT_THRESHOLD
 #################
 
-*Integer.*
+*Integer.* Default: 10.
 
-Lock user accounts after every *n* login failures (default 10).
+Lock user accounts after every *n* login failures.
 
 LOCKOUT_DURATION_INCREMENT_MINUTES
 ##################################
 
-*Integer.*
+*Integer.* Default: 10.
 
-Account lockout time increment (default 10).
+Account lockout time increment.
 
 Suppose ``LOCKOUT_THRESHOLD = 10`` and ``LOCKOUT_DURATION_INCREMENT_MINUTES =
 20``. Then:
@@ -303,13 +311,13 @@ Suppose ``LOCKOUT_THRESHOLD = 10`` and ``LOCKOUT_DURATION_INCREMENT_MINUTES =
 DISABLE_PASSWORD_AUTOCOMPLETE
 #############################
 
-*Boolean.*
+*Boolean.* Default: true.
 
 If set to true, asks browsers not to autocomplete the password field on the
 main login page. The correct setting for maximum security is debated (don't
 cache passwords, versus allow a password manager so that users can use
-better/unique passwords). Default: true. Note that some browsers (e.g. Chrome
-v34 and up) may ignore this.
+better/unique passwords). Note that some browsers (e.g. Chrome v34 and up) may
+ignore this.
 
 Suggested filenames for saving PDFs from the web view
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -457,6 +465,314 @@ ALLOW_INSECURE_COOKIES
 **DANGEROUS** option that removes the requirement that cookies be HTTPS (SSL)
 only.
 
+Options for the "[server]" section
+-------------------------------------
+
+Common web server options
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+CamCOPS incorporates a Python web server. You can choose which one to lanuch:
+
+- CherryPy_: a "proper" one; works on Windows.
+- Gunicorn_: a "proper" one; may be faster than CherryPy; Linux/UNIX only.
+- Pyramid_: a "toy" one for debugging. (CamCOPS is written using Pyramid as its
+  web framework; Pyramid is excellent, but other software is generally better
+  for use as the web server).
+
+You may also want to configure a CamCOPS server behind a "front-end" web server
+such as Apache_.
+
+HOST
+####
+
+*String.* Default: ``127.0.0.1``.
+
+TCP/IP hostname to listen on. (See also ``UNIX_DOMAIN_SOCKET``.)
+
+Note some variations. For example, if your machine has an IP (v4) address of
+``192.168.1.1``, then under Linux you will find the following:
+
+- Using ``192.168.1.1`` will make the CamCOPS web server directly visible to
+  the network.
+- Using ``127.0.0.1`` will make it invisible to the network and visible only to
+  other processes on the same computer.
+
+PORT
+####
+
+*Integer.* Default: 8000.
+
+TCP_ port number to listen on. (See also ``UNIX_DOMAIN_SOCKET``.)
+
+UNIX_DOMAIN_SOCKET
+##################
+
+*String.* Default: none.
+
+Filename of a UNIX domain socket (UDS) to listen on (rather than using TCP/IP).
+UDS is typically faster than TCP. If specified, this overrides the TCP options,
+``HOST`` and ``PORT``.
+
+For example, ``/tmp/.camcops.sock``.
+
+(Not applicable to the Pyramid test web server; CherryPy/Gunicorn only.)
+
+SSL_CERTIFICATE
+###############
+
+*String.* Default: none.
+
+SSL certificate file for HTTPS_ (e.g.
+``/etc/ssl/certs/ssl-cert-snakeoil.pem``).
+
+(Not applicable to the Pyramid test web server; CherryPy/Gunicorn only.)
+
+If you host CamCOPS behind Apache, it's likely that you'll want Apache to
+handle HTTPS and CamCOPS to operate unencrypted behind a reverse proxy, in
+which case don't set this or ``SSL_PRIVATE_KEY``.
+
+SSL_PRIVATE_KEY
+###############
+
+*String.* Default: none.
+
+SSL private key file for HTTPS_ (e.g.
+``/etc/ssl/private/ssl-cert-snakeoil.key``).
+
+(Not applicable to the Pyramid test web server; CherryPy/Gunicorn only.)
+
+WSGI options
+~~~~~~~~~~~~
+
+This section controls how CamCOPS creates its WSGI_ application. They apply to
+all Python web servers provided (CherryPy, Gunicorn, Pyramid). These options
+are particularly relevant if you are reverse-proxying CamCOPS behind a
+front-end web server such as Apache_.
+
+DEBUG_REVERSE_PROXY
+###################
+
+*Boolean.* Default: false.
+
+If a reverse proxy configuration is in use, show debugging information for it
+as WSGI variable are rewritten?
+
+A reverse proxy configuration will be used if any of the following are set (see
+:meth:`cardinal_pythonlib.wsgi.reverse_proxied_mw.ReverseProxiedConfig.necessary`):
+
+.. code-block:: none
+
+    PROXY_HTTP_HOST
+    PROXY_REMOTE_ADDR
+    PROXY_REWRITE_PATH_INFO
+    PROXY_SCRIPT_NAME
+    PROXY_SERVER_NAME
+    PROXY_SERVER_PORT
+    PROXY_URL_SCHEME
+    TRUSTED_PROXY_HEADERS
+
+DEBUG_TOOLBAR
+#############
+
+*Boolean.* Default: false.
+
+Enable the Pyramid debug toolbar? **This should not be enabled for production
+systems; it carries security risks.**
+
+PROXY_HTTP_HOST
+###############
+
+*String.* Default: none.
+
+Option to set the WSGI HTTP host directly. This affects the WSGI variable
+``HTTP_HOST``. If not specified, the variables ``HTTP_X_HOST,
+HTTP_X_FORWARDED_HOST`` will be used, if trusted.
+
+PROXY_REMOTE_ADDR
+#################
+
+*String.* Default: none.
+
+Option to set the WSGI remote address directly. This affects the WSGI variable
+``REMOTE_ADDR``. If not specified, the variables ``HTTP_X_FORWARDED_FOR,
+HTTP_X_REAL_IP`` will be used, if trusted.
+
+PROXY_REWRITE_PATH_INFO
+#######################
+
+*Boolean.* Default: false.
+
+If ``SCRIPT_NAME`` is rewritten, this option causes ``PATH_INFO`` to be
+rewritten, if it starts with ``SCRIPT_NAME``, to strip off ``SCRIPT_NAME``.
+Appropriate for some front-end web browsers with limited reverse proxying
+support (but do not use for Apache with ``ProxyPass``, because that rewrites
+incoming URLs properly).
+
+PROXY_SCRIPT_NAME
+#################
+
+*String.* Default: none.
+
+Path at which this script is mounted. Set this if you are hosting this CamCOPS
+instance at a non-root path, unless you set trusted WSGI headers instead.
+            
+For example, if you are running an Apache server and want this instance of
+CamCOPS to appear at ``/somewhere/camcops``, then (a) configure your Apache
+instance to proxy requests to ``/somewhere/camcops/...`` to this server (e.g.
+via an internal TCP/IP port or UNIX socket) and (b) specify this option.
+
+If this option is not set, then the OS environment variable ``SCRIPT_NAME``
+will be checked as well. If that is not set, the variables within
+``HTTP_X_SCRIPT_NAME, HTTP_X_FORWARDED_SCRIPT_NAME`` will be used, if they are
+trusted.
+            
+This option affects the WSGI variables ``SCRIPT_NAME`` and ``PATH_INFO``.
+
+PROXY_SERVER_NAME
+#################
+
+*String.* Default: none.
+
+Option to set the WSGI server name directly. This affects the WSGI variable
+``SERVER_NAME``. If not specified, the variable ``HTTP_X_FORWARDED_SERVER``
+will be used, if trusted.
+
+PROXY_SERVER_PORT
+#################
+
+*Integer.* Default: none.
+
+Option to set the WSGI server port directly. This affects the WSGI variable
+``SERVER_PORT``. If not specified, the variable ``HTTP_X_FORWARDED_PORT`` will
+be used, if trusted.
+
+PROXY_URL_SCHEME
+################
+
+*String.* Default: none.
+
+Option to set the WSGI scheme (e.g. http, https) directly. This affects the
+WSGI variable ``wsgi.url_scheme``. If not specified, a variable from the
+following will be used, if trusted: ``HTTP_X_FORWARDED_PROTO,
+HTTP_X_FORWARDED_PROTOCOL, HTTP_X_FORWARDED_SCHEME, HTTP_X_SCHEME`` (which can
+specify a protocol) or ``HTTP_X_FORWARDED_HTTPS, HTTP_X_FORWARDED_SSL,
+HTTP_X_HTTPS`` (which can contain Boolean information about which protocol is
+in use).
+
+TRUSTED_PROXY_HEADERS
+#####################
+
+*Multiline string.*
+
+A multiline list of strings indicating WSGI environment variables that CamCOPS
+should trust. Use these when CamCOPS is behind a reverse proxy (e.g. an Apache
+front-end web server) and you can guarantee that these variables have been set
+by Apache and can be trusted.
+
+Possible values:
+
+.. code-block:: none
+
+    HTTP_X_FORWARDED_FOR
+    HTTP_X_FORWARDED_HOST
+    HTTP_X_FORWARDED_HTTPS
+    HTTP_X_FORWARDED_PORT
+    HTTP_X_FORWARDED_PROTO
+    HTTP_X_FORWARDED_PROTOCOL
+    HTTP_X_FORWARDED_SCHEME
+    HTTP_X_FORWARDED_SCRIPT_NAME
+    HTTP_X_FORWARDED_SERVER
+    HTTP_X_FORWARDED_SSL
+    HTTP_X_HOST
+    HTTP_X_HTTPS
+    HTTP_X_REAL_IP
+    HTTP_X_SCHEME
+    HTTP_X_SCRIPT_NAME
+
+Variables that are not marked as trusted will not be used by the reverse-proxy
+middleware.
+
+CherryPy options
+~~~~~~~~~~~~~~~~
+
+Additional options for the CherryPy web server.
+
+CHERRYPY_SERVER_NAME
+####################
+
+*String.* Default: ``localhost``.
+
+CherryPy's ``SERVER_NAME`` environment entry.
+
+CHERRYPY_THREADS_START
+######################
+
+*Integer.* Default: 10.
+
+Number of threads for server to start with.
+
+CHERRYPY_THREADS_MAX
+####################
+
+*Integer.* Default: 100.
+
+Maximum number of threads for server to use (-1 for no limit).
+
+**BEWARE exceeding the permitted number of database connections.**
+
+CHERRYPY_LOG_SCREEN
+###################
+
+*Boolean.* Default: true.
+
+Log access requests etc. to the terminal (stdout/stderr)?
+
+CHERRYPY_ROOT_PATH
+##################
+
+*String.* Default: ``/``.
+
+Root path to serve CRATE at, WITHIN this CherryPy web server instance.
+
+There is unlikely to be a reason to use something other than ``/``; do not
+confuse this with the mount point within a wider, e.g. Apache, configuration,
+which is set instead by the WSGI variable ``SCRIPT_NAME``; see the
+``TRUSTED_PROXY_HEADERS`` and ``PROXY_SCRIPT_NAME`` options.
+
+Gunicorn options
+~~~~~~~~~~~~~~~~
+
+Additional options for the Gunicorn web server.
+
+GUNICORN_NUM_WORKERS
+####################
+
+*Integer.* Default: twice the number of CPUs in your server.
+
+Number of worker processes for the Gunicorn server to use.
+
+GUNICORN_DEBUG_RELOAD
+#####################
+
+*Boolean.* Default: false.
+
+Debugging option: reload Gunicorn upon code change?
+
+GUNICORN_TIMEOUT_S
+##################
+
+*Integer.* Default: 30.
+
+Gunicorn worker timeout (s).
+
+DEBUG_SHOW_GUNICORN_OPTIONS
+###########################
+
+*Boolean.* Default: false.
+
+Debugging option: show possible Gunicorn settings.
+
+
 Options for the "[export]" section
 ----------------------------------
 
@@ -512,9 +828,9 @@ command used by ``camcops_server launch_scheduler``, after ``celery worker
 CELERY_BROKER_URL
 #################
 
-*String.*
+*String.* Default: ``amqp://``.
 
-Broker URL for Celery. The default is ``amqp://``. See
+Broker URL for Celery. See
 http://docs.celeryproject.org/en/latest/userguide/configuration.html#conf-broker-settings.
 
 CELERY_WORKER_EXTRA_ARGS
@@ -578,12 +894,11 @@ then CamCOPS expects to see, elsewhere in the config file:
 SCHEDULE_TIMEZONE
 #################
 
-*String.*
+*String.* Default: ``UTC``.
 
 Timezone used by Celery for the *crontab(5)*-style ``SCHEDULE`` (see below), as
 per
 http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#time-zones.
-Default is ``UTC``.
 
 SCHEDULE
 ########
@@ -676,11 +991,11 @@ One of the following:
 XML_FIELD_COMMENTS
 ##################
 
-*Boolean.*
+*Boolean.* Default: true.
 
 If ``TASK_FORMAT = xml``, then ``XML_FIELD_COMMENTS`` determines whether field
 comments are included. These describe the meaning of each field, so they take
-space but they provide more information for human readers. (Default is true.)
+space but they provide more information for human readers.
 
 What to export
 ~~~~~~~~~~~~~~
@@ -688,10 +1003,9 @@ What to export
 ALL_GROUPS
 ##########
 
-*Boolean.*
+*Boolean.* Default: false.
 
 Export from all groups? If not, ``GROUPS`` will come into play (see below).
-Default is false.
 
 GROUPS
 ######
@@ -804,33 +1118,32 @@ SQLAlchemy URL to the receiving database.
 DB_ECHO
 #######
 
-*Boolean.*
+*Boolean.* Default: false.
 
-Echo SQL sent to the destination database. Default is false.
+Echo SQL sent to the destination database.
 
 DB_INCLUDE_BLOBS
 ################
 
-*Boolean.*
+*Boolean.* Default: true.
 
-Include binary large objects (BLOBs) in the export? Default is true.
+Include binary large objects (BLOBs) in the export?
 
 DB_ADD_SUMMARIES
 ################
 
-*Boolean.*
+*Boolean.* Default: true.
 
 Add summary information (including :ref:`SNOMED CT <snomed>` codes if
-available)? Default true.
+available)?
 
 DB_PATIENT_ID_PER_ROW
 #####################
 
-*Boolean.*
+*Boolean.* Default: false.
 
 Add patient ID numbers to all patient rows? Used, for example, to export a
-database in a more convenient format for subsequent anonymisation. Default
-false.
+database in a more convenient format for subsequent anonymisation.
 
 .. todo:: DB_PATIENT_ID_PER_ROW not currently implemented.
 
@@ -850,18 +1163,18 @@ Hostname of e-mail (SMTP) server.
 EMAIL_PORT
 ##########
 
-*Integer.*
+*Integer.* Default: 25.
 
-Port number of e-mail (SMTP) server. Default 25, but consider something more
-secure (see below).
+Port number of e-mail (SMTP) server. The default is 25, but consider something
+more secure (see below).
 
 EMAIL_USE_TLS
 #############
 
-*Boolean.*
+*Boolean.* Default: false.
 
-Use a TLS (secure) connection to talk to the SMTP server? Default false (but
-you should strongly consider using it!).
+Use a TLS (secure) connection to talk to the SMTP server? The default is false,
+but you should strongly consider using it!
 
 This is used for explicit TLS connections, usually on port 587 (in which the
 connection is opened and then a ``STARTTLS`` command is issued).
@@ -971,10 +1284,10 @@ Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
 EMAIL_KEEP_MESSAGE
 ##################
 
-*Boolean.*
+*Boolean.* Default: false.
 
-Keep the entire message (including attachments). Default is false (because this
-consumes lots of database space!). Use only for debugging.
+Keep the entire message (including attachments). Turning this option on
+consumes lots of database space! Use only for debugging.
 
 Options applicable to HL7 only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -989,49 +1302,49 @@ HL7 hostname or IP address.
 HL7_PORT
 ########
 
-*Integer.*
+*Integer.* Default: 2575.
 
-HL7 port (default 2575).
+HL7 port.
 
 HL7_PING_FIRST
 ##############
 
-*Boolean.*
+*Boolean.* Default: true.
 
 If true, requires a successful ping to the server prior to sending HL7
 messages. (Note: this is a TCP/IP ping, and tests that the machine is up, not
-that it is running an HL7 server.) Default: true.
+that it is running an HL7 server.)
 
 HL7_NETWORK_TIMEOUT_MS
 ######################
 
-*Integer.*
+*Integer.* Default: 10000.
 
-Network timeout (in milliseconds). Default: 10000.
+Network timeout (in milliseconds).
 
 HL7_KEEP_MESSAGE
 ################
 
-*Boolean.*
+*Boolean.* Default: false.
 
-Keep a copy of the entire message in the databaase. Default is false.
-**WARNING:** may consume significant space in the database.
+Keep a copy of the entire message in the databaase. *WARNING:** may consume
+significant space in the database.
 
 HL7_KEEP_REPLY
 ##############
 
-*Boolean.*
+*Boolean.* Default: false.
 
 Keep a copy of the reply (e.g. acknowledgement) message received from the
-server. Default is false. **WARNING:** may consume significant space.
+server. **WARNING:** may consume significant space.
 
 HL7_DEBUG_DIVERT_TO_FILE
 ########################
 
-*Boolean.*
+*Boolean.* Default: false.
 
 Override ``HL7_HOST``/``HL7_PORT`` options and send HL7 messages to a
-(single) file instead? Default is false.
+(single) file instead?
 
 This is a **debugging option,** allowing you to redirect HL7 messages to a file
 and inspect them. If chosen, the following options are used:
@@ -1049,15 +1362,15 @@ and the files are named accordingly, but with ``filetype`` set to ``hl7``.
 HL7_DEBUG_TREAT_DIVERTED_AS_SENT
 ################################
 
-*Boolean.*
+*Boolean.* Default: false.
 
 Any messages that are diverted to a file (using ``DIVERT_TO_FILE``) are treated
 as having been sent (thus allowing the file to mimic an HL7-receiving server
-that's accepting messages happily). If set to false (the default), a diversion
-will allow you to preview messages for debugging purposes without "swallowing"
-them. BEWARE, though: if you have an automatically scheduled job (for example,
-to send messages every minute) and you divert with this flag set to false, you
-will end up with a great many message attempts!
+that's accepting messages happily). If set to false, a diversion will allow you
+to preview messages for debugging purposes without "swallowing" them. BEWARE,
+though: if you have an automatically scheduled job (for example, to send
+messages every minute) and you divert with this flag set to false, you will end
+up with a great many message attempts!
 
 Options applicable to file transfers and attachments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1099,17 +1412,17 @@ Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
 FILE_MAKE_DIRECTORY
 ###################
 
-*Boolean.*
+*Boolean.* Default: false.
 
-Make the directory if it doesn't already exist. Default is false.
+Make the directory if it doesn't already exist.
 
 FILE_OVERWRITE_FILES
 ####################
 
-*Boolean.*
+*Boolean.* Default: false.
 
-Whether or not to attempt overwriting existing files of the same name (default
-false). There is a **DANGER** of inadvertent data loss if you set this to true.
+Whether or not to attempt overwriting existing files of the same name. There is
+a **DANGER** of inadvertent data loss if you set this to true.
 
 (Needing to overwrite a file suggests that your filenames are not task-unique;
 try ensuring that both the ``tasktype`` and ``serverpk`` attributes are used in
@@ -1118,11 +1431,10 @@ the filename.)
 FILE_EXPORT_RIO_METADATA
 ########################
 
-*Boolean.*
+*Boolean.* Default: false.
 
 Whether or not to export a metadata file for Servelec's RiO
-(https://www.servelechsc.com/servelec-hsc/products-services/rio/) (default
-false).
+(https://www.servelechsc.com/servelec-hsc/products-services/rio/).
 
 Details of this file format are in ``cc_task.py`` and
 :meth:`camcops_server.cc_modules.cc_task.Task.get_rio_metadata`.
@@ -1219,22 +1531,21 @@ Here’s a specimen configuration file, generated via the command
 .. code-block:: ini
 
     # Demonstration CamCOPS server configuration file.
-    # Created by CamCOPS server version 2.3.1 at 2018-12-10T17:47:44.053084+00:00.
+    # Created by CamCOPS server version 2.3.1 at 2018-12-30T18:34:44.416963+00:00.
     # See help at https://camcops.readthedocs.io/.
 
     # =============================================================================
-    # Main section: [server]
+    # CamCOPS site
     # =============================================================================
 
-    [server]
+    [site]
 
     # -----------------------------------------------------------------------------
-    # Database connection/tools
+    # Database connection
     # -----------------------------------------------------------------------------
 
     DB_URL = mysql+mysqldb://YYY_USERNAME_REPLACE_ME:ZZZ_PASSWORD_REPLACE_ME@localhost:3306/camcops?charset=utf8
-
-    DB_ECHO = False
+    DB_ECHO = false
 
     # -----------------------------------------------------------------------------
     # URLs and paths
@@ -1256,7 +1567,7 @@ Here’s a specimen configuration file, generated via the command
     # Login and session configuration
     # -----------------------------------------------------------------------------
 
-    SESSION_COOKIE_SECRET = camcops_autogenerated_secret_lNqFk37CEpapg20TrUNpJcfe2VOEKY8Rx4eYgZjkNrkd1wKffabQ2I4RzpNMtYHEJRAYhVUHxnbfHYUlCiHMVQ==
+    SESSION_COOKIE_SECRET = camcops_autogenerated_secret_S8qfhAXzh-w0ED-35OIObFJz3Ctlg1DrlIWrE_2r0l4HDwWRq2hnHajbPfZsa2ymT8sBn4BPw2Wod1jSjNgQiw==
     SESSION_TIMEOUT_MINUTES = 30
     PASSWORD_CHANGE_FREQUENCY_DAYS = 0
     LOCKOUT_THRESHOLD = 10
@@ -1284,81 +1595,193 @@ Here’s a specimen configuration file, generated via the command
 
 
     # =============================================================================
+    # Web server options
+    # =============================================================================
+
+    [server]
+
+    # -----------------------------------------------------------------------------
+    # Common web server options
+    # -----------------------------------------------------------------------------
+
+    HOST = 127.0.0.1
+    PORT = 8000
+    UNIX_DOMAIN_SOCKET =
+    SSL_CERTIFICATE =
+    SSL_PRIVATE_KEY =
+
+    # -----------------------------------------------------------------------------
+    # WSGI options
+    # -----------------------------------------------------------------------------
+
+    DEBUG_REVERSE_PROXY = false
+    DEBUG_TOOLBAR = false
+    PROXY_HTTP_HOST =
+    PROXY_REMOTE_ADDR =
+    PROXY_REWRITE_PATH_INFO = false
+    PROXY_SCRIPT_NAME =
+    PROXY_SERVER_NAME =
+    PROXY_SERVER_PORT =
+    PROXY_URL_SCHEME =
+    TRUSTED_PROXY_HEADERS =
+        HTTP_X_FORWARDED_HOST
+        HTTP_X_FORWARDED_SERVER
+        HTTP_X_FORWARDED_PORT
+        HTTP_X_FORWARDED_PROTO
+        HTTP_X_SCRIPT_NAME
+
+    # -----------------------------------------------------------------------------
+    # CherryPy options
+    # -----------------------------------------------------------------------------
+
+    CHERRYPY_SERVER_NAME = localhost
+    CHERRYPY_THREADS_START = 10
+    CHERRYPY_THREADS_MAX = 100
+    CHERRYPY_LOG_SCREEN = true
+    CHERRYPY_ROOT_PATH = /
+
+    # -----------------------------------------------------------------------------
+    # Gunicorn options
+    # -----------------------------------------------------------------------------
+
+    GUNICORN_NUM_WORKERS = 16
+    GUNICORN_DEBUG_RELOAD = False
+    GUNICORN_TIMEOUT_S = 30
+    DEBUG_SHOW_GUNICORN_OPTIONS = False
+
+    # =============================================================================
     # Export options
     # =============================================================================
 
     [export]
 
-    EXPORT_LOCKDIR = /var/lock/camcops/
+    CELERY_BEAT_EXTRA_ARGS =
+    CELERY_BEAT_SCHEDULE_DATABASE = /var/lock/camcops/camcops_celerybeat_schedule
+    CELERY_BROKER_URL = amqp://
+    CELERY_WORKER_EXTRA_ARGS =
+    EXPORT_LOCKDIR = /var/lock/camcops
+
     RECIPIENTS =
+
+    SCHEDULE_TIMEZONE = UTC
+    SCHEDULE =
 
     # =============================================================================
     # Details for each export recipient
     # =============================================================================
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # First example
+    # Example recipient
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Example (disabled because it's not in the RECIPIENTS list above)
 
-    [recipient_A]
+    [recipient:recipient_A]
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Export type
+        # How to export
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    TYPE = hl7
-
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Options applicable to all or more incremental export types
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    GROUP_ID = 1
-
-    PRIMARY_IDNUM = 1
-    REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = true
-
-    START_DATE =
-    END_DATE =
-
-    FINALIZED_ONLY = true
-
+    TRANSMISSION_METHOD = hl7
     TASK_FORMAT = pdf
     XML_FIELD_COMMENTS = true
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Options applicable to HL7 only (TYPE = hl7)
+        # What to export
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    ALL_GROUPS = false
+    GROUPS =
+        myfirstgroup
+        mysecondgroup
+
+    START_DATETIME_UTC =
+    END_DATETIME_UTC =
+    FINALIZED_ONLY = true
+    INCLUDE_ANONYMOUS = true
+    PRIMARY_IDNUM = 1
+    REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = true
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Options applicable to database exports
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    DB_URL = some_sqlalchemy_url
+    DB_ECHO = false
+    DB_INCLUDE_BLOBS = true
+    DB_ADD_SUMMARIES = true
+    DB_PATIENT_ID_PER_ROW = false
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Options applicable to e-mail exports
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    EMAIL_HOST = mysmtpserver.mydomain
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = true
+    EMAIL_HOST_USERNAME = myusername
+    EMAIL_HOST_PASSWORD = mypassword
+    EMAIL_FROM = CamCOPS computer <noreply@myinstitution.mydomain>
+    EMAIL_SENDER =
+    EMAIL_REPLY_TO = CamCOPS clinical administrator <admin@myinstitution.mydomain>
+    EMAIL_TO =
+        Perinatal Psychiatry Admin <perinatal@myinstitution.mydomain>
+
+    EMAIL_CC =
+        Dr Alice Bradford <alice.bradford@myinstitution.mydomain>
+        Dr Charles Dogfoot <charles.dogfoot@myinstitution.mydomain>
+
+    EMAIL_BCC =
+        superuser <root@myinstitution.mydomain>
+
+    EMAIL_PATIENT_SPEC_IF_ANONYMOUS = anonymous
+    EMAIL_PATIENT_SPEC = {surname}, {forename}, {allidnums}
+    EMAIL_SUBJECT = CamCOPS task for {patient}, created {created}: {tasktype}, PK {serverpk}
+    EMAIL_BODY_IS_HTML = false
+    EMAIL_BODY =
+        Please find attached a new CamCOPS task for manual filing to the electronic
+        patient record of
+
+            {patient}
+
+        Task type: {tasktype}
+        Created: {created}
+        CamCOPS server primary key: {serverpk}
+
+        Yours faithfully,
+
+        The CamCOPS computer.
+
+    EMAIL_KEEP_MESSAGE = false
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Options applicable to HL7
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     HL7_HOST = myhl7server.mydomain
     HL7_PORT = 2575
-
-    PING_FIRST = true
-
-    NETWORK_TIMEOUT_MS = 10000
-
-    KEEP_MESSAGE = false
-    KEEP_REPLY = false
-
-    DIVERT_TO_FILE =
-    TREAT_DIVERTED_AS_SENT = false
+    HL7_PING_FIRST = true
+    HL7_NETWORK_TIMEOUT_MS = 10000
+    HL7_KEEP_MESSAGE = false
+    HL7_KEEP_REPLY = false
+    HL7_DEBUG_DIVERT_TO_FILE =
+    HL7_DEBUG_TREAT_DIVERTED_AS_SENT = false
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Options applicable to file transfers only (TYPE = file)
+        # Options applicable to file transfers/attachments
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    INCLUDE_ANONYMOUS = true
+    FILE_PATIENT_SPEC = {surname}_{forename}_{idshortdesc1}{idnum1}
+    FILE_PATIENT_SPEC_IF_ANONYMOUS = anonymous
+    FILE_FILENAME_SPEC = /my_nfs_mount/mypath/CamCOPS_{patient}_{created}_{tasktype}-{serverpk}.{filetype}
+    FILE_MAKE_DIRECTORY = true
+    FILE_OVERWRITE_FILES = false
+    FILE_EXPORT_RIO_METADATA = false
+    FILE_SCRIPT_AFTER_EXPORT =
 
-    PATIENT_SPEC_IF_ANONYMOUS = anonymous
-    PATIENT_SPEC = {surname}_{forename}_{idshortdesc1}{idnum1}
-    FILENAME_SPEC = /my_nfs_mount/mypath/CamCOPS_{patient}_{created}_{tasktype}-{serverpk}.{filetype}
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Extra options for RiO metadata for file-based export
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    MAKE_DIRECTORY = true
-    OVERWRITE_FILES = false
-
-    RIO_METADATA = false
     RIO_IDNUM = 2
     RIO_UPLOADING_USER = CamCOPS
     RIO_DOCUMENT_TYPE = CC
-
-    SCRIPT_AFTER_FILE_EXPORT =

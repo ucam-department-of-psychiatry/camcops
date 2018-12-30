@@ -72,6 +72,7 @@ import collections
 import configparser
 import contextlib
 import datetime
+import multiprocessing
 import os
 import logging
 import re
@@ -99,6 +100,7 @@ from cardinal_pythonlib.sqlalchemy.session import (
     get_safe_url_from_engine,
     make_mysql_url,
 )
+from cardinal_pythonlib.wsgi.reverse_proxied_mw import ReverseProxiedMiddleware
 import celery.schedules
 from pendulum import DateTime as Pendulum
 from sqlalchemy.engine import create_engine
@@ -121,16 +123,21 @@ from camcops_server.cc_modules.cc_baseconstants import (
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_constants import (
     ConfigParamExportRecipient,
-    CONFIG_FILE_MAIN_SECTION,
-    CONFIG_FILE_EXPORT_SECTION,
     DEFAULT_CAMCOPS_LOGO_FILE,
+    DEFAULT_CHERRYPY_SERVER_NAME,
+    DEFAULT_GUNICORN_TIMEOUT_S,
+    DEFAULT_HOST,
     DEFAULT_LOCAL_INSTITUTION_URL,
     DEFAULT_LOCAL_LOGO_FILE,
     DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES,
     DEFAULT_LOCKOUT_THRESHOLD,
+    DEFAULT_MAX_THREADS,
     DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS,
     DEFAULT_PLOT_FONTSIZE,
+    DEFAULT_PORT,
+    DEFAULT_START_THREADS,
     DEFAULT_TIMEOUT_MINUTES,
+    URL_PATH_ROOT,
 )
 from camcops_server.cc_modules.cc_exportrecipientinfo import (
     DEFAULT_PATIENT_SPEC_IF_ANONYMOUS,
@@ -160,6 +167,10 @@ pre_disable_sqlalchemy_extra_echo_log()
 # Constants
 # =============================================================================
 
+CONFIG_FILE_SITE_SECTION = "site"
+CONFIG_FILE_SERVER_SECTION = "server"
+CONFIG_FILE_EXPORT_SECTION = "export"
+
 VALID_RECIPIENT_NAME_REGEX = r"^[\w_-]+$"
 # ... because we'll use them for filenames, amongst other things
 # https://stackoverflow.com/questions/10944438/
@@ -180,10 +191,9 @@ DEFAULT_TIMEZONE = "UTC"
 DUMMY_INSTITUTION_URL = 'http://www.mydomain/'
 
 
-class ConfigParamMain(object):
+class ConfigParamSite(object):
     """
-    Parameters allowed in the main ``[server]`` section of the CamCOPS config
-    file.
+    Parameters allowed in the main section of the CamCOPS config file.
     """
     ALLOW_INSECURE_COOKIES = "ALLOW_INSECURE_COOKIES"
     CAMCOPS_LOGO_FILE_ABSOLUTE = "CAMCOPS_LOGO_FILE_ABSOLUTE"
@@ -209,6 +219,36 @@ class ConfigParamMain(object):
     TRACKER_FILENAME_SPEC = "TRACKER_FILENAME_SPEC"
     WEBVIEW_LOGLEVEL = "WEBVIEW_LOGLEVEL"
     WKHTMLTOPDF_FILENAME = "WKHTMLTOPDF_FILENAME"
+
+
+class ConfigParamServer(object):
+    """
+    Parameters allowed in the web server section of the CamCOPS config file.
+    """
+    CHERRYPY_LOG_SCREEN = "CHERRYPY_LOG_SCREEN"
+    CHERRYPY_ROOT_PATH = "CHERRYPY_ROOT_PATH"
+    CHERRYPY_SERVER_NAME = "CHERRYPY_SERVER_NAME"
+    CHERRYPY_THREADS_MAX = "CHERRYPY_THREADS_MAX"
+    CHERRYPY_THREADS_START = "CHERRYPY_THREADS_START"
+    DEBUG_REVERSE_PROXY = "DEBUG_REVERSE_PROXY"
+    DEBUG_SHOW_GUNICORN_OPTIONS = "DEBUG_SHOW_GUNICORN_OPTIONS"
+    DEBUG_TOOLBAR = "DEBUG_TOOLBAR"
+    GUNICORN_DEBUG_RELOAD = "GUNICORN_DEBUG_RELOAD"
+    GUNICORN_NUM_WORKERS = "GUNICORN_NUM_WORKERS"
+    GUNICORN_TIMEOUT_S = "GUNICORN_TIMEOUT_S"
+    HOST = "HOST"
+    PORT = "PORT"
+    PROXY_HTTP_HOST = "PROXY_HTTP_HOST"
+    PROXY_REMOTE_ADDR = "PROXY_REMOTE_ADDR"
+    PROXY_REWRITE_PATH_INFO = "PROXY_REWRITE_PATH_INFO"
+    PROXY_SCRIPT_NAME = "PROXY_SCRIPT_NAME"
+    PROXY_SERVER_NAME = "PROXY_SERVER_NAME"
+    PROXY_SERVER_PORT = "PROXY_SERVER_PORT"
+    PROXY_URL_SCHEME = "PROXY_URL_SCHEME"
+    SSL_CERTIFICATE = "SSL_CERTIFICATE"
+    SSL_PRIVATE_KEY = "SSL_PRIVATE_KEY"
+    TRUSTED_PROXY_HEADERS = "TRUSTED_PROXY_HEADERS"
+    UNIX_DOMAIN_SOCKET = "UNIX_DOMAIN_SOCKET"
 
 
 class ConfigParamExportGeneral(object):
@@ -251,65 +291,119 @@ def get_demo_config(extra_strings_dir: str = None,
 # See help at https://camcops.readthedocs.io/.
 
 # =============================================================================
-# Main section: [{CONFIG_FILE_MAIN_SECTION}]
+# CamCOPS site
 # =============================================================================
 
-[{CONFIG_FILE_MAIN_SECTION}]
+[{CONFIG_FILE_SITE_SECTION}]
 
 # -----------------------------------------------------------------------------
-# Database connection/tools
+# Database connection
 # -----------------------------------------------------------------------------
 
-{cp.DB_URL} = {db_url}
-
-{cp.DB_ECHO} = false
+{cps.DB_URL} = {db_url}
+{cps.DB_ECHO} = false
 
 # -----------------------------------------------------------------------------
 # URLs and paths
 # -----------------------------------------------------------------------------
 
-{cp.LOCAL_INSTITUTION_URL} = {DUMMY_INSTITUTION_URL}
-{cp.LOCAL_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_local.png
-# {cp.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
+{cps.LOCAL_INSTITUTION_URL} = {DUMMY_INSTITUTION_URL}
+{cps.LOCAL_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_local.png
+# {cps.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
 
-{cp.EXTRA_STRING_FILES} = {extra_strings_spec}
+{cps.EXTRA_STRING_FILES} = {extra_strings_spec}
 
-{cp.SNOMED_TASK_XML_FILENAME} =
-{cp.SNOMED_ICD9_XML_FILENAME} =
-{cp.SNOMED_ICD10_XML_FILENAME} = 
+{cps.SNOMED_TASK_XML_FILENAME} =
+{cps.SNOMED_ICD9_XML_FILENAME} =
+{cps.SNOMED_ICD10_XML_FILENAME} = 
 
-{cp.WKHTMLTOPDF_FILENAME} =
+{cps.WKHTMLTOPDF_FILENAME} =
 
 # -----------------------------------------------------------------------------
 # Login and session configuration
 # -----------------------------------------------------------------------------
 
-{cp.SESSION_COOKIE_SECRET} = camcops_autogenerated_secret_{session_cookie_secret}
-{cp.SESSION_TIMEOUT_MINUTES} = 30
-{cp.PASSWORD_CHANGE_FREQUENCY_DAYS} = 0
-{cp.LOCKOUT_THRESHOLD} = 10
-{cp.LOCKOUT_DURATION_INCREMENT_MINUTES} = 10
-{cp.DISABLE_PASSWORD_AUTOCOMPLETE} = true
+{cps.SESSION_COOKIE_SECRET} = camcops_autogenerated_secret_{session_cookie_secret}
+{cps.SESSION_TIMEOUT_MINUTES} = 30
+{cps.PASSWORD_CHANGE_FREQUENCY_DAYS} = 0
+{cps.LOCKOUT_THRESHOLD} = 10
+{cps.LOCKOUT_DURATION_INCREMENT_MINUTES} = 10
+{cps.DISABLE_PASSWORD_AUTOCOMPLETE} = true
 
 # -----------------------------------------------------------------------------
 # Suggested filenames for saving PDFs from the web view
 # -----------------------------------------------------------------------------
 
-{cp.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
-{cp.PATIENT_SPEC} = {{{pse.SURNAME}}}_{{{pse.FORENAME}}}_{{{pse.ALLIDNUMS}}}
+{cps.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
+{cps.PATIENT_SPEC} = {{{pse.SURNAME}}}_{{{pse.FORENAME}}}_{{{pse.ALLIDNUMS}}}
 
-{cp.TASK_FILENAME_SPEC} = CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
-{cp.TRACKER_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_tracker.{{filetype}}
-{cp.CTV_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_clinicaltextview.{{filetype}}
+{cps.TASK_FILENAME_SPEC} = CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
+{cps.TRACKER_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_tracker.{{filetype}}
+{cps.CTV_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_clinicaltextview.{{filetype}}
 
 # -----------------------------------------------------------------------------
 # Debugging options
 # -----------------------------------------------------------------------------
 
-{cp.WEBVIEW_LOGLEVEL} = info
-{cp.CLIENT_API_LOGLEVEL} = info
-{cp.ALLOW_INSECURE_COOKIES} = false
+{cps.WEBVIEW_LOGLEVEL} = info
+{cps.CLIENT_API_LOGLEVEL} = info
+{cps.ALLOW_INSECURE_COOKIES} = false
 
+
+# =============================================================================
+# Web server options
+# =============================================================================
+
+[{CONFIG_FILE_SERVER_SECTION}]
+
+# -----------------------------------------------------------------------------
+# Common web server options
+# -----------------------------------------------------------------------------
+
+{cpw.HOST} = {DEFAULT_HOST}
+{cpw.PORT} = {DEFAULT_PORT}
+{cpw.UNIX_DOMAIN_SOCKET} =
+{cpw.SSL_CERTIFICATE} =
+{cpw.SSL_PRIVATE_KEY} =
+
+# -----------------------------------------------------------------------------
+# WSGI options
+# -----------------------------------------------------------------------------
+
+{cpw.DEBUG_REVERSE_PROXY} = false
+{cpw.DEBUG_TOOLBAR} = false
+{cpw.PROXY_HTTP_HOST} =
+{cpw.PROXY_REMOTE_ADDR} =
+{cpw.PROXY_REWRITE_PATH_INFO} = false
+{cpw.PROXY_SCRIPT_NAME} =
+{cpw.PROXY_SERVER_NAME} =
+{cpw.PROXY_SERVER_PORT} =
+{cpw.PROXY_URL_SCHEME} =
+{cpw.TRUSTED_PROXY_HEADERS} =
+    HTTP_X_FORWARDED_HOST
+    HTTP_X_FORWARDED_SERVER
+    HTTP_X_FORWARDED_PORT
+    HTTP_X_FORWARDED_PROTO
+    HTTP_X_SCRIPT_NAME
+
+# -----------------------------------------------------------------------------
+# CherryPy options
+# -----------------------------------------------------------------------------
+
+{cpw.CHERRYPY_SERVER_NAME} = {DEFAULT_CHERRYPY_SERVER_NAME}
+{cpw.CHERRYPY_THREADS_START} = {DEFAULT_START_THREADS}
+{cpw.CHERRYPY_THREADS_MAX} = {DEFAULT_MAX_THREADS}
+{cpw.CHERRYPY_LOG_SCREEN} = true
+{cpw.CHERRYPY_ROOT_PATH} = {URL_PATH_ROOT}
+
+# -----------------------------------------------------------------------------
+# Gunicorn options
+# -----------------------------------------------------------------------------
+
+{cpw.GUNICORN_NUM_WORKERS} = {gunicorn_num_workers}
+{cpw.GUNICORN_DEBUG_RELOAD} = False
+{cpw.GUNICORN_TIMEOUT_S} = {DEFAULT_GUNICORN_TIMEOUT_S}
+{cpw.DEBUG_SHOW_GUNICORN_OPTIONS} = False
 
 # =============================================================================
 # Export options
@@ -449,24 +543,34 @@ def get_demo_config(extra_strings_dir: str = None,
 {cpr.RIO_DOCUMENT_TYPE} = CC
 
     """.format(  # noqa
-        cp=ConfigParamMain,
+        CONFIG_FILE_EXPORT_SECTION=CONFIG_FILE_EXPORT_SECTION,
+        CONFIG_FILE_SERVER_SECTION=CONFIG_FILE_SERVER_SECTION,
+        CONFIG_FILE_SITE_SECTION=CONFIG_FILE_SITE_SECTION,
         cpe=ConfigParamExportGeneral,
         cpr=ConfigParamExportRecipient,
-        CONFIG_FILE_MAIN_SECTION=CONFIG_FILE_MAIN_SECTION,
-        CONFIG_FILE_EXPORT_SECTION=CONFIG_FILE_EXPORT_SECTION,
+        cps=ConfigParamSite,
+        cpw=ConfigParamServer,
         db_url=db_url,
+        DEFAULT_CHERRYPY_SERVER_NAME=DEFAULT_CHERRYPY_SERVER_NAME,
         DEFAULT_DB_NAME=DEFAULT_DB_NAME,
         DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
         DEFAULT_DB_USER=DEFAULT_DB_USER,
+        DEFAULT_GUNICORN_TIMEOUT_S=DEFAULT_GUNICORN_TIMEOUT_S,
+        DEFAULT_HOST=DEFAULT_HOST,
+        DEFAULT_MAX_THREADS=DEFAULT_MAX_THREADS,
+        DEFAULT_PORT=DEFAULT_PORT,
+        DEFAULT_START_THREADS=DEFAULT_START_THREADS,
         DEFAULT_TIMEZONE=DEFAULT_TIMEZONE,
-        extra_strings_spec=extra_strings_spec,
-        lock_dir=lock_dir,
-        static_dir=static_dir,
         DUMMY_INSTITUTION_URL=DUMMY_INSTITUTION_URL,
+        extra_strings_spec=extra_strings_spec,
         fse=FilenameSpecElement,
+        gunicorn_num_workers=2 * multiprocessing.cpu_count(),
+        lock_dir=lock_dir,
         now=str(Pendulum.now()),
         pse=PatientSpecElementForFilename,
         session_cookie_secret=session_cookie_secret,
+        static_dir=static_dir,
+        URL_PATH_ROOT=URL_PATH_ROOT,
         version=CAMCOPS_SERVER_VERSION_STRING,
     )
 
@@ -475,12 +579,11 @@ def get_demo_config(extra_strings_dir: str = None,
 # Demo configuration files, other than the CamCOPS config file itself
 # =============================================================================
 
-DEFAULT_INTERNAL_PORT = 8000
 DEFAULT_SOCKET_FILENAME = "/tmp/.camcops.sock"
 
 
 def get_demo_supervisor_config(
-        specimen_internal_port: int = DEFAULT_INTERNAL_PORT,
+        specimen_internal_port: int = DEFAULT_PORT,
         specimen_socket_file: str = DEFAULT_SOCKET_FILENAME) -> str:
     """
     Returns a demonstration ``supervisord`` config file based on the
@@ -488,42 +591,24 @@ def get_demo_supervisor_config(
     """
     return """
 # =============================================================================
-# Demonstration 'supervisor' config file for CamCOPS.
+# Demonstration 'supervisor' (supervisord) config file for CamCOPS.
 # Created by CamCOPS version {version} at {now}.
 # =============================================================================
     # - Supervisor is a system for controlling background processes running on
     #   UNIX-like operating systems. See:
-    #
     #       http://supervisord.org
     #
     # - On Ubuntu systems, you would typically install supervisor with
-    #
     #       sudo apt install supervisor
-    #
     #   and then save this file as
-    #
     #       /etc/supervisor/conf.d/camcops.conf
     #
     # - IF YOU EDIT THIS FILE, run:
-    #
     #       sudo service supervisor restart
     #
     # - TO MONITOR SUPERVISOR, run:
-    #
     #       sudo supervisorctl status
-    #
     #   ... or just "sudo supervisorctl" for an interactive prompt.
-    #
-    # - TO ADD MORE CAMCOPS INSTANCES, first consider whether you wouldn't be
-    #   better off just adding groups. If you decide you want a completely new
-    #   instance, make a copy of the [program:camcops] section, renaming the
-    #   copy, and change the following:
-    #
-    #   - the --config switch;
-    #   - the port or socket;
-    #   - the log files.
-    #
-    #   Then make the main web server point to the copy as well.
     #
     # NOTES ON THE SUPERVISOR CONFIG FILE AND ENVIRONMENT:
     #
@@ -532,65 +617,90 @@ def get_demo_supervisor_config(
     # - The downside of that is that indented comment blocks can join onto your
     #   commands! Beware that.
     # - You can't put quotes around the directory variable
-    #   http://stackoverflow.com/questions/10653590
+    #   (http://stackoverflow.com/questions/10653590).
     # - Python programs that are installed within a Python virtual environment
     #   automatically use the virtualenv's copy of Python via their shebang;
     #   you do not need to specify that by hand, nor the PYTHONPATH.
     # - The "environment" setting sets the OS environment. The "--env"
     #   parameter to gunicorn, if you use it, sets the WSGI environment.
+    # - Creating a group (see below; a.k.a. a "heterogeneous process group")
+    #   allows you to control all parts of CamCOPS together, as "camcops" in
+    #   this example (see
+    #   http://supervisord.org/configuration.html#group-x-section-settings).
+    #
+    # SPECIFIC EXTRA NOTES FOR CAMCOPS:
+    #
+    # - The MPLCONFIGDIR environment variable specifies a cache directory for 
+    #   matplotlib, which greatly speeds up its subsequent loading.
+    # - The typical "web server" user is "www-data" under Ubuntu Linux and
+    #   "apache" under CentOS.
 
-[program:camcops]
+[program:camcops_server]
 
-command = {CAMCOPS_EXECUTABLE}
-    serve_gunicorn
-    --config /etc/camcops/camcops.conf
-    --unix_domain_socket {specimen_socket_file}
-    --trusted_proxy_headers
-        HTTP_X_FORWARDED_HOST
-        HTTP_X_FORWARDED_SERVER
-        HTTP_X_FORWARDED_PORT
-        HTTP_X_FORWARDED_PROTO
-        HTTP_X_SCRIPT_NAME
-
-    # To run via a TCP socket, use e.g.:
-    #   --host 127.0.0.1 --port {specimen_internal_port}
-    # To run via a UNIX domain socket, use e.g.
-    #   --unix_domain_socket {specimen_socket_file}
+command = {CAMCOPS_EXECUTABLE} serve_gunicorn
+    --config {CAMCOPS_CONFIG}
 
 directory = {CAMCOPS_SERVER_DIRECTORY}
-
 environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
-
-    # MPLCONFIGDIR specifies a cache directory for matplotlib, which greatly
-    # speeds up its subsequent loading.
-
-user = www-data
-
-    # ... Ubuntu: typically www-data
-    # ... CentOS: typically apache
-
-stdout_logfile = /var/log/supervisor/camcops_out.log
-stderr_logfile = /var/log/supervisor/camcops_err.log
-
+user = {USER}
+stdout_logfile = {LOGDIR}/camcops_server.log
+redirect_stderr = true
 autostart = true
 autorestart = true
 startsecs = 30
 stopwaitsecs = 60
 
+[program:camcops_workers]
+
+command = {CAMCOPS_EXECUTABLE} launch_workers
+    --config {CAMCOPS_CONFIG}
+
+directory = {CAMCOPS_SERVER_DIRECTORY}
+environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
+user = {USER}
+stdout_logfile = {LOGDIR}/camcops_workers.log
+redirect_stderr = true
+autostart = true
+autorestart = true
+startsecs = 30
+stopwaitsecs = 60
+
+[program:camcops_scheduler]
+
+command = {CAMCOPS_EXECUTABLE} launch_scheduler
+    --config {CAMCOPS_CONFIG}
+
+directory = {CAMCOPS_SERVER_DIRECTORY}
+environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
+user = {USER}
+stdout_logfile = {LOGDIR}/camcops_scheduler.log
+redirect_stderr = true
+autostart = true
+autorestart = true
+startsecs = 30
+stopwaitsecs = 60
+
+[group:camcops]
+
+programs = camcops_server, camcops_workers, camcops_scheduler
+
     """.format(
+        CAMCOPS_CONFIG="/etc/camcops/camcops.conf",
         CAMCOPS_EXECUTABLE=CAMCOPS_EXECUTABLE,
         CAMCOPS_SERVER_DIRECTORY=CAMCOPS_SERVER_DIRECTORY,
         LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR=LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
+        LOGDIR="/var/log/supervisor",
         now=str(Pendulum.now()),
         specimen_internal_port=specimen_internal_port,
         specimen_socket_file=specimen_socket_file,
+        USER="www-data",
         version=CAMCOPS_SERVER_VERSION_STRING,
     )
 
 
 def get_demo_apache_config(
         urlbase: str = "/camcops",
-        specimen_internal_port: int = DEFAULT_INTERNAL_PORT,
+        specimen_internal_port: int = DEFAULT_PORT,
         specimen_socket_file: str = DEFAULT_SOCKET_FILENAME) -> str:
     """
     Returns a demo Apache HTTPD config file section applicable to CamCOPS.
@@ -1078,12 +1188,22 @@ class CamcopsConfig(object):
             return get_config_parameter(
                 parser, section, paramname, int, default)
 
+        def _get_optional_int(section: str, paramname: str) -> Optional[int]:
+            _s = get_config_parameter(parser, section, paramname, str, None)
+            if not _s:
+                return None
+            try:
+                return int(_s)
+            except (TypeError, ValueError):
+                log.warning(
+                    "Configuration variable {} not found or improper in "
+                    "section [{}]; using default of {!r}",
+                    paramname, section, None)
+                return None
+
         def _get_multiline(section: str, paramname: str) -> List[str]:
             return get_config_parameter_multiline(
                 parser, section, paramname, [])
-
-        cpm = ConfigParamMain
-        cpe = ConfigParamExportGeneral
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Open config file
@@ -1099,85 +1219,132 @@ class CamcopsConfig(object):
             parser.read_file(file)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Read from the config file: 1. Most stuff, in alphabetical order
+        # Main section (in alphabetical order)
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        s = CONFIG_FILE_MAIN_SECTION
+        s = CONFIG_FILE_SITE_SECTION
+        cs = ConfigParamSite
 
-        self.allow_insecure_cookies = _get_bool(s, cpm.ALLOW_INSECURE_COOKIES, False)  # noqa
+        self.allow_insecure_cookies = _get_bool(s, cs.ALLOW_INSECURE_COOKIES, False)  # noqa
 
-        self.camcops_logo_file_absolute = _get_str(s, cpm.CAMCOPS_LOGO_FILE_ABSOLUTE, DEFAULT_CAMCOPS_LOGO_FILE)  # noqa
-        self.ctv_filename_spec = _get_str(s, cpm.CTV_FILENAME_SPEC)
+        self.camcops_logo_file_absolute = _get_str(s, cs.CAMCOPS_LOGO_FILE_ABSOLUTE, DEFAULT_CAMCOPS_LOGO_FILE)  # noqa
+        self.ctv_filename_spec = _get_str(s, cs.CTV_FILENAME_SPEC)
 
-        self.db_url = parser.get(s, cpm.DB_URL)
+        self.db_url = parser.get(s, cs.DB_URL)
         # ... no default: will fail if not provided
-        self.db_echo = _get_bool(s, cpm.DB_ECHO, False)
-        self.client_api_loglevel = get_config_parameter_loglevel(parser, s, cpm.CLIENT_API_LOGLEVEL, logging.INFO)  # noqa
+        self.db_echo = _get_bool(s, cs.DB_ECHO, False)
+        self.client_api_loglevel = get_config_parameter_loglevel(parser, s, cs.CLIENT_API_LOGLEVEL, logging.INFO)  # noqa
         logging.getLogger("camcops_server.cc_modules.client_api").setLevel(self.client_api_loglevel)  # noqa
         # ... MUTABLE GLOBAL STATE (if relatively unimportant); *** fix
 
-        self.disable_password_autocomplete = _get_bool(s, cpm.DISABLE_PASSWORD_AUTOCOMPLETE, True)  # noqa
+        self.disable_password_autocomplete = _get_bool(s, cs.DISABLE_PASSWORD_AUTOCOMPLETE, True)  # noqa
 
-        self.extra_string_files = _get_multiline(s, cpm.EXTRA_STRING_FILES)
+        self.extra_string_files = _get_multiline(s, cs.EXTRA_STRING_FILES)
 
-        self.local_institution_url = _get_str(s, cpm.LOCAL_INSTITUTION_URL, DEFAULT_LOCAL_INSTITUTION_URL)  # noqa
-        self.local_logo_file_absolute = _get_str(s, cpm.LOCAL_LOGO_FILE_ABSOLUTE, DEFAULT_LOCAL_LOGO_FILE)  # noqa
-        self.lockout_threshold = _get_int(s, cpm.LOCKOUT_THRESHOLD, DEFAULT_LOCKOUT_THRESHOLD)  # noqa
-        self.lockout_duration_increment_minutes = _get_int(s, cpm.LOCKOUT_DURATION_INCREMENT_MINUTES, DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)  # noqa
+        self.local_institution_url = _get_str(s, cs.LOCAL_INSTITUTION_URL, DEFAULT_LOCAL_INSTITUTION_URL)  # noqa
+        self.local_logo_file_absolute = _get_str(s, cs.LOCAL_LOGO_FILE_ABSOLUTE, DEFAULT_LOCAL_LOGO_FILE)  # noqa
+        self.lockout_threshold = _get_int(s, cs.LOCKOUT_THRESHOLD, DEFAULT_LOCKOUT_THRESHOLD)  # noqa
+        self.lockout_duration_increment_minutes = _get_int(s, cs.LOCKOUT_DURATION_INCREMENT_MINUTES, DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)  # noqa
 
-        self.password_change_frequency_days = _get_int(s, cpm.PASSWORD_CHANGE_FREQUENCY_DAYS, DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS)  # noqa
-        self.patient_spec_if_anonymous = _get_str(s, cpm.PATIENT_SPEC_IF_ANONYMOUS, DEFAULT_PATIENT_SPEC_IF_ANONYMOUS)  # noqa
-        self.patient_spec = _get_str(s, cpm.PATIENT_SPEC)
+        self.password_change_frequency_days = _get_int(s, cs.PASSWORD_CHANGE_FREQUENCY_DAYS, DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS)  # noqa
+        self.patient_spec_if_anonymous = _get_str(s, cs.PATIENT_SPEC_IF_ANONYMOUS, DEFAULT_PATIENT_SPEC_IF_ANONYMOUS)  # noqa
+        self.patient_spec = _get_str(s, cs.PATIENT_SPEC)
         # currently not configurable, but easy to add in the future:
         self.plot_fontsize = DEFAULT_PLOT_FONTSIZE
 
-        session_timeout_minutes = _get_int(s, cpm.SESSION_TIMEOUT_MINUTES, DEFAULT_TIMEOUT_MINUTES)  # noqa
-        self.session_cookie_secret = _get_str(s, cpm.SESSION_COOKIE_SECRET)
+        session_timeout_minutes = _get_int(s, cs.SESSION_TIMEOUT_MINUTES, DEFAULT_TIMEOUT_MINUTES)  # noqa
+        self.session_cookie_secret = _get_str(s, cs.SESSION_COOKIE_SECRET)
         self.session_timeout = datetime.timedelta(minutes=session_timeout_minutes)  # noqa
-        self.snomed_task_xml_filename = _get_str(s, cpm.SNOMED_TASK_XML_FILENAME)  # noqa
-        self.snomed_icd9_xml_filename = _get_str(s, cpm.SNOMED_ICD9_XML_FILENAME)  # noqa
-        self.snomed_icd10_xml_filename = _get_str(s, cpm.SNOMED_ICD10_XML_FILENAME)  # noqa
+        self.snomed_task_xml_filename = _get_str(s, cs.SNOMED_TASK_XML_FILENAME)  # noqa
+        self.snomed_icd9_xml_filename = _get_str(s, cs.SNOMED_ICD9_XML_FILENAME)  # noqa
+        self.snomed_icd10_xml_filename = _get_str(s, cs.SNOMED_ICD10_XML_FILENAME)  # noqa
 
-        self.task_filename_spec = _get_str(s, cpm.TASK_FILENAME_SPEC)
-        self.tracker_filename_spec = _get_str(s, cpm.TRACKER_FILENAME_SPEC)
+        self.task_filename_spec = _get_str(s, cs.TASK_FILENAME_SPEC)
+        self.tracker_filename_spec = _get_str(s, cs.TRACKER_FILENAME_SPEC)
 
-        self.webview_loglevel = get_config_parameter_loglevel(parser, s, cpm.WEBVIEW_LOGLEVEL, logging.INFO)  # noqa
+        self.webview_loglevel = get_config_parameter_loglevel(parser, s, cs.WEBVIEW_LOGLEVEL, logging.INFO)  # noqa
         logging.getLogger().setLevel(self.webview_loglevel)  # root logger
         # ... MUTABLE GLOBAL STATE (if relatively unimportant) *** fix
-        self.wkhtmltopdf_filename = _get_str(s, cpm.WKHTMLTOPDF_FILENAME)
+        self.wkhtmltopdf_filename = _get_str(s, cs.WKHTMLTOPDF_FILENAME)
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # More validity checks for the main section
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # More validity checks for the main section:
         if not self.patient_spec_if_anonymous:
-            raise_missing(s, cpm.PATIENT_SPEC_IF_ANONYMOUS)
+            raise_missing(s, cs.PATIENT_SPEC_IF_ANONYMOUS)
         if not self.patient_spec:
-            raise_missing(s, cpm.PATIENT_SPEC)
+            raise_missing(s, cs.PATIENT_SPEC)
         if not self.session_cookie_secret:
-            raise_missing(s, cpm.SESSION_COOKIE_SECRET)
+            raise_missing(s, cs.SESSION_COOKIE_SECRET)
         if not self.task_filename_spec:
-            raise_missing(s, cpm.TASK_FILENAME_SPEC)
+            raise_missing(s, cs.TASK_FILENAME_SPEC)
         if not self.tracker_filename_spec:
-            raise_missing(s, cpm.TRACKER_FILENAME_SPEC)
+            raise_missing(s, cs.TRACKER_FILENAME_SPEC)
         if not self.ctv_filename_spec:
-            raise_missing(s, cpm.CTV_FILENAME_SPEC)
+            raise_missing(s, cs.CTV_FILENAME_SPEC)
+
+        # To prevent errors:
+        del s
+        del cs
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Read from the config file: 2. export section
+        # Web server/WSGI section
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ws = CONFIG_FILE_SERVER_SECTION
+        cw = ConfigParamServer
+
+        self.cherrypy_log_screen = _get_bool(ws, cw.CHERRYPY_LOG_SCREEN, True)
+        self.cherrypy_root_path = _get_str(ws, cw.CHERRYPY_ROOT_PATH, URL_PATH_ROOT)  # noqa
+        self.cherrypy_server_name = _get_str(ws, cw.CHERRYPY_SERVER_NAME, DEFAULT_CHERRYPY_SERVER_NAME)  # noqa
+        self.cherrypy_threads_max = _get_int(ws, cw.CHERRYPY_THREADS_MAX, DEFAULT_MAX_THREADS)  # noqa
+        self.cherrypy_threads_start = _get_int(ws, cw.CHERRYPY_THREADS_START, DEFAULT_START_THREADS)  # noqa
+        self.debug_reverse_proxy = _get_bool(ws, cw.DEBUG_REVERSE_PROXY, False)
+        self.debug_show_gunicorn_options = _get_bool(ws, cw.DEBUG_SHOW_GUNICORN_OPTIONS, False)  # noqa
+        self.debug_toolbar = _get_bool(ws, cw.DEBUG_TOOLBAR, False)
+        self.gunicorn_debug_reload = _get_bool(ws, cw.GUNICORN_DEBUG_RELOAD, False)  # noqa
+        self.gunicorn_num_workers = _get_int(ws, cw.GUNICORN_NUM_WORKERS, 2 * multiprocessing.cpu_count())  # noqa
+        self.gunicorn_timeout_s = _get_int(ws, cw.GUNICORN_TIMEOUT_S, DEFAULT_GUNICORN_TIMEOUT_S)  # noqa
+        self.host = _get_str(ws, cw.HOST, DEFAULT_HOST)
+        self.port = _get_int(ws, cw.PORT, DEFAULT_PORT)
+        self.proxy_http_host = _get_str(ws, cw.PROXY_HTTP_HOST)
+        self.proxy_remote_addr = _get_str(ws, cw.PROXY_REMOTE_ADDR)
+        self.proxy_rewrite_path_info = _get_bool(ws, cw.PROXY_REWRITE_PATH_INFO, False)  # noqa
+        self.proxy_script_name = _get_str(ws, cw.PROXY_SCRIPT_NAME)
+        self.proxy_server_name = _get_str(ws, cw.PROXY_SERVER_NAME)
+        self.proxy_server_port = _get_optional_int(ws, cw.PROXY_SERVER_PORT)
+        self.proxy_url_scheme = _get_str(ws, cw.PROXY_URL_SCHEME)
+        self.ssl_certificate = _get_str(ws, cw.SSL_CERTIFICATE)
+        self.ssl_private_key = _get_str(ws, cw.SSL_PRIVATE_KEY)
+        self.trusted_proxy_headers = _get_multiline(ws, cw.TRUSTED_PROXY_HEADERS)  # noqa
+        self.unix_domain_socket = _get_str(ws, cw.UNIX_DOMAIN_SOCKET)
+
+        for tph in self.trusted_proxy_headers:
+            if tph not in ReverseProxiedMiddleware.ALL_CANDIDATES:
+                raise ValueError(
+                    "Invalid {} value specified: was {!r}, options are "
+                    "{}".format(
+                        cw.TRUSTED_PROXY_HEADERS,
+                        tph,
+                        ReverseProxiedMiddleware.ALL_CANDIDATES))
+
+        del ws
+        del cw
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Export section
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         es = CONFIG_FILE_EXPORT_SECTION
+        ce = ConfigParamExportGeneral
 
-        self.celery_beat_extra_args = _get_multiline(es, cpe.CELERY_BEAT_EXTRA_ARGS)  # noqa
-        self.celery_beat_schedule_database = _get_str(es, cpe.CELERY_BEAT_SCHEDULE_DATABASE)  # noqa
+        self.celery_beat_extra_args = _get_multiline(es, ce.CELERY_BEAT_EXTRA_ARGS)  # noqa
+        self.celery_beat_schedule_database = _get_str(es, ce.CELERY_BEAT_SCHEDULE_DATABASE)  # noqa
         if not self.celery_beat_schedule_database:
-            raise_missing(es, cpe.CELERY_BEAT_SCHEDULE_DATABASE)
-        self.celery_broker_url = _get_str(es, cpe.CELERY_BROKER_URL, DEFAULT_CELERY_BROKER_URL)  # noqa
-        self.celery_worker_extra_args = _get_multiline(es, cpe.CELERY_WORKER_EXTRA_ARGS)  # noqa
+            raise_missing(es, ce.CELERY_BEAT_SCHEDULE_DATABASE)
+        self.celery_broker_url = _get_str(es, ce.CELERY_BROKER_URL, DEFAULT_CELERY_BROKER_URL)  # noqa
+        self.celery_worker_extra_args = _get_multiline(es, ce.CELERY_WORKER_EXTRA_ARGS)  # noqa
 
-        self.export_lockdir = _get_str(es, cpe.EXPORT_LOCKDIR)
+        self.export_lockdir = _get_str(es, ce.EXPORT_LOCKDIR)
         if not self.export_lockdir:
             raise_missing(es, ConfigParamExportGeneral.EXPORT_LOCKDIR)
 
-        self.export_recipient_names = _get_multiline(CONFIG_FILE_EXPORT_SECTION, cpe.RECIPIENTS)  # noqa
+        self.export_recipient_names = _get_multiline(CONFIG_FILE_EXPORT_SECTION, ce.RECIPIENTS)  # noqa
         # http://stackoverflow.com/questions/335695/lists-in-configparser
         duplicates = [name for name, count in
                       collections.Counter(self.export_recipient_names).items()
@@ -1195,10 +1362,10 @@ class CamcopsConfig(object):
         self._export_recipients = None  # type: List[ExportRecipientInfo]
         self._read_export_recipients(parser)
 
-        self.schedule_timezone = _get_str(es, cpe.SCHEDULE_TIMEZONE, DEFAULT_TIMEZONE)  # noqa
+        self.schedule_timezone = _get_str(es, ce.SCHEDULE_TIMEZONE, DEFAULT_TIMEZONE)  # noqa
 
         self.crontab_entries = []  # type: List[CrontabEntry]
-        crontab_lines = _get_multiline(es, cpe.SCHEDULE)
+        crontab_lines = _get_multiline(es, ce.SCHEDULE)
         for crontab_line in crontab_lines:
             if crontab_line.startswith("#"):  # comment line
                 continue
@@ -1206,8 +1373,11 @@ class CamcopsConfig(object):
             if crontab_entry.content not in self.export_recipient_names:
                 raise ValueError(
                     "{} setting exists for non-existent recipient {}".format(
-                        cpe.SCHEDULE, crontab_entry.content))
+                        ce.SCHEDULE, crontab_entry.content))
             self.crontab_entries.append(crontab_entry)
+
+        del es
+        del ce
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Other attributes

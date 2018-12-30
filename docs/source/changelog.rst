@@ -1744,6 +1744,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - **Breaking changes:**
 
+    - ``[server]`` config file section renamed to ``[site]`` and a new
+      ``[server]`` section added.
+    - Python web server options moved from command-line to config file.
     - ``[recipients]`` config file section renamed ``[export]``
     - ``HL7_LOCKFILE`` system changed to ``EXPORT_LOCKDIR`` and moved from the
       ``[server]`` to the ``[export]`` section

@@ -31,12 +31,12 @@ camcops_server/camcops_server.py
 from argparse import (
     ArgumentParser,
     ArgumentDefaultsHelpFormatter,
-    Namespace,
     RawDescriptionHelpFormatter,
 )
 import logging
 import os
 import multiprocessing
+import pprint
 import sys
 from typing import List, Optional, TYPE_CHECKING
 
@@ -54,7 +54,7 @@ from cardinal_pythonlib.sqlalchemy.dialect import (
     SqlaDialectName,
 )
 from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
-from cardinal_pythonlib.wsgi.reverse_proxied_mw import ReverseProxiedMiddleware
+from cardinal_pythonlib.wsgi.reverse_proxied_mw import ReverseProxiedConfig
 
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
@@ -284,68 +284,72 @@ def _cmd_show_export_queue(recipient_names: List[str] = None,
 # Web server
 # -----------------------------------------------------------------------------
 
-def _make_wsgi_app_from_argparse_args(args: Namespace) -> "Router":
+def make_wsgi_app_from_config() -> "Router":
+    """
+    Reads the config file and creates a WSGI application.
+    """
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
-    return core.make_wsgi_app_from_argparse_args(args=args)
+    cfg = get_default_config_from_os_env()
+    reverse_proxied_config = ReverseProxiedConfig(
+        trusted_proxy_headers=cfg.trusted_proxy_headers,
+        http_host=cfg.proxy_http_host,
+        remote_addr=cfg.proxy_remote_addr,
+        script_name=(
+            cfg.proxy_script_name or
+            os.environ.get(WsgiEnvVar.SCRIPT_NAME, "")
+        ),
+        server_port=cfg.proxy_server_port,
+        server_name=cfg.proxy_server_name,
+        url_scheme=cfg.proxy_url_scheme,
+        rewrite_path_info=cfg.proxy_rewrite_path_info,
+    )
+    return core.make_wsgi_app(debug_toolbar=cfg.debug_toolbar,
+                              reverse_proxied_config=reverse_proxied_config,
+                              debug_reverse_proxy=cfg.debug_reverse_proxy)
 
 
-def _test_serve_pyramid(application: "Router",
-                        host: str = DEFAULT_HOST,
-                        port: int = DEFAULT_PORT) -> None:
+def _test_serve_pyramid() -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    application = make_wsgi_app_from_config()
+    cfg = get_default_config_from_os_env()
     core.test_serve_pyramid(application=application,
-                            host=host,
-                            port=port)
+                            host=cfg.host,
+                            port=cfg.port)
 
 
-def _serve_cherrypy(application: "Router",
-                    host: str,
-                    port: int,
-                    unix_domain_socket_filename: str,
-                    threads_start: int,
-                    threads_max: int,  # -1 for no limit
-                    server_name: str,
-                    log_screen: bool,
-                    ssl_certificate: Optional[str],
-                    ssl_private_key: Optional[str],
-                    root_path: str) -> None:
+def _serve_cherrypy() -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    application = make_wsgi_app_from_config()
+    cfg = get_default_config_from_os_env()
     core.serve_cherrypy(
         application=application,
-        host=host,
-        port=port,
-        unix_domain_socket_filename=unix_domain_socket_filename,
-        threads_start=threads_start,
-        threads_max=threads_max,
-        server_name=server_name,
-        log_screen=log_screen,
-        ssl_certificate=ssl_certificate,
-        ssl_private_key=ssl_private_key,
-        root_path=root_path)
+        host=cfg.host,
+        port=cfg.port,
+        unix_domain_socket_filename=cfg.unix_domain_socket,
+        threads_start=cfg.cherrypy_threads_start,
+        threads_max=cfg.cherrypy_threads_max,
+        server_name=cfg.cherrypy_server_name,
+        log_screen=cfg.cherrypy_root_path,
+        ssl_certificate=cfg.ssl_certificate,
+        ssl_private_key=cfg.ssl_private_key,
+        root_path=cfg.cherrypy_root_path)
 
 
-def _serve_gunicorn(application: "Router",
-                    host: str,
-                    port: int,
-                    unix_domain_socket_filename: str,
-                    num_workers: int,
-                    ssl_certificate: Optional[str],
-                    ssl_private_key: Optional[str],
-                    reload: bool = False,
-                    timeout_s: int = 30,
-                    debug_show_gunicorn_options: bool = False) -> None:
+def _serve_gunicorn() -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    application = make_wsgi_app_from_config()
+    cfg = get_default_config_from_os_env()
     core.serve_gunicorn(
         application=application,
-        host=host,
-        port=port,
-        unix_domain_socket_filename=unix_domain_socket_filename,
-        num_workers=num_workers,
-        ssl_certificate=ssl_certificate,
-        ssl_private_key=ssl_private_key,
-        reload=reload,
-        timeout_s=timeout_s,
-        debug_show_gunicorn_options=debug_show_gunicorn_options)
+        host=cfg.host,
+        port=cfg.port,
+        unix_domain_socket_filename=cfg.unix_domain_socket,
+        num_workers=cfg.gunicorn_num_workers,
+        ssl_certificate=cfg.ssl_certificate,
+        ssl_private_key=cfg.ssl_private_key,
+        reload=cfg.gunicorn_debug_reload,
+        timeout_s=cfg.gunicorn_timeout_s,
+        debug_show_gunicorn_options=cfg.debug_show_gunicorn_options)
 
 
 # -----------------------------------------------------------------------------
@@ -469,118 +473,6 @@ def add_req_named(sp: ArgumentParser, switch: str, help: str,
     if not reqgroup:
         reqgroup = sp.add_argument_group(_REQNAMED)
     reqgroup.add_argument(switch, required=True, action=action, help=help)
-
-
-def add_wsgi_options(sp: ArgumentParser) -> None:
-    """
-    Adds to the specified :class:`ArgumentParser` all the options that we
-    always want for any WSGI server.
-    """
-    sp.add_argument(
-        "--trusted_proxy_headers", type=str, nargs="*",
-        help=(
-            "Trust these WSGI environment variables for when the server "
-            "is behind a reverse proxy (e.g. an Apache front-end web "
-            "server). Options: {!r}".format(
-                ReverseProxiedMiddleware.ALL_CANDIDATES)
-        )
-    )
-    sp.add_argument(
-        '--proxy_http_host', type=str, default=None,
-        help=(
-            "Option to set the WSGI HTTP host directly. "
-            "This affects the WSGI variable {w}. If not specified, "
-            "trusted variables within {v!r} will be used.".format(
-                w=WsgiEnvVar.HTTP_HOST,
-                v=ReverseProxiedMiddleware.CANDIDATES_HTTP_HOST,
-            )
-        )
-    )
-    sp.add_argument(
-        '--proxy_remote_addr', type=str, default=None,
-        help=(
-            "Option to set the WSGI remote address directly. "
-            "This affects the WSGI variable {w}. If not specified, "
-            "trusted variables within {v!r} will be used.".format(
-                w=WsgiEnvVar.REMOTE_ADDR,
-                v=ReverseProxiedMiddleware.CANDIDATES_REMOTE_ADDR,
-            )
-        )
-    )
-    sp.add_argument(
-        "--proxy_script_name", type=str, default=None,
-        help=(
-            "Path at which this script is mounted. Set this if you are "
-            "hosting this CamCOPS instance at a non-root path, unless you "
-            "set trusted WSGI headers instead. For example, "
-            "if you are running an Apache server and want this instance "
-            "of CamCOPS to appear at /somewhere/camcops, then (a) "
-            "configure your Apache instance to proxy requests to "
-            "/somewhere/camcops/... to this server (e.g. via an internal "
-            "TCP/IP port or UNIX socket) and specify this option. If this "
-            "option is not set, then the OS environment variable {sn} "
-            "will be checked as well, and if that is not set, trusted "
-            "variables within {v!r} will be used. This option affects the "
-            "WSGI variables {sn} and {pi}.".format(
-                sn=WsgiEnvVar.SCRIPT_NAME,
-                pi=WsgiEnvVar.PATH_INFO,
-                v=ReverseProxiedMiddleware.CANDIDATES_SCRIPT_NAME,
-            )
-        )
-    )
-    sp.add_argument(
-        '--proxy_server_port', type=int, default=None,
-        help=(
-            "Option to set the WSGI server port directly. "
-            "This affects the WSGI variable {w}. If not specified, "
-            "trusted variables within {v!r} will be used.".format(
-                w=WsgiEnvVar.SERVER_PORT,
-                v=ReverseProxiedMiddleware.CANDIDATES_SERVER_PORT,
-            )
-        )
-    )
-    sp.add_argument(
-        '--proxy_server_name', type=str, default=None,
-        help=(
-            "Option to set the WSGI server name directly. "
-            "This affects the WSGI variable {w}. If not specified, "
-            "trusted variables within {v!r} will be used.".format(
-                w=WsgiEnvVar.SERVER_NAME,
-                v=ReverseProxiedMiddleware.CANDIDATES_SERVER_NAME,
-            )
-        )
-    )
-    sp.add_argument(
-        '--proxy_url_scheme', type=str, default=None,
-        help=(
-            "Option to set the WSGI scheme (e.g. http, https) directly. "
-            "This affects the WSGI variable {w}. If not specified, "
-            "trusted variables within {v!r} will be used.".format(
-                w=WsgiEnvVar.WSGI_URL_SCHEME,
-                v=ReverseProxiedMiddleware.CANDIDATES_URL_SCHEME,
-            )
-        )
-    )
-    sp.add_argument(
-        '--proxy_rewrite_path_info', action="store_true",
-        help=(
-            "If SCRIPT_NAME is rewritten, this option causes PATH_INFO to "
-            "be rewritten, if it starts with SCRIPT_NAME, to strip off "
-            "SCRIPT_NAME. Appropriate for some front-end web browsers "
-            "with limited reverse proxying support (but do not use for "
-            "Apache with ProxyPass, because that rewrites incoming URLs "
-            "properly)."
-        )
-    )
-    sp.add_argument(
-        '--debug_reverse_proxy', action="store_true",
-        help="For --behind_reverse_proxy: show debugging information as "
-             "WSGI variables are rewritten."
-    )
-    sp.add_argument(
-        '--debug_toolbar', action="store_true",
-        help="Enable the Pyramid debug toolbar"
-    )
 
 
 def camcops_main() -> None:
@@ -952,144 +844,22 @@ def camcops_main() -> None:
     # Serve via CherryPy
     serve_cp_parser = add_sub(
         subparsers, "serve_cherrypy",
-        help="Start web server (via CherryPy)")
-    serve_cp_parser.add_argument(
-        "--serve", action="store_true",
-        help="")
-    serve_cp_parser.add_argument(
-        '--host', type=str, default=DEFAULT_HOST,
-        help="hostname to listen on")
-    serve_cp_parser.add_argument(
-        '--port', type=int, default=DEFAULT_PORT,
-        help="port to listen on")
-    serve_cp_parser.add_argument(
-        '--unix_domain_socket', type=str, default="",
-        help="UNIX domain socket to listen on (overrides host/port if "
-             "specified)")
-    serve_cp_parser.add_argument(
-        "--server_name", type=str, default="localhost",
-        help="CherryPy's SERVER_NAME environ entry")
-    serve_cp_parser.add_argument(
-        "--threads_start", type=int, default=10,
-        help="Number of threads for server to start with")
-    serve_cp_parser.add_argument(
-        "--threads_max", type=int, default=DEFAULT_MAX_THREADS,
-        help="Maximum number of threads for server to use (-1 for no limit) "
-             "(BEWARE exceeding the permitted number of database connections)")
-    serve_cp_parser.add_argument(
-        "--ssl_certificate", type=str,
-        help="SSL certificate file "
-             "(e.g. /etc/ssl/certs/ssl-cert-snakeoil.pem)")
-    serve_cp_parser.add_argument(
-        "--ssl_private_key", type=str,
-        help="SSL private key file "
-             "(e.g. /etc/ssl/private/ssl-cert-snakeoil.key)")
-    serve_cp_parser.add_argument(
-        "--log_screen", dest="log_screen", action="store_true",
-        help="Log access requests etc. to terminal (default)")
-    serve_cp_parser.add_argument(
-        "--no_log_screen", dest="log_screen", action="store_false",
-        help="Don't log access requests etc. to terminal")
-    serve_cp_parser.set_defaults(log_screen=True)
-    serve_cp_parser.add_argument(
-        "--root_path", type=str, default=URL_PATH_ROOT,
-        help=(
-            "Root path to serve CRATE at, WITHIN this CherryPy web server "
-            "instance. (There is unlikely to be a reason to use something "
-            "other than '/'; do not confuse this with the mount point "
-            "within a wider, e.g. Apache, configuration, which is set "
-            "instead by the WSGI variable {}; see the "
-            "--trusted_proxy_headers and --proxy_script_name "
-            "options.)".format(WsgiEnvVar.SCRIPT_NAME)
-        )
-    )
-    add_wsgi_options(serve_cp_parser)
-    serve_cp_parser.set_defaults(func=lambda args: _serve_cherrypy(
-        application=_make_wsgi_app_from_argparse_args(args),
-        host=args.host,
-        port=args.port,
-        threads_start=args.threads_start,
-        threads_max=args.threads_max,
-        unix_domain_socket_filename=args.unix_domain_socket,
-        server_name=args.server_name,
-        log_screen=args.log_screen,
-        ssl_certificate=args.ssl_certificate,
-        ssl_private_key=args.ssl_private_key,
-        root_path=args.root_path,
-    ))
+        help="Start web server via CherryPy")
+    serve_cp_parser.set_defaults(func=lambda args: _serve_cherrypy())
 
     # Serve via Gunicorn
     cpu_count = multiprocessing.cpu_count()
     serve_gu_parser = add_sub(
         subparsers, "serve_gunicorn",
-        help="Start web server (via Gunicorn) (not available under Windows)")
-    serve_gu_parser.add_argument(
-        "--serve", action="store_true",
-        help="")
-    serve_gu_parser.add_argument(
-        '--host', type=str, default=DEFAULT_HOST,
-        help="hostname to listen on")
-    serve_gu_parser.add_argument(
-        '--port', type=int, default=DEFAULT_PORT,
-        help="port to listen on")
-    serve_gu_parser.add_argument(
-        '--unix_domain_socket', type=str, default="",
-        help="UNIX domain socket to listen on (overrides host/port if "
-             "specified)")
-    serve_gu_parser.add_argument(
-        "--num_workers", type=int, default=cpu_count * 2,
-        help="Number of worker processes for server to use")
-    serve_gu_parser.add_argument(
-        "--debug_reload", action="store_true",
-        help="Debugging option: reload Gunicorn upon code change")
-    serve_gu_parser.add_argument(
-        "--ssl_certificate", type=str,
-        help="SSL certificate file "
-             "(e.g. /etc/ssl/certs/ssl-cert-snakeoil.pem)")
-    serve_gu_parser.add_argument(
-        "--ssl_private_key", type=str,
-        help="SSL private key file "
-             "(e.g. /etc/ssl/private/ssl-cert-snakeoil.key)")
-    serve_gu_parser.add_argument(
-        "--timeout", type=int, default=30,
-        help="Gunicorn worker timeout (s)"
-    )
-    serve_gu_parser.add_argument(
-        "--debug_show_gunicorn_options", action="store_true",
-        help="Debugging option: show possible Gunicorn settings"
-    )
-    serve_gu_parser.set_defaults(log_screen=True)
-    add_wsgi_options(serve_gu_parser)
-    serve_gu_parser.set_defaults(func=lambda args: _serve_gunicorn(
-        application=_make_wsgi_app_from_argparse_args(args),
-        host=args.host,
-        port=args.port,
-        num_workers=args.num_workers,
-        unix_domain_socket_filename=args.unix_domain_socket,
-        ssl_certificate=args.ssl_certificate,
-        ssl_private_key=args.ssl_private_key,
-        reload=args.debug_reload,
-        timeout_s=args.timeout,
-        debug_show_gunicorn_options=args.debug_show_gunicorn_options,
-    ))
+        help="Start web server via Gunicorn (not available under Windows)")
+    serve_gu_parser.set_defaults(func=lambda args: _serve_gunicorn())
 
     # Serve via the Pyramid test server
     serve_pyr_parser = add_sub(
         subparsers, "serve_pyramid",
-        help="Test web server (single-thread, single-process, HTTP-only, "
-             "Pyramid; for development use only")
-    serve_pyr_parser.add_argument(
-        '--host', type=str, default=DEFAULT_HOST,
-        help="Hostname to listen on")
-    serve_pyr_parser.add_argument(
-        '--port', type=int, default=DEFAULT_PORT,
-        help="Port to listen on")
-    add_wsgi_options(serve_pyr_parser)
-    serve_pyr_parser.set_defaults(func=lambda args: _test_serve_pyramid(
-        application=_make_wsgi_app_from_argparse_args(args),
-        host=args.host,
-        port=args.port
-    ))
+        help="Start test web server via Pyramid (single-thread, "
+             "single-process, HTTP-only; for development use only)")
+    serve_pyr_parser.set_defaults(func=lambda args: _test_serve_pyramid())
 
     # -------------------------------------------------------------------------
     # Preprocessing options
@@ -1208,22 +978,23 @@ def camcops_main() -> None:
 # =============================================================================
 # CamCOPS server version {version}
 # Created by Rudolf Cardinal. See {url}
-# Python interpreter: {interpreter!r}
 # =============================================================================
 """,
         version=CAMCOPS_SERVER_VERSION,
         url=CAMCOPS_URL,
-        interpreter=sys.executable,
     )
     log.debug(
         """
 # -----------------------------------------------------------------------------
+# Python interpreter: {interpreter!r}
 # This program: {thisprog!r}
-# Command-line arguments: {progargs!r}
+# Command-line arguments:
+{progargs}
 # -----------------------------------------------------------------------------
 """,
+        interpreter=sys.executable,
         thisprog=__file__,
-        progargs=progargs,
+        progargs=pprint.pformat(vars(progargs)),
     )
     if DEBUG_LOG_CONFIG or DEBUG_RUN_WITH_PDB:
         log.warning("Debugging options enabled!")
