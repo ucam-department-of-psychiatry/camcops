@@ -178,7 +178,7 @@ def decode_values(valuelist: str) -> List[Any]:
 def tsv_from_query(rows: Iterable[Iterable[Any]],
                    descriptions: Iterable[str],
                    dialect: str = "excel-tab") -> str:
-    """
+    r"""
     Converts rows from an SQL query result to TSV format.
 
     For the dialect, see

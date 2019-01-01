@@ -343,7 +343,10 @@ class ExportedTask(Base):
             self.failure_reasons = [msg]
         else:
             # Do not use .append(); that won't mark the record as dirty.
-            self.failure_reasons += [msg]
+            # Don't use "+="; similarly, that calls list.__iadd__(), not
+            # InstrumentedAttribute.__set__().
+            # noinspection PyAugmentAssignment
+            self.failure_reasons = self.failure_reasons + [msg]
 
     def finish(self) -> None:
         """

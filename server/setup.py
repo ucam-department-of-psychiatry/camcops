@@ -105,7 +105,7 @@ INSTALL_REQUIRES = [
     'pexpect==4.6.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt; now works under Windows too  # noqa
-    'Pygments==2.2.0',  # Syntax highlighting for introspection/DDL
+    'Pygments==2.3.1',  # Syntax highlighting for introspection/DDL
     'PyMySQL==0.7.1',
     # ... for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may break Pendulum handling *** FIX THIS *** # noqa
     'PyPDF2==1.26.0',  # Used by rnc_pdf.py
@@ -290,8 +290,8 @@ if getattr(our_args, EXTRAS_ARG):
     MANIFEST_LINES = ['include camcops_server/' + x for x in extra_files]
     with open(MANIFEST_FILE, 'wt') as manifest:
         manifest.writelines([
-            "# This is an AUTOCREATED file, MANIFEST.in; see setup.py "
-            "and DO NOT EDIT BY HAND"])
+            "# This is an AUTOCREATED file, MANIFEST.in; see "
+            "server/setup.py and DO NOT EDIT BY HAND"])
         manifest.write("\n\n" + "\n".join(MANIFEST_LINES) + "\n")
 
     # -------------------------------------------------------------------------
@@ -299,8 +299,8 @@ if getattr(our_args, EXTRAS_ARG):
     # -------------------------------------------------------------------------
     with open(PIP_REQ_FILE, "w") as req_file:
         req_file.writelines([
-            "# This is an AUTOCREATED file, requirements.txt; see setup.py "
-            "and DO NOT EDIT BY HAND"])
+            "# This is an AUTOCREATED file, requirements.txt; see "
+            "server/setup.py and DO NOT EDIT BY HAND"])
         req_file.write("\n\n" + "\n".join(INSTALL_REQUIRES) + "\n")
 
 

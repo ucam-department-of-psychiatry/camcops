@@ -1690,6 +1690,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/cherrypy/cherrypy/issues/1618; nope, still not fixed. Must
   be soon...
 
+- ``Pygments==2.2.0`` to ``Pygments==2.3.1``, in the hope that it fixes some
+  C++ lexing failures that work in the online Pygments demo
+  (http://pygments.org/). Nope...
+
 - Removed relative imports, as per PEP8 and
   https://stackoverflow.com/questions/4209641/absolute-vs-explicit-relative-import-of-python-module.
 
@@ -1709,7 +1713,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   :func:`camcops_server.cc_modules.cc_convert.decode_single_value`. This
   function reverses ``convert::toSqlLiteral()`` in the client.
 
-- Improved export facilities.
+- Substantially improved export facilities, including whole-database export,
+  push exports, and e-mail exports.
 
   - Design decision: keep details in config file, or shift to web-based
     configuration?
@@ -1744,13 +1749,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - **Breaking changes:**
 
-    - ``[server]`` config file section renamed to ``[site]`` and a new
-      ``[server]`` section added.
-    - Python web server options moved from command-line to config file.
+    - ``[server]`` config file section renamed to ``[site]``.
+    - Python web server options moved from command-line to config file, in a
+      new ``[server]`` section.
     - ``[recipients]`` config file section renamed ``[export]``
-    - ``HL7_LOCKFILE`` system changed to ``EXPORT_LOCKDIR`` and moved from the
-      ``[server]`` to the ``[export]`` section
+    - ``HL7_LOCKFILE`` changed to a broader ``EXPORT_LOCKDIR`` system and moved
+      from the ``[server]`` to the ``[export]`` section
     - Then other changes to the actual export definitions (see docs for the
-      :ref:`server config file <server_config_file>`).
-
-  - **MAKE MORE INTERNAL FUNCTIONS USE THE TaskExportOptions CLASS.**
+      :ref:`server config file <server_config_file>`), each in sections named
+      ``[recipient:XXX]`` in the config file.
+    - Database drops old HL7-specific tables and adds a new set of export
+      tables (also: more extensible for future methods).
