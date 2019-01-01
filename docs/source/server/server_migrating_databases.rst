@@ -26,6 +26,7 @@
 .. _ODBC: https://en.wikipedia.org/wiki/Open_Database_Connectivity
 .. _PostgreSQL: https://www.postgresql.org/
 .. _SQLite: https://www.sqlite.org/
+.. _SQLiteStudio: https://sqlitestudio.pl/
 .. _SQL Server: https://www.microsoft.com/sql-server/
 .. _SQL Server Integration Services: https://docs.microsoft.com/en-us/sql/integration-services/sql-server-integration-services
 .. _SQL Server Management Studio: https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms
@@ -35,7 +36,8 @@
 Server: migrating databases
 ===========================
 
-.. todo:: Add to documentation about database migrations.
+As always, **back up your data first!**. Here are some suggestions for useful
+database tools and a summary of automatic migration tools in CamCOPS.
 
 Database-specific tools
 -----------------------
@@ -57,6 +59,9 @@ SQL Server
   Integration Services`_ (SSIS). For specimen use, see e.g.
   https://www.sqlshack.com/migrate-mysql-tables-sql-server-using-sql-server-migration-assistant-ssma-ssis/.
 
+SQLite
+
+- A good one is SQLiteStudio_.
 
 Generic tools
 -------------
@@ -119,3 +124,11 @@ These include:
   #. Then launch SQuirreL.
 
   #. Still fails, silently, with SQuirreL 3.8.1 under Ubuntu 18.04.
+
+Merging old CamCOPS databases
+-----------------------------
+
+If you have several old CamCOPS databases and you want to merge them, so that
+each old database is represented by a distinct group (or groups) in the new
+database, see the ``camcops_server merge_db`` command, described in
+:ref:`CamCOPS command-line tools <camcops_cli>`.

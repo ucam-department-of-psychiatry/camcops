@@ -14,6 +14,5 @@ from camcops_server.cc_modules.cc_pyramid import Routes
 
 <h3>Export logs</h3>
 <ul>
-    <li><a href="${request.route_url(Routes.OFFER_HL7_MESSAGE_LOG)}">HL7 message log</a></li>
-    <li><a href="${request.route_url(Routes.OFFER_HL7_RUN_LOG)}">HL7 run log</a></li>
+    <li><a href="${request.route_url(Routes.OFFER_EXPORTED_TASK_LIST)}">Exported task log</a></li>
 </ul>

@@ -1031,7 +1031,7 @@ class Task(GenericTabletRecordMixin, Base):
         dbsession = req.dbsession
         dbsession.add(sn)
         self.audit(req, "Special note applied manually", from_console)
-        self.delete_from_hl7_message_log(req, from_console)
+        self.cancel_from_export_log(req, from_console)
 
     # -------------------------------------------------------------------------
     # Clinician
@@ -1199,6 +1199,7 @@ class Task(GenericTabletRecordMixin, Base):
         - any extra ones offered by the task
         """
         obr_segment = make_obr_segment(self)
+        export_options = recipient_def.get_task_export_options()
         obx_segment = make_obx_segment(
             req,
             self,
@@ -1206,7 +1207,7 @@ class Task(GenericTabletRecordMixin, Base):
             observation_identifier=self.tablename + "_" + str(self._pk),
             observation_datetime=self.get_creation_datetime(),
             responsible_observer=self.get_clinician_name(),
-            xml_field_comments=recipient_def.xml_field_comments
+            export_options=export_options,
         )
         return [
             obr_segment,
@@ -1224,31 +1225,31 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return []
 
-    def delete_from_hl7_message_log(self, req: "CamcopsRequest",
-                                    from_console: bool = False) -> None:
+    def cancel_from_export_log(self, req: "CamcopsRequest",
+                               from_console: bool = False) -> None:
         """
-        Erases the object from the HL7 message log (so it will be resent).
-
-        .. todo: *** FIX delete_from_hl7_message_log
+        Marks all instances of this task as "cancelled" in the export log, so
+        it will be resent.
         """
         if self._pk is None:
             return
-        from camcops_server.cc_modules.cc_exportmodels import ExportedTaskHL7Message  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_exportmodels import ExportedTask  # delayed import  # noqa
         # noinspection PyUnresolvedReferences
-        statement = update(ExportedTaskHL7Message.__table__)\
-            .where(ExportedTaskHL7Message.basetable == self.tablename)\
-            .where(ExportedTaskHL7Message.serverpk == self._pk)\
-            .where(not_(ExportedTaskHL7Message.cancelled) |
-                   ExportedTaskHL7Message.cancelled.is_(None))\
+        statement = (
+            update(ExportedTask.__table__)
+            .where(ExportedTask.basetable == self.tablename)
+            .where(ExportedTask.task_server_pk == self._pk)
+            .where(not_(ExportedTask.cancelled) |
+                   ExportedTask.cancelled.is_(None))
             .values(cancelled=1,
                     cancelled_at_utc=req.now_utc)
+        )
         # ... this bit: ... AND (NOT cancelled OR cancelled IS NULL) ...:
         # https://stackoverflow.com/questions/37445041/sqlalchemy-how-to-filter-column-which-contains-both-null-and-integer-values  # noqa
         req.dbsession.execute(statement)
         self.audit(
             req,
-            "Task cancelled in outbound HL7 message log (may trigger "
-            "resending)",
+            "Task cancelled in export log (may trigger resending)",
             from_console
         )
 
@@ -1286,7 +1287,7 @@ class Task(GenericTabletRecordMixin, Base):
             task.manually_erase_with_dependants(req)
         # Audit and clear HL7 message log
         self.audit(req, "Task details erased manually")
-        self.delete_from_hl7_message_log(req)
+        self.cancel_from_export_log(req)
 
     def is_erased(self) -> bool:
         """
@@ -1550,12 +1551,13 @@ class Task(GenericTabletRecordMixin, Base):
             an XML UTF-8 document representing the task.
 
         """  # noqa
+        options = options or TaskExportOptions()
         tree = self.get_xml_root(req=req, options=options)
         return get_xml_document(
             tree,
             indent_spaces=indent_spaces,
             eol=eol,
-            include_comments=options.include_comments
+            include_comments=options.xml_include_comments,
         )
 
     def get_xml_root(self,
@@ -2526,7 +2528,7 @@ class TaskTests(DemoDatabaseTestCase):
             # Views
             for page in t.get_tsv_pages(req):
                 self.assertIsInstance(page.get_tsv(), str)
-            # *** replace test when anonymous export redone: get_cris_dd_rows
+            # todo: replace test when anonymous export redone: get_cris_dd_rows
             self.assertIsInstance(t.get_xml(req), str)
             self.assertIsInstance(t.get_html(req), str)
             self.assertIsInstance(t.get_pdf(req), bytes)
@@ -2538,3 +2540,18 @@ class TaskTests(DemoDatabaseTestCase):
                                    document_type="some_doc_type"),
                 str
             )
+
+            # Special operations
+            t.apply_special_note(req, "Debug: Special note! (1)",
+                                 from_console=True)
+            t.apply_special_note(req, "Debug: Special note! (2)",
+                                 from_console=False)
+            self.assertIsInstance(t.special_notes, list)
+            t.cancel_from_export_log(req, from_console=True)
+            t.cancel_from_export_log(req, from_console=False)
+
+            # Destructive special operations
+            self.assertFalse(t.is_erased())
+            t.manually_erase(req)
+            self.assertTrue(t.is_erased())
+            t.delete_entirely(req)

@@ -41,7 +41,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <h3>Group administrator options</h3>
     <ul>
         <li><a href="${request.route_url(Routes.VIEW_ALL_USERS)}">User management</a></li>
-        <li><a href="${request.route_url(Routes.VIEW_USER_EMAILS)}">E-mail addresses of your users</a></li>
+        <li><a href="${request.route_url(Routes.VIEW_USER_EMAIL_ADDRESSES)}">E-mail addresses of your users</a></li>
         <li><a href="${request.route_url(Routes.FORCIBLY_FINALIZE)}">Forcibly preserve/finalize records for a device</a></li>
         <li><a href="${request.route_url(Routes.DELETE_PATIENT)}">Delete patient entirely</a></li>
     </ul>

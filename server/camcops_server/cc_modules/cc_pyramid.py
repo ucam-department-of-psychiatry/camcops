@@ -179,8 +179,7 @@ class ViewParam(object):
     GROUP_IDS = "group_ids"
     HL7_ID_TYPE = "hl7_id_type"
     HL7_ASSIGNING_AUTHORITY = "hl7_assigning_authority"
-    HL7_MSG_ID = "hl7_msg_id"
-    HL7_RUN_ID = "hl7_run_id"
+    ID = "id"  # generic PK
     ID_DEFINITIONS = "id_definitions"
     ID_REFERENCES = "id_references"
     IDNUM_VALUE = "idnum_value"
@@ -205,6 +204,7 @@ class ViewParam(object):
     COMPLETE_ONLY = "complete_only"
     PAGE = "page"
     PASSWORD = "password"
+    RECIPIENT_NAME = "recipient_name"
     REDIRECT_URL = "redirect_url"
     REPORT_ID = "report_id"
     REMOTE_IP_ADDR = "remote_ip_addr"
@@ -524,10 +524,9 @@ class Routes(object):
     ADD_SPECIAL_NOTE = "add_special_note"
     ADD_USER = "add_user"
     AUDIT_MENU = "audit_menu"
-    BUGFIX_DEFORM_MISSING_GLYPHS = "bugfix_deform_missing_glyphs"
-    # ... test by visiting the Task Filters page
-    CHANGE_OWN_PASSWORD = "change_own_password"
+    BUGFIX_DEFORM_MISSING_GLYPHS = "bugfix_deform_missing_glyphs"  # ... test by visiting the Task Filters page  # noqa
     CHANGE_OTHER_PASSWORD = "change_other_password"
+    CHANGE_OWN_PASSWORD = "change_own_password"
     CHOOSE_CTV = "choose_ctv"
     CHOOSE_TRACKER = "choose_tracker"
     CLIENT_API = "client_api"
@@ -550,8 +549,7 @@ class Routes(object):
     LOGIN = "login"
     LOGOUT = "logout"
     OFFER_AUDIT_TRAIL = "offer_audit_trail"
-    OFFER_HL7_MESSAGE_LOG = "offer_hl7_message_log"
-    OFFER_HL7_RUN_LOG = "offer_hl7_run_log"
+    OFFER_EXPORTED_TASK_LIST = "offer_exported_task_list"
     OFFER_REGENERATE_SUMMARIES = "offer_regenerate_summary_tables"
     OFFER_REPORT = "offer_report"
     OFFER_SQL_DUMP = "offer_sql_dump"
@@ -560,8 +558,8 @@ class Routes(object):
     REPORT = "report"
     REPORTS_MENU = "reports_menu"
     SET_FILTERS = "set_filters"
-    SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
     SET_OTHER_USER_UPLOAD_GROUP = "set_other_user_upload_group"
+    SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
     SQL_DUMP = "sql_dump"
     TASK = "task"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
@@ -571,20 +569,23 @@ class Routes(object):
     TRACKER = "tracker"
     TSV_DUMP = "tsv_dump"
     UNLOCK_USER = "unlock_user"
-    VIEW_OWN_USER_INFO = "view_own_user_info"
-    VIEW_DDL = "inspect_ddl"
     VIEW_ALL_USERS = "view_all_users"
     VIEW_AUDIT_TRAIL = "view_audit_trail"
+    VIEW_DDL = "view_ddl"
+    VIEW_EMAIL = "view_email"
+    VIEW_EXPORT_RECIPIENT = "view_export_recipient"
+    VIEW_EXPORTED_TASK = "view_exported_task"
+    VIEW_EXPORTED_TASK_LIST = "view_exported_task_list"
+    VIEW_EXPORTED_TASK_EMAIL = "view_exported_task_email"
+    VIEW_EXPORTED_TASK_FILE_GROUP = "view_exported_task_file_group"
+    VIEW_EXPORTED_TASK_HL7_MESSAGE = "view_exported_task_hl7_message"
     VIEW_GROUPS = "view_groups"
-    VIEW_HL7_MESSAGE = "view_hl7_message"
-    VIEW_HL7_MESSAGE_LOG = "view_hl7_message_log"
-    VIEW_HL7_RUN = "view_hl7_run"
-    VIEW_HL7_RUN_LOG = "view_hl7_run_log"
     VIEW_ID_DEFINITIONS = "view_id_definitions"
-    VIEW_USER = "view_user"
-    VIEW_USER_EMAILS = "view_user_emails"
+    VIEW_OWN_USER_INFO = "view_own_user_info"
     VIEW_SERVER_INFO = "view_server_info"
     VIEW_TASKS = "view_tasks"
+    VIEW_USER = "view_user"
+    VIEW_USER_EMAIL_ADDRESSES = "view_user_email_addresses"
 
 
 class RoutePath(object):
@@ -599,10 +600,10 @@ class RoutePath(object):
       ``'/thing/{bork_id:\d+}'`` to restrict to digits.
 
     """
-    def __init__(self, route: str, path: str,
+    def __init__(self, route: str, path: str = "",
                  ignore_in_all_routes: bool = False) -> None:
         self.route = route
-        self.path = path
+        self.path = path or "/" + route
         self.ignore_in_all_routes = ignore_in_all_routes
 
 
@@ -631,97 +632,72 @@ class RouteCollection(object):
                        ignore_in_all_routes=True)
 
     # Implemented
-    ADD_GROUP = RoutePath(Routes.ADD_GROUP, "/add_group")
-    ADD_ID_DEFINITION = RoutePath(Routes.ADD_ID_DEFINITION,
-                                  "/add_id_definition")
-    ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE, "/add_special_note")
-    ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
-    AUDIT_MENU = RoutePath(Routes.AUDIT_MENU, "/audit_menu")
-    TSV_DUMP = RoutePath(Routes.TSV_DUMP, "/tsv_dump")
-    BUGFIX_DEFORM_MISSING_GLYPHS = RoutePath(
-        Routes.BUGFIX_DEFORM_MISSING_GLYPHS,
-        "/deform_static/fonts/glyphicons-halflings-regular.woff2"
-    )
-    CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD,
-                                    '/change_own_password')
-    CHANGE_OTHER_PASSWORD = RoutePath(
-        Routes.CHANGE_OTHER_PASSWORD,
-        "/change_other_password"
-        # make_url_path(
-        #     "/change_other_password",
-        #     UrlParam(ViewParam.USER_ID, UrlParamType.POSITIVE_INTEGER)
-        # )
-    )
-    CHOOSE_CTV = RoutePath(Routes.CHOOSE_CTV, "/choose_clinicaltextview")
-    CHOOSE_TRACKER = RoutePath(Routes.CHOOSE_TRACKER, "/choose_tracker")
-    CRASH = RoutePath(Routes.CRASH, "/crash")
-    CTV = RoutePath(Routes.CTV, "/ctv")
+    ADD_GROUP = RoutePath(Routes.ADD_GROUP)
+    ADD_ID_DEFINITION = RoutePath(Routes.ADD_ID_DEFINITION)
+    ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE)
+    ADD_USER = RoutePath(Routes.ADD_USER)
+    AUDIT_MENU = RoutePath(Routes.AUDIT_MENU)
+    BUGFIX_DEFORM_MISSING_GLYPHS = RoutePath(Routes.BUGFIX_DEFORM_MISSING_GLYPHS, "/deform_static/fonts/glyphicons-halflings-regular.woff2")  # noqa
+    CHANGE_OTHER_PASSWORD = RoutePath(Routes.CHANGE_OTHER_PASSWORD)
+    CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD)
+    CHOOSE_CTV = RoutePath(Routes.CHOOSE_CTV)
+    CHOOSE_TRACKER = RoutePath(Routes.CHOOSE_TRACKER)
     CLIENT_API = RoutePath(Routes.CLIENT_API, MASTER_ROUTE_CLIENT_API)
-    DELETE_GROUP = RoutePath(Routes.DELETE_GROUP, "/delete_group")
-    DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION,
-                                     "/delete_id_definition")
-    DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT, "/delete_patient")
-    DELETE_USER = RoutePath(Routes.DELETE_USER, "/delete_user")
-    DEVELOPER = RoutePath(Routes.DEVELOPER, "/developer")
-    EDIT_GROUP = RoutePath(Routes.EDIT_GROUP, "/edit_group")
-    EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION,
-                                   '/edit_id_definitions')
-    EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT, '/edit_patient')
-    EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS,
-                                     '/edit_server_settings')
-    EDIT_USER = RoutePath(Routes.EDIT_USER, "/edit_user")
-    EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP,
-                                           "/edit_user_group_membership")
-    ERASE_TASK = RoutePath(Routes.ERASE_TASK, "/erase_task")
-    FORCIBLY_FINALIZE = RoutePath(
-        Routes.FORCIBLY_FINALIZE, "/forcibly_finalize"
-    )
+    CRASH = RoutePath(Routes.CRASH)
+    CTV = RoutePath(Routes.CTV)
+    DELETE_GROUP = RoutePath(Routes.DELETE_GROUP)
+    DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION)
+    DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT)
+    DELETE_USER = RoutePath(Routes.DELETE_USER)
+    DEVELOPER = RoutePath(Routes.DEVELOPER)
+    EDIT_GROUP = RoutePath(Routes.EDIT_GROUP)
+    EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION)
+    EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT)
+    EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS)
+    EDIT_USER = RoutePath(Routes.EDIT_USER)
+    EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
+    ERASE_TASK = RoutePath(Routes.ERASE_TASK)
+    FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)
-    LOGIN = RoutePath(Routes.LOGIN, "/login")
-    LOGOUT = RoutePath(Routes.LOGOUT, "/logout")
-    OFFER_AUDIT_TRAIL = RoutePath(Routes.OFFER_AUDIT_TRAIL,
-                                  "/offer_audit_trail")
-    OFFER_HL7_MESSAGE_LOG = RoutePath(Routes.OFFER_HL7_MESSAGE_LOG,
-                                      "/offer_hl7_message_log")
-    OFFER_HL7_RUN_LOG = RoutePath(Routes.OFFER_HL7_RUN_LOG,
-                                  "/offer_hl7_run_log")
-    OFFER_REPORT = RoutePath(Routes.OFFER_REPORT, '/offer_report')
-    OFFER_SQL_DUMP = RoutePath(Routes.OFFER_SQL_DUMP, "/offer_sql_dump")
-    OFFER_TERMS = RoutePath(Routes.OFFER_TERMS, '/offer_terms')
-    OFFER_TSV_DUMP = RoutePath(Routes.OFFER_TSV_DUMP, "/offer_tsv_dump")
-    REPORT = RoutePath(Routes.REPORT, '/report')
-    REPORTS_MENU = RoutePath(Routes.REPORTS_MENU, "/reports_menu")
-    SET_FILTERS = RoutePath(Routes.SET_FILTERS, '/set_filters')
-    SET_OWN_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OWN_USER_UPLOAD_GROUP,
-                                          '/set_user_upload_group')
-    SET_OTHER_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OTHER_USER_UPLOAD_GROUP,
-                                            '/set_other_user_upload_group')
-    SQL_DUMP = RoutePath(Routes.SQL_DUMP, '/sql_dump')
-    TASK = RoutePath(Routes.TASK, "/task")
-    TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1, '/testpriv1')
-    TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2, '/testpriv2')
-    TESTPAGE_PRIVATE_3 = RoutePath(Routes.TESTPAGE_PRIVATE_3, '/testpriv3')
-    TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1, '/test1')
-    TRACKER = RoutePath(Routes.TRACKER, "/tracker")
-    UNLOCK_USER = RoutePath(Routes.UNLOCK_USER, "/unlock_user")
-    VIEW_ALL_USERS = RoutePath(Routes.VIEW_ALL_USERS, "/view_all_users")
-    VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL, "/view_audit_trail")
-    VIEW_DDL = RoutePath(Routes.VIEW_DDL, "/view_ddl")
-    VIEW_GROUPS = RoutePath(Routes.VIEW_GROUPS, "/view_groups")
-    VIEW_HL7_MESSAGE = RoutePath(Routes.VIEW_HL7_MESSAGE, "/view_hl7_message")
-    VIEW_HL7_MESSAGE_LOG = RoutePath(Routes.VIEW_HL7_MESSAGE_LOG,
-                                     "/view_hl7_message_log")
-    VIEW_HL7_RUN = RoutePath(Routes.VIEW_HL7_RUN, "/view_hl7_run")
-    VIEW_HL7_RUN_LOG = RoutePath(Routes.VIEW_HL7_RUN_LOG,
-                                 "/view_hl7_run_log")
-    VIEW_ID_DEFINITIONS = RoutePath(Routes.VIEW_ID_DEFINITIONS,
-                                    "/view_id_definitions")
-    VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO,
-                                   "/view_own_user_info")
-    VIEW_SERVER_INFO = RoutePath(Routes.VIEW_SERVER_INFO, "/view_server_info")
-    VIEW_TASKS = RoutePath(Routes.VIEW_TASKS, "/view_tasks")
-    VIEW_USER = RoutePath(Routes.VIEW_USER, "/view_user")
-    VIEW_USER_EMAILS = RoutePath(Routes.VIEW_USER_EMAILS, "/view_user_emails")
+    LOGIN = RoutePath(Routes.LOGIN)
+    LOGOUT = RoutePath(Routes.LOGOUT)
+    OFFER_AUDIT_TRAIL = RoutePath(Routes.OFFER_AUDIT_TRAIL)
+    OFFER_EXPORTED_TASK_LIST = RoutePath(Routes.OFFER_EXPORTED_TASK_LIST)
+    OFFER_REPORT = RoutePath(Routes.OFFER_REPORT)
+    OFFER_SQL_DUMP = RoutePath(Routes.OFFER_SQL_DUMP)
+    OFFER_TERMS = RoutePath(Routes.OFFER_TERMS)
+    OFFER_TSV_DUMP = RoutePath(Routes.OFFER_TSV_DUMP)
+    REPORT = RoutePath(Routes.REPORT)
+    REPORTS_MENU = RoutePath(Routes.REPORTS_MENU)
+    SET_FILTERS = RoutePath(Routes.SET_FILTERS)
+    SET_OTHER_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OTHER_USER_UPLOAD_GROUP)
+    SET_OWN_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OWN_USER_UPLOAD_GROUP)
+    SQL_DUMP = RoutePath(Routes.SQL_DUMP)
+    TASK = RoutePath(Routes.TASK)
+    TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1)
+    TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2)
+    TESTPAGE_PRIVATE_3 = RoutePath(Routes.TESTPAGE_PRIVATE_3)
+    TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1)
+    TRACKER = RoutePath(Routes.TRACKER)
+    TSV_DUMP = RoutePath(Routes.TSV_DUMP)
+    UNLOCK_USER = RoutePath(Routes.UNLOCK_USER)
+    VIEW_ALL_USERS = RoutePath(Routes.VIEW_ALL_USERS)
+    VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL)
+    VIEW_DDL = RoutePath(Routes.VIEW_DDL)
+    VIEW_EMAIL = RoutePath(Routes.VIEW_EMAIL)
+    VIEW_EXPORT_RECIPIENT = RoutePath(Routes.VIEW_EXPORT_RECIPIENT)
+    VIEW_EXPORTED_TASK = RoutePath(Routes.VIEW_EXPORTED_TASK)
+    VIEW_EXPORTED_TASK_LIST = RoutePath(Routes.VIEW_EXPORTED_TASK_LIST)
+    VIEW_EXPORTED_TASK_EMAIL = RoutePath(Routes.VIEW_EXPORTED_TASK_EMAIL)
+    VIEW_EXPORTED_TASK_FILE_GROUP = RoutePath(Routes.VIEW_EXPORTED_TASK_FILE_GROUP)  # noqa
+    VIEW_EXPORTED_TASK_HL7_MESSAGE = RoutePath(Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE)  # noqa
+    VIEW_GROUPS = RoutePath(Routes.VIEW_GROUPS)
+    VIEW_ID_DEFINITIONS = RoutePath(Routes.VIEW_ID_DEFINITIONS)
+    VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO)
+    VIEW_SERVER_INFO = RoutePath(Routes.VIEW_SERVER_INFO)
+    VIEW_TASKS = RoutePath(Routes.VIEW_TASKS)
+    VIEW_USER = RoutePath(Routes.VIEW_USER)
+    VIEW_USER_EMAIL_ADDRESSES = RoutePath(Routes.VIEW_USER_EMAIL_ADDRESSES)
 
     @classmethod
     def all_routes(cls) -> List[RoutePath]:

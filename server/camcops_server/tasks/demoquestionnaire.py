@@ -117,7 +117,7 @@ class DemoQuestionnaire(Task,
         is_blob_id_field=True, blob_relationship_attr_name="photo"
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-    photo_rotation = Column("photo_rotation", Integer)  # *** DEFUNCT as of v2.0.0  # noqa
+    photo_rotation = Column("photo_rotation", Integer)  # DEFUNCT as of v2.0.0  # noqa
     canvas_blobid = CamcopsColumn(
         "canvas_blobid", Integer,
         is_blob_id_field=True, blob_relationship_attr_name="canvas"

@@ -83,6 +83,7 @@ from camcops_server.cc_modules.cc_hl7 import (
     msg_is_successful_ack,
     SEGMENT_SEPARATOR,
 )
+from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     LongText,
     TableNameColType,
@@ -265,8 +266,6 @@ class ExportedTask(Base):
         super().__init__(*args, **kwargs)
         self.recipient = recipient
         self.start_at_utc = get_now_utc_datetime()
-        self.finish_at_utc = None
-        self.failure_reasons = []  # type: List[str]
         if task:
             assert (not basetable) and task_server_pk is None, (
                 "Task specified; mustn't specify basetable/task_server_pk"
@@ -326,8 +325,25 @@ class ExportedTask(Base):
         """
         self.success = False
         log.error("Task export failed: {}", msg)
-        self.failure_reasons.append(msg)
+        self._add_failure_reason(msg)
         self.finish()
+
+    def _add_failure_reason(self, msg: str) -> None:
+        """
+        Writes to our ``failure_reasons`` list in a way that (a) obviates the
+        need to create an empty list via ``__init__()``, and (b) will
+        definitely mark it as dirty, so it gets saved to the database.
+
+        See :class:`cardinal_pythonlib.sqlalchemy.list_types.StringListType`.
+
+        Args:
+            msg: the message
+        """
+        if self.failure_reasons is None:
+            self.failure_reasons = [msg]
+        else:
+            # Do not use .append(); that won't mark the record as dirty.
+            self.failure_reasons += [msg]
 
     def finish(self) -> None:
         """
@@ -789,7 +805,6 @@ class ExportedTaskFileGroup(Base):
             exported_task: :class:`ExportedTask` object
         """
         self.exported_task = exported_task
-        self.filenames = []  # type: List[str]
 
     def export_file(self,
                     filename: str,
@@ -849,7 +864,10 @@ class ExportedTaskFileGroup(Base):
         Args:
             *filenames: filenames
         """
-        self.filenames.extend(filenames)
+        if self.filenames is None:
+            self.filenames = filenames
+        else:
+            self.filenames += filenames
 
     def export_task(self, req: "CamcopsRequest") -> None:
         """

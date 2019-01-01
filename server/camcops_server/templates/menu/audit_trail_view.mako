@@ -65,7 +65,12 @@ def get_username(audit_entry):
             <td>${ get_username(audit) }</td>
             <td>${ filter_generic_value(audit.device_id) }</td>
             <td>${ filter_generic_value(audit.table_name) }</td>
-            <td>${ filter_generic_value(audit.server_pk) }</td>
+            <td>
+                ${ filter_generic_value(audit.server_pk) }
+                %if audit.server_pk:
+                    (<a href="${ req.route_url(Routes.TASK, _query={ViewParam.TABLE_NAME: audit.table_name, ViewParam.SERVER_PK: audit.server_pk, ViewParam.VIEWTYPE: ViewArg.HTML}) }">View task</a>)
+                %endif
+            </td>
             <td>${ filter_generic_value(audit.patient_server_pk) }</td>
             <td>${ trunc(audit.details, truncate, truncate_at) }</td>
         </tr>
@@ -79,6 +84,3 @@ def get_username(audit_entry):
 </div>
 
 <%include file="to_main_menu.mako"/>
-
-
-## TODO: Consider: cross-link tasks from this audit trail view to their task view

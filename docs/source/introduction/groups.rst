@@ -273,9 +273,9 @@ This is a bit tricky conceptually. CamCOPS implements it as follows:
       per-group setting would be applied to patients' records belonging to each
       group according to your permissions for that group)
 
-    - may dump data (applies to data for that group only)
+    - may dump data (applies to data for that group only) [#nosecondhand]_
 
-    - may run reports (also per-group)
+    - may run reports (also per-group) [#nosecondhand]_
 
     - may add notes (also per-group)
 
@@ -304,3 +304,9 @@ This is a bit tricky conceptually. CamCOPS implements it as follows:
 
 .. [#usergroupmembership]
     Implemented in the ``UserGroupMembership`` class.
+
+.. [#nosecondhand]
+    Specifically, note that there is no "second-hand" authority to dump/report.
+    For example, if group G1 can "see" G2, and user U has authority to report
+    on (or dump data from) G1, that authority does not extend to G2 -- even
+    though U could browse tasks from G2 via the second-hand authority for that.

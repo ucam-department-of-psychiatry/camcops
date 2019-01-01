@@ -252,10 +252,8 @@ def export(req: "CamcopsRequest",
         via_index: use the task index (faster)?
         schedule_via_backend: schedule jobs via the backend instead?
     """
-    recipients = req.get_export_recipients(
-        recipient_names=recipient_names,
-        all_recipients=all_recipients
-    )
+    recipients = req.get_export_recipients(recipient_names=recipient_names,
+                                           all_recipients=all_recipients)
     if not recipients:
         log.warning("No export recipients")
         return
@@ -264,11 +262,9 @@ def export(req: "CamcopsRequest",
         log.info("Exporting to recipient: {}", recipient)
         if recipient.using_db():
             if schedule_via_backend:
-                raise NotImplementedError()  # todo: implement Celery here
+                raise NotImplementedError()  # todo: implement whole-database export via Celery backend  # noqa
             else:
-                export_whole_database(
-                    req, recipient,
-                    via_index=via_index)
+                export_whole_database(req, recipient, via_index=via_index)
         else:
             # Non-database recipient.
             export_tasks_individually(
@@ -304,7 +300,7 @@ def export_whole_database(req: "CamcopsRequest",
             task_generator = gen_tasks_having_exportedtasks(collection)
             export_options = TaskExportOptions(
                 include_blobs=recipient.db_include_blobs,
-                # *** todo: other options, e.g. DB_PATIENT_ID_PER_ROW
+                # *** todo: other options, specifically DB_PATIENT_ID_PER_ROW
             )
             copy_tasks_and_summaries(
                 tasks=task_generator,

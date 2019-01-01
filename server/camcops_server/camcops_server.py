@@ -73,10 +73,6 @@ from camcops_server.cc_modules.cc_constants import (
     CAMCOPS_URL,
     DEFAULT_FLOWER_ADDRESS,
     DEFAULT_FLOWER_PORT,
-    DEFAULT_HOST,
-    DEFAULT_MAX_THREADS,
-    DEFAULT_PORT,
-    URL_PATH_ROOT,
 )
 from camcops_server.cc_modules.cc_exception import raise_runtime_error
 from camcops_server.cc_modules.cc_snomed import send_athena_icd_snomed_to_xml
@@ -1001,12 +997,13 @@ def camcops_main() -> None:
     if DEBUG_LOG_CONFIG:
         print_report_on_all_logs()
 
-    # Finalize the config filename; ensure it's in the environment variable
-    if hasattr(progargs, 'config') and progargs.config:
-        # We want the the config filename in the environment from now on:
-        os.environ[ENVVAR_CONFIG_FILE] = progargs.config
-    cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
-    log.info("Using configuration file: {!r}", cfg_name)
+    if progargs.command not in ["self_test"]:
+        # Finalize the config filename; ensure it's in the environment variable
+        if hasattr(progargs, 'config') and progargs.config:
+            # We want the the config filename in the environment from now on:
+            os.environ[ENVVAR_CONFIG_FILE] = progargs.config
+        cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
+        log.info("Using configuration file: {!r}", cfg_name)
 
     # Call the subparser function for the chosen command
     if progargs.func is None:

@@ -909,7 +909,6 @@ def merge_camcops_db(src: str,
     ]
 
     # Tedious and bulky stuff the user may want to skip:
-    # *** todo: fix this in merge_camcops_db
     if skip_export_logs:
         skip_tables.extend([
             TableIdentity(tablename=ExportRecipient.__tablename__),

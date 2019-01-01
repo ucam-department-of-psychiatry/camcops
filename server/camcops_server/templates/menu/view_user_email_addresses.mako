@@ -1,4 +1,4 @@
-## view_user_emails.mako
+## view_user_email_addresses.mako
 <%inherit file="base_web.mako"/>
 <%namespace file="displayfunc.mako" import="one_per_line"/>
 

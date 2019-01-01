@@ -35,6 +35,7 @@ It is loaded directly by Alembic, via a pseudo-"main" environment.
 # =============================================================================
 
 import logging
+import os
 from typing import Iterable, Generator, List, Tuple, Union
 
 from alembic import context
@@ -306,6 +307,7 @@ def run_alembic() -> None:
         run_migrations_online(alembic_config, target_metadata)
 
 
-main_only_quicksetup_rootlogger(level=logging.DEBUG)
-# log.debug("IN CAMCOPS MIGRATION SCRIPT env.py")
-run_alembic()
+if not os.environ.get("_SPHINX_AUTODOC_IN_PROGRESS", None):
+    main_only_quicksetup_rootlogger(level=logging.DEBUG)
+    # log.debug("IN CAMCOPS MIGRATION SCRIPT env.py")
+    run_alembic()

@@ -82,7 +82,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 "matching device and current/frozen record status)"
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-    rotation = Column(  # *** DEFUNCT as of v2.0.0  # noqa
+    rotation = Column(  # DEFUNCT as of v2.0.0
         "rotation", Integer,
         comment="Rotation (clockwise, in degrees) to be applied for viewing"
     )
@@ -154,7 +154,7 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
                 "matching device and current/frozen record status)"
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-    rotation = Column(  # *** DEFUNCT as of v2.0.0  # noqa
+    rotation = Column(  # DEFUNCT as of v2.0.0
         "rotation", Integer,
         comment="(DEFUNCT COLUMN) "
                 "Rotation (clockwise, in degrees) to be applied for viewing"

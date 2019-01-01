@@ -43,6 +43,14 @@ from sqlalchemy.sql.schema import Column, ForeignKey, MetaData, Table
 from camcops_server.cc_modules.cc_blob import Blob
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_email import Email
+from camcops_server.cc_modules.cc_exportmodels import (
+    ExportedTask,
+    ExportedTaskEmail,
+    ExportedTaskFileGroup,
+    ExportedTaskHL7Message,
+)
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_group import Group, group_group_table
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_task import Task
@@ -99,6 +107,16 @@ DUMP_SKIP_RELNAMES = [
 ]
 # List of table names to be skipped at all times:
 DUMP_SKIP_TABLES = [
+    # We don't have to list all admin tables here; we process the dump starting
+    # with tasks, so only things that have ORM relationships to a task might
+    # feature. (The Email/ExportedTask* set don't, so this is just caution in
+    # case we add a relationship later!)
+    Email.__tablename__,
+    ExportedTask.__tablename__,
+    ExportedTaskEmail.__tablename__,
+    ExportedTaskFileGroup.__tablename__,
+    ExportedTaskHL7Message.__tablename__,
+    ExportRecipient.__tablename__,
     group_group_table.name,
     UserGroupMembership.__tablename__,
 ]
@@ -107,6 +125,7 @@ DUMP_SKIP_ALL_RELS_FOR_TABLES = [
     Group.__tablename__
 ]
 FOREIGN_KEY_CONSTRAINTS_IN_DUMP = False
+# ... the keys will be present, but should we try to enforce constraints?
 
 
 # =============================================================================

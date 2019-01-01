@@ -285,8 +285,9 @@ def export_task_backend(self: "CeleryTask",
             task = task_factory_no_security_checks(req.dbsession,
                                                    basetable, task_pk)
             if task is None:
-                log.error("export_task_backend for recipient {!r}: No task found "
-                          "for {} {}", recipient_name, basetable, task_pk)
+                log.error(
+                    "export_task_backend for recipient {!r}: No task found "
+                    "for {} {}", recipient_name, basetable, task_pk)
                 return
             export_task(req, recipient, task)
     except Exception as exc:

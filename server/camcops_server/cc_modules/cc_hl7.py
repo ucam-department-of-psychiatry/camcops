@@ -78,6 +78,7 @@ from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
     from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -441,7 +442,7 @@ def make_obx_segment(req: "CamcopsRequest",
                      observation_identifier: str,
                      observation_datetime: Pendulum,
                      responsible_observer: str,
-                     xml_field_comments: bool = True) -> hl7.Segment:
+                     export_options: "TaskExportOptions") -> hl7.Segment:
     """
     Creates an HL7 observation result (OBX) segment.
 
@@ -488,7 +489,7 @@ def make_obx_segment(req: "CamcopsRequest",
                 req,
                 indent_spaces=0,
                 eol="",
-                include_comments=xml_field_comments
+                options=export_options,
             ))  # data
         ])
     else:
@@ -869,8 +870,11 @@ class HL7CoreTests(DemoDatabaseTestCase):
     Unit tests.
     """
     def test_hl7core_func(self) -> None:
-        self.announce("test_hl7core_func")
+        from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions  # noqa
         from camcops_server.tasks.phq9 import Phq9
+
+        self.announce("test_hl7core_func")
+
         pitlist = [
             HL7PatientIdentifier(id="1", id_type="TT", assigning_authority="AA")
         ]
@@ -894,6 +898,10 @@ class HL7CoreTests(DemoDatabaseTestCase):
         self.assertIsInstance(make_obr_segment(task), hl7.Segment)
         for task_format in [FileType.PDF, FileType.HTML, FileType.XML]:
             for comments in [True, False]:
+                export_options = TaskExportOptions(
+                    xml_include_comments=comments,
+                    xml_with_header_comments=comments,
+                )
                 self.assertIsInstance(make_obx_segment(
                     req=self.req,
                     task=task,
@@ -901,6 +909,6 @@ class HL7CoreTests(DemoDatabaseTestCase):
                     observation_identifier="obs_id",
                     observation_datetime=now,
                     responsible_observer="responsible_observer",
-                    xml_field_comments=comments
+                    export_options=export_options,
                 ), hl7.Segment)
         self.assertIsInstance(escape_hl7_text("blahblah"), str)

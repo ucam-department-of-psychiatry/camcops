@@ -59,12 +59,6 @@ from camcops_server.cc_modules.cc_version_string import (
 # =============================================================================
 
 # Extensions and file patterns
-COPYABLE_EXTENSIONS = [
-    ".cpp", ".h", ".html", ".js", ".jsx",
-    ".py", ".pl", ".qml", ".xml",
-    ".png"
-    # *** prune these
-]
 SKIP_PATTERNS = ['*.pyc', '~*']  # files not to add
 
 # Directories
@@ -104,7 +98,7 @@ INSTALL_REQUIRES = [
     'matplotlib==2.2.0',
     # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
     # 'mysqlclient==1.3.13;platform_system=="Linux"',  # for mysql+mysqldb://...
-    # # ... but adds dependency on C and mysql.h ***
+    # # ... but adds dependency on C and mysql.h
     'numpy==1.14.5',  # Used by some tasks. SLOW INSTALLATION.
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.0.4',  # better than Arrow
@@ -135,16 +129,19 @@ DEVELOPMENT_ONLY_REQUIRES = [
 # Helper functions
 # =============================================================================
 
-def mkdir_p(path: str, verbose: bool = False) -> None:
-    if verbose:
-        print("Making directory: {}".format(path))
-    os.makedirs(path, exist_ok=True)
-
-
 def deltree(path: str, verbose: bool = False) -> None:
     if verbose:
         print("Deleting directory: {}".format(path))
     shutil.rmtree(path, ignore_errors=True)
+
+
+_ = '''
+
+COPYABLE_EXTENSIONS = [
+    ".cpp", ".h", ".html", ".js", ".jsx",
+    ".py", ".pl", ".qml", ".xml",
+    ".png"
+]
 
 
 def copier(src: str, dst: str, follow_symlinks: bool = True,
@@ -176,6 +173,8 @@ def delete_empty_directories(root_dir: str, verbose: bool = False) -> None:
         if all_subs_empty and len(files) == 0:
             empty_dirs.append(dir_)
             deltree(dir_, verbose=verbose)
+
+'''
 
 
 def add_all_files(root_dir: str,

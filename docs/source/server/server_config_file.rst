@@ -36,6 +36,11 @@ CamCOPS needs a configuration file. Under Linux, this is normally something
 that you create at `/etc/camcops/camcops.conf`, from a template produced by
 CamCOPS. It is the configuration file that points to your database.
 
+..  contents::
+    :local:
+    :depth: 3
+
+
 Databases and configuration files
 ---------------------------------
 
@@ -95,15 +100,15 @@ Config file sections
 - Options for configuring the web server aspects are in ``[server]``.
 - A list of export recipients is in the ``[recipients]`` section.
 - Each export recipient is defined in a section named
-  ``[recipient:RECIPIENT_NAME]`` where *RECIPIENT_NAME* user-defined name of
-  that recipient.
+  ``[recipient:RECIPIENT_NAME]`` where *RECIPIENT_NAME* is the user-defined
+  name of that recipient.
 
 
 Options for the "[site]" section
 --------------------------------
 
-Database connection/tools
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Database connection
+~~~~~~~~~~~~~~~~~~~
 
 DB_URL
 ######
@@ -473,14 +478,14 @@ Common web server options
 
 CamCOPS incorporates a Python web server. You can choose which one to lanuch:
 
-- CherryPy_: a "proper" one; works on Windows.
-- Gunicorn_: a "proper" one; may be faster than CherryPy; Linux/UNIX only.
+- CherryPy_: a "proper" one; multithreaded; works on Windows and Linux.
+- Gunicorn_: a "proper" one; multiprocess; Linux/UNIX only.
 - Pyramid_: a "toy" one for debugging. (CamCOPS is written using Pyramid as its
   web framework; Pyramid is excellent, but other software is generally better
-  for use as the web server).
+  for use as the web server.)
 
 You may also want to configure a CamCOPS server behind a "front-end" web server
-such as Apache_.
+such as Apache_. Further options to help with this are described below.
 
 HOST
 ####
@@ -496,6 +501,8 @@ Note some variations. For example, if your machine has an IP (v4) address of
   the network.
 - Using ``127.0.0.1`` will make it invisible to the network and visible only to
   other processes on the same computer.
+- Using ``localhost`` will trigger a lookup from ``localhost`` to an IP
+  address, typically ``127.0.0.1``.
 
 PORT
 ####
@@ -577,7 +584,8 @@ DEBUG_TOOLBAR
 *Boolean.* Default: false.
 
 Enable the Pyramid debug toolbar? **This should not be enabled for production
-systems; it carries security risks.**
+systems; it carries security risks.** It will not operate via Gunicorn_, which
+has an incompatible process model.
 
 PROXY_HTTP_HOST
 ###############
@@ -1349,7 +1357,7 @@ Override ``HL7_HOST``/``HL7_PORT`` options and send HL7 messages to a
 This is a **debugging option,** allowing you to redirect HL7 messages to a file
 and inspect them. If chosen, the following options are used:
 
-.. code-block:: None
+.. code-block:: none
 
     FILE_PATIENT_SPEC
     FILE_PATIENT_SPEC_IF_ANONYMOUS

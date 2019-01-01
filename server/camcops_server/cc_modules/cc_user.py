@@ -743,9 +743,11 @@ class User(Base):
         Return a list of group IDs for groups that the user may dump data
         from.
 
-        .. todo:: ids_of_groups_user_may_dump: check: no second-hand authority
-            given here via groups; should we? Also crosscheck to
-            groups_user_may_dump
+        See also :meth:`groups_user_may_dump`.
+
+        This does **not** give "second-hand authority" to dump. For example,
+        if group G1 can "see" G2, and user U has authority to dump G1, that
+        authority does not extend to G2.
         """
         if self.superuser:
             return Group.all_group_ids(
@@ -759,9 +761,9 @@ class User(Base):
         Returns a list of group IDs for groups that the user may run reports
         on.
 
-        .. todo:: ids_of_groups_user_may_report_on: check: no second-hand
-            authority given here via groups; should we? Also crosscheck to
-            groups_user_may_report_on
+        This does **not** give "second-hand authority" to dump. For example,
+        if group G1 can "see" G2, and user U has authority to report on G1,
+        that authority does not extend to G2.
         """
         if self.superuser:
             return Group.all_group_ids(
@@ -810,8 +812,11 @@ class User(Base):
         Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
         objects for groups the user can dump.
 
-        Less efficient than the group ID version; for visual display (see
-        ``view_own_user_info.mako``).
+        For security notes, see :meth:`ids_of_groups_user_may_dump`.
+
+        Less efficient than the group ID version (see
+        :meth:`ids_of_groups_user_may_dump`). This version is for visual
+        display (see ``view_own_user_info.mako``).
 
         """
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
@@ -824,8 +829,11 @@ class User(Base):
         Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
         objects for groups the user can report on.
 
-        Less efficient than the group ID version; for visual display (see
-        ``view_own_user_info.mako``).
+        For security notes, see :meth:`ids_of_groups_user_may_report_on`.
+
+        Less efficient than the group ID version (see
+        :meth:`ids_of_groups_user_may_report_on`). This version is for visual
+        display (see ``view_own_user_info.mako``).
 
         """
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa

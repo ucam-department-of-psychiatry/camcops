@@ -548,7 +548,7 @@ class MultiTaskSelector(SchemaNode):
         self.tracker_tasks_only = tracker_tasks_only
         self.minimum_number = minimum_number
         self.widget = None  # type: Widget
-        self.validator = None  # type: object
+        self.validator = None  # type: ValidatorType
         super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
@@ -604,7 +604,7 @@ class MandatoryWhichIdNumSelector(SchemaNode):
         if not hasattr(self, "allow_none"):
             # ... allows parameter-free (!) inheritance by OptionalWhichIdNumSelector  # noqa
             self.allow_none = False
-        self.validator = None
+        self.validator = None  # type: ValidatorType
         super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
@@ -762,7 +762,7 @@ class MandatoryUserIdSelectorUsersAllowedToSee(SchemaNode):
     title = "User"
 
     def __init__(self, *args, **kwargs) -> None:
-        self.validator = None  # type: object
+        self.validator = None  # type: ValidatorType
         self.widget = None  # type: Widget
         super().__init__(*args, **kwargs)
 
@@ -796,7 +796,7 @@ class OptionalUserNameSelector(OptionalStringNode):
     title = "User"
 
     def __init__(self, *args, **kwargs) -> None:
-        self.validator = None  # type: object
+        self.validator = None  # type: ValidatorType
         self.widget = None  # type: Widget
         super().__init__(*args, **kwargs)
 
@@ -841,7 +841,7 @@ class MandatoryDeviceIdSelector(SchemaNode):
     title = "Device"
 
     def __init__(self, *args, **kwargs) -> None:
-        self.validator = None  # type: object
+        self.validator = None  # type: ValidatorType
         self.widget = None  # type: Widget
         super().__init__(*args, **kwargs)
 
@@ -945,7 +945,7 @@ class MandatoryGroupIdSelectorAllGroups(SchemaNode):
     title = "Group"
 
     def __init__(self, *args, **kwargs) -> None:
-        self.validator = None  # type: object
+        self.validator = None  # type: ValidatorType
         self.widget = None  # type: Widget
         super().__init__(*args, **kwargs)
 
@@ -972,7 +972,7 @@ class MandatoryGroupIdSelectorAdministeredGroups(SchemaNode):
     title = "Group"
 
     def __init__(self, *args, **kwargs) -> None:
-        self.validator = None  # type: object
+        self.validator = None  # type: ValidatorType
         self.widget = None  # type: Widget
         super().__init__(*args, **kwargs)
 
@@ -1002,7 +1002,7 @@ class MandatoryGroupIdSelectorOtherGroups(SchemaNode):
     title = "Other group"
 
     def __init__(self, *args, **kwargs) -> None:
-        self.validator = None  # type: object
+        self.validator = None  # type: ValidatorType
         self.widget = None  # type: Widget
         super().__init__(*args, **kwargs)
 
@@ -1033,7 +1033,7 @@ class MandatoryGroupIdSelectorUserGroups(SchemaNode):
         if not hasattr(self, "allow_none"):
             # ... allows parameter-free (!) inheritance by OptionalGroupIdSelectorUserGroups  # noqa
             self.allow_none = False
-        self.validator = None  # type: object
+        self.validator = None  # type: ValidatorType
         self.widget = None  # type: Widget
         super().__init__(*args, **kwargs)
 
@@ -1077,7 +1077,7 @@ class MandatoryGroupIdSelectorAllowedGroups(SchemaNode):
     title = "Group"
 
     def __init__(self, *args, **kwargs) -> None:
-        self.validator = None  # type: object
+        self.validator = None  # type: ValidatorType
         self.widget = None  # type: Widget
         super().__init__(*args, **kwargs)
 
@@ -1399,52 +1399,60 @@ class AuditTrailForm(SimpleSubmitForm):
 
 
 # =============================================================================
-# View HL7 message log
+# View export logs
 # =============================================================================
 
-class HL7MessageLogSchema(CSRFSchema):
+class OptionalExportRecipientNameSelector(OptionalStringNode):
+    """
+    Optional node to pick an export recipient name from those present in the
+    database.
+    """
+    title = "Export recipient"
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.validator = None  # type: ValidatorType
+        self.widget = None  # type: Widget
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # delayed import  # noqa
+        req = kw[Binding.REQUEST]  # type: CamcopsRequest
+        dbsession = req.dbsession
+        q = (
+            dbsession.query(ExportRecipient.recipient_name)
+            .distinct()
+            .order_by(ExportRecipient.recipient_name)
+        )
+        values = []  # type: List[Tuple[str, str]]
+        for row in q:
+            recipient_name = row[0]
+            values.append((recipient_name, recipient_name))
+        values, pv = get_values_and_permissible(values, True, "[Any]")
+        self.widget = SelectWidget(values=values)
+        self.validator = OneOf(pv)
+
+
+class ExportedTaskListSchema(CSRFSchema):
     """
     Schema to filter HL7 message logs.
     """
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
+    recipient_name = OptionalExportRecipientNameSelector()  # must match ViewParam.RECIPIENT_NAME  # noqa
     table_name = OptionalSingleTaskSelector()  # must match ViewParam.TABLENAME  # noqa
     server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
-    hl7_run_id = OptionalIntNode(title="Run ID")  # must match ViewParam.HL7_RUN_ID  # noqa
-    start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
-    end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
+    id = OptionalIntNode(title="ExportedTask ID")  # must match ViewParam.ID  # noqa
+    start_datetime = StartDateTimeSelector()  # must match ViewParam.START_DATETIME  # noqa
+    end_datetime = EndDateTimeSelector()  # must match ViewParam.END_DATETIME
 
 
-class HL7MessageLogForm(SimpleSubmitForm):
+class ExportedTaskListForm(SimpleSubmitForm):
     """
-    Form to filter and then view HL7 message logs.
-    """
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        super().__init__(schema_class=HL7MessageLogSchema,
-                         submit_title="View HL7 message log",
-                         request=request, **kwargs)
-
-
-# =============================================================================
-# View HL7 run log
-# =============================================================================
-
-class HL7RunLogSchema(CSRFSchema):
-    """
-    Schema to filter HL7 run logs.
-    """
-    rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
-    hl7_run_id = OptionalIntNode(title="Run ID")  # must match ViewParam.HL7_RUN_ID  # noqa
-    start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
-    end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
-
-
-class HL7RunLogForm(SimpleSubmitForm):
-    """
-    Form to filter and then view HL7 run logs.
+    Form to filter and then view exported task logs.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        super().__init__(schema_class=HL7RunLogSchema,
-                         submit_title="View HL7 run log",
+        super().__init__(schema_class=ExportedTaskListSchema,
+                         submit_title="View exported task log",
                          request=request, **kwargs)
 
 

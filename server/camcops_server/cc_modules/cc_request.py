@@ -1710,7 +1710,7 @@ def _get_core_debugging_request() -> CamcopsDummyRequest:
     with pyramid_configurator_context(debug_toolbar=False) as pyr_config:
         req = CamcopsDummyRequest(
             environ={
-                ENVVAR_CONFIG_FILE: os.environ[ENVVAR_CONFIG_FILE],
+                ENVVAR_CONFIG_FILE: "nonexistent_camcops_config_file.nonexistent",  # noqa
                 WsgiEnvVar.PATH_INFO: '/',
                 WsgiEnvVar.SCRIPT_NAME: '',
                 WsgiEnvVar.SERVER_NAME: '127.0.0.1',

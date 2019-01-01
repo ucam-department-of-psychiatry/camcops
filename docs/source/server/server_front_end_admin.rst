@@ -196,7 +196,7 @@ HL7 message log
 View a log of outbound HL7 messages that CamCOPS has sent (along with their
 success/failure status).
 
-.. todo:: The HL7 implementation is currently disabled. This needs fixing.
+.. todo:: change docs once webview updated for new export system
 
 HL7 run log
 ~~~~~~~~~~~

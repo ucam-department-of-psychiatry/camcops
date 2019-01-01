@@ -309,7 +309,7 @@ def get_demo_config(extra_strings_dir: str = None,
 
 {cps.LOCAL_INSTITUTION_URL} = {DUMMY_INSTITUTION_URL}
 {cps.LOCAL_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_local.png
-# {cps.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
+{cps.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
 
 {cps.EXTRA_STRING_FILES} = {extra_strings_spec}
 

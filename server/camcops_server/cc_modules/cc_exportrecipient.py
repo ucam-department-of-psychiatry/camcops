@@ -34,6 +34,7 @@ from typing import List, Optional, TYPE_CHECKING
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.list_types import IntListType
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
+from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_url
 from sqlalchemy.event.api import listens_for
 from sqlalchemy.orm import reconstructor, Session as SqlASession
 from sqlalchemy.sql.schema import Column
@@ -48,6 +49,7 @@ from sqlalchemy.sql.sqltypes import (
 from camcops_server.cc_modules.cc_exportrecipientinfo import (
     ExportRecipientInfo,
 )
+from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     EmailAddressColType,
     ExportRecipientNameColType,
@@ -465,6 +467,21 @@ class ExportRecipient(ExportRecipientInfo, Base):
             if recipient == r:
                 return r
         return None
+
+    @property
+    def db_url_obscuring_password(self) -> Optional[str]:
+        """
+        Returns the database URL (if present), but with its password obscured.
+        """
+        if not self.db_url:
+            return self.db_url
+        return get_safe_url_from_url(self.db_url)
+
+    def get_task_export_options(self) -> TaskExportOptions:
+        return TaskExportOptions(
+            xml_include_comments=self.xml_field_comments,
+            xml_with_header_comments=self.xml_field_comments,
+        )
 
 
 # noinspection PyUnusedLocal

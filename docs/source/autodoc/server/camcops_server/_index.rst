@@ -43,6 +43,7 @@ server/camcops_server
     alembic/versions/0013_task_index.py.rst
     alembic/versions/0014_new_export_mechanism.py.rst
     camcops_server.py.rst
+    camcops_server_core.py.rst
     camcops_server_meta.py.rst
     cc_modules/cc_alembic.py.rst
     cc_modules/cc_all_models.py.rst

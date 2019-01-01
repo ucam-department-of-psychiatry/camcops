@@ -189,14 +189,18 @@ from camcops_server.cc_modules.cc_db import (
     FN_PK,
 )
 from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_export import (
     task_collection_to_sqlite_response,
     task_collection_to_tsv_zip_response,
 )
 from camcops_server.cc_modules.cc_exportmodels import (
+    ExportedTask,
+    ExportedTaskEmail,
+    ExportedTaskFileGroup,
     ExportedTaskHL7Message,
-    # todo:: fix webview for HL7 runs (no longer exist)
 )
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_forms import (
     AddGroupForm,
     AddIdDefinitionForm,
@@ -224,10 +228,9 @@ from camcops_server.cc_modules.cc_forms import (
     EditUserGroupPermissionsFullForm,
     EditUserGroupMembershipGroupAdminForm,
     EraseTaskForm,
+    ExportedTaskListForm,
     ForciblyFinalizeChooseDeviceForm,
     ForciblyFinalizeConfirmForm,
-    HL7MessageLogForm,
-    HL7RunLogForm,
     LoginForm,
     OfferBasicDumpForm,
     OfferSqlDumpForm,
@@ -1662,25 +1665,36 @@ def view_audit_trail(req: "CamcopsRequest") -> Response:
 
 
 # =============================================================================
-# View HL7 message log
+# View export logs
 # =============================================================================
+# Overview:
+# - View exported tasks (ExportedTask) collectively
+#   ... option to filter by recipient_name
+#   ... option to filter by date/etc.
+# - View exported tasks (ExportedTask) individually
+#   ... hyperlinks to individual views of:
+#       Email (not necessary: ExportedTaskEmail)
+#       ExportRecipient
+#       ExportedTaskFileGroup
+#       ExportedTaskHL7Message
 
-@view_config(route_name=Routes.OFFER_HL7_MESSAGE_LOG,
+@view_config(route_name=Routes.OFFER_EXPORTED_TASK_LIST,
              permission=Permission.SUPERUSER)
-def offer_hl7_message_log(req: "CamcopsRequest") -> Response:
+def offer_exported_task_list(req: "CamcopsRequest") -> Response:
     """
-    View to choose how we'll view the HL7 message log.
+    View to choose how we'll view the exported task log.
     """
-    form = HL7MessageLogForm(request=req)
+    form = ExportedTaskListForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
             keys = [
                 ViewParam.ROWS_PER_PAGE,
+                ViewParam.RECIPIENT_NAME,
                 ViewParam.TABLE_NAME,
                 ViewParam.SERVER_PK,
-                ViewParam.HL7_RUN_ID,
+                ViewParam.ID,
                 ViewParam.START_DATETIME,
                 ViewParam.END_DATETIME,
             ]
@@ -1688,30 +1702,31 @@ def offer_hl7_message_log(req: "CamcopsRequest") -> Response:
             querydict[ViewParam.PAGE] = 1
             # Send the user to the actual data using GET
             # (the parameters are NOT sensitive)
-            return HTTPFound(req.route_url(Routes.VIEW_HL7_MESSAGE_LOG,
+            return HTTPFound(req.route_url(Routes.VIEW_EXPORTED_TASK_LIST,
                                            _query=querydict))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
         rendered_form = form.render()
     return render_to_response(
-        "hl7_message_log_choices.mako",
+        "exported_task_choose.mako",
         dict(form=rendered_form,
              head_form_html=get_head_form_html(req, [form])),
         request=req)
 
 
-@view_config(route_name=Routes.VIEW_HL7_MESSAGE_LOG,
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_LIST,
              permission=Permission.SUPERUSER)
-def view_hl7_message_log(req: "CamcopsRequest") -> Response:
+def view_exported_task_list(req: "CamcopsRequest") -> Response:
     """
-    View to serve the HL7 message log.
+    View to serve the exported task log.
     """
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
+    recipient_name = req.get_str_param(ViewParam.RECIPIENT_NAME, None)
     table_name = req.get_str_param(ViewParam.TABLE_NAME, None)
     server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
-    hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
+    et_id = req.get_int_param(ViewParam.ID, None)
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
     end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
@@ -1722,151 +1737,160 @@ def view_hl7_message_log(req: "CamcopsRequest") -> Response:
         conditions.append("{} = {}".format(key, value))
 
     dbsession = req.dbsession
-    q = dbsession.query(ExportedTaskHL7Message)
+    q = dbsession.query(ExportedTask)
 
-    # TODO: *** fixme: view_hl7_message_log (and similar)
+    if recipient_name:
+        q = (
+            q.join(ExportRecipient)
+            .filter(ExportRecipient.recipient_name == recipient_name)
+        )
+        add_condition(ViewParam.RECIPIENT_NAME, recipient_name)
     if table_name:
-        q = q.filter(ExportedTaskHL7Message.basetable == table_name)
+        q = q.filter(ExportedTask.basetable == table_name)
         add_condition(ViewParam.TABLE_NAME, table_name)
     if server_pk is not None:
-        q = q.filter(ExportedTaskHL7Message.serverpk == server_pk)
+        q = q.filter(ExportedTask.task_server_pk == server_pk)
         add_condition(ViewParam.SERVER_PK, server_pk)
-    if hl7_run_id is not None:
-        q = q.filter(ExportedTaskHL7Message.run_id == hl7_run_id)
-        add_condition(ViewParam.HL7_RUN_ID, hl7_run_id)
+    if et_id is not None:
+        q = q.filter(ExportedTask.id == et_id)
+        add_condition(ViewParam.ID, et_id)
     if start_datetime:
-        q = q.filter(ExportedTaskHL7Message.sent_at_utc >= start_datetime)
+        q = q.filter(ExportedTask.start_at_utc >= start_datetime)
         add_condition(ViewParam.START_DATETIME, start_datetime)
     if end_datetime:
-        q = q.filter(ExportedTaskHL7Message.sent_at_utc < end_datetime)
+        q = q.filter(ExportedTask.start_at_utc < end_datetime)
         add_condition(ViewParam.END_DATETIME, end_datetime)
 
-    q = q.order_by(desc(ExportedTaskHL7Message.id))
+    q = q.order_by(desc(ExportedTask.id))
 
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req))
-    return render_to_response("hl7_message_log_view.mako",
+    return render_to_response("exported_task_list.mako",
                               dict(conditions="; ".join(conditions),
                                    page=page),
                               request=req)
 
 
-@view_config(route_name=Routes.VIEW_HL7_MESSAGE,
-             permission=Permission.SUPERUSER)
-def view_hl7_message(req: "CamcopsRequest") -> Response:
+def _view_generic_object_by_id(req: "CamcopsRequest",
+                               cls: Type,
+                               instance_name_for_mako: str,
+                               mako_template: str) -> Response:
     """
-    View to serve an individual HL7 message.
+    Boilerplate code to view an individual SQLAlchemy ORM object. The object
+    must have an integer ``id`` field as its primary key, and the ID value must
+    be present in the ``ViewParam.ID`` field of the request.
+
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        cls: the SQLAlchemy ORM class
+        instance_name_for_mako: what will the object be called when it's
+        mako_template: Mako template filename
+
+    Returns:
+        :class:`pyramid.response.Response`
     """
-    hl7_msg_id = req.get_int_param(ViewParam.HL7_MSG_ID, None)
+    item_id = req.get_int_param(ViewParam.ID, None)
     dbsession = req.dbsession
-    hl7msg = dbsession.query(ExportedTaskHL7Message)\
-        .filter(ExportedTaskHL7Message.id == hl7_msg_id)\
+    obj = (
+        dbsession.query(cls)
+        .filter(cls.id == item_id)
         .first()
-    if hl7msg is None:
-        raise HTTPBadRequest("Bad HL7 message ID {}".format(hl7_msg_id))
-    return render_to_response("hl7_message_view.mako",
-                              dict(msg=hl7msg),
-                              request=req)
+    )
+    if obj is None:
+        raise HTTPBadRequest("Bad {} ID {}".format(cls.__name__, item_id))
+    d = {instance_name_for_mako: obj}
+    return render_to_response(mako_template, d, request=req)
 
 
-# =============================================================================
-# View HL7 run log and individual runs
-# =============================================================================
-
-@view_config(route_name=Routes.OFFER_HL7_RUN_LOG,
+@view_config(route_name=Routes.VIEW_EMAIL,
              permission=Permission.SUPERUSER)
-def offer_hl7_run_log(req: "CamcopsRequest") -> Response:
+def view_email(req: "CamcopsRequest") -> Response:
     """
-    View to configure how we'll view the HL7 run log.
+    View on an individual :class:`camcops_server.cc_modules.cc_email.Email`.
     """
-    form = HL7RunLogForm(request=req)
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            keys = [
-                ViewParam.ROWS_PER_PAGE,
-                ViewParam.HL7_RUN_ID,
-                ViewParam.START_DATETIME,
-                ViewParam.END_DATETIME,
-            ]
-            querydict = {k: appstruct.get(k) for k in keys}
-            querydict[ViewParam.PAGE] = 1
-            # Send the user to the actual data using GET
-            # (the parameters are NOT sensitive)
-            return HTTPFound(req.route_url(Routes.VIEW_HL7_RUN_LOG,
-                                           _query=querydict))
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        rendered_form = form.render()
-    return render_to_response(
-        "hl7_run_log_choices.mako",
-        dict(form=rendered_form,
-             head_form_html=get_head_form_html(req, [form])),
-        request=req)
+    return _view_generic_object_by_id(
+        req=req,
+        cls=Email,
+        instance_name_for_mako="email",
+        mako_template="view_email.mako",
+    )
 
 
-@view_config(route_name=Routes.VIEW_HL7_RUN_LOG,
+@view_config(route_name=Routes.VIEW_EXPORT_RECIPIENT,
              permission=Permission.SUPERUSER)
-def view_hl7_run_log(req: "CamcopsRequest") -> Response:
+def view_export_recipient(req: "CamcopsRequest") -> Response:
     """
-    View to serve the HL7 run log.
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTask`.
     """
-    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
-                                      DEFAULT_ROWS_PER_PAGE)
-    hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
-    start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
-    end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
-    page_num = req.get_int_param(ViewParam.PAGE, 1)
-
-    conditions = []  # type: List[str]
-
-    def add_condition(key: str, value: Any) -> None:
-        conditions.append("{} = {}".format(key, value))
-
-    dbsession = req.dbsession
-    q = dbsession.query(ExportRun)
-    if hl7_run_id is not None:
-        q = q.filter(ExportRun.id == hl7_run_id)
-        add_condition("hl7_run_id", hl7_run_id)
-    if start_datetime:
-        q = q.filter(ExportRun.start_at_utc >= start_datetime)
-        add_condition("start_datetime", start_datetime)
-    if end_datetime:
-        q = q.filter(ExportRun.start_at_utc <= end_datetime)
-        add_condition("end_datetime", end_datetime)
-
-    q = q.order_by(desc(ExportRun.id))
-
-    page = SqlalchemyOrmPage(query=q,
-                             page=page_num,
-                             items_per_page=rows_per_page,
-                             url_maker=PageUrl(req))
-    return render_to_response("hl7_run_log_view.mako",
-                              dict(conditions="; ".join(conditions),
-                                   page=page),
-                              request=req)
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportRecipient,
+        instance_name_for_mako="recipient",
+        mako_template="export_recipient.mako",
+    )
 
 
-@view_config(route_name=Routes.VIEW_HL7_RUN,
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK,
              permission=Permission.SUPERUSER)
-def view_hl7_run(req: "CamcopsRequest") -> Response:
+def view_exported_task(req: "CamcopsRequest") -> Response:
     """
-    View to serve details of an individual HL7 run.
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTask`.
     """
-    hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
-    dbsession = req.dbsession
-    hl7run = dbsession.query(ExportRun)\
-        .filter(ExportRun.id == hl7_run_id)\
-        .first()
-    if hl7run is None:
-        raise HTTPBadRequest("Bad HL7 run ID {}".format(hl7_run_id))
-    return render_to_response("hl7_run_view.mako",
-                              dict(hl7run=hl7run),
-                              request=req)
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTask,
+        instance_name_for_mako="et",
+        mako_template="exported_task.mako",
+    )
+
+
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_EMAIL,
+             permission=Permission.SUPERUSER)
+def view_exported_task_email(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskEmail`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskEmail,
+        instance_name_for_mako="ete",
+        mako_template="exported_task_email.mako",
+    )
+
+
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_FILE_GROUP,
+             permission=Permission.SUPERUSER)
+def view_exported_task_file_group(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskFileGroup`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskFileGroup,
+        instance_name_for_mako="fg",
+        mako_template="exported_task_file_group.mako",
+    )
+
+
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE,
+             permission=Permission.SUPERUSER)
+def view_exported_task_hl7_message(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskHL7Message`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskHL7Message,
+        instance_name_for_mako="msg",
+        mako_template="exported_task_hl7_message.mako",
+    )
 
 
 # =============================================================================
@@ -1991,10 +2015,10 @@ def view_all_users(req: "CamcopsRequest") -> Dict[str, Any]:
                 as_superuser=req.user.superuser)
 
 
-@view_config(route_name=Routes.VIEW_USER_EMAILS,
+@view_config(route_name=Routes.VIEW_USER_EMAIL_ADDRESSES,
              permission=Permission.GROUPADMIN,
-             renderer="view_user_emails.mako")
-def view_user_emails(req: "CamcopsRequest") -> Dict[str, Any]:
+             renderer="view_user_email_addresses.mako")
+def view_user_email_addresses(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View e-mail addresses of all users that the requesting user is authorized
     to manage.
@@ -3140,7 +3164,7 @@ def edit_patient(req: "CamcopsRequest") -> Response:
 
             # Patient details changed, so resend any tasks via HL7
             for task in affected_tasks:
-                task.delete_from_hl7_message_log(req)
+                task.cancel_from_export_log(req)
 
             # Done
             return simple_success(
