@@ -5,7 +5,7 @@ camcops_server/cc_modules/cc_exportmodels.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -83,7 +83,6 @@ from camcops_server.cc_modules.cc_hl7 import (
     msg_is_successful_ack,
     SEGMENT_SEPARATOR,
 )
-from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     LongText,
     TableNameColType,
@@ -868,9 +867,11 @@ class ExportedTaskFileGroup(Base):
             *filenames: filenames
         """
         if self.filenames is None:
-            self.filenames = filenames
+            self.filenames = list(filenames)
         else:
-            self.filenames += filenames
+            # See ExportedTask._add_failure_reason() above:
+            # noinspection PyAugmentAssignment,PyTypeChecker
+            self.filenames = self.filenames + list(filenames)
 
     def export_task(self, req: "CamcopsRequest") -> None:
         """

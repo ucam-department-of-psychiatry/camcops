@@ -5,7 +5,7 @@
 ..
 
 ===============================================================================
-    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -53,7 +53,7 @@ INDEX_FILENAME = "_index.rst"
 TOP_AUTODOC_INDEX = os.path.join(AUTODOC_DIR, INDEX_FILENAME)
 
 COPYRIGHT_COMMENT = r"""
-..  Copyright © 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
     This file is part of CamCOPS.
     .

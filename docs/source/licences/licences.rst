@@ -1,6 +1,6 @@
 ..  docs/source/misc/licenses.rst
 
-..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
     This file is part of CamCOPS.
     .
@@ -30,7 +30,7 @@ CamCOPS.
 CamCOPS
 -------
 
-Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
 
 CamCOPS is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

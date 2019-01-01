@@ -5,7 +5,7 @@
 ..
 
 ===============================================================================
-    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -63,7 +63,7 @@ sys.path.insert(0, CAMCOPS_SERVER_ROOT_DIR)
 
 project = 'CamCOPS'
 # noinspection PyShadowingBuiltins
-copyright = '2012-2018, Rudolf Cardinal'
+copyright = '2012-2019, Rudolf Cardinal'
 author = 'Rudolf Cardinal'
 
 # The short X.Y version

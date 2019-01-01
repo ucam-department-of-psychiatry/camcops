@@ -5,7 +5,7 @@ tools/MAKE_LINUX_PACKAGES.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -779,7 +779,7 @@ def get_copyright() -> str:
 
 CAMCOPS
 ===============================================================================
-    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 
