@@ -438,6 +438,7 @@ def get_demo_config(extra_strings_dir: str = None,
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {cpr.TRANSMISSION_METHOD} = hl7
+{cpr.PUSH} = true
 {cpr.TASK_FORMAT} = pdf
 {cpr.XML_FIELD_COMMENTS} = true
 

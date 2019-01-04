@@ -35,10 +35,11 @@ Tasks
 - Perinatal: Session Rating Scale (SRS); see
   https://www.corc.uk.net/outcome-experience-measures/ and
   https://digital.nhs.uk/National-Clinical-Content-Repository
-- Perinatal: an infant/mother relationship indicator (Zeyn, TBC); likely the
+- Perinatal: an infant/mother relationship indicator (Zeyn, TBC); NOT the
   Parent–Infant Interaction Observation Scale (PIIOS);
   clinician-rated and needs training;
-  https://dx.doi.org/10.1080/02646838.2012.751586
+  https://dx.doi.org/10.1080/02646838.2012.751586; INSTEAD the Care Index
+  (a/w details from JM/NK).
 
 **To be prioritized**
 
