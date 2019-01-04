@@ -33,6 +33,7 @@ tree.
 Also, for visibility, environment variable names.
 """
 
+import os
 from os import pardir
 from os.path import abspath, dirname, join
 import sys
@@ -93,3 +94,10 @@ ALEMBIC_VERSION_TABLE = "_alembic_version"
 # =============================================================================
 
 DOCUMENTATION_URL = "https://camcops.readthedocs.io/"
+
+# =============================================================================
+# Special environment detection
+# =============================================================================
+
+# Is this program running on readthedocs.org?
+ON_READTHEDOCS = os.environ.get('READTHEDOCS') == 'True'

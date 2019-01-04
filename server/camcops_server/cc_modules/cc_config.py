@@ -118,6 +118,7 @@ from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
     LINUX_DEFAULT_LOCK_DIR,
     LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
+    ON_READTHEDOCS,
     STATIC_ROOT_DIR,
 )
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
@@ -1171,9 +1172,15 @@ class CamcopsConfig(object):
     Class representing the CamCOPS configuration.
     """
 
-    def __init__(self, config_filename: str) -> None:
+    def __init__(self, config_filename: str,
+                 config_text: str = None) -> None:
         """
         Initialize by reading the config file.
+
+        Args:
+            config_filename: filename of the config file (usual method)
+            config_text: text contents of the config file (alternative method
+                for special circumstances); overrides ``config_filename``
         """
         def _get_str(section: str, paramname: str,
                      default: str = None) -> Optional[str]:
@@ -1210,14 +1217,20 @@ class CamcopsConfig(object):
         # Open config file
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         self.camcops_config_filename = config_filename
-        if not self.camcops_config_filename:
-            raise AssertionError(
-                "Environment variable {} not specified (and no command-line "
-                "alternative given)".format(ENVVAR_CONFIG_FILE))
-        log.info("Reading from config: {!r}", self.camcops_config_filename)
         parser = configparser.ConfigParser()
-        with codecs.open(self.camcops_config_filename, "r", "utf8") as file:
-            parser.read_file(file)
+
+        if config_text:
+            log.info("Reading config from supplied string")
+            parser.read_string(config_text)
+        else:
+            if not config_filename:
+                raise AssertionError(
+                    "Environment variable {} not specified (and no "
+                    "command-line alternative given)".format(
+                        ENVVAR_CONFIG_FILE))
+            log.info("Reading from config file: {!r}", config_filename)
+            with codecs.open(config_filename, "r", "utf8") as file:
+                parser.read_file(file)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Main section (in alphabetical order)
@@ -1686,7 +1699,10 @@ def get_default_config_from_os_env() -> CamcopsConfig:
     representing the config filename that we read from our operating system
     environment variable.
     """
-    return get_config(get_config_filename_from_os_env())
+    if ON_READTHEDOCS:
+        return CamcopsConfig(config_filename="", config_text=get_demo_config())
+    else:
+        return get_config(get_config_filename_from_os_env())
 
 
 # =============================================================================
