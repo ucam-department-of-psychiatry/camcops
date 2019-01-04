@@ -891,11 +891,11 @@ then CamCOPS expects to see, elsewhere in the config file:
 
 .. code-block:: none
 
-    [recipient_A]
+    [recipient:recipient_A]
 
     # options defining recipient_A
 
-    [recipient_B]
+    [recipient:recipient_B]
 
     # options defining recipient_B
 
