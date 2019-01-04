@@ -314,6 +314,8 @@ tablet_qt
     menu/setmenudeakin1.h.rst
     menu/setmenufromlp.cpp.rst
     menu/setmenufromlp.h.rst
+    menu/setmenufromperinatal.cpp.rst
+    menu/setmenufromperinatal.h.rst
     menu/setmenukhandaker1.cpp.rst
     menu/setmenukhandaker1.h.rst
     menu/setmenuobrien1.cpp.rst

@@ -24,7 +24,7 @@ Health of the Nation Outcome Scale for working age adults (HoNOS)
 
 .. include:: include_from_lp_specific.rst
 
-(The HoNOS is part of FROM-LP.)
+.. include:: include_from_perinatal_generic.rst
 
 History and guide
 ~~~~~~~~~~~~~~~~~
@@ -101,5 +101,7 @@ See :ref:`HoNOS <honos>`.
 
 Health of the Nation Outcome Scale for Children and Adolescents (HoNOSCA)
 -------------------------------------------------------------------------
+
+.. include:: include_from_perinatal_generic.rst
 
 See :ref:`HoNOS <honos>`.

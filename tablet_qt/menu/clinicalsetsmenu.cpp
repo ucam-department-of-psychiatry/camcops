@@ -26,6 +26,7 @@
 #include "menu/setmenucpftperinatal1.h"
 #include "menu/setmenucpftpsychooncology1.h"
 #include "menu/setmenufromlp.h"
+#include "menu/setmenufromperinatal.h"
 
 
 ClinicalSetsMenu::ClinicalSetsMenu(CamcopsApp& app) :
@@ -39,5 +40,6 @@ ClinicalSetsMenu::ClinicalSetsMenu(CamcopsApp& app) :
         MAKE_MENU_MENU_ITEM(SetMenuCpftPerinatal1, app),
         MAKE_MENU_MENU_ITEM(SetMenuCpftPsychooncology1, app),
         MAKE_MENU_MENU_ITEM(SetMenuFromLp, app),
+        MAKE_MENU_MENU_ITEM(SetMenuFromPerinatal, app),
     };
 }

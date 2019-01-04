@@ -24,6 +24,8 @@ Clinical Outcomes in Routine Evaluation 10 (CORE-10)
 
 .. include:: include_from_lp_generic.rst
 
+.. include:: include_from_perinatal_generic.rst
+
 History and guide
 ~~~~~~~~~~~~~~~~~
 

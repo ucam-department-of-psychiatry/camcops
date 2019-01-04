@@ -287,41 +287,177 @@ Set menus for clinical purposes
 -------------------------------
 
 Individual clinical services or contexts may have specific menus of tasks
-created. Amongst them:
+created. Amongst them are the :ref:`FROM-LP <from_lp>` and `FROM-Perinatal
+<from_perinatal>` sets.
 
-FROM-LP menu
-~~~~~~~~~~~~
 
-Generic:
+.. _from_lp:
+
+The FROM-LP framework
+---------------------
+
+FROM-LP is the Royal College of Psychiatrists' Framework for Routine Outcome
+Measurement in Liaison Psychiatry.
+
+**The FROM-LP generic measures are:**
+
+*Process*
+
+- a measure of response time;
+
+- :ref:`Identify and Rate the Aim of the Contact (IRAC) <irac>`
+  (Trigwell P, 2014a).
+
+*Outcomes (clinician-rated)*
 
 - :ref:`Clinical Global Impression – Improvement (CGI-I) <cgi_i>`
 
+*Outcomes (patient-rated)*
+
 - :ref:`Clinical Outcomes in Routine Evaluation 10 (CORE-10) <core10>`
 
-- :ref:`Friends and Family Test (FFT) <fft>`
+*Patient satisfaction*
 
-- :ref:`Identify and Rate the Aim of the Contact (IRAC) <irac>`
+- :ref:`Patient Satisfaction Scale (PSS) <pss>` (Persaud A et al. 2008).
 
-- :ref:`Patient Satisfaction Scale (PSS) <pss>`
+- :ref:`Friends and Family Test (FFT) <fft>` (Department of Health, 2012).
 
-- :ref:`Referrer Satisfaction Scale (survey version) <rss_survey>`
+*Referrer satisfaction*
 
-- :ref:`Referrer Satisfaction Scale (patient-specific version)
-  <rss_patient_specific>`
+- Referrer Satisfaction Scale (RSS) (Trigwell P, 2014b, after Persaud A et al.
+  2008). CamCOPS supports two versions of the RSS:
 
-Disease-specific:
+  - :ref:`Referrer Satisfaction Scale (survey version) <rss_survey>`
 
-- :ref:`Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) <ace3>`
+  - :ref:`Referrer Satisfaction Scale (patient-specific version)
+    <rss_patient_specific>`
 
-- :ref:`AUDIT Alcohol Consumption Questions (AUDIT-C) <audit_c>`
+**The FROM-LP condition-specific measures are:**
 
-- :ref:`Body mass index (BMI) <bmi>`
+- Dementia: the :ref:`ACE-R <ace_r>`.
 
-- :ref:`Generalized Anxiety Disorder Assessment (GAD-7) <gad7>`
+  - In CamCOPS, see the :ref:`Addenbrooke’s Cognitive Examination, revision 3
+    (ACE-III) <ace3>` instead.
 
-- :ref:`Health of the Nation Outcome Scales: HoNOS <honos>`
+- Depressive disorders: the :ref:`Patient Health Questionnaire-9 (PHQ-9)
+  <phq9>`.
 
-- :ref:`Patient Health Questionnaire-9 (PHQ-9) <phq9>`
+- Postnatal depression: the :ref:`Edinburgh Postnatal Depression Scale (EPDS)
+  <epds>`.
+
+- Anxiety disorders: the :ref:`Generalized Anxiety Disorder Assessment (GAD-7)
+  <gad7>`.
+
+- Psychosis: the :ref:`Health of the Nation Outcome Scales: HoNOS <honos>`.
+
+- Alcohol: the :ref:`AUDIT Alcohol Consumption Questions (AUDIT-C) <audit_c>`.
+
+- Eating disorders: :ref:`Body mass index (BMI) <bmi>`.
+
+- Medically unexplained symptoms: the :ref:`EQ-5D-5L <eq5d5l>`.
+
+History and guide
+~~~~~~~~~~~~~~~~~
+
+- Faculty of Liaison Psychiatry, Royal College of Psychiatrists (2015).
+  Framework for Routine Outcome Measurement in Liaison Psychiatry (FROM-LP).
+  Faculty report FR/LP/02. http://www.rcpsych.ac.uk/pdf/FRLP02.pdf.
+
+- The Trigwell references from the FROM-LP report are listed there as personal
+  communications.
+
+- For Guy (1976), see :ref:`CGI <cgi>`.
+
+- Persaud A et al. (2008). Mental Health Outcomes Compendium. National
+  Institute for Mental Health in England.
+  http://webarchive.nationalarchives.gov.uk/20130107105354/http:/www.dh.gov.uk/prod_consum_dh/groups/dh_digitalassets/documents/digitalasset/dh_093677.pdf
+
+- Department of Health (2012). The NHS Friends and Family Test Implementation
+  Guidance. Department of Health. [2015 edition at
+  http://www.england.nhs.uk/wp-content/uploads/2015/03/fft-guidance-march-2015.pdf.]
+
+Source
+~~~~~~
+
+FROM-LP report (2015), as above, and some original sources.
+
+Intellectual property rights
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- 2015 faculty report © The Royal College of Psychiatrists.
+
+- “... the actual FROM-LP framework. The scales named in the latter” [the
+  FROM-LP framework] “are all fine to use from a copyright perspective.” Peter
+  Trigwell, clinical lead for FROM-LP, to Rudolf Cardinal 2015-06-01.
+
+
+.. _from_perinatal:
+
+The FROM-Perinatal framework
+----------------------------
+
+FROM-Perinatal is the Royal College of Psychiatrists' Framework for Routine
+Outcome Measures in Perinatal Psychiatry.
+
+The FROM-Perinatal measures (not all implemented in CamCOPS) are:
+
+**Common mental health disorders**
+
+- :ref:`Edinburgh Postnatal Depression Scale (EPDS) <epds>`; PROM
+- :ref:`Patient Health Questionnaire 9 (PHQ-9) <phq9>`; PROM
+- :ref:`Generalised Anxiety Disorder scale (GAD-7) <gad7>`; PROM
+
+**Generic measures**
+
+- :ref:`Health of the Nation Outcome Scales (HoNOS) <honos>`; CROM
+- :ref:`Health of the Nation Outcome Scales, Children and Adolescent Mental
+  Health (HoNOSCA) <honosca>`; CROM
+- Recovering Quality of Life (ReQoL); PROM
+- Clinical Outcomes in Routine Evaluation Outcome Measure (CORE-OM); PROM
+- :ref:`CORE-10 <core10>`
+- Camberwell Assessment of Need for Mothers (CAN-M); CROM/PROM
+
+**Mother-infant measures**
+
+- Postpartum Bonding Questionnaire (PBQ); PROM
+- Bethlem Mother–Infant Interaction Scale (BMIS); CROM
+- Mothers' Object Relations Scale (MORS-SF); PROM
+- CARE-Index; CROM
+- Parent–Infant Interaction Observation Scale (PIIOS); CROM
+- National Institute of Child Health and Human Development (NICHD) scale; CROM
+
+**Infant measure**
+
+- Alarm Distress BaBy scale (ADBB); CROM
+
+**Patient experience measures**
+
+- Patient rated Outcome and Experience Measure (POEM); PREM/PROM
+- Perinatal VOICE (Views On Inpatient CarE) Questionnaire; PREM/PROM
+
+**Specific conditions**
+
+- :ref:`Brief Psychiatric Rating Scale (BPRS) <bprs>`; CROM
+- Young Mania Rating Scale (YMRS); CROM
+- Difficulties in Emotional Regulation Scale (DERS and DERS-SF); PROM
+- Health Anxiety Inventory (short version: SHAI); PROM
+- :ref:`Yale–Brown Obsessive Compulsive Scale (YBOCS) <ybocs>`; PROM
+- :ref:`Impact of Events Scale Revised (IES-R) <iesr>`; PROM
+- :ref:`Panic Disorder Severity Scale (PDSS) <pdss>`; PROM
+- Agoraphobia–Mobility Inventory (MI); PROM
+
+
+[PREM, patient-rated experience measure; PROM, patient-rated outcome measure;
+CROM, clinician-rated outcome measure.]
+
+History and guide
+~~~~~~~~~~~~~~~~~
+
+- Royal College of Psychiatrists (2018).
+  FROM-Perinatal: Framework for Routine Outcome Measures in Perinatal
+  Psychiatry. College Report CR216.
+  https://www.rcpsych.ac.uk/docs/default-source/improving-care/better-mh-policy/college-reports/college-report-cr216.pdf
+
 
 Demonstration task
 ------------------

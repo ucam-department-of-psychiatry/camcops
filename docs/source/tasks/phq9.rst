@@ -24,6 +24,8 @@ Patient Health Questionnaire-9 (PHQ-9)
 
 .. include:: include_from_lp_specific.rst
 
+.. include:: include_from_perinatal_common.rst
+
 History and guide
 ~~~~~~~~~~~~~~~~~
 

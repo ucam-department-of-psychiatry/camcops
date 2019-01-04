@@ -790,7 +790,8 @@ SOURCES += \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
     widgets/verticalscrollareaviewport.cpp \
-    widgets/thermometer.cpp
+    widgets/thermometer.cpp \
+    menu/setmenufromperinatal.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1185,7 +1186,8 @@ HEADERS += \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
     widgets/verticalscrollareaviewport.h \
-    widgets/thermometer.h
+    widgets/thermometer.h \
+    menu/setmenufromperinatal.h
 
 DISTFILES += \
     LICENSE.txt \

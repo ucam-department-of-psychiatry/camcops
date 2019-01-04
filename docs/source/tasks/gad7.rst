@@ -24,6 +24,8 @@ Generalized Anxiety Disorder Assessment (GAD-7)
 
 .. include:: include_from_lp_specific.rst
 
+.. include:: include_from_perinatal_common.rst
+
 History and guide
 ~~~~~~~~~~~~~~~~~
 

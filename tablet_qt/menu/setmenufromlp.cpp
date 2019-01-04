@@ -27,6 +27,7 @@
 #include "tasks/bmi.h"
 #include "tasks/cgii.h"
 #include "tasks/core10.h"
+#include "tasks/eq5d5l.h"
 #include "tasks/fft.h"
 #include "tasks/gad7.h"
 #include "tasks/honos.h"
@@ -64,6 +65,6 @@ SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
-        // *** new task: EQ-5D-5L, if permitted?
+        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, app),
     };
 }

@@ -1,4 +1,4 @@
-..  docs/source/tasks/include_from_lp_specific.rst
+..  docs/source/tasks/rss.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,6 +17,21 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. note::
-    **[FROM-LP]** Recommended by FROM-LP, as part of its condition-specific
-    suggestions. See :ref:`FROM-LP <from_lp>`.
+.. _rss_patient_specific:
+
+Referrer Satisfaction Scale (RSS): patient-specific version
+-----------------------------------------------------------
+
+.. include:: include_from_lp_generic.rst
+
+See :ref:`FROM-LP <from_lp>`.
+
+
+.. _rss_survey:
+
+Referrer Satisfaction Scale (RSS): survey version
+-------------------------------------------------
+
+.. include:: include_from_lp_generic.rst
+
+See :ref:`FROM-LP <from_lp>`.

@@ -19,6 +19,4 @@
 
 .. note::
     **[FROM-LP]** Recommended by FROM-LP, as part of the core generic
-    set. [Royal College of Psychiatrists (2015). Framework for Routine Outcome
-    Measurement in Liaison Psychiatry (FROM-LP). Faculty report FR/LP/02.
-    https://www.rcpsych.ac.uk/pdf/FRLP02.pdf.]
+    set. See :ref:`FROM-LP <from_lp>`.

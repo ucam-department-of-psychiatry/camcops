@@ -59,7 +59,7 @@ All tasks
     eq5d5l.rst
     factg.rst
     fast.rst
-    from_lp.rst
+    fft.rst
     frs.rst
     gad7.rst
     gaf.rst
@@ -73,6 +73,7 @@ All tasks
     ided3d.rst
     iesr.rst
     ifs.rst
+    irac.rst
     khandaker_1.rst
     mast.rst
     mds_updrs.rst
@@ -85,9 +86,11 @@ All tasks
     pdss.rst
     phq9.rst
     phq15.rst
+    pss.rst
     pswq.rst
     qol.rst
     rand36.rst
+    rss.rst
     slums.rst
     wemwbs.rst
     wsas.rst

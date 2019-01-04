@@ -1,4 +1,4 @@
-..  docs/source/tasks/include_from_lp_specific.rst
+..  docs/source/tasks/include_from_perinatal_specific.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -18,5 +18,5 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. note::
-    **[FROM-LP]** Recommended by FROM-LP, as part of its condition-specific
-    suggestions. See :ref:`FROM-LP <from_lp>`.
+    **[FROM-Perinatal]** Recommended by FROM-Perinatal, as part of the
+    "specific conditions" set. See :ref:`FROM-Perinatal <from_perinatal>`.
