@@ -26,6 +26,7 @@ Tasks
 **Priority**
 
 - Perinatal: Perinatal POEM (Patient-rated Outcome and Experience Measure)
+  ... needs original task
 - Perinatal: Goal Based Outcomes (GBO); see
   https://www.corc.uk.net/outcome-experience-measures/ and
   https://digital.nhs.uk/National-Clinical-Content-Repository
@@ -35,11 +36,6 @@ Tasks
 - Perinatal: Session Rating Scale (SRS); see
   https://www.corc.uk.net/outcome-experience-measures/ and
   https://digital.nhs.uk/National-Clinical-Content-Repository
-- Perinatal: an infant/mother relationship indicator (Zeyn, TBC); NOT the
-  Parent–Infant Interaction Observation Scale (PIIOS);
-  clinician-rated and needs training;
-  https://dx.doi.org/10.1080/02646838.2012.751586; INSTEAD the Care Index
-  (a/w details from JM/NK).
 
 **To be prioritized**
 
@@ -53,6 +49,12 @@ Tasks
 - Cardinal_ExpDet* tasks: generate noise on the fly?
 
 - PDSQ screener (see Clark talk 2018-09-20, MQ Data Science)
+
+- Perinatal: an infant/mother relationship indicator (Zeyn, TBC); NOT the
+  Parent–Infant Interaction Observation Scale (PIIOS);
+  clinician-rated and needs training;
+  https://dx.doi.org/10.1080/02646838.2012.751586; INSTEAD the Care Index
+  (a/w details from JM/NK). **Currently deferred.**
 
 **Consider**
 
