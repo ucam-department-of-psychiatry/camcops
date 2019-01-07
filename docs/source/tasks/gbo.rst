@@ -19,11 +19,10 @@
 
 .. _gbo:
 
-Goal Based Outcomes (GBO)
--------------------------
+Goal-Based Outcome (GBO)
+------------------------
 
 .. include:: include_under_development.rst
-
 
 Sources
 ~~~~~~~
@@ -31,7 +30,22 @@ Sources
 See
 
 - https://www.corc.uk.net/outcome-experience-measures/goal-based-outcomes/
+- https://goals-in-therapy.com/goals-and-goals-based-outcomes-gbos/
 - https://goalsintherapycom.files.wordpress.com/2018/03/gbo-version-2-march-2018-final.pdf
 - https://digital.nhs.uk/National-Clinical-Content-Repository
+- Law D (2019) *The goal-based outcome (GBO) tool: guidance notes.*
+  https://goals-in-therapy.com/2018/12/07/guidance-notes-for-using-the-goal-based-outcome-gbo-tool/
+- Law D & Jacob J (2015). *Goals and goal based outcomes (GBOs): Some useful
+  information.* Third edition. CAMHS Press, London.
+  ISBN 978-0-9931555-0-5.
+  https://www.corc.uk.net/media/1219/goalsandgbos-thirdedition.pdf
 
-PROPER SOURCE STILL PENDING.
+Intellectual property rights
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright © Dr Duncan Law. Shared under the `Creative Commons licence BY-NC-SA
+4.0 <https://creativecommons.org/licenses/by-nc-sa/4.0/>`.
+
+- Source:
+  https://goalsintherapycom.files.wordpress.com/2018/03/gbo-version-2-march-2018-final.pdf,
+  accessed 2019-01-07.

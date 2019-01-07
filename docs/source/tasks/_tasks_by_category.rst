@@ -414,7 +414,7 @@ The FROM-Perinatal measures (not all implemented in CamCOPS) are:
   Health (HoNOSCA) <honosca>`; CROM
 - Recovering Quality of Life (ReQoL); PROM
 - Clinical Outcomes in Routine Evaluation Outcome Measure (CORE-OM); PROM
-- :ref:`CORE-10 <core10>`
+- :ref:`CORE-10 <core10>`; PROM
 - Camberwell Assessment of Need for Mothers (CAN-M); CROM/PROM
 
 **Mother-infant measures**
