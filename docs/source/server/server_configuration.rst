@@ -456,8 +456,8 @@ edit into the Apache config file [#linuxflavours]_:
             # Note the use of "http" (reflecting the backend), not https (like the
             # front end).
 
-        ProxyPass /camcops http://127.0.0.1:8000 retry=0
-        ProxyPassReverse /camcops http://127.0.0.1:8000 retry=0
+        ProxyPass /camcops/ http://127.0.0.1:8000 retry=0
+        ProxyPassReverse /camcops/ http://127.0.0.1:8000 retry=0
 
             # UNIX SOCKET METHOD (Apache 2.4.9 and higher)
             #

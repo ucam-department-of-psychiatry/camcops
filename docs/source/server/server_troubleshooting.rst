@@ -53,6 +53,28 @@ Web server errors from Apache
 - **Other Apache errors.** See :ref:`front-end web server configuration
   <configure_apache>`, which has specimen Apache config sections.
 
+Web server URL errors
+---------------------
+
+Can't find //login
+~~~~~~~~~~~~~~~~~~
+
+If your CamCOPS server routes you to the login page and then says it can't
+find a URL like ``//login``, it's likely that your Apache file is failing to
+swallow a trailing slash. If it looks like this:
+
+.. code-block:: apacheconf
+
+        ProxyPass /camcops ...
+        ProxyPassReverse /camcops ...
+
+then change it to
+
+.. code-block:: apacheconf
+
+        ProxyPass /camcops/ ...
+        ProxyPassReverse /camcops/ ...
+
 Web server errors in general
 ----------------------------
 

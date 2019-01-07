@@ -803,8 +803,8 @@ def get_demo_apache_config(
         # Note the use of "http" (reflecting the backend), not https (like the
         # front end).
 
-    ProxyPass {urlbase} http://127.0.0.1:{specimen_internal_port} retry=0
-    ProxyPassReverse {urlbase} http://127.0.0.1:{specimen_internal_port} retry=0
+    ProxyPass {urlbase}/ http://127.0.0.1:{specimen_internal_port} retry=0
+    ProxyPassReverse {urlbase}/ http://127.0.0.1:{specimen_internal_port} retry=0
 
         # UNIX SOCKET METHOD (Apache 2.4.9 and higher)
         #
@@ -869,8 +869,8 @@ def get_demo_apache_config(
         #
         # - https://emptyhammock.com/projects/info/pyweb/webconfig.html
 
-    # ProxyPass /camcops unix:{specimen_socket_file}|http://dummy1 retry=0
-    # ProxyPassReverse /camcops unix:{specimen_socket_file}|http://dummy1 retry=0
+    # ProxyPass /camcops/ unix:{specimen_socket_file}|http://dummy1 retry=0
+    # ProxyPassReverse /camcops/ unix:{specimen_socket_file}|http://dummy1 retry=0
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~
         # (b) Allow proxy over SSL.
