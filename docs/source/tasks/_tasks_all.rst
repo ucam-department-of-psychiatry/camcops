@@ -63,6 +63,7 @@ All tasks
     frs.rst
     gad7.rst
     gaf.rst
+    gbo.rst
     gds.rst
     gmcpq.rst
     hads.rst
@@ -80,10 +81,12 @@ All tasks
     moca.rst
     nart.rst
     npiq.rst
+    ors.rst
     panss.rst
     pcl.rst
     pcl5.rst
     pdss.rst
+    perinatal_poem.rst
     phq9.rst
     phq15.rst
     pss.rst
@@ -92,6 +95,7 @@ All tasks
     rand36.rst
     rss.rst
     slums.rst
+    srs.rst
     wemwbs.rst
     wsas.rst
     ybocs.rst

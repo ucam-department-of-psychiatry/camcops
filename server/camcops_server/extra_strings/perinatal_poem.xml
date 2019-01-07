@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="perinatal_poem">
+    <!-- Perinatal POEM (Patient-rated Outcome and Experience Measure) -->
+    <!--
+        See CamCOPS documentation for source/IP details.
+
+        Developed by the Perinatal Quality Network for Perinatal Mental Health
+        Services (CCQI), Royal College of Psychiatrists.
+
+        "POEM is free to use." (Royal College of Psychiatrists, CR216, 2015.)
+
+        As per that source, see:
+
+            https://www.snapsurveys.com/wh/s.asp?k=153777774423
+            https://www.snapsurveys.com/wh/s.asp?k=148369367862
+     -->
+
+    <!-- all pages -->
+    <string name="title">Perinatal POEM (Patient-rated Outcome and Experience Measure)</string>
+    <string name="note_to_respondent">NOTE: If you are a partner/other please note than when answering questions, ‘me’, ‘my’ or ‘you’ refers to the mum/patient.</string>
+
+    <!-- several pages -->
+    <string name="agreement_a1">Strongly agree</string>
+    <string name="agreement_a2">Agree</string>
+    <string name="agreement_a3">Disagree</string>
+    <string name="agreement_a4">Strongly disagree</string>
+
+    <!-- page 1 -->
+    <string name="intro_title">Perinatal POEM (Patient rated Outcome and Experience Measure)</string>
+    <string name="intro_para_1">We are always looking to improve the quality of the service we provide. To help us to do this we would be grateful it you could give us your views regarding the service you have received from us.</string>
+    <string name="intro_para_2">If you have a partner, or someone who has been closely involved in supporting you, who would also like to express their views on the care we offered you please encourage them to also fill in a questionnaire. <b>If you are a partner/other please note than when answering questions, ‘me’, ‘my’ or ‘you’ refers to the mum/patient.</b></string>
+    <string name="intro_para_3">Please answer ALL questions. Your answers will be used to help the team to improve the service and will be completely anonymous so will not affect the care you receive.</string>
+
+    <!-- page 2 -->
+    <string name="qa_q">Are you a...</string>
+    <string name="qa_a1">Patient</string>
+    <string name="qa_a2">Partner/other</string>
+
+    <string name="qb_q">What perinatal service have you accessed?</string>
+    <string name="qb_a1">Inpatient Unit</string>
+    <string name="qb_a2">Perinatal Community Service</string>
+
+    <!-- Question 2 is a bit tricky in that it has Q2A with four sub-questions,
+         Q2B with four sub-questions, Q2C with four sub-questions. Rather than
+         have 2_a_i, 2_a_ii, or some such overcomplexity, we'll just re-letter
+         them a-l. -->
+
+    <!-- page 3 -->
+    <string name="q1_stem">Please rate how your mental health has been</string>
+    <string name="q1_a1">Very well</string>
+    <string name="q1_a2">Well</string>
+    <string name="q1_a3">Unwell</string>
+    <string name="q1_a4">Very unwell</string>
+    <string name="q1_a5">Extremely unwell</string>
+    <string name="q1a_q">When I first came into contact with the service I was...</string>
+    <string name="q1b_q">When I was discharged from the service I was...</string>
+
+    <!-- page 4; "Q2" in the original -->
+    <string name="q2_stem">Please rate your view of the service based on your own experience</string>
+    <string name="q2a_q">Staff <b>did not</b> communicate with others involved in my care</string>
+    <string name="q2b_q">Staff gave me the right amount of support and care</string>
+    <string name="q2c_q">I <b>did not</b> get help quickly enough after referral</string>
+    <string name="q2d_q">Staff listened to me and understood my problems</string>
+
+    <!-- page 5; "Q2b" in the original -->
+    <!-- stem is q2_stem again -->
+    <string name="q2e_q">Staff <b>did not</b> involve me enough in my care and treatment</string>
+    <string name="q2f_q">The service provided me with the information I needed</string>
+    <string name="q2g_q">Staff <b>were not</b> very sensitive to my needs</string>
+    <string name="q2h_q">Staff helped me to understand my illness/difficulties</string>
+
+    <!-- page 6; "Q2.c" in the original -->
+    <!-- stem is q2_stem again -->
+    <string name="q2i_q">Staff <b>were not</b> very sensitive to the needs of my baby</string>
+    <string name="q2j_q">Staff helped me be more confident with caring for my baby</string>
+    <string name="q2k_q">The service involved other relevant people in a helpful way</string>
+    <string name="q2l_q">I would recommend this service to others</string>
+
+    <!-- page 7 -->
+    <!-- In the Community version, "Q3" is missing but the comments ("i") remain. -->
+    <string name="q3_stem">Please select an answer for each statement about your discharge from the inpatient unit (MBU).</string>
+    <string name="q3a_q">The unit was clean and hygienic</string>
+    <string name="q3b_q">The unit <b>did not</b> provide a good place for me to recover in</string>
+    <string name="q3c_q">The unit <b>did not</b> provide helpful activities and therapies</string>
+    <string name="q3d_q">The unit provided a good place for my baby to be with me</string>
+    <string name="q3e_q">The unit supported me in my contact with family and friends</string>
+    <string name="q3f_q">The food provided <b>was not</b> acceptable to me</string>
+    <!-- "i" in original -->
+    <string name="general_comments_q">Please use this space for any other comments you have about the service and how we could improve it.</string>
+
+    <!-- page 8 -->
+    <!-- "ii" in original -->
+    <string name="participation_q">Would you be interested in contributing to the development of our service by participating in discussions/meetings?</string>
+    <!-- answers are "Yes", "No". If yes, this appears: -->
+    <string name="contact_details_q">If you would like to be contacted about helping with our service improvement, please write your name and email address below.</string>
+
+    <!-- page 9 -->
+    <string name="conclusion_thanks">Thank you for completing the questionnaire!</string>
+
+    <!-- The final page (p9) also said:
+
+        If you have any queries about this questionnaire you can contact the
+        Perinatal Quality Network Project Team on 0207 977 6691.
+
+    ... but that's too specific.
+
+    -->
+
+  </task>
+</resources>

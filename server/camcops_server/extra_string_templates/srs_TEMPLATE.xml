@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="srs">
+    <!-- Session Rating Scale (SRS V3.0) -->
+    <!--
+        © 2002, Scott D. Miller, Barry L. Duncan, & Lynn Johnson
+        International Center for Clinical Excellence
+        www.scottdmiller.com
+
+        Licensing arrangements include via NHS Digital in the UK.
+    -->
+
+    <!-- Who? -->
+    <string name="session_number_q">XXX</string>
+    <string name="date_q">XXX</string>
+
+    <!-- Instructions -->
+    <string name="instructions_to_subject">XXX</string>
+    <!-- Need to think about the "10cm line" problem and how to make this instruction vanish:
+        note that in the paper copy this is autoscaled to the size of the ORS, so we need to replicate here.
+    -->
+    <string name="instructions_to_clinician">XXX</string>
+
+    <string name="q1_title">XXX</string>
+    <string name="q1_left">XXX</string>
+    <string name="q1_right">XXX</string>
+
+    <string name="q2_title">XXX</string>
+    <string name="q2_left">XXX</string>
+    <string name="q2_right">XXX</string>
+
+    <string name="q3_title">XXX</string>
+    <string name="q3_left">XXX</string>
+    <string name="q3_right">XXX</string>
+
+    <string name="q4_title">XXX</string>
+    <string name="q4_left">XXX</string>
+    <string name="q4_right">XXX</string>
+
+    <!-- In-task copyright ack. -->
+    <string name="copyright">XXX</string>
+    <string name="licensing">XXX</string>
+
+  </task>
+</resources>

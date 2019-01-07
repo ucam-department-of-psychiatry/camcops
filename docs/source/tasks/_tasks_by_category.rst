@@ -40,11 +40,7 @@ Clinical notes and logs
 
 - :ref:`Diagnostic coding, ICD-10 codes <diagnosis_icd10>`
 
-- :ref:`Friends and Family Test (FFT) <fft>`
-
 - :ref:`Identify and Rate the Aim of the Contact (IRAC) <irac>`
-
-- :ref:`Patient Satisfaction Scale <pss>`
 
 - :ref:`Photograph <photo>`
 
@@ -53,9 +49,6 @@ Clinical notes and logs
 - :ref:`Progress note <progress_note>`
 
 - :ref:`Psychiatric clerking <clerking>`
-
-- :ref:`Referrer Satisfaction Scale (patient-specific version)
-  <rss_patient_specific>`
 
 Global function and multiple aspects of psychopathology
 -------------------------------------------------------
@@ -99,6 +92,8 @@ Global function and multiple aspects of psychopathology
 - :ref:`Health of the Nation Outcome Scales: HoNOSCA <honosca>`
 
 - :ref:`Neuropsychiatric Inventory Questionnaire (NPI-Q) <npiq>`
+
+- :ref:`Outcome Rating Scale (ORS) <ors>`
 
 - :ref:`RAND 36-Item Short Form Health Survey 1.0 (RAND-36) <rand36>`
 
@@ -239,6 +234,25 @@ Personality and childhood experience
 
 - :ref:`Childhood Experience of Care and Abuse Questionnaire (CECA-Q3)
   <cecaq3>`
+
+Service evaluation
+------------------
+
+- :ref:`Friends and Family Test (FFT) <fft>`
+
+- :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`
+
+- :ref:`Perinatal Patient-rated Outcome and Experience Measure (POEM)
+  <perinatal_poem>`
+
+- :ref:`Patient Satisfaction Scale <pss>`
+
+- :ref:`Referrer Satisfaction Scale (patient-specific version)
+  <rss_patient_specific>`
+
+- :ref:`Referrer Satisfaction Scale (survey version) <rss_survey>`
+
+- :ref:`ServiceRating Scale (ORS) <srs>`
 
 Research tasks (experimental)
 -----------------------------
@@ -432,7 +446,8 @@ The FROM-Perinatal measures (not all implemented in CamCOPS) are:
 
 **Patient experience measures**
 
-- Patient rated Outcome and Experience Measure (POEM); PREM/PROM
+- :ref:`Perinatal Patient-rated Outcome and Experience Measure (POEM)
+  <perinatal_poem>`; PREM/PROM
 - Perinatal VOICE (Views On Inpatient CarE) Questionnaire; PREM/PROM
 
 **Specific conditions**

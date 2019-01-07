@@ -73,6 +73,7 @@ GlobalMenu::GlobalMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honos65::HONOS65_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honosca::HONOSCA_TABLENAME, app),
+        // ORS... ***
         MAKE_TASK_MENU_ITEM(NpiQ::NPIQ_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, app),

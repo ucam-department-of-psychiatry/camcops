@@ -17,31 +17,30 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "setmenucpftperinatal1.h"
+#include "serviceevaluationmenu.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
-#include "tasks/core10.h"
-#include "tasks/gad7.h"
-#include "tasks/honos.h"
+#include "tasks/fft.h"
+#include "tasks/gmcpq.h"
+#include "tasks/patientsatisfaction.h"
+#include "tasks/referrersatisfactiongen.h"
+#include "tasks/referrersatisfactionspec.h"
 
 
-SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("CPFT Perinatal Service"),
-               uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
+ServiceEvaluationMenu::ServiceEvaluationMenu(CamcopsApp& app) :
+    MenuWindow(app, tr("Service evaluation"),
+               uifunc::iconFilename(uiconst::ICON_CLINICAL)) // *** needs new icon?
 {
-    m_subtitle = "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
-                 "perinatal psychiatry service";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
-        // GBO... ***
-        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
-        // ORS... ***
-        // Perinatal POEM... ***
+        MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(GmcPq::GMCPQ_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, app),
+        // *** add perinatal POEM
+        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, app),
         // SRS... ***
     };
 }

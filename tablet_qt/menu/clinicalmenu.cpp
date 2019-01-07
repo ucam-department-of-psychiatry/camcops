@@ -28,14 +28,11 @@
 #include "tasks/cpftlpsreferral.h"
 #include "tasks/cpftlpsresetresponseclock.h"
 #include "tasks/diagnosisicd10.h"
-#include "tasks/fft.h"
 #include "tasks/irac.h"
-#include "tasks/patientsatisfaction.h"
 #include "tasks/photo.h"
 #include "tasks/photosequence.h"
 #include "tasks/progressnote.h"
 #include "tasks/psychiatricclerking.h"
-#include "tasks/referrersatisfactionspec.h"
 
 
 ClinicalMenu::ClinicalMenu(CamcopsApp& app) :
@@ -50,13 +47,10 @@ ClinicalMenu::ClinicalMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(CPFTLPSResetResponseClock::CPFTLPSRESETCLOCK_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(CPFTLPSDischarge::CPFTLPSDISCHARGE_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(DiagnosisIcd10::DIAGNOSIS_ICD10_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Irac::IRAC_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Photo::PHOTO_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(PhotoSequence::PHOTOSEQUENCE_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(ProgressNote::PROGNOTE_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(PsychiatricClerking::PSYCLERK_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, app),
     };
 }

@@ -304,6 +304,8 @@ tablet_qt
     menu/researchmenu.h.rst
     menu/researchsetsmenu.cpp.rst
     menu/researchsetsmenu.h.rst
+    menu/serviceevaluationmenu.cpp.rst
+    menu/serviceevaluationmenu.h.rst
     menu/setmenucpftaffective1.cpp.rst
     menu/setmenucpftaffective1.h.rst
     menu/setmenucpftperinatal1.cpp.rst

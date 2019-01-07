@@ -182,6 +182,7 @@ server/camcops_server
     extra_strings/panss.xml.rst
     extra_strings/pcl.xml.rst
     extra_strings/pcl5.xml.rst
+    extra_strings/perinatal_poem.xml.rst
     extra_strings/phq15.xml.rst
     extra_strings/phq9.xml.rst
     extra_strings/pswq.xml.rst
