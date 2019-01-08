@@ -36,6 +36,7 @@ SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
                  "perinatal psychiatry service";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
+        // APEQPT... ***
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
         // GBO... ***

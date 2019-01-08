@@ -25,17 +25,13 @@ Tasks
 
 **Priority**
 
-- Perinatal: Perinatal POEM (Patient-rated Outcome and Experience Measure)
-  ... needs original task
-- Perinatal: Goal Based Outcome (GBO); see
-  https://www.corc.uk.net/outcome-experience-measures/ and
-  https://digital.nhs.uk/National-Clinical-Content-Repository
-- Perinatal: Outcome Rating Scale (ORS); see
-  https://www.corc.uk.net/outcome-experience-measures/ and
-  https://digital.nhs.uk/National-Clinical-Content-Repository
-- Perinatal: Session Rating Scale (SRS); see
-  https://www.corc.uk.net/outcome-experience-measures/ and
-  https://digital.nhs.uk/National-Clinical-Content-Repository
+- :ref:`Perinatal POEM (Patient-rated Outcome and Experience Measure)
+  <perinatal_poem>`.
+- :ref:`Goal Based Outcome (GBO) <gbo>`.
+- :ref:`Outcome Rating Scale (ORS) <ors>`.
+- :ref:`Session Rating Scale (SRS) <srs>`.
+- :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
+  (APEQPT) <apeqpt>`.
 
 **To be prioritized**
 

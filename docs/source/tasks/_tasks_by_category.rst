@@ -238,6 +238,9 @@ Personality and childhood experience
 Service evaluation
 ------------------
 
+- :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
+  (APEQPT) <apeqpt>`.
+
 - :ref:`Friends and Family Test (FFT) <fft>`
 
 - :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`

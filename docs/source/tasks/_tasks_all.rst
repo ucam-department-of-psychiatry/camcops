@@ -29,6 +29,7 @@ All tasks
 
     ace3.rst
     aims.rst
+    apeq.rst
     audit.rst
     badls.rst
     bdi.rst
