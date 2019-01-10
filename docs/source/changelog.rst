@@ -30,6 +30,7 @@ Quick links:
 - :ref:`2016 <changelog_2016>`
 - :ref:`2017 <changelog_2017>`
 - :ref:`2018 <changelog_2018>`
+- :ref:`2019 <changelog_2019>`
 
 Contributors
 ------------
@@ -1760,3 +1761,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
       ``[recipient:XXX]`` in the config file.
     - Database drops old HL7-specific tables and adds a new set of export
       tables (also: more extensible for future methods).
+
+.. _changelog_2019:
+

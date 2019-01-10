@@ -1,4 +1,4 @@
-..  docs/source/server/include_consistency_warning.rst
+..  docs/source/administrator/local/local_info.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,11 +17,11 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. warning::
+Local configuration information
+===============================
 
-    Both trackers and CTVs collate information from multiple tasks. They
-    therefore perform a **consistency check** to ensure that patient ID
-    information is the same across all tasks. (Did someone mis-spell a name,
-    for example -- or worse, mis-file information by entering the wrong ID
-    number?) **Beware** if the consistency check fails; you will need to
-    ensure yourself that all the data relates to the same patient.
+These links may be restricted:
+
+- `Cambridgeshire & Peterborough NHS Foundation Trust (CPFT)
+  <http://egret.psychol.cam.ac.uk/camcops_local/cpft.html>`_
+

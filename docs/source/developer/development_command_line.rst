@@ -32,6 +32,10 @@ Development command-line tools
 If you are developing tasks for CamCOPS, be aware of these additional
 development tools.
 
+..  contents::
+    :local:
+    :depth: 3
+
 .. _build_qt:
 
 build_qt.py

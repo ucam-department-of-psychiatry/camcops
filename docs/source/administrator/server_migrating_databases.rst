@@ -1,4 +1,4 @@
-..  docs/source/server/server_migrating_databases.rst
+..  docs/source/administrator/server_migrating_databases.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -38,6 +38,10 @@ Server: migrating databases
 
 As always, **back up your data first!**. Here are some suggestions for useful
 database tools and a summary of automatic migration tools in CamCOPS.
+
+..  contents::
+    :local:
+    :depth: 3
 
 Database-specific tools
 -----------------------

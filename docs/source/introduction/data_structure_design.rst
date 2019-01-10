@@ -20,6 +20,10 @@
 Internal data structure in CamCOPS
 ==================================
 
+..  contents::
+    :local:
+    :depth: 3
+
 The basics
 ----------
 

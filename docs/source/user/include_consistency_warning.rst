@@ -1,4 +1,4 @@
-..  docs/source/misc/tcpip_ports.rst
+..  docs/source/user/include_consistency_warning.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,22 +17,11 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _MySQL: https://www.mysql.com/
-.. _PostgreSQL: https://www.postgresql.org/
+.. warning::
 
-.. _tcpip_ports:
-
-Common relevant TCP/IP ports
-============================
-
-======= =======================================================================
-Port    Default function
-======= =======================================================================
-22      SSH
-80      HTTP
-443     HTTPS
-1433    `Microsoft SQL Server <https://www.microsoft.com/en-us/sql-server>`_
-3306    MySQL_
-5432    PostgreSQL_
-8443    Relatively common alternative for HTTPS (e.g. for testing)
-======= =======================================================================
+    Both trackers and CTVs collate information from multiple tasks. They
+    therefore perform a **consistency check** to ensure that patient ID
+    information is the same across all tasks. (Did someone mis-spell a name,
+    for example -- or worse, mis-file information by entering the wrong ID
+    number?) **Beware** if the consistency check fails; you will need to
+    ensure yourself that all the data relates to the same patient.

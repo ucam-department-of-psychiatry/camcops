@@ -21,7 +21,13 @@
 Design notes
 ============
 
-A few design decisions are documented here. See also:
+A few design decisions are documented here.
+
+..  contents::
+    :local:
+    :depth: 3
+
+See also:
 
 - :ref:`Patient/subject identification <patient_identification>`
 

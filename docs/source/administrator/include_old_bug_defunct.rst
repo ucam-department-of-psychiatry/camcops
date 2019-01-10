@@ -1,4 +1,4 @@
-..  docs/source/local/local_info.rst
+..  docs/source/administrator/include_old_bug_defunct.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,11 +17,6 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-Local configuration information
-===============================
+.. note::
 
-These links may be restricted:
-
-- `Cambridgeshire & Peterborough NHS Foundation Trust (CPFT)
-  <http://egret.psychol.cam.ac.uk/camcops_local/cpft.html>`_
-
+    This bug relates to old versions of CamCOPS and should no longer be seen.

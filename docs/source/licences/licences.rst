@@ -25,6 +25,10 @@ Licences
 This section gives citations to, and licence details for, software used by
 CamCOPS.
 
+..  contents::
+    :local:
+    :depth: 3
+
 .. _licences_camcops:
 
 CamCOPS

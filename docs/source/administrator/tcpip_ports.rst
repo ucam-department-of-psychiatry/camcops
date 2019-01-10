@@ -1,4 +1,4 @@
-..  docs/source/tasks/apeqpt.rst
+..  docs/source/administrator/tcpip_ports.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,26 +17,22 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _MySQL: https://www.mysql.com/
+.. _PostgreSQL: https://www.postgresql.org/
 
-.. _apeqpt:
+.. _tcpip_ports:
 
-Assessment Patient Experience Questionnaire for Psychological Therapies (APEQPT)
---------------------------------------------------------------------------------
+Common relevant TCP/IP ports
+============================
 
-.. include:: include_under_development.rst
-
-Sources
-~~~~~~~
-
-- http://www.talkingsense.org/wp-content/uploads/2014/10/PEQs.pdf, from
-  http://www.talkingsense.org/, the Improving Access to Psychological Therapies
-  (IAPT) service of Rotherham Doncaster and South Humber NHS Foundation Trust
-  (RDaSH).
-
-- https://www.talkingtherapies.berkshire.nhs.uk/forms/page_sa.asp?fldKey=241,
-  from Berkshire Healthcare NHS Foundation Trust.
-
-Intellectual property rights
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- **To be established.**
+======= =======================================================================
+Port    Default function
+======= =======================================================================
+22      SSH
+80      HTTP
+443     HTTPS
+1433    `Microsoft SQL Server <https://www.microsoft.com/en-us/sql-server>`_
+3306    MySQL_
+5432    PostgreSQL_
+8443    Relatively common alternative for HTTPS (e.g. for testing)
+======= =======================================================================

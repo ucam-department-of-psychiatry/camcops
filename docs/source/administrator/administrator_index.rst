@@ -1,4 +1,4 @@
-..  docs/source/server/include_old_bug_defunct.rst
+..  docs/source/administrator/administrator_index.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,6 +17,23 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. note::
+Administrator's guide
+=====================
 
-    This bug relates to old versions of CamCOPS and should no longer be seen.
+Details for people running a CamCOPS server.
+
+..  toctree::
+    :maxdepth: 1
+
+    server_installation.rst
+    third_party_installation.rst
+    server_configuration.rst
+    server_config_file.rst
+    server_front_end_admin.rst
+    server_command_line.rst
+    server_troubleshooting.rst
+    server_migrating_databases.rst
+    snomed.rst
+    tcpip_ports.rst
+    linux_flavours.rst
+    local/local_info.rst

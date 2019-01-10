@@ -19,10 +19,14 @@
 
 .. _NHS number: http://www.datadictionary.nhs.uk/version2/data_dictionary/data_field_notes/n/nhs_number_de.asp
 
-.. include:: ../client/include_tabletdefs.rst
+.. include:: ../user/include_tabletdefs.rst
 
 Creating tasks
 ==============
+
+..  contents::
+    :local:
+    :depth: 3
 
 Tasks on the client (tablet, desktop) are written in C++. All client tasks are
 classes that inherit from the `Task` class, define their database structure,

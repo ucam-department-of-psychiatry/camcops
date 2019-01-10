@@ -26,6 +26,10 @@ Intellectual property includes (1) CamCOPS code itself, (2) the tasks contained
 in and distributed with CamCOPS, and (3) software libraries that CamCOPS relies
 on.
 
+..  contents::
+    :local:
+    :depth: 3
+
 CamCOPS itself
 --------------
 

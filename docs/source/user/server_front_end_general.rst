@@ -1,4 +1,4 @@
-..  docs/source/server/server_front_end_general.rst
+..  docs/source/user/server_front_end_general.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -19,8 +19,15 @@
 
 .. _website_general:
 
-Web site: general use
-=====================
+Using the web site
+==================
+
+..  contents::
+    :local:
+    :depth: 3
+
+First
+-----
 
 Log into CamCOPS via a web browser.
 

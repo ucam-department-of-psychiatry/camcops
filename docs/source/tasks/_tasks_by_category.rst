@@ -22,6 +22,10 @@ Tasks in CamCOPS by category
 
 .. include:: include_task_copyright_warning.rst
 
+..  contents::
+    :local:
+    :depth: 1
+
 Clinical notes and logs
 -----------------------
 

@@ -1,4 +1,4 @@
-..  docs/source/server/server_troubleshooting.rst
+..  docs/source/administrator/server_troubleshooting.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -19,6 +19,10 @@
 
 Troubleshooting server problems
 ===============================
+
+..  contents::
+    :local:
+    :depth: 3
 
 Web server errors from Apache
 -----------------------------

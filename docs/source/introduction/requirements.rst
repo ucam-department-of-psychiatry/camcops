@@ -20,6 +20,10 @@
 Requirements and costs
 ======================
 
+..  contents::
+    :local:
+    :depth: 3
+
 .. _hardware_requirements_client:
 
 Android clients: hardware requirements

@@ -1,4 +1,4 @@
-..  docs/source/client/client_installation.rst
+..  docs/source/user/client_installation.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -19,6 +19,10 @@
 
 Installing and configuring the client
 =====================================
+
+..  contents::
+    :local:
+    :depth: 3
 
 Hardware and operating system requirements
 ------------------------------------------
