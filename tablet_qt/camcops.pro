@@ -683,6 +683,7 @@ SOURCES += \
     tasks/frs.cpp \
     tasks/gad7.cpp \
     tasks/gaf.cpp \
+    tasks/gbo.cpp \
     tasks/gds15.cpp \
     tasks/gmcpq.cpp \
     tasks/hads.cpp \
@@ -1080,6 +1081,7 @@ HEADERS += \
     tasks/frs.h \
     tasks/gad7.h \
     tasks/gaf.h \
+    tasks/gbo.h \
     tasks/gds15.h \
     tasks/gmcpq.h \
     tasks/hads.h \

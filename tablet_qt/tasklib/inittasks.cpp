@@ -70,6 +70,7 @@
 
 #include "tasks/gad7.h"
 #include "tasks/gaf.h"
+#include "tasks/gbo.h"
 #include "tasks/gds15.h"
 #include "tasks/gmcpq.h"
 
@@ -192,6 +193,7 @@ void InitTasks(TaskFactory& factory)
 
     initializeGad7(factory);
     initializeGaf(factory);
+    initializeGbo(factory);
     initializeGds15(factory);
     initializeGmcPq(factory);
 
