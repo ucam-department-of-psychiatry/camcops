@@ -39,10 +39,9 @@ Tasks
 
 **To be prioritized**
 
-- Perinatal: PEQ (?)
 - Test Your Memory (TYM) task (Jerry M. Brown).
 - Continuous performance task, as per RNC's similar previous task (Linda P
-  and team).
+  and team). A/w ETB.
 
 **Not a priority**
 
