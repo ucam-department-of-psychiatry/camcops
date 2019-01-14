@@ -54,6 +54,7 @@ extern const QString TEST_SVG;
 // ============================================================================
 // Support structures
 // ============================================================================
+// These associate QWidget-derived objects and their QGraphicsProxyWidget.
 
 struct ButtonAndProxy {
     // Ownership of QGraphicsProxyWidget/QWidget pairs is shared, i.e. if
@@ -96,19 +97,45 @@ struct SvgWidgetAndProxy {
 // SvgTransform
 // ============================================================================
 
+// Represents a combination of SVG transformations.
+
 class SvgTransform {
 public:
     SvgTransform();
+
+    // Matrix transformation
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform#Matrix
     SvgTransform& matrix(qreal a, qreal b, qreal c, qreal d, qreal e, qreal f);
+
+    // Translation
     SvgTransform& translate(qreal x, qreal y = 0.0);
+
+    // Non-distorting scale
     SvgTransform& scale(qreal xy);
+
+    // Distorting scale (separate x/y values)
     SvgTransform& scale(qreal x, qreal y);
+
+    // Rotation about the origin
     SvgTransform& rotate(qreal a);
+
+    // Rotation about a point
     SvgTransform& rotate(qreal a, qreal x, qreal y);
+
+    // Skew along the X axis
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform#SkewX
     SvgTransform& skewX(qreal a);
+
+    // Skew along the Y axis
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform#SkewY
     SvgTransform& skewY(qreal a);
+
+    // Returns the string form of the combined transformations
     QString string() const;
+
+    // Are there any transformations?
     bool active() const;
+
 protected:
     QStringList transformations;
 };
@@ -118,21 +145,34 @@ protected:
 // SVG
 // ============================================================================
 
+// Returns an XML element string.
 QString xmlElement(const QString& tag, const QString& contents,
                    const QMap<QString, QString>& attributes = QMap<QString, QString>());
+
+// Returns an XML attribute string (with name=value pairs).
 QString xmlAttributes(const QMap<QString, QString>& attributes);
+
+// Returns an SVG string, being an XML element containing other elements.
 QString svg(const QStringList& elements);
+
+// Returns an SVG path XML element.
 QString svgPath(const QString& contents,
                 const QColor& stroke, int stroke_width,
                 const QColor& fill,
                 const SvgTransform& transform,
                 const QString& element_id = "");
+
+// Returns an SVG XML element from path details.
 QString svgFromPathContents(const QString& path_contents,
                             const QColor& stroke, int stroke_width,
                             const QColor& fill,
                             const SvgTransform& transform,
                             const QString& element_id = "");
+
+// Returns the SVG opacity [0-1] representation of a QColor's alpha (0-255).
 QString opacity(const QColor& colour);
+
+// Converts opacity [0-1] to alpha [0-255].
 int alpha(qreal opacity);
 
 

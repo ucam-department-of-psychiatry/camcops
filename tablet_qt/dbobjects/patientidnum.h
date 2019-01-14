@@ -21,23 +21,41 @@
 #include "db/databaseobject.h"
 
 
+// Represents a patient ID number.
+
 class PatientIdNum : public DatabaseObject
 {
     Q_OBJECT
 public:
+    // Normal constructor; loads if required.
     PatientIdNum(CamcopsApp& app, DatabaseManager& db,
                  int load_pk = dbconst::NONEXISTENT_PK);
+
+    // Create-and-save constructor.
     PatientIdNum(int patient_fk, int which_idnum,
                  CamcopsApp& app, DatabaseManager& db);
+
+    // Returns the ID number type (e.g. "3 meaning NHS number")
     int whichIdNum() const;
+
+    // Returns the ID number value (e.g. 9876543210) as a QVariant.
     QVariant idnumAsVariant() const;
-    qlonglong idnumAsInteger() const;
+
+    // Returns the ID number value as a qlonglong.
     // 64-bit signed integer; therefore up to +9,223,372,036,854,775,807
     // NOTE that SQLite3 can't handle unsigned 64-bit integers in plain types;
     // see https://www.sqlite.org/datatype3.html
+    qlonglong idnumAsInteger() const;
+
+    // Returns the ID number value as a string.
     QString idnumAsString() const;
+
+    // Is an ID number present?
     bool idnumIsPresent() const;
+
+    // Sets the ID number
     bool setIdnumValue(qlonglong idnum_value, bool save_to_db = true);
+
 public:
     static const QString PATIENT_IDNUM_TABLENAME;
     static const QString FK_PATIENT;

@@ -121,6 +121,8 @@ QPointer<QWidget> QuText::makeWidget(Questionnaire* questionnaire)
     m_label->setTextFormat(m_text_format);
     m_label->setOpenExternalLinks(m_open_links);
     m_label->setAlignment(m_alignment);
+    // ... this is QLabel::setAlignment; see
+    //     http://doc.qt.io/qt-5/qlabel.html#alignment-prop
     return QPointer<QWidget>(m_label);
 }
 

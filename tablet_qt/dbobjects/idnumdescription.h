@@ -21,21 +21,44 @@
 #include "db/databaseobject.h"
 
 
+// Represents an ID number type, e.g. "type 3 means NHS number".
+
 class IdNumDescription : public DatabaseObject
 {
     Q_OBJECT
+
 public:
     IdNumDescription(CamcopsApp& app, DatabaseManager& db,
                      int which_idnum = dbconst::NONEXISTENT_PK);
+
+    // Returns the ID number type (e.g. 3)
     int whichIdNum() const;
+
+    // Returns the description (e.g. "NHS number")
     QString description() const;
+
+    // Returns the short description (e.g. "NHS")
     QString shortDescription() const;
+
+    // Sets the descriptions and validation method
     bool setDescriptions(const QString& desc, const QString& shortdesc,
                          const QString& validation_method);
+
+    // Returns the validation method, if specified; see e.g.
+    // VALIDATION_METHOD_UK_NHS_NUMBER.
     QString validationMethod() const;
-    void deleteAllDescriptions();  // sort-of static function
-    void makeIndexes();  // sort-of static function
+
+    // Delete all descriptions from the database.
+    // (Resembles a Python classmethod; sort-of static function.)
+    void deleteAllDescriptions();
+
+    // Make table indexes.
+    // (Resembles a Python classmethod; sort-of static function.)
+    void makeIndexes();
+
+    // Should it be validated as an NHS number?
     bool validateAsNhsNumber() const;
+
 public:
     static const QString IDNUMDESC_TABLENAME;
     static const QString FN_IDNUM;

@@ -22,6 +22,7 @@
 class DatabaseManager;
 
 
+// Very simple QThread class to call DatabaseManager::work().
 class DatabaseWorkerThread : public QThread
 {
     Q_OBJECT

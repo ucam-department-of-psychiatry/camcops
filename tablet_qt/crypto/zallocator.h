@@ -21,6 +21,8 @@
 #include <limits>  // for std::numeric_limits
 #include <new>  // for std::bad_alloc
 
+// Currently unused.
+
 template <typename T>
 struct zallocator
 {

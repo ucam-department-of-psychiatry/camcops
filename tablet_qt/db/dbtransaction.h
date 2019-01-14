@@ -21,20 +21,35 @@
 class DatabaseManager;
 
 
+// Represents an SQL transaction.
+//
+// In general, consider AVOIDING this and using DbNestableTransaction
+// instead. DbTransaction uses BEGIN TRANSACTION/COMMIT/ROLLBACK, and so
+// if you accidentally nest it, things go wrong.
+// DbNestableTransaction uses SAVEPOINT x/RELEASE x/ROLLBACK TO SAVEPOINT x
+// instead, which is safely nestable as long as x is transaction-specific,
+// and RELEASE behaves like COMMIT when it reaches the top level.
+
 class DbTransaction
 {
-    // In general, consider AVOIDING this and using DbNestableTransaction
-    // instead. DbTransaction uses BEGIN TRANSACTION/COMMIT/ROLLBACK, and so
-    // if you accidentally nest it, things go wrong.
-    // DbNestableTransaction uses SAVEPOINT x/RELEASE x/ROLLBACK TO SAVEPOINT x
-    // instead, which is safely nestable as long as x is transaction-specific,
-    // and RELEASE behaves like COMMIT when it reaches the top level.
 public:
+    // Create the transaction. It starts in a "successful" state.
     DbTransaction(DatabaseManager& db);
+
+    // When the transaction is destroyed, it commits or rolls back depending
+    // on whether it's been told of failure or not.
     ~DbTransaction();
+
+    // Mark the transaction as a failure.
     void fail();
+
+    // Mark the transaction as successful.
     void succeed();
 protected:
+
+    // Our database manager.
     DatabaseManager& m_db;
+
+    // Have we failed?
     bool m_fail;
 };

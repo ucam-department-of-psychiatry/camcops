@@ -1762,5 +1762,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
     - Database drops old HL7-specific tables and adds a new set of export
       tables (also: more extensible for future methods).
 
+- ``QuSlider`` takes a new ``setSymmetric()`` option to remove the colour to
+  the left of (horizontal) or below (vertical) the slider "handle".
+
 .. _changelog_2019:
 

@@ -66,6 +66,8 @@ class QSqlQuery;
 struct sqlite3;
 
 
+// Helper functions for SQLCipherDriver
+
 namespace sqlcipherhelpers
 {
 

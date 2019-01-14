@@ -163,7 +163,7 @@ QString DiagnosticCodeSet::title() const
 }
 
 
-QModelIndex DiagnosticCodeSet::firstMatchCode(const QString &code) const
+QModelIndex DiagnosticCodeSet::firstMatchCode(const QString& code) const
 {
     // http://www.qtcentre.org/threads/15572-How-can-I-traverse-all-of-the-items-in-a-QStandardItemModel
     // Walk the tree:

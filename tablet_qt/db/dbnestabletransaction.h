@@ -22,19 +22,42 @@
 class DatabaseManager;
 
 
+// Represents an SQL transaction that can be nested, using
+//      SAVEPOINT name;
+//      RELEASE name;  -- on success
+//      ROLLBACK TO SAVEPOINT name;  -- on failure
+
 class DbNestableTransaction
 {
     // https://www.sqlite.org/lang_savepoint.html
 public:
+    // Create the transaction. It starts in a "successful" state.
     DbNestableTransaction(DatabaseManager& db);
+
+    // When the transaction is destroyed, it releases or rolls back depending
+    // on whether it's been told of failure or not.
     ~DbNestableTransaction();
+
+    // Mark the transaction as a failure.
     void fail();
+
+    // Mark the transaction as successful.
     void succeed();
+
 protected:
+
+    // Our database manager.
     DatabaseManager& m_db;
+
+    // Have we failed?
     bool m_fail;
+
+    // What's our SAVEPOINT name?
     QString m_name;
 
-    static int s_count;  // used for savepoint name; continuously increments
-    static int s_level;  // current depth within savepoint stack
+    // Used for the savepoint name; continuously increments
+    static int s_count;
+
+    // Current depth within savepoint stack
+    static int s_level;
 };

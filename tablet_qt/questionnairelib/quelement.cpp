@@ -52,6 +52,8 @@ QPointer<QWidget> QuElement::widget(Questionnaire* questionnaire)
     if (!m_widget) {
         // not yet made, or deleted by Qt
         m_widget = makeWidget(questionnaire);
+        // Note: there is no QWidget::setAlignment(); see
+        // http://doc.qt.io/qt-5/qwidget.html
     }
     return m_widget;
 }

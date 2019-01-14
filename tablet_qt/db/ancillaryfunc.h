@@ -34,6 +34,7 @@ namespace ancillaryfunc
 // - Class must have a constructor like SomeAncillary(app, db, pk)
 // ============================================================================
 
+// Load ancillary objects for a task (e.g. photos for a PhotoSequence).
 template<class AncillaryType, class AncillaryPtrType>
 void loadAncillary(QVector<AncillaryPtrType>& ancillaries,
                    CamcopsApp& app,
@@ -60,13 +61,13 @@ void loadAncillary(QVector<AncillaryPtrType>& ancillaries,
 }
 
 
+// Load *all* objects from a table.
 template<class Type, class PtrType>
 void loadAllRecords(QVector<PtrType>& objects,
                     CamcopsApp& app,
                     DatabaseManager& db,
                     const OrderBy& order_by)
 {
-    // Load *all* objects from a table.
     objects.clear();
     WhereConditions where;
     Type specimen(app, db);

@@ -31,6 +31,7 @@ extern const int NONEXISTENT_PK;
 
 extern const QString UNKNOWN_IDNUM_DESC;
 
+// Is this ID number type potentially valid?
 bool isValidWhichIdnum(int which_idnum);
 
 }  // namespace dbconst

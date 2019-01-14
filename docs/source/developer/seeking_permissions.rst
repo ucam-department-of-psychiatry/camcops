@@ -43,8 +43,10 @@ Here's a specimen e-mail seeking permission from a copyright holder:
 
     Our understanding of the copyright status of **XXX_TASK_XXX** is:
 
-    * **details: who owns the copyright**
+    * **details: who owns the copyright?**
     * **details: what are the known licensing terms?**
+
+    May we ask if that is correct?
 
     CamCOPS is free and open-source software for capturing structured data
     relevant to psychiatry directly from patients, clinicians, and researchers.

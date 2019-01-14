@@ -582,7 +582,7 @@ bool Patient::matchesForMerge(const Patient* other) const
 QString Patient::descriptionForMerge() const
 {
     return QString("<b>%1</b><br>%2<br>%3").arg(surnameUpperForename(),
-                                                ageSexDob(),
+                                                sexAgeDob(),
                                                 shortIdnumSummary());
 }
 
@@ -610,8 +610,8 @@ QString Patient::sexAgeDob() const
 QString Patient::ageSexDob() const
 {
     // "A 37-year-old woman..."
-    return QString("%1, %2y, DOB %3").arg(sex(),
-                                          QString::number(ageYears()),
+    return QString("%1y, %2, DOB %3").arg(QString::number(ageYears()),
+                                          sex(),
                                           dobText());
 }
 
@@ -619,7 +619,7 @@ QString Patient::ageSexDob() const
 QString Patient::twoLineDetailString() const
 {
     return QString("%1 (%2)\n%3").arg(surnameUpperForename(),
-                                      ageSexDob(),
+                                      sexAgeDob(),
                                       shortIdnumSummary());
 }
 
@@ -627,7 +627,7 @@ QString Patient::twoLineDetailString() const
 QString Patient::oneLineHtmlDetailString() const
 {
     return QString("<b>%1</b> (%2); %3").arg(surnameUpperForename(),
-                                             ageSexDob(),
+                                             sexAgeDob(),
                                              shortIdnumSummary());
 }
 

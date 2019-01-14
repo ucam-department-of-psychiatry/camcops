@@ -23,9 +23,10 @@
 using SecureQByteArray = QByteArray;
 
 /*
+
+// Version of QByteArray that explicitly wipes itself on destruction.
 class SecureQByteArray : public QByteArray
 {
-    // Version of QByteArray that explicitly wipes itself on destruction.
 public:
     SecureQByteArray();
     SecureQByteArray(const char* str);
@@ -35,4 +36,5 @@ public:
     SecureQByteArray(const SecureQByteArray& other);
     virtual ~SecureQByteArray();
 };
+
 */

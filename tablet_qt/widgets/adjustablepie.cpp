@@ -47,11 +47,11 @@ using geometry::DEG_360;
 using geometry::distanceBetween;
 using geometry::headingInRange;
 using geometry::headingNearlyEq;
-using geometry::headingToPolarTheta;
+using geometry::headingToPolarThetaDeg;
 using geometry::lineFromPointInHeadingWithRadius;
 using geometry::normalizeHeading;
 using geometry::polarToCartesian;
-using geometry::polarTheta;
+using geometry::polarThetaDeg;
 using geometry::polarThetaToHeading;
 using graphicsfunc::drawSector;
 using graphicsfunc::drawText;
@@ -741,7 +741,7 @@ qreal AdjustablePie::convertAngleToQt(const qreal degrees) const
     // ... http://doc.qt.io/qt-5/qpainter.html#drawPie
     // In our minds we're using angles that start at 6 o'clock and go clockwise.
     // This takes angles from the second to the first.
-    return headingToPolarTheta(degrees, m_base_compass_heading_deg, false);
+    return headingToPolarThetaDeg(degrees, m_base_compass_heading_deg, false);
 }
 
 
@@ -789,7 +789,7 @@ qreal AdjustablePie::proportionToAngle(const qreal proportion) const
 qreal AdjustablePie::angleOfPos(const QPoint& pos) const
 {
     const QPoint pie_centre = contentsRect().center();
-    return convertAngleToInternal(polarTheta(pie_centre, pos));
+    return convertAngleToInternal(polarThetaDeg(pie_centre, pos));
 }
 
 

@@ -21,6 +21,8 @@
 #include "common/aliases_camcops.h"
 
 
+// Class to sort a patient's ID numbers (by ID number type).
+
 class PatientIdNumSorter
 {
 public:

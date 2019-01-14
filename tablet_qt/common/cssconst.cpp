@@ -42,6 +42,7 @@ const char* QUESTIONNAIRE_HORIZONTAL_LINE = "questionnaire_horizontal_line";
 const char* QUESTION = "question";
 const char* QUHEADING = "quheading";
 const char* SLIDER = "slider";
+const char* SLIDER_SYMMETRIC = "slider_symmetric";
 const char* STEM = "stem";
 const char* STRIPE_BACKGROUND_EVEN = "stripe_background_even";
 const char* STRIPE_BACKGROUND_ODD = "stripe_background_odd";

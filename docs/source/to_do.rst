@@ -37,6 +37,10 @@ Tasks
 - :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
   (APEQPT) <apeqpt>`.
 
+- **RNC:** QuSlider not good for Likert. Suspect horizontal thermometer not
+  OK either. **Implement QuLikert.** Include absolute size option (e.g. 10cm,
+  via DPI). Document Likert advice in the developer's guide.
+
 **To be prioritized**
 
 - Test Your Memory (TYM) task (Jerry M. Brown).
@@ -142,6 +146,8 @@ Client core
 - Qt have fixed bug https://bugreports.qt.io/browse/QTBUG-35545 as of Qt
   5.12.0 beta 1, so may be possible to improve dialogue boxes again on Android
   (but possibly our workaround sorted it; can't remember); check.
+
+- **RNC:** finish comments for core headers (am at graphicsfunc.h).
 
 **May not be worth it**
 

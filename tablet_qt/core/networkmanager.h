@@ -38,15 +38,34 @@ class QNetworkAccessManager;
 class QNetworkReply;
 
 
+// Controls network operations, optionally providing a progress display.
 class NetworkManager : public QObject
 {
-    // Controls network operations, optionally providing a progress display.
+    Q_OBJECT
+
+    // ------------------------------------------------------------------------
+    // Shorthand
+    // ------------------------------------------------------------------------
 
     using ReplyFuncPtr = void (NetworkManager::*)(QNetworkReply*);
     // ... a pointer to a member function of NetworkManager that takes a
     // QNetworkReply* parameter and returns void
 
-    Q_OBJECT
+    // ------------------------------------------------------------------------
+    // Helper classes
+    // ------------------------------------------------------------------------
+
+public:
+    // How should we upload?
+    enum class UploadMethod {
+        Copy,
+        MoveKeepingPatients,
+        Move
+    };
+
+    // ------------------------------------------------------------------------
+    // Core
+    // ------------------------------------------------------------------------
 public:
     NetworkManager(CamcopsApp& app, DatabaseManager& db,
                    TaskFactoryPtr p_task_factory, QWidget* parent);
@@ -56,90 +75,157 @@ public:
     // User interface
     // ------------------------------------------------------------------------
 public:
+    // Operate in silent mode (without status information)?
     void setSilent(bool silent);
+
+    // Sets the window title.
     void setTitle(const QString& title);
+
+    // Shows a plain-text status message.
     void statusMessage(const QString& msg) const;
+
+    // Shows an HTML status message.
     void htmlStatusMessage(const QString& html) const;
-    enum class UploadMethod {
-        Copy,
-        MoveKeepingPatients,
-        Move
-    };
+
 protected:
+    // Ensure we have a logbox.
     void ensureLogBox() const;
+
+    // Delete our logbox.
     void deleteLogBox();
+
 protected slots:
+    // "The user pressed cancel on the logbox dialogue."
     void logboxCancelled();
+
+    // "The user pressed OK/Finish on the logbox dialogue."
     void logboxFinished();
 
     // ------------------------------------------------------------------------
     // Basic connection management
     // ------------------------------------------------------------------------
 protected:
+
+    // Ensure we know the user's upload password (ask if not).
     bool ensurePasswordKnown();
+
+    // Disconnect signals/slots from our Qt manager object.
     void disconnectManager();
+
+    // Create a generic network request.
     QNetworkRequest createRequest(
             const QUrl& url,
             bool offer_cancel,
             bool ssl,
             bool ignore_ssl_errors,
             QSsl::SslProtocol ssl_protocol = QSsl::AnyProtocol);
+
+    // Returns the URL for the CamCOPS server, as a QUrl.
     QUrl serverUrl(bool& success) const;
+
+    // Returns the URL for the CamCOPS server, as a string.
     QString serverUrlDisplayString() const;
+
+    // Create a request to our server.
     QNetworkRequest createServerRequest(bool& success);
+
+    // Send a message to the server via an HTTP POST, and set up a callback
+    // for the results.
     void serverPost(Dict dict, ReplyFuncPtr reply_func,
                     bool include_user = true);
+
+    // Process the server's reply into our internal data structures,
+    // principally m_reply_dict.
     bool processServerReply(QNetworkReply* reply);
+
+    // Formats a human-readable version of "size", e.g. "3 Kb" or similar.
     QString sizeBytes(qint64 size) const;
+
+    // Returns a list of downloaded records from our internal m_reply_dict.
     RecordList getRecordList() const;
+
+    // Does the reply have the correct format from the CamCOPS API?
     bool replyFormatCorrect() const;
+
+    // Did the reply say it was successful?
     bool replyReportsSuccess() const;
+
+    // Wipe internal transmission/reply information.
     void cleanup();
+
 protected slots:
+    // We come here when there's an SSL error and we want to ignore it.
     void sslIgnoringErrorHandler(QNetworkReply* reply,
                                  const QList<QSslError>& errlist);
+
 public slots:
+    // "User pressed cancel."
     void cancel();
+
+    // "Network operation failed somehow."
     void fail();
+
+    // "Network operation succeeded."
     void succeed();
+
+    // We're finished, whether successfully or not.
     void finish(bool success = true);
 
     // ------------------------------------------------------------------------
     // Testing
     // ------------------------------------------------------------------------
 public:
+    // Tests HTTP GET.
     void testHttpGet(const QString& url, bool offer_cancel = true);
+
+    // Tests HTTPS GET.
     void testHttpsGet(const QString& url, bool offer_cancel = true,
                       bool ignore_ssl_errors = false);
+
 protected:
+    // Callback for the tests.
     void testReplyFinished(QNetworkReply* reply);
 
     // ------------------------------------------------------------------------
     // Server registration
     // ------------------------------------------------------------------------
 public:
+    // Register with the CamCOPS server.
     void registerWithServer();  // "register" is a C++ keyword
+
+    // Fetch ID number type description/information from the server.
     void fetchIdDescriptions();
+
+    // Fetch extra strings from the server.
     void fetchExtraStrings();
 protected:
+    // Multi-step operations for the above:
     void registerSub1(QNetworkReply* reply);
     void registerSub2(QNetworkReply* reply);
     void registerSub3(QNetworkReply* reply);
     void fetchIdDescriptionsSub1(QNetworkReply* reply);
     void fetchExtraStringsSub1(QNetworkReply* reply);
+
+    // Store ID/policy information from the server.
     void storeServerIdentificationInfo();
+
+    // Store "which tables are allowed" information from the server.
     void storeAllowedTables();
+
+    // Store extra strings from the server.
     void storeExtraStrings();
 
     // ------------------------------------------------------------------------
     // Upload
     // ------------------------------------------------------------------------
 public:
+    // Upload to the server.
     void upload(UploadMethod method);
+
 protected:
-    // core
+    // Upload core:
     void uploadNext(QNetworkReply* reply);
-    // comms
+    // Specific upload comms:
     void checkDeviceRegistered();
     void checkUploadUser();
     void uploadFetchServerIdInfo();
@@ -153,7 +239,7 @@ protected:
     void requestRecordwisePkPrune();
     void sendNextRecord();
     void endUpload();
-    // internal functions
+    // Internal upload functions
     bool isPatientInfoComplete();
     bool applyPatientMoveOffTabletFlagsToTasks();
     bool catalogueTablesForUpload();
@@ -177,32 +263,58 @@ protected:
     // Signals
     // ------------------------------------------------------------------------
 signals:
+    // "Operation was cancelled."
     void cancelled();
+
+    // "Operation has finished, successfully or not; user has acknowledged."
     void finished();
 
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
 protected:
+    // Our app.
     CamcopsApp& m_app;
+
+    // The data database.
     DatabaseManager& m_db;
+
+    // Our app's task factory.
     TaskFactoryPtr m_p_task_factory;
+
+    // Parent widget.
     QWidget* m_parent;
+
+    // Window title.
     QString m_title;
+
+    // Offer a cancel button?
     bool m_offer_cancel;
+
+    // Suppress all status messages?
     bool m_silent;
+
+    // Our logbox (triggered when a status message is displayed)
     mutable QPointer<LogBox> m_logbox;
+
+    // Our Qt network manager
     QNetworkAccessManager* m_mgr;
 
+    // Temporary storage of information going to the server:
     QString m_tmp_password;
     QString m_tmp_session_id;
     QString m_tmp_session_token;
-    // We store these here to save passing around large objects, and for convenience:
-    QByteArray m_reply_data;
-    Dict m_reply_dict;
 
+    // Incoming information.
+    // We store these here to save passing around large objects, and for
+    // convenience:
+    QByteArray m_reply_data;
+    Dict m_reply_dict;  // the main repository of information received
+
+    // How will we upload?
     UploadMethod m_upload_method;
 
+    // Sequencing of the upload steps
     enum class NextUploadStage {
         Invalid,
         CheckUser,
@@ -215,6 +327,7 @@ protected:
         Finished,
     };
 
+    // Internal calculations for uploading.
     NextUploadStage m_upload_next_stage;
     QVector<int> m_upload_patient_ids_to_move_off;
     QStringList m_upload_empty_tables;

@@ -23,13 +23,15 @@
 #include <QPen>
 
 
+// Represents a graphical button with text in it.
+// Used by graphicsfunc::makeTextButton().
+//
 // We use pixels, not points, for font sizes here.
 // In general, this is deprecated, because it makes things device-specific,
 // i.e. dependent on the dots-per-inch (DPI) setting. However, in this context
 // we are working in a pixel-based graphics system, which is then scaled by the
 // ScreenLikeGraphicsView. It's not clear that "DPI" makes sense here, and we
 // want our text size to be predictable.
-
 
 struct ButtonConfig {
 public:

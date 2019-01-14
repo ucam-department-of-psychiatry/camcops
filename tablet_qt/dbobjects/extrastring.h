@@ -22,31 +22,48 @@
 class CamcopsApp;
 
 
+// Represents an extra string downloaded from the server.
+
 class ExtraString : public DatabaseObject
 {
 public:
     // Specimen constructor:
     ExtraString(CamcopsApp& app, DatabaseManager& db);
+
     // String loading constructor:
     ExtraString(CamcopsApp& app, DatabaseManager& db,
                 const QString& task,
                 const QString& name);
+
     // String saving constructor:
     ExtraString(CamcopsApp& app, DatabaseManager& db,
                 const QString& task,
                 const QString& name,
                 const QString& value);
+
+    // Destructor
     virtual ~ExtraString() = default;
+
+    // Returns the string's value.
     QString value() const;
-    bool exists() const;
-    bool anyExist(const QString& task) const;  // sort-of static function
-    void deleteAllExtraStrings();  // sort-of static function
-    void makeIndexes();  // sort-of static function
+
+    // Do any extra strings exist for the specified task?
+    // (Resembles a Python classmethod; sort-of static function.)
+    bool anyExist(const QString& task) const;
+
+    // Delete all extra strings from the database.
+    // (Resembles a Python classmethod; sort-of static function.)
+    void deleteAllExtraStrings();
+
+    // Make table indexes.
+    // (Resembles a Python classmethod; sort-of static function.)
+    void makeIndexes();
 
 public:
     static const QString TASK_FIELD;
     static const QString NAME_FIELD;
     static const QString VALUE_FIELD;
+
 protected:
     void commonConstructor();
 };

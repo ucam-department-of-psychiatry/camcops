@@ -37,21 +37,63 @@ class QuSlider : public QuElement
 
     Q_OBJECT
 public:
+    // Create a slider ranging from "minimum" to "maximum" with step size
+    // "step". The slider always uses integers internally, but can display as
+    // a float (see setConvertForRealField).
     QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step);
+
+    // Set the "page step" size, if the user uses the PgUp/PgDn keys.
+    // The default is twice the slider's step size.
     QuSlider* setBigStep(int big_step);
+
+    // Interval between tick marks.
     QuSlider* setTickInterval(int tick_interval);  // 0 for none
+
+    // Visually, where are the tick marks (e.g. left/right, above/below)?
     QuSlider* setTickPosition(QSlider::TickPosition position);
+
+    // When the slider contains a null value, where should the handle sit?
     QuSlider* setNullApparentValue(int null_apparent_value);
+
+    // Choose whether the slider should display its contents as a float
+    // (convert_for_real_field). If so, the underlying integer (from minimum to
+    // maximum) is mapped to a float range (from field_minimum to
+    // field_maximum), and shown with the specified number of decimal places
+    // (display_dp).
     QuSlider* setConvertForRealField(bool convert_for_real_field,
                                      double field_minimum = 0,
                                      double field_maximum = 1,
                                      int display_dp = 2);
+
+    // Should the slider be horizontal or vertical?
     QuSlider* setHorizontal(bool horizontal);
+
+    // Should the slider show its current numerical value?
     QuSlider* setShowValue(bool show_value);
+
+    // Determine where tick labels should be shown (at which integer values of
+    // the slider) and the strings used for the tick labels.
+    // Calling this also (effectively) calls setUseDefaultTickLabels(false).
     QuSlider* setTickLabels(const QMap<int, QString>& labels);
+
+    // Visually, where are the tick labels (e.g. left/right, above/below)?
     QuSlider* setTickLabelPosition(QSlider::TickPosition position);
+
+    // Chooses whether default labels should be shown. Default labels are
+    // integers from the minimum to the maximum, spaced by the tick interval
+    // (or if there isn't one, the "big" step).
     QuSlider* setUseDefaultTickLabels(bool use_default);
+
+    // Should the far left/right labels be edged in visually so that they don't
+    // overspill the boundaries of the slider?
     QuSlider* setEdgeInExtremeLabels(bool edge_in_extreme_labels);
+
+    // Should the slider be symmetric, with no colour below (vertical) or to
+    // the left (horizontal) of the slider handle? If not, the slider will
+    // show red left/below and white right/above, so the higher the value, the
+    // more red is shown.
+    QuSlider* setSymmetric(bool symmetric);
+
 protected:
     void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -76,6 +118,7 @@ protected:
     double m_field_maximum;
     int m_display_dp;
     int m_null_apparent_value;
+
     // Visuals
     bool m_horizontal;
     bool m_show_value;
@@ -85,6 +128,8 @@ protected:
     QMap<int, QString> m_tick_labels;
     QSlider::TickPosition m_tick_label_position;
     bool m_edge_in_extreme_labels;
+    bool m_symmetric;
+
     // Internals
     QPointer<QWidget> m_container_widget;
     QPointer<QLabel> m_value_label;

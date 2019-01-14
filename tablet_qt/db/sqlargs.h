@@ -24,6 +24,8 @@
 #include "common/aliases_qt.h"
 
 
+// Represents SQL with an associated list of argument values.
+
 struct SqlArgs {
 public:
     SqlArgs(const QString& sql = "", const ArgList& args = ArgList()) :
