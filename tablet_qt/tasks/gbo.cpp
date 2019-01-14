@@ -60,8 +60,17 @@ const QString GOAL_PROGRESS("goal_progress");
 const QString GOAL_CHOSEN_BY("goal_chosen_by");
 const QString GOAL_CHOSEN_BY_OTHER("goal_chosen_by_other");
 
-const int MAX_GOAL_N = 1000;
-const int MAX_SESSION_N = 1000;
+const QStringList REQUIRED_FIELDS = {
+    SESSION_NUMBER,
+    SESSION_DATE,
+    GOAL_NUMBER,
+    GOAL_DESCRIPTION,
+    GOAL_PROGRESS,
+    GOAL_CHOSEN_BY,
+};
+
+const int MAX_GOALS = 1000;
+const int MAX_SESSIONS = 1000;
 
 const QString Gbo::GBO_TABLENAME("gbo");
 
@@ -121,9 +130,9 @@ QString Gbo::menusubtitle() const
 OpenableWidget* Gbo::editor(const bool read_only)
 {
     NameValueOptions options_chosen_by{
-        { "Child/young person",             Gbo::GoalChosenBy::CHILD_OR_YOUNG_PERSON },
-        { "Parent/Carer",                   Gbo::GoalChosenBy::PARENT_OR_CARER },
-        { "Other <i>(please specify)</i>",  Gbo::GoalChosenBy::OTHER },
+        { "Child/young person",     Gbo::GoalChosenBy::CHILD_OR_YOUNG_PERSON },
+        { "Parent/Carer",           Gbo::GoalChosenBy::PARENT_OR_CARER },
+        { "Other <i>(specify below)</i>",  Gbo::GoalChosenBy::OTHER },
     };
 
     NameValueOptions options_progress{
@@ -140,47 +149,53 @@ OpenableWidget* Gbo::editor(const bool read_only)
     };
 
     QuPagePtr page((new QuPage{
-                    new QuHeading("Session number"),
-                    new QuLineEditInteger(fieldRef(SESSION_NUMBER), 1, MAX_SESSION_N),
-                    new QuHeading("Goal number"),
-                    new QuLineEditInteger(fieldRef(GOAL_NUMBER), 1, MAX_GOAL_N),
-                    new QuSpacer(),
-                    new QuHeading("Goal description"),
-                    new QuTextEdit(fieldRef(GOAL_DESCRIPTION, false)),
-                    (new QuMcq(fieldRef(GOAL_PROGRESS), options_progress))
-                                        ->setHorizontal(true)
-                                        ->setAsTextButton(true),
-                    (new QuText("Goal chosen by"))->setBold(),
-                    new QuMcq(fieldRef(GOAL_CHOSEN_BY), options_chosen_by),
-                    new QuTextEdit(fieldRef(GOAL_CHOSEN_BY_OTHER, false)),
-                    new QuText("Session date"),
-                    (new QuDateTime(fieldRef(SESSION_DATE)))
-                        ->setMode(QuDateTime::Mode::DefaultDate)
-                        ->setOfferNowButton(true)
-    })->setTitle(xstring("title_main")));
+        (new QuText("Session number"))->setBold(),
+        new QuLineEditInteger(fieldRef(SESSION_NUMBER), 1, MAX_SESSIONS),
+        (new QuText("Session date"))->setBold(),
+        (new QuDateTime(fieldRef(SESSION_DATE)))
+            ->setMode(QuDateTime::Mode::DefaultDate)
+            ->setOfferNowButton(true),
+        (new QuText("Goal number"))->setBold(),
+        new QuLineEditInteger(fieldRef(GOAL_NUMBER), 1, MAX_GOALS),
+        (new QuText("Goal description"))->setBold(),
+        new QuTextEdit(fieldRef(GOAL_DESCRIPTION)),
+        (new QuMcq(fieldRef(GOAL_PROGRESS), options_progress))
+                           ->setHorizontal(true)
+                           ->setAsTextButton(true),
+        (new QuText("Goal progress"))->setBold(),
+        (new QuMcq(fieldRef(GOAL_CHOSEN_BY), options_chosen_by))
+                        ->setHorizontal(true)
+                        ->setAsTextButton(true),
+        new QuTextEdit(fieldRef(GOAL_CHOSEN_BY_OTHER, false)),
+        })->setTitle(longname()));
 
-    QuPagePtr page2((new QuPage{
-        (new QuText("testing123"))->setAlignment(Qt::AlignCenter)
-    }));
+    bool required = value(GOAL_CHOSEN_BY) == Gbo::GoalChosenBy::OTHER;
+    fieldRef(GOAL_CHOSEN_BY_OTHER)->setMandatory(required);
 
     connect(fieldRef(GOAL_CHOSEN_BY).data(), &FieldRef::valueChanged,
             this, &Gbo::updateMandatory);
 
-    m_questionnaire = new Questionnaire(m_app, {page, page2});
+    m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setReadOnly(read_only);
 
     return m_questionnaire;
 }
 
 void Gbo::updateMandatory() {
-   const bool need_other_details = valueInt(GOAL_CHOSEN_BY)
+   const bool required = valueInt(GOAL_CHOSEN_BY)
            == Gbo::OTHER;
-    fieldRef(GOAL_CHOSEN_BY_OTHER)->setMandatory(need_other_details);
+    fieldRef(GOAL_CHOSEN_BY_OTHER)->setMandatory(required);
+    fieldRef(GOAL_CHOSEN_BY_OTHER).clear();
 }
 
 bool Gbo::isComplete() const
 {
-    return false;
+    if (anyNull(values(REQUIRED_FIELDS))) {
+        return false;
+    }
+    return ((value(GOAL_CHOSEN_BY) != Gbo::GoalChosenBy::OTHER) ||
+            !value(GOAL_CHOSEN_BY_OTHER).isNull());
+
 }
 
 QStringList Gbo::summary() const
