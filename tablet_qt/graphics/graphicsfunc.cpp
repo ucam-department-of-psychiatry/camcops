@@ -265,10 +265,6 @@ int alpha(qreal opacity)
 
 void alignRect(QRectF& rect, const Qt::Alignment alignment)
 {
-    // The assumed starting point is that the user wishes to have a rectangle
-    // aligned at point (x,y), and that (x,y) is currently the top left point
-    // of rect.
-
     // Horizontal
     qreal dx = 0;
     if (alignment & Qt::AlignLeft ||
@@ -380,39 +376,40 @@ void drawText(QPainter& painter, const QPointF& point, const QString& text,
 
 void drawText(QPainter& painter,
               const qreal x, const qreal y, Qt::Alignment flags,
-              const QString& text, QRectF* boundingRect)
+              const QString& text, QRectF* bounding_rect)
 {
     // http://stackoverflow.com/questions/24831484
-   const qreal size = 32767.0;
-   QPointF corner(x, y - size);
+    const qreal size = 32767.0;
+    QPointF corner(x, y - size);
 
-   if (flags & Qt::AlignHCenter) {
+    if (flags & Qt::AlignHCenter) {
        corner.rx() -= size / 2.0;
-   }
-   else if (flags & Qt::AlignRight) {
+    }
+    else if (flags & Qt::AlignRight) {
        corner.rx() -= size;
-   }
+    }
 
-   if (flags & Qt::AlignVCenter) {
+    if (flags & Qt::AlignVCenter) {
        corner.ry() += size / 2.0;
-   }
-   else if (flags & Qt::AlignTop) {
+    }
+    else if (flags & Qt::AlignTop) {
        corner.ry() += size;
-   }
-   else {
+    }
+    else {
        flags |= Qt::AlignBottom;
-   }
+    }
 
-   const QRectF rect(corner, QSizeF(size, size));
-   painter.drawText(rect, flags, text, boundingRect);
+    const QRectF rect(corner, QSizeF(size, size));
+    painter.drawText(rect, flags, text, bounding_rect);
+    // http://doc.qt.io/qt-5/qpainter.html#drawText-4
 }
 
 
 void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
-              const QString& text, QRectF* boundingRect)
+              const QString& text, QRectF* bounding_rect)
 {
     // http://stackoverflow.com/questions/24831484
-   drawText(painter, point.x(), point.y(), flags, text, boundingRect);
+    drawText(painter, point.x(), point.y(), flags, text, bounding_rect);
 }
 
 

@@ -21,6 +21,8 @@
 #include <QGraphicsPixmapItem>
 
 
+// An extension of QGraphicsPixmapItem that implement opacity.
+
 class GraphicsPixmapItemWithOpacity : public QGraphicsPixmapItem
 {
     // Don't use the Q_OBJECT macro! QGraphicsItem is not a QObject.

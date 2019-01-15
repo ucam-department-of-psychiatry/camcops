@@ -52,6 +52,7 @@ QuSlider::QuSlider(FieldRefPtr fieldref,
     m_tick_label_position(QSlider::NoTicks),
     m_edge_in_extreme_labels(false),
     m_symmetric(false),
+    m_inverted(false),
     // Internals
     m_value_label(nullptr),
     m_slider(nullptr),
@@ -160,6 +161,13 @@ QuSlider* QuSlider::setSymmetric(const bool symmetric)
 }
 
 
+QuSlider* QuSlider::setInverted(bool inverted)
+{
+    m_inverted = inverted;
+    return this;
+}
+
+
 void QuSlider::setFromField()
 {
     fieldValueChanged(m_fieldref.data(), nullptr);
@@ -225,11 +233,12 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         m_slider->setTickLabels(m_tick_labels);
     }
     m_slider->setTickLabelPosition(m_tick_label_position);
-    m_slider->setReverseVerticalLabels(true);
     m_slider->setEdgeInExtremeLabels(m_edge_in_extreme_labels);
     if (m_symmetric) {
         m_slider->setCssName(cssconst::SLIDER_SYMMETRIC);
+        m_slider->setSymmetricOverspill(true);
     }
+    m_slider->setInvertedAppearance(m_inverted);
     if (!read_only) {
         connect(m_slider.data(), &TickSlider::valueChanged,
                 this, &QuSlider::sliderValueChanged);
@@ -247,8 +256,6 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
             layout->addWidget(m_value_label, 0,
                               Qt::AlignHCenter | Qt::AlignVCenter);
         }
-        m_slider->setSizePolicy(QSizePolicy::Preferred,
-                                QSizePolicy::Fixed);
         layout->addWidget(m_slider);
         m_container_widget->setLayout(layout);
         m_container_widget->setSizePolicy(QSizePolicy::Preferred,
@@ -268,8 +275,6 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
             innerlayout->addWidget(m_value_label, 0,
                                    Qt::AlignHCenter | Qt::AlignVCenter);
         }
-        m_slider->setSizePolicy(QSizePolicy::Fixed,
-                                QSizePolicy::Preferred);
         innerlayout->addWidget(m_slider);
         outerlayout->addLayout(innerlayout);
         outerlayout->addStretch();

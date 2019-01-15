@@ -94,6 +94,10 @@ public:
     // more red is shown.
     QuSlider* setSymmetric(bool symmetric);
 
+    // Invert the direction of the slider.
+    // Default is left (low) -> right (high), and bottom (low) -> top (high).
+    QuSlider* setInverted(bool inverted);
+
 protected:
     void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -129,6 +133,7 @@ protected:
     QSlider::TickPosition m_tick_label_position;
     bool m_edge_in_extreme_labels;
     bool m_symmetric;
+    bool m_inverted;
 
     // Internals
     QPointer<QWidget> m_container_widget;

@@ -83,6 +83,7 @@ int convertLengthByDpi(int old_length, qreal to_dpi, qreal from_dpi);
 int convertLengthByDpi(int old_length);  // default is runtime, not compile-time
 QSize convertSizeByDpi(const QSize& old_size, qreal to_dpi, qreal from_dpi);
 QSize convertSizeByDpi(const QSize& old_size);  // default is runtime, not compile-time
+int convertCmToPx(qreal cm, qreal dpi);
 
 // ============================================================================
 // Cryptography

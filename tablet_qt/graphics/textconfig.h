@@ -21,14 +21,18 @@
 #include <Qt>
 #include <QColor>
 
-
+// Represents text "configuration" for graphics functions:
+// - font size
+// - colour
+// - width to word-wrap to (-1 for no wrap)
+// - text alignment.
+//
 // We use pixels, not points, for font sizes here.
 // In general, this is deprecated, because it makes things device-specific,
 // i.e. dependent on the dots-per-inch (DPI) setting. However, in this context
 // we are working in a pixel-based graphics system, which is then scaled by the
 // ScreenLikeGraphicsView. It's not clear that "DPI" makes sense here, and we
 // want our text size to be predictable.
-
 
 struct TextConfig {
 public:

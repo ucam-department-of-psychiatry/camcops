@@ -25,6 +25,7 @@ class QVideoFrame;
 
 namespace imagefunc {
 
+// Returns an image from a video frame.
 QImage imageFromVideoFrame(const QVideoFrame& buffer);
 
 }  // namespace imagefunc

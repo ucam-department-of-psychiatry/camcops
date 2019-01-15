@@ -22,6 +22,7 @@
 #include <QSlider>
 #include <QStyle>
 #include <QStyleOptionSlider>
+#include "lib/margins.h"
 
 class QHoverEvent;
 class QKeyEvent;
@@ -34,6 +35,38 @@ class QMouseEvent;
 // http://stackoverflow.com/questions/27531542/tick-marks-disappear-on-styled-qslider
 // ... and then modification including labels, and making it work with
 // vertical sliders.
+
+/*
+
+Terminology:
+
+Horizontal:
+
+        1  two  3   4       6           tick labels
+        |   |   |   |   |   |           ticks
+    ----------------XX------------      the slider, with its handle
+        |   |   |   |   |   |           ticks
+        1  two  3   4       6           tick labels
+
+Vertical:
+
+     |
+    -|- 6
+     |
+    -|- 5
+     |
+    -X- 4
+     |
+    -|- 4
+     |
+    -|- 3
+     |
+    -|- two
+     |
+    -|- 1
+     |
+
+*/
 
 class TickSlider : public QWidget
 {
@@ -70,29 +103,89 @@ class TickSlider : public QWidget
     // Public interface
     // ========================================================================
 public:
+    // Create a TickSlider with the default (vertical) orientation.
     TickSlider(QWidget* parent = nullptr);
+
+    // Create a TickSlider, specifying the orientation.
     TickSlider(Qt::Orientation orientation, QWidget* parent = nullptr);
+
+    // Set the tick colour.
     virtual void setTickColor(const QColor& colour);
+
+    // Set the tick thickness (width), in pixels.
     virtual void setTickThickness(int thickness);
+
+    // Sets the tick length, in pixels (perpendicular to the slider).
     virtual void setTickLength(int length);
+
+    // Set the gap between ticks and tick labels, in pixels
+    // (measured perpendicular to the slider).
     virtual void setTickLabelGap(int gap);
+
+    // Set the minimum gap between labels, in pixels
+    // (measured parallel to the slider).
     virtual void setInterlabelGap(int gap);
+
+    // Set the gap between the slider and labels/ticks (whichever comes first),
+    // in pixels (measured perpendicular to the slider).
     virtual void setGapToSlider(int gap);
+
+    // Make the extreme labels align with the ends of the slider?
+    // For a horizontal slider, that means "left-align the left label with its
+    // tick, and right-align the right label with its tick" (rather than the
+    // default of centre-aligning all labels with their ticks).
+    // Similarly for vertical sliders.
+    // Default is false.
     virtual void setEdgeInExtremeLabels(bool edge_in_extreme_labels);
 
+    // [Only applicable if setEdgeInExtremeLabels() is set to false.]
+    // Using a horizontal slider example, suppose the leftmost label is
+    // very long and the rightmost label is very short. The label will
+    // "overspill" a lot on the left and not much on the right. This will mean
+    // that the whole slider is not centred. If you call
+    // setSymmetricOverspill(true), extra space will be added on the right so
+    // that the whole thing is symmetric.
+    virtual void setSymmetricOverspill(bool symmetric_overspill);
+
+    // Sets the absolute length of the slider's active range, in pixels.
+    // See also setAbsoluteLengthCm().
+    virtual void setAbsoluteLengthPx(int px);
+
+    // Sets the absolute length of the slider's active range, in cm, given a
+    // dpi setting. Convenience function that calls setAbsoluteLengthPx().
+    // Use this to say "make the slider exactly 10cm".
+    // Beware on small screens!
+    virtual void setAbsoluteLengthCm(qreal abs_length_cm, qreal dpi);
+
+    // Standard QWidget size hint.
     virtual QSize sizeHint() const override;
 
+    // Standard QWidget minimum size hint
+    virtual QSize minimumSizeHint() const override;
+
+    // Chooses whether tick labels are shown left/right/both (vertical sliders)
+    // or above/below/both (horizontal sliders).
     virtual void setTickLabelPosition(QSlider::TickPosition position);
+
+    // Reads what was set by setTickLabelPosition().
     virtual QSlider::TickPosition tickLabelPosition() const;
 
+    // Adds a label at an integer slider position.
     virtual void addTickLabel(int position, const QString& text);
+
+    // Sets all tick labels simultaneously. The map maps integer slider
+    // position to text.
     virtual void setTickLabels(const QMap<int, QString>& labels);
+
+    // Adds some default numerical tick labels (at the tickInterval(), or if
+    // that's not set, the pageStep()).
     virtual void addDefaultTickLabels();
 
-    virtual void setReverseHorizontalLabels(bool reverse);
-    virtual void setReverseVerticalLabels(bool reverse);
-
+    // Set the CSS name of this widget and its QSlider child widget.
     virtual void setCssName(const QString& name);
+
+    // Is it horizontal?
+    bool isHorizontal() const;
 
     // ========================================================================
     // Passing on calls to/from our slider
@@ -126,9 +219,13 @@ public:
     void setSliderPosition(int pos) { m_slider.setSliderPosition(pos); }
     int sliderPosition() const { return m_slider.sliderPosition(); }
 
+    // Reverse the direction of the slider.
+    // Default is left (low) -> right (high), and bottom (low) -> top (high).
     void setInvertedAppearance(bool inverted) { m_slider.setInvertedAppearance(inverted); }
     bool invertedAppearance() const { return m_slider.invertedAppearance(); }
 
+    // Reverse the behaviour of key/mouse wheel events.
+    // See http://doc.qt.io/qt-5/qabstractslider.html
     void setInvertedControls(bool inverted) { m_slider.setInvertedControls(inverted); }
     bool invertedControls() const { return m_slider.invertedControls(); }
 
@@ -138,7 +235,7 @@ public:
 
 public slots:
     void setValue(int value) { m_slider.setValue(value); }
-    void setOrientation(Qt::Orientation orientation) { m_slider.setOrientation(orientation); }
+    void setOrientation(Qt::Orientation orientation);
     void setRange(int min, int max) { m_slider.setRange(min, max); }
 
 signals:
@@ -168,12 +265,6 @@ public:
     // ========================================================================
 
 protected:
-    struct LabelOverspill {
-        int left = 0;
-        int right = 0;
-        int top = 0;
-        int bottom = 0;
-    };
 
     // Get the size of the biggest label (more accurately, a size that will
     // hold all our labels).
@@ -185,11 +276,18 @@ protected:
     // Are we using labels?
     bool usingLabels() const;
 
+    // Given an integer value from the slider, get the position along the
+    // slider as a proportion (0-1), in a  standard drawing direction
+    // (x left->right, y top->bottom).
+    double getDrawingProportion(int value) const;
+
     // Tick position (vertical or horizontal) along the slider.
-    int getTickPos(int pos, int handle_extent,
+    int getTickPos(double drawing_proportion, int handle_extent,
                    int slider_extent, int initial_label_overspill) const;
 
-    // Get label "overspill" distances.
+    // The extent to which labels "overspill" the boundaries of the slider
+    // (in the direction along its length.)
+    //
     // - If m_edge_in_extreme_labels, these are all zero. Otherwise:
     // - Horizontal:
     //   - If we have a label for the leftmost (minimum) value, "left" is set
@@ -201,13 +299,30 @@ protected:
     //     half the width of the topmost label.
     //   - If we have a label for the bottom (minimum) value, "bottom" is set
     //     to half the width of the bottom label.
-    virtual LabelOverspill getLabelOverspill();
+    virtual Margins getLabelOverspill() const;
+
+    // Returns the size of all the extra things we draw around the slider.
+    Margins getSurround() const;
 
     // Clear cached information
     void clearCache();
 
-    QRect getSliderRect();
+    // Calculate where our slider widget should be (it is a sub-rectangle or
+    // our main widget).
+    QRect getSliderRect() const;
+
+    // Tells the slider to reposition and/or resize itself.
     void repositionSlider();
+
+    // Reset the widget size policy
+    void resetSizePolicy();
+
+    // Calculate the slider's size *including* its handle -- it seems to ignore
+    // this via sizeHint() or minimumSizeHint()!
+    QSize sliderSizeWithHandle(bool minimum_size) const;
+
+    // Expand a starting "slider" size to the size required by the whole widget.
+    QSize wholeWidgetSize(const QSize& slider_size) const;
 
     // Event handlers
     virtual bool event(QEvent* event) override;
@@ -225,14 +340,14 @@ protected:
     int m_tick_label_gap;
     int m_min_interlabel_gap;
     int m_gap_to_slider;
-    bool m_reverse_horizontal_labels;
-    bool m_reverse_vertical_labels;
     QSlider::TickPosition m_label_position;
     QMap<int, QString> m_tick_labels;
     bool m_edge_in_extreme_labels;
+    bool m_symmetric_overspill;
+    int m_slider_target_length_px;  // <=0 means don't use this  // ***
 
-    bool m_is_overspill_cached;
-    LabelOverspill m_cached_overspill;
+    mutable bool m_is_overspill_cached;
+    mutable Margins m_cached_overspill;
 
     QSlider m_slider;
 };

@@ -150,31 +150,6 @@ QRectF LineSegment::rect() const
 
 bool LineSegment::pointInPerpendicularArea(const QPointF& point) const
 {
-    /*
-    Is the point in the area swept out by the line (swept perpendicular to it)?
-
-    Example 1:
-
-        n       y   y   y           n
-
-         n  ----------y-----------     n
-
-        n     y             y           n
-
-    Example 2:
-
-               n   n
-                        n
-              y             n
-                   /      n
-                  /
-                 / y    y
-         n      /
-
-              n  n
-
-    */
-
     const qreal angle = angleRad();
     QTransform tr;
     tr = tr.rotateRadians(angle);  // rotate ANTICLOCKWISE by angle

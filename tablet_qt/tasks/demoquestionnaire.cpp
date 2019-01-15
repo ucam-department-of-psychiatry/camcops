@@ -19,6 +19,7 @@
 
 // #define DEBUG_BIG_HEADER_ONLY_PAGE
 // #define DEBUG_DIAGNOSTIC_SET_CREATION_SPEED
+// #define DEBUG_DISABLE_MOST_SLIDERS
 
 #include "demoquestionnaire.h"
 #include "core/camcopsapp.h"
@@ -672,7 +673,9 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     // Question
     // --------------------------------------------------------------------
 
+#ifndef DEBUG_DISABLE_MOST_SLIDERS
     auto rose_q = new QuText("Roses are best when red.");
+#endif
 
     // --------------------------------------------------------------------
     // Likert-style slider
@@ -769,12 +772,13 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     QuPagePtr page_sliders((new QuPage{
+#ifndef DEBUG_DISABLE_MOST_SLIDERS
         new QuHeading("Integer slider:"),
         (new QuSlider(fieldRef("thermometer"), 0, 10, 1))
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksBothSides)
                                 ->setShowValue(true),
-        new QuHeading("Integer slider (same field as above)"),
+        new QuHeading("Integer slider (same field as above), vertical"),
         (new QuSlider(fieldRef("thermometer"), 0, 10, 1))
                                 ->setShowValue(true)
                                 ->setTickInterval(2)
@@ -787,7 +791,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                 ->setShowValue(true)
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksBelow)
-                                ->setConvertForRealField(true, 5, 6),
+                                ->setConvertForRealField(true, 0, 1),
         new QuHeading("Real slider with custom labels (edging in extreme labels):"),
         (new QuSlider(fieldRef("slider2"), 100, 500, 1))
                                 ->setConvertForRealField(true, 1, 5)
@@ -802,27 +806,36 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                 })
                                 ->setShowValue(true)
                                 ->setEdgeInExtremeLabels(true),
+#endif
         new QuHeading("Real slider with custom labels (standard labels):"),
         (new QuSlider(fieldRef("slider2"), 100, 500, 1))
                                 ->setConvertForRealField(true, 1, 5)
                                 ->setShowValue(false)
                                 ->setTickInterval(1)
-                                ->setTickPosition(QSlider::TicksAbove)
-                                ->setTickLabelPosition(QSlider::TicksBelow)
+                                // ->setTickPosition(QSlider::NoTicks)
+                                // ->setTickPosition(QSlider::TicksAbove)
+                                // ->setTickPosition(QSlider::TicksBelow)
+                                ->setTickPosition(QSlider::TicksBothSides)
+                                // ->setTickLabelPosition(QSlider::NoTicks)
+                                // ->setTickLabelPosition(QSlider::TicksAbove)
+                                // ->setTickLabelPosition(QSlider::TicksBelow)
+                                ->setTickLabelPosition(QSlider::TicksBothSides)
                                 ->setTickLabels({
                                     {100, "one: low"},
                                     {300, "three: medium"},
                                     {500, "five: maximum!"},
                                 })
                                 ->setShowValue(true),
+#ifndef DEBUG_DISABLE_MOST_SLIDERS
         new QuHeading("Thermometer:"),
         (new QuThermometer(fieldRef("thermometer"), thermometer_items))
                                 ->setRescale(true, 0.4),
-        new QuHeading("Likert-style slider, in grid (70% of window width)"),
+        new QuHeading("Likert-style (discrete) slider, in grid (70% of window width)"),
         rose_q,
         likert_slider_grid,
-        new QuHeading("VAS-style slider"),
+        new QuHeading("Visual analogue scale-style slider (approximating continuous)"),
         vas_slider,
+#endif
     })
         ->setTitle("Sliders and thermometers")
         ->setType(QuPage::PageType::ClinicianWithPatient));

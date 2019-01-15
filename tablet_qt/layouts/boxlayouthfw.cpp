@@ -1559,7 +1559,7 @@ Margins BoxLayoutHfw::effectiveMargins() const
         clearCaches();
     }
 #endif
-    if (!m_effective_margins.isSet()) {
+    if (m_effective_margins.isZero()) {
         Margins contents_margins = Margins::getContentsMargins(this);
         m_effective_margins = effectiveMargins(contents_margins);
     }

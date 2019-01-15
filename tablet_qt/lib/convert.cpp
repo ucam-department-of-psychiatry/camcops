@@ -624,6 +624,13 @@ QSize convertSizeByDpi(const QSize& old_size)
 }
 
 
+int convertCmToPx(const qreal cm, const qreal dpi)
+{
+    const qreal inches = cm / CM_PER_INCH;
+    return qRound(dpi * inches);
+}
+
+
 // ============================================================================
 // Cryptography
 // ============================================================================

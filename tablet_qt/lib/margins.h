@@ -38,11 +38,22 @@ public:
     void clear();
     void rationalize();
 
-    inline bool isSet() const { return m_set; }
+    bool isZero() const;
     inline int left() const { return m_left; }
     inline int top() const { return m_top; }
     inline int right() const { return m_right; }
     inline int bottom() const { return m_bottom; }
+
+    void setLeft(int width);
+    void setRight(int width);
+    void setTop(int height);
+    void setBottom(int height);
+
+    // Low-level access that does not call rationalize():
+    int& rleft();
+    int& rright();
+    int& rtop();
+    int& rbottom();
 
     void addLeft(int width);
     void addRight(int width);
@@ -52,15 +63,21 @@ public:
     QSize totalSize() const;
     int totalHeight() const;
     int totalWidth() const;
+
     int removeLeftRightMarginsFrom(int width) const;
     int addLeftRightMarginsTo(int width) const;
+
     int removeTopBottomMarginsFrom(int height) const;
     int addTopBottomMarginsTo(int height) const;
+
     QSize addMarginsTo(const QSize& size) const;
-    QSize removeMarginsFrom(const QSize& size) const;
     QRect addMarginsTo(const QRect& rect) const;
-    QRect removeMarginsFrom(const QRect& rect) const;
+    void addMarginsToInPlace(QSize& size) const;
     void addMarginsToInPlace(QRect& rect) const;
+    void addMarginsToInPlace(Margins& other) const;
+
+    QSize removeMarginsFrom(const QSize& size) const;
+    QRect removeMarginsFrom(const QRect& rect) const;
     void removeMarginsFromInPlace(QRect& rect) const;
 
     static Margins getContentsMargins(const QWidget* widget);
@@ -70,7 +87,6 @@ public:
     static Margins subRectMargins(const QRect& outer, const QRect& inner);
 
 private:
-    bool m_set;
     int m_left;
     int m_top;
     int m_right;

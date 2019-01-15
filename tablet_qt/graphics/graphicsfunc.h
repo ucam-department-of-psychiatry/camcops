@@ -180,9 +180,17 @@ int alpha(qreal opacity);
 // Graphics calculations and painting
 // ============================================================================
 
+// Modifies a rectangle by aligning it with its current top-left point.
+// The assumed starting point is that the user wishes to have a rectangle
+// aligned at point (x,y), and that (x,y) is currently the top left point
+// of rect.
 void alignRect(QRectF& rect, Qt::Alignment alignment);
+
+// Returns a rectangle centred on "centre", with width "w" and height "h".
 QRectF centredRect(const QPointF& centre, qreal w, qreal h);
 
+// Draws a sector, defined by its tip (the centre of the circle of which it's
+// part), radius, and start/end angles.
 void drawSector(QPainter& painter,
                 const QPointF& tip,
                 qreal radius,
@@ -192,20 +200,28 @@ void drawSector(QPainter& painter,
                 const QPen& pen,
                 const QBrush& brush);
 
+// Returns the bounding rectangle of a piece of text in a certain font.
 QRectF textRectF(const QString& text, const QFont& font);
-// Text with alignment:
+
+// Draws text aligned with a point ("point").
 void drawText(QPainter& painter, const QPointF& point, const QString& text,
               const QFont& font, Qt::Alignment align);
-// Drawing text with alignment at a point (not a rectangle):
+
+// Draws text aligned with a point ("x", "y"), returning the bounding
+// rectangle of the text if bounding_rect is specified.
 void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
-              const QString& text, QRectF* boundingRect = nullptr);
+              const QString& text, QRectF* bounding_rect = nullptr);
+
+// Draws text aligned with a point ("point"), returning the bounding
+// rectangle of the text if bounding_rect is specified.
 void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
-              const QString& text, QRectF* boundingRect = nullptr);
+              const QString& text, QRectF* bounding_rect = nullptr);
 
 // ============================================================================
 // Creating QGraphicsScene objects
 // ============================================================================
 
+// Makes a text button: a rounded rectangle with word-wrapping text in it.
 ButtonAndProxy makeTextButton(
         QGraphicsScene* scene,  // button is added to scene
         const QRectF& rect,
@@ -214,6 +230,7 @@ ButtonAndProxy makeTextButton(
         QFont font = QFont(),
         QWidget* parent = nullptr);
 
+// Makes a text label (word-wrapping if required).
 LabelAndProxy makeText(
         QGraphicsScene* scene,  // text is added to scene
         const QPointF& point,
@@ -222,6 +239,7 @@ LabelAndProxy makeText(
         QFont font = QFont(),
         QWidget* parent = nullptr);
 
+// Makes an "adjustable pie" widget.
 AdjustablePieAndProxy makeAdjustablePie(
         QGraphicsScene* scene,  // pie is added to scene
         const QPointF& centre,
@@ -229,6 +247,7 @@ AdjustablePieAndProxy makeAdjustablePie(
         qreal diameter,
         QWidget* parent = nullptr);
 
+// Makes a clickable SVG image.
 SvgWidgetAndProxy makeSvg(
         QGraphicsScene* scene,  // SVG is added to scene
         const QPointF& centre,
@@ -238,12 +257,14 @@ SvgWidgetAndProxy makeSvg(
         bool transparent_for_mouse = false,
         QWidget* parent = nullptr);
 
+// Makes a translucent rectangle.
 QGraphicsRectItem* makeObscuringRect(
         QGraphicsScene* scene,
         const QRectF& rect,
         qreal opacity = 0.5,  // 0-1
         const QColor& colour_ignoring_opacity = QCOLOR_BLACK);
 
+// Makes a graphics object from a disk image.
 QGraphicsPixmapItem* makeImage(
         QGraphicsScene* scene,
         const QRectF& rect,
