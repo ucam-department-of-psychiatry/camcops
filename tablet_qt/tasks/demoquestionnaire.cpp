@@ -653,6 +653,121 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         );
         thermometer_items.append(item);
     }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Likert-style slider
+    // See example in creating_tasks.rst
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    const QString ROSES_FIELDNAME("thermometer");
+    const int STRONGLY_DISAGREE = 1;
+    const int DISAGREE = 2;
+    const int NEUTRAL = 3;
+    const int AGREE = 4;
+    const int STRONGLY_AGREE = 5;
+
+    // --------------------------------------------------------------------
+    // Question
+    // --------------------------------------------------------------------
+
+    auto rose_q = new QuText("Roses are best when red.");
+
+    // --------------------------------------------------------------------
+    // Likert-style slider
+    // --------------------------------------------------------------------
+    // Create the horizontal slider
+    QuSlider* likert_slider = new QuSlider(
+        fieldRef(ROSES_FIELDNAME), STRONGLY_DISAGREE, STRONGLY_AGREE, 1);
+    likert_slider->setHorizontal(true);
+    likert_slider->setBigStep(1);
+
+    // Ticks for every interval, above and below
+    likert_slider->setTickInterval(1);
+    likert_slider->setTickPosition(QSlider::TicksBothSides);
+
+    // Labels
+    likert_slider->setTickLabels({
+        {STRONGLY_DISAGREE, "Strongly\ndisagree"},  // or an xstring()
+        {DISAGREE, "Disagree"},
+        {NEUTRAL, "Neutral"},
+        {AGREE, "Agree"},
+        {STRONGLY_AGREE, "Strongly\nagree"},
+    });
+    likert_slider->setTickLabelPosition(QSlider::TicksAbove);
+
+    // Don't show the numerical value
+    likert_slider->setShowValue(false);
+
+    // Symmetry
+    likert_slider->setNullApparentValue(NEUTRAL);
+    likert_slider->setSymmetric(true);
+
+    // --------------------------------------------------------------------
+    // Grid to improve layout
+    // --------------------------------------------------------------------
+    // Prevent the edge labels overflowing the screen, without having to
+    // use setEdgeInExtremeLabels(true) (which might distort the scale).
+
+    const int MARGIN_WIDTH = 15;  // each side
+    const int LIKERT_WIDTH = 70;
+    auto likert_slider_grid = new QuGridContainer();
+    likert_slider_grid->setColumnStretch(0, MARGIN_WIDTH);
+    likert_slider_grid->setColumnStretch(1, LIKERT_WIDTH);
+    likert_slider_grid->setColumnStretch(2, MARGIN_WIDTH);
+    likert_slider_grid->addCell(QuGridCell(likert_slider, 0, 1));
+
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // VAS-style slider
+    // See example in creating_tasks.rst
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    const QString VAS_FIELDNAME("slider1");
+    const int VAS_MIN_INT = 0;  // the internal integer minimum
+    const int VAS_CENTRAL_INT = 500;  // centre, for initial display
+    const int VAS_MAX_INT = 1000;  // the internal integer maximum
+    const double VAS_MIN = 0.0;  // the database/display minimum
+    const double VAS_MAX = 1.0;  // the database/display maximum
+    const int VAS_DISPLAY_DP = 3;
+
+    // --------------------------------------------------------------------
+    // VAS-style slider
+    // --------------------------------------------------------------------
+
+    // Create the horizontal slider
+    QuSlider* vas_slider = new QuSlider(
+        fieldRef(VAS_FIELDNAME), VAS_MIN_INT, VAS_MAX_INT, 1);
+    vas_slider->setConvertForRealField(true, VAS_MIN, VAS_MAX, VAS_DISPLAY_DP);
+    vas_slider->setHorizontal(true);
+    vas_slider->setBigStep(1);
+
+    // Ticks just at the extremes
+    vas_slider->setTickInterval(VAS_MAX_INT);
+    vas_slider->setTickPosition(QSlider::TickPosition::TicksBothSides);
+
+    // Labels
+    vas_slider->setTickLabels({
+        {VAS_MIN_INT, QString::number(VAS_MIN)},  // or whatever
+        {VAS_MAX_INT, QString::number(VAS_MAX)},
+    });
+    vas_slider->setTickLabelPosition(QSlider::TickPosition::TicksAbove);
+
+    // Show the numerical value
+    vas_slider->setShowValue(true);
+
+    // Symmetry
+    vas_slider->setNullApparentValue(VAS_CENTRAL_INT);
+    vas_slider->setSymmetric(true);
+    vas_slider->setEdgeInExtremeLabels(false);
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // End of those examples. On to the page...
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     QuPagePtr page_sliders((new QuPage{
         new QuHeading("Integer slider:"),
         (new QuSlider(fieldRef("thermometer"), 0, 10, 1))
@@ -687,9 +802,27 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                 })
                                 ->setShowValue(true)
                                 ->setEdgeInExtremeLabels(true),
+        new QuHeading("Real slider with custom labels (standard labels):"),
+        (new QuSlider(fieldRef("slider2"), 100, 500, 1))
+                                ->setConvertForRealField(true, 1, 5)
+                                ->setShowValue(false)
+                                ->setTickInterval(1)
+                                ->setTickPosition(QSlider::TicksAbove)
+                                ->setTickLabelPosition(QSlider::TicksBelow)
+                                ->setTickLabels({
+                                    {100, "one: low"},
+                                    {300, "three: medium"},
+                                    {500, "five: maximum!"},
+                                })
+                                ->setShowValue(true),
         new QuHeading("Thermometer:"),
         (new QuThermometer(fieldRef("thermometer"), thermometer_items))
                                 ->setRescale(true, 0.4),
+        new QuHeading("Likert-style slider, in grid (70% of window width)"),
+        rose_q,
+        likert_slider_grid,
+        new QuHeading("VAS-style slider"),
+        vas_slider,
     })
         ->setTitle("Sliders and thermometers")
         ->setType(QuPage::PageType::ClinicianWithPatient));

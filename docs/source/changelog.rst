@@ -1765,5 +1765,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``QuSlider`` takes a new ``setSymmetric()`` option to remove the colour to
   the left of (horizontal) or below (vertical) the slider "handle".
 
+- ``Questionnaire`` takes ``QuPage*`` as well as ``QuPagePtr`` as arguments to
+  its constructor.
+
+- ``TickSlider`` and ``QuSlider`` allow their labels to overspill the edges
+  and therefore work much better.
+
 .. _changelog_2019:
 

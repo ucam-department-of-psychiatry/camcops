@@ -70,6 +70,28 @@ Questionnaire::Questionnaire(CamcopsApp& app,
 }
 
 
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             const QVector<QuPage*> pages) :
+    m_app(app)
+{
+    for (auto p : pages) {
+        addPage(p);
+    }
+    commonConstructor();
+}
+
+
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             std::initializer_list<QuPage*> pages) :
+    m_app(app)
+{
+    for (auto p : pages) {
+        addPage(p);
+    }
+    commonConstructor();
+}
+
+
 void Questionnaire::commonConstructor()
 {
     m_type = QuPage::PageType::Patient;
@@ -114,6 +136,15 @@ void Questionnaire::setType(const QuPage::PageType type)
 void Questionnaire::addPage(const QuPagePtr& page)
 {
     m_pages.append(page);
+}
+
+
+void Questionnaire::addPage(QuPage* page)
+{
+    // If you add a nullptr, it will be ignored.
+    if (page) {
+        addPage(QuPagePtr(page));  // takes ownership
+    }
 }
 
 

@@ -47,6 +47,8 @@ public:
     Questionnaire(CamcopsApp& app);
     Questionnaire(CamcopsApp& app, const QVector<QuPagePtr>& pages);
     Questionnaire(CamcopsApp& app, std::initializer_list<QuPagePtr> pages);
+    Questionnaire(CamcopsApp& app, const QVector<QuPage*> pages);  // takes ownership
+    Questionnaire(CamcopsApp& app, std::initializer_list<QuPage*> pages);  // takes ownership
 
     // Information about the questionnaire
     bool readOnly() const;
@@ -68,6 +70,7 @@ public:
 
     // Add pages
     virtual void addPage(const QuPagePtr& page);
+    virtual void addPage(QuPage* page);  // takes ownership
 
     // Get page information
     QuPage* currentPagePtr() const;

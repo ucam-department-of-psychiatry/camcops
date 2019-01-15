@@ -47,6 +47,11 @@ Tasks
 - Continuous performance task, as per RNC's similar previous task (Linda P
   and team). A/w ETB.
 
+**Then**
+
+- Lewy body dementia checklist -- need details from JO'B, as per 14 Jan 2018
+  meeting.
+
 **Not a priority**
 
 - Cardinal_ExpDet* tasks: generate noise on the fly?

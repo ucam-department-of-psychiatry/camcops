@@ -51,7 +51,7 @@ QuSlider::QuSlider(FieldRefPtr fieldref,
     m_use_default_labels(false),
     m_tick_label_position(QSlider::NoTicks),
     m_edge_in_extreme_labels(false),
-    m_symmetric(true),
+    m_symmetric(false),
     // Internals
     m_value_label(nullptr),
     m_slider(nullptr),
@@ -228,10 +228,10 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
     m_slider->setReverseVerticalLabels(true);
     m_slider->setEdgeInExtremeLabels(m_edge_in_extreme_labels);
     if (m_symmetric) {
-        m_slider->setObjectName(cssconst::SLIDER_SYMMETRIC);
+        m_slider->setCssName(cssconst::SLIDER_SYMMETRIC);
     }
     if (!read_only) {
-        connect(m_slider.data(), &QSlider::valueChanged,
+        connect(m_slider.data(), &TickSlider::valueChanged,
                 this, &QuSlider::sliderValueChanged);
     }
     m_slider->setEnabled(!read_only);
