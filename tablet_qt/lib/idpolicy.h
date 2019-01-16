@@ -23,49 +23,97 @@
 #include <QVector>
 
 
+// Represents an ID policy from the CamCOPS server (or a special one from
+// the client).
+
 class IdPolicy
 {
+    // Attributes: mapping "attribute name" to "is the attribute present?"
     using AttributesType = QMap<QString, bool>;
+
 public:
+    // Construct the policy from text like "sex AND dob AND idnum1..."
     IdPolicy(const QString& policy_text);
+
+    // Does a set of attributes (from the patient) comply with the policy?
     bool complies(const AttributesType& attributes) const;
+
+    // Return the original policy string.
     QString original() const;
+
+    // Return a prettified version (standardized case, etc.).
     QString pretty() const;
+
+    // Return all ID numbers specificallly mentioned somehow in the policy.
+    // This does not include those referred to indirectly via "allidnums".
     QVector<int> specificallyMentionedIdNums() const;
+
 public:
+    // Result of parsing a "chunk" (a whole policy or a clause thereof).
+    // For example, parsing "dob" will return ChunkValue::True if the patient
+    // has a DOB, or ::False if he/she doesn't. Parsing "NOT dob" will return
+    // the opposite. Parsing "sex AND dob"... you get the idea.
     enum class ChunkValue {
         True,
         False,
         Unknown,
         SyntaxError,
     };
+
+    // Represents a logical operator.
     enum class OperatorValue {
         And,
         Or,
         None,
     };
+
 protected:
-    void initializeTokenDicts();
+    // Converts a token name to a token number.
     int nameToToken(const QString& name) const;
+
+    // Converts a token number to a token name.
     QString tokenToName(int token) const;
+
+    // Parses policy text and writes m_tokens and m_valid.
     void tokenize(QString policy_text);
+
+    // Report a warning to the debug log about a syntax error.
     void reportSyntaxError(const QString& msg) const;
+
+    // Clear all tokens internally, marking the policy as invalid.
     void invalidate();
+
+    // Checks a set of attributes against the policy, or part of the policy.
     ChunkValue idPolicyChunk(const QVector<int>& tokens,
                              const AttributesType& attributes) const;
+
+    // Returns the truth value of a Boolean chunk of the policy. (Can recurse
+    // if the policy contains parentheses.)
     ChunkValue idPolicyContent(const QVector<int>& tokens,
                                const AttributesType& attributes,
                                int& index) const;
+
+    // Returns an operator from the policy, or a no-operator-found indicator.
     OperatorValue idPolicyOp(const QVector<int>& tokens, int& index) const;
+
+    // Returns a boolean indicator corresponding to whether the token's
+    // information is present in the patient attributes (or a failure
+    // indicator).
     ChunkValue idPolicyElement(const AttributesType& attributes,
                                int token) const;
+
+    // Returns a string version of the specified sequence of tokens.
     QString stringify(const QVector<int>& tokens) const;
+
 protected:
-    QString m_policy_text;
-    QMap<int, QString> m_token_to_name;
-    QMap<QString, int> m_name_to_token;
-    QVector<int> m_tokens;
-    bool m_valid;
+    // Maps token integers to names, except for idnum*:
+    const static QMap<int, QString> s_token_to_name;
+    // Maps names to token integers, except for idnum*:
+    const static QMap<QString, int> s_name_to_token;
+
+    QString m_policy_text;  // original text
+    QVector<int> m_tokens;  // list of token integers
+    bool m_valid;  // is this policy valid? Set by tokenize().
 };
 
 

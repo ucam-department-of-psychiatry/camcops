@@ -64,53 +64,72 @@ const QString TOKENIZE_RE_STR(
 
 
 // ============================================================================
+// Static data
+// ============================================================================
+
+QMap<int, QString> makeTokenToNameDict()
+{
+    // function to create static data
+
+    QMap<int, QString> token_to_name;
+
+    // Everything except ID numbers:
+
+    token_to_name[TOKEN_LPAREN] = "(";
+    token_to_name[TOKEN_RPAREN] = ")";
+    token_to_name[TOKEN_AND] = "and";
+    token_to_name[TOKEN_OR] = "or";
+    token_to_name[TOKEN_NOT] = "not";
+
+    token_to_name[TOKEN_ANY_IDNUM] = ANY_IDNUM;
+    token_to_name[TOKEN_OTHER_IDNUM] = OTHER_IDNUM;
+
+    token_to_name[TOKEN_FORENAME] = FORENAME_FIELD;
+    token_to_name[TOKEN_SURNAME] = SURNAME_FIELD;
+    token_to_name[TOKEN_SEX] = SEX_FIELD;
+    token_to_name[TOKEN_DOB] = DOB_FIELD;
+    token_to_name[TOKEN_ADDRESS] = ADDRESS_FIELD;
+    token_to_name[TOKEN_GP] = GP_FIELD;
+    token_to_name[TOKEN_OTHER_DETAILS] = OTHER_FIELD;
+
+    return token_to_name;
+}
+
+
+QMap<QString, int> makeNameToTokenDict(const QMap<int, QString>& token_to_name)
+{
+    // function to create static data
+
+    QMap<QString, int> name_to_token;
+    QMapIterator<int, QString> it(token_to_name);
+    while (it.hasNext()) {
+        it.next();
+        name_to_token[it.value()] = it.key();
+    }
+    return name_to_token;
+}
+
+
+const QMap<int, QString> IdPolicy::s_token_to_name = makeTokenToNameDict();
+const QMap<QString, int> IdPolicy::s_name_to_token = makeNameToTokenDict(IdPolicy::s_token_to_name);
+
+
+// ============================================================================
 // IdPolicy class
 // ============================================================================
 
 IdPolicy::IdPolicy(const QString& policy_text) :
     m_policy_text(policy_text)
 {
-    initializeTokenDicts();
     tokenize(policy_text);
-}
-
-
-void IdPolicy::initializeTokenDicts()
-{
-    // Everything except ID numbers:
-
-    m_token_to_name.clear();
-    m_token_to_name[TOKEN_LPAREN] = "(";
-    m_token_to_name[TOKEN_RPAREN] = ")";
-    m_token_to_name[TOKEN_AND] = "and";
-    m_token_to_name[TOKEN_OR] = "or";
-    m_token_to_name[TOKEN_NOT] = "not";
-
-    m_token_to_name[TOKEN_ANY_IDNUM] = ANY_IDNUM;
-    m_token_to_name[TOKEN_OTHER_IDNUM] = OTHER_IDNUM;
-
-    m_token_to_name[TOKEN_FORENAME] = FORENAME_FIELD;
-    m_token_to_name[TOKEN_SURNAME] = SURNAME_FIELD;
-    m_token_to_name[TOKEN_SEX] = SEX_FIELD;
-    m_token_to_name[TOKEN_DOB] = DOB_FIELD;
-    m_token_to_name[TOKEN_ADDRESS] = ADDRESS_FIELD;
-    m_token_to_name[TOKEN_GP] = GP_FIELD;
-    m_token_to_name[TOKEN_OTHER_DETAILS] = OTHER_FIELD;
-
-    m_name_to_token.clear();
-    QMapIterator<int, QString> it(m_token_to_name);
-    while (it.hasNext()) {
-        it.next();
-        m_name_to_token[it.value()] = it.key();
-    }
 }
 
 
 int IdPolicy::nameToToken(const QString& name) const
 {
     // One of our pre-cached tokens?
-    if (m_name_to_token.contains(name)) {
-        return m_name_to_token[name];
+    if (s_name_to_token.contains(name)) {
+        return s_name_to_token[name];
     }
     // An ID number token?
     if (name.startsWith(IDNUM_FIELD_PREFIX)) {
@@ -131,8 +150,8 @@ QString IdPolicy::tokenToName(const int token) const
     if (token > 0) {
         return IDNUM_FIELD_FORMAT.arg(token);
     }
-    if (m_token_to_name.contains(token)) {
-        return m_token_to_name[token];
+    if (s_token_to_name.contains(token)) {
+        return s_token_to_name[token];
     }
     qWarning() << Q_FUNC_INFO << "Bad token!";
     return "BAD_TOKEN";
@@ -169,7 +188,7 @@ void IdPolicy::tokenize(QString policy_text)
     }
     // check syntax:
     AttributesType blank_attributes;
-    for (const QString& name : m_name_to_token.keys()) {
+    for (const QString& name : s_name_to_token.keys()) {
         blank_attributes[name] = false;
     }
     if (idPolicyChunk(m_tokens, blank_attributes) == ChunkValue::SyntaxError) {
@@ -226,8 +245,6 @@ void IdPolicy::reportSyntaxError(const QString &msg) const
 
 bool IdPolicy::complies(const AttributesType& attributes) const
 {
-    // Do a set of attributes (from the patient) comply with the policy?
-
     // A duff policy doesn't match anything:
     if (!m_valid) {
         return false;
@@ -247,7 +264,6 @@ IdPolicy::ChunkValue IdPolicy::idPolicyChunk(
         const QVector<int>& tokens,
         const AttributesType& attributes) const
 {
-    // Checks a set of attributes against the policy, or part of the policy.
     // qDebug() << Q_FUNC_INFO << stringify(tokens);
     if (!m_valid) {
         return ChunkValue::SyntaxError;
@@ -311,9 +327,6 @@ IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QVector<int>& tokens,
                                                const AttributesType& attributes,
                                                int& index) const
 {
-    // Returns the truth value of a Boolean chunk of the policy. (Can recurse
-    // if the policy contains parentheses.)
-
     // qDebug() << Q_FUNC_INFO << "tokens =" << stringify(tokens) << "; index =" << index;
     if (index >= tokens.length()) {
         reportSyntaxError("policy incomplete; missing content at end");
@@ -375,7 +388,6 @@ IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QVector<int>& tokens,
 IdPolicy::OperatorValue IdPolicy::idPolicyOp(const QVector<int>& tokens,
                                              int& index) const
 {
-    // Returns an operator from the policy, or a no-operator-found indicator.
     // qDebug() << Q_FUNC_INFO << "tokens =" << stringify(tokens) << "; index =" << index;
     if (index >= tokens.length()) {
         reportSyntaxError("policy incomplete; missing operator at end");
@@ -396,9 +408,6 @@ IdPolicy::OperatorValue IdPolicy::idPolicyOp(const QVector<int>& tokens,
 IdPolicy::ChunkValue IdPolicy::idPolicyElement(const AttributesType& attributes,
                                                const int token) const
 {
-    // Returns a boolean indicator corresponding to whether the token's
-    // information is present in the patient attributes (or a failure
-    // indicator).
     const QString name = tokenToName(token);
     if (token <= 0) {
         if (!attributes.contains(name)) {

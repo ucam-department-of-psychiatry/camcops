@@ -26,6 +26,8 @@
 #include "maths/include_eigen_dense.h"
 
 
+// Represents a link function family for a generalized linear model.
+
 class LinkFunctionFamily
 {
 public:
@@ -115,6 +117,8 @@ public:
 extern const QString LINK_FAMILY_NAME_GAUSSIAN;
 extern const QString LINK_FAMILY_NAME_BINOMIAL;
 extern const QString LINK_FAMILY_NAME_POISSON;
+
+// Some concrete link function families:
 
 extern const LinkFunctionFamily LINK_FN_FAMILY_GAUSSIAN;  // default for glm() in R
 extern const LinkFunctionFamily LINK_FN_FAMILY_LOGIT;

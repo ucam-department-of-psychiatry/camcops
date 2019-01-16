@@ -23,21 +23,33 @@
 class QEvent;
 
 
+// Object to watch, and debug-log, all mouse/touch events on a QObject.
+// Create with simply:
+//      new DebugEventWatcher(this, DebugEventWatcher::All);
+
 class DebugEventWatcher : public QObject
 {
-    // Object to watch, and debug-log, all mouse/touch events on an object.
     Q_OBJECT
 public:
+
+    // Categories of event to watch.
     enum EventCategory {  // http://doc.qt.io/qt-5.9/qflags.html#details
         All = (1 << 0),
         MouseTouch = (1 << 1),
     };
     Q_DECLARE_FLAGS(EventCategories, EventCategory)
+
 public:
+    // Constructor
     explicit DebugEventWatcher(QObject* parent, EventCategories categories);
+
+    // Receive incoming events.
     virtual bool eventFilter(QObject* obj, QEvent* event) override;
+
 private:
+    // Describe the events to the debug stream.
     void report(QObject* obj, QEvent* event) const;
+
 private:
     EventCategories m_categories;
 };

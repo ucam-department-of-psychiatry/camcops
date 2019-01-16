@@ -529,35 +529,39 @@ QSize TickSlider::sliderSizeWithHandle(bool minimum_size) const
                                      : m_slider.sizeHint();
     const bool horizontal = isHorizontal();
     const bool vertical = !horizontal;
+    int& perpendicular_size = horizontal ? slider_size.rheight() : slider_size.rwidth();
+    int& parallel_size = horizontal ? slider_size.rwidth() : slider_size.rheight();
 
     // Expand for handle (in the perpendicular direction)
     QStyleOptionSlider opt;
     initStyleOption(&opt);
     const QRect handle = m_slider.style()->subControlRect(
                 QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, &m_slider);
-    if (horizontal) {
-        slider_size = slider_size.expandedTo(QSize(0, handle.height()));
+    const int handle_perpendicular = horizontal ? handle.height() : handle.width();
+    perpendicular_size = qMax(perpendicular_size, handle_perpendicular);
+
+    if (m_slider_target_length_px > 0) {
+        // Fixed size in the parallel direction.
+        const int handle_parallel = horizontal ? handle.width() : handle.height();
+        parallel_size = m_slider_target_length_px + handle_parallel;
+        // ... the active region is m_slider_target_length_px; then we have
+        //     a half-handle either side
+
     } else {
-        slider_size = slider_size.expandedTo(QSize(handle.width(), 0));
+        // Expand for labels (in the parallel direction)
+        const bool using_labels = usingLabels();
+        const bool expand_for_labels = using_labels && (!minimum_size || vertical);
+
+        if (expand_for_labels) {
+            const QSize label = maxLabelSize();
+            const int n_potential_labels = (maximum() - minimum()) / tickInterval();
+            const int& parallel_label_size = horizontal ? label.width() : label.height();
+            const int min_parallel_size_for_labels =
+                    n_potential_labels * parallel_label_size +
+                    (n_potential_labels - 1) * m_min_interlabel_gap;
+            parallel_size = qMax(parallel_size, min_parallel_size_for_labels);
+        }
     }
-
-    // Expand for labels (in the parallel direction)
-    const bool using_labels = usingLabels();
-    const bool expand_for_labels = using_labels && (!minimum_size || vertical);
-
-    if (expand_for_labels) {
-        const QSize label = maxLabelSize();
-        const int n_potential_labels = (maximum() - minimum()) / tickInterval();
-        int& parallel_size = horizontal ? slider_size.rwidth() : slider_size.rheight();
-        const int& parallel_label_size = horizontal ? label.width() : label.height();
-        const int min_parallel_size_for_labels =
-                n_potential_labels * parallel_label_size +
-                (n_potential_labels - 1) * m_min_interlabel_gap;
-        parallel_size = qMax(parallel_size, min_parallel_size_for_labels);
-    }
-
-    // int& perpendicular_size = horizontal ? slider_size.rheight() : slider_size.rwidth();
-    // perpendicular_size += 200;
 
     return slider_size;
 }

@@ -32,7 +32,8 @@ class QWidget;
 
 namespace sizehelpers {
 
-// Size policies that take a few statements to create (i.e. have height-for-width set)
+// Size policies that take a few statements to create (i.e. that have
+// height-for-width set!).
 // Remember: these take the widget's sizeHint() as the reference.
 QSizePolicy expandingFixedHFWPolicy();
 QSizePolicy expandingPreferredHFWPolicy();
@@ -44,28 +45,43 @@ QSizePolicy preferredPreferredHFWPolicy();
 QSizePolicy preferredFixedHFWPolicy();
 
 // The ugly stuff you have to do for widgets that own height-for-width
-// widgets if you use Qt layouts like QVBoxLayout:
+// widgets if you use Qt layouts like QVBoxLayout.
+// This is NOT used within our better HFW framework; see gui_defines.h.
 void resizeEventForHFWParentWidget(QWidget* widget);
 
 // More size helper functions, e.g. "how much extra space do I need for
 // the stylesheet margins?"
 QSize contentsMarginsAsSize(const QWidget* widget);
 QSize contentsMarginsAsSize(const QLayout* layout);
+
+// Returns a layout's spacing() as a QSize(2 * spacing(), 2 * spacing()) --
+// that is, when you add all the spacing up.
 QSize spacingAsSize(const QLayout* layout);
+
+// How much extra space does a QWidget need for its layout margins or its
+// stylesheet?
 QSize widgetExtraSizeForCssOrLayout(const QWidget* widget,
                                     const QStyleOption* opt,
                                     const QSize& child_size,
                                     bool add_style_element,
                                     QStyle::ContentsType contents_type);
+
+// widgetExtraSizeForCssOrLayout() for QPushButton.
 QSize pushButtonExtraSizeRequired(const QPushButton* button,
                                   const QStyleOptionButton* opt,
                                   const QSize& child_size);
+
+// widgetExtraSizeForCssOrLayout() for QFrame.
 QSize frameExtraSizeRequired(const QFrame* frame,
                              const QStyleOptionFrame* opt,
                              const QSize& child_size);
+
+// widgetExtraSizeForCssOrLayout() for QLabel.
 QSize labelExtraSizeRequired(const QLabel* label,
                              const QStyleOptionFrame* opt,
                              const QSize& child_size);
+
+// Does the widget have a fixed height that is equal to "height"?
 bool fixedHeightEquals(QWidget* widget, int height);
 
 }  // namespace sizehelpers

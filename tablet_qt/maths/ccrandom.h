@@ -27,18 +27,41 @@
 
 namespace ccrandom {  // not "random"; conflicts
 
+// Device to generate randomness
 extern std::random_device rd;
+
+// Random number generator
 extern std::mt19937 rng;
 
+// Flip a (biased) coin; return true with probability p, and false with
+// probability (1 - p). See
+// https://en.cppreference.com/w/cpp/numeric/random/bernoulli_distribution.
 bool coin(qreal p = 0.5);
+
+// Returns a random integer in the range [minimum, maximum], i.e. inclusive.
 int randomInt(int minimum, int maximum);
+
+// Returns a random double in the range [minimum, maximum),
+// i.e. includes lower but not upper bound
 double randomRealExcUpper(double minimum, double maximum);
+
+// Returns the smallest possible float that is larger than f.
+// This operates with the bitwise representation of floating-point numbers.
 float nextFloatAbove(float x);
+
+// Returns the smallest possible double that is larger than x.
+// This operates with the bitwise representation of floating-point numbers.
 double nextDoubleAboveManual(double x);
+
+// Returns the smallest possible double that is larger than x.
+// This uses std::nextafter(), except for operating systems that don't offer
+// it, in which case it uses nextDoubleAboveManual().
 double nextDoubleAbove(double x);
+
+// Returns a random double in the range [minimum, maximum], i.e. inclusive.
 double randomRealIncUpper(double minimum, double maximum);
 
-
+// Returns a random index for the supplied vector.
 template<typename T>
 int randomIndex(const QVector<T>& vec)
 {
@@ -49,7 +72,8 @@ int randomIndex(const QVector<T>& vec)
 }
 
 
-// Draw without replacement
+// Draw without replacement: removes and returns a random element from the
+// vector.
 template<typename T>
 T dwor(QVector<T>& bucket)
 {
@@ -61,7 +85,8 @@ T dwor(QVector<T>& bucket)
 }
 
 
-// Draw with replacement
+// Draw with replacement: returns a random element from the vector, and leaves
+// it in there.
 template<typename T>
 T drawreplace(const QVector<T>& bucket)
 {
@@ -73,6 +98,7 @@ T drawreplace(const QVector<T>& bucket)
 }
 
 
+// Randomly shuffles a vector.
 template<typename T>
 void shuffle(QVector<T>& vec)
 {
@@ -80,6 +106,7 @@ void shuffle(QVector<T>& vec)
 }
 
 
+// Test randomness functions.
 QStringList testRandom();
 
 

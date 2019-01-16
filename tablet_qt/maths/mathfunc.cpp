@@ -65,8 +65,6 @@ bool nearlyEqual(const qreal x, const qreal y)
 
 QVariant mean(const QVector<QVariant>& values, const bool ignore_null)
 {
-    // ignore_null true: return the mean of the values, ignoring any NULLs.
-    // ignore_null false: return the mean, or NULL if any are NULL.
     double total = 0;
     int n = 0;
     const int length = values.length();
@@ -555,7 +553,6 @@ QString describeAsRanges(QVector<int> numbers,
 
 QVector<qreal> distribute(const int n, qreal minimum, qreal maximum)
 {
-    // Fence/fence-post problem; return centre of fence segments.
     QVector<qreal> posts;
     if (n <= 0) {
         return posts;  // or we'll have division by zero shortly
@@ -577,12 +574,6 @@ QVector<qreal> distribute(const int n, qreal minimum, qreal maximum)
 
 QPair<int, int> gridDimensions(const int n, const qreal aspect)
 {
-    // Solve the equations:
-    //      x * y >= n
-    //      aspect ~= x / y
-    // ... for smallest x, y. Thus:
-    //      x = aspect * y
-    //      aspect * y * y >= n
     const int y = qCeil(qSqrt(n / aspect));
     const int x = qCeil(n / y);
     return QPair<int, int>(x, y);

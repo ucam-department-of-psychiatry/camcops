@@ -22,6 +22,8 @@
 
 // http://stackoverflow.com/questions/10188920/sorting-algorithm-with-qt-c-sort-a-qlist-of-struct
 
+// Compare two QPair objects on their first item.
+
 struct QPairFirstComparer
 {
     template<typename T1, typename T2>
@@ -31,6 +33,8 @@ struct QPairFirstComparer
     }
 };
 
+
+// Compare two QPair objects on their second item.
 
 struct QPairSecondComparer
 {

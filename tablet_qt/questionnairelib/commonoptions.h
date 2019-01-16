@@ -22,7 +22,9 @@
 #include <QString>
 #include "questionnairelib/namevalueoptions.h"
 
-
+// Encapsulates a number of common strings and NameValueOptions used by
+// questionnaires.
+//
 // Translation doesn't work for static variables, because static variables
 // are initialized before QApplication is instantiated.
 // We want translation here, so we use a class.

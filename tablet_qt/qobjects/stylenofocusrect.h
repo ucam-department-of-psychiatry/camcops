@@ -21,6 +21,10 @@
 #include <QProxyStyle>
 
 
+// A way of switching off the inner focus rectangle of a QPushButton.
+// Use as:
+//      button->setStyle(new StyleNoFocusRect());
+
 class StyleNoFocusRect : public QProxyStyle
 {
     // https://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus

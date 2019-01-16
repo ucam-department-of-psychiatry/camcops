@@ -21,6 +21,8 @@
 
 #include "common/gui_defines.h"
 
+// Choose which layout system we will use. (GUI_USE_HFW_LAYOUT is better.)
+
 #ifdef GUI_USE_HFW_LAYOUT
 #include "layouts/gridlayouthfw.h"
 #include "layouts/hboxlayouthfw.h"

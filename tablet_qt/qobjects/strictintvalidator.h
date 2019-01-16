@@ -20,6 +20,7 @@
 #pragma once
 #include <QIntValidator>
 
+// Validator for int numbers. Checks against the range [bottom, top].
 
 class StrictIntValidator : public QIntValidator
 {

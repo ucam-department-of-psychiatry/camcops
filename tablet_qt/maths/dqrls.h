@@ -29,25 +29,34 @@
 namespace dqrls {
 
 
+// Represents the result of Cdqrls()
 struct DqrlsResult {
-    bool success = false;
-    Eigen::FullPivHouseholderQR<Eigen::MatrixXd> qr;
-    Eigen::MatrixXd coefficients;
+    bool success = false;  // did we succeed?
+    Eigen::FullPivHouseholderQR<Eigen::MatrixXd> qr;  // QR decomposition
+    Eigen::MatrixXd coefficients;  // the results; B in "XB = Y"; see below
     // Eigen::ArrayXXd residuals;
     // Eigen::ArrayXXd effects;
-    Eigen::Index rank;
+    Eigen::Index rank;  // rank of the QR decomposition
     // Eigen::ArrayXi pivot;  // INDICES, 0-based here, 1-based in R
     // Eigen::ArrayXd qraux;
-    double tol;
-    bool pivoted;
+    double tol;  // tolerance
+    bool pivoted;  // did the QR decomposition have nonzero pivots?
+        // ... I have no idea what that means.
     QStringList errors;
 };
 
 
-DqrlsResult Cdqrls(const Eigen::MatrixXd& x,
-                   const Eigen::MatrixXd& y,
-                   double tol,
-                   bool check = true);
+// Solves XB = Y, for B.
+// - X has size (n, p)
+// - Y has size (n, ny)
+// - n: number of observations
+// - p: number of predictors
+// - ny: number of dependent variables
+// - B will have size (p, ny).
+DqrlsResult Cdqrls(const Eigen::MatrixXd& x,  // size (n, p)
+                   const Eigen::MatrixXd& y,  // size (n, ny)
+                   double tol,  // tolerance
+                   bool check = true);  // check dimensions of result are right
 
 
 }  // namespace dqrls

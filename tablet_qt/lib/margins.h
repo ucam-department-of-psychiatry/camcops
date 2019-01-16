@@ -31,19 +31,33 @@ class Margins {
     // or getContentsMargins(&left, &right, &top, &bottom)?], and QMargins
     // doesn't do any of the useful things relating to widgets, layouts, or
     // calculations that you might wish.
+
 public:
+    // Construct with zero margins
     Margins();
+
+    // Construct with specified margins.
     Margins(int left, int top, int right, int bottom);
+
+    // Set the margins.
     void set(int left, int top, int right, int bottom);
+
+    // Clear everything to zero.
     void clear();
+
+    // Ensure that all margins are >=0.
     void rationalize();
 
+    // Are the margins all zero?
     bool isZero() const;
+
+    // Return components:
     inline int left() const { return m_left; }
     inline int top() const { return m_top; }
     inline int right() const { return m_right; }
     inline int bottom() const { return m_bottom; }
 
+    // Set components, and call rationalize():
     void setLeft(int width);
     void setRight(int width);
     void setTop(int height);
@@ -55,43 +69,68 @@ public:
     int& rtop();
     int& rbottom();
 
+    // Add to specific margins:
     void addLeft(int width);
     void addRight(int width);
     void addTop(int height);
     void addBottom(int height);
 
+    // Return the total size/height/width:
     QSize totalSize() const;
     int totalHeight() const;
     int totalWidth() const;
 
-    int removeLeftRightMarginsFrom(int width) const;
+    // Adds the sum of our left/right margins to "width".
     int addLeftRightMarginsTo(int width) const;
 
-    int removeTopBottomMarginsFrom(int height) const;
+    // Subtracts the sum of our left/right margins from  "width".
+    int removeLeftRightMarginsFrom(int width) const;
+
+    // Adds the sum of our top/bottom margins to "width".
     int addTopBottomMarginsTo(int height) const;
 
+    // Subtracts the sum of our top/bottom margins from "width".
+    int removeTopBottomMarginsFrom(int height) const;
+
+    // Add our stored margins to a variety of objects:
     QSize addMarginsTo(const QSize& size) const;
     QRect addMarginsTo(const QRect& rect) const;
     void addMarginsToInPlace(QSize& size) const;
     void addMarginsToInPlace(QRect& rect) const;
     void addMarginsToInPlace(Margins& other) const;
 
+    // Remove our stored margins from a variety of objects:
     QSize removeMarginsFrom(const QSize& size) const;
     QRect removeMarginsFrom(const QRect& rect) const;
     void removeMarginsFromInPlace(QRect& rect) const;
 
+    // Return the getContentsMargins() of a QWidget.
     static Margins getContentsMargins(const QWidget* widget);
+
+    // Return the getContentsMargins() of a QLayout.
     static Margins getContentsMargins(const QLayout* layout);
+
+    // Returns the margins by which "outer" is larger than "inner".
+    // The results may be nonsensical if "outer" does not contain "inner".
     static Margins rectDiff(const QRect& outer, const QRect& inner);
+
+    // Here we suppose that "inner" is a rectangle defined relative to (0,0)
+    // of a rectangle with size "outer". (Prototypically: a widget with
+    // geometry outer has a sub-widget, RELATIVE TO IT, with geometry inner.)
+    // Returns the margins that would have to be applied to "inner" to make it
+    // reach "outer".
     static Margins subRectMargins(const QSize& outer, const QRect& inner);
+
+    // Returns subRectMargins(outer.size(), inner).
     static Margins subRectMargins(const QRect& outer, const QRect& inner);
 
 private:
-    int m_left;
-    int m_top;
-    int m_right;
-    int m_bottom;
+    int m_left;  // left margin
+    int m_top;  // top margin
+    int m_right;  // right margin
+    int m_bottom;  // bottom margin
 
 public:
+    // Debugging description.
     friend QDebug operator<<(QDebug debug, const Margins& m);
 };

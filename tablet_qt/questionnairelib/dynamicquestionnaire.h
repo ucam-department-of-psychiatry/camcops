@@ -90,9 +90,11 @@ whereas a more complex task can optimize.
 class DynamicQuestionnaire : public Questionnaire
 {
     Q_OBJECT
+
     using MakePageFn = std::function<QuPagePtr(int)>;
     // ... function taking one int parameter (the zero-based page number to
     //     make) and returning a QuPagePtr
+
     using MorePagesToGoFn = std::function<bool(int)>;
     // ... function taking one int parameter (the zero-based page number we're
     //     on now) and returning a bool
@@ -101,6 +103,8 @@ public:
     DynamicQuestionnaire(CamcopsApp& app,
                          const MakePageFn& make_page_fn,
                          const MorePagesToGoFn& more_pages_to_go_fn);
+
+    // Override to say "we are dynamic".
     virtual bool isDynamic() const override;
 
     // Override in order to block functionality:
@@ -115,10 +119,22 @@ protected:
     // Behave differently:
     virtual bool morePagesToGo() const override;
 
-    // New:
+    // ------------------------------------------------------------------------
+    // New functionality:
+    // ------------------------------------------------------------------------
+
+    // Chop off all pages beyond the current one
     void trimFromCurrentPositionOnwards();
+
+    // Adds the first page. Called by Questionnaire::build().
     void addFirstDynamicPage() override;
+
+    // Add all pages that the current state will allow us to progress to.
+    // (Typically used when editing a previous questionnaire and calling up
+    // the page jump list.)
     void addAllAccessibleDynamicPages() override;
+
+    // "Does the specified page allow us to progress?"
     bool mayProgress(QuPage* page) const;
 
 protected:

@@ -20,6 +20,7 @@
 #pragma once
 #include "boxlayouthfw.h"
 
+// A horizontal box layout supporting height-for-width, based on BoxLayoutHfw.
 
 class HBoxLayoutHfw : public BoxLayoutHfw
 {

@@ -32,6 +32,8 @@ class SlowNonGuiFunctionCaller : public QObject
     //
     // Must be created from the GUI thread.
     //
+    // When the constructor has finished, the work is done.
+    //
     // DO NOT PERFORM GUI OPERATIONS IN THE WORKER FUNCTION.
 
     Q_OBJECT

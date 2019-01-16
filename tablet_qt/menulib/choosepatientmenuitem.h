@@ -19,9 +19,10 @@
 
 #pragma once
 
+// A structure to represent a menu item saying "choose patient".
+// Exists only to improve polymorphic constructor of MenuItem
 
 struct ChoosePatientMenuItem
 {
-    // Exists only to improve polymorphic constructor of MenuItem
     ChoosePatientMenuItem() = default;
 };

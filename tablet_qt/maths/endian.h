@@ -26,11 +26,18 @@ Detecting endianness across compilers: do it at runtime.
 
 */
 
+
+// Possible endian types.
 enum class Endian {
     BigEndian,
     LittleEndian
 };
 
 
+// What endianness does this computer use for integers?
+// See references in the code.
 Endian endianByteOrder();
+
+// What endianness does this computer use for floating point words?
+// See references in the code.
 Endian endianFloatWordOrder();

@@ -73,6 +73,8 @@ QuElement* defaultGridRawPointer(
 // Signals
 // ============================================================================
 
+// Connect Questionnaire::editStarted  -> Task::editStarted
+//     and Questionnaire::editFinished -> Task::editFinished
 void connectQuestionnaireToTask(Questionnaire* questionnaire, Task* task);
 
 }  // namespace questionnairefunc

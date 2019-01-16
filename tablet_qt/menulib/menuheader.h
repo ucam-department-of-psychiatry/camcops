@@ -29,6 +29,9 @@ class QLabel;
 class QPushButton;
 
 
+// A widget for the top part of a CamCOPS menu (with title and control
+// buttons).
+
 class MenuHeader : public QWidget  // breaks as BaseWidget
 {
     Q_OBJECT
@@ -39,29 +42,62 @@ public:
                const QString& title,
                const QString& icon_filename = "",
                bool debug_allowed = false);
+
+    // Set the title.
     void setTitle(const QString& title);
+
+    // Set the menu header colour for a task menu where that task is crippled.
     void setCrippled(bool crippled);
 
 signals:
+    // Back button clicked.
     void backClicked();
+
+    // "View" action button clicked.
     void viewClicked();
+
+    // "Edit" action button clicked.
     void editClicked();
+
+    // "Delete" action button clicked.
     void deleteClicked();
+
+    // "Add" action button clicked.
     void addClicked();
+
+    // "Please display a debug dump of this menu's layout."
     void debugLayout();
+
+    // "Finish" flag clicked.
     void finishFlagClicked();
 
 public slots:
+    // Should the header offer the "view" button?
     void offerView(bool offer_view = false);
+
+    // Should the header offer the "edit"/"delete" buttons?
     void offerEditDelete(bool offer_edit = false, bool offer_delete = false);
+
+    // Should the header offer the "add" button?
     void offerAdd(bool offer_add = false);
+
+    // Should the header offer the "finish" flag?
     void offerFinishFlag(bool offer_finish_flag = false);
+
+    // "The application's lock state has changed."
     void lockStateChanged(CamcopsApp::LockState lockstate);
+
+    // "The application's need-to-upload state has changed."
     void needsUploadChanged(bool needs_upload);
+
+    // "The application's selected patient has changed."
     void selectedPatientChanged(const Patient* patient);
+
+    // "The details of the selected patient have changed."
     void selectedPatientDetailsChanged(const Patient* patient);
 
 protected:
+    // "Update the lines (at the bottom of the header) showing patient info."
     void setPatientDetails(const Patient* patient);
 
 protected:

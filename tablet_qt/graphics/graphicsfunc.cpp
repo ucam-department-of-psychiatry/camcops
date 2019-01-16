@@ -43,7 +43,7 @@
 #include "graphics/graphicspixmapitemwithopacity.h"
 #include "lib/css.h"
 #include "maths/mathfunc.h"
-#include "qobjects/stylenofocusrect.h"
+// #include "qobjects/stylenofocusrect.h"
 #include "widgets/adjustablepie.h"
 #include "widgets/svgwidgetclickable.h"
 using css::colourCss;

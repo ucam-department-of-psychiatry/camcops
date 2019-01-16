@@ -21,9 +21,12 @@
 #include "maths/glm.h"
 
 
+// Implements logistic regression, via a GLM.
+
 class LogisticRegression : public Glm
 {
 public:
+    // Construct
     LogisticRegression(
             SolveMethod solve_method =
 #ifdef GLM_OFFER_R_GLM_FIT
@@ -34,17 +37,30 @@ public:
             int max_iterations = GLM_DEFAULT_MAX_ITERATIONS,
             double tolerance = GLM_DEFAULT_TOLERANCE,
             RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::Error);
-    void fit(const Eigen::MatrixXd& X,  // predictors, EXCLUDING intercept
-             const Eigen::VectorXi& y);  // depvar
+
+    // Fit
+    void fit(const Eigen::MatrixXd& X,  // predictors, EXCLUDING intercept; n_observations x (n_predictors - 1)
+             const Eigen::VectorXi& y);  // depvar; n_observations x 1
+
+    // Creates a design matrix.
+    // (Resembles a Python classmethod; sort-of static function.)
     Eigen::MatrixXd designMatrix(const Eigen::MatrixXd& X) const;
+
+    // Predict probabilities:
     Eigen::VectorXd predictProb() const;  // synonym for predict()
     Eigen::VectorXd predictProb(const Eigen::MatrixXd& X) const;  // with new predictors
+
+    // Predict binary outcomes:
     Eigen::VectorXi predictBinary(double threshold = 0.5) const;  // with original predictors
     Eigen::VectorXi predictBinary(const Eigen::MatrixXd& X,
                                   double threshold = 0.5) const;  // with new predictors
+
+    // Predict logit:
     Eigen::VectorXd predictLogit() const;  // synonym for predictEta()
     Eigen::VectorXd predictLogit(const Eigen::MatrixXd& X) const;  // with new predictors
+
 protected:
+    // Convert probabilities to binary using a threshold:
     Eigen::VectorXi binaryFromP(const Eigen::VectorXd& p,
                                 double threshold = 0.5) const;
 };

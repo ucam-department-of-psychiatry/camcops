@@ -30,6 +30,7 @@ class MenuWindow;
 // ============================================================================
 // MenuProxy<T>: encapsulates MenuWindow-derived classes, for MenuItem
 // instances that say "go to another menu".
+// Search for MAKE_MENU_MENU_ITEM.
 // ============================================================================
 
 class MenuProxyBase

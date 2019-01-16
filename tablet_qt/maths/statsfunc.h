@@ -33,6 +33,7 @@ namespace statsfunc {
 // Eigen statistical calculations
 // ============================================================================
 
+// Calculates the (sample) variance of an Eigen array.
 template<typename Derived>
 double variance(const Eigen::ArrayBase<Derived>& a)
 {
@@ -44,6 +45,7 @@ double variance(const Eigen::ArrayBase<Derived>& a)
 }
 
 
+// Calculates the (sample) variance of an Eigen matrix.
 template<typename Derived>
 double variance(const Eigen::MatrixBase<Derived>& m)
 {
@@ -56,45 +58,109 @@ double variance(const Eigen::MatrixBase<Derived>& m)
 // Elementary functions
 // ============================================================================
 
+// Returns x unmodified.
 double identity(double x);
+
+// Returns x unmodified.
 Eigen::ArrayXXd identityArray(const Eigen::ArrayXXd& x);
+
+// Returns 1. (Derivative of the identity function.)
 double one(double x);
+
+// Returns an array of ones of the same size as x.
 Eigen::ArrayXXd oneArray(const Eigen::ArrayXXd& x);
+
+// Returns the logistic function of x.
+// = 1 / (1 + exp(-x))
+// = exp(x) / (1 + exp(x))
+// - The core logistic function, a sigmoid.
+// - Transforms logit -> probability; inverse of logit()
 double logistic(double x);
+
+// Applies the logistic function to x, an array.
 Eigen::ArrayXXd logisticArray(const Eigen::ArrayXXd& x);
+
+// Returns logistic(intercept + slope * x).
 double logisticInterceptSlope(double x, double intercept, double slope);
-double logisticX0K(double x, double x0, double k);  // k steepness, x0 midpoint
-double derivativeOfLogistic(double x);  // derivative of logistic function
-Eigen::ArrayXXd derivativeOfLogisticArray(const Eigen::ArrayXXd& x);  // derivative of logistic function
-double logit(double p);  // inverse of logistic function
+
+// Generalized logistic function with k steepness, x0 midpoint.
+// https://en.wikipedia.org/wiki/Logistic_function
+// = logistic(k * (x - x0));
+double logisticX0K(double x, double x0, double k);
+
+// Derivative of logistic function
+// = exp(x) / (1 + exp(x))^2
+// = f(x)(1 - f(x))      where f(x) = logistic(x) = 1 / (1 + exp(-x))
+// https://en.wikipedia.org/wiki/Logistic_function#Derivative
+double derivativeOfLogistic(double x);
+
+// Derivative of logistic function, applied to an array.
+Eigen::ArrayXXd derivativeOfLogisticArray(const Eigen::ArrayXXd& x);
+
+// Logit function
+// = inverse of logistic function
+// = log(p / (1 - p))
+// - Transforms probability -> logit; inverse of logistic()
+// - https://en.wikipedia.org/wiki/Logit
+// - Uses natural logs (std::log).
+double logit(double p);
+
+// Logit function, applied to an array.
 Eigen::ArrayXXd logitArray(const Eigen::ArrayXXd& p);
+
+// Binomial variance function.
+// - R: binomial()$variance
+// - https://en.wikipedia.org/wiki/Variance_function#Example_.E2.80.93_Bernoulli
 Eigen::ArrayXXd binomialVariance(const Eigen::ArrayXXd& x);
+
+// R: gaussian()$dev.resids
 Eigen::ArrayXd gaussianDevResids(const Eigen::ArrayXd& y,
                                  const Eigen::ArrayXd& mu,
                                  const Eigen::ArrayXd& wt);
+
+// R: binomial_dev_resids()
 Eigen::ArrayXd binomialDevResids(const Eigen::ArrayXd& y,
                                  const Eigen::ArrayXd& mu,
                                  const Eigen::ArrayXd& wt);
+
 #ifdef STATSFUNC_OFFER_AIC
+
+// R: gaussian()$aic
 double gaussianAIC(const Eigen::ArrayXd& y,
                    const Eigen::ArrayXd& n,
                    const Eigen::ArrayXd& mu,
                    const Eigen::ArrayXd& wt,
                    double dev);
+
+// As per R's dbinom()
 double dbinom(double x, int n, double p, bool log = false);
+
+// As per R's dbinom()
 Eigen::ArrayXd dbinom(const Eigen::ArrayXd& x,
                       const Eigen::ArrayXi& n,
                       const Eigen::ArrayXd& p,
                       bool log = false);
+
+// R: binomial()$aic
 double binomialAIC(const Eigen::ArrayXd& y,
                    const Eigen::ArrayXd& n,
                    const Eigen::ArrayXd& mu,
                    const Eigen::ArrayXd& wt,
                    double dev);
+
 #endif
+
+// Returns true
 bool alwaysTrue(const Eigen::ArrayXd& x);
+
+// Are all of the array elements integer (or within threshold of an integer)?
 bool allInteger(const Eigen::ArrayXd& x, double threshold = 0.001);
+
+// R: binomial()$validmu
 bool binomialValidMu(const Eigen::ArrayXd& x);
+
+// R: binomial()$initialize
+// Returns: OK?
 bool binomialInitialize(QStringList& errors,
                         const LinkFunctionFamily& family,
                         Eigen::ArrayXd& y,
@@ -104,6 +170,9 @@ bool binomialInitialize(QStringList& errors,
                         Eigen::ArrayXd& start,
                         Eigen::ArrayXd& etastart,
                         Eigen::ArrayXd& mustart);
+
+// R: gaussian()$initialize
+// Returns: OK?
 bool gaussianInitialize(QStringList& errors,
                         const LinkFunctionFamily& family,
                         Eigen::ArrayXd& y,
@@ -119,15 +188,21 @@ bool gaussianInitialize(QStringList& errors,
 // Solving
 // ============================================================================
 
+// Singular value decomposition (SVD) solving.
+// Solves Ax = b [or b = Ax + e], for x, minimizing e (in a least-squares
+// sense).
 Eigen::VectorXd svdSolve(const Eigen::MatrixXd& A,
                          const Eigen::VectorXd& b);  // solves Ax = b [or b = Ax + e], for x, minimizing e
 
 // ============================================================================
 // GLM support
 // ============================================================================
+// ... see glm.h
 
+/*
 Eigen::Array<Eigen::Index, Eigen::Dynamic, 1> svdsubsel(
         const Eigen::MatrixXd& A, int k = -1);
+*/
 
 
 }  // namespace statsfunc

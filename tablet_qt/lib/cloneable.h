@@ -20,6 +20,7 @@
 #pragma once
 #include <QSharedPointer>
 
+// UNUSED. For a C++ "clone a class instance" system.
 
 template <typename Base, typename Derived>
 class Cloneable : virtual public Base

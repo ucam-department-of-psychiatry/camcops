@@ -24,12 +24,15 @@
 #include <QString>
 #include <QStringList>
 
+// A container that counts items you put into it.
 
 template <typename T>
 class CountingContainer
 {
 public:
     CountingContainer() {}
+
+    // Add an iteam.
     void add(const T& item)
     {
         if (!m_map.contains(item)) {
@@ -37,6 +40,14 @@ public:
         }
         ++m_map[item];
     }
+
+    // Return the map from object to count.
+    QMap<T, int> results() const
+    {
+        return m_map;
+    }
+
+    // Return a string summary.
     QString asString(bool sorted = true) const
     {
         QStringList items;
@@ -61,6 +72,7 @@ protected:
     QMap<T, int> m_map;
 
 public:
+    // Debugging description.
     friend QDebug operator<<(QDebug debug, const CountingContainer<T>& c)
     {
         debug.noquote() << c.asString();

@@ -28,6 +28,8 @@
 
 namespace layoutdumper {
 
+// Class to collection options for our layout dumper.
+
 class DumperConfig {
 public:
     DumperConfig() {}
@@ -66,28 +68,68 @@ public:
     // ... travel up to the ultimate parent before travelling down
 };
 
+// Converts a QSizePolicy::Policy to a string; e.g. "Fixed".
 QString toString(const QSizePolicy::Policy& policy);
+
+// Converts a QSizePolicy to a string; e.g.
+// "(Fixed, Preferred) [hasHeightForWidth=true]".
 QString toString(const QSizePolicy& policy);
+
+// Converts a QLayout::SizeConstraint to a string, e.g. "SetMinimumSize".
 QString toString(QLayout::SizeConstraint constraint);
+
+// Converts an arbitrary pointer to a string.
 QString toString(const void* pointer);
+
+// Converts an alignment to a string, e.g. "AlignVCenter".
 QString toString(const Qt::Alignment& alignment);
+
+// Converts a bool to a string, e.g. "true".
 QString toString(bool boolean);
+
+// Describes a widget in terms of its name, address, and class name.
 QString getWidgetDescriptor(const QWidget* w);
+
+// Produces a lengthy description of the widget's geometry, size, size hints,
+// etc. Labels the components as flowing "up" (widget to its parent
+// layout/widget) or "down" (parent layout/widget to this widget).
 QString getWidgetInfo(const QWidget* w,
                       const DumperConfig& config = DumperConfig());
+
+// Provides a description of a widget's attributes, i.e. Qt::WidgetAttribute.
 QString getWidgetAttributeInfo(const QWidget* w, bool all = false);
+
+// Describes a widget's dynamic properties, via QWidget::dynamicPropertyNames().
 QString getDynamicProperties(const QWidget* w);
+
+// Provides a lengthy description of a layout's geometry, size hints, etc.
+// "Up" means from the layout to its parent widget; "down" is from the parent
+// widget to the layout.
 QString getLayoutInfo(const QLayout* layout);
+
+// Describes a QSpacerItem.
 QString getSpacerInfo(QSpacerItem* si);
+
+// Returns a string of spaces! For formatting hierarchical output.
 QString paddingSpaces(int level, int spaces_per_level);
+
+// Dumps information about a layout and its children to an output stream.
 QVector<const QWidget*> dumpLayoutAndChildren(
         QDebug& os, const QLayout* layout, int level,
         const DumperConfig& config);
+
+// Dumps information about a widget and its children to an output stream.
 QVector<const QWidget*> dumpWidgetAndChildren(
         QDebug& os, const QWidget* w, int level,
         const QString& alignment, const DumperConfig& config);
+
+// Dumps a widget and its children to the qDebug() stream via
+// dumpWidgetAndChildren().
 void dumpWidgetHierarchy(const QWidget* w,
                          const DumperConfig& config = DumperConfig());
+
+// Travels up through the widget's parents until there are no more parents,
+// and return the last one we got to.
 const QWidget* ultimateParentWidget(const QWidget* w);
 
 }  // namespace layoutdumper

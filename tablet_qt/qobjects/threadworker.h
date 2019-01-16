@@ -36,6 +36,7 @@ public:
     ThreadWorker(const PlainWorkerFunction& func);
 
 public slots:
+    // Calls the user's function, then emits workComplete().
     void work();
 
 signals:

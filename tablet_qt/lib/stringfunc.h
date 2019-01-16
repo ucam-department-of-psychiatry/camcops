@@ -27,24 +27,36 @@ namespace stringfunc {
 // Basic string formatting
 // ============================================================================
 
+// Builds "<prefix><num><suffix>".
 QString strnum(const QString& prefix, int num, const QString& suffix = "");
 
 // ============================================================================
 // Make sequences of strings
 // ============================================================================
 
+// Returns a list of "<prefix><num>" for "num" in the range [first, last].
+// Example: stringSequence("q", 1, 3) -> {"q1", "q2", "q3"}.
 QStringList strseq(const QString& prefix, int first, int last);
-// Example: stringSequence("q", 1, 3) -> {"q1", "q2", "q3"}
 
+// Returns a list of "<prefix><num><suffix>" for "num" in "numbers".
 QStringList strnumlist(const QString& prefix, const QVector<int>& numbers,
                        const QString& suffix = "");
 
+// Returns a list of "<prefix><num><suffix>" for "num" in [first, last].
 QStringList strseq(const QString& prefix, int first, int last,
                    const QString& suffix);
+
+// Returns a list of "<prefix><num><suffix>" for "num" in [first, last] and
+// for "suffix" in suffixes.
 QStringList strseq(const QString& prefix, int first, int last,
                    const QStringList& suffixes);
 
+// Returns a list of "<prefix><num><suffix>" for "prefix" in "prefixes" and
+// for "num" in [first, last].
 QStringList strseq(const QStringList& prefixes, int first, int last);
+
+// Returns a list of "<prefix><num><suffix>" for "prefix" in "prefixes",
+// for "num" in [first, last], and for "suffix" in "suffixes".
 QStringList strseq(const QStringList& prefixes, int first, int last,
                    const QStringList& suffixes);
 
@@ -52,13 +64,29 @@ QStringList strseq(const QStringList& prefixes, int first, int last,
 // HTML processing
 // ============================================================================
 
+// Returns HTML bold: "<b>str</b>"
 QString bold(const QString& str);
+
+// Returns HTML bold: "<b>x</b>"
 QString bold(int x);
+
+// Returns HTML hyperlink: '<a href="url">text</a>'
 QString a(const QString& url, const QString& text);
+
+// Returns HTML hyperlink: '<a href="url_and_text">url_and_text</a>'
 QString a(const QString& url_and_text);
+
+// Returns lines joined with "<br>".
 QString joinHtmlLines(const QStringList& lines);
+
+// Converts a string from LF (\n) to "<br>".
+// If convert_embedded_literals is true, also converts a literal "\n" (two
+// characters, backslash n) to "<br>".
 QString& toHtmlLinebreaks(QString& str,
                           bool convert_embedded_literals = true);
+
+// Returns "<name><separator><b><value></b><suffix>" (where "<b>" and "</b>"
+// are literals and the others variables...!).
 QString standardResult(const QString& name,
                        const QString& value,
                        const QString& separator = ": ",
@@ -68,8 +96,15 @@ QString standardResult(const QString& name,
 // Other string processing
 // ============================================================================
 
+// Modifies str, replacing the first instance of "from" with "to", and
+// returning str again.
 QString& replaceFirst(QString& str, const QString& from, const QString& to);
+
+// Replaces LF (\n) characters with the ↵ character.
 QString stylizeNewlines(const QString& str, bool stylize = true);
+
+// Ensures the string is no longer than max_len (replacing the end with suffix
+// if required) and calling stylizeNewlines() on it.
 QString abbreviate(const QString& str, int max_len = 255,
                    bool stylize_newlines = true,
                    const QString& suffix = "...");

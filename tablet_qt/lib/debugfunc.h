@@ -29,11 +29,23 @@ class QVariant;
 
 namespace debugfunc {
 
+// Send a QVariant to the specified debugging stream, abbreviating potentially
+// giant things like QByteArray.
 void debugConcisely(QDebug debug, const QVariant& value);
+
+// Send a vector of QVariant objects to the specified debugging stream,
+// abbreviating potentially giant things like QByteArray.
 void debugConcisely(QDebug debug, const QVector<QVariant>& values);
 
+// Dumps generic information about a QObject.
 void dumpQObject(QObject* obj);
 
+// Displays a QWidget in a new dialogue box.
+//
+// - Place it on a green background.
+// - Press <D> to dump information about the widget, including its layout and
+//   its children, and all their positional information.
+// - Press <A> to call QWidget::adjustSize().
 void debugWidget(QWidget* widget, bool set_background_by_name = false,
                  bool set_background_by_stylesheet = true,
                  const layoutdumper::DumperConfig& config = layoutdumper::DumperConfig(),

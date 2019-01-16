@@ -42,6 +42,7 @@ class QLineEdit;
 class QListWidget;
 class QListWidgetItem;
 
+// A CamCOPS menu.
 
 class MenuWindow : public OpenableWidget
 {
@@ -67,14 +68,27 @@ public:
     // (a) populate m_items;
     // (b) call MenuWindow::build();
     // (c) +/- any additional work (e.g. signals/slots).
-    void setIcon(const QString& icon);
+
     virtual void build() override;  // called by framework prior to opening
 
-    QString title() const;
-    QString subtitle() const;
+    // Set the menu's icon (displayed on other menus leading to it, and at the
+    // top of the menu itself. The parameter is a CamCOPS icon filename stub.
+    void setIcon(const QString& icon);
     QString icon() const;
+
+    // Menu title.
+    QString title() const;
+
+    // Menu subtitle.
+    QString subtitle() const;
+
+    // Returns the zero-based index of the currently selected item.
     int currentIndex() const;
+
+    // Returns the task instance represented by the currently selected item.
     TaskPtr currentTask() const;
+
+    // Returns the patient instance represented by the currently selected item.
     PatientPtr currentPatient() const;
 
 protected:
@@ -82,30 +96,66 @@ protected:
     void loadStyleSheet();
 
 signals:
+    // "The menu header should offer the 'add' button (or not).'
     void offerAdd(bool offer_add);
+
+    // "The menu header should offer the 'view' button (or not).'
     void offerView(bool offer_view);
+
+    // "The menu header should offer the 'edit'/'delete' buttons (or not).'
     void offerEditDelete(bool offer_edit, bool offer_delete);
+
+    // "The menu header should offer the 'finish' flag (or not).'
     void offerFinishFlag(bool offer_finish_flag);
 
 public slots:
+    // "The menu selection has changed."
     void menuItemSelectionChanged();
+
+    // "A menu item has been clicked."
     void menuItemClicked(QListWidgetItem *item);
+
+    // "The application's lock state has changed."
     void lockStateChanged(CamcopsApp::LockState lockstate);
+
+    // "View the current item."
     virtual void viewItem();
+
+    // "Edit the current item."
     virtual void editItem();
+
+    // "Delete the current item."
     virtual void deleteItem();
+
+    // "Print the menu layout to the debugging stream."
     void debugLayout();
 
 protected slots:
+    // "The search text has changed; re-filter the list of menu items."
     void searchTextChanged(const QString& text);
 
 protected:
+    // View a task, if one is selected.
     void viewTask();
+
+    // Edit a task, if one is selected and editable. Check first.
     void editTask();
+
+    // Edit a task, if one is selected and editable. Do it now.
     void editTaskConfirmed(const TaskPtr& task);
+
+    // Delete a task, if one is selected
     void deleteTask();
+
+    // Toggle the finish flag of the currently selected task/patient.
     void toggleFinishFlag();
+
+    // Connect Questionnaire::editStarted  -> Task::editStarted
+    //     and Questionnaire::editFinished -> Task::editFinished
     void connectQuestionnaireToTask(OpenableWidget* widget, Task* task);
+
+    // Complain that the task isn't offering an editor, so can't be
+    // viewed or edited.
     void complainTaskNotOfferingEditor();
 
 protected:

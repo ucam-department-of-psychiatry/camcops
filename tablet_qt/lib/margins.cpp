@@ -301,9 +301,6 @@ Margins Margins::rectDiff(const QRect& outer, const QRect& inner)
 
 Margins Margins::subRectMargins(const QSize& outer, const QRect& inner)
 {
-    // Here we suppose that "inner" is a rectangle defined relative to (0,0)
-    // of a rectangle with size "outer". (Prototypically: a widget with
-    // geometry outer has a sub-widget, RELATIVE TO IT, with geometry inner.)
     return Margins(inner.left(),  // left
                    inner.top(),  // top
                    outer.width() - inner.width() - inner.left(),  // right

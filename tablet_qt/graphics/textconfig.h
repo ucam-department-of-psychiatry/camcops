@@ -21,7 +21,9 @@
 #include <Qt>
 #include <QColor>
 
-// Represents text "configuration" for graphics functions:
+// Simple information-holding class representing text "configuration" for
+// graphics functions:
+//
 // - font size
 // - colour
 // - width to word-wrap to (-1 for no wrap)

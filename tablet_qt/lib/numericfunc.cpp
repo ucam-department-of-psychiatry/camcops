@@ -35,6 +35,20 @@ int strToNumber(const QString& str, const int type_dummy)
 }
 
 
+qlonglong strToNumber(const QString& str, const qlonglong type_dummy)
+{
+    Q_UNUSED(type_dummy);
+    return str.toLongLong();
+}
+
+
+qulonglong strToNumber(const QString& str, const qulonglong type_dummy)
+{
+    Q_UNUSED(type_dummy);
+    return str.toULongLong();
+}
+
+
 int localeStrToNumber(const QString& str, bool& ok,
                       const QLocale& locale, const int type_dummy)
 {
@@ -43,25 +57,11 @@ int localeStrToNumber(const QString& str, bool& ok,
 }
 
 
-qlonglong strToNumber(const QString& str, const qlonglong type_dummy)
-{
-    Q_UNUSED(type_dummy);
-    return str.toLongLong();
-}
-
-
 qlonglong localeStrToNumber(const QString& str, bool& ok,
                             const QLocale& locale, const qlonglong type_dummy)
 {
     Q_UNUSED(type_dummy);
     return locale.toLongLong(str, &ok);
-}
-
-
-qulonglong strToNumber(const QString& str, const qulonglong type_dummy)
-{
-    Q_UNUSED(type_dummy);
-    return str.toULongLong();
 }
 
 
@@ -80,10 +80,6 @@ qulonglong localeStrToNumber(const QString& str, bool& ok,
 
 int numDigitsDouble(const double number, const int max_dp)
 {
-    // Counts the number of digits in a floating-point number.
-    // - ignores sign
-    // - includes decimal point
-
     const QString formatted = QString::number(number, 'f', max_dp);
     const bool sign_present = number < 0;
     // Trim trailing zeros:
@@ -102,9 +98,6 @@ double firstDigitsDouble(const double number,
                          const int n_digits,
                          const int max_dp)
 {
-    // Returns the first n_digits of a floating point number, as a double.
-    // - sign is ignored (can't compare numbers without dropping it)
-    // - includes decimal point
     const QString formatted = QString::number(number, 'f', max_dp);
     const bool sign_present = number < 0;
     const QString left = formatted.left(sign_present ? n_digits + 1 : n_digits);
@@ -123,7 +116,7 @@ bool isValidStartToDouble(const double number,
                           const double bottom,
                           const double top)
 {
-    if (extendedDoubleMustBeLessThan(number, bottom, top)) {
+    if (extendedDoubleMustBeLessThanBottom(number, bottom, top)) {
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be less than bottom value of"
@@ -131,7 +124,7 @@ bool isValidStartToDouble(const double number,
 #endif
         return false;
     }
-    if (extendedDoubleMustExceed(number, bottom, top)) {
+    if (extendedDoubleMustExceedTop(number, bottom, top)) {
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be more than top value of"
@@ -147,9 +140,9 @@ bool isValidStartToDouble(const double number,
 }
 
 
-bool extendedDoubleMustExceed(const double number,
-                              const double bottom,
-                              const double top)
+bool extendedDoubleMustExceedTop(const double number,
+                                 const double bottom,
+                                 const double top)
 {
     if (number < 0 && top > 0) {
         return false;
@@ -182,9 +175,9 @@ bool extendedDoubleMustExceed(const double number,
 }
 
 
-bool extendedDoubleMustBeLessThan(const double number,
-                                  const double bottom,
-                                  const double top)
+bool extendedDoubleMustBeLessThanBottom(const double number,
+                                        const double bottom,
+                                        const double top)
 {
     if (number < 0 && bottom > 0) {
         return true;

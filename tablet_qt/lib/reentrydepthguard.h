@@ -22,7 +22,8 @@
 
 class ReentryDepthGuard
 {
-    // As for FlagGuard, but used to allow re-entrancy to a certain depth.
+    // As for FlagGuard (q.v.), but used to allow re-entrancy to a certain
+    // depth.
 public:
     ReentryDepthGuard(int& counter);
     ~ReentryDepthGuard();

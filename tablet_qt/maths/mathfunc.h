@@ -31,19 +31,19 @@ namespace mathfunc {
 // Basic sums
 // ============================================================================
 
+// Sign function. Returns -1 if val is negative, 0 if zero, and +1 if positive.
 template<typename T>
 int sgn(T val)
 {
-    // Returns -1 if val is negative, 0 if zero, and +1 if positive.
     // http://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
     return (T(0) < val) - (val < T(0));
 }
 
 
+// Returns x mod y, coping with negatives.
 template<typename T>
 T mod(T x, T y)
 {
-    // Returns x mod y, coping with negatives.
     // http://stackoverflow.com/questions/11980292/how-to-wrap-around-a-range
     if (y == 0) {
         return 0;  // stupid caller
@@ -55,6 +55,7 @@ T mod(T x, T y)
 // (e.g. https://github.com/android-ndk/ndk/issues/82 ),
 // and not offered by <QtGlobal>
 
+// Truncate towards zero.
 template<typename T>
 T trunc(const T& x)
 {
@@ -71,44 +72,98 @@ T trunc(const T& x)
 }
 
 
+// Does the range [a0, a1] overlap with [b0, b1]?
 bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1);
+
+// Are two floating-point numbers nearly equal?
+// (Several ways of doing this; see code.)
 bool nearlyEqual(qreal x, qreal y);
+
+// Return the mean of the supplied values.
+// - ignore_null true: return the mean of the values, ignoring any NULLs.
+// - ignore_null false: return the mean, or NULL if any are NULL.
 QVariant mean(const QVector<QVariant>& values, bool ignore_null = false);
+
+// Return the mean of two numbers.
 qreal mean(qreal a, qreal b);
+
+// Returns the (integer) centile of x within the range [minimum, maximum].
+// (So if x == minimum, this will be 0; if x == maximum, it will be 100.)
 int centile(qreal x, qreal minimum, qreal maximum);
+
+// Adds up numbers, minimizing error. See code.
 double kahanSum(const QVector<double>& vec);
 
 // ============================================================================
 // QVariant operations, and QVariant collections
 // ============================================================================
 
+// Sum of integers from QVariant objects.
 int sumInt(const QVector<QVariant>& values);
+
+// Sum of doubles from QVariant objects.
 double sumDouble(const QVector<QVariant>& values);
 
+// Is the QVariant false, but not null?
 bool falseNotNull(const QVariant& value);
 
+// Are all the values true?
 bool allTrue(const QVector<QVariant>& values);
+
+// Are any of the values true?
 bool anyTrue(const QVector<QVariant>& values);
+
+// Are all of the values false or null?
 bool allFalseOrNull(const QVector<QVariant>& values);
+
+// Are all of the values false (not true or null)?
 bool allFalse(const QVector<QVariant>& values);
+
+// Are any of the values false (not true or null)?
 bool anyFalse(const QVector<QVariant>& values);
+
+// Are any of the values null?
 bool anyNull(const QVector<QVariant>& values);
+
+// Are none of the values null?
 bool noneNull(const QVector<QVariant>& values);
+
+// Are any of the values null or empty strings?
 bool anyNullOrEmpty(const QVector<QVariant>& values);
+
+// Are none of the values null or empty strings?
 bool noneNullOrEmpty(const QVector<QVariant>& values);
 
+// Return the number of values that are true.
 int countTrue(const QVector<QVariant>& values);
+
+// Return the number of values that are false (not true or null).
 int countFalse(const QVector<QVariant>& values);
+
+// Return the number of values that are null.
 int countNull(const QVector<QVariant>& values);
+
+// Return the number of values that are not null.
 int countNotNull(const QVector<QVariant>& values);
 
+// Does x equal test, using the SQL principle that null is not equal to anything?
 bool eq(const QVariant& x, int test);
+
+// Does x equal test, using the SQL principle that null is not equal to anything?
 bool eq(const QVariant& x, bool test);
+
+// Is x null or equal to test?
 bool eqOrNull(const QVariant& x, int test);
+
+// Is x null or equal to test?
 bool eqOrNull(const QVariant& x, bool test);
 
+// Return the number of values in test_values that are present in where_values.
 int countWhere(const QVector<QVariant>& test_values,
                const QVector<QVariant>& where_values);
+
+// Return the number of values in test_values that are not present in
+// where_not_values.
 int countWhereNot(const QVector<QVariant>& test_values,
                   const QVector<QVariant>& where_not_values);
 
@@ -116,30 +171,51 @@ int countWhereNot(const QVector<QVariant>& test_values,
 // Functions for scoring
 // ============================================================================
 
+// Returns numerator/denominator as a percentage, e.g. "53.2%".
 QString percent(double numerator, double denominator, int dp = 1);
+
+// Returns e.g. "<b>27</b>/30"; optionally add " (90%)"
 QString scoreString(int numerator, int denominator,
                     bool show_percent = false, int dp = 1);
+
+// Returns e.g. "<b>27.5</b>/30"; optionally add " (91.7%)"
 QString scoreString(double numerator, int denominator,
                     bool show_percent = false, int dp = 1);
+
+// Returns e.g. "<b>27.5</b>/30"; optionally add " (91.7%)"
 QString scoreStringVariant(const QVariant& numerator, int denominator,
                            bool show_percent = false, int dp = 1);
+
+// Returns e.g. "<b>27</b>/30 (90%)"
 QString scoreStringWithPercent(int numerator, int denominator, int dp = 1);
+
+// Returns e.g. "<b>27.5</b>/30 (91.7%)"
 QString scoreStringWithPercent(double numerator, int denominator, int dp = 1);
+
+// Returns e.g. "Description: <b>27</b>/30."
 QString scorePhrase(const QString& description, int numerator, int denominator,
                     const QString& separator = ": ",
                     const QString& suffix = ".");
+
+// Returns e.g. "Description: <b>27.5</b>/30."
 QString scorePhrase(const QString& description, double numerator, int denominator,
                     const QString& separator = ": ",
                     const QString& suffix = ".",
                     int dp = 1);
+
+// Returns e.g. "Description: <b>27.5</b>/30."
 QString scorePhraseVariant(
         const QString& description, const QVariant& numerator, int denominator,
         const QString& separator = ": ",
         const QString& suffix = ".",
         int dp = 1);
+
+// Returns e.g. "Total score: <b>27</b>/30."
 QString totalScorePhrase(int numerator, int denominator,
                          const QString& separator = ": ",
                          const QString& suffix = ".");
+
+// Returns e.g. "Total score: <b>27.5</b>/30."
 QString totalScorePhrase(double numerator, int denominator,
                          const QString& separator = ": ",
                          const QString& suffix = ".",
@@ -149,6 +225,7 @@ QString totalScorePhrase(double numerator, int denominator,
 // Sequence and range generation
 // ============================================================================
 
+// Generates a vector (e.g. of numbers) from "first" to "last", step "step".
 template<typename T>
 QVector<T> seq(T first, T last, T step = 1)
 {
@@ -166,10 +243,16 @@ QVector<T> seq(T first, T last, T step = 1)
 }
 
 
-QVector<int> range(int start, int end);  // start to (end - 1) inclusive
-QVector<int> range(int n);  // 0 to (n - 1) inclusive
+// Generates a vector of integers: [start, end),
+// i.e. start to (end - 1) inclusive
+QVector<int> range(int start, int end);
 
 
+// Generates a vector of integers: [0, n), i.e. 0 to (n - 1) inclusive
+QVector<int> range(int n);
+
+
+// Generates a vector containing n copies of x.
 template<typename T>
 QVector<T> rep(const T& x, int n)
 {
@@ -177,6 +260,8 @@ QVector<T> rep(const T& x, int n)
 }
 
 
+// Like R. For example, rep(QVector<int>{1,2,3}, 2, 4) gives
+// {1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3, 3}.
 template<typename T>
 QVector<T> rep(const QVector<T>& values, int each, int times)
 {
@@ -196,6 +281,8 @@ QVector<T> rep(const QVector<T>& values, int each, int times)
 // Range description (cosmetic)
 // ============================================================================
 
+// Takes a vector like {1, 2, 3, 4, 6, 7, 8, 10} and returns a descriptive
+// string like "1-4, 6-8, 10". Optionally add a prefix to each part, like
 QString describeAsRanges(QVector<int> numbers,
                          const QString& element_prefix = "",
                          const QString& element_separator = ", ",
@@ -205,17 +292,37 @@ QString describeAsRanges(QVector<int> numbers,
 // Spacing things out
 // ============================================================================
 
+// Fence/fence-post problem; return the centre of each of n fence segments
+// spanning [minimum, maximum].
 QVector<qreal> distribute(int n, qreal minimum, qreal maximum);
+
+// Work out the dimensions of the smallest grid that will hold n objects and
+// is of (approximately) a given aspect ratio.
+//
+// Solve the equations:
+//      x * y >= n
+//      aspect ~= x / y
+// ... for smallest x, y. Thus:
+//      x = aspect * y
+//      aspect * y * y >= n
+//
+// Returns x, y.
 QPair<int, int> gridDimensions(int n, qreal aspect = 1.0);
 
 // ============================================================================
 // Numerical conversions
 // ============================================================================
 
-int proportionToByte(qreal proportion);  // 0.0-1.0 to 0-255
-qreal byteToProportion(int byte);  // 0-255 to 0.0-1.0
+// Converts 0.0-1.0 to 0-255
+int proportionToByte(qreal proportion);
 
-int proportionToIntPercent(qreal proportion);  // 0.0-1.0 to 0-100
-qreal intPercentToProportion(int percent);  // 0-100 to 0.0-1.0
+// Converts 0-255 to 0.0-1.0
+qreal byteToProportion(int byte);
+
+// Converts 0.0-1.0 to 0-100
+int proportionToIntPercent(qreal proportion);
+
+// Converts 0-100 to 0.0-1.0
+qreal intPercentToProportion(int percent);
 
 }  // namespace mathfunc

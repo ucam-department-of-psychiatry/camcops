@@ -25,7 +25,8 @@ namespace containers
 {
 
 // ============================================================================
-// Force container size
+// Force a QVector to be a certain size, by removing items at the end or by
+// adding default items.
 // ============================================================================
 
 template<typename T>

@@ -44,6 +44,8 @@ class Glm
     // Generalized linear model (GLM), using Eigen
 
 public:
+
+    // How to solve
     enum class SolveMethod {
         IRLS_KaneLewis,
         IRLS_SVDNewton_KaneLewis,
@@ -51,6 +53,8 @@ public:
         IRLS_R_glmfit,
 #endif
     };
+
+    // How to deal with rank-deficient matrices
     enum class RankDeficiencyMethod {
         SelectColumns,
         MinimumNorm,
@@ -96,14 +100,21 @@ public:
     bool converged() const;
     int nIterations() const;
     Eigen::VectorXd coefficients() const;
+
+    // Predict output:
     Eigen::VectorXd predict() const;  // ... by original predictors
     Eigen::VectorXd predict(const Eigen::MatrixXd& predictors) const;  // use new predictors
-    Eigen::VectorXd residuals(const Eigen::MatrixXd& predictors) const;  // use new predictors
-    Eigen::VectorXd residuals() const;  // ... with original predictors
-    Eigen::ArrayXXd predictEta(const Eigen::MatrixXd& predictors) const;  // the intermediate variable, BEFORE the inverse link function has been applied (e.g.: logit units)
-    Eigen::ArrayXXd predictEta() const;  // ... with original predictors
 
-    // Dumb stuff:
+    // Residuals:
+    Eigen::VectorXd residuals() const;  // ... with original predictors
+    Eigen::VectorXd residuals(const Eigen::MatrixXd& predictors) const;  // use new predictors
+
+    // The intermediate variable, BEFORE the inverse link function has been
+    // applied (e.g.: logit units):
+    Eigen::ArrayXXd predictEta() const;  // ... with original predictors
+    Eigen::ArrayXXd predictEta(const Eigen::MatrixXd& predictors) const;  // use new predictors
+
+    // Dumb stuff (see code):
     Eigen::VectorXd retrodictUnivariatePredictor(const Eigen::VectorXd& depvar) const;
 
     // Get debugging info:
@@ -135,7 +146,7 @@ protected:
     RankDeficiencyMethod m_rank_deficiency_method;
     bool m_verbose;
 
-    // In (rows,cols where n = #observations, k = #predictors):
+    // In (size shown as rows,cols where n = #observations, k = #predictors):
     Eigen::VectorXd m_dependent_variable;  // n,1
     Eigen::MatrixXd m_predictors;  // n,k
     Eigen::VectorXd* m_p_weights;  // k,1

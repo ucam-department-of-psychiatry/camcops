@@ -125,7 +125,6 @@ QLabel* iconWidget(const QString& filename, QWidget* parent,
 QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,
                             const bool behind, const qreal pixmap_opacity)
 {
-    // Assumes it is of size ICONSIZE
     const QSize size(image.size());
     QPixmap pm(size);
     pm.fill(QCOLOR_TRANSPARENT);
@@ -296,9 +295,9 @@ void removeAllChildWidgets(QObject* object)
     // ... modified a little
     qDebug() << "removeAllChildWidgets";
     for (QWidget* w : object->findChildren<QWidget*>()) {
-        qDebug() << "1";
+        // qDebug() << "1";
         if (!(w->windowFlags() & Qt::Window)) {
-            qDebug() << "2";
+            // qDebug() << "2";
             delete w;
         }
     }

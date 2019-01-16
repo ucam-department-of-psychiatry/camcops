@@ -48,6 +48,8 @@
 class FlickCharmPrivate;
 class QWidget;
 
+// One way of scrolling an object in response to a flick gesture.
+
 class FlickCharm: public QObject
 {
     Q_OBJECT
