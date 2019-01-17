@@ -34,18 +34,38 @@ class QuCountdown : public QuElement
 
     Q_OBJECT
 public:
+    // Construct with the timer's duration.
     QuCountdown(int time_s);
+
+    // Destructor.
     virtual ~QuCountdown() override;
+
+    // Sets the timeout alarm volume; range [0, 100].
     QuCountdown* setVolume(int volume);
+
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+
+    // Update the textual display to show time left, or "FINISHED", etc.
     void updateDisplay();
+
+    // Play a sound (on timeout).
     void bong();
+
 protected slots:
+
+    // "Start the timer."
     void start();
+
+    // "Stop the timer."
     void stop();
+
+    // "Reset the timer to its starting value."
     void reset();
+
+    // "Some time has elapsed."
     void tick();
+
 protected:
     int m_time_s;
     int m_volume;

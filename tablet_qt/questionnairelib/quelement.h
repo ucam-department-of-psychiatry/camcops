@@ -47,29 +47,70 @@ class QuElement : public QObject
     friend class QuGridContainer;
     friend class SettingsMenu;
     friend class WidgetTestMenu;
+
 public:
     QuElement();
     virtual ~QuElement();
+
+    // Adds an arbitrary tag. Users can use this to retrieve a QuElement from
+    // a questionnaire, just by knowing the day (which sometimes saves some
+    // fiddling with pointer storage).
+    // Elements can have multiple tags.
     QuElement* addTag(const QString& tag);
 
+    // Does the element have the specified tag?
     bool hasTag(const QString& tag) const;
+
+    // Is the element visible (will it display its widget)?
     bool visible() const;
+
+    // Sets visibility.
     QuElement* setVisible(bool visible);
+
 signals:
+    // Emitted when the data represented by the element changes.
+    // Connects to QuPage::elementValueChanged(),
+    // which connects to Questionnaire::resetButtons().
     void elementValueChanged();
+
 protected:
+    // Returns the widget. (If not yet build, calls makeWidget() first.)
     virtual QPointer<QWidget> widget(Questionnaire* questionnaire);
+
+    // Subclasses override this to build their Qt widget.
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) = 0;
-    virtual QPointer<QWidget> cachedWidget() const;  // Not for general use!
+
+    // Makes the element visible.
     void show();
+
+    // Makes the element invisible.
     void hide();
+
+    // Return all sub-elements (children), as safe pointers.
     virtual QVector<QuElementPtr> subelements() const;
+
+    // Return all sub-elements, as raw pointers.
     QVector<QuElement*> subelementsRaw() const;
+
+    // Return all sub-elements, in a flat list including all descendants.
     QVector<QuElementPtr> subelementsWithChildrenFlattened() const;
+
+    // Return all sub-elements, in a flat list including all descendants, as
+    // raw pointers.
     QVector<QuElement*> subelementsWithChildrenFlattenedRaw() const;
+
+    // Are any of the element's fieldrefs missing some input? "Missing input"
+    // means "mandatory and not complete".
     virtual bool missingInput() const;
+
+    // Return all of the fieldrefs for this element.
+    // (Some elements refer to multiple fields.)
     virtual FieldRefPtrList fieldrefs() const;
-    virtual void closing();  // called prior to focus leaving this page (e.g. silence audio)
+
+    // Called prior to focus leaving this page. (Can be used e.g. to silence
+    // audio that is playing.)
+    virtual void closing();
+
 protected:
     QPointer<QWidget> m_widget;  // used to cache a widget pointer
     QStringList m_tags;

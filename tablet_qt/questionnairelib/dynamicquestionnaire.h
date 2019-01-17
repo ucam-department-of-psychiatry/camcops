@@ -26,6 +26,8 @@
 Questionnaire in which pages are generated dynamically by the caller,
 and stored in a sequence so that the user can go back.
 
+See the Questionnaire class first.
+
 We continue to use QVector<QuPagePtr> m_pages.
 Key differences:
 - BACK BUTTON: pop last page; go to new last page.
@@ -104,27 +106,34 @@ public:
                          const MakePageFn& make_page_fn,
                          const MorePagesToGoFn& more_pages_to_go_fn);
 
+    // ------------------------------------------------------------------------
+    // Override in order to block functionality:
+    // ------------------------------------------------------------------------
+
+    // ... we don't add pages, as we generate them dynamically
+    virtual void addPage(const QuPagePtr& page) override;  // crashes if called
+
+    // ... we don't delete pages either
+    virtual void deletePage(int index) override;  // crashes if called
+
+    // ------------------------------------------------------------------------
+    // Behave differently:
+    // ------------------------------------------------------------------------
+
     // Override to say "we are dynamic".
     virtual bool isDynamic() const override;
 
-    // Override in order to block functionality:
-    virtual void addPage(const QuPagePtr& page) override;
-    virtual void deletePage(int index) override;
-
-    // Behave differently:
+    // goToPage() jumps in the same way, but then deletes pages after the
+    // current one
     virtual void goToPage(int index, bool allow_refresh = false) override;
+
+    // If we're at the end, stop; otherwise, fetch the next dynamic page and
+    // display it
     virtual void processNextClicked() override;
 
 protected:
-    // Behave differently:
+    // Are there more pages to go?
     virtual bool morePagesToGo() const override;
-
-    // ------------------------------------------------------------------------
-    // New functionality:
-    // ------------------------------------------------------------------------
-
-    // Chop off all pages beyond the current one
-    void trimFromCurrentPositionOnwards();
 
     // Adds the first page. Called by Questionnaire::build().
     void addFirstDynamicPage() override;
@@ -134,10 +143,21 @@ protected:
     // the page jump list.)
     void addAllAccessibleDynamicPages() override;
 
+    // ------------------------------------------------------------------------
+    // New functionality:
+    // ------------------------------------------------------------------------
+
+    // Chop off all pages beyond the current one
+    void trimFromCurrentPositionOnwards();
+
     // "Does the specified page allow us to progress?"
     bool mayProgress(QuPage* page) const;
 
 protected:
+
+    // User-supplied function to make a page dynamically
     MakePageFn m_make_page_fn;
+
+    // User-supplied function: are there more pages to come?
     MorePagesToGoFn m_more_pages_to_go_fn;
 };

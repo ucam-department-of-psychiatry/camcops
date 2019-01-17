@@ -35,40 +35,79 @@ class QuCanvas : public QuElement
 
     Q_OBJECT
 public:
+
+    // Construct with a blank canvas.
     QuCanvas(BlobFieldRefPtr fieldref,
              const QSize& size = QSize(100, 100),
-             bool allow_shrink = true,
-             QImage::Format format = QImage::Format_RGB32,
+             bool allow_shrink = true,  // see setAllowShrink()
+             QImage::Format format = QImage::Format_RGB32,  // internal image format
              const QColor& background_colour = Qt::white);
+
+    // Construct with an image canvas.
     QuCanvas(BlobFieldRefPtr fieldref,
              const QString& template_filename,
              const QSize& size = QSize(),  // = take template's size
-             bool allow_shrink = true);
+             bool allow_shrink = true);  // see setAllowShrink()
+
+    // Adjust for the current DPI settings?
     QuCanvas* setAdjustForDpi(bool adjust_for_dpi);  // default is true
     // ... adjustment for DPI is a little more complex, because we have the
     //     back-end (database) image that should be independent of device
     //     resolution; therefore, we work with that, and allow the CanvasWidget
     //     to do the translation.
+
+    // Sets the canvas background colour.
     QuCanvas* setBackgroundColour(const QColor& colour);
+
+    // Sets the width of the border around the canvas.
     QuCanvas* setBorderWidth(int width);
+
+    // Sets the colour of the border around the canvas.
     QuCanvas* setBorderColour(const QColor& colour);
+
+    // If the widget is bigger than the canvas, what colour should we paint the
+    // unused space?
     QuCanvas* setUnusedSpaceColour(const QColor& colour);
+
+    // Set the colour of the user's "pen".
     QuCanvas* setPenColour(const QColor& colour);
+
+    // Set the width of the user's "pen".
     QuCanvas* setPenWidth(int width);
+
+    // Allow the canvas to be shrunk smaller than its standard size?
+    // (May be helpful for large images on small screens.)
+    // Default is true; see constructor.
     QuCanvas* setAllowShrink(bool allow_shrink);
+
 protected:
     void commonConstructor();
+
+    // Sets the widget state from our fieldref.
     void setFromField();
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
     virtual void closing() override;
+
+    // Reset our widget.
     void resetWidget();
+
 protected slots:
+    // "Fieldref reports that the field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref,
                            const QObject* originator);
+
+    // "Canvas widget reports that its image has changed (e.g. user has
+    // drawn)."
     void imageChanged();
+
+    // Called by imageChanged(), but after a short delay. Writes to fieldref.
     void completePendingFieldWrite();
+
+    // Resets the canvas widget state and sets the fieldref value to NULL.
     void resetFieldToNull();
+
 protected:
     BlobFieldRefPtr m_fieldref;
     QSize m_size;

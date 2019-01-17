@@ -31,18 +31,49 @@ class QuButton : public QuElement
 
     Q_OBJECT
 public:
-    using Args = QMap<QString, QVariant>;
-    using CallbackFunction = std::function<void()>;
-    // To pass other arguments, use std::bind to bind them before passing here
 
+    using CallbackFunction = std::function<void()>;
+    // To pass other arguments, use std::bind to bind them before passing here.
+    // For example:
+    //
+    // - plain function
+    //   std::bind(&myFunc, this)
+    //
+    // - member function
+    //   std::bind(&MyClass::myFunc, this)
+    //
+    // - member function with parameter
+    //   std::bind(&MyClass::myFunc, this, "someparam")
+
+    // Constructor: display text label
     QuButton(const QString& label, const CallbackFunction& callback);
+
+    // Constructor: display icon.
+    // Args:
+    //  icon_filename:
+    //      icon filename
+    //  filename_is_camcops_stem:
+    //      process filename via uifunc::iconFilename(filename)
+    //  alter_unpressed_image:
+    //      apply a background circle to the plain ("unpressed") image, as well
+    //      as the "pressed" state.
+    //  callback
+    //      the callback function
     QuButton(const QString& icon_filename, bool filename_is_camcops_stem,
              bool alter_unpressed_image, const CallbackFunction& callback);
+
+    // Should the button respond, or just sit there unresponsive?
+    // (It will also be inactive in read-only questionnaires, but this allows
+    // you to disable it on the fly in live questionnaires.)
     QuButton* setActive(bool active);
+
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+
 protected slots:
+    // "Our internal button widget was clicked."
     void clicked();
+
 protected:
     QString m_label;
     QString m_icon_filename;

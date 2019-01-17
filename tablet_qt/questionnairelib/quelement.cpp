@@ -59,12 +59,6 @@ QPointer<QWidget> QuElement::widget(Questionnaire* questionnaire)
 }
 
 
-QPointer<QWidget> QuElement::cachedWidget() const
-{
-    return m_widget;
-}
-
-
 QVector<QuElementPtr> QuElement::subelements() const
 {
     return QVector<QuElementPtr>();

@@ -30,7 +30,9 @@ class QString;
 
 namespace mcqfunc {
 
+// ============================================================================
 // Assistance functions for questionnaire items.
+// ============================================================================
 
 // Add a vertical line to a grid layout (in column col, for its full vertical
 // extent n_rows).
@@ -75,7 +77,10 @@ void setResponseWidgets(
 // If allow_unset is true, uses a three-state system including NULL.
 void toggleBooleanField(FieldRef* fieldref, bool allow_unset = false);
 
-// Alignment constants
+// ============================================================================
+// Alignment constants for different standard element styles
+// ============================================================================
+
 extern const Qt::Alignment question_text_align;
 extern const Qt::Alignment question_widget_align;
 

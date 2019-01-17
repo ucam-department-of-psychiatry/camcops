@@ -27,17 +27,18 @@ class NameValueOptions
 /*
     Encapsulates a list of name/value pairs.
 
-    Generally, we don't allow duplicate values.
-    However, there are some circumstances when it's helpful, e.g. we are
-    offering several wrong answers, and don't care which one is selected;
-    such as
+    We don't allow duplicate values.
+    There are some circumstances when intuitively this would be helpful, e.g.
+    we are offering several wrong answers, and don't care which one is
+    selected; such as
 
-    Q. What is 2 + 2?
-    a) One [-> score 0]
-    b) Two [-> score 0]
-    c) Three [-> score 0]
-    d) Four [-> score 1]
-    e) Five [-> score 0]
+        Q. What is 2 + 2?
+
+        a) One [-> score 0]
+        b) Two [-> score 0]
+        c) Three [-> score 0]
+        d) Four [-> score 1]
+        e) Five [-> score 0]
 
     You might think it'd be OK to support that situation. HOWEVER, it's not.
     It would mean that the user's choice would be irrecoverable from the
@@ -56,28 +57,72 @@ class NameValueOptions
                 // ...
             }
         }
+
+    It's fine (although odd) to have duplicate names.
+
 */
 
 public:
+
+    // Default constructor
     NameValueOptions();
+
+    // Construct with values.
     NameValueOptions(std::initializer_list<NameValuePair> options);
+
+    // Add a new name/value pair, at the end.
     void append(const NameValuePair& nvp);
+
+    // How many name/value pairs do we have?
     int size() const;
+
+    // Return the name/value pair at the given (zero-based) index.
     const NameValuePair& at(int index) const;
+
+    // Return the first index associated with the specified name, or -1 on
+    // failure.
     int indexFromName(const QString& name) const;
+
+    // Return the index associated with the specified value, or -1 on failure.
     int indexFromValue(const QVariant& value) const;
+
+    // Check there are no duplicate values, or crash the app.
     void validateOrDie();
+
+    // Is the index valid, i.e. in the range [0, size() - 1]?
     bool validIndex(int index) const;
+
+    // Randomize the order
     void shuffle();
+
+    // Reverse the order
     void reverse();
+
+    // Returns the name for a given index, or "" if the index is invalid.
     QString name(int index) const;
+
+    // Returns the name for a given index, or QVariant() if the index is
+    // invalid.
     QVariant value(int index) const;
+
+    // Returns the name for a given value, or "" if there isn't one.
     QString nameFromValue(const QVariant& value) const;
+
+    // Returns the first value for a given name, or QVariant() if there isn't
+    // one.
     QVariant valueFromName(const QString& name) const;
+
 public:
+
+    // Returns a NameValueOptions like {{"1", 1}, {"2", 2}, {"3", 3}...}
+    // where the number progresses from "first" to "last" in steps of "step".
     static NameValueOptions makeNumbers(int first, int last, int step = 1);
+
 protected:
+    // Stores the options.
     QVector<NameValuePair> m_options;
+
 public:
+    // Debugging description.
     friend QDebug operator<<(QDebug debug, const NameValueOptions& gi);
 };

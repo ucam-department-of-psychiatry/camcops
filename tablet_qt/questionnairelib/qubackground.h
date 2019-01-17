@@ -24,6 +24,8 @@
 class QuBackground : public QuElement
 {
     // Provides a background (e.g. for use in grids).
+    // This is a blank widget with CSS style set via the object's name.
+
 public:
     QuBackground(const QString& css_name);
 protected:

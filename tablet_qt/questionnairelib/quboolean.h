@@ -28,31 +28,98 @@ class BooleanWidget;
 class QuBoolean : public QuElement
 {
     // Element to control a single Boolean field.
-    // Displays text or an image, in addition to the response widget.
+    //
+    // Displays one of the following formats:
+    //
+    // - text button
+    //
+    //      +------+        QuBoolean("", fieldref);
+    //      | text |        setAsTextButton(true);
+    //      +------+
+    //
+    // - response widget ("indicator") and text
+    //
+    //      +-+             QuBoolean("text", fieldref);
+    //      |✓| text
+    //      +-+
+    //
+    // - response widget ("indicator") and icon
+    //
+    //      +-+             QuBoolean(iconfilename, QSize(), fieldref);
+    //      |×| icon
+    //      +-+
+    //
+    // The formats can be customized further.
 
     Q_OBJECT
 public:
+
+    // Construct with: text to display; fieldref
     QuBoolean(const QString& text, FieldRefPtr fieldref);
+
+    // Construct with: icon filename, icon size, fieldref.
+    // If size == QSize(), that means "the file's intrinsic image size"
     QuBoolean(const QString& filename, const QSize& size,
-              FieldRefPtr fieldref);  // default QSize() => "the file's size"
+              FieldRefPtr fieldref);
+
+    // Is the content (text or image) clickable, as well as the response
+    // widget?
     QuBoolean* setContentClickable(bool clickable = true);
+
+    // Should the indicator (response widget) be on the left of the content
+    // (text or image) or not ("not" meaning: put it on the right instead).
     QuBoolean* setIndicatorOnLeft(bool indicator_on_left = true);
+
+    // Should the indicator be bigger than usual? See BooleanWidget::setSize().
     QuBoolean* setBigIndicator(bool big = true);
+
+    // Should the text be bigger than usual (uiconst::FontSize::Big rather than
+    // uiconst::FontSize::Normal)?
     QuBoolean* setBigText(bool big = true);
+
+    // Should the text be bold?
     QuBoolean* setBold(bool bold = true);
+
+    // Should the text be italic?
     QuBoolean* setItalic(bool italic = true);
+
+    // If you call setAllowUnset(true), cycle NULL -> true -> false -> NULL.
+    // Otherwise (the default), cycle NULL -> true -> false -> true.
     QuBoolean* setAllowUnset(bool allow_unset = true);
+
+    // Puts the widget into "text button" mode (see above).
     QuBoolean* setAsTextButton(bool as_text_button = true);
+
+    // Adjust the image for the current DPI setting, so it appears a standard
+    // physical size?
     QuBoolean* setAdjustImageForDpi(bool adjust_image_for_dpi = true);
+
+    // This is a bit unusual. If set to true, the "false" state appears blank.
+    // This allows you to make a tick appear/disappear (not be replaced by
+    // a cross).
+    //
+    // You almost certainly do not want to combine it with setAllowUnset(true),
+    // because it may become visually hard to distinguish NULL from false. (If
+    // the field is also mandatory, it will be visually possible, but still
+    // confusing.)
     QuBoolean* setFalseAppearsBlank(bool false_appears_blank = true);
+
 protected:
     void commonConstructor();
+
+    // Sets the widget state from our fieldref.
     void setFromField();
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
+
 protected slots:
+    // "Our internal widget was clicked."
     void clicked();
+
+    // "Fieldref reports that the field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref);
+
 protected:
     QString m_text;
     QString m_image_filename;
