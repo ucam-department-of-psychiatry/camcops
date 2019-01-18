@@ -35,7 +35,8 @@ namespace questionnairefunc {
 // ============================================================================
 
 // Make default grids: convenience functions for grid creation.
-// These functions take {string, element} pairs and make a grid like:
+// These functions take {string, element} pairs and make a two-column grid
+// like:
 //
 //              label1      element1
 //              label2      element2

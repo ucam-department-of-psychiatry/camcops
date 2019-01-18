@@ -675,9 +675,6 @@ void Questionnaire::openSubWidget(OpenableWidget* widget)
     qDebug() << Q_FUNC_INFO;
 #endif
 
-    // This is used to open major/complex editing widgets, such as the
-    // camera control aspects used by QuPhoto, and the diagnostic code
-    // selection widget of QuDiagnosticCode.
     m_app.openSubWindow(widget);
 }
 

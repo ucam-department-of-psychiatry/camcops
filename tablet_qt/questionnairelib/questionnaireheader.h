@@ -37,19 +37,40 @@ class QuestionnaireHeader : public BaseWidget
 
     Q_OBJECT
 public:
+    // Construct, deciding which buttons to offer, etc.
     QuestionnaireHeader(
             QWidget* parent, const QString& title,
             bool read_only, bool offer_page_jump, bool within_chain,
             const QString& css_name, bool debug_allowed = false);
+
+    // Decide whether we offer previous/next/finish buttons.
+    // ("Next" and "Finish" should not be simultaneously shown!)
     void setButtons(bool previous, bool next, bool finish);
+
+    // Sets the icon to display for the finish button (e.g. tick for
+    // config-edit-settings questionnaires or stop  symbol for task
+    // questionnaires).
     void setFinishButtonIcon(const QString& base_filename);
+
 signals:
+    // "User has clicked 'cancel'."
     void cancelClicked();
+
+    // "User has clicked 'jump to page'."
     void jumpClicked();
+
+    // "User has clicked 'previous page'."
     void previousClicked();
+
+    // "User has clicked 'next page'."
     void nextClicked();
+
+    // "User has clicked 'finish'."
     void finishClicked();
+
+    // Send layout to debugging stream.
     void debugLayout();
+
 protected:
     QString m_title;
     QPointer<QPushButton> m_button_debug;
