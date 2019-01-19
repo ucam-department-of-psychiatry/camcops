@@ -20,6 +20,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+#include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -59,12 +60,7 @@ public slots:
 public:
     static const QString GBO_TABLENAME;
 
-public:
-    enum GoalChosenBy {
-      CHILD_OR_YOUNG_PERSON = 1,
-      PARENT_OR_CARER,
-      OTHER
-    };
 protected:
+    NameValueOptions m_goal_chosen_by;
     QPointer<Questionnaire> m_questionnaire;
 };

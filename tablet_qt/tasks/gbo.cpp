@@ -49,8 +49,6 @@ using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
-enum GoalChosenBy { PATIENT, CLINICIAN };
-
 // Field constants
 const QString SESSION_NUMBER("session_number");
 const QString SESSION_DATE("session_date");
@@ -69,6 +67,10 @@ const QStringList REQUIRED_FIELDS = {
     GOAL_CHOSEN_BY,
 };
 
+const int GOAL_OTHER =  0;
+const int GOAL_PARENT_CARER = 1;
+const int GOAL_CHILD = 2;
+
 const int MAX_GOALS = 1000;
 const int MAX_SESSIONS = 1000;
 
@@ -83,6 +85,12 @@ Gbo::Gbo(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GBO_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
+    m_goal_chosen_by = NameValueOptions{
+        { "Child/young person",     GOAL_CHILD },
+        { "Parent/Carer",           GOAL_PARENT_CARER },
+        { "Other <i>(specify below)</i>",  GOAL_OTHER },
+    };
+
     addField(SESSION_NUMBER, QVariant::Int);
     addField(SESSION_DATE, QVariant::Date);
 
@@ -129,12 +137,6 @@ QString Gbo::menusubtitle() const
 
 OpenableWidget* Gbo::editor(const bool read_only)
 {
-    NameValueOptions options_chosen_by{
-        { "Child/young person",     Gbo::GoalChosenBy::CHILD_OR_YOUNG_PERSON },
-        { "Parent/Carer",           Gbo::GoalChosenBy::PARENT_OR_CARER },
-        { "Other <i>(specify below)</i>",  Gbo::GoalChosenBy::OTHER },
-    };
-
     NameValueOptions options_progress{
         {"1", 1},
         {"2", 2},
@@ -159,17 +161,17 @@ OpenableWidget* Gbo::editor(const bool read_only)
         new QuLineEditInteger(fieldRef(GOAL_NUMBER), 1, MAX_GOALS),
         (new QuText("Goal description"))->setBold(),
         new QuTextEdit(fieldRef(GOAL_DESCRIPTION)),
+        (new QuText("Goal progress"))->setBold(),
         (new QuMcq(fieldRef(GOAL_PROGRESS), options_progress))
                            ->setHorizontal(true)
                            ->setAsTextButton(true),
-        (new QuText("Goal progress"))->setBold(),
-        (new QuMcq(fieldRef(GOAL_CHOSEN_BY), options_chosen_by))
+        (new QuMcq(fieldRef(GOAL_CHOSEN_BY), m_goal_chosen_by))
                         ->setHorizontal(true)
                         ->setAsTextButton(true),
         new QuTextEdit(fieldRef(GOAL_CHOSEN_BY_OTHER, false)),
         })->setTitle(longname()));
 
-    bool required = value(GOAL_CHOSEN_BY) == Gbo::GoalChosenBy::OTHER;
+    bool required = value(GOAL_CHOSEN_BY) == GOAL_OTHER;
     fieldRef(GOAL_CHOSEN_BY_OTHER)->setMandatory(required);
 
     connect(fieldRef(GOAL_CHOSEN_BY).data(), &FieldRef::valueChanged,
@@ -183,9 +185,11 @@ OpenableWidget* Gbo::editor(const bool read_only)
 
 void Gbo::updateMandatory() {
    const bool required = valueInt(GOAL_CHOSEN_BY)
-           == Gbo::OTHER;
+           == GOAL_OTHER;
     fieldRef(GOAL_CHOSEN_BY_OTHER)->setMandatory(required);
-    fieldRef(GOAL_CHOSEN_BY_OTHER).clear();
+    if (!required) {
+        fieldRef(GOAL_CHOSEN_BY_OTHER)->setValue("");
+    }
 }
 
 bool Gbo::isComplete() const
@@ -193,19 +197,32 @@ bool Gbo::isComplete() const
     if (anyNull(values(REQUIRED_FIELDS))) {
         return false;
     }
-    return ((value(GOAL_CHOSEN_BY) != Gbo::GoalChosenBy::OTHER) ||
+    return ((value(GOAL_CHOSEN_BY) != GOAL_OTHER) ||
             !value(GOAL_CHOSEN_BY_OTHER).isNull());
 
 }
 
 QStringList Gbo::summary() const
-{
-    return QStringList{};
+{   
+    return QStringList{
+        QString("<b>Goal %1</b>: %2").arg(
+                value(GOAL_NUMBER).toString(),
+                value(GOAL_DESCRIPTION).toString()
+        )
+    };
 }
-
 
 QStringList Gbo::detail() const
 {
-    QStringList lines;
-    return lines;
+    QString chosen_by =
+            m_goal_chosen_by.nameFromValue(value(GOAL_CHOSEN_BY).toInt());
+
+    return QStringList{
+        QString("<b>Session number</b>: %1").arg(value(SESSION_NUMBER).toInt()),
+        QString("<b>Session date</b>: %1").arg(value(SESSION_DATE).toString()),
+        QString("<b>Goal number</b>: %1").arg(value(GOAL_NUMBER).toString()),
+        QString("<b>Goal description</b>: %1").arg(value(GOAL_DESCRIPTION).toString()),
+        QString("<b>Goal progress</b>: %1").arg(value(GOAL_PROGRESS).toString()),
+        QString("<b>Goal chosen by</b>: %1").arg(chosen_by),
+    };
 }
