@@ -352,8 +352,16 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
 
     QuPagePtr page_audio_countdown((new QuPage{
         new QuHeading("Simple audio player:"),
+        new QuText(
+            "Except from Mozart WA, <i>Vesperae solennes de confessore</i> "
+            "(K.339), fifth movement, <i>Laudate Dominum</i>, by the Advent "
+            "Chamber Orchestra (see docs)"),
         (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_2))->setVolume(SOUNDTEST_1_VOLUME),
         new QuHeading("Audio player with volume control:"),
+        new QuText(
+            "Excerpt from Bach JS, <i>Brandenburg Concerto No. 3, third "
+            "movement (Allegro) </i>, by the Advent Chamber Orchestra "
+            "(see docs)"),
         (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_1))->setOfferVolumeControl(),
         new QuHeading("Countdown:"),
         new QuCountdown(20),
