@@ -520,6 +520,7 @@ BASH = "bash"
 CL = "cl"  # Visual C++ compiler
 CLANG = "clang"  # macOS XCode compiler
 CMAKE = "cmake"
+CYGPATH = "cygpath"
 GCC = "gcc"
 GIT = "git"
 GOBJDUMP = "gobjdump"  # macOS equivalent of readelf
@@ -1959,6 +1960,24 @@ def get_starting_env(plain: bool = False) -> Dict[str, str]:
 
 
 # =============================================================================
+# Ancillary: convert Windows paths to POSIX, for Cygwin, via cygpath
+# =============================================================================
+
+def windows_to_posix(windows_path: str) -> str:
+    """
+    Converts a Windows path to a POSIX path, via Cygpath.
+
+    (Superseded by ``chdir_via_python`` argument to
+    :func:`cardinal_pythonlib.buildfunc.untar_to_directory`.)
+    """
+    require(CYGPATH)
+    cmdargs = [CYGPATH, "--unix", windows_path]
+    stdout, _ = run2(cmdargs, capture_stdout=True, allow_failure=False)
+    posix_path = stdout.strip()  # remove trailing newline
+    return posix_path
+
+
+# =============================================================================
 # Ancillary: check for operating system commands
 # =============================================================================
 
@@ -2494,7 +2513,8 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # -------------------------------------------------------------------------
     # OpenSSL: Unpack source
     # -------------------------------------------------------------------------
-    untar_to_directory(cfg.openssl_src_fullpath, rootdir, run_func=run)
+    untar_to_directory(cfg.openssl_src_fullpath, rootdir, run_func=run,
+                       chdir_via_python=True)
 
     # -------------------------------------------------------------------------
     # OpenSSL: Environment 1/2
@@ -3489,7 +3509,7 @@ def build_boost(cfg: Config) -> None:
     """
     log.info("Building (unpacking) Boost...")
     untar_to_directory(cfg.boost_src_fullpath, cfg.boost_dest_dir,
-                       run_func=run)
+                       run_func=run, chdir_via_python=True)
 
 
 # =============================================================================
@@ -3510,7 +3530,7 @@ def fetch_armadillo(cfg: Config) -> None:
 def build_armadillo(cfg: Config) -> None:
     log.info("Building (unpacking) Armadillo...")
     untar_to_directory(cfg.arma_src_fullpath, cfg.arma_dest_dir,
-                       run_func=run)
+                       run_func=run, chdir_via_python=True)
     # run([CMAKE,
     #      # "-D", "ARMADILLO_LIBRARY={}".format(cfg.arma_lib),
     #      "-D", "ARMADILLO_INCLUDE_DIR={}".format(cfg.arma_include_dir),
@@ -3645,7 +3665,8 @@ def build_eigen(cfg: Config) -> None:
     untar_to_directory(tarfile=cfg.eigen_src_fullpath,
                        directory=cfg.eigen_unpacked_dir,
                        gzipped=True,
-                       run_func=run)
+                       run_func=run,
+                       chdir_via_python=True)
 
 
 # =============================================================================

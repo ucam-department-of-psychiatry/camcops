@@ -62,8 +62,16 @@ laptop.
 However, the Microsoft Surface Book 2 (e.g. 13.5" display, 8 Gb RAM, i5
 processor, 256 Gb SSD) is very good and provides a lightweight Windows laptop
 with good battery life and a detachable touchscreen/tablet. Its default
-on-screen keyboard has some layout problems (it overlays other windows, rather
-than resizing them!) but the physical keyboard is good.
+on-screen keyboard has some layout problems (it overlays other windows, without
+resizing them) but the physical keyboard is good.
+
+.. note::
+
+    The Surface BOok 2 onscreen keyboard sometimes overlays windows, at the
+    bottom of the screen. The windows in question (e.g. CamCOPS) are not
+    informed about this and don't know how big the on-screen keyboard is. The
+    solution is either (a) to use the physical keyboard, which is much better,
+    or (b) to remember that this isn't just a tablet, and resize the window!
 
 .. todo::
 
@@ -74,6 +82,12 @@ than resizing them!) but the physical keyboard is good.
 
     Width of dropdown boxes for dates/spinboxes is too small under Win10 in
     tablet mode.
+
+.. todo::
+
+    Check: ID/ED-3D "incorrect" sound not playing under Win10, even though
+    "correct" sound works fine (and listed correctly in resource file, and
+    working on other platorms). Investigate.
 
 Other desktop/laptop clients: hardware requirements
 ---------------------------------------------------

@@ -308,7 +308,7 @@ Set menus for clinical purposes
 -------------------------------
 
 Individual clinical services or contexts may have specific menus of tasks
-created. Amongst them are the :ref:`FROM-LP <from_lp>` and `FROM-Perinatal
+created. Amongst them are the :ref:`FROM-LP <from_lp>` and :ref:`FROM-Perinatal
 <from_perinatal>` sets.
 
 

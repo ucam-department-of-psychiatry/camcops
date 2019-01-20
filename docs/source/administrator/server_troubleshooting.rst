@@ -24,20 +24,50 @@ Troubleshooting server problems
     :local:
     :depth: 3
 
+Installation problems
+---------------------
+
+matplotlib complains about being unable to build freetype, png
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. include:: include_old_bug_defunct.rst
+
+Observed with ``matplotlib==2.2.0`` under Windows 10.
+
+See
+
+- https://stackoverflow.com/questions/39060669/python-matplotlib-install-issue-on-windows-7-for-freetype-png-packages
+- https://github.com/matplotlib/matplotlib/issues/12169
+
+Unsuccessful method:
+
+- Do this and retry CamCOPS installation:
+
+  .. code-block:: none
+
+    pip install freetype-py
+    pip install pypng
+
+Successful method:
+
+- Upgrade ``matplotlib`` from 2.2.0 to 3.0.2 (as of CamCOPS v2.3.1).
+
 Web server errors from Apache
 -----------------------------
 
-- **Web server returns “permission denied”-type messages; Apache error log is
-  full of file permission errors.** Ownerships, permissions, or SELinux
-  security settings on files in the `DocumentRoot` tree are probably wrong. See
-  :ref:`Server configuration <server_configuration>`; :ref:`Linux flavours
-  <linux_flavours>`.
+Web server returns "permission denied"-type messages; Apache error log is full of file permission errors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **Operation (e.g. table upload) fails; Apache error log contains the message
-  “client denied by server configuration”.** The Apache configuration file
-  might be missing a section saying
+Ownerships, permissions, or SELinux security settings on files in the
+`DocumentRoot` tree are probably wrong. See :ref:`Server configuration
+<server_configuration>`; :ref:`Linux flavours <linux_flavours>`.
 
-  .. code-block:: apacheconf
+Operation (e.g. table upload) fails; Apache error log contains the message "client denied by server configuration"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Apache configuration file might be missing a section saying
+
+.. code-block:: apacheconf
 
     <Directory /usr/share/camcops/server>
         # ...
@@ -47,15 +77,20 @@ Web server errors from Apache
         # ...
     </Directory>
 
-  .. include:: include_old_bug_defunct.rst
+.. include:: include_old_bug_defunct.rst
 
-- **SSL not working; Apache log contains “Invalid method in request
-  \x16\x03\x01”.** Misconfigured server; it is speaking unencrypted HTTP on
-  port 443. Do you have the VirtualHost section configured properly? Do you
-  have `LoadModule ssl_module modules/mod_ssl.so`?
+SSL not working; Apache log contains "Invalid method in request ``\x16\x03\x01``"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **Other Apache errors.** See :ref:`front-end web server configuration
-  <configure_apache>`, which has specimen Apache config sections.
+Misconfigured server; it is speaking unencrypted HTTP on port 443. Do you have
+the VirtualHost section configured properly? Do you have `LoadModule ssl_module
+modules/mod_ssl.so`?
+
+Other Apache errors
+~~~~~~~~~~~~~~~~~~~
+
+See :ref:`front-end web server configuration <configure_apache>`, which has
+specimen Apache config sections.
 
 Web server URL errors
 ---------------------
@@ -82,18 +117,22 @@ then change it to
 Web server errors in general
 ----------------------------
 
-- **Web server returns content but says <class 'ConfigParser.NoSectionError'>:
-  No section: 'server'.** Unless the CamCOPS config files are broken, this
-  probably means that the `/etc/camcops/*` configuration files have the wrong
-  ownerships/permissions/SELinux security settings. See the ``chown`` and
-  ``chcon`` commands [#linuxflavours]_. It’s also possible that the
-  configuration files have been damaged, or that the Apache configuration file
-  is pointing to a non-existing configuration file.
+Web server returns content but says <class 'ConfigParser.NoSectionError'>: No section: 'server'
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **I can log in, but then seem to be logged out again immediately.**
-  Is your browser correctly storing session cookies? Especially, are you trying
-  to run CamCOPS over a non-encrypted (HTTP) link? The session cookies are set
-  to secure and httponly for security reasons, and will not work without HTTPS.
+Unless the CamCOPS config files are broken, this probably means that the
+`/etc/camcops/*` configuration files have the wrong
+ownerships/permissions/SELinux security settings. See the ``chown`` and
+``chcon`` commands [#linuxflavours]_. It’s also possible that the configuration
+files have been damaged, or that the Apache configuration file is pointing to a
+non-existing configuration file.
+
+I can log in, but then seem to be logged out again immediately
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Is your browser correctly storing session cookies? Especially, are you trying
+to run CamCOPS over a non-encrypted (HTTP) link? The session cookies are set to
+secure and httponly for security reasons, and will not work without HTTPS.
 
 Tablet upload errors
 --------------------
@@ -103,10 +142,12 @@ MySQL server has gone away
 
 **Tablet uploads fails with error including “(2006, 'MySQL server has gone
 away')”. Apache log contains “OperationalError: (2006, 'MySQL server has gone
-away')”.** CamCOPS takes care to ping the database connection, so it’s
-unlikely that a connection has timed out. The probable cause is that the
-relevant `max_allowed_packet` parameter is set too small; MySQL also generates
-this error if the query is too big. You will need to edit the MySQL ``my.cnf``
+away')”.**
+
+CamCOPS takes care to ping the database connection, so it’s unlikely that a
+connection has timed out. The probable cause is that the relevant
+`max_allowed_packet` parameter is set too small; MySQL also generates this
+error if the query is too big. You will need to edit the MySQL ``my.cnf``
 configuration file; see :ref:`Setting up MySQL under Linux
 <linux_mysql_setup>`. The most probable time to see this error is when
 uploading the BLOB table (`blobs`).
@@ -115,13 +156,13 @@ uploading the BLOB table (`blobs`).
 Read timed out
 ~~~~~~~~~~~~~~
 
+**Tablet BLOB upload fails with error "Read timed out".**
 
-**Tablet BLOB upload fails with error “Read timed out”.** Likely problem: large
-BLOB (big photo), slow network. For example, in one of our tests a BLOB took
-more than 17 s to upload, so the tablet needs to wait at least that long after
-starting to send it. Increase the tablet’s network timeout (e.g. try
-increasing from 5000 to 60000 ms) in :menuselection:`Settings --> Server
-settings.`
+Likely problem: large BLOB (big photo), slow network. For example, in one of
+our tests a BLOB took more than 17 s to upload, so the tablet needs to wait at
+least that long after starting to send it. Increase the tablet’s network
+timeout (e.g. try increasing from 5000 to 60000 ms) in :menuselection:`Settings
+--> Server settings.`
 
 
 Row size too large (>8126)
@@ -182,7 +223,7 @@ log file bigger, e.g. 512 Mb.
 From CamCOPS v1.32, the server autoconverts tables to Barracuda when using the
 make-tables command, to avoid this problem.
 
-MySQL: “Too many connections”
+MySQL: "Too many connections"
 -----------------------------
 
 This error occurs if programs collectively attempt to open more connections to
@@ -195,7 +236,7 @@ CamCOPS or by increasing the MySQL connection limit.
 
 .. _mysql_illegal_mix_of_collations:
 
-MySQL: “Illegal mix of collations...”
+MySQL: "Illegal mix of collations..."
 -------------------------------------
 
 In full: MySQL reports: “Illegal mix of collations (utf8mb4_unicode_ci,IMPLICIT)
@@ -223,7 +264,7 @@ example, if you are sorting in Swedish and you don’t care about case
 sensitivity, you want the ordering A–Z then ÅÄÖ, and you want a to be considered
 equal to A, å to be considered equal to Å, and so on.
 
-Background: MySQL’s support for character sets and collations
+Background: MySQL's support for character sets and collations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now, to add to the difficulty, MySQL supports multiple different levels at which
@@ -438,7 +479,7 @@ https://stackoverflow.com/questions/1867861/dictionaries-how-to-keep-keys-values
 Yes, that works. Therefore: fixed as of 2018-07-08, v2.2.4.
 
 
-Web browser reports: “DevTools failed to parse SourceMap...”
+Web browser reports: "DevTools failed to parse SourceMap..."
 ------------------------------------------------------------
 
 In full, the web browser reports:

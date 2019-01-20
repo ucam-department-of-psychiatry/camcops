@@ -1581,7 +1581,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Server v2.3.1 and client v2.3.1 (in progress, from 2018-11-27)**
 
-- ``cardinal_pythonlib`` to 1.0.41
+- ``cardinal_pythonlib`` to 1.0.46.
 
   - Fixes misconversion of previous 24-hour filter times to their morning
     equivalents, in the task filter view. To test, set e.g. a start time of
@@ -1589,6 +1589,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
     re-save it; check the end time stays correct.
 
   - Improved e-mail handling, pro tem.
+
+  - For ``build_qt.py`` under Windows, implement a directory change via
+    Python and not ``tar`` for the "untar" operation.
 
 - Fixed trivial bugs and added clarity about item sequencing.
 

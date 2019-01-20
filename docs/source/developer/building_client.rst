@@ -216,14 +216,14 @@ All operating systems
     # Linux
     python3 -m venv $CAMCOPS_VENV
     . $CAMCOPS_VENV/bin/activate
-    pip install cardinal_pythonlib==1.0.23
+    pip install cardinal_pythonlib
 
   .. code-block:: bat
 
     REM Windows
     python -m venv %CAMCOPS_VENV%
     %CAMCOPS_VENV%\Scripts\activate
-    pip install cardinal_pythonlib==1.0.23
+    pip install cardinal_pythonlib
 
 Build OpenSSL, SQLCipher, Qt
 ----------------------------
@@ -243,6 +243,29 @@ the CamCOPS :ref:`build_qt` tool (q.v.). For example:
 
 Troubleshooting build_qt
 ~~~~~~~~~~~~~~~~~~~~~~~~
+
+Problem:: tar fails to work under Windows
+#########################################
+
+.. code-block:: none
+
+    ===============================================================================
+    WORKING DIRECTORY: C:\Users\rudol\dev\qt_local_build\src\qt5
+    PYTHON ARGS: ['tar', '-x', '-z', '--force-local', '-f', 'C:\\Users\\rudol\\dev\\qt_local_build\\src\\eigen\\eigen-3.3.3.tar.gz', '-C', 'C:\\Users\\rudol\\dev\\qt_local_build\\eigen']
+    COMMAND: tar -x -z --force-local -f C:\Users\rudol\dev\qt_local_build\src\eigen\eigen-3.3.3.tar.gz -C C:\Users\rudol\dev\qt_local_build\eigen
+    ===============================================================================
+    tar: C\:\\Users\rudol\\dev\\qt_local_build\\eigen: Cannot open: No such file or directory
+
+"How stupid," you might think. And the command works without the ``-C C:\...``
+option (i.e. the ``-f`` parameter is happy with a full Windows path, but
+``-C`` or its equivalent ``-directory=...`` isn't). This is with GNU tar v1.29
+via Cygwin.
+
+**Fixed** by using ``cardinal_pythonlib==1.0.46`` and the
+``chdir_via_python=True`` argument to ``untar_to_directory``.
+
+Problem: CL.EXE cannot open program database
+############################################
 
 **Problem (Windows):** ``fatal error C1041: cannot open program database
 '...\openssl-1.1.0g\app.pdb'; if multiple CL.EXE write to the same .PDB file,
@@ -313,7 +336,7 @@ Options last checked against Qt Creator 4.6.2 (built June 2018).
     If you did not install a version of Qt with Qt Creator, pick one of your
     own kits and choose "Make Default". Otherwise you will get the error
     ``Could not find qmake spec 'default'.`` (e.g. in the General Messages tab
-    when you open your application) and the ``..pro`` (project) file will not
+    when you open your application) and the ``.pro`` (project) file will not
     parse. See https://stackoverflow.com/questions/27524680.
 
 **Custom_Linux_x86_64**
@@ -656,7 +679,7 @@ isn't working well at present.)
 
 - Build.
 
-Distributing the Whisker client
+Distributing the CamCOPS client
 -------------------------------
 
 Google Play Store settings

@@ -81,7 +81,7 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 # Package dependencies
 INSTALL_REQUIRES = [
     'alembic==1.0.0',  # database migrations
-    'cardinal_pythonlib==1.0.45',  # RNC libraries
+    'cardinal_pythonlib==1.0.46',  # RNC libraries
     'celery==4.2.1',  # background tasks
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.1.0',  # web server
@@ -95,10 +95,12 @@ INSTALL_REQUIRES = [
     # Alternative 'internal' web server. Installs fine under Windows, but won't run (ImportError: No module named 'fcntl').  # noqa
     'hl7==0.3.4',  # For HL7 export
     'lockfile==0.12.2',  # File locking for background tasks
-    'matplotlib==2.2.0',
+    'matplotlib==3.0.2',
     # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
+
     # 'mysqlclient==1.3.13;platform_system=="Linux"',  # for mysql+mysqldb://...
     # # ... but adds dependency on C and mysql.h
+
     'numpy==1.14.5',  # Used by some tasks. SLOW INSTALLATION.
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.0.4',  # better than Arrow
@@ -106,8 +108,10 @@ INSTALL_REQUIRES = [
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt; now works under Windows too  # noqa
     'Pygments==2.3.1',  # Syntax highlighting for introspection/DDL
+
     'PyMySQL==0.7.1',
     # ... for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may break Pendulum handling *** FIX THIS *** # noqa
+
     'PyPDF2==1.26.0',  # Used by rnc_pdf.py
     'pyramid==1.9.2',  # web framework
     'pyramid_debugtoolbar==4.4',  # debugging for Pyramid
