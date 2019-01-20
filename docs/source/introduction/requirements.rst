@@ -67,11 +67,12 @@ resizing them) but the physical keyboard is good.
 
 .. note::
 
-    The Surface BOok 2 onscreen keyboard sometimes overlays windows, at the
+    The Surface Book 2 onscreen keyboard sometimes overlays windows, at the
     bottom of the screen. The windows in question (e.g. CamCOPS) are not
-    informed about this and don't know how big the on-screen keyboard is. The
-    solution is either (a) to use the physical keyboard, which is much better,
-    or (b) to remember that this isn't just a tablet, and resize the window!
+    informed about this and don't know how big the on-screen keyboard is, so
+    can't do anything about it. The solution is either (a) to use the physical
+    keyboard, which is much better, or (b) to remember that this isn't just a
+    tablet, and resize the window!
 
 .. todo::
 
