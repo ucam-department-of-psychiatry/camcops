@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="gbo">
+    <string name="title">Goal-based Outcomes</string>
+    <string name="stem">Use this form to track progress toward a goal</string>
+    <string name="thanks">Core symptom of hypomania and mania:</string>
+    <string name="chosen_by">Chosen by</string>
+    <string name="choice_o1">Child/young person</string>
+    <string name="choice_o2">Parent/Carer</string>
+    <string name="choice_o3">Other</string>
+    <string name="choice_o3_specify"><i>(specify below)</i></string>
+    <string name="session_n">Session number</string>
+    <string name="session_d">Session date</string>
+    <string name="goal_n">Goal number</string>
+    <string name="goal_desc">Goal description</string>
+    <string name="goal_p">Today I would rate progress to this goal</string>
+  </task>
+</resources>

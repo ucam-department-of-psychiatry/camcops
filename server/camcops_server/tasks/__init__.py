@@ -73,6 +73,7 @@ from camcops_server.tasks.fft import Fft
 from camcops_server.tasks.frs import Frs
 from camcops_server.tasks.gad7 import Gad7
 from camcops_server.tasks.gaf import Gaf
+from camcops_server.tasks.gbo import Gbo
 from camcops_server.tasks.gds import Gds15
 from camcops_server.tasks.gmcpq import GMCPQ
 from camcops_server.tasks.hads import Hads
