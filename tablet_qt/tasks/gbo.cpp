@@ -152,6 +152,8 @@ OpenableWidget* Gbo::editor(const bool read_only)
     };
 
     QuPagePtr page((new QuPage{
+        (new QuText(xstring("instruction")))->setBold(),
+        new QuHorizontalLine,
         (new QuText(xstring(SESSION_NUMBER)))->setBold(),
         new QuLineEditInteger(fieldRef(SESSION_NUMBER), 1, MAX_SESSIONS),
         (new QuText(xstring(SESSION_DATE)))->setBold(),

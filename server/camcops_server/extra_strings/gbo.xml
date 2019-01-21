@@ -2,8 +2,7 @@
 <resources>
   <task name="gbo">
     <string name="title">Goal-based Outcomes</string>
-    <string name="stem">Use this form to track progress toward a goal</string>
-    <string name="thanks">Core symptom of hypomania and mania:</string>
+    <string name="instruction">Use this form to track progress toward a goal</string>
     <string name="chosen_by">Chosen by</string>
     <string name="choice_o1">Child/young person</string>
     <string name="choice_o2">Parent/Carer</string>
