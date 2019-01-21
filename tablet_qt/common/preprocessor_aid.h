@@ -45,6 +45,15 @@
 // https://stackoverflow.com/questions/5085392/what-is-the-value-of-an-undefined-constant-used-in-if
 
 // ============================================================================
+// DISABLE_GCC_DATE_TIME_MACRO_WARNING
+// ============================================================================
+// "expansion of date or time macro is not reproducible"
+
+#ifdef __GNUC__
+    #define DISABLE_GCC_DATE_TIME_MACRO_WARNING
+#endif
+
+// ============================================================================
 // QT_WORKAROUND_BUG_68889
 // ============================================================================
 

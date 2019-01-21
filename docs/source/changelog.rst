@@ -1774,5 +1774,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``TickSlider`` and ``QuSlider`` allow their labels to overspill the edges
   and therefore work much better.
 
+- When running an older version of CamCOPS (e.g. 2.2.7) on a Surface Book 2 /
+  Windows 10: in no-keyboard Tablet mode, touches are not detected in the
+  camera mode. Trackpad works fine. This was fixed by recompiling on this
+  machine.
+
+
 .. _changelog_2019:
 

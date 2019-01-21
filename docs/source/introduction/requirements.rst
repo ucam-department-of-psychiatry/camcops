@@ -76,11 +76,6 @@ resizing them) but the physical keyboard is good.
 
 .. todo::
 
-    Surface Book 2 / Windows 10: in no-keyboard Tablet mode, touches are not
-    detected in the camera mode. Trackpad works fine.
-
-.. todo::
-
     Width of dropdown boxes for dates/spinboxes is too small under Win10 in
     tablet mode.
 

@@ -329,7 +329,8 @@ Qt kits
 
 See :menuselection:`Tools --> Options --> Kits --> Kits`.
 
-Options last checked against Qt Creator 4.6.2 (built June 2018).
+Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
+(built Jan 2019).
 
 .. note::
 
@@ -497,6 +498,9 @@ Options last checked against Qt Creator 4.6.2 (built June 2018).
             ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
         * - Additional Qbs Profile Settings
           -
+
+*Also works with: CMake Generator = CodeBlocks - NMake Makefiles JOM, Platform:
+<none>, Toolset: <none>.*
 
 **Custom_Windows_x86_32**
 
@@ -877,6 +881,14 @@ Troubleshooting qmake/compilation
     collect2: error: ld returned 1 exit status
 
   ... use ``sudo apt install libudev-dev``.
+
+- This error whilst building CamCOPS under Windows 10:
+
+  .. code-block:: none
+
+    :-1: error: dependent 'C:\Users\rudol\dev\qt_local_build\qt_windows_x86_64_install\lib\Qt5MultimediaWidgetsd.lib' does not exist.
+
+  Try switching from "debug" to "release" build.
 
 Troubleshooting running CamCOPS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

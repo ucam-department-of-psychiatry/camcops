@@ -49,6 +49,7 @@
 #include "common/dbconst.h"  // for NONEXISTENT_PK
 #include "common/design_defines.h"
 #include "common/platform.h"
+#include "common/preprocessor_aid.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -371,9 +372,13 @@ void CamcopsApp::announceStartup()
     qDebug() << "Compiler type/version unknown";
 #endif
 
+#ifdef DISABLE_GCC_DATE_TIME_MACRO_WARNING
 #pragma GCC diagnostic ignored "-Wdate-time"
+#endif
     qDebug() << "Compiled at" << __DATE__ << __TIME__;
+#ifdef DISABLE_GCC_DATE_TIME_MACRO_WARNING
 #pragma GCC diagnostic pop
+#endif
 }
 
 
