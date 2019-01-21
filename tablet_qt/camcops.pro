@@ -710,6 +710,7 @@ SOURCES += \
     tasks/moca.cpp \
     tasks/nart.cpp \
     tasks/npiq.cpp \
+    tasks/ors.cpp \
     tasks/panss.cpp \
     tasks/patientsatisfaction.cpp \
     tasks/pcl5.cpp \
@@ -1108,6 +1109,7 @@ HEADERS += \
     tasks/moca.h \
     tasks/nart.h \
     tasks/npiq.h \
+    tasks/ors.h \
     tasks/panss.h \
     tasks/patientsatisfaction.h \
     tasks/pcl5.h \
