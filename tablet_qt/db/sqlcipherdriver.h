@@ -80,6 +80,8 @@ class QSqlResult;
 class SQLCipherResult;
 
 
+// Qt driver for SQLCipher
+
 class SQLCipherDriver : public QSqlDriver
 {
     Q_OBJECT

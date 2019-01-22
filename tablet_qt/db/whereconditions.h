@@ -24,20 +24,38 @@
 #include <QVector>
 struct SqlArgs;
 
+// Represents the WHERE clause of an SQL query/command.
 
 class WhereConditions
 {
 public:
     WhereConditions() = default;
+
+    // Adds a condition: "WHERE ... [AND] <column> = <value>"
     void add(const QString& column, const QVariant& value);  // op: "="
+
+    // Adds a condition: "WHERE ... [AND] <column> <op> <value>"
     void add(const QString& column, const QString& op,
              const QVariant& value);
+
+    // Modifies the SQL in the supplied SqlArgs object to add the WHERE.
     void appendWhereClauseTo(SqlArgs& sqlargs_altered) const;
+
+    // Returns an SQL literal with realized parameters -- NOT for proper use
+    // (risk of SQL injection).
     QString whereLiteralForDebuggingOnly() const;
+
 protected:
+    // Column names
     QVector<QString> m_columns;
+
+    // Operators, e.g. "="
     QVector<QString> m_operators;
+
+    // Values
     QVector<QVariant> m_values;
+
 public:
+    // Debugging description
     friend QDebug operator<<(QDebug debug, const WhereConditions& w);
 };

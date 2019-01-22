@@ -25,6 +25,10 @@ Security design
 The CamCOPS security model is multi-layered. It is not enough to have a
 “secure” tablet app; there are other things you must do as well.
 
+..  contents::
+    :local:
+    :depth: 3
+
 Summary
 -------
 

@@ -1,4 +1,4 @@
-..  docs/source/client/client_using.rst
+..  docs/source/user/client_using.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -23,6 +23,10 @@
 
 Using the client
 ================
+
+..  contents::
+    :local:
+    :depth: 3
 
 Menus
 -----

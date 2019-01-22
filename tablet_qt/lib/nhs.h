@@ -35,8 +35,13 @@
 
 namespace nhs {
 
+// Calculates an NHS number check digit.
+// Given a 9-digit number as a vector, return the 10th digit that would be
+// required to make this into a valid (checksummed) NHS number, or
+// "failure_code" if that's not possible.
 int nhsCheckDigit(const QVector<int>& ninedigits, int failure_code = -1);
 
+// Declare a validator for NHS numbers.
 template<typename T>
 QValidator::State validateNhsNumber(const QString& s, bool allow_empty = false);
 
@@ -44,10 +49,10 @@ QValidator::State validateNhsNumber(const QString& s, bool allow_empty = false);
 
 
 // ============================================================================
-// Templatized validator function
+// Templatized Qt validator function for NHS numbers
 // ============================================================================
 
-template<typename T>
+template<typename T>  // T is e.g. qint64
 QValidator::State nhs::validateNhsNumber(const QString& s, bool allow_empty)
 {
     if (s.isEmpty()) {

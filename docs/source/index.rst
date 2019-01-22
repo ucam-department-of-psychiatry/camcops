@@ -39,42 +39,27 @@ securely to your server.
 
     introduction/introduction.rst
 
-    misc/download.rst
-
-    client/client_installation.rst
-    client/client_using.rst
-    server/server_front_end_general.rst
+    user/download.rst
+    user/client_installation.rst
+    user/client_using.rst
+    user/server_front_end_general.rst
+    user/client_troubleshooting.rst
 
     tasks/_tasks_by_category.rst
     tasks/_tasks_all.rst
     tasks/_tasks_missing.rst
 
-    client/client_troubleshooting.rst
-
-    server/server_installation.rst
-    server/third_party_installation.rst
-    server/server_configuration.rst
-    server/server_config_file.rst
-    server/server_front_end_admin.rst
-    server/server_command_line.rst
-    server/server_troubleshooting.rst
-    server/server_migrating_databases.rst
-    server/snomed.rst
+    administrator/administrator_index.rst
 
     licences/licences.rst
 
     developer/index.rst
-
-    misc/tcpip_ports.rst
-    misc/linux_flavours.rst
 
     autodoc/_index.rst
 
     changelog.rst
     faq_known_problems.rst
     to_do.rst
-    wishlist.rst
-    local/local_info.rst
 
 
 Indexes and tables

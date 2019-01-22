@@ -22,6 +22,10 @@ New task walkthrough: CORE-10 example
 
 (2018-09-28.)
 
+..  contents::
+    :local:
+    :depth: 3
+
 Basics
 ~~~~~~
 

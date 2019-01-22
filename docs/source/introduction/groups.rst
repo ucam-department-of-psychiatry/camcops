@@ -31,6 +31,10 @@ functions:
   is required to (a) upload to the server, and (b) finalize that upload,
   clearing the data off the tablet?
 
+..  contents::
+    :local:
+    :depth: 3
+
 .. _group_access_control:
 
 Access control

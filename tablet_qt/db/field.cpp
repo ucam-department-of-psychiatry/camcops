@@ -268,7 +268,7 @@ QString Field::sqlColumnType() const
     //        32-bit signed: up to +2,147,483,647 = 2147483647
     //      - qlonglong is the same as qint64
     //        64-bit signed: up to +9,223,372,036,854,775,807 = 9223372036854775807
-    //      - qulonglong
+    //      - qulonglong is the same as quint64
     //        64-bit unsigned: 0 to +18,446,744,073,709,551,615 = 18446744073709551615
     // C++ type name: QVariant::typeToName(m_type);
     switch (m_type) {

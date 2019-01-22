@@ -64,9 +64,10 @@
 #include <QVector>
 
 
+// Non-private implementation of QSqlCachedResult / QSqlCachedResultPrivate
+
 class SqlCachedResult : public QSqlResult
 {
-    // Non-private implementation of QSqlCachedResult / QSqlCachedResultPrivate
 public:
     typedef QVector<QVariant> ValueCache;
 

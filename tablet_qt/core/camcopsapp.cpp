@@ -49,6 +49,7 @@
 #include "common/dbconst.h"  // for NONEXISTENT_PK
 #include "common/design_defines.h"
 #include "common/platform.h"
+#include "common/preprocessor_aid.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -109,7 +110,7 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_maximized_before_fullscreen(true),  // true because openMainWindow() goes maximized
     m_patient(nullptr),
     m_netmgr(nullptr),
-    m_dpi(uiconst::DEFAULT_DPI)
+    m_logical_dpi(uiconst::DEFAULT_DPI)
 {
     setApplicationName(APP_NAME);
     setApplicationDisplayName(APP_PRETTY_NAME);
@@ -371,9 +372,13 @@ void CamcopsApp::announceStartup()
     qDebug() << "Compiler type/version unknown";
 #endif
 
+#ifdef DISABLE_GCC_DATE_TIME_MACRO_WARNING
 #pragma GCC diagnostic ignored "-Wdate-time"
+#endif
     qDebug() << "Compiled at" << __DATE__ << __TIME__;
+#ifdef DISABLE_GCC_DATE_TIME_MACRO_WARNING
 #pragma GCC diagnostic pop
+#endif
 }
 
 
@@ -786,23 +791,34 @@ void CamcopsApp::initGuiOne()
 
     const QList<QScreen*> all_screens = screens();
     if (all_screens.isEmpty()) {
-        m_dpi = uiconst::DEFAULT_DPI;
+        m_logical_dpi = uiconst::DEFAULT_DPI;
+        m_physical_dpi_x = uiconst::DEFAULT_DPI;
+
     } else {
         const QScreen* screen = all_screens.at(0);
-        // m_dpi = screen->logicalDotsPerInch();  // can be e.g. 96.0126
-        m_dpi = std::round(screen->logicalDotsPerInch());
+        m_logical_dpi = screen->logicalDotsPerInch();  // can be e.g. 96.0126
+        // https://stackoverflow.com/questions/16561879/what-is-the-difference-between-logicaldpix-and-physicaldpix-in-qt
+        m_physical_dpi_x = screen->physicalDotsPerInchX();
+        m_physical_dpi_y = screen->physicalDotsPerInchY();
     }
+    qInfo().nospace()
+            << "Display has logical DPI "
+            << m_logical_dpi
+            << ") and physical DPI ("
+            << m_physical_dpi_x << "," << m_physical_dpi_y << ")";
 
+    // We write to some global "not-quite-constants".
     // This is slightly nasty, but it saves a great deal of things referring
     // to the CamcopsApp that otherwise wouldn't need to.
-    qInfo() << "Resizing icons for" << m_dpi << "dpi display";
-    uiconst::DPI = m_dpi;
+    uiconst::LOGICAL_DPI = m_logical_dpi;
+    uiconst::PHYSICAL_DPI_X = m_physical_dpi_x;
+    uiconst::PHYSICAL_DPI_Y = m_physical_dpi_y;
 
     auto cvSize = [this](const QSize& size) -> QSize {
-        return convert::convertSizeByDpi(size, m_dpi, uiconst::DEFAULT_DPI);
+        return convert::convertSizeByDpi(size, m_logical_dpi, uiconst::DEFAULT_DPI);
     };
     auto cvLength = [this](int length) -> int {
-        return convert::convertLengthByDpi(length, m_dpi, uiconst::DEFAULT_DPI);
+        return convert::convertLengthByDpi(length, m_logical_dpi, uiconst::DEFAULT_DPI);
     };
 
     uiconst::ICONSIZE = cvSize(uiconst::ICONSIZE_FOR_DEFAULT_DPI);
@@ -815,7 +831,7 @@ void CamcopsApp::initGuiOne()
 
 qreal CamcopsApp::dotsPerInch() const
 {
-    return m_dpi;
+    return m_logical_dpi;
 }
 
 
@@ -1945,7 +1961,7 @@ int CamcopsApp::varInt(const QString &name) const
 }
 
 
-qlonglong CamcopsApp::varLongLong(const QString& name) const
+qint64 CamcopsApp::varLongLong(const QString& name) const
 {
     return var(name).toLongLong();
 }

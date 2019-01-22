@@ -22,12 +22,16 @@
 #include <QtGlobal>
 class QPainter;
 
+// Implements a translation/rotation context for a QPainter.
+// When the class is constructed, it (1) translates the painter by "at" and
+// (2) rotates by "rotate_clockwise_deg". When it's destroyed, it reverses
+// those transformations.
 
 class PainterTranslateRotateContext
 {
 public:
     PainterTranslateRotateContext(QPainter& painter, const QPointF& at,
-                              qreal rotate_clockwise_deg);
+                                  qreal rotate_clockwise_deg);
     ~PainterTranslateRotateContext();
 protected:
     QPainter& m_painter;

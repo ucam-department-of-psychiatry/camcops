@@ -21,9 +21,11 @@
 #include <QString>
 
 
+// A structure to represent a menu item for viewing local HTML.
+// Exists only to improve polymorphic constructor of MenuItem
+
 struct HtmlMenuItem
 {
-    // Exists only to improve polymorphic constructor of MenuItem
 public:
     HtmlMenuItem(const QString& title = "", const QString& filename = "",
                  const QString& icon = "", bool fullscreen = false) :

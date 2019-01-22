@@ -24,16 +24,22 @@
 class QuFlowContainer : public QuElement
 {
     // Allows the arrangements of other elements into a horizontal
-    // but flowing layout.
+    // but flowing layout. It uses FlowLayoutHfw (q.v.).
 
     Q_OBJECT
 public:
+
     static const Qt::Alignment DefaultWidgetAlignment;
     // An alignment of Qt::Alignment(), the default, makes the layout
-    // EQUISPACE the widgets, which can look daft.
+    // EQUISPACE the widgets, which can look daft. So we alter that by default.
     // - http://www.qtcentre.org/threads/53609-QHBoxLayout-widget-spacing
+
 public:
+
+    // Plain constructor
     QuFlowContainer();
+
+    // Construct and add elements
     QuFlowContainer(
             const QVector<QuElementPtr>& elements,
             Qt::Alignment alignment = DefaultWidgetAlignment);
@@ -43,20 +49,29 @@ public:
     QuFlowContainer(
             std::initializer_list<QuElement*> elements,
             Qt::Alignment alignment = DefaultWidgetAlignment);  // takes ownership
+
+    // Add an element
     QuFlowContainer* addElement(
             const QuElementPtr& element,
             Qt::Alignment alignment = DefaultWidgetAlignment);
     QuFlowContainer* addElement(
             QuElement* element,
             Qt::Alignment alignment = DefaultWidgetAlignment);  // takes ownership
+
+    // Sets the alignment of all widgets (within their layout cells) to
+    // alignment.
     QuFlowContainer* setWidgetAlignment(Qt::Alignment alignment);
-    QuFlowContainer* setAddStretchRight(bool add_stretch_right);
+
 protected:
     void commonConstructor();
+
+    // Make all widgets have alignment "alignment".
     void createAlignments(Qt::Alignment alignment);
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual QVector<QuElementPtr> subelements() const override;
+
 protected:
-    QVector<QuElementPtr> m_elements;
-    QVector<Qt::Alignment> m_widget_alignments;
+    QVector<QuElementPtr> m_elements;  // all our elements
+    QVector<Qt::Alignment> m_widget_alignments;  // all their alignments
 };

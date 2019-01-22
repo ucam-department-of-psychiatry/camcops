@@ -20,6 +20,7 @@
 #pragma once
 #include "boxlayouthfw.h"
 
+// A vertical box layout supporting height-for-width, based on BoxLayoutHfw.
 
 class VBoxLayoutHfw : public BoxLayoutHfw
 {

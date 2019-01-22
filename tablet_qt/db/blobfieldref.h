@@ -21,11 +21,10 @@
 #include "db/fieldref.h"
 
 
+// A FieldRef (q.v.) that's restricted to BLOBs, so you can insist on/guarantee
+// a BLOB interface. Provides special interfaces for images.
 class BlobFieldRef : public FieldRef
 {
-    // A FieldRef that's restricted to BLOBs, so you can insist on/guarantee a
-    // BLOB interface. Provides special interfaces for images.
-
     Q_OBJECT
 public:
     BlobFieldRef(DatabaseObject* p_dbobject, const QString& fieldname,

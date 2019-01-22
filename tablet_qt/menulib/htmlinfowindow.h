@@ -22,6 +22,7 @@
 
 class CamcopsApp;
 
+// A windows that displays HTML from a local file.
 
 class HtmlInfoWindow : public OpenableWidget
 {

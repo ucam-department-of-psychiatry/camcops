@@ -21,6 +21,9 @@
 #include <QValidator>
 
 
+// Validator for NHS numbers, which are 10-digit numbers where the last digit
+// is a checksum.
+
 class NHSNumberValidator : public QValidator
 {
     Q_OBJECT

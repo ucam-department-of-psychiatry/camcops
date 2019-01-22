@@ -22,6 +22,8 @@
 #include <QList>
 #include <QVideoFrame>
 
+// Class to use a video surface as a viewfinder and grab a frame from it.
+// (I think.)
 
 class CameraFrameGrabber : public QAbstractVideoSurface
 {

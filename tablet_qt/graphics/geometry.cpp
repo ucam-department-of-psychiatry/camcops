@@ -143,7 +143,7 @@ qreal polarThetaToHeading(const qreal theta_deg, const qreal north_deg)
 }
 
 
-qreal headingToPolarTheta(const qreal heading_deg,
+qreal headingToPolarThetaDeg(const qreal heading_deg,
                           const qreal north_deg,
                           const bool normalize)
 {
@@ -158,7 +158,7 @@ qreal headingToPolarTheta(const qreal heading_deg,
 }
 
 
-qreal polarTheta(const QPointF& from, const QPointF& to)
+qreal polarThetaDeg(const QPointF& from, const QPointF& to)
 {
     const qreal dx = to.x() - from.x();
     const qreal dy = to.y() - from.y();
@@ -171,16 +171,16 @@ qreal polarTheta(const QPointF& from, const QPointF& to)
 }
 
 
-qreal polarTheta(const QPointF& to)
+qreal polarThetaDeg(const QPointF& to)
 {
-    return polarTheta(QPointF(0, 0), to);
+    return polarThetaDeg(QPointF(0, 0), to);
 }
 
 
 qreal headingDegrees(const QPointF& from, const QPointF& to, qreal north_deg)
 {
     // Returns a COMPASS HEADING (0 is North = up).
-    return polarThetaToHeading(polarTheta(from, to), north_deg);
+    return polarThetaToHeading(polarThetaDeg(from, to), north_deg);
 }
 
 
@@ -206,7 +206,7 @@ LineSegment lineFromPointInHeadingWithRadius(const QPointF& point,
                                              const qreal north_deg,
                                              const qreal radius)
 {
-    const qreal theta = headingToPolarTheta(heading_deg, north_deg);
+    const qreal theta = headingToPolarThetaDeg(heading_deg, north_deg);
     const QPointF distant_point = point + polarToCartesian(radius, theta);
     return LineSegment(point, distant_point);
 }
@@ -217,11 +217,6 @@ bool lineCrossesHeadingWithinRadius(
         const QPointF& point, const qreal heading_deg,
         const qreal north_deg, const qreal radius)
 {
-    // (1) Draw a line from "from" to "to".
-    // (2) Draw a line from "point" in direction "heading", where increasing
-    //     values of "heading" are clockwise, and a heading of 0 points in
-    //     the North direction, where that is defined by north_deg degrees
-    //     clockwise of "screen up".
     if (from == to) {
         return false;
     }

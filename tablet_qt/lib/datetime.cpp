@@ -46,7 +46,7 @@ QString datetimeToIsoMs(const QDateTime& dt, const bool use_z_timezone)
 {
     // An ISO-8601 format preserving millisecond accuracy and timezone.
     // Equivalent in moment.js: thing.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
-    // Example: '2016-06-02T10:04:03.588+01:00'
+    // Example: "2016-06-02T10:04:03.588+01:00"
     // Here we also allow 'Z' for UTC.
     // -- no, we don't; for example, MySQL's CONVERT_TZ does not accept 'Z'.
     //    => default use_z_timezone to false

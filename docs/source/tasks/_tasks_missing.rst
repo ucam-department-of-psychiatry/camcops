@@ -27,6 +27,10 @@ permissible for copyright reasons.
 
 Tasks rejected or not included for copyright reasons include:
 
+..  contents::
+    :local:
+    :depth: 1
+
 .. _ace_r:
 
 Addenbrooke’s Cognitive Examination (ACE-R) (prior to ACE-III)

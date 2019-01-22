@@ -32,18 +32,32 @@ class QuPickerInline : public QuElement
 
     Q_OBJECT
 public:
+
+    // Constructor
     QuPickerInline(FieldRefPtr fieldref, const NameValueOptions& options);
+
+    // Shuffle the options (when making the widget)?
     QuPickerInline* setRandomize(bool randomize);
+
 protected:
+
+    // Sets the widget state from our fieldref.
     void setFromField();
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
+
 protected slots:
+
+    // "Chosen item in the QComboBox has changed."
     void currentIndexChanged(int index);
+
+    // "Field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref);
+
 protected:
-    FieldRefPtr m_fieldref;
-    NameValueOptions m_options;
-    bool m_randomize;
-    QPointer<QComboBox> m_cbox;
+    FieldRefPtr m_fieldref;  // our field
+    NameValueOptions m_options;  // possible options
+    bool m_randomize;  // shuffle?
+    QPointer<QComboBox> m_cbox;  // combo box widget
 };

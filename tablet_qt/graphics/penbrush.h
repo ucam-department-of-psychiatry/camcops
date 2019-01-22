@@ -22,6 +22,8 @@
 #include <QBrush>
 
 
+// Represents a pen and a brush together. (It's a common combination!)
+
 struct PenBrush
 {
     PenBrush()

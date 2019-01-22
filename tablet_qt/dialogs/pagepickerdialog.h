@@ -33,9 +33,14 @@ class PagePickerDialog : public QDialog
     using PagePickerItemList = QVector<PagePickerItem>;
 
 public:
+    // Constructor
     PagePickerDialog(QWidget* parent, const PagePickerItemList& pages,
                      const QString& title = "");
+
+    // Call this to offer a choice, return the result of exec(), and write the
+    // result to new_page_number.
     virtual int choose(int* new_page_number);
+
     virtual bool event(QEvent* e) override;
 protected slots:
     void itemClicked(int item_index);

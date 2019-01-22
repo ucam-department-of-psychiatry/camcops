@@ -19,7 +19,7 @@
 
 // #define DEBUG_SPECIMEN_CREATION
 // #define DEBUG_SAVES
-#define DEBUG_TRIGGERS_NEEDS_UPLOAD
+// #define DEBUG_TRIGGERS_NEEDS_UPLOAD
 #define SAVE_UPDATE_BACKGROUND  // .. this is the main point of multithreading
     // databases; to improve GUI response speed while still being able to
     // save at each touch to avoid data loss through user error.
@@ -255,14 +255,14 @@ int DatabaseObject::valueInt(const QString& fieldname) const
 }
 
 
-qlonglong DatabaseObject::valueLongLong(const QString& fieldname) const
+qint64 DatabaseObject::valueInt64(const QString& fieldname) const
 {
     const QVariant v = value(fieldname);
     return v.toLongLong();
 }
 
 
-qulonglong DatabaseObject::valueULongLong(const QString& fieldname) const
+quint64 DatabaseObject::valueUInt64(const QString& fieldname) const
 {
     const QVariant v = value(fieldname);
     return v.toULongLong();
@@ -384,6 +384,23 @@ Field& DatabaseObject::getField(const QString& fieldname)
     // Dangerous in that it returns a reference.
     requireField(fieldname);
     return m_record[fieldname];
+}
+
+
+// ============================================================================
+// PK access
+// ============================================================================
+
+QVariant DatabaseObject::pkvalue() const
+{
+    return value(pkname());
+}
+
+
+int DatabaseObject::pkvalueInt() const
+{
+    const QVariant pk = pkvalue();
+    return pk.isNull() ? dbconst::NONEXISTENT_PK : pk.toInt();
 }
 
 
@@ -809,6 +826,10 @@ QString DatabaseObject::debugDescription() const
 
 bool DatabaseObject::shouldMoveOffTablet() const
 {
+    if (!m_has_move_off_tablet_field) {
+        qWarning() << Q_FUNC_INFO << "m_has_move_off_tablet_field is false";
+        return false;
+    }
     return valueBool(dbconst::MOVE_OFF_TABLET_FIELDNAME);
 }
 
@@ -853,19 +874,6 @@ QString DatabaseObject::tablename() const
 QString DatabaseObject::pkname() const
 {
     return m_pk_fieldname;
-}
-
-
-QVariant DatabaseObject::pkvalue() const
-{
-    return value(pkname());
-}
-
-
-int DatabaseObject::pkvalueInt() const
-{
-    const QVariant pk = pkvalue();
-    return pk.isNull() ? dbconst::NONEXISTENT_PK : pk.toInt();
 }
 
 

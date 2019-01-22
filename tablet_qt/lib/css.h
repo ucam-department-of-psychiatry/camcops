@@ -25,11 +25,23 @@ class QPen;
 namespace css
 {
 
+// Returns CSS like "3px" or "0".
 QString pixelCss(int px);
+
+// Returns CSS like "11.5pt" or "0".
 QString ptCss(qreal pt);
+
+// Returns CSS like "rgba(255,255,255,1.0)".
 QString colourCss(const QColor& colour);
+
+// Returns CSS like "solid" or "dotted".
 QString penStyleCss(const QPen& pen);
+
+// Returns CSS like "3px solid rgba(255,0,0,1.0)" or "none".
 QString penCss(const QPen& pen);
+
+// Returns CSS for no border/margin/padding, a transparent background, and the
+// specified foreground colour; suitable for use for label text.
 QString labelCss(const QColor& colour);
 
 }  // namespace css

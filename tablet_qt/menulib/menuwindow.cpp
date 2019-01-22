@@ -421,7 +421,6 @@ void MenuWindow::viewItem()
 
 void MenuWindow::viewTask()
 {
-    // View a task, if one is selected.
     TaskPtr task = currentTask();
     if (!task) {
         return;
@@ -480,7 +479,6 @@ void MenuWindow::editItem()
 
 void MenuWindow::editTask()
 {
-    // Edit a task, if one is selected and editable
     TaskPtr task = currentTask();
     if (!task || !task->isEditable()) {
         return;
@@ -550,7 +548,6 @@ void MenuWindow::deleteItem()
 
 void MenuWindow::deleteTask()
 {
-    // Delete a task, if one is selected
     TaskPtr task = currentTask();
     if (!task) {
         return;

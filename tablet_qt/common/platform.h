@@ -22,14 +22,20 @@
 
 namespace platform {
 
+// Which platform are we on?
 extern const bool PLATFORM_ANDROID;
 extern const bool PLATFORM_IOS;
 extern const bool PLATFORM_LINUX;
 extern const bool PLATFORM_WINDOWS;
 extern const bool PLATFORM_TABLET;
+
+// What OS type (e.g. "Android", "Linux", "Windows", "iOS")?
 extern const QString OS_CLASS;
 
+// Is the host computer a 64-bit system?
 bool isHost64Bit();
+
+// Was the build computer a 64-bit system?
 bool isBuild64Bit();
 
 }  // namespace platform

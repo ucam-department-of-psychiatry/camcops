@@ -22,6 +22,10 @@
 Patient/subject identification in CamCOPS
 =========================================
 
+..  contents::
+    :local:
+    :depth: 3
+
 Overview
 --------
 

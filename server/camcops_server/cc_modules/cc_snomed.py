@@ -1771,10 +1771,10 @@ class AthenaRelationshipId(object):
     """
     Constant-holding class for Athena relationship IDs that we care about.
     """
-    IS_A = "Is a"
-    MAPS_TO = "Maps to"
-    MAPPED_FROM = "Mapped from"
-    SUBSUMES = "Subsumes"
+    IS_A = "Is a"  # "is a child of"
+    MAPS_TO = "Maps to"  # converting between vocabularies
+    MAPPED_FROM = "Mapped from"  # converting between vocabularies
+    SUBSUMES = "Subsumes"  # "is a parent of"
 
 
 # -----------------------------------------------------------------------------

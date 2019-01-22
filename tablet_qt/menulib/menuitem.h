@@ -36,6 +36,8 @@ class OpenableWidget;
 class QWidget;
 
 
+// An item on one of the CamCOPS menus.
+
 class MenuItem
 {
     Q_DECLARE_TR_FUNCTIONS(MenuItem)
@@ -46,6 +48,7 @@ public:
     // http://stackoverflow.com/questions/14189440
 
 public:
+    // Multiple ways of constructing:
     MenuItem();
     MenuItem(const QString& title);  // for dummy use
     MenuItem(const QString& title, const ActionFunction& func,
@@ -67,24 +70,50 @@ public:
     // it) as required.
     MenuItem(PatientPtr p_patient);
 
+    // Item title.
     QString title() const;
+
+    // Item subtitle.
     QString subtitle() const;
+
+    // Task instance that this item represents, if there is one.
     TaskPtr task() const;
+
+    // Patient instance that this item represents, if there is one.
     PatientPtr patient() const;
 
-    // https://en.wikipedia.org/wiki/Method_chaining
+    // Set various options...
+    // Return *this (https://en.wikipedia.org/wiki/Method_chaining).
+
+    // Way to indicate "not implemented yet".
     MenuItem& setImplemented(bool implemented);
+
+    // Text only.
     MenuItem& setLabelOnly(bool label_only = true);
+
+    // Menu item can only be launched in privileged mode.
     MenuItem& setNeedsPrivilege(bool needs_privilege = true);
+
+    // Menu item cannot be launched if app is locked.
     MenuItem& setNotIfLocked(bool not_if_locked = true);
+
+    // Way to indicate "unsupported".
     MenuItem& setUnsupported(bool unsupported = true);
 
+    // Creates and returns an (unowned) widget representing the row.
     QWidget* rowWidget(CamcopsApp& app) const;
+
+    // The menu item has been chosen; act on it.
     void act(CamcopsApp& app) const;
-    void showHtml(const QString& filename) const;
+
+    // Is this item implemented?
     bool isImplemented() const;
 
+    // Debugging description.
     QString info() const;
+
+    // Do the title or subtitle contain the search text?
+    // (Case-insensitive search.)
     bool matchesSearch(const QString& search_text_lower) const;
 
 protected:

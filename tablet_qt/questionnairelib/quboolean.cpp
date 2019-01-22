@@ -183,7 +183,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
         // --------------------------------------------------------------------
         QPixmap image = uifunc::getPixmap(m_image_filename, m_image_size);
         if (m_adjust_image_for_dpi) {
-            image = image.scaled(convert::convertSizeByDpi(image.size()));
+            image = image.scaled(convert::convertSizeByLogicalDpi(image.size()));
         }
         auto label = new AspectRatioPixmap();
         label->setPixmap(image);

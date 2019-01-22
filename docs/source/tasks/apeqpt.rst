@@ -1,4 +1,4 @@
-..  docs/source/tasks/apeq.rst
+..  docs/source/tasks/apeqpt.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .

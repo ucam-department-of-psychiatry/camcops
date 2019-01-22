@@ -21,6 +21,10 @@
 FAQ and known problems
 ======================
 
+..  contents::
+    :local:
+    :depth: 3
+
 Known client problems relating directly to CamCOPS
 --------------------------------------------------
 

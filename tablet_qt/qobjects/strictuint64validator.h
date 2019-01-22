@@ -20,6 +20,7 @@
 #pragma once
 #include <QValidator>
 
+// Validator for quint64 numbers. Checks against the range [bottom, top].
 
 class StrictUInt64Validator : public QValidator
 {

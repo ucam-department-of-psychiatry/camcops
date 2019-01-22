@@ -26,6 +26,8 @@
 class CamcopsApp;
 
 
+// Represents the ICD-10 diagnostic system.
+
 class Icd10 : public DiagnosticCodeSet
 {
     Q_OBJECT

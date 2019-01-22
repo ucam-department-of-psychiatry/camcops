@@ -22,6 +22,9 @@
 #include "db/queryresult.h"
 #include "db/sqlargs.h"
 
+// Object representing an SQL query request.
+// It gets passed in a queue to the database worker thread, for multithreaded
+// database access.
 
 struct ThreadedQueryRequest
 {
@@ -33,11 +36,22 @@ public:
                          bool thread_abort_request_not_query = false);
     ThreadedQueryRequest();  // required to be in a QVector
 public:
+    // SQL and arguments
     SqlArgs sqlargs;
+
+    // How to fetch, e.g. do we care about the answer?
     QueryResult::FetchMode fetch_mode;
+
+    // Should the query result store column names?
     bool store_column_names;
+
+    // Suppress errors (rather than shouting them to the debugging stream)?
     bool suppress_errors;
+
+    // Special flag meaning "this is not a query; we are shutting down".
     bool thread_abort_request_not_query;
+
 protected:
+    // Debugging description.
     friend QDebug operator<<(QDebug debug, const ThreadedQueryRequest& r);
 };

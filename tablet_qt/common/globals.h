@@ -28,4 +28,5 @@ class QRect;
 // Global functions to allow things to be used in a QHash
 // ============================================================================
 
+// Hash a QRect.
 uint qHash(const QRect& key);

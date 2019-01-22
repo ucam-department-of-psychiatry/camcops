@@ -1,4 +1,4 @@
-..  docs/source/client/client_troubleshooting.rst
+..  docs/source/user/client_troubleshooting.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -22,6 +22,10 @@
 
 Troubleshooting client problems
 ===============================
+
+..  contents::
+    :local:
+    :depth: 3
 
 Windows client fails to start
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

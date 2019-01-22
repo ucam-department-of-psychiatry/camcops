@@ -20,6 +20,7 @@
 #pragma once
 #include "common/aliases_camcops.h"
 
+// Class to sort patients (by surname, forename, DOB).
 
 class PatientSorter
 {

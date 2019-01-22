@@ -23,27 +23,49 @@
 
 
 class QuThermometerItem {
-    // Describes part of a thermometer-style display.
+    // Describes part of a thermometer-style display. Used by QuThermometer.
+    //
     // On the left is an image, which can take one of two states (active or
     // inactive). On the right is some optional text.
+
 public:
+    // Default constructor, so it can live in a QVector
     QuThermometerItem();
+
+    // Normal constructor.
+    // - active_filename: image to use when this part is active
+    // - inactive_filename: image to use when this part is inactive
+    // - text: associated text to display
+    // - value: value to send to the field when this part is chosen
+    // - overspill_rows: ignored if QUTHERMOMETER_USE_THERMOMETER_WIDGET is defined
+    // - text_alignment: alignment of "text"
     QuThermometerItem(
             const QString& active_filename,
             const QString& inactive_filename,
             const QString& text,
             const QVariant& value,
-            int overspill_rows = 0,  // ignored if QUTHERMOMETER_USE_THERMOMETER_WIDGET is defined
+            int overspill_rows = 0,
             Qt::Alignment text_alignment = Qt::AlignLeft | Qt::AlignVCenter);
+
+    // Returns the active image filename.
     QString activeFilename() const;
+
+    // Returns the inactive image filename.
     QString inactiveFilename() const;
+
+    // Returns the associated text.
     QString text() const;
+
+    // Returns the associated field value.
     QVariant value() const;
+
     // Number of grid rows that the text should be allowed to spill over onto
     // (for large text with vertically small pictures):
     int overspillRows() const;
+
     // Alignment of text object:
     Qt::Alignment textAlignment() const;
+
 protected:
     QString m_active_filename;
     QString m_inactive_filename;

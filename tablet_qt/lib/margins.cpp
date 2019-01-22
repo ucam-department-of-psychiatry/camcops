@@ -46,7 +46,6 @@ void Margins::set(const int left, const int top,
     m_top = top;
     m_right = right;
     m_bottom = bottom;
-    m_set = true;
     rationalize();
 }
 
@@ -57,7 +56,6 @@ void Margins::clear()
     m_top = 0;
     m_right = 0;
     m_bottom = 0;
-    m_set = false;
 }
 
 
@@ -71,9 +69,43 @@ void Margins::rationalize()
 }
 
 
+bool Margins::isZero() const
+{
+    return m_left == 0 && m_right == 0 && m_top == 0 && m_bottom == 0;
+}
+
+
 // ============================================================================
 // Modification
 // ============================================================================
+
+void Margins::setLeft(const int width)
+{
+    m_left = width;
+    rationalize();
+}
+
+
+void Margins::setRight(const int width)
+{
+    m_right = width;
+    rationalize();
+}
+
+
+void Margins::setTop(const int height)
+{
+    m_top = height;
+    rationalize();
+}
+
+
+void Margins::setBottom(const int height)
+{
+    m_bottom = height;
+    rationalize();
+}
+
 
 void Margins::addLeft(const int width)
 {
@@ -103,6 +135,30 @@ void Margins::addBottom(const int height)
 }
 
 
+int& Margins::rleft()
+{
+    return m_left;
+}
+
+
+int& Margins::rright()
+{
+    return m_right;
+}
+
+
+int& Margins::rtop()
+{
+    return m_top;
+}
+
+
+int& Margins::rbottom()
+{
+    return m_bottom;
+}
+
+
 // ============================================================================
 // Calculated information
 // ============================================================================
@@ -127,39 +183,55 @@ int Margins::totalWidth() const
 
 int Margins::removeLeftRightMarginsFrom(const int width) const
 {
-    return width - (m_left + m_right);
+    return width - totalWidth();
 }
 
 
 int Margins::addLeftRightMarginsTo(const int width) const
 {
-    return width + (m_left + m_right);
+    return width + totalWidth();
 }
 
 
 int Margins::removeTopBottomMarginsFrom(const int height) const
 {
-    return height - (m_top + m_bottom);
+    return height - totalHeight();
 }
 
 
 int Margins::addTopBottomMarginsTo(const int height) const
 {
-    return height + (m_top + m_bottom);
+    return height + totalHeight();
 }
 
 
 QSize Margins::addMarginsTo(const QSize& size) const
 {
-    return QSize(size.width() + m_left + m_right,
-                 size.height() + m_top + m_bottom);
+    return QSize(size.width() + totalWidth(),
+                 size.height() + totalHeight());
+}
+
+
+void Margins::addMarginsToInPlace(QSize& size) const
+{
+    size.rwidth() += totalWidth();
+    size.rheight() += totalHeight();
+}
+
+
+void Margins::addMarginsToInPlace(Margins& other) const
+{
+    other.m_left += m_left;
+    other.m_right += m_right;
+    other.m_top += m_top;
+    other.m_bottom += m_bottom;
 }
 
 
 QSize Margins::removeMarginsFrom(const QSize& size) const
 {
-    return QSize(size.width() - (m_left + m_right),
-                 size.height() - (m_top + m_bottom));
+    return QSize(size.width() - totalWidth(),
+                 size.height() - totalHeight());
 }
 
 
@@ -229,9 +301,6 @@ Margins Margins::rectDiff(const QRect& outer, const QRect& inner)
 
 Margins Margins::subRectMargins(const QSize& outer, const QRect& inner)
 {
-    // Here we suppose that "inner" is a rectangle defined relative to (0,0)
-    // of a rectangle with size "outer". (Prototypically: a widget with
-    // geometry outer has a sub-widget, RELATIVE TO IT, with geometry inner.)
     return Margins(inner.left(),  // left
                    inner.top(),  // top
                    outer.width() - inner.width() - inner.left(),  // right
@@ -256,7 +325,6 @@ QDebug operator<<(QDebug debug, const Margins& m)
             << "Margins(left=" << m.m_left
             << ",top=" << m.m_top
             << ",right=" << m.m_right
-            << ",bottom=" << m.m_bottom
-            << ",set=" << m.m_set << ")";
+            << ",bottom=" << m.m_bottom << ")";
     return debug;
 }

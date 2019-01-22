@@ -1,4 +1,4 @@
-..  docs/source/server/snomed.rst
+..  docs/source/administrator/snomed.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -28,6 +28,10 @@
 
 SNOMED CT coding
 ================
+
+..  contents::
+    :local:
+    :depth: 3
 
 Overview
 --------

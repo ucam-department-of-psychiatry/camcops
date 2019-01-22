@@ -26,7 +26,7 @@ WhiskerInboundMessage::WhiskerInboundMessage(const QString& msg,
                                              bool immediate_socket,
                                              const QDateTime& timestamp,
                                              bool has_timestamp,
-                                             qulonglong timestamp_ms) :
+                                             quint64 timestamp_ms) :
     m_msg(msg),
     m_immediate_socket(immediate_socket),
     m_timestamp(timestamp),
@@ -45,7 +45,7 @@ void WhiskerInboundMessage::splitServerTimestamp()
         const QString msg = match.captured(1);
         const QString timestamp_str = match.captured(2);
         bool ok;
-        const qulonglong timestamp_ms = timestamp_str.toULongLong(&ok);
+        const quint64 timestamp_ms = timestamp_str.toULongLong(&ok);
         if (ok) {
             m_has_server_timestamp = true;
             m_msg = msg;
@@ -100,7 +100,7 @@ bool WhiskerInboundMessage::hasServerTimestamp() const
 }
 
 
-qulonglong WhiskerInboundMessage::serverTimestampMs() const
+quint64 WhiskerInboundMessage::serverTimestampMs() const
 {
     return m_server_timestamp_ms;
 }

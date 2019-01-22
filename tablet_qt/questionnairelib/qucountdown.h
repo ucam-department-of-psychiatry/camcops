@@ -34,27 +34,47 @@ class QuCountdown : public QuElement
 
     Q_OBJECT
 public:
+    // Construct with the timer's duration.
     QuCountdown(int time_s);
+
+    // Destructor.
     virtual ~QuCountdown() override;
+
+    // Sets the timeout alarm volume; range [0, 100].
     QuCountdown* setVolume(int volume);
+
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+
+    // Update the textual display to show time left, or "FINISHED", etc.
     void updateDisplay();
+
+    // Play a sound (on timeout).
     void bong();
+
 protected slots:
+
+    // "Start the timer."
     void start();
+
+    // "Stop the timer."
     void stop();
+
+    // "Reset the timer to its starting value."
     void reset();
+
+    // "Some time has elapsed."
     void tick();
+
 protected:
-    int m_time_s;
-    int m_volume;
-    bool m_running;
-    QPointer<QPushButton> m_start_button;
-    QPointer<QPushButton> m_stop_button;
-    QPointer<QPushButton> m_reset_button;
-    QPointer<QLabel> m_label;
-    QSharedPointer<QTimer> m_timer;
-    QSharedPointer<QMediaPlayer> m_player;  // not owned by other widgets
-    double m_seconds_left;
+    int m_time_s;  // total time
+    int m_volume;  // alarm volume
+    bool m_running;  // currently running?
+    QPointer<QPushButton> m_start_button;  // "Start"
+    QPointer<QPushButton> m_stop_button;  // "Stop"
+    QPointer<QPushButton> m_reset_button;  // "Reset"
+    QPointer<QLabel> m_label;  // text containing time-to-go information
+    QSharedPointer<QTimer> m_timer;  // timer
+    QSharedPointer<QMediaPlayer> m_player;  // sound player; not owned by other widgets
+    double m_seconds_left;  // time left
 };

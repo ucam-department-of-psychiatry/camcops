@@ -30,6 +30,7 @@ Quick links:
 - :ref:`2016 <changelog_2016>`
 - :ref:`2017 <changelog_2017>`
 - :ref:`2018 <changelog_2018>`
+- :ref:`2019 <changelog_2019>`
 
 Contributors
 ------------
@@ -1580,7 +1581,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Server v2.3.1 and client v2.3.1 (in progress, from 2018-11-27)**
 
-- ``cardinal_pythonlib`` to 1.0.41
+- ``cardinal_pythonlib`` to 1.0.46.
 
   - Fixes misconversion of previous 24-hour filter times to their morning
     equivalents, in the task filter view. To test, set e.g. a start time of
@@ -1588,6 +1589,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
     re-save it; check the end time stays correct.
 
   - Improved e-mail handling, pro tem.
+
+  - For ``build_qt.py`` under Windows, implement a directory change via
+    Python and not ``tar`` for the "untar" operation.
 
 - Fixed trivial bugs and added clarity about item sequencing.
 
@@ -1760,3 +1764,33 @@ Current C++/SQLite client, Python/SQLAlchemy server
       ``[recipient:XXX]`` in the config file.
     - Database drops old HL7-specific tables and adds a new set of export
       tables (also: more extensible for future methods).
+
+- ``QuSlider`` takes a new ``setSymmetric()`` option to remove the colour to
+  the left of (horizontal) or below (vertical) the slider "handle".
+
+- ``Questionnaire`` takes ``QuPage*`` as well as ``QuPagePtr`` as arguments to
+  its constructor.
+
+- ``TickSlider`` and ``QuSlider`` allow their labels to overspill the edges
+  and therefore work much better.
+
+- When running an older version of CamCOPS (e.g. 2.2.7) on a Surface Book 2 /
+  Windows 10: in no-keyboard Tablet mode, touches are not detected in the
+  camera mode. Trackpad works fine. This was fixed by recompiling on this
+  machine.
+
+  .. todo::
+
+    Does this mean that a QML ``onClicked`` event behaves differently with
+    respect to touch events depending on whether it's compiled on a touch-aware
+    or a touch-unaware computer? That might represent a Qt bug; investigate and
+    report if so. In the meantime, **compile for Windows on a Surface Book 2 or
+    similar**.
+
+  Also relevant:
+
+  - https://stackoverflow.com/questions/42447545/mouse-works-but-touch-doesnot-work-in-qml/42454302
+
+
+.. _changelog_2019:
+

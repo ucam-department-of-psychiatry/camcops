@@ -34,20 +34,32 @@ class LogBox : public QDialog
 
     Q_OBJECT
 public:
+    // Constructor
     LogBox(QWidget* parent, const QString& title, bool offer_cancel = true,
            bool offer_ok_at_end = true, int maximum_block_count = 1000,
            bool scroll_to_end_on_insert = true, bool word_wrap = true);
+
+    // Destructor
     ~LogBox() override;
+
+    // Choose whether a wait cursor is shown
     void useWaitCursor(bool use_wait_cursor = true);
+
+    // Write a message to the log
     void statusMessage(const QString& msg, bool as_html = false);
+
+    // Finish (with success or failure)
     void finish(bool success = true);
+
 public slots:
     virtual void open() override;
     void okClicked();
     void copyClicked();
+
 signals:
     void cancelled();
     void finished();
+
 protected:
     bool m_use_wait_cursor;
     QPointer<QPlainTextEdit> m_editor;

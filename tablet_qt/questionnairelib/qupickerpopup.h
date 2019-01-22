@@ -31,20 +31,36 @@ class QuPickerPopup : public QuElement
 
     Q_OBJECT
 public:
+
+    // Constructor
     QuPickerPopup(FieldRefPtr fieldref, const NameValueOptions& options);
+
+    // Set the title of the pop-up dialogue.
     QuPickerPopup* setPopupTitle(const QString& popup_title);
+
+    // Shuffle the options (when making the widget)?
     QuPickerPopup* setRandomize(bool randomize);
+
 protected:
+
+    // Sets the widget state from our fieldref.
     void setFromField();
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
+
 protected slots:
+
+    // "An option has been clicked."
     void clicked();
+
+    // "Field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref);
+
 protected:
-    FieldRefPtr m_fieldref;
-    NameValueOptions m_options;
-    QString m_popup_title;
-    bool m_randomize;
-    QPointer<ClickableLabelWordWrapWide> m_label;
+    FieldRefPtr m_fieldref;  // our field
+    NameValueOptions m_options;  // possible options
+    QString m_popup_title;  // title for dialogue box
+    bool m_randomize;  // shuffle?
+    QPointer<ClickableLabelWordWrapWide> m_label;  // label to display choice
 };

@@ -21,6 +21,8 @@
 
 namespace cssconst {
 
+// Names used in CSS.
+
 extern const char* BUTTON;
 extern const char* CAMERA_INNER_OBJECT;
 extern const char* COUNTDOWN_LABEL;
@@ -61,6 +63,7 @@ extern const char* QUESTIONNAIRE_BACKGROUND_PATIENT;
 extern const char* QUESTIONNAIRE_HORIZONTAL_LINE;
 extern const char* QUHEADING;
 extern const char* SLIDER;
+extern const char* SLIDER_SYMMETRIC;
 extern const char* STEM;
 extern const char* STRIPE_BACKGROUND_EVEN;
 extern const char* STRIPE_BACKGROUND_ODD;

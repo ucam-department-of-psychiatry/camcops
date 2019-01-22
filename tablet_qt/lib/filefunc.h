@@ -22,12 +22,22 @@ class QString;
 
 namespace filefunc {
 
+// Does the file exist?
 bool fileExists(const QString& filename);
+
+// Return the contents of a textfile.
 QString textfileContents(const QString& filename);
-// QString taskHtmlFilename(const QString& stem);
+
+// Deletes a file.
 bool deleteFile(const QString& filename);
+
+// Renames a file.
 bool renameFile(const QString& from, const QString& to);
+
+// Checks that a directory exists; if not, try make it; returns success.
 bool ensureDirectoryExists(const QString& dir);
+
+// Calls ensureDirectoryExists(); stop the app upon failure.
 void ensureDirectoryExistsOrDie(const QString& dir);
 
 }  // namespace filefunc

@@ -265,6 +265,7 @@ QString qStringFromEigenMatrixOrArray(const Eigen::DenseBase<Derived>& m,
 }
 
 
+// Specialization of qStringFromEigenMatrixOrArray for a Matrix.
 template<typename Derived>
 QString qStringFromEigenMatrixOrArray(const Eigen::MatrixBase<Derived>& m)
 {
@@ -272,6 +273,7 @@ QString qStringFromEigenMatrixOrArray(const Eigen::MatrixBase<Derived>& m)
 }
 
 
+// Specialization of qStringFromEigenMatrixOrArray for an Array.
 template<typename Derived>
 QString qStringFromEigenMatrixOrArray(const Eigen::ArrayBase<Derived>& m)
 {
@@ -945,6 +947,7 @@ Eigen::MatrixXd forwardOrBackSolve(Eigen::MatrixXd lr,
 // Testing
 // ============================================================================
 
+// Test our Eigen functions.
 QStringList testEigenFunctions();
 
 

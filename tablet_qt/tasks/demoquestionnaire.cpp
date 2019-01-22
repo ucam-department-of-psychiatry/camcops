@@ -19,6 +19,7 @@
 
 // #define DEBUG_BIG_HEADER_ONLY_PAGE
 // #define DEBUG_DIAGNOSTIC_SET_CREATION_SPEED
+// #define DEBUG_DISABLE_MOST_SLIDERS
 
 #include "demoquestionnaire.h"
 #include "core/camcopsapp.h"
@@ -351,8 +352,16 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
 
     QuPagePtr page_audio_countdown((new QuPage{
         new QuHeading("Simple audio player:"),
+        new QuText(
+            "Except from Mozart WA, <i>Vesperae solennes de confessore</i> "
+            "(K.339), fifth movement, <i>Laudate Dominum</i>, by the Advent "
+            "Chamber Orchestra (see docs)."),
         (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_2))->setVolume(SOUNDTEST_1_VOLUME),
         new QuHeading("Audio player with volume control:"),
+        new QuText(
+            "Excerpt from Bach JS, <i>Brandenburg Concerto No. 3, third "
+            "movement (Allegro)</i>, by the Advent Chamber Orchestra "
+            "(see docs)."),
         (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_1))->setOfferVolumeControl(),
         new QuHeading("Countdown:"),
         new QuCountdown(20),
@@ -653,13 +662,135 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         );
         thermometer_items.append(item);
     }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Likert-style slider
+    // See example in creating_tasks.rst
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    const QString ROSES_FIELDNAME("thermometer");
+    const int STRONGLY_DISAGREE = 1;
+    const int DISAGREE = 2;
+    const int NEUTRAL = 3;
+    const int AGREE = 4;
+    const int STRONGLY_AGREE = 5;
+
+    // --------------------------------------------------------------------
+    // Question
+    // --------------------------------------------------------------------
+
+#ifndef DEBUG_DISABLE_MOST_SLIDERS
+    auto rose_q = new QuText("Roses are best when red.");
+#endif
+
+    // --------------------------------------------------------------------
+    // Likert-style slider
+    // --------------------------------------------------------------------
+    // Create the horizontal slider
+    QuSlider* likert_slider = new QuSlider(
+        fieldRef(ROSES_FIELDNAME), STRONGLY_DISAGREE, STRONGLY_AGREE, 1);
+    likert_slider->setHorizontal(true);
+    likert_slider->setBigStep(1);
+
+    // Ticks for every interval, above and below
+    likert_slider->setTickInterval(1);
+    likert_slider->setTickPosition(QSlider::TicksBothSides);
+
+    // Labels
+    likert_slider->setTickLabels({
+        {STRONGLY_DISAGREE, "Strongly\ndisagree"},  // or an xstring()
+        {DISAGREE, "Disagree"},
+        {NEUTRAL, "Neutral"},
+        {AGREE, "Agree"},
+        {STRONGLY_AGREE, "Strongly\nagree"},
+    });
+    likert_slider->setTickLabelPosition(QSlider::TicksAbove);
+
+    // Don't show the numerical value
+    likert_slider->setShowValue(false);
+
+    // Symmetry
+    likert_slider->setNullApparentValue(NEUTRAL);
+    likert_slider->setSymmetric(true);
+
+    // --------------------------------------------------------------------
+    // Grid to improve layout
+    // --------------------------------------------------------------------
+    // Prevent the edge labels overflowing the screen, without having to
+    // use setEdgeInExtremeLabels(true) (which might distort the scale).
+
+    const int MARGIN_WIDTH = 15;  // each side
+    const int LIKERT_WIDTH = 70;
+    auto likert_slider_grid = new QuGridContainer();
+    likert_slider_grid->setColumnStretch(0, MARGIN_WIDTH);
+    likert_slider_grid->setColumnStretch(1, LIKERT_WIDTH);
+    likert_slider_grid->setColumnStretch(2, MARGIN_WIDTH);
+    likert_slider_grid->addCell(QuGridCell(likert_slider, 0, 1));
+
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // VAS-style slider
+    // See example in creating_tasks.rst
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    const QString VAS_FIELDNAME("slider1");
+    const int VAS_MIN_INT = 0;  // the internal integer minimum
+    const int VAS_CENTRAL_INT = 500;  // centre, for initial display
+    const int VAS_MAX_INT = 1000;  // the internal integer maximum
+    const double VAS_MIN = 0.0;  // the database/display minimum
+    const double VAS_MAX = 1.0;  // the database/display maximum
+    const int VAS_DISPLAY_DP = 3;
+    const int VAS_ABSOLUTE_SIZE_CM = 10.0;
+
+    // --------------------------------------------------------------------
+    // VAS-style slider
+    // --------------------------------------------------------------------
+
+    // Create the horizontal slider
+    QuSlider* vas_slider = new QuSlider(
+        fieldRef(VAS_FIELDNAME), VAS_MIN_INT, VAS_MAX_INT, 1);
+    vas_slider->setConvertForRealField(true, VAS_MIN, VAS_MAX, VAS_DISPLAY_DP);
+    vas_slider->setHorizontal(true);
+    vas_slider->setBigStep(1);
+
+    // Ticks just at the extremes
+    vas_slider->setTickInterval(VAS_MAX_INT);
+    vas_slider->setTickPosition(QSlider::TickPosition::TicksBothSides);
+
+    // Labels
+    vas_slider->setTickLabels({
+        {VAS_MIN_INT, QString::number(VAS_MIN)},  // or whatever
+        {VAS_MAX_INT, QString::number(VAS_MAX)},
+    });
+    vas_slider->setTickLabelPosition(QSlider::TickPosition::TicksAbove);
+
+    // Show the numerical value
+    vas_slider->setShowValue(true);
+
+    // Symmetry
+    vas_slider->setNullApparentValue(VAS_CENTRAL_INT);
+    vas_slider->setSymmetric(true);
+    vas_slider->setEdgeInExtremeLabels(false);
+
+    // Absolute size, if absolutely required (beware small screens!).
+    vas_slider->setAbsoluteLengthCm(VAS_ABSOLUTE_SIZE_CM);
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // End of those examples. On to the page...
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     QuPagePtr page_sliders((new QuPage{
+#ifndef DEBUG_DISABLE_MOST_SLIDERS
         new QuHeading("Integer slider:"),
         (new QuSlider(fieldRef("thermometer"), 0, 10, 1))
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksBothSides)
                                 ->setShowValue(true),
-        new QuHeading("Integer slider (same field as above)"),
+        new QuHeading("Integer slider (same field as above), vertical"),
         (new QuSlider(fieldRef("thermometer"), 0, 10, 1))
                                 ->setShowValue(true)
                                 ->setTickInterval(2)
@@ -672,7 +803,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                 ->setShowValue(true)
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksBelow)
-                                ->setConvertForRealField(true, 5, 6),
+                                ->setConvertForRealField(true, 0, 1),
         new QuHeading("Real slider with custom labels (edging in extreme labels):"),
         (new QuSlider(fieldRef("slider2"), 100, 500, 1))
                                 ->setConvertForRealField(true, 1, 5)
@@ -687,9 +818,36 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                 })
                                 ->setShowValue(true)
                                 ->setEdgeInExtremeLabels(true),
+#endif
+        new QuHeading("Real slider with custom labels (standard labels):"),
+        (new QuSlider(fieldRef("slider2"), 100, 500, 1))
+                                ->setConvertForRealField(true, 1, 5)
+                                ->setShowValue(false)
+                                ->setTickInterval(1)
+                                // ->setTickPosition(QSlider::NoTicks)
+                                // ->setTickPosition(QSlider::TicksAbove)
+                                // ->setTickPosition(QSlider::TicksBelow)
+                                ->setTickPosition(QSlider::TicksBothSides)
+                                // ->setTickLabelPosition(QSlider::NoTicks)
+                                // ->setTickLabelPosition(QSlider::TicksAbove)
+                                // ->setTickLabelPosition(QSlider::TicksBelow)
+                                ->setTickLabelPosition(QSlider::TicksBothSides)
+                                ->setTickLabels({
+                                    {100, "one: low"},
+                                    {300, "three: medium"},
+                                    {500, "five: maximum!"},
+                                })
+                                ->setShowValue(true),
+#ifndef DEBUG_DISABLE_MOST_SLIDERS
         new QuHeading("Thermometer:"),
         (new QuThermometer(fieldRef("thermometer"), thermometer_items))
                                 ->setRescale(true, 0.4),
+        new QuHeading("Likert-style (discrete) slider, in grid (70% of window width)"),
+        rose_q,
+        likert_slider_grid,
+        new QuHeading("Visual analogue scale-style slider (approximating continuous)"),
+        vas_slider,
+#endif
     })
         ->setTitle("Sliders and thermometers")
         ->setType(QuPage::PageType::ClinicianWithPatient));

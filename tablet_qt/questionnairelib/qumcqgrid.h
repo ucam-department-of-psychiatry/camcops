@@ -33,48 +33,90 @@ class QuMcqGrid : public QuElement
     // Offers a grid of multiple-choice questions, where several questions
     // share the same possible responses. For example:
     //
-    //              How much do you like it?
-    //              Not at all ... Lots
-    // 1. Banana        O       O   O
-    // 2. Diamond       O       O   O
-    // 3. ...
+    //      How much do you like it?                     <- TITLE
+    //                   Not at all  A bit  Lots         <- OPTIONS
+    //      Fruit                                        <- SUBTITLE
+    //      1. Banana        O         O     O
+    //      Jewels                                       <- SUBTITLE
+    //      2. Diamond       O         O     O
+    //      3. Ruby          O         O     O
+    //
+    //      ^
+    //      |
+    //      QUESTIONS
+
 
     Q_OBJECT
     friend class QuMcqGridSignaller;
 
 public:
+    // Constructor
     QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
               const NameValueOptions& options);
+
+    // Destructor
     virtual ~QuMcqGrid() override;
+
+    // Set widths:
+    // - question_width: relative width of question column
+    // - option_widths: relative widths of option columns
     QuMcqGrid* setWidth(int question_width, const QVector<int>& option_widths);
+
+    // Sets the title
     QuMcqGrid* setTitle(const QString& title);
+
+    // Sets the subtitles.
+    // - You can have multiple subtitle rows.
+    // - The "options" display may be repeated on subtitle rows. See
+    //   McqGridSubtitle.
     QuMcqGrid* setSubtitles(const QVector<McqGridSubtitle>& subtitles);
+
+    // Ask widgets to expand horizontally?
     QuMcqGrid* setExpand(bool expand);
+
+    // Apply a stripy background to the grid?
     QuMcqGrid* setStripy(bool stripy);
-    QuMcqGrid* showTitle(bool show_title);  // default is true!
-    QuMcqGrid* setQuestionsBold(bool bold);  // default is true
+
+    // Show the title (as the first row)? Default is true.
+    QuMcqGrid* showTitle(bool show_title);
+
+    // Show the questions in bold? Default is true.
+    QuMcqGrid* setQuestionsBold(bool bold);
+
 protected:
+    // Set the widget state from the fields' data.
     void setFromFields();
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
+
+    // Returns the column number containing the specified (zero-based)
+    // option/value index.
     int colnum(int value_index) const;
+
+    // Internal function to add options to a grid.
     void addOptions(GridLayout* grid, int row);
+
 protected slots:
+    // "One of the response widgets was clicked/touched."
     void clicked(int question_index, int value_index);
+
+    // "A field's value, or a field's mandatory status, has changed."
     void fieldValueOrMandatoryChanged(int question_index,
                                       const FieldRef* fieldref);
 
 protected:
-    QVector<QuestionWithOneField> m_question_field_pairs;
-    NameValueOptions m_options;
-    int m_question_width;
-    QVector<int> m_option_widths;
-    QString m_title;
-    QVector<McqGridSubtitle> m_subtitles;
-    bool m_expand;
-    bool m_stripy;
-    bool m_show_title;
-    bool m_questions_bold;
-    QVector<QVector<QPointer<BooleanWidget>>> m_widgets;
+    QVector<QuestionWithOneField> m_question_field_pairs;  // Question/field mapping
+    NameValueOptions m_options;  // Name/value pairs for options
+    int m_question_width;  // relative width for question column
+    QVector<int> m_option_widths;  // relative widths for option columns
+    QString m_title;  // title text
+    QVector<McqGridSubtitle> m_subtitles;  // subtitle info
+    bool m_expand;  // expand our widgets horizontally?
+    bool m_stripy;  // apply a stripy background?
+    bool m_show_title;  // show the title?
+    bool m_questions_bold;  // show questions in bold?
+    QVector<QVector<QPointer<BooleanWidget>>> m_widgets;  // our response widgets
     QVector<QuMcqGridSignaller*> m_signallers;
+        // ... objects to signal us when field data/mandatory status changes
 };

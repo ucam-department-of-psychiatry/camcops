@@ -22,15 +22,18 @@
 #include <QVariant>
 
 
+// Represents the information from SQLite's "PRAGMA table_info" command.
+
 class SqlitePragmaInfoField {
 public:
     // http://www.stroustrup.com/C++11FAQ.html#member-init
     int cid = -1;  // column ID
-    QString name;
-    QString type;
-    bool notnull = false;
-    QVariant dflt_value;
-    bool pk = false;
+    QString name;  // column name
+    QString type;  // SQL type
+    bool notnull = false;  // NOT NULL constraint?
+    QVariant dflt_value;  // database default value
+    bool pk = false;  // PRIMARY KEY?
 public:
+    // Debugging description
     friend QDebug operator<<(QDebug debug, const SqlitePragmaInfoField& info);
 };

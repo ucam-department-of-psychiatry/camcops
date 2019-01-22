@@ -48,9 +48,9 @@
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
-#include "questionnairelib/qulineeditlonglong.h"
+#include "questionnairelib/qulineeditint64.h"
 #include "questionnairelib/qulineeditnhsnumber.h"
-#include "questionnairelib/qulineeditulonglong.h"
+#include "questionnairelib/qulineedituint64.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
@@ -992,7 +992,7 @@ void WidgetTestMenu::testQuLineEditInteger()
 
 void WidgetTestMenu::testQuLineEditLongLong()
 {
-    QuLineEditLongLong element(m_fieldref_1);
+    QuLineEditInt64 element(m_fieldref_1);
     testQuestionnaireElement(&element);
 }
 
@@ -1006,7 +1006,7 @@ void WidgetTestMenu::testQuLineEditNHSNumber()
 
 void WidgetTestMenu::testQuLineEditULongLong()
 {
-    QuLineEditULongLong element(m_fieldref_1);
+    QuLineEditUInt64 element(m_fieldref_1);
     testQuestionnaireElement(&element);
 }
 

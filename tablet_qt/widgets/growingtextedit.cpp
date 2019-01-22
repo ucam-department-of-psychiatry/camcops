@@ -41,6 +41,8 @@ void GrowingTextEdit::commonConstructor()
     connect(document(), &QTextDocument::contentsChanged,
             this, &GrowingTextEdit::contentsChanged);
 
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 

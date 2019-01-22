@@ -64,9 +64,9 @@ QVariant PatientIdNum::idnumAsVariant() const
 }
 
 
-qlonglong PatientIdNum::idnumAsInteger() const
+qint64 PatientIdNum::idnumAsInteger() const
 {
-    return valueLongLong(FN_IDNUM_VALUE);
+    return valueInt64(FN_IDNUM_VALUE);
 }
 
 
@@ -86,7 +86,7 @@ bool PatientIdNum::idnumIsPresent() const
 }
 
 
-bool PatientIdNum::setIdnumValue(const qlonglong idnum_value,
+bool PatientIdNum::setIdnumValue(const qint64 idnum_value,
                                  const bool save_to_db)
 {
     bool success = setValue(FN_IDNUM_VALUE, idnum_value);

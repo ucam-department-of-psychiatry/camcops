@@ -25,6 +25,10 @@ Licences
 This section gives citations to, and licence details for, software used by
 CamCOPS.
 
+..  contents::
+    :local:
+    :depth: 3
+
 .. _licences_camcops:
 
 CamCOPS
@@ -617,7 +621,7 @@ the CamCOPS general sounds:
 
   - excerpt from Mozart WA, *Vesperae solennes
     de confessore* (K.339), fifth movement, *Laudate Dominum*, by the Advent
-    Chamber Orchester, from
+    Chamber Orchestra, from
     `<http://freemusicarchive.org/music/Advent_Chamber_Orchestra/Selections_from_the_December_2006_Concert/Advent_Chamber_Orchestra_-_11_-_Mozart_-_Laudate_Dominum>`_;
 
   - licensed under the EFF Open Audio License

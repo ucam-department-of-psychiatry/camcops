@@ -20,5 +20,5 @@
 #pragma once
 #include "tasklib/taskfactory.h"
 
-
+// Register all known tasks with CamCOPS.
 void InitTasks(TaskFactory& factory);

@@ -32,5 +32,5 @@ NHSNumberValidator::NHSNumberValidator(const bool allow_empty,
 QValidator::State NHSNumberValidator::validate(QString& input, int& pos) const
 {
     Q_UNUSED(pos);
-    return nhs::validateNhsNumber<qlonglong>(input, m_allow_empty);
+    return nhs::validateNhsNumber<qint64>(input, m_allow_empty);
 }

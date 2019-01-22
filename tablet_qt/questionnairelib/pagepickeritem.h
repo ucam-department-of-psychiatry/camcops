@@ -24,21 +24,41 @@
 class PagePickerItem
 {
     // An option presented by a PagePickerDialog.
+    // Represents the choice of a single page from those available in a
+    // Questionnaire.
+
 public:
+
+    // How should the page be shown/displayed?
+    // Determines the icon shown and whether the user can select it.
     enum class PagePickerItemType {
-        CompleteSelectable,
-        IncompleteSelectable,
-        BlockedByPrevious,
+        CompleteSelectable,  // data complete, can jump to it
+        IncompleteSelectable,  // data incomplete, can jump to it
+        BlockedByPrevious,  // can't select it; data incomplete in previous pages
     };
 
-    PagePickerItem();  // so it can live in a QVector
+    // Default constructor, so it can live in a QVector
+    PagePickerItem();
+
+    // Usual constructor
     PagePickerItem(const QString& text, int page_number,
                    PagePickerItemType type);
+
+    // Returns the text (e.g. page title)
     QString text() const;
+
+    // Returns the page number
     int pageNumber() const;
+
+    // Returns the type, as above.
     PagePickerItemType type() const;
+
+    // Can the user select (jump to) this page?
     bool selectable() const;
+
+    // Returns the CamCOPS icon filename to display for this page's type.
     QString iconFilename() const;
+
 protected:
     QString m_text;
     int m_page_number;

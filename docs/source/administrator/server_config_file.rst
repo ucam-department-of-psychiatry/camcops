@@ -1,4 +1,4 @@
-..  docs/source/server/server_config_file.rst
+..  docs/source/administrator/server_config_file.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .

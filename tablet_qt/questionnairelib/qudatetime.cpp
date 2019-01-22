@@ -24,6 +24,7 @@
 #include <QDateTimeEdit>
 #include <QFont>
 #include <QHBoxLayout>
+#include <QTextCharFormat>
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/imagebutton.h"
@@ -204,10 +205,52 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
         // http://doc.qt.io/qt-5/qdatetimeedit.html#setCalendarWidget
         delete m_calendar_widget;
         m_calendar_widget = QPointer<QCalendarWidget>(new QCalendarWidget());
+
+        m_calendar_widget->setSelectionMode(QCalendarWidget::SingleSelection);
+        m_calendar_widget->setNavigationBarVisible(true);
+        m_calendar_widget->setMinimumDate(uiconst::QCALENDARWIDGET_MIN_DATE);
+        m_calendar_widget->setFirstDayOfWeek(Qt::Monday);
+        m_calendar_widget->setGridVisible(true);
+
+        QTextCharFormat header_text_format;
+        header_text_format.setFontWeight(uiconst::QCALENDARWIDGET_HEADER_FONTWEIGHT);
+        m_calendar_widget->setHeaderTextFormat(header_text_format);
+
+        m_calendar_widget->setHorizontalHeaderFormat(QCalendarWidget::ShortDayNames);
+        m_calendar_widget->setVerticalHeaderFormat(QCalendarWidget::ISOWeekNumbers);
+
+        QTextCharFormat day_format;
+        day_format.setForeground(uiconst::QCALENDARWIDGET_TEXT_WEEKDAY);
+        m_calendar_widget->setWeekdayTextFormat(Qt::Monday, day_format);
+        m_calendar_widget->setWeekdayTextFormat(Qt::Tuesday, day_format);
+        m_calendar_widget->setWeekdayTextFormat(Qt::Wednesday, day_format);
+        m_calendar_widget->setWeekdayTextFormat(Qt::Thursday, day_format);
+        m_calendar_widget->setWeekdayTextFormat(Qt::Friday, day_format);
+        day_format.setForeground(uiconst::QCALENDARWIDGET_TEXT_WEEKEND);
+        m_calendar_widget->setWeekdayTextFormat(Qt::Saturday, day_format);
+        m_calendar_widget->setWeekdayTextFormat(Qt::Sunday, day_format);
+
         // QFont font;
         // font.setBold(true);  // works!
         // font.setPixelSize(60);  // Does NOT work!
         // m_calendar_widget->setFont(font);
+
+        // Hack: change calendar title colors
+        // See https://www.qtcentre.org/threads/30478-How-To-Change-Style-Sheet-for-QCalendarWidget
+        QWidget* calendar_navbar = m_calendar_widget->findChild<QWidget*>("qt_calendar_navigationbar");
+        if (calendar_navbar) {
+            // Does get called.
+            // qDebug() << Q_FUNC_INFO << "Setting colour of calendar_navbar";
+            QPalette pal = calendar_navbar->palette();
+            pal.setColor(calendar_navbar->backgroundRole(), uiconst::QCALENDARWIDGET_NAVBAR_BACKGROUND);
+            // ... DOES NOT WORK +++
+            pal.setColor(calendar_navbar->foregroundRole(), uiconst::QCALENDARWIDGET_NAVBAR_FOREGROUND);
+            // ... DOES NOT WORK +++
+            calendar_navbar->setPalette(pal);
+        }
+
+        // Cell formatting: see QCalendarModel::formatForCell() in qcalendarwidget.cpp
+
         m_editor->setCalendarWidget(m_calendar_widget);
 
         /*

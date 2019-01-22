@@ -37,39 +37,62 @@ class QuPhoto : public QuElement
 
     Q_OBJECT
 public:
+    // Constructor
     QuPhoto(BlobFieldRefPtr fieldref);
+
 protected:
+    // Set widget state (image) from field data.
     void setFromField();
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
+
+    // Rotate image.
     void rotate(int angle_degrees_clockwise);
+
+    // Worker function, called in a separate thread, to rotate the image.
     void rotateWorker(int angle_degrees_clockwise);
+
 protected slots:
+    // "The field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref);
+
+    // "Take the photo."
     void takePhoto();
+
+    // "Set photo to blank."
     void resetFieldToNull();
+
+    // "Rotate left 90 degrees."
     void rotateLeft();
+
+    // "Rotate right 90 degrees."
     void rotateRight();
 
+    // "User cancelled taking a photo."
     void cameraCancelled();
+
+    // "Camera sends you this captured raw image."
     void rawImageCaptured(const QByteArray& data,
                           const QString& extension_without_dot,
                           const QString& mimetype);
+
+    // "Camera sends you this captured QImage."
     void imageCaptured(const QImage& image);
 
 protected:
-    BlobFieldRefPtr m_fieldref;
-    bool m_have_camera;
+    BlobFieldRefPtr m_fieldref;  // our field
+    bool m_have_camera;  // are any cameras available?
 
-    QPointer<Questionnaire> m_questionnaire;
-    QPointer<QLabel> m_incomplete_optional_label;
-    QPointer<QLabel> m_incomplete_mandatory_label;
-    QPointer<QLabel> m_field_problem_label;
-    QPointer<AspectRatioPixmap> m_image_widget;
+    QPointer<Questionnaire> m_questionnaire;  // our questionnaire
+    QPointer<QLabel> m_incomplete_optional_label;  // label for incomplete data
+    QPointer<QLabel> m_incomplete_mandatory_label;  // label for incomplete data
+    QPointer<QLabel> m_field_problem_label;  // "something wrong" indicator
+    QPointer<AspectRatioPixmap> m_image_widget;  // image display widget
 #ifdef QUPHOTO_USE_CAMERA_QML
-    QPointer<CameraQml> m_camera;
+    QPointer<CameraQml> m_camera;  // camera
 #else
-    QPointer<CameraQCamera> m_camera;
+    QPointer<CameraQCamera> m_camera;  // camera
 #endif
-    QPointer<QWidget> m_main_widget;
+    QPointer<QWidget> m_main_widget;  // top-level widget
 };

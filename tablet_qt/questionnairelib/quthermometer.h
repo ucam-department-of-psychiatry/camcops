@@ -46,33 +46,54 @@ class QuThermometer : public QuElement
 
     Q_OBJECT
 public:
+
+    // Constructors
     QuThermometer(FieldRefPtr fieldref,
                   const QVector<QuThermometerItem>& items);
     QuThermometer(FieldRefPtr fieldref,
                   std::initializer_list<QuThermometerItem> items);
+
+    // Rescale the thermometer?
+    // - rescale: rescale or not?
+    // - rescale_factor: scale factor relative to original images
+    // - adjust_for_dpi: additionally adjust for DPI?
     QuThermometer* setRescale(bool rescale, double rescale_factor = 1.0,
                               bool adjust_for_dpi = true);
+
 protected:
     void commonConstructor();
+
+    // Sets the widget state from our fieldref.
     void setFromField();
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
+
+    // Convert value (see QuThermometerItem) to zero-based index.
     int indexFromValue(const QVariant& value) const;
+
+    // Convert zero-based index to value (see QuThermometerItem).
     QVariant valueFromIndex(int index) const;
+
 protected slots:
 #ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
+    // "User has selected a new part of the thermometer."
     void thermometerSelectionChanged(int thermometer_index);  // top-to-bottom index
 #else
+    // "User has selected a new part of the thermometer."
     void clicked(int index);  // our internal bottom-to-top index
 #endif
+
+    // "The field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref);
+
 protected:
-    FieldRefPtr m_fieldref;
-    QVector<QuThermometerItem> m_items;
-    bool m_rescale;
-    double m_rescale_factor;
+    FieldRefPtr m_fieldref;  // our fieldref
+    QVector<QuThermometerItem> m_items;  // our image/text/value tuples
+    bool m_rescale;  // see setRescale()
+    double m_rescale_factor;  // see setRescale()
 #ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
-    QPointer<Thermometer> m_thermometer;
+    QPointer<Thermometer> m_thermometer;  // our widget
 #else
     QPointer<QWidget> m_main_widget;
     QVector<QPointer<ImageButton>> m_active_widgets;

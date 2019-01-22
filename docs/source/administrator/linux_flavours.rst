@@ -1,4 +1,4 @@
-..  docs/source/misc/linux_flavours.rst
+..  docs/source/administrator/linux_flavours.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -21,6 +21,10 @@
 
 Linux flavours
 ==============
+
+..  contents::
+    :local:
+    :depth: 3
 
 Common administrative commands
 ------------------------------

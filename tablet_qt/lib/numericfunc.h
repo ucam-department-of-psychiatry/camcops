@@ -36,30 +36,42 @@ namespace numeric {
 // Overloaded functions to convert to an integer type
 // ============================================================================
 
+// Converts a string containing a decimal integer to that integer.
+// We offer this function for a variety of types, so our templatized functions
+// can find what they want.
 int strToNumber(const QString& str, int type_dummy);
+qint64 strToNumber(const QString& str, qint64 type_dummy);
+quint64 strToNumber(const QString& str, quint64 type_dummy);
+
+// Similarly for locale-based strings containing integers, for different
+// languages/conventions; see http://doc.qt.io/qt-5/qlocale.html
 int localeStrToNumber(const QString& str, bool& ok,
                       const QLocale& locale, int type_dummy);
-qlonglong strToNumber(const QString& str, qlonglong type_dummy);
-qlonglong localeStrToNumber(const QString&, bool& ok,
-                            const QLocale& locale, qlonglong type_dummy);
-qulonglong strToNumber(const QString& str, qulonglong type_dummy);
-qulonglong localeStrToNumber(const QString&, bool& ok,
-                             const QLocale& locale, qulonglong type_dummy);
+qint64 localeStrToNumber(const QString&, bool& ok,
+                         const QLocale& locale, qint64 type_dummy);
+quint64 localeStrToNumber(const QString&, bool& ok,
+                          const QLocale& locale, quint64 type_dummy);
 
 // ============================================================================
 // Digit counting; first n digits
 // ============================================================================
 
+// Counts the number of digits in an integer type.
 template<typename T>
 int numDigitsInteger(const T& number, bool count_sign = false);
 
+// Returns the first n_digits of an integer, as an integer.
 template<typename T>
 int firstDigitsInteger(const T& number, int n_digits);
 
+// If you add extra digits to the number to make it as long as it could be,
+// must it exceed the top value?
 template<typename T>
 bool extendedIntegerMustExceedTop(const T& number, const T& bottom,
                                   const T& top);
 
+// If you add extra digits to the number to make it as long as it could be,
+// must it be less than the bottom value?
 template<typename T>
 bool extendedIntegerMustBeLessThanBottom(const T& number, const T& bottom,
                                          const T& top);
@@ -68,9 +80,12 @@ bool extendedIntegerMustBeLessThanBottom(const T& number, const T& bottom,
 // For integer validation
 // ============================================================================
 
+// Is number an integer that is a valid start to typing a number between
+// min and max (inclusive)?
 template<typename T>
 bool isValidStartToInteger(const T& number, const T& bottom, const T& top);
 
+// Validates an integer.
 template<typename T>
 QValidator::State validateInteger(const QString& s, const QLocale& locale,
                                   const T& bottom, const T& top,
@@ -80,17 +95,31 @@ QValidator::State validateInteger(const QString& s, const QLocale& locale,
 // For double validation:
 // ============================================================================
 
+// Counts the number of digits in a floating-point number.
+// - ignores sign
+// - includes decimal point
 int numDigitsDouble(double number, int max_dp = 50);
+
+// Returns the first n_digits of a floating point number, as a double.
+// - sign is ignored (can't compare numbers without dropping it)
+// - includes decimal point
 double firstDigitsDouble(double number, int n_digits, int max_dp = 50);
+
+// Is "number" something you could validly type to end up with a number in the
+// range [bottom, top]?
 bool isValidStartToDouble(double number, double bottom, double top);
-bool extendedDoubleMustExceed(double number, double bottom, double top);
-bool extendedDoubleMustBeLessThan(double number, double bottom, double top);
+
+// If you made "number" longer, would it necessarily exceed "top"?
+bool extendedDoubleMustExceedTop(double number, double bottom, double top);
+
+// If you made "number" longer, would it necessarily be below "bottom"?
+bool extendedDoubleMustBeLessThanBottom(double number, double bottom, double top);
 
 }  // namespace numeric
 
 
 // ============================================================================
-// Templated functions
+// Templated functions, first declared above
 // ============================================================================
 
 template<typename T>
@@ -131,7 +160,7 @@ bool numeric::extendedIntegerMustExceedTop(const T& number,
                                            const T& top)
 {
     // If you add extra digits to the number to make it as long as it could be,
-    // must it exceed it the top value?
+    // must it exceed the top value?
     T type_dummy = 0;
     if (number < 0 && top > 0) {
         return false;

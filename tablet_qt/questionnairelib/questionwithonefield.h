@@ -28,14 +28,26 @@ class QuestionWithOneField
     // Used by e.g. QuMCQGrid; QuMultipleResponse.
 
 public:
-    QuestionWithOneField();  // so it can live in a QVector
+    
+    // Default constructor, so it can live in a QVector
+    QuestionWithOneField();
+    
+    // Standard constructor
     QuestionWithOneField(const QString& question, FieldRefPtr fieldref);
+    
+    // Alternative standard constructor, for convenience.
     QuestionWithOneField(FieldRefPtr fieldref, const QString& question);
-    // ... for convenience
+    
+    // Return the question (text)
     QString question() const;
-    QString text() const;  // synonym
+
+    // Return the question (text) -- synonym
+    QString text() const;
+    
+    // Return the fieldref.
     FieldRefPtr fieldref() const;
+    
 protected:
-    QString m_question;
-    FieldRefPtr m_fieldref;
+    QString m_question;  // question text
+    FieldRefPtr m_fieldref;  // fieldref
 };

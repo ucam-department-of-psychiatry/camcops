@@ -23,7 +23,10 @@
 namespace roman
 {
 
+// Converts an integer to Roman numerals.
 QString romanize(int num);
+
+// Converts Roman numerals to an integer.
 int deromanize(const QString& roman);
 
 }  // namespace roman

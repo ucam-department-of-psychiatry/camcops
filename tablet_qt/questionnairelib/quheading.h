@@ -29,12 +29,18 @@ class QuHeading : public QuText
     // stretches right.
 
     Q_OBJECT
+
 public:
+    // Constructor to display static text.
     QuHeading(const QString& text);
+
+    // Constructor to display dynamic text, from a field.
     QuHeading(FieldRefPtr fieldref);
+
 protected:
     void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+
 protected:
-    QPointer<QWidget> m_container;
+    QPointer<QWidget> m_container;  // our widget
 };

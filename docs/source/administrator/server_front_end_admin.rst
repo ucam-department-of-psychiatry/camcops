@@ -1,4 +1,4 @@
-..  docs/source/server/server_front_end_admin.rst
+..  docs/source/administrator/server_front_end_admin.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -21,6 +21,10 @@
 
 Web site: admin functions
 =========================
+
+..  contents::
+    :local:
+    :depth: 3
 
 .. _task_admin:
 

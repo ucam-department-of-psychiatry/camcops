@@ -33,9 +33,14 @@ class NvpChoiceDialog : public QDialog
 
     Q_OBJECT
 public:
+    // Constructor
     NvpChoiceDialog(QWidget* parent, const NameValueOptions& options,
                     const QString& title = "");
+
+    // Call this to offer a choice, return the result of exec(), and write the
+    // result to new_value.
     virtual int choose(QVariant* new_value);
+
     virtual bool event(QEvent* e) override;
 protected slots:
     void itemClicked(int index);

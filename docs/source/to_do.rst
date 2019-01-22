@@ -20,6 +20,10 @@
 Things to do
 ============
 
+..  contents::
+    :local:
+    :depth: 3
+
 Tasks
 -----
 
@@ -33,12 +37,20 @@ Tasks
 - :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
   (APEQPT) <apeqpt>`.
 
+- **RNC:** QuSlider not good for Likert. Suspect horizontal thermometer not
+  OK either. **Implement QuLikert.** Include absolute size option (e.g. 10cm,
+  via DPI). Document Likert advice in the developer's guide.
+
 **To be prioritized**
 
-- Perinatal: PEQ (?)
 - Test Your Memory (TYM) task (Jerry M. Brown).
 - Continuous performance task, as per RNC's similar previous task (Linda P
-  and team).
+  and team). A/w ETB.
+
+**Then**
+
+- Lewy body dementia checklist -- need details from JO'B, as per 14 Jan 2018
+  meeting.
 
 **Not a priority**
 
@@ -53,6 +65,12 @@ Tasks
   (a/w details from JM/NK). **Currently deferred.**
 
 **Consider**
+
+- review Guo 2015 "measurement-based care":
+  - HADS/HDRS already
+  - QIDS -- permissible?
+  - Maudsley Treatment Inventory?
+  - see notes on Cleare lecture 15/11/2018
 
 - new task: ReQoL (https://www.reqol.org.uk/p/overview.html)
 - new task: mini-ACE (subset of the ACE-III)
@@ -139,6 +157,8 @@ Client core
 - Qt have fixed bug https://bugreports.qt.io/browse/QTBUG-35545 as of Qt
   5.12.0 beta 1, so may be possible to improve dialogue boxes again on Android
   (but possibly our workaround sorted it; can't remember); check.
+
+- **RNC:** finish comments for core headers (am at graphicsfunc.h).
 
 **May not be worth it**
 
@@ -238,6 +258,46 @@ Documentation
 -------------
 
 - Finish manual esp. web site user guide.
+
+Wishlist and blue-sky thoughts
+------------------------------
+
+**Server-side “all tasks in full” view, like a clinical text view but for researchers?**
+
+A “research multi-task view” would be an easy extension to the task collection
+classes used for trackers and CTVs, if there is demand.
+
+**Improvements to “camcops merge_db” facility**
+
+The merge facility doesn’t yet allow you to say “ID#8 in database A means
+something different to ID#8 in database B; don’t merge that”. Should it?
+(Example: “research ID” that is group-specific, versus “NHS number” that isn’t.)
+More generally: should some ID numbers be visible only to certain groups?
+
+**Server-side ability to edit existing (finalized) task instances?**
+
+Would be done in a generic way, i.e. offer table with {fieldname, comment, old
+value, new value}; constrain to min/max or permitted values where applicable; at
+first “submit”, show differences and ask for confirmation; audit changes. For
+BLOBs, allow option to upload file (or leave unchanged).
+
+**Client-side index of tasks by patient ID, to speed up lookup on the tablet?**
+
+Might be worthwhile on the client side as the number of tasks grows. (The server
+already has indexing by patient ID.)
+
+**MRI triggering on task side**
+
+For example: CamCOPS tasks running on a desktop and communicating via TCP/IP
+with a tool that talks to an MRI scanner for pulse synchronization and response.
+
+**Further internationalization of task strings**
+
+Should we add an extra field for an ISO-639-1 two-letter language code (e.g.
+“en” for English) to the extra strings? Not clear this is required; different
+servers can already distribute whichever language they want, so the feature
+would only be relevant for “simultaneously multilingual” environments. Deferred
+for now.
 
 Documentation to-do list
 ------------------------

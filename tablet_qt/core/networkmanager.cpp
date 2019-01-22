@@ -241,6 +241,12 @@ void NetworkManager::statusMessage(const QString& msg) const
 
 void NetworkManager::htmlStatusMessage(const QString& html) const
 {
+    if (m_silent) {
+#ifdef DEBUG_ACTIVITY
+        qDebug() << Q_FUNC_INFO << "silent";
+#endif
+        return;
+    }
     ensureLogBox();
     m_logbox->statusMessage(html, true);
 }

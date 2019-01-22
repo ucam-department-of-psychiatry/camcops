@@ -25,9 +25,16 @@ class QMediaPlayer;
 namespace soundfunc {
 
 
+// Creates a media player that will be deleted later via QObject::deleteLater().
 void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player);
+
+// Ensure the media player is stopped. See code for rationale.
 void finishMediaPlayer(const QSharedPointer<QMediaPlayer>& player);
+
+// Sets the volume of a media player, using a scale of 0-100.
 void setVolume(const QSharedPointer<QMediaPlayer>& player, int volume_percent);
+
+// Sets the volume of a media player, using a scale of 0-1.
 void setVolume(const QSharedPointer<QMediaPlayer>& player, double volume_proportion);
 
 

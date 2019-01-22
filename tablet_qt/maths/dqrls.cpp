@@ -28,7 +28,6 @@ DqrlsResult Cdqrls(const MatrixXd& x,  // n,p
                    const double tol,
                    const bool check)
 {
-    // Solves XB = Y, for B (B will have dimensions p,ny)
     DqrlsResult result;
     const Index n = x.rows();  // number of observations
     // const Index p = x.cols();  // number of predictors

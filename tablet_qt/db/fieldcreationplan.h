@@ -22,15 +22,33 @@
 class Field;
 
 
+// Describes the way in which we'd like to change a field/column when
+// modifying a database.
+
 class FieldCreationPlan {
 public:
+    // Field name
     QString name;
+
+    // What we're aiming for.
     const Field* intended_field = nullptr;
+
+    // Does the field already exist?
     bool exists_in_db = false;
+
+    // Existing SQL type.
     QString existing_type;
+
+    // Is the existing field NOT NULL?
     bool existing_not_null = false;
+
+    // Are we adding this field?
     bool add = false;
+
+    // Are we dropping this field?
     bool drop = false;
+
+    // Are we modifying this field?
     bool change = false;
 public:
     friend QDebug operator<<(QDebug debug, const FieldCreationPlan& plan);

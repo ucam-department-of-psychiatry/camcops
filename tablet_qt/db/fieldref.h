@@ -31,6 +31,19 @@
 class Blob;
 class CamcopsApp;
 
+// Represents a reference to a Field object, or to something similar.
+//
+// The FieldRef (usually via a FieldRefPtr) is the main way that Questionnaire
+// objects interact with Field objects within a DatabaseObject.
+//
+// Whereas a Field represents data and associated fieldname (etc.), a FieldRef
+// adds signals, deals with some complex field types (e.g. BLOBs) behind the
+// scenes, and so on.
+//
+// FieldRef objects can also provide an interface to non-Field things, like
+// simple C++ functions, or the CamcopsApp's StoredVar objects. This means that
+// by using the FieldRef as the common currency for editors like Questionnaire,
+// those editors can edit a variety of things in a common way.
 
 class FieldRef : public QObject
 {
@@ -56,6 +69,12 @@ The FieldRef manages various kinds of indirection; see FieldRefMethod below.
 
     Q_OBJECT
 public:
+
+    // ========================================================================
+    // Helper classes
+    // ========================================================================
+
+    // How is the FieldRef going to operate?
     enum class FieldRefMethod {
         Invalid,
             // Dummy value indicating "not configured".
@@ -79,63 +98,139 @@ public:
         CachedStoredVar,
             // Connection to a named CachedStoredVar of the master app object.
     };
+
+    // ========================================================================
+    // Shorthand
+    // ========================================================================
     using GetterFunction = std::function<QVariant()>;
     using SetterFunction = std::function<bool(const QVariant&)>;  // returns: changed?
+
 public:
     // ========================================================================
     // Constructors
     // ========================================================================
+
+    // Default constructor
     FieldRef();
+
+    // Construct from a Field pointer.
+    // Args:
+    //  mandatory: do we require data to be present in the underlying field?
     FieldRef(Field* p_field, bool mandatory);
+
+    // Construct from a named field within a DatabaseObject.
+    // Args:
+    //  mandatory: do we require data to be present in the underlying field?
+    //  autosave: should the database object write to disk ASAP?
+    //  blob: is this a BLOB field?
     FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
              bool mandatory, bool autosave = true, bool blob = false,
              CamcopsApp* p_app = nullptr);
+
+    // Construct from a Blob pointer.
+    // Args:
+    //  mandatory: do we require data to be present in the underlying field?
     FieldRef(QSharedPointer<Blob> blob, bool mandatory,
              bool disable_creation_warning = false);  // for widget testing only; specimen BLOB
+
+    // Construct from a pair of functions to get/set data.
+    // Args:
+    //  mandatory: do we require data to be present in the underlying field?
     FieldRef(const GetterFunction& getterfunc,
              const SetterFunction& setterfunc,
              bool mandatory);
+
+    // Construct from a named StoredVar within a CamcopsApp.
+    // Args:
+    //  mandatory: do we require data to be present in the underlying field?
+    //  cached: operate on the editing cache copy?
     FieldRef(CamcopsApp* app, const QString& storedvar_name,
              bool mandatory, bool cached);  // StoredVar
 
     // ========================================================================
     // Validity check
     // ========================================================================
+
+    // Do we have the necessary data for our chosen method?
     bool valid() const;
 
     // ========================================================================
     // Setting the value
     // ========================================================================
-    bool setValue(const QVariant& value, const QObject* originator = nullptr);
+
+    // Set the underlying data value.
     // ... originator is optional and used as a performance hint (see QSlider)
-    void emitValueChanged(const QObject* originator = nullptr);  // for rare manual use
+    bool setValue(const QVariant& value, const QObject* originator = nullptr);
+
+    // Trigger a valueChanged() signal.
+    // (For rare manual use.)
+    void emitValueChanged(const QObject* originator = nullptr);
 
     // ========================================================================
     // Retrieving the value
     // ========================================================================
+
+    // Returns the underlying data value.
     QVariant value() const;
+
+    // Is the value NULL?
     bool isNull() const;
+
+    // Returns the underlying data value, as a bool.
     bool valueBool() const;
+
+    // Returns the underlying data value, as an int.
     int valueInt() const;
-    qlonglong valueLongLong() const;
+
+    // Returns the underlying data value, as a qint64 (qlonglong).
+    qint64 valueInt64() const;
+
+    // Returns the underlying data value, as a double.
     double valueDouble() const;
+
+    // Returns the underlying data value, as a QDateTime.
     QDateTime valueDateTime() const;
+
+    // Returns the underlying data value, as a QDate.
     QDate valueDate() const;
+
+    // Returns the underlying data value, as a string.
     QString valueString() const;
+
+    // Returns the underlying data value, as a string list.
     QStringList valueStringList() const;
+
+    // Returns the underlying data value, as bytes.
     QByteArray valueByteArray() const;
+
+    // Returns the underlying data value, as a vector of int.
     QVector<int> valueVectorInt() const;
 
     // ========================================================================
     // BLOB-related functions, overridden by BlobFieldRef for higher performance
     // ========================================================================
+
+    // Is this a BLOB field?
     bool isBlob() const;
+
+    // Returns the BLOB as a QImage.
     virtual QImage image(bool* p_loaded = nullptr) const;
+
+    // Returns the BLOB as a QPixmap.
     virtual QPixmap pixmap(bool* p_loaded = nullptr) const;
+
+    // Rotates the BLOB.
+    // (Low-performance version; overridden by BlobFieldRef.)
     virtual void rotateImage(int angle_degrees_clockwise,
                              const QObject* originator = nullptr);
+
+    // Sets the BLOB image.
+    // (Low-performance version; overridden by BlobFieldRef.)
     virtual bool setImage(const QImage& image,
                           const QObject* originator = nullptr);
+
+    // Sets the BLOB image.
+    // (Low-performance version; overridden by BlobFieldRef.)
     virtual bool setRawImage(const QByteArray& data,
                              const QString& extension_without_dot,
                              const QString& mimetype,
@@ -144,33 +239,62 @@ public:
     // ========================================================================
     // Completeness of input
     // ========================================================================
+
+    // Is data mandatory?
     bool mandatory() const;
-    void setMandatory(bool mandatory, const QObject* originator = nullptr);
+
+    // Sets the mandatory status.
     // ... originator is optional and used as a performance hint (see QSlider)
-    bool complete() const;  // not null?
-    bool missingInput() const;  // block progress because (mandatory() && !complete())?
+    void setMandatory(bool mandatory, const QObject* originator = nullptr);
+
+    // Is the field complete (not NULL or empty)?
+    bool complete() const;
+
+    // Is there missing input, i.e. (mandatory() && !complete())?
+    bool missingInput() const;
 
     // ========================================================================
     // Hints
     // ========================================================================
+
+    // Sets a hint that can be used to distinguish different FieldRef objects.
+    // (Example: see cape42.cpp.)
     void setHint(const QVariant& hint);
+
+    // Returns the hint.
     QVariant getHint() const;
 
     // ========================================================================
     // Debugging
     // ========================================================================
+
+    // Returns a description of the method (e.g. field, getter/setter, etc.).
     QString getFieldRefMethodDescription() const;
+
+    // Returns a description of the target (e.g. a field's name).
     QString getTargetDescription() const;
+
+    // Debugging description.
     friend QDebug operator<<(QDebug debug, const FieldRef& f);
 
 protected:
+    // Common constructor.
     void commonConstructor();
+
+    // Signal that the value has changed; perhaps trigger an autosave.
     bool signalSetValue(bool changed, const QObject* originator);
+
+    // For FieldRefMethod::DatabaseObjectBlobField only.
+    // Sets the database object's field value (FK) to the PK of the associated
+    // BLOB object.
     void setFkToBlob();
 
 signals:
+    // "The underlying value has changed."
     void valueChanged(const FieldRef* fieldref,
                       const QObject* originator) const;
+
+    // "The mandatory status has changed."
     void mandatoryChanged(const FieldRef* fieldref,
                           const QObject* originator) const;
     // You should NOT cause a valueChanged() signal to be emitted whilst in a
@@ -179,21 +303,32 @@ signals:
     // signals.
 
 protected:
+
+    // The data access method we're using.
     FieldRefMethod m_method;
+
+    // Is data mandatory?
     bool m_mandatory;
 
+    // Info for FieldRefMethod::Field
     Field* m_p_field;
 
+    // Info for FieldRefMethod::DatabaseObject
     DatabaseObject* m_p_dbobject;
     QString m_fieldname;
     bool m_autosave;
 
+    // Extra info for FieldRefMethod::DatabaseObjectBlobField
     QSharedPointer<Blob> m_blob;
 
+    // Info for FieldRefMethod::Functions
     GetterFunction m_getterfunc;
     SetterFunction m_setterfunc;
 
+    // Info for FieldRefMethod::StoredVar, ::CachedStoredVar
     CamcopsApp* m_app;
     QString m_storedvar_name;
+
+    // Our hint
     QVariant m_hint;
 };

@@ -1,4 +1,4 @@
-..  docs/source/local/local_info.rst
+..  docs/source/administrator/local/local_info.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .

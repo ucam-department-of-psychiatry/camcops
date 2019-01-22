@@ -76,9 +76,20 @@
    General styling
    ========================================================================= */
 
-QWidget,
-BaseWidget {
+QWidget {
+    /*
+
+        Don't set these on QWidget -- they mess up e.g. QCalendarWidget,
+        spinbox arrows, and all sorts of stuff like that.
+
     color: black;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    */
+    font-size: %1pt;
+}
+BaseWidget {
     border: 0;
     margin: 0;
     padding: 0;
@@ -194,19 +205,10 @@ ClickableLabelWordWrapWide#picker_popup {
    - ":item:checked" means "chosen"
 */
 
-/*
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 15px;
-
-    border-left-width: 1px;
-    border-left-color: darkgray;
-    border-left-style: solid;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
+QCalendarWidget QComboBox::drop-down,
+QCalendarWidget QComboBox::down-arrow {  /* *** trying this */
+    width: 60px;
 }
-*/
 
 QComboBox#picker_inline {
     color: blue;
@@ -410,6 +412,11 @@ QSlider::sub-page:horizontal,
 QSlider::add-page:vertical {
     background: red;
 }
+QSlider#slider_symmetric::sub-page:horizontal,
+QSlider#slider_symmetric::add-page:vertical {
+    /* The version with no red "below" the slider */
+    background: white;
+}
 QSlider::add-page:horizontal,
 QSlider::sub-page:vertical {
     background: white;
@@ -560,13 +567,20 @@ AspectRatioPixmap {
    QCalendarWidget
    ========================================================================= */
 
-/* Not supported? */
+/* Not supported? Very partially supported? */
 
-/*
-QCalendarWidget {
+QCalendarWidget QAbstractItemView:disabled {
+    /*
+        https://stackoverflow.com/questions/30915620/qcalendar-styling-attribute-for-disabled-items
+        This works.
+        Styles the dates that aren't part of the current month (last month,
+        next month).
+    */
+    color: lightgray;
+}
+QCalendarWidget QAbstractItemView {
     font-size: %2pt;
 }
-*/
 
 
 /* =========================================================================

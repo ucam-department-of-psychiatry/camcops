@@ -1,4 +1,4 @@
-..  docs/source/server/include_consistency_warning.rst
+..  docs/source/administrator/administrator_index.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,11 +17,23 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. warning::
+Administrator's guide
+=====================
 
-    Both trackers and CTVs collate information from multiple tasks. They
-    therefore perform a **consistency check** to ensure that patient ID
-    information is the same across all tasks. (Did someone mis-spell a name,
-    for example -- or worse, mis-file information by entering the wrong ID
-    number?) **Beware** if the consistency check fails; you will need to
-    ensure yourself that all the data relates to the same patient.
+Details for people running a CamCOPS server.
+
+..  toctree::
+    :maxdepth: 1
+
+    server_installation.rst
+    third_party_installation.rst
+    server_configuration.rst
+    server_config_file.rst
+    server_front_end_admin.rst
+    server_command_line.rst
+    server_troubleshooting.rst
+    server_migrating_databases.rst
+    snomed.rst
+    tcpip_ports.rst
+    linux_flavours.rst
+    local/local_info.rst

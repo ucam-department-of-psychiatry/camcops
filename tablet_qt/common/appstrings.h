@@ -24,6 +24,12 @@
 namespace appstrings
 {
 
+// Names of strings in the "appstring" zone of the downloaded strings (i.e.
+// those used across CamCOPS, rather than relating to a specific task, for
+// the most part).
+//
+// See also textconst.h for which strings should live where.
+
 extern const QString BDI_WHICH_SCALE;
 extern const QString DATA_COLLECTION_ONLY;
 extern const QString DATE_PERTAINS_TO;

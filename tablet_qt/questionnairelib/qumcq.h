@@ -34,26 +34,73 @@ class QuMcq : public QuElement
 
     Q_OBJECT
 public:
+
+    // Constructor
     QuMcq(FieldRefPtr fieldref, const NameValueOptions& options);
+
+    // Shuffle the options (when making the widget)?
     QuMcq* setRandomize(bool randomize);
+
+    // Show the instruction "Pick one:"?
     QuMcq* setShowInstruction(bool show_instruction);
+
+    // Layout as horizontal:
+    //
+    //      ( ) Option 1 ( ) Option 2 ( ) Option 3
+    //
+    // ... rather than vertical:
+    //
+    //      ( ) Option 1
+    //      ( ) Option 2
+    //      ( ) Option 3
+    //
     QuMcq* setHorizontal(bool horizontal);
+
+    // Show as text buttons:
+    //
+    //      +----------+
+    //      | Option 1 |
+    //      +----------+
+    //      +----------+
+    //      | Option 2 |
+    //      +----------+
+    //      +----------+
+    //      | Option 3 |
+    //      +----------+
+    //
+    // or
+    //
+    //      +----------+ +----------+ +----------+
+    //      | Option 1 | | Option 2 | | Option 3 |
+    //      +----------+ +----------+ +----------+
+    //
+    // ... rather than radio buttons (as above)?
     QuMcq* setAsTextButton(bool as_text_button);
+
+    // Make text bold?
     QuMcq* setBold(bool bold);
+
 protected:
+    // Set widget state from field data.
     void setFromField();
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
+
 protected slots:
+    // "Button with index 'index' has been clicked."
     void clicked(int index);
+
+    // "Field data has changed. Update the widgets."
     void fieldValueChanged(const FieldRef* fieldref);
+
 protected:
-    FieldRefPtr m_fieldref;
-    NameValueOptions m_options;
-    bool m_randomize;
-    bool m_show_instruction;
-    bool m_horizontal;
-    bool m_as_text_button;
-    bool m_bold;
-    QVector<QPointer<BooleanWidget>> m_widgets;
+    FieldRefPtr m_fieldref;  // field
+    NameValueOptions m_options;  // possible options
+    bool m_randomize;  // shuffle the order?
+    bool m_show_instruction;  // show instruction?
+    bool m_horizontal;  // horizontal layout?
+    bool m_as_text_button;  // text button (rather than radio button) layout?
+    bool m_bold;  // text in bold?
+    QVector<QPointer<BooleanWidget>> m_widgets;  // our widget collection
 };

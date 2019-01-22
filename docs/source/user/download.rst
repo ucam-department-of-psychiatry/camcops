@@ -1,4 +1,4 @@
-..  docs/source/misc/download.rst
+..  docs/source/user/download.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -24,6 +24,13 @@
 
 Downloading CamCOPS
 ===================
+
+..  contents::
+    :local:
+    :depth: 3
+
+Overview
+~~~~~~~~
 
 The Android app is at
 

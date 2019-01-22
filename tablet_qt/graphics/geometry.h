@@ -121,41 +121,84 @@ extern const qreal DEG_270;
 extern const qreal DEG_180;
 extern const qreal DEG_360;
 
+// Converts degrees to sixteenths of a degree.
 int sixteenthsOfADegree(qreal degrees);
 
+// Converts clockwise to anticlockwise degrees (!).
 inline qreal clockwiseToAnticlockwise(qreal degrees) { return -degrees; }
+
+// Converts anticlockwise to clockwise degrees (!).
 inline qreal anticlockwiseToClockwise(qreal degrees) { return -degrees; }
 
+// Returns a heading normalized to [0, 360).
 qreal normalizeHeading(qreal heading_deg);
+
+// Are the two headings fuzzy-equal?
 bool headingNearlyEq(qreal heading_deg, qreal value_deg);
+
+// Is heading_deg in the range (first_bound_deg, second_bound_deg)?
+// Or, if inclusive is true, in [first_bound_deg, second_bound_deg]?
 bool headingInRange(qreal first_bound_deg,
                     qreal heading_deg,
                     qreal second_bound_deg,
                     bool inclusive = false);
+
+// Converts a compass heading from a "true" to a "pseudo" system, based on
+// pseudo_north_deg.
 qreal convertHeadingFromTrueNorth(qreal true_north_heading_deg,
                                   qreal pseudo_north_deg,
                                   bool normalize = true);
+
+// Converts a compass heading from a "pseudo" to a "true" system, based on
+// pseudo_north_deg.
 qreal convertHeadingToTrueNorth(qreal pseudo_north_heading_deg,
                                 qreal pseudo_north_deg,
                                 bool normalize = true);
 
+// Returns a point (relative to the origin) equivalent to the specified
+// polar coordinates.
 QPointF polarToCartesian(qreal r, qreal theta_degrees);
+
+// Returns the distance between two points.
 qreal distanceBetween(const QPointF& from, const QPointF& to);
-qreal polarTheta(const QPointF& from, const QPointF& to);
-qreal polarTheta(const QPointF& to);
+
+// Returns the heading (in polar degrees, 0 = along x axis), "from" -> "to".
+qreal polarThetaDeg(const QPointF& from, const QPointF& to);
+
+// Returns the heading (in polar degrees, 0 = along x axis), origin -> "to".
+qreal polarThetaDeg(const QPointF& to);
+
+// Converts a polar angle to a compass heading.
 qreal polarThetaToHeading(qreal theta_deg, qreal north_deg = 0.0);
-qreal headingToPolarTheta(qreal heading_deg, qreal north_deg = 0.0,
-                          bool normalize = true);
+
+// Converts a compass heading to a polar angle.
+qreal headingToPolarThetaDeg(qreal heading_deg, qreal north_deg = 0.0,
+                             bool normalize = true);
+
+// Returns a compass heading, "from" -> "to".
 qreal headingDegrees(const QPointF& from, const QPointF& to,
                      qreal north_deg = 0.0);
+
+// Return a line segment starting at "point", travelling in compass direction
+// "heading" (where north_deg indicates our North direction), with line length
+// "radius".
 LineSegment lineFromPointInHeadingWithRadius(const QPointF& point,
                                              qreal heading_deg,
                                              qreal north_deg = 0.0,
                                              qreal radius = QWIDGETSIZE_MAX);
+
+// (1) Draw a line from "from" to "to".
+// (2) Draw a line from "point" in direction "heading", where increasing
+//     values of "heading" are clockwise, and a heading of 0 degrees is
+//     the North direction (where that is defined by north_deg degrees
+//     clockwise of "screen up").
+// (3) Do the two lines cross?
 bool lineCrossesHeadingWithinRadius(const QPointF& from, const QPointF& to,
                                     const QPointF& point, qreal heading_deg,
                                     qreal north_deg = 0.0,
                                     qreal radius = QWIDGETSIZE_MAX);
+
+// Does the line "from" -> "to" pass below "point"?
 bool linePassesBelowPoint(const QPointF& from, const QPointF& to,
                           const QPointF& point);
 

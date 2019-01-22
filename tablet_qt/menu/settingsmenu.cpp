@@ -47,7 +47,7 @@
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
-#include "questionnairelib/qulineeditlonglong.h"
+#include "questionnairelib/qulineeditint64.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quslider.h"
@@ -347,7 +347,7 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
         questionnairefunc::defaultGridRawPointer({
             {
                 makeTitle(maxsizeonestep_t, maxsizeonestep_h, true),
-                (new QuLineEditLongLong(maxsizeonestep_fr))->setHint(
+                (new QuLineEditInt64(maxsizeonestep_fr))->setHint(
                     makeHint(maxsizeonestep_t, maxsizeonestep_h))
             }
         }, 1, 1),

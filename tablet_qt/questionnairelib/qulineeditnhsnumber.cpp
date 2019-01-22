@@ -24,7 +24,7 @@
 
 QuLineEditNHSNumber::QuLineEditNHSNumber(FieldRefPtr fieldref,
                                          bool allow_empty) :
-    QuLineEditLongLong(fieldref, allow_empty)
+    QuLineEditInt64(fieldref, allow_empty)
 {
     setHint("NHS number (10-digit integer with checksum)");
 }

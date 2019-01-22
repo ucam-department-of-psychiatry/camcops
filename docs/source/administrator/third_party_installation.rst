@@ -1,4 +1,4 @@
-..  docs/source/server/server_third_party_installation.rst
+..  docs/source/administrator/server_third_party_installation.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -25,6 +25,9 @@ This sections contains some instructions and tips on installing third-party
 software. It's particularly relevant for Windows, which doesn't have a good "X
 depends on Y" software package system.
 
+..  contents::
+    :local:
+    :depth: 3
 
 .. _windows_install_python:
 

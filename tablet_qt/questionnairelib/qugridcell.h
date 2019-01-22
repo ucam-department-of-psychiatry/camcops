@@ -27,7 +27,10 @@ class QuGridCell
     // Used by QuContainerGrid.
 
 public:
-    QuGridCell();  // so it can live in a QVector
+    // Default constructor, so it can live in a QVector
+    QuGridCell();
+
+    // Construct with data
     QuGridCell(const QuElementPtr& element,
                int row,  // y position, starting from 0, going down
                int column,  // x position, starting from 0, going right
@@ -40,14 +43,17 @@ public:
                int row_span = 1,
                int column_span = 1,
                Qt::Alignment alignment = 0);
+
 public:
-    QuElementPtr element;
-    int row;
-    int column;
-    int row_span;
-    int column_span;
-    Qt::Alignment alignment;
-    // http://doc.qt.io/qt-5.7/qgridlayout.html
+    QuElementPtr element;  // the element
+    int row;  // zero-based row index
+    int column;  // zero-based column index
+    int row_span;  // height in rows
+    int column_span;  // width in columns
+    Qt::Alignment alignment;  // alignment to apply to element in this cell;
+                              // see http://doc.qt.io/qt-5.12/qgridlayout.html
+
 public:
+    // Debug description
     friend QDebug operator<<(QDebug debug, const QuGridCell& plan);
 };

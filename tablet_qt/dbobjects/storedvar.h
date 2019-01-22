@@ -22,6 +22,8 @@
 class CamcopsApp;
 
 
+// Represents a config variable stored in the system database for a CamcopsApp.
+
 class StoredVar : public DatabaseObject
 {
 public:
@@ -31,17 +33,32 @@ public:
               QVariant::Type type = QVariant::Int,
               const QVariant& default_value = QVariant());
     virtual ~StoredVar() = default;
+
+    // Sets the value.
     bool setValue(const QVariant& value, bool save_to_db = true);
+
+    // Returns the value as a QVariant.
     QVariant value() const;
+
+    // Returns the variable's name.
     QString name() const;
+
+    // Makes indexes for the table.
     void makeIndexes();
+
 protected:
     // http://stackoverflow.com/questions/411103/function-with-same-name-but-different-signature-in-derived-class
     // http://stackoverflow.com/questions/1628768/why-does-an-overridden-function-in-the-derived-class-hide-other-overloads-of-the
     using DatabaseObject::setValue;
     using DatabaseObject::value;
+
 protected:
-    QString m_name;  // only for name(), really
-    QVariant::Type m_type;  // what QVariant type are we representing?
-    QString m_value_fieldname;  // which field is in active use?
+    // The name. Only for name(), really.
+    QString m_name;
+
+    // What QVariant type are we representing?
+    QVariant::Type m_type;
+
+    // Which field is in active use?
+    QString m_value_fieldname;
 };

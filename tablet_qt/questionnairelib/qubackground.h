@@ -24,10 +24,12 @@
 class QuBackground : public QuElement
 {
     // Provides a background (e.g. for use in grids).
+    // This is a blank widget with CSS style set via the object's name.
+
 public:
     QuBackground(const QString& css_name);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 protected:
-    QString m_css_name;
+    QString m_css_name;  // CSS name for the QWidget
 };

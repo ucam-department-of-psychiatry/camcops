@@ -608,9 +608,7 @@ SOURCES += \
     questionnairelib/qulineedit.cpp \
     questionnairelib/qulineeditdouble.cpp \
     questionnairelib/qulineeditinteger.cpp \
-    questionnairelib/qulineeditlonglong.cpp \
     questionnairelib/qulineeditnhsnumber.cpp \
-    questionnairelib/qulineeditulonglong.cpp \
     questionnairelib/qumcq.cpp \
     questionnairelib/qumcqgrid.cpp \
     questionnairelib/qumcqgriddouble.cpp \
@@ -794,7 +792,9 @@ SOURCES += \
     widgets/verticalscrollareaviewport.cpp \
     widgets/thermometer.cpp \
     menu/setmenufromperinatal.cpp \
-    menu/serviceevaluationmenu.cpp
+    menu/serviceevaluationmenu.cpp \
+    questionnairelib/qulineeditint64.cpp \
+    questionnairelib/qulineedituint64.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1007,9 +1007,7 @@ HEADERS += \
     questionnairelib/qulineedit.h \
     questionnairelib/qulineeditdouble.h \
     questionnairelib/qulineeditinteger.h \
-    questionnairelib/qulineeditlonglong.h \
     questionnairelib/qulineeditnhsnumber.h \
-    questionnairelib/qulineeditulonglong.h \
     questionnairelib/qumcq.h \
     questionnairelib/qumcqgrid.h \
     questionnairelib/qumcqgriddouble.h \
@@ -1193,7 +1191,9 @@ HEADERS += \
     widgets/verticalscrollareaviewport.h \
     widgets/thermometer.h \
     menu/setmenufromperinatal.h \
-    menu/serviceevaluationmenu.h
+    menu/serviceevaluationmenu.h \
+    questionnairelib/qulineeditint64.h \
+    questionnairelib/qulineedituint64.h
 
 DISTFILES += \
     LICENSE.txt \

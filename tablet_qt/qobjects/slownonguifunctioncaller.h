@@ -28,9 +28,12 @@ class SlowNonGuiFunctionCaller : public QObject
 {
     // Executes a function in blocking fashion, but in a separate thread,
     // while displaying an infinite-wait (uncertain-wait) progress dialogue
-    // from the calling thread.
+    // from the calling thread. (This class creates and manages the worker
+    // thread.)
     //
     // Must be created from the GUI thread.
+    //
+    // When the constructor has finished, the work is done.
     //
     // DO NOT PERFORM GUI OPERATIONS IN THE WORKER FUNCTION.
 

@@ -26,6 +26,7 @@ Developer notes
     creating_tasks.rst
     building_client.rst
     cpp_code_style.rst
+    seeking_permissions.rst
     new_task_walkthrough_core10.rst
     design_notes.rst
     development_command_line.rst

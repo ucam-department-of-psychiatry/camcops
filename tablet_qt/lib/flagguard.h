@@ -26,6 +26,9 @@ class FlagGuard
     // object, then restores it again on destruction.
     // (Use e.g. for functions having multiple exit points where you want a
     // flag saying "I am in this function" to prevent infinite recursion.)
+    //
+    // See also ReentryDepthGuard.
+
 public:
     FlagGuard(bool& flag);
     ~FlagGuard();

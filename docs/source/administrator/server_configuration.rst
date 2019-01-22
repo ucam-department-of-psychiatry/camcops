@@ -1,4 +1,4 @@
-..  docs/source/server/server_configuration.rst
+..  docs/source/administrator/server_configuration.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -36,6 +36,9 @@ Configuring the server
 The majority of CamCOPS configuration takes place via the :ref:`server
 configuration file <server_config_file>`. Here, we deal with everything else.
 
+..  contents::
+    :local:
+    :depth: 3
 
 Overview
 --------

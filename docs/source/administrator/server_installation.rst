@@ -1,4 +1,4 @@
-..  docs/source/server/server_installation.rst
+..  docs/source/administrator/server_installation.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -21,6 +21,10 @@
 
 Installing CamCOPS on the server
 ================================
+
+..  contents::
+    :local:
+    :depth: 3
 
 Hardware and operating system requirements
 ------------------------------------------

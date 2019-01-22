@@ -1,4 +1,4 @@
-..  docs/source/misc/tcpip_ports.rst
+..  docs/source/administrator/tcpip_ports.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .

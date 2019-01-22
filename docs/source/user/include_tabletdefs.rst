@@ -1,4 +1,4 @@
-..  docs/source/client/include_tabletdefs.rst
+..  docs/source/user/include_tabletdefs.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .

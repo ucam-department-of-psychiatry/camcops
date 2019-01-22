@@ -1,4 +1,4 @@
-..  docs/source/server/server_command_line.rst
+..  docs/source/administrator/server_command_line.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -21,6 +21,10 @@
 
 CamCOPS command-line tools
 ==========================
+
+..  contents::
+    :local:
+    :depth: 3
 
 .. _camcops_cli:
 

@@ -23,28 +23,47 @@
 class CamcopsApp;
 
 
+// Represents tables that the server will allow us to upload.
+
 class AllowedServerTable : public DatabaseObject
 {
     Q_OBJECT
 public:
     // Specimen constructor:
     AllowedServerTable(CamcopsApp& app, DatabaseManager& db);
+
     // Loading constructor:
     AllowedServerTable(CamcopsApp& app, DatabaseManager& db,
                        const QString& tablename);
+
     // Saving constructor:
     AllowedServerTable(CamcopsApp& app, DatabaseManager& db,
                        const QString& tablename,
                        const Version& min_client_version);
+
+    // Destructor
     virtual ~AllowedServerTable();
+
+    // Returns the table name
     QString tablename() const;
+
+    // What's the minimum client version that the server will accept for this
+    // table?
     Version minClientVersion() const;
-    void deleteAllAllowedServerTables();  // sort-of static function
-    void makeIndexes();  // sort-of static function
+
+    // Delete all AllowedServerTable records from the database
+    // (Resembles a Python classmethod; sort-of static function.)
+    void deleteAllAllowedServerTables();
+
+    // Make table indexes
+    // (Resembles a Python classmethod; sort-of static function.)
+    void makeIndexes();
 
 public:
     static const QString TABLENAME_FIELD;
     static const QString VERSION_FIELD;
+
 protected:
+    // Common constructor
     void commonConstructor();
 };

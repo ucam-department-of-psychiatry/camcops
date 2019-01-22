@@ -26,6 +26,8 @@
 class CamcopsApp;
 
 
+// Represents the ICD-9-CM (= DSM-IV) diagnostic system.
+
 class Icd9cm : public DiagnosticCodeSet
 {
     Q_OBJECT

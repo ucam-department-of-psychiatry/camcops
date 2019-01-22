@@ -32,42 +32,73 @@ class QuDateTime : public QuElement
 
     Q_OBJECT
 public:
+
+    // How to display?
     enum Mode {
-        DefaultDateTime,
-        DefaultDate,
-        DefaultTime,
-        CustomDateTime,
-        CustomDate,
-        CustomTime,
+        DefaultDateTime,  // e.g. 2000 01 31 08:00
+        DefaultDate,  // e.g. 2000 01 31
+        DefaultTime,  // e.g. 08:00
+        CustomDateTime,  // user-specified format as per http://doc.qt.io/qt-5/qdatetime.html#toString-2
+        CustomDate,  // user-specified format as per http://doc.qt.io/qt-5/qdatetime.html#toString-2
+        CustomTime,  // user-specified format as per http://doc.qt.io/qt-5/qdatetime.html#toString-2
     };
 public:
+
+    // Constructor.
     QuDateTime(FieldRefPtr fieldref);
+
+    // Sets the mode, as above.
     QuDateTime* setMode(QuDateTime::Mode mode);
+
+    // For the custom modes, sets the format string (for displaying the
+    // date/time), and the input method hint mode (e.g. for Android keyboard:
+    // "numbers-only keyboard" or similar).
     QuDateTime* setCustomFormat(
             const QString& format,
             Qt::InputMethodHints input_method_hint = Qt::ImhNone);
+
+    // Offer a "set date/time to now" button? A common thing to set.
     QuDateTime* setOfferNowButton(bool offer_now_button);
+
+    // Offer a "set date/time to null" option? A rare thing to want.
     QuDateTime* setOfferNullButton(bool offer_null_button);
+
 protected:
+
+    // Sets the widget state from our fieldref.
     void setFromField();
+
     virtual FieldRefPtrList fieldrefs() const override;
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+
 protected slots:
+
+    // "Internal widget says: date/time has been changed by the user."
     void widgetValueChanged(const QDateTime& datetime);
+
+    // Set the field to a specific date/time. Optionally, tell the internal
+    // widget to set itself to the same value.
     void setField(const QDateTime& datetime,
                   bool reset_this_widget = false);
+
+    // "Fieldref reports that the field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref,
                            const QObject* originator);
-    void setToNow();
-    void setToNull();
-protected:
-    FieldRefPtr m_fieldref;
-    Mode m_mode;
-    QString m_custom_format;
-    Qt::InputMethodHints m_custom_input_method_hint;
-    bool m_offer_now_button;
-    bool m_offer_null_button;
 
-    QPointer<QDateTimeEdit> m_editor;
-    QPointer<QCalendarWidget> m_calendar_widget;
+    // Set the field to the date/time now.
+    void setToNow();
+
+    // Set the field to null.
+    void setToNull();
+
+protected:
+    FieldRefPtr m_fieldref;  // our fieldref
+    Mode m_mode;  // see Mode above
+    QString m_custom_format;  // format for Mode::Custom*
+    Qt::InputMethodHints m_custom_input_method_hint;  // hint for Mode::Custom*
+    bool m_offer_now_button;  // see setOfferNowButton()
+    bool m_offer_null_button;  // see setOfferNullButton()
+
+    QPointer<QDateTimeEdit> m_editor;  // edit box
+    QPointer<QCalendarWidget> m_calendar_widget;  // pop-up calendar widget
 };

@@ -22,11 +22,14 @@
 
 namespace urlconst {
 
+// URLs of, and within, the online documentation.
 extern const QString CAMCOPS_URL;
 extern const QString CAMCOPS_DOCS_BASE_URL;
 extern const QString CAMCOPS_DOCS_URL;
 extern const QString CAMCOPS_LICENCES_URL;
 
+// Returns the URL to find a task in the online CamCOPS docs.
+// The stem is something like "ace3"; it's typically the task's table name.
 QString taskDocUrl(const QString& stem);
 
 }  // namespace urlconst
