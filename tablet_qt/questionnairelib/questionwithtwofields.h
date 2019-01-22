@@ -28,16 +28,29 @@ class QuestionWithTwoFields
     // Used by e.g. QuMCQGridDouble.
 
 public:
+
+    // Default constructor, so it can live in a QVector
     QuestionWithTwoFields();  // so it can live in a QVector
+
+    // Standard constructor
     QuestionWithTwoFields(const QString& question,
                           FieldRefPtr first_field,
                           FieldRefPtr second_field);
+
+    // Return the question (text)
     QString question() const;
+
+    // Return the first fieldref.
     FieldRefPtr firstFieldRef() const;
+
+    // Return the second fieldref.
     FieldRefPtr secondFieldRef() const;
+
+    // Return either fieldref.
     FieldRefPtr fieldref(bool first_field) const;
+
 protected:
-    QString m_question;
-    FieldRefPtr m_first_field;
-    FieldRefPtr m_second_field;
+    QString m_question;  // question text
+    FieldRefPtr m_first_field;  // first fieldref
+    FieldRefPtr m_second_field;  // second fieldref
 };

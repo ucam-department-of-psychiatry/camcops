@@ -695,7 +695,7 @@ QString DatabaseManager::dbTableDefinitionSql(const QString& tablename)
 }
 
 
-qlonglong DatabaseManager::approximateDatabaseSize()
+qint64 DatabaseManager::approximateDatabaseSize()
 {
     // NB includes dead pages; VACUUM first for a better answer
     const QString sql = "SELECT page_count * page_size AS size "

@@ -22,6 +22,7 @@
 
 namespace urlconst {
 
+// URLs of, and within, the online documentation.
 extern const QString CAMCOPS_URL;
 extern const QString CAMCOPS_DOCS_BASE_URL;
 extern const QString CAMCOPS_DOCS_URL;

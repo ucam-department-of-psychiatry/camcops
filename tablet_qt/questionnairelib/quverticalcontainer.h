@@ -28,8 +28,12 @@ class QuVerticalContainer : public QuElement
     Q_OBJECT
 public:
     static const Qt::Alignment DefaultWidgetAlignment;
+
 public:
+    // Construct empty.
     QuVerticalContainer();
+
+    // Construct with elements.
     QuVerticalContainer(
             const QVector<QuElementPtr>& elements,
             Qt::Alignment alignment = DefaultWidgetAlignment);
@@ -39,18 +43,27 @@ public:
     QuVerticalContainer(
             std::initializer_list<QuElement*> elements,
             Qt::Alignment alignment = DefaultWidgetAlignment);  // takes ownership
+
+    // Add an element.
     QuVerticalContainer* addElement(
             const QuElementPtr& element,
             Qt::Alignment alignment = DefaultWidgetAlignment);
     QuVerticalContainer* addElement(
             QuElement* element,
             Qt::Alignment alignment = DefaultWidgetAlignment);  // takes ownership
+
+    // Sets the alignment of all widgets (within their layout cells) to
+    // "alignment".
     QuVerticalContainer* setWidgetAlignment(Qt::Alignment alignment);
+
 protected:
+    // Make all widgets have alignment "alignment".
     void createAlignments(Qt::Alignment alignment);
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual QVector<QuElementPtr> subelements() const override;
+
 protected:
-    QVector<QuElementPtr> m_elements;
-    QVector<Qt::Alignment> m_widget_alignments;
+    QVector<QuElementPtr> m_elements;  // all our elements
+    QVector<Qt::Alignment> m_widget_alignments;  // all their alignments
 };

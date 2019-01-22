@@ -169,11 +169,11 @@ public:
     // Returns a field's value as an int.
     int valueInt(const QString& fieldname) const;
 
-    // Returns a field's value as a qlonglong.
-    qlonglong valueLongLong(const QString& fieldname) const;
+    // Returns a field's value as a qint64 (qlonglong).
+    qint64 valueInt64(const QString& fieldname) const;
 
-    // Returns a field's value as a qulonglong.
-    qulonglong valueULongLong(const QString& fieldname) const;
+    // Returns a field's value as a quint64 (qulonglong).
+    quint64 valueUInt64(const QString& fieldname) const;
 
     // Returns a field's value as a double.
     double valueDouble(const QString& fieldname) const;

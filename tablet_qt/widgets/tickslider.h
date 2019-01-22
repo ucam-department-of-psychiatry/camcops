@@ -151,10 +151,11 @@ public:
     // See also setAbsoluteLengthCm().
     virtual void setAbsoluteLengthPx(int px);
 
-    // Sets the absolute length of the slider's active range, in cm, given a
-    // dpi setting. Convenience function that calls setAbsoluteLengthPx().
-    // Use this to say "make the slider exactly 10cm".
-    // Beware on small screens!
+    // Sets the absolute length of the slider's active range, in cm, given also
+    // the screen's current dpi setting (which you must provide).
+    // - Convenience function that calls setAbsoluteLengthPx().
+    // - Use this to say "make the slider exactly 10cm".
+    // - Beware on small screens!
     virtual void setAbsoluteLengthCm(qreal abs_length_cm, qreal dpi);
 
     // Standard QWidget size hint.

@@ -131,7 +131,7 @@ protected:
     QThread m_worker_thread;
     QPointer<WhiskerWorker> m_worker;
     QString m_sysevent_prefix;
-    qulonglong m_sysevent_counter;
+    quint64 m_sysevent_counter;
     WhiskerCallbackHandler m_internal_callback_handler;
 
     // ========================================================================

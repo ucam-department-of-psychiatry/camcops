@@ -53,6 +53,7 @@ QuSlider::QuSlider(FieldRefPtr fieldref,
     m_edge_in_extreme_labels(false),
     m_symmetric(false),
     m_inverted(false),
+    m_abs_length_cm(-1),
     // Internals
     m_value_label(nullptr),
     m_slider(nullptr),
@@ -168,6 +169,13 @@ QuSlider* QuSlider::setInverted(bool inverted)
 }
 
 
+QuSlider* QuSlider::setAbsoluteLengthCm(const qreal abs_length_cm)
+{
+    m_abs_length_cm = abs_length_cm;
+    return this;
+}
+
+
 void QuSlider::setFromField()
 {
     fieldValueChanged(m_fieldref.data(), nullptr);
@@ -201,7 +209,7 @@ QVariant QuSlider::fieldValueFromSlider(const int slider_value) const
     const double slider_from_left = slider_value - m_minimum;
     const double slider_range = m_maximum - m_minimum;
     const double field_range = m_field_maximum - m_field_minimum;
-    const double field_pos = (slider_from_left * field_range / slider_range ) +
+    const double field_pos = (slider_from_left * field_range / slider_range) +
             m_field_minimum;
     return field_pos;
 }
@@ -239,6 +247,11 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         m_slider->setSymmetricOverspill(true);
     }
     m_slider->setInvertedAppearance(m_inverted);
+    if (m_abs_length_cm > 0) {
+        const qreal dpi = m_horizontal ? uiconst::PHYSICAL_DPI_X : uiconst::PHYSICAL_DPI_Y;
+        m_slider->setAbsoluteLengthCm(m_abs_length_cm, dpi);
+    };
+
     if (!read_only) {
         connect(m_slider.data(), &TickSlider::valueChanged,
                 this, &QuSlider::sliderValueChanged);

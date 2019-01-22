@@ -29,28 +29,45 @@ class QuGridContainer : public QuElement
 
     Q_OBJECT
 public:
+    // Default constructor, so it can live in a QVector
     QuGridContainer();
+
     // Initialize with the high-precision QuGridCell:
     QuGridContainer(const QVector<QuGridCell>& cells);
     QuGridContainer(std::initializer_list<QuGridCell> cells);
-    // Initialize with a simple "n columns" format:
+
+    // Initialize with a simple "n columns" format. Elements will be assigned
+    // to each row, cycling around to the next row once n_columns has been
+    // reached.
     QuGridContainer(int n_columns, const QVector<QuElementPtr>& elements);
     QuGridContainer(int n_columns, const QVector<QuElement*>& elements);
     QuGridContainer(int n_columns, std::initializer_list<QuElementPtr> elements);
     QuGridContainer(int n_columns, std::initializer_list<QuElement*> elements);  // takes ownership
-    // Modify:
+
+    // Add an individual cell.
     QuGridContainer* addCell(const QuGridCell& cell);
-    QuGridContainer* setColumnStretch(int column, int stretch);  // To force the column widths
-    QuGridContainer* setFixedGrid(bool fixed_grid);  // Columns of equal width, unless specified; expands right as required
-    QuGridContainer* setExpandHorizontally(bool expand);  // Does the whole thing expand to the far right of the screen?
+
+    // Force the stretch factor of a column, which affects its width.
+    // See .cpp file for discussion.
+    QuGridContainer* setColumnStretch(int column, int stretch);
+
+    // Set "fixed grid" mode. In "fixed grid" mode, columns have equal width,
+    // unless specified; widgets are told to expand right as required.
+    QuGridContainer* setFixedGrid(bool fixed_grid);
+
+    // Should the whole grid expand to the far right of the screen?
+    QuGridContainer* setExpandHorizontally(bool expand);
+
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual QVector<QuElementPtr> subelements() const override;
+
 private:
     void commonConstructor();
+
 protected:
-    QVector<QuGridCell> m_cells;
-    QMap<int, int> m_column_stretch;
-    bool m_expand;
-    bool m_fixed_grid;
+    QVector<QuGridCell> m_cells;  // our cells
+    QMap<int, int> m_column_stretch;  // maps column_index to relative_width
+    bool m_expand;  // expand horizontally?
+    bool m_fixed_grid;  // columns of equal width (unless specified), as above?
 };

@@ -133,8 +133,7 @@ int QuMcqGrid::colnum(const int value_index) const
 void QuMcqGrid::addOptions(GridLayout* grid, const int row)
 {
     for (int i = 0; i < m_options.size(); ++i) {
-        mcqfunc::addOption(grid, row, colnum(i),
-                               m_options.at(i).name());
+        mcqfunc::addOption(grid, row, colnum(i), m_options.at(i).name());
     }
 }
 

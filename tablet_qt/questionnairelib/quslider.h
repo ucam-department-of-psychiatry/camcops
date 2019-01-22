@@ -98,48 +98,72 @@ public:
     // Default is left (low) -> right (high), and bottom (low) -> top (high).
     QuSlider* setInverted(bool inverted);
 
+    // Sets the absolute length of the slider's active range, in cm.
+    // - Use this to say "make the slider exactly 10cm".
+    // - Beware on small screens!
+    // - If a value <= 0 is passed, the slider returns to its normal sizing
+    //   behaviour.
+    QuSlider* setAbsoluteLengthCm(qreal abs_length_cm);
+
 protected:
+
+    // Sets the widget state from our fieldref.
     void setFromField();
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
+
+    // Return the slider's integer position corresponding to a value in
+    // "field space".
     int sliderValueFromField(const QVariant& field_value) const;
+
+    // Return the field's intended value given our slider's position.
     QVariant fieldValueFromSlider(int slider_value) const;
+
     virtual void closing() override;
+
 protected slots:
+    // "The slider has been moved."
     void sliderValueChanged(int slider_value);
+
+    // "The slider finished moving a while ago; write the data."
     void completePendingFieldWrite();
+
+    // "The field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref,
                            const QObject* originator = nullptr);
+
 protected:
     // Core
-    FieldRefPtr m_fieldref;
-    int m_minimum;
-    int m_maximum;
-    int m_step;
-    int m_big_step;
-    bool m_convert_for_real_field;
-    double m_field_minimum;
-    double m_field_maximum;
-    int m_display_dp;
-    int m_null_apparent_value;
+    FieldRefPtr m_fieldref;  // our field
+    int m_minimum;  // minimum value in slider space
+    int m_maximum;  // maximum value in slider space
+    int m_step;  // step size in slider space
+    int m_big_step;  // "big step" (PgUp/PgDn) in slider space
+    bool m_convert_for_real_field;  // translate to real numbers in slider space?
+    double m_field_minimum;  // minimum in "real number field" space
+    double m_field_maximum;  // maximum in "real number field" space
+    int m_display_dp;  // number of decimal places to display value in "real number field" space
+    int m_null_apparent_value;  // where (in slider space) should the slider be when the field is NULL?
 
     // Visuals
-    bool m_horizontal;
-    bool m_show_value;
-    int m_tick_interval;
-    QSlider::TickPosition m_tick_position;
-    bool m_use_default_labels;
-    QMap<int, QString> m_tick_labels;
-    QSlider::TickPosition m_tick_label_position;
-    bool m_edge_in_extreme_labels;
-    bool m_symmetric;
-    bool m_inverted;
+    bool m_horizontal;  // horizontal, not vertical?
+    bool m_show_value;  // show the numerical value too?
+    int m_tick_interval;  // intertick interval (in slider space)
+    QSlider::TickPosition m_tick_position;  // ticks above/below/both/none, or left/right/both/none?
+    bool m_use_default_labels;  // use default numerical labels?
+    QMap<int, QString> m_tick_labels;  // manually specified position/label pairs
+    QSlider::TickPosition m_tick_label_position;  // labels above/below/both/none, or left/right/both/none?
+    bool m_edge_in_extreme_labels;  // see setEdgeInExtremeLabels() above
+    bool m_symmetric;  // see setSymmetric() above
+    bool m_inverted;  // inverted direction? See setInverted() above.
+    qreal m_abs_length_cm;  // absolute length in cm, or <=0 for default size
 
     // Internals
-    QPointer<QWidget> m_container_widget;
-    QPointer<QLabel> m_value_label;
-    QPointer<TickSlider> m_slider;
-    bool m_field_write_pending;
-    int m_field_write_slider_value;
-    QSharedPointer<QTimer> m_timer;
+    QPointer<QWidget> m_container_widget;  // outer widget
+    QPointer<QLabel> m_value_label;  // value indicator
+    QPointer<TickSlider> m_slider;  // slider
+    bool m_field_write_pending;  // is a field writes pending?
+    int m_field_write_slider_value;  // the value to be written when m_timer expires
+    QSharedPointer<QTimer> m_timer;  // timer to delay writes for visual performance
 };

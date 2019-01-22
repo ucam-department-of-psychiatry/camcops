@@ -41,11 +41,11 @@ public:
     // Returns the ID number value (e.g. 9876543210) as a QVariant.
     QVariant idnumAsVariant() const;
 
-    // Returns the ID number value as a qlonglong.
+    // Returns the ID number value as a qint64 (qlonglong).
     // 64-bit signed integer; therefore up to +9,223,372,036,854,775,807
     // NOTE that SQLite3 can't handle unsigned 64-bit integers in plain types;
     // see https://www.sqlite.org/datatype3.html
-    qlonglong idnumAsInteger() const;
+    qint64 idnumAsInteger() const;
 
     // Returns the ID number value as a string.
     QString idnumAsString() const;
@@ -54,7 +54,7 @@ public:
     bool idnumIsPresent() const;
 
     // Sets the ID number
-    bool setIdnumValue(qlonglong idnum_value, bool save_to_db = true);
+    bool setIdnumValue(qint64 idnum_value, bool save_to_db = true);
 
 public:
     static const QString PATIENT_IDNUM_TABLENAME;

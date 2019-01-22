@@ -72,11 +72,11 @@ signals:
     void debugLayout();
 
 protected:
-    QString m_title;
-    QPointer<QPushButton> m_button_debug;
-    QPointer<QAbstractButton> m_button_jump;
-    QPointer<QAbstractButton> m_button_previous;
-    QPointer<QAbstractButton> m_button_next;
-    QPointer<ImageButton> m_button_finish;
-    QPointer<QLabel> m_icon_no_next;
+    QString m_title;  // title text
+    QPointer<QPushButton> m_button_debug;  // button for "debug layout"
+    QPointer<QAbstractButton> m_button_jump;  // "jump"
+    QPointer<QAbstractButton> m_button_previous;  // "previous page"
+    QPointer<QAbstractButton> m_button_next;  // "next page"
+    QPointer<ImageButton> m_button_finish;  // "finish"
+    QPointer<QLabel> m_icon_no_next;  // icon to show when next unavailable, e.g. warning triangle
 };

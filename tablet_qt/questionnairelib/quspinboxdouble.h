@@ -31,21 +31,33 @@ class QuSpinBoxDouble : public QuElement
 
     Q_OBJECT
 public:
+    // Constructor, specifying range and maximum number of decimal places.
     QuSpinBoxDouble(FieldRefPtr fieldref, double minimum, double maximum,
                     int decimals = 2);
 protected:
+
+    // Sets the widget state from our fieldref.
     void setFromField();
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
+
 protected slots:
+
+    // "Numerical value of spinbox has changed."
     void widgetValueChanged(double value);
+
+    // "Textual value of spinbox has changed."
     void widgetValueChangedString(const QString& text);
+
+    // "The field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref,
                            const QObject* originator = nullptr);
+
 protected:
-    FieldRefPtr m_fieldref;
-    double m_minimum;
-    double m_maximum;
-    int m_decimals;
-    QPointer<QDoubleSpinBox> m_spinbox;
+    FieldRefPtr m_fieldref;  // our field
+    double m_minimum;  // minimum value
+    double m_maximum;  // maximum value
+    int m_decimals;  // maximum number of decimal places
+    QPointer<QDoubleSpinBox> m_spinbox;  // spinbox widget
 };

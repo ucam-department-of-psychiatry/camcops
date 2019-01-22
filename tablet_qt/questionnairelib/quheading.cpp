@@ -50,10 +50,10 @@ void QuHeading::commonConstructor()
 
 QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
 {
-    // Call parent, ignore result:
+    // Call parent (which sets m_label), ignore result:
     QuText::makeWidget(questionnaire);
-    // Add background:
 
+    // Add background, and return m_container (containing m_label):
     m_container = new BaseWidget();
     auto layout = new HBoxLayout();
     m_container->setObjectName(cssconst::QUHEADING);

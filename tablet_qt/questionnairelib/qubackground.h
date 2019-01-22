@@ -31,5 +31,5 @@ public:
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 protected:
-    QString m_css_name;
+    QString m_css_name;  // CSS name for the QWidget
 };

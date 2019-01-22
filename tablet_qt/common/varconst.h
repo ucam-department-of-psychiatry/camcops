@@ -23,6 +23,10 @@
 
 namespace varconst {
 
+// ----------------------------------------------------------------------------
+// Names of server variables, and a few associated constants.
+// ----------------------------------------------------------------------------
+
 // Version storage
 extern const QString CAMCOPS_TABLET_VERSION_AS_STRING;
 
@@ -45,7 +49,7 @@ extern const int UPLOAD_METHOD_MULTISTEP;  // the original way
 extern const int UPLOAD_METHOD_ONESTEP;  // available from v2.3.0
 extern const int UPLOAD_METHOD_BYSIZE;  // available from v2.3.0
 extern const int DEFAULT_UPLOAD_METHOD;
-extern const qlonglong DEFAULT_MAX_DBSIZE_FOR_ONESTEP_UPLOAD;
+extern const qint64 DEFAULT_MAX_DBSIZE_FOR_ONESTEP_UPLOAD;
 
 // Uploading flag
 extern const QString NEEDS_UPLOAD;

@@ -121,19 +121,19 @@ protected slots:
     void fieldValueChanged(const FieldRef* fieldref);
 
 protected:
-    QString m_text;
-    QString m_image_filename;
-    QSize m_image_size;
-    bool m_adjust_image_for_dpi;
-    FieldRefPtr m_fieldref;
-    bool m_content_clickable;
-    bool m_indicator_on_left;
-    bool m_big_indicator;
-    bool m_big_text;
-    bool m_bold;
-    bool m_italic;
-    bool m_allow_unset;
-    bool m_as_text_button;
-    bool m_false_appears_blank;
-    QPointer<BooleanWidget> m_indicator;
+    QString m_text;  // text (label)
+    QString m_image_filename;  // filename for icon
+    QSize m_image_size;  // size of icon
+    bool m_adjust_image_for_dpi;  // rescale the image?
+    FieldRefPtr m_fieldref;  // our fieldref
+    bool m_content_clickable;  // is the text or icon clickable?
+    bool m_indicator_on_left;  // "indicator widget" not "widget indicator"?
+    bool m_big_indicator;  // big indicator?
+    bool m_big_text;  // big text?
+    bool m_bold;   // bold text?
+    bool m_italic;  // italic text?
+    bool m_allow_unset;  // allow setting back to NULL?
+    bool m_as_text_button;  // text button, not tickbox indicator?
+    bool m_false_appears_blank;  // false appears unticked?
+    QPointer<BooleanWidget> m_indicator;  // tickbox indicator
 };

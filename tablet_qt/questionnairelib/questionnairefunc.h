@@ -35,11 +35,19 @@ namespace questionnairefunc {
 // ============================================================================
 
 // Make default grids: convenience functions for grid creation.
+//
 // These functions take {string, element} pairs and make a two-column grid
 // like:
 //
 //              label1      element1
 //              label2      element2
+//
+// - The column span arguments determine the relative width of the left/right
+//   columns.
+// - label_alignment determines the alignment of text within the text widget
+//   (e.g. left-justified, right-justified); see QuText::setAlignment().
+// - The column alignment determines the alignment passed to QuGridCell();
+//   q.v.
 
 QuElement* defaultGridRawPointer(
     const QVector<GridRowDefinition>& deflist,

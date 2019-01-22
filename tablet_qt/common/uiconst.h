@@ -31,12 +31,27 @@ namespace uiconst {
 // Sizes, size policies
 // ============================================================================
 
+// "Standard" DPI setting.
 extern const qreal DEFAULT_DPI;
-extern qreal DPI;  // not const!
+
+// DPI setting on the computer running CamCOPS.
+extern qreal LOGICAL_DPI;  // not const!
+extern qreal PHYSICAL_DPI_X;  // not const!
+extern qreal PHYSICAL_DPI_Y;  // not const!
+
+// "Standard" icon size.
 extern const QSize ICONSIZE_FOR_DEFAULT_DPI;
+
+// "Standard" small icon size.
 extern const QSize SMALL_ICONSIZE_FOR_DEFAULT_DPI;
+
+// Icon size for current DPI setting.
 extern QSize ICONSIZE;  // not const!
+
+// Small icon size for current DPI setting.
 extern QSize SMALL_ICONSIZE;  // not const!
+
+// Spacing constants for questionnaires.
 extern const int SPACE;
 extern const int BIGSPACE;
 extern const int MEDIUMSPACE;
@@ -49,11 +64,19 @@ extern const int DEFAULT_COLSPAN_Q;
 extern const int DEFAULT_COLSPAN_A;
 extern const int MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI;
 extern int MIN_SPINBOX_HEIGHT;  // not const!
-extern const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS;
+extern const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS;  // how to display a spinbox
 extern const int SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI;
 extern int SLIDER_HANDLE_SIZE_PX;
 extern const int DIAL_DIAMETER_PX_FOR_DEFAULT_DPI;
 extern int DIAL_DIAMETER_PX;
+
+// QCalendarWidget
+extern const QColor QCALENDARWIDGET_NAVBAR_BACKGROUND;
+extern const QColor QCALENDARWIDGET_NAVBAR_FOREGROUND;
+extern const QFont::Weight QCALENDARWIDGET_HEADER_FONTWEIGHT;
+extern const QColor QCALENDARWIDGET_TEXT_WEEKDAY;
+extern const QColor QCALENDARWIDGET_TEXT_WEEKEND;
+extern const QDate QCALENDARWIDGET_MIN_DATE;
 
 extern const QMargins NO_MARGINS;
 
@@ -61,6 +84,7 @@ extern const QMargins NO_MARGINS;
 // Stylesheets
 // ============================================================================
 
+// Filenames of CSS stylesheets in the CamCOPS resource file
 extern const QString CSS_CAMCOPS_MAIN;
 extern const QString CSS_CAMCOPS_MENU;
 extern const QString CSS_CAMCOPS_QUESTIONNAIRE;
@@ -88,7 +112,7 @@ extern const QColor BUTTON_DISABLED_COLOUR;
 extern const qreal DISABLED_ICON_OPACITY;
 
 // ============================================================================
-// Images
+// Images (as filename stems, e.g. "addiction.png"
 // ============================================================================
 
 extern const QString ICON_ADDICTION;

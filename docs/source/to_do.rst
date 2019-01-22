@@ -66,6 +66,12 @@ Tasks
 
 **Consider**
 
+- review Guo 2015 "measurement-based care":
+  - HADS/HDRS already
+  - QIDS -- permissible?
+  - Maudsley Treatment Inventory?
+  - see notes on Cleare lecture 15/11/2018
+
 - new task: ReQoL (https://www.reqol.org.uk/p/overview.html)
 - new task: mini-ACE (subset of the ACE-III)
 - new task: Andy Foster / eating disorders; e-mail of 24/5/16

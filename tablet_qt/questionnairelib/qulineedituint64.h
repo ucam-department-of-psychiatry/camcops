@@ -21,23 +21,32 @@
 #include "questionnairelib/qulineedit.h"
 
 
-class QuLineEditULongLong : public QuLineEdit
+class QuLineEditUInt64 : public QuLineEdit
 {
-    // Offers a one-line text editor, for an integer.
+    // Offers a one-line text editor, for an unsigned 64-bit integer
+    // (qulonglong = quint64).
     // WATCH OUT, though; SQLite is limited to 64-bit signed integers,
-    // and this is 64-bit signed.
+    // and this is 64-bit unsigned.
 
     Q_OBJECT
 public:
-    QuLineEditULongLong(FieldRefPtr fieldref, bool allow_empty = true);
-    QuLineEditULongLong(FieldRefPtr fieldref, qulonglong minimum,
-                        qulonglong maximum, bool allow_empty = true);
+
+    // Constructor for unconstrained numbers
+    QuLineEditUInt64(FieldRefPtr fieldref, bool allow_empty = true);
+
+    // Constructor for constrained numbers.
+    // - allow_empty: OK to be blank?
+    QuLineEditUInt64(FieldRefPtr fieldref, quint64 minimum,
+                     quint64 maximum, bool allow_empty = true);
+
 protected:
     virtual void extraLineEditCreation(QLineEdit* editor) override;
+
 protected:
     void commonConstructor();
+
 protected:
-    qulonglong m_minimum;
-    qulonglong m_maximum;
-    bool m_allow_empty;
+    quint64 m_minimum;  // minimum; may be std::numeric_limits<quint64>::min()
+    quint64 m_maximum;  // maximum; may be std::numeric_limits<quint64>::max()
+    bool m_allow_empty;  // allow an empty field?
 };

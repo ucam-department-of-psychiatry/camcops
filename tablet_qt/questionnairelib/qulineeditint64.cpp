@@ -17,25 +17,25 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "qulineeditlonglong.h"
+#include "qulineeditint64.h"
 #include "qobjects/strictint64validator.h"
 
 
-QuLineEditLongLong::QuLineEditLongLong(FieldRefPtr fieldref,
-                                       const bool allow_empty) :
+QuLineEditInt64::QuLineEditInt64(FieldRefPtr fieldref,
+                                 const bool allow_empty) :
     QuLineEdit(fieldref),
-    m_minimum(std::numeric_limits<qlonglong>::min()),
-    m_maximum(std::numeric_limits<qlonglong>::max()),
+    m_minimum(std::numeric_limits<qint64>::min()),
+    m_maximum(std::numeric_limits<qint64>::max()),
     m_allow_empty(allow_empty)
 {
     commonConstructor();
 }
 
 
-QuLineEditLongLong::QuLineEditLongLong(FieldRefPtr fieldref,
-                                       const qlonglong minimum,
-                                       const qlonglong maximum,
-                                       const bool allow_empty) :
+QuLineEditInt64::QuLineEditInt64(FieldRefPtr fieldref,
+                                 const qint64 minimum,
+                                 const qint64 maximum,
+                                 const bool allow_empty) :
     QuLineEdit(fieldref),
     m_minimum(minimum),
     m_maximum(maximum),
@@ -45,13 +45,13 @@ QuLineEditLongLong::QuLineEditLongLong(FieldRefPtr fieldref,
 }
 
 
-void QuLineEditLongLong::commonConstructor()
+void QuLineEditInt64::commonConstructor()
 {
     setHint(QString("integer, range %1 to %2").arg(m_minimum).arg(m_maximum));
 }
 
 
-void QuLineEditLongLong::extraLineEditCreation(QLineEdit* editor)
+void QuLineEditInt64::extraLineEditCreation(QLineEdit* editor)
 {
     editor->setValidator(new StrictInt64Validator(m_minimum, m_maximum,
                                                   m_allow_empty, this));

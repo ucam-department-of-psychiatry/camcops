@@ -355,13 +355,13 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuText(
             "Except from Mozart WA, <i>Vesperae solennes de confessore</i> "
             "(K.339), fifth movement, <i>Laudate Dominum</i>, by the Advent "
-            "Chamber Orchestra (see docs)"),
+            "Chamber Orchestra (see docs)."),
         (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_2))->setVolume(SOUNDTEST_1_VOLUME),
         new QuHeading("Audio player with volume control:"),
         new QuText(
             "Excerpt from Bach JS, <i>Brandenburg Concerto No. 3, third "
-            "movement (Allegro) </i>, by the Advent Chamber Orchestra "
-            "(see docs)"),
+            "movement (Allegro)</i>, by the Advent Chamber Orchestra "
+            "(see docs)."),
         (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_1))->setOfferVolumeControl(),
         new QuHeading("Countdown:"),
         new QuCountdown(20),
@@ -744,6 +744,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     const double VAS_MIN = 0.0;  // the database/display minimum
     const double VAS_MAX = 1.0;  // the database/display maximum
     const int VAS_DISPLAY_DP = 3;
+    const int VAS_ABSOLUTE_SIZE_CM = 10.0;
 
     // --------------------------------------------------------------------
     // VAS-style slider
@@ -774,6 +775,9 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     vas_slider->setNullApparentValue(VAS_CENTRAL_INT);
     vas_slider->setSymmetric(true);
     vas_slider->setEdgeInExtremeLabels(false);
+
+    // Absolute size, if absolutely required (beware small screens!).
+    vas_slider->setAbsoluteLengthCm(VAS_ABSOLUTE_SIZE_CM);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // End of those examples. On to the page...

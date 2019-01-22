@@ -364,7 +364,7 @@ QSize CanvasWidget::imageSize() const
 QSize CanvasWidget::desiredDisplaySize() const
 {
     if (m_adjust_display_for_dpi) {
-        return convert::convertSizeByDpi(imageSize());
+        return convert::convertSizeByLogicalDpi(imageSize());
     }
     return imageSize();
 }

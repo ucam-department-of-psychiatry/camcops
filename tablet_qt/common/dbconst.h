@@ -23,12 +23,16 @@
 
 namespace dbconst {
 
+// Fieldnames used across a range of tables.
 extern const QString PK_FIELDNAME;
 extern const QString MOVE_OFF_TABLET_FIELDNAME;
 extern const QString MODIFICATION_TIMESTAMP_FIELDNAME;
 extern const QString CREATION_TIMESTAMP_FIELDNAME;
+
+// A PK pseudo-value to mean "nonexistent".
 extern const int NONEXISTENT_PK;
 
+// How to describe an unknown ID number type.
 extern const QString UNKNOWN_IDNUM_DESC;
 
 // Is this ID number type potentially valid?

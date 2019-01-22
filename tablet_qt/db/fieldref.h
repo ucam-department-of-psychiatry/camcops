@@ -182,8 +182,8 @@ public:
     // Returns the underlying data value, as an int.
     int valueInt() const;
 
-    // Returns the underlying data value, as a qlonglong.
-    qlonglong valueLongLong() const;
+    // Returns the underlying data value, as a qint64 (qlonglong).
+    qint64 valueInt64() const;
 
     // Returns the underlying data value, as a double.
     double valueDouble() const;

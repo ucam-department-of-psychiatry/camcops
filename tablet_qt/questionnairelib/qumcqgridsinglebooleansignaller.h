@@ -20,22 +20,30 @@
 #pragma once
 #include <QObject>
 
-// This should be a private (nested) class of QuMCQGrid, but you can't nest
-// Q_OBJECT classes ("Error: Meta object features not supported for nested
-// classes").
-
 class FieldRef;
 class QuMcqGridSingleBoolean;
 
 
 class QuMcqGridSingleBooleanSignaller : public QObject {
+
+    // This should be a private (nested) class of QuMcqGridSingleBoolean, but
+    // you can't nest Q_OBJECT classes ("Error: Meta object features not
+    // supported for nested classes").
+
     Q_OBJECT
 public:
+    // Constructor:
+    // - recipient: to what are we signalling?
+    // - question_index: information to convey
     QuMcqGridSingleBooleanSignaller(QuMcqGridSingleBoolean* recipient,
                                     int question_index);
 public slots:
+    // Signalled to by a FieldRef. Passes the signal to its QuMcqGridSingleBoolean.
     void mcqFieldValueOrMandatoryChanged(const FieldRef* fieldref);
+
+    // Signalled to by a FieldRef. Passes the signal to its QuMcqGridSingleBoolean.
     void booleanFieldValueOrMandatoryChanged(const FieldRef* fieldref);
+
 protected:
     QuMcqGridSingleBoolean* m_recipient;
     int m_question_index;

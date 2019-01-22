@@ -67,14 +67,14 @@ protected slots:
     void tick();
 
 protected:
-    int m_time_s;
-    int m_volume;
-    bool m_running;
-    QPointer<QPushButton> m_start_button;
-    QPointer<QPushButton> m_stop_button;
-    QPointer<QPushButton> m_reset_button;
-    QPointer<QLabel> m_label;
-    QSharedPointer<QTimer> m_timer;
-    QSharedPointer<QMediaPlayer> m_player;  // not owned by other widgets
-    double m_seconds_left;
+    int m_time_s;  // total time
+    int m_volume;  // alarm volume
+    bool m_running;  // currently running?
+    QPointer<QPushButton> m_start_button;  // "Start"
+    QPointer<QPushButton> m_stop_button;  // "Stop"
+    QPointer<QPushButton> m_reset_button;  // "Reset"
+    QPointer<QLabel> m_label;  // text containing time-to-go information
+    QSharedPointer<QTimer> m_timer;  // timer
+    QSharedPointer<QMediaPlayer> m_player;  // sound player; not owned by other widgets
+    double m_seconds_left;  // time left
 };

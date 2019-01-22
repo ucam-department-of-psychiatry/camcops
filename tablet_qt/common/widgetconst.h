@@ -21,6 +21,8 @@
 
 namespace widgetconst {
 
+// Constants relating to widget display.
+
 extern const int SET_GEOMETRY_MAX_REENTRY_DEPTH;
 
 }  // namespace widgetconst

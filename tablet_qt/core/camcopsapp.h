@@ -507,8 +507,8 @@ public:
     // Return a stored variable as an int.
     int varInt(const QString& name) const;
 
-    // Return a stored variable as a qlonglong.
-    qlonglong varLongLong(const QString& name) const;
+    // Return a stored variable as a qint64 (qlonglong).
+    qint64 varLongLong(const QString& name) const;
 
     // Sets a stored variable.
     bool setVar(const QString& name, const QVariant& value,
@@ -623,6 +623,11 @@ protected:
     // Editing cache for stored variables.
     mutable QMap<QString, QVariant> m_cachedvars;
 
-    // Our DPI setting.
-    qreal m_dpi;
+    // Our DPI settings.
+    // - physical: actual device DPI
+    // - logical: the user may be able to control this via their desktop
+    //   settings
+    qreal m_logical_dpi;
+    qreal m_physical_dpi_x;
+    qreal m_physical_dpi_y;
 };

@@ -43,7 +43,7 @@
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qulineedit.h"
-#include "questionnairelib/qulineeditlonglong.h"
+#include "questionnairelib/qulineeditint64.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qulineeditnhsnumber.h"
 #include "questionnairelib/qupage.h"
@@ -258,7 +258,7 @@ QVariant Patient::idnumVariant(const int which_idnum) const
 }
 
 
-qlonglong Patient::idnumInteger(const int which_idnum) const
+qint64 Patient::idnumInteger(const int which_idnum) const
 {
     return idnumVariant(which_idnum).toLongLong();  // 0 in case of failure
 }
@@ -354,7 +354,7 @@ QJsonObject Patient::jsonDescription() const
             continue;
         }
         const int which_idnum = idnum->whichIdNum();
-        const qlonglong idnum_value = idnum->idnumAsInteger();
+        const qint64 idnum_value = idnum->idnumAsInteger();
         const QString idkey = QString("%1%2").arg(
                     KEY_IDNUM_PREFIX, QString::number(which_idnum));
         j[idkey] = idnum_value;
@@ -467,7 +467,7 @@ bool Patient::othersClashOnIdnum(const int which_idnum) const
     if (idvar.isNull()) {
         return false;
     }
-    const qlonglong idnum = idnumInteger(which_idnum);
+    const qint64 idnum = idnumInteger(which_idnum);
     const int patient_pk = id();
     const SqlArgs sqlargs(
         QString("SELECT COUNT(*) FROM %1 WHERE %2 = ? AND %3 = ? AND %4 <> ?")
@@ -731,11 +731,11 @@ void Patient::buildPage(bool read_only)
                                    row, 1, rowspan, colspan, ralign));
 
         auto id_fr = idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE, false);
-        QuLineEditLongLong* num_editor;
+        QuLineEditInt64* num_editor;
         if (idinfo->validateAsNhsNumber()) {
             num_editor = new QuLineEditNHSNumber(id_fr);
         } else {
-            num_editor = new QuLineEditLongLong(
+            num_editor = new QuLineEditInt64(
                         id_fr, MIN_ID_NUM_VALUE, MAX_ID_NUM_VALUE);
         }
         idgrid->addCell(QuGridCell(num_editor, row++, 2));
@@ -815,7 +815,7 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
     for (const PatientIdNumPtr& other_id : other->m_idnums) {
         if (other_id->idnumIsPresent()) {
             const int which_idnum = other_id->whichIdNum();
-            const qlonglong other_idnum_value = other_id->idnumAsInteger();
+            const qint64 other_idnum_value = other_id->idnumAsInteger();
             bool found = false;
             for (const PatientIdNumPtr& this_id : m_idnums) {
                 if (this_id->whichIdNum() == which_idnum) {

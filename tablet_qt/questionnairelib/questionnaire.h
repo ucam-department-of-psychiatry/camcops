@@ -314,23 +314,23 @@ protected slots:
     void finishClicked();
 
 protected:
-    CamcopsApp& m_app;
-    QVector<QuPagePtr> m_pages;
-    QuPage::PageType m_type;
-    bool m_read_only;
-    bool m_jump_allowed;
-    bool m_within_chain;
+    CamcopsApp& m_app;  // our app
+    QVector<QuPagePtr> m_pages;  // our pages
+    QuPage::PageType m_type;  // our type, e.g. patient/clinician (pages may inherit or override)
+    bool m_read_only;  // are we in read-only mode?
+    bool m_jump_allowed;  // is the user allowed to jump to a page?
+    bool m_within_chain;  // set setWithinChain()
 
     bool m_built;
 #ifdef QUESTIONAIRE_USE_HFW_LAYOUT
     QPointer<VBoxLayout> m_outer_layout;
     QPointer<VBoxLayout> m_mainlayout;
 #else
-    QPointer<QVBoxLayout> m_outer_layout;
-    QPointer<QVBoxLayout> m_mainlayout;
+    QPointer<QVBoxLayout> m_outer_layout;  // see layout described in build()
+    QPointer<QVBoxLayout> m_mainlayout;  // see layout described in build()
 #endif
-    QPointer<QWidget> m_background_widget;
-    QPointer<QuestionnaireHeader> m_p_header;
-    int m_current_page_index;
-    QString m_finish_button_icon_base_filename;
+    QPointer<QWidget> m_background_widget;  // see layout described in build()
+    QPointer<QuestionnaireHeader> m_p_header;  // see layout described in build()
+    int m_current_page_index;  // zero-based index of the current page
+    QString m_finish_button_icon_base_filename;  // see setFinishButtonIcon()
 };

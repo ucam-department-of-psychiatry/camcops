@@ -355,7 +355,7 @@ int FieldRef::valueInt() const
 }
 
 
-qlonglong FieldRef::valueLongLong() const
+qint64 FieldRef::valueInt64() const
 {
     const QVariant v = value();
     return v.toLongLong();

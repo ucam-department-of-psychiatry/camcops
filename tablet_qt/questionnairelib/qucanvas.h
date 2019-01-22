@@ -109,23 +109,23 @@ protected slots:
     void resetFieldToNull();
 
 protected:
-    BlobFieldRefPtr m_fieldref;
-    QSize m_size;
-    bool m_allow_shrink;
-    QImage::Format m_format;
-    bool m_adjust_display_for_dpi;
-    QColor m_background_colour;
-    int m_border_width_px;
-    QColor m_border_colour;
-    QColor m_unused_space_colour;
-    QColor m_pen_colour;
-    int m_pen_width;
-    QString m_template_filename;
-    bool m_using_template;
+    BlobFieldRefPtr m_fieldref;  // our fieldref, to a BLOB
+    QSize m_size;  // size of the canvas
+    bool m_allow_shrink;  // see setAllowShrink()
+    QImage::Format m_format;  // internal image format
+    bool m_adjust_display_for_dpi;  // rescale?
+    QColor m_background_colour;  // see setBackgroundColour()
+    int m_border_width_px;  // border width in pixels; see setBorderWidth()
+    QColor m_border_colour;  // see setBorderColour()
+    QColor m_unused_space_colour;  // see setUnusedSpaceColour()
+    QColor m_pen_colour;  // see setPenColour()
+    int m_pen_width;  // see setPenWidth()
+    QString m_template_filename;  // image to draw over
+    bool m_using_template;  // draw over image, rather than blank canvas?
 
-    QPointer<CanvasWidget> m_canvas;
-    QPointer<QLabel> m_missing_indicator;
-    QPointer<Spacer> m_no_missing_indicator;
-    QSharedPointer<QTimer> m_timer;
-    bool m_field_write_pending;
+    QPointer<CanvasWidget> m_canvas;  // our canvas
+    QPointer<QLabel> m_missing_indicator;  // show "data is missing"
+    QPointer<Spacer> m_no_missing_indicator;  // equivalent space to m_missing_indicator
+    QSharedPointer<QTimer> m_timer;  // timer for delayed write-to-field
+    bool m_field_write_pending;  // is a field write pending?
 };

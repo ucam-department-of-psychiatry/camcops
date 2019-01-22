@@ -52,7 +52,7 @@ QValidator::State validateNhsNumber(const QString& s, bool allow_empty = false);
 // Templatized Qt validator function for NHS numbers
 // ============================================================================
 
-template<typename T>  // T is e.g. qlonglong
+template<typename T>  // T is e.g. qint64
 QValidator::State nhs::validateNhsNumber(const QString& s, bool allow_empty)
 {
     if (s.isEmpty()) {

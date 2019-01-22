@@ -132,10 +132,11 @@ int convertLengthByDpi(int old_length, qreal to_dpi, qreal from_dpi);
 int convertLengthByDpi(int old_length);  // default is runtime, not compile-time
 
 // Converts a QSize by DPI; as for convertLengthByDpi(int, qreal, qreal).
+// Assumes DPI is the same in the x and y directions.
 QSize convertSizeByDpi(const QSize& old_size, qreal to_dpi, qreal from_dpi);
 
-// Converts a QSize by default DPI; as for convertLengthByDpi(int).
-QSize convertSizeByDpi(const QSize& old_size);  // default is runtime, not compile-time
+// Converts a QSize by default logical DPI; as for convertLengthByDpi(int).
+QSize convertSizeByLogicalDpi(const QSize& old_size);  // default is runtime, not compile-time
 
 // Converts a distance in cm to a number of pixels, given a DPI setting.
 int convertCmToPx(qreal cm, qreal dpi);

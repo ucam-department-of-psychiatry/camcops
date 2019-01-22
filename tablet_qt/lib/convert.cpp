@@ -602,7 +602,7 @@ int convertLengthByDpi(const int old_length,
 
 int convertLengthByDpi(const int old_length)
 {
-    return convertLengthByDpi(old_length, uiconst::DPI, uiconst::DEFAULT_DPI);
+    return convertLengthByDpi(old_length, uiconst::LOGICAL_DPI, uiconst::DEFAULT_DPI);
 }
 
 
@@ -618,9 +618,9 @@ QSize convertSizeByDpi(const QSize& old_size,
 }
 
 
-QSize convertSizeByDpi(const QSize& old_size)
+QSize convertSizeByLogicalDpi(const QSize& old_size)
 {
-    return convertSizeByDpi(old_size, uiconst::DPI, uiconst::DEFAULT_DPI);
+    return convertSizeByDpi(old_size, uiconst::LOGICAL_DPI, uiconst::DEFAULT_DPI);
 }
 
 

@@ -92,13 +92,13 @@ protected slots:
     void setToNull();
 
 protected:
-    FieldRefPtr m_fieldref;
-    Mode m_mode;
-    QString m_custom_format;
-    Qt::InputMethodHints m_custom_input_method_hint;
-    bool m_offer_now_button;
-    bool m_offer_null_button;
+    FieldRefPtr m_fieldref;  // our fieldref
+    Mode m_mode;  // see Mode above
+    QString m_custom_format;  // format for Mode::Custom*
+    Qt::InputMethodHints m_custom_input_method_hint;  // hint for Mode::Custom*
+    bool m_offer_now_button;  // see setOfferNowButton()
+    bool m_offer_null_button;  // see setOfferNullButton()
 
-    QPointer<QDateTimeEdit> m_editor;
-    QPointer<QCalendarWidget> m_calendar_widget;
+    QPointer<QDateTimeEdit> m_editor;  // edit box
+    QPointer<QCalendarWidget> m_calendar_widget;  // pop-up calendar widget
 };

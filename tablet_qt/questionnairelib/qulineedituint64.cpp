@@ -17,26 +17,26 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "qulineeditulonglong.h"
+#include "qulineedituint64.h"
 #include <QDebug>
 #include "qobjects/strictuint64validator.h"
 
 
-QuLineEditULongLong::QuLineEditULongLong(FieldRefPtr fieldref,
-                                         const bool allow_empty) :
+QuLineEditUInt64::QuLineEditUInt64(FieldRefPtr fieldref,
+                                   const bool allow_empty) :
     QuLineEdit(fieldref),
-    m_minimum(std::numeric_limits<qulonglong>::min()),
-    m_maximum(std::numeric_limits<qulonglong>::max()),
+    m_minimum(std::numeric_limits<quint64>::min()),
+    m_maximum(std::numeric_limits<quint64>::max()),
     m_allow_empty(allow_empty)
 {
     commonConstructor();
 }
 
 
-QuLineEditULongLong::QuLineEditULongLong(FieldRefPtr fieldref,
-                                         const qulonglong minimum,
-                                         const qulonglong maximum,
-                                         const bool allow_empty) :
+QuLineEditUInt64::QuLineEditUInt64(FieldRefPtr fieldref,
+                                   const quint64 minimum,
+                                   const quint64 maximum,
+                                   const bool allow_empty) :
     QuLineEdit(fieldref),
     m_minimum(minimum),
     m_maximum(maximum),
@@ -46,7 +46,7 @@ QuLineEditULongLong::QuLineEditULongLong(FieldRefPtr fieldref,
 }
 
 
-void QuLineEditULongLong::commonConstructor()
+void QuLineEditUInt64::commonConstructor()
 {
     qWarning() << "SQLite v3 does not properly support unsigned 64-bit "
                   "integers (https://www.sqlite.org/datatype3.html); "
@@ -56,7 +56,7 @@ void QuLineEditULongLong::commonConstructor()
 }
 
 
-void QuLineEditULongLong::extraLineEditCreation(QLineEdit* editor)
+void QuLineEditUInt64::extraLineEditCreation(QLineEdit* editor)
 {
     editor->setValidator(new StrictUInt64Validator(m_minimum, m_maximum,
                                                    m_allow_empty, this));

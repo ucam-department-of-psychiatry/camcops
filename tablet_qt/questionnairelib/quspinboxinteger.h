@@ -30,19 +30,31 @@ class QuSpinBoxInteger : public QuElement
 
     Q_OBJECT
 public:
+    // Constructor, specifying range.
     QuSpinBoxInteger(FieldRefPtr fieldref, int minimum, int maximum);
+
 protected:
+
+    // Sets the widget state from our fieldref.
     void setFromField();
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
+
 protected slots:
+
+    // "Numerical value of spinbox has changed."
     void widgetValueChanged(int value);
+
+    // "Textual value of spinbox has changed."
     void widgetValueChangedString(const QString& text);
+
+    // "The field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref,
                            const QObject* originator = nullptr);
 protected:
-    FieldRefPtr m_fieldref;
-    int m_minimum;
-    int m_maximum;
-    QPointer<QSpinBox> m_spinbox;
+    FieldRefPtr m_fieldref;  // our field
+    int m_minimum;  // minimum value
+    int m_maximum;  // maximum value
+    QPointer<QSpinBox> m_spinbox;  // spinbox widget
 };

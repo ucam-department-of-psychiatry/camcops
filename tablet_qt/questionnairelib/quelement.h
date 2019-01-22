@@ -113,8 +113,8 @@ protected:
 
 protected:
     QPointer<QWidget> m_widget;  // used to cache a widget pointer
-    QStringList m_tags;
-    bool m_visible;
+    QStringList m_tags;  // our tags
+    bool m_visible;  // are we visible?
 };
 
 

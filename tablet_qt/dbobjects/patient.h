@@ -129,9 +129,9 @@ public:
     // Returns an ID number of the specified ID type as a QVariant.
     QVariant idnumVariant(int which_idnum) const;
 
-    // Returns an ID number of the specified ID type as a qlonglong.
+    // Returns an ID number of the specified ID type as a qint64 (qlonglong).
     // = 64-bit signed integer: up to 2^63 - 1 = 9,223,372,036,854,775,807
-    qlonglong idnumInteger(int which_idnum) const;
+    qint64 idnumInteger(int which_idnum) const;
 
     // Returns the attributes possessed by the patient (e.g. "sex and
     // forename and id number type 3"), to provide information for checking

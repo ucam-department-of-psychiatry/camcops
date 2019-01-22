@@ -75,10 +75,10 @@ protected slots:
     void clicked();
 
 protected:
-    QString m_label;
-    QString m_icon_filename;
-    bool m_filename_is_camcops_stem;
-    bool m_alter_unpressed_image;
-    CallbackFunction m_callback;
-    bool m_active;
+    QString m_label;  // text for text buttons
+    QString m_icon_filename;  // filename for image buttons
+    bool m_filename_is_camcops_stem;  // how to interpret our filename
+    bool m_alter_unpressed_image;  // see above
+    CallbackFunction m_callback;  // callback function
+    bool m_active;  // should the button be responsive?
 };

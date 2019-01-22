@@ -75,13 +75,13 @@ protected slots:
     virtual void fieldValueChanged(const FieldRef* fieldref_code);
 
 protected:
-    DiagnosticCodeSetPtr m_codeset;
-    FieldRefPtr m_fieldref_code;
-    FieldRefPtr m_fieldref_description;
-    bool m_offer_null_button;
+    DiagnosticCodeSetPtr m_codeset;  // our code set
+    FieldRefPtr m_fieldref_code;  // fieldref for the code
+    FieldRefPtr m_fieldref_description;  // fieldref for the description
+    bool m_offer_null_button;  // see setOfferNullButton()
 
-    QPointer<Questionnaire> m_questionnaire;
-    QPointer<QLabel> m_missing_indicator;
-    QPointer<LabelWordWrapWide> m_label_code;
-    QPointer<LabelWordWrapWide> m_label_description;
+    QPointer<Questionnaire> m_questionnaire;  // our questionnaire
+    QPointer<QLabel> m_missing_indicator;  // indicator for "missing data"
+    QPointer<LabelWordWrapWide> m_label_code;  // text of code
+    QPointer<LabelWordWrapWide> m_label_description;  // text of description
 };

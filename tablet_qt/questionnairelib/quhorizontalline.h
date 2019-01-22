@@ -28,6 +28,7 @@ class QuHorizontalLine : public QuElement
     Q_OBJECT
 public:
     QuHorizontalLine();
+
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 };

@@ -433,6 +433,7 @@ represent the range 0-1 with 1000 steps (i.e. to 3dp).
         const double VAS_MIN = 0.0;  // the database/display minimum
         const double VAS_MAX = 1.0;  // the database/display maximum
         const int VAS_DISPLAY_DP = 3;
+        const int VAS_ABSOLUTE_SIZE_CM = 10.0;
 
         // --------------------------------------------------------------------
         // VAS-style slider
@@ -463,6 +464,9 @@ represent the range 0-1 with 1000 steps (i.e. to 3dp).
         vas_slider->setNullApparentValue(VAS_CENTRAL_INT);
         vas_slider->setSymmetric(true);
         vas_slider->setEdgeInExtremeLabels(false);
+
+        // Absolute size, if absolutely required (beware small screens!).
+        vas_slider->setAbsoluteLengthCm(VAS_ABSOLUTE_SIZE_CM);
 
         // --------------------------------------------------------------------
         // Page, questionnaire

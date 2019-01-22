@@ -31,35 +31,62 @@ class QuText : public QuElement
 
     Q_OBJECT
 public:
+
+    // Constructor for static text.
     QuText(const QString& text = "");
+
+    // Constructor for dynamic text, from a field.
     QuText(FieldRefPtr fieldref);
+
+    // Set visual style of text.
     QuText* setBig(bool setBig = true);
     QuText* setBold(bool setBold = true);
     QuText* setItalic(bool setItalic = true);
     QuText* setWarning(bool setWarning = true);
+
+    // Plain text, rich text, or autodetect?
     QuText* setFormat(Qt::TextFormat format);
+
+    // Show URLs as active hyperlinks?
     QuText* setOpenLinks(bool open_links = true);
+
+    // Set text alignment within the widget.
     QuText* setAlignment(Qt::Alignment alignment);
+
+    // Change the "static" text.
     void setText(const QString& text, bool repolish = true);
+
     friend class SettingsMenu;
+
 protected:
     void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
-    void forceFontSize(int fontsize_pt, bool repolish = true);  // for SettingsMenu only
+
+    // Force the font size manually. For SettingsMenu only, to demonstrate
+    // font size.
+    void forceFontSize(int fontsize_pt, bool repolish = true);
+
+    // Sets the font size on our widget.
     void setWidgetFontSize(int fontsize_pt, bool repolish = false);
+
+    // Forces our widget to repolish itself.
     void repolishWidget();
+
 protected slots:
+
+    // "The field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref);
+
 protected:
-    QString m_text;
-    FieldRefPtr m_fieldref;
-    uiconst::FontSize m_fontsize;
-    bool m_bold;
-    bool m_italic;
-    bool m_warning;
-    Qt::TextFormat m_text_format;
-    bool m_open_links;
-    Qt::Alignment m_alignment;
-    QPointer<LabelWordWrapWide> m_label;
-    int m_forced_fontsize_pt;
+    QString m_text;  // static text
+    FieldRefPtr m_fieldref;  // field for dynamic text
+    uiconst::FontSize m_fontsize;  // font size (e.g. "big", "small")
+    bool m_bold;  // bold?
+    bool m_italic;  // italic?
+    bool m_warning;  // warning style?
+    Qt::TextFormat m_text_format;  // format (e.g. plain/rich/autodetect)
+    bool m_open_links;  // offer hyperlinks for URLs?
+    Qt::Alignment m_alignment;  // alignment of text in widget
+    QPointer<LabelWordWrapWide> m_label;  // our widget
+    int m_forced_fontsize_pt;  // the override font size, for special occasions
 };

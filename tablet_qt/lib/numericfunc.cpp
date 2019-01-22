@@ -35,14 +35,14 @@ int strToNumber(const QString& str, const int type_dummy)
 }
 
 
-qlonglong strToNumber(const QString& str, const qlonglong type_dummy)
+qint64 strToNumber(const QString& str, const qint64 type_dummy)
 {
     Q_UNUSED(type_dummy);
     return str.toLongLong();
 }
 
 
-qulonglong strToNumber(const QString& str, const qulonglong type_dummy)
+quint64 strToNumber(const QString& str, const quint64 type_dummy)
 {
     Q_UNUSED(type_dummy);
     return str.toULongLong();
@@ -57,17 +57,17 @@ int localeStrToNumber(const QString& str, bool& ok,
 }
 
 
-qlonglong localeStrToNumber(const QString& str, bool& ok,
-                            const QLocale& locale, const qlonglong type_dummy)
+qint64 localeStrToNumber(const QString& str, bool& ok,
+                         const QLocale& locale, const qint64 type_dummy)
 {
     Q_UNUSED(type_dummy);
     return locale.toLongLong(str, &ok);
 }
 
 
-qulonglong localeStrToNumber(const QString& str, bool& ok,
-                             const QLocale& locale,
-                             const qulonglong type_dummy)
+quint64 localeStrToNumber(const QString& str, bool& ok,
+                          const QLocale& locale,
+                          const quint64 type_dummy)
 {
     Q_UNUSED(type_dummy);
     return locale.toULongLong(str, &ok);

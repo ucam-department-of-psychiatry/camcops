@@ -24,6 +24,13 @@
 #include <QVariant>
 #include <QVector>
 
+// Arguments to SQL queries.
 using ArgList = QVector<QVariant>;
-using OrderBy = QVector<QPair<QString, bool>>;  // string is fieldname, bool is "ascending?"
-using UpdateValues = QMap<QString, QVariant>;  // column: value
+
+// SQL "order by" clauses.
+// In each QPair, the string is the fieldname; the bool is "ascending?".
+using OrderBy = QVector<QPair<QString, bool>>;
+
+// SQL UPDATE key/value pairs.
+// Map column to value.
+using UpdateValues = QMap<QString, QVariant>;

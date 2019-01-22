@@ -18,6 +18,7 @@
 */
 
 #include "uiconst.h"
+#include <QDate>
 #include <QObject>  // for tr()
 
 namespace uiconst {
@@ -27,11 +28,19 @@ namespace uiconst {
 // ============================================================================
 
 const qreal DEFAULT_DPI = 96;  // standard for monitors
-qreal DPI = DEFAULT_DPI;
+
+qreal LOGICAL_DPI = DEFAULT_DPI;
+qreal PHYSICAL_DPI_X = DEFAULT_DPI;
+qreal PHYSICAL_DPI_Y = DEFAULT_DPI;
+
 const QSize ICONSIZE_FOR_DEFAULT_DPI(48, 48);
+
 const QSize SMALL_ICONSIZE_FOR_DEFAULT_DPI(48, 48);
+
 QSize ICONSIZE = ICONSIZE_FOR_DEFAULT_DPI;
+
 QSize SMALL_ICONSIZE = SMALL_ICONSIZE_FOR_DEFAULT_DPI;
+
 const int SPACE = 4;
 const int BIGSPACE = 16;
 const int MEDIUMSPACE = 8;
@@ -45,9 +54,9 @@ const int DEFAULT_COLSPAN_A = 2;
 const int MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI = 48;
 int MIN_SPINBOX_HEIGHT = MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI;
 const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS = QAbstractSpinBox::UpDownArrows;
-        // QAbstractSpinBox::PlusMinus works but vertically stretched "+"
-        // QAbstractSpinBox::UpDownArrows -- just looks blank on Linux and Android
-        // ... missing actually looks slightly better than distorted!
+    // QAbstractSpinBox::PlusMinus works but vertically stretched "+"
+    // QAbstractSpinBox::UpDownArrows -- just looks blank on Linux and Android
+    // ... missing actually looks slightly better than distorted!
 const int SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI = 40;
     // ... 10 too small for smartphones
     // At 96 (approx. 100) dpi, 20 px gives 0.2 inches = 5mm,
@@ -55,6 +64,13 @@ const int SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI = 40;
 int SLIDER_HANDLE_SIZE_PX = SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI;
 const int DIAL_DIAMETER_PX_FOR_DEFAULT_DPI = 192;
 int DIAL_DIAMETER_PX = DIAL_DIAMETER_PX_FOR_DEFAULT_DPI;
+
+const QColor QCALENDARWIDGET_NAVBAR_BACKGROUND(0, 0, 255);  // blue
+const QColor QCALENDARWIDGET_NAVBAR_FOREGROUND(255, 255, 255);  // white
+const QFont::Weight QCALENDARWIDGET_HEADER_FONTWEIGHT = QFont::Bold;
+const QColor QCALENDARWIDGET_TEXT_WEEKDAY(0, 0, 0);  // black
+const QColor QCALENDARWIDGET_TEXT_WEEKEND(255, 0, 0);  // red
+const QDate QCALENDARWIDGET_MIN_DATE(1880, 1, 1);  // no older
 
 const QMargins NO_MARGINS(0, 0, 0, 0);
 

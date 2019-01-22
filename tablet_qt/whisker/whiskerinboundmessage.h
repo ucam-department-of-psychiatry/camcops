@@ -31,7 +31,7 @@ public:
                           bool immediate_socket = false,
                           const QDateTime& timestamp = QDateTime(),
                           bool has_server_timestamp = false,
-                          qulonglong server_timestamp_ms = 0);
+                          quint64 server_timestamp_ms = 0);
     QString message() const;
     bool fromImmediateSocket() const;
     QString causalCommand() const;
@@ -39,7 +39,7 @@ public:
     bool immediateReplySucceeded() const;
     QDateTime timestamp() const;
     bool hasServerTimestamp() const;
-    qulonglong serverTimestampMs() const;
+    quint64 serverTimestampMs() const;
     void parseMainSocketMessages();
     bool isEvent() const;
     QString event() const;
@@ -63,7 +63,7 @@ protected:
     QString m_causal_command;
     QDateTime m_timestamp;
     bool m_has_server_timestamp;
-    qulonglong m_server_timestamp_ms;
+    quint64 m_server_timestamp_ms;
     bool m_is_event = false;
     QString m_event;
     bool m_is_key_event = false;

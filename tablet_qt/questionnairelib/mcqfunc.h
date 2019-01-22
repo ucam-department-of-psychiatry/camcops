@@ -38,14 +38,14 @@ namespace mcqfunc {
 // extent n_rows).
 void addVerticalLine(GridLayout* grid, int col, int n_rows);
 
-// Adds text to a grid in our default question style.
+// Adds text to a grid in our default question style, in column 0.
 void addQuestion(GridLayout* grid, int row, const QString& question,
                  bool bold = true);
 
-// Adds text to a grid in our default title style.
+// Adds text to a grid in our default title style, in column 0.
 void addTitle(GridLayout* grid, int row, const QString& title);
 
-// Adds text to a grid in our default subtitle style.
+// Adds text to a grid in our default subtitle style, in column 0.
 void addSubtitle(GridLayout* grid, int row, const QString& subtitle);
 
 // Adds text to a grid in our default question stem style.

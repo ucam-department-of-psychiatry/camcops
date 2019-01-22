@@ -1779,6 +1779,18 @@ Current C++/SQLite client, Python/SQLAlchemy server
   camera mode. Trackpad works fine. This was fixed by recompiling on this
   machine.
 
+  .. todo::
+
+    Does this mean that a QML ``onClicked`` event behaves differently with
+    respect to touch events depending on whether it's compiled on a touch-aware
+    or a touch-unaware computer? That might represent a Qt bug; investigate and
+    report if so. In the meantime, **compile for Windows on a Surface Book 2 or
+    similar**.
+
+  Also relevant:
+
+  - https://stackoverflow.com/questions/42447545/mouse-works-but-touch-doesnot-work-in-qml/42454302
+
 
 .. _changelog_2019:
 

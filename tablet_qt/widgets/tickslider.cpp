@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_SIZE
+// #define DEBUG_SIZE
 
 #include "tickslider.h"
 #include <cmath>  // for round()
@@ -166,22 +166,28 @@ void TickSlider::setEdgeInExtremeLabels(const bool edge_in_extreme_labels)
 }
 
 
-void TickSlider::setSymmetricOverspill(bool symmetric_overspill)
+void TickSlider::setSymmetricOverspill(const bool symmetric_overspill)
 {
     m_symmetric_overspill = symmetric_overspill;
 }
 
 
-void TickSlider::setAbsoluteLengthPx(int px)
+void TickSlider::setAbsoluteLengthPx(const int px)
 {
     m_slider_target_length_px = px;
     resetSizePolicy();
 }
 
 
-void TickSlider::setAbsoluteLengthCm(qreal abs_length_cm, qreal dpi)
+void TickSlider::setAbsoluteLengthCm(const qreal abs_length_cm,
+                                     const qreal dpi)
 {
-    setAbsoluteLengthPx(convert::convertCmToPx(abs_length_cm, dpi));
+    const int px = convert::convertCmToPx(abs_length_cm, dpi);
+    qDebug().nospace()
+            << "TickSlider: setting absolute length to "
+            << abs_length_cm << " cm at " << dpi << " dpi, giving "
+            << px << " pixels";
+    setAbsoluteLengthPx(px);
 }
 
 

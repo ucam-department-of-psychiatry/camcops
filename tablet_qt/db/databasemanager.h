@@ -276,7 +276,7 @@ public:
     QString dbTableDefinitionSql(const QString& tablename);
 
     // Estimates the database size on disk, in bytes.
-    qlonglong approximateDatabaseSize();
+    qint64 approximateDatabaseSize();
 
     // ------------------------------------------------------------------------
     // Altering schema/structure

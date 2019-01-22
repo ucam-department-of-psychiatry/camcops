@@ -135,5 +135,5 @@ void QuImage::valueChanged(const FieldRef* fieldref)
 
 QSize QuImage::dpiScaledSize(const QSize& size) const
 {
-    return convert::convertSizeByDpi(size);
+    return convert::convertSizeByLogicalDpi(size);
 }

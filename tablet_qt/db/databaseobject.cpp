@@ -255,14 +255,14 @@ int DatabaseObject::valueInt(const QString& fieldname) const
 }
 
 
-qlonglong DatabaseObject::valueLongLong(const QString& fieldname) const
+qint64 DatabaseObject::valueInt64(const QString& fieldname) const
 {
     const QVariant v = value(fieldname);
     return v.toLongLong();
 }
 
 
-qulonglong DatabaseObject::valueULongLong(const QString& fieldname) const
+quint64 DatabaseObject::valueUInt64(const QString& fieldname) const
 {
     const QVariant v = value(fieldname);
     return v.toULongLong();
