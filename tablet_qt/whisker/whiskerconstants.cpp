@@ -31,7 +31,7 @@ namespace whiskerconstants {
 // ----------------------------------------------------------------------------
 
 const QString WHISKER_DEFAULT_HOST = "localhost";
-const int WHISKER_DEFAULT_PORT = 3233;  // IANA registered port number
+const quint16 WHISKER_DEFAULT_PORT = 3233;  // IANA registered port number
 const int WHISKER_DEFAULT_TIMEOUT_MS = 5000;
 
 // ----------------------------------------------------------------------------
@@ -42,6 +42,7 @@ const QString SPACE(" ");
 const QString EOL("\n");  // Whisker sends (and accepts) LF between responses.
 
 // Remember: C++ raw strings are R"(content)" for "content"
+// https://en.cppreference.com/w/cpp/language/string_literal
 
 // ----------------------------------------------------------------------------
 // Server -> client

@@ -81,7 +81,6 @@ public:
     QuCanvas* setAllowShrink(bool allow_shrink);
 
 protected:
-    void commonConstructor();
 
     // Sets the widget state from our fieldref.
     void setFromField();

@@ -33,17 +33,32 @@ class TaskFactory;
 
 class TaskProxy
 {
+    // Base class for TaskRegistrar.
+    // It doesn't do much (except register itself with a TaskFactory), but it
+    // defines an interface.
+    // For example, the PHQ9 task creates a single TaskRegistrar<Phq9> object.
+
 public:
-    TaskProxy(TaskFactory& factory);  // Registers itself with the factory.
+
+    // Construct the proxy, which registers itself with the factory.
+    TaskProxy(TaskFactory& factory);
+
+    // Destructor.
     virtual ~TaskProxy() = default;
-    // We do want to create instances...
+
+    // Create an instance of the task and return it.
     virtual TaskPtr create(CamcopsApp& app,
                            DatabaseManager& db,
                            int load_pk = dbconst::NONEXISTENT_PK) const = 0;
+
+    // Fetch tasks from the database.
     virtual TaskPtrList fetch(CamcopsApp& app,
                               DatabaseManager& db,
                               int patient_id = dbconst::NONEXISTENT_PK) const = 0;
+
 protected:
+
+    // Fetch tasks from the database that meet specified criteria.
     virtual TaskPtrList fetchWhere(CamcopsApp& app,
                                    DatabaseManager& db,
                                    const WhereConditions& where) const = 0;

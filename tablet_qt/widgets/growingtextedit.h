@@ -23,7 +23,7 @@
 
 class GrowingTextEdit : public QTextEdit
 {
-    // Text editor that expands to its contents.
+    // Text editor that expands vertically to its contents.
 
     // see http://stackoverflow.com/questions/11677499
     // http://stackoverflow.com/questions/3050537
@@ -32,16 +32,31 @@ class GrowingTextEdit : public QTextEdit
     // http://stackoverflow.com/questions/11851020
     Q_OBJECT
 public:
+
+    // Plain constructor
     GrowingTextEdit(QWidget* parent = nullptr);
+
+    // Construct with text.
     GrowingTextEdit(const QString& text, QWidget* parent = nullptr);
+
+    // Destructor
     virtual ~GrowingTextEdit() override;
+
+    // Resize automatically? Default is true; that's the point of this widget.
     void setAutoResize(bool auto_resize);
+
+    // Standard Qt widget overrides.
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
+
 protected:
+    // Common constructor.
     void commonConstructor();
+
 protected slots:
+    // "The contents of the text editor has changed."
     void contentsChanged();
+
 protected:
-    bool m_auto_resize;
+    bool m_auto_resize;  // should we resize ourself to our contents?
 };

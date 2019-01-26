@@ -30,27 +30,32 @@
 
 template<class Derived> class TaskRegistrar : public TaskProxy
 {
+    // For example, the PHQ9 task creates a single TaskRegistrar<Phq9> object.
+
     static_assert(std::is_base_of<Task, Derived>::value,
                   "You can only use Task-derived classes here.");
+
 public:
+    // Constructor. This registers the proxy with the task factory (see
+    // TaskProxy::TaskProxy).
     TaskRegistrar(TaskFactory& factory) :
-        TaskProxy(factory)  // registers proxy with factory (see TaskProxy::TaskProxy)
+        TaskProxy(factory)
     {}
 
+    // Create a single instance of a task (optionally, loading it).
     TaskPtr create(CamcopsApp& app,
                    DatabaseManager& db,
                    int load_pk = dbconst::NONEXISTENT_PK) const override
     {
-        // Create a single instance of a task (optionally, loading it)
         return TaskPtr(new Derived(app, db, load_pk));
     }
 
+    // Fetch multiple tasks, either matching a patient_id, or all for
+    // the task type.
     TaskPtrList fetch(CamcopsApp& app,
                       DatabaseManager& db,
                       int patient_id = dbconst::NONEXISTENT_PK) const override
     {
-        // Fetch multiple tasks, either matching a patient_id, or all for
-        // the task type.
         Derived specimen(app, db, dbconst::NONEXISTENT_PK);
         bool anonymous = specimen.isAnonymous();
         if (patient_id != dbconst::NONEXISTENT_PK && anonymous) {
@@ -65,11 +70,12 @@ public:
     }
 
 protected:
+
+    // Fetch multiple tasks according to the field/value "where" criteria
     TaskPtrList fetchWhere(CamcopsApp& app,
                            DatabaseManager& db,
                            const WhereConditions& where) const override
     {
-        // Fetch multiple tasks according to the field/value "where" criteria
         TaskPtrList tasklist;
         Derived specimen(app, db, dbconst::NONEXISTENT_PK);
         SqlArgs sqlargs = specimen.fetchQuerySql(where);

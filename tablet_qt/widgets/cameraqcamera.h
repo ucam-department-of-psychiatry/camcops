@@ -24,21 +24,7 @@
 
 /*
 
-SUMMARY OF DECISIONS about camera methods:
-1.  QCamera with QCameraViewFinder
-    - fine under Linux
-    - under Android, blank viewfinder, and warning:
-      warning: The video surface is not compatible with any format supported by the camera
-
-2.  QCamera with custom CameraFrameGrabber
-    - fine under Linux
-    - under Android, segfault with:
-      attachToContext: invalid current EGLDisplay
-
-3.  QML
-    - not only fine under Linux, but significantly better (features +/- speed)
-    - declarative-camera demo works under Android
-- see CameraQml class
+SUMMARY OF DECISIONS about camera methods: see CameraQml class.
 
 */
 
@@ -66,90 +52,148 @@ class QVideoFrame;
 class CameraQCamera : public OpenableWidget
 {
     // Widget to take a photo.
+    // DEPRECATED at present in favour of QML version; see CameraQml.
 
     Q_OBJECT
 public:
     // ========================================================================
     // Constructor/destructor
     // ========================================================================
+
+    // Construct with stylesheet.
     CameraQCamera(const QString& stylesheet, QWidget* parent = nullptr);
+
+    // Construct with QCameraInfo and stylesheet.
     CameraQCamera(const QCameraInfo& camera_info, const QString& stylesheet,
            QWidget* parent = nullptr);
+
+    // Destructor.
     ~CameraQCamera();
+
     // ========================================================================
     // Public interface
     // ========================================================================
+
+    // Emit the finished() signal.
     void finish();
+
+    // Return the latest image captured.
     QImage image() const;
+
+    // Choose the preview image's resolution.
     void setPreviewResolution(const QSize& resolution);
+
+    // Choose the captured image's resolution.
     void setMainResolution(const QSize& resolution);
+
 signals:
-    void imageCaptured(QImage image);  // QImage is copy-on-write
+    // "We've captured this image."
+    // - Note that QImage is copy-on-write; passing QImage is efficient.
+    void imageCaptured(QImage image);
+
+    // "User chose to cancel."
     void cancelled();
+
     // ========================================================================
     // Internals
     // ========================================================================
 protected:
-    void commonConstructor(const QString& stylesheet);
-protected:
+
+    // Update the display state for the buttons ("take", "lock", "cancel").
     void updateButtons();
+
+    // Start the camera object.
     void startCamera();
+
+    // Stop the camera object.
     void stopCamera();
+
+    // Choose a camera.
     void setCamera(const QCameraInfo& camera_info);
+
+    // Lock/unlock the camera.
     void toggleLock();
+
+    // Unlock the camera.
     void unlockCamera();
+
+    // Lock the camera settings (including autofocusing).
     void searchAndLockCamera();
+
+    // Sets exposure compensation.
     void setExposureCompensation(int index);
+
     // void configureImageSettings();
+
+    // Standard Qt overrides.
     void closeEvent(QCloseEvent* event);
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
 
 protected slots:
+
+    // "User has clicked the 'Take' button."
     void takeImage();
+
+    // "Update the UI to reflect the camera's state."
     void updateCameraState(QCamera::State state);
+
+    // "Pop up a message showing a camera error."
     void displayCameraError(QCamera::Error value);
+
+    // "Update our indicators to reflect a change in the camera's lock status."
     void updateLockStatus(QCamera::LockStatus status,
                           QCamera::LockChangeReason reason);
+
+    // "Change the ready-for-capture state."
     void readyForCapture(bool ready);
+
+    // "An image has arrived via a temporary disk file."
     void imageSaved(int id, const QString& filename);
+
+    // "An image has arrived via a buffer."
     void imageAvailable(int id, const QVideoFrame& buffer);
+
+    // "Display an error that occurred during the image capture process."
     void displayCaptureError(int id, QCameraImageCapture::Error error,
                              const QString& error_string);
+
 #ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
+    // "An image is available from the video surface viewfinder."
     void handleFrame(QImage image);  // QImage is copy-on-write
 #endif
 
 protected:
-    QSize m_resolution_preview;
-    QSize m_resolution_main;
-    QSharedPointer<QCamera> m_camera;
-    QSharedPointer<QCameraImageCapture> m_capture;
+    QSize m_resolution_preview;  // resolution of our preview image
+    QSize m_resolution_main;  // resolution of images we capture
+    QSharedPointer<QCamera> m_camera;  // our camera
+    QSharedPointer<QCameraImageCapture> m_capture;  // records images
 #ifdef CAMERA_QCAMERA_USE_QCAMERAVIEWFINDER
-    QPointer<QCameraViewfinder> m_viewfinder;
+    QPointer<QCameraViewfinder> m_viewfinder;  // our viewfinder
 #endif
 #ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
-    QPointer<CameraFrameGrabber> m_framegrabber;
-    QPointer<QLabel> m_label_viewfinder;
+    QPointer<CameraFrameGrabber> m_framegrabber;  // our video viewfinder
+    QPointer<QLabel> m_label_viewfinder;  // label to display viewfinder image
 #endif
-    QPointer<QPushButton> m_lock_button;
-    QPointer<QPushButton> m_button_cancel;
-    QPointer<QStatusBar> m_status_bar;
-    QPointer<QAbstractButton> m_button_take;
+    QPointer<QPushButton> m_lock_button;  // lock state button; shows e.g. "Focus", "Unlock"
+    QPointer<QPushButton> m_button_cancel;  // "Cancel"
+    QPointer<QStatusBar> m_status_bar;  // shows status messages
+    QPointer<QAbstractButton> m_button_take;  // "Take"
 
-    QImageEncoderSettings imageSettings;
-    bool m_ready;
-    bool m_capturing_image;
-    bool m_exiting;
-    QImage m_most_recent_image;
+    // QImageEncoderSettings m_image_settings;  // image encoder settings
+
+    bool m_ready;  // ready to capture?
+    bool m_capturing_image;  // currently capturing?
+    bool m_exiting;  // closing/exiting?
+    QImage m_most_recent_image;  // most recently captured image
 #ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
-    QSet<QString> m_filenames_for_deletion;
-    QString m_most_recent_filename;
-    enum class CapturedState {
+    QSet<QString> m_filenames_for_deletion;  // temporary files to delete
+    QString m_most_recent_filename;  // file with most recent image
+    enum class CapturedState {  // ways we may have captured an image
         Nothing,
         File,
         Buffer,
     };
-    CapturedState m_captured_state;
+    CapturedState m_captured_state;  // what have we captured?
 #endif
 };

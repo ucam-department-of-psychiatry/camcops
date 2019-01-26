@@ -79,63 +79,136 @@ class WhiskerWorker;
 
 class WhiskerManager : public QObject
 {
+    // High-level object to communicate with a Whisker server, and provide its
+    // API. Owned by the GUI thread. (Uses a worker thread for socket
+    // communications.)
+
     Q_OBJECT
 public:
+
+    // Constructor.
     WhiskerManager(QObject* parent = nullptr,
                    const QString& sysevent_prefix = "sys");
+
+    // Destructor.
     ~WhiskerManager();
+
+    // Send a message via the main socket.
     void sendMain(const QString& command);
     void sendMain(const QStringList& args);
     void sendMain(std::initializer_list<QString> args);
+
+    // Send a message via the immediate socket, ignoring the reply.
     void sendImmediateIgnoreReply(const QString& command);
+
+    // Send a message via the immediate socket, returning the reply.
     WhiskerInboundMessage sendImmediateGetReply(const QString& command);
     QString immResp(const QString& command);
     QString immResp(const QStringList& args);
     QString immResp(std::initializer_list<QString> args);
+
+    // Send a message via the immediate socket, returning "did the reply
+    // indicate success?"
     bool immBool(const QString& command, bool ignore_reply = false);
     bool immBool(const QStringList& args, bool ignore_reply = false);
     bool immBool(std::initializer_list<QString> args, bool ignore_reply = false);
+
+    // Connect to a Whisker server.
     void connectToServer(const QString& host, quint16 main_port);
+
+    // Are we fully connected.
     bool isConnected() const;
+
+    // Are we fully disconnected?
     bool isFullyDisconnected() const;
+
+    // Provide a user alert that we are not connected.
     void alertNotConnected() const;
+
+    // Calls disconnectAllWhiskerSignals(), then emits disconnectFromServer().
     void disconnectServerAndSignals(QObject* receiver);
-    void disconnectAllWhiskerSignals(QObject* receiver);
+
 signals:
+    // this -> worker: "please disconnect from the Whisker server".
     void disconnectFromServer();
+
+    // Worker -> this -> world: "Whisker connection state has changed".
     void connectionStateChanged(WhiskerConnectionState state);
+
+    // Worker -> this -> world: "Fully connected to Whisker server."
     void onFullyConnected();
+
+    // "Whisker message received."
     void messageReceived(const WhiskerInboundMessage& msg);
+
+    // "Whisker event received."
     void eventReceived(const WhiskerInboundMessage& msg);
+
+    // "Whisker key event received."
     void keyEventReceived(const WhiskerInboundMessage& msg);
+
+    // "Whisker client-to-client message received."
     void clientMessageReceived(const WhiskerInboundMessage& msg);
+
+    // "Warning received from Whisker."
     void warningReceived(const WhiskerInboundMessage& msg);
+
+    // "Syntax error received from Whisker."
     void syntaxErrorReceived(const WhiskerInboundMessage& msg);
+
+    // "Error received from Whisker."
     void errorReceived(const WhiskerInboundMessage& msg);
+
+    // "Ping acknowledgement received from Whisker."
     void pingAckReceived(const WhiskerInboundMessage& msg);
+
+    // this -> worker: "please connect to the Whisker server".
     void internalConnectToServer(const QString& host, quint16 main_port);
+
+    // this -> worker: "send message to the Whisker server".
     void internalSend(const WhiskerOutboundCommand& cmd);
+
 public slots:
+    // worker -> this: "Message received from server main socket."
     void internalReceiveFromMainSocket(const WhiskerInboundMessage& msg);
+
+    // Worker -> this -> world: "Whisker socket error has occurred."
     void onSocketError(const QString& msg);
+
 protected:
+
+    // Disconnect all signals from "this" to "receiver".
+    void disconnectAllWhiskerSignals(QObject* receiver);
+
+    // Return a new event name for a system event.
+    // The name is of the format <m_sysevent_prefix><m_sysevent_counter><suffix>.
     QString getNewSysEvent(const QString& suffix = "");
+
+    // Clear all user-defined Whisker event callbacks.
     void clearAllCallbacks();
+
+    // Send a message to the Whisker server after a delay (using a Whisker
+    // timer for that delay).
+    // If the event name is not specified, a new system event name is created.
     void sendAfterDelay(unsigned int delay_ms, const QString& msg,
                         QString event = "");
+
+    // Call a user function after a delay, via a Whisker timer event.
+    // If the event name is not specified, a new system event name is created.
     void callAfterDelay(
             unsigned int delay_ms,
             const WhiskerCallbackDefinition::CallbackFunction& callback,
             QString event = "");
+
 protected:
-    QThread m_worker_thread;
-    QPointer<WhiskerWorker> m_worker;
-    QString m_sysevent_prefix;
-    quint64 m_sysevent_counter;
-    WhiskerCallbackHandler m_internal_callback_handler;
+    QThread m_worker_thread;  // worker thread to talk to sockets
+    QPointer<WhiskerWorker> m_worker;  // worker object; lives in worker thread
+    QString m_sysevent_prefix;  // prefix for all "system" events
+    quint64 m_sysevent_counter;  // counter to make system events unique
+    WhiskerCallbackHandler m_internal_callback_handler;  // manages callbacks
 
     // ========================================================================
-    // Whisker API
+    // Whisker API: see http://www.whiskercontrol.com/
     // ========================================================================
 public:
 
@@ -360,24 +433,41 @@ public:
     // ------------------------------------------------------------------------
     // Shortcuts to Whisker commands
     // ------------------------------------------------------------------------
+
+    // Shorthand for lineSetState(line, true, ignore_reply).
     bool lineOn(const QString& line, bool ignore_reply = false);
+
+    // Shorthand for lineSetState(line, false, ignore_reply).
     bool lineOff(const QString& line, bool ignore_reply = false);
+
+    // Broadcast to all other Whisker clients. Shorthand for
+    // sendToClient(VAL_BROADCAST_TO_ALL_CLIENTS, message, ignore_reply).
     bool broadcast(const QString& message, bool ignore_reply = false);
 
     // ------------------------------------------------------------------------
     // Line flashing
     // ------------------------------------------------------------------------
+
+    // "Flash" a digital output line "count" times, where the "on" phase lasts
+    // on_ms and the "off" phase lasts off_ms.
+    // - Flip on_at_rest for a line that is reversed (on by default and you are
+    //   flashing it "off").
+    // - Returns the total estimated time, in ms.
     unsigned int flashLinePulses(const QString& line,
                                  unsigned int count,
                                  unsigned int on_ms,
                                  unsigned int off_ms,
                                  bool on_at_rest = false);
+
 protected:
+    // Worker function for flashLinePulses().
     void flashLinePulsesOn(const QString& line,
                            unsigned int count,
                            unsigned int on_ms,
                            unsigned int off_ms,
                            bool on_at_rest);
+
+    // Worker function for flashLinePulses().
     void flashLinePulsesOff(const QString& line,
                             unsigned int count,
                             unsigned int on_ms,

@@ -130,10 +130,8 @@ The actual error on Android is:
 // ============================================================================
 
 CameraQCamera::CameraQCamera(const QString& stylesheet, QWidget* parent) :
-    OpenableWidget(parent)
+    CameraQCamera(QCameraInfo::defaultCamera(), stylesheet, parent)
 {
-    commonConstructor(stylesheet);
-    setCamera(QCameraInfo::defaultCamera());
 }
 
 
@@ -141,26 +139,6 @@ CameraQCamera::CameraQCamera(const QCameraInfo& camera_info,
                              const QString& stylesheet,
                              QWidget* parent) :
     OpenableWidget(parent)
-{
-    commonConstructor(stylesheet);
-    setCamera(camera_info);
-}
-
-
-CameraQCamera::~CameraQCamera()
-{
-#ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
-    // Remove anything that we've saved to disk
-    for (auto filename : m_filenames_for_deletion) {
-        bool success = QFile::remove(filename);
-        qInfo() << "Deleting temporary camera file " << filename
-                << (success ? "... success" : "... FAILED!");
-    }
-#endif
-}
-
-
-void CameraQCamera::commonConstructor(const QString& stylesheet)
 {
     m_resolution_preview = QSize(640, 480); // !!! Not implemented, but CameraQCamera superseded by CameraQml
     m_resolution_main = QSize(1024, 768); // !!! Not implemented, but CameraQCamera superseded by CameraQml
@@ -234,6 +212,21 @@ void CameraQCamera::commonConstructor(const QString& stylesheet)
     outer_layout->setContentsMargins(uiconst::NO_MARGINS);
     outer_layout->addWidget(inner_widget);
     setLayout(outer_layout);
+
+    setCamera(camera_info);
+}
+
+
+CameraQCamera::~CameraQCamera()
+{
+#ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
+    // Remove anything that we've saved to disk
+    for (auto filename : m_filenames_for_deletion) {
+        bool success = QFile::remove(filename);
+        qInfo() << "Deleting temporary camera file " << filename
+                << (success ? "... success" : "... FAILED!");
+    }
+#endif
 }
 
 

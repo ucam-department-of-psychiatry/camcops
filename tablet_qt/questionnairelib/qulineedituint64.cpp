@@ -24,12 +24,11 @@
 
 QuLineEditUInt64::QuLineEditUInt64(FieldRefPtr fieldref,
                                    const bool allow_empty) :
-    QuLineEdit(fieldref),
-    m_minimum(std::numeric_limits<quint64>::min()),
-    m_maximum(std::numeric_limits<quint64>::max()),
-    m_allow_empty(allow_empty)
+    QuLineEditUInt64(fieldref,
+                     std::numeric_limits<quint64>::min(),
+                     std::numeric_limits<quint64>::max(),
+                     allow_empty)
 {
-    commonConstructor();
 }
 
 
@@ -41,12 +40,6 @@ QuLineEditUInt64::QuLineEditUInt64(FieldRefPtr fieldref,
     m_minimum(minimum),
     m_maximum(maximum),
     m_allow_empty(allow_empty)
-{
-    commonConstructor();
-}
-
-
-void QuLineEditUInt64::commonConstructor()
 {
     qWarning() << "SQLite v3 does not properly support unsigned 64-bit "
                   "integers (https://www.sqlite.org/datatype3.html); "

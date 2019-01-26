@@ -31,7 +31,8 @@ TaskSorter::TaskSorter()
 bool TaskSorter::operator()(const TaskPtr& left, const TaskPtr& right) const
 {
     // Implements: LEFT < RIGHT ?
-    // Sort by date/time (descending), then taskname (ascending)
+    // Sort by creation date/time (descending: new to old), then taskname
+    // (ascending: A to Z).
     const QDateTime l_when = left->valueDateTime(
         dbconst::CREATION_TIMESTAMP_FIELDNAME);
     const QDateTime r_when = right->valueDateTime(

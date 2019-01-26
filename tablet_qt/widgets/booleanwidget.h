@@ -31,7 +31,7 @@ class BooleanWidget : public QAbstractButton
     //   embodies some or all of the states true, false, null (not required),
     //   null (required).
     // - Can display as an image or a text button. Because those things don't
-    //   play nicely together, owns widgets rather than inheriting.
+    //   play nicely together, it owns widgets rather than inheriting.
     // - Main signal is: clicked
     // - RESIST the temptation to have this widget do value logic.
     //   That's the job of its owner.
@@ -42,44 +42,78 @@ class BooleanWidget : public QAbstractButton
 
     Q_OBJECT
 public:
+
+    // Current widget state.
     enum class State {
-        Disabled,
-        Null,
-        NullRequired,
-        False,
-        True,
+        Disabled,  // disabled
+        Null,  // no data, not required
+        NullRequired,  // no data, but data is required
+        False,  // false
+        True,  // true
     };
+
+    // Visual appearance -- the style of the widget.
     enum class Appearance {
-        CheckBlack,
-        CheckBlackFalseAppearsBlank,
-        CheckRed,
-        CheckRedFalseAppearsBlank,
-        Radio,
-        Text,
+        CheckBlack,  // checkbox (tickbox) with black tick (true)/cross (false)
+        CheckBlackFalseAppearsBlank,  // checkbox; black; "false" looks blank
+        CheckRed,  // checkbox with red tick (true)/cross (false)
+        CheckRedFalseAppearsBlank,  // checkbox; red; "false" looks blank
+        Radio,  // radio button (indicator is present/absent)
+        Text,  // text button (state is shown via colour)
     };
+
 public:
+
+    // ------------------------------------------------------------------------
+    // Construction and configuration
+    // ------------------------------------------------------------------------
+
+    // Constructor
     BooleanWidget(QWidget* parent = nullptr);
-    // Used at construction time:
+
+    // Should the widget be read-only (state is unalterable)?
     virtual void setReadOnly(bool read_only = false);
+
+    // Show icons bigger than normal?
     void setSize(bool big = false);
+
+    // Show text in bold?
     void setBold(bool bold);
+
+    // Set the overall widget style (e.g. checkbox, radio button, text button).
     void setAppearance(BooleanWidget::Appearance appearance);
-    // Used live:
+
+    // ------------------------------------------------------------------------
+    // Manipulation of "live" state
+    // ------------------------------------------------------------------------
+
+    // Sets the widget state directly.
     void setState(BooleanWidget::State state);
+
+    // Sets the widget state from a value and a mandatory-or-not requirement.
     void setValue(const QVariant& value, bool mandatory,
                   bool disabled = false);
+
+    // Sets the text, for text-button mode.
     void setText(const QString& text);
+
 protected:
+
+    // Standard Qt override.
     virtual void paintEvent(QPaintEvent* e) override;
+
+    // Refreshes the widget's appearance.
+    // If full_refresh is true, the widget is rebuilt and its size may change.
     void updateWidget(bool full_refresh);
+
 protected:
-    bool m_read_only;
-    bool m_big;
-    bool m_bold;
-    Appearance m_appearance;
-    bool m_as_image;
-    State m_state;
-    ImageButton* m_imagebutton;
-    ClickableLabelWordWrapWide* m_textbutton;
-    VBoxLayout* m_layout;
+    bool m_read_only;  // read-only mode?
+    bool m_big;  // icon size
+    bool m_bold;  // for text button mode
+    Appearance m_appearance;  // overall widget style
+    bool m_as_image;  // set from m_appearance; "icon style"?
+    State m_state;  // boolean state (allowing various null states too)
+    ImageButton* m_imagebutton;  // our image button
+    ClickableLabelWordWrapWide* m_textbutton;  // our text button
+    VBoxLayout* m_layout;  // our master layout
 };

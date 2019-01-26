@@ -28,19 +28,25 @@ class QVBoxLayout;
 
 class ClickableLabelNoWrap : public QPushButton
 {
-    // Label that responds to clicks.
+    // Label (showing text or an image) that responds to clicks.
+    //
     // - Multiple inheritance doesn't play nicely with QObject.
     //   http://doc.qt.io/qt-5.7/moc.html#multiple-inheritance-requires-qobject-to-be-first
+    //
     // - So, could inherit from QAbstractButton and implement QLabel functions.
     //   However, QLabel has some complex code for word-wrapping.
+    //
     // - Or the reverse: inherit from QLabel and implement
     //   QAbstractButton::mousePressEvent functionality (and all associated
     //   code). But even that is relatively fancy.
+    //
     // - Or use an event monitor: label with a monitor attached, e.g.
     //   http://stackoverflow.com/questions/32018941/qt-qlabel-click-event
+    //
     // - Or use ownership: label that contains a button, or button that
     //   contains a label.
     //   http://stackoverflow.com/questions/8960233
+    //
     // - Probably best: don't try to be all things to all people; have
     //      QLabel
     //          LabelWordWrapWide
@@ -53,20 +59,38 @@ class ClickableLabelNoWrap : public QPushButton
 
     Q_OBJECT
 public:
+
+    // Construct with text.
     ClickableLabelNoWrap(const QString& text, QWidget* parent = nullptr);
+
+    // Construct with no text, e.g. for an image label.
     ClickableLabelNoWrap(QWidget* parent = nullptr);
 
+    // Set text format (e.g. plain text, rich text).
     virtual void setTextFormat(Qt::TextFormat format);
+
+    // Should we word-wrap the text?
     virtual void setWordWrap(bool on);
+
+    // Set alignment of text within our label widget (and of our label widget
+    // within our layout).
     virtual void setAlignment(Qt::Alignment alignment);
+
+    // Should URLs in the text behave like active hyperlinks?
     virtual void setOpenExternalLinks(bool open);
+
+    // Set an image for this label.
     virtual void setPixmap(const QPixmap& pixmap);
 
+    // Standard Qt widget override.
     virtual QSize sizeHint() const override;
+
 protected:
+
+    // Common constructor
     void commonConstructor();
 
 protected:
-    QLabel* m_label;
-    QVBoxLayout* m_layout;
+    QLabel* m_label;  // our label (showing text or an image)
+    QVBoxLayout* m_layout;  // our layout
 };

@@ -23,12 +23,11 @@
 
 QuLineEditInt64::QuLineEditInt64(FieldRefPtr fieldref,
                                  const bool allow_empty) :
-    QuLineEdit(fieldref),
-    m_minimum(std::numeric_limits<qint64>::min()),
-    m_maximum(std::numeric_limits<qint64>::max()),
-    m_allow_empty(allow_empty)
+    QuLineEditInt64(fieldref,
+                    std::numeric_limits<qint64>::min(),
+                    std::numeric_limits<qint64>::max(),
+                    allow_empty)
 {
-    commonConstructor();
 }
 
 
@@ -40,12 +39,6 @@ QuLineEditInt64::QuLineEditInt64(FieldRefPtr fieldref,
     m_minimum(minimum),
     m_maximum(maximum),
     m_allow_empty(allow_empty)
-{
-    commonConstructor();
-}
-
-
-void QuLineEditInt64::commonConstructor()
 {
     setHint(QString("integer, range %1 to %2").arg(m_minimum).arg(m_maximum));
 }

@@ -41,6 +41,10 @@ class VerticalScrollAreaViewport : public QWidget
 
     Q_OBJECT
 public:
+
+    // Constructor
     VerticalScrollAreaViewport(QWidget* parent = nullptr);
+
+    // Perform debugging checks. Report to the debugging stream.
     void checkChildSize() const;
 };

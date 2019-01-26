@@ -30,21 +30,38 @@ class ScreenLikeGraphicsView : public QGraphicsView
     // This is a QGraphicsView that is intended to show the whole of
     // QGraphicsScene, zooming as necessary/possible and using no scroll bars,
     // but keeping the scene's aspect ratio without distortion.
+    // Used e.g. by the ID/ED-3D task and similar.
+
 public:
+    // Default constructor.
     ScreenLikeGraphicsView(QWidget* parent = nullptr);
+
+    // Construct with a scene.
     ScreenLikeGraphicsView(QGraphicsScene* scene, QWidget* parent = nullptr);
+
+    // Set the background colour.
     void setBackgroundColour(const QColor& colour);
+
+    // Standard Qt event overrides.
     virtual void resizeEvent(QResizeEvent* event) override;
     virtual void showEvent(QShowEvent* event) override;
+
 protected:
+    // Common constructor function.
     void commonConstructor();
+
 #ifdef SCREENLIKEGRAPHICSVIEW_REDO_FIT_IN_VIEW
+    // Not currently used.
     void fitInView2(
             const QRectF& rect,
             Qt::AspectRatioMode aspect_ratio_mode = Qt::IgnoreAspectRatio);
+
+    // Not currently used.
     void fitInView2(
             qreal x, qreal y, qreal w, qreal h,
             Qt::AspectRatioMode aspect_ratio_mode = Qt::IgnoreAspectRatio);
 #endif
+
+    // "Fit the contents to our view."
     void fitView();
 };

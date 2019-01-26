@@ -56,10 +56,9 @@ void initializeHads(TaskFactory& factory)
 
 
 Hads::Hads(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, HADS_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Hads(app, db, HADS_TABLENAME, false, load_pk)
 {
     // Main HADS constructor. No respondent.
-    commonConstructor(load_pk);
 }
 
 
@@ -68,17 +67,14 @@ Hads::Hads(CamcopsApp& app, DatabaseManager& db,
            const int load_pk) :
     Task(app, db, tablename, false, false, has_respondent)  // ... anon, clin, resp
 {
-    // Constructor used by HadsRespondent.
-    commonConstructor(load_pk);
-}
+    // Constructor used directly by HadsRespondent and indirectly by the other
+    // constructor.
 
-
-void Hads::commonConstructor(const int load_pk)
-{
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 
 // ============================================================================

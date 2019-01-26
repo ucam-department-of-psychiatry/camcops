@@ -27,9 +27,15 @@ class Spacer : public QWidget
 
     Q_OBJECT
 public:
+    // Default constructor.
     Spacer(QWidget* parent = nullptr);
+
+    // Construct with a specified size.
     Spacer(const QSize& size, QWidget* parent = nullptr);
+
+    // Standard Qt event override.
     virtual QSize sizeHint() const override;
+
 protected:
-    QSize m_size;
+    QSize m_size;  // our size
 };

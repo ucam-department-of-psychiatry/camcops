@@ -23,6 +23,8 @@
 
 class TreeViewProxyStyle : public QProxyStyle
 {
+    // UNUSED
+
 public:
     TreeViewProxyStyle(QStyle* style = nullptr);
     void drawPrimitive(PrimitiveElement element, const QStyleOption* option,

@@ -27,29 +27,54 @@ class LabelWordWrapWide;
 
 class ClickableLabelWordWrapWide : public QPushButton
 {
+    // Label showing text that responds to clicks and word-wraps its text in a
+    // height-for-width manner to take up width in preference to height.
+
     Q_OBJECT
 public:
+
+    // Construct with text.
+    // - stretch: add stretch at the bottom of our layout?
     ClickableLabelWordWrapWide(const QString& text, bool stretch = false,
                                QWidget* parent = nullptr);
+
+    // Construct without text. You can use setText() later.
     ClickableLabelWordWrapWide(bool stretch = false,
                                QWidget* parent = nullptr);
 
+    // Set text format (e.g. plain text, rich text).
     virtual void setTextFormat(Qt::TextFormat format);
+
+    // Should we word-wrap the text?
     virtual void setWordWrap(bool on);
+
+    // Set alignment of text within our label widget (and of our label widget
+    // within our layout).
     virtual void setAlignment(Qt::Alignment alignment);
+
+    // Should URLs in the text behave like active hyperlinks?
     virtual void setOpenExternalLinks(bool open);
+
+    // Set text for this label.
     virtual void setText(const QString& text);
 
+    // Standard Qt widget overrides.
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
 #ifdef GUI_USE_RESIZE_FOR_HEIGHT
     virtual void resizeEvent(QResizeEvent* event) override;
 #endif
+
 protected:
+
+    // Common constructor
     void commonConstructor(bool stretch);
+
+    // Translates the size required by m_label to the size required by the
+    // whole QPushButton.
     QSize translateSize(const QSize& size) const;
 
 protected:
-    LabelWordWrapWide* m_label;
-    VBoxLayout* m_layout;
+    LabelWordWrapWide* m_label;  // our label (showing text)
+    VBoxLayout* m_layout;  // our layout
 };

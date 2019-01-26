@@ -24,24 +24,42 @@
 
 
 class WhiskerOutboundCommand {
+
+    // Represents a command heading to the Whisker server.
+
 public:
+    // Construct with a command.
+    // - An all-default constructor allows its use in QVector.
+    // Args:
+    //      immediate_socket:
+    //          send via the immediate socket, not the main socket?
+    //      immediate_ignore_reply:
+    //          for immediate-socket commands: ignore the reply?
     WhiskerOutboundCommand(const QString& command = "",
                            bool immediate_socket = false,
                            bool immediate_ignore_reply = false);
-    // ... an all-default constructor allows its use in QVector
+
+    // Construct with a list of command arguments.
     WhiskerOutboundCommand(const QStringList& args,
                            bool immediate_socket = false,
                            bool immediate_ignore_reply = false);
     WhiskerOutboundCommand(std::initializer_list<QString> args,
                            bool immediate_socket = false,
                            bool immediate_ignore_reply = false);
+
+    // Return the final LF-terminated command.
     QString terminatedCommand() const;
+
+    // Returns the terminated command in raw bytes format.
     QByteArray bytes() const;
+
 public:
-    QString m_command;
-    bool m_immediate_socket;
-    bool m_immediate_ignore_reply;
+    QString m_command;  // the full command
+    bool m_immediate_socket;  // send via the immediate socket, not the main socket?
+    bool m_immediate_ignore_reply;  // for immediate-socket commands: ignore the reply?
+
 public:
+    // Debugging description
     friend QDebug operator<<(QDebug debug, const WhiskerOutboundCommand& s);
 };
 

@@ -75,19 +75,19 @@ FocusScope {
 
             FocusButton {
                 camera: captureControls.camera
-                visible: camera.cameraStatus == Camera.ActiveStatus && camera.focus.isFocusModeSupported(Camera.FocusAuto)
+                visible: camera.cameraStatus === Camera.ActiveStatus && camera.focus.isFocusModeSupported(Camera.FocusAuto)
             }
 
             CameraButton {
                 text: "Record"
-                visible: camera.videoRecorder.recorderStatus == CameraRecorder.LoadedStatus
+                visible: camera.videoRecorder.recorderStatus === CameraRecorder.LoadedStatus
                 onClicked: camera.videoRecorder.record()
             }
 
             CameraButton {
                 id: stopButton
                 text: "Stop"
-                visible: camera.videoRecorder.recorderStatus == CameraRecorder.RecordingStatus
+                visible: camera.videoRecorder.recorderStatus === CameraRecorder.RecordingStatus
                 onClicked: camera.videoRecorder.stop()
             }
 

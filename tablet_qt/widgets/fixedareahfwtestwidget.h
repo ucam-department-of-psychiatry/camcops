@@ -24,6 +24,9 @@
 
 class FixedAreaHfwTestWidget : public QWidget
 {
+    // Test widget that occupies a fixed area. It adjusts its height according
+    // to its width, etc.
+
     Q_OBJECT
 public:
     FixedAreaHfwTestWidget(int area = 50000,

@@ -47,25 +47,6 @@ QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QSize& size,
     m_background_colour(background_colour),
     m_using_template(false)
 {
-    commonConstructor();
-}
-
-
-QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QString& template_filename,
-                   const QSize& size, const bool allow_shrink) :
-    m_fieldref(fieldref),
-    m_size(size),
-    m_allow_shrink(allow_shrink),
-    m_background_colour(Qt::white),
-    m_template_filename(template_filename),
-    m_using_template(true)
-{
-    commonConstructor();
-}
-
-
-void QuCanvas::commonConstructor()
-{
     Q_ASSERT(m_fieldref);
     m_adjust_display_for_dpi = true;
     m_border_width_px = 2;
@@ -84,6 +65,15 @@ void QuCanvas::commonConstructor()
             this, &QuCanvas::fieldValueChanged);
     connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
             this, &QuCanvas::fieldValueChanged);
+}
+
+
+QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QString& template_filename,
+                   const QSize& size, const bool allow_shrink) :
+    QuCanvas(fieldref, size, allow_shrink, QImage::Format_RGB32, Qt::white)
+{
+    m_template_filename = template_filename;
+    m_using_template = true;
 }
 
 

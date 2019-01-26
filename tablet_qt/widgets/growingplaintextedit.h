@@ -25,6 +25,7 @@ class GrowingPlainTextEdit : public QPlainTextEdit
     // This is to PlainTextEdit as GrowingTextEdit is to TextEdit.
     // HOWEVER, IT DOES NOT AUTO_SIZE PROPERLY YET (see sizeHint).
     // NOT CURRENTLY IN USE.
+
     Q_OBJECT
 public:
     GrowingPlainTextEdit(QWidget* parent = nullptr);

@@ -24,6 +24,9 @@
 class TaskSorter
 {
     // Sorts task instances.
+    // Sorts by creation date/time (descending: new to old), then taskname
+    // (ascending: A to Z).
+
 public:
     TaskSorter();
     bool operator()(const TaskPtr& left, const TaskPtr& right) const;

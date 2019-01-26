@@ -29,7 +29,11 @@ class VerticalLine : public QWidget
 
     Q_OBJECT
 public:
+
+    // Construct, defining the line's width.
+    // To define the line's colour, use CSS "background-color".
     VerticalLine(int width, QWidget* parent = nullptr);
-    // Colour: use CSS "background-color"
+
+    // Standard Qt widget override.
     void paintEvent(QPaintEvent*);
 };

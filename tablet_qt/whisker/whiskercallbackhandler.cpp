@@ -112,7 +112,7 @@ void WhiskerCallbackHandler::removeByEventAndName(const QString& event,
 }
 
 
-void WhiskerCallbackHandler::clearEvents()
+void WhiskerCallbackHandler::clearCallbacks()
 {
     // Removes all callbacks.
     m_callbacks.clear();

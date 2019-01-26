@@ -33,6 +33,8 @@ using namespace whiskerconstants;
 // Helper functions
 // ============================================================================
 
+// Disable the Nagle algorithm for a TCP socket, putting the socket into
+// "no-delay" mode.
 void disableNagle(QTcpSocket* socket)
 {
     Q_ASSERT(socket);
@@ -44,9 +46,8 @@ void disableNagle(QTcpSocket* socket)
 // WhiskerWorker
 // ============================================================================
 
-WhiskerWorker::WhiskerWorker(WhiskerManager* manager) :
+WhiskerWorker::WhiskerWorker() :
     QObject(nullptr),  // no QObject parent; see docs for QObject::moveToThread()
-    m_manager(manager),
     m_imm_port(0),
     m_main_socket(new QTcpSocket(this)),  // will be autodeleted by QObject
     m_immediate_socket(new QTcpSocket(this))  // will be autodeleted by QObject
@@ -54,7 +55,6 @@ WhiskerWorker::WhiskerWorker(WhiskerManager* manager) :
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
 #endif
-    Q_ASSERT(manager);
 
     disableNagle(m_main_socket);
     disableNagle(m_immediate_socket);
@@ -76,9 +76,6 @@ WhiskerWorker::WhiskerWorker(WhiskerManager* manager) :
             this, &WhiskerWorker::onAnySocketDisconnected);
     connect(m_immediate_socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),
             this, &WhiskerWorker::onImmSocketError);
-
-    connect(this, &WhiskerWorker::internalSend,
-            this, &WhiskerWorker::sendToServer);
 
     setConnectionState(WhiskerConnectionState::A_Disconnected);
 }

@@ -27,12 +27,16 @@
 class LabelWordWrapWide : public QLabel
 {
     // Label that word-wraps its text, and prefers to be wide rather than tall.
+    // This is a surprisingly tricky thing to do.
 
     Q_OBJECT
 public:
+
+    // Construct with text.
     explicit LabelWordWrapWide(const QString& text, QWidget* parent = nullptr);
+
+    // Default constructor.
     explicit LabelWordWrapWide(QWidget* parent = nullptr);
-    void commonConstructor();
 
     virtual QSize sizeHint() const override;
     // ... "I would like to be very wide and not very tall."
@@ -60,16 +64,31 @@ public:
     bool event(QEvent* e) override;
 
 public slots:
+    // Set the text of the label.
     void setText(const QString& text);
 
 protected:
+    // Common constructor function.
+    void commonConstructor();
+
+    // Returns the height of our text, given a width.
     int qlabelHeightForWidth(int width) const;
+
+    // If we weren't word-wrapping (i.e. if we were using a single line of
+    // text), how big would we be?
     QSize sizeOfTextWithoutWrap() const;
+
+    // Set our height to an appropriate fixed value, given our width.
     void forceHeight();
+
+    // How much extra space do we need to allocate for CSS features like
+    // borders?
     QSize extraSizeForCssOrLayout() const;
 
+    // Clear our cached information.
     // - Widgets shouldn't need to cache their size hints; that's done by layouts
-    //   for them. See http://kdemonkey.blogspot.co.uk/2013/11/understanding-qwidget-layout-flow.html
+    //   for them. See
+    //   http://kdemonkey.blogspot.co.uk/2013/11/understanding-qwidget-layout-flow.html
     // - However, for performance... we'll cache some things.
     //   In particular, word-wrapping labels can get asked to calculate their
     //   width for a great many heights (sometimes repeatedly).
@@ -80,7 +99,7 @@ protected:
     void clearCache();
 
 protected:
-    mutable QSize m_cached_unwrapped_text_size;
-    mutable QSize m_cached_extra_for_css_or_layout;
-    mutable QMap<int, int> m_cached_qlabel_height_for_width;
+    mutable QSize m_cached_unwrapped_text_size;  // cached "single-line" text size
+    mutable QSize m_cached_extra_for_css_or_layout;  // cached "extra size for CSS"
+    mutable QMap<int, int> m_cached_qlabel_height_for_width;  // cached map of width -> height
 };

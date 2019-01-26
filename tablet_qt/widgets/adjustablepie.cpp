@@ -134,6 +134,12 @@ void AdjustablePie::setNSectors(int n_sectors)
 }
 
 
+int AdjustablePie::nSectors() const
+{
+    return m_n_sectors;
+}
+
+
 void AdjustablePie::setBackgroundBrush(const QBrush& brush)
 {
     m_background_brush = brush;
@@ -192,6 +198,12 @@ void AdjustablePie::setLabelColours(const QVector<QColor>& colours)
 void AdjustablePie::setLabelRotation(bool rotate)
 {
     m_rotate_labels = rotate;
+}
+
+
+int AdjustablePie::nCursors() const
+{
+    return m_n_sectors - 1;
 }
 
 
@@ -334,7 +346,7 @@ void AdjustablePie::setProportionCumulative(const int cursor_index,
 
 void AdjustablePie::setProportions(const QVector<qreal>& proportions)
 {
-    for (qreal p : proportions) {
+    for (const qreal p : proportions) {
         if (p < 0.0 || p > 1.0) {
             qWarning() << Q_FUNC_INFO << "Bad proportion:" << p;
             return;
@@ -737,10 +749,6 @@ QVector<qreal> AdjustablePie::allProportions() const
 
 qreal AdjustablePie::convertAngleToQt(const qreal degrees) const
 {
-    // Qt uses geometric angles that start at 3 o'clock and go anticlockwise.
-    // ... http://doc.qt.io/qt-5/qpainter.html#drawPie
-    // In our minds we're using angles that start at 6 o'clock and go clockwise.
-    // This takes angles from the second to the first.
     return headingToPolarThetaDeg(degrees, m_base_compass_heading_deg, false);
 }
 

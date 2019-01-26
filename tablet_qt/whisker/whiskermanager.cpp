@@ -45,7 +45,7 @@ using namespace whiskerconstants;
 WhiskerManager::WhiskerManager(QObject* parent,
                                const QString& sysevent_prefix) :
     QObject(parent),
-    m_worker(new WhiskerWorker(this)),
+    m_worker(new WhiskerWorker()),
     m_sysevent_prefix(sysevent_prefix),
     m_sysevent_counter(0)
 {
@@ -68,6 +68,8 @@ WhiskerManager::WhiskerManager(QObject* parent,
             this, &WhiskerManager::onFullyConnected);
     connect(m_worker, &WhiskerWorker::receivedFromServerMainSocket,
             this, &WhiskerManager::internalReceiveFromMainSocket);
+    connect(m_worker, &WhiskerWorker::socketError,
+            this, &WhiskerManager::onSocketError);
 
     m_worker_thread.start();
 }
@@ -252,7 +254,7 @@ QString WhiskerManager::getNewSysEvent(const QString& suffix)
 
 void WhiskerManager::clearAllCallbacks()
 {
-    m_internal_callback_handler.clearEvents();
+    m_internal_callback_handler.clearCallbacks();
 }
 
 

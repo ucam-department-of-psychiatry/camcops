@@ -25,7 +25,9 @@ class WhiskerManager;
 class WhiskerDisplayCacheWrapper
 {
     // Create this object on the stack in a scope block {}, so that it starts
-    // caching when it's created and stops caching when it's destroyed.
+    // Whisker's display caching (for a particular Whisker display document)
+    // when it's created and stops caching when it's destroyed.
+
 public:
     WhiskerDisplayCacheWrapper(WhiskerManager* manager,
                                const QString& doc);

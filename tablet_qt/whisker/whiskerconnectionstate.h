@@ -23,6 +23,8 @@
 
 
 enum class WhiskerConnectionState {
+    // Possible states of our connection to a Whisker server.
+
     A_Disconnected,
     B_RequestingMain,
     C_MainConnectedAwaitingImmPort,

@@ -48,16 +48,16 @@ CameraButton {
     property Camera camera
 
     onClicked: {
-        if (camera.lockStatus == Camera.Unlocked)
+        if (camera.lockStatus === Camera.Unlocked)
             camera.searchAndLock();
         else
             camera.unlock();
     }
 
     text: {
-        if (camera.lockStatus == Camera.Unlocked)
+        if (camera.lockStatus === Camera.Unlocked)
             "Focus";
-        else if (camera.lockStatus == Camera.Searching)
+        else if (camera.lockStatus === Camera.Searching)
             "Focusing"
         else
             "Unlock"

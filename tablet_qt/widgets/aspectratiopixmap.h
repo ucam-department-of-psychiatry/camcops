@@ -39,12 +39,17 @@ class QResizeEvent;
 class AspectRatioPixmap : public QWidget
 {
     // Image that retains its aspect ratio, for displaying photos.
+    //
     // - Displays image UP TO its original size.
-    // - Clickable, in a simple way (as per https://wiki.qt.io/Clickable_QLabel)
+    //
+    // - Clickable, in a simple way (as per
+    //   https://wiki.qt.io/Clickable_QLabel).
+    //
     //   - this form of clicking responds immediately, not as you release the
-    //   mouse click (cf. QAbstractButton); however, there is no visual display
-    //   that responds to the start of the click, so maybe that is reasonable.
-    //   For another way of responding to clicks, see ClickableLabel.
+    //     mouse click (cf. QAbstractButton); however, there is no visual
+    //     display that responds to the start of the click, so maybe that is
+    //     reasonable.
+    //   - For another way of responding to clicks, see ClickableLabel.
 
     // For speed, DO NOT allow resizeEvent() to call some sort of function like
     // QLabel::setPixmap(scaledPixmap()). That leads to terminal slowness with
@@ -54,20 +59,36 @@ class AspectRatioPixmap : public QWidget
 
     Q_OBJECT
 public:
+
+    // Constructor. Sets image.
     explicit AspectRatioPixmap(QPixmap* pixmap = nullptr,
                                QWidget* parent = nullptr);
+
+    // Standard Qt widget overrides.
     virtual bool hasHeightForWidth() const override;
     virtual int heightForWidth(int width) const override;
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
+
+    // Removes the image.
     void clear();
+
 protected:
+
+    // Standard Qt widget overrides.
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void paintEvent(QPaintEvent* event) override;
+
 signals:
+
+    // "Image was clicked."
     void clicked();
+
 public slots:
+
+    // Sets a new image.
     virtual void setPixmap(const QPixmap& pixmap);  // WON'T OVERRIDE.
+
 private:
-    QPixmap m_pixmap;
+    QPixmap m_pixmap;  // our image
 };

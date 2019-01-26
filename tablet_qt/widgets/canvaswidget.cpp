@@ -41,9 +41,8 @@ const QColor DEFAULT_UNUSED_SPACE_COLOR(QCOLOR_SILVER);
 
 
 CanvasWidget::CanvasWidget(const QImage::Format format, QWidget* parent) :
-    QFrame(parent)
+    CanvasWidget(QSize(0, 0), format, parent)
 {
-    commonConstructor(QSize(0, 0), format);
 }
 
 
@@ -51,13 +50,6 @@ CanvasWidget::CanvasWidget(const QSize& size,
                            const QImage::Format format,
                            QWidget* parent) :
     QFrame(parent)
-{
-    commonConstructor(size, format);
-}
-
-
-void CanvasWidget::commonConstructor(const QSize& size,
-                                     const QImage::Format format)
 {
     m_format = format;
     setAllowShrink(false);

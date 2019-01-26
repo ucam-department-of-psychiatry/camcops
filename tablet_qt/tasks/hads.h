@@ -52,7 +52,6 @@ protected:
     Hads(CamcopsApp& app, DatabaseManager& db,
          const QString& tablename, bool has_respondent,
          int load_pk = dbconst::NONEXISTENT_PK);
-    void commonConstructor(int load_pk);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------

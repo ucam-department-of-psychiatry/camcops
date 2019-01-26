@@ -194,7 +194,7 @@ public:
 public:
 
     // ------------------------------------------------------------------------
-    // From QSlider:
+    // From QSlider (q.v.):
     // ------------------------------------------------------------------------
 
     Qt::Orientation orientation() const { return m_slider.orientation(); }
@@ -251,7 +251,7 @@ signals:
     void actionTriggered(int action);
 
     // ------------------------------------------------------------------------
-    // From QAbstractSlider:
+    // From QAbstractSlider (q.v.):
     // ------------------------------------------------------------------------
 public:
 
@@ -335,20 +335,20 @@ protected:
     void initStyleOption(QStyleOptionSlider* option) const;
 
 protected:
-    QColor m_tick_colour;
-    int m_tick_thickness;
-    int m_tick_length;
-    int m_tick_label_gap;
-    int m_min_interlabel_gap;
-    int m_gap_to_slider;
-    QSlider::TickPosition m_label_position;
-    QMap<int, QString> m_tick_labels;
-    bool m_edge_in_extreme_labels;
-    bool m_symmetric_overspill;
-    int m_slider_target_length_px;  // <=0 means don't use this  // ***
+    QColor m_tick_colour;  // tick colour
+    int m_tick_thickness;  // tick thickness (parallel to slider)
+    int m_tick_length;  // tick length (perpendicular to slider)
+    int m_tick_label_gap;  // gap between ticks and labels (perpendicular to slider)
+    int m_min_interlabel_gap;  // minimum gap between labels (parallel to slider)
+    int m_gap_to_slider;  // gap adjacent to slider (to ticks or labels)
+    QSlider::TickPosition m_label_position;  // labels left/right/both (etc.)
+    QMap<int, QString> m_tick_labels;  // maps from slider position to label text
+    bool m_edge_in_extreme_labels;  // see setEdgeInExtremeLabels()
+    bool m_symmetric_overspill;  // see setSymmetricOverspill()
+    int m_slider_target_length_px;  // absolute target length; <=0 means don't use this
 
-    mutable bool m_is_overspill_cached;
-    mutable Margins m_cached_overspill;
+    mutable bool m_is_overspill_cached;  // is m_cached_overspill valid?
+    mutable Margins m_cached_overspill;  // cached margins for overspill; see setSymmetricOverspill()
 
-    QSlider m_slider;
+    QSlider m_slider;  // our slider
 };

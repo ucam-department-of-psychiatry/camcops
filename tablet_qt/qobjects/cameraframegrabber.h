@@ -22,11 +22,11 @@
 #include <QList>
 #include <QVideoFrame>
 
-// Class to use a video surface as a viewfinder and grab a frame from it.
-// (I think.)
-
 class CameraFrameGrabber : public QAbstractVideoSurface
 {
+    // Class to use a video surface as a camera's viewfinder, and grab a frame
+    // from it.
+
     Q_OBJECT
 public:
     explicit CameraFrameGrabber(QObject* parent = nullptr);

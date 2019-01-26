@@ -26,29 +26,37 @@
 
 namespace whiskerconstants {
 
+// Constants for talking to a Whisker server.
+
 // ============================================================================
 // Enums
 // ============================================================================
 
 enum class ResetState {
-    Input,
-    On,
-    Off,
-    Leave,
+    // When Whisker quits, what state should a digital line be left in?
+    Input,  // it's an input line; not applicable
+    On,  // turn it on
+    Off,  // turn it off
+    Leave,  // leave it in the state it is at the time
 };
 
 enum class LineEventType {
+    // Should line events trigger upon "on" transitions, "off" transitions, or
+    // both?
     On,
     Off,
     Both,
 };
 
 enum class SafetyState {
+    // If a safety timer is set on an output line, what state should it be put
+    // into when the timer elapses (due to inactivity)?
     Off,
     On,
 };
 
 enum class DocEventType {
+    // What mouse/touch events should a display object respond to?
     MouseDown,
     MouseUp,
     MouseDoubleClick,
@@ -59,6 +67,7 @@ enum class DocEventType {
 };
 
 enum class KeyEventType {
+    // What keystroke actions should a key event respond to?
     None,
     Down,
     Up,
@@ -66,6 +75,7 @@ enum class KeyEventType {
 };
 
 enum class ToneType {
+    // Sound wave types for tone generation.
     Sine,
     Sawtooth,
     Square,
@@ -73,12 +83,14 @@ enum class ToneType {
 };
 
 enum class VerticalAlign {
+    // Vertical alignment options for graphical objects.
     Top,
     Middle,
     Bottom,
 };
 
 enum class TextVerticalAlign {
+    // Vertical alignment options for text objects.
     Top,
     Middle,
     Bottom,
@@ -86,24 +98,28 @@ enum class TextVerticalAlign {
 };
 
 enum class HorizontalAlign {
+    // Horizontal alignment options for graphical objects.
     Left,
     Centre,
     Right,
 };
 
 enum class TextHorizontalAlign {
+    // Horizontal alignment options for text objects.
     Left,
     Centre,
     Right,
 };
 
 enum class VideoPlayMode {
+    // When videos are created, should they start playing straight away (etc.)?
     Wait,
     Immediate,
     WhenVisible,
 };
 
 enum class PenStyle {
+    // Styles for pens.
     Solid,
     Dash,
     Dot,
@@ -114,12 +130,14 @@ enum class PenStyle {
 };
 
 enum class BrushStyle {
+    // Styles for brushes.
     Hollow,
     Solid,
     Hatched,
 };
 
 enum class BrushHatchStyle {
+    // Styles for hatched brushes.
     Horizontal,  // -----
     Vertical,  //   |||||
     FDiagonal,  //  \\\\\ (see WinGDI.h)
@@ -138,7 +156,7 @@ enum class BrushHatchStyle {
 // ----------------------------------------------------------------------------
 
 extern const QString WHISKER_DEFAULT_HOST;
-extern const int WHISKER_DEFAULT_PORT;  // IANA registered port number
+extern const quint16 WHISKER_DEFAULT_PORT;  // IANA registered port number
 extern const int WHISKER_DEFAULT_TIMEOUT_MS;
 
 // ----------------------------------------------------------------------------
@@ -147,8 +165,6 @@ extern const int WHISKER_DEFAULT_TIMEOUT_MS;
 
 extern const QString SPACE;
 extern const QString EOL;  // Whisker sends (and accepts) LF between responses.
-
-// Remember: C++ raw strings are R"(content)" for "content"
 
 // ----------------------------------------------------------------------------
 // Server -> client
@@ -191,6 +207,7 @@ extern const QString MSG_VIDEO_TIME;
 // Client -> server
 // ----------------------------------------------------------------------------
 
+// Commands
 extern const QString CMD_AUDIO_CLAIM;
 extern const QString CMD_AUDIO_GET_SOUND_LENGTH;
 extern const QString CMD_AUDIO_LOAD_SOUND;
@@ -282,6 +299,7 @@ extern const QString CMD_VIDEO_STOP;
 extern const QString CMD_VIDEO_TIMESTAMPS;
 extern const QString CMD_WHISKER_STATUS;
 
+// Command parameter flags
 extern const QString FLAG_ALIAS;
 extern const QString FLAG_BACKCOLOUR;
 extern const QString FLAG_BASELINE;
@@ -335,8 +353,10 @@ extern const QString FLAG_VIDEO_PLAYWHENVISIBLE;
 extern const QString FLAG_VIDEO_WAIT;
 extern const QString FLAG_WIDTH;
 
+// Quoting strings
 extern const QString QUOTE;
 
+// Specific parameter values
 extern const QString VAL_ANALOGUE_EVENTTYPE_ABOVE;
 extern const QString VAL_ANALOGUE_EVENTTYPE_ALL;
 extern const QString VAL_ANALOGUE_EVENTTYPE_BELOW;
@@ -387,9 +407,11 @@ extern const QString VAL_TOUCH_DOWN;
 extern const QString VAL_TOUCH_MOVE;
 extern const QString VAL_TOUCH_UP;
 
+// Colours
 extern const QColor BLACK;
 extern const QColor WHITE;
 
+// Mapping C++ enum values to parameter string values
 extern const QMap<VideoPlayMode, QString> VIDEO_PLAYMODE_FLAGS;
 extern const QMap<VerticalAlign, QString> VALIGN_FLAGS;
 extern const QMap<HorizontalAlign, QString> HALIGN_FLAGS;
