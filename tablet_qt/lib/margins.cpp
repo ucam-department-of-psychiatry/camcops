@@ -39,6 +39,18 @@ Margins::Margins(const int left, const int top,
 }
 
 
+Margins::Margins(const int each_side)
+{
+    set(each_side, each_side, each_side, each_side);
+}
+
+
+Margins::Margins(int left_right, int top_bottom)
+{
+    set(left_right, top_bottom, left_right, top_bottom);
+}
+
+
 void Margins::set(const int left, const int top,
                   const int right, const int bottom)
 {
@@ -225,6 +237,18 @@ void Margins::addMarginsToInPlace(Margins& other) const
     other.m_right += m_right;
     other.m_top += m_top;
     other.m_bottom += m_bottom;
+}
+
+
+QRect Margins::moveRectByTopLeftMargins(const QRect& rect) const
+{
+    return rect.adjusted(m_left, m_top, m_left, m_top);
+}
+
+
+void Margins::moveRectByTopLeftMarginsInPlace(QRect& rect) const
+{
+    rect.adjust(m_left, m_top, m_left, m_top);
 }
 
 

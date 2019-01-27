@@ -6,8 +6,9 @@
     %3      heading font size (pt)
     %4      title font size (pt)
     %5      base menu font size (pt)
-    %6      slider groove size (px)
-    %7      slider handle size (px)
+    %6      slider groove size, perpendicular to the slider direction (px)
+    %7      slider handle size, parallel to the slider direction (px)
+    %8      slider groove margin, parallel to the slider direction (px)
 */
 
 QMainWindow {

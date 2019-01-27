@@ -60,9 +60,10 @@ const int SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI = 40;
     // ... 10 too small for smartphones
     // At 96 (approx. 100) dpi, 20 px gives 0.2 inches = 5mm,
     // so perhaps 40. This is slightly "big print", bu that's appropriate.
-int SLIDER_HANDLE_SIZE_PX = SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI;
+int g_slider_handle_size_px = SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI;
+const int SLIDER_GROOVE_MARGIN_PX = 2;
 const int DIAL_DIAMETER_PX_FOR_DEFAULT_DPI = 192;
-int DIAL_DIAMETER_PX = DIAL_DIAMETER_PX_FOR_DEFAULT_DPI;
+int g_dial_diameter_px = DIAL_DIAMETER_PX_FOR_DEFAULT_DPI;
 
 const QColor QCALENDARWIDGET_NAVBAR_BACKGROUND(0, 0, 255);  // blue
 const QColor QCALENDARWIDGET_NAVBAR_FOREGROUND(255, 255, 255);  // white

@@ -38,6 +38,8 @@ public:
 
     // Construct with specified margins.
     Margins(int left, int top, int right, int bottom);
+    Margins(int each_side);
+    Margins(int left_right, int top_bottom);
 
     // Set the margins.
     void set(int left, int top, int right, int bottom);
@@ -98,6 +100,10 @@ public:
     void addMarginsToInPlace(QSize& size) const;
     void addMarginsToInPlace(QRect& rect) const;
     void addMarginsToInPlace(Margins& other) const;
+
+    // Adjust a QRect by our top/left margins:
+    QRect moveRectByTopLeftMargins(const QRect& rect) const;
+    void moveRectByTopLeftMarginsInPlace(QRect& rect) const;
 
     // Remove our stored margins from a variety of objects:
     QSize removeMarginsFrom(const QSize& size) const;

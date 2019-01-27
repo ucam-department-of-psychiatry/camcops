@@ -29,6 +29,7 @@
 #include <QStylePainter>
 #include "graphics/graphicsfunc.h"
 #include "lib/convert.h"
+#include "common/uiconst.h"
 
 
 const QColor DEFAULT_TICK_COLOR(0, 0, 0, 255);  // black, opaque
@@ -274,8 +275,9 @@ double TickSlider::getDrawingProportion(int value) const
 
     const bool inverted = invertedAppearance();
     const bool horizontal = isHorizontal();
+    const bool vertical = !horizontal;
     bool flip = inverted;
-    if (!horizontal) {
+    if (vertical) {
         flip = !flip;  // vertical ones: drawing direction is reversed
     }
 
@@ -301,21 +303,33 @@ void TickSlider::paintEvent(QPaintEvent* ev)
         return;
     }
 
-    QStylePainter p(this);
-    const Margins overspill = getLabelOverspill();
-    const QRect& whole_rect = rect();
-    const QRect& slider_rect = getSliderRect();
+    const bool horizontal = isHorizontal();
+    const bool inverted = invertedAppearance();
+    const int min_value = minimum();
+    const int max_value = maximum();
+    const int first_value = inverted ? max_value : min_value;
+    const int last_value = inverted ? min_value : max_value;
+    const QSize max_label_size = maxLabelSize();
+    const QSlider::TickPosition tickpos = tickPosition();
+    const QSlider::TickPosition ticklabelpos = tickLabelPosition();
 
-    // Find the handle size (we need to know this because the end ticks
-    // are half a handle width in from the edge of the slider).
-    // Handle *position* is unimportant.
-    m_slider.ensurePolished();
-    QStyleOptionSlider opt;
-    initStyleOption(&opt);
-    const QRect handle = m_slider.style()->subControlRect(
-                QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, &m_slider);
-#if 0
-    qDebug() << "Slider handle:" << handle;
+    QStylePainter p(this);
+    const QRect& whole_rect = rect();
+    const QRect active_groove = getSliderActiveGroove();
+#ifdef DEBUG_SIZE
+    qDebug() << "Whole widget:" << whole_rect;
+    qDebug() << "Active part of slider groove:" << active_groove;
+    if (horizontal) {
+        qDebug() << "getTickPos(0, ...):" << getTickPos(
+                        0, active_groove.left(), active_groove.width());
+        qDebug() << "getTickPos(1, ...):" << getTickPos(
+                        1, active_groove.left(), active_groove.width());
+    } else {
+        qDebug() << "getTickPos(0, ...):" << getTickPos(
+                        0, active_groove.top(), active_groove.height());
+        qDebug() << "getTickPos(1, ...):" << getTickPos(
+                        1, active_groove.top(), active_groove.height());
+    }
 #endif
 
     // Draw tick marks (and labels).
@@ -328,16 +342,6 @@ void TickSlider::paintEvent(QPaintEvent* ev)
     pen.setColor(m_tick_colour);
     pen.setWidth(m_tick_thickness);
     p.setPen(pen);
-
-    const bool horizontal = isHorizontal();
-    const bool inverted = invertedAppearance();
-    const int min_value = minimum();
-    const int max_value = maximum();
-    const int first_value = inverted ? max_value : min_value;
-    const int last_value = inverted ? min_value : max_value;
-    const QSize max_label_size = maxLabelSize();
-    const QSlider::TickPosition tickpos = tickPosition();
-    const QSlider::TickPosition ticklabelpos = tickLabelPosition();
 
     // We draw labels/ticks working from the outside of the bounding box in.
     if (horizontal) {
@@ -381,8 +385,8 @@ void TickSlider::paintEvent(QPaintEvent* ev)
             }
             const double prop = getDrawingProportion(i);
             // x position (tick position and horizontal alignment point of text)
-            const int x = getTickPos(prop, handle.width(),
-                                     slider_rect.width(), overspill.left());
+            const int x = getTickPos(prop, active_groove.left(),
+                                     active_groove.width());
             const bool has_label = m_tick_labels.contains(i);
             QString label_text;
             if (has_label) {
@@ -448,8 +452,8 @@ void TickSlider::paintEvent(QPaintEvent* ev)
             }
             const double prop = getDrawingProportion(i);
             // y position (tick position and vertical alignment point of text)
-            const int y = getTickPos(prop, handle.height(),
-                                     slider_rect.height(), overspill.bottom());
+            const int y = getTickPos(prop, active_groove.top(),
+                                     active_groove.height());
             const bool has_label = m_tick_labels.contains(i);
             QString label_text;
             if (has_label) {
@@ -479,25 +483,18 @@ void TickSlider::paintEvent(QPaintEvent* ev)
 
 
 int TickSlider::getTickPos(const double drawing_proportion,
-                           const int handle_extent,
-                           const int slider_extent,
-                           const int initial_label_overspill) const
+                           const int active_groove_start,
+                           const int active_groove_extent) const
 {
     // - We have a slider that is drawn as slider_extent pixels long.
     // - That value includes overhang for the handle: half the handle can
     //   overhang at each end.
-    const double dhandle_extent = static_cast<double>(handle_extent);
-    const double dslider_extent = static_cast<double>(slider_extent);
-    const double slider_main_part = dslider_extent - dhandle_extent;
-    const double half_handle = dhandle_extent / 2.0;
+    const double start = static_cast<double>(active_groove_start);
+    const double extent = static_cast<double>(active_groove_extent);
 
-    // - We also allocate some extra space for label overspill
-    const double dlabel_overspill = static_cast<double>(initial_label_overspill);
+    const double tickpos = start + (drawing_proportion * extent);
 
-    const double tickpos = dlabel_overspill + half_handle +
-                           (drawing_proportion * slider_main_part);
-
-    return static_cast<int>(round(tickpos)) - 1;
+    return static_cast<int>(round(tickpos));
 }
 
 
@@ -731,6 +728,45 @@ QRect TickSlider::getSliderRect() const
     const QRect entire_rect = rect();
     QRect slider_rect = surround.removeMarginsFrom(entire_rect);
     return slider_rect;
+}
+
+
+QRect TickSlider::getSliderActiveGroove() const
+{
+    // Ensure stylesheets are applied, etc.
+    m_slider.ensurePolished();
+    QStyleOptionSlider opt;
+    initStyleOption(&opt);
+    // Read the handle. Its absolute position will be wrong (it'll be relative
+    // to the slider) but we only care about its width/height.
+    const QRect handle = m_slider.style()->subControlRect(
+                QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, &m_slider);
+    // Fine the entire extent of the groove. This includes borders around the
+    // "active" part of the groove.
+    // What we get first is wrong, in that it's relative to the QSlider:
+    QRect groove = m_slider.style()->subControlRect(
+                QStyle::CC_Slider, &opt, QStyle::SC_SliderGroove, &m_slider);
+    const Margins surround = getSurround();
+    surround.moveRectByTopLeftMarginsInPlace(groove);
+#ifdef DEBUG_SIZE
+    qDebug() << "Slider handle:" << handle;
+    qDebug() << "Slider groove:" << groove;
+#endif
+    // We can't read the internal margins/borders.
+    // So we have to do this by knowing we told it what to do in the first
+    // place, and what we told it.
+    Margins groove_margins(uiconst::SLIDER_GROOVE_MARGIN_PX);
+    if (isHorizontal()) {
+        const int half_handle_width = handle.width() / 2;
+        groove_margins.addLeft(half_handle_width);
+        groove_margins.addRight(half_handle_width);
+    } else {
+        const int half_handle_height = handle.height() / 2;
+        groove_margins.addTop(half_handle_height);
+        groove_margins.addBottom(half_handle_height);
+    }
+    const QRect active_groove = groove_margins.removeMarginsFrom(groove);
+    return active_groove;
 }
 
 

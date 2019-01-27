@@ -782,6 +782,38 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     // size).
     vas_slider->setAbsoluteLengthCm(VAS_ABSOLUTE_SIZE_CM, VAS_CAN_SHRINK);
 
+    // --------------------------------------------------------------------
+    // VAS-style slider -- a vertical version
+    // --------------------------------------------------------------------
+
+    QuSlider* vas_slider2 = new QuSlider(
+        fieldRef(VAS_FIELDNAME), VAS_MIN_INT, VAS_MAX_INT, 1);
+    vas_slider2->setConvertForRealField(true, VAS_MIN, VAS_MAX, VAS_DISPLAY_DP);
+    vas_slider2->setHorizontal(false);
+    vas_slider2->setBigStep(1);
+
+    vas_slider2->setTickInterval(VAS_MAX_INT);
+    vas_slider2->setTickPosition(QSlider::TickPosition::TicksBothSides);
+
+    vas_slider2->setTickLabels({
+        {VAS_MIN_INT, QString::number(VAS_MIN)},  // or whatever
+        {VAS_MAX_INT, QString::number(VAS_MAX)},
+    });
+    vas_slider2->setTickLabelPosition(QSlider::TickPosition::TicksAbove);
+
+    vas_slider2->setShowValue(true);
+
+    vas_slider2->setNullApparentValue(VAS_CENTRAL_INT);
+    vas_slider2->setSymmetric(true);
+    vas_slider2->setEdgeInExtremeLabels(false);
+
+    vas_slider2->setAbsoluteLengthCm(VAS_ABSOLUTE_SIZE_CM, VAS_CAN_SHRINK);
+
+    const QString vas_description = QString(
+        "Slider is set to %1 cm; can_shrink = %2"
+    ).arg(QString::number(VAS_ABSOLUTE_SIZE_CM),
+          uifunc::trueFalse(VAS_CAN_SHRINK));
+
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // End of those examples. On to the page...
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -793,6 +825,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksBothSides)
                                 ->setShowValue(true),
+#endif
         new QuHeading("Integer slider (same field as above), vertical"),
         (new QuSlider(fieldRef("thermometer"), 0, 10, 1))
                                 ->setShowValue(true)
@@ -801,6 +834,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                 ->setUseDefaultTickLabels(true)
                                 ->setTickLabelPosition(QSlider::TicksBothSides)
                                 ->setHorizontal(false),
+#ifndef DEBUG_DISABLE_MOST_SLIDERS
         new QuHeading("Real/float slider:"),
         (new QuSlider(fieldRef("slider1"), 0, 10, 1))
                                 ->setShowValue(true)
@@ -821,7 +855,6 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                 })
                                 ->setShowValue(true)
                                 ->setEdgeInExtremeLabels(true),
-#endif
         new QuHeading("Real slider with custom labels (standard labels):"),
         (new QuSlider(fieldRef("slider2"), 100, 500, 1))
                                 ->setConvertForRealField(true, 1, 5)
@@ -841,7 +874,6 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                     {500, "five: maximum!"},
                                 })
                                 ->setShowValue(true),
-#ifndef DEBUG_DISABLE_MOST_SLIDERS
         new QuHeading("Thermometer:"),
         (new QuThermometer(fieldRef("thermometer"), thermometer_items))
                                 ->setRescale(true, 0.4),
@@ -849,10 +881,11 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         rose_q,
         likert_slider_grid,
         new QuHeading("Visual analogue scale-style slider (approximating continuous)"),
-        new QuText(QString("Slider is set to %1 cm; can_shrink = %2").arg(
-                                QString::number(VAS_ABSOLUTE_SIZE_CM),
-                                uifunc::trueFalse(VAS_CAN_SHRINK))),
+        new QuText(vas_description),
         vas_slider,
+        new QuHeading("Visual analogue scale-style slider (vertical version)"),
+        new QuText(vas_description),
+        vas_slider2,
 #endif
     })
         ->setTitle("Sliders and thermometers")

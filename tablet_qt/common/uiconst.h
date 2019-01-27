@@ -66,9 +66,10 @@ extern const int MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI;
 extern int g_min_spinbox_height;  // not const!
 extern const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS;  // how to display a spinbox
 extern const int SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI;
-extern int SLIDER_HANDLE_SIZE_PX;
+extern int g_slider_handle_size_px;  // not const!
+extern const int SLIDER_GROOVE_MARGIN_PX;
 extern const int DIAL_DIAMETER_PX_FOR_DEFAULT_DPI;
-extern int DIAL_DIAMETER_PX;
+extern int g_dial_diameter_px;  // not const!
 
 // QCalendarWidget
 extern const QColor QCALENDARWIDGET_NAVBAR_BACKGROUND;

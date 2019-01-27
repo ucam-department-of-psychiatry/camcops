@@ -48,6 +48,7 @@ protected:
     void fontSettingsCancelled();
     void resetFontSize();
     QString demoText(const QString& text, uiconst::FontSize fontsize_type) const;
+    void dpiOverrideChanged();
 
     void setPrivilege();
     void changeAppPassword();
@@ -84,4 +85,10 @@ protected:
     QPointer<Questionnaire> m_ip_questionnaire;
     FieldRefPtr m_fontsize_fr;
     FieldRefPtr m_ip_clinical_fr;
+    FieldRefPtr m_dpi_override_logical_fr;
+    FieldRefPtr m_dpi_override_logical_x_fr;
+    FieldRefPtr m_dpi_override_logical_y_fr;
+    FieldRefPtr m_dpi_override_physical_fr;
+    FieldRefPtr m_dpi_override_physical_x_fr;
+    FieldRefPtr m_dpi_override_physical_y_fr;
 };

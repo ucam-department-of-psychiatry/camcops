@@ -616,9 +616,10 @@ void CamcopsApp::createStoredVars()
 
     // Questionnaire
     createVar(varconst::QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
-    createVar(varconst::OVERRIDE_DPI, QVariant::Bool, false);
+    createVar(varconst::OVERRIDE_LOGICAL_DPI, QVariant::Bool, false);
     createVar(varconst::OVERRIDE_LOGICAL_DPI_X, QVariant::Double, uiconst::DEFAULT_DPI.x);
     createVar(varconst::OVERRIDE_LOGICAL_DPI_Y, QVariant::Double, uiconst::DEFAULT_DPI.y);
+    createVar(varconst::OVERRIDE_PHYSICAL_DPI, QVariant::Bool, false);
     createVar(varconst::OVERRIDE_PHYSICAL_DPI_X, QVariant::Double, uiconst::DEFAULT_DPI.x);
     createVar(varconst::OVERRIDE_PHYSICAL_DPI_Y, QVariant::Double, uiconst::DEFAULT_DPI.y);
 
@@ -823,22 +824,29 @@ void CamcopsApp::setDPI()
 
     // The storedvars must be available.
 
-    // If vars_available is false, we must not touch CamCOPS app vars.
+    const bool override_logical = varBool(varconst::OVERRIDE_LOGICAL_DPI);
+    const bool override_physical = varBool(varconst::OVERRIDE_PHYSICAL_DPI);
 
-    if (!varBool(varconst::OVERRIDE_DPI)) {
-        // Use Qt DPI directly.
-        uiconst::g_logical_dpi = m_qt_logical_dpi;
-        uiconst::g_physical_dpi = m_qt_physical_dpi;
-    } else {
+    if (override_logical) {
         // Override
         uiconst::g_logical_dpi = Dpi(
             varDouble(varconst::OVERRIDE_LOGICAL_DPI_X),
             varDouble(varconst::OVERRIDE_LOGICAL_DPI_Y)
         );
+    } else {
+        // Use Qt DPI directly.
+        uiconst::g_logical_dpi = m_qt_logical_dpi;
+    }
+
+    if (override_physical) {
+        // Override
         uiconst::g_physical_dpi = Dpi(
             varDouble(varconst::OVERRIDE_PHYSICAL_DPI_X),
             varDouble(varconst::OVERRIDE_PHYSICAL_DPI_Y)
         );
+    } else {
+        // Use Qt DPI directly.
+        uiconst::g_physical_dpi = m_qt_physical_dpi;
     }
 
     auto cvSize = [](const QSize& size) -> QSize {
@@ -854,8 +862,8 @@ void CamcopsApp::setDPI()
     uiconst::g_iconsize = cvSize(uiconst::ICONSIZE_FOR_DEFAULT_DPI);
     uiconst::g_small_iconsize = cvSize(uiconst::SMALL_ICONSIZE_FOR_DEFAULT_DPI);
     uiconst::g_min_spinbox_height = cvLengthY(uiconst::MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI);
-    uiconst::SLIDER_HANDLE_SIZE_PX = cvLengthX(uiconst::SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI);
-    uiconst::DIAL_DIAMETER_PX = cvLengthX(uiconst::DIAL_DIAMETER_PX_FOR_DEFAULT_DPI);
+    uiconst::g_slider_handle_size_px = cvLengthX(uiconst::SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI);
+    uiconst::g_dial_diameter_px = cvLengthX(uiconst::DIAL_DIAMETER_PX_FOR_DEFAULT_DPI);
 }
 
 
@@ -1609,8 +1617,9 @@ QString CamcopsApp::getSubstitutedCss(const QString& filename) const
     const int p3_heading_font_size_pt = fontSizePt(uiconst::FontSize::Heading);
     const int p4_title_font_size_pt = fontSizePt(uiconst::FontSize::Title);
     const int p5_menu_font_size_pt = fontSizePt(uiconst::FontSize::Menus);
-    const int p6_slider_groove_size_px = uiconst::SLIDER_HANDLE_SIZE_PX / 2;
-    const int p7_slider_handle_size_px = uiconst::SLIDER_HANDLE_SIZE_PX;
+    const int p6_slider_groove_size_px = uiconst::g_slider_handle_size_px / 2;
+    const int p7_slider_handle_size_px = uiconst::g_slider_handle_size_px;
+    const int p8_slider_groove_margin_px = uiconst::SLIDER_GROOVE_MARGIN_PX;
 
 #ifdef DEBUG_CSS_SIZES
     qDebug().nospace()
@@ -1622,19 +1631,21 @@ QString CamcopsApp::getSubstitutedCss(const QString& filename) const
             << ", p4_title_font_size_pt = " << p4_title_font_size_pt
             << ", p5_menu_font_size_pt = " << p5_menu_font_size_pt
             << ", p6_slider_groove_size_px = " << p6_slider_groove_size_px
-            << ", p7_slider_handle_size_px = " << p7_slider_handle_size_px;
+            << ", p7_slider_handle_size_px = " << p7_slider_handle_size_px
+            << ", p8_slider_groove_margin_px = " << p8_slider_groove_margin_px;
 #endif
 
-    return (
-        filefunc::textfileContents(filename)
-            .arg(p1_normal_font_size_pt)     // %1
-            .arg(p2_big_font_size_pt)        // %2
-            .arg(p3_heading_font_size_pt)    // %3
-            .arg(p4_title_font_size_pt)      // %4
-            .arg(p5_menu_font_size_pt)       // %5
-            .arg(p6_slider_groove_size_px)   // %6: groove
-            .arg(p7_slider_handle_size_px)   // %7: handle
-    );
+    return filefunc::textfileContents(filename)
+        .arg(QString::number(p1_normal_font_size_pt),      // %1
+             QString::number(p2_big_font_size_pt),         // %2
+             QString::number(p3_heading_font_size_pt),     // %3
+             QString::number(p4_title_font_size_pt),       // %4
+             QString::number(p5_menu_font_size_pt),        // %5
+             QString::number(p6_slider_groove_size_px),    // %6: groove width
+             QString::number(p7_slider_handle_size_px),    // %7: handle
+             QString::number(p8_slider_groove_margin_px)); // %8: groove margin
+    // QString::arg takes up to 9 strings.
+    // After that, you can always add more arg() calls.
 }
 
 

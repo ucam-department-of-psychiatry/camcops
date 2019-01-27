@@ -32,8 +32,9 @@
         %3      heading font size (pt)
         %4      title font size (pt)
         %5      base menu font size (pt)
-        %6      slider groove size (px)
-        %7      slider handle size (px)
+        %6      slider groove size, perpendicular to the slider direction (px)
+        %7      slider handle size, parallel to the slider direction (px)
+        %8      slider groove margin, parallel to the slider direction (px)
 
     ALL CSS USING CamcopsApp::getSubstitutedCss MUST PROVIDE AT LEAST ONE
     PLACEHOLDER FOR EACH OF THESE, e.g. in a comment if not otherwise used
@@ -360,7 +361,7 @@ BooleanWidget ClickableLabelWordWrapWide[readonly="false"]:pressed {
 /*
     For QuSlider
     - this is quite hard
-    - http://doc.qt.io/qt-5.7/stylesheet-examples.html#customizing-qslider
+    - http://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qslider
     - http://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/
     - https://forum.qt.io/topic/52150/proportions-of-elemnts-like-sliders
 
@@ -378,12 +379,27 @@ BooleanWidget ClickableLabelWordWrapWide[readonly="false"]:pressed {
     four-dimensional CSS parameters are: top, right, bottom, left
     three-dimensional CSS parameters are: top, right/left, bottom
     two-dimensional CSS parameters are: vertical, horizontal
+
+    handle:
+        - uses QStyle::SC_SliderHandle
+        - see qtbase/src/widgets/widgets/qslider.cpp
+        - see qtbase/src/widgets/styles/qstylesheetstyle.cpp
+          - QStyleSheetStyle::drawComplexControl
+        - see qtbase/src/gui/text/qcssparser.cpp
+          - maps e.g. "background-color" (CSS) to BackgroundColor (C++)
+        - https://stackoverflow.com/questions/11392089/horizontal-line-in-background-using-css3
+
+    known elements are listed in
+        - qtbase/src/widgets/styles/qstylesheetstyle.cpp
+
 */
+
 /*
 QSlider {
     background-color: green;
 }
 */
+
 QSlider:horizontal {
     padding: %6px 0;
 }
@@ -397,11 +413,11 @@ QSlider::groove {
 }
 QSlider::groove:horizontal {
     height: %6px;
-    margin: 2px 0;
+    margin: %8px 0;
 }
 QSlider::groove:vertical {
     width: %6px;
-    margin: 0 2px;
+    margin: 0 %8px;
 }
 
 QSlider::add-page,
@@ -414,7 +430,7 @@ QSlider::add-page:vertical {
 }
 QSlider#slider_symmetric::sub-page:horizontal,
 QSlider#slider_symmetric::add-page:vertical {
-    /* The version with no red "below" the slider */
+    /* The version with no red on the slider groove "below" the slider handle */
     background: white;
 }
 QSlider::add-page:horizontal,
@@ -423,7 +439,7 @@ QSlider::sub-page:vertical {
 }
 
 QSlider::handle {
-    background: darkgray;
+    background: rgba(100, 100, 100, 150);
     border: 2px solid black;
     border-radius: %6px;
 }
@@ -437,7 +453,7 @@ QSlider::handle:vertical {
 }
 QSlider::handle:horizontal:hover,
 QSlider::handle:vertical:hover {
-    background: rgba(100, 100, 255);
+    background: rgba(50, 50, 255, 150);
 }
 
 QSlider::sub-page:horizontal:disabled,

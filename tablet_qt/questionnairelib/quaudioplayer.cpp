@@ -93,8 +93,8 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
 
     if (m_offer_volume_control) {
         auto dial = new QDial();
-        dial->setFixedSize(uiconst::DIAL_DIAMETER_PX,
-                           uiconst::DIAL_DIAMETER_PX);
+        dial->setFixedSize(uiconst::g_dial_diameter_px,
+                           uiconst::g_dial_diameter_px);
         dial->setNotchesVisible(true);
         dial->setRange(uiconst::MIN_VOLUME_QT, uiconst::MAX_VOLUME_QT);
         dial->setValue(m_volume);

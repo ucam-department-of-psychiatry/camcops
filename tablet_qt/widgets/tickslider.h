@@ -285,8 +285,8 @@ protected:
     double getDrawingProportion(int value) const;
 
     // Tick position (vertical or horizontal) along the slider.
-    int getTickPos(double drawing_proportion, int handle_extent,
-                   int slider_extent, int initial_label_overspill) const;
+    int getTickPos(double drawing_proportion, int active_groove_start,
+                   int active_groove_extent) const;
 
     // The extent to which labels "overspill" the boundaries of the slider
     // (in the direction along its length.)
@@ -304,13 +304,16 @@ protected:
     //     to half the width of the bottom label.
     virtual Margins getLabelOverspill() const;
 
-    // Returns the size of all the extra things we draw around the slider.
+    // Returns the size of all the extra things we draw around the QSlider.
     Margins getSurround() const;
 
     // Clear cached information
     void clearCache();
 
-    // Calculate where our slider widget should be (it is a sub-rectangle or
+    // Return the "active" part of the groove.
+    QRect getSliderActiveGroove() const;
+
+    // Calculate where our slider widget should be (it is a sub-rectangle of
     // our main widget).
     QRect getSliderRect() const;
 
