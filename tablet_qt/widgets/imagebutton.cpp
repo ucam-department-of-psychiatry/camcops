@@ -50,7 +50,7 @@ ImageButton::ImageButton(const QString& base_filename,
                          QWidget* parent) :
     QPushButton(parent)
 {
-    const QSize size = uiconst::ICONSIZE;
+    const QSize size = uiconst::g_iconsize;
     commonConstructor(size);
     setImages(base_filename, filename_is_camcops_stem, alter_unpressed_image,
               true, disabled);

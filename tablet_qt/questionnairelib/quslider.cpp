@@ -54,6 +54,7 @@ QuSlider::QuSlider(FieldRefPtr fieldref,
     m_symmetric(false),
     m_inverted(false),
     m_abs_length_cm(-1),
+    m_abs_length_can_shrink(true),
     // Internals
     m_value_label(nullptr),
     m_slider(nullptr),
@@ -169,9 +170,11 @@ QuSlider* QuSlider::setInverted(bool inverted)
 }
 
 
-QuSlider* QuSlider::setAbsoluteLengthCm(const qreal abs_length_cm)
+QuSlider* QuSlider::setAbsoluteLengthCm(const qreal abs_length_cm,
+                                        bool can_shrink)
 {
     m_abs_length_cm = abs_length_cm;
+    m_abs_length_can_shrink = can_shrink;
     return this;
 }
 
@@ -248,8 +251,10 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
     }
     m_slider->setInvertedAppearance(m_inverted);
     if (m_abs_length_cm > 0) {
-        const qreal dpi = m_horizontal ? uiconst::PHYSICAL_DPI_X : uiconst::PHYSICAL_DPI_Y;
-        m_slider->setAbsoluteLengthCm(m_abs_length_cm, dpi);
+        const qreal dpi = m_horizontal ? uiconst::g_physical_dpi.x
+                                       : uiconst::g_physical_dpi.y;
+        m_slider->setAbsoluteLengthCm(m_abs_length_cm, dpi,
+                                      m_abs_length_can_shrink);
     };
 
     if (!read_only) {
@@ -259,6 +264,11 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
     m_slider->setEnabled(!read_only);
 
     // Layout
+    const QSizePolicy::Policy parallel_policy = m_abs_length_cm > 0
+            ? (m_abs_length_can_shrink ? QSizePolicy::Maximum
+                                       : QSizePolicy::Fixed)
+            : QSizePolicy::Preferred;
+    const QSizePolicy::Policy perpendicular_policy = QSizePolicy::Fixed;
     if (m_horizontal) {
         // --------------------------------------------------------------------
         // Horizontal
@@ -271,8 +281,8 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         }
         layout->addWidget(m_slider);
         m_container_widget->setLayout(layout);
-        m_container_widget->setSizePolicy(QSizePolicy::Preferred,
-                                          QSizePolicy::Fixed);
+        m_container_widget->setSizePolicy(parallel_policy,
+                                          perpendicular_policy);
     } else {
         // --------------------------------------------------------------------
         // Vertical
@@ -292,8 +302,8 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         outerlayout->addLayout(innerlayout);
         outerlayout->addStretch();
         m_container_widget->setLayout(outerlayout);
-        m_container_widget->setSizePolicy(QSizePolicy::Fixed,
-                                          QSizePolicy::Preferred);
+        m_container_widget->setSizePolicy(perpendicular_policy,
+                                          parallel_policy);
     }
 
     setFromField();

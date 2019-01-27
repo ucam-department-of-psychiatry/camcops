@@ -24,6 +24,7 @@
 #include <QSize>
 #include <QSizePolicy>
 #include <QString>
+#include "common/dpi.h"
 
 namespace uiconst {
 
@@ -32,12 +33,11 @@ namespace uiconst {
 // ============================================================================
 
 // "Standard" DPI setting.
-extern const qreal DEFAULT_DPI;
+extern const Dpi DEFAULT_DPI;
 
 // DPI setting on the computer running CamCOPS.
-extern qreal LOGICAL_DPI;  // not const!
-extern qreal PHYSICAL_DPI_X;  // not const!
-extern qreal PHYSICAL_DPI_Y;  // not const!
+extern Dpi g_logical_dpi;  // not const!
+extern Dpi g_physical_dpi;  // not const!
 
 // "Standard" icon size.
 extern const QSize ICONSIZE_FOR_DEFAULT_DPI;
@@ -46,10 +46,10 @@ extern const QSize ICONSIZE_FOR_DEFAULT_DPI;
 extern const QSize SMALL_ICONSIZE_FOR_DEFAULT_DPI;
 
 // Icon size for current DPI setting.
-extern QSize ICONSIZE;  // not const!
+extern QSize g_iconsize;  // not const!
 
 // Small icon size for current DPI setting.
-extern QSize SMALL_ICONSIZE;  // not const!
+extern QSize g_small_iconsize;  // not const!
 
 // Spacing constants for questionnaires.
 extern const int SPACE;
@@ -63,7 +63,7 @@ extern const int MCQGRID_HSPACING;
 extern const int DEFAULT_COLSPAN_Q;
 extern const int DEFAULT_COLSPAN_A;
 extern const int MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI;
-extern int MIN_SPINBOX_HEIGHT;  // not const!
+extern int g_min_spinbox_height;  // not const!
 extern const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS;  // how to display a spinbox
 extern const int SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI;
 extern int SLIDER_HANDLE_SIZE_PX;

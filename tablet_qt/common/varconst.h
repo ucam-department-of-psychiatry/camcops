@@ -32,6 +32,11 @@ extern const QString CAMCOPS_TABLET_VERSION_AS_STRING;
 
 // Questionnaire
 extern const QString QUESTIONNAIRE_SIZE_PERCENT;
+extern const QString OVERRIDE_DPI;
+extern const QString OVERRIDE_LOGICAL_DPI_X;
+extern const QString OVERRIDE_LOGICAL_DPI_Y;
+extern const QString OVERRIDE_PHYSICAL_DPI_X;
+extern const QString OVERRIDE_PHYSICAL_DPI_Y;
 
 // Server
 extern const QString SERVER_ADDRESS;

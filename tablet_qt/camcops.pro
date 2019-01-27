@@ -792,7 +792,8 @@ SOURCES += \
     menu/setmenufromperinatal.cpp \
     menu/serviceevaluationmenu.cpp \
     questionnairelib/qulineeditint64.cpp \
-    questionnairelib/qulineedituint64.cpp
+    questionnairelib/qulineedituint64.cpp \
+    common/dpi.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1189,7 +1190,8 @@ HEADERS += \
     menu/setmenufromperinatal.h \
     menu/serviceevaluationmenu.h \
     questionnairelib/qulineeditint64.h \
-    questionnairelib/qulineedituint64.h
+    questionnairelib/qulineedituint64.h \
+    common/dpi.h
 
 DISTFILES += \
     LICENSE.txt \

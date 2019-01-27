@@ -25,6 +25,7 @@
 #include <QString>
 #include <QUrlQuery>
 #include <QVariant>
+#include "common/dpi.h"
 #include "crypto/secureqbytearray.h"
 #include "crypto/secureqstring.h"
 #include "lib/version.h"
@@ -128,15 +129,16 @@ int convertLengthByDpi(int old_length, qreal to_dpi, qreal from_dpi);
 
 // Converts a length in pixels from our default internal DPI setting
 // (uiconst::DEFAULT_DPI) to what we think is the DPI setting of the system
-// we're running on (uiconst::DPI).
-int convertLengthByDpi(int old_length);  // default is runtime, not compile-time
+// we're running on (uiconst::g_logical_dpi_x or uiconst::g_logical_dpi_y).
+int convertLengthByLogicalDpiX(int old_length);
+int convertLengthByLogicalDpiY(int old_length);
 
 // Converts a QSize by DPI; as for convertLengthByDpi(int, qreal, qreal).
-// Assumes DPI is the same in the x and y directions.
-QSize convertSizeByDpi(const QSize& old_size, qreal to_dpi, qreal from_dpi);
+QSize convertSizeByDpi(const QSize& old_size,
+                       const Dpi& to_dpi, const Dpi& from_dpi);
 
-// Converts a QSize by default logical DPI; as for convertLengthByDpi(int).
-QSize convertSizeByLogicalDpi(const QSize& old_size);  // default is runtime, not compile-time
+// Converts a QSize by default logical DPI.
+QSize convertSizeByLogicalDpi(const QSize& old_size);
 
 // Converts a distance in cm to a number of pixels, given a DPI setting.
 int convertCmToPx(qreal cm, qreal dpi);

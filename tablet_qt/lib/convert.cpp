@@ -600,27 +600,36 @@ int convertLengthByDpi(const int old_length,
 }
 
 
-int convertLengthByDpi(const int old_length)
+int convertLengthByLogicalDpiX(const int old_length)
 {
-    return convertLengthByDpi(old_length, uiconst::LOGICAL_DPI, uiconst::DEFAULT_DPI);
+    return convertLengthByDpi(old_length,
+                              uiconst::g_logical_dpi.x, uiconst::DEFAULT_DPI.x);
+}
+
+
+int convertLengthByLogicalDpiY(const int old_length)
+{
+    return convertLengthByDpi(old_length,
+                              uiconst::g_logical_dpi.y, uiconst::DEFAULT_DPI.y);
 }
 
 
 QSize convertSizeByDpi(const QSize& old_size,
-                       const qreal to_dpi,
-                       const qreal from_dpi)
+                       const Dpi& to_dpi,
+                       const Dpi& from_dpi)
 {
     if (!old_size.isValid()) {
         return old_size;
     }
-    return QSize(convertLengthByDpi(old_size.width(), to_dpi, from_dpi),
-                 convertLengthByDpi(old_size.height(), to_dpi, from_dpi));
+    return QSize(convertLengthByDpi(old_size.width(), to_dpi.x, from_dpi.x),
+                 convertLengthByDpi(old_size.height(), to_dpi.y, from_dpi.y));
 }
 
 
 QSize convertSizeByLogicalDpi(const QSize& old_size)
 {
-    return convertSizeByDpi(old_size, uiconst::LOGICAL_DPI, uiconst::DEFAULT_DPI);
+    return convertSizeByDpi(old_size,
+                            uiconst::g_logical_dpi, uiconst::DEFAULT_DPI);
 }
 
 

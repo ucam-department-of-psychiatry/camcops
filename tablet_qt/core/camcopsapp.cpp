@@ -110,7 +110,8 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_maximized_before_fullscreen(true),  // true because openMainWindow() goes maximized
     m_patient(nullptr),
     m_netmgr(nullptr),
-    m_logical_dpi(uiconst::DEFAULT_DPI)
+    m_qt_logical_dpi(uiconst::DEFAULT_DPI),
+    m_qt_physical_dpi(uiconst::DEFAULT_DPI)
 {
     setApplicationName(APP_NAME);
     setApplicationDisplayName(APP_PRETTY_NAME);
@@ -615,6 +616,11 @@ void CamcopsApp::createStoredVars()
 
     // Questionnaire
     createVar(varconst::QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
+    createVar(varconst::OVERRIDE_DPI, QVariant::Bool, false);
+    createVar(varconst::OVERRIDE_LOGICAL_DPI_X, QVariant::Double, uiconst::DEFAULT_DPI.x);
+    createVar(varconst::OVERRIDE_LOGICAL_DPI_Y, QVariant::Double, uiconst::DEFAULT_DPI.y);
+    createVar(varconst::OVERRIDE_PHYSICAL_DPI_X, QVariant::Double, uiconst::DEFAULT_DPI.x);
+    createVar(varconst::OVERRIDE_PHYSICAL_DPI_Y, QVariant::Double, uiconst::DEFAULT_DPI.y);
 
     // Server
     createVar(varconst::SERVER_ADDRESS, QVariant::String, "");
@@ -791,53 +797,84 @@ void CamcopsApp::initGuiOne()
 
     const QList<QScreen*> all_screens = screens();
     if (all_screens.isEmpty()) {
-        m_logical_dpi = uiconst::DEFAULT_DPI;
-        m_physical_dpi_x = uiconst::DEFAULT_DPI;
-
+        m_qt_logical_dpi = uiconst::DEFAULT_DPI;
+        m_qt_physical_dpi = uiconst::DEFAULT_DPI;
     } else {
         const QScreen* screen = all_screens.at(0);
-        m_logical_dpi = screen->logicalDotsPerInch();  // can be e.g. 96.0126
+        m_qt_logical_dpi.x = screen->logicalDotsPerInchX();  // can be e.g. 96.0126
+        m_qt_logical_dpi.y = screen->logicalDotsPerInchY();  // can be e.g. 96.0126
         // https://stackoverflow.com/questions/16561879/what-is-the-difference-between-logicaldpix-and-physicaldpix-in-qt
-        m_physical_dpi_x = screen->physicalDotsPerInchX();
-        m_physical_dpi_y = screen->physicalDotsPerInchY();
+        m_qt_physical_dpi.x = screen->physicalDotsPerInchX();
+        m_qt_physical_dpi.y = screen->physicalDotsPerInchY();
     }
     qInfo().nospace()
-            << "Display has logical DPI "
-            << m_logical_dpi
-            << ") and physical DPI ("
-            << m_physical_dpi_x << "," << m_physical_dpi_y << ")";
-
-    // We write to some global "not-quite-constants".
-    // This is slightly nasty, but it saves a great deal of things referring
-    // to the CamcopsApp that otherwise wouldn't need to.
-    uiconst::LOGICAL_DPI = m_logical_dpi;
-    uiconst::PHYSICAL_DPI_X = m_physical_dpi_x;
-    uiconst::PHYSICAL_DPI_Y = m_physical_dpi_y;
-
-    auto cvSize = [this](const QSize& size) -> QSize {
-        return convert::convertSizeByDpi(size, m_logical_dpi, uiconst::DEFAULT_DPI);
-    };
-    auto cvLength = [this](int length) -> int {
-        return convert::convertLengthByDpi(length, m_logical_dpi, uiconst::DEFAULT_DPI);
-    };
-
-    uiconst::ICONSIZE = cvSize(uiconst::ICONSIZE_FOR_DEFAULT_DPI);
-    uiconst::SMALL_ICONSIZE = cvSize(uiconst::SMALL_ICONSIZE_FOR_DEFAULT_DPI);
-    uiconst::MIN_SPINBOX_HEIGHT = cvLength(uiconst::MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI);
-    uiconst::SLIDER_HANDLE_SIZE_PX = cvLength(uiconst::SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI);
-    uiconst::DIAL_DIAMETER_PX = cvLength(uiconst::DIAL_DIAMETER_PX_FOR_DEFAULT_DPI);
+            << "System's first display has logical DPI "
+            << m_qt_logical_dpi.description()
+            << " and physical DPI "
+            << m_qt_physical_dpi.description();
 }
 
 
-qreal CamcopsApp::dotsPerInch() const
+void CamcopsApp::setDPI()
 {
-    return m_logical_dpi;
+    // We write to some global "not-quite-constants".
+    // This is slightly nasty, but it saves a great deal of things referring
+    // to the CamcopsApp that otherwise wouldn't need to.
+
+    // The storedvars must be available.
+
+    // If vars_available is false, we must not touch CamCOPS app vars.
+
+    if (!varBool(varconst::OVERRIDE_DPI)) {
+        // Use Qt DPI directly.
+        uiconst::g_logical_dpi = m_qt_logical_dpi;
+        uiconst::g_physical_dpi = m_qt_physical_dpi;
+    } else {
+        // Override
+        uiconst::g_logical_dpi = Dpi(
+            varDouble(varconst::OVERRIDE_LOGICAL_DPI_X),
+            varDouble(varconst::OVERRIDE_LOGICAL_DPI_Y)
+        );
+        uiconst::g_physical_dpi = Dpi(
+            varDouble(varconst::OVERRIDE_PHYSICAL_DPI_X),
+            varDouble(varconst::OVERRIDE_PHYSICAL_DPI_Y)
+        );
+    }
+
+    auto cvSize = [](const QSize& size) -> QSize {
+        return convert::convertSizeByLogicalDpi(size);
+    };
+    auto cvLengthX = [](int length) -> int {
+        return convert::convertLengthByLogicalDpiX(length);
+    };
+    auto cvLengthY = [](int length) -> int {
+        return convert::convertLengthByLogicalDpiY(length);
+    };
+
+    uiconst::g_iconsize = cvSize(uiconst::ICONSIZE_FOR_DEFAULT_DPI);
+    uiconst::g_small_iconsize = cvSize(uiconst::SMALL_ICONSIZE_FOR_DEFAULT_DPI);
+    uiconst::g_min_spinbox_height = cvLengthY(uiconst::MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI);
+    uiconst::SLIDER_HANDLE_SIZE_PX = cvLengthX(uiconst::SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI);
+    uiconst::DIAL_DIAMETER_PX = cvLengthX(uiconst::DIAL_DIAMETER_PX_FOR_DEFAULT_DPI);
+}
+
+
+Dpi CamcopsApp::qtLogicalDotsPerInch() const
+{
+    return m_qt_logical_dpi;
+}
+
+
+Dpi CamcopsApp::qtPhysicalDotsPerInch() const
+{
+    return m_qt_physical_dpi;
 }
 
 
 void CamcopsApp::initGuiTwoStylesheet()
 {
     // Qt stuff: after storedvars accessible
+    setDPI();
     setStyleSheet(getSubstitutedCss(uiconst::CSS_CAMCOPS_MAIN));
 }
 
@@ -1964,6 +2001,12 @@ int CamcopsApp::varInt(const QString &name) const
 qint64 CamcopsApp::varLongLong(const QString& name) const
 {
     return var(name).toLongLong();
+}
+
+
+double CamcopsApp::varDouble(const QString& name) const
+{
+    return var(name).toDouble();
 }
 
 

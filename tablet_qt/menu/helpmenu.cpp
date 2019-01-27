@@ -98,6 +98,8 @@ void HelpMenu::softwareVersions() const
     // ------------------------------------------------------------------------
     // Host
     // ------------------------------------------------------------------------
+    const Dpi ldpi = m_app.qtLogicalDotsPerInch();
+    const Dpi pdpi = m_app.qtPhysicalDotsPerInch();
     versions.append(QString("<b>Current computer (host)</b> is %1-bit").arg(
                         host64 ? "64" : "32"));
     versions.append(QString("Host operating system: %1").arg(
@@ -112,8 +114,10 @@ void HelpMenu::softwareVersions() const
                         QSysInfo::kernelVersion()));
     versions.append(QString("Host name: %1").arg(
                         QSysInfo::machineHostName()));
-    versions.append(QString("Dots per inch (DPI): %1").arg(
-                        m_app.dotsPerInch()));
+    versions.append(QString("Logical dots per inch (DPI): %1").arg(
+                        ldpi.description()));
+    versions.append(QString("Physical dots per inch (DPI): %1").arg(
+                        pdpi.description()));
     versions.append(newline);
 
     // ------------------------------------------------------------------------

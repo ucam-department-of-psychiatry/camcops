@@ -148,15 +148,17 @@ public:
     virtual void setSymmetricOverspill(bool symmetric_overspill);
 
     // Sets the absolute length of the slider's active range, in pixels.
+    // If can_shrink is true, the slider can get smaller (for small screens).
     // See also setAbsoluteLengthCm().
-    virtual void setAbsoluteLengthPx(int px);
+    virtual void setAbsoluteLengthPx(int px, bool can_shrink = true);
 
     // Sets the absolute length of the slider's active range, in cm, given also
     // the screen's current dpi setting (which you must provide).
     // - Convenience function that calls setAbsoluteLengthPx().
     // - Use this to say "make the slider exactly 10cm".
-    // - Beware on small screens!
-    virtual void setAbsoluteLengthCm(qreal abs_length_cm, qreal dpi);
+    // - Beware on small screens! Suggest setting can_shrink to true.
+    virtual void setAbsoluteLengthCm(qreal abs_length_cm, qreal dpi,
+                                     bool can_shrink = true);
 
     // Standard QWidget size hint.
     virtual QSize sizeHint() const override;
@@ -346,6 +348,9 @@ protected:
     bool m_edge_in_extreme_labels;  // see setEdgeInExtremeLabels()
     bool m_symmetric_overspill;  // see setSymmetricOverspill()
     int m_slider_target_length_px;  // absolute target length; <=0 means don't use this
+    bool m_absolute_size_can_shrink;
+        // ... if an absolute length is set, can we shrink smaller if we have
+        // to? May be preferable on physically small screens.
 
     mutable bool m_is_overspill_cached;  // is m_cached_overspill valid?
     mutable Margins m_cached_overspill;  // cached margins for overspill; see setSymmetricOverspill()

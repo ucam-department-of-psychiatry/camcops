@@ -26,6 +26,11 @@ const QString CAMCOPS_TABLET_VERSION_AS_STRING("camcopsVersion");
 
 // Questionnaire
 const QString QUESTIONNAIRE_SIZE_PERCENT("questionnaireTextSizePercent");
+const QString OVERRIDE_DPI("overrideDpi");
+const QString OVERRIDE_LOGICAL_DPI_X("overrideLogicalDpiX");
+const QString OVERRIDE_LOGICAL_DPI_Y("overrideLogicalDpiY");
+const QString OVERRIDE_PHYSICAL_DPI_X("overridePhysicalDpiX");
+const QString OVERRIDE_PHYSICAL_DPI_Y("overridePhysicalDpiY");
 
 // Server
 const QString SERVER_ADDRESS("serverAddress");

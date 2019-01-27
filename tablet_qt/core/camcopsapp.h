@@ -24,6 +24,7 @@
 #include <QSqlDatabase>
 #include <QStack>
 #include "common/aliases_camcops.h"
+#include "common/dpi.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"  // for FontSize
 #include "crypto/secureqstring.h"
@@ -200,6 +201,9 @@ protected:
 
     // GUI initialization 2/2: after storedvars available
     void initGuiTwoStylesheet();
+
+    // Set global DPI constants
+    void setDPI();
 
     // Open the CamCOPS main menu.
     void openMainWindow();
@@ -381,8 +385,10 @@ public:
     // percent).
     int fontSizePt(uiconst::FontSize fontsize, double factor_pct = -1) const;
 
-    // Return the app's detected DPI setting.
-    qreal dotsPerInch() const;
+    // Return the app's detected DPI settings.
+    // These are the Qt settings, ignoring any override settings.
+    Dpi qtLogicalDotsPerInch() const;
+    Dpi qtPhysicalDotsPerInch() const;
 
 signals:
     // Emitted when the user has changed the font size settings.
@@ -510,6 +516,9 @@ public:
     // Return a stored variable as a qint64 (qlonglong).
     qint64 varLongLong(const QString& name) const;
 
+    // Return a stored variable as a double.
+    double varDouble(const QString& name) const;
+
     // Sets a stored variable.
     bool setVar(const QString& name, const QVariant& value,
                 bool save_to_db = true);
@@ -627,7 +636,6 @@ protected:
     // - physical: actual device DPI
     // - logical: the user may be able to control this via their desktop
     //   settings
-    qreal m_logical_dpi;
-    qreal m_physical_dpi_x;
-    qreal m_physical_dpi_y;
+    Dpi m_qt_logical_dpi;
+    Dpi m_qt_physical_dpi;
 };

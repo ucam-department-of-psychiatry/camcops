@@ -54,7 +54,7 @@ QPointer<QWidget> QuSpinBoxInteger::makeWidget(Questionnaire* questionnaire)
     m_spinbox->setEnabled(!read_only);
     m_spinbox->setRange(m_minimum, m_maximum);
     m_spinbox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    m_spinbox->setMinimumHeight(uiconst::MIN_SPINBOX_HEIGHT);  // room for spin arrows
+    m_spinbox->setMinimumHeight(uiconst::g_min_spinbox_height);  // room for spin arrows
     m_spinbox->setButtonSymbols(uiconst::SPINBOX_SYMBOLS);
     m_spinbox->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
 

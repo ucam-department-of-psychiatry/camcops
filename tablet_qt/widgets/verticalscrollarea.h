@@ -38,8 +38,10 @@ class VerticalScrollArea : public QScrollArea
     //   implications with respect to height-for-width (and height generally?)
     //   as for BaseWidget (q.v.).
     //
-    // - Internally, this is "QWidget* viewport". However, it is in the private
-    //   class, accessed via the standard Qt private pointer, so inaccessible.
+    //   - Internally, this is "QWidget* viewport". However, it is in the
+    //     private class, accessed via the standard Qt private pointer, so
+    //     inaccessible directly -- but accessible via
+    //     QAbstractScrollArea::viewport().
 
     Q_OBJECT
 public:

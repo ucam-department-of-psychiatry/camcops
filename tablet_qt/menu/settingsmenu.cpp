@@ -44,8 +44,10 @@
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/qugridcell.h"
+#include "questionnairelib/quheading.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/qulineedit.h"
+#include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qulineeditint64.h"
 #include "questionnairelib/qumcq.h"
@@ -92,7 +94,7 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
     // Safe object lifespan signal: can use std::bind
     m_items = {
         MenuItem(
-            tr("Questionnaire font size"),
+            tr("Questionnaire font size and DPI settings"),
             MenuItem::OpenableWidgetMaker(
                 std::bind(&SettingsMenu::setQuestionnaireFontSize, this,
                           std::placeholders::_1)
@@ -513,7 +515,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     g->setColumnStretch(0, 1);
     g->setColumnStretch(1, 1);
     int row = 0;
-    Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
+    const Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
     g->addCell(QuGridCell(
         (new QuText(makeTitle(devicename_t, devicename_h, true)))
             ->setAlignment(labelalign),
@@ -631,15 +633,94 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app)
         ticklabels[i] = QString("%1").arg(i);
     }
 
+    const QString heading1(tr("Questionnaire font size"));
     const QString prompt1(tr("Set the font size, as a percentage of the default."));
     const QString explan(tr("Changes take effect when a screen is reloaded."));
     const QString prompt2(tr("You can type it in:"));
     const QString prompt3(tr("... or set it with a slider:"));
+
+    const QString heading2(tr("DPI settings"));
+    const QString override(tr("Override system DPI settings"));
+    const QString logical_info(tr("Logical DPI settings are used for icon sizes and similar."));
+    const QString override_log_x(tr("Logical DPI, X"));
+    const QString override_log_y(tr("Logical DPI, Y"));
+    const QString physical_info(tr("Physical DPI settings are used for absolute sizes."));
+    const QString override_phy_x(tr("Physical DPI, X"));
+    const QString override_phy_y(tr("Physical DPI, Y"));
+    const QString dpi_hint(tr("Dots per inch (DPI), e.g. 96"));
+
+    FieldRefPtr override_fr = app.storedVarFieldRef(varconst::OVERRIDE_DPI);
+    FieldRefPtr log_x_fr = app.storedVarFieldRef(varconst::OVERRIDE_LOGICAL_DPI_X);
+    FieldRefPtr log_y_fr = app.storedVarFieldRef(varconst::OVERRIDE_LOGICAL_DPI_Y);
+    FieldRefPtr phy_x_fr = app.storedVarFieldRef(varconst::OVERRIDE_PHYSICAL_DPI_X);
+    FieldRefPtr phy_y_fr = app.storedVarFieldRef(varconst::OVERRIDE_PHYSICAL_DPI_Y);
+
+    auto dpi_grid = new QuGridContainer();
+    dpi_grid->setColumnStretch(0, 1);
+    dpi_grid->setColumnStretch(1, 1);
+    int row = 0;
+    const Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
+    const double dpi_min = 10;
+    const double dpi_max = 4000;
+    const int dpi_dp = 2;
+    const bool dpi_allow_empty = true;
+    dpi_grid->addCell(QuGridCell(
+        (new QuText(makeTitle(override)))->setAlignment(labelalign),
+        row, 0));
+    dpi_grid->addCell(QuGridCell(
+        (new QuMcq(override_fr, CommonOptions::yesNoBoolean()))
+            ->setHorizontal(true)
+            ->setAsTextButton(true),
+        row, 1));
+    ++row;
+    dpi_grid->addCell(QuGridCell(
+        new QuText(logical_info),
+        row, 0, 1, 2
+    ));
+    ++row;
+    dpi_grid->addCell(QuGridCell(
+        (new QuText(makeTitle(override_log_x)))->setAlignment(labelalign),
+        row, 0));
+    dpi_grid->addCell(QuGridCell(
+        (new QuLineEditDouble(log_x_fr, dpi_min, dpi_max,
+                              dpi_dp, dpi_allow_empty))->setHint(dpi_hint),
+        row, 1));
+    ++row;
+    dpi_grid->addCell(QuGridCell(
+        (new QuText(makeTitle(override_log_y)))->setAlignment(labelalign),
+        row, 0));
+    dpi_grid->addCell(QuGridCell(
+        (new QuLineEditDouble(log_y_fr, dpi_min, dpi_max,
+                              dpi_dp, dpi_allow_empty))->setHint(dpi_hint),
+        row, 1));
+    ++row;
+    dpi_grid->addCell(QuGridCell(
+        new QuText(physical_info),
+        row, 0, 1, 2
+    ));
+    ++row;
+    dpi_grid->addCell(QuGridCell(
+        (new QuText(makeTitle(override_phy_x)))->setAlignment(labelalign),
+        row, 0));
+    dpi_grid->addCell(QuGridCell(
+        (new QuLineEditDouble(phy_x_fr, dpi_min, dpi_max,
+                              dpi_dp, dpi_allow_empty))->setHint(dpi_hint),
+        row, 1));
+    ++row;
+    dpi_grid->addCell(QuGridCell(
+        (new QuText(makeTitle(override_phy_y)))->setAlignment(labelalign),
+        row, 0));
+    dpi_grid->addCell(QuGridCell(
+        (new QuLineEditDouble(phy_y_fr, dpi_min, dpi_max,
+                              dpi_dp, dpi_allow_empty))->setHint(dpi_hint),
+        row, 1));
+
     connect(m_fontsize_fr.data(), &FieldRef::valueChanged,
             this, &SettingsMenu::fontSizeChanged,
             Qt::UniqueConnection);
 
     QuPagePtr page(new QuPage{
+        new QuHeading(heading1),
         new QuText(makeTitle(prompt1)),
         new QuText(explan),
         questionnairefunc::defaultGridRawPointer({
@@ -666,8 +747,11 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app)
                              uiconst::FontSize::Title)))->addTag(TAG_TITLE),
         (new QuText(demoText(TAG_MENUS,
                              uiconst::FontSize::Menus)))->addTag(TAG_MENUS),
+        // --------------------------------------------------------------------
+        new QuHeading(heading2),
+        dpi_grid,
     });
-    page->setTitle(tr("Set questionnaire font size"));
+    page->setTitle(tr("Set questionnaire font size and DPI settings"));
     page->setType(QuPage::PageType::Config);
 
     m_fontsize_questionnaire = new Questionnaire(app, {page});

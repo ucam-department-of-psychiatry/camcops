@@ -81,6 +81,7 @@ TickSlider::TickSlider(Qt::Orientation orientation,
     m_edge_in_extreme_labels = false;
     m_symmetric_overspill = true;
     m_slider_target_length_px = -1;  // <=0 means "ignore"
+    m_absolute_size_can_shrink = true;
 
     m_is_overspill_cached = false;
 
@@ -172,22 +173,24 @@ void TickSlider::setSymmetricOverspill(const bool symmetric_overspill)
 }
 
 
-void TickSlider::setAbsoluteLengthPx(const int px)
+void TickSlider::setAbsoluteLengthPx(const int px, const bool can_shrink)
 {
     m_slider_target_length_px = px;
+    m_absolute_size_can_shrink = can_shrink;
     resetSizePolicy();
 }
 
 
 void TickSlider::setAbsoluteLengthCm(const qreal abs_length_cm,
-                                     const qreal dpi)
+                                     const qreal dpi,
+                                     const bool can_shrink)
 {
     const int px = convert::convertCmToPx(abs_length_cm, dpi);
     qDebug().nospace()
             << "TickSlider: setting absolute length to "
             << abs_length_cm << " cm at " << dpi << " dpi, giving "
             << px << " pixels";
-    setAbsoluteLengthPx(px);
+    setAbsoluteLengthPx(px, can_shrink);
 }
 
 
@@ -546,7 +549,18 @@ QSize TickSlider::sliderSizeWithHandle(bool minimum_size) const
     const int handle_perpendicular = horizontal ? handle.height() : handle.width();
     perpendicular_size = qMax(perpendicular_size, handle_perpendicular);
 
-    if (m_slider_target_length_px > 0) {
+    // - If we have specified an absolute size [m_slider_target_length_px > 0],
+    //   we calculate a fixed size...
+    // - Unless both
+    //   (a) we are asking for the minimumSizeHint(), not the sizeHint()
+    //       [minimum_size], and
+    //   (b) we allow ourselves to shrink if required
+    //       [m_absolute_size_can_shrink].
+    const bool use_fixed_size =
+            m_slider_target_length_px > 0 &&
+            !(m_absolute_size_can_shrink && minimum_size);
+
+    if (use_fixed_size) {
         // Fixed size in the parallel direction.
         const int handle_parallel = horizontal ? handle.width() : handle.height();
         parallel_size = m_slider_target_length_px + handle_parallel;
@@ -814,8 +828,10 @@ void TickSlider::resetSizePolicy()
 {
     const bool horizontal = isHorizontal();
     const bool fixed_length = m_slider_target_length_px > 0;
-    const QSizePolicy::Policy parallel = fixed_length ? QSizePolicy::Fixed
-                                                      : QSizePolicy::Preferred;
+    const QSizePolicy::Policy parallel =
+            fixed_length ? (m_absolute_size_can_shrink ? QSizePolicy::Maximum
+                                                       : QSizePolicy::Fixed)
+                         : QSizePolicy::Preferred;
     const QSizePolicy::Policy perpendicular = QSizePolicy::Fixed;
     QSizePolicy::Policy h = horizontal ? parallel : perpendicular;
     QSizePolicy::Policy v = horizontal ? perpendicular : parallel;

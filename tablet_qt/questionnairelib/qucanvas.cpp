@@ -161,7 +161,7 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
     }
     m_missing_indicator = uifunc::iconWidget(
                 uifunc::iconFilename(uiconst::ICON_WARNING));
-    m_no_missing_indicator = QPointer<Spacer>(new Spacer(uiconst::ICONSIZE));
+    m_no_missing_indicator = QPointer<Spacer>(new Spacer(uiconst::g_iconsize));
     auto button_layout = new QVBoxLayout();
     button_layout->setContentsMargins(uiconst::NO_MARGINS);
     button_layout->addWidget(button_reset, 0, align);

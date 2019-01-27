@@ -650,7 +650,7 @@ void Patient::buildPage(bool read_only)
 {
     auto addIcon = [this](const QString& name, const QString& tag) {
         auto image = new QuImage(uifunc::iconFilename(name),
-                                 uiconst::ICONSIZE);
+                                 uiconst::g_iconsize);
         image->setAdjustForDpi(false);  // uiconst::ICONSIZE already corrects for this
         image->addTag(tag);
         m_page->addElement(image);

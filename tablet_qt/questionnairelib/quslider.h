@@ -101,9 +101,11 @@ public:
     // Sets the absolute length of the slider's active range, in cm.
     // - Use this to say "make the slider exactly 10cm".
     // - Beware on small screens!
+    // - If can_shrink is true, the slider can get smaller (for small screens).
     // - If a value <= 0 is passed, the slider returns to its normal sizing
     //   behaviour.
-    QuSlider* setAbsoluteLengthCm(qreal abs_length_cm);
+    QuSlider* setAbsoluteLengthCm(qreal abs_length_cm,
+                                  bool can_shrink = true);
 
 protected:
 
@@ -158,6 +160,9 @@ protected:
     bool m_symmetric;  // see setSymmetric() above
     bool m_inverted;  // inverted direction? See setInverted() above.
     qreal m_abs_length_cm;  // absolute length in cm, or <=0 for default size
+    bool m_abs_length_can_shrink;
+        // ... if an absolute length is set, can we shrink smaller if we have
+        // to? May be preferable on physically small screens.
 
     // Internals
     QPointer<QWidget> m_container_widget;  // outer widget

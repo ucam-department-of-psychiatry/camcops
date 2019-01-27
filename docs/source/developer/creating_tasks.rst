@@ -434,6 +434,7 @@ represent the range 0-1 with 1000 steps (i.e. to 3dp).
         const double VAS_MAX = 1.0;  // the database/display maximum
         const int VAS_DISPLAY_DP = 3;
         const int VAS_ABSOLUTE_SIZE_CM = 10.0;
+        const bool VAS_CAN_SHRINK = true;
 
         // --------------------------------------------------------------------
         // VAS-style slider
@@ -465,8 +466,11 @@ represent the range 0-1 with 1000 steps (i.e. to 3dp).
         vas_slider->setSymmetric(true);
         vas_slider->setEdgeInExtremeLabels(false);
 
-        // Absolute size, if absolutely required (beware small screens!).
-        vas_slider->setAbsoluteLengthCm(VAS_ABSOLUTE_SIZE_CM);
+        // Absolute size, if absolutely required (beware small screens -- you
+        // may want the can_shrink parameter to be true for those; if the
+        // screen is too small, the slider goes below the specified absolute
+        // size).
+        vas_slider->setAbsoluteLengthCm(VAS_ABSOLUTE_SIZE_CM, VAS_CAN_SHRINK);
 
         // --------------------------------------------------------------------
         // Page, questionnaire

@@ -112,7 +112,7 @@ QLabel* iconWidget(const QString& filename, QWidget* parent,
 #endif
     QSize size;  // invalid size
     if (scale) {
-        size = uiconst::ICONSIZE;
+        size = uiconst::g_iconsize;
     }
     QPixmap iconimage = getPixmap(filename, size);
     auto iconlabel = new QLabel(parent);
@@ -170,10 +170,10 @@ QPixmap makeDisabledIcon(const QPixmap& image)
 
 QLabel* blankIcon(QWidget* parent)
 {
-    QPixmap iconimage(uiconst::ICONSIZE);
+    QPixmap iconimage(uiconst::g_iconsize);
     iconimage.fill(QCOLOR_TRANSPARENT);
     auto iconlabel = new QLabel(parent);
-    iconlabel->setFixedSize(uiconst::ICONSIZE);
+    iconlabel->setFixedSize(uiconst::g_iconsize);
     iconlabel->setPixmap(iconimage);
     return iconlabel;
 }
@@ -226,7 +226,7 @@ QAbstractButton* iconButton(const QString& normal_filename,
                             QWidget* parent)
 {
     auto button = new QToolButton(parent);
-    button->setIconSize(uiconst::ICONSIZE);
+    button->setIconSize(uiconst::g_iconsize);
     // Impossible to do this without stylesheets!
     // But you can do stylesheets in code...
     button->setStyleSheet(iconButtonStylesheet(normal_filename,

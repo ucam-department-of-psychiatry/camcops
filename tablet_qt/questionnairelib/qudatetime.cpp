@@ -313,7 +313,7 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     // Fixed horizontal keeps the drop-down button close to the text.
     // Expanding vertical makes the drop-down button and spin buttons a
     // reasonable size (not too small).
-    m_editor->setMinimumHeight(uiconst::MIN_SPINBOX_HEIGHT);
+    m_editor->setMinimumHeight(uiconst::g_min_spinbox_height);
     // Also, the QDateTimeEdit *is* a QAbstractSpinBox, so:
     m_editor->setButtonSymbols(uiconst::SPINBOX_SYMBOLS);
     if (!read_only) {

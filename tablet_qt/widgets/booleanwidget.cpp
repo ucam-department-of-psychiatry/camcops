@@ -273,8 +273,8 @@ void BooleanWidget::updateWidget(const bool full_refresh)
         if (full_refresh) {
             m_imagebutton->setVisible(true);
             m_textbutton->setVisible(false);
-            m_imagebutton->setImageSize(m_big ? uiconst::ICONSIZE
-                                              : uiconst::SMALL_ICONSIZE);
+            m_imagebutton->setImageSize(m_big ? uiconst::g_iconsize
+                                              : uiconst::g_small_iconsize);
             setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         }
         m_imagebutton->setImages(img, true, false, false, false, m_read_only);

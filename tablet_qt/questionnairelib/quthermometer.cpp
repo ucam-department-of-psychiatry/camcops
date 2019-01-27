@@ -75,7 +75,8 @@ QuThermometer* QuThermometer::setRescale(const bool rescale,
     m_rescale = rescale;
     m_rescale_factor = rescale_factor;
     if (adjust_for_dpi) {
-        m_rescale_factor *= uiconst::LOGICAL_DPI / uiconst::DEFAULT_DPI;
+        m_rescale_factor *= uiconst::g_logical_dpi.mean() /
+                            uiconst::DEFAULT_DPI.mean();
     }
     return this;
 }
