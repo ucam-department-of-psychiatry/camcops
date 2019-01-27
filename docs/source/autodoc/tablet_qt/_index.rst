@@ -41,6 +41,8 @@ tablet_qt
     common/dbconst.cpp.rst
     common/dbconst.h.rst
     common/design_defines.h.rst
+    common/dpi.cpp.rst
+    common/dpi.h.rst
     common/globals.cpp.rst
     common/globals.h.rst
     common/gui_defines.h.rst
@@ -439,14 +441,14 @@ tablet_qt
     questionnairelib/qulineedit.h.rst
     questionnairelib/qulineeditdouble.cpp.rst
     questionnairelib/qulineeditdouble.h.rst
+    questionnairelib/qulineeditint64.cpp.rst
+    questionnairelib/qulineeditint64.h.rst
     questionnairelib/qulineeditinteger.cpp.rst
     questionnairelib/qulineeditinteger.h.rst
-    questionnairelib/qulineeditlonglong.cpp.rst
-    questionnairelib/qulineeditlonglong.h.rst
     questionnairelib/qulineeditnhsnumber.cpp.rst
     questionnairelib/qulineeditnhsnumber.h.rst
-    questionnairelib/qulineeditulonglong.cpp.rst
-    questionnairelib/qulineeditulonglong.h.rst
+    questionnairelib/qulineedituint64.cpp.rst
+    questionnairelib/qulineedituint64.h.rst
     questionnairelib/qumcq.cpp.rst
     questionnairelib/qumcq.h.rst
     questionnairelib/qumcqgrid.cpp.rst

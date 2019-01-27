@@ -331,11 +331,21 @@ Good to go! See :ref:`using the tablet app <client_using>`.
 Other CamCOPS app settings
 --------------------------
 
-Questionnaire font size
-~~~~~~~~~~~~~~~~~~~~~~~
+Questionnaire font size and DPI settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:menuselection:`Settings --> Questionnaire font size.` Choose a font size that
-you like.
+:menuselection:`Settings --> Questionnaire font size and DPI settings`. Choose
+a font size that you like.
+
+You can also override the system's DPI settings (DPI = dots per inch -- more
+strictly, PPI or pixels per inch). You are unlikely to need to change the
+logical DPI (and note that getting it wrong can make CamCOPS look dreadful!).
+However, some computers do not accurately report their physical DPI. Some
+CamCOPS tasks use visual analogue scale (VAS) sliders set to a real physical
+length (e.g. 10cm for the :ref:`ORS <ors>`). To get these right, CamCOPS needs
+to know the physical DPI of your screen. If your computer isn't reporting it
+right, you can override the settings here. Changes take effect when CamCOPS is
+restarted.
 
 Upload after each task is complete?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -83,6 +83,7 @@ server/camcops_server
     cc_modules/cc_plot.py.rst
     cc_modules/cc_policy.py.rst
     cc_modules/cc_pyramid.py.rst
+    cc_modules/cc_redcap.py.rst
     cc_modules/cc_report.py.rst
     cc_modules/cc_request.py.rst
     cc_modules/cc_serversettings.py.rst
@@ -123,7 +124,9 @@ server/camcops_server
     extra_string_templates/iesr_TEMPLATE.xml.rst
     extra_string_templates/ifs_TEMPLATE.xml.rst
     extra_string_templates/npiq_TEMPLATE.xml.rst
+    extra_string_templates/ors_TEMPLATE.xml.rst
     extra_string_templates/pdss_TEMPLATE.xml.rst
+    extra_string_templates/srs_TEMPLATE.xml.rst
     extra_string_templates/wsas_TEMPLATE.xml.rst
     extra_string_templates/ybocs_TEMPLATE.xml.rst
     extra_string_templates/zbi12_TEMPLATE.xml.rst
