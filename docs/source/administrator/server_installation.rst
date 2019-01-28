@@ -101,6 +101,7 @@ Generic installation for any OS
         export CAMCOPS_VENV=~/dev/camcops_venv
         python3 -m venv $CAMCOPS_VENV
         . $CAMCOPS_VENV/bin/activate
+        pip install --upgrade pip  # just in case you have an old version of pip
 
 - Install the CamCOPS server package:
 
@@ -133,7 +134,22 @@ Ubuntu 18.04 LTS
 
 .. todo:: write Ubuntu specimen installation
 
+Starting with a bare Ubuntu 18.04 LTS installation (which comes with Python
+3.6), you will need:
 
+.. code-block:: bash
+
+    sudo apt install gcc  # or x86_64-linux-gnu-gcc will be missing
+    sudo apt install python3-dev  # or <Python.h> will be missing
+
+You may also want MySQL, e.g.
+
+.. code-block:: bash
+
+    wget -c https://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb
+    sudo dpkg -i mysql-apt-config_0.8.10-1_all.deb  # and follow on-screen instructions
+    sudo apt update
+    sudo apt install mysql-server  # and enter a root password when prompted
 
 .. _server_installation_win10_specimen:
 

@@ -37,10 +37,6 @@ Tasks
 - :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
   (APEQPT) <apeqpt>`.
 
-- **RNC:** QuSlider not good for Likert. Suspect horizontal thermometer not
-  OK either. **Implement QuLikert.** Include absolute size option (e.g. 10cm,
-  via DPI). Document Likert advice in the developer's guide.
-
 **To be prioritized**
 
 - Test Your Memory (TYM) task (Jerry M. Brown).
