@@ -29,7 +29,6 @@
 #include <QStylePainter>
 #include "graphics/graphicsfunc.h"
 #include "lib/convert.h"
-#include "common/uiconst.h"
 
 
 const QColor DEFAULT_TICK_COLOR(0, 0, 0, 255);  // black, opaque
@@ -46,16 +45,18 @@ const int FM_TEXTFLAGS = 0;  // http://doc.qt.io/qt-5/qfontmetrics.html#size
 // TickSlider main
 // ============================================================================
 
-TickSlider::TickSlider(QWidget* parent) :
-    TickSlider(Qt::Vertical, parent)
+TickSlider::TickSlider(QWidget* parent, const int groove_margin_px) :
+    TickSlider(Qt::Vertical, parent, groove_margin_px)
 {
 }
 
 
 TickSlider::TickSlider(Qt::Orientation orientation,
-                       QWidget* parent) :
+                       QWidget* parent,
+                       const int groove_margin_px) :
     QWidget(parent),
-    m_slider(orientation, this)
+    m_slider(orientation, this),
+    m_groove_margin_px(groove_margin_px)
 {
     connect(&m_slider, &QSlider::valueChanged,
             this, &TickSlider::valueChanged);
@@ -560,9 +561,26 @@ QSize TickSlider::sliderSizeWithHandle(bool minimum_size) const
     if (use_fixed_size) {
         // Fixed size in the parallel direction.
         const int handle_parallel = horizontal ? handle.width() : handle.height();
-        parallel_size = m_slider_target_length_px + handle_parallel;
+        parallel_size = m_slider_target_length_px +
+                        2 * m_groove_margin_px +
+                        handle_parallel;
+        // +-------------------------
+        // |        groove margin
+        // | +-----------------------
+        // | |  _
+        // | | / \  groove              h = handle
+        // | || h |
+        // | | \_/
+        // | +-----------------------
+        // |
+        // +-------------------------
+        //
+        //      | active region starts here
+        //    | plus half-handle each side
+        // | plus groove margin each side
+        //
         // ... the active region is m_slider_target_length_px; then we have
-        //     a half-handle either side
+        //     a half-handle each side, and the groove margin each side
 
     } else {
         // Expand for labels (in the parallel direction)
@@ -755,7 +773,7 @@ QRect TickSlider::getSliderActiveGroove() const
     // We can't read the internal margins/borders.
     // So we have to do this by knowing we told it what to do in the first
     // place, and what we told it.
-    Margins groove_margins(uiconst::SLIDER_GROOVE_MARGIN_PX);
+    Margins groove_margins(m_groove_margin_px);  // this much on all sides
     if (isHorizontal()) {
         const int half_handle_width = handle.width() / 2;
         groove_margins.addLeft(half_handle_width);

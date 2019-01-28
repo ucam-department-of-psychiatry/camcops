@@ -22,6 +22,7 @@
 #include <QSlider>
 #include <QStyle>
 #include <QStyleOptionSlider>
+#include "common/uiconst.h"
 #include "lib/margins.h"
 
 class QHoverEvent;
@@ -104,10 +105,15 @@ class TickSlider : public QWidget
     // ========================================================================
 public:
     // Create a TickSlider with the default (vertical) orientation.
-    TickSlider(QWidget* parent = nullptr);
+    // - groove_margin_px is the width of the margin of the slider's groove, in
+    //   pixels. (We can't read this, so we need to be told.)
+    // - Note that default arguments are evaluated at call time. Good C++.
+    TickSlider(QWidget* parent = nullptr,
+               int groove_margin_px = uiconst::SLIDER_GROOVE_MARGIN_PX);
 
     // Create a TickSlider, specifying the orientation.
-    TickSlider(Qt::Orientation orientation, QWidget* parent = nullptr);
+    TickSlider(Qt::Orientation orientation, QWidget* parent = nullptr,
+               int groove_margin_px = uiconst::SLIDER_GROOVE_MARGIN_PX);
 
     // Set the tick colour.
     virtual void setTickColor(const QColor& colour);
@@ -340,6 +346,8 @@ protected:
     void initStyleOption(QStyleOptionSlider* option) const;
 
 protected:
+    QSlider m_slider;  // our slider
+    int m_groove_margin_px;  // width of the margin of the slider's groove
     QColor m_tick_colour;  // tick colour
     int m_tick_thickness;  // tick thickness (parallel to slider)
     int m_tick_length;  // tick length (perpendicular to slider)
@@ -354,9 +362,6 @@ protected:
     bool m_absolute_size_can_shrink;
         // ... if an absolute length is set, can we shrink smaller if we have
         // to? May be preferable on physically small screens.
-
     mutable bool m_is_overspill_cached;  // is m_cached_overspill valid?
     mutable Margins m_cached_overspill;  // cached margins for overspill; see setSymmetricOverspill()
-
-    QSlider m_slider;  // our slider
 };

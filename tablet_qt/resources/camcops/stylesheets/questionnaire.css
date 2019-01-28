@@ -422,7 +422,29 @@ QSlider::groove:vertical {
 
 QSlider::add-page,
 QSlider::sub-page {
-    border: 2px solid black;
+    border-width: 2px;
+    border-style: solid;
+}
+/* The slider's "mark" is the junction of the add-page/sub-page borders. */
+QSlider::sub-page:horizontal {  /* Left of the centre */
+    border-color: black red black black;
+}
+QSlider::add-page:horizontal {  /* Right of the centre */
+    border-color: black black black red;
+}
+QSlider::add-page:vertical {  /* Below the centre */
+    border-color: red black black black;
+}
+QSlider::sub-page:vertical {  /* Above the centre */
+    border-color: black black red black;
+}
+QSlider::sub-page:horizontal:disabled,
+QSlider::add-page:vertical:disabled {
+    border-color: #999;
+}
+QSlider::add-page:horizontal:disabled,
+QSlider::add-page:vertical:disabled {
+    border-color: #999;
 }
 QSlider::sub-page:horizontal,
 QSlider::add-page:vertical {
@@ -454,15 +476,6 @@ QSlider::handle:vertical {
 QSlider::handle:horizontal:hover,
 QSlider::handle:vertical:hover {
     background: rgba(50, 50, 255, 150);
-}
-
-QSlider::sub-page:horizontal:disabled,
-QSlider::add-page:vertical:disabled {
-    border-color: #999;
-}
-QSlider::add-page:horizontal:disabled,
-QSlider::add-page:vertical:disabled {
-    border-color: #999;
 }
 QSlider::handle:disabled {
     background: #eee;
