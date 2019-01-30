@@ -142,11 +142,11 @@ OpenableWidget* GboGrs::editor(const bool read_only)
                             new QuHeading(xstring("goal_1")),
                             new QuTextEdit(fieldRef("goal_1_desc")),
                             new QuHeading(xstring("goal_2")),
-                            new QuTextEdit(fieldRef("goal_2_desc")),
+                            new QuTextEdit(fieldRef("goal_2_desc", false)),
                             new QuHeading(xstring("goal_3")),
-                            new QuTextEdit(fieldRef("goal_3_desc")),
+                            new QuTextEdit(fieldRef("goal_3_desc", false)),
                             new QuText(xstring("goal_other")),
-                            new QuTextEdit(fieldRef("goal_other")),
+                            new QuTextEdit(fieldRef("goal_other", false)),
                             (new QuText(xstring("completed_by")))->setBold(true),
                             (new QuMcq(fieldRef("completed_by"), m_completed_by))
                                             ->setHorizontal(true)
