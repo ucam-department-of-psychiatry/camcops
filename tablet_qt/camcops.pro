@@ -682,6 +682,7 @@ SOURCES += \
     tasks/gad7.cpp \
     tasks/gaf.cpp \
     tasks/gbo.cpp \
+    tasks/gbogrs.cpp \
     tasks/gds15.cpp \
     tasks/gmcpq.cpp \
     tasks/hads.cpp \
@@ -794,8 +795,7 @@ SOURCES += \
     menu/setmenufromperinatal.cpp \
     menu/serviceevaluationmenu.cpp \
     questionnairelib/qulineeditint64.cpp \
-    questionnairelib/qulineedituint64.cpp \
-    tasks/gbogrs.cpp
+    questionnairelib/qulineedituint64.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1082,6 +1082,7 @@ HEADERS += \
     tasks/gad7.h \
     tasks/gaf.h \
     tasks/gbo.h \
+    tasks/gbogrs.h \
     tasks/gds15.h \
     tasks/gmcpq.h \
     tasks/hads.h \
@@ -1194,8 +1195,7 @@ HEADERS += \
     menu/setmenufromperinatal.h \
     menu/serviceevaluationmenu.h \
     questionnairelib/qulineeditint64.h \
-    questionnairelib/qulineedituint64.h \
-    tasks/gbogrs.h
+    questionnairelib/qulineedituint64.h
 
 DISTFILES += \
     LICENSE.txt \
