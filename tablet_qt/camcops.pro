@@ -794,7 +794,8 @@ SOURCES += \
     menu/setmenufromperinatal.cpp \
     menu/serviceevaluationmenu.cpp \
     questionnairelib/qulineeditint64.cpp \
-    questionnairelib/qulineedituint64.cpp
+    questionnairelib/qulineedituint64.cpp \
+    tasks/gbogrs.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1193,7 +1194,8 @@ HEADERS += \
     menu/setmenufromperinatal.h \
     menu/serviceevaluationmenu.h \
     questionnairelib/qulineeditint64.h \
-    questionnairelib/qulineedituint64.h
+    questionnairelib/qulineedituint64.h \
+    tasks/gbogrs.h
 
 DISTFILES += \
     LICENSE.txt \

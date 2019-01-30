@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="gbogrs">
+    <string name="stem">In coming to this service, what are some of the problems
+        you want help with or goals you want to get to? <i>(List up to 3 goals)</i></string>
+    <string name="date">Date</string>
+    <string name="goal_1">Goal 1</string>
+    <string name="goal_2">Goal 2</string>
+    <string name="goal_3">Goal 3</string>
+    <string name="goal_other">If you have any other goals, please list them here</string>
+    <string name="completed_by">Completed by <i>(tick below)</i></string>
+    <string name="completed_by_o1">Child/young person</string>
+    <string name="completed_by_o2">Parent/carer</string>
+    <string name="completed_by_o3">Other <i>(please specify)</i></string>
+    <string name="license"></string>
+  </task>
+</resources>
