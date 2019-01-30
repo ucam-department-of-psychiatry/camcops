@@ -97,11 +97,18 @@ QString GboGrs::menusubtitle() const
 
 bool GboGrs::isComplete() const
 {
-    /*
-    if (anyNull(values(REQUIRED_FIELDS))) {
+    if (value("date_only").isNull() ||
+        value("goal_1_desc").isNull() ||
+        value("completed_by").isNull()) {
         return false;
-    }*/
-    return false;
+    }
+
+    if (value("completed_by") == GOAL_OTHER &&
+        value("completed_by_other").isNull()) {
+            return false;
+    }
+
+    return true;
 }
 
 QStringList GboGrs::summary() const
@@ -164,9 +171,9 @@ OpenableWidget* GboGrs::editor(const bool read_only)
 void GboGrs::updateMandatory() {
    const bool required = valueInt("completed_by")
            == GOAL_OTHER;
-    fieldRef("completed_by")->setMandatory(required);
+    fieldRef("completed_by_other")->setMandatory(required);
     if (!required) {
-        fieldRef("completed_by")->setValue("");
+        fieldRef("completed_by_other")->setValue("");
     }
 }
 
