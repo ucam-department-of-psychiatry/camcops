@@ -65,9 +65,9 @@ const QString FN_SESSION("q_session");
 const QString FN_DATE("q_date");
 const QString FN_WHO("q_who");
 const QString FN_WHO_OTHER("q_who_other");
-const QString FN_INDIVIDUALLY("q_individually");
-const QString FN_INTERPERSONALLY("q_interpersonally");
-const QString FN_SOCIALLY("q_socially");
+const QString FN_INDIVIDUAL("q_individual");
+const QString FN_INTERPERSONAL("q_interpersonal");
+const QString FN_SOCIAL("q_social");
 const QString FN_OVERALL("q_overall");
 
 void initializeOrs(TaskFactory& factory)
@@ -83,9 +83,9 @@ Ors::Ors(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addField(FN_DATE, QVariant::Date);
     addField(FN_WHO, QVariant::Int);
     addField(FN_WHO_OTHER, QVariant::String);
-    addField(FN_INDIVIDUALLY, QVariant::Int);
-    addField(FN_INTERPERSONALLY, QVariant::Int);
-    addField(FN_SOCIALLY, QVariant::Int);
+    addField(FN_INDIVIDUAL, QVariant::Int);
+    addField(FN_INTERPERSONAL, QVariant::Int);
+    addField(FN_SOCIAL, QVariant::Int);
     addField(FN_OVERALL, QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
@@ -124,9 +124,9 @@ bool Ors::isComplete() const
         FN_SESSION,
         FN_DATE,
         FN_WHO,
-        FN_INDIVIDUALLY,
-        FN_INTERPERSONALLY,
-        FN_SOCIALLY,
+        FN_INDIVIDUAL,
+        FN_INTERPERSONAL,
+        FN_SOCIAL,
         FN_OVERALL,
     };
 

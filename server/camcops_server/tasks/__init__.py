@@ -100,6 +100,7 @@ from camcops_server.tasks.mds_updrs import MdsUpdrs
 from camcops_server.tasks.moca import Moca
 from camcops_server.tasks.nart import Nart
 from camcops_server.tasks.npiq import NpiQ
+from camcops_server.tasks.ors import Ors
 from camcops_server.tasks.panss import Panss
 from camcops_server.tasks.pcl5 import Pcl5
 from camcops_server.tasks.pcl import PclC, PclM, PclS
