@@ -45,6 +45,9 @@
 
 const QString Ors::ORS_TABLENAME("ors");
 
+const int SESSION_MIN = 1;
+const int SESSION_MAX = 1000;
+
 const int COMPLETED_BY_SELF = 0;
 const int COMPLETED_BY_OTHER = 1;
 
@@ -61,10 +64,10 @@ Ors::Ors(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ORS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField("session_number", QVariant::Int);
+    addField("session", QVariant::Int);
     addField("date", QVariant::Date);
-    addField("filled_out_by", QVariant::Date);
-    addField("filled_out_by_other", QVariant::Date);
+    addField("who_q", QVariant::Int);
+    addField("who_other_q", QVariant::String);
 
     addField("slider_1", QVariant::Int);
     addField("slider_2", QVariant::Int);
@@ -123,28 +126,35 @@ QStringList Ors::detail() const
 OpenableWidget* Ors::editor(const bool read_only)
 {
     m_completed_by = NameValueOptions{
-       { xstring("completed_by_self"), COMPLETED_BY_SELF },
-       { xstring("completed_by_other"), COMPLETED_BY_OTHER },
+       { xstring("who_a1"), COMPLETED_BY_SELF },
+       { xstring("who_a2"), COMPLETED_BY_OTHER },
      };
+
+    auto who_q = new QuMcq(fieldRef("who_q"), m_completed_by);
+    who_q->setHorizontal(true)->setAsTextButton(true);
 
     QuPagePtr page(new QuPage{
         new QuHorizontalLine(),
-        new QuHorizontalContainer{
-            new QuText(xstring("session")),
-            new QuLineEditInteger(fieldRef("session_number"), false),
-            new QuText(xstring("date")),
-            (new QuDateTime(fieldRef("date")))->setMode(QuDateTime::DefaultDate)
-                                              ->setOfferNowButton(true),
-        },
-        (new QuMcq(fieldRef("completed_by"), m_completed_by))
-                                        ->setHorizontal(true)
-                                        ->setAsTextButton(true),
-        new QuTextEdit(fieldRef("completed_by_other"), false),
+        (new QuGridContainer{
+                QuGridCell(new QuText(xstring("session")), 0, 0),
+                QuGridCell(new QuLineEditInteger(fieldRef("session"), SESSION_MIN, SESSION_MAX), 0, 1)
+        })->setExpandHorizontally(false),
+        (new QuGridContainer{
+            QuGridCell(new QuText(xstring("date")), 0, 0),
+            QuGridCell((new QuDateTime(fieldRef("date")))->setMode(QuDateTime::DefaultDate)
+                                              ->setOfferNowButton(true), 0, 1)
+        })->setExpandHorizontally(false),
+        (new QuGridContainer{
+            QuGridCell(new QuText(xstring("who_q")), 0, 0),
+            QuGridCell(who_q, 0, 1)
+         })->setExpandHorizontally(false),
+        new QuText(xstring("who_other_q")),
+        new QuTextEdit(fieldRef("who_other_q"), false),
         new QuHorizontalLine(),
         new QuSpacer(),
-        new QuHorizontalLine(),
+        new QuSpacer(),
+        new QuSpacer(),
         new QuText(xstring("instructions_to_subject")),
-        new QuHorizontalLine(),
         new QuSpacer(),
         (new QuText(xstring("q1_title")))->setBold(),
         new QuText(xstring("q1_subtitle")),
@@ -168,10 +178,10 @@ OpenableWidget* Ors::editor(const bool read_only)
         new QuText(xstring("licensing"))
     });
 
-    bool required = valueInt("completed_by") == COMPLETED_BY_OTHER;
-    fieldRef("completed_by_other")->setMandatory(required);
+    bool required = valueInt("who_q") == COMPLETED_BY_OTHER;
+    fieldRef("who_other_q")->setMandatory(required);
 
-    connect(fieldRef("completed_by").data(), &FieldRef::valueChanged,
+    connect(fieldRef("who_q").data(), &FieldRef::valueChanged,
             this, &Ors::updateMandatory);
 
     page->setTitle(longname());
@@ -189,10 +199,10 @@ OpenableWidget* Ors::editor(const bool read_only)
 // ============================================================================
 
 void Ors::updateMandatory() {
-   const bool required = valueInt("completed_by")
+   const bool required = valueInt("who_q")
            == COMPLETED_BY_OTHER;
-    fieldRef("completed_by_other")->setMandatory(required);
+    fieldRef("who_other_q")->setMandatory(required);
     if (!required) {
-        fieldRef("completed_by_other")->setValue("");
+        fieldRef("who_other_q")->setValue("");
     }
 }
