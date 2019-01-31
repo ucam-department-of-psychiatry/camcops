@@ -44,6 +44,8 @@
 #include "tasklib/taskfactory.h"
 
 using mathfunc::anyNullOrEmpty;
+using mathfunc::sumInt;
+using mathfunc::totalScorePhrase;
 
 const QString Ors::ORS_TABLENAME("ors");
 
@@ -56,6 +58,8 @@ const int COMPLETED_BY_OTHER = 1;
 const int VAS_MIN_INT = 0;
 const int VAS_MAX_INT = 10;
 const int VAS_ABSOLUTE_CM = 10;
+
+const int VAS_MAX_TOTAL = VAS_MAX_INT * 4;
 
 const QString FN_SESSION("q_session");
 const QString FN_DATE("q_date");
@@ -106,7 +110,7 @@ QString Ors::longname() const
 
 QString Ors::menusubtitle() const
 {
-    return tr("");
+    return tr("Fixed-length visual analogue scales measuring well-being");
 }
 
 
@@ -141,13 +145,35 @@ bool Ors::isComplete() const
 
 QStringList Ors::summary() const
 {
-    return QStringList{};
+    return QStringList{totalScorePhrase(totalScore(), VAS_MAX_TOTAL)};
+}
+
+int Ors::totalScore() const
+{
+    const QStringList vas_scales{
+        FN_INDIVIDUALLY,
+        FN_INTERPERSONALLY,
+        FN_SOCIALLY,
+        FN_OVERALL,
+    };
+
+    return sumInt(values(vas_scales));
 }
 
 
 QStringList Ors::detail() const
 {
     QStringList lines;
+    const QString sep = ": ";
+
+    lines.append(xstring("session") + sep + value(FN_SESSION).toString());
+    lines.append(xstring("date") + sep + value(FN_DATE).toString());
+    lines.append("<b>Scores</b>");
+    lines.append(xstring("q1_title") + sep + value(FN_INDIVIDUALLY).toString());
+    lines.append(xstring("q2_title") + sep + value(FN_INTERPERSONALLY).toString());
+    lines.append(xstring("q3_title") + sep + value(FN_SOCIALLY).toString());
+    lines.append(xstring("q4_title") + sep + value(FN_OVERALL).toString());
+    lines.append(summary());
     return lines;
 }
 
@@ -240,13 +266,7 @@ OpenableWidget* Ors::editor(const bool read_only)
 
     page->setTitle(longname());
 
-    QuPagePtr tpage(new QuPage{
-        (new QuVerticalContainer{
-            new QuText("a"),
-            new QuText("b"),
-        })->setWidgetAlignment(centre)});
-
-    m_questionnaire = new Questionnaire(m_app, {tpage, page});
+    m_questionnaire = new Questionnaire(m_app, {page});
 
     m_questionnaire->setReadOnly(read_only);
 

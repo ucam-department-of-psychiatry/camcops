@@ -55,6 +55,7 @@ public:
     // Task specific
     // ------------------------------------------------------------------------
     void updateMandatory();
+    int totalScore() const;
 public slots:
 
 public:
