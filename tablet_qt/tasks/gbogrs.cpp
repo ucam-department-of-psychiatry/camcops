@@ -66,7 +66,7 @@ GboGrs::GboGrs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GBOGRS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField("date_only", QVariant::Date);
+    addField("date", QVariant::Date);
     addField("goal_1_desc", QVariant::String);
     addField("goal_2_desc", QVariant::String);
     addField("goal_3_desc", QVariant::String);
@@ -105,7 +105,7 @@ QString GboGrs::menusubtitle() const
 
 bool GboGrs::isComplete() const
 {
-    bool required = noneNullOrEmpty(values(QStringList{"date_only",
+    bool required = noneNullOrEmpty(values(QStringList{"date",
                                                        "goal_1_desc",
                                                         "completed_by"}));
 
@@ -157,7 +157,7 @@ OpenableWidget* GboGrs::editor(const bool read_only)
                             (new QuText(xstring("stem")))->setBold(true),
                             (new QuHorizontalContainer{
                                 new QuHeading(xstring("date")),
-                               (new QuDateTime(fieldRef("date_only"))
+                               (new QuDateTime(fieldRef("date"))
                                    )->setMode(QuDateTime::DefaultDate)
                                     ->setOfferNowButton(true),
                             }),
