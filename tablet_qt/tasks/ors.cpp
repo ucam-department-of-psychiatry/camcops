@@ -43,6 +43,8 @@
 #include "questionnairelib/quverticalcontainer.h"
 #include "tasklib/taskfactory.h"
 
+using mathfunc::anyNullOrEmpty;
+
 const QString Ors::ORS_TABLENAME("ors");
 
 const int SESSION_MIN = 1;
@@ -55,6 +57,15 @@ const int VAS_MIN_INT = 0;
 const int VAS_MAX_INT = 10;
 const int VAS_ABSOLUTE_CM = 10;
 
+const QString FN_SESSION("q_session");
+const QString FN_DATE("q_date");
+const QString FN_WHO("q_who");
+const QString FN_WHO_OTHER("q_who_other");
+const QString FN_INDIVIDUALLY("q_individually");
+const QString FN_INTERPERSONALLY("q_interpersonally");
+const QString FN_SOCIALLY("q_socially");
+const QString FN_OVERALL("q_overall");
+
 void initializeOrs(TaskFactory& factory)
 {
     static TaskRegistrar<Ors> registered(factory);
@@ -64,15 +75,14 @@ Ors::Ors(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ORS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField("session", QVariant::Int);
-    addField("date", QVariant::Date);
-    addField("who_q", QVariant::Int);
-    addField("who_other_q", QVariant::String);
-
-    addField("slider_1", QVariant::Int);
-    addField("slider_2", QVariant::Int);
-    addField("slider_3", QVariant::Int);
-    addField("slider_4", QVariant::Int);
+    addField(FN_SESSION, QVariant::Int);
+    addField(FN_DATE, QVariant::Date);
+    addField(FN_WHO, QVariant::Int);
+    addField(FN_WHO_OTHER, QVariant::String);
+    addField(FN_INDIVIDUALLY, QVariant::Int);
+    addField(FN_INTERPERSONALLY, QVariant::Int);
+    addField(FN_SOCIALLY, QVariant::Int);
+    addField(FN_OVERALL, QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -106,7 +116,26 @@ QString Ors::menusubtitle() const
 
 bool Ors::isComplete() const
 {
-    return false;
+    const QStringList required_always{
+        FN_SESSION,
+        FN_DATE,
+        FN_WHO,
+        FN_INDIVIDUALLY,
+        FN_INTERPERSONALLY,
+        FN_SOCIALLY,
+        FN_OVERALL,
+    };
+
+    if (anyNullOrEmpty(values(required_always))) {
+        return false;
+    }
+
+    if (value(FN_WHO).toInt() == COMPLETED_BY_OTHER &&
+         valueIsNullOrEmpty(FN_WHO_OTHER)) {
+        return false;
+    }
+
+    return true;
 }
 
 
@@ -132,18 +161,18 @@ OpenableWidget* Ors::editor(const bool read_only)
        { xstring("who_a2"), COMPLETED_BY_OTHER },
      };
 
-    auto who_q = new QuMcq(fieldRef("who_q"), m_completed_by);
+    auto who_q = new QuMcq(fieldRef(FN_WHO), m_completed_by);
     who_q->setHorizontal(true)->setAsTextButton(true);
 
     QuPagePtr page(new QuPage{
         new QuHorizontalLine(),
         (new QuGridContainer{
                 QuGridCell(new QuText(xstring("session")), 0, 0),
-                QuGridCell(new QuLineEditInteger(fieldRef("session"), SESSION_MIN, SESSION_MAX), 0, 1)
+                QuGridCell(new QuLineEditInteger(fieldRef(FN_SESSION), SESSION_MIN, SESSION_MAX), 0, 1)
         })->setExpandHorizontally(false),
         (new QuGridContainer{
             QuGridCell(new QuText(xstring("date")), 0, 0),
-            QuGridCell((new QuDateTime(fieldRef("date")))->setMode(QuDateTime::DefaultDate)
+            QuGridCell((new QuDateTime(fieldRef(FN_DATE)))->setMode(QuDateTime::DefaultDate)
                                               ->setOfferNowButton(true), 0, 1)
         })->setExpandHorizontally(false),
         (new QuGridContainer{
@@ -151,7 +180,7 @@ OpenableWidget* Ors::editor(const bool read_only)
             QuGridCell(who_q, 0, 1)
          })->setExpandHorizontally(false),
         new QuText(xstring("who_other_q")),
-        new QuTextEdit(fieldRef("who_other_q"), false),
+        new QuTextEdit(fieldRef(FN_WHO_OTHER), false),
         new QuHorizontalLine(),
         // ------------------------------------------------------------------------
         // Padding
@@ -167,20 +196,24 @@ OpenableWidget* Ors::editor(const bool read_only)
         (new QuVerticalContainer{
             new QuText(xstring("q1_title")),
             new QuText(xstring("q1_subtitle")),
-            (new QuSlider(fieldRef("slider_1"), VAS_MIN_INT, VAS_MAX_INT, 1))
-                                        ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
+            (new QuSlider(fieldRef(FN_INDIVIDUALLY), VAS_MIN_INT, VAS_MAX_INT, 1))
+                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+                            ->setSymmetric(true),
             new QuText(xstring("q2_title")) ,
             new QuText(xstring("q2_subtitle")),
-            (new QuSlider(fieldRef("slider_2"), VAS_MIN_INT, VAS_MAX_INT, 1))
-                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
+            (new QuSlider(fieldRef(FN_INTERPERSONALLY), VAS_MIN_INT, VAS_MAX_INT, 1))
+                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+                            ->setSymmetric(true),
             new QuText(xstring("q3_title")),
             new QuText(xstring("q3_subtitle")),
-            (new QuSlider(fieldRef("slider_3"), VAS_MIN_INT, VAS_MAX_INT, 1))
-                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
+            (new QuSlider(fieldRef(FN_SOCIALLY), VAS_MIN_INT, VAS_MAX_INT, 1))
+                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+                            ->setSymmetric(true),
             new QuText(xstring("q4_title")),
             new QuText(xstring("q4_subtitle")),
-            (new QuSlider(fieldRef("slider_4"), VAS_MIN_INT, VAS_MAX_INT, 1))
-                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
+            (new QuSlider(fieldRef(FN_OVERALL), VAS_MIN_INT, VAS_MAX_INT, 1))
+                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+                            ->setSymmetric(true),
          })->setWidgetAlignment(centre),
         // ------------------------------------------------------------------------
         // Padding
