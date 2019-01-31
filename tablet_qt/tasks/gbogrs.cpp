@@ -105,9 +105,7 @@ QString GboGrs::menusubtitle() const
 
 bool GboGrs::isComplete() const
 {
-    bool required = noneNullOrEmpty(values(QStringList{"date",
-                                                       "goal_1_desc",
-                                                        "completed_by"}));
+    bool required = noneNullOrEmpty(values({"date","goal_1_desc","completed_by"}));
 
     bool other = ((value("completed_by") == GOAL_OTHER &&
                    !value("completed_by_other").isNull()));
@@ -137,7 +135,8 @@ QStringList GboGrs::detail() const
         }
     }
     if (!valueIsNullOrEmpty("goal_other")) {
-        detail.push_back(QString("<b>Extra goals</b>: %1").arg(value("goal_other").toString()));
+        detail.push_back(QString("<b>Extra goals</b>: %1")
+                         .arg(value("goal_other").toString()));
     }
 
     detail.push_back(QString("<b>Completed by</b>: %1").arg(completedBy()));
@@ -174,8 +173,11 @@ OpenableWidget* GboGrs::editor(const bool read_only)
                             (new QuMcq(fieldRef("completed_by"), m_completed_by))
                                             ->setHorizontal(true)
                                             ->setAsTextButton(true),
-                            new QuText(xstring("license")),
                             new QuTextEdit(fieldRef("completed_by_other"), false),
+                            new QuSpacer(),
+                            new QuHorizontalLine(),
+                            new QuSpacer(),
+                            new QuText(xstring("copyright"))
                         });
 
     bool required = valueInt("completed_by") == GOAL_OTHER;
@@ -191,6 +193,10 @@ OpenableWidget* GboGrs::editor(const bool read_only)
     return m_questionnaire;
 }
 
+// ============================================================================
+// Task-specific calculations
+// ============================================================================
+
 void GboGrs::updateMandatory() {
    const bool required = valueInt("completed_by")
            == GOAL_OTHER;
@@ -199,10 +205,6 @@ void GboGrs::updateMandatory() {
         fieldRef("completed_by_other")->setValue("");
     }
 }
-
-// ============================================================================
-// Task-specific calculations
-// ============================================================================
 
 QString GboGrs::goalNumber() const {
     int goal_n = 0;

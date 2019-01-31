@@ -104,6 +104,8 @@
 #include "tasks/nart.h"
 #include "tasks/npiq.h"
 
+#include "tasks/ors.h"
+
 #include "tasks/panss.h"
 #include "tasks/patientsatisfaction.h"
 #include "tasks/pcl5.h"
@@ -227,6 +229,8 @@ void InitTasks(TaskFactory& factory)
 
     initializeNart(factory);
     initializeNpiQ(factory);
+
+    initializeOrs(factory);
 
     initializePanss(factory);
     initializePatientSatisfaction(factory);

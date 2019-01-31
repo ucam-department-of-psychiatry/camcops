@@ -22,10 +22,13 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+
 #include "tasks/core10.h"
 #include "tasks/gad7.h"
+#include "tasks/gbo.h"
+#include "tasks/gbogrs.h"
 #include "tasks/honos.h"
-
+#include "tasks/ors.h"
 
 SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
     MenuWindow(app,
@@ -39,9 +42,10 @@ SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
         // APEQPT... ***
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
-        // GBO... ***
+        MAKE_TASK_MENU_ITEM(Gbo::GBO_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(GboGrs::GBOGRS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
-        // ORS... ***
+        MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, app),
         // Perinatal POEM... ***
         // SRS... ***
     };

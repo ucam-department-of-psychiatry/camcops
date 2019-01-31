@@ -20,6 +20,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+#include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -50,11 +51,15 @@ public:
     virtual QStringList summary() const override;
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
-
+    // ------------------------------------------------------------------------
+    // Task specific
+    // ------------------------------------------------------------------------
+    void updateMandatory();
 public slots:
 
 public:
     static const QString ORS_TABLENAME;
 protected:
+    NameValueOptions m_completed_by;
     QPointer<Questionnaire> m_questionnaire;
 };

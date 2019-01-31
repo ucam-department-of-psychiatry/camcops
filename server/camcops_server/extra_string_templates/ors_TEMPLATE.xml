@@ -22,7 +22,6 @@
     <!-- Instructions -->
     <string name="instructions_to_subject">XXX</string>
     <!-- Need to think about the "10cm line" problem and how to make this instruction vanish: -->
-    <string name="instructions_to_clinician">XXX</string>
 
     <string name="q1_title">XXX</string>
     <string name="q1_subtitle">XXX</string>
