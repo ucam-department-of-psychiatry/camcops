@@ -52,7 +52,7 @@ const int COMPLETED_BY_SELF = 0;
 const int COMPLETED_BY_OTHER = 1;
 
 const int VAS_MIN_INT = 0;
-const int VAS_MAX_INT = 0;
+const int VAS_MAX_INT = 10;
 const int VAS_ABSOLUTE_CM = 10;
 
 void initializeOrs(TaskFactory& factory)
@@ -125,6 +125,8 @@ QStringList Ors::detail() const
 
 OpenableWidget* Ors::editor(const bool read_only)
 {
+    const Qt::Alignment centre = Qt::AlignHCenter | Qt::AlignVCenter;
+
     m_completed_by = NameValueOptions{
        { xstring("who_a1"), COMPLETED_BY_SELF },
        { xstring("who_a2"), COMPLETED_BY_OTHER },
@@ -151,31 +153,50 @@ OpenableWidget* Ors::editor(const bool read_only)
         new QuText(xstring("who_other_q")),
         new QuTextEdit(fieldRef("who_other_q"), false),
         new QuHorizontalLine(),
+        // ------------------------------------------------------------------------
+        // Padding
+        // ------------------------------------------------------------------------
         new QuSpacer(),
         new QuSpacer(),
         new QuSpacer(),
         new QuText(xstring("instructions_to_subject")),
         new QuSpacer(),
-        (new QuText(xstring("q1_title")))->setBold(),
-        new QuText(xstring("q1_subtitle")),
-        (new QuSlider(fieldRef("slider_1"), VAS_MIN_INT, VAS_MAX_INT, 1))
-                        ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
-        (new QuText(xstring("q2_title")))->setBold(),
-        new QuText(xstring("q2_subtitle")),
-        (new QuSlider(fieldRef("slider_2"), VAS_MIN_INT, VAS_MAX_INT, 1))
-                        ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
-        (new QuText(xstring("q3_title")))->setBold(),
-        new QuText(xstring("q3_subtitle")),
-        (new QuSlider(fieldRef("slider_3"), VAS_MIN_INT, VAS_MAX_INT, 1))
-                        ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
-        (new QuText(xstring("q4_title")))->setBold(),
-        new QuText(xstring("q4_subtitle")),
-        (new QuSlider(fieldRef("slider_4"), VAS_MIN_INT, VAS_MAX_INT, 1))
-                        ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
+        // ------------------------------------------------------------------------
+        // Visual-analogue sliders
+        // ------------------------------------------------------------------------
+        (new QuVerticalContainer{
+            new QuText(xstring("q1_title")),
+            new QuText(xstring("q1_subtitle")),
+            (new QuSlider(fieldRef("slider_1"), VAS_MIN_INT, VAS_MAX_INT, 1))
+                                        ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
+            new QuText(xstring("q2_title")) ,
+            new QuText(xstring("q2_subtitle")),
+            (new QuSlider(fieldRef("slider_2"), VAS_MIN_INT, VAS_MAX_INT, 1))
+                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
+            new QuText(xstring("q3_title")),
+            new QuText(xstring("q3_subtitle")),
+            (new QuSlider(fieldRef("slider_3"), VAS_MIN_INT, VAS_MAX_INT, 1))
+                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
+            new QuText(xstring("q4_title")),
+            new QuText(xstring("q4_subtitle")),
+            (new QuSlider(fieldRef("slider_4"), VAS_MIN_INT, VAS_MAX_INT, 1))
+                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM),
+         })->setWidgetAlignment(centre),
+        // ------------------------------------------------------------------------
+        // Padding
+        // ------------------------------------------------------------------------
+        new QuSpacer(),
         new QuSpacer(),
         new QuHorizontalLine(),
-        new QuText(xstring("copyright")),
-        new QuText(xstring("licensing"))
+        new QuSpacer(),
+        // ------------------------------------------------------------------------
+        // Footer
+        // ------------------------------------------------------------------------
+        (new QuVerticalContainer{
+            new QuText(xstring("copyright")),
+            new QuText(xstring("licensing"))
+        })->setWidgetAlignment(centre)
+
     });
 
     bool required = valueInt("who_q") == COMPLETED_BY_OTHER;
@@ -186,8 +207,13 @@ OpenableWidget* Ors::editor(const bool read_only)
 
     page->setTitle(longname());
 
+    QuPagePtr tpage(new QuPage{
+        (new QuVerticalContainer{
+            new QuText("a"),
+            new QuText("b"),
+        })->setWidgetAlignment(centre)});
 
-    m_questionnaire = new Questionnaire(m_app, {page});
+    m_questionnaire = new Questionnaire(m_app, {tpage, page});
 
     m_questionnaire->setReadOnly(read_only);
 
