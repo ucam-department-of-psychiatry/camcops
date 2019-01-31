@@ -85,11 +85,11 @@ class Gbogrs(TaskHasPatientMixin, Task):
     completed_by_other = Column("completed_by_other", UnicodeText)
 
     goals = []
-
+v
     def goal_set(self, goal_prop):
         return goal_prop is not None and len(goal_prop) > 0
 
-    def get_goals(self) -> str:
+    def get_goals(self) -> list:
         if len(self.goals) > 0:
             return self.goals
 
