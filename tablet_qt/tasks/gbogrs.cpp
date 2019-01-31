@@ -18,6 +18,8 @@
 */
 
 #include "gbogrs.h"
+#include "maths/mathfunc.h"
+#include "lib/stringfunc.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
@@ -42,11 +44,17 @@
 #include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
 
+using mathfunc::noneNullOrEmpty;
+using stringfunc::strseq;
+
 const QString GboGrs::GBOGRS_TABLENAME("gbogrs");
 
 const int GOAL_CHILD = 1;
 const int GOAL_PARENT_CARER = 2;
 const int GOAL_OTHER = 3;
+
+const QString GOAL_CHILD_STR = "Child/young person";
+const QString GOAL_PARENT_CARER_STR = "Parent/carer";
 
 void initializeGboGrs(TaskFactory& factory)
 {
@@ -97,29 +105,44 @@ QString GboGrs::menusubtitle() const
 
 bool GboGrs::isComplete() const
 {
-    if (value("date_only").isNull() ||
-        value("goal_1_desc").isNull() ||
-        value("completed_by").isNull()) {
-        return false;
-    }
+    bool required = noneNullOrEmpty(values(QStringList{"date_only",
+                                                       "goal_1_desc",
+                                                        "completed_by"}));
 
-    if (value("completed_by") == GOAL_OTHER &&
-        value("completed_by_other").isNull()) {
-            return false;
-    }
+    bool other = ((value("completed_by") == GOAL_OTHER &&
+                   !value("completed_by_other").isNull()));
 
-    return true;
+    return required && other;
 }
 
 QStringList GboGrs::summary() const
 {
-    return QStringList{};
+    return QStringList{
+        QString("<b>Goals set</b>: %1 %2").arg(goalNumber(), extraGoals()),
+    };
 }
 
 QStringList GboGrs::detail() const
 {
-    QStringList lines;
-    return lines;
+    QStringList detail;
+
+    detail.push_back(QString("<b>Goals set</b>: %1 %2").arg(goalNumber(),
+                                                            extraGoals()));
+    int i = 0;
+    for (auto field : strseq("goal_", 1, 3, "_desc")) {
+        ++i;
+        if (!valueIsNullOrEmpty(field)) {
+            detail.push_back(QString("<b>Goal %1</b>: %2").arg(QString::number(i),
+                                                       value(field).toString()));
+        }
+    }
+    if (!valueIsNullOrEmpty("goal_other")) {
+        detail.push_back(QString("<b>Extra goals</b>: %1").arg(value("goal_other").toString()));
+    }
+
+    detail.push_back(QString("<b>Completed by</b>: %1").arg(completedBy()));
+
+    return detail;
 }
 
 OpenableWidget* GboGrs::editor(const bool read_only)
@@ -180,3 +203,42 @@ void GboGrs::updateMandatory() {
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
+
+QString GboGrs::goalNumber() const {
+    int goal_n = 0;
+    if (!valueIsNullOrEmpty("goal_1_desc")) {
+        ++goal_n;
+    }
+    if (!valueIsNullOrEmpty("goal_2_desc")) {
+        ++goal_n;
+    }
+    if (!valueIsNullOrEmpty("goal_3_desc")) {
+        ++goal_n;
+    }
+    return QString::number(goal_n);
+}
+
+QString GboGrs::extraGoals() const {
+    QString extra = "";
+    if (!valueIsNullOrEmpty("goal_other")) {
+        extra = "<i>(with additional goals set)</i>";
+    }
+    return extra;
+}
+
+QString GboGrs::completedBy() const {
+    QString completed_by;
+
+    switch (value("completed_by").toInt()) {
+        case GOAL_CHILD:
+            completed_by = GOAL_CHILD_STR;
+            break;
+        case GOAL_PARENT_CARER:
+            completed_by = GOAL_PARENT_CARER_STR;
+            break;
+        default:
+            completed_by = value("completed_by_other").toString();
+    }
+
+    return completed_by;
+}

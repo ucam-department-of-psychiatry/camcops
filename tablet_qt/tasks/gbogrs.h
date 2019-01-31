@@ -32,6 +32,9 @@ public:
     // Task specific
     // ------------------------------------------------------------------------
     void updateMandatory();
+    QString completedBy() const;
+    QString extraGoals() const;
+    QString goalNumber() const;
 public:
     static const QString GBOGRS_TABLENAME;
 protected:
