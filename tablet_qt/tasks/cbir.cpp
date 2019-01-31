@@ -191,6 +191,7 @@ OpenableWidget* CbiR::editor(const bool read_only)
                 m_app, {page1, page2, page3});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
+    confirmationChanged();
     return questionnaire;
 }
 
@@ -201,8 +202,9 @@ OpenableWidget* CbiR::editor(const bool read_only)
 
 bool CbiR::isCompleteQuestions() const
 {
-    return noneNull(values(strseq(FN_FREQ_PREFIX, FIRST_Q, N_QUESTIONS))) &&
-            noneNull(values(strseq(FN_DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS)));
+    return valueBool(FN_CONFIRM_BLANKS) ||
+            (noneNull(values(strseq(FN_FREQ_PREFIX, FIRST_Q, N_QUESTIONS))) &&
+            noneNull(values(strseq(FN_DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS))));
 }
 
 
