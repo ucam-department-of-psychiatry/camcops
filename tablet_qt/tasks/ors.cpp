@@ -233,7 +233,7 @@ OpenableWidget* Ors::editor(const bool read_only)
     });
 
     bool required = valueInt(FN_WHO) == COMPLETED_BY_OTHER;
-    fieldRef("who_other_q")->setMandatory(required);
+    fieldRef(FN_WHO_OTHER)->setMandatory(required);
 
     connect(fieldRef(FN_WHO).data(), &FieldRef::valueChanged,
             this, &Ors::updateMandatory);
