@@ -164,15 +164,15 @@ int Ors::totalScore() const
 QStringList Ors::detail() const
 {
     QStringList lines;
-    const QString sep = ": ";
 
-    lines.append(xstring("session") + sep + value(FN_SESSION).toString());
-    lines.append(xstring("date") + sep + value(FN_DATE).toString());
+    lines.append(xstring("session") + value(FN_SESSION).toString());
+    lines.append(xstring("date") + value(FN_DATE).toString());
     lines.append("<b>Scores</b>");
-    lines.append(xstring("q1_title") + sep + value(FN_INDIVIDUALLY).toString());
-    lines.append(xstring("q2_title") + sep + value(FN_INTERPERSONALLY).toString());
-    lines.append(xstring("q3_title") + sep + value(FN_SOCIALLY).toString());
-    lines.append(xstring("q4_title") + sep + value(FN_OVERALL).toString());
+    const QString vas_sep = ": ";
+    lines.append(xstring("q1_title") + vas_sep + value(FN_INDIVIDUALLY).toString());
+    lines.append(xstring("q2_title") + vas_sep + value(FN_INTERPERSONALLY).toString());
+    lines.append(xstring("q3_title") + vas_sep + value(FN_SOCIALLY).toString());
+    lines.append(xstring("q4_title") + vas_sep + value(FN_OVERALL).toString());
     lines.append(summary());
     return lines;
 }
