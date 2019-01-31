@@ -119,10 +119,7 @@ class Gbogrs(TaskHasPatientMixin, Task):
         return tr_qa("Completed by", who)
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        pass
-
-    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        pass
+        return self.standard_task_summary_fields()
 
     def is_complete(self) -> bool:
         if self.are_all_fields_complete(self.REQUIRED_FIELDS):
