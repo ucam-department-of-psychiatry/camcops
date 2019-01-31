@@ -232,10 +232,10 @@ OpenableWidget* Ors::editor(const bool read_only)
 
     });
 
-    bool required = valueInt("who_q") == COMPLETED_BY_OTHER;
+    bool required = valueInt(FN_WHO) == COMPLETED_BY_OTHER;
     fieldRef("who_other_q")->setMandatory(required);
 
-    connect(fieldRef("who_q").data(), &FieldRef::valueChanged,
+    connect(fieldRef(FN_WHO).data(), &FieldRef::valueChanged,
             this, &Ors::updateMandatory);
 
     page->setTitle(longname());
@@ -258,10 +258,10 @@ OpenableWidget* Ors::editor(const bool read_only)
 // ============================================================================
 
 void Ors::updateMandatory() {
-   const bool required = valueInt("who_q")
+   const bool required = valueInt(FN_WHO)
            == COMPLETED_BY_OTHER;
-    fieldRef("who_other_q")->setMandatory(required);
+    fieldRef(FN_WHO_OTHER)->setMandatory(required);
     if (!required) {
-        fieldRef("who_other_q")->setValue("");
+        fieldRef(FN_WHO_OTHER)->setValue("");
     }
 }
