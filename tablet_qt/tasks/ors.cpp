@@ -148,18 +148,6 @@ QStringList Ors::summary() const
     return QStringList{totalScorePhrase(totalScore(), VAS_MAX_TOTAL)};
 }
 
-int Ors::totalScore() const
-{
-    const QStringList vas_scales{
-        FN_INDIVIDUALLY,
-        FN_INTERPERSONALLY,
-        FN_SOCIALLY,
-        FN_OVERALL,
-    };
-
-    return sumInt(values(vas_scales));
-}
-
 
 QStringList Ors::detail() const
 {
@@ -284,4 +272,17 @@ void Ors::updateMandatory() {
     if (!required) {
         fieldRef(FN_WHO_OTHER)->setValue("");
     }
+}
+
+
+int Ors::totalScore() const
+{
+    const QStringList vas_scales{
+        FN_INDIVIDUAL,
+        FN_INTERPERSONAL,
+        FN_SOCIAL,
+        FN_OVERALL,
+    };
+
+    return sumInt(values(vas_scales));
 }
