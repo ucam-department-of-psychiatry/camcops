@@ -27,6 +27,7 @@
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/quflowcontainer.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/quheading.h"
@@ -91,7 +92,7 @@ Srs::Srs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
 QString Srs::shortname() const
 {
-    return "Srs";
+    return "SRS";
 }
 
 
@@ -176,25 +177,37 @@ OpenableWidget* Srs::editor(const bool read_only)
         // ------------------------------------------------------------------------
         (new QuVerticalContainer{
             new QuText(xstring("q1_title")),
-            new QuText(xstring("q1_subtitle")),
-            (new QuSlider(fieldRef(FN_RELATIONSHIP), VAS_MIN_INT, VAS_MAX_INT, 1))
-                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                            ->setSymmetric(true),
+            new QuFlowContainer{
+                new QuText(xstring("q1_right")),
+                (new QuSlider(fieldRef(FN_RELATIONSHIP), VAS_MIN_INT, VAS_MAX_INT, 1))
+                                ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+                                ->setSymmetric(true),
+                new QuText(xstring("q1_right")),
+            },
             new QuText(xstring("q2_title")) ,
-            new QuText(xstring("q2_subtitle")),
-            (new QuSlider(fieldRef(FN_GOALS), VAS_MIN_INT, VAS_MAX_INT, 1))
-                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                            ->setSymmetric(true),
+            new QuFlowContainer{
+                new QuText(xstring("q2_right")),
+                (new QuSlider(fieldRef(FN_GOALS), VAS_MIN_INT, VAS_MAX_INT, 1))
+                                ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+                                ->setSymmetric(true),
+                new QuText(xstring("q2_right")),
+            },
             new QuText(xstring("q3_title")),
-            new QuText(xstring("q3_subtitle")),
-            (new QuSlider(fieldRef(FN_APPROACH), VAS_MIN_INT, VAS_MAX_INT, 1))
-                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                            ->setSymmetric(true),
+            new QuFlowContainer{
+                new QuText(xstring("q3_right")),
+                (new QuSlider(fieldRef(FN_APPROACH), VAS_MIN_INT, VAS_MAX_INT, 1))
+                                ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+                                ->setSymmetric(true),
+                new QuText(xstring("q3_right")),
+            },
             new QuText(xstring("q4_title")),
-            new QuText(xstring("q4_subtitle")),
-            (new QuSlider(fieldRef(FN_OVERALL), VAS_MIN_INT, VAS_MAX_INT, 1))
-                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+            new QuFlowContainer{
+                new QuText(xstring("q4_left")),
+                (new QuSlider(fieldRef(FN_OVERALL), VAS_MIN_INT, VAS_MAX_INT, 1))
+                                ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
                             ->setSymmetric(true),
+                new QuText(xstring("q4_right")),
+            }
          })->setWidgetAlignment(centre),
         // ------------------------------------------------------------------------
         // Padding
