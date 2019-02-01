@@ -130,6 +130,7 @@
 
 #include "tasks/slums.h"
 #include "tasks/smast.h"
+#include "tasks/srs.h"
 #include "tasks/swemwbs.h"
 
 #include "tasks/wemwbs.h"
@@ -256,6 +257,7 @@ void InitTasks(TaskFactory& factory)
 
     initializeSlums(factory);
     initializeSmast(factory);
+    initializeSrs(factory);
     initializeSwemwbs(factory);
 
     initializeWemwbs(factory);

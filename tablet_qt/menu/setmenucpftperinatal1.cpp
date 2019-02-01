@@ -47,6 +47,6 @@ SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, app),
         // Perinatal POEM... ***
-        // SRS... ***
+        MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, app),
     };
 }
