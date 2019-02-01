@@ -40,6 +40,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
+    get_from_dict,
     Task,
     TaskHasPatientMixin,
 )
@@ -62,13 +63,10 @@ class Apeqpt(TaskHasPatientMixin, Task):
     longname = "Assessment Patient Experience Questionnaire: For Psychological Therapies"
     provides_trackers = True
 
-    COMPLETED_BY_SELF = 0
-    COMPLETED_BY_OTHER = 1
-
-    VAS_MIN_INT = 0
-    VAS_MAX_INT = 10
 
     q_datetime = CamcopsColumn("q_datetime", DateTime, comment="Session number")
+
+    N_CHOICE_QUESTIONS = 3
     q1_choice = CamcopsColumn("q1_choice", Integer, comment="Enough information was provided", permitted_value_checker=ZERO_TO_ONE_CHECKER)
     q2_choice = CamcopsColumn("q2_choice", Integer, comment="Treatment preference", permitted_value_checker=ZERO_TO_ONE_CHECKER)
     q3_choice = CamcopsColumn("q3_choice", Integer, comment="Preference offered", permitted_value_checker=ZERO_TO_TWO_CHECKER)
@@ -102,22 +100,36 @@ class Apeqpt(TaskHasPatientMixin, Task):
         return self.standard_task_summary_fields()
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        fields = ["q_relationship", "q_goals", "q_approach", "q_overall"]
+        c_dict= {
+            0: "0 — " + self.wxstring(req, "a0_choice"),
+            1: "1 — " + self.wxstring(req, "a1_choice"),
+            2: "2 — " + self.wxstring(req, "a2_choice"),
+        }
+        s_dict = {
+            0: "0 — " + self.wxstring(req, "a0_satisfaction"),
+            1: "1 — " + self.wxstring(req, "a1_satisfaction"),
+            2: "2 — " + self.wxstring(req, "a2_satisfaction"),
+            3: "3 — " + self.wxstring(req, "a3_satisfaction"),
+            4: "4 — " + self.wxstring(req, "a4_satisfaction"),
+        }
         q_a = ""
-        for field in fields:
-            question = field.split("_")[1].capitalize()
-            q_a += tr_qa(question, getattr(self, field))
+        for i in range(1, self.N_CHOICE_QUESTIONS + 1):
+            nstr = str(i)
+            q_a += tr_qa(self.wxstring(req, "q" + nstr + "_choice"),
+                         get_from_dict(c_dict, getattr(self, "q" + nstr + "_choice")))
+
+        q_a += tr_qa(self.wxstring(req, "q1_satisfaction"), get_from_dict(c_dict, self.q1_satisfaction))
+        q_a += tr_qa(self.wxstring(req, "q2_satisfaction"), get_from_dict(c_dict, self.q2_satisfaction))
 
         h = """
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
-                    {tr_session_number}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                Scores represent a selection on a scale from {vas_min} to {vas_max}. Scores indicate the patient's
-                feelings in different areas on the day's session.
+                Patient satisfaction rating rating for service provided. The serive is rated in the areas of
+                choice offered, and general satisfaction.
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
@@ -131,9 +143,6 @@ class Apeqpt(TaskHasPatientMixin, Task):
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
-            tr_session_number=tr_qa("Session number", self.q_session),
-            vas_min=self.VAS_MIN_INT,
-            vas_max=self.VAS_MAX_INT,
             q_a=q_a
         )
         return h
