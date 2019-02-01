@@ -29,6 +29,7 @@
 #include "tasks/gbogrs.h"
 #include "tasks/honos.h"
 #include "tasks/ors.h"
+#include "tasks/srs.h"
 
 SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
     MenuWindow(app,
@@ -47,6 +48,6 @@ SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, app),
         // Perinatal POEM... ***
-        MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, app),
     };
 }

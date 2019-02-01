@@ -731,6 +731,7 @@ SOURCES += \
     tasks/referrersatisfactionspec.cpp \
     tasks/slums.cpp \
     tasks/smast.cpp \
+    tasks/srs.cpp \
     tasks/swemwbs.cpp \
     tasks/wemwbs.cpp \
     tasks/wsas.cpp \
@@ -795,8 +796,7 @@ SOURCES += \
     menu/setmenufromperinatal.cpp \
     menu/serviceevaluationmenu.cpp \
     questionnairelib/qulineeditint64.cpp \
-    questionnairelib/qulineedituint64.cpp \
-    tasks/srs.cpp
+    questionnairelib/qulineedituint64.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1132,6 +1132,7 @@ HEADERS += \
     tasks/referrersatisfactionspec.h \
     tasks/slums.h \
     tasks/smast.h \
+    tasks/srs.h \
     tasks/swemwbs.h \
     tasks/wemwbs.h \
     tasks/wsas.h \
@@ -1196,8 +1197,7 @@ HEADERS += \
     menu/setmenufromperinatal.h \
     menu/serviceevaluationmenu.h \
     questionnairelib/qulineeditint64.h \
-    questionnairelib/qulineedituint64.h \
-    tasks/srs.h
+    questionnairelib/qulineedituint64.h
 
 DISTFILES += \
     LICENSE.txt \
