@@ -28,6 +28,7 @@ camcops_server/tasks/__init__.py
 
 from camcops_server.tasks.ace3 import Ace3
 from camcops_server.tasks.aims import Aims
+from camcops_server.tasks.aims import Apeqpt
 from camcops_server.tasks.audit import Audit, AuditC
 from camcops_server.tasks.badls import Badls
 from camcops_server.tasks.bdi import Bdi

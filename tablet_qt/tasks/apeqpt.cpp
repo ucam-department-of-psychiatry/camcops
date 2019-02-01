@@ -86,7 +86,7 @@ Apeqpt::Apeqpt(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
 QString Apeqpt::shortname() const
 {
-    return "APEQ-PT";
+    return "APEQPT";
 }
 
 
@@ -141,15 +141,23 @@ QStringList Apeqpt::detail() const
 
 OpenableWidget* Apeqpt::editor(const bool read_only)
 {
-    const NameValueOptions options {
-        {xstring("a0"), 0}, // Yes
-        {xstring("a1"), 1}, // No
+    const NameValueOptions options_choice {
+        {xstring("a0_choice"), 0},
+        {xstring("a1_choice"), 1},
     };
 
-    const NameValueOptions options_na {
-        {xstring("a0"), 0}, // Yes
-        {xstring("a1"), 1}, // No
-        {xstring("a2"), 2}, // No
+    const NameValueOptions options_choice_with_na {
+        {xstring("a0_choice"), 0},
+        {xstring("a1_choice"), 1},
+        {xstring("a2_choice"), 2},
+    };
+
+    const NameValueOptions options_satisfaction {
+        {xstring("a0_satisfaction"), 0},
+        {xstring("a1_satisfaction"), 1},
+        {xstring("a2_satisfaction"), 3},
+        {xstring("a2_satisfaction"), 4},
+        {xstring("a2_satisfaction"), 5},
     };
 
     QuPagePtr page(new QuPage{
@@ -162,19 +170,22 @@ OpenableWidget* Apeqpt::editor(const bool read_only)
                 ->setOfferNowButton(true), 0, 1)
         }),
         (new QuText(xstring("h1")))->setBig()->setBold(),
-        new QuMcqGrid(
+        (new QuMcqGrid(
             {
                 QuestionWithOneField(xstring("q1_choice"), fieldRef("q1_choice")),
                 QuestionWithOneField(xstring("q2_choice"), fieldRef("q2_choice")),
-                QuestionWithOneField(xstring("q3_choice"), fieldRef("q3_choice")),
-            }, options
-        ),
-        (new QuText(xstring("h2")))->setBig()->setBold(),
-        new QuMcqGrid(
+            }, options_choice
+         ),
+        (new QuMcqGrid(
             {
-                QuestionWithOneField(xstring("q1_satisfaction"), fieldRef("q1_satisfaction"))
-            }, options_na
-        ),
+                QuestionWithOneField(xstring("q3_choice"), fieldRef("q3_choice")),
+            }, options_choice_with_na
+        )
+        ))->setExpand(true),
+        (new QuText(xstring("h2")))->setBig()->setBold(),
+        (new QuMcq(fieldRef("q1_satisfaction"), options_satisfaction))
+                       ->setHorizontal(true)
+                       ->setAsTextButton(true),
         new QuText(xstring("q2_satisfaction")),
         (new QuText(xstring("thanks")))->setItalic(),
     });
