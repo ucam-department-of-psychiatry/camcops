@@ -21,6 +21,7 @@
 
 #include "tasks/ace3.h"
 #include "tasks/aims.h"
+#include "tasks/apeqpt.h"
 #include "tasks/audit.h"
 #include "tasks/auditc.h"
 
@@ -148,6 +149,7 @@ void InitTasks(TaskFactory& factory)
 
     initializeAce3(factory);
     initializeAims(factory);
+    initializeApeqpt(factory);
     initializeAudit(factory);
     initializeAuditC(factory);
 

@@ -48,13 +48,14 @@
 using mathfunc::anyNullOrEmpty;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
+using stringfunc::strseq;
 
 const QString Apeqpt::APEQPT_TABLENAME("apeqpt");
 
 const QString FN_DATETIME("q_datetime");
-const QString FN_CHOICE("q_choice");
-const QString FN_SATISFACTION("q_satisfaction");
-const QString FN_EXPERIENCE("q_experience");
+
+const QString CHOICE_SUFFIX("_choice");
+const QString SAT_SUFFIX("_satisfaction");
 
 void initializeApeqpt(TaskFactory& factory)
 {
@@ -66,9 +67,14 @@ Apeqpt::Apeqpt(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_questionnaire(nullptr)
 {
     addField(FN_DATETIME, QVariant::DateTime);
-    addField(FN_CHOICE, QVariant::Int);
-    addField(FN_SATISFACTION, QVariant::Int);
-    addField(FN_EXPERIENCE, QVariant::String);
+
+    for (const QString& field : strseq("q", 1, 3, CHOICE_SUFFIX)) {
+        addField(field, QVariant::Int);
+    }
+
+    for (const QString& field : strseq("q", 1, 2, SAT_SUFFIX)) {
+        addField(field, QVariant::Int);
+    }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -102,11 +108,17 @@ QString Apeqpt::menusubtitle() const
 
 bool Apeqpt::isComplete() const
 {
-    const QStringList required_always{
-        FN_DATETIME,
-        FN_CHOICE,
-        FN_SATISFACTION,
-    };
+    QStringList required_always;
+
+    for (const QString& field : strseq("q", 1, 2, SAT_SUFFIX)) {
+        required_always.append(field);
+    }
+
+    for (const QString& field : strseq("q", 1, 3, CHOICE_SUFFIX)) {
+        required_always.append(field);
+    }
+
+    required_always.append(FN_DATETIME);
 
     return !anyNullOrEmpty(values(required_always));
 }
@@ -129,8 +141,42 @@ QStringList Apeqpt::detail() const
 
 OpenableWidget* Apeqpt::editor(const bool read_only)
 {
+    const NameValueOptions options {
+        {xstring("a0"), 0}, // Yes
+        {xstring("a1"), 1}, // No
+    };
+
+    const NameValueOptions options_na {
+        {xstring("a0"), 0}, // Yes
+        {xstring("a1"), 1}, // No
+        {xstring("a2"), 2}, // No
+    };
 
     QuPagePtr page(new QuPage{
+        (new QuText(xstring("instructions_to_subject_1")))->setItalic(),
+        (new QuText(xstring("instructions_to_subject_2")))->setItalic(),
+        (new QuGridContainer {
+            QuGridCell(new QuText(xstring("q_date")), 0, 0),
+            QuGridCell((new QuDateTime(fieldRef(FN_DATETIME)))
+                ->setMode(QuDateTime::DefaultDate)
+                ->setOfferNowButton(true), 0, 1)
+        }),
+        (new QuText(xstring("h1")))->setBig()->setBold(),
+        new QuMcqGrid(
+            {
+                QuestionWithOneField(xstring("q1_choice"), fieldRef("q1_choice")),
+                QuestionWithOneField(xstring("q2_choice"), fieldRef("q2_choice")),
+                QuestionWithOneField(xstring("q3_choice"), fieldRef("q3_choice")),
+            }, options
+        ),
+        (new QuText(xstring("h2")))->setBig()->setBold(),
+        new QuMcqGrid(
+            {
+                QuestionWithOneField(xstring("q1_satisfaction"), fieldRef("q1_satisfaction"))
+            }, options_na
+        ),
+        new QuText(xstring("q2_satisfaction")),
+        (new QuText(xstring("thanks")))->setItalic(),
     });
 
     page->setTitle(longname());
