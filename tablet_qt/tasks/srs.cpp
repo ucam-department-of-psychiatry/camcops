@@ -150,6 +150,19 @@ QStringList Srs::detail() const
 
 OpenableWidget* Srs::editor(const bool read_only)
 {
+    auto vas_relationship = (new QuSlider(fieldRef(FN_RELATIONSHIP), VAS_MIN_INT, VAS_MAX_INT, 1))
+                                    ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+                                    ->setSymmetric(true);
+    auto vas_goals = (new QuSlider(fieldRef(FN_GOALS), VAS_MIN_INT, VAS_MAX_INT, 1))
+                                    ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+                                    ->setSymmetric(true);
+    auto vas_approach = (new QuSlider(fieldRef(FN_APPROACH), VAS_MIN_INT, VAS_MAX_INT, 1))
+                                    ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+                                    ->setSymmetric(true);
+    auto vas_overall = (new QuSlider(fieldRef(FN_OVERALL), VAS_MIN_INT, VAS_MAX_INT, 1))
+                                    ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
+                                    ->setSymmetric(true);
+
     const Qt::Alignment centre = Qt::AlignHCenter | Qt::AlignVCenter;
 
     QuPagePtr page(new QuPage{
@@ -170,43 +183,38 @@ OpenableWidget* Srs::editor(const bool read_only)
         new QuSpacer(),
         new QuSpacer(),
         new QuSpacer(),
-        new QuText(xstring("instructions_to_subject")),
+        (new QuText(xstring("instructions_to_subject")))
+                       ->setItalic()
+                       ->setAlignment(centre),
+        new QuHorizontalLine(),
         new QuSpacer(),
         // ------------------------------------------------------------------------
         // Visual-analogue sliders
         // ------------------------------------------------------------------------
         (new QuVerticalContainer{
-            new QuText(xstring("q1_title")),
-            new QuFlowContainer{
-                new QuText(xstring("q1_right")),
-                (new QuSlider(fieldRef(FN_RELATIONSHIP), VAS_MIN_INT, VAS_MAX_INT, 1))
-                                ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                                ->setSymmetric(true),
-                new QuText(xstring("q1_right")),
+            (new QuText(xstring("q1_title")))->setAlignment(centre),
+            new QuGridContainer{
+                QuGridCell((new QuText(xstring("q1_right")))->setAlignment(centre), 0, 0, 3, 1),
+                QuGridCell(vas_relationship, 1, 1, 1, 1),
+                QuGridCell((new QuText(xstring("q1_right")))->setAlignment(centre), 0, 2, 3, 1),
             },
-            new QuText(xstring("q2_title")) ,
-            new QuFlowContainer{
-                new QuText(xstring("q2_right")),
-                (new QuSlider(fieldRef(FN_GOALS), VAS_MIN_INT, VAS_MAX_INT, 1))
-                                ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                                ->setSymmetric(true),
-                new QuText(xstring("q2_right")),
+            (new QuText(xstring("q2_title")))->setAlignment(centre),
+            new QuGridContainer{
+                QuGridCell((new QuText(xstring("q2_right")))->setAlignment(centre), 0, 0, 3, 1),
+                QuGridCell(vas_goals, 1, 1, 1, 1),
+                QuGridCell((new QuText(xstring("q2_right")))->setAlignment(centre), 0, 2, 3, 1),
             },
-            new QuText(xstring("q3_title")),
-            new QuFlowContainer{
-                new QuText(xstring("q3_right")),
-                (new QuSlider(fieldRef(FN_APPROACH), VAS_MIN_INT, VAS_MAX_INT, 1))
-                                ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                                ->setSymmetric(true),
-                new QuText(xstring("q3_right")),
+            (new QuText(xstring("q3_title")))->setAlignment(centre),
+            new QuGridContainer{
+                    QuGridCell((new QuText(xstring("q3_right")))->setAlignment(centre), 0, 0, 3, 1),
+                    QuGridCell(vas_approach, 1, 1, 1, 1),
+                    QuGridCell((new QuText(xstring("q3_right")))->setAlignment(centre),  0, 2, 3, 1),
             },
-            new QuText(xstring("q4_title")),
-            new QuFlowContainer{
-                new QuText(xstring("q4_left")),
-                (new QuSlider(fieldRef(FN_OVERALL), VAS_MIN_INT, VAS_MAX_INT, 1))
-                                ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                            ->setSymmetric(true),
-                new QuText(xstring("q4_right")),
+            (new QuText(xstring("q4_title")))->setAlignment(centre),
+            new QuGridContainer{
+                QuGridCell((new QuText(xstring("q4_left")))->setAlignment(centre), 0, 0, 3, 1),
+                QuGridCell(vas_overall, 1, 1, 1, 1),
+                QuGridCell((new QuText(xstring("q4_right")))->setAlignment(centre), 0, 2, 3, 1),
             }
          })->setWidgetAlignment(centre),
         // ------------------------------------------------------------------------
