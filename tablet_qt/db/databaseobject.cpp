@@ -160,6 +160,10 @@ QStringList DatabaseObject::fieldnames() const
 // Field access
 // ============================================================================
 
+// ----------------------------------------------------------------------------
+// Set or modify a field
+// ----------------------------------------------------------------------------
+
 bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
                               const bool touch_record)
 {
@@ -204,6 +208,10 @@ void DatabaseObject::addToValueInt(const QString& fieldname,
     setValue(fieldname, valueInt(fieldname) + increment);
 }
 
+
+// ----------------------------------------------------------------------------
+// Read a field
+// ----------------------------------------------------------------------------
 
 QVariant DatabaseObject::value(const QString& fieldname) const
 {
@@ -333,16 +341,6 @@ QVector<int> DatabaseObject::valueVectorInt(const QString& fieldname) const
 }
 
 
-QVector<QVariant> DatabaseObject::values(const QStringList& fieldnames) const
-{
-    QVector<QVariant> values;
-    for (const QString& fieldname : fieldnames) {
-        values.append(value(fieldname));
-    }
-    return values;
-}
-
-
 FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname,
                                      const bool mandatory,
                                      const bool autosave,
@@ -384,6 +382,114 @@ Field& DatabaseObject::getField(const QString& fieldname)
     // Dangerous in that it returns a reference.
     requireField(fieldname);
     return m_record[fieldname];
+}
+
+
+// ----------------------------------------------------------------------------
+// Read multiple fields
+// ----------------------------------------------------------------------------
+
+QVector<QVariant> DatabaseObject::values(const QStringList& fieldnames) const
+{
+    QVector<QVariant> values;
+    for (const QString& fieldname : fieldnames) {
+        values.append(value(fieldname));
+    }
+    return values;
+}
+
+
+bool DatabaseObject::allValuesTrue(const QStringList& fieldnames) const
+{
+    for (const QString& fieldname : fieldnames) {
+        if (!valueBool(fieldname)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool DatabaseObject::anyValuesTrue(const QStringList& fieldnames) const
+{
+    for (const QString& fieldname : fieldnames) {
+        if (valueBool(fieldname)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool DatabaseObject::allValuesFalseOrNull(const QStringList& fieldnames) const
+{
+    return !anyValuesTrue(fieldnames);
+}
+
+
+bool DatabaseObject::allValuesFalse(const QStringList& fieldnames) const
+{
+    for (const QString& fieldname : fieldnames) {
+        if (!valueIsFalseNotNull(fieldname)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool DatabaseObject::anyValuesFalse(const QStringList& fieldnames) const
+{
+    for (const QString& fieldname : fieldnames) {
+        if (valueIsFalseNotNull(fieldname)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool DatabaseObject::anyValuesNull(const QStringList& fieldnames) const
+{
+    for (const QString& fieldname : fieldnames) {
+        if (valueIsNull(fieldname)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool DatabaseObject::noneValuesNull(const QStringList& fieldnames) const
+{
+    for (const QString& fieldname : fieldnames) {
+        if (valueIsNull(fieldname)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool DatabaseObject::anyValuesNullOrEmpty(const QStringList& fieldnames) const
+{
+    for (const QString& fieldname : fieldnames) {
+        if (valueIsNullOrEmpty(fieldname)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool DatabaseObject::noneValuesNullOrEmpty(const QStringList& fieldnames) const
+{
+    for (const QString& fieldname : fieldnames) {
+        if (valueIsNullOrEmpty(fieldname)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 

@@ -16,6 +16,8 @@
             https://www.snapsurveys.com/wh/s.asp?k=148369367862
      -->
 
+    <string name="pagetitle">Perinatal POEM</string>
+
     <!-- all pages -->
     <string name="title">Perinatal POEM (Patient-rated Outcome and Experience Measure)</string>
     <string name="note_to_respondent">NOTE: If you are a partner/other please note than when answering questions, ‘me’, ‘my’ or ‘you’ refers to the mum/patient.</string>
@@ -28,7 +30,7 @@
 
     <!-- page 1 -->
     <string name="intro_title">Perinatal POEM (Patient rated Outcome and Experience Measure)</string>
-    <string name="intro_para_1">We are always looking to improve the quality of the service we provide. To help us to do this we would be grateful it you could give us your views regarding the service you have received from us.</string>
+    <string name="intro_para_1">We are always looking to improve the quality of the service we provide. To help us to do this we would be grateful if you could give us your views regarding the service you have received from us.</string>
     <string name="intro_para_2">If you have a partner, or someone who has been closely involved in supporting you, who would also like to express their views on the care we offered you please encourage them to also fill in a questionnaire. <b>If you are a partner/other please note than when answering questions, ‘me’, ‘my’ or ‘you’ refers to the mum/patient.</b></string>
     <string name="intro_para_3">Please answer ALL questions. Your answers will be used to help the team to improve the service and will be completely anonymous so will not affect the care you receive.</string>
 
@@ -97,15 +99,7 @@
 
     <!-- page 9 -->
     <string name="conclusion_thanks">Thank you for completing the questionnaire!</string>
-
-    <!-- The final page (p9) also said:
-
-        If you have any queries about this questionnaire you can contact the
-        Perinatal Quality Network Project Team on 0207 977 6691.
-
-    ... but that's too specific.
-
-    -->
+    <string name="contact_info_pqn_project_team">If you have any queries about this questionnaire you can contact the Perinatal Quality Network Project Team on 0207 977 6691.</string>
 
   </task>
 </resources>

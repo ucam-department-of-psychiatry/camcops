@@ -26,11 +26,6 @@ Perinatal POEM (Patient-rated Outcome and Experience Measure)
 
 .. include:: include_from_perinatal_patient_experience.rst
 
-.. todo:: Perinatal POEM: need to know content source (from perinatal team)
-
-PROPER SOURCE STILL PENDING. FAILING THAT, EXTRACT FROM ONLINE SURVEY AS
-BELOW.
-
 Sources
 ~~~~~~~
 
@@ -56,10 +51,13 @@ Sources
   - "The measure for the perinatal community team use does not include the
     last 6 [inpatient] unit-specific questions."
 
+- Content extracted from online version in the absence of another source.
+
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Developed by the Perinatal Quality Network for Perinatal Mental Health
   Services (CCQI), Royal College of Psychiatrists, as above.
+
 - "POEM is free to use." (Royal College of Psychiatrists, CR216, 2015, as
   above.)

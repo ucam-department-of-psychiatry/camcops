@@ -25,6 +25,7 @@
 #include "tasks/core10.h"
 #include "tasks/gad7.h"
 #include "tasks/honos.h"
+#include "tasks/perinatalpoem.h"
 
 
 SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
@@ -42,7 +43,7 @@ SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
         // GBO... ***
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
         // ORS... ***
-        // Perinatal POEM... ***
+        MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, app),
         // SRS... ***
     };
 }

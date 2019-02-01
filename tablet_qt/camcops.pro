@@ -793,7 +793,8 @@ SOURCES += \
     menu/serviceevaluationmenu.cpp \
     questionnairelib/qulineeditint64.cpp \
     questionnairelib/qulineedituint64.cpp \
-    common/dpi.cpp
+    common/dpi.cpp \
+    tasks/perinatalpoem.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1191,7 +1192,8 @@ HEADERS += \
     menu/serviceevaluationmenu.h \
     questionnairelib/qulineeditint64.h \
     questionnairelib/qulineedituint64.h \
-    common/dpi.h
+    common/dpi.h \
+    tasks/perinatalpoem.h
 
 DISTFILES += \
     LICENSE.txt \

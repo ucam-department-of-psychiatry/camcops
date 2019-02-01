@@ -29,6 +29,7 @@
 #include "tasks/honosca.h"
 #include "tasks/iesr.h"
 #include "tasks/pdss.h"
+#include "tasks/perinatalpoem.h"
 #include "tasks/phq9.h"
 #include "tasks/ybocs.h"
 
@@ -67,8 +68,8 @@ SetMenuFromPerinatal::SetMenuFromPerinatal(CamcopsApp& app) :
         // MenuItem(tr("INFANT MEASURE")).setLabelOnly(),
         // ADBB...
 
-        // MenuItem(tr("PATIENT EXPERIENCE MEASURES")).setLabelOnly(),
-        // Perinatal POEM... ***
+        MenuItem(tr("PATIENT EXPERIENCE MEASURES")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, app),
         // Perinatal VOICE...
 
         MenuItem(tr("SPECIFIC CONDITIONS")).setLabelOnly(),

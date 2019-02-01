@@ -133,6 +133,10 @@ public:
     // Field access
     // ========================================================================
 
+    // ------------------------------------------------------------------------
+    // Set or modify a field
+    // ------------------------------------------------------------------------
+
     // Sets a field's value.
     bool setValue(const QString& fieldname, const QVariant& value,
                   bool touch_record = true);  // returns: changed?
@@ -147,6 +151,10 @@ public:
 
     // Adds an increment to an integer field's value.
     void addToValueInt(const QString& fieldname, int increment);
+
+    // ------------------------------------------------------------------------
+    // Read a field
+    // ------------------------------------------------------------------------
 
     // Returns a field's value.
     QVariant value(const QString& fieldname) const;
@@ -202,9 +210,6 @@ public:
     // Returns a field's value as a QVector<int> (for CSV-encoded fields).
     QVector<int> valueVectorInt(const QString& fieldname) const;
 
-    // Returns all values for the specified fieldnames.
-    QVector<QVariant> values(const QStringList& fieldnames) const;
-
     // Returns a FieldRef (q.v.) pointer for the specified field.
     FieldRefPtr fieldRef(const QString& fieldname,
                          bool mandatory = true,
@@ -218,6 +223,41 @@ protected:
     // Low-level field access (for internal use only)
     // Returns the Field object for a given fieldname.
     Field& getField(const QString& fieldname);
+
+    // ------------------------------------------------------------------------
+    // Read multiple fields
+    // ------------------------------------------------------------------------
+
+public:
+    // Returns all values for the specified fieldnames.
+    QVector<QVariant> values(const QStringList& fieldnames) const;
+
+    // Are all the values true?
+    bool allValuesTrue(const QStringList& fieldnames) const;
+
+    // Are any of the values true?
+    bool anyValuesTrue(const QStringList& fieldnames) const;
+
+    // Are all of the values false or null?
+    bool allValuesFalseOrNull(const QStringList& fieldnames) const;
+
+    // Are all of the values false (not true or null)?
+    bool allValuesFalse(const QStringList& fieldnames) const;
+
+    // Are any of the values false (not true or null)?
+    bool anyValuesFalse(const QStringList& fieldnames) const;
+
+    // Are any of the values null?
+    bool anyValuesNull(const QStringList& fieldnames) const;
+
+    // Are none of the values null?
+    bool noneValuesNull(const QStringList& fieldnames) const;
+
+    // Are any of the values null or empty strings?
+    bool anyValuesNullOrEmpty(const QStringList& fieldnames) const;
+
+    // Are none of the values null or empty strings?
+    bool noneValuesNullOrEmpty(const QStringList& fieldnames) const;
 
     // ========================================================================
     // PK access
