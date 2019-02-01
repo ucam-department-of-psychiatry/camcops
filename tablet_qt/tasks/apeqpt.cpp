@@ -57,6 +57,8 @@ const QString FN_DATETIME("q_datetime");
 const QString CHOICE_SUFFIX("_choice");
 const QString SAT_SUFFIX("_satisfaction");
 
+const int CHOICE_QUESTIONS_N = 3;
+
 void initializeApeqpt(TaskFactory& factory)
 {
     static TaskRegistrar<Apeqpt> registered(factory);
@@ -68,13 +70,12 @@ Apeqpt::Apeqpt(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 {
     addField(FN_DATETIME, QVariant::DateTime);
 
-    for (const QString& field : strseq("q", 1, 3, CHOICE_SUFFIX)) {
+    for (const QString& field : strseq("q", 1, CHOICE_QUESTIONS_N, CHOICE_SUFFIX)) {
         addField(field, QVariant::Int);
     }
 
-    for (const QString& field : strseq("q", 1, 2, SAT_SUFFIX)) {
-        addField(field, QVariant::Int);
-    }
+    addField("q1_satisfaction", QVariant::Int);
+    addField("q2_satisfaction", QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -114,7 +115,7 @@ bool Apeqpt::isComplete() const
         required_always.append(field);
     }
 
-    for (const QString& field : strseq("q", 1, 3, CHOICE_SUFFIX)) {
+    for (const QString& field : strseq("q", 1, CHOICE_QUESTIONS_N, CHOICE_SUFFIX)) {
         required_always.append(field);
     }
 
@@ -126,15 +127,49 @@ bool Apeqpt::isComplete() const
 
 QStringList Apeqpt::summary() const
 {
-    return QStringList{};
+    const NameValueOptions options_satisfaction {
+        {xstring("a0_satisfaction"), 0},
+        {xstring("a1_satisfaction"), 1},
+        {xstring("a2_satisfaction"), 3},
+        {xstring("a2_satisfaction"), 4},
+        {xstring("a2_satisfaction"), 5},
+    };
+
+    return QStringList{
+        QString("Patient Satisfaction: %1").arg(
+                options_satisfaction.nameFromValue(
+                        value("q1_satisfaction").toInt())
+                    )
+    };
 }
 
 
 QStringList Apeqpt::detail() const
 {
-    QStringList lines;
+    QStringList lines = completenessInfo();
 
+    const NameValueOptions ans {
+        {xstring("a0_choice"), 0},
+        {xstring("a1_choice"), 1},
+        {xstring("a2_choice"), 2},
+    };
+
+    const QString spacer = " ";
+    QString summaryLine, xstringname, fieldname, qnum;
+    lines.append("<b>Choice</b>:");
+    for (int i = 0; i < CHOICE_QUESTIONS_N; ++i) {
+        qnum = QString::number(i+1);
+        xstringname = QString("q%1_choice_s").arg(qnum);
+        fieldname = QString("q%1_choice").arg(qnum);
+        summaryLine = QString("Q%1 %2: %3").arg(qnum, xstring(xstringname), ans.nameFromValue(value(fieldname)));
+        lines.append(summaryLine);
+    }
+    lines.append("");
+    lines.append("<b>Satisfaction</b>:");
     lines.append(summary());
+    lines.append("");
+    lines.append("<b>Additional feedback</b>:");
+    lines.append(value("q2_satisfaction").toString());
     return lines;
 }
 
@@ -160,33 +195,33 @@ OpenableWidget* Apeqpt::editor(const bool read_only)
         {xstring("a2_satisfaction"), 5},
     };
 
+    const int question_width = 25;
+    const QVector<int>yes_no_opts_widths{ 38, 37 };
+    const QVector<int>all_opts_widths{ 25, 25, 25 };
+
     QuPagePtr page(new QuPage{
-        (new QuText(xstring("instructions_to_subject_1")))->setItalic(),
-        (new QuText(xstring("instructions_to_subject_2")))->setItalic(),
-        (new QuGridContainer {
-            QuGridCell(new QuText(xstring("q_date")), 0, 0),
-            QuGridCell((new QuDateTime(fieldRef(FN_DATETIME)))
-                ->setMode(QuDateTime::DefaultDate)
-                ->setOfferNowButton(true), 0, 1)
-        }),
+        (new QuText(xstring("instructions_to_subject_1")))->setItalic()->setBig(),
+        (new QuText(xstring("instructions_to_subject_2")))->setItalic()->setBig(),
+        (new QuText(xstring("q_date")))->setBold(),
+        (new QuDateTime(fieldRef(FN_DATETIME)))->setOfferNowButton(true),
         (new QuText(xstring("h1")))->setBig()->setBold(),
         (new QuMcqGrid(
             {
                 QuestionWithOneField(xstring("q1_choice"), fieldRef("q1_choice")),
                 QuestionWithOneField(xstring("q2_choice"), fieldRef("q2_choice")),
             }, options_choice
-         ),
+         ))->setWidth(question_width, yes_no_opts_widths)->setExpand(true),
         (new QuMcqGrid(
             {
                 QuestionWithOneField(xstring("q3_choice"), fieldRef("q3_choice")),
             }, options_choice_with_na
-        )
-        ))->setExpand(true),
+        ))->setWidth(question_width, all_opts_widths)->setExpand(true),
         (new QuText(xstring("h2")))->setBig()->setBold(),
         (new QuMcq(fieldRef("q1_satisfaction"), options_satisfaction))
                        ->setHorizontal(true)
                        ->setAsTextButton(true),
         new QuText(xstring("q2_satisfaction")),
+        new QuTextEdit(fieldRef("q2_satisfaction")),
         (new QuText(xstring("thanks")))->setItalic(),
     });
 
