@@ -157,9 +157,9 @@ QStringList Ors::detail() const
     lines.append(xstring("date") + value(FN_DATE).toString());
     lines.append("<b>Scores</b>");
     const QString vas_sep = ": ";
-    lines.append(xstring("q1_title") + vas_sep + value(FN_INDIVIDUALLY).toString());
-    lines.append(xstring("q2_title") + vas_sep + value(FN_INTERPERSONALLY).toString());
-    lines.append(xstring("q3_title") + vas_sep + value(FN_SOCIALLY).toString());
+    lines.append(xstring("q1_title") + vas_sep + value(FN_INDIVIDUAL).toString());
+    lines.append(xstring("q2_title") + vas_sep + value(FN_INTERPERSONAL).toString());
+    lines.append(xstring("q3_title") + vas_sep + value(FN_SOCIAL).toString());
     lines.append(xstring("q4_title") + vas_sep + value(FN_OVERALL).toString());
     lines.append(summary());
     return lines;
@@ -210,17 +210,17 @@ OpenableWidget* Ors::editor(const bool read_only)
         (new QuVerticalContainer{
             new QuText(xstring("q1_title")),
             new QuText(xstring("q1_subtitle")),
-            (new QuSlider(fieldRef(FN_INDIVIDUALLY), VAS_MIN_INT, VAS_MAX_INT, 1))
+            (new QuSlider(fieldRef(FN_INDIVIDUAL), VAS_MIN_INT, VAS_MAX_INT, 1))
                             ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
                             ->setSymmetric(true),
             new QuText(xstring("q2_title")) ,
             new QuText(xstring("q2_subtitle")),
-            (new QuSlider(fieldRef(FN_INTERPERSONALLY), VAS_MIN_INT, VAS_MAX_INT, 1))
+            (new QuSlider(fieldRef(FN_INTERPERSONAL), VAS_MIN_INT, VAS_MAX_INT, 1))
                             ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
                             ->setSymmetric(true),
             new QuText(xstring("q3_title")),
             new QuText(xstring("q3_subtitle")),
-            (new QuSlider(fieldRef(FN_SOCIALLY), VAS_MIN_INT, VAS_MAX_INT, 1))
+            (new QuSlider(fieldRef(FN_SOCIAL), VAS_MIN_INT, VAS_MAX_INT, 1))
                             ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
                             ->setSymmetric(true),
             new QuText(xstring("q4_title")),

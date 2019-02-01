@@ -52,9 +52,6 @@ const QString Srs::SRS_TABLENAME("srs");
 const int SESSION_MIN = 1;
 const int SESSION_MAX = 1000;
 
-const int COMPLETED_BY_SELF = 0;
-const int COMPLETED_BY_OTHER = 1;
-
 const int VAS_MIN_INT = 0;
 const int VAS_MAX_INT = 10;
 const int VAS_ABSOLUTE_CM = 10;
