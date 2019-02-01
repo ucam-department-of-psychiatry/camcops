@@ -211,6 +211,7 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
     for (const QuElementPtr& e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);
         pagelayout->addWidget(w);  // takes ownership
+        pagelayout->setAlignment(w, e->getWidgetAlignment());
         w->setVisible(e->visible());  // only AFTER the widget is owned,
         // or this can create standalone windows!
     }

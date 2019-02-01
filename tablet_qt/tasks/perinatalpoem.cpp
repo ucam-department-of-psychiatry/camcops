@@ -25,6 +25,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qupage.h"
+#include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
@@ -63,7 +64,7 @@ const QString FN_CONTACT_DETAILS("contact_details");
 const int VAL_QA_PATIENT = 1;
 const int VAL_QA_PARTNER_OTHER = 2;
 
-const int VAL_QB_INPATIENT = 1;
+const int VAL_QB_INPATIENT = 1;  // inpatient = MBU = mother and baby unit
 const int VAL_QB_COMMUNITY = 2;
 
 const int VAL_Q1_VERY_WELL = 1;
@@ -76,6 +77,11 @@ const int VAL_STRONGLY_AGREE = 1;
 const int VAL_AGREE = 2;
 const int VAL_DISAGREE = 3;
 const int VAL_STRONGLY_DISAGREE = 4;
+
+// Tags
+const QString TAG_RESPONDENT("resp");
+const QString TAG_MBU("mbu");
+const QString TAG_CONTACT_DETAILS("contact");
 
 
 // ============================================================================
@@ -93,8 +99,8 @@ void initializePerinatalPoem(TaskFactory& factory)
 // ============================================================================
 
 PerinatalPoem::PerinatalPoem(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, PERINATAL_POEM_TABLENAME, false, false, false),  // ... anon, clin, resp
-    m_questionnaire(nullptr)
+    Task(app, db, PERINATAL_POEM_TABLENAME, false, false, false)  // ... anon, clin, resp
+    // no need, QPointer handles this: // m_questionnaire(nullptr)
 {
     addField(FN_QA_RESPONDENT, QVariant::Int);
     addField(FN_QB_SERVICE_TYPE, QVariant::Int);
@@ -239,18 +245,26 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
         return pagetitle + QString(", page %1").arg(pagenum++);
     };
     auto makeNoteToRespondent = [&note_to_respondent]() -> QuText* {
-        return (new QuText(note_to_respondent))
-            ->setItalic();
+        QuText* t = new QuText(note_to_respondent);
+        t->setItalic();
+        t->setTextAndWidgetAlignment(Qt::AlignTop | Qt::AlignCenter);
+        t->addTag(TAG_RESPONDENT);
+        return t;
+    };
+    auto makeRespondentSpacer = []() -> QuSpacer* {
+            QuSpacer* s = new QuSpacer();
+            s->addTag(TAG_RESPONDENT);
+            return s;
     };
     auto makeQ = [this](const QString& xstringname) -> QuText* {
         return new QuText(xstring(xstringname));
     };
     auto makeGrid = [](const QVector<QuestionWithOneField>& question_field_pairs,
                        const NameValueOptions& options) -> QuMcqGrid* {
-        const int n = question_field_pairs.size();
-        const int width_per_question = 1;
-        const QVector<int> option_widths(n, width_per_question);
-        const int question_width = n;
+        const int n_options = options.size();
+        const int width_per_option = 1;
+        const QVector<int> option_widths(n_options, width_per_option);
+        const int question_width = n_options;
         return (new QuMcqGrid(question_field_pairs, options))
             ->setQuestionsBold(false)
             ->setWidth(question_width, option_widths);
@@ -261,7 +275,7 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_1((new QuPage{
-        // makeNoteToRespondent(),  // not here; part of preamble text.
+        // note to respondent is already part of preamble text.
         new QuHeading(xstring("intro_title")),
         new QuText(xstring("intro_para_1")),
         new QuText(xstring("intro_para_2")),
@@ -272,12 +286,22 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     // Page 2
     // ------------------------------------------------------------------------
 
+    FieldRefPtr fr_respondent = fieldRef(FN_QA_RESPONDENT);
+    connect(fr_respondent.data(), &FieldRef::valueChanged,
+            this, &PerinatalPoem::respondentTypeChanged);
+
+    FieldRefPtr fr_service = fieldRef(FN_QB_SERVICE_TYPE);
+    connect(fr_service.data(), &FieldRef::valueChanged,
+            this, &PerinatalPoem::serviceTypeChanged);
+
     QuPagePtr page_2((new QuPage{
-        makeNoteToRespondent(),  // not on p1; part of preamble too.
         makeQ("qa_q"),
         new QuMcq(fieldRef(FN_QA_RESPONDENT), options_respondent),
+        makeRespondentSpacer(),
+        makeNoteToRespondent(),
+        makeRespondentSpacer(),
         makeQ("qb_q"),
-        new QuMcq(fieldRef(FN_QB_SERVICE_TYPE), options_service),
+        new QuMcq(fr_service, options_service),
     })->setTitle(makeTitle()));
 
     // ------------------------------------------------------------------------
@@ -286,6 +310,7 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
 
     QuPagePtr page_3((new QuPage{
         makeNoteToRespondent(),
+        makeRespondentSpacer(),
         makeQ("q1_stem"),
         makeGrid(
             {
@@ -301,17 +326,18 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_4((new QuPage{
-          makeNoteToRespondent(),
-          makeQ("q2_stem"),
-          makeGrid(
-              {
-                  QuestionWithOneField(xstring("q2a_q"), fieldRef(FN_Q2A_STAFF_DID_NOT_COMMUNICATE)),
-                  QuestionWithOneField(xstring("q2b_q"), fieldRef(FN_Q2B_STAFF_GAVE_RIGHT_SUPPORT)),
-                  QuestionWithOneField(xstring("q2c_q"), fieldRef(FN_Q2C_HELP_NOT_QUICK_ENOUGH)),
-                  QuestionWithOneField(xstring("q2d_q"), fieldRef(FN_Q2D_STAFF_LISTENED)),
-              },
-              options_agreement
-          ),
+        makeNoteToRespondent(),
+        makeRespondentSpacer(),
+        makeQ("q2_stem"),
+        makeGrid(
+            {
+                QuestionWithOneField(xstring("q2a_q"), fieldRef(FN_Q2A_STAFF_DID_NOT_COMMUNICATE)),
+                QuestionWithOneField(xstring("q2b_q"), fieldRef(FN_Q2B_STAFF_GAVE_RIGHT_SUPPORT)),
+                QuestionWithOneField(xstring("q2c_q"), fieldRef(FN_Q2C_HELP_NOT_QUICK_ENOUGH)),
+                QuestionWithOneField(xstring("q2d_q"), fieldRef(FN_Q2D_STAFF_LISTENED)),
+            },
+            options_agreement
+        ),
     })->setTitle(makeTitle()));
 
     // ------------------------------------------------------------------------
@@ -320,6 +346,7 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
 
     QuPagePtr page_5((new QuPage{
         makeNoteToRespondent(),
+        makeRespondentSpacer(),
         makeQ("q2_stem"),
         makeGrid(
             {
@@ -338,6 +365,7 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
 
     QuPagePtr page_6((new QuPage{
         makeNoteToRespondent(),
+        makeRespondentSpacer(),
         makeQ("q2_stem"),
         makeGrid(
             {
@@ -354,8 +382,9 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     // Page 7
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_7((new QuPage{ //*** partly conditional
+    QuPagePtr page_7((new QuPage{
         makeNoteToRespondent(),
+        makeRespondentSpacer(),
         makeQ("q3_stem"),
         makeGrid(
             {
@@ -367,7 +396,7 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
                 QuestionWithOneField(xstring("q3f_q"), fieldRef(FN_Q3F_FOOD_NOT_ACCEPTABLE)),
             },
             options_agreement
-        ),
+        )->addTag(TAG_MBU),
         makeQ("general_comments_q"),
         new QuTextEdit(fieldRef(FN_GENERAL_COMMENTS)),
     })->setTitle(makeTitle()));
@@ -376,12 +405,17 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     // Page 8
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_8((new QuPage{ //*** partly conditional
+    m_fr_participation = fieldRef(FN_FUTURE_PARTICIPATION);
+    connect(m_fr_participation.data(), &FieldRef::valueChanged,
+            this, &PerinatalPoem::participationChanged);
+
+    QuPagePtr page_8((new QuPage{
         makeNoteToRespondent(),
+        makeRespondentSpacer(),
         makeQ("participation_q"),
-        new QuMcq(fieldRef(FN_FUTURE_PARTICIPATION), options_yn),
-        makeQ("contact_details_q"),
-        new QuTextEdit(fieldRef(FN_CONTACT_DETAILS)),
+        new QuMcq(m_fr_participation, options_yn),
+        makeQ("contact_details_q")->addTag(TAG_CONTACT_DETAILS),
+        (new QuTextEdit(fieldRef(FN_CONTACT_DETAILS)))->addTag(TAG_CONTACT_DETAILS),
     })->setTitle(makeTitle()));
 
     // ------------------------------------------------------------------------
@@ -404,7 +438,7 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     m_questionnaire->setReadOnly(read_only);
 
     // ------------------------------------------------------------------------
-    // Signals and initial dynamic state
+    // Per-page signals set above. Now set initial dynamic state:
     // ------------------------------------------------------------------------
 
     // ------------------------------------------------------------------------
@@ -419,3 +453,31 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
 // Signal handlers
 // ============================================================================
 
+void PerinatalPoem::respondentTypeChanged()
+{
+    if (!m_questionnaire) {
+        return;
+    }
+    const bool visible = valueInt(FN_QA_RESPONDENT) == VAL_QA_PARTNER_OTHER;
+    m_questionnaire->setVisibleByTag(TAG_RESPONDENT, visible);
+}
+
+
+void PerinatalPoem::serviceTypeChanged()
+{
+    if (!m_questionnaire) {
+        return;
+    }
+    const bool visible = valueInt(FN_QB_SERVICE_TYPE) == VAL_QB_INPATIENT;
+    m_questionnaire->setVisibleByTag(TAG_MBU, visible);
+}
+
+
+void PerinatalPoem::participationChanged()
+{
+    if (!m_fr_participation) {
+        return;
+    }
+    const bool mandatory = m_fr_participation->valueInt() == CommonOptions::YES_INT;
+    m_fr_participation->setMandatory(mandatory);
+}

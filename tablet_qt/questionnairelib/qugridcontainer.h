@@ -39,10 +39,14 @@ public:
     // Initialize with a simple "n columns" format. Elements will be assigned
     // to each row, cycling around to the next row once n_columns has been
     // reached.
-    QuGridContainer(int n_columns, const QVector<QuElementPtr>& elements);
-    QuGridContainer(int n_columns, const QVector<QuElement*>& elements);
-    QuGridContainer(int n_columns, std::initializer_list<QuElementPtr> elements);
-    QuGridContainer(int n_columns, std::initializer_list<QuElement*> elements);  // takes ownership
+    QuGridContainer(int n_columns, const QVector<QuElementPtr>& elements,
+                    bool override_element_alignment = true);
+    QuGridContainer(int n_columns, const QVector<QuElement*>& elements,
+                    bool override_element_alignment = true);
+    QuGridContainer(int n_columns, std::initializer_list<QuElementPtr> elements,
+                    bool override_element_alignment = true);
+    QuGridContainer(int n_columns, std::initializer_list<QuElement*> elements,
+                    bool override_element_alignment = true);  // takes ownership
 
     // Add an individual cell.
     QuGridContainer* addCell(const QuGridCell& cell);

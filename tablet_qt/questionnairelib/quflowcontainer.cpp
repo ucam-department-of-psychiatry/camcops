@@ -21,85 +21,36 @@
 
 #include "quflowcontainer.h"
 #include <QWidget>
-#include "common/cssconst.h"
 #include "layouts/flowlayouthfw.h"
-#include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 
+#ifdef DEBUG_LAYOUT
+#include "common/cssconst.h"
+#endif
 
-const Qt::Alignment QuFlowContainer::DefaultWidgetAlignment =
-        Qt::AlignLeft | Qt::AlignVCenter;
 
-
-QuFlowContainer::QuFlowContainer()
+QuFlowContainer::QuFlowContainer() :
+    QuSequenceContainerBase()
 {
 }
 
 
-QuFlowContainer::QuFlowContainer(
-        const QVector<QuElementPtr>& elements,
-        const Qt::Alignment alignment) :
-    m_elements(elements)
+QuFlowContainer::QuFlowContainer(const QVector<QuElementPtr>& elements) :
+    QuSequenceContainerBase(elements)
 {
-    createAlignments(alignment);
 }
 
 
-QuFlowContainer::QuFlowContainer(
-        std::initializer_list<QuElementPtr> elements,
-        const Qt::Alignment alignment) :
-    m_elements(elements)
+QuFlowContainer::QuFlowContainer(std::initializer_list<QuElementPtr> elements) :
+    QuSequenceContainerBase(elements)
 {
-    createAlignments(alignment);
 }
 
 
-QuFlowContainer::QuFlowContainer(
-        std::initializer_list<QuElement*> elements,
-        const Qt::Alignment alignment)
+QuFlowContainer::QuFlowContainer(std::initializer_list<QuElement*> elements) :
+    QuSequenceContainerBase(elements)
 {
-    for (auto e : elements) {
-        addElement(e, alignment);
-    }
-}
-
-
-void QuFlowContainer::createAlignments(const Qt::Alignment alignment)
-{
-    m_widget_alignments.clear();
-    for (int i = 0; i < m_elements.size(); ++i) {
-        m_widget_alignments.append(alignment);
-    }
-}
-
-
-QuFlowContainer* QuFlowContainer::addElement(
-        const QuElementPtr& element, const Qt::Alignment alignment)
-{
-    m_elements.append(element);
-    m_widget_alignments.append(alignment);
-    return this;
-}
-
-
-QuFlowContainer* QuFlowContainer::addElement(
-        QuElement* element, const Qt::Alignment alignment)  // takes ownership
-{
-    // If you add a nullptr, it will be ignored.
-    if (element) {
-        m_elements.append(QuElementPtr(element));
-        m_widget_alignments.append(alignment);
-    }
-    return this;
-}
-
-
-QuFlowContainer* QuFlowContainer::setWidgetAlignment(
-        const Qt::Alignment alignment)
-{
-    createAlignments(alignment);
-    return this;
 }
 
 
@@ -117,15 +68,11 @@ QPointer<QWidget> QuFlowContainer::makeWidget(
     widget->setLayout(layout);
     for (int i = 0; i < m_elements.size(); ++i) {
         auto e = m_elements.at(i);
-        auto alignment = m_widget_alignments.at(i);
+        const auto alignment = m_override_widget_alignment
+                ? DefaultWidgetAlignment
+                : e->getWidgetAlignment();
         QPointer<QWidget> w = e->widget(questionnaire);
         layout->addWidget(w, alignment);  // this is QLayout::setAlignment
     }
     return widget;
-}
-
-
-QVector<QuElementPtr> QuFlowContainer::subelements() const
-{
-    return m_elements;
 }

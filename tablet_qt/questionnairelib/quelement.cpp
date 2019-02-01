@@ -21,10 +21,16 @@
 #include <QWidget>
 #include "db/fieldref.h"
 
+const Qt::Alignment DEFAULT_QUELEMENT_WIDGET_ALIGNMENT = Qt::Alignment();
+// If you use Qt::AlignLeft, widgets will not span the full width.
+// This is relevant for QuHeading, QuSlider, etc. -- things that want maximum
+// space.
+
 
 QuElement::QuElement() :
     m_widget(nullptr),
-    m_visible(true)
+    m_visible(true),
+    m_widget_alignment(DEFAULT_QUELEMENT_WIDGET_ALIGNMENT)
 {
 }
 
@@ -150,6 +156,19 @@ QuElement* QuElement::setVisible(const bool visible)
         m_widget->setVisible(visible);
     }
     return this;
+}
+
+
+QuElement* QuElement::setWidgetAlignment(const Qt::Alignment alignment)
+{
+    m_widget_alignment = alignment;
+    return this;
+}
+
+
+Qt::Alignment QuElement::getWidgetAlignment() const
+{
+    return m_widget_alignment;
 }
 
 

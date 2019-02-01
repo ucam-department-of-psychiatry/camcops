@@ -45,6 +45,8 @@ void QuHeading::commonConstructor()
 {
     m_fontsize = uiconst::FontSize::Heading;
     m_bold = false;
+    setWidgetAlignment(Qt::Alignment());
+    // ... makes it span the full width of the page.
 }
 
 

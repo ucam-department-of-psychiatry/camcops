@@ -1774,6 +1774,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``TickSlider`` and ``QuSlider`` allow their labels to overspill the edges
   and therefore work much better.
 
+- ``QuElement`` supports an alignment parameter and all layouts (e.g.
+  ``QuPage``, ``QuFlowContainer``) respect this and sometimes add additional
+  options.
+
 - Bugfix regarding Alembic.
 
   - ``alembic==1.0.0`` to ``alembic==1.0.7``, in the hope it gets constraint

@@ -55,8 +55,12 @@ public:
     // Signal handlers
     // ------------------------------------------------------------------------
 public slots:
+    void respondentTypeChanged();
+    void serviceTypeChanged();
+    void participationChanged();
 protected:
     QPointer<Questionnaire> m_questionnaire;
+    FieldRefPtr m_fr_participation;
 public:
     static const QString PERINATAL_POEM_TABLENAME;
 };

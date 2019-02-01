@@ -51,7 +51,7 @@ void QuText::commonConstructor()
     m_warning = false;
     m_text_format = Qt::AutoText;
     m_open_links = false;
-    m_alignment = Qt::AlignLeft | Qt::AlignVCenter;
+    m_text_alignment = Qt::AlignLeft | Qt::AlignVCenter;
     m_label = nullptr;
     m_forced_fontsize_pt = -1;
 }
@@ -99,9 +99,17 @@ QuText* QuText::setOpenLinks(const bool open_links)
 }
 
 
-QuText* QuText::setAlignment(const Qt::Alignment alignment)
+QuText* QuText::setTextAlignment(const Qt::Alignment alignment)
 {
-    m_alignment = alignment;
+    m_text_alignment = alignment;
+    return this;
+}
+
+
+QuText* QuText::setTextAndWidgetAlignment(const Qt::Alignment alignment)
+{
+    setTextAlignment(alignment);
+    setWidgetAlignment(alignment);
     return this;
 }
 
@@ -120,7 +128,7 @@ QPointer<QWidget> QuText::makeWidget(Questionnaire* questionnaire)
                                                : fontsize);
     m_label->setTextFormat(m_text_format);
     m_label->setOpenExternalLinks(m_open_links);
-    m_label->setAlignment(m_alignment);
+    m_label->setAlignment(m_text_alignment);
     // ... this is QLabel::setAlignment; see
     //     http://doc.qt.io/qt-5/qlabel.html#alignment-prop
     return QPointer<QWidget>(m_label);

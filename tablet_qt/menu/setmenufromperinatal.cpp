@@ -36,11 +36,11 @@
 
 SetMenuFromPerinatal::SetMenuFromPerinatal(CamcopsApp& app) :
     MenuWindow(app,
-               tr("FROM-LP"),
+               tr("FROM-Perinatal"),
                uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
-    m_subtitle = "Framework for Routine Outcome Measurement in Perinatal "
-                 "Psychiatry (FROM-Perinatal)";
+    m_subtitle = "RCPsych Framework for Routine Outcome Measurement in "
+                 "Perinatal Psychiatry (FROM-Perinatal)";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
 

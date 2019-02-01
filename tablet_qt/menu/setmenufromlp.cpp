@@ -43,8 +43,8 @@ SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
                tr("FROM-LP"),
                uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
-    m_subtitle = "Framework for Routine Outcome Measurement in Liaison "
-                 "Psychiatry (FROM-LP)";
+    m_subtitle = "RCPsych Framework for Routine Outcome Measurement in "
+                 "Liaison Psychiatry (FROM-LP)";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
 

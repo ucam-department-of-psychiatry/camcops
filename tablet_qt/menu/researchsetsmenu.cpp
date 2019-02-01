@@ -22,6 +22,7 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "menu/setmenucpftaffective1.h"
 #include "menu/setmenudeakin1.h"
 #include "menu/setmenukhandaker1.h"
 #include "menu/setmenuobrien1.h"
@@ -34,6 +35,7 @@ ResearchSetsMenu::ResearchSetsMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftAffective1, app),
         MAKE_MENU_MENU_ITEM(SetMenuDeakin1, app),
         MAKE_MENU_MENU_ITEM(SetMenuKhandaker1, app),
         MAKE_MENU_MENU_ITEM(SetMenuOBrien1, app),

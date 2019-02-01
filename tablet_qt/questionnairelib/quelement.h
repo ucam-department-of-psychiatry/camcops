@@ -67,6 +67,14 @@ public:
     // Sets visibility.
     QuElement* setVisible(bool visible);
 
+    // Set intended widget alignment within the layout that contains it (e.g.
+    // QuPage, QuGridContainer...).
+    QuElement* setWidgetAlignment(Qt::Alignment alignment);
+
+    // Returns the intended alignment of the element's widget within the
+    // layout that contains it (e.g. QuPage, QuGridContainer...).
+    Qt::Alignment getWidgetAlignment() const;
+
 signals:
     // Emitted when the data represented by the element changes.
     // Connects to QuPage::elementValueChanged(),
@@ -115,6 +123,7 @@ protected:
     QPointer<QWidget> m_widget;  // used to cache a widget pointer
     QStringList m_tags;  // our tags
     bool m_visible;  // are we visible?
+    Qt::Alignment m_widget_alignment;  // intended alignment of widget in layout
 };
 
 

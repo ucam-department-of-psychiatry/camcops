@@ -427,16 +427,20 @@ QSlider::sub-page {
 }
 /* The slider's "mark" is the junction of the add-page/sub-page borders. */
 QSlider::sub-page:horizontal {  /* Left of the centre */
-    border-color: black red black black;
+    /* border-color: black red black black; */
+    border-color: black;
 }
 QSlider::add-page:horizontal {  /* Right of the centre */
-    border-color: black black black red;
+    /* border-color: black black black red; */
+    border-color: black;
 }
 QSlider::add-page:vertical {  /* Below the centre */
-    border-color: red black black black;
+    /* border-color: red black black black; */
+    border-color: black;
 }
 QSlider::sub-page:vertical {  /* Above the centre */
-    border-color: black black red black;
+    /* border-color: black black red black; */
+    border-color: black;
 }
 QSlider::sub-page:horizontal:disabled,
 QSlider::add-page:vertical:disabled {

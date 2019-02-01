@@ -51,7 +51,11 @@ public:
     QuText* setOpenLinks(bool open_links = true);
 
     // Set text alignment within the widget.
-    QuText* setAlignment(Qt::Alignment alignment);
+    QuText* setTextAlignment(Qt::Alignment alignment);
+
+    // Set text alignment within the widget, and widget alignment within the
+    // layout.
+    QuText* setTextAndWidgetAlignment(Qt::Alignment alignment);
 
     // Change the "static" text.
     void setText(const QString& text, bool repolish = true);
@@ -86,7 +90,7 @@ protected:
     bool m_warning;  // warning style?
     Qt::TextFormat m_text_format;  // format (e.g. plain/rich/autodetect)
     bool m_open_links;  // offer hyperlinks for URLs?
-    Qt::Alignment m_alignment;  // alignment of text in widget
+    Qt::Alignment m_text_alignment;  // alignment of text in widget
     QPointer<LabelWordWrapWide> m_label;  // our widget
     int m_forced_fontsize_pt;  // the override font size, for special occasions
 };

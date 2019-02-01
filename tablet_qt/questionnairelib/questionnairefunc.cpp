@@ -50,7 +50,7 @@ QuElement* defaultGridRawPointer(const QVector<GridRowDefinition>& deflist,
     for (GridRowDefinition def : deflist) {
         const QString text = def.first;
         QuElementPtr label_element = QuElementPtr(
-                    (new QuText(text))->setAlignment(label_alignment));
+                    (new QuText(text))->setTextAlignment(label_alignment));
         const QuGridCell label_cell(label_element, row, left_col,
                                     row_span, col_span,
                                     left_column_alignment);

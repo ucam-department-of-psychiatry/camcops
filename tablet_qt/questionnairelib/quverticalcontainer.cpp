@@ -24,78 +24,30 @@
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 
-const Qt::Alignment QuVerticalContainer::DefaultWidgetAlignment = Qt::AlignLeft | Qt::AlignVCenter;
-
-
-QuVerticalContainer::QuVerticalContainer()
+QuVerticalContainer::QuVerticalContainer() :
+    QuSequenceContainerBase()
 {
-}
-
-
-QuVerticalContainer::QuVerticalContainer(const QVector<QuElementPtr>& elements,
-                                         const Qt::Alignment alignment) :
-    m_elements(elements)
-{
-    createAlignments(alignment);
 }
 
 
 QuVerticalContainer::QuVerticalContainer(
-        std::initializer_list<QuElementPtr> elements,
-        const Qt::Alignment alignment) :
-    m_elements(elements)
+        const QVector<QuElementPtr>& elements) :
+    QuSequenceContainerBase(elements)
 {
-    createAlignments(alignment);
 }
 
 
 QuVerticalContainer::QuVerticalContainer(
-        std::initializer_list<QuElement*> elements,
-        const Qt::Alignment alignment)  // takes ownership
+        std::initializer_list<QuElementPtr> elements) :
+    QuSequenceContainerBase(elements)
 {
-    for (auto e : elements) {
-        addElement(e, alignment);
-    }
 }
 
 
-QuVerticalContainer* QuVerticalContainer::addElement(
-        const QuElementPtr& element,
-        const Qt::Alignment alignment)
+QuVerticalContainer::QuVerticalContainer(
+        std::initializer_list<QuElement*> elements) :  // takes ownership
+    QuSequenceContainerBase(elements)
 {
-    m_elements.append(element);
-    m_widget_alignments.append(alignment);
-    return this;
-}
-
-
-QuVerticalContainer* QuVerticalContainer::addElement(
-        QuElement* element,   // takes ownership
-        const Qt::Alignment alignment)
-{
-    // If you add a nullptr, it will be ignored.
-    if (element) {
-        m_elements.append(QuElementPtr(element));
-        m_widget_alignments.append(alignment);
-    }
-    return this;
-}
-
-
-QuVerticalContainer* QuVerticalContainer::setWidgetAlignment(
-        const Qt::Alignment alignment)
-{
-    createAlignments(alignment);
-    return this;
-}
-
-
-void QuVerticalContainer::createAlignments(const Qt::Alignment alignment)
-{
-    m_widget_alignments.clear();
-    for (int i = 0; i < m_elements.size(); ++i) {
-        m_widget_alignments.append(alignment);
-    }
 }
 
 
@@ -111,15 +63,11 @@ QPointer<QWidget> QuVerticalContainer::makeWidget(Questionnaire* questionnaire)
     widget->setLayout(layout);
     for (int i = 0; i < m_elements.size(); ++i) {
         auto e = m_elements.at(i);
-        auto alignment = m_widget_alignments.at(i);
+        const auto alignment = m_override_widget_alignment
+                ? DefaultWidgetAlignment
+                : e->getWidgetAlignment();
         QPointer<QWidget> w = e->widget(questionnaire);
         layout->addWidget(w, 0, alignment);
     }
     return widget;
-}
-
-
-QVector<QuElementPtr> QuVerticalContainer::subelements() const
-{
-    return m_elements;
 }

@@ -117,47 +117,63 @@ QuGridContainer::QuGridContainer(std::initializer_list<QuGridCell> cells) :
 }
 
 
-#define CONSTRUCT_FROM_ELEMENTLIST(elements) \
-    int column = 0; \
-    int row = 0; \
-    for (auto e : (elements)) { \
-        QuGridCell cell(e, row, column, 1, 1, Qt::AlignLeft | Qt::AlignTop); \
-        column = (column + 1) % n_columns; \
-        if (column == 0) { \
-            ++row; \
-        } \
-        m_cells.append(cell); \
+template<typename ElementList>
+void constructFromElementList(const int n_columns,
+                              ElementList elements,
+                              const bool override_element_alignment,
+                              QVector<QuGridCell>& cells)
+{
+    // Better than #define!
+    int column = 0;
+    int row = 0;
+    for (auto e : (elements)) {
+        QuGridCell cell(e, row, column, 1, 1, Qt::AlignLeft | Qt::AlignTop,
+                        override_element_alignment);
+        column = (column + 1) % n_columns;
+        if (column == 0) {
+            ++row;
+        }
+        cells.append(cell);
     }
+}
 
 
 QuGridContainer::QuGridContainer(const int n_columns,
-                                 const QVector<QuElementPtr>& elements)
+                                 const QVector<QuElementPtr>& elements,
+                                 const bool override_element_alignment)
 {
-    CONSTRUCT_FROM_ELEMENTLIST(elements);
+    constructFromElementList(n_columns, elements, override_element_alignment,
+                             m_cells);
     commonConstructor();
 }
 
 
 QuGridContainer::QuGridContainer(const int n_columns,
-                                 const QVector<QuElement*>& elements)
+                                 const QVector<QuElement*>& elements,
+                                 const bool override_element_alignment)
 {
-    CONSTRUCT_FROM_ELEMENTLIST(elements);
+    constructFromElementList(n_columns, elements, override_element_alignment,
+                             m_cells);
     commonConstructor();
 }
 
 
 QuGridContainer::QuGridContainer(const int n_columns,
-                                 std::initializer_list<QuElementPtr> elements)
+                                 std::initializer_list<QuElementPtr> elements,
+                                 const bool override_element_alignment)
 {
-    CONSTRUCT_FROM_ELEMENTLIST(elements);
+    constructFromElementList(n_columns, elements, override_element_alignment,
+                             m_cells);
     commonConstructor();
 }
 
 
 QuGridContainer::QuGridContainer(const int n_columns,
-                                 std::initializer_list<QuElement*> elements)
+                                 std::initializer_list<QuElement*> elements,
+                                 const bool override_element_alignment)
 {
-    CONSTRUCT_FROM_ELEMENTLIST(elements);
+    constructFromElementList(n_columns, elements, override_element_alignment,
+                             m_cells);
     commonConstructor();
 }
 
@@ -248,8 +264,11 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
                                << LayoutDumper::toString(sp);
         }
 #endif
+        const auto alignment = c.override_element_alignment
+                ? c.alignment
+                : e->getWidgetAlignment();
         grid->addWidget(w, c.row, c.column,
-                        c.row_span, c.column_span, c.alignment);
+                        c.row_span, c.column_span, alignment);
     }
     QMapIterator<int, int> it(m_column_stretch);
     while (it.hasNext()) {

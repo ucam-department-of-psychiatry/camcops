@@ -18,47 +18,23 @@
 */
 
 #pragma once
-#include "questionnairelib/quelement.h"
+#include "questionnairelib/qusequencecontainerbase.h"
 
 
-class QuHorizontalContainer : public QuElement
+class QuHorizontalContainer : public QuSequenceContainerBase
 {
     // Allows the arrangements of other elements into a horizontal layout.
 
     Q_OBJECT
 
 public:
-    static const Qt::Alignment DefaultWidgetAlignment;
-    // An alignment of Qt::Alignment(), the default, makes the layout
-    // EQUISPACE the widgets, which can look daft. So we alter that by default.
-    // - http://www.qtcentre.org/threads/53609-QHBoxLayout-widget-spacing
-
-public:
     // Plain constructor
     QuHorizontalContainer();
 
     // Construct with elements
-    QuHorizontalContainer(
-            const QVector<QuElementPtr>& elements,
-            Qt::Alignment alignment = DefaultWidgetAlignment);
-    QuHorizontalContainer(
-            std::initializer_list<QuElementPtr> elements,
-            Qt::Alignment alignment = DefaultWidgetAlignment);
-    QuHorizontalContainer(
-            std::initializer_list<QuElement*> elements,
-            Qt::Alignment alignment = DefaultWidgetAlignment);  // takes ownership
-
-    // Add an element
-    QuHorizontalContainer* addElement(
-            const QuElementPtr& element,
-            Qt::Alignment alignment = DefaultWidgetAlignment);
-    QuHorizontalContainer* addElement(
-            QuElement* element,
-            Qt::Alignment alignment = DefaultWidgetAlignment);  // takes ownership
-
-    // Sets the alignment of all widgets (within their layout cells) to
-    // "alignment".
-    QuHorizontalContainer* setWidgetAlignment(Qt::Alignment alignment);
+    QuHorizontalContainer(const QVector<QuElementPtr>& elements);
+    QuHorizontalContainer(std::initializer_list<QuElementPtr> elements);
+    QuHorizontalContainer(std::initializer_list<QuElement*> elements);  // takes ownership
 
     // Should we add a "stretch" to the right-hand side of the layout?
     // This makes the difference between:
@@ -72,16 +48,8 @@ public:
     QuHorizontalContainer* setAddStretchRight(bool add_stretch_right);
 
 protected:
-    void commonConstructor();
-
-    // Make all widgets have alignment "alignment".
-    void createAlignments(Qt::Alignment alignment);
-
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
-    virtual QVector<QuElementPtr> subelements() const override;
 
 protected:
-    QVector<QuElementPtr> m_elements;  // all our elements
-    QVector<Qt::Alignment> m_widget_alignments;  // all their alignments
     bool m_add_stretch_right;  // add stretch on the right?
 };

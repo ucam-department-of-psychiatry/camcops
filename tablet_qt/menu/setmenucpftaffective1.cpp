@@ -37,7 +37,7 @@
 
 SetMenuCpftAffective1::SetMenuCpftAffective1(CamcopsApp& app) :
     MenuWindow(app,
-               tr("CPFT Affective Disorders Research Database — 1"),
+               tr("CPFT Affective Disorders Research Database"),
                uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
     m_subtitle = "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "

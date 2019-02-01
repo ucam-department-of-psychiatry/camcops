@@ -220,17 +220,19 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     const Qt::Alignment topright = Qt::AlignRight | Qt::AlignTop;
 
     auto horiz1 = new QuHorizontalContainer();
-    horiz1->addElement((new QuText("Text 1 (right/top)"))->setAlignment(topright), topright);
-    horiz1->addElement((new QuText("Text 2 (centre/vcentre)"))->setAlignment(centre), centre);
-    horiz1->addElement((new QuText("Text 3 (left/bottom)"))->setAlignment(bottomleft), bottomleft);
+    horiz1->addElement((new QuText("Text 1 (right/top)"))->setTextAndWidgetAlignment(topright));
+    horiz1->addElement((new QuText("Text 2 (centre/vcentre)"))->setTextAndWidgetAlignment(centre));
+    horiz1->addElement((new QuText("Text 3 (left/bottom)"))->setTextAndWidgetAlignment(bottomleft));
     horiz1->addElement(new QuText("Text 4: " + longtext));
+    horiz1->setOverrideWidgetAlignment(false);
     horiz1->setAddStretchRight(false);
 
     auto vert1 = new QuVerticalContainer;
-    vert1->addElement((new QuText("Text 1 (right/top)"))->setAlignment(topright), topright);
-    vert1->addElement((new QuText("Text 2 (centre/vcentre)"))->setAlignment(centre), centre);
-    vert1->addElement((new QuText("Text 3 (left/bottom)"))->setAlignment(bottomleft), bottomleft);
+    vert1->addElement((new QuText("Text 1 (right/top)"))->setTextAndWidgetAlignment(topright));
+    vert1->addElement((new QuText("Text 2 (centre/vcentre)"))->setTextAndWidgetAlignment(centre));
+    vert1->addElement((new QuText("Text 3 (left/bottom)"))->setTextAndWidgetAlignment(bottomleft));
     vert1->addElement(new QuText("Text 4: " + lipsum2));
+    vert1->setOverrideWidgetAlignment(false);
 
     QuPagePtr page_headings_layout((new QuPage{
         new QuHeading("This is a heading"),
@@ -242,9 +244,9 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuHeading("Flow container (generally preferred to horizontal "
                       "container; better on small screens):"),
         new QuFlowContainer{
-            (new QuText("Text 1 (right/top)"))->setAlignment(topright),
-            (new QuText("Text 2 (centre/vcentre)"))->setAlignment(centre),
-            (new QuText("Text 3 (left/bottom)"))->setAlignment(bottomleft),
+            (new QuText("Text 1 (right/top)"))->setTextAlignment(topright),
+            (new QuText("Text 2 (centre/vcentre)"))->setTextAlignment(centre),
+            (new QuText("Text 3 (left/bottom)"))->setTextAlignment(bottomleft),
             new QuText("Text 4: " + lipsum2),
         },
         new QuHeading("Horizontal container (with stretch on right):"),
@@ -255,10 +257,10 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         })->setAddStretchRight(true),
         new QuHeading("Horizontal container (without stretch on right; blank widget alignment):"),
         (new QuHorizontalContainer{
-            (new QuText("Text 1 (right/top)"))->setAlignment(topright),
-            (new QuText("Text 2 (centre/vcentre)"))->setAlignment(centre),
-            (new QuText("Text 3 (left/bottom)"))->setAlignment(bottomleft),
-        })->setAddStretchRight(false)->setWidgetAlignment(Qt::Alignment()),
+            (new QuText("Text 1 (right/top)"))->setTextAlignment(topright),
+            (new QuText("Text 2 (centre/vcentre)"))->setTextAlignment(centre),
+            (new QuText("Text 3 (left/bottom)"))->setTextAlignment(bottomleft),
+        })->setAddStretchRight(false)->setWidgetAlignments(Qt::Alignment()),
         new QuHeading("Horizontal container (no stretch on right, showing alignments):"),
         horiz1,
         new QuHeading("Vertical container:"),
@@ -284,7 +286,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         })
             ->setColumnStretch(0, 2)
             ->setColumnStretch(1, 1),
-        new QuHeading("Another grid (5 equal columns), with alignment settings:"),
+        new QuHeading("Another grid (5 equal columns), with image alignment settings (L/T, HC/VC, R/B):"),
         (new QuGridContainer{
             QuGridCell(new QuImage(uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
                        0, 0, 1, 1, Qt::AlignLeft | Qt::AlignTop),

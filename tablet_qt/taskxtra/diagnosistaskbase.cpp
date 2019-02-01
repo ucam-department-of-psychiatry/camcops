@@ -324,7 +324,8 @@ void DiagnosisTaskBase::rebuildPage(QuPage* page)
                 textconst::MOVE_DOWN,
                 std::bind(&DiagnosisTaskBase::moveDown, this, i)
             ))->setActive(!last),
-        }, widget_align);
+        });
+        buttons->setWidgetAlignments(widget_align);
 
         auto dx = new QuDiagnosticCode(m_codeset, fr_code, fr_desc);
         auto comment_label = new QuText(textconst::COMMENT + ":");

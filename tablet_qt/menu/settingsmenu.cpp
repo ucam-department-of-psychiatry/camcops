@@ -534,7 +534,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     const Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
     g->addCell(QuGridCell(
         (new QuText(makeTitle(devicename_t, devicename_h, true)))
-            ->setAlignment(labelalign),
+            ->setTextAlignment(labelalign),
         row, 0));
     g->addCell(QuGridCell(
         (new QuLineEdit(devicename_fr))
@@ -543,7 +543,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     ++row;
     g->addCell(QuGridCell(
         (new QuText(makeTitle(username_t, "", true)))
-            ->setAlignment(labelalign),
+            ->setTextAlignment(labelalign),
         row, 0));
     g->addCell(QuGridCell(
         (new QuLineEdit(username_fr))
@@ -553,7 +553,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     if (storing_password) {
         g->addCell(QuGridCell(
             (new QuText(makeTitle(password_t, "", true)))
-                ->setAlignment(labelalign),
+                ->setTextAlignment(labelalign),
             row, 0));
         g->addCell(QuGridCell(
             (new QuLineEdit(password_fr))
@@ -564,7 +564,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     }
     g->addCell(QuGridCell(
         (new QuText(makeTitle(upload_after_edit_t)))
-            ->setAlignment(labelalign),
+            ->setTextAlignment(labelalign),
         row, 0));
     g->addCell(QuGridCell(
         (new QuMcq(upload_after_edit_fr,CommonOptions::yesNoBoolean()))
@@ -702,7 +702,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app)
     ));
     ++row;
     dpi_grid->addCell(QuGridCell(
-        (new QuText(makeTitle(override_log)))->setAlignment(labelalign),
+        (new QuText(makeTitle(override_log)))->setTextAlignment(labelalign),
         row, 0));
     dpi_grid->addCell(QuGridCell(
         (new QuMcq(m_dpi_override_logical_fr, CommonOptions::yesNoBoolean()))
@@ -712,7 +712,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app)
     ++row;
     dpi_grid->addCell(QuGridCell(
         (new QuText(makeTitle(override_log_x)))
-                          ->setAlignment(labelalign)
+                          ->setTextAlignment(labelalign)
                           ->addTag(TAG_DPI_LOGICAL),
         row, 0));
     dpi_grid->addCell(QuGridCell(
@@ -724,7 +724,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app)
     ++row;
     dpi_grid->addCell(QuGridCell(
         (new QuText(makeTitle(override_log_y)))
-                          ->setAlignment(labelalign)
+                          ->setTextAlignment(labelalign)
                           ->addTag(TAG_DPI_LOGICAL),
         row, 0));
     dpi_grid->addCell(QuGridCell(
@@ -741,7 +741,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app)
     ));
     ++row;
     dpi_grid->addCell(QuGridCell(
-        (new QuText(makeTitle(override_phy)))->setAlignment(labelalign),
+        (new QuText(makeTitle(override_phy)))->setTextAlignment(labelalign),
         row, 0));
     dpi_grid->addCell(QuGridCell(
         (new QuMcq(m_dpi_override_physical_fr, CommonOptions::yesNoBoolean()))
@@ -751,7 +751,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app)
     ++row;
     dpi_grid->addCell(QuGridCell(
         (new QuText(makeTitle(override_phy_x)))
-                          ->setAlignment(labelalign)
+                          ->setTextAlignment(labelalign)
                           ->addTag(TAG_DPI_PHYSICAL),
         row, 0));
     dpi_grid->addCell(QuGridCell(
@@ -763,7 +763,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app)
     ++row;
     dpi_grid->addCell(QuGridCell(
         (new QuText(makeTitle(override_phy_y)))
-                          ->setAlignment(labelalign)
+                          ->setTextAlignment(labelalign)
                           ->addTag(TAG_DPI_PHYSICAL),
         row, 0));
     dpi_grid->addCell(QuGridCell(
@@ -1093,24 +1093,24 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     g1->setColumnStretch(1, 1);
     int row = 0;
     g1->addCell(QuGridCell((new QuText(label_server_address))
-                           ->setAlignment(labelalign), row, 0));
+                           ->setTextAlignment(labelalign), row, 0));
     g1->addCell(QuGridCell((new QuText(data_server_address))
-                           ->setAlignment(dataalign)->setBold(), row, 1));
+                           ->setTextAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g1->addCell(QuGridCell((new QuText(label_server_port))
-                           ->setAlignment(labelalign), row, 0));
+                           ->setTextAlignment(labelalign), row, 0));
     g1->addCell(QuGridCell((new QuText(data_server_port))
-                           ->setAlignment(dataalign)->setBold(), row, 1));
+                           ->setTextAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g1->addCell(QuGridCell((new QuText(label_server_path))
-                           ->setAlignment(labelalign), row, 0));
+                           ->setTextAlignment(labelalign), row, 0));
     g1->addCell(QuGridCell((new QuText(data_server_path))
-                           ->setAlignment(dataalign)->setBold(), row, 1));
+                           ->setTextAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g1->addCell(QuGridCell((new QuText(label_server_timeout))
-                           ->setAlignment(labelalign), row, 0));
+                           ->setTextAlignment(labelalign), row, 0));
     g1->addCell(QuGridCell((new QuText(data_server_timeout))
-                           ->setAlignment(dataalign)->setBold(), row, 1));
+                           ->setTextAlignment(dataalign)->setBold(), row, 1));
     ++row;
 
     auto g2 = new QuGridContainer();
@@ -1118,34 +1118,34 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     g2->setColumnStretch(1, 1);
     row = 0;
     g2->addCell(QuGridCell((new QuText(label_last_server_registration))
-                           ->setAlignment(labelalign), row, 0));
+                           ->setTextAlignment(labelalign), row, 0));
     g2->addCell(QuGridCell((new QuText(data_last_server_registration))
-                           ->setAlignment(dataalign)->setBold(), row, 1));
+                           ->setTextAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g2->addCell(QuGridCell((new QuText(label_last_successful_upload))
-                           ->setAlignment(labelalign), row, 0));
+                           ->setTextAlignment(labelalign), row, 0));
     g2->addCell(QuGridCell((new QuText(data_last_successful_upload))
-                           ->setAlignment(dataalign)->setBold(), row, 1));
+                           ->setTextAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g2->addCell(QuGridCell((new QuText(label_dbtitle))
-                           ->setAlignment(labelalign), row, 0));
+                           ->setTextAlignment(labelalign), row, 0));
     g2->addCell(QuGridCell((new QuText(data_dbtitle))
-                           ->setAlignment(dataalign)->setBold(), row, 1));
+                           ->setTextAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g2->addCell(QuGridCell((new QuText(label_policy_upload))
-                           ->setAlignment(labelalign), row, 0));
+                           ->setTextAlignment(labelalign), row, 0));
     g2->addCell(QuGridCell((new QuText(data_policy_upload))
-                           ->setAlignment(dataalign)->setBold(), row, 1));
+                           ->setTextAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g2->addCell(QuGridCell((new QuText(label_policy_finalize))
-                           ->setAlignment(labelalign), row, 0));
+                           ->setTextAlignment(labelalign), row, 0));
     g2->addCell(QuGridCell((new QuText(data_policy_finalize))
-                           ->setAlignment(dataalign)->setBold(), row, 1));
+                           ->setTextAlignment(dataalign)->setBold(), row, 1));
     ++row;
     g2->addCell(QuGridCell((new QuText(label_server_camcops_version))
-                           ->setAlignment(labelalign), row, 0));
+                           ->setTextAlignment(labelalign), row, 0));
     g2->addCell(QuGridCell((new QuText(data_server_camcops_version))
-                           ->setAlignment(dataalign)->setBold(), row, 1));
+                           ->setTextAlignment(dataalign)->setBold(), row, 1));
     ++row;
 
     auto g3 = new QuGridContainer();
@@ -1168,17 +1168,17 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
         g3->addCell(QuGridCell(
             (new QuText(tr("Description for patient identifier ") +
                         QString::number(n) + ":")
-            )->setAlignment(labelalign), row, 0));
+            )->setTextAlignment(labelalign), row, 0));
         g3->addCell(QuGridCell((new QuText(desc))
-                               ->setAlignment(dataalign)->setBold(), row, 1));
+                               ->setTextAlignment(dataalign)->setBold(), row, 1));
         ++row;
 
         g3->addCell(QuGridCell(
             (new QuText(tr("Short description for patient identifier ") +
                         QString::number(n) + ":")
-            )->setAlignment(labelalign), row, 0));
+            )->setTextAlignment(labelalign), row, 0));
         g3->addCell(QuGridCell((new QuText(shortdesc))
-                               ->setAlignment(dataalign)->setBold(), row, 1));
+                               ->setTextAlignment(dataalign)->setBold(), row, 1));
         ++row;
     }
 

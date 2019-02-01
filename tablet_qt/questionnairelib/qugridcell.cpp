@@ -26,12 +26,14 @@ QuGridCell::QuGridCell(const QuElementPtr& element,
                        const int column,
                        const int row_span,
                        const int column_span,
-                       const Qt::Alignment alignment) :
+                       const Qt::Alignment alignment,
+                       const bool override_element_alignment) :
     element(element),
     row(row),
     column(column),
     row_span(row_span),
     column_span(column_span),
+    override_element_alignment(override_element_alignment),
     alignment(alignment)
 {
 }
@@ -42,12 +44,14 @@ QuGridCell::QuGridCell(QuElement* element,  // takes ownership...
                        const int column,
                        const int row_span,
                        const int column_span,
-                       const Qt::Alignment alignment) :
+                       const Qt::Alignment alignment,
+                       const bool override_element_alignment) :
     element(QuElementPtr(element)),  // ... here
     row(row),
     column(column),
     row_span(row_span),
     column_span(column_span),
+    override_element_alignment(override_element_alignment),
     alignment(alignment)
 {
 }
@@ -59,6 +63,7 @@ QuGridCell::QuGridCell() :
     column(-1),
     row_span(0),
     column_span(0),
+    override_element_alignment(true),
     alignment(0)
 {
 }
@@ -72,6 +77,7 @@ QDebug operator<<(QDebug debug, const QuGridCell& cell)
         << ", column=" << cell.column
         << ", row_span=" << cell.row_span
         << ", column_span=" << cell.column_span
+        << ", override_element_alignment=" << cell.override_element_alignment
         << ", alignment=" << cell.alignment << ")";
     return debug;
 }

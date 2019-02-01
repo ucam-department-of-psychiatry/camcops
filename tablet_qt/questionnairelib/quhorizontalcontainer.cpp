@@ -26,89 +26,34 @@
 #include "widgets/basewidget.h"
 
 
-const Qt::Alignment QuHorizontalContainer::DefaultWidgetAlignment = Qt::AlignLeft | Qt::AlignVCenter;
-// - http://stackoverflow.com/questions/4539406/nonstatic-member-as-a-default-argument-of-a-nonstatic-member-function
-// - http://en.cppreference.com/w/cpp/language/default_arguments
-
-
-QuHorizontalContainer::QuHorizontalContainer()
+QuHorizontalContainer::QuHorizontalContainer() :
+    QuSequenceContainerBase(),
+    m_add_stretch_right(true)
 {
 }
 
 
 QuHorizontalContainer::QuHorizontalContainer(
-        const QVector<QuElementPtr>& elements,
-        const Qt::Alignment alignment) :
-    m_elements(elements)
+        const QVector<QuElementPtr>& elements) :
+    QuSequenceContainerBase(elements),
+    m_add_stretch_right(true)
 {
-    createAlignments(alignment);
-    commonConstructor();
 }
 
 
 QuHorizontalContainer::QuHorizontalContainer(
-        std::initializer_list<QuElementPtr> elements,
-        const Qt::Alignment alignment) :
-    m_elements(elements)
+        std::initializer_list<QuElementPtr> elements) :
+    QuSequenceContainerBase(elements),
+    m_add_stretch_right(true)
 {
-    createAlignments(alignment);
-    commonConstructor();
 }
 
 
 QuHorizontalContainer::QuHorizontalContainer(
-        std::initializer_list<QuElement*> elements,
-        const Qt::Alignment alignment)
+        std::initializer_list<QuElement*> elements) :
+    QuSequenceContainerBase(elements),
+    m_add_stretch_right(true)
 {
-    for (auto e : elements) {
-        addElement(e, alignment);
-    }
-    commonConstructor();
-}
-
-
-void QuHorizontalContainer::commonConstructor()
-{
-    m_add_stretch_right = true;
-}
-
-
-void QuHorizontalContainer::createAlignments(const Qt::Alignment alignment)
-{
-    m_widget_alignments.clear();
-    for (int i = 0; i < m_elements.size(); ++i) {
-        m_widget_alignments.append(alignment);
-    }
-}
-
-
-QuHorizontalContainer* QuHorizontalContainer::addElement(
-        const QuElementPtr& element, const Qt::Alignment alignment)
-{
-    m_elements.append(element);
-    m_widget_alignments.append(alignment);
-    return this;
-}
-
-
-QuHorizontalContainer* QuHorizontalContainer::addElement(
-        QuElement* element,   // takes ownership
-        const Qt::Alignment alignment)
-{
-    // If you add a nullptr, it will be ignored.
-    if (element) {
-        m_elements.append(QuElementPtr(element));
-        m_widget_alignments.append(alignment);
-    }
-    return this;
-}
-
-
-QuHorizontalContainer* QuHorizontalContainer::setWidgetAlignment(
-        const Qt::Alignment alignment)
-{
-    createAlignments(alignment);
-    return this;
 }
 
 
@@ -133,7 +78,9 @@ QPointer<QWidget> QuHorizontalContainer::makeWidget(
     widget->setLayout(layout);
     for (int i = 0; i < m_elements.size(); ++i) {
         auto e = m_elements.at(i);
-        auto alignment = m_widget_alignments.at(i);
+        const auto alignment = m_override_widget_alignment
+                ? DefaultWidgetAlignment
+                : e->getWidgetAlignment();
         QPointer<QWidget> w = e->widget(questionnaire);
         layout->addWidget(w, 0, alignment);
     }
@@ -141,10 +88,4 @@ QPointer<QWidget> QuHorizontalContainer::makeWidget(
         layout->addStretch();
     }
     return widget;
-}
-
-
-QVector<QuElementPtr> QuHorizontalContainer::subelements() const
-{
-    return m_elements;
 }
