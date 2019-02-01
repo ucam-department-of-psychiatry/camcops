@@ -181,11 +181,10 @@ OpenableWidget* Srs::editor(const bool read_only)
         // Padding
         // ------------------------------------------------------------------------
         new QuSpacer(),
-        new QuSpacer(),
-        new QuSpacer(),
         (new QuText(xstring("instructions_to_subject")))
                        ->setItalic()
                        ->setAlignment(centre),
+        new QuSpacer(),
         new QuHorizontalLine(),
         new QuSpacer(),
         // ------------------------------------------------------------------------

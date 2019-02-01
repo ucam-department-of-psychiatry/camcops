@@ -121,6 +121,7 @@ from camcops_server.tasks.service_satisfaction import (
 )
 from camcops_server.tasks.slums import Slums
 from camcops_server.tasks.smast import Smast
+from camcops_server.tasks.srs import Srs
 from camcops_server.tasks.wemwbs import Swemwbs, Wemwbs
 from camcops_server.tasks.wsas import Wsas
 from camcops_server.tasks.ybocs import Ybocs, YbocsSc
