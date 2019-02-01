@@ -51,6 +51,16 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+
+    // Did the patient use an inpatient unit (mother and baby unit, MBU)?
+    bool wasInpatient() const;
+
+    // Is the respondent "partner/other", not "patient"?
+    bool respondentNotPatient() const;
+
+    // Offering to participate in further studies, etc.?
+    bool offeringParticipation() const;
+
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
@@ -61,6 +71,7 @@ public slots:
 protected:
     QPointer<Questionnaire> m_questionnaire;
     FieldRefPtr m_fr_participation;
+    FieldRefPtr m_fr_contact_details;
 public:
     static const QString PERINATAL_POEM_TABLENAME;
 };

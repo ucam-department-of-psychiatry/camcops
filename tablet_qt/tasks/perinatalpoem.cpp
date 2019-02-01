@@ -185,8 +185,7 @@ bool PerinatalPoem::isComplete() const
     if (anyValuesNull(required_always)) {
         return false;
     }
-    const bool inpatient = valueInt(FN_QB_SERVICE_TYPE) == VAL_QB_INPATIENT;
-    if (inpatient) {
+    if (wasInpatient()) {
         const QStringList required_inpatient{
             FN_Q3A_UNIT_CLEAN,
             FN_Q3B_UNIT_NOT_GOOD_PLACE_TO_RECOVER,
@@ -252,9 +251,9 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
         return t;
     };
     auto makeRespondentSpacer = []() -> QuSpacer* {
-            QuSpacer* s = new QuSpacer();
-            s->addTag(TAG_RESPONDENT);
-            return s;
+        QuSpacer* s = new QuSpacer();
+        s->addTag(TAG_RESPONDENT);
+        return s;
     };
     auto makeQ = [this](const QString& xstringname) -> QuText* {
         return new QuText(xstring(xstringname));
@@ -385,7 +384,7 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     QuPagePtr page_7((new QuPage{
         makeNoteToRespondent(),
         makeRespondentSpacer(),
-        makeQ("q3_stem"),
+        makeQ("q3_stem")->addTag(TAG_MBU),
         makeGrid(
             {
                 QuestionWithOneField(xstring("q3a_q"), fieldRef(FN_Q3A_UNIT_CLEAN)),
@@ -398,7 +397,7 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
             options_agreement
         )->addTag(TAG_MBU),
         makeQ("general_comments_q"),
-        new QuTextEdit(fieldRef(FN_GENERAL_COMMENTS)),
+        new QuTextEdit(fieldRef(FN_GENERAL_COMMENTS, false)),
     })->setTitle(makeTitle()));
 
     // ------------------------------------------------------------------------
@@ -408,6 +407,7 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     m_fr_participation = fieldRef(FN_FUTURE_PARTICIPATION);
     connect(m_fr_participation.data(), &FieldRef::valueChanged,
             this, &PerinatalPoem::participationChanged);
+    m_fr_contact_details = fieldRef(FN_CONTACT_DETAILS);
 
     QuPagePtr page_8((new QuPage{
         makeNoteToRespondent(),
@@ -415,7 +415,7 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
         makeQ("participation_q"),
         new QuMcq(m_fr_participation, options_yn),
         makeQ("contact_details_q")->addTag(TAG_CONTACT_DETAILS),
-        (new QuTextEdit(fieldRef(FN_CONTACT_DETAILS)))->addTag(TAG_CONTACT_DETAILS),
+        (new QuTextEdit(m_fr_contact_details))->addTag(TAG_CONTACT_DETAILS),
     })->setTitle(makeTitle()));
 
     // ------------------------------------------------------------------------
@@ -432,7 +432,7 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     m_questionnaire = new Questionnaire(m_app, {
-        page_1, page_2, page_3, page_4, page_5, page_7, page_8, page_9,
+        page_1, page_2, page_3, page_4, page_5, page_6, page_7, page_8, page_9,
     });
     m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
@@ -441,11 +441,37 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     // Per-page signals set above. Now set initial dynamic state:
     // ------------------------------------------------------------------------
 
+    respondentTypeChanged();
+    serviceTypeChanged();
+    participationChanged();
+
     // ------------------------------------------------------------------------
     // Done
     // ------------------------------------------------------------------------
 
     return m_questionnaire;
+}
+
+
+// ============================================================================
+// Task-specific calculations
+// ============================================================================
+
+bool PerinatalPoem::wasInpatient() const
+{
+    return valueInt(FN_QB_SERVICE_TYPE) == VAL_QB_INPATIENT;
+}
+
+
+bool PerinatalPoem::respondentNotPatient() const
+{
+    return valueInt(FN_QA_RESPONDENT) == VAL_QA_PARTNER_OTHER;
+}
+
+
+bool PerinatalPoem::offeringParticipation() const
+{
+    return valueInt(FN_FUTURE_PARTICIPATION) == CommonOptions::YES_INT;
 }
 
 
@@ -458,8 +484,8 @@ void PerinatalPoem::respondentTypeChanged()
     if (!m_questionnaire) {
         return;
     }
-    const bool visible = valueInt(FN_QA_RESPONDENT) == VAL_QA_PARTNER_OTHER;
-    m_questionnaire->setVisibleByTag(TAG_RESPONDENT, visible);
+    const bool visible = respondentNotPatient();
+    m_questionnaire->setVisibleByTag(TAG_RESPONDENT, visible, false);
 }
 
 
@@ -468,16 +494,17 @@ void PerinatalPoem::serviceTypeChanged()
     if (!m_questionnaire) {
         return;
     }
-    const bool visible = valueInt(FN_QB_SERVICE_TYPE) == VAL_QB_INPATIENT;
-    m_questionnaire->setVisibleByTag(TAG_MBU, visible);
+    const bool visible = wasInpatient();
+    m_questionnaire->setVisibleByTag(TAG_MBU, visible, false);
 }
 
 
 void PerinatalPoem::participationChanged()
 {
-    if (!m_fr_participation) {
+    if (!m_fr_participation || !m_questionnaire) {
         return;
     }
-    const bool mandatory = m_fr_participation->valueInt() == CommonOptions::YES_INT;
-    m_fr_participation->setMandatory(mandatory);
+    const bool mandatory = offeringParticipation();
+    m_fr_contact_details->setMandatory(mandatory);
+    m_questionnaire->setVisibleByTag(TAG_CONTACT_DETAILS, mandatory);
 }
