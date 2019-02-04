@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/tasks/gbogrs.py
+camcops_server/tasks/gbogres.py
 
 ===============================================================================
 
@@ -54,12 +54,12 @@ from sqlalchemy.sql.sqltypes import Integer, Date, UnicodeText
 # GBO-GRS
 # =============================================================================
 
-class Gbogrs(TaskHasPatientMixin, Task):
+class Gbogres(TaskHasPatientMixin, Task):
     """
     Server implementation of the GBO-GRS task.
     """
-    __tablename__ = "gbogrs"
-    shortname = "GBO-GRS"
+    __tablename__ = "gbogres"
+    shortname = "GBO-GReS"
     longname = "Goal Based Outcomes - Goal Record Sheet"
 
     REQUIRED_FIELDS = [
