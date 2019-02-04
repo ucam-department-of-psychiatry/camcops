@@ -131,8 +131,8 @@ QStringList Apeqpt::summary() const
         {xstring("a0_satisfaction"), 0},
         {xstring("a1_satisfaction"), 1},
         {xstring("a2_satisfaction"), 2},
-        {xstring("a2_satisfaction"), 3},
-        {xstring("a2_satisfaction"), 4},
+        {xstring("a3_satisfaction"), 3},
+        {xstring("a4_satisfaction"), 4},
     };
 
     return QStringList{
@@ -190,9 +190,9 @@ OpenableWidget* Apeqpt::editor(const bool read_only)
     const NameValueOptions options_satisfaction {
         {xstring("a0_satisfaction"), 0},
         {xstring("a1_satisfaction"), 1},
-        {xstring("a2_satisfaction"), 3},
-        {xstring("a2_satisfaction"), 4},
-        {xstring("a2_satisfaction"), 5},
+        {xstring("a2_satisfaction"), 2},
+        {xstring("a3_satisfaction"), 3},
+        {xstring("a4_satisfaction"), 4},
     };
 
     const int question_width = 25;
