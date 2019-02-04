@@ -1024,6 +1024,15 @@ Names of CamCOPS group(s) to export from.
 
 Only applicable if ``ALL_GROUPS`` is false.
 
+TASKS
+#####
+
+*Multiline string.* Default: none (and therefore all tasks).
+
+Tasks to export. This is a list of base table names of CamCOPS tasks (e.g.
+`ace3`, `phq9`) to export. If this option is not specified, all tasks are
+exported.
+
 START_DATETIME_UTC
 ##################
 

@@ -247,6 +247,7 @@ class TaskCollection(object):
             self._filter = TaskFilter()
             if not export_recipient.all_groups:
                 self._filter.group_ids = export_recipient.group_ids
+            self._filter.task_types = export_recipient.tasks
             self._filter.start_datetime = export_recipient.start_datetime_utc
             self._filter.end_datetime = export_recipient.end_datetime_utc
             self._filter.finalized_only = export_recipient.finalized_only

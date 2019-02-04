@@ -102,6 +102,7 @@ from camcops_server.tasks.panss import Panss
 from camcops_server.tasks.pcl5 import Pcl5
 from camcops_server.tasks.pcl import PclC, PclM, PclS
 from camcops_server.tasks.pdss import Pdss
+from camcops_server.tasks.perinatalpoem import PerinatalPoem
 from camcops_server.tasks.photo import Photo, PhotoSequence
 from camcops_server.tasks.phq9 import Phq9
 from camcops_server.tasks.phq15 import Phq15

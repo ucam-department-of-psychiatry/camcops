@@ -105,6 +105,8 @@
 
     <string name="false">False</string>
 
+    <string name="general">General</string>
+
     <string name="icd10_symptomatic_disclaimer">These criteria are the SYMPTOMATIC criteria and IGNORE CAUSAL criteria (such as “episode not attributable to psychoactive substance use or organic mental disorder” or history of prior episodes).</string>
 
     <string name="location">Location</string>

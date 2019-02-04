@@ -154,6 +154,7 @@ class ConfigParamExportRecipient(object):
     RIO_UPLOADING_USER = "RIO_UPLOADING_USER"
     START_DATETIME_UTC = "START_DATETIME_UTC"
     TASK_FORMAT = "TASK_FORMAT"
+    TASKS = "TASKS"
     TRANSMISSION_METHOD = "TRANSMISSION_METHOD"
     XML_FIELD_COMMENTS = "XML_FIELD_COMMENTS"
 
@@ -218,6 +219,7 @@ class ExportRecipientInfo(object):
         self.all_groups = False
         self.group_names = []  # type: List[str]  # not in database; see group_ids  # noqa
         self.group_ids = []  # type: List[int]
+        self.tasks = []  # type: List[str]
         self.start_datetime_utc = None  # type: datetime.datetime
         self.end_datetime_utc = None  # type: datetime.datetime
         self.finalized_only = True
@@ -434,6 +436,7 @@ class ExportRecipientInfo(object):
         r.group_names = _get_multiline(cpr.GROUPS)
         r.group_ids = []  # type: List[int]
         # ... read later by validate_db_dependent()
+        r.tasks = sorted([x.lower() for x in _get_multiline(cpr.TASKS)]
         sd = _get_str(cpr.START_DATETIME_UTC)
         r.start_datetime_utc = pendulum_to_utc_datetime_without_tz(
             coerce_to_pendulum(sd, assume_local=False)) if sd else None
@@ -560,6 +563,8 @@ class ExportRecipientInfo(object):
         Validates the database-independent aspects of the
         :class:`ExportRecipient`, or raises :exc:`InvalidExportRecipient`.
         """
+        from camcops_server.cc_modules.cc_task import all_task_tablenames  # delayed import # noqa
+
         def fail_invalid(msg: str) -> None:
             raise _Invalid(self.recipient_name, msg)
 
@@ -585,6 +590,11 @@ class ExportRecipientInfo(object):
         if not self.all_groups and not self.group_names:
             fail_invalid("Missing group names (from {})".format(
                 cpr.GROUPS))
+
+        all_basetables = all_task_tablenames()
+        for basetable in self.tasks:
+            if basetable not in all_basetables:
+                fail_invalid("Task {!r} doesn't exist".format(basetable))
 
         if (self.transmission_method == ExportTransmissionMethod.HL7 and
                 not self.primary_idnum):

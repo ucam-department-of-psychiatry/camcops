@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+IntListType#!/usr/bin/env python
 
 """
 camcops_server/cc_modules/cc_exportrecipient.py
@@ -32,7 +32,10 @@ import logging
 from typing import List, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.sqlalchemy.list_types import IntListType
+from cardinal_pythonlib.sqlalchemy.list_types import (
+    IntListType,
+    StringListType,
+)
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_url
 from sqlalchemy.event.api import listens_for
@@ -145,6 +148,11 @@ class ExportRecipient(ExportRecipientInfo, Base):
     group_ids = Column(
         "group_ids", IntListType,
         comment="Integer IDs of CamCOPS group to export data from (as CSV)"
+    )
+    tasks = Column(
+        "tasks", StringListType,
+        comment="Base table names of CamCOPS tasks to export data from "
+                "(as CSV)"
     )
     start_datetime_utc = Column(
         "start_datetime_utc", DateTime,
