@@ -34,6 +34,7 @@ from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
+    PendulumDateTimeAsIsoTextColType,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
     ZERO_TO_FOUR_CHECKER
@@ -63,8 +64,7 @@ class Apeqpt(TaskHasPatientMixin, Task):
     longname = "Assessment Patient Experience Questionnaire: For Psychological Therapies"
     provides_trackers = True
 
-
-    q_datetime = CamcopsColumn("q_datetime", DateTime, comment="Session number")
+    q_datetime = CamcopsColumn("q_datetime", PendulumDateTimeAsIsoTextColType, comment="Session number")
 
     N_CHOICE_QUESTIONS = 3
     q1_choice = CamcopsColumn("q1_choice", Integer, comment="Enough information was provided", permitted_value_checker=ZERO_TO_ONE_CHECKER)
@@ -76,11 +76,11 @@ class Apeqpt(TaskHasPatientMixin, Task):
 
     MAIN_QUESTIONS = [
         "q_datetime",
-        "q1_choice"
-        "q2_choice"
-        "q3_choice"
-        "q1_satisfaction"
-        "q2_satisfaction"
+        "q1_choice",
+        "q2_choice",
+        "q3_choice",
+        "q1_satisfaction",
+        "q2_satisfaction",
     ]
 
     def is_complete(self) -> bool:
@@ -118,8 +118,8 @@ class Apeqpt(TaskHasPatientMixin, Task):
             q_a += tr_qa(self.wxstring(req, "q" + nstr + "_choice"),
                          get_from_dict(c_dict, getattr(self, "q" + nstr + "_choice")))
 
-        q_a += tr_qa(self.wxstring(req, "q1_satisfaction"), get_from_dict(c_dict, self.q1_satisfaction))
-        q_a += tr_qa(self.wxstring(req, "q2_satisfaction"), get_from_dict(c_dict, self.q2_satisfaction))
+        q_a += tr_qa(self.wxstring(req, "q1_satisfaction"), get_from_dict(s_dict, self.q1_satisfaction))
+        q_a += tr_qa(self.wxstring(req, "q2_satisfaction"), self.q2_satisfaction)
 
         h = """
             <div class="{CssClass.SUMMARY}">
