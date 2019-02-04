@@ -128,8 +128,8 @@ class Apeqpt(TaskHasPatientMixin, Task):
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                Patient satisfaction rating rating for service provided. The serive is rated in the areas of
-                choice offered, and general satisfaction.
+                Patient satisfaction rating rating for service provided. The service is rated on
+                choice offered and general satisfaction.
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>

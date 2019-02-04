@@ -130,9 +130,9 @@ QStringList Apeqpt::summary() const
     const NameValueOptions options_satisfaction {
         {xstring("a0_satisfaction"), 0},
         {xstring("a1_satisfaction"), 1},
+        {xstring("a2_satisfaction"), 2},
         {xstring("a2_satisfaction"), 3},
         {xstring("a2_satisfaction"), 4},
-        {xstring("a2_satisfaction"), 5},
     };
 
     return QStringList{
