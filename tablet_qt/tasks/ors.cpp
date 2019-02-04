@@ -208,23 +208,23 @@ OpenableWidget* Ors::editor(const bool read_only)
         // Visual-analogue sliders
         // ------------------------------------------------------------------------
         (new QuVerticalContainer{
-            new QuText(xstring("q1_title")),
-            new QuText(xstring("q1_subtitle")),
+            (new QuText(xstring("q1_title")))->setAlignment(centre),
+            (new QuText(xstring("q1_subtitle")))->setAlignment(centre),
             (new QuSlider(fieldRef(FN_INDIVIDUAL), VAS_MIN_INT, VAS_MAX_INT, 1))
                             ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
                             ->setSymmetric(true),
-            new QuText(xstring("q2_title")) ,
-            new QuText(xstring("q2_subtitle")),
+            (new QuText(xstring("q2_title")))->setAlignment(centre),
+            (new QuText(xstring("q2_subtitle")))->setAlignment(centre),
             (new QuSlider(fieldRef(FN_INTERPERSONAL), VAS_MIN_INT, VAS_MAX_INT, 1))
                             ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
                             ->setSymmetric(true),
-            new QuText(xstring("q3_title")),
-            new QuText(xstring("q3_subtitle")),
+            (new QuText(xstring("q3_title")))->setAlignment(centre),
+            (new QuText(xstring("q3_subtitle")))->setAlignment(centre),
             (new QuSlider(fieldRef(FN_SOCIAL), VAS_MIN_INT, VAS_MAX_INT, 1))
                             ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
                             ->setSymmetric(true),
-            new QuText(xstring("q4_title")),
-            new QuText(xstring("q4_subtitle")),
+            (new QuText(xstring("q4_title")))->setAlignment(centre),
+            (new QuText(xstring("q4_subtitle")))->setAlignment(centre),
             (new QuSlider(fieldRef(FN_OVERALL), VAS_MIN_INT, VAS_MAX_INT, 1))
                             ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
                             ->setSymmetric(true),
