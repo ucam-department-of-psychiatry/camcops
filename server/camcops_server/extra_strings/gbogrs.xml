@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="gbogrs">
+  <task name="gbogres">
     <string name="stem">In coming to this service, what are some of the problems
         you want help with or goals you want to get to? <i>(List up to 3 goals)</i></string>
     <string name="date">Date</string>

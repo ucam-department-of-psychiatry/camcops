@@ -7,13 +7,13 @@
 #include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"
 
-void initializeGboGrs(TaskFactory& factory);
+void initializeGboGReS(TaskFactory& factory);
 
-class GboGrs : public Task
+class GboGReS : public Task
 {
     Q_OBJECT
 public:
-    GboGrs(CamcopsApp& app, DatabaseManager& db,
+    GboGReS(CamcopsApp& app, DatabaseManager& db,
          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -36,7 +36,7 @@ public:
     QString extraGoals() const;
     QString goalNumber() const;
 public:
-    static const QString GBOGRS_TABLENAME;
+    static const QString GBOGRES_TABLENAME;
 protected:
     NameValueOptions m_completed_by;
     QPointer<Questionnaire> m_questionnaire;

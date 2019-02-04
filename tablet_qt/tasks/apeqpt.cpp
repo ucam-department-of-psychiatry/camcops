@@ -220,7 +220,7 @@ OpenableWidget* Apeqpt::editor(const bool read_only)
         (new QuMcq(fieldRef("q1_satisfaction"), options_satisfaction))
                        ->setHorizontal(true)
                        ->setAsTextButton(true),
-        new QuText(xstring("q2_satisfaction")),
+        (new QuText(xstring("q2_satisfaction")))->setBold(),
         new QuTextEdit(fieldRef("q2_satisfaction")),
         (new QuText(xstring("thanks")))->setItalic(),
     });

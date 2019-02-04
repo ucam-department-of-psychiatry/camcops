@@ -51,12 +51,12 @@ from sqlalchemy.sql.sqltypes import Integer, Date, UnicodeText
 
 
 # =============================================================================
-# GBO-GRS
+# GBO-GReS
 # =============================================================================
 
 class Gbogres(TaskHasPatientMixin, Task):
     """
-    Server implementation of the GBO-GRS task.
+    Server implementation of the GBO - Goal Record Sheet task.
     """
     __tablename__ = "gbogres"
     shortname = "GBO-GReS"

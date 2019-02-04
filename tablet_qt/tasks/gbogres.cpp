@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gbogrs.h"
+#include "gbogres.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -47,7 +47,7 @@
 using mathfunc::noneNullOrEmpty;
 using stringfunc::strseq;
 
-const QString GboGrs::GBOGRS_TABLENAME("gbogrs");
+const QString GboGReS::GBOGRES_TABLENAME("gbo_goal_record");
 
 const int GOAL_CHILD = 1;
 const int GOAL_PARENT_CARER = 2;
@@ -56,14 +56,14 @@ const int GOAL_OTHER = 3;
 const QString GOAL_CHILD_STR = "Child/young person";
 const QString GOAL_PARENT_CARER_STR = "Parent/carer";
 
-void initializeGboGrs(TaskFactory& factory)
+void initializeGboGReS(TaskFactory& factory)
 {
-    static TaskRegistrar<GboGrs> registered(factory);
+    static TaskRegistrar<GboGReS> registered(factory);
 }
 
 
-GboGrs::GboGrs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, GBOGRS_TABLENAME, false, false, false),  // ... anon, clin, resp
+GboGReS::GboGReS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+    Task(app, db, GBOGRES_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addField("date", QVariant::Date);
@@ -81,19 +81,19 @@ GboGrs::GboGrs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 // Class info
 // ============================================================================
 
-QString GboGrs::shortname() const
+QString GboGReS::shortname() const
 {
     return "GBO-GRS";
 }
 
 
-QString GboGrs::longname() const
+QString GboGReS::longname() const
 {
     return tr("Goal Based Outcomes - Goal Record Sheet");
 }
 
 
-QString GboGrs::menusubtitle() const
+QString GboGReS::menusubtitle() const
 {
     return tr("Goal progress tracking measurement");
 }
@@ -103,7 +103,7 @@ QString GboGrs::menusubtitle() const
 // Instance info
 // ============================================================================
 
-bool GboGrs::isComplete() const
+bool GboGReS::isComplete() const
 {
     bool required = noneNullOrEmpty(values({"date","goal_1_desc","completed_by"}));
 
@@ -113,14 +113,14 @@ bool GboGrs::isComplete() const
     return required && other;
 }
 
-QStringList GboGrs::summary() const
+QStringList GboGReS::summary() const
 {
     return QStringList{
         QString("<b>Goals set</b>: %1 %2").arg(goalNumber(), extraGoals()),
     };
 }
 
-QStringList GboGrs::detail() const
+QStringList GboGReS::detail() const
 {
     QStringList detail;
 
@@ -144,7 +144,7 @@ QStringList GboGrs::detail() const
     return detail;
 }
 
-OpenableWidget* GboGrs::editor(const bool read_only)
+OpenableWidget* GboGReS::editor(const bool read_only)
 {
     m_completed_by = NameValueOptions{
         { xstring("completed_by_o1"), GOAL_CHILD },
@@ -184,7 +184,7 @@ OpenableWidget* GboGrs::editor(const bool read_only)
     fieldRef("completed_by_other")->setMandatory(required);
 
     connect(fieldRef("completed_by").data(), &FieldRef::valueChanged,
-            this, &GboGrs::updateMandatory);
+            this, &GboGReS::updateMandatory);
 
     page->setTitle(longname());
 
@@ -197,7 +197,7 @@ OpenableWidget* GboGrs::editor(const bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-void GboGrs::updateMandatory() {
+void GboGReS::updateMandatory() {
    const bool required = valueInt("completed_by")
            == GOAL_OTHER;
     fieldRef("completed_by_other")->setMandatory(required);
@@ -206,7 +206,7 @@ void GboGrs::updateMandatory() {
     }
 }
 
-QString GboGrs::goalNumber() const {
+QString GboGReS::goalNumber() const {
     int goal_n = 0;
     if (!valueIsNullOrEmpty("goal_1_desc")) {
         ++goal_n;
@@ -220,7 +220,7 @@ QString GboGrs::goalNumber() const {
     return QString::number(goal_n);
 }
 
-QString GboGrs::extraGoals() const {
+QString GboGReS::extraGoals() const {
     QString extra = "";
     if (!valueIsNullOrEmpty("goal_other")) {
         extra = "<i>(with additional goals set)</i>";
@@ -228,7 +228,7 @@ QString GboGrs::extraGoals() const {
     return extra;
 }
 
-QString GboGrs::completedBy() const {
+QString GboGReS::completedBy() const {
     QString completed_by;
 
     switch (value("completed_by").toInt()) {
