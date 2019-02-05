@@ -1,6 +1,3 @@
-#ifndef GBOGRS_H
-#define GBOGRS_H
-
 #pragma once
 #include <QPointer>
 #include <QString>
@@ -41,5 +38,3 @@ protected:
     NameValueOptions m_completed_by;
     QPointer<Questionnaire> m_questionnaire;
 };
-
-#endif // GBOGRS_H

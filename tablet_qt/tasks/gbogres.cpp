@@ -47,7 +47,7 @@
 using mathfunc::noneNullOrEmpty;
 using stringfunc::strseq;
 
-const QString GboGReS::GBOGRES_TABLENAME("gbo_goal_record");
+const QString GboGReS::GBOGRES_TABLENAME("gbogres");
 
 const int GOAL_CHILD = 1;
 const int GOAL_PARENT_CARER = 2;
@@ -60,7 +60,6 @@ void initializeGboGReS(TaskFactory& factory)
 {
     static TaskRegistrar<GboGReS> registered(factory);
 }
-
 
 GboGReS::GboGReS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GBOGRES_TABLENAME, false, false, false),  // ... anon, clin, resp
@@ -83,7 +82,7 @@ GboGReS::GboGReS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
 QString GboGReS::shortname() const
 {
-    return "GBO-GRS";
+    return "GBO-GReS";
 }
 
 

@@ -1,4 +1,4 @@
-///*
+/*//
 //    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
 
 //    This file is part of CamCOPS.
@@ -17,114 +17,115 @@
 //    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 //*/
 
-//#include "gbogprs.h"
-//#include "maths/mathfunc.h"
-//#include "lib/stringfunc.h"
-//#include "questionnairelib/questionnairefunc.h"
-//#include "questionnairelib/namevaluepair.h"
-//#include "questionnairelib/quboolean.h"
-//#include "questionnairelib/qudatetime.h"
-//#include "questionnairelib/questionnaire.h"
-//#include "questionnairelib/qugridcontainer.h"
-//#include "questionnairelib/qugridcell.h"
-//#include "questionnairelib/quheading.h"
-//#include "questionnairelib/quflowcontainer.h"
-//#include "questionnairelib/quhorizontalcontainer.h"
-//#include "questionnairelib/quhorizontalline.h"
-//#include "questionnairelib/qulineedit.h"
-//#include "questionnairelib/qulineeditinteger.h"
-//#include "questionnairelib/qumcq.h"
-//#include "questionnairelib/qumcqgrid.h"
-//#include "questionnairelib/quslider.h"
-//#include "questionnairelib/quspacer.h"
-//#include "questionnairelib/qutext.h"
-//#include "questionnairelib/qutextedit.h"
-//#include "questionnairelib/quverticalcontainer.h"
-//#include "questionnairelib/questionnairefunc.h"
-//#include "tasklib/task.h"
-//#include "tasklib/taskfactory.h"
+#include "gbogprs.h"
+#include "maths/mathfunc.h"
+#include "lib/stringfunc.h"
+#include "questionnairelib/questionnairefunc.h"
+#include "questionnairelib/namevaluepair.h"
+#include "questionnairelib/quboolean.h"
+#include "questionnairelib/qudatetime.h"
+#include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qugridcontainer.h"
+#include "questionnairelib/qugridcell.h"
+#include "questionnairelib/quheading.h"
+#include "questionnairelib/quflowcontainer.h"
+#include "questionnairelib/quhorizontalcontainer.h"
+#include "questionnairelib/quhorizontalline.h"
+#include "questionnairelib/qulineedit.h"
+#include "questionnairelib/qulineeditinteger.h"
+#include "questionnairelib/qumcq.h"
+#include "questionnairelib/qumcqgrid.h"
+#include "questionnairelib/quslider.h"
+#include "questionnairelib/quspacer.h"
+#include "questionnairelib/qutext.h"
+#include "questionnairelib/qutextedit.h"
+#include "questionnairelib/quverticalcontainer.h"
+#include "questionnairelib/questionnairefunc.h"
+#include "tasklib/task.h"
+#include "tasklib/taskfactory.h"
 
-//using mathfunc::noneNullOrEmpty;
-//using stringfunc::strseq;
+using mathfunc::noneNullOrEmpty;
+using stringfunc::strseq;
 
-//const QString GboGPrS::GBOGPRS_TABLENAME("gbo_goal_record");
+const QString GboGPrS::GBOGPRS_TABLENAME("gbo_goal_record");
 
-//const int GOAL_CHILD = 1;
-//const int GOAL_PARENT_CARER = 2;
-//const int GOAL_OTHER = 3;
+void foobar() { qDebug() << "foobar!"; }
 
-//const QString GOAL_CHILD_STR = "Child/young person";
-//const QString GOAL_PARENT_CARER_STR = "Parent/carer";
+void initializeGboGPrS(TaskFactory& factory)
+{
+    static TaskRegistrar<GboGPrS> registered(factory);
+}
 
-//void initializeGboGPrS(TaskFactory& factory)
-//{
-//    static TaskRegistrar<GboGPrS> registered(factory);
-//}
+GboGPrS::GboGPrS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+    Task(app, db, GBOGPRS_TABLENAME, false, false, false),  // ... anon, clin, resp
+    m_questionnaire(nullptr)
+{
+    load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+}
 
+// ============================================================================
+// Class info
+// ============================================================================
 
-//GboGPrS::GboGPrS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-//    Task(app, db, GBOGPRS_TABLENAME, false, false, false),  // ... anon, clin, resp
-//    m_questionnaire(nullptr)
-//{
-//    load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
-//}
-
-//// ============================================================================
-//// Class info
-//// ============================================================================
-
-//QString GboGPrS::shortname() const
-//{
-//    return "GBO-GPrS";
-//}
+QString GboGPrS::shortname() const
+{
+    return "GBO-GPrS";
+}
 
 
-//QString GboGPrS::longname() const
-//{
-//    return tr("Goal Based Outcomes - Goal Progress Sheet");
-//}
+QString GboGPrS::longname() const
+{
+    return tr("Goal Based Outcomes - Goal Progress Sheet");
+}
 
 
-//QString GboGPrS::menusubtitle() const
-//{
-//    return tr("Goal progress tracking measurement");
-//}
+QString GboGPrS::menusubtitle() const
+{
+    return tr("Goal progress tracking measurement");
+}
 
 
-//// ============================================================================
-//// Instance info
-//// ============================================================================
+// ============================================================================
+// Instance info
+// ============================================================================
 
-//bool GboGPrS::isComplete() const
-//{
-//    return false;
-//}
+bool GboGPrS::isComplete() const
+{
+    return false;
+}
 
-//QStringList GboGPrS::summary() const
-//{
-//    return QStringList{};
-//}
+QStringList GboGPrS::summary() const
+{
+    return QStringList{};
+}
 
-//QStringList GboGPrS::detail() const
-//{
-//    QStringList detail;
+QStringList GboGPrS::detail() const
+{
+    QStringList detail;
 
-//    detail.append(summary());
+    detail.append(summary());
 
-//    return detail;
-//}
+    return detail;
+}
 
-//OpenableWidget* GboGPrS::editor(const bool read_only)
-//{
-//    QuPagePtr page(new QuPage{});
+OpenableWidget* GboGPrS::editor(const bool read_only)
+{
+    QuPagePtr page(new QuPage{
+        new QuVerticalContainer{
+            (new QuText("foo")),
+            (new QuText("bar")),
+            (new QuText("baz")),
+        }
+    });
 
-//    page->setTitle(longname());
 
-//    m_questionnaire = new Questionnaire(m_app, {page});
-//    m_questionnaire->setReadOnly(read_only);
-//    return m_questionnaire;
-//}
+    page->setTitle(longname());
 
-//// ============================================================================
-//// Task-specific calculations
-//// ============================================================================
+    m_questionnaire = new Questionnaire(m_app, {page});
+    m_questionnaire->setReadOnly(read_only);
+    return m_questionnaire;
+}
+
+// ============================================================================
+// Task-specific calculations
+// ============================================================================
