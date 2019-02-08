@@ -53,17 +53,34 @@ class Gbogprs(TaskHasPatientMixin, Task):
     shortname = "GBO-GPrS"
     longname = "Goal Based Outcomes - Goal Record Sheet"
 
-    date = Column("q_date", Date)
-    session = Column("q_session", Integer)
-    goal = Column("q_goal", UnicodeText)
-    progress = Column("q_progress", UnicodeText)
-    who = Column("q_who", Integer)
-    who_other = Column("q_who_other", UnicodeText)
+    FN_DATE = "q_date"
+    FN_SESSION = "q_session"
+    FN_GOAL = "q_goal"
+    FN_PROGRESS = "q_progress"
+    FN_WHO = "q_who"
+    FN_WHO_OTHER = "q_who_other"
+
+    date = Column(FN_DATE, Date)
+    session = Column(FN_SESSION, Integer)
+    goal = Column(FN_GOAL, UnicodeText)
+    progress = Column(FN_PROGRESS, UnicodeText)
+    who = Column(FN_WHO, Integer)
+    who_other = Column(FN_WHO_OTHER, UnicodeText)
+
+    GOAL_CHILD = 1
+    GOAL_PARENT_CARER = 2
+    GOAL_OTHER = 3
+
+    REQUIRED_FIELDS = [ FN_DATE, FN_SESSION, FN_GOAL, FN_PROGRESS, FN_WHO, FN_WHO_OTHER ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields()
 
     def is_complete(self) -> bool:
+        if self.are_all_fields_complete(self.REQUIRED_FIELDS):
+            if self.who == self.GOAL_OTHER and len(self.who_other) <= 0:
+                return False
+            return True
         return False
 
     def get_task_html(self, req: CamcopsRequest) -> str:

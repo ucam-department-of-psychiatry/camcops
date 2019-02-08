@@ -54,6 +54,14 @@ const int GOAL_OTHER = 3;
 const QString GOAL_CHILD_STR = "Child/young person";
 const QString GOAL_PARENT_CARER_STR = "Parent/carer";
 
+const QString FN_DATE("q_date");
+const QString FN_GOAL_1_DESC("goal_1_desc");
+const QString FN_GOAL_2_DESC("goal_2_desc");
+const QString FN_GOAL_3_DESC("goal_3_desc");
+const QString FN_GOAL_OTHER("goal_other");
+const QString FN_COMPLETED_BY("completed_by");
+const QString FN_COMPLETED_BY_OTHER("completed_by_other");
+
 void initializeGboGReS(TaskFactory& factory)
 {
     static TaskRegistrar<GboGReS> registered(factory);
@@ -102,12 +110,19 @@ QString GboGReS::menusubtitle() const
 
 bool GboGReS::isComplete() const
 {
-    bool required = noneNullOrEmpty(values({"date","goal_1_desc","completed_by"}));
 
-    bool other = ((value("completed_by") == GOAL_OTHER &&
-                   !value("completed_by_other").isNull()));
+    bool required = noneNullOrEmpty(values({
+                                               FN_DATE,
+                                               FN_GOAL_1_DESC,
+                                               FN_COMPLETED_BY,
+                                           }));
 
-    return required && other;
+    if (value("completed_by") == GOAL_OTHER
+            && value(FN_COMPLETED_BY_OTHER).isNull()) {
+        return false;
+    }
+
+    return required;
 }
 
 QStringList GboGReS::summary() const
@@ -152,35 +167,35 @@ OpenableWidget* GboGReS::editor(const bool read_only)
     QuPagePtr page(new QuPage{
                             (new QuHorizontalContainer{
                                 new QuHeading(xstring("date")),
-                               (new QuDateTime(fieldRef("date"))
+                               (new QuDateTime(fieldRef(FN_DATE))
                                    )->setMode(QuDateTime::DefaultDate)
                                     ->setOfferNowButton(true),
                             }),
                             (new QuText(xstring("stem")))->setBold(true),
                             new QuSpacer(),
                             new QuHeading(xstring("goal_1")),
-                            new QuTextEdit(fieldRef("goal_1_desc")),
+                            new QuTextEdit(fieldRef(FN_GOAL_1_DESC)),
                             new QuHeading(xstring("goal_2")),
-                            new QuTextEdit(fieldRef("goal_2_desc", false)),
+                            new QuTextEdit(fieldRef(FN_GOAL_2_DESC, false)),
                             new QuHeading(xstring("goal_3")),
-                            new QuTextEdit(fieldRef("goal_3_desc", false)),
+                            new QuTextEdit(fieldRef(FN_GOAL_3_DESC, false)),
                             new QuText(xstring("goal_other")),
-                            new QuTextEdit(fieldRef("goal_other", false)),
+                            new QuTextEdit(fieldRef(FN_GOAL_OTHER, false)),
                             (new QuText(xstring("completed_by")))->setBold(true),
-                            (new QuMcq(fieldRef("completed_by"), m_completed_by))
+                            (new QuMcq(fieldRef(FN_COMPLETED_BY), m_completed_by))
                                             ->setHorizontal(true)
                                             ->setAsTextButton(true),
-                            new QuTextEdit(fieldRef("completed_by_other"), false),
+                            new QuTextEdit(fieldRef(FN_COMPLETED_BY_OTHER), false),
                             new QuSpacer(),
                             new QuHorizontalLine(),
                             new QuSpacer(),
                             new QuText(xstring("copyright"))
                         });
 
-    bool required = valueInt("completed_by") == GOAL_OTHER;
-    fieldRef("completed_by_other")->setMandatory(required);
+    bool required = valueInt(FN_COMPLETED_BY) == GOAL_OTHER;
+    fieldRef(FN_COMPLETED_BY_OTHER)->setMandatory(required);
 
-    connect(fieldRef("completed_by").data(), &FieldRef::valueChanged,
+    connect(fieldRef(FN_COMPLETED_BY).data(), &FieldRef::valueChanged,
             this, &GboGReS::updateMandatory);
 
     page->setTitle(longname());
@@ -195,31 +210,29 @@ OpenableWidget* GboGReS::editor(const bool read_only)
 // ============================================================================
 
 void GboGReS::updateMandatory() {
-   const bool required = valueInt("completed_by")
+   const bool required = valueInt(FN_COMPLETED_BY)
            == GOAL_OTHER;
-    fieldRef("completed_by_other")->setMandatory(required);
+    fieldRef(FN_COMPLETED_BY_OTHER)->setMandatory(required);
     if (!required) {
-        fieldRef("completed_by_other")->setValue("");
+        fieldRef(FN_COMPLETED_BY_OTHER)->setValue("");
     }
 }
 
 QString GboGReS::goalNumber() const {
     int goal_n = 0;
-    if (!valueIsNullOrEmpty("goal_1_desc")) {
-        ++goal_n;
+
+    for (auto field : {FN_GOAL_1_DESC, FN_GOAL_2_DESC, FN_GOAL_3_DESC}) {
+        if (!valueIsNullOrEmpty(field)) {
+            ++goal_n;
+        }
     }
-    if (!valueIsNullOrEmpty("goal_2_desc")) {
-        ++goal_n;
-    }
-    if (!valueIsNullOrEmpty("goal_3_desc")) {
-        ++goal_n;
-    }
+
     return QString::number(goal_n);
 }
 
 QString GboGReS::extraGoals() const {
     QString extra = "";
-    if (!valueIsNullOrEmpty("goal_other")) {
+    if (!valueIsNullOrEmpty(FN_GOAL_OTHER)) {
         extra = "<i>(with additional goals set)</i>";
     }
     return extra;
@@ -228,7 +241,7 @@ QString GboGReS::extraGoals() const {
 QString GboGReS::completedBy() const {
     QString completed_by;
 
-    switch (value("completed_by").toInt()) {
+    switch (value(FN_COMPLETED_BY).toInt()) {
         case GOAL_CHILD:
             completed_by = GOAL_CHILD_STR;
             break;
@@ -236,7 +249,7 @@ QString GboGReS::completedBy() const {
             completed_by = GOAL_PARENT_CARER_STR;
             break;
         default:
-            completed_by = value("completed_by_other").toString();
+            completed_by = value(FN_COMPLETED_BY_OTHER).toString();
     }
 
     return completed_by;

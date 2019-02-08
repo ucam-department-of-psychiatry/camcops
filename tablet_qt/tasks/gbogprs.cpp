@@ -49,6 +49,9 @@ using stringfunc::strseq;
 
 const QString GboGPrS::GBOGPRS_TABLENAME("gbogprs");
 
+const int MIN_SESSION = 1;
+const int MAX_SESSION = 1000;
+
 const int GOAL_CHILD = 1;
 const int GOAL_PARENT_CARER = 2;
 const int GOAL_OTHER = 3;
@@ -106,7 +109,19 @@ QString GboGPrS::menusubtitle() const
 
 bool GboGPrS::isComplete() const
 {
-    return false;
+    bool required = noneNullOrEmpty(values({
+                                               FN_DATE,
+                                               FN_SESSION,
+                                               FN_GOAL,
+                                               FN_PROGRESS,
+                                               FN_WHO,
+                                           }));
+
+    if (value(FN_WHO) == GOAL_OTHER && value(FN_WHO_OTHER).isNull()) {
+        return false;
+    }
+
+    return required;
 }
 
 QStringList GboGPrS::summary() const
@@ -141,13 +156,17 @@ OpenableWidget* GboGPrS::editor(const bool read_only)
 
     QuPagePtr page(new QuPage{
         new QuVerticalContainer{
-            (new QuHorizontalContainer{
+            (new QuFlowContainer{
                 new QuHeading(xstring("date")),
                 (new QuDateTime(fieldRef(FN_DATE)))
                     ->setMode(QuDateTime::DefaultDate)
                     ->setOfferNowButton(true),
             }),
-           (new QuHorizontalContainer{
+           (new QuFlowContainer{
+               new QuHeading(xstring("session")),
+               new QuLineEditInteger(fieldRef(FN_SESSION), MIN_SESSION, MAX_SESSION)
+           }),
+           (new QuFlowContainer{
                new QuHeading(xstring("goal")),
                new QuTextEdit(fieldRef(FN_GOAL)),
            }),
