@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/tasks/gbogps.py
+camcops_server/tasks/gbogprs.py
 
 ===============================================================================
 
@@ -30,23 +30,14 @@ from typing import List
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
-    DATA_COLLECTION_UNLESS_UPGRADED_DIV,
-)
-
-from sqlalchemy import Column
-
-from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from camcops_server.cc_modules.cc_html import (
-    tr,
-    tr_qa,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
-    TaskHasRespondentMixin,
 )
+from sqlalchemy import Column
 from sqlalchemy.sql.sqltypes import Integer, Date, UnicodeText
 
 
@@ -62,83 +53,42 @@ class Gbogprs(TaskHasPatientMixin, Task):
     shortname = "GBO-GPrS"
     longname = "Goal Based Outcomes - Goal Record Sheet"
 
-    REQUIRED_FIELDS = [
-        "date", "goal_1_desc", "completed_by"
-    ]
+    FN_DATE = "q_date"
+    FN_SESSION = "q_session"
+    FN_GOAL = "q_goal"
+    FN_PROGRESS = "q_progress"
+    FN_WHO = "q_who"
+    FN_WHO_OTHER = "q_who_other"
+
+    date = Column(FN_DATE, Date)
+    session = Column(FN_SESSION, Integer)
+    goal = Column(FN_GOAL, UnicodeText)
+    progress = Column(FN_PROGRESS, UnicodeText)
+    who = Column(FN_WHO, Integer)
+    who_other = Column(FN_WHO_OTHER, UnicodeText)
 
     GOAL_CHILD = 1
     GOAL_PARENT_CARER = 2
     GOAL_OTHER = 3
 
-    completed_by_strings = {
-        GOAL_CHILD: "Child/young person",
-        GOAL_PARENT_CARER: "Parent/carer",
-        GOAL_OTHER: "Other"
-    }
-
-    date = Column("date", Date)
-    goal_1_desc = Column("goal_1_desc", UnicodeText)
-    goal_2_desc = Column("goal_2_desc", UnicodeText)
-    goal_3_desc = Column("goal_3_desc", UnicodeText)
-    goal_other = Column("goal_other", UnicodeText)
-    completed_by = Column("completed_by", Integer)
-    completed_by_other = Column("completed_by_other", UnicodeText)
-
-    goals = []
-
-    def goal_set(self, goal_prop):
-        return goal_prop is not None and len(goal_prop) > 0
-
-    def get_goals(self) -> list:
-        if len(self.goals) > 0:
-            return self.goals
-
-        if self.goal_set(self.goal_1_desc):
-            self.goals.append(self.goal_1_desc)
-        if self.goal_set(self.goal_2_desc):
-            self.goals.append(self.goal_2_desc)
-        if self.goal_set(self.goal_3_desc):
-            self.goals.append(self.goal_2_desc)
-        if self.goal_set(self.goal_other):
-            self.goals.append(self.goal_other)
-        return self.goals
-
-    def goals_set_tr(self) -> str:
-        extra = ""
-        if self.goal_set(self.goal_other):
-            extra = ' (additional goals specified)'
-        return tr_qa("Goals", "{}{}".format(len(self.get_goals()), extra))
-
-    def completed_by_tr(self) -> str:
-        who = self.completed_by_strings[self.completed_by]
-        if self.completed_by == self.GOAL_OTHER:
-            who = self.completed_by_other
-        if len(who) <= 0:
-            who = "Unknown"
-
-        return tr_qa("Completed by", who)
+    REQUIRED_FIELDS = [ FN_DATE, FN_SESSION, FN_GOAL, FN_PROGRESS, FN_WHO, FN_WHO_OTHER ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields()
 
     def is_complete(self) -> bool:
         if self.are_all_fields_complete(self.REQUIRED_FIELDS):
-            if self.completed_by == self.GOAL_OTHER:
-                return len(self.completed_by_other) > 0
+            if self.who == self.GOAL_OTHER and len(self.who_other) <= 0:
+                return False
             return True
         return False
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         q_a = ""
-        for i, goaltext in enumerate(self.get_goals()):
-            q_a += tr_qa("{}".format(i+1), goaltext)
 
         h = """
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
-                    {completed_by_tr}
-                    {goals_set_count_tr}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -150,9 +100,6 @@ class Gbogprs(TaskHasPatientMixin, Task):
             </table>
         """.format(
             CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            completed_by_tr=self.completed_by_tr(),
-            goals_set_count_tr=self.goals_set_tr(),
             q_a=q_a
         )
         return h
