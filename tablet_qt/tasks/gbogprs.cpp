@@ -140,13 +140,13 @@ QStringList GboGPrS::detail() const
 
 OpenableWidget* GboGPrS::editor(const bool read_only)
 {
-    m_whose_goal = NameValueOptions{
+    const NameValueOptions whose_goal_options = NameValueOptions{
         { xstring("whose_goal_o1"), GOAL_CHILD},
         { xstring("whose_goal_o2"), GOAL_PARENT_CARER },
         { xstring("whose_goal_o3"), GOAL_OTHER }
     };
 
-    m_goal_progress = NameValueOptions{
+    const NameValueOptions goal_progress_options = NameValueOptions{
         {"0", 0}, {"1", 1}, {"2", 2}, {"3", 3}, {"4", 4},
         {"5", 5}, {"6", 6}, {"7", 7}, {"8", 8}, {"9", 9}, {"10", 10},
     };
@@ -173,11 +173,11 @@ OpenableWidget* GboGPrS::editor(const bool read_only)
             (new QuMcqGrid(
                 {
                     QuestionWithOneField(xstring("progress"), fieldRef(FN_PROGRESS)),
-                }, m_goal_progress
+                }, goal_progress_options
             ))->setWidth(q_width, o_widths)->setExpand(true),
             (new QuText(xstring("explanation")))
                             ->setItalic(),
-            (new QuMcq(fieldRef(FN_WHO), m_whose_goal))
+            (new QuMcq(fieldRef(FN_WHO), whose_goal_options))
                 ->setHorizontal(true)
                 ->setAsTextButton(true),
             new QuTextEdit(fieldRef(FN_WHO_OTHER)),
@@ -198,9 +198,9 @@ OpenableWidget* GboGPrS::editor(const bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-void GboGPrS::updateMandatory() {
-   const bool required = valueInt(FN_WHO)
-           == GOAL_OTHER;
+void GboGPrS::updateMandatory()
+{
+   const bool required = valueInt(FN_WHO) == GOAL_OTHER;
     fieldRef(FN_WHO_OTHER)->setMandatory(required);
     if (!required) {
         fieldRef(FN_WHO_OTHER)->setValue("");

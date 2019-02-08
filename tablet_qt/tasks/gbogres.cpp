@@ -19,6 +19,7 @@
 
 #include "gbogres.h"
 #include "maths/mathfunc.h"
+#include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -71,15 +72,20 @@ GboGReS::GboGReS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GBOGRES_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField("date", QVariant::Date);
-    addField("goal_1_desc", QVariant::String);
-    addField("goal_2_desc", QVariant::String);
-    addField("goal_3_desc", QVariant::String);
-    addField("goal_other", QVariant::String);
-    addField("completed_by", QVariant::Int);
-    addField("completed_by_other", QVariant::String);
+    addField(FN_DATE, QVariant::Date);
+    addField(FN_GOAL_1_DESC, QVariant::String);
+    addField(FN_GOAL_2_DESC, QVariant::String);
+    addField(FN_GOAL_3_DESC, QVariant::String);
+    addField(FN_GOAL_OTHER, QVariant::String);
+    addField(FN_COMPLETED_BY, QVariant::Int);
+    addField(FN_COMPLETED_BY_OTHER, QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+
+    // Extra initialization:
+    if (load_pk == dbconst::NONEXISTENT_PK) {
+        setValue(FN_DATE, datetime::nowDate(), false);
+    }
 }
 
 // ============================================================================
@@ -117,7 +123,7 @@ bool GboGReS::isComplete() const
                                                FN_COMPLETED_BY,
                                            }));
 
-    if (value("completed_by") == GOAL_OTHER
+    if (value(FN_COMPLETED_BY) == GOAL_OTHER
             && value(FN_COMPLETED_BY_OTHER).isNull()) {
         return false;
     }
@@ -146,9 +152,9 @@ QStringList GboGReS::detail() const
                                                        value(field).toString()));
         }
     }
-    if (!valueIsNullOrEmpty("goal_other")) {
+    if (!valueIsNullOrEmpty(FN_GOAL_OTHER)) {
         detail.push_back(QString("<b>Extra goals</b>: %1")
-                         .arg(value("goal_other").toString()));
+                         .arg(value(FN_GOAL_OTHER).toString()));
     }
 
     detail.push_back(QString("<b>Completed by</b>: %1").arg(completedBy()));
@@ -158,7 +164,7 @@ QStringList GboGReS::detail() const
 
 OpenableWidget* GboGReS::editor(const bool read_only)
 {
-    m_completed_by = NameValueOptions{
+    const NameValueOptions completed_by_options = NameValueOptions{
         { xstring("completed_by_o1"), GOAL_CHILD },
         { xstring("completed_by_o2"), GOAL_PARENT_CARER },
         { xstring("completed_by_o3"), GOAL_OTHER }
@@ -182,14 +188,14 @@ OpenableWidget* GboGReS::editor(const bool read_only)
                             new QuText(xstring("goal_other")),
                             new QuTextEdit(fieldRef(FN_GOAL_OTHER, false)),
                             (new QuText(xstring("completed_by")))->setBold(true),
-                            (new QuMcq(fieldRef(FN_COMPLETED_BY), m_completed_by))
+                            (new QuMcq(fieldRef(FN_COMPLETED_BY), completed_by_options))
                                             ->setHorizontal(true)
                                             ->setAsTextButton(true),
                             new QuTextEdit(fieldRef(FN_COMPLETED_BY_OTHER), false),
                             new QuSpacer(),
                             new QuHorizontalLine(),
                             new QuSpacer(),
-                            new QuText(xstring("copyright"))
+                            (new QuText(xstring("copyright")))->setItalic()
                         });
 
     bool required = valueInt(FN_COMPLETED_BY) == GOAL_OTHER;
@@ -209,7 +215,8 @@ OpenableWidget* GboGReS::editor(const bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-void GboGReS::updateMandatory() {
+void GboGReS::updateMandatory()
+{
    const bool required = valueInt(FN_COMPLETED_BY)
            == GOAL_OTHER;
     fieldRef(FN_COMPLETED_BY_OTHER)->setMandatory(required);
@@ -218,7 +225,8 @@ void GboGReS::updateMandatory() {
     }
 }
 
-QString GboGReS::goalNumber() const {
+QString GboGReS::goalNumber() const
+{
     int goal_n = 0;
 
     for (auto field : {FN_GOAL_1_DESC, FN_GOAL_2_DESC, FN_GOAL_3_DESC}) {
@@ -230,7 +238,8 @@ QString GboGReS::goalNumber() const {
     return QString::number(goal_n);
 }
 
-QString GboGReS::extraGoals() const {
+QString GboGReS::extraGoals() const
+{
     QString extra = "";
     if (!valueIsNullOrEmpty(FN_GOAL_OTHER)) {
         extra = "<i>(with additional goals set)</i>";
@@ -238,7 +247,8 @@ QString GboGReS::extraGoals() const {
     return extra;
 }
 
-QString GboGReS::completedBy() const {
+QString GboGReS::completedBy() const
+{
     QString completed_by;
 
     switch (value(FN_COMPLETED_BY).toInt()) {

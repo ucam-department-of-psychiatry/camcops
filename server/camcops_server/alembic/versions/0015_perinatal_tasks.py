@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0015.py
+camcops_server/alembic/versions/0015_perinatal_tasks.py
 
 ===============================================================================
 

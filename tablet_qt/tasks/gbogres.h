@@ -35,6 +35,5 @@ public:
 public:
     static const QString GBOGRES_TABLENAME;
 protected:
-    NameValueOptions m_completed_by;
     QPointer<Questionnaire> m_questionnaire;
 };

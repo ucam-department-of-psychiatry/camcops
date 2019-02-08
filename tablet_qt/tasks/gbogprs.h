@@ -32,7 +32,5 @@ public:
 public:
     static const QString GBOGPRS_TABLENAME;
 protected:
-    NameValueOptions m_whose_goal;
-    NameValueOptions m_goal_progress;
     QPointer<Questionnaire> m_questionnaire;
 };
