@@ -119,7 +119,7 @@ def upgrade():
         # in online ("talk to the database") mode:
         cfg = get_default_config_from_os_env()
         with cfg.get_dbsession_context() as dbsession:
-            reindex_everything(dbsession)
+            reindex_everything(dbsession, skip_tasks_with_missing_tables=True)
 
 
 # noinspection PyPep8,PyTypeChecker

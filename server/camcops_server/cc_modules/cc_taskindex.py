@@ -37,6 +37,8 @@ from typing import List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
+from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
+from cardinal_pythonlib.sqlalchemy.schema import table_exists
 from pendulum import DateTime as Pendulum
 import pyramid.httpexceptions as exc
 from sqlalchemy.orm import relationship, Session as SqlASession
@@ -646,14 +648,20 @@ class TaskIndexEntry(Base):
             cls.index_task(task, session, indexed_at_utc)
 
     @classmethod
-    def rebuild_entire_task_index(cls, session: SqlASession,
-                                  indexed_at_utc: Pendulum) -> None:
+    def rebuild_entire_task_index(
+            cls, session: SqlASession,
+            indexed_at_utc: Pendulum,
+            skip_tasks_with_missing_tables: bool = False) -> None:
         """
         Rebuilds the entire index.
 
         Args:
             session: an SQLAlchemy Session
             indexed_at_utc: current time in UTC
+            skip_tasks_with_missing_tables: should we skip over tasks if their
+                tables are not in the database? (This is so we can rebuild an
+                index from a database upgrade, but not crash because newer
+                tasks haven't had their tables created yet.)
         """
         log.info("Rebuilding entire task index")
         # noinspection PyUnresolvedReferences
@@ -664,6 +672,11 @@ class TaskIndexEntry(Base):
         )
         # Now rebuild:
         for taskclass in Task.all_subclasses_by_tablename():
+            if skip_tasks_with_missing_tables:
+                basetable = taskclass.tablename
+                engine = get_engine_from_session(session)
+                if not table_exists(engine, basetable):
+                    continue
             cls.rebuild_index_for_task_type(session, taskclass,
                                             indexed_at_utc,
                                             delete_first=False)
@@ -736,17 +749,24 @@ class TaskIndexEntry(Base):
 # Wide-ranging index update functions
 # =============================================================================
 
-def reindex_everything(session: SqlASession) -> None:
+def reindex_everything(session: SqlASession,
+                       skip_tasks_with_missing_tables: bool = False) -> None:
     """
     Deletes from and rebuilds all server index tables.
 
     Args:
         session: an SQLAlchemy Session
+        skip_tasks_with_missing_tables: should we skip over tasks if their
+            tables are not in the database? (This is so we can rebuild an index
+            from a database upgrade, but not crash because newer tasks haven't
+            had their tables created yet.)
     """
     now = Pendulum.utcnow()
     log.info("Reindexing database; indexed_at_utc = {}", now)
     PatientIdNumIndexEntry.rebuild_idnum_index(session, now)
-    TaskIndexEntry.rebuild_entire_task_index(session, now)
+    TaskIndexEntry.rebuild_entire_task_index(
+        session, now,
+        skip_tasks_with_missing_tables=skip_tasks_with_missing_tables)
 
 
 def update_indexes_and_push_exports(req: "CamcopsRequest",

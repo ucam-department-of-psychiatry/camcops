@@ -1,4 +1,4 @@
-IntListType#!/usr/bin/env python
+#!/usr/bin/env python
 
 """
 camcops_server/cc_modules/cc_exportrecipient.py

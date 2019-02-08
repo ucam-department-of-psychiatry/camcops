@@ -592,20 +592,20 @@ def camcops_main() -> None:
     )
 
     # Developer: upgrade database to a specific revision
-    dev_upgrade_to_parser = add_sub(
-        subparsers, "dev_upgrade_to", config_mandatory=True,
+    dev_upgrade_db_parser = add_sub(
+        subparsers, "dev_upgrade_db", config_mandatory=True,
         help="(DEVELOPER OPTION ONLY.) Upgrade a database to "
              "a specific revision."
     )
-    dev_upgrade_to_parser.add_argument(
+    dev_upgrade_db_parser.add_argument(
         "--destination_db_revision", type=str, required=True,
         help="The target database revision"
     )
-    dev_upgrade_to_parser.add_argument(
+    dev_upgrade_db_parser.add_argument(
         "--show_sql_only", action="store_true",
         help="Show SQL only (to stdout); don't execute it"
     )
-    dev_upgrade_to_parser.set_defaults(
+    dev_upgrade_db_parser.set_defaults(
         func=lambda args: _upgrade_database_to_revision(
             revision=args.destination_db_revision,
             show_sql_only=args.show_sql_only

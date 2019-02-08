@@ -436,7 +436,7 @@ class ExportRecipientInfo(object):
         r.group_names = _get_multiline(cpr.GROUPS)
         r.group_ids = []  # type: List[int]
         # ... read later by validate_db_dependent()
-        r.tasks = sorted([x.lower() for x in _get_multiline(cpr.TASKS)]
+        r.tasks = sorted([x.lower() for x in _get_multiline(cpr.TASKS)])
         sd = _get_str(cpr.START_DATETIME_UTC)
         r.start_datetime_utc = pendulum_to_utc_datetime_without_tz(
             coerce_to_pendulum(sd, assume_local=False)) if sd else None
