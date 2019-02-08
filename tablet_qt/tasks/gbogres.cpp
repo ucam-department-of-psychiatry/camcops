@@ -31,8 +31,6 @@
 #include "questionnairelib/quflowcontainer.h"
 #include "questionnairelib/quhorizontalcontainer.h"
 #include "questionnairelib/quhorizontalline.h"
-#include "questionnairelib/qulineedit.h"
-#include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/quslider.h"
@@ -152,13 +150,13 @@ OpenableWidget* GboGReS::editor(const bool read_only)
     };
 
     QuPagePtr page(new QuPage{
-                            (new QuText(xstring("stem")))->setBold(true),
                             (new QuHorizontalContainer{
                                 new QuHeading(xstring("date")),
                                (new QuDateTime(fieldRef("date"))
                                    )->setMode(QuDateTime::DefaultDate)
                                     ->setOfferNowButton(true),
                             }),
+                            (new QuText(xstring("stem")))->setBold(true),
                             new QuSpacer(),
                             new QuHeading(xstring("goal_1")),
                             new QuTextEdit(fieldRef("goal_1_desc")),

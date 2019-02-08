@@ -1,21 +1,21 @@
-/*//
-//    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+/*
+    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
 
-//    This file is part of CamCOPS.
+    This file is part of CamCOPS.
 
-//    CamCOPS is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-//    CamCOPS is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//    GNU General Public License for more details.
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-//    You should have received a copy of the GNU General Public License
-//    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
-//*/
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "gbogprs.h"
 #include "maths/mathfunc.h"
@@ -47,9 +47,18 @@
 using mathfunc::noneNullOrEmpty;
 using stringfunc::strseq;
 
-const QString GboGPrS::GBOGPRS_TABLENAME("gbo_goal_record");
+const QString GboGPrS::GBOGPRS_TABLENAME("gbogprs");
 
-void foobar() { qDebug() << "foobar!"; }
+const int GOAL_CHILD = 1;
+const int GOAL_PARENT_CARER = 2;
+const int GOAL_OTHER = 3;
+
+const QString FN_DATE("q_date");
+const QString FN_SESSION("q_session");
+const QString FN_GOAL("q_goal");
+const QString FN_PROGRESS("q_progress");
+const QString FN_WHO("q_who");
+const QString FN_WHO_OTHER("q_who_other");
 
 void initializeGboGPrS(TaskFactory& factory)
 {
@@ -60,6 +69,12 @@ GboGPrS::GboGPrS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GBOGPRS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
+    addField(FN_DATE, QVariant::Date);
+    addField(FN_SESSION, QVariant::Int);
+    addField(FN_GOAL, QVariant::String);
+    addField(FN_PROGRESS, QVariant::Int);
+    addField(FN_WHO, QVariant::Int);
+    addField(FN_WHO_OTHER, QVariant::String);
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
@@ -110,14 +125,48 @@ QStringList GboGPrS::detail() const
 
 OpenableWidget* GboGPrS::editor(const bool read_only)
 {
+    m_whose_goal = NameValueOptions{
+        { xstring("whose_goal_o1"), GOAL_CHILD},
+        { xstring("whose_goal_o2"), GOAL_PARENT_CARER },
+        { xstring("whose_goal_o3"), GOAL_OTHER }
+    };
+
+    m_goal_progress = NameValueOptions{
+        {"0", 0}, {"1", 1}, {"2", 2}, {"3", 3}, {"4", 4},
+        {"5", 5}, {"6", 6}, {"7", 7}, {"8", 8}, {"9", 9}, {"10", 10},
+    };
+
+    const int q_width = 34;
+    const QVector<int> o_widths(11, 6);
+
     QuPagePtr page(new QuPage{
         new QuVerticalContainer{
-            (new QuText("foo")),
-            (new QuText("bar")),
-            (new QuText("baz")),
+            (new QuHorizontalContainer{
+                new QuHeading(xstring("date")),
+                (new QuDateTime(fieldRef(FN_DATE)))
+                    ->setMode(QuDateTime::DefaultDate)
+                    ->setOfferNowButton(true),
+            }),
+           (new QuHorizontalContainer{
+               new QuHeading(xstring("goal")),
+               new QuTextEdit(fieldRef(FN_GOAL)),
+           }),
+            (new QuMcqGrid(
+                {
+                    QuestionWithOneField(xstring("progress"), fieldRef(FN_PROGRESS)),
+                }, m_goal_progress
+            ))->setWidth(q_width, o_widths)->setExpand(true),
+            (new QuText(xstring("explanation")))
+                            ->setItalic(),
+            (new QuMcq(fieldRef(FN_WHO), m_whose_goal))
+                ->setHorizontal(true)
+                ->setAsTextButton(true),
+            new QuTextEdit(fieldRef(FN_WHO_OTHER)),
         }
     });
 
+    connect(fieldRef(FN_WHO).data(), &FieldRef::valueChanged,
+            this, &GboGPrS::updateMandatory);
 
     page->setTitle(longname());
 
@@ -129,3 +178,12 @@ OpenableWidget* GboGPrS::editor(const bool read_only)
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
+
+void GboGPrS::updateMandatory() {
+   const bool required = valueInt(FN_WHO)
+           == GOAL_OTHER;
+    fieldRef(FN_WHO_OTHER)->setMandatory(required);
+    if (!required) {
+        fieldRef(FN_WHO_OTHER)->setValue("");
+    }
+}

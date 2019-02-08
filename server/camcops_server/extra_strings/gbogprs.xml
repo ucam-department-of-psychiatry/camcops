@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
   <task name="gbogprs">
-    <string name="intro_1">This is one of up to three goals to track</string>    
+    <string name="intro_1">This is one of up to three goals to track</string>
     <string name="session">Session</string>
     <string name="date">Date</string>
     <string name="goal">Goal</string>
-    <string name="progress">Today I would rate progress to this goal:</string>
+    <string name="progress">Today I would rate progress to this goal</string>
     <string name="explanation">Remember a score of zero means no progress has been made towards a goal, a score of ten means a goal has been reached, fully, and a score of five is exactly half way between the two</string>
     <string name="who">Whose goal is this:</string>
+    <string name="whose_goal_o1">Child/young person</string>
+    <string name="whose_goal_o2">Parent/Carer</string>
+    <string name="whose_goal_o3">Other (please specify)</string>
   </task>
 </resources>

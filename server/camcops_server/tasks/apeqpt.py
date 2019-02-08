@@ -77,7 +77,6 @@ class Apeqpt(TaskHasPatientMixin, Task):
     MAIN_QUESTIONS = [
         "q_datetime",
         "q1_choice",
- 
     ]
 
     def is_complete(self) -> bool:
