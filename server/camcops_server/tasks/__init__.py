@@ -28,6 +28,7 @@ camcops_server/tasks/__init__.py
 
 from camcops_server.tasks.ace3 import Ace3
 from camcops_server.tasks.aims import Aims
+from camcops_server.tasks.apeqpt import Apeqpt
 from camcops_server.tasks.audit import Audit, AuditC
 from camcops_server.tasks.badls import Badls
 from camcops_server.tasks.bdi import Bdi
@@ -73,6 +74,8 @@ from camcops_server.tasks.fft import Fft
 from camcops_server.tasks.frs import Frs
 from camcops_server.tasks.gad7 import Gad7
 from camcops_server.tasks.gaf import Gaf
+from camcops_server.tasks.gbogres import Gbogres
+from camcops_server.tasks.gbogprs import Gbogprs
 from camcops_server.tasks.gds import Gds15
 from camcops_server.tasks.gmcpq import GMCPQ
 from camcops_server.tasks.hads import Hads
@@ -98,6 +101,7 @@ from camcops_server.tasks.mds_updrs import MdsUpdrs
 from camcops_server.tasks.moca import Moca
 from camcops_server.tasks.nart import Nart
 from camcops_server.tasks.npiq import NpiQ
+from camcops_server.tasks.ors import Ors
 from camcops_server.tasks.panss import Panss
 from camcops_server.tasks.pcl5 import Pcl5
 from camcops_server.tasks.pcl import PclC, PclM, PclS
@@ -119,6 +123,7 @@ from camcops_server.tasks.service_satisfaction import (
 )
 from camcops_server.tasks.slums import Slums
 from camcops_server.tasks.smast import Smast
+from camcops_server.tasks.srs import Srs
 from camcops_server.tasks.wemwbs import Swemwbs, Wemwbs
 from camcops_server.tasks.wsas import Wsas
 from camcops_server.tasks.ybocs import Ybocs, YbocsSc

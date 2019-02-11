@@ -1,4 +1,4 @@
-..  docs/source/client/creating_tasks.rst
+ ..  docs/source/client/creating_tasks.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .

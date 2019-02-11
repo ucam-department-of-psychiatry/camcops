@@ -22,11 +22,15 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "tasks/apeqpt.h"
 #include "tasks/core10.h"
 #include "tasks/gad7.h"
+#include "tasks/gbogres.h"
+#include "tasks/gbogprs.h"
 #include "tasks/honos.h"
 #include "tasks/perinatalpoem.h"
-
+#include "tasks/ors.h"
+#include "tasks/srs.h"
 
 SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
     MenuWindow(app,
@@ -37,13 +41,14 @@ SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
                  "perinatal psychiatry service";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
-        // APEQPT... ***
+        MAKE_TASK_MENU_ITEM(Apeqpt::APEQPT_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
-        // GBO... ***
+        MAKE_TASK_MENU_ITEM(GboGReS::GBOGRES_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(GboGPrS::GBOGPRS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
-        // ORS... ***
         MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, app),
-        // SRS... ***
+        MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, app),
     };
 }

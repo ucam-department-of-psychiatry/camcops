@@ -1635,7 +1635,7 @@ class CamcopsConfig(object):
     def get_master_export_recipient_lockfilename(self) -> str:
         """
         When we are modifying export recipients, we check "is this information
-        the same as the current version in the databse", and if not, we write
+        the same as the current version in the database", and if not, we write
         fresh information to the database. If lots of processes do that at the
         same time, we have a problem (usually a database deadlock) -- hence
         this lock.

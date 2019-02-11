@@ -638,6 +638,7 @@ SOURCES += \
     tasklib/tasksorter.cpp \
     tasks/ace3.cpp \
     tasks/aims.cpp \
+    tasks/apeqpt.cpp \
     tasks/audit.cpp \
     tasks/auditc.cpp \
     tasks/badls.cpp \
@@ -681,6 +682,8 @@ SOURCES += \
     tasks/frs.cpp \
     tasks/gad7.cpp \
     tasks/gaf.cpp \
+    tasks/gbogprs.cpp \
+    tasks/gbogres.cpp \
     tasks/gds15.cpp \
     tasks/gmcpq.cpp \
     tasks/hads.cpp \
@@ -707,6 +710,7 @@ SOURCES += \
     tasks/moca.cpp \
     tasks/nart.cpp \
     tasks/npiq.cpp \
+    tasks/ors.cpp \
     tasks/panss.cpp \
     tasks/patientsatisfaction.cpp \
     tasks/pcl5.cpp \
@@ -728,6 +732,7 @@ SOURCES += \
     tasks/referrersatisfactionspec.cpp \
     tasks/slums.cpp \
     tasks/smast.cpp \
+    tasks/srs.cpp \
     tasks/swemwbs.cpp \
     tasks/wemwbs.cpp \
     tasks/wsas.cpp \
@@ -1038,6 +1043,7 @@ HEADERS += \
     tasklib/tasksorter.h \
     tasks/ace3.h \
     tasks/aims.h \
+    tasks/apeqpt.h \
     tasks/audit.h \
     tasks/auditc.h \
     tasks/badls.h \
@@ -1081,6 +1087,8 @@ HEADERS += \
     tasks/frs.h \
     tasks/gad7.h \
     tasks/gaf.h \
+    tasks/gbogprs.h \
+    tasks/gbogres.h \
     tasks/gds15.h \
     tasks/gmcpq.h \
     tasks/hads.h \
@@ -1107,6 +1115,7 @@ HEADERS += \
     tasks/moca.h \
     tasks/nart.h \
     tasks/npiq.h \
+    tasks/ors.h \
     tasks/panss.h \
     tasks/patientsatisfaction.h \
     tasks/pcl5.h \
@@ -1128,6 +1137,7 @@ HEADERS += \
     tasks/referrersatisfactionspec.h \
     tasks/slums.h \
     tasks/smast.h \
+    tasks/srs.h \
     tasks/swemwbs.h \
     tasks/wemwbs.h \
     tasks/wsas.h \

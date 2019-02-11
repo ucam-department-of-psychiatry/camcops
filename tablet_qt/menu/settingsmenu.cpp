@@ -206,17 +206,22 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
             std::bind(&SettingsMenu::debugSystemDbAsSql, this),
             spanner
         ).setNeedsPrivilege(),
-        MenuItem(
-            tr("(†) Dump decrypted data database to SQL file (not on iOS)"),
-            std::bind(&SettingsMenu::saveDataDbAsSql, this),
-            spanner
-        ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
-        MenuItem(
-            tr("(†) Dump decrypted system database to SQL file (not on iOS)"),
-            std::bind(&SettingsMenu::saveSystemDbAsSql, this),
-            spanner
-        ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
     };
+    if (!platform::PLATFORM_IOS) {
+        // These options are not supported under iOS.
+        m_items.append({
+            MenuItem(
+                tr("(†) Dump decrypted data database to SQL file"),
+                std::bind(&SettingsMenu::saveDataDbAsSql, this),
+                spanner
+            ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
+            MenuItem(
+                tr("(†) Dump decrypted system database to SQL file"),
+                std::bind(&SettingsMenu::saveSystemDbAsSql, this),
+                spanner
+            ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
+        });
+    }
     connect(&m_app, &CamcopsApp::fontSizeChanged,
             this, &SettingsMenu::reloadStyleSheet);
 }

@@ -42,6 +42,9 @@ server/camcops_server
     alembic/versions/0012_idnum_def_validation_method.py.rst
     alembic/versions/0013_task_index.py.rst
     alembic/versions/0014_new_export_mechanism.py.rst
+    alembic/versions/0015_perinatal_tasks.py.rst
+    alembic/versions/0016_gbo_goal_progress_sheet.py.rst
+    alembic/versions/0017_perinatal_poem.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -161,6 +164,10 @@ server/camcops_server
     extra_strings/fft.xml.rst
     extra_strings/frs.xml.rst
     extra_strings/gad7.xml.rst
+    extra_strings/gbo.xml.rst
+    extra_strings/gbogprs.xml.rst
+    extra_strings/gbogres.xml.rst
+    extra_strings/gbogrs.xml.rst
     extra_strings/gds15.xml.rst
     extra_strings/gmcpq.xml.rst
     extra_strings/hama.xml.rst
@@ -197,6 +204,7 @@ server/camcops_server
     extra_strings/wemwbs.xml.rst
     tasks/ace3.py.rst
     tasks/aims.py.rst
+    tasks/apeqpt.py.rst
     tasks/audit.py.rst
     tasks/badls.py.rst
     tasks/bdi.py.rst
@@ -234,6 +242,8 @@ server/camcops_server
     tasks/frs.py.rst
     tasks/gad7.py.rst
     tasks/gaf.py.rst
+    tasks/gbogprs.py.rst
+    tasks/gbogres.py.rst
     tasks/gds.py.rst
     tasks/gmcpq.py.rst
     tasks/hads.py.rst
@@ -257,10 +267,12 @@ server/camcops_server
     tasks/moca.py.rst
     tasks/nart.py.rst
     tasks/npiq.py.rst
+    tasks/ors.py.rst
     tasks/panss.py.rst
     tasks/pcl.py.rst
     tasks/pcl5.py.rst
     tasks/pdss.py.rst
+    tasks/perinatalpoem.py.rst
     tasks/photo.py.rst
     tasks/phq15.py.rst
     tasks/phq9.py.rst
@@ -273,6 +285,7 @@ server/camcops_server
     tasks/service_satisfaction.py.rst
     tasks/slums.py.rst
     tasks/smast.py.rst
+    tasks/srs.py.rst
     tasks/wemwbs.py.rst
     tasks/wsas.py.rst
     tasks/ybocs.py.rst

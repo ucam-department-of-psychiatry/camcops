@@ -21,6 +21,7 @@
 
 #include "tasks/ace3.h"
 #include "tasks/aims.h"
+#include "tasks/apeqpt.h"
 #include "tasks/audit.h"
 #include "tasks/auditc.h"
 
@@ -70,6 +71,8 @@
 
 #include "tasks/gad7.h"
 #include "tasks/gaf.h"
+#include "tasks/gbogres.h"
+#include "tasks/gbogprs.h"
 #include "tasks/gds15.h"
 #include "tasks/gmcpq.h"
 
@@ -102,6 +105,8 @@
 #include "tasks/nart.h"
 #include "tasks/npiq.h"
 
+#include "tasks/ors.h"
+
 #include "tasks/panss.h"
 #include "tasks/patientsatisfaction.h"
 #include "tasks/pcl5.h"
@@ -127,6 +132,7 @@
 
 #include "tasks/slums.h"
 #include "tasks/smast.h"
+#include "tasks/srs.h"
 #include "tasks/swemwbs.h"
 
 #include "tasks/wemwbs.h"
@@ -144,6 +150,7 @@ void InitTasks(TaskFactory& factory)
 
     initializeAce3(factory);
     initializeAims(factory);
+    initializeApeqpt(factory);
     initializeAudit(factory);
     initializeAuditC(factory);
 
@@ -193,6 +200,9 @@ void InitTasks(TaskFactory& factory)
 
     initializeGad7(factory);
     initializeGaf(factory);
+    initializeGboGReS(factory);
+    initializeGboGPrS(factory);
+
     initializeGds15(factory);
     initializeGmcPq(factory);
 
@@ -225,6 +235,8 @@ void InitTasks(TaskFactory& factory)
     initializeNart(factory);
     initializeNpiQ(factory);
 
+    initializeOrs(factory);
+
     initializePanss(factory);
     initializePatientSatisfaction(factory);
     initializePcl5(factory);
@@ -250,6 +262,7 @@ void InitTasks(TaskFactory& factory)
 
     initializeSlums(factory);
     initializeSmast(factory);
+    initializeSrs(factory);
     initializeSwemwbs(factory);
 
     initializeWemwbs(factory);

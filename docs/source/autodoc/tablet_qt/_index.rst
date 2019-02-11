@@ -473,6 +473,8 @@ tablet_qt
     questionnairelib/qupickerinline.h.rst
     questionnairelib/qupickerpopup.cpp.rst
     questionnairelib/qupickerpopup.h.rst
+    questionnairelib/qusequencecontainerbase.cpp.rst
+    questionnairelib/qusequencecontainerbase.h.rst
     questionnairelib/quslider.cpp.rst
     questionnairelib/quslider.h.rst
     questionnairelib/quspacer.cpp.rst
@@ -527,6 +529,8 @@ tablet_qt
     tasks/ace3.h.rst
     tasks/aims.cpp.rst
     tasks/aims.h.rst
+    tasks/apeqpt.cpp.rst
+    tasks/apeqpt.h.rst
     tasks/audit.cpp.rst
     tasks/audit.h.rst
     tasks/auditc.cpp.rst
@@ -613,6 +617,10 @@ tablet_qt
     tasks/gad7.h.rst
     tasks/gaf.cpp.rst
     tasks/gaf.h.rst
+    tasks/gbogprs.cpp.rst
+    tasks/gbogprs.h.rst
+    tasks/gbogres.cpp.rst
+    tasks/gbogres.h.rst
     tasks/gds15.cpp.rst
     tasks/gds15.h.rst
     tasks/gmcpq.cpp.rst
@@ -665,6 +673,8 @@ tablet_qt
     tasks/nart.h.rst
     tasks/npiq.cpp.rst
     tasks/npiq.h.rst
+    tasks/ors.cpp.rst
+    tasks/ors.h.rst
     tasks/panss.cpp.rst
     tasks/panss.h.rst
     tasks/patientsatisfaction.cpp.rst
@@ -679,6 +689,8 @@ tablet_qt
     tasks/pcls.h.rst
     tasks/pdss.cpp.rst
     tasks/pdss.h.rst
+    tasks/perinatalpoem.cpp.rst
+    tasks/perinatalpoem.h.rst
     tasks/photo.cpp.rst
     tasks/photo.h.rst
     tasks/photosequence.cpp.rst
@@ -707,6 +719,8 @@ tablet_qt
     tasks/slums.h.rst
     tasks/smast.cpp.rst
     tasks/smast.h.rst
+    tasks/srs.cpp.rst
+    tasks/srs.h.rst
     tasks/swemwbs.cpp.rst
     tasks/swemwbs.h.rst
     tasks/wemwbs.cpp.rst
