@@ -20,6 +20,7 @@
 #include "srs.h"
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
+#include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -45,7 +46,7 @@
 #include "tasklib/taskfactory.h"
 
 using mathfunc::anyNullOrEmpty;
-using mathfunc::sumInt;
+using mathfunc::sumDouble;
 using mathfunc::totalScorePhrase;
 
 const QString Srs::SRS_TABLENAME("srs");
@@ -53,11 +54,13 @@ const QString Srs::SRS_TABLENAME("srs");
 const int SESSION_MIN = 1;
 const int SESSION_MAX = 1000;
 
+const double VAS_MIN_FLOAT = 0;
+const double VAS_MAX_FLOAT = 10;
+const double VAS_ABSOLUTE_CM = 10;
 const int VAS_MIN_INT = 0;
-const int VAS_MAX_INT = 10;
-const int VAS_ABSOLUTE_CM = 10;
+const int VAS_MAX_INT = 1000;
 
-const int VAS_MAX_TOTAL = VAS_MAX_INT * 4;
+const double VAS_MAX_TOTAL = VAS_MAX_FLOAT * 4;
 
 const QString FN_SESSION("q_session");
 const QString FN_DATE("q_date");
@@ -66,10 +69,12 @@ const QString FN_GOALS("q_goals");
 const QString FN_APPROACH("q_approach");
 const QString FN_OVERALL("q_overall");
 
+
 void initializeSrs(TaskFactory& factory)
 {
     static TaskRegistrar<Srs> registered(factory);
 }
+
 
 Srs::Srs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, SRS_TABLENAME, false, false, false),  // ... anon, clin, resp
@@ -77,12 +82,17 @@ Srs::Srs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 {
     addField(FN_SESSION, QVariant::Int);
     addField(FN_DATE, QVariant::Date);
-    addField(FN_RELATIONSHIP, QVariant::Int);
-    addField(FN_GOALS, QVariant::Int);
-    addField(FN_APPROACH, QVariant::Int);
-    addField(FN_OVERALL, QVariant::Int);
+    addField(FN_RELATIONSHIP, QVariant::Double);
+    addField(FN_GOALS, QVariant::Double);
+    addField(FN_APPROACH, QVariant::Double);
+    addField(FN_OVERALL, QVariant::Double);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+
+    // Extra initialization:
+    if (load_pk == dbconst::NONEXISTENT_PK) {
+        setValue(FN_DATE, datetime::nowDate(), false);
+    }
 }
 
 
@@ -104,7 +114,8 @@ QString Srs::longname() const
 
 QString Srs::menusubtitle() const
 {
-    return tr("Fixed-length visual analogue scales for providing session feedback");
+    return tr("Fixed-length visual analogue scales for providing "
+              "psychotherapy session feedback");
 }
 
 
@@ -129,15 +140,17 @@ bool Srs::isComplete() const
 
 QStringList Srs::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), VAS_MAX_TOTAL)};
+    return QStringList{totalScorePhrase(totalScore(),
+                                        static_cast<int>(VAS_MAX_TOTAL))};
 }
+
 
 QStringList Srs::detail() const
 {
     QStringList lines;
 
-    lines.append(xstring("session") + value(FN_SESSION).toString());
-    lines.append(xstring("date") + value(FN_DATE).toString());
+    lines.append(xstring("session_number_q") + value(FN_SESSION).toString());
+    lines.append(xstring("date_q") + value(FN_DATE).toString());
     lines.append("<b>Scores</b>");
     const QString vas_sep = ": ";
     lines.append(xstring("q1_title") + vas_sep + value(FN_RELATIONSHIP).toString());
@@ -150,36 +163,89 @@ QStringList Srs::detail() const
 
 OpenableWidget* Srs::editor(const bool read_only)
 {
-    auto vas_relationship = (new QuSlider(fieldRef(FN_RELATIONSHIP), VAS_MIN_INT, VAS_MAX_INT, 1))
-                                    ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                                    ->setSymmetric(true);
-    auto vas_goals = (new QuSlider(fieldRef(FN_GOALS), VAS_MIN_INT, VAS_MAX_INT, 1))
-                                    ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                                    ->setSymmetric(true);
-    auto vas_approach = (new QuSlider(fieldRef(FN_APPROACH), VAS_MIN_INT, VAS_MAX_INT, 1))
-                                    ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                                    ->setSymmetric(true);
-    auto vas_overall = (new QuSlider(fieldRef(FN_OVERALL), VAS_MIN_INT, VAS_MAX_INT, 1))
-                                    ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                                    ->setSymmetric(true);
+    const Qt::Alignment valign = Qt::AlignVCenter;  // normal
+    // const Qt::Alignment valign = Qt::AlignTop;  // for debugging
+    const Qt::Alignment centre = Qt::AlignHCenter | valign;
+    const Qt::Alignment left = Qt::AlignLeft | valign;
+    const Qt::Alignment right = Qt::AlignRight | valign;
 
-    const Qt::Alignment centre = Qt::AlignHCenter | Qt::AlignVCenter;
+    auto grid = new QuGridContainer();
+    int row = 0;
+
+    auto makeVAS = [this, &centre](const QString& fieldname) -> QuSlider* {
+        auto slider = new QuSlider(fieldRef(fieldname),
+                                   VAS_MIN_INT, VAS_MAX_INT, 1);
+        slider->setConvertForRealField(true, VAS_MIN_FLOAT, VAS_MAX_FLOAT);
+        slider->setAbsoluteLengthCm(VAS_ABSOLUTE_CM);
+        slider->setSymmetric(true);
+        slider->setNullApparentValueCentre();
+        slider->setTickInterval(VAS_MAX_INT - VAS_MIN_INT);
+        slider->setTickPosition(QSlider::TickPosition::TicksAbove);
+        slider->setWidgetAlignment(centre);
+        return slider;
+    };
+    auto addHeading = [this, &grid, &row, &centre](
+            const QString& xstringname) -> void {
+        grid->addCell(QuGridCell(
+            (new QuText(xstring(xstringname)))->setTextAndWidgetAlignment(centre),
+            row++, 0, 1, 3, centre, false));
+    };
+    auto addVas = [this, &grid, &row, &centre, &left, &right](
+            const QString& leftstring,
+            QuSlider* vas,
+            const QString& rightstring) -> void {
+        grid->addCell(QuGridCell(
+            (new QuText(xstring(leftstring)))->setTextAndWidgetAlignment(right),
+            row, 0, 1, 1, centre, false));
+        grid->addCell(QuGridCell(vas, row, 1));
+        grid->addCell(QuGridCell(
+            (new QuText(xstring(rightstring)))->setTextAndWidgetAlignment(left),
+            row, 2, 1, 1, centre, false));
+        ++row;
+    };
+    auto addSpacer = [&grid, &row]() -> void {
+        grid->addCell(QuGridCell(new QuSpacer(), row++, 1));
+    };
+
+    auto vas_relationship = makeVAS(FN_RELATIONSHIP);
+    auto vas_goals = makeVAS(FN_GOALS);
+    auto vas_approach = makeVAS(FN_APPROACH);
+    auto vas_overall = makeVAS(FN_OVERALL);
+
+    grid->setColumnStretch(0, 1);
+    grid->setColumnStretch(1, 0);  // don't expand beyond what's necessary
+    grid->setColumnStretch(2, 1);
+
+    addHeading("q1_title");
+    addVas("q1_left", vas_relationship, "q1_right");
+    addSpacer();
+    addHeading("q2_title");
+    addVas("q2_left", vas_goals, "q2_right");
+    addSpacer();
+    addHeading("q3_title");
+    addVas("q3_left", vas_approach, "q3_right");
+    addSpacer();
+    addHeading("q4_title");
+    addVas("q4_left", vas_overall, "q4_right");
+
+    // qDebug() << "grid:" << *grid;
 
     QuPagePtr page(new QuPage{
-        new QuHorizontalLine(),
         (new QuGridContainer{
-                QuGridCell(new QuText(xstring("session")), 0, 0),
-                QuGridCell(new QuLineEditInteger(fieldRef(FN_SESSION), SESSION_MIN, SESSION_MAX), 0, 1)
+                QuGridCell(new QuText(xstring("session_number_q")), 0, 0),
+                QuGridCell(new QuLineEditInteger(fieldRef(FN_SESSION),
+                           SESSION_MIN, SESSION_MAX), 0, 1)
         })->setExpandHorizontally(false),
         (new QuGridContainer{
-            QuGridCell(new QuText(xstring("date")), 0, 0),
-            QuGridCell((new QuDateTime(fieldRef(FN_DATE)))->setMode(QuDateTime::DefaultDate)
-                                              ->setOfferNowButton(true), 0, 1)
+            QuGridCell(new QuText(xstring("date_q")), 0, 0),
+            QuGridCell((new QuDateTime(fieldRef(FN_DATE)))
+                           ->setMode(QuDateTime::DefaultDate)
+                           ->setOfferNowButton(true), 0, 1)
         })->setExpandHorizontally(false),
         new QuHorizontalLine(),
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Padding
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         new QuSpacer(),
         (new QuText(xstring("instructions_to_subject")))
                        ->setItalic()
@@ -187,49 +253,24 @@ OpenableWidget* Srs::editor(const bool read_only)
         new QuSpacer(),
         new QuHorizontalLine(),
         new QuSpacer(),
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Visual-analogue sliders
-        // ------------------------------------------------------------------------
-        (new QuVerticalContainer{
-            (new QuText(xstring("q1_title")))->setTextAndWidgetAlignment(centre),
-            new QuGridContainer{
-                QuGridCell((new QuText(xstring("q1_right")))->setTextAndWidgetAlignment(centre), 0, 0, 3, 1),
-                QuGridCell(vas_relationship, 1, 1, 1, 1),
-                QuGridCell((new QuText(xstring("q1_right")))->setTextAndWidgetAlignment(centre), 0, 2, 3, 1),
-            },
-            (new QuText(xstring("q2_title")))->setTextAndWidgetAlignment(centre),
-            new QuGridContainer{
-                QuGridCell((new QuText(xstring("q2_right")))->setTextAndWidgetAlignment(centre), 0, 0, 3, 1),
-                QuGridCell(vas_goals, 1, 1, 1, 1),
-                QuGridCell((new QuText(xstring("q2_right")))->setTextAndWidgetAlignment(centre), 0, 2, 3, 1),
-            },
-            (new QuText(xstring("q3_title")))->setTextAndWidgetAlignment(centre),
-            new QuGridContainer{
-                    QuGridCell((new QuText(xstring("q3_right")))->setTextAndWidgetAlignment(centre), 0, 0, 3, 1),
-                    QuGridCell(vas_approach, 1, 1, 1, 1),
-                    QuGridCell((new QuText(xstring("q3_right")))->setTextAndWidgetAlignment(centre),  0, 2, 3, 1),
-            },
-            (new QuText(xstring("q4_title")))->setTextAndWidgetAlignment(centre),
-            new QuGridContainer{
-                QuGridCell((new QuText(xstring("q4_left")))->setTextAndWidgetAlignment(centre), 0, 0, 3, 1),
-                QuGridCell(vas_overall, 1, 1, 1, 1),
-                QuGridCell((new QuText(xstring("q4_right")))->setTextAndWidgetAlignment(centre), 0, 2, 3, 1),
-            }
-         })->setWidgetAlignment(centre),
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
+        grid,
+        // --------------------------------------------------------------------
         // Padding
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         new QuSpacer(),
         new QuSpacer(),
         new QuHorizontalLine(),
         new QuSpacer(),
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Footer
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         (new QuVerticalContainer{
-            new QuText(xstring("copyright")),
-            new QuText(xstring("licensing"))
-        })->setWidgetAlignment(centre)
+            (new QuText(xstring("copyright")))->setTextAlignment(centre),
+            (new QuText(xstring("licensing")))->setTextAlignment(centre)
+        })->setContainedWidgetAlignments(centre)
 
     });
 
@@ -246,7 +287,7 @@ OpenableWidget* Srs::editor(const bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-int Srs::totalScore() const
+double Srs::totalScore() const
 {
     const QStringList vas_scales{
         FN_RELATIONSHIP,
@@ -255,5 +296,5 @@ int Srs::totalScore() const
         FN_OVERALL,
     };
 
-    return sumInt(values(vas_scales));
+    return sumDouble(values(vas_scales));
 }

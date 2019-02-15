@@ -90,7 +90,7 @@ QuSequenceContainerBase* QuSequenceContainerBase::setOverrideWidgetAlignment(boo
 
 
 
-QuSequenceContainerBase* QuSequenceContainerBase::setWidgetAlignments(
+QuSequenceContainerBase* QuSequenceContainerBase::setContainedWidgetAlignments(
         const Qt::Alignment alignment)
 {
     for (auto e : m_elements) {

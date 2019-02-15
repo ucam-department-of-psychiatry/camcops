@@ -52,7 +52,7 @@ public:
     QuGridContainer* addCell(const QuGridCell& cell);
 
     // Force the stretch factor of a column, which affects its width.
-    // See .cpp file for discussion.
+    // See top of .cpp file for discussion.
     QuGridContainer* setColumnStretch(int column, int stretch);
 
     // Set "fixed grid" mode. In "fixed grid" mode, columns have equal width,
@@ -74,4 +74,8 @@ protected:
     QMap<int, int> m_column_stretch;  // maps column_index to relative_width
     bool m_expand;  // expand horizontally?
     bool m_fixed_grid;  // columns of equal width (unless specified), as above?
+
+public:
+    // Debug description
+    friend QDebug operator<<(QDebug debug, const QuGridContainer& grid);
 };

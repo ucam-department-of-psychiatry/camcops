@@ -559,7 +559,7 @@ QSize TickSlider::sliderSizeWithHandle(bool minimum_size) const
             !(m_absolute_size_can_shrink && minimum_size);
 
     if (use_fixed_size) {
-        // Fixed size in the parallel direction.
+        // Fixed size in the parallel-to-groove direction.
         const int handle_parallel = horizontal ? handle.width() : handle.height();
         parallel_size = m_slider_target_length_px +
                         2 * m_groove_margin_px +

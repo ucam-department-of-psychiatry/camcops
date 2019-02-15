@@ -18,6 +18,7 @@
 */
 
 #include "quslider.h"
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QTimer>
@@ -60,6 +61,13 @@ QuSlider::QuSlider(FieldRefPtr fieldref,
     m_slider(nullptr),
     m_field_write_pending(false)
 {
+    if (m_minimum > m_maximum) {
+        qCritical() << Q_FUNC_INFO << "min > max; swapping";
+        std::swap(m_minimum, m_maximum);
+    }
+    if (m_minimum == m_maximum) {
+        uifunc::stopApp("QuSlider: minimum == maximum; bug!");
+    }
     Q_ASSERT(m_fieldref);
     m_big_step = 2 * step;
     timerfunc::makeSingleShotTimer(m_timer);
@@ -95,7 +103,28 @@ QuSlider* QuSlider::setTickPosition(const QSlider::TickPosition position)
 
 QuSlider* QuSlider::setNullApparentValue(const int null_apparent_value)
 {
-    m_null_apparent_value = null_apparent_value;
+    m_null_apparent_value = qBound(m_minimum, null_apparent_value, m_maximum);
+    return this;
+}
+
+
+QuSlider* QuSlider::setNullApparentValueMin()
+{
+    m_null_apparent_value = m_minimum;
+    return this;
+}
+
+
+QuSlider* QuSlider::setNullApparentValueMax()
+{
+    m_null_apparent_value = m_maximum;
+    return this;
+}
+
+
+QuSlider* QuSlider::setNullApparentValueCentre()
+{
+    m_null_apparent_value = (m_minimum + m_maximum) / 2;
     return this;
 }
 

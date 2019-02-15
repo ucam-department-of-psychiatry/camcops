@@ -260,7 +260,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
             (new QuText("Text 1 (right/top)"))->setTextAlignment(topright),
             (new QuText("Text 2 (centre/vcentre)"))->setTextAlignment(centre),
             (new QuText("Text 3 (left/bottom)"))->setTextAlignment(bottomleft),
-        })->setAddStretchRight(false)->setWidgetAlignments(Qt::Alignment()),
+        })->setAddStretchRight(false)->setContainedWidgetAlignments(Qt::Alignment()),
         new QuHeading("Horizontal container (no stretch on right, showing alignments):"),
         horiz1,
         new QuHeading("Vertical container:"),

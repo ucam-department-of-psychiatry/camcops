@@ -209,7 +209,7 @@ Security against data loss
 
 - Crashes in the CamCOPS application should not (and in our experience do not)
   affect data integrity, as the SQLite backend is designed to cope with this
-  [#sqliterobust].
+  [#sqliterobust]_.
 
 “Analytics” security
 --------------------

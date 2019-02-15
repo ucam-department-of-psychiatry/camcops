@@ -20,6 +20,7 @@
 #include "ors.h"
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
+#include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -44,7 +45,7 @@
 #include "tasklib/taskfactory.h"
 
 using mathfunc::anyNullOrEmpty;
-using mathfunc::sumInt;
+using mathfunc::sumDouble;
 using mathfunc::totalScorePhrase;
 
 const QString Ors::ORS_TABLENAME("ors");
@@ -55,11 +56,13 @@ const int SESSION_MAX = 1000;
 const int COMPLETED_BY_SELF = 0;
 const int COMPLETED_BY_OTHER = 1;
 
+const double VAS_MIN_FLOAT = 0;
+const double VAS_MAX_FLOAT = 10;
+const double VAS_ABSOLUTE_CM = 10;
 const int VAS_MIN_INT = 0;
-const int VAS_MAX_INT = 10;
-const int VAS_ABSOLUTE_CM = 10;
+const int VAS_MAX_INT = 1000;
 
-const int VAS_MAX_TOTAL = VAS_MAX_INT * 4;
+const double VAS_MAX_TOTAL = VAS_MAX_FLOAT * 4;
 
 const QString FN_SESSION("q_session");
 const QString FN_DATE("q_date");
@@ -83,12 +86,17 @@ Ors::Ors(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addField(FN_DATE, QVariant::Date);
     addField(FN_WHO, QVariant::Int);
     addField(FN_WHO_OTHER, QVariant::String);
-    addField(FN_INDIVIDUAL, QVariant::Int);
-    addField(FN_INTERPERSONAL, QVariant::Int);
-    addField(FN_SOCIAL, QVariant::Int);
-    addField(FN_OVERALL, QVariant::Int);
+    addField(FN_INDIVIDUAL, QVariant::Double);
+    addField(FN_INTERPERSONAL, QVariant::Double);
+    addField(FN_SOCIAL, QVariant::Double);
+    addField(FN_OVERALL, QVariant::Double);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+
+    // Extra initialization:
+    if (load_pk == dbconst::NONEXISTENT_PK) {
+        setValue(FN_DATE, datetime::nowDate(), false);
+    }
 }
 
 
@@ -145,7 +153,8 @@ bool Ors::isComplete() const
 
 QStringList Ors::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), VAS_MAX_TOTAL)};
+    return QStringList{totalScorePhrase(totalScore(),
+                                        static_cast<int>(VAS_MAX_TOTAL))};
 }
 
 
@@ -153,8 +162,8 @@ QStringList Ors::detail() const
 {
     QStringList lines;
 
-    lines.append(xstring("session") + value(FN_SESSION).toString());
-    lines.append(xstring("date") + value(FN_DATE).toString());
+    lines.append(xstring("session_number_q") + value(FN_SESSION).toString());
+    lines.append(xstring("date_q") + value(FN_DATE).toString());
     lines.append("<b>Scores</b>");
     const QString vas_sep = ": ";
     lines.append(xstring("q1_title") + vas_sep + value(FN_INDIVIDUAL).toString());
@@ -178,71 +187,82 @@ OpenableWidget* Ors::editor(const bool read_only)
     auto who_q = new QuMcq(fieldRef(FN_WHO), m_completed_by);
     who_q->setHorizontal(true)->setAsTextButton(true);
 
+    auto makeTitle = [this, &centre](const QString& xstringname) -> QuText* {
+        return (new QuText(xstring(xstringname)))
+                ->setTextAndWidgetAlignment(centre);
+    };
+    auto makeVAS = [this](const QString& fieldname) -> QuSlider* {
+        auto slider = new QuSlider(fieldRef(fieldname),
+                                   VAS_MIN_INT, VAS_MAX_INT, 1);
+        slider->setConvertForRealField(true, VAS_MIN_FLOAT, VAS_MAX_FLOAT);
+        slider->setAbsoluteLengthCm(VAS_ABSOLUTE_CM);
+        slider->setSymmetric(true);
+        slider->setNullApparentValueCentre();
+        slider->setTickInterval(VAS_MAX_INT - VAS_MIN_INT);
+        slider->setTickPosition(QSlider::TickPosition::TicksAbove);
+        return slider;
+    };
+
     QuPagePtr page(new QuPage{
-        new QuHorizontalLine(),
         (new QuGridContainer{
-                QuGridCell(new QuText(xstring("session")), 0, 0),
+                QuGridCell(new QuText(xstring("session_number_q")), 0, 0),
                 QuGridCell(new QuLineEditInteger(fieldRef(FN_SESSION), SESSION_MIN, SESSION_MAX), 0, 1)
         })->setExpandHorizontally(false),
         (new QuGridContainer{
-            QuGridCell(new QuText(xstring("date")), 0, 0),
-            QuGridCell((new QuDateTime(fieldRef(FN_DATE)))->setMode(QuDateTime::DefaultDate)
-                                              ->setOfferNowButton(true), 0, 1)
+            QuGridCell(new QuText(xstring("date_q")), 0, 0),
+            QuGridCell((new QuDateTime(fieldRef(FN_DATE)))
+                           ->setMode(QuDateTime::DefaultDate)
+                           ->setOfferNowButton(true), 0, 1)
         })->setExpandHorizontally(false),
         (new QuGridContainer{
             QuGridCell(new QuText(xstring("who_q")), 0, 0),
             QuGridCell(who_q, 0, 1)
-         })->setExpandHorizontally(false),
+        })->setExpandHorizontally(false),
         new QuText(xstring("who_other_q")),
         new QuTextEdit(fieldRef(FN_WHO_OTHER), false),
         new QuHorizontalLine(),
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Padding
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         new QuSpacer(),
         new QuSpacer(),
         new QuSpacer(),
         new QuText(xstring("instructions_to_subject")),
         new QuSpacer(),
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Visual-analogue sliders
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         (new QuVerticalContainer{
-            (new QuText(xstring("q1_title")))->setTextAndWidgetAlignment(centre),
-            (new QuText(xstring("q1_subtitle")))->setTextAndWidgetAlignment(centre),
-            (new QuSlider(fieldRef(FN_INDIVIDUAL), VAS_MIN_INT, VAS_MAX_INT, 1))
-                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                            ->setSymmetric(true),
-            (new QuText(xstring("q2_title")))->setTextAndWidgetAlignment(centre),
-            (new QuText(xstring("q2_subtitle")))->setTextAndWidgetAlignment(centre),
-            (new QuSlider(fieldRef(FN_INTERPERSONAL), VAS_MIN_INT, VAS_MAX_INT, 1))
-                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                            ->setSymmetric(true),
-            (new QuText(xstring("q3_title")))->setTextAndWidgetAlignment(centre),
-            (new QuText(xstring("q3_subtitle")))->setTextAndWidgetAlignment(centre),
-            (new QuSlider(fieldRef(FN_SOCIAL), VAS_MIN_INT, VAS_MAX_INT, 1))
-                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                            ->setSymmetric(true),
-            (new QuText(xstring("q4_title")))->setTextAndWidgetAlignment(centre),
-            (new QuText(xstring("q4_subtitle")))->setTextAndWidgetAlignment(centre),
-            (new QuSlider(fieldRef(FN_OVERALL), VAS_MIN_INT, VAS_MAX_INT, 1))
-                            ->setAbsoluteLengthCm(VAS_ABSOLUTE_CM)
-                            ->setSymmetric(true),
-         })->setWidgetAlignment(centre),
-        // ------------------------------------------------------------------------
+            makeTitle("q1_title"),
+            makeTitle("q1_subtitle"),
+            makeVAS(FN_INDIVIDUAL),
+            new QuSpacer(),
+            makeTitle("q2_title"),
+            makeTitle("q2_subtitle"),
+            makeVAS(FN_INTERPERSONAL),
+            new QuSpacer(),
+            makeTitle("q3_title"),
+            makeTitle("q3_subtitle"),
+            makeVAS(FN_SOCIAL),
+            new QuSpacer(),
+            makeTitle("q4_title"),
+            makeTitle("q4_subtitle"),
+            makeVAS(FN_OVERALL),
+         })->setContainedWidgetAlignments(centre),
+        // --------------------------------------------------------------------
         // Padding
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         new QuSpacer(),
         new QuSpacer(),
         new QuHorizontalLine(),
         new QuSpacer(),
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Footer
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         (new QuVerticalContainer{
-            new QuText(xstring("copyright")),
-            new QuText(xstring("licensing"))
-        })->setWidgetAlignment(centre)
+            (new QuText(xstring("copyright")))->setTextAlignment(centre),
+            (new QuText(xstring("licensing")))->setTextAlignment(centre)
+        })->setContainedWidgetAlignments(centre)
 
     });
 
@@ -275,7 +295,7 @@ void Ors::updateMandatory() {
 }
 
 
-int Ors::totalScore() const
+double Ors::totalScore() const
 {
     const QStringList vas_scales{
         FN_INDIVIDUAL,
@@ -284,5 +304,5 @@ int Ors::totalScore() const
         FN_OVERALL,
     };
 
-    return sumInt(values(vas_scales));
+    return sumDouble(values(vas_scales));
 }

@@ -294,3 +294,14 @@ QVector<QuElementPtr> QuGridContainer::subelements() const
     }
     return elements;
 }
+
+
+QDebug operator<<(QDebug debug, const QuGridContainer& grid)
+{
+    debug.nospace()
+            << "QuGridContainer(m_cells=" << grid.m_cells
+            << ", m_column_stretch=" << grid.m_column_stretch
+            << ", m_expand=" << grid.m_expand
+            << ", m_fixed_grid=" << grid.m_fixed_grid;
+    return debug;
+}

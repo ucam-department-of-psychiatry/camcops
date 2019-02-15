@@ -22,6 +22,7 @@
 #include "apeqpt.h"
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
+#include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -59,6 +60,10 @@ const QString SAT_SUFFIX("_satisfaction");
 
 const int CHOICE_QUESTIONS_N = 3;
 
+const QString FN_Q1_SATISFACTION("q1_satisfaction");
+const QString FN_Q2_SATISFACTION("q2_satisfaction");
+
+
 void initializeApeqpt(TaskFactory& factory)
 {
     static TaskRegistrar<Apeqpt> registered(factory);
@@ -74,10 +79,15 @@ Apeqpt::Apeqpt(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
         addField(field, QVariant::Int);
     }
 
-    addField("q1_satisfaction", QVariant::Int);
-    addField("q2_satisfaction", QVariant::String);
+    addField(FN_Q1_SATISFACTION, QVariant::Int);
+    addField(FN_Q2_SATISFACTION, QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+
+    // Extra initialization:
+    if (load_pk == dbconst::NONEXISTENT_PK) {
+        setValue(FN_DATETIME, datetime::now(), false);
+    }
 }
 
 
@@ -109,11 +119,7 @@ QString Apeqpt::menusubtitle() const
 
 bool Apeqpt::isComplete() const
 {
-    QStringList required_always;
-
-    for (const QString& field : strseq("q", 1, 2, SAT_SUFFIX)) {
-        required_always.append(field);
-    }
+    QStringList required_always{FN_Q1_SATISFACTION};
 
     for (const QString& field : strseq("q", 1, CHOICE_QUESTIONS_N, CHOICE_SUFFIX)) {
         required_always.append(field);
@@ -138,7 +144,7 @@ QStringList Apeqpt::summary() const
     return QStringList{
         QString("Patient Satisfaction: %1").arg(
                 options_satisfaction.nameFromValue(
-                        value("q1_satisfaction").toInt())
+                        value(FN_Q1_SATISFACTION).toInt())
                     )
     };
 }
@@ -148,7 +154,7 @@ QStringList Apeqpt::detail() const
 {
     QStringList lines = completenessInfo();
 
-    const NameValueOptions ans {
+    const NameValueOptions ans{
         {xstring("a0_choice"), 0},
         {xstring("a1_choice"), 1},
         {xstring("a2_choice"), 2},
@@ -169,7 +175,7 @@ QStringList Apeqpt::detail() const
     lines.append(summary());
     lines.append("");
     lines.append("<b>Additional feedback</b>:");
-    lines.append(value("q2_satisfaction").toString());
+    lines.append(value(FN_Q2_SATISFACTION).toString());
     return lines;
 }
 
@@ -177,22 +183,22 @@ QStringList Apeqpt::detail() const
 OpenableWidget* Apeqpt::editor(const bool read_only)
 {
     const NameValueOptions options_choice {
-        {xstring("a0_choice"), 0},
-        {xstring("a1_choice"), 1},
+        {xstring("a1_choice"), 1},  // Yes
+        {xstring("a0_choice"), 0},  // No
     };
 
     const NameValueOptions options_choice_with_na {
-        {xstring("a0_choice"), 0},
-        {xstring("a1_choice"), 1},
-        {xstring("a2_choice"), 2},
+        {xstring("a1_choice"), 1},  // Yes
+        {xstring("a0_choice"), 0},  // No
+        {xstring("a2_choice"), 2},  // N/A
     };
 
     const NameValueOptions options_satisfaction {
-        {xstring("a0_satisfaction"), 0},
-        {xstring("a1_satisfaction"), 1},
-        {xstring("a2_satisfaction"), 2},
+        {xstring("a4_satisfaction"), 4},  // Completely satisfied
         {xstring("a3_satisfaction"), 3},
-        {xstring("a4_satisfaction"), 4},
+        {xstring("a2_satisfaction"), 2},
+        {xstring("a1_satisfaction"), 1},
+        {xstring("a0_satisfaction"), 0},  // Not at all satisfied
     };
 
     const int question_width = 25;
@@ -217,11 +223,11 @@ OpenableWidget* Apeqpt::editor(const bool read_only)
             }, options_choice_with_na
         ))->setWidth(question_width, all_opts_widths)->setExpand(true),
         (new QuText(xstring("h2")))->setBig()->setBold(),
-        (new QuMcq(fieldRef("q1_satisfaction"), options_satisfaction))
+        (new QuMcq(fieldRef(FN_Q1_SATISFACTION), options_satisfaction))
                        ->setHorizontal(true)
                        ->setAsTextButton(true),
         (new QuText(xstring("q2_satisfaction")))->setBold(),
-        new QuTextEdit(fieldRef("q2_satisfaction")),
+        new QuTextEdit(fieldRef(FN_Q2_SATISFACTION, false)),
         (new QuText(xstring("thanks")))->setItalic(),
     });
 

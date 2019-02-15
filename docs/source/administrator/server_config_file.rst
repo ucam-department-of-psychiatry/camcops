@@ -766,6 +766,8 @@ GUNICORN_DEBUG_RELOAD
 
 Debugging option: reload Gunicorn upon code change?
 
+.. _server_config_param_gunicorn_timeout_s:
+
 GUNICORN_TIMEOUT_S
 ##################
 

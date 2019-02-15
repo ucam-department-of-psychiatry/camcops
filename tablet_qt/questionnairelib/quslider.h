@@ -55,6 +55,15 @@ public:
     // When the slider contains a null value, where should the handle sit?
     QuSlider* setNullApparentValue(int null_apparent_value);
 
+    // Shortcuts for setNullApparentValue():
+    // - Set null apparent value to the lowest (e.g. leftmost) value
+    QuSlider* setNullApparentValueMin();
+    // - Set null apparent value to the highest (e.g. rightmost) value
+    QuSlider* setNullApparentValueMax();
+    // - Set null apparent value to the centre value. Prefer this for centred
+    //   visual analogue scales.
+    QuSlider* setNullApparentValueCentre();
+
     // Choose whether the slider should display its contents as a float
     // (convert_for_real_field). If so, the underlying integer (from minimum to
     // maximum) is mapped to a float range (from field_minimum to

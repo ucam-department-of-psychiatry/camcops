@@ -1578,6 +1578,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Improvements to Debian/RPM packaging, including use of ``venv`` from the
   Python 3.3+ standard library rather than ``virtualenv``.
 
+.. _changelog_2019:
 
 **Server v2.3.1 and client v2.3.1 (in progress, from 2018-11-27)**
 
@@ -1877,6 +1878,18 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - https://stackoverflow.com/questions/42447545/mouse-works-but-touch-doesnot-work-in-qml/42454302
 
+- New task: :ref:`Perinatal POEM (Patient-rated Outcome and Experience Measure)
+  <perinatal_poem>`.
 
-.. _changelog_2019:
+- New task: :ref:`Goal-Based Outcomes -- Goal Record Sheet (GBO-GReS)
+  <gbo_gres>`.
 
+- New task: :ref:`Goal-Based Outcomes -- Goal Progress Sheet (GBO-GPrS)
+  <gbo_gprs>`.
+
+- New task: :ref:`Assessment Patient Experience Questionnaire for Psychological
+  Therapies (APEQPT) <apeqpt>`.
+
+- New task: :ref:`Outcome Rating Scale (ORS) <ors>`.
+
+- New task: :ref:`Session Rating Scale (SRS) <srs>`.

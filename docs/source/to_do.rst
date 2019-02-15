@@ -29,13 +29,8 @@ Tasks
 
 **Priority**
 
-- :ref:`Perinatal POEM (Patient-rated Outcome and Experience Measure)
-  <perinatal_poem>`.
-- :ref:`Goal Based Outcome (GBO) <gbo>`.
-- :ref:`Outcome Rating Scale (ORS) <ors>`.
-- :ref:`Session Rating Scale (SRS) <srs>`.
-- :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
-  (APEQPT) <apeqpt>`.
+- Completion of :ref:`Goal-Based Outcomes -- Goal Progress Sheet (GBO-GPrS)
+  <gbo_gprs>`.
 
 **To be prioritized**
 

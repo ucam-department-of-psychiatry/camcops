@@ -19,10 +19,34 @@
 
 .. _gbo:
 
-Goal-Based Outcome (GBO)
-------------------------
+Goals and Goal-Based Outcomes (GBO)
+-----------------------------------
+
+A collection of sub-tasks as follows.
+
+.. _gbo_gres:
+
+Goal-Based Outcomes -- Goal Record Sheet (GBO-GReS)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For recording goals of therapy.
+
+.. _gbo_gprs:
+
+Goal-Based Outcomes -- Goal Progress Sheet (GBO-GPrS)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. include:: include_under_development.rst
+
+For recording progress towards the goals.
+
+Goal-Based Outcomes -- Goal Progress Chart
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Not implemented** because this is a visual chronological track of information
+contained in the Goal Rating Sheet, and CamCOPS can track that information in
+other ways.
+
 
 Sources
 ~~~~~~~

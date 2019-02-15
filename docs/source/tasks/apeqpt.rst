@@ -23,7 +23,7 @@
 Assessment Patient Experience Questionnaire for Psychological Therapies (APEQPT)
 --------------------------------------------------------------------------------
 
-.. include:: include_under_development.rst
+.. include:: include_data_collection_plus_local_upgrade.rst
 
 Sources
 ~~~~~~~
@@ -39,4 +39,8 @@ Sources
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **To be established.**
+- Developed within the UK NHS IAPT programme.
+
+- **Formal rights to be established.**
+
+- Therefore, operating on the premise of "institutional permission required".

@@ -55,7 +55,7 @@ public:
     // Set alignment of all our widgets, by calling through to
     // QuElement::setWidgetAlignment() for each.
     // This also (effectively) calls setOverrideWidgetAlignment(false).
-    QuSequenceContainerBase* setWidgetAlignments(Qt::Alignment alignment);
+    QuSequenceContainerBase* setContainedWidgetAlignments(Qt::Alignment alignment);
 
 protected:
     void commonConstructor();

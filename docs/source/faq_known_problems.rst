@@ -136,8 +136,9 @@ Apache logs might show an error like “Internal error: proxy: error reading
 status line from remote server”.
 
 The first thing to check is the gunicorn configuration: to your `camcops
-serve_gunicorn` command, try adding e.g. `--timeout 300` (an increase from the
-default of 30 s).
+serve_gunicorn` command, try setting the server's :ref:`GUNICORN_TIMEOUT_S
+<server_config_param_gunicorn_timeout_s>` parameter to e.g. 300 (an increase
+from the default of 30 s).
 
 This might just change the Apache error to “The timeout specified has expired:
 proxy: error reading...”, in which case you should also edit the Apache

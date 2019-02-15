@@ -22,8 +22,6 @@
 Perinatal POEM (Patient-rated Outcome and Experience Measure)
 -------------------------------------------------------------
 
-.. include:: include_under_development.rst
-
 .. include:: include_from_perinatal_patient_experience.rst
 
 Sources

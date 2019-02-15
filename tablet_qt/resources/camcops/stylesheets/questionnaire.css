@@ -97,6 +97,13 @@ BaseWidget {
     font-size: %1pt;
 }
 
+/* For debugging */
+/*
+QLabel {
+    background-color: green;
+}
+*/
+
 /* =========================================================================
    Modifiers, using dynamic properties
    ========================================================================= */
