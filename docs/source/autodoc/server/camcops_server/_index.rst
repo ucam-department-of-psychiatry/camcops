@@ -167,7 +167,6 @@ server/camcops_server
     extra_strings/gbo.xml.rst
     extra_strings/gbogprs.xml.rst
     extra_strings/gbogres.xml.rst
-    extra_strings/gbogrs.xml.rst
     extra_strings/gds15.xml.rst
     extra_strings/gmcpq.xml.rst
     extra_strings/hama.xml.rst

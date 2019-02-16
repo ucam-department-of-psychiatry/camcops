@@ -62,6 +62,8 @@ MainMenu::MainMenu(CamcopsApp& app)
         ).setNotIfLocked(),
         MAKE_MENU_MENU_ITEM(HelpMenu, app),
         MAKE_MENU_MENU_ITEM(SettingsMenu, app),
+
+        MenuItem(tr("Tasks by type")).setLabelOnly(),
         MAKE_MENU_MENU_ITEM(ClinicalMenu, app),
         MAKE_MENU_MENU_ITEM(GlobalMenu, app),
         MAKE_MENU_MENU_ITEM(CognitiveMenu, app),
@@ -73,6 +75,8 @@ MainMenu::MainMenu(CamcopsApp& app)
         MAKE_MENU_MENU_ITEM(ExecutiveMenu, app),
         MAKE_MENU_MENU_ITEM(ResearchMenu, app),
         MAKE_MENU_MENU_ITEM(AnonymousMenu, app),
+
+        MenuItem(tr("Task collections")).setLabelOnly(),
         MAKE_MENU_MENU_ITEM(ClinicalSetsMenu, app),
         MAKE_MENU_MENU_ITEM(ResearchSetsMenu, app),
         MAKE_MENU_MENU_ITEM(AllTasksMenu, app),

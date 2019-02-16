@@ -34,8 +34,6 @@ Quality of Life: standard gamble (QOL-SG)
 
 The QOL-SG task provides a standard gamble.
 
-.. include:: include_under_development.rst
-
 
 History and guide
 ~~~~~~~~~~~~~~~~~

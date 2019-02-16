@@ -149,8 +149,6 @@ Client core
   5.12.0 beta 1, so may be possible to improve dialogue boxes again on Android
   (but possibly our workaround sorted it; can't remember); check.
 
-- **RNC:** finish comments for core headers (am at graphicsfunc.h).
-
 **May not be worth it**
 
 - Client-side task index, to speed up the client's patient summary view? (Not
@@ -160,9 +158,6 @@ Server
 ------
 
 **Priority**
-
-- supervisord demo config file needs to include ``camcops_server
-  launch_workers`` and ``camcops_server launch_scheduler``.
 
 - Facility to hide individual sticky notes (with audit trail), so they're not
   shown in HTML (+ PDF) and XML views. See e-mail RNC/JK/RE, 2018-10-12.
@@ -243,7 +238,7 @@ Server
 - More generic e-mails to administrators, via backend task. (E-mail framework
   now in place.)
 
-- Move export dumps to backend (via e-mail)?
+- Move research export dumps to backend (via e-mail)?
 
 Documentation
 -------------

@@ -31,6 +31,11 @@ Goal-Based Outcomes -- Goal Record Sheet (GBO-GReS)
 
 For recording goals of therapy.
 
+Minor change to the original: "patient/service user" replaces "child/young
+person", since this is not specific to paediatric work.
+"Practitioner/clinician" also introduced as an option for the "who completed
+the form?" question.
+
 .. _gbo_gprs:
 
 Goal-Based Outcomes -- Goal Progress Sheet (GBO-GPrS)

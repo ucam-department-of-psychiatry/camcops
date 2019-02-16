@@ -93,6 +93,4 @@ Intellectual property rights
 Center for Epidemiological Studies Depression Scale, Revised (CESD-R)
 ---------------------------------------------------------------------
 
-.. include:: include_under_development.rst
-
 See :ref:`CESD <cesd>`.
