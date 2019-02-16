@@ -56,7 +56,7 @@ public:
     // ------------------------------------------------------------------------
 protected:
     double totalScore() const;
-public slots:
+protected slots:
     void updateMandatory();
 public:
     static const QString ORS_TABLENAME;

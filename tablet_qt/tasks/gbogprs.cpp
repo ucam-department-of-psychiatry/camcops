@@ -52,9 +52,9 @@ const QString GboGPrS::GBOGPRS_TABLENAME("gbogprs");
 const int MIN_SESSION = 1;
 const int MAX_SESSION = 1000;
 
-const int GOAL_CHILD = 1;
-const int GOAL_PARENT_CARER = 2;
-const int GOAL_OTHER = 3;
+const int COMPLETED_BY_PATIENT = 1;
+const int COMPLETED_BY_PARENT_CARER = 2;
+const int COMPLETED_BY_OTHER = 3;
 
 const QString FN_DATE("q_date");
 const QString FN_SESSION("q_session");
@@ -93,7 +93,7 @@ QString GboGPrS::shortname() const
 
 QString GboGPrS::longname() const
 {
-    return tr("Goal Based Outcomes – Goal Progress Sheet");
+    return tr("Goal-Based Outcomes – Goal Progress Sheet");
 }
 
 
@@ -117,7 +117,7 @@ bool GboGPrS::isComplete() const
                                                FN_WHO,
                                            }));
 
-    if (value(FN_WHO) == GOAL_OTHER && value(FN_WHO_OTHER).isNull()) {
+    if (value(FN_WHO) == COMPLETED_BY_OTHER && value(FN_WHO_OTHER).isNull()) {
         return false;
     }
 
@@ -141,9 +141,9 @@ QStringList GboGPrS::detail() const
 OpenableWidget* GboGPrS::editor(const bool read_only)
 {
     const NameValueOptions whose_goal_options = NameValueOptions{
-        { xstring("whose_goal_o1"), GOAL_CHILD},
-        { xstring("whose_goal_o2"), GOAL_PARENT_CARER },
-        { xstring("whose_goal_o3"), GOAL_OTHER }
+        { xstring("whose_goal_o1"), COMPLETED_BY_PATIENT},
+        { xstring("whose_goal_o2"), COMPLETED_BY_PARENT_CARER },
+        { xstring("whose_goal_o3"), COMPLETED_BY_OTHER }
     };
 
     const NameValueOptions goal_progress_options = NameValueOptions{
@@ -200,7 +200,7 @@ OpenableWidget* GboGPrS::editor(const bool read_only)
 
 void GboGPrS::updateMandatory()
 {
-   const bool required = valueInt(FN_WHO) == GOAL_OTHER;
+   const bool required = valueInt(FN_WHO) == COMPLETED_BY_OTHER;
     fieldRef(FN_WHO_OTHER)->setMandatory(required);
     if (!required) {
         fieldRef(FN_WHO_OTHER)->setValue("");

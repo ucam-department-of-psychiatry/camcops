@@ -142,6 +142,7 @@ TR(SEVERE, "Severe");
 TR(SEX, "Sex");
 TR(SOUND_TEST_FOR, "Sound test for");
 
+TR(TEXT_DEFAULT_HINT, "type text here");
 TR(THANK_YOU, "Thank you!");
 TR(THANK_YOU_TOUCH_TO_EXIT, "Thank you! Please touch here to exit.");
 TR(TOTAL_SCORE, "Total score");

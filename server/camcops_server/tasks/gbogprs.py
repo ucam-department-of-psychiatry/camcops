@@ -51,7 +51,7 @@ class Gbogprs(TaskHasPatientMixin, Task):
     """
     __tablename__ = "gbogprs"
     shortname = "GBO-GPrS"
-    longname = "Goal Based Outcomes – Goal Record Sheet"
+    longname = "Goal-Based Outcomes – Goal Record Sheet"
 
     FN_DATE = "q_date"
     FN_SESSION = "q_session"

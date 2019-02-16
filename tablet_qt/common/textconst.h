@@ -155,6 +155,7 @@ extern const QString SEVERE;
 extern const QString SEX;
 extern const QString SOUND_TEST_FOR;
 
+extern const QString TEXT_DEFAULT_HINT;
 extern const QString THANK_YOU;
 extern const QString THANK_YOU_TOUCH_TO_EXIT;
 extern const QString TOTAL_SCORE;

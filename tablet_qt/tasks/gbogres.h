@@ -28,10 +28,12 @@ public:
     // ------------------------------------------------------------------------
     // Task specific
     // ------------------------------------------------------------------------
-    void updateMandatory();
+protected:
     QString completedBy() const;
     QString extraGoals() const;
     QString goalNumber() const;
+protected slots:
+    void updateMandatory();
 public:
     static const QString GBOGRES_TABLENAME;
 protected:

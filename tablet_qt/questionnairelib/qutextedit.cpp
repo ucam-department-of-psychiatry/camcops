@@ -19,6 +19,7 @@
 
 #include "qutextedit.h"
 #include <QTimer>
+#include "common/textconst.h"
 #include "lib/timerfunc.h"
 #include "lib/uifunc.h"
 #include "qobjects/focuswatcher.h"
@@ -34,7 +35,7 @@ QuTextEdit::QuTextEdit(FieldRefPtr fieldref, const bool accept_rich_text) :
     m_fieldref(fieldref),
     m_accept_rich_text(accept_rich_text),
     m_allow_tabs_in_content(false),
-    m_hint("text"),
+    m_hint(textconst::TEXT_DEFAULT_HINT),
 #ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
     m_plain_editor(nullptr),
 #endif

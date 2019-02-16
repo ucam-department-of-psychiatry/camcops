@@ -52,7 +52,7 @@ class Gbogres(TaskHasPatientMixin, Task):
     """
     __tablename__ = "gbogres"
     shortname = "GBO-GReS"
-    longname = "Goal Based Outcomes – Goal Record Sheet"
+    longname = "Goal-Based Outcomes – Goal Record Sheet"
 
     FN_DATE = "date"  # NB SQL keyword too; doesn't matter
     FN_GOAL_1_DESC = "goal_1_desc"
@@ -64,14 +64,16 @@ class Gbogres(TaskHasPatientMixin, Task):
 
     REQUIRED_FIELDS = [FN_DATE, FN_GOAL_1_DESC, FN_COMPLETED_BY]
 
-    GOAL_CHILD = 1
-    GOAL_PARENT_CARER = 2
-    GOAL_OTHER = 3
+    COMPLETED_BY_PATIENT = 1
+    COMPLETED_BY_PARENT_CARER = 2
+    COMPLETED_BY_CLINICIAN = 3
+    COMPLETED_BY_OTHER = 4
 
     COMPLETED_BY_STRINGS = {
-        GOAL_CHILD: "Child/young person",
-        GOAL_PARENT_CARER: "Parent/carer",
-        GOAL_OTHER: "Other"
+        COMPLETED_BY_PATIENT: "Patient/service user",  # in original: "Child/young person"  # noqa
+        COMPLETED_BY_PARENT_CARER: "Parent/carer",
+        COMPLETED_BY_CLINICIAN: "Practitioner/clinician",
+        COMPLETED_BY_OTHER: "Other: "
     }
 
     date = Column(FN_DATE, Date, comment="Session date")
@@ -107,8 +109,8 @@ class Gbogres(TaskHasPatientMixin, Task):
 
     def completed_by_tr(self) -> str:
         who = self.COMPLETED_BY_STRINGS.get(self.completed_by, "Unknown")
-        if self.completed_by == self.GOAL_OTHER:
-            who += ": " + self.completed_by_other
+        if self.completed_by == self.COMPLETED_BY_OTHER:
+            who += self.completed_by_other or "?"
         return tr_qa("Completed by", who)
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -116,7 +118,7 @@ class Gbogres(TaskHasPatientMixin, Task):
 
     def is_complete(self) -> bool:
         if self.are_all_fields_complete(self.REQUIRED_FIELDS):
-            if self.completed_by == self.GOAL_OTHER:
+            if self.completed_by == self.COMPLETED_BY_OTHER:
                 return bool(self.completed_by_other)
             return True
         return False

@@ -8,9 +8,11 @@
     <string name="goal_3">Goal 3</string>
     <string name="goal_other">If you have any other goals, please list them here</string>
     <string name="completed_by">Completed by <i>(tick below)</i></string>
-    <string name="completed_by_o1">Child/young person</string>
+    <!-- <string name="completed_by_o1">Child/young person</string> -->  <!-- Original -->
+    <string name="completed_by_o1">Patient/service user</string>  <!-- Modified -->
     <string name="completed_by_o2">Parent/carer</string>
-    <string name="completed_by_o3">Other <i>(please specify)</i></string>
+    <string name="completed_by_o3">Practitioner/clinician</string>  <!-- Extra -->
+    <string name="completed_by_o4">Other <i>(please specify)</i></string>
     <string name="copyright">Version 2.0; www.goals-in-therapy.com; © Dr Duncan Law: shared under Creative Commons license BY-NC-SA 4.0</string>
   </task>
 </resources>

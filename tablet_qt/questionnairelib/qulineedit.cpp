@@ -20,6 +20,7 @@
 #include "qulineedit.h"
 #include <QTimer>
 #include <QValidator>
+#include "common/textconst.h"
 #include "lib/timerfunc.h"
 #include "lib/uifunc.h"
 #include "qobjects/focuswatcher.h"
@@ -31,7 +32,7 @@ const int WRITE_DELAY_MS = 400;
 
 QuLineEdit::QuLineEdit(FieldRefPtr fieldref) :
     m_fieldref(fieldref),
-    m_hint("text"),
+    m_hint(textconst::TEXT_DEFAULT_HINT),
     m_editor(nullptr),
     m_focus_watcher(nullptr),
     m_echo_mode(QLineEdit::Normal)

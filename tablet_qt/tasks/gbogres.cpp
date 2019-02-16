@@ -48,12 +48,15 @@ using stringfunc::strseq;
 
 const QString GboGReS::GBOGRES_TABLENAME("gbogres");
 
-const int GOAL_CHILD = 1;
-const int GOAL_PARENT_CARER = 2;
-const int GOAL_OTHER = 3;
+const int COMPLETED_BY_PATIENT = 1;  // In original: child/young person
+const int COMPLETED_BY_PARENT_CARER = 2;
+const int COMPLETED_BY_CLINICIAN = 3;
+const int COMPLETED_BY_OTHER = 4;
 
-const QString GOAL_CHILD_STR = "Child/young person";
-const QString GOAL_PARENT_CARER_STR = "Parent/carer";
+const QString COMPLETED_BY_PATIENT_STR = "Patient/service user";  // In original: "Child/young person"
+const QString COMPLETED_BY_PARENT_CARER_STR = "Parent/carer";
+const QString COMPLETED_BY_CLINICIAN_STR = "Practitioner/clinician";
+const QString COMPLETED_BY_OTHER_STR = "Other: ";
 
 const QString FN_DATE("date");  // NB SQL keyword too; doesn't matter
 const QString FN_GOAL_1_DESC("goal_1_desc");
@@ -63,10 +66,14 @@ const QString FN_GOAL_OTHER("goal_other");
 const QString FN_COMPLETED_BY("completed_by");
 const QString FN_COMPLETED_BY_OTHER("completed_by_other");
 
+const QString TAG_OTHER("other");
+
+
 void initializeGboGReS(TaskFactory& factory)
 {
     static TaskRegistrar<GboGReS> registered(factory);
 }
+
 
 GboGReS::GboGReS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GBOGRES_TABLENAME, false, false, false),  // ... anon, clin, resp
@@ -100,7 +107,7 @@ QString GboGReS::shortname() const
 
 QString GboGReS::longname() const
 {
-    return tr("Goal Based Outcomes – Goal Record Sheet");
+    return tr("Goal-Based Outcomes – Goal Record Sheet");
 }
 
 
@@ -116,20 +123,20 @@ QString GboGReS::menusubtitle() const
 
 bool GboGReS::isComplete() const
 {
-
-    bool required = noneNullOrEmpty(values({
+    const bool required = noneNullOrEmpty(values({
                                                FN_DATE,
                                                FN_GOAL_1_DESC,
                                                FN_COMPLETED_BY,
                                            }));
 
-    if (value(FN_COMPLETED_BY) == GOAL_OTHER
-            && value(FN_COMPLETED_BY_OTHER).isNull()) {
+    if (value(FN_COMPLETED_BY) == COMPLETED_BY_OTHER
+            && valueIsNullOrEmpty(FN_COMPLETED_BY_OTHER)) {
         return false;
     }
 
     return required;
 }
+
 
 QStringList GboGReS::summary() const
 {
@@ -137,6 +144,7 @@ QStringList GboGReS::summary() const
         QString("<b>Goals set</b>: %1 %2").arg(goalNumber(), extraGoals()),
     };
 }
+
 
 QStringList GboGReS::detail() const
 {
@@ -162,54 +170,56 @@ QStringList GboGReS::detail() const
     return detail;
 }
 
+
 OpenableWidget* GboGReS::editor(const bool read_only)
 {
     const NameValueOptions completed_by_options = NameValueOptions{
-        { xstring("completed_by_o1"), GOAL_CHILD },
-        { xstring("completed_by_o2"), GOAL_PARENT_CARER },
-        { xstring("completed_by_o3"), GOAL_OTHER }
+        { xstring("completed_by_o1"), COMPLETED_BY_PATIENT },
+        { xstring("completed_by_o2"), COMPLETED_BY_PARENT_CARER },
+        { xstring("completed_by_o3"), COMPLETED_BY_CLINICIAN },
+        { xstring("completed_by_o4"), COMPLETED_BY_OTHER }
     };
 
     QuPagePtr page(new QuPage{
-                            (new QuHorizontalContainer{
-                                new QuHeading(xstring("date")),
-                               (new QuDateTime(fieldRef(FN_DATE))
-                                   )->setMode(QuDateTime::DefaultDate)
-                                    ->setOfferNowButton(true),
-                            }),
-                            (new QuText(xstring("stem")))->setBold(true),
-                            new QuSpacer(),
-                            new QuHeading(xstring("goal_1")),
-                            new QuTextEdit(fieldRef(FN_GOAL_1_DESC)),
-                            new QuHeading(xstring("goal_2")),
-                            new QuTextEdit(fieldRef(FN_GOAL_2_DESC, false)),
-                            new QuHeading(xstring("goal_3")),
-                            new QuTextEdit(fieldRef(FN_GOAL_3_DESC, false)),
-                            new QuText(xstring("goal_other")),
-                            new QuTextEdit(fieldRef(FN_GOAL_OTHER, false)),
-                            (new QuText(xstring("completed_by")))->setBold(true),
-                            (new QuMcq(fieldRef(FN_COMPLETED_BY), completed_by_options))
-                                            ->setHorizontal(true)
-                                            ->setAsTextButton(true),
-                            new QuTextEdit(fieldRef(FN_COMPLETED_BY_OTHER), false),
-                            new QuSpacer(),
-                            new QuHorizontalLine(),
-                            new QuSpacer(),
-                            (new QuText(xstring("copyright")))->setItalic()
-                        });
-
-    bool required = valueInt(FN_COMPLETED_BY) == GOAL_OTHER;
-    fieldRef(FN_COMPLETED_BY_OTHER)->setMandatory(required);
-
-    connect(fieldRef(FN_COMPLETED_BY).data(), &FieldRef::valueChanged,
-            this, &GboGReS::updateMandatory);
+        (new QuHorizontalContainer{
+            new QuHeading(xstring("date")),
+           (new QuDateTime(fieldRef(FN_DATE))
+               )->setMode(QuDateTime::DefaultDate)
+                ->setOfferNowButton(true),
+        }),
+        (new QuText(xstring("stem")))->setBold(true),
+        new QuSpacer(),
+        new QuHeading(xstring("goal_1")),
+        new QuTextEdit(fieldRef(FN_GOAL_1_DESC)),
+        new QuHeading(xstring("goal_2")),
+        new QuTextEdit(fieldRef(FN_GOAL_2_DESC, false)),
+        new QuHeading(xstring("goal_3")),
+        new QuTextEdit(fieldRef(FN_GOAL_3_DESC, false)),
+        new QuText(xstring("goal_other")),
+        new QuTextEdit(fieldRef(FN_GOAL_OTHER, false)),
+        (new QuText(xstring("completed_by")))->setBold(true),
+        (new QuMcq(fieldRef(FN_COMPLETED_BY), completed_by_options))
+                        ->setHorizontal(true)
+                        ->setAsTextButton(true),
+        (new QuTextEdit(fieldRef(FN_COMPLETED_BY_OTHER), false))->addTag(TAG_OTHER),
+        new QuSpacer(),
+        new QuHorizontalLine(),
+        new QuSpacer(),
+        (new QuText(xstring("copyright")))->setItalic()
+    });
 
     page->setTitle(longname());
 
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setReadOnly(read_only);
+
+    connect(fieldRef(FN_COMPLETED_BY).data(), &FieldRef::valueChanged,
+            this, &GboGReS::updateMandatory);
+    updateMandatory();
+
     return m_questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations
@@ -217,13 +227,14 @@ OpenableWidget* GboGReS::editor(const bool read_only)
 
 void GboGReS::updateMandatory()
 {
-   const bool required = valueInt(FN_COMPLETED_BY)
-           == GOAL_OTHER;
+   const bool required = valueInt(FN_COMPLETED_BY) == COMPLETED_BY_OTHER;
     fieldRef(FN_COMPLETED_BY_OTHER)->setMandatory(required);
-    if (!required) {
-        fieldRef(FN_COMPLETED_BY_OTHER)->setValue("");
+    if (!m_questionnaire) {
+        return;
     }
+    m_questionnaire->setVisibleByTag(TAG_OTHER, required);
 }
+
 
 QString GboGReS::goalNumber() const
 {
@@ -238,6 +249,7 @@ QString GboGReS::goalNumber() const
     return QString::number(goal_n);
 }
 
+
 QString GboGReS::extraGoals() const
 {
     QString extra = "";
@@ -247,20 +259,18 @@ QString GboGReS::extraGoals() const
     return extra;
 }
 
+
 QString GboGReS::completedBy() const
 {
-    QString completed_by;
-
     switch (value(FN_COMPLETED_BY).toInt()) {
-        case GOAL_CHILD:
-            completed_by = GOAL_CHILD_STR;
-            break;
-        case GOAL_PARENT_CARER:
-            completed_by = GOAL_PARENT_CARER_STR;
-            break;
-        default:
-            completed_by = value(FN_COMPLETED_BY_OTHER).toString();
+    case COMPLETED_BY_PATIENT:
+        return COMPLETED_BY_PATIENT_STR;
+    case COMPLETED_BY_PARENT_CARER:
+        return COMPLETED_BY_PARENT_CARER_STR;
+    case COMPLETED_BY_CLINICIAN:
+        return COMPLETED_BY_CLINICIAN_STR;
+    case COMPLETED_BY_OTHER:
+    default:
+        return COMPLETED_BY_OTHER_STR + value(FN_COMPLETED_BY_OTHER).toString();
     }
-
-    return completed_by;
 }
