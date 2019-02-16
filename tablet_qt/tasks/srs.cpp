@@ -212,9 +212,9 @@ OpenableWidget* Srs::editor(const bool read_only)
     auto vas_approach = makeVAS(FN_APPROACH);
     auto vas_overall = makeVAS(FN_OVERALL);
 
-    grid->setColumnStretch(0, 1);
-    grid->setColumnStretch(1, 0);  // don't expand beyond what's necessary
-    grid->setColumnStretch(2, 1);
+    grid->setColumnStretch(0, 1);  // text; expand equally to column 2
+    grid->setColumnStretch(1, 0);  // VAS; don't expand beyond what's necessary
+    grid->setColumnStretch(2, 1);  // text; expand equally to column 0
 
     addHeading("q1_title");
     addVas("q1_left", vas_relationship, "q1_right");

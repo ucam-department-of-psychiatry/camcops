@@ -79,7 +79,11 @@ public:
     int spacing() const;
 
     void setRowStretch(int row, int stretch);
+
+    // Spare horizontal space (i.e. space available in excess of the minimum
+    // width) is allocated to columns in proportion to their stretch factors.
     void setColumnStretch(int column, int stretch);
+
     int rowStretch(int row) const;
     int columnStretch(int column) const;
 

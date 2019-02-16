@@ -44,7 +44,7 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
 )
-from sqlalchemy.sql.sqltypes import Integer, Date, UnicodeText
+from sqlalchemy.sql.sqltypes import Date, Float, Integer, UnicodeText
 
 
 # =============================================================================
@@ -69,11 +69,24 @@ class Ors(TaskHasPatientMixin, Task):
     q_session = CamcopsColumn("q_session", Integer, comment="Session number")
     q_date = CamcopsColumn("q_date", Date, comment="Session date")
     q_who = CamcopsColumn("q_who", Integer, comment="Completed by")
-    q_who_other = CamcopsColumn("q_who_other", UnicodeText, comment="Completed by other")
-    q_individual = CamcopsColumn("q_individual", Integer, comment="Individual rating", permitted_value_checker=ZERO_TO_10_CHECKER)
-    q_interpersonal = CamcopsColumn("q_interpersonal", Integer, comment="Interpersonal rating", permitted_value_checker=ZERO_TO_10_CHECKER)
-    q_social = CamcopsColumn("q_social", Integer, comment="Social rating", permitted_value_checker=ZERO_TO_10_CHECKER)
-    q_overall = CamcopsColumn("q_overall", Integer, comment="Overall rating", permitted_value_checker=ZERO_TO_10_CHECKER)
+    q_who_other = CamcopsColumn(
+        "q_who_other", UnicodeText, comment="Completed by other: who?")
+    q_individual = CamcopsColumn(
+        "q_individual", Float,
+        comment="Individual rating (0-10, 10 better)",
+        permitted_value_checker=ZERO_TO_10_CHECKER)
+    q_interpersonal = CamcopsColumn(
+        "q_interpersonal", Float,
+        comment="Interpersonal rating (0-10, 10 better)",
+        permitted_value_checker=ZERO_TO_10_CHECKER)
+    q_social = CamcopsColumn(
+        "q_social", Float,
+        comment="Social rating (0-10, 10 better)",
+        permitted_value_checker=ZERO_TO_10_CHECKER)
+    q_overall = CamcopsColumn(
+        "q_overall", Float,
+        comment="Overall rating (0-10, 10 better)",
+        permitted_value_checker=ZERO_TO_10_CHECKER)
 
     def is_complete(self) -> bool:
         required_always = [
@@ -89,24 +102,16 @@ class Ors(TaskHasPatientMixin, Task):
             if getattr(self, field) is None:
                 return False
         if self.q_who == self.COMPLETED_BY_OTHER:
-            if self.q_who_other is None or len(self.q_who_other) <= 0:
+            if not self.q_who_other:
                 return False
         return True
-
-    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        pass
-
-    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        pass
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields()
 
-    def who(self):
+    def who(self) -> str:
         if self.q_who == self.COMPLETED_BY_OTHER:
-            if self.q_who_other is None or len(self.q_who_other) <= 0:
-                return "Unknown"
-            return self.q_who_other
+            return "Other: " + (self.q_who_other or "Unknown")
         if self.q_who == self.COMPLETED_BY_SELF:
             return "Patient"
         return "Unknown"
@@ -127,8 +132,9 @@ class Ors(TaskHasPatientMixin, Task):
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                Scores represent a selection on a scale from {vas_min} to {vas_max}. Scores reflect the patient's
-                feelings of the indicated lifestyle areas over the past week. 
+                Scores represent a selection on a scale from {vas_min} to
+                {vas_max} ({vas_max} better). Scores reflect the patient’s
+                feelings about the indicated life areas over the past week.
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>

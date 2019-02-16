@@ -44,7 +44,7 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
 )
-from sqlalchemy.sql.sqltypes import Integer, Date
+from sqlalchemy.sql.sqltypes import Date, Float, Integer
 
 
 # =============================================================================
@@ -68,10 +68,22 @@ class Srs(TaskHasPatientMixin, Task):
 
     q_session = CamcopsColumn("q_session", Integer, comment="Session number")
     q_date = CamcopsColumn("q_date", Date, comment="Session date")
-    q_individual = CamcopsColumn("q_relationship", Integer, comment="Rating of patient-therapist relationship", permitted_value_checker=ZERO_TO_10_CHECKER)
-    q_interpersonal = CamcopsColumn("q_goals", Integer, comment="Rating for topics discussed", permitted_value_checker=ZERO_TO_10_CHECKER)
-    q_social = CamcopsColumn("q_approach", Integer, comment="Rating for therapist's approach", permitted_value_checker=ZERO_TO_10_CHECKER)
-    q_overall = CamcopsColumn("q_overall", Integer, comment="Overall rating", permitted_value_checker=ZERO_TO_10_CHECKER)
+    q_relationship = CamcopsColumn(
+        "q_relationship", Float,
+        comment="Rating of patient-therapist relationship (0-10, 10 better)",
+        permitted_value_checker=ZERO_TO_10_CHECKER)
+    q_goals = CamcopsColumn(
+        "q_goals", Float,
+        comment="Rating for topics discussed (0-10, 10 better)",
+        permitted_value_checker=ZERO_TO_10_CHECKER)
+    q_approach = CamcopsColumn(
+        "q_approach", Float,
+        comment="Rating for therapist's approach (0-10, 10 better)",
+        permitted_value_checker=ZERO_TO_10_CHECKER)
+    q_overall = CamcopsColumn(
+        "q_overall", Float,
+        comment="Overall rating (0-10, 10 better)",
+        permitted_value_checker=ZERO_TO_10_CHECKER)
 
     def is_complete(self) -> bool:
         required_always = [
@@ -86,12 +98,6 @@ class Srs(TaskHasPatientMixin, Task):
             if getattr(self, field) is None:
                 return False
         return True
-
-    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        pass
-
-    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        pass
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields()
@@ -111,8 +117,9 @@ class Srs(TaskHasPatientMixin, Task):
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                Scores represent a selection on a scale from {vas_min} to {vas_max}. Scores indicate the patient's
-                feelings in different areas on the day's session.
+                Scores represent a selection on a scale from {vas_min} to
+                {vas_max} ({vas_max} better). Scores indicate the patient’s
+                feelings about different aspects of the day’s therapy session.
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>

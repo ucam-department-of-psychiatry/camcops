@@ -52,6 +52,8 @@ public:
     QuGridContainer* addCell(const QuGridCell& cell);
 
     // Force the stretch factor of a column, which affects its width.
+    // Spare horizontal space (i.e. space available in excess of the minimum
+    // width) is allocated to columns in proportion to their stretch factors.
     // See top of .cpp file for discussion.
     QuGridContainer* setColumnStretch(int column, int stretch);
 

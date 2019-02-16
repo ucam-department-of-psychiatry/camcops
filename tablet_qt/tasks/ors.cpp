@@ -73,10 +73,14 @@ const QString FN_INTERPERSONAL("q_interpersonal");
 const QString FN_SOCIAL("q_social");
 const QString FN_OVERALL("q_overall");
 
+const QString TAG_OTHER("other");
+
+
 void initializeOrs(TaskFactory& factory)
 {
     static TaskRegistrar<Ors> registered(factory);
 }
+
 
 Ors::Ors(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ORS_TABLENAME, false, false, false),  // ... anon, clin, resp
@@ -218,8 +222,8 @@ OpenableWidget* Ors::editor(const bool read_only)
             QuGridCell(new QuText(xstring("who_q")), 0, 0),
             QuGridCell(who_q, 0, 1)
         })->setExpandHorizontally(false),
-        new QuText(xstring("who_other_q")),
-        new QuTextEdit(fieldRef(FN_WHO_OTHER), false),
+        (new QuText(xstring("who_other_q")))->addTag(TAG_OTHER),
+        (new QuTextEdit(fieldRef(FN_WHO_OTHER), false))->addTag(TAG_OTHER),
         new QuHorizontalLine(),
         // --------------------------------------------------------------------
         // Padding
@@ -266,17 +270,14 @@ OpenableWidget* Ors::editor(const bool read_only)
 
     });
 
-    bool required = valueInt(FN_WHO) == COMPLETED_BY_OTHER;
-    fieldRef(FN_WHO_OTHER)->setMandatory(required);
+    page->setTitle(longname());
+    m_questionnaire = new Questionnaire(m_app, {page});
+    m_questionnaire->setReadOnly(read_only);
 
     connect(fieldRef(FN_WHO).data(), &FieldRef::valueChanged,
             this, &Ors::updateMandatory);
 
-    page->setTitle(longname());
-
-    m_questionnaire = new Questionnaire(m_app, {page});
-
-    m_questionnaire->setReadOnly(read_only);
+    updateMandatory();
 
     return m_questionnaire;
 }
@@ -285,13 +286,14 @@ OpenableWidget* Ors::editor(const bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-void Ors::updateMandatory() {
-   const bool required = valueInt(FN_WHO)
-           == COMPLETED_BY_OTHER;
+void Ors::updateMandatory()
+{
+   const bool required = valueInt(FN_WHO) == COMPLETED_BY_OTHER;
     fieldRef(FN_WHO_OTHER)->setMandatory(required);
-    if (!required) {
-        fieldRef(FN_WHO_OTHER)->setValue("");
+    if (!m_questionnaire) {
+        return;
     }
+    m_questionnaire->setVisibleByTag(TAG_OTHER, required);
 }
 
 

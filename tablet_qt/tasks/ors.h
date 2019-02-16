@@ -54,10 +54,10 @@ public:
     // ------------------------------------------------------------------------
     // Task specific
     // ------------------------------------------------------------------------
-    void updateMandatory();
+protected:
     double totalScore() const;
 public slots:
-
+    void updateMandatory();
 public:
     static const QString ORS_TABLENAME;
 protected:
