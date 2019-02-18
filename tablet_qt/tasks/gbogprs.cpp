@@ -19,6 +19,7 @@
 
 #include "gbogprs.h"
 #include "maths/mathfunc.h"
+#include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -65,6 +66,7 @@ const QString FN_WHO_OTHER("q_who_other");
 
 void initializeGboGPrS(TaskFactory& factory)
 {
+
     static TaskRegistrar<GboGPrS> registered(factory);
 }
 
@@ -79,6 +81,10 @@ GboGPrS::GboGPrS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addField(FN_WHO, QVariant::Int);
     addField(FN_WHO_OTHER, QVariant::String);
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+
+    if (load_pk == dbconst::NONEXISTENT_PK) {
+        setValue(FN_DATE, datetime::nowDate(), false);
+    }
 }
 
 // ============================================================================
@@ -143,7 +149,7 @@ OpenableWidget* GboGPrS::editor(const bool read_only)
     const NameValueOptions whose_goal_options = NameValueOptions{
         { xstring("whose_goal_o1"), COMPLETED_BY_PATIENT},
         { xstring("whose_goal_o2"), COMPLETED_BY_PARENT_CARER },
-        { xstring("whose_goal_o3"), COMPLETED_BY_OTHER }
+        { xstring("whose_goal_o3"), COMPLETED_BY_OTHER },
     };
 
     const NameValueOptions goal_progress_options = NameValueOptions{
