@@ -1893,3 +1893,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - New task: :ref:`Outcome Rating Scale (ORS) <ors>`.
 
 - New task: :ref:`Session Rating Scale (SRS) <srs>`.
+
+- Bugfixes 2019-03-01: upload from very old tablets (e.g. v1.33) was broken.
+  Errors included ``Unknown 'idnum1' field when uploading patient table``.

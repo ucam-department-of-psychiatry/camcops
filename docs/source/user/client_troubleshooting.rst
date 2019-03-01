@@ -123,3 +123,35 @@ forcibly stop and restart the app:
 *Windows*
 
 - Close it as usual; if it refuses to close, kill it via the Task Manager.
+
+Rescuing data very old CamCOPS clients
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you have an old Titanium version (version 1.x), then before you attempt an
+upload to a modern CamCOPS server, follow these steps.
+
+- Ensure you have a computer with the Android SDK installed, and an appropriate
+  USB cable.
+
+- Ensure the tablet device has USB debugging enabled.
+
+- In CamCOPS, choose :menuselection:`Settings --> Dump local database to SQL
+  file (Android only)`.
+
+- It should say that it's saved to ``appdata:///camcops_db.txt``; this means
+  ``/sdcard/org.camcops.camcops/camcops_db.txt`` on the filesystem.
+
+- On the big computer, try ``adb devices`` to list devices, and ``adb shell``
+  to run an SSH-type shell into the tablet.
+
+- On the big computer, fetch the file via
+
+  .. code-block:: bash
+
+    adb pull /sdcard/org.camcops.camcops/camcops_db.txt rescued_camcops_db.txt
+
+- If you want to create a binary SQLite database, then do
+
+  .. code-block:: bash
+
+    sqlite3 rescued_camcops_db.sqlite < rescued_camcops_db.txt

@@ -740,10 +740,12 @@ def get_single_field_from_post_var(req: "CamcopsRequest",
     return field
 
 
-def get_fields_from_post_var(req: "CamcopsRequest",
-                             table: Table,
-                             var: str,
-                             mandatory: bool = True) -> List[str]:
+def get_fields_from_post_var(
+        req: "CamcopsRequest",
+        table: Table,
+        var: str,
+        mandatory: bool = True,
+        allowed_nonexistent_fields: List[str] = None) -> List[str]:
     """
     Get a comma-separated list of field names from a request and checks that
     all are acceptable. Returns a list of fieldnames.
@@ -753,6 +755,8 @@ def get_fields_from_post_var(req: "CamcopsRequest",
         table: SQLAlchemy :class:`Table` in which the columns should exist
         var: name of variable to retrieve
         mandatory: if ``True``, raise an exception if the variable is missing
+        allowed_nonexistent_fields: fields that are allowed to be in the
+            upload but not in the database (special exemptions!)
 
     Returns:
         a list of the field (column) names
@@ -765,10 +769,13 @@ def get_fields_from_post_var(req: "CamcopsRequest",
     csfields = get_str_var(req, var, mandatory=mandatory)
     if not csfields:
         return []
+    allowed_nonexistent_fields = allowed_nonexistent_fields or []  # type: List[str]  # noqa
     # can't have any commas in fields, so it's OK to use a simple
     # split() command
     fields = [x.strip() for x in csfields.split(",")]
     for f in fields:
+        if f in allowed_nonexistent_fields:
+            continue
         ensure_valid_field_name(table, f)
     return fields
 
@@ -1310,6 +1317,7 @@ def process_upload_record_special(req: "CamcopsRequest",
                     continue
                 # noinspection PyUnresolvedReferences
                 mark_table_dirty(req, PatientIdNum.__table__)
+                client_date_value = coerce_to_pendulum(valuedict[CLIENT_DATE_FIELD])  # noqa
                 # noinspection PyUnresolvedReferences
                 upload_record_core(
                     req=req,
@@ -2168,7 +2176,20 @@ def op_upload_table(req: "CamcopsRequest") -> str:
     Typically used for smaller tables, i.e. most except for BLOBs.
     """
     table = get_table_from_req(req, TabletParam.TABLE)
-    fields = get_fields_from_post_var(req, table, TabletParam.FIELDS)
+
+    allowed_nonexistent_fields = []  # type: List[str]
+    # noinspection PyUnresolvedReferences
+    if req.tabletsession.cope_with_old_idnums and table == Patient.__table__:
+        for x in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
+            allowed_nonexistent_fields.extend([
+                FP_ID_NUM + str(x),
+                FP_ID_DESC + str(x),
+                FP_ID_SHORT_DESC + str(x)
+            ])
+
+    fields = get_fields_from_post_var(
+        req, table, TabletParam.FIELDS,
+        allowed_nonexistent_fields=allowed_nonexistent_fields)
     nrecords = get_int_var(req, TabletParam.NRECORDS)
 
     nfields = len(fields)

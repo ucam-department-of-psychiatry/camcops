@@ -47,6 +47,9 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
+MAX_AUDIT_STRING_LENGTH = 65000
+
+
 # =============================================================================
 # AuditEntry
 # =============================================================================
@@ -102,7 +105,8 @@ class AuditEntry(Base):
     details = Column(
         "details", UnicodeText,
         comment="Details of the access"
-    )
+    )  # in practice, has 65,535 character limit.
+    # See MAX_AUDIT_STRING_LENGTH above.
 
 
 # =============================================================================
@@ -136,6 +140,8 @@ def audit(req: "CamcopsRequest",
     else:
         source = "webviewer"
     now = req.now_utc
+    if details and len(details) > MAX_AUDIT_STRING_LENGTH:
+        details = details[:MAX_AUDIT_STRING_LENGTH]
     # noinspection PyTypeChecker
     entry = AuditEntry(
         when_access_utc=now,

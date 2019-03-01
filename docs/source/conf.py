@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# docs/source/conf.py
 
 """
-..
+docs/source/conf.py
 
 ===============================================================================
     Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).

@@ -62,8 +62,8 @@ Ownerships, permissions, or SELinux security settings on files in the
 `DocumentRoot` tree are probably wrong. See :ref:`Server configuration
 <server_configuration>`; :ref:`Linux flavours <linux_flavours>`.
 
-Operation (e.g. table upload) fails; Apache error log contains the message "client denied by server configuration"
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Operation (e.g. table upload) fails; Apache error log says "client denied by server configuration"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Apache configuration file might be missing a section saying
 
@@ -85,6 +85,44 @@ SSL not working; Apache log contains "Invalid method in request ``\x16\x03\x01``
 Misconfigured server; it is speaking unencrypted HTTP on port 443. Do you have
 the VirtualHost section configured properly? Do you have `LoadModule ssl_module
 modules/mod_ssl.so`?
+
+Slow upload fails; Apache error log contains "Internal server error" or "Proxy error"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This may be a timeout problem. Gunicorn's default timeout, for example, is 30
+seconds, which may be too little for lots of data and/or a slow network.
+
+Look for ``[CRITICAL] WORKER TIMEOUT (pid:385)`` or similar in the CamCOPS
+logs.
+
+Check the following:
+
+- The Gunicorn timeout. Try 300 (seconds) rather than 30.
+
+  - For modern CamCOPS servers, change the :ref:`GUNICORN_TIMEOUT_S
+    <server_config_param_gunicorn_timeout_s>` setting in the config file.
+
+  - In old CamCOPS servers, this was the ``--timeout`` parameter on the command
+    line; see ``camcops_server serve_gunicorn --help``.
+
+- The Apache timeout. Try 300 (seconds).
+
+  - This can be specified in the ``ProxyPass`` command, or if not, defaults
+    to the value of ``ProxyTimeout``, or if that's not specified, to
+    ``TimeOut``. See the Apache docs.
+
+- When you make changes, be absolutely sure everything has restarted, including
+
+  - Apache
+
+  - ``supervisord`` itself (e.g. ``service supervisor restart``), to pick up
+    any changes in the supervisor config file
+
+  - CamCOPS -- e.g. do you have a problem such that ``supervisorctl stop
+    camcops`` says it's stopping CamCOPS but leaves orphan processes (check via
+    ``ps aux | grep camcops``)?
+
+
 
 Other Apache errors
 ~~~~~~~~~~~~~~~~~~~
