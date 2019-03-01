@@ -105,7 +105,7 @@ class AuditEntry(Base):
     details = Column(
         "details", UnicodeText,
         comment="Details of the access"
-    )  # in practice, has 65,535 character limit.
+    )  # in practice, has 65,535 character limit and isn't Unicode.
     # See MAX_AUDIT_STRING_LENGTH above.
 
 

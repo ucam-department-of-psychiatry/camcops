@@ -1896,3 +1896,17 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfixes 2019-03-01: upload from very old tablets (e.g. v1.33) was broken.
   Errors included ``Unknown 'idnum1' field when uploading patient table``.
+  Also placed a size limit on an audit entry (one was >0.5 Mb).
+
+  Note that this apparent bug isn't really a bug (noticed when uploading from
+  the old Titanium client):
+
+  .. code-block:: none
+
+    1 subject failed against an upload policy of
+        forename AND surname AND dob AND sex
+    145 subjects failed against an upload policy of
+        sex AND ((forename AND surname AND dob) OR anyidnum)
+
+  The Titanium client did not recognize ``anyidnum`` -- and all patients will
+  fail against an invalid policy. So that makes sense.
