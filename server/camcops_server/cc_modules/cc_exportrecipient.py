@@ -369,6 +369,13 @@ class ExportRecipient(ExportRecipientInfo, Base):
         """
         super().__init__(*args, **kwargs)
 
+    def __hash__(self) -> int:
+        """
+        Used by the ``merge_db`` function, and specifically the old-to-new map
+        maintained by :func:`cardinal_pythonlib.sqlalchemy.merge_db.merge_db`.
+        """
+        return hash("{}_{}".format(self.id, self.recipient_name))
+
     @reconstructor
     def init_on_load(self) -> None:
         """

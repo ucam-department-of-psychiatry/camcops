@@ -1,0 +1,23 @@
+usage: camcops_server_meta [-h] --filespecs FILESPECS [FILESPECS ...]
+                           [--ccargs [CCARGS [CCARGS ...]]] [--python PYTHON]
+                           [--camcops CAMCOPS] [-d] [-v]
+                           cc_command
+
+Run commands across multiple CamCOPS databases
+
+positional arguments:
+  cc_command            Main command to pass to CamCOPS
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --filespecs FILESPECS [FILESPECS ...]
+                        List of CamCOPS config files (wildcards OK)
+  --ccargs [CCARGS [CCARGS ...]]
+                        List of CamCOPS arguments, to which '--' will be
+                        prefixed
+  --python PYTHON       Python interpreter (default:
+                        /home/rudolf/dev/venvs/camcops/bin/python3)
+  --camcops CAMCOPS     CamCOPS server executable (default: /home/rudolf/Docum
+                        ents/code/camcops/server/camcops_server.py)
+  -d, --dummyrun        Dummy run (show filenames only)
+  -v, --verbose         Verbose

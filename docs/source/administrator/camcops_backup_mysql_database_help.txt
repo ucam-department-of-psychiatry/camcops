@@ -1,0 +1,28 @@
+usage: camcops_backup_mysql_database [-h]
+                                     [--max_allowed_packet MAX_ALLOWED_PACKET]
+                                     [--mysqldump MYSQLDUMP]
+                                     [--username USERNAME]
+                                     [--password PASSWORD]
+                                     [--with_drop_create_database] [--verbose]
+                                     databases [databases ...]
+
+Back up a specific MySQL database
+
+positional arguments:
+  databases             Database(s) to back up
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --max_allowed_packet MAX_ALLOWED_PACKET
+                        Maximum size of buffer (default: 1GB)
+  --mysqldump MYSQLDUMP
+                        mysqldump executable (default: mysqldump)
+  --username USERNAME   MySQL user (default: root)
+  --password PASSWORD   MySQL password (AVOID THIS OPTION IF POSSIBLE; VERY
+                        INSECURE; VISIBLE TO OTHER PROCESSES; if you don't use
+                        it, you'll be prompted for the password) (default:
+                        root)
+  --with_drop_create_database
+                        Include DROP DATABASE and CREATE DATABASE commands
+                        (default: False)
+  --verbose             Verbose output (default: False)

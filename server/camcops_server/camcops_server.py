@@ -38,9 +38,13 @@ import os
 import multiprocessing
 import pprint
 import sys
-from typing import List, Optional, TYPE_CHECKING
+from typing import Dict, List, Optional, Type, TYPE_CHECKING
 
-from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction
+from cardinal_pythonlib.argparse_func import (
+    ShowAllSubparserHelpAction,
+    MapType,
+    nonnegative_int,
+)
 from cardinal_pythonlib.debugging import pdb_run
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
@@ -203,10 +207,12 @@ def _merge_camcops_db(src: str,
                       report_every: int,
                       dummy_run: bool,
                       info_only: bool,
-                      skip_export_logs: bool,
-                      skip_audit_logs: bool,
+                      # skip_export_logs: bool,
+                      # skip_audit_logs: bool,
                       default_group_id: Optional[int],
-                      default_group_name: Optional[str]) -> None:
+                      default_group_name: Optional[str],
+                      groupnum_map: Dict[int, int],
+                      whichidnum_map: Dict[int, int]) -> None:
     # noinspection PyUnresolvedReferences
     import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
     from camcops_server.cc_modules.merge_db import merge_camcops_db  # delayed import  # noqa
@@ -215,10 +221,12 @@ def _merge_camcops_db(src: str,
                      report_every=report_every,
                      dummy_run=dummy_run,
                      info_only=info_only,
-                     skip_export_logs=skip_export_logs,
-                     skip_audit_logs=skip_audit_logs,
+                     # skip_export_logs=skip_export_logs,
+                     # skip_audit_logs=skip_audit_logs,
                      default_group_id=default_group_id,
-                     default_group_name=default_group_name)
+                     default_group_name=default_group_name,
+                     groupnum_map=groupnum_map,
+                     whichidnum_map=whichidnum_map)
 
 
 def _get_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> str:
@@ -451,7 +459,7 @@ def add_sub(sp: "_SubParsersAction",
 
 # noinspection PyShadowingBuiltins
 def add_req_named(sp: ArgumentParser, switch: str, help: str,
-                  action: str = None) -> None:
+                  action: str = None, type: Type = None) -> None:
     """
     Adds a required but named argument. This is a bit unconventional; for
     example, making the ``--config`` option mandatory even though ``--`` is
@@ -462,13 +470,20 @@ def add_req_named(sp: ArgumentParser, switch: str, help: str,
         switch: passed to :func:`add_argument`
         help: passed to :func:`add_argument`
         action: passed to :func:`add_argument`
+        type: passed to :func:`add_argument`
     """
     # noinspection PyProtectedMember
     reqgroup = next((g for g in sp._action_groups
                      if g.title == _REQNAMED), None)
     if not reqgroup:
         reqgroup = sp.add_argument_group(_REQNAMED)
-    reqgroup.add_argument(switch, required=True, action=action, help=help)
+    kwargs = dict(required=True, help=help)
+    if action:
+        assert type is None, "Don't specify action and type"
+        kwargs["action"] = action
+    elif type:
+        kwargs["type"] = type
+    reqgroup.add_argument(switch, **kwargs)
 
 
 def camcops_main() -> None:
@@ -645,6 +660,8 @@ def camcops_main() -> None:
         func=lambda args: _print_database_title())
 
     # Merge in data fom another database
+    int_int_mapper = MapType(from_type=nonnegative_int,
+                             to_type=nonnegative_int)
     mergedb_parser = add_sub(
         subparsers, "merge_db", config_mandatory=True,
         help="Merge in data from an old or recent CamCOPS database")
@@ -660,12 +677,12 @@ def camcops_main() -> None:
     mergedb_parser.add_argument(
         '--info_only', action="store_true",
         help="Show table information only; don't do any work")
-    mergedb_parser.add_argument(
-        '--skip_hl7_logs', action="store_true",
-        help="Skip the HL7 message log table")
-    mergedb_parser.add_argument(
-        '--skip_audit_logs', action="store_true",
-        help="Skip the audit log table")
+    # mergedb_parser.add_argument(
+    #     '--skip_export_logs', action="store_true",
+    #     help="Skip the export log tables")
+    # mergedb_parser.add_argument(
+    #     '--skip_audit_logs', action="store_true",
+    #     help="Skip the audit log table")
     mergedb_parser.add_argument(
         '--default_group_id', type=int, default=None,
         help="Default group ID (integer) to apply to old records without one. "
@@ -681,16 +698,30 @@ def camcops_main() -> None:
         help="Source database (specified as an SQLAlchemy URL). The contents "
              "of this database will be merged into the database specified "
              "in the config file.")
+    add_req_named(
+        mergedb_parser,
+        "--whichidnum_map",
+        type=int_int_mapper,
+        help="Map to convert ID number types, in the format "
+             "'from_a:to_a,from_b:to_b,...', where all values are integers.")
+    add_req_named(
+        mergedb_parser,
+        "--groupnum_map",
+        type=int_int_mapper,
+        help="Map to convert group numbers, in the format "
+             "'from_a:to_a,from_b:to_b,...', where all values are integers.")
     mergedb_parser.set_defaults(func=lambda args: _merge_camcops_db(
         src=args.src,
         echo=args.echo,
         report_every=args.report_every,
         dummy_run=args.dummy_run,
         info_only=args.info_only,
-        skip_export_logs=args.skip_hl7_logs,
-        skip_audit_logs=args.skip_audit_logs,
+        # skip_export_logs=args.skip_export_logs,
+        # skip_audit_logs=args.skip_audit_logs,
         default_group_id=args.default_group_id,
         default_group_name=args.default_group_name,
+        whichidnum_map=args.whichidnum_map,
+        groupnum_map=args.groupnum_map,
     ))
     # WATCH OUT. There appears to be a bug somewhere in the way that the
     # Pyramid debug toolbar registers itself with SQLAlchemy (see

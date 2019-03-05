@@ -947,18 +947,23 @@ config file. Together, they define a single export recipient.
 
 .. note::
 
-    An export recipient is defined by name. This is particularly important for
-    incremental updates. If you run an incremental export, and then make
-    changes to the recipient definition, tasks that have already been sent
-    will not be re-sent. (A new record will be created in the
-    ``_export_recipients`` table with a new ID but the same recipient name, so
-    the history is transparent.) However, if you rename the export recipient,
-    it will be treated as a new recipient, so any tasks previously sent (via
-    the old name) will be re-sent.
+    An export recipient is defined by name.
+
+    This is particularly important for incremental updates. If you run an
+    incremental export, and then make changes to the recipient definition,
+    tasks that have already been sent will not be re-sent. (A new record will
+    be created in the ``_export_recipients`` table with a new ID but the same
+    recipient name, so the history is transparent.) However, if you rename the
+    export recipient, it will be treated as a new recipient, so any tasks
+    previously sent (via the old name) will be re-sent.
 
     This is implemented via
     :func:`camcops_server.cc_modules.cc_exportmodels.get_collection_for_export`
     and :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`.
+
+    Config file section names are case-sensitive (see e.g.
+    https://docs.python.org/3/library/configparser.html#supported-ini-file-structure)
+    and so are CamCOPS export recipient names.
 
 How to export
 ~~~~~~~~~~~~~

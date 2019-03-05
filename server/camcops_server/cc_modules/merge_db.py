@@ -32,7 +32,7 @@ Has special code to deal with old databases.
 
 import logging
 from pprint import pformat
-from typing import Dict, List, Optional, Type, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.merge_db import merge_db, TranslationContext
@@ -53,6 +53,7 @@ from camcops_server.cc_modules.cc_constants import (
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
+from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportedTaskEmail,
@@ -92,7 +93,7 @@ DEBUG_VIA_PDB = False
 
 
 # =============================================================================
-# Preprocess
+# Information relating to the source database
 # =============================================================================
 
 def get_skip_tables(src_tables: List[str]) -> List[TableIdentity]:
@@ -171,11 +172,13 @@ def get_src_iddefs(src_engine: Engine,
         log.info("Fetching source ID number definitions from {!r} table",
                  IdNumDefinition.__tablename__)
         # noinspection PyUnresolvedReferences
-        q = select([IdNumDefinition.which_idnum,
+        q = (
+            select([IdNumDefinition.which_idnum,
                     IdNumDefinition.description,
-                    IdNumDefinition.short_description])\
-            .select_from(IdNumDefinition.__table__)\
+                    IdNumDefinition.short_description])
+            .select_from(IdNumDefinition.__table__)
             .order_by(IdNumDefinition.which_idnum)
+        )
         rows = src_engine.execute(q).fetchall()
         for row in rows:
             which_idnum = row[0]
@@ -190,17 +193,21 @@ def get_src_iddefs(src_engine: Engine,
                  server_stored_var_table_defunct.name)
         for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
             nstr = str(which_idnum)
-            qd = select([server_stored_var_table_defunct.columns.valueText])\
-                .select_from(server_stored_var_table_defunct)\
+            qd = (
+                select([server_stored_var_table_defunct.columns.valueText])
+                .select_from(server_stored_var_table_defunct)
                 .where(server_stored_var_table_defunct.columns.name ==
                        ServerStoredVarNamesDefunct.ID_DESCRIPTION_PREFIX
                        + nstr)
+            )
             rd = src_engine.execute(qd).fetchall()
-            qs = select([server_stored_var_table_defunct.columns.valueText])\
-                .select_from(server_stored_var_table_defunct)\
+            qs = (
+                select([server_stored_var_table_defunct.columns.valueText])
+                .select_from(server_stored_var_table_defunct)
                 .where(server_stored_var_table_defunct.columns.name ==
                        ServerStoredVarNamesDefunct.ID_SHORT_DESCRIPTION_PREFIX
                        + nstr)
+            )
             rs = src_engine.execute(qs).fetchall()
             iddefs[which_idnum] = IdNumDefinition(
                 which_idnum=which_idnum,
@@ -214,17 +221,8 @@ def get_src_iddefs(src_engine: Engine,
 
 
 # =============================================================================
-# Extra translation to be applied to individual objects
+# Information relating to the destination database
 # =============================================================================
-# The extra logic for this database:
-
-def flush_session(dst_session: Session) -> None:
-    """
-    Flushes the destination SQLAlchemy session.
-    """
-    log.debug("Flushing session")
-    dst_session.flush()
-
 
 def group_exists(group_id: int, dst_session: Session) -> bool:
     """
@@ -257,9 +255,11 @@ def fetch_group_id_by_name(group_name: str, dst_session: Session) -> int:
 
     """
     try:
-        group = dst_session.query(Group)\
-            .filter(Group.name == group_name)\
-            .one()  # type: Group
+        group = (
+            dst_session.query(Group)
+            .filter(Group.name == group_name)
+            .one()
+        )  # type: Group
         # ... will fail if there are 0 or >1 results
     except MultipleResultsFound:
         log.critical("Nasty bug: can't have two groups with the same name! "
@@ -274,6 +274,104 @@ def fetch_group_id_by_name(group_name: str, dst_session: Session) -> int:
         # https://stackoverflow.com/questions/1316952/sqlalchemy-flush-and-get-inserted-id  # noqa
         log.info("... new group has ID {!r}", group.id)
     return group.id
+
+
+def get_dst_group(dest_groupnum: int,
+                  dst_session: Session) -> Group:
+    """
+    Ensures that the specified group number exists in the destination database
+    and returns the corresponding group.
+
+    Args:
+        dest_groupnum: group number
+        dst_session: SQLAlchemy session for the destination database
+
+    Returns:
+        the group
+
+    Raises:
+        :exc:`ValueError` upon failure
+    """
+    try:
+        group = (
+            dst_session.query(Group)
+            .filter(Group.id == dest_groupnum)
+            .one()
+        )  # type: Group
+        # ... will fail if there are 0 or >1 results
+    except MultipleResultsFound:
+        log.critical("Nasty bug: can't have two groups with the same ID! "
+                     "Group ID was {!r}", dest_groupnum)
+        raise
+    except NoResultFound:
+        raise ValueError("Group with ID {} missing from destination "
+                         "database".format(dest_groupnum))
+    return group
+
+
+def ensure_dest_iddef_exists(which_idnum: int,
+                             dst_session: Session) -> IdNumDefinition:
+    """
+    Ensures that the specified ID number type exists in the destination
+    database.
+
+    Args:
+        which_idnum: ID number type
+        dst_session: SQLAlchemy session for the destination database
+
+    Raises:
+        :exc:`ValueError` upon failure
+    """
+    try:
+        iddef = (
+            dst_session.query(IdNumDefinition)
+            .filter(IdNumDefinition.which_idnum == which_idnum)
+            .one()
+        )  # type: IdNumDefinition
+        # ... will fail if there are 0 or >1 results
+    except MultipleResultsFound:
+        log.critical("Nasty bug: can't have two ID number types with the same "
+                     "which_idnum! which_idnum was {!r}", which_idnum)
+        raise
+    except NoResultFound:
+        raise ValueError("ID number type with which_idnum={} missing from "
+                         "destination database".format(which_idnum))
+    return iddef
+
+
+def get_dst_iddef(dst_session: Session,
+                  which_idnum: int) -> Optional[IdNumDefinition]:
+    """
+    Fetches an ID number definition from the destination database, ensuring it
+    exists.
+
+    Args:
+        dst_session: destination SQLAlchemy :class:`Session`
+        which_idnum: integer expressing which ID number type to look up
+
+    Returns:
+        an :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`, or
+        ``None`` if none was found
+
+    """
+    return (
+        dst_session.query(IdNumDefinition)
+        .filter(IdNumDefinition.which_idnum == which_idnum)
+        .first()
+    )
+
+
+# =============================================================================
+# Extra translation to be applied to individual objects
+# =============================================================================
+# The extra logic for this database:
+
+def flush_session(dst_session: Session) -> None:
+    """
+    Flushes the destination SQLAlchemy session.
+    """
+    log.debug("Flushing session")
+    dst_session.flush()
 
 
 def ensure_default_group_id(trcon: TranslationContext) -> None:
@@ -318,24 +416,8 @@ def ensure_default_group_id(trcon: TranslationContext) -> None:
         trcon.info["default_group_id"] = default_group_id  # for next time!
 
 
-def get_dst_iddef(dst_session: Session,
-                  which_idnum: int) -> Optional[IdNumDefinition]:
-    """
-    Fetches an ID number definition from the destination database.
-
-    Args:
-        dst_session: destination SQLAlchemy :class:`Session`
-        which_idnum: integer expressing which ID number type to look up
-
-    Returns:
-        an :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`, or
-        ``None`` if none was found
-
-    """
-    return dst_session.query(IdNumDefinition)\
-        .filter(IdNumDefinition.which_idnum == which_idnum)\
-        .first()
-
+'''
+# SUPERSEDED BY MORE CONSERVATIVE MECHANISM, 2019-03-05
 
 def ensure_idnumdef(trcon: TranslationContext,
                     which_idnum: int) -> IdNumDefinition:
@@ -381,6 +463,7 @@ def ensure_idnumdef(trcon: TranslationContext,
         trcon.dst_session.add(new_iddef)
         flush_session(trcon.dst_session)  # required, or database FK checks fail  # noqa
         return new_iddef
+'''
 
 
 def ensure_no_iddef_clash(src_iddef: IdNumDefinition,
@@ -418,6 +501,74 @@ def ensure_no_iddef_clash(src_iddef: IdNumDefinition,
                 dst_iddef.short_description
             )
         )
+
+
+def log_warning_srcobj(srcobj: Any) -> None:
+    """
+    Prints a source (old) object to the log.
+
+    Args:
+        srcobj: the source object
+    """
+    log.warning("Source was:\n\n{}\n\n", pformat(srcobj.__dict__))
+
+
+def get_dest_groupnum(src_groupnum: int,
+                      trcon: TranslationContext,
+                      oldobj: Any) -> int:
+    """
+    For a given source group number, returns the corresponding destination
+    group number (validating en route).
+
+    Args:
+        src_groupnum: the group number in the source database
+        trcon: the :class:`TranslationContext`
+        oldobj: the source object
+
+    Returns:
+        the corresponding which_idnum in the destination database
+
+    Raises:
+        :exc:`ValueError` if bad
+    """
+    groupnum_map = trcon.info["groupnum_map"]  # type: Dict[int, int]
+    if src_groupnum not in groupnum_map:
+        log_warning_srcobj(oldobj)
+        log.critical(
+            "Old database contains group number {} and equivalent "
+            "group in destination not known", src_groupnum)
+        raise ValueError("Bad group mapping")
+    return groupnum_map[src_groupnum]
+
+
+def get_dest_which_idnum(src_which_idnum: int,
+                         trcon: TranslationContext,
+                         oldobj: Any) -> int:
+    """
+    For a given source ID number type, returns the corresponding destination
+    ID number type (validating en route).
+
+    Args:
+        src_which_idnum: which_idnum in the source database
+        trcon: the :class:`TranslationContext`
+        oldobj: the source object
+
+    Returns:
+        the corresponding which_idnum in the destination database
+
+    Raises:
+        :exc:`ValueError` if bad
+
+    """
+    whichidnum_map = trcon.info["whichidnum_map"]  # type: Dict[int, int]
+    if src_which_idnum not in whichidnum_map:
+        log_warning_srcobj(oldobj)
+        log.critical(
+            "Old database contains ID number definitions of type {} and "
+            "equivalent ID number type in destination not known",
+            src_which_idnum)
+        raise ValueError("Bad ID number type mapping")
+    return whichidnum_map[src_which_idnum]
 
 
 # noinspection PyProtectedMember
@@ -465,32 +616,45 @@ def translate_fn(trcon: TranslationContext) -> None:
 
     """
     log.debug("Translating object from table: {!r}", trcon.tablename)
-    # log.debug("Translating: {}", auto_repr(trcon.oldobj))
+    oldobj = trcon.oldobj
+    newobj = trcon.newobj
+    # log.debug("Translating: {}", auto_repr(oldobj))
 
     # -------------------------------------------------------------------------
-    # Set _group_id, if it's blank
+    # Set _group_id correctly for tablet records
     # -------------------------------------------------------------------------
-    if (isinstance(trcon.oldobj, GenericTabletRecordMixin) and
-            ("_group_id" in trcon.missing_src_columns or
-             trcon.oldobj._group_id is None)):
-        # ... order that carefully; if the _group_id column is missing from the
-        # source, don't touch trcon.oldobj._group_id or it'll trigger a DB
-        # query that fails.
-        ensure_default_group_id(trcon)
-        default_group_id = trcon.info["default_group_id"]  # type: int
-        log.debug("Assiging new _group_id of {!r}", default_group_id)
-        trcon.newobj._group_id = default_group_id
+    if isinstance(oldobj, GenericTabletRecordMixin):
+        if ("_group_id" in trcon.missing_src_columns or
+                oldobj._group_id is None):
+            # ... order that "if" statement carefully; if the _group_id column
+            # is missing from the source, don't touch oldobj._group_id or
+            # it'll trigger a DB query that fails.
+            #
+            # Set _group_id because it's blank
+            #
+            ensure_default_group_id(trcon)
+            default_group_id = trcon.info["default_group_id"]  # type: int
+            log.debug("Assiging new _group_id of {!r}", default_group_id)
+            newobj._group_id = default_group_id
+        else:
+            #
+            # Re-map _group_id
+            #
+            newobj._group_id = get_dest_groupnum(oldobj._group_id,
+                                                 trcon, oldobj)
 
     # -------------------------------------------------------------------------
     # If an identical user is found, merge on it rather than creating a new
     # one. Users with matching usernames are considered to be identical.
     # -------------------------------------------------------------------------
     if trcon.tablename == User.__tablename__:
-        src_user = trcon.oldobj  # type: User
+        src_user = oldobj  # type: User
         src_username = src_user.username
-        matching_user = trcon.dst_session.query(User) \
-            .filter(User.username == src_username) \
-            .one_or_none()  # type: Optional[User]
+        matching_user = (
+            trcon.dst_session.query(User)
+            .filter(User.username == src_username)
+            .one_or_none()
+        )  # type: Optional[User]
         if matching_user is not None:
             log.debug("Matching User (username {!r}) found; merging",
                       matching_user.username)
@@ -501,11 +665,13 @@ def translate_fn(trcon: TranslationContext) -> None:
     # new one. Devices with matching names are considered to be identical.
     # -------------------------------------------------------------------------
     if trcon.tablename == Device.__tablename__:
-        src_device = trcon.oldobj  # type: Device
+        src_device = oldobj  # type: Device
         src_devicename = src_device.name
-        matching_device = trcon.dst_session.query(Device) \
-            .filter(Device.name == src_devicename) \
-            .one_or_none()  # type: Optional[Device]
+        matching_device = (
+            trcon.dst_session.query(Device)
+            .filter(Device.name == src_devicename)
+            .one_or_none()
+        )  # type: Optional[Device]
         if matching_device is not None:
             log.debug("Matching Device (name {!r}) found; merging",
                       matching_device.name)
@@ -526,19 +692,18 @@ def translate_fn(trcon: TranslationContext) -> None:
         # SO WE DO SEPARATE DUPLICATE CHECKING, below.
 
     # -------------------------------------------------------------------------
-    # If an identical group is found, merge on it rather than creating a
-    # new one. Groups with matching names are considered to be identical.
+    # Don't copy Group records; the user must set these up manually and specify
+    # groupnum_map, for safety
     # -------------------------------------------------------------------------
     if trcon.tablename == Group.__tablename__:
-        src_group = trcon.oldobj  # type: Group
-        src_groupname = src_group.name
-        matching_group = trcon.dst_session.query(Group) \
-            .filter(Group.name == src_groupname) \
-            .one_or_none()  # type: Optional[Group]
-        if matching_group is not None:
-            log.debug("Matching Group (name {!r}) found; merging",
-                      matching_group.name)
-            trcon.newobj = matching_group
+        trcon.newobj = None  # don't insert this object
+        # ... don't set "newobj = None"; that wouldn't alter trcon
+        # Now make sure the map is OK:
+        src_group = oldobj  # type: Group
+        trcon.objmap[oldobj] = get_dst_group(
+            dest_groupnum=get_dest_groupnum(src_group.id, trcon, src_group),
+            dst_session=trcon.dst_session
+        )
 
     # -------------------------------------------------------------------------
     # If there are any patient numbers in the old format (as a set of
@@ -552,7 +717,7 @@ def translate_fn(trcon: TranslationContext) -> None:
     # -------------------------------------------------------------------------
     if trcon.tablename == Patient.__tablename__:
         # (a) Find old patient numbers
-        old_patient = trcon.oldobj  # type: Patient
+        old_patient = oldobj  # type: Patient
         # noinspection PyUnresolvedReferences
         src_pt_query = (
             select([text('*')])
@@ -574,8 +739,8 @@ def translate_fn(trcon: TranslationContext) -> None:
         # PatientIdNum, so that should be: if any don't exist in the *source*
         # database, create them.
         src_tables = trcon.src_table_names
-        for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
-            old_fieldname = FP_ID_NUM + str(which_idnum)
+        for src_which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
+            old_fieldname = FP_ID_NUM + str(src_which_idnum)
             idnum_value = old_patient_dict[old_fieldname]
             if idnum_value is None:
                 # Old Patient record didn't contain this ID number
@@ -583,32 +748,34 @@ def translate_fn(trcon: TranslationContext) -> None:
             # Old Patient record *did* contain the ID number...
             if PatientIdNum.__tablename__ in src_tables:
                 # noinspection PyUnresolvedReferences
-                src_idnum_query = select([func.count()])\
-                    .select_from(table(PatientIdNum.__tablename__))\
+                src_idnum_query = (
+                    select([func.count()])
+                    .select_from(table(PatientIdNum.__tablename__))
                     .where(column(PatientIdNum.patient_id.name) ==
-                           old_patient.id)\
+                           old_patient.id)
                     .where(column(PatientIdNum._current.name) ==
-                           old_patient._current)\
+                           old_patient._current)
                     .where(column(PatientIdNum._device_id.name) ==
-                           old_patient._device_id)\
+                           old_patient._device_id)
                     .where(column(PatientIdNum._era.name) ==
-                           old_patient._era)\
+                           old_patient._era)
                     .where(column(PatientIdNum.which_idnum.name) ==
-                           which_idnum)
+                           src_which_idnum)
+                )
                 n_present = trcon.src_session.execute(src_idnum_query).scalar()
                 #                 ^^^
                 #                  !
                 if n_present != 0:
                     # There was already a PatientIdNum for this which_idnum
                     continue
-            _ = ensure_idnumdef(trcon, which_idnum=which_idnum)
             pidnum = PatientIdNum()
             # PatientIdNum fields:
             pidnum.id = fake_tablet_id_for_patientidnum(
-                patient_id=old_patient.id, which_idnum=which_idnum)
+                patient_id=old_patient.id, which_idnum=src_which_idnum)
             # ... guarantees a pseudo client (tablet) PK
             pidnum.patient_id = old_patient.id
-            pidnum.which_idnum = which_idnum
+            pidnum.which_idnum = get_dest_which_idnum(src_which_idnum,
+                                                      trcon, oldobj)
             pidnum.idnum_value = idnum_value
             # GenericTabletRecordMixin fields:
             # _pk: autogenerated
@@ -645,7 +812,7 @@ def translate_fn(trcon: TranslationContext) -> None:
             pidnum._camcops_version = old_patient._camcops_version
             pidnum._addition_pending = old_patient._addition_pending
             pidnum._removal_pending = old_patient._removal_pending
-            pidnum._group_id = trcon.newobj._group_id
+            pidnum._group_id = newobj._group_id
             # ... will have been set above if it was blank
 
             # OK.
@@ -657,51 +824,54 @@ def translate_fn(trcon: TranslationContext) -> None:
     # IdNumDefinition, and that it's valid
     # -------------------------------------------------------------------------
     if trcon.tablename == PatientIdNum.__tablename__:
-        src_pidnum = trcon.oldobj  # type: PatientIdNum
-        which_idnum = src_pidnum.which_idnum
-        # Is it valid?
-        if which_idnum is None:
+        src_pidnum = oldobj  # type: PatientIdNum
+        src_which_idnum = src_pidnum.which_idnum
+        # Is it present?
+        if src_which_idnum is None:
             raise ValueError("Bad PatientIdNum: {!r}".format(src_pidnum))
-        # Is there a corresponding IdNumDefinition, or shall we create one?
-        ensure_idnumdef(trcon, which_idnum=which_idnum)
-        # Ensure the new object has an appropriate FK (which will have been
-        # wiped)
-        dst_pidnum = trcon.newobj  # type: PatientIdNum
-        dst_pidnum.which_idnum = which_idnum
+        # Ensure the new object has an appropriate ID number FK:
+        dst_pidnum = newobj  # type: PatientIdNum
+        dst_pidnum.which_idnum = get_dest_which_idnum(src_which_idnum,
+                                                      trcon, oldobj)
 
     # -------------------------------------------------------------------------
     # If we're merging from a more modern database with the IdNumDefinition
-    # table, check our ID number definitions don't conflict
+    # table, skip source IdNumDefinition records; the user must set these up
+    # manually and specify whichidnum_map, for safety
     # -------------------------------------------------------------------------
     if trcon.tablename == IdNumDefinition.__tablename__:
-        src_iddef = trcon.oldobj  # type: IdNumDefinition
-        which_idnum = src_iddef.which_idnum
-        dst_iddef = get_dst_iddef(trcon.dst_session, which_idnum=which_idnum)
-        if dst_iddef:  # there's an entry in the destination DB already
-            ensure_no_iddef_clash(src_iddef=src_iddef, dst_iddef=dst_iddef)
-            trcon.newobj = None  # don't bother inserting it again
+        trcon.newobj = None  # don't insert this object
+        # ... don't set "newobj = None"; that wouldn't alter trcon
+        # Now make sure the map is OK:
+        src_iddef = oldobj  # type: IdNumDefinition
+        trcon.objmap[oldobj] = get_dst_iddef(
+            which_idnum=get_dest_which_idnum(src_iddef.which_idnum,
+                                             trcon, src_iddef),
+            dst_session=trcon.dst_session
+        )
 
     # -------------------------------------------------------------------------
     # Check we're not creating duplicates for anything uploaded
     # -------------------------------------------------------------------------
-    if isinstance(trcon.oldobj, GenericTabletRecordMixin):
-        old_instance = trcon.oldobj
-        cls = trcon.newobj.__class__  # type: Type[GenericTabletRecordMixin]
+    if isinstance(oldobj, GenericTabletRecordMixin):
+        cls = newobj.__class__  # type: Type[GenericTabletRecordMixin]
         # Records uploaded from tablets must be unique on the combination of:
         #       id                  = table PK
         #       _device_id          = device
         #       _era                = device era
         #       _when_removed_exact = removal date or NULL
-        exists_query = select([func.count()])\
-            .select_from(table(trcon.tablename))\
-            .where(column(cls.id.name) == old_instance.id)\
+        exists_query = (
+            select([func.count()])
+            .select_from(table(trcon.tablename))
+            .where(column(cls.id.name) == oldobj.id)
             .where(column(cls._device_id.name) ==
-                   trcon.objmap[old_instance._device].id)\
-            .where(column(cls._era.name) == old_instance._era)\
+                   trcon.objmap[oldobj._device].id)
+            .where(column(cls._era.name) == oldobj._era)
             .where(column(cls._when_removed_exact.name) ==
-                   old_instance._when_removed_exact)
+                   oldobj._when_removed_exact)
+        )
         # Note re NULLs... Although it's an inconvenient truth in SQL that
-        #   SELECT NULL = NULL; -> NULL
+        #   SELECT NULL = NULL; -- returns NULL
         # in this code we have a comparison of a column to a Python value.
         # SQLAlchemy is clever and renders "IS NULL" if the Python value is
         # None, or an "=" comparison otherwise.
@@ -731,14 +901,16 @@ def translate_fn(trcon: TranslationContext) -> None:
         #   -- returns all rows
         n_exists = trcon.dst_session.execute(exists_query).scalar()
         if n_exists > 0:
-            existing_rec_q = select(['*'])\
-                .select_from(table(trcon.tablename))\
-                .where(column(cls.id.name) == old_instance.id)\
+            existing_rec_q = (
+                select(['*'])
+                .select_from(table(trcon.tablename))
+                .where(column(cls.id.name) == oldobj.id)
                 .where(column(cls._device_id.name) ==
-                       trcon.objmap[old_instance._device].id) \
-                .where(column(cls._era.name) == old_instance._era)\
+                       trcon.objmap[oldobj._device].id)
+                .where(column(cls._era.name) == oldobj._era)
                 .where(column(cls._when_removed_exact.name) ==
-                       old_instance._when_removed_exact)
+                       oldobj._when_removed_exact)
+            )
             resultproxy = trcon.dst_session.execute(existing_rec_q).fetchall()
             existing_rec = [dict(row) for row in resultproxy]
             log.critical(
@@ -750,13 +922,13 @@ def translate_fn(trcon: TranslationContext) -> None:
                 "ARE YOU TRYING TO MERGE THE SAME DATABASE IN TWICE? "
                 "DON'T.",
                 t=trcon.tablename,
-                i=old_instance.id,
-                d=old_instance._device_id,
-                e=old_instance._era,
-                w=old_instance._when_removed_exact,
+                i=oldobj.id,
+                d=oldobj._device_id,
+                e=oldobj._era,
+                w=oldobj._when_removed_exact,
             )
             if (trcon.tablename == PatientIdNum.__tablename__ and
-                    (old_instance.id % NUMBER_OF_IDNUMS_DEFUNCT == 0)):
+                    (oldobj.id % NUMBER_OF_IDNUMS_DEFUNCT == 0)):
                 log.critical(
                     'Since this error has occurred for table {t!r} '
                     '(and for id % {n} == 0), '
@@ -781,11 +953,9 @@ def translate_fn(trcon: TranslationContext) -> None:
             # thing (as per Michael Bayer) is to detach the object from the
             # session:
             # https://groups.google.com/forum/#!topic/sqlalchemy/X_wA8K97smE
-            trcon.src_session.expunge(old_instance)  # prevent implicit queries
+            trcon.src_session.expunge(oldobj)  # prevent implicit queries
             # Then all should work:
-            log.critical(
-                "Source was:\n\n{}\n\n",
-                pformat(old_instance.__dict__))
+            log_warning_srcobj(oldobj)
             log.critical(
                 "Existing record(s) in destination DB was/were:\n\n{}\n\n",
                 pformat(existing_rec))
@@ -827,10 +997,12 @@ def merge_camcops_db(src: str,
                      report_every: int,
                      dummy_run: bool,
                      info_only: bool,
-                     skip_export_logs: bool,
-                     skip_audit_logs: bool,
                      default_group_id: Optional[int],
-                     default_group_name: Optional[str]) -> None:
+                     default_group_name: Optional[str],
+                     groupnum_map: Dict[int, int],
+                     whichidnum_map: Dict[int, int],
+                     skip_export_logs: bool = True,
+                     skip_audit_logs: bool = True) -> None:
     """
     Merge an existing database (with a pre-v2 or later structure) into a
     comtemporary CamCOPS database.
@@ -851,12 +1023,6 @@ def merge_camcops_db(src: str,
         info_only:
             show info, then stop
 
-        skip_export_logs:
-            skip export log tables
-
-        skip_audit_logs:
-            skip audit log table
-
         default_group_id:
             integer group ID (in the destination database) to use for source
             records that have no group (because they come from a very old
@@ -866,11 +1032,30 @@ def merge_camcops_db(src: str,
             group name (in the destination database) to use for source
             records that have no group (because they come from a very old
             source database) but need one
+
+        groupnum_map:
+            dictionary mapping group ID values from the source database to
+            the destination database
+
+        whichidnum_map:
+            dictionary mapping ``which_idnum`` values from the source database
+            to the destination database
+
+        skip_export_logs:
+            skip export log tables
+
+        skip_audit_logs:
+            skip audit log table
+
     """
     req = get_command_line_request()
     src_engine = create_engine(src, echo=echo, pool_pre_ping=True)
     log.info("SOURCE: " + get_safe_url_from_engine(src_engine))
     log.info("DESTINATION: " + get_safe_url_from_engine(req.engine))
+    log.info("Destination ID number type map (source:destination) is: {!r}",
+             whichidnum_map)
+    log.info("Group number type map (source:destination) is {!r}",
+             groupnum_map)
 
     # Delay the slow import until we've checked our syntax
     log.info("Loading all models...")
@@ -900,22 +1085,30 @@ def merge_camcops_db(src: str,
         # Transient stuff we don't want to copy across, or wouldn't want to
         # overwrite the destination with, or where the PK structure has
         # changed and we don't care about old data:
-        TableIdentity(tablename=CamcopsSession.__tablename__),
-        TableIdentity(tablename=DirtyTable.__tablename__),
-        TableIdentity(tablename=ServerSettings.__tablename__),
-        TableIdentity(tablename=SecurityAccountLockout.__tablename__),
-        TableIdentity(tablename=SecurityLoginFailure.__tablename__),
-        TableIdentity(tablename=UserGroupMembership.__tablename__),
+        TableIdentity(tablename=x)
+        for x in [
+            CamcopsSession.__tablename__,
+            DirtyTable.__tablename__,
+            ServerSettings.__tablename__,
+            SecurityAccountLockout.__tablename__,
+            SecurityLoginFailure.__tablename__,
+            UserGroupMembership.__tablename__,
+            group_group_table.name,
+        ]
     ]
 
     # Tedious and bulky stuff the user may want to skip:
     if skip_export_logs:
         skip_tables.extend([
-            TableIdentity(tablename=ExportRecipient.__tablename__),
-            TableIdentity(tablename=ExportedTask.__tablename__),
-            TableIdentity(tablename=ExportedTaskEmail.__tablename__),
-            TableIdentity(tablename=ExportedTaskFileGroup.__tablename__),
-            TableIdentity(tablename=ExportedTaskHL7Message.__tablename__),
+            TableIdentity(tablename=x)
+            for x in [
+                Email.__tablename__,
+                ExportRecipient.__tablename__,
+                ExportedTask.__tablename__,
+                ExportedTaskEmail.__tablename__,
+                ExportedTaskFileGroup.__tablename__,
+                ExportedTaskHL7Message.__tablename__,
+            ]
         ])
     if skip_audit_logs:
         skip_tables.append(TableIdentity(tablename=AuditEntry.__tablename__))
@@ -938,13 +1131,33 @@ def merge_camcops_db(src: str,
     _ = Device.get_server_device(dbsession=dst_session)
 
     # -------------------------------------------------------------------------
+    # Set up source-to-destination mappings
+    # -------------------------------------------------------------------------
+
+    # Map source to destination ID number types
+    for src_which_idnum, dest_which_idnum in whichidnum_map.items():
+        assert isinstance(src_which_idnum, int)
+        assert isinstance(dest_which_idnum, int)
+        src_iddef = src_iddefs[src_which_idnum]
+        dst_iddef = ensure_dest_iddef_exists(dest_which_idnum, dst_session)
+        ensure_no_iddef_clash(src_iddef, dst_iddef)
+
+    # Map source to destination group numbers
+    for src_groupnum, dest_groupnum in groupnum_map.items():
+        assert isinstance(src_groupnum, int)
+        assert isinstance(dest_groupnum, int)
+        _ = get_dst_group(dest_groupnum, dst_session)
+
+    # -------------------------------------------------------------------------
     # Merge
     # -------------------------------------------------------------------------
 
     # Merge! It's easy...
     trcon_info = dict(default_group_id=default_group_id,
                       default_group_name=default_group_name,
-                      src_iddefs=src_iddefs)
+                      src_iddefs=src_iddefs,
+                      whichidnum_map=whichidnum_map,
+                      groupnum_map=groupnum_map)
     merge_db(
         base_class=Base,
         src_engine=src_engine,

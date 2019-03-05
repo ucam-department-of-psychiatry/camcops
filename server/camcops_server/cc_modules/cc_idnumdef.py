@@ -137,12 +137,13 @@ class IdNumDefinition(Base):
     )
 
     def __init__(self,
-                 which_idnum: int,
-                 description: str,
-                 short_description: str,
+                 which_idnum: int = None,
+                 description: str = "",
+                 short_description: str = "",
                  hl7_id_type: str = "",
                  hl7_assigning_authority: str = "",
                  validation_method: str = ""):
+        # We permit a "blank" constructor for automatic copying, e.g. merge_db.
         self.which_idnum = which_idnum
         self.description = description
         self.short_description = short_description

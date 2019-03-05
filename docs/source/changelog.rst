@@ -1910,3 +1910,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   The Titanium client did not recognize ``anyidnum`` -- and all patients will
   fail against an invalid policy. So that makes sense.
+
+- ``merge_db`` function made much more conservative about importing groups,
+  ID number types -- user must specify the mapping manually to avoid
+  inadvertent errors.

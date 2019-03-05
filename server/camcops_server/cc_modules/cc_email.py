@@ -184,7 +184,7 @@ class Email(Base):
     )
 
     def __init__(self,
-                 from_addr: str,
+                 from_addr: str = "",
                  date: str = None,
                  sender: str = "",
                  reply_to: str = "",
@@ -225,6 +225,8 @@ class Email(Base):
             save_msg_string: save the encoded message string? (May take
                 significant space in the database).
         """
+        # Note: we permit from_addr to be blank only for automated database
+        # copying.
 
         # ---------------------------------------------------------------------
         # Timestamp
@@ -239,7 +241,12 @@ class Email(Base):
             date = email.utils.format_datetime(now_local)
         attachment_filenames = attachment_filenames or []  # type: List[str]
         attachments_binary = attachments_binary or []  # type: List[Tuple[str, bytes]]  # noqa
-        attachment_binary_filenames, attachment_binaries = zip(*attachments_binary)  # noqa
+        if attachments_binary:
+            attachment_binary_filenames, attachment_binaries = zip(
+                *attachments_binary)
+        else:
+            attachment_binary_filenames = []  # type: List[str]
+            attachment_binaries = []  # type: List[bytes]
         # ... https://stackoverflow.com/questions/13635032/what-is-the-inverse-function-of-zip-in-python  # noqa
         # Other checks performed by our e-mail function below
 
@@ -261,7 +268,7 @@ class Email(Base):
             attachment_filenames=attachment_filenames,
             attachment_binaries=attachment_binaries,
             attachment_binary_filenames=attachment_binary_filenames,
-        )
+        ) if from_addr else None
 
         # ---------------------------------------------------------------------
         # Database fields
