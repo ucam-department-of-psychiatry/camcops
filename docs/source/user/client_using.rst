@@ -147,12 +147,11 @@ Test subjects
 -------------
 
 You may want to experiment with the non-anonymous tasks. A suggested way is to
-define a fake patient with an invalid ID number, or perhaps a couple of
-different sexes. For example, an NHS number cannot be a single-digit number, but
-CamCOPS doesn’t perform NHS number validation, so you could tell everyone in
-your institution that **FAKEPATIENT, JANE (NHS# 1, female)** and **FAKEPATIENT,
-JOHN (NHS# 2, male)** are your test patients. Everyone can then feel free to
-play with those identities, but not to create others. However, you may be
+define a fake patient with an invalid ID number, or perhaps a few such patients
+of different sexes. For example, you could tell everyone in your institution
+that **FAKEPATIENT, JANE (mystudyid# 99999, female)** and **FAKEPATIENT, JOHN
+(mystudyid# 99998, male)** are your test patients. Everyone can then feel free
+to play with those identities, but not to create others. However, you may be
 prohibited from doing this in a clinical environment, in which case you could
 set up a second training group in your database. (The disadvantage of that is
 the need for users, or their administrator, to select the proper group after

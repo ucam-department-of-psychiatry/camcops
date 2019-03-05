@@ -32,6 +32,7 @@ import logging
 from typing import List, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.sqlalchemy.list_types import (
     IntListType,
     StringListType,
@@ -386,6 +387,39 @@ class ExportRecipient(ExportRecipientInfo, Base):
         attrnames.update(key for key in self.__dict__ if not key.startswith('_'))  # noqa
         return sorted(attrnames)
 
+    def __repr__(self) -> str:
+        return simple_repr(self, self.get_attrnames())
+
+    def is_upload_suitable_for_push(self, tablename: str,
+                                    uploading_group_id: int) -> bool:
+        """
+        Might an upload potentially give tasks to be "pushed"?
+
+        Called by
+        :func:`camcops_server.cc_modules.cc_client_api_core.get_task_push_export_pks`.
+
+        Args:
+            tablename: table name being uploaded
+            uploading_group_id: group ID if the uploading user
+
+        Returns:
+            whether this upload should be considered further
+        """
+        if not self.push:
+            # Not a push export recipient
+            return False
+        if self.tasks and tablename not in self.tasks:
+            # Recipient is restricted to tasks that don't include the table
+            # being uploaded (or, the table is a subtable that we don't care
+            # about)
+            return False
+        if not self.all_groups:
+            # Recipient is restricted to specific groups
+            if uploading_group_id not in self.group_ids:
+                # Wrong group!
+                return False
+        return True
+
     def is_task_suitable(self, task: "Task") -> bool:
         """
         Used as a double-check that a task remains suitable.
@@ -401,6 +435,10 @@ class ExportRecipient(ExportRecipientInfo, Base):
                      self, task, reason)
             # Not a warning, actually; it's normal to see these because it
             # allows the client API to skip some checks for speed.
+
+        if self.tasks and task.tablename not in self.tasks:
+            _warn("Task type {!r} not included".format(task.tablename))
+            return False
 
         if not self.all_groups:
             task_group_id = task.get_group_id()

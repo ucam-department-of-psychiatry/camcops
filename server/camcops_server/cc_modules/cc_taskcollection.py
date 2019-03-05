@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/cc_modules/cc_taskfactory.py
+camcops_server/cc_modules/cc_taskcollection.py
 
 ===============================================================================
 
@@ -37,6 +37,7 @@ from typing import (Dict, Generator, List, Optional, Tuple, Type,
                     TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.reprfunc import auto_repr, auto_str
 from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
 from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Query
@@ -241,6 +242,7 @@ class TaskCollection(object):
         self.export_recipient = export_recipient
 
         if export_recipient:
+            # We create a new filter to reflect the export recipient.
             assert self._filter is None, (
                 "Can't supply taskfilter if you supply export_recipient")
             # We can do lots of what we need with a TaskFilter().
@@ -260,6 +262,12 @@ class TaskCollection(object):
         self._tasks_by_class = OrderedDict()  # type: Dict[Type[Task], List[Task]]  # noqa
         self._all_tasks = None  # type: List[Task]
         self._all_indexes = None  # type: Union[List[TaskIndexEntry], Query]
+
+    def __repr__(self) -> str:
+        return auto_repr(self)
+
+    def __str__(self) -> str:
+        return auto_str(self)
 
     # =========================================================================
     # Interface to read
@@ -565,7 +573,9 @@ class TaskCollection(object):
         :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter`.
 
         The main job here is for incremental exports: to find tasks that have
-        not yet been exported.
+        not yet been exported. We look for any tasks not yet exported to a
+        recipient of the same name (regardless of ``ExportRecipient.id``, which
+        changes when the export recipient is reconfigured).
 
         Compare :meth:`_index_query_restricted_by_export_recipient`.
 

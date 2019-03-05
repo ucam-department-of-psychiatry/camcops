@@ -804,7 +804,7 @@ def update_indexes_and_push_exports(req: "CamcopsRequest",
         uploading_group_id = req.user.upload_group_id
         for recipient in recipients:
             recipient_name = recipient.recipient_name
-            for pk in tablechanges.get_task_export_pks(
+            for pk in tablechanges.get_task_push_export_pks(
                     recipient=recipient,
                     uploading_group_id=uploading_group_id):
                 req.add_export_push_request(recipient_name, tablename, pk)

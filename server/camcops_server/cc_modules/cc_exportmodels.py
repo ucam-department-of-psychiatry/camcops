@@ -120,6 +120,10 @@ def get_collection_for_export(req: "CamcopsRequest",
     Returns an appropriate task collection for this export recipient, namely
     those tasks that are desired and (in the case of incremental exports)
     haven't already been sent.
+    
+    "Not already sent" means "not already sent to an export recipient with
+    the same name (even if other aspects of the export recipient have
+    changed)".
 
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
@@ -138,6 +142,9 @@ def get_collection_for_export(req: "CamcopsRequest",
         via_index=via_index,
         export_recipient=recipient,
     )
+    # log.critical(
+    #     "get_collection_for_export(): recipient={!r}, collection={!r}",
+    #     recipient, collection)
     return collection
 
 

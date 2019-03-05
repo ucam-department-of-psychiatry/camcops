@@ -1250,8 +1250,9 @@ class CamcopsRequest(Request):
                 bad_names = [name for name in recipient_names
                              if name not in valid_names]
                 if bad_names:
-                    raise ValueError("Bad export recipients specified: "
-                                     "{!r}".format(bad_names))
+                    raise ValueError(
+                        "Bad export recipients specified: {!r}. Valid "
+                        "recipients are: {!r}".format(bad_names, valid_names))
                 recipients = [r for r in recipients
                               if r.recipient_name in recipient_names]
 

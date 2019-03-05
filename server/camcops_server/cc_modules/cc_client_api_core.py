@@ -722,9 +722,9 @@ class UploadTableChanges(object):
         # ^ xor (A or B but not both)
         # - difference (A - B)
 
-    def get_task_export_pks(self,
-                            recipient: "ExportRecipient",
-                            uploading_group_id: int) -> List[int]:
+    def get_task_push_export_pks(self,
+                                 recipient: "ExportRecipient",
+                                 uploading_group_id: int) -> List[int]:
         """
         Returns PKs for tasks matching the requirements of a particular
         export recipient.
@@ -732,10 +732,12 @@ class UploadTableChanges(object):
         (In practice, only "push" recipients will come our way, so we can
         ignore this.)
         """
-        if not recipient.all_groups:
-            if uploading_group_id not in recipient.group_ids:
-                # Wrong group!
-                return []
+        if not recipient.is_upload_suitable_for_push(
+                tablename=self.tablename,
+                uploading_group_id=uploading_group_id):
+            # Not suitable
+            return []
+
         if recipient.finalized_only:
             return sorted(
                 self._preservation_pks  # finalized
