@@ -105,7 +105,7 @@ QString GboGPrS::longname() const
 
 QString GboGPrS::menusubtitle() const
 {
-    return tr("Goal progress tracking measurement");
+    return tr("For recording progress towards the goals of therapy");
 }
 
 

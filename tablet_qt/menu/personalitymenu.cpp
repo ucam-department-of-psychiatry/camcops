@@ -28,7 +28,7 @@
 
 
 PersonalityMenu::PersonalityMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Personality"),
+    MenuWindow(app, tr("Personality and experience"),
                uifunc::iconFilename(uiconst::ICON_PERSONALITY))
 {
     m_items = {

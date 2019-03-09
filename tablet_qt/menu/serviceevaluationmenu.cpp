@@ -23,10 +23,14 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/fft.h"
+#include "tasks/gbogres.h"
+#include "tasks/gbogprs.h"
 #include "tasks/gmcpq.h"
 #include "tasks/patientsatisfaction.h"
+#include "tasks/perinatalpoem.h"
 #include "tasks/referrersatisfactiongen.h"
 #include "tasks/referrersatisfactionspec.h"
+#include "tasks/srs.h"
 
 
 ServiceEvaluationMenu::ServiceEvaluationMenu(CamcopsApp& app) :
@@ -36,11 +40,13 @@ ServiceEvaluationMenu::ServiceEvaluationMenu(CamcopsApp& app) :
     m_items = {
         MAKE_CHANGE_PATIENT(app),
         MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(GboGReS::GBOGRES_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(GboGPrS::GBOGPRS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(GmcPq::GMCPQ_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, app),
-        // *** add perinatal POEM
+        MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, app),
-        // SRS... ***
+        MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, app),
     };
 }

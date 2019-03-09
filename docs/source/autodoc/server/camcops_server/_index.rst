@@ -24,6 +24,8 @@
 server/camcops_server
 ~~~~~~~~~~~~~~~~~~~~~
 
+
+
 ..  toctree::
     :maxdepth: 1
 
@@ -119,6 +121,7 @@ server/camcops_server
     cc_modules/webview.py.rst
     discarded_upgrade_code.py.rst
     extra_string_templates/BLANK_TEMPLATE.xml.rst
+    extra_string_templates/apeqpt_TEMPLATE.xml.rst
     extra_string_templates/badls_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
     extra_string_templates/eq5d5l_TEMPLATE.xml.rst

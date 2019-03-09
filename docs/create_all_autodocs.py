@@ -70,6 +70,14 @@ COPYRIGHT_COMMENT = r"""
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 """
+AUTODOC_TITLE = "Source code"
+INTRODUCTORY_RST = r"""
+
+This section contains automatic documentation generated from the CamCOPS
+source code. For the source code itself, see
+https://github.com/RudolfCardinal/camcops.
+
+"""
 
 PYGMENTS_OVERRIDE = {
     # map file extension to Pygments language name
@@ -128,7 +136,9 @@ def make_autodoc(make: bool, destroy_first: bool) -> None:
         rst_prefix=COPYRIGHT_COMMENT,
         index_heading_underline_char="-",
         source_rst_heading_underline_char="~",
-        pygments_language_override=PYGMENTS_OVERRIDE
+        title=AUTODOC_TITLE,
+        introductory_rst=INTRODUCTORY_RST,
+        pygments_language_override=PYGMENTS_OVERRIDE,
     )
     top_idx.add_indexes([
         make_subindex("tablet_qt",

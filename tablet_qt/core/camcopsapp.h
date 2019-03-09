@@ -142,9 +142,9 @@ protected:
 
     // Process the (stored) command-line arguments.
     // Args:
-    //  retcode: exit code if not happy to continue
+    // - retcode: exit code if not happy to continue
     // Returns:
-    //  happy to continue?
+    // - happy to continue?
     bool processCommandLineArguments(int& retcode);
 
     // Announce startup information to the console/debugging stream.

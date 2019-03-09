@@ -138,7 +138,9 @@ int CamcopsApp::run()
 
     // Command-line arguments
     int retcode = 0;
-    if (!processCommandLineArguments(retcode)) {  // may exit directly if syntax error
+    if (!processCommandLineArguments(retcode)) {
+        // processCommandLineArguments() may exit directly if there's a syntax
+        // error, in which case we won't even get here
         return retcode;  // exit with failure/success
     }
 
@@ -777,8 +779,9 @@ void CamcopsApp::registerTasks()
     InitTasks(*m_p_task_factory);  // ensures all tasks are registered
     m_p_task_factory->finishRegistration();
     const QStringList tablenames = m_p_task_factory->tablenames();
-    qInfo().nospace() << "Registered tasks (n = " << tablenames.length()
-                      << "): " << tablenames;
+    qInfo().nospace().noquote()
+            << "Registered tasks (n = " << tablenames.length()
+            << "): " << tablenames.join(", ");
 }
 
 

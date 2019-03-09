@@ -199,11 +199,6 @@ Drug/alcohol abuse and addiction
 
 - :ref:`Short Michigan Alcohol Screening Test (SMAST) <smast>`
 
-Executive functioning
----------------------
-
-- :ref:`INECO Frontal Screening (IFS) <ifs>`
-
 Psychosis
 ---------
 
@@ -229,8 +224,8 @@ Catatonia and extrapyramidal side effects
 
 .. - Catatonia examination technique (info only)
 
-Personality and childhood experience
-------------------------------------
+Personality and experience
+--------------------------
 
 - :ref:`ICD-10 criteria: specific personality disorders <icd10_personality>`
 
@@ -238,6 +233,11 @@ Personality and childhood experience
 
 - :ref:`Childhood Experience of Care and Abuse Questionnaire (CECA-Q3)
   <cecaq3>`
+
+Executive functioning
+---------------------
+
+- :ref:`INECO Frontal Screening (IFS) <ifs>`
 
 Service evaluation
 ------------------
@@ -249,6 +249,10 @@ Service evaluation
 
 - :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`
 
+- :ref:`Goal-Based Outcomes -- Goal Record Sheet <gbo_gres>`
+
+- :ref:`Goal-Based Outcomes -- Goal Progress Sheet <gbo_gprs>`
+
 - :ref:`Perinatal Patient-rated Outcome and Experience Measure (POEM)
   <perinatal_poem>`
 
@@ -259,7 +263,7 @@ Service evaluation
 
 - :ref:`Referrer Satisfaction Scale (survey version) <rss_survey>`
 
-- :ref:`ServiceRating Scale (ORS) <srs>`
+- :ref:`Service Rating Scale (SRS) <srs>`
 
 Research tasks (experimental)
 -----------------------------
@@ -288,6 +292,12 @@ Research tasks (experimental)
 
 Anonymous questionnaires
 ------------------------
+
+- :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
+  (APEQPT) <apeqpt>`.
+
+- :ref:`Perinatal Patient-rated Outcome and Experience Measure (POEM)
+  <perinatal_poem>`
 
 - :ref:`Referrer Satisfaction Scale (survey version) <rss_survey>`
 

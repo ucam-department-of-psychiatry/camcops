@@ -22,7 +22,9 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "tasks/apeqpt.h"
 #include "tasks/gmcpq.h"
+#include "tasks/perinatalpoem.h"
 #include "tasks/referrersatisfactiongen.h"
 
 
@@ -32,7 +34,9 @@ AnonymousMenu::AnonymousMenu(CamcopsApp& app) :
 {
     m_items = {
         // Seems inappropriate: MAKE_CHANGE_PATIENT(app),
+        MAKE_TASK_MENU_ITEM(Apeqpt::APEQPT_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(GmcPq::GMCPQ_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, app),
     };
 }

@@ -136,9 +136,10 @@ pygments_style = 'sphinx'
 # html_theme = 'agogo'  # nice, but a bit big-print; TOC on right; justified
 # html_theme = 'traditional'  # moderately ugly
 html_theme = 'nature'  # very nice. CHOSEN.
-# html_theme = 'haiku'  # dosen't do sidebar
+# html_theme = 'haiku'  # doesn't do sidebar
 # html_theme = 'pyramid'  # Once inline code customized, GOOD.
 # html_theme = 'bizstyle'  # OK
+# html_theme = "sphinx_rtd_theme"  # ALSO GOOD. Better for source code than nature.  # noqa
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

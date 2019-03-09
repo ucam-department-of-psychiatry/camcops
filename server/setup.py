@@ -119,13 +119,11 @@ INSTALL_REQUIRES = [
     'pytz==2018.5',  # timezone definitions, specifically utc.
     'scipy==1.1.0',  # used by some tasks. slow installation.
     'semantic_version==2.6.0',  # semantic versioning; better than semver
+    'sphinx==1.7.6',  # development only
+    # 'sphinx_rtd_theme==0.4.3',  # development only
     'sqlalchemy==1.2.8',  # database access
     'typing==3.6.4',  # part of stdlib in python 3.5, but not 3.4
     'Wand==0.4.4',
-]
-
-DEVELOPMENT_ONLY_REQUIRES = [
-    'sphinx==1.7.6',  # development only.
 ]
 
 

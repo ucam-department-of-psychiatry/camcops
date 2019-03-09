@@ -42,6 +42,7 @@
 #include "menu/psychosismenu.h"
 #include "menu/researchmenu.h"
 #include "menu/researchsetsmenu.h"
+#include "menu/serviceevaluationmenu.h"
 #include "menu/settingsmenu.h"
 
 
@@ -73,6 +74,7 @@ MainMenu::MainMenu(CamcopsApp& app)
         MAKE_MENU_MENU_ITEM(CatatoniaEpseMenu, app),
         MAKE_MENU_MENU_ITEM(PersonalityMenu, app),
         MAKE_MENU_MENU_ITEM(ExecutiveMenu, app),
+        MAKE_MENU_MENU_ITEM(ServiceEvaluationMenu, app),
         MAKE_MENU_MENU_ITEM(ResearchMenu, app),
         MAKE_MENU_MENU_ITEM(AnonymousMenu, app),
 

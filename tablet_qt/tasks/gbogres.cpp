@@ -113,7 +113,7 @@ QString GboGReS::longname() const
 
 QString GboGReS::menusubtitle() const
 {
-    return tr("Goal progress tracking measurement");
+    return tr("For recording goals of therapy");
 }
 
 

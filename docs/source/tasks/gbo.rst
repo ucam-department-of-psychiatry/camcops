@@ -17,44 +17,31 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _gbo:
-
-Goals and Goal-Based Outcomes (GBO)
------------------------------------
-
-A collection of sub-tasks as follows.
-
 .. _gbo_gres:
 
 Goal-Based Outcomes -- Goal Record Sheet (GBO-GReS)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------
 
-For recording goals of therapy.
+For recording goals of therapy. Part of the :ref:`GBO <gbo>` family.
 
 Minor change to the original: "patient/service user" replaces "child/young
 person", since this is not specific to paediatric work.
 "Practitioner/clinician" also introduced as an option for the "who completed
 the form?" question.
 
-.. _gbo_gprs:
+.. _gbo:
 
-Goal-Based Outcomes -- Goal Progress Sheet (GBO-GPrS)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Goals and Goal-Based Outcomes (GBO)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. include:: include_under_development.rst
+A collection of sub-tasks:
 
-For recording progress towards the goals.
-
-Goal-Based Outcomes -- Goal Progress Chart
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Not implemented** because this is a visual chronological track of information
-contained in the Goal Rating Sheet, and CamCOPS can track that information in
-other ways.
-
+- :ref:`Goal-Based Outcomes -- Goal Record Sheet <gbo_gres>`
+- :ref:`Goal-Based Outcomes -- Goal Progress Sheet <gbo_gprs>`
+- :ref:`Goal-Based Outcomes -- Goal Progress Chart <gbo_goal_progress_chart>`
 
 Sources
-~~~~~~~
+#######
 
 See
 
@@ -70,11 +57,31 @@ See
   https://www.corc.uk.net/media/1219/goalsandgbos-thirdedition.pdf
 
 Intellectual property rights
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+############################
 
 Copyright © Dr Duncan Law. Shared under the `Creative Commons licence BY-NC-SA
-4.0 <https://creativecommons.org/licenses/by-nc-sa/4.0/>`.
+4.0 <https://creativecommons.org/licenses/by-nc-sa/4.0/>`_.
 
 - Source:
   https://goalsintherapycom.files.wordpress.com/2018/03/gbo-version-2-march-2018-final.pdf,
   accessed 2019-01-07.
+
+
+.. _gbo_goal_progress_chart:
+
+Goal-Based Outcomes -- Goal Progress Chart
+##########################################
+
+**Not implemented** because this is a visual chronological track of information
+contained in the Goal Rating Sheet, and CamCOPS can track that information in
+other ways.
+
+
+.. _gbo_gprs:
+
+Goal-Based Outcomes -- Goal Progress Sheet (GBO-GPrS)
+-----------------------------------------------------
+
+.. include:: include_under_development.rst
+
+See :ref:`GBO <gbo>`. For recording progress towards the goals.
