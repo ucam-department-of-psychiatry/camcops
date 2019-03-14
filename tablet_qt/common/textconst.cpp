@@ -54,10 +54,17 @@ TR(COMMENT, "Comment");
 TR(COMMENTS, "Comments");
 TR(CORRECT, "Correct");
 
-TR(DATA_COLLECTION_ONLY,
+TR(DATA_COLLECTION_ONLY_ANNOUNCEMENT,
    "Reproduction of this task/scale is not permitted. This is a data "
    "collection tool only; use it only in conjunction with a licensed copy of "
    "the original task.");
+const QString DATA_COLLECTION_ONLY_TITLE_SUFFIX(" (¶)");
+const QString DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX(
+        " " + QObject::tr("Data collection tool ONLY."));
+const QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX(" (¶+)");
+const QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX(
+        " " + QObject::tr("Data collection tool ONLY unless host institution "
+                          "adds scale text."));
 TR(DELETE, "Delete");
 TR(DESCRIPTION, "Description");
 TR(DIAGNOSIS, "Diagnosis");

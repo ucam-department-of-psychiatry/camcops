@@ -1,5 +1,3 @@
-#include "apeqpt.h"
-
 /*
     Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
 
@@ -18,6 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
+
+// By Joe Kearney, Rudolf Cardinal.
 
 #include "apeqpt.h"
 #include "common/textconst.h"

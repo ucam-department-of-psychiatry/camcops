@@ -183,14 +183,15 @@ QString YbocsSc::shortname() const
 
 QString YbocsSc::longname() const
 {
-    return tr("Y-BOCS Symptom Checklist, 9/89 revision (¶+)");
+    return tr("Y-BOCS Symptom Checklist, 9/89 revision") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
 }
 
 
 QString YbocsSc::menusubtitle() const
 {
-    return tr("Symptom checklist (past, current, principal) for Y-BOCS. Data "
-              "collection tool ONLY unless host institution adds scale text.");
+    return tr("Symptom checklist (past, current, principal) for Y-BOCS.") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
 }
 
 

@@ -78,7 +78,8 @@ QString Panss::shortname() const
 
 QString Panss::longname() const
 {
-    return tr("Positive and Negative Syndrome Scale (¶)");
+    return tr("Positive and Negative Syndrome Scale") +
+            textconst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
 }
 
 
@@ -86,7 +87,8 @@ QString Panss::menusubtitle() const
 {
     return tr("Scale for positive (7 items) and negative symptoms of "
               "schizophrenia (7 items), and general psychopathology "
-              "(16 items). Data collection tool ONLY.");
+              "(16 items).") +
+            textconst::DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX;
 }
 
 
@@ -172,17 +174,17 @@ OpenableWidget* Panss::editor(const bool read_only)
     pages.append(getClinicianDetailsPage());
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext(textconst::DATA_COLLECTION_ONLY),
+        boldtext(textconst::DATA_COLLECTION_ONLY_ANNOUNCEMENT),
         new QuMcqGrid(p_qfields, panss_options),
     })->setTitle(longname() + " (P)")));
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext(textconst::DATA_COLLECTION_ONLY),
+        boldtext(textconst::DATA_COLLECTION_ONLY_ANNOUNCEMENT),
         new QuMcqGrid(n_qfields, panss_options),
     })->setTitle(longname() + " (N)")));
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext(textconst::DATA_COLLECTION_ONLY),
+        boldtext(textconst::DATA_COLLECTION_ONLY_ANNOUNCEMENT),
         new QuMcqGrid(g_qfields, panss_options),
     })->setTitle(longname() + " (G)")));
 

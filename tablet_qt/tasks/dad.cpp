@@ -145,14 +145,15 @@ QString Dad::shortname() const
 
 QString Dad::longname() const
 {
-    return tr("Disability Assessment for Dementia (¶+)");
+    return tr("Disability Assessment for Dementia") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
 }
 
 
 QString Dad::menusubtitle() const
 {
-    return tr("40-item clinician-administered, carer-rated scale. Data "
-              "collection tool ONLY unless host institution adds scale text.");
+    return tr("40-item clinician-administered, carer-rated scale.") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
 }
 
 

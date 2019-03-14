@@ -76,7 +76,11 @@ extern const QString COMMENT;
 extern const QString COMMENTS;
 extern const QString CORRECT;
 
-extern const QString DATA_COLLECTION_ONLY;
+extern const QString DATA_COLLECTION_ONLY_ANNOUNCEMENT;
+extern const QString DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+extern const QString DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX;
+extern const QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+extern const QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
 extern const QString DELETE;
 extern const QString DESCRIPTION;
 extern const QString DIAGNOSIS;

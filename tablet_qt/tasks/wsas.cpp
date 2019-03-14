@@ -70,14 +70,15 @@ QString Wsas::shortname() const
 
 QString Wsas::longname() const
 {
-    return tr("Work and Social Adjustment Scale (¶+)");
+    return tr("Work and Social Adjustment Scale") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
 }
 
 
 QString Wsas::menusubtitle() const
 {
-    return tr("5-item self-report scale. Data collection tool ONLY unless "
-              "host institution adds scale text.");
+    return tr("5-item self-report scale.") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
 }
 
 

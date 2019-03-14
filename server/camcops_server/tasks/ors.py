@@ -24,6 +24,8 @@ camcops_server/tasks/ors.py
 
 ===============================================================================
 
+- By Joe Kearney, Rudolf Cardinal.
+
 """
 
 from typing import List

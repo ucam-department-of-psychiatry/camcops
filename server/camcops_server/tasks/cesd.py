@@ -24,6 +24,8 @@ camcops_server/tasks/cesd.py
 
 ===============================================================================
 
+- By Joe Kearney, Rudolf Cardinal.
+
 """
 
 from typing import Any, Dict, List, Tuple, Type

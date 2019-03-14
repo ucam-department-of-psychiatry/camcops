@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// By Joe Kearney, Rudolf Cardinal.
+
 #include "gbogres.h"
 #include "maths/mathfunc.h"
 #include "lib/datetime.h"

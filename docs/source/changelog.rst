@@ -36,7 +36,10 @@ Contributors
 ------------
 
 - Rudolf Cardinal, 2012–.
-- Joe Kearney, 2018–.
+
+- Joe Kearney, 2018–2019 (:ref:`CES-D <cesd>`, :ref:`FACT-G <factg>`,
+  :ref:`EQ-5D-5L <eq5d5l>`, :ref:`SRS <srs>`, :ref:`ORS <ors>`, :ref:`APEQPT
+  <apeqpt>`, :ref:`GBO-GReS <gbo_gres>`, and :ref:`GBO-GPrS <gbo_gprs>` tasks).
 
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
 ----------------------------------------------------------------------------------------

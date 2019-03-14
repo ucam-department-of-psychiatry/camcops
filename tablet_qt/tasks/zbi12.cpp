@@ -18,6 +18,7 @@
 */
 
 #include "zbi12.h"
+#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -63,14 +64,15 @@ QString Zbi12::shortname() const
 
 QString Zbi12::longname() const
 {
-    return tr("Zarit Burden Interview, 12-item version (¶+)");
+    return tr("Zarit Burden Interview, 12-item version") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
 }
 
 
 QString Zbi12::menusubtitle() const
 {
-    return tr("12-item caregiver-report scale. Data collection tool ONLY "
-              "unless host institution adds scale text.");
+    return tr("12-item caregiver-report scale.") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
 }
 
 

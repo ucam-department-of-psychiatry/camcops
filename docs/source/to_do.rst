@@ -55,6 +55,10 @@ Tasks
   https://dx.doi.org/10.1080/02646838.2012.751586; INSTEAD the Care Index
   (a/w details from JM/NK). **Currently deferred.**
 
+- Better SNOMED coding, with text values (for which: framework already in
+  place) for clinical clerking tasks. See CRG minutes of 2019-02-26 for a draft
+  map.
+
 **Consider**
 
 - review Guo 2015 "measurement-based care":

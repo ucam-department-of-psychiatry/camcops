@@ -63,13 +63,15 @@ QString Gaf::shortname() const
 
 QString Gaf::longname() const
 {
-    return tr("Global Assessment of Functioning (¶)");
+    return tr("Global Assessment of Functioning") +
+            textconst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
 }
 
 
 QString Gaf::menusubtitle() const
 {
-    return tr("Single scale from 1–100. Data collection tool ONLY.");
+    return tr("Single scale from 1–100.") +
+            textconst::DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX;
 }
 
 
@@ -100,7 +102,7 @@ OpenableWidget* Gaf::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
         getClinicianQuestionnaireBlockRawPointer(),
-        (new QuText(textconst::DATA_COLLECTION_ONLY))->setBold(),
+        (new QuText(textconst::DATA_COLLECTION_ONLY_ANNOUNCEMENT))->setBold(),
         new QuText(appstring(appstrings::GAF_SCORE) + ":"),
         new QuLineEditInteger(fieldRef(SCORE), 0, 100),
     })->setTitle(longname()));

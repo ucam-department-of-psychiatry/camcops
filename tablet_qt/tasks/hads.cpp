@@ -89,14 +89,15 @@ QString Hads::shortname() const
 
 QString Hads::longname() const
 {
-    return tr("Hospital Anxiety and Depression Scale (¶+)");
+    return tr("Hospital Anxiety and Depression Scale") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
 }
 
 
 QString Hads::menusubtitle() const
 {
-    return tr("14-item self-report scale. Data collection tool ONLY unless "
-              "host institution adds scale text.");
+    return tr("14-item self-report scale.") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
 }
 
 
@@ -172,7 +173,7 @@ OpenableWidget* Hads::editor(const bool read_only)
         if (hasRespondent()) {  // for HadsRespondent
             elements.append(getRespondentQuestionnaireBlockRawPointer(true));
         }
-        elements.append((new QuText(textconst::DATA_COLLECTION_ONLY))
+        elements.append((new QuText(textconst::DATA_COLLECTION_ONLY_ANNOUNCEMENT))
                         ->setBold());
         elements.append(new QuText(textconst::ENTER_THE_ANSWERS));
         elements.append(new QuMcqGrid(qfields, options));

@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// By Joe Kearney, Rudolf Cardinal.
+
 #include "factg.h"
 
 #include "lib/stringfunc.h"

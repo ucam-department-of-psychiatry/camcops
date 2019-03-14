@@ -18,6 +18,7 @@
 */
 
 #include "ifs.h"
+#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
@@ -133,14 +134,15 @@ QString Ifs::shortname() const
 
 QString Ifs::longname() const
 {
-    return tr("INECO Frontal Screening (¶+)");
+    return tr("INECO Frontal Screening") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
 }
 
 
 QString Ifs::menusubtitle() const
 {
-    return tr("30-point clinician-administered assessment. Data collection "
-              "tool ONLY unless host institution adds scale text.");
+    return tr("30-point clinician-administered assessment.") +
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
 }
 
 

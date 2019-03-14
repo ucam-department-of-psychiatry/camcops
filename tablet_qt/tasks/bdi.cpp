@@ -163,14 +163,15 @@ QString Bdi::shortname() const
 
 QString Bdi::longname() const
 {
-    return tr("Beck Depression Inventory (¶)");
+    return tr("Beck Depression Inventory") +
+            textconst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
 }
 
 
 QString Bdi::menusubtitle() const
 {
-    return tr("21-item self-report scale. Data collection tool ONLY "
-              "(for BDI, BDI-1A, BDI-II).");
+    return tr("21-item self-report scale (for BDI, BDI-1A, BDI-II).") +
+            textconst::DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX;
 }
 
 
