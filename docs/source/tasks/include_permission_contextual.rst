@@ -18,6 +18,6 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. warning::
-    **(†)** Permissible for use in some situations but not all (e.g.: clinical,
+    **(§)** Permissible for use in some situations but not all (e.g.: clinical,
     research, commercial, educational), enforced by CamCOPS based on the
     user’s replies.

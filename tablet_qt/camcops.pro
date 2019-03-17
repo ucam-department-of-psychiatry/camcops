@@ -682,7 +682,6 @@ SOURCES += \
     tasks/frs.cpp \
     tasks/gad7.cpp \
     tasks/gaf.cpp \
-    tasks/gbogprs.cpp \
     tasks/gbogres.cpp \
     tasks/gds15.cpp \
     tasks/gmcpq.cpp \
@@ -800,7 +799,10 @@ SOURCES += \
     questionnairelib/qulineedituint64.cpp \
     common/dpi.cpp \
     tasks/perinatalpoem.cpp \
-    questionnairelib/qusequencecontainerbase.cpp
+    questionnairelib/qusequencecontainerbase.cpp \
+    tasks/gbogpc.cpp \
+    taskxtra/gbocommon.cpp \
+    tasks/gbogras.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1087,7 +1089,6 @@ HEADERS += \
     tasks/frs.h \
     tasks/gad7.h \
     tasks/gaf.h \
-    tasks/gbogprs.h \
     tasks/gbogres.h \
     tasks/gds15.h \
     tasks/gmcpq.h \
@@ -1205,7 +1206,10 @@ HEADERS += \
     questionnairelib/qulineedituint64.h \
     common/dpi.h \
     tasks/perinatalpoem.h \
-    questionnairelib/qusequencecontainerbase.h
+    questionnairelib/qusequencecontainerbase.h \
+    tasks/gbogpc.h \
+    taskxtra/gbocommon.h \
+    tasks/gbogras.h
 
 DISTFILES += \
     LICENSE.txt \

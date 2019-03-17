@@ -71,8 +71,8 @@ const int MODALITY_VISUAL = 1;
 const int SOUNDTEST_VOLUME = 100;
 TR(SOUNDTEST_TITLE, "Sound test for Cardinal RN / Expectation–Detection task");
 TR(SOUNDTEST_SUBTITLE,
-   "Plays the auditory background sound. (Use maximum device volume. "
-   "Should be 60.0 dB(A).)");
+   "Plays the auditory background sound. [Use maximum device volume. "
+   "The sound should be 60.0 dB(A).]");
 
 TR(TX_CONFIG_VISUAL_TARGET_DURATION_S,
    "Visual target duration (s) (e.g. 1.0):");

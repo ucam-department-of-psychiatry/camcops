@@ -97,6 +97,11 @@ class TickSlider : public QWidget
     // So: it has to be layouts, or layout-free widget composition.
     //
     // And that worked beautifully.
+    //
+    // Re "jump navigation":
+    // - We embed a QSlider. Clicks within it are not visible to our mouse
+    //   event captures. So no fiddling with that, unless we completely
+    //   re-implement QSlider.
 
     Q_OBJECT
 
@@ -202,7 +207,7 @@ public:
 public:
 
     // ------------------------------------------------------------------------
-    // From QSlider (q.v.):
+    // From QAbstractSlider (q.v.):
     // ------------------------------------------------------------------------
 
     Qt::Orientation orientation() const { return m_slider.orientation(); }
@@ -259,7 +264,7 @@ signals:
     void actionTriggered(int action);
 
     // ------------------------------------------------------------------------
-    // From QAbstractSlider (q.v.):
+    // From QSlider (q.v.):
     // ------------------------------------------------------------------------
 public:
 

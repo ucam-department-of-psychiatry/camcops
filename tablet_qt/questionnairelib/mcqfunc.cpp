@@ -35,8 +35,8 @@ namespace mcqfunc {
 // ============================================================================
 
 // In grids, this is the title in cell (0, 0).
-const Qt::Alignment title_text_align = Qt::AlignTop;
-const Qt::Alignment title_widget_align = Qt::AlignTop;
+const Qt::Alignment title_text_align = Qt::AlignLeft | Qt::AlignTop;
+const Qt::Alignment title_widget_align = Qt::AlignLeft | Qt::AlignTop;
 
 // In grids, these are the response option descriptions in row 0.
 const Qt::Alignment option_text_align = Qt::AlignHCenter | Qt::AlignBottom;
@@ -46,13 +46,13 @@ const Qt::Alignment option_widget_align = Qt::AlignHCenter | Qt::AlignBottom;
 // -- but not when you want a *bottom* alignment.
 
 // In grids, these are the questions down the left-hand side
-const Qt::Alignment question_text_align = Qt::AlignVCenter;
-const Qt::Alignment question_widget_align = Qt::AlignVCenter;
+const Qt::Alignment question_text_align = Qt::AlignLeft | Qt::AlignVCenter;
+const Qt::Alignment question_widget_align = Qt::AlignLeft | Qt::AlignVCenter;
 // Don't do right align; disrupts natural reading flow.
-// For small questions (vertically shorter than response widgets), centre
-// alignment looks best. For long ones, it doesn't matter (as the question
-// likely fills its cell vertically in any case, being the tallest thing in its
-// row).
+// For small questions (vertically shorter than response widgets), vertical
+// centre alignment looks best. For long ones, it doesn't matter (as the
+// question likely fills its cell vertically in any case, being the tallest
+// thing in its row).
 
 // In grids, these are the things you touch to respond.
 const Qt::Alignment response_widget_align = Qt::AlignHCenter | Qt::AlignTop;

@@ -34,12 +34,14 @@ See also:
 - :ref:`Security design <security_design>`
 
 
+.. _client_sqlcipher_databases:
+
 Client SQLCipher databases
 --------------------------
 
 The CamCOPS client uses two databases (typically called `camcops_data.sqlite`
 and `camcops_sys.sqlite`), stored in the device’s user-specific private area
-(e.g. `~/local/share/camcops under Linux`). Note that some operating systems
+(e.g. `~/.local/share/camcops under Linux`). Note that some operating systems
 (e.g. Android, iOS) are designed for single-user use and don’t have the concept
 of a per-user private area. The ‘data’ database holds user data (patients,
 patient data) and the ‘sys’ database contains configuration information, stored

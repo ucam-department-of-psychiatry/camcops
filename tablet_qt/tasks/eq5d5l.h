@@ -56,8 +56,6 @@ public:
     // ------------------------------------------------------------------------
     int getScore(QString field) const;
     QString getHealthStateCode() const;
-protected slots:
-
 public:
     static const QString EQ5D5L_TABLENAME;
 protected:

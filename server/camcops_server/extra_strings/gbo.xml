@@ -1,17 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+
   <task name="gbo">
-    <string name="title">Goal-based Outcomes</string>
-    <string name="instruction">Use this form to track progress toward a goal</string>
-    <string name="chosen_by">Chosen by</string>
-    <string name="choice_o1">Child/young person</string>
-    <string name="choice_o2">Parent/Carer</string>
-    <string name="choice_o3">Other</string>
-    <string name="choice_o3_specify"><i>(specify below)</i></string>
-    <string name="session_n">Session number</string>
-    <string name="session_d">Session date</string>
-    <string name="goal_n">Goal number</string>
+    <!-- Generic -->
+    <string name="date">Date</string>
+    <!-- <string name="completed_by_o1">Child/young person</string> -->  <!-- Original -->
+    <string name="agent_1">Patient/service user</string>  <!-- Modified -->
+    <string name="agent_2">Parent/carer</string>
+    <string name="agent_3">Practitioner/clinician</string>  <!-- Extra -->
+    <string name="agent_4">Other <i>(please specify)</i></string>
+    <string name="copyright">Version 2.0; www.goals-in-therapy.com; © Dr Duncan Law: shared under Creative Commons license BY-NC-SA 4.0</string>
     <string name="goal_desc">Goal description</string>
-    <string name="goal_p">Today I would rate progress to this goal</string>
+
+    <!-- GBO-GReS -->
+    <string name="gres_stem">In coming to this service, what are some of the problems you want help with or goals you want to get to? <i>(List up to 3 goals)</i></string>
+    <string name="goal_1">Goal 1</string>
+    <string name="goal_2">Goal 2</string>
+    <string name="goal_3">Goal 3</string>
+    <string name="goal_other">If you have any other goals, please list them here</string>
+    <string name="completed_by">Completed by:</string>  <!-- deleted "(tick below)" from original -->
+
+    <!-- GBO-GPC -->
+    <string name="gpc_intro">This is one of up to three goals to track</string>
+    <string name="session">Session</string>
+    <string name="goal_number">Goal number</string>
+    <string name="goal">Goal</string>
+    <string name="progress">Today I would rate progress to this goal:</string>
+    <string name="progress_explanation">Remember a score of zero means no progress has been made towards a goal, a score of ten means a goal has been reached fully, and a score of five is exactly half way between the two</string>
+    <string name="whose_goal">Whose goal is this:</string>
+
+    <!-- GBO-GRaS -->
+    <string name="gras_question">How close are you to the goals you want to get to?</string>
+    <string name="gras_instruction">On a scale from zero to ten, please choose the number below that best describes how close you are to reaching your goal today.</string>
+    <!-- ... in original, was "circle"; changed to "choose" -->
+    <string name="rate_goal">Rate this goal?</string>
+    <string name="goal_rating_heading_1">YOUR FIRST GOAL</string>
+    <string name="goal_rating_heading_2">YOUR SECOND GOAL</string>
+    <string name="goal_rating_heading_3">YOUR THIRD GOAL</string>
+    <string name="gras_desc_instruction">Enter brief description of goal and goal number as recorded on the Goals Record Sheet</string>
+    <string name="gras_rate_instruction">Rate the goal:</string>  <!-- extra; adds clarity -->
+    <string name="gras_anchor_0">Goal not at all met</string>
+    <string name="gras_anchor_5">Half way to reaching this goal</string>
+    <string name="gras_anchor_10">Goal reached</string>
+
   </task>
+
 </resources>

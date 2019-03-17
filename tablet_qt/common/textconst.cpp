@@ -60,14 +60,20 @@ TR(DATA_COLLECTION_ONLY_ANNOUNCEMENT,
    "the original task.");
 const QString DATA_COLLECTION_ONLY_TITLE_SUFFIX(" (¶)");
 const QString DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX(
-        " " + QObject::tr("Data collection tool ONLY."));
+        " " + QObject::tr("[¶ Data collection tool ONLY.]"));
 const QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX(" (¶+)");
 const QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX(
-        " " + QObject::tr("Data collection tool ONLY unless host institution "
-                          "adds scale text."));
+        " " + QObject::tr("[¶+ Data collection tool ONLY unless host "
+                          "institution adds scale text.]"));
+const QString DEFUNCT_TITLE_SUFFIX(" †");
+const QString DEFUNCT_SUBTITLE_SUFFIX(" " + QObject::tr("[† Defunct.]"));
 TR(DELETE, "Delete");
 TR(DESCRIPTION, "Description");
 TR(DIAGNOSIS, "Diagnosis");
+
+const QString EXPERIMENTAL_TITLE_SUFFIX(" (~)");
+const QString EXPERIMENTAL_SUBTITLE_SUFFIX(
+        " " + QObject::tr("[~ Experimental.]"));
 
 TR(ENTER_THE_ANSWERS, "Enter the answers:");
 TR(EXAMINER_COMMENTS, "Examiner’s comments");
@@ -78,7 +84,7 @@ TR(FALSE, "False");
 TR(FINISHED, "Finished");
 
 TR(ICD10, "World Health Organization International Classification of "
-          "Diseases, 10th edition");
+          "Diseases, 10th edition.");
 TR(IN_ADDITION, "In addition");
 TR(INCORRECT, "Incorrect");
 

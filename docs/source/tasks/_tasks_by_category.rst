@@ -34,13 +34,13 @@ Clinical notes and logs
 - :ref:`Contact log <contact_log>`
 
 - :ref:`CPFT Liaison Psychiatry Service admin tool: referral
-  (experimental) <cpft_lps_referral>`
+  (defunct) <cpft_lps_referral>`
 
 - :ref:`CPFT Liaison Psychiatry Service admin tool: response clock
-  (experimental) <cpft_lps_response_clock>`
+  (defunct) <cpft_lps_response_clock>`
 
 - :ref:`CPFT Liaison Psychiatry Service admin tools: discharge
-  (experimental) <cpft_lps_discharge>`
+  (defunct) <cpft_lps_discharge>`
 
 - :ref:`Diagnostic coding, ICD-10 codes <diagnosis_icd10>`
 
@@ -234,8 +234,8 @@ Personality and experience
 - :ref:`Childhood Experience of Care and Abuse Questionnaire (CECA-Q3)
   <cecaq3>`
 
-Executive functioning
----------------------
+Executive function
+------------------
 
 - :ref:`INECO Frontal Screening (IFS) <ifs>`
 
@@ -249,9 +249,9 @@ Service evaluation
 
 - :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`
 
-- :ref:`Goal-Based Outcomes -- Goal Record Sheet <gbo_gres>`
+- :ref:`Goal-Based Outcomes -- 1 -- Goal Record Sheet <gbo_gres>`
 
-- :ref:`Goal-Based Outcomes -- Goal Progress Sheet <gbo_gprs>`
+- :ref:`Goal-Based Outcomes -- 2 -- Goal Rating Sheet <gbo_gras>`
 
 - :ref:`Perinatal Patient-rated Outcome and Experience Measure (POEM)
   <perinatal_poem>`
@@ -265,8 +265,10 @@ Service evaluation
 
 - :ref:`Service Rating Scale (SRS) <srs>`
 
-Research tasks (experimental)
------------------------------
+Research tasks
+--------------
+
+Some may be experimental.
 
 - :ref:`Cardinal RN — Threshold predetermination for Expectation–Detection task
   <cardinal_expdetthreshold>`

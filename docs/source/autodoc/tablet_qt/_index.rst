@@ -619,8 +619,10 @@ tablet_qt
     tasks/gad7.h.rst
     tasks/gaf.cpp.rst
     tasks/gaf.h.rst
-    tasks/gbogprs.cpp.rst
-    tasks/gbogprs.h.rst
+    tasks/gbogpc.cpp.rst
+    tasks/gbogpc.h.rst
+    tasks/gbogras.cpp.rst
+    tasks/gbogras.h.rst
     tasks/gbogres.cpp.rst
     tasks/gbogres.h.rst
     tasks/gds15.cpp.rst
@@ -753,6 +755,8 @@ tablet_qt
     taskxtra/diagnosisitembase.h.rst
     taskxtra/diagnosistaskbase.cpp.rst
     taskxtra/diagnosistaskbase.h.rst
+    taskxtra/gbocommon.cpp.rst
+    taskxtra/gbocommon.h.rst
     taskxtra/ided3dexemplars.cpp.rst
     taskxtra/ided3dexemplars.h.rst
     taskxtra/ided3dstage.cpp.rst

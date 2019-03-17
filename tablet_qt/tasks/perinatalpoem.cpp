@@ -99,7 +99,7 @@ void initializePerinatalPoem(TaskFactory& factory)
 // ============================================================================
 
 PerinatalPoem::PerinatalPoem(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, PERINATAL_POEM_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, PERINATAL_POEM_TABLENAME, true, false, false)  // ... anon, clin, resp
     // no need, QPointer handles this: // m_questionnaire(nullptr)
 {
     addField(FN_QA_RESPONDENT, QVariant::Int);

@@ -563,6 +563,8 @@ class ExportRecipientInfo(object):
         Validates the database-independent aspects of the
         :class:`ExportRecipient`, or raises :exc:`InvalidExportRecipient`.
         """
+        # noinspection PyUnresolvedReferences
+        import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
         from camcops_server.cc_modules.cc_task import all_task_tablenames  # delayed import # noqa
 
         def fail_invalid(msg: str) -> None:

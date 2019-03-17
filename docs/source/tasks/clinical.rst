@@ -84,7 +84,9 @@ Source: *de novo*.
 CPFT/CUH Liaison Psychiatry Service: referral
 ---------------------------------------------
 
-Experimental data capture tool for CPFT_'s Liaison Psychiatry service in CUH_.
+.. include:: include_defunct.rst
+
+Data capture tool for CPFT_'s Liaison Psychiatry service in CUH_.
 
 Source: *de novo*.
 
@@ -94,7 +96,9 @@ Source: *de novo*.
 CPFT/CUH Liaison Psychiatry Service: response clock
 ---------------------------------------------------
 
-Experimental data capture tool for CPFT_'s Liaison Psychiatry service in CUH_.
+.. include:: include_defunct.rst
+
+Data capture tool for CPFT_'s Liaison Psychiatry service in CUH_.
 
 Source: *de novo*.
 
@@ -104,6 +108,8 @@ Source: *de novo*.
 CPFT/CUH Liaison Psychiatry Service: discharge
 ----------------------------------------------
 
-Experimental data capture tool for CPFT_'s Liaison Psychiatry service in CUH_.
+.. include:: include_defunct.rst
+
+Data capture tool for CPFT_'s Liaison Psychiatry service in CUH_.
 
 Source: *de novo*.

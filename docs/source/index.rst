@@ -41,6 +41,7 @@ securely to your server.
 
     user/download.rst
     user/client_installation.rst
+    user/client_uninstall_upgrade.rst
     user/client_using.rst
     user/server_front_end_general.rst
     user/client_troubleshooting.rst

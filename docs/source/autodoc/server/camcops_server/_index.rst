@@ -45,8 +45,9 @@ server/camcops_server
     alembic/versions/0013_task_index.py.rst
     alembic/versions/0014_new_export_mechanism.py.rst
     alembic/versions/0015_perinatal_tasks.py.rst
-    alembic/versions/0016_gbo_goal_progress_sheet.py.rst
+    alembic/versions/0016_gbo_goal_progress_chart.py.rst
     alembic/versions/0017_perinatal_poem.py.rst
+    alembic/versions/0018_gbo_goal_rating_sheet.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -168,8 +169,6 @@ server/camcops_server
     extra_strings/frs.xml.rst
     extra_strings/gad7.xml.rst
     extra_strings/gbo.xml.rst
-    extra_strings/gbogprs.xml.rst
-    extra_strings/gbogres.xml.rst
     extra_strings/gds15.xml.rst
     extra_strings/gmcpq.xml.rst
     extra_strings/hama.xml.rst
@@ -244,8 +243,7 @@ server/camcops_server
     tasks/frs.py.rst
     tasks/gad7.py.rst
     tasks/gaf.py.rst
-    tasks/gbogprs.py.rst
-    tasks/gbogres.py.rst
+    tasks/gbo.py.rst
     tasks/gds.py.rst
     tasks/gmcpq.py.rst
     tasks/hads.py.rst

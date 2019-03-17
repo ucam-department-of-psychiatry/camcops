@@ -138,13 +138,14 @@ QString CPFTLPSReferral::shortname() const
 
 QString CPFTLPSReferral::longname() const
 {
-    return tr("CPFT LPS – referral");
+    return tr("CPFT LPS – referral") + textconst::DEFUNCT_TITLE_SUFFIX;
 }
 
 
 QString CPFTLPSReferral::menusubtitle() const
 {
-    return tr("Referral to CPFT’s Liaison Psychiatry Service");
+    return tr("Referral to CPFT’s Liaison Psychiatry Service.") +
+            textconst::DEFUNCT_SUBTITLE_SUFFIX;
 }
 
 

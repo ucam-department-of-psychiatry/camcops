@@ -71,8 +71,9 @@
 
 #include "tasks/gad7.h"
 #include "tasks/gaf.h"
+#include "tasks/gbogras.h"
 #include "tasks/gbogres.h"
-#include "tasks/gbogprs.h"
+#include "tasks/gbogpc.h"
 #include "tasks/gds15.h"
 #include "tasks/gmcpq.h"
 
@@ -200,9 +201,9 @@ void InitTasks(TaskFactory& factory)
 
     initializeGad7(factory);
     initializeGaf(factory);
+    initializeGboGRaS(factory);
     initializeGboGReS(factory);
-    initializeGboGPrS(factory);
-
+    initializeGboGPC(factory);
     initializeGds15(factory);
     initializeGmcPq(factory);
 

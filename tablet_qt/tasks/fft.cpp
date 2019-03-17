@@ -77,7 +77,7 @@ QString Fft::longname() const
 
 QString Fft::menusubtitle() const
 {
-    return tr("Single-question patient rating of a clinical service");
+    return tr("Single-question patient rating of a clinical service.");
 }
 
 

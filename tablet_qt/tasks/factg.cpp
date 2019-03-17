@@ -396,7 +396,8 @@ OpenableWidget* Factg::editor(const bool read_only)
         fields.append(QuestionWithOneField(xstring(field), fieldRef(field)));
     }
 
-    QuMcqGrid *g1, *g2;
+    QuMcqGrid* g1;
+    QuMcqGrid* g2;
 
     g1 = (new QuMcqGrid({fields}, options))
             ->setExpand(true)
@@ -406,7 +407,7 @@ OpenableWidget* Factg::editor(const bool read_only)
     connect(ignore_s_q7.data(), &FieldRef::valueChanged, this,
             &Factg::updateQ7);
 
-    QuBoolean *no_answer = (new QuBoolean(
+    QuBoolean* no_answer = (new QuBoolean(
                             xstring(XSTRING_PREFER_NO_ANSWER),
                             ignore_s_q7))
             ->setFalseAppearsBlank();

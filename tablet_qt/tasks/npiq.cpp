@@ -80,7 +80,7 @@ QString NpiQ::shortname() const
 QString NpiQ::longname() const
 {
     return tr("Neuropsychiatry Inventory Questionnaire") +
-            texconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
 }
 
 

@@ -22,9 +22,10 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "tasks/apeqpt.h"
 #include "tasks/fft.h"
 #include "tasks/gbogres.h"
-#include "tasks/gbogprs.h"
+#include "tasks/gbogpc.h"
 #include "tasks/gmcpq.h"
 #include "tasks/patientsatisfaction.h"
 #include "tasks/perinatalpoem.h"
@@ -39,9 +40,8 @@ ServiceEvaluationMenu::ServiceEvaluationMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
+        MAKE_TASK_MENU_ITEM(Apeqpt::APEQPT_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(GboGReS::GBOGRES_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(GboGPrS::GBOGPRS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(GmcPq::GMCPQ_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, app),

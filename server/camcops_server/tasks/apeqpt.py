@@ -30,8 +30,9 @@ camcops_server/tasks/srs.py
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+
 from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -45,21 +46,16 @@ from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
     Task,
-    TaskHasPatientMixin,
 )
-from camcops_server.cc_modules.cc_trackerhelpers import (
-    TrackerInfo,
-)
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 
 # =============================================================================
 # APEQPT
 # =============================================================================
 
-class Apeqpt(TaskHasPatientMixin, Task):
+class Apeqpt(Task):
     """
-    Server implementation of the SRS task.
+    Server implementation of the APEQPT task.
     """
     __tablename__ = "apeqpt"
     shortname = "APEQPT"
@@ -69,7 +65,7 @@ class Apeqpt(TaskHasPatientMixin, Task):
 
     q_datetime = CamcopsColumn(
         "q_datetime", PendulumDateTimeAsIsoTextColType,
-        comment="Session date/time")
+        comment="Date/time the assessment tool was completed")
 
     N_CHOICE_QUESTIONS = 3
     q1_choice = CamcopsColumn(
@@ -87,7 +83,10 @@ class Apeqpt(TaskHasPatientMixin, Task):
 
     q1_satisfaction = CamcopsColumn(
         "q1_satisfaction", Integer,
-        comment="Patient satisfaction",
+        comment=(
+            "Patient satisfaction (0 not at all satisfied - "
+            "4 completely satisfied)"
+        ),
         permitted_value_checker=ZERO_TO_FOUR_CHECKER)
     q2_satisfaction = CamcopsColumn(
         "q2_satisfaction", UnicodeText,
@@ -134,7 +133,7 @@ class Apeqpt(TaskHasPatientMixin, Task):
         q_a += tr_qa(self.wxstring(req, "q1_satisfaction"),
                      get_from_dict(s_dict, self.q1_satisfaction))
         q_a += tr_qa(self.wxstring(req, "q2_satisfaction"),
-                     self.q2_satisfaction)
+                     self.q2_satisfaction, default="")
 
         h = """
             <div class="{CssClass.SUMMARY}">

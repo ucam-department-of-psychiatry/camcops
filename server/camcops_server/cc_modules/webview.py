@@ -1793,6 +1793,7 @@ def _view_generic_object_by_id(req: "CamcopsRequest",
     """
     item_id = req.get_int_param(ViewParam.ID, None)
     dbsession = req.dbsession
+    # noinspection PyUnresolvedReferences
     obj = (
         dbsession.query(cls)
         .filter(cls.id == item_id)

@@ -37,9 +37,11 @@ Contributors
 
 - Rudolf Cardinal, 2012–.
 
-- Joe Kearney, 2018–2019 (:ref:`CES-D <cesd>`, :ref:`FACT-G <factg>`,
-  :ref:`EQ-5D-5L <eq5d5l>`, :ref:`SRS <srs>`, :ref:`ORS <ors>`, :ref:`APEQPT
-  <apeqpt>`, :ref:`GBO-GReS <gbo_gres>`, and :ref:`GBO-GPrS <gbo_gprs>` tasks).
+- Joe Kearney, 2018–2019.
+
+  - :ref:`CES-D <cesd>`, :ref:`FACT-G <factg>`, :ref:`EQ-5D-5L <eq5d5l>`,
+    :ref:`SRS <srs>`, :ref:`ORS <ors>`, :ref:`APEQPT <apeqpt>`, :ref:`GBO-GReS
+    <gbo_gres>`, and :ref:`GBO-GPC <gbo_gpc>` tasks.
 
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
 ----------------------------------------------------------------------------------------
@@ -1887,8 +1889,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - New task: :ref:`Goal-Based Outcomes -- Goal Record Sheet (GBO-GReS)
   <gbo_gres>`.
 
-- New task: :ref:`Goal-Based Outcomes -- Goal Progress Sheet (GBO-GPrS)
-  <gbo_gprs>`.
+- New task: :ref:`Goal-Based Outcomes -- Goal Progress Chart (GBO-GPC)
+  <gbo_gpc>`.
 
 - New task: :ref:`Assessment Patient Experience Questionnaire for Psychological
   Therapies (APEQPT) <apeqpt>`.

@@ -17,22 +17,20 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// By Joe Kearney, Rudolf Cardinal.
-
 #pragma once
 #include <QPointer>
-#include <QString>
-#include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"
 
-void initializeGboGReS(TaskFactory& factory);
 
-class GboGReS : public Task
+void initializeGboGRaS(TaskFactory& factory);
+
+
+class GboGRaS : public Task
 {
     Q_OBJECT
 public:
-    GboGReS(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    GboGRaS(CamcopsApp& app, DatabaseManager& db,
+            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -50,14 +48,10 @@ public:
     // ------------------------------------------------------------------------
     // Task specific
     // ------------------------------------------------------------------------
-protected:
-    QString completedBy() const;
-    QString extraGoalsDescription() const;
-    QString numGoalsDescription() const;
-protected slots:
     void updateMandatory();
 public:
-    static const QString GBOGRES_TABLENAME;
+    static const QString GBOGRAS_TABLENAME;
 protected:
     QPointer<Questionnaire> m_questionnaire;
+    QPointer<QuPage> m_page;
 };

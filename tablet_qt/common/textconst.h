@@ -81,9 +81,14 @@ extern const QString DATA_COLLECTION_ONLY_TITLE_SUFFIX;
 extern const QString DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX;
 extern const QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
 extern const QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+extern const QString DEFUNCT_TITLE_SUFFIX;
+extern const QString DEFUNCT_SUBTITLE_SUFFIX;
 extern const QString DELETE;
 extern const QString DESCRIPTION;
 extern const QString DIAGNOSIS;
+
+extern const QString EXPERIMENTAL_TITLE_SUFFIX;
+extern const QString EXPERIMENTAL_SUBTITLE_SUFFIX;
 
 extern const QString FALSE;
 extern const QString FINISHED;

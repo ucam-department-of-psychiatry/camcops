@@ -31,7 +31,6 @@ camcops_server/cc_modules/cc_request.py
 import collections
 from contextlib import contextmanager
 import logging
-import os
 from typing import (Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING,
                     Union)
 import urllib.parse

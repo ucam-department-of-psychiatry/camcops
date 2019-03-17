@@ -117,7 +117,7 @@ QString Srs::longname() const
 QString Srs::menusubtitle() const
 {
     return tr("Fixed-length visual analogue scales for providing "
-              "psychotherapy session feedback");
+              "psychotherapy session feedback.");
 }
 
 
@@ -162,6 +162,7 @@ QStringList Srs::detail() const
     lines.append(summary());
     return lines;
 }
+
 
 OpenableWidget* Srs::editor(const bool read_only)
 {
@@ -284,6 +285,7 @@ OpenableWidget* Srs::editor(const bool read_only)
 
     return m_questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations

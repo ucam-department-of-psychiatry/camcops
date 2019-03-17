@@ -68,8 +68,8 @@ const double VAS_MAX_TOTAL = VAS_MAX_FLOAT * 4;
 
 const QString FN_SESSION("q_session");
 const QString FN_DATE("q_date");
-const QString FN_WHO("q_who");
-const QString FN_WHO_OTHER("q_who_other");
+const QString FN_WHOSE_GOAL("q_who");
+const QString FN_WHOSE_GOAL_OTHER("q_who_other");
 const QString FN_INDIVIDUAL("q_individual");
 const QString FN_INTERPERSONAL("q_interpersonal");
 const QString FN_SOCIAL("q_social");
@@ -90,8 +90,8 @@ Ors::Ors(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 {
     addField(FN_SESSION, QVariant::Int);
     addField(FN_DATE, QVariant::Date);
-    addField(FN_WHO, QVariant::Int);
-    addField(FN_WHO_OTHER, QVariant::String);
+    addField(FN_WHOSE_GOAL, QVariant::Int);
+    addField(FN_WHOSE_GOAL_OTHER, QVariant::String);
     addField(FN_INDIVIDUAL, QVariant::Double);
     addField(FN_INTERPERSONAL, QVariant::Double);
     addField(FN_SOCIAL, QVariant::Double);
@@ -124,7 +124,7 @@ QString Ors::longname() const
 
 QString Ors::menusubtitle() const
 {
-    return tr("Fixed-length visual analogue scales measuring well-being");
+    return tr("Fixed-length visual analogue scales measuring well-being.");
 }
 
 
@@ -137,7 +137,7 @@ bool Ors::isComplete() const
     const QStringList required_always{
         FN_SESSION,
         FN_DATE,
-        FN_WHO,
+        FN_WHOSE_GOAL,
         FN_INDIVIDUAL,
         FN_INTERPERSONAL,
         FN_SOCIAL,
@@ -148,8 +148,8 @@ bool Ors::isComplete() const
         return false;
     }
 
-    if (value(FN_WHO).toInt() == COMPLETED_BY_OTHER &&
-         valueIsNullOrEmpty(FN_WHO_OTHER)) {
+    if (value(FN_WHOSE_GOAL).toInt() == COMPLETED_BY_OTHER &&
+         valueIsNullOrEmpty(FN_WHOSE_GOAL_OTHER)) {
         return false;
     }
 
@@ -190,7 +190,7 @@ OpenableWidget* Ors::editor(const bool read_only)
        { xstring("who_a2"), COMPLETED_BY_OTHER },
      };
 
-    auto who_q = new QuMcq(fieldRef(FN_WHO), m_completed_by);
+    auto who_q = new QuMcq(fieldRef(FN_WHOSE_GOAL), m_completed_by);
     who_q->setHorizontal(true)->setAsTextButton(true);
 
     auto makeTitle = [this, &centre](const QString& xstringname) -> QuText* {
@@ -225,7 +225,7 @@ OpenableWidget* Ors::editor(const bool read_only)
             QuGridCell(who_q, 0, 1)
         })->setExpandHorizontally(false),
         (new QuText(xstring("who_other_q")))->addTag(TAG_OTHER),
-        (new QuTextEdit(fieldRef(FN_WHO_OTHER), false))->addTag(TAG_OTHER),
+        (new QuTextEdit(fieldRef(FN_WHOSE_GOAL_OTHER), false))->addTag(TAG_OTHER),
         new QuHorizontalLine(),
         // --------------------------------------------------------------------
         // Padding
@@ -276,7 +276,7 @@ OpenableWidget* Ors::editor(const bool read_only)
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setReadOnly(read_only);
 
-    connect(fieldRef(FN_WHO).data(), &FieldRef::valueChanged,
+    connect(fieldRef(FN_WHOSE_GOAL).data(), &FieldRef::valueChanged,
             this, &Ors::updateMandatory);
 
     updateMandatory();
@@ -284,14 +284,15 @@ OpenableWidget* Ors::editor(const bool read_only)
     return m_questionnaire;
 }
 
+
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
 
 void Ors::updateMandatory()
 {
-   const bool required = valueInt(FN_WHO) == COMPLETED_BY_OTHER;
-    fieldRef(FN_WHO_OTHER)->setMandatory(required);
+   const bool required = valueInt(FN_WHOSE_GOAL) == COMPLETED_BY_OTHER;
+    fieldRef(FN_WHOSE_GOAL_OTHER)->setMandatory(required);
     if (!m_questionnaire) {
         return;
     }

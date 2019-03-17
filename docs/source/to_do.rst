@@ -29,8 +29,8 @@ Tasks
 
 **Priority**
 
-- Completion of :ref:`Goal-Based Outcomes -- Goal Progress Sheet (GBO-GPrS)
-  <gbo_gprs>`.
+- Completion of :ref:`Goal-Based Outcomes -- Goal Progress Chart (GBO-GPC)
+  <gbo_gpc>`.
 
 **To be prioritized**
 

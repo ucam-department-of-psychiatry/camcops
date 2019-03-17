@@ -54,8 +54,6 @@ public:
     // ------------------------------------------------------------------------
     // Task specific
     // ------------------------------------------------------------------------
-public slots:
-
 public:
     static const QString APEQPT_TABLENAME;
 protected:

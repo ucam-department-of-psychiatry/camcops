@@ -54,10 +54,12 @@ using mathfunc::noneNull;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
+
 void initializeEq5d5l(TaskFactory& factory)
 {
     static TaskRegistrar<Eq5d5l> registered(factory);
 }
+
 
 Eq5d5l::Eq5d5l(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, EQ5D5L_TABLENAME, false, false, false),

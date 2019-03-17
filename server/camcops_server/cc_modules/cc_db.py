@@ -842,7 +842,8 @@ def add_multiple_columns(
             values are:
 
             - ``{n}``: field number (from range).
-            - ``{s}``: comment_strings[i], or "" if out of range.
+            - ``{s}``: ``comment_strings[i]``, where ``i`` is a zero-based
+              index as defined as above, or "" if out of range.
 
         comment_strings:
             see ``comment_fmt``

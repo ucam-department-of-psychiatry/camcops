@@ -69,8 +69,9 @@ void initializeApeqpt(TaskFactory& factory)
     static TaskRegistrar<Apeqpt> registered(factory);
 }
 
+
 Apeqpt::Apeqpt(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, APEQPT_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, APEQPT_TABLENAME, true, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addField(FN_DATETIME, QVariant::DateTime);
@@ -110,7 +111,7 @@ QString Apeqpt::longname() const
 
 QString Apeqpt::menusubtitle() const
 {
-    return tr("Patient feedback questionnaire on treatment received");
+    return tr("Patient feedback questionnaire on treatment received.");
 }
 
 // ============================================================================
@@ -143,9 +144,8 @@ QStringList Apeqpt::summary() const
 
     return QStringList{
         QString("Patient Satisfaction: %1").arg(
-                options_satisfaction.nameFromValue(
-                        value(FN_Q1_SATISFACTION).toInt())
-                    )
+            options_satisfaction.nameFromValue(
+                value(FN_Q1_SATISFACTION).toInt()))
     };
 }
 
@@ -239,7 +239,3 @@ OpenableWidget* Apeqpt::editor(const bool read_only)
 
     return m_questionnaire;
 }
-
-// ============================================================================
-// Task-specific calculations
-// ============================================================================

@@ -68,7 +68,7 @@ HelpMenu::HelpMenu(CamcopsApp& app) :
                  std::bind(&HelpMenu::softwareVersions, this)),
         MenuItem(tr("About Qt"),
                  std::bind(&HelpMenu::aboutQt, this)),
-        MenuItem(tr("View device (installation) ID and database details"),
+        MenuItem(tr("View device ID and database details"),
                  std::bind(&HelpMenu::showDeviceIdAndDbDetails, this)),
         MenuItem(tr("Licence details"),
                  UrlMenuItem(urlconst::CAMCOPS_LICENCES_URL)),

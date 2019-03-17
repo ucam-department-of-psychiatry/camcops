@@ -57,8 +57,6 @@ public:
     // Task specific
     // ------------------------------------------------------------------------
     double totalScore() const;
-public slots:
-
 public:
     static const QString SRS_TABLENAME;
 protected:

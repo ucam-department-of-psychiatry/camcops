@@ -78,7 +78,7 @@ QString Core10::longname() const
 QString Core10::menusubtitle() const
 {
     return tr("Self-rating of distress (wellbeing, symptoms, functioning, "
-              "risk)");
+              "risk).");
 }
 
 

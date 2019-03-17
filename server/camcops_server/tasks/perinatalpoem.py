@@ -41,7 +41,6 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
     Task,
-    TaskHasPatientMixin,
 )
 
 
@@ -49,7 +48,7 @@ from camcops_server.cc_modules.cc_task import (
 # Perinatal-POEM
 # =============================================================================
 
-class PerinatalPoem(TaskHasPatientMixin, Task):
+class PerinatalPoem(Task):
     """
     Server implementation of the Perinatal-POEM task.
     """
@@ -341,10 +340,10 @@ class PerinatalPoem(TaskHasPatientMixin, Task):
                    self.VAL_QA_PARTNER_OTHER, "qa_a")
         service_dict = {}  # type: Dict[int, str]
         loadvalues(service_dict, self.VAL_QB_INPATIENT,
-                   self.VAL_QB_COMMUNITY, "qa_a")
+                   self.VAL_QB_COMMUNITY, "qb_a")
         mh_dict = {}  # type: Dict[int, str]
         loadvalues(mh_dict, self.VAL_Q1_VERY_WELL,
-                   self.VAL_Q1_EXTREMELY_UNWELL, "q1a_")
+                   self.VAL_Q1_EXTREMELY_UNWELL, "q1_a")
         agree_dict = {}  # type: Dict[int, str]
         loadvalues(agree_dict, self.VAL_STRONGLY_AGREE,
                    self.VAL_STRONGLY_DISAGREE, "agreement_a")
@@ -354,7 +353,7 @@ class PerinatalPoem(TaskHasPatientMixin, Task):
         def addqa(_fieldname: str, _valuedict: Dict[int, str]) -> None:
             xstringname = _fieldname + "_q"
             q_a_list.append(
-                tr_qa(self.wxstring(req, xstringname),
+                tr_qa(self.xstring(req, xstringname),  # not wxstring
                       get_from_dict(_valuedict, getattr(self, _fieldname)))
             )
 
@@ -384,7 +383,7 @@ class PerinatalPoem(TaskHasPatientMixin, Task):
             self.general_comments
         ))
         q_a_list.append(tr_qa(
-            self.wxstring(req, "future_participation_q"),
+            self.wxstring(req, "participation_q"),
             get_yes_no_none(req, self.future_participation)
         ))
         if self.offering_participation():

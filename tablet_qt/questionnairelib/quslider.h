@@ -40,13 +40,13 @@ public:
     // Create a slider ranging from "minimum" to "maximum" with step size
     // "step". The slider always uses integers internally, but can display as
     // a float (see setConvertForRealField).
-    QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step);
+    QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step = 1);
 
     // Set the "page step" size, if the user uses the PgUp/PgDn keys.
     // The default is twice the slider's step size.
     QuSlider* setBigStep(int big_step);
 
-    // Interval between tick marks.
+    // Interval between tick marks. (Default is 1.)
     QuSlider* setTickInterval(int tick_interval);  // 0 for none
 
     // Visually, where are the tick marks (e.g. left/right, above/below)?
@@ -91,6 +91,7 @@ public:
     // Chooses whether default labels should be shown. Default labels are
     // integers from the minimum to the maximum, spaced by the tick interval
     // (or if there isn't one, the "big" step).
+    // See also setTickLabels().
     QuSlider* setUseDefaultTickLabels(bool use_default);
 
     // Should the far left/right labels be edged in visually so that they don't

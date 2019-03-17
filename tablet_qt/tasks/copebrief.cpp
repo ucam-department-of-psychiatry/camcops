@@ -94,7 +94,7 @@ QString CopeBrief::longname() const
 
 QString CopeBrief::menusubtitle() const
 {
-    return tr("28-item brief measure of coping");
+    return tr("28-item brief measure of coping.");
 }
 
 

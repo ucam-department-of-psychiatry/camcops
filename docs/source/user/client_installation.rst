@@ -85,6 +85,37 @@ page.
 
 If you have trouble see :ref:`client troubleshooting <client_troubleshooting>`.
 
+Under Windows 10, you may see the warning:
+
+.. code-block:: none
+
+    Windows protected your PC
+
+    Windows Defender SmartScreen prevented an unrecogniezd app from
+    starting. Running this app might put your PC at risk.
+
+    [ More info ]
+
+                                [ Don't run ]
+
+Choose "More info" then "Run anyway".
+
+If it says
+
+.. code-block:: none
+
+    User Account Control
+
+    Do you want to allow this app from an
+    unknown publisher to make changes to your
+    device?
+
+    camcops_2.2.7_windows.exe [or similar]
+
+    ...
+
+then choose "Yes".
+
 Linux
 ~~~~~
 

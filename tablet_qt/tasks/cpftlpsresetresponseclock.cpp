@@ -78,14 +78,16 @@ QString CPFTLPSResetResponseClock::shortname() const
 
 QString CPFTLPSResetResponseClock::longname() const
 {
-    return tr("CPFT LPS – reset response clock");
+    return tr("CPFT LPS – reset response clock") +
+            textconst::DEFUNCT_TITLE_SUFFIX;
 }
 
 
 QString CPFTLPSResetResponseClock::menusubtitle() const
 {
     return tr("Reset referral response clock "
-              "(CPFT Liaison Psychiatry Service)");
+              "(CPFT Liaison Psychiatry Service).") +
+            textconst::DEFUNCT_SUBTITLE_SUFFIX;
 }
 
 

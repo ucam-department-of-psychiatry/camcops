@@ -23,48 +23,30 @@
 #include "maths/mathfunc.h"
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
-#include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/namevaluepair.h"
-#include "questionnairelib/quboolean.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/qugridcontainer.h"
-#include "questionnairelib/qugridcell.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quflowcontainer.h"
 #include "questionnairelib/quhorizontalcontainer.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/qumcq.h"
-#include "questionnairelib/qumcqgrid.h"
-#include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
-#include "questionnairelib/quverticalcontainer.h"
-#include "questionnairelib/questionnairefunc.h"
-#include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
+#include "taskxtra/gbocommon.h"
 
 using mathfunc::noneNullOrEmpty;
 using stringfunc::strseq;
 
 const QString GboGReS::GBOGRES_TABLENAME("gbogres");
 
-const int COMPLETED_BY_PATIENT = 1;  // In original: child/young person
-const int COMPLETED_BY_PARENT_CARER = 2;
-const int COMPLETED_BY_CLINICIAN = 3;
-const int COMPLETED_BY_OTHER = 4;
-
-const QString COMPLETED_BY_PATIENT_STR = "Patient/service user";  // In original: "Child/young person"
-const QString COMPLETED_BY_PARENT_CARER_STR = "Parent/carer";
-const QString COMPLETED_BY_CLINICIAN_STR = "Practitioner/clinician";
-const QString COMPLETED_BY_OTHER_STR = "Other: ";
-
 const QString FN_DATE("date");  // NB SQL keyword too; doesn't matter
-const QString FN_GOAL_1_DESC("goal_1_desc");
-const QString FN_GOAL_2_DESC("goal_2_desc");
-const QString FN_GOAL_3_DESC("goal_3_desc");
-const QString FN_GOAL_OTHER("goal_other");
+const QString FN_GOAL_1_DESC("goal_1_description");
+const QString FN_GOAL_2_DESC("goal_2_description");
+const QString FN_GOAL_3_DESC("goal_3_description");
+const QString FN_GOAL_OTHER("other_goals");
 const QString FN_COMPLETED_BY("completed_by");
 const QString FN_COMPLETED_BY_OTHER("completed_by_other");
 
@@ -109,13 +91,19 @@ QString GboGReS::shortname() const
 
 QString GboGReS::longname() const
 {
-    return tr("Goal-Based Outcomes – Goal Record Sheet");
+    return tr("Goal-Based Outcomes – 1 – Goal Record Sheet");
 }
 
 
 QString GboGReS::menusubtitle() const
 {
-    return tr("For recording goals of therapy");
+    return tr("For recording goals of therapy.");
+}
+
+
+QString GboGReS::xstringTaskname() const
+{
+    return "gbo";
 }
 
 
@@ -125,49 +113,47 @@ QString GboGReS::menusubtitle() const
 
 bool GboGReS::isComplete() const
 {
-    const bool required = noneNullOrEmpty(values({
-                                               FN_DATE,
-                                               FN_GOAL_1_DESC,
-                                               FN_COMPLETED_BY,
-                                           }));
-
-    if (value(FN_COMPLETED_BY) == COMPLETED_BY_OTHER
+    if (anyValuesNullOrEmpty({FN_DATE, FN_GOAL_1_DESC, FN_COMPLETED_BY})) {
+        return false;
+    }
+    if (value(FN_COMPLETED_BY) == gbocommon::AGENT_OTHER
             && valueIsNullOrEmpty(FN_COMPLETED_BY_OTHER)) {
         return false;
     }
-
-    return required;
+    return true;
 }
 
 
 QStringList GboGReS::summary() const
 {
     return QStringList{
-        QString("<b>Goals set</b>: %1 %2").arg(goalNumber(), extraGoals()),
+        QString("Date: <b>%1</b>.").arg(
+                             datetime::dateToIso(valueDate(FN_DATE))),
+        QString("Goals set: <b>%1</b>%2.").arg(numGoalsDescription(),
+                                               extraGoalsDescription()),
     };
 }
 
 
 QStringList GboGReS::detail() const
 {
-    QStringList detail;
+    QStringList detail = summary();
 
-    detail.push_back(QString("<b>Goals set</b>: %1 %2").arg(goalNumber(),
-                                                            extraGoals()));
     int i = 0;
-    for (auto field : strseq("goal_", 1, 3, "_desc")) {
+    for (auto field : {FN_GOAL_1_DESC, FN_GOAL_2_DESC, FN_GOAL_3_DESC}) {
         ++i;
         if (!valueIsNullOrEmpty(field)) {
-            detail.push_back(QString("<b>Goal %1</b>: %2").arg(QString::number(i),
-                                                       value(field).toString()));
+            detail.push_back(QString("Goal %1: <b>%2</b>.").arg(
+                                 QString::number(i),
+                                 value(field).toString()));
         }
     }
     if (!valueIsNullOrEmpty(FN_GOAL_OTHER)) {
-        detail.push_back(QString("<b>Extra goals</b>: %1")
+        detail.push_back(QString("Extra goals: <b>%1</b>")
                          .arg(value(FN_GOAL_OTHER).toString()));
     }
 
-    detail.push_back(QString("<b>Completed by</b>: %1").arg(completedBy()));
+    detail.push_back(QString("Completed by: <b>%1</b>.").arg(completedBy()));
 
     return detail;
 }
@@ -176,11 +162,12 @@ QStringList GboGReS::detail() const
 OpenableWidget* GboGReS::editor(const bool read_only)
 {
     const NameValueOptions completed_by_options = NameValueOptions{
-        { xstring("completed_by_o1"), COMPLETED_BY_PATIENT },
-        { xstring("completed_by_o2"), COMPLETED_BY_PARENT_CARER },
-        { xstring("completed_by_o3"), COMPLETED_BY_CLINICIAN },
-        { xstring("completed_by_o4"), COMPLETED_BY_OTHER }
+        { xstring("agent_1"), gbocommon::AGENT_PATIENT },
+        { xstring("agent_2"), gbocommon::AGENT_PARENT_CARER },
+        { xstring("agent_3"), gbocommon::AGENT_CLINICIAN },
+        { xstring("agent_4"), gbocommon::AGENT_OTHER }
     };
+    const QString goal_desc = xstring("goal_desc");
 
     QuPagePtr page(new QuPage{
         (new QuHorizontalContainer{
@@ -189,21 +176,34 @@ OpenableWidget* GboGReS::editor(const bool read_only)
                )->setMode(QuDateTime::DefaultDate)
                 ->setOfferNowButton(true),
         }),
-        (new QuText(xstring("stem")))->setBold(true),
+        (new QuText(xstring("gres_stem")))->setBold(true),
         new QuSpacer(),
+
         new QuHeading(xstring("goal_1")),
+        new QuText(goal_desc),
         new QuTextEdit(fieldRef(FN_GOAL_1_DESC)),
+        new QuSpacer(),
+
         new QuHeading(xstring("goal_2")),
+        new QuText(goal_desc),
         new QuTextEdit(fieldRef(FN_GOAL_2_DESC, false)),
+        new QuSpacer(),
+
         new QuHeading(xstring("goal_3")),
+        new QuText(goal_desc),
         new QuTextEdit(fieldRef(FN_GOAL_3_DESC, false)),
-        new QuText(xstring("goal_other")),
+        new QuSpacer(),
+
+        (new QuText(xstring("goal_other")))->setBold(true),
         new QuTextEdit(fieldRef(FN_GOAL_OTHER, false)),
+        new QuSpacer(),
+
         (new QuText(xstring("completed_by")))->setBold(true),
         (new QuMcq(fieldRef(FN_COMPLETED_BY), completed_by_options))
                         ->setHorizontal(true)
                         ->setAsTextButton(true),
         (new QuTextEdit(fieldRef(FN_COMPLETED_BY_OTHER), false))->addTag(TAG_OTHER),
+
         new QuSpacer(),
         new QuHorizontalLine(),
         new QuSpacer(),
@@ -229,7 +229,7 @@ OpenableWidget* GboGReS::editor(const bool read_only)
 
 void GboGReS::updateMandatory()
 {
-   const bool required = valueInt(FN_COMPLETED_BY) == COMPLETED_BY_OTHER;
+    const bool required = valueInt(FN_COMPLETED_BY) == gbocommon::AGENT_OTHER;
     fieldRef(FN_COMPLETED_BY_OTHER)->setMandatory(required);
     if (!m_questionnaire) {
         return;
@@ -238,7 +238,7 @@ void GboGReS::updateMandatory()
 }
 
 
-QString GboGReS::goalNumber() const
+QString GboGReS::numGoalsDescription() const
 {
     int goal_n = 0;
 
@@ -252,11 +252,11 @@ QString GboGReS::goalNumber() const
 }
 
 
-QString GboGReS::extraGoals() const
+QString GboGReS::extraGoalsDescription() const
 {
     QString extra = "";
     if (!valueIsNullOrEmpty(FN_GOAL_OTHER)) {
-        extra = "<i>(with additional goals set)</i>";
+        extra = " <i>(with additional goals set)</i>";
     }
     return extra;
 }
@@ -264,15 +264,6 @@ QString GboGReS::extraGoals() const
 
 QString GboGReS::completedBy() const
 {
-    switch (value(FN_COMPLETED_BY).toInt()) {
-    case COMPLETED_BY_PATIENT:
-        return COMPLETED_BY_PATIENT_STR;
-    case COMPLETED_BY_PARENT_CARER:
-        return COMPLETED_BY_PARENT_CARER_STR;
-    case COMPLETED_BY_CLINICIAN:
-        return COMPLETED_BY_CLINICIAN_STR;
-    case COMPLETED_BY_OTHER:
-    default:
-        return COMPLETED_BY_OTHER_STR + value(FN_COMPLETED_BY_OTHER).toString();
-    }
+    return gbocommon::agentDescription(valueInt(FN_COMPLETED_BY),
+                                       valueString(FN_COMPLETED_BY_OTHER));
 }

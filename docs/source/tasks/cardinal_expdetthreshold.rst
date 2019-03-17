@@ -22,6 +22,8 @@
 Cardinal RN — Threshold predetermination for Expectation–Detection
 ------------------------------------------------------------------
 
+.. include:: include_experimental.rst
+
 Threshold predetermination for the :ref:`Expectation–Detection task
 <cardinal_expdet>`.
 

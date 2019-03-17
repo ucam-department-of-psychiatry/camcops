@@ -22,6 +22,8 @@
 Cardinal RN — Expectation–Detection task
 ----------------------------------------
 
+.. include:: include_experimental.rst
+
 See also the :ref:`Cardinal_ExpDetThreshold <cardinal_expdetthreshold>` task.
 
 Intellectual property rights

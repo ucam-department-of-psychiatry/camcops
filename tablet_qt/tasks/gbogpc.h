@@ -21,18 +21,18 @@
 
 #pragma once
 #include <QPointer>
-#include <QString>
-#include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"
 
-void initializeGboGReS(TaskFactory& factory);
 
-class GboGReS : public Task
+void initializeGboGPC(TaskFactory& factory);
+
+
+class GboGPC : public Task
 {
     Q_OBJECT
 public:
-    GboGReS(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    GboGPC(CamcopsApp& app, DatabaseManager& db,
+           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -50,14 +50,9 @@ public:
     // ------------------------------------------------------------------------
     // Task specific
     // ------------------------------------------------------------------------
-protected:
-    QString completedBy() const;
-    QString extraGoalsDescription() const;
-    QString numGoalsDescription() const;
-protected slots:
     void updateMandatory();
 public:
-    static const QString GBOGRES_TABLENAME;
+    static const QString GBOGPC_TABLENAME;
 protected:
     QPointer<Questionnaire> m_questionnaire;
 };

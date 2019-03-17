@@ -34,7 +34,7 @@
 
 
 ResearchMenu::ResearchMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Research tasks (experimental)"),
+    MenuWindow(app, tr("Research tasks"),
                uifunc::iconFilename(uiconst::ICON_RESEARCH))
 {
     m_items = {

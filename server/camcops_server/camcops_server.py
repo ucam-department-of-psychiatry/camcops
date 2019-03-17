@@ -660,6 +660,7 @@ def camcops_main() -> None:
         func=lambda args: _print_database_title())
 
     # Merge in data fom another database
+    # noinspection PyTypeChecker
     int_int_mapper = MapType(from_type=nonnegative_int,
                              to_type=nonnegative_int)
     mergedb_parser = add_sub(
@@ -698,12 +699,14 @@ def camcops_main() -> None:
         help="Source database (specified as an SQLAlchemy URL). The contents "
              "of this database will be merged into the database specified "
              "in the config file.")
+    # noinspection PyTypeChecker
     add_req_named(
         mergedb_parser,
         "--whichidnum_map",
         type=int_int_mapper,
         help="Map to convert ID number types, in the format "
              "'from_a:to_a,from_b:to_b,...', where all values are integers.")
+    # noinspection PyTypeChecker
     add_req_named(
         mergedb_parser,
         "--groupnum_map",
@@ -875,7 +878,6 @@ def camcops_main() -> None:
     serve_cp_parser.set_defaults(func=lambda args: _serve_cherrypy())
 
     # Serve via Gunicorn
-    cpu_count = multiprocessing.cpu_count()
     serve_gu_parser = add_sub(
         subparsers, "serve_gunicorn",
         help="Start web server via Gunicorn (not available under Windows)")
