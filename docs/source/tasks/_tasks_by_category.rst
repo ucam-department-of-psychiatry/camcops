@@ -48,6 +48,12 @@ Clinical notes and logs
 
 - :ref:`Diagnostic coding, ICD-10 codes <diagnosis_icd10>`
 
+- :ref:`Goal-Based Outcomes -- 1 -- Goal Record Sheet <gbo_gres>`
+
+- :ref:`Goal-Based Outcomes -- 2 -- Goal Progress Chart <gbo_gpc>`
+
+- :ref:`Goal-Based Outcomes -- 3 -- Goal Rating Sheet <gbo_gras>`
+
 - :ref:`Identify and Rate the Aim of the Contact (IRAC) <irac>`
 
 - :ref:`Photograph <photo>`
@@ -270,10 +276,6 @@ Service evaluation
 - :ref:`Friends and Family Test (FFT) <fft>`
 
 - :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`
-
-- :ref:`Goal-Based Outcomes -- 1 -- Goal Record Sheet <gbo_gres>`
-
-- :ref:`Goal-Based Outcomes -- 2 -- Goal Rating Sheet <gbo_gras>`
 
 - :ref:`Perinatal Patient-rated Outcome and Experience Measure (POEM)
   <perinatal_poem>`

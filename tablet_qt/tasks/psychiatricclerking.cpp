@@ -171,7 +171,7 @@ QString PsychiatricClerking::shortname() const
 
 QString PsychiatricClerking::longname() const
 {
-    return tr("Clerking");
+    return tr("Psychiatric clerking");
 }
 
 

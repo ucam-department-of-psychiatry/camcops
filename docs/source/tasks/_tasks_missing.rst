@@ -17,10 +17,14 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. include:: ../user/include_tabletdefs.rst
+
 .. _tasks_missing:
 
 Why isn’t task X in CamCOPS?
 ----------------------------
+
+|stop|
 
 Either because it hasn’t been implemented, or because it would not be
 permissible for copyright reasons.

@@ -17,10 +17,14 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. include:: ../user/include_tabletdefs.rst
+
 .. _perinatal_poem:
 
 Perinatal POEM (Patient-rated Outcome and Experience Measure)
 -------------------------------------------------------------
+
+|anonymous|
 
 .. include:: include_from_perinatal_patient_experience.rst
 

@@ -17,10 +17,14 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. include:: ../user/include_tabletdefs.rst
+
 .. _demoquestionnaire:
 
 Demonstration questionnaire
 ---------------------------
+
+|info| |anonymous|
 
 This is a “kitchen sink” questionnaire, with illustrations of all the types of
 question/widget currently supported.
