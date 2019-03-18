@@ -130,6 +130,7 @@ const QString ICON_SETS_CLINICAL("sets_clinical.png");
 const QString ICON_SETS_RESEARCH("sets_research.png");
 const QString ICON_SETTINGS("settings.png");
 const QString ICON_STOP("stop.png");
+const QString ICON_THUMBS("thumbs.png");
 const QString ICON_UPLOAD("upload.png");
 const QString ICON_WARNING("warning.png");
 const QString ICON_WHISKER("whisker.png");

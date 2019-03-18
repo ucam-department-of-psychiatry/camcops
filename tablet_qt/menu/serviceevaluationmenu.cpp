@@ -36,7 +36,7 @@
 
 ServiceEvaluationMenu::ServiceEvaluationMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Service evaluation"),
-               uifunc::iconFilename(uiconst::ICON_CLINICAL)) // *** needs new icon?
+               uifunc::iconFilename(uiconst::ICON_THUMBS))
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),

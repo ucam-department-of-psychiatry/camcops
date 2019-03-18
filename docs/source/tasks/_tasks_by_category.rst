@@ -17,6 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. include:: ../user/include_tabletdefs.rst
+
 Tasks in CamCOPS by category
 ============================
 
@@ -28,6 +30,8 @@ Tasks in CamCOPS by category
 
 Clinical notes and logs
 -----------------------
+
+|clinical|
 
 - :ref:`Body mass index (BMI) <bmi>`
 
@@ -56,6 +60,8 @@ Clinical notes and logs
 
 Global function and multiple aspects of psychopathology
 -------------------------------------------------------
+
+|global|
 
 - :ref:`Brief Psychiatric Rating Scale (BPRS) <bprs>`
 
@@ -112,6 +118,8 @@ Global function and multiple aspects of psychopathology
 Cognitive assessment
 --------------------
 
+|cognitive|
+
 - :ref:`Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) <ace3>`
 
 - :ref:`Montreal Cognitive Assessment (MoCA) <moca>`
@@ -122,6 +130,8 @@ Cognitive assessment
 
 Affective (mood and anxiety) disorders
 --------------------------------------
+
+|affective|
 
 - :ref:`Beck Depression Inventory (BDI) <bdi>`
 
@@ -182,6 +192,8 @@ Affective (mood and anxiety) disorders
 Drug/alcohol abuse and addiction
 --------------------------------
 
+|addiction|
+
 - :ref:`Alcohol Use Disorders Identification Test (AUDIT) <audit>`
 
 - :ref:`AUDIT Alcohol Consumption Questions (AUDIT-C) <audit_c>`
@@ -202,6 +214,8 @@ Drug/alcohol abuse and addiction
 Psychosis
 ---------
 
+|psychosis|
+
 - :ref:`Community Assessment of Psychic Experiences (CAPE-42) <cape>`
 
 - :ref:`Cardiff Anomalous Perceptions Scale (CAPS) <caps>`
@@ -217,6 +231,8 @@ Psychosis
 Catatonia and extrapyramidal side effects
 -----------------------------------------
 
+|catatonia|
+
 - :ref:`Abnormal Involuntary Movement Scale (AIMS) <aims>`
 
 - :ref:`Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s
@@ -226,6 +242,8 @@ Catatonia and extrapyramidal side effects
 
 Personality and experience
 --------------------------
+
+|personality|
 
 - :ref:`ICD-10 criteria: specific personality disorders <icd10_personality>`
 
@@ -237,10 +255,14 @@ Personality and experience
 Executive function
 ------------------
 
+|executive|
+
 - :ref:`INECO Frontal Screening (IFS) <ifs>`
 
 Service evaluation
 ------------------
+
+|thumbs|
 
 - :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
   (APEQPT) <apeqpt>`.
@@ -267,6 +289,8 @@ Service evaluation
 
 Research tasks
 --------------
+
+|research|
 
 Some may be experimental.
 
@@ -295,6 +319,8 @@ Some may be experimental.
 Anonymous questionnaires
 ------------------------
 
+|anonymous|
+
 - :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
   (APEQPT) <apeqpt>`.
 
@@ -308,6 +334,8 @@ Anonymous questionnaires
 Set menus for research
 ----------------------
 
+|sets_research|
+
 Individual research projects may have specific menus of tasks created. As well
 as generic tasks listed above, there are some specific ones:
 
@@ -319,6 +347,8 @@ as generic tasks listed above, there are some specific ones:
 Set menus for clinical purposes
 -------------------------------
 
+|sets_clinical|
+
 Individual clinical services or contexts may have specific menus of tasks
 created. Amongst them are the :ref:`FROM-LP <from_lp>` and :ref:`FROM-Perinatal
 <from_perinatal>` sets.
@@ -328,6 +358,8 @@ created. Amongst them are the :ref:`FROM-LP <from_lp>` and :ref:`FROM-Perinatal
 
 The FROM-LP framework
 ---------------------
+
+|sets_clinical|
 
 FROM-LP is the Royal College of Psychiatrists' Framework for Routine Outcome
 Measurement in Liaison Psychiatry.
@@ -429,6 +461,8 @@ Intellectual property rights
 The FROM-Perinatal framework
 ----------------------------
 
+|sets_clinical|
+
 FROM-Perinatal is the Royal College of Psychiatrists' Framework for Routine
 Outcome Measures in Perinatal Psychiatry.
 
@@ -496,9 +530,13 @@ History and guide
 Demonstration task
 ------------------
 
+|info|
+
 - :ref:`Demonstration questionnaire <demoquestionnaire>`
 
 Some tasks not in CamCOPS
 -------------------------
+
+|stop|
 
 - :ref:`Tasks NOT included, including for copyright reasons <tasks_missing>`

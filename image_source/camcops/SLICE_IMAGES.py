@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 """
-=============================================================================
+===============================================================================
 OLD METHOD: PNG export
-=============================================================================
+===============================================================================
 from Illustrator:
 1. small logo layer:   Save for Web > Image Size > width 1200, height 1200
     > Apply > Save > appicon_source.png
@@ -14,9 +14,9 @@ from Illustrator:
 (4. PDF icon layer: Save for Web > Image Size > width 1000, height auto >
     Apply > Save > logo_local.png ... thence to web site)
 
-=============================================================================
+===============================================================================
 OLD: Illustrator slicing technique
-=============================================================================
+===============================================================================
 
 - Don't use Illustrator's slices; they're inaccurate once you convert
   rectangles to slices.
@@ -39,9 +39,9 @@ FOR SPLASHSCREEN:
 - save all layers as sliceme.png
   ... run the script
 
-=============================================================================
+===============================================================================
 NEW METHOD: slice up PDFs
-=============================================================================
+===============================================================================
 
 For 1024x1024 DefaultIcon.png, which is getting too big for Illustrator's
 export when you have it as the centre ninth:
@@ -53,6 +53,47 @@ export when you have it as the centre ninth:
 2015-01-21: If you make DefaultIcon.png, Titanium makes icons of the right
 size, but fails to keep the background transparent. So we make them
 manually.
+
+===============================================================================
+ImageMagick 6.9.7 crash (observed 2019-03-18)
+===============================================================================
+
+- "not authorized" error from ImageMagick's ``identify`` tool:
+
+  - edit ``/etc/ImageMagick-6/policy.xml`` and replace
+
+    .. code-block:: xml
+
+        <policy domain="coder" rights="none" pattern="PDF" />
+
+    with
+
+    .. code-block:: xml
+
+        <policy domain="coder" rights="read|write" pattern="PDF" />
+
+    as per
+    https://alexvanderbist.com/posts/2018/fixing-imagick-error-unauthorized.
+
+- "cache resources exhausted" error from ImageMagick's ``convert`` tool:
+
+  - edit ``/etc/ImageMagick-6/policy.xml`` and replace
+
+    .. code-block:: xml
+
+        <policy domain="resource" name="memory" value="256MB"/>
+        <policy domain="resource" name="area" value="128MB"/>
+
+    with
+
+    .. code-block:: xml
+
+        <policy domain="resource" name="memory" value="1GiB"/>
+        <policy domain="resource" name="area" value="1GiB"/>
+
+    or similar (the "area" bit may be unimportant; the "memory" bit mattered),
+    as per https://github.com/ImageMagick/ImageMagick/issues/396.
+
 """
 
 import argparse
@@ -106,8 +147,12 @@ def require(executable: str) -> None:
 
 
 def run(args: List[str]) -> None:
-    log.debug(args)
-    subprocess.check_call(args)
+    log.debug("Running command: {!r}", args)
+    try:
+        subprocess.check_call(args)
+    except subprocess.CalledProcessError:
+        log.critical("Command failed: {!r}", args)
+        raise
 
 
 def mkdirp(path: str) -> None:
@@ -124,7 +169,7 @@ def get_pdf_print_size_inches(filename: str,
         # noinspection PyPep8
         try:
             log.debug("Measuring autocropped PDF")
-            args = CONVERT
+            args = CONVERT.copy()
             if verbose:
                 args += ["-verbose"]
             args += [
@@ -141,14 +186,24 @@ def get_pdf_print_size_inches(filename: str,
             raise
         finally:
             os.remove(tmpfname)
-    p1 = subprocess.Popen(IDENTIFY + ['-verbose', filename],
-                          stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(GREP + ['Print size: '],
+    p1args = IDENTIFY + ['-verbose', filename]
+    p1 = subprocess.Popen(p1args, stdout=subprocess.PIPE)
+    p2args = GREP + ['Print size: ']
+    p2 = subprocess.Popen(p2args,
                           stdin=p1.stdout, stdout=subprocess.PIPE)
     p1.stdout.close()
     output = p2.communicate()[0].decode("utf-8").strip()
     # ... looks like "Print size: 1.18056x1.18056"
-    info = output.split()[2]
+    try:
+        info = output.split()[2]
+    except:
+        log.critical("p1args: {!r}", p1args)
+        log.critical("p2args: {!r}", p2args)
+        log.critical("output: {!r}", output)
+        log.warning(
+            "If the error is 'not authorized' from ImageMagick's identify "
+            "tool, see source code")
+        raise
     width, height = info.split('x')
     return float(width), float(height)
 
@@ -269,14 +324,14 @@ def crop_pdf(src_filename: str,
         dest_width_px = round(img_aspect_ratio * dest_height_px)
         log.debug(
             "Autocalculating: dest_width_px = img_aspect_ratio * "
-            "dest_height_px = {} * {} = {}".format(
-                img_aspect_ratio, dest_height_px, dest_width_px))
+            "dest_height_px = {} * {} = {}",
+            img_aspect_ratio, dest_height_px, dest_width_px)
     elif dest_height_px is None:
         dest_height_px = round(dest_width_px / img_aspect_ratio)
         log.debug(
             "Autocalculating: dest_height_px = dest_width_px / "
-            "img_aspect_ratio = {} / {} = {}".format(
-                dest_width_px, img_aspect_ratio, dest_height_px))
+            "img_aspect_ratio = {} / {} = {}",
+            dest_width_px, img_aspect_ratio, dest_height_px)
 
     # Calculate working density, if not specified (in dpi)
     if density_dpi is None:
@@ -307,7 +362,7 @@ def crop_pdf(src_filename: str,
     directory = os.path.dirname(dest_filename)
     if directory:
         mkdirp(directory)
-    args = CONVERT
+    args = CONVERT.copy()
     if verbose:
         args += ["-verbose"]
     if autocrop:
@@ -392,22 +447,22 @@ def tile_pdf(src_filename: str,
     src_tile_aspect_ratio = src_tile_width_inches / src_tile_height_inches
     log.debug(
         "Source PDF tile size: {} inches W x {} inches H "
-        "(aspect ratio {})".format(
-            src_tile_width_inches, src_tile_height_inches,
-            src_tile_aspect_ratio))
+        "(aspect ratio {})",
+        src_tile_width_inches, src_tile_height_inches,
+        src_tile_aspect_ratio)
 
     if tile_width_px is None:
         tile_width_px = round(src_tile_aspect_ratio * tile_height_px)
         log.debug(
             "Autocalculating: tile_width_px = src_tile_aspect_ratio * "
-            "tile_height_px = {} * {} = {}".format(
-                src_tile_aspect_ratio, tile_height_px, tile_width_px))
+            "tile_height_px = {} * {} = {}",
+            src_tile_aspect_ratio, tile_height_px, tile_width_px)
     elif tile_height_px is None:
         tile_height_px = round(tile_width_px / src_tile_aspect_ratio)
         log.debug(
             "Autocalculating: tile_height_px = tile_width_px / "
-            "src_tile_aspect_ratio = {} / {} = {}".format(
-                tile_width_px, src_tile_aspect_ratio, tile_height_px))
+            "src_tile_aspect_ratio = {} / {} = {}",
+            tile_width_px, src_tile_aspect_ratio, tile_height_px)
 
     intermediate_tile_width_px = density_multiplier * tile_width_px
     intermediate_tile_height_px = density_multiplier * tile_height_px
@@ -417,7 +472,7 @@ def tile_pdf(src_filename: str,
     density_dpi = round(src_width_px / src_width_inches)
 
     # Off we go
-    args = CONVERT
+    args = CONVERT.copy()
     if verbose:
         args += ["-verbose"]
     if autocrop:
@@ -588,8 +643,8 @@ def main() -> None:
 
     server_static_dir = join(args.base_dir, "server", "static")
     web_image_dir = join(args.base_dir, "website", "images")
-    docs_image_dir = join(args.base_dir, "docs_sphinx", "source", "images")
-    docs_appicon_image_dir = join(args.base_dir, "docs_sphinx", "source",
+    docs_image_dir = join(args.base_dir, "docs", "source", "images")
+    docs_appicon_image_dir = join(args.base_dir, "docs", "source",
                                   "_app_icons")
     all_tablet_icon_dirs = [tablet_icon_dir, docs_appicon_image_dir]
     
@@ -775,55 +830,39 @@ def main() -> None:
     iconmap = [
         none_row,
         none_row,
-        row('finishflag', 'spanner', 'camcops',
-            'executive', 'locked', None),
+        row('finishflag', 'spanner', 'camcops', 'executive', 'locked', None),
         none_row,
-        row('speaker', 'treeview', 'choose_patient',
-            'research', 'unlocked', None),
+        row('speaker', 'treeview', 'choose_patient', 'research', 'unlocked', None),  # noqa
         none_row,
-        row('speaker_playing', None, 'upload',
-            'info', 'back', None),
+        row('speaker_playing', 'thumbs', 'upload', 'info', 'back', None),
         none_row,
-        row(None,  # OLD RELOAD
-            None,  # OLD RELOAD_T
-            'settings',
-            None,  # OLD INFO
-            'next', None),
+        row(None, None, 'settings', None, 'next', None),
+        # ... first column: old "reload"
+        # ... fourth column: old "info"
         none_row,
         row('camera', None, 'global', 'patient_summary', 'add', None),
         none_row,
-        row('radio_selected', None, 'cognitive',
-            'hasChild', 'cancel', None),
+        row('radio_selected', None, 'cognitive', 'hasChild', 'cancel', None),
         none_row,
-        row('radio_unselected', None, 'affective',
-            'clinical', 'edit', None),
+        row('radio_unselected', None, 'affective', 'clinical', 'edit', None),
         none_row,
-        row('check_true_red', None, 'addiction',
-            'anonymous', 'delete', None),
+        row('check_true_red', None, 'addiction', 'anonymous', 'delete', None),
         none_row,
-        row('check_unselected', None, 'psychosis',
-            'check_unselected_required', 'ok', None),
+        row('check_unselected', None, 'psychosis', 'check_unselected_required', 'ok', None),  # noqa
         none_row,
-        row('check_true_black', None, 'catatonia',
-            'radio_unselected_required', 'finish', None),
+        row('check_true_black', None, 'catatonia', 'radio_unselected_required', 'finish', None),  # noqa
         none_row,
-        row('check_false_black', None, 'personality',
-            'stop', 'zoom', 'magnify'),
+        row('check_false_black', None, 'personality', 'stop', 'zoom', 'magnify'),  # noqa
         none_row,
-        row('check_false_red', None, 'field_incomplete_mandatory',
-            'field_problem', 'privileged', None),
+        row('check_false_red', None, 'field_incomplete_mandatory', 'field_problem', 'privileged', None),  # noqa
         none_row,
-        row('sets_research', 'sets_clinical', 'alltasks',
-            'warning', 'time_now', None),
+        row('sets_research', 'sets_clinical', 'alltasks', 'warning', 'time_now', None),  # noqa
         none_row,
-        row('reload', None, 'rotate_clockwise',
-            None, 'rotate_anticlockwise', None),
+        row('reload', None, 'rotate_clockwise', None, 'rotate_anticlockwise', None),  # noqa
         none_row,
-        row('choose_page', None, 'read_only',
-            'field_incomplete_optional', 'chain', 'whisker'),
+        row('choose_page', None, 'read_only', 'field_incomplete_optional', 'chain', 'whisker'),  # noqa
         none_row,
-        row('fast_forward', None, 'check_disabled',
-            'radio_disabled', None, None),
+        row('fast_forward', None, 'check_disabled', 'radio_disabled', None, None),  # noqa
         none_row,
     ]
 

@@ -147,6 +147,7 @@ extern const QString ICON_SETS_CLINICAL;
 extern const QString ICON_SETS_RESEARCH;
 extern const QString ICON_SETTINGS;
 extern const QString ICON_STOP;
+extern const QString ICON_THUMBS;
 extern const QString ICON_UPLOAD;
 extern const QString ICON_WARNING;
 extern const QString ICON_WHISKER;

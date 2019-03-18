@@ -189,5 +189,6 @@
         <file>resources/eq5d5lslider/mid_sel.png</file>
         <file>resources/eq5d5lslider/tick_sel.png</file>
         <file>resources/eq5d5lslider/top_sel.png</file>
+        <file>resources/camcops/images/thumbs.png</file>
     </qresource>
 </RCC>

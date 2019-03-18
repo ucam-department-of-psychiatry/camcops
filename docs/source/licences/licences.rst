@@ -748,6 +748,9 @@ spanner.png	                    |denovo|
 speaker_playing.png	            |denovo|
 speaker.png	                    |denovo|
 stop.png	                    |denovo|
+thumbs.png                      Modified from
+                                http://www.clker.com/cliparts/F/w/2/b/Q/2/thumbsup.svg
+                                (public domain, as per http://www.clker.com/disclaimer.html).
 time_now.png	                |denovo|
 treeview.png	                |denovo|
 unlocked.png	                Modified from

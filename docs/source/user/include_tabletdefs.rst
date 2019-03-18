@@ -328,6 +328,11 @@
    :height: 24px
    :width: 24px
 
+.. |thumbs| image:: ../_app_icons/thumbs.png
+   :align: middle
+   :height: 24px
+   :width: 24px
+
 .. |time_now| image:: ../_app_icons/time_now.png
    :align: middle
    :height: 24px
