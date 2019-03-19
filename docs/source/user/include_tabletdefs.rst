@@ -32,11 +32,10 @@
 .. then see conf.py for the CSS
 
 
-
 .. |addiction| image:: ../_app_icons/addiction.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |add| image:: ../_app_icons/add.png
    :align: middle
@@ -45,18 +44,23 @@
 
 .. |affective| image:: ../_app_icons/affective.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
-.. |alltasks| image:: ../_app_icons/alltasks.png
+.. |alltasks_big| image:: ../_app_icons/alltasks.png
+   :align: middle
+   :height: 48px
+   :width: 48px
+
+.. |alltasks_small| image:: ../_app_icons/alltasks.png
    :align: middle
    :height: 24px
    :width: 24px
 
 .. |anonymous| image:: ../_app_icons/anonymous.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |back| image:: ../_app_icons/back.png
    :align: middle
@@ -80,8 +84,8 @@
 
 .. |catatonia| image:: ../_app_icons/catatonia.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |chain| image:: ../_app_icons/chain.png
    :align: middle
@@ -135,13 +139,13 @@
 
 .. |clinical| image:: ../_app_icons/clinical.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |cognitive| image:: ../_app_icons/cognitive.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |delete| image:: ../_app_icons/delete.png
    :align: middle
@@ -155,8 +159,8 @@
 
 .. |executive| image:: ../_app_icons/executive.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |fast_forward| image:: ../_app_icons/fast_forward.png
    :align: middle
@@ -190,8 +194,8 @@
 
 .. |global| image:: ../_app_icons/global.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |hasChild| image:: ../_app_icons/hasChild.png
    :align: middle
@@ -203,7 +207,12 @@
    :height: 24px
    :width: 24px
 
-.. |info| image:: ../_app_icons/info.png
+.. |info_big| image:: ../_app_icons/info.png
+   :align: middle
+   :height: 48px
+   :width: 48px
+
+.. |info_small| image:: ../_app_icons/info.png
    :align: middle
    :height: 24px
    :width: 24px
@@ -235,8 +244,8 @@
 
 .. |personality| image:: ../_app_icons/personality.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |privileged| image:: ../_app_icons/privileged.png
    :align: middle
@@ -245,8 +254,8 @@
 
 .. |psychosis| image:: ../_app_icons/psychosis.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |radio_disabled| image:: ../_app_icons/radio_disabled.png
    :align: middle
@@ -280,8 +289,8 @@
 
 .. |research| image:: ../_app_icons/research.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |rotate_anticlockwise| image:: ../_app_icons/rotate_anticlockwise.png
    :align: middle
@@ -295,13 +304,13 @@
 
 .. |sets_clinical| image:: ../_app_icons/sets_clinical.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |sets_research| image:: ../_app_icons/sets_research.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |settings| image:: ../_app_icons/settings.png
    :align: middle
@@ -323,15 +332,20 @@
    :height: 24px
    :width: 24px
 
-.. |stop| image:: ../_app_icons/stop.png
+.. |stop_big| image:: ../_app_icons/stop.png
+   :align: middle
+   :height: 48px
+   :width: 48px
+
+.. |stop_small| image:: ../_app_icons/stop.png
    :align: middle
    :height: 24px
    :width: 24px
 
 .. |thumbs| image:: ../_app_icons/thumbs.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |time_now| image:: ../_app_icons/time_now.png
    :align: middle

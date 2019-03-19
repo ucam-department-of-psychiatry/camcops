@@ -42,7 +42,7 @@ MenuHeader::MenuHeader(QWidget* parent,
                        const bool debug_allowed)
     : QWidget(parent),
       m_app(app),
-      m_button_needs_upload(nullptr),
+      m_button_needs_upload(nullptr),  // waste of effort; constructed as nullptr
       m_button_debug(nullptr),
       m_button_view(nullptr),
       m_button_edit(nullptr),
@@ -85,10 +85,9 @@ MenuHeader::MenuHeader(QWidget* parent,
     // Centre
 
     // - Icon for current menu
-    if (!icon_filename.isEmpty()) {
-        QLabel* icon = uifunc::iconWidget(icon_filename, this);
-        toprowlayout->addWidget(icon, 0, button_align);
-    }
+    m_icon = new QLabel();
+    setIcon(icon_filename, false);
+    toprowlayout->addWidget(m_icon, 0, button_align);
 
     // - Title
     m_title_label = new LabelWordWrapWide(title);
@@ -206,6 +205,25 @@ void MenuHeader::setTitle(const QString& title)
         return;
     }
     m_title_label->setText(title);
+}
+
+
+void MenuHeader::setIcon(const QString& icon_filename)
+{
+    setIcon(icon_filename, true);
+}
+
+
+void MenuHeader::setIcon(const QString& icon_filename, bool call_show_or_hide)
+{
+    uifunc::setLabelToIcon(m_icon, icon_filename);
+    if (call_show_or_hide) {
+        if (icon_filename.isEmpty()) {
+            m_icon->hide();
+        } else {
+            m_icon->show();
+        }
+    }
 }
 
 

@@ -43,15 +43,20 @@ SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
                  "perinatal psychiatry service";
     m_items = {
         MAKE_CHANGE_PATIENT(app),
+        MenuItem(tr("Assessment/choice")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Apeqpt::APEQPT_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, app),
+        MenuItem(tr("Treatment/care")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(GboGReS::GBOGRES_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(GboGPC::GBOGPC_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(GboGRaS::GBOGRAS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, app),
+        MenuItem(tr("Specific conditions")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
+        MenuItem(tr("End of treatment/care")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, app),
     };
 }

@@ -42,7 +42,7 @@ from cardinal_pythonlib.sqlalchemy.schema import table_exists
 from pendulum import DateTime as Pendulum
 import pyramid.httpexceptions as exc
 from sqlalchemy.orm import relationship, Session as SqlASession
-from sqlalchemy.sql.expression import and_, join, literal, select
+from sqlalchemy.sql.expression import and_, exists, join, literal, select
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import BigInteger, Boolean, DateTime, Integer
 
@@ -109,7 +109,7 @@ def task_factory_unfiltered(dbsession: SqlASession,
 
 
 # =============================================================================
-# IdNumIndexEntry
+# PatientIdNumIndexEntry
 # =============================================================================
 
 class PatientIdNumIndexEntry(Base):
@@ -254,6 +254,75 @@ class PatientIdNumIndexEntry(Base):
         )
 
     # -------------------------------------------------------------------------
+    # Check index
+    # -------------------------------------------------------------------------
+    @classmethod
+    def check_index(cls, session: SqlASession,
+                    show_all_bad: bool = False) -> bool:
+        """
+        Checks the index.
+
+        Args:
+            session:
+                an SQLAlchemy Session
+            show_all_bad:
+                show all bad entries? (If false, return upon the first)
+
+        Returns:
+            bool: is the index OK?
+        """
+        ok = True
+
+        log.info(
+            "Checking all patient ID number indexes represent valid entries")
+        # noinspection PyUnresolvedReferences,PyProtectedMember
+        q_idx_without_original = session.query(PatientIdNumIndexEntry).filter(
+            ~exists()
+            .select_from(
+                PatientIdNum.__table__.join(
+                    Patient.__table__,
+                    Patient.id == PatientIdNum.patient_id,
+                    Patient._device_id == PatientIdNum._device_id,
+                    Patient._era == PatientIdNum._era,
+                )
+            ).where(and_(
+                PatientIdNum._pk == PatientIdNumIndexEntry.idnum_pk,
+                PatientIdNum._current == True,  # nopep8
+                PatientIdNum.which_idnum == PatientIdNumIndexEntry.which_idnum,
+                PatientIdNum.idnum_value == PatientIdNumIndexEntry.idnum_value,
+                Patient._pk == PatientIdNumIndexEntry.patient_pk,
+                Patient._current == True,  # nopep8
+            ))
+        )
+        for index in q_idx_without_original:
+            log.error("Patient ID number index without matching "
+                      "original: {!r}", index)
+            ok = False
+            if not show_all_bad:
+                return ok
+
+        log.info("Checking all patient ID numbers have an index")
+        # noinspection PyUnresolvedReferences,PyProtectedMember
+        q_original_with_idx = session.query(PatientIdNum).filter(
+            PatientIdNum._current == True,  # nopep8
+            ~exists()
+                .select_from(
+                    PatientIdNumIndexEntry.__table__
+                ).where(and_(
+                    PatientIdNum._pk == PatientIdNumIndexEntry.idnum_pk,
+                    PatientIdNum.which_idnum == PatientIdNumIndexEntry.which_idnum,  # noqa
+                    PatientIdNum.idnum_value == PatientIdNumIndexEntry.idnum_value,  # noqa
+                ))
+        )
+        for orig in q_original_with_idx:
+            log.error("ID number without index entry: {!r}", orig)
+            ok = False
+            if not show_all_bad:
+                return ok
+
+        return ok
+
+    # -------------------------------------------------------------------------
     # Update index at the point of upload from a device
     # -------------------------------------------------------------------------
 
@@ -387,7 +456,7 @@ class TaskIndexEntry(Base):
     patient_pk = Column(
         "patient_pk", Integer, ForeignKey(Patient._pk),
         index=True,
-        comment="Server primary key of the task"
+        comment="Server primary key of the patient (if applicable)"
     )
 
     # These fields allow us to filter tasks efficiently:
@@ -744,6 +813,69 @@ class TaskIndexEntry(Base):
                 cls.index_task(task, session,
                                indexed_at_utc=indexed_at_utc)
 
+    # -------------------------------------------------------------------------
+    # Check index
+    # -------------------------------------------------------------------------
+    @classmethod
+    def check_index(cls, session: SqlASession,
+                    show_all_bad: bool = False) -> bool:
+        """
+        Checks the index.
+
+        Args:
+            session:
+                an SQLAlchemy Session
+            show_all_bad:
+                show all bad entries? (If false, return upon the first)
+
+        Returns:
+            bool: is the index OK?
+        """
+        ok = True
+
+        log.info("Checking all task indexes represent valid entries")
+        for taskclass in Task.all_subclasses_by_tablename():
+            tasktablename = taskclass.tablename
+            log.debug("Checking {}", tasktablename)
+            # noinspection PyUnresolvedReferences,PyProtectedMember
+            q_idx_without_original = session.query(TaskIndexEntry).filter(
+                TaskIndexEntry.task_table_name == tasktablename,
+                ~exists()
+                    .select_from(taskclass.__table__)
+                    .where(and_(
+                        TaskIndexEntry.task_pk == taskclass._pk,
+                        taskclass._current == True,  # nopep8
+                    ))
+            )
+            # No check for a valid patient at this time.
+            for index in q_idx_without_original:
+                log.error("Task index without matching original: {!r}", index)
+                ok = False
+                if not show_all_bad:
+                    return ok
+
+        log.info("Checking all tasks have an index")
+        for taskclass in Task.all_subclasses_by_tablename():
+            tasktablename = taskclass.tablename
+            log.debug("Checking {}", tasktablename)
+            # noinspection PyUnresolvedReferences,PyProtectedMember
+            q_original_with_idx = session.query(taskclass).filter(
+                taskclass._current == True,  # nopep8
+                ~exists().select_from(
+                    TaskIndexEntry.__table__
+                ).where(and_(
+                    TaskIndexEntry.task_pk == taskclass._pk,
+                    TaskIndexEntry.task_table_name == tasktablename,
+                ))
+            )
+            for orig in q_original_with_idx:
+                log.error("Task without index entry: {!r}", orig)
+                ok = False
+                if not show_all_bad:
+                    return ok
+
+        return ok
+
 
 # =============================================================================
 # Wide-ranging index update functions
@@ -810,3 +942,30 @@ def update_indexes_and_push_exports(req: "CamcopsRequest",
                 req.add_export_push_request(recipient_name, tablename, pk)
                 # ... will be transmitted *after* the request performs COMMIT
 
+
+def check_indexes(session: SqlASession, show_all_bad: bool = False) -> bool:
+    """
+    Checks all server index tables.
+
+    Args:
+        session:
+            an SQLAlchemy Session
+        show_all_bad:
+            show all bad entries? (If false, return upon the first)
+
+    Returns:
+        bool: are the indexes OK?
+    """
+    p_ok = PatientIdNumIndexEntry.check_index(session, show_all_bad)
+    if p_ok:
+        log.info("Patient ID number index is good")
+    else:
+        log.error("Patient ID number index is bad")
+        if not show_all_bad:
+            return False
+    t_ok = TaskIndexEntry.check_index(session, show_all_bad)
+    if t_ok:
+        log.info("Task index is good")
+    else:
+        log.error("Task index is bad")
+    return p_ok and t_ok

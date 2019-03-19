@@ -104,7 +104,10 @@ from camcops_server.cc_modules.cc_request import (
 )  # nopep8
 from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # nopep8
 from camcops_server.cc_modules.cc_task import Task  # nopep8
-from camcops_server.cc_modules.cc_taskindex import reindex_everything  # nopep8
+from camcops_server.cc_modules.cc_taskindex import (
+    check_indexes,
+    reindex_everything,
+)  # nopep8
 from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
     DemoRequestTestCase,
@@ -602,6 +605,28 @@ def reindex(cfg: CamcopsConfig) -> None:
     ensure_database_is_ok()
     with cfg.get_dbsession_context() as dbsession:
         reindex_everything(dbsession)
+
+
+def check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
+    """
+    Checks the server task index for validity.
+
+    Args:
+        cfg: a :class:`camcops_server.cc_modules.cc_config.CamcopsConfig`
+        show_all_bad:
+            show all bad entries? (If false, return upon the first)
+
+    Returns:
+        are the indexes all good?
+    """
+    ensure_database_is_ok()
+    with cfg.get_dbsession_context() as dbsession:
+        ok = check_indexes(dbsession, show_all_bad)
+        if ok:
+            log.info("All indexes good.")
+        else:
+            log.critical("An index is bad.")
+    return ok
 
 
 # =============================================================================

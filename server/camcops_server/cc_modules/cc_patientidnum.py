@@ -44,6 +44,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.reprfunc import simple_repr
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
@@ -116,6 +117,12 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
 
     def __str__(self) -> str:
         return "idnum{}={}".format(self.which_idnum, self.idnum_value)
+
+    def __repr__(self) -> str:
+        return simple_repr(self, [
+            "_pk", "_device_id", "_era",
+            "id", "patient_id", "which_idnum", "idnum_value"
+        ])
 
     def get_idnum_reference(self) -> IdNumReference:
         """

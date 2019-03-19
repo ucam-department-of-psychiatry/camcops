@@ -24,7 +24,7 @@
 Why isn’t task X in CamCOPS?
 ----------------------------
 
-|stop|
+|stop_big|
 
 Either because it hasn’t been implemented, or because it would not be
 permissible for copyright reasons.

@@ -30,7 +30,7 @@ ${ sf | h }
 </pre>
 
 <h2>All known tasks</h2>
-<p>Format is: long name (short name, base table name).</p>
+<p>Format is: long name (short name; base table name).</p>
 <pre>
     %for tc in all_task_classes:
 ${ tc.longname | h } (${ tc.shortname | h }; ${ tc.tablename | h })

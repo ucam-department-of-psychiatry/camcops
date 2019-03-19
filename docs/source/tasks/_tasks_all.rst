@@ -24,7 +24,7 @@
 All tasks
 =========
 
-|alltasks|
+|alltasks_big|
 
 .. include:: include_task_copyright_warning.rst
 

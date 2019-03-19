@@ -35,7 +35,6 @@ from argparse import (
 )
 import logging
 import os
-import multiprocessing
 import pprint
 import sys
 from typing import Dict, List, Optional, Type, TYPE_CHECKING
@@ -188,6 +187,8 @@ def _downgrade_database_to_revision(
         revision=revision,
         show_sql_only=show_sql_only,
         confirm_downgrade_db=confirm_downgrade_db)
+    if not show_sql_only:
+        log.warning("You should run the 'reindex' command.")
 
 
 def _create_database_from_scratch(cfg: "CamcopsConfig") -> None:
@@ -239,6 +240,12 @@ def _get_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> str:
 def _reindex(cfg: CamcopsConfig) -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
     core.reindex(cfg=cfg)
+
+
+def _check_index(cfg: CamcopsConfig,
+                 show_all_bad: bool = False) -> bool:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    return core.check_index(cfg=cfg, show_all_bad=show_all_bad)
 
 
 # -----------------------------------------------------------------------------
@@ -781,6 +788,21 @@ def camcops_main() -> None:
     reindex_parser.set_defaults(
         func=lambda args: _reindex(
             cfg=get_default_config_from_os_env()
+        )
+    )
+
+    check_index_parser = add_sub(
+        subparsers, "check_index",
+        help="Check index validity (exit code 0 for OK, 1 for bad)"
+    )
+    check_index_parser.add_argument(
+        "--show_all_bad", action="store_true",
+        help="Show all bad index entries (rather than stopping at the first)"
+    )
+    check_index_parser.set_defaults(
+        func=lambda args: _check_index(
+            cfg=get_default_config_from_os_env(),
+            show_all_bad=args.show_all_bad
         )
     )
 

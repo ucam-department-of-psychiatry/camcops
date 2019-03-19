@@ -110,16 +110,31 @@ QLabel* iconWidget(const QString& filename, QWidget* parent,
 #ifdef DEBUG_ICON_LOAD
     qDebug() << "iconWidget:" << filename;
 #endif
-    QSize size;  // invalid size
-    if (scale) {
-        size = uiconst::g_iconsize;
-    }
-    QPixmap iconimage = getPixmap(filename, size);
     auto iconlabel = new QLabel(parent);
-    iconlabel->setFixedSize(iconimage.size());
-    iconlabel->setPixmap(iconimage);
+    setLabelToIcon(iconlabel, filename, scale);
     return iconlabel;
 }
+
+
+void setLabelToIcon(QLabel* iconlabel, const QString& filename, bool scale)
+{
+    if (!iconlabel) {
+        return;
+    }
+    if (filename.isEmpty()) {
+        iconlabel->setFixedSize(QSize());
+        iconlabel->setText("");
+    } else {
+        QSize size;  // invalid size
+        if (scale) {
+            size = uiconst::g_iconsize;
+        }
+        QPixmap iconimage = getPixmap(filename, size);
+        iconlabel->setFixedSize(iconimage.size());
+        iconlabel->setPixmap(iconimage);
+    }
+}
+
 
 
 QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,

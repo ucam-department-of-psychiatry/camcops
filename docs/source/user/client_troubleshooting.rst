@@ -124,8 +124,8 @@ forcibly stop and restart the app:
 
 - Close it as usual; if it refuses to close, kill it via the Task Manager.
 
-Rescuing data very old CamCOPS clients
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Rescuing data from very old CamCOPS clients
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you have an old Titanium version (version 1.x), then before you attempt an
 upload to a modern CamCOPS server, follow these steps.

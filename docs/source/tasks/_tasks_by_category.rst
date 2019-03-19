@@ -532,13 +532,13 @@ History and guide
 Demonstration task
 ------------------
 
-|info|
+|info_big|
 
 - :ref:`Demonstration questionnaire <demoquestionnaire>`
 
 Some tasks not in CamCOPS
 -------------------------
 
-|stop|
+|stop_big|
 
 - :ref:`Tasks NOT included, including for copyright reasons <tasks_missing>`

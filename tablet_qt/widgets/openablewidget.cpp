@@ -49,7 +49,7 @@ OpenableWidget::OpenableWidget(QWidget* parent) :
 
 void OpenableWidget::build()
 {
-    QWidget* widget =   m_subwidget.data();
+    QWidget* widget = m_subwidget.data();
     auto openable_widget = dynamic_cast<OpenableWidget*>(widget);
     if (openable_widget) {
         openable_widget->build();

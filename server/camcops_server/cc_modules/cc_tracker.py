@@ -612,11 +612,15 @@ class Tracker(TrackerCtvCommon):
 
     def get_single_plot_html(self,
                              datetimes: List[Pendulum],
-                             values: List[float],
+                             values: List[Optional[float]],
                              specimen_tracker: "TrackerInfo") -> str:
         """
         HTML for a single figure.
         """
+        nonblank_values = list(filter(None, values))
+        if not nonblank_values:
+            return ""
+
         plot_label = specimen_tracker.plot_label
         axis_label = specimen_tracker.axis_label
         axis_min = specimen_tracker.axis_min
@@ -662,8 +666,8 @@ class Tracker(TrackerCtvCommon):
 
         # y axis
         ax.set_ylabel(axis_label, fontdict=self.req.fontdict)
-        axis_min = min(axis_min, min(values)) if axis_min else min(values)
-        axis_max = max(axis_max, max(values)) if axis_max else max(values)
+        axis_min = min(axis_min, min(nonblank_values)) if axis_min else min(nonblank_values)  # noqa
+        axis_max = max(axis_max, max(nonblank_values)) if axis_max else max(nonblank_values)  # noqa
         # ... the supplied values are stretched if the data are outside them
         # ... but min(something, None) is None, so beware
         # If we get something with no sense of scale whatsoever, then what

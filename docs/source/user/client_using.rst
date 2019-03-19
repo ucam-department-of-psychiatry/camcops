@@ -85,8 +85,8 @@ In the list of patients:
 - |finishflag| indicates that the patient has been marked as finished (see
   “Uploading” below).
 
-- |stop| indicates that the patient’s details are insufficient to be uploaded
-  (as determined by the server’s ID policy).
+- |stop_small| indicates that the patient’s details are insufficient to be
+  uploaded (as determined by the server’s ID policy).
 
 - |warning| indicates that the patient’s details are sufficient to be uploaded,
   but insufficient to be finalized and removed from the tablet (as determined
@@ -107,14 +107,14 @@ Tasks
 From the main menu, you can go to the :tabletmenu:`|patient_summary| Patient
 summary`. This shows all tasks on the tablet for the current patient. You can
 also browse the menu to find specific tasks. If you have trouble finding one,
-try :tabletmenu:`|alltasks| Search all tasks`.
+try :tabletmenu:`|alltasks_small| Search all tasks`.
 
 At any task menu, task summaries are displayed.
 
-- Choose :tabletmenu:`|info| Task information` for a page of background
+- Choose :tabletmenu:`|info_small| Task information` for a page of background
   information about the task.
 
-- Choose :tabletmenu:`|info| Task status` to view the task’s status within
+- Choose :tabletmenu:`|info_small| Task status` to view the task’s status within
   CamCOPS, such as whether your server is offering a fully functional copy or a
   skeleton task (according to institutional permissions).
 
@@ -224,8 +224,8 @@ Some widgets have special properties:
   search view, where you can type in a fragment of a diagnosis or its code.
   Press |treeview| to return to the tree view.
 
-See the Demonstration questionnaire on the :tabletmenu:`|info| Help` menu for a
-tutorial.
+See the Demonstration questionnaire on the :tabletmenu:`|info_small| Help` menu
+for a tutorial.
 
 When viewing a read-only facsimile of a questionnaire-style task:
 
@@ -277,7 +277,7 @@ See the :ref:`web interface instructions <website_general>` for more detail.
 Help
 ----
 
-The :tabletmenu:`|info| Help` menu includes, amongst other things:
+The :tabletmenu:`|info_small| Help` menu includes, amongst other things:
 
 - links to this documentation;
 

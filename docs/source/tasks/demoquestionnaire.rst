@@ -24,7 +24,7 @@
 Demonstration questionnaire
 ---------------------------
 
-|info| |anonymous|
+|info_big| |anonymous|
 
 This is a “kitchen sink” questionnaire, with illustrations of all the types of
 question/widget currently supported.

@@ -58,6 +58,11 @@ QLabel* iconWidget(const QString& filename,
                    QWidget* parent = nullptr,
                    bool scale = true);
 
+// Given an existing QLabel, force it to show an icon of the standard size
+// (or nothing, with zero size, if "filename" is empty).
+void setLabelToIcon(QLabel* iconlabel, const QString& filename,
+                    bool scale = true);
+
 // Adds a circle behind (or on top of) the supplied image (used for "you are
 // touching this" indicators on icons).
 QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,

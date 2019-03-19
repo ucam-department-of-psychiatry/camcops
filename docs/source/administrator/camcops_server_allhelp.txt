@@ -1,5 +1,5 @@
 usage: camcops_server [-h] [--allhelp] [--version] [-v]
-                      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,make_superuser,reset_password,enable_user,export,show_export_queue,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
+                      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
                       ...
 
 CamCOPS server, created by Rudolf Cardinal; version 2.3.1.
@@ -14,7 +14,7 @@ optional arguments:
 commands:
   Valid CamCOPS commands are as follows.
 
-  {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,make_superuser,reset_password,enable_user,export,show_export_queue,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
+  {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
                         Specify one command.
     docs                Launch the main documentation (CamCOPS manual)
     demo_camcops_config
@@ -39,6 +39,7 @@ commands:
                         upgrade facility instead)
     ddl                 Print database schema (data definition language; DDL)
     reindex             Recreate task index
+    check_index         Check index validity (exit code 0 for OK, 1 for bad)
     make_superuser      Make superuser, or give superuser status to an
                         existing user
     reset_password      Reset a user's password
@@ -279,8 +280,8 @@ optional arguments:
   -v, --verbose      Be verbose (default: False)
   --config CONFIG    Configuration file (if not specified, the environment
                      variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-  --dialect DIALECT  SQL dialect (options: sybase, mysql, firebird, mssql,
-                     postgresql, sqlite, oracle) (default: mysql)
+  --dialect DIALECT  SQL dialect (options: postgresql, mysql, oracle,
+                     firebird, sybase, sqlite, mssql) (default: mysql)
 
 ===============================================================================
 Help for command 'reindex'
@@ -294,6 +295,21 @@ optional arguments:
   -v, --verbose    Be verbose (default: False)
   --config CONFIG  Configuration file (if not specified, the environment
                    variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+
+===============================================================================
+Help for command 'check_index'
+===============================================================================
+usage: camcops_server check_index [-h] [-v] [--config CONFIG] [--show_all_bad]
+
+Check index validity (exit code 0 for OK, 1 for bad)
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -v, --verbose    Be verbose (default: False)
+  --config CONFIG  Configuration file (if not specified, the environment
+                   variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+  --show_all_bad   Show all bad index entries (rather than stopping at the
+                   first) (default: False)
 
 ===============================================================================
 Help for command 'make_superuser'

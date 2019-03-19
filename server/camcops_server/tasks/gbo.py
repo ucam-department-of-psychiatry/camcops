@@ -44,6 +44,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -198,6 +199,7 @@ class Gbogpc(TaskHasPatientMixin, Task):
     shortname = "GBO-GPC"
     longname = "Goal-Based Outcomes – 2 – Goal Progress Chart"
     extrastring_taskname = "gbo"
+    provides_trackers = True
 
     FN_DATE = "date"  # NB SQL keyword too; doesn't matter
     FN_SESSION = "session"
@@ -234,6 +236,39 @@ class Gbogpc(TaskHasPatientMixin, Task):
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields()
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
+        axis_min = -0.5
+        axis_max = 10.5
+        hlines = [0, 5, 10]
+        axis_label = "Progress towards goal (0-10)"
+        title_start = "GBO Goal Progress Chart – Goal "
+        return [
+            TrackerInfo(
+                value=self.progress if self.goal_number == 1 else None,
+                plot_label=title_start + "1",
+                axis_label=axis_label,
+                axis_min=axis_min,
+                axis_max=axis_max,
+                horizontal_lines=hlines
+            ),
+            TrackerInfo(
+                value=self.progress if self.goal_number == 2 else None,
+                plot_label=title_start + "2",
+                axis_label=axis_label,
+                axis_min=axis_min,
+                axis_max=axis_max,
+                horizontal_lines=hlines
+            ),
+            TrackerInfo(
+                value=self.progress if self.goal_number == 3 else None,
+                plot_label=title_start + "3",
+                axis_label=axis_label,
+                axis_min=axis_min,
+                axis_max=axis_max,
+                horizontal_lines=hlines
+            ),
+        ]
 
     def is_complete(self) -> bool:
         if not self.are_all_fields_complete(self.REQUIRED_FIELDS):
@@ -306,6 +341,7 @@ class Gbogras(TaskHasPatientMixin, Task):
     shortname = "GBO-GRaS"
     longname = "Goal-Based Outcomes – 3 – Goal Rating Sheet"
     extrastring_taskname = "gbo"
+    provides_trackers = True
 
     FN_DATE = "date"  # NB SQL keyword too; doesn't matter
     FN_RATE_GOAL_1 = "rate_goal_1"
@@ -365,6 +401,39 @@ class Gbogras(TaskHasPatientMixin, Task):
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields()
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
+        axis_min = -0.5
+        axis_max = 10.5
+        hlines = [0, 5, 10]
+        axis_label = "Progress towards goal (0-10)"
+        title_start = "GBO Goal Rating Sheet – Goal "
+        return [
+            TrackerInfo(
+                value=self.goal_1_progress if self.rate_goal_1 else None,
+                plot_label=title_start + "1",
+                axis_label=axis_label,
+                axis_min=axis_min,
+                axis_max=axis_max,
+                horizontal_lines=hlines
+            ),
+            TrackerInfo(
+                value=self.goal_2_progress if self.rate_goal_2 else None,
+                plot_label=title_start + "2",
+                axis_label=axis_label,
+                axis_min=axis_min,
+                axis_max=axis_max,
+                horizontal_lines=hlines
+            ),
+            TrackerInfo(
+                value=self.goal_3_progress if self.rate_goal_3 else None,
+                plot_label=title_start + "3",
+                axis_label=axis_label,
+                axis_min=axis_min,
+                axis_max=axis_max,
+                horizontal_lines=hlines
+            ),
+        ]
 
     def is_complete(self) -> bool:
         if not self.are_all_fields_complete(self.REQUIRED_FIELDS):

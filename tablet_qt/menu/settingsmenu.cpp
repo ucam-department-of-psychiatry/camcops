@@ -109,6 +109,9 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
 
     // Safe object lifespan signal: can use std::bind
     m_items = {
+        // --------------------------------------------------------------------
+        MenuItem(tr("Common user settings")).setLabelOnly(),
+        // --------------------------------------------------------------------
         MenuItem(
             tr("Questionnaire font size and DPI settings"),
             MenuItem::OpenableWidgetMaker(
@@ -134,6 +137,7 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
             tr("Change app password"),
             std::bind(&SettingsMenu::changeAppPassword, this)
         ).setNotIfLocked(),
+        MenuItem(tr("Information")).setLabelOnly(),
         MenuItem(
             tr("Show server information"),
             MenuItem::OpenableWidgetMaker(
@@ -141,6 +145,9 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
                           std::placeholders::_1)
             )
         ).setNotIfLocked(),
+        // --------------------------------------------------------------------
+        MenuItem(tr("Infrequent user functions")).setLabelOnly(),
+        // --------------------------------------------------------------------
         MenuItem(
             tr("Re-accept ID descriptions from the server"),
             std::bind(&SettingsMenu::fetchIdDescriptions, this)
@@ -149,7 +156,9 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
             tr("Re-fetch extra task strings from the server"),
             std::bind(&SettingsMenu::fetchExtraStrings, this)
         ).setNotIfLocked(),
-        MAKE_MENU_MENU_ITEM(TestMenu, app),
+        // --------------------------------------------------------------------
+        MenuItem(tr("Administrator functions")).setLabelOnly(),
+        // --------------------------------------------------------------------
         MenuItem(
             tr("Set privileged mode (for items marked †)"),
             std::bind(&SettingsMenu::setPrivilege, this)
@@ -170,10 +179,27 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
             tr("(†) Change privileged-mode password"),
             std::bind(&SettingsMenu::changePrivPassword, this)
         ).setNeedsPrivilege(),
+        // --------------------------------------------------------------------
+        MenuItem(tr("Rare functions")).setLabelOnly(),
+        // --------------------------------------------------------------------
+        MAKE_MENU_MENU_ITEM(TestMenu, app),
         MenuItem(
             tr("(†) Wipe extra strings downloaded from server"),
             [this](){ deleteAllExtraStrings(); }  // alternative lambda syntax
         ).setNeedsPrivilege(),
+        MenuItem(
+            tr("(†) View record counts for all data tables"),
+            std::bind(&SettingsMenu::viewDataCounts, this),
+            spanner
+        ).setNeedsPrivilege(),
+        MenuItem(
+            tr("(†) View record counts for all system tables"),
+            std::bind(&SettingsMenu::viewSystemCounts, this),
+            spanner
+        ).setNeedsPrivilege(),
+        // --------------------------------------------------------------------
+        MenuItem(tr("Rescue operations")).setLabelOnly(),
+        // --------------------------------------------------------------------
 #ifdef OFFER_VIEW_SQL
         MenuItem(
             tr("(†) View data database as SQL"),
@@ -186,16 +212,6 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
             spanner
         ).setNeedsPrivilege(),
 #endif
-        MenuItem(
-            tr("(†) View record counts for all data tables"),
-            std::bind(&SettingsMenu::viewDataCounts, this),
-            spanner
-        ).setNeedsPrivilege(),
-        MenuItem(
-            tr("(†) View record counts for all system tables"),
-            std::bind(&SettingsMenu::viewSystemCounts, this),
-            spanner
-        ).setNeedsPrivilege(),
         MenuItem(
             tr("(†) Send decrypted data database to debugging stream"),
             std::bind(&SettingsMenu::debugDataDbAsSql, this),

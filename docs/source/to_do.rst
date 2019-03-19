@@ -163,6 +163,23 @@ Server
 
 **Priority**
 
+- Fix "delete user" bug -- if someone attempts to delete a user, but that's
+  prohibited because they feature in the audit trail, the delete fails because
+  of a database constraint but a general crash is shown, not the specific
+  error. Error shown is:
+
+  .. code-block:: none
+
+  sqlalchemy.exc.InvalidRequestError: This Session's transaction has been
+  rolled back due to a previous exception during flush. To begin a new
+  transaction with this Session, first issue Session.rollback(). Original
+  exception was: (pymysql.err.IntegrityError) (1451, 'Cannot delete or update a
+  parent row: a foreign key constraint fails (`camcops`.`_security_audit`,
+  CONSTRAINT `fk__security_audit_user_id` FOREIGN KEY (`user_id`) REFERENCES
+  `_security_users` (`id`))') [SQL: 'DELETE FROM _security_users WHERE
+  _security_users.id = %(id)s'] [parameters: {'id': 3}] (Background on this
+  error at: http://sqlalche.me/e/gkpj)
+
 - Facility to hide individual sticky notes (with audit trail), so they're not
   shown in HTML (+ PDF) and XML views. See e-mail RNC/JK/RE, 2018-10-12.
 
@@ -216,6 +233,19 @@ Server
 
 **Not a priority**
 
+- Tracker improvements.
+
+  - In
+    :meth:`camcops_server.cc_modules.cc_tracker.Tracker.get_all_plots_for_one_task_html`,
+    consider improvements to allow tracker information to be associated with
+    a user-specified date (see e.g. GBO), rather than the creation time (with
+    fallback to the creation time if not specified).
+
+  - Consider cross-task trackers, e.g. GBO-GPC and GBO-GRaS both contributing
+    to a "goal 1 progress" tracker. Simplest way might be to collect specimen
+    and x/y information from all tasks, keyed by tracker name, with some
+    defaults for existing trackers?
+
 - Implement (from command line) “export to anonymisation staging database” =
   with patient info per table. (Extend ``cc_dump.py``. See
   ``generate_anonymisation_staging_db()``, and it's also temporarily disabled
@@ -224,6 +254,8 @@ Server
 
   - Best to implement by fixed column names for all ID numbers, e.g.
     ``_patient_idnum1``, ``_patient_idnum17``, etc.? NULL if absent.
+
+- A database migration to fix all old field comments?
 
 - Upgrade Qt to 5.12 LTS.
 

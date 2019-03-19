@@ -46,6 +46,10 @@ public:
     // Set the title.
     void setTitle(const QString& title);
 
+    // Set the icon.
+    // The parameter is a CamCOPS icon filename stub.
+    void setIcon(const QString& icon_filename);
+
     // Set the menu header colour for a task menu where that task is crippled.
     void setCrippled(bool crippled);
 
@@ -97,6 +101,9 @@ public slots:
     void selectedPatientDetailsChanged(const Patient* patient);
 
 protected:
+    // Internal version of setIcon().
+    void setIcon(const QString& icon_filename, bool call_show_or_hide);
+
     // "Update the lines (at the bottom of the header) showing patient info."
     void setPatientDetails(const Patient* patient);
 
@@ -104,6 +111,7 @@ protected:
     CamcopsApp& m_app;
     QPointer<BaseWidget> m_top_bar;
     QPointer<LabelWordWrapWide> m_title_label;
+    QPointer<QLabel> m_icon;
     QPointer<QAbstractButton> m_button_needs_upload;
     QPointer<QPushButton> m_button_debug;
     QPointer<QAbstractButton> m_button_finish_flag;

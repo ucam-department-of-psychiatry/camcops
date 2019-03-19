@@ -67,6 +67,15 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     m_search_box(nullptr),
     m_p_listwidget(nullptr)
 {
+    setEscapeKeyCanAbort(!top, true);
+
+    loadStyleSheet();
+    setObjectName(cssconst::MENU_WINDOW_OUTER_OBJECT);
+
+    // ------------------------------------------------------------------------
+    // Layout
+    // ------------------------------------------------------------------------
+
     /*
     For no clear reason, I have been unable to set the background colour
     of the widget that goes inside the QStackedLayout, either by class name
@@ -89,11 +98,6 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
                         m_mainlayout
                             widgets of interest
     */
-
-    setEscapeKeyCanAbort(!top, true);
-
-    loadStyleSheet();
-    setObjectName(cssconst::MENU_WINDOW_OUTER_OBJECT);
 
 #ifdef MENUWINDOW_USE_HFW_LAYOUT
     auto dummy_layout = new VBoxLayout();
@@ -221,6 +225,7 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
 void MenuWindow::setIcon(const QString& icon)
 {
     m_icon = icon;
+    m_p_header->setIcon(icon);
 }
 
 
@@ -239,7 +244,7 @@ void MenuWindow::reloadStyleSheet()
 
 void MenuWindow::build()
 {
-    // qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO;
 
     m_p_listwidget->clear();
 

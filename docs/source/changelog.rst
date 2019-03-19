@@ -1585,7 +1585,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_2019:
 
-**Server v2.3.1 and client v2.3.1 (in progress, from 2018-11-27)**
+**Server v2.3.1 and client v2.3.1 (2018-11-27 to 2019-03-19)**
 
 - ``cardinal_pythonlib`` to 1.0.46.
 
@@ -1919,3 +1919,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``merge_db`` function made much more conservative about importing groups,
   ID number types -- user must specify the mapping manually to avoid
   inadvertent errors.
+
+- Updated trackers to cope with blank (``None``) values, e.g. from
+  :ref:`GBO-GRaS <gbo_gras>` task.
+
+- Menu header functions updated so that anonymous tasks show the "anonymous"
+  icon properly.
+
+- Report: tasks by month/username
+
+- ``check_index`` command.

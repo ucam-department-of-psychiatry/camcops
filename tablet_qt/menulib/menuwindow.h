@@ -92,6 +92,7 @@ public:
     PatientPtr currentPatient() const;
 
 protected:
+    // Load or reload the stylesheet on our widget.
     void reloadStyleSheet();
     void loadStyleSheet();
 

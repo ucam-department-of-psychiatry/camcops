@@ -32,7 +32,7 @@ camcops_server
 --------------
 
 The ``camcops_server`` command is the main interface to the CamCOPS server.
-Options as of 2019-03-05 (output from ``camcops_server --allhelp``):
+Options as of 2019-03-19 (output from ``camcops_server --allhelp``):
 
 ..  literalinclude:: camcops_server_allhelp.txt
     :language: none
