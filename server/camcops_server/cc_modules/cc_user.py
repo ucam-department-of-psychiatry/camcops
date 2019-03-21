@@ -629,7 +629,10 @@ class User(Base):
             # we don't know when the last change was, so it's overdue
             self.force_password_change()
             return
-        delta = req.now_utc - self.last_password_change_utc
+        delta = req.now_utc_no_tzinfo - self.last_password_change_utc
+        # Must use a version of "now" with no timezone info, since
+        # self.last_password_change_utc is "offset-naive" (has no timezone
+        # info)
         if delta.days >= cfg.password_change_frequency_days:
             self.force_password_change()
 

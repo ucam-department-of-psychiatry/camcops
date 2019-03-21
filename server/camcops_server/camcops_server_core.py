@@ -51,6 +51,7 @@ log.info("Imports starting")
 import os  # nopep8
 import platform  # nopep8
 import subprocess  # nopep8
+import sys  # nopep8
 import tempfile  # nopep8
 from typing import Any, Dict, List, Optional, TYPE_CHECKING  # nopep8
 import unittest  # nopep8
@@ -64,10 +65,22 @@ from wsgiref.simple_server import make_server  # nopep8
 
 from cardinal_pythonlib.classes import gen_all_subclasses  # nopep8
 from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
+from cardinal_pythonlib.wsgi.constants import (
+    TYPE_WSGI_APP,
+    TYPE_WSGI_APP_RESULT,
+    TYPE_WSGI_ENVIRON,
+    TYPE_WSGI_EXC_INFO,
+    TYPE_WSGI_RESPONSE_HEADERS,
+    TYPE_WSGI_START_RESPONSE,
+    TYPE_WSGI_START_RESP_RESULT,
+    TYPE_WSGI_STATUS,
+    WsgiEnvVar,
+)  # nopep8
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import (
     ReverseProxiedConfig,
     ReverseProxiedMiddleware,
 )  # nopep8
+from pendulum import DateTime as Pendulum  # nopep8
 
 # Import this one early:
 # noinspection PyUnresolvedReferences
@@ -135,6 +148,13 @@ if TYPE_CHECKING:
 
 WINDOWS = platform.system() == "Windows"
 
+# We want to be able to run Celery from our virtual environment, but just
+# running the venv Python (as opposed to using "activate") doesn't set the path
+# correctly. So as per
+# https://stackoverflow.com/questions/22003769/get-virtualenvs-bin-folder-path-from-script  # noqa
+_CELERY_NAME = "celery.exe" if WINDOWS else "celery"
+CELERY = os.path.join(os.path.dirname(sys.executable), _CELERY_NAME)
+
 
 # =============================================================================
 # Helper functions for web server launcher
@@ -178,11 +198,158 @@ def precache() -> None:
 # WSGI entry point
 # =============================================================================
 
+class RequestLoggingMiddleware(object):
+    """
+    WSGI middleware to log incoming request details (+/- the response status
+    code and timing information).
+
+    .. todo:: move to cardinal_pythonlib
+    """
+    def __init__(self, app: TYPE_WSGI_APP,
+                 logger: logging.Logger = log,
+                 loglevel: int = logging.INFO,
+                 show_request_immediately: bool = True,
+                 show_response: bool = True,
+                 show_timing: bool = True) -> None:
+        """
+        Args:
+            app:
+                The WSGI application to wrap
+            logger:
+                The Python logger to write to
+            loglevel:
+                The log level to use (e.g. ``logging.DEBUG``, ``logging.INFO``)
+            show_request_immediately:
+                Show the request immediately, so it's written to the log before
+                the WSGI app does its processing, and is guaranteed to be
+                visible even if the WSGI app hangs? The only reason to use
+                ``False`` is probably if you intend to show response and/or
+                timing information and you want to minimize the number of lines
+                written to the log; in this case, only a single line is written
+                to the log (after the wrapped WSGI app has finished
+                processing).
+            show_response:
+                Show the HTTP response code?
+            show_timing:
+                Show the time that the wrapped WSGI app took?
+        """
+        self.app = app
+        self.logger = logger
+        self.loglevel = loglevel
+        self.show_response = show_response
+        self.show_request_immediately = show_request_immediately
+        self.show_timing = show_timing
+
+    def log(self, msg) -> None:
+        """
+        Writes a message to the chosen log.
+        """
+        self.logger.log(self.loglevel, msg)
+
+    def __call__(self,
+                 environ: TYPE_WSGI_ENVIRON,
+                 start_response: TYPE_WSGI_START_RESPONSE) \
+            -> TYPE_WSGI_APP_RESULT:
+        query_string = environ.get(WsgiEnvVar.QUERY_STRING, "")
+        try:
+            # https://stackoverflow.com/questions/7835030/obtaining-client-ip-address-from-a-wsgi-app-using-eventlet  # noqa
+            # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For  # noqa
+            forwarded_for = " [forwarded for {}]".format(
+                environ[WsgiEnvVar.HTTP_X_FORWARDED_FOR]
+            )
+        except KeyError:
+            forwarded_for = ""
+        msg_parts = [
+            'Request from {remote}{fwd}: '
+            '"{method} {path}{qmark}{query} {proto}"'.format(
+                remote=environ.get(WsgiEnvVar.REMOTE_ADDR, ""),
+                fwd=forwarded_for,
+                method=environ.get(WsgiEnvVar.REQUEST_METHOD, ""),
+                path=environ.get(WsgiEnvVar.PATH_INFO, ""),
+                qmark="?" if query_string else "",
+                query=query_string,
+                proto=environ.get(WsgiEnvVar.SERVER_PROTOCOL, ""),
+            )
+        ]
+        if self.show_request_immediately:
+            self.log("".join(msg_parts))
+            msg_parts.clear()
+        captured_status = None  # type: int
+
+        def custom_start_response(status: TYPE_WSGI_STATUS,
+                                  headers: TYPE_WSGI_RESPONSE_HEADERS,
+                                  exc_info: TYPE_WSGI_EXC_INFO = None) \
+                -> TYPE_WSGI_START_RESP_RESULT:
+            nonlocal captured_status
+            captured_status = status
+            return start_response(status, headers, exc_info)
+
+        # noinspection PyBroadException
+        try:
+            if self.show_timing:
+                t1 = Pendulum.utcnow()
+            result = self.app(environ, custom_start_response)
+            return result
+        except Exception:
+            msg_parts.append("[RAISED EXCEPTION]")
+            raise
+        finally:
+            if self.show_timing:
+                t2 = Pendulum.utcnow()
+            if self.show_response:
+                if captured_status is not None:
+                    msg_parts.append("-> {}".format(captured_status))
+                else:
+                    msg_parts.append("[no response status]")
+            if self.show_timing:
+                # noinspection PyUnboundLocalVariable
+                time_taken_s = (t2 - t1).total_seconds()
+                msg_parts.append("[{} s]".format(time_taken_s))
+            if msg_parts:
+                self.log(" ".join(msg_parts))
+
+
 def make_wsgi_app(debug_toolbar: bool = False,
                   reverse_proxied_config: ReverseProxiedConfig = None,
-                  debug_reverse_proxy: bool = False) -> "Router":
+                  debug_reverse_proxy: bool = False,
+                  show_requests: bool = True,
+                  show_request_immediately: bool = True,
+                  show_response: bool = True,
+                  show_timing: bool = True) -> "Router":
     """
     Makes and returns a WSGI application, attaching all our special methods.
+
+    Args:
+        debug_toolbar:
+            Add the Pyramid debug toolbar?
+        reverse_proxied_config:
+            An optional
+            :class:`cardinal_pythonlib.wsgi.reverse_proxied_mw.ReverseProxiedConfig`
+            object giving details about a reverse proxy configuration
+            (or details that there isn't one)
+        debug_reverse_proxy:
+            Show debugging information about the reverse proxy middleware, if
+            such middleware is required?
+        show_requests:
+            Write incoming requests to the Python log?
+        show_request_immediately:
+            [Applicable if ``show_requests``]
+            Show the request immediately, so it's written to the log before the
+            WSGI app does its processing, and is guaranteed to be visible even
+            if the WSGI app hangs? The only reason to use ``False`` is probably
+            if you intend to show response and/or timing information and you
+            want to minimize the number of lines written to the log; in this
+            case, only a single line is written to the log (after the wrapped
+            WSGI app has finished processing).
+        show_response:
+            [Applicable if ``show_requests``]
+            Show the HTTP response code?
+        show_timing:
+            [Applicable if ``show_requests``]
+            Show the time that the wrapped WSGI app took?
+
+    Returns:
+        the WSGI app
 
     QUESTION: how do we access the WSGI environment (passed to the WSGI app)
     from within a Pyramid request?
@@ -213,11 +380,22 @@ def make_wsgi_app(debug_toolbar: bool = False,
     """
     log.debug("Creating WSGI app")
 
-    # Make app
+    # Make WSGI app
     with pyramid_configurator_context(debug_toolbar=debug_toolbar) as config:
         app = config.make_wsgi_app()
 
     # Middleware above the Pyramid level
+
+    if show_requests:
+        app = RequestLoggingMiddleware(
+            app,
+            logger=logging.getLogger(__name__),
+            loglevel=logging.INFO,
+            show_request_immediately=show_request_immediately,
+            show_response=show_response,
+            show_timing=show_timing,
+        )
+
     if reverse_proxied_config and reverse_proxied_config.necessary():
         app = ReverseProxiedMiddleware(app=app,
                                        config=reverse_proxied_config,
@@ -625,7 +803,7 @@ def check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
         if ok:
             log.info("All indexes good.")
         else:
-            log.critical("An index is bad.")
+            log.critical("An index is bad. Run the 'reindex' command.")
     return ok
 
 
@@ -647,7 +825,7 @@ def launch_celery_workers(verbose: bool = False) -> None:
     """  # noqa
     config = get_default_config_from_os_env()
     cmdargs = [
-        "celery", "worker",
+        CELERY, "worker",
         "--app", CELERY_APP_NAME,
         "-Ofair",
         "--soft-time-limit", str(CELERY_SOFT_TIME_LIMIT_SEC),
@@ -675,7 +853,7 @@ def launch_celery_beat(verbose: bool = False) -> None:
     """  # noqa
     config = get_default_config_from_os_env()
     cmdargs = [
-        "celery", "beat",
+        CELERY, "beat",
         "--app", CELERY_APP_NAME,
         "--schedule", config.celery_beat_schedule_database,
         "--pidfile", config.get_celery_beat_pidfilename(),
@@ -692,7 +870,7 @@ def launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
     Launch the Celery Flower monitor.
     """
     cmdargs = [
-        "celery", "flower",
+        CELERY, "flower",
         "--app", CELERY_APP_NAME,
         "--address {}".format(address),
         "--port {}".format(port),

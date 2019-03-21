@@ -112,8 +112,6 @@ from camcops_server.cc_modules.cc_baseconstants import (
     ALEMBIC_BASE_DIR,
     ALEMBIC_CONFIG_FILENAME,
     ALEMBIC_VERSION_TABLE,
-    CAMCOPS_EXECUTABLE,
-    CAMCOPS_SERVER_DIRECTORY,
     DEFAULT_EXTRA_STRINGS_DIR,
     ENVVAR_CONFIG_FILE,
     LINUX_DEFAULT_LOCK_DIR,
@@ -176,6 +174,19 @@ VALID_RECIPIENT_NAME_REGEX = r"^[\w_-]+$"
 # ... because we'll use them for filenames, amongst other things
 # https://stackoverflow.com/questions/10944438/
 # https://regexr.com/
+
+# Windows paths: irrelevant, as Windows doesn't run supervisord
+DEFAULT_LINUX_CAMCOPS_CONFIG = "/etc/camcops/camcops.conf"
+DEFAULT_LINUX_CAMCOPS_BASE_DIR = "/usr/share/camcops"
+DEFAULT_LINUX_CAMCOPS_VENV_DIR = DEFAULT_LINUX_CAMCOPS_BASE_DIR + "/venv"
+DEFAULT_LINUX_CAMCOPS_VENV_BIN_DIR = DEFAULT_LINUX_CAMCOPS_VENV_DIR + "bin"
+DEFAULT_LINUX_CAMCOPS_EXECUTABLE = DEFAULT_LINUX_CAMCOPS_VENV_BIN_DIR + "/camcops_server"  # noqa
+DEFAULT_LINUX_CAMCOPS_STATIC_DIR = (
+    DEFAULT_LINUX_CAMCOPS_VENV_DIR +
+    "/lib/python3.6/site-packages/camcops_server/static"
+)
+DEFAULT_LINUX_LOGDIR = "/var/log/supervisor"
+DEFAULT_LINUX_USER = "www-data"
 
 
 # =============================================================================
@@ -246,6 +257,10 @@ class ConfigParamServer(object):
     PROXY_SERVER_NAME = "PROXY_SERVER_NAME"
     PROXY_SERVER_PORT = "PROXY_SERVER_PORT"
     PROXY_URL_SCHEME = "PROXY_URL_SCHEME"
+    SHOW_REQUEST_IMMEDIATELY = "SHOW_REQUEST_IMMEDIATELY"
+    SHOW_REQUESTS = "SHOW_REQUESTS"
+    SHOW_RESPONSE = "SHOW_RESPONSE"
+    SHOW_TIMING = "SHOW_TIMING"
     SSL_CERTIFICATE = "SSL_CERTIFICATE"
     SSL_PRIVATE_KEY = "SSL_PRIVATE_KEY"
     TRUSTED_PROXY_HEADERS = "TRUSTED_PROXY_HEADERS"
@@ -373,6 +388,10 @@ def get_demo_config(extra_strings_dir: str = None,
 
 {cpw.DEBUG_REVERSE_PROXY} = false
 {cpw.DEBUG_TOOLBAR} = false
+{cpw.SHOW_REQUESTS} = false
+{cpw.SHOW_REQUEST_IMMEDIATELY} = false
+{cpw.SHOW_RESPONSE} = false
+{cpw.SHOW_TIMING} = false
 {cpw.PROXY_HTTP_HOST} =
 {cpw.PROXY_REMOTE_ADDR} =
 {cpw.PROXY_REWRITE_PATH_INFO} = false
@@ -606,7 +625,8 @@ def get_demo_supervisor_config(
     #       /etc/supervisor/conf.d/camcops.conf
     #
     # - IF YOU EDIT THIS FILE, run:
-    #       sudo service supervisor restart
+    #       sudo service supervisor restart  # Ubuntu
+    #       sudo service supervisord restart  # CentOS 6
     #
     # - TO MONITOR SUPERVISOR, run:
     #       sudo supervisorctl status
@@ -629,6 +649,8 @@ def get_demo_supervisor_config(
     #   allows you to control all parts of CamCOPS together, as "camcops" in
     #   this example (see
     #   http://supervisord.org/configuration.html#group-x-section-settings).
+    #   Thus, you can do, for example:
+    #       sudo supervisorctl start camcops:*
     #
     # SPECIFIC EXTRA NOTES FOR CAMCOPS:
     #
@@ -639,13 +661,13 @@ def get_demo_supervisor_config(
 
 [program:camcops_server]
 
-command = {CAMCOPS_EXECUTABLE} serve_gunicorn
-    --config {CAMCOPS_CONFIG}
+command = {camcops_executable} serve_gunicorn
+    --config {camcops_config}
 
-directory = {CAMCOPS_SERVER_DIRECTORY}
+directory = {camcops_base_dir}
 environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
-user = {USER}
-stdout_logfile = {LOGDIR}/camcops_server.log
+user = {user}
+stdout_logfile = {logdir}/camcops_server.log
 redirect_stderr = true
 autostart = true
 autorestart = true
@@ -654,13 +676,13 @@ stopwaitsecs = 60
 
 [program:camcops_workers]
 
-command = {CAMCOPS_EXECUTABLE} launch_workers
-    --config {CAMCOPS_CONFIG}
+command = {camcops_executable} launch_workers
+    --config {camcops_config}
 
-directory = {CAMCOPS_SERVER_DIRECTORY}
+directory = {camcops_base_dir}
 environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
-user = {USER}
-stdout_logfile = {LOGDIR}/camcops_workers.log
+user = {user}
+stdout_logfile = {logdir}/camcops_workers.log
 redirect_stderr = true
 autostart = true
 autorestart = true
@@ -669,13 +691,13 @@ stopwaitsecs = 60
 
 [program:camcops_scheduler]
 
-command = {CAMCOPS_EXECUTABLE} launch_scheduler
-    --config {CAMCOPS_CONFIG}
+command = {camcops_executable} launch_scheduler
+    --config {camcops_config}
 
-directory = {CAMCOPS_SERVER_DIRECTORY}
+directory = {camcops_base_dir}
 environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
-user = {USER}
-stdout_logfile = {LOGDIR}/camcops_scheduler.log
+user = {user}
+stdout_logfile = {logdir}/camcops_scheduler.log
 redirect_stderr = true
 autostart = true
 autorestart = true
@@ -687,15 +709,15 @@ stopwaitsecs = 60
 programs = camcops_server, camcops_workers, camcops_scheduler
 
     """.format(
-        CAMCOPS_CONFIG="/etc/camcops/camcops.conf",
-        CAMCOPS_EXECUTABLE=CAMCOPS_EXECUTABLE,
-        CAMCOPS_SERVER_DIRECTORY=CAMCOPS_SERVER_DIRECTORY,
+        camcops_config=DEFAULT_LINUX_CAMCOPS_CONFIG,
+        camcops_executable=DEFAULT_LINUX_CAMCOPS_EXECUTABLE,
+        camcops_base_dir=DEFAULT_LINUX_CAMCOPS_BASE_DIR,
         LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR=LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
-        LOGDIR="/var/log/supervisor",
+        logdir=DEFAULT_LINUX_LOGDIR,
         now=str(Pendulum.now()),
         specimen_internal_port=specimen_internal_port,
         specimen_socket_file=specimen_socket_file,
-        USER="www-data",
+        user=DEFAULT_LINUX_USER,
         version=CAMCOPS_SERVER_VERSION_STRING,
     )
 
@@ -980,7 +1002,7 @@ def get_demo_apache_config(
         now=str(Pendulum.now()),
         specimen_internal_port=specimen_internal_port,
         specimen_socket_file=specimen_socket_file,
-        STATIC_ROOT_DIR=STATIC_ROOT_DIR,
+        STATIC_ROOT_DIR=DEFAULT_LINUX_CAMCOPS_STATIC_DIR,
         urlbase=urlbase,
         version=CAMCOPS_SERVER_VERSION_STRING,
     )
@@ -1324,6 +1346,10 @@ class CamcopsConfig(object):
         self.proxy_server_name = _get_str(ws, cw.PROXY_SERVER_NAME)
         self.proxy_server_port = _get_optional_int(ws, cw.PROXY_SERVER_PORT)
         self.proxy_url_scheme = _get_str(ws, cw.PROXY_URL_SCHEME)
+        self.show_request_immediately = _get_bool(ws, cw.SHOW_REQUEST_IMMEDIATELY, False)  # noqa
+        self.show_requests = _get_bool(ws, cw.SHOW_REQUESTS, False)
+        self.show_response = _get_bool(ws, cw.SHOW_RESPONSE, False)
+        self.show_timing = _get_bool(ws, cw.SHOW_TIMING, False)
         self.ssl_certificate = _get_str(ws, cw.SSL_CERTIFICATE)
         self.ssl_private_key = _get_str(ws, cw.SSL_PRIVATE_KEY)
         self.trusted_proxy_headers = _get_multiline(ws, cw.TRUSTED_PROXY_HEADERS)  # noqa

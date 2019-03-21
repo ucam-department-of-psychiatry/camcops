@@ -30,6 +30,7 @@ camcops_server/cc_modules/cc_request.py
 
 import collections
 from contextlib import contextmanager
+import datetime
 import logging
 from typing import (Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING,
                     Union)
@@ -40,6 +41,7 @@ from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum_date,
     convert_datetime_to_utc,
     format_datetime,
+    pendulum_to_utc_datetime_without_tz,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.plot import (
@@ -412,6 +414,17 @@ class CamcopsRequest(Request):
         """
         p = self.now  # type: Pendulum
         return convert_datetime_to_utc(p)
+
+    @reify
+    def now_utc_no_tzinfo(self) -> datetime.datetime:
+        """
+        Returns the time of the request as a datetime in UTC with no timezone
+        information attached. For when you want to compare to something similar
+        without getting the error "TypeError: can't compare offset-naive and
+        offset-aware datetimes".
+        """
+        p = self.now  # type: Pendulum
+        return pendulum_to_utc_datetime_without_tz(p)
 
     @reify
     def now_era_format(self) -> str:

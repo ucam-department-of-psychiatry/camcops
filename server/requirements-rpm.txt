@@ -8,6 +8,7 @@
 # - https://serverfault.com/questions/299179/can-one-require-this-or-that-package-in-an-rpm-spec-file
 # - http://rpm.org/user_doc/boolean_dependencies.html
 #   ... "or" allowed from rpm-4.13 (Nov 2016)
+#   ... but we have to work with RPM 4.8 (e.g. CentOS 6.9)
 #
 # Order is the same as requirements-deb.txt:
 
@@ -16,11 +17,16 @@ ImageMagick-devel
 openssl-devel
 libxml2-devel
 libxslt-devel
+
 python
-(python35u or python36u)
-python3-devel
-python3-tkinter
-# DO WE NEED SOMETHING EQUIVALENT TO DEBIAN python3-venv?
+# (python35u or python36u)  # NOT OK WITH OLD RPM VERSIONS
+# Python 3.5 doesn't support collection.Collection, so we have effectively
+# committed to 3.6
+python36u
+python36u-devel
+python36u-tkinter
+
+
 supervisor
 swig
 wget

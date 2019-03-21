@@ -247,8 +247,9 @@ class PatientIdNumIndexEntry(Base):
                             )
                         )
                     )
-                    .where(idnumcols._current == True)
-                    .where(patientcols._current == True)
+                    .where(idnumcols._current == True)  # nopep8
+                    .where(idnumcols.idnum_value.isnot(None))
+                    .where(patientcols._current == True)  # nopep8
                 )
             )
         )
@@ -305,6 +306,7 @@ class PatientIdNumIndexEntry(Base):
         # noinspection PyUnresolvedReferences,PyProtectedMember
         q_original_with_idx = session.query(PatientIdNum).filter(
             PatientIdNum._current == True,  # nopep8
+            PatientIdNum.idnum_value.isnot(None),
             ~exists()
                 .select_from(
                     PatientIdNumIndexEntry.__table__

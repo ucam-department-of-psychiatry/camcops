@@ -1,0 +1,99 @@
+
+# =============================================================================
+# Demonstration 'supervisor' (supervisord) config file for CamCOPS.
+# Created by CamCOPS version 2.3.1 at 2019-03-21T10:09:07.272398+00:00.
+# =============================================================================
+    # - Supervisor is a system for controlling background processes running on
+    #   UNIX-like operating systems. See:
+    #       http://supervisord.org
+    #
+    # - On Ubuntu systems, you would typically install supervisor with
+    #       sudo apt install supervisor
+    #   and then save this file as
+    #       /etc/supervisor/conf.d/camcops.conf
+    #
+    # - IF YOU EDIT THIS FILE, run:
+    #       sudo service supervisor restart  # Ubuntu
+    #       sudo service supervisord restart  # CentOS 6
+    #
+    # - TO MONITOR SUPERVISOR, run:
+    #       sudo supervisorctl status
+    #   ... or just "sudo supervisorctl" for an interactive prompt.
+    #
+    # NOTES ON THE SUPERVISOR CONFIG FILE AND ENVIRONMENT:
+    #
+    # - Indented lines are treated as continuation (even in commands; no need
+    #   for end-of-line backslashes or similar).
+    # - The downside of that is that indented comment blocks can join onto your
+    #   commands! Beware that.
+    # - You can't put quotes around the directory variable
+    #   (http://stackoverflow.com/questions/10653590).
+    # - Python programs that are installed within a Python virtual environment
+    #   automatically use the virtualenv's copy of Python via their shebang;
+    #   you do not need to specify that by hand, nor the PYTHONPATH.
+    # - The "environment" setting sets the OS environment. The "--env"
+    #   parameter to gunicorn, if you use it, sets the WSGI environment.
+    # - Creating a group (see below; a.k.a. a "heterogeneous process group")
+    #   allows you to control all parts of CamCOPS together, as "camcops" in
+    #   this example (see
+    #   http://supervisord.org/configuration.html#group-x-section-settings).
+    #   Thus, you can do, for example:
+    #       sudo supervisorctl start camcops:*
+    #
+    # SPECIFIC EXTRA NOTES FOR CAMCOPS:
+    #
+    # - The MPLCONFIGDIR environment variable specifies a cache directory for
+    #   matplotlib, which greatly speeds up its subsequent loading.
+    # - The typical "web server" user is "www-data" under Ubuntu Linux and
+    #   "apache" under CentOS.
+
+[program:camcops_server]
+
+command = /usr/share/camcops/venv/bin/camcops_server serve_gunicorn
+    --config /etc/camcops/camcops.conf
+
+directory = /usr/share/camcops
+environment = MPLCONFIGDIR="/var/cache/camcops/matplotlib"
+user = www-data
+stdout_logfile = /var/log/supervisor/camcops_server.log
+redirect_stderr = true
+autostart = true
+autorestart = true
+startsecs = 30
+stopwaitsecs = 60
+
+[program:camcops_workers]
+
+command = /usr/share/camcops/venv/bin/camcops_server launch_workers
+    --config /etc/camcops/camcops.conf
+
+directory = /usr/share/camcops
+environment = MPLCONFIGDIR="/var/cache/camcops/matplotlib"
+user = www-data
+stdout_logfile = /var/log/supervisor/camcops_workers.log
+redirect_stderr = true
+autostart = true
+autorestart = true
+startsecs = 30
+stopwaitsecs = 60
+
+[program:camcops_scheduler]
+
+command = /usr/share/camcops/venv/bin/camcops_server launch_scheduler
+    --config /etc/camcops/camcops.conf
+
+directory = /usr/share/camcops
+environment = MPLCONFIGDIR="/var/cache/camcops/matplotlib"
+user = www-data
+stdout_logfile = /var/log/supervisor/camcops_scheduler.log
+redirect_stderr = true
+autostart = true
+autorestart = true
+startsecs = 30
+stopwaitsecs = 60
+
+[group:camcops]
+
+programs = camcops_server, camcops_workers, camcops_scheduler
+
+

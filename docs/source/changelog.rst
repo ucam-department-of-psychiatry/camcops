@@ -1929,3 +1929,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Report: tasks by month/username
 
 - ``check_index`` command.
+
+- Removed support for Python 3.5 since we want ``typing.Collection``.
+
+- Bugfix: when password change frequency was >0, got "TypeError: can't compare
+  offset-naive and offset-aware datetimes" from
+  :meth:`camcops_server.cc_modules.cc_user.User.set_password_change_flag_if_necessary`.
+  Added
+  :meth:`camcops_server.cc_modules.cc_request.CamcopsRequest.now_utc_no_tzinfo`.

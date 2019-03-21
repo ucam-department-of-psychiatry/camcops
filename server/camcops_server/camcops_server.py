@@ -314,9 +314,15 @@ def make_wsgi_app_from_config() -> "Router":
         url_scheme=cfg.proxy_url_scheme,
         rewrite_path_info=cfg.proxy_rewrite_path_info,
     )
-    return core.make_wsgi_app(debug_toolbar=cfg.debug_toolbar,
-                              reverse_proxied_config=reverse_proxied_config,
-                              debug_reverse_proxy=cfg.debug_reverse_proxy)
+    return core.make_wsgi_app(
+        debug_toolbar=cfg.debug_toolbar,
+        reverse_proxied_config=reverse_proxied_config,
+        debug_reverse_proxy=cfg.debug_reverse_proxy,
+        show_requests=cfg.show_requests,
+        show_request_immediately=cfg.show_request_immediately,
+        show_response=cfg.show_response,
+        show_timing=cfg.show_timing,
+    )
 
 
 def _test_serve_pyramid() -> None:
