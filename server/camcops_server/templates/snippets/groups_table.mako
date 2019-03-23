@@ -1,5 +1,5 @@
 ## groups_table.mako
-<%page args="groups_page, with_edit: bool"/>
+<%page args="groups_page, valid_which_idnums, with_edit: bool"/>
 <%!
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from markupsafe import escape
@@ -28,8 +28,11 @@ from markupsafe import escape
         <%
             upload_tk = group.tokenized_upload_policy()  # type: TokenizedPolicy
             finalize_tk = group.tokenized_finalize_policy()  # type: TokenizedPolicy
-            upload_valid = upload_tk.is_valid_from_req(request)
-            finalize_valid = finalize_tk.is_valid_from_req(request)
+            upload_valid = upload_tk.is_valid(valid_which_idnums)
+            finalize_valid = finalize_tk.is_valid(valid_which_idnums)
+            critical_upload_id = upload_tk.find_critical_single_numerical_id(valid_which_idnums)
+            critical_finalize_id = finalize_tk.find_critical_single_numerical_id(valid_which_idnums)
+            users = list(group.users)
         %>
         <tr>
             <td>${ group.name | h }</td>
@@ -47,7 +50,7 @@ from markupsafe import escape
                 ${ (escape(group.upload_policy) if group.upload_policy else "<i>None</i>") }
             </td>
 
-            <td>${ upload_tk.find_critical_single_numerical_id_from_req(request) }</td>
+            <td>${ critical_upload_id }</td>
 
             <td
                 %if not finalize_valid:
@@ -57,11 +60,11 @@ from markupsafe import escape
                 ${ (escape(group.finalize_policy) if group.finalize_policy else "<i>None</i>") }
             </td>
 
-            <td>${ finalize_tk.find_critical_single_numerical_id_from_req(request) }</td>
+            <td>${ critical_finalize_id }</td>
 
             <td>
                 ${ (", ".join(sorted(u.username if u is not None else "<DATA_ERROR_NULL_USER>"
-                                     for u in group.users))) | h }
+                                     for u in users))) | h }
             </td>
 
             %if with_edit:

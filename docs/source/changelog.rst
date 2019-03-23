@@ -1937,3 +1937,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
   :meth:`camcops_server.cc_modules.cc_user.User.set_password_change_flag_if_necessary`.
   Added
   :meth:`camcops_server.cc_modules.cc_request.CamcopsRequest.now_utc_no_tzinfo`.
+
+- Changes to session management, to
+
+  - commit ASAP for ``last_activity_utc``, to avoid holding database locks
+    (causing problems with very slow computers?); see
+    :meth:`camcops_server.cc_modules.cc_session.CamcopsSession.get_session`.
+
+  - avoid touching the database for static requests; see
+    :meth:`camcops_server.cc_modules.cc_request.CamcopsRequest.complete_request_add_cookies`.

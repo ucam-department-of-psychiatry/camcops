@@ -125,7 +125,7 @@ from collections import OrderedDict
 import logging
 import os
 # from pprint import pformat
-from typing import Any, Dict, Iterable, List, Tuple, Type, TYPE_CHECKING
+from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
@@ -815,27 +815,20 @@ def main_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Main CamCOPS menu view.
     """
+    # log.debug("main_menu: start")
     user = req.user
-    if user.superuser:
-        groups = req.dbsession.query(Group)  # type: Iterable[Group]
-        warn_bad_id_policies = any(
-            (not g.tokenized_upload_policy().is_valid_from_req(req)) or
-            (not g.tokenized_finalize_policy().is_valid_from_req(req))
-            for g in groups
-        )
-    else:
-        # Let's make things a little faster for non-superusers:
-        warn_bad_id_policies = False
-    return dict(
+    # log.debug("main_menu: middle")
+    result = dict(
         authorized_as_groupadmin=user.authorized_as_groupadmin,
         authorized_as_superuser=user.superuser,
         authorized_for_reports=user.authorized_for_reports,
         authorized_to_dump=user.authorized_to_dump,
         camcops_url=CAMCOPS_URL,
-        warn_bad_id_policies=warn_bad_id_policies,
         now=format_datetime(req.now, DateFormat.SHORT_DATETIME_SECONDS),
         server_version=CAMCOPS_SERVER_VERSION,
     )
+    # log.debug("main_menu: returning")
+    return result
 
 
 # =============================================================================
@@ -1907,7 +1900,8 @@ def view_own_user_info(req: "CamcopsRequest") -> Dict[str, Any]:
     groups_page = CamcopsPage(req.user.groups,
                               url_maker=PageUrl(req))
     return dict(user=req.user,
-                groups_page=groups_page)
+                groups_page=groups_page,
+                valid_which_idnums=req.valid_which_idnums)
 
 
 @view_config(route_name=Routes.VIEW_SERVER_INFO,
@@ -2413,12 +2407,16 @@ def view_groups(req: "CamcopsRequest") -> Dict[str, Any]:
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     dbsession = req.dbsession
-    q = dbsession.query(Group).order_by(Group.name)
-    page = SqlalchemyOrmPage(query=q,
-                             page=page_num,
-                             items_per_page=rows_per_page,
-                             url_maker=PageUrl(req))
-    return dict(groups_page=page)
+    groups = dbsession.query(Group).order_by(Group.name).all()  # type: List[Group]  # noqa
+    page = CamcopsPage(collection=groups,
+                       page=page_num,
+                       items_per_page=rows_per_page,
+                       url_maker=PageUrl(req))
+
+    valid_which_idnums = req.valid_which_idnums
+
+    return dict(groups_page=page,
+                valid_which_idnums=valid_which_idnums)
 
 
 def get_group_from_request_group_id_or_raise(req: "CamcopsRequest") -> Group:

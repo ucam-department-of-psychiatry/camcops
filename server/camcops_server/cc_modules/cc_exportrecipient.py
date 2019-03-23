@@ -511,7 +511,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
                 "Database has gone wrong: more than one active record for "
                 "{t}.{c} = {r}".format(
                     t=cls.__tablename__,
-                    c=cls.recipient_name.name,  # ***
+                    c=cls.recipient_name.name,  # column name from Column
                     r=recipient.recipient_name,
                 )
             )

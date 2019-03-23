@@ -43,6 +43,7 @@ from cardinal_pythonlib.datetimefunc import (
     format_datetime,
     pendulum_to_utc_datetime_without_tz,
 )
+# from cardinal_pythonlib.debugging import get_caller_stack_info
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.plot import (
     png_img_html_from_pyplot_figure,
@@ -143,7 +144,7 @@ if any([DEBUG_ADD_ROUTES,
         DEBUG_CAMCOPS_SESSION,
         DEBUG_TABLET_SESSION,
         DEBUG_DBSESSION_MANAGEMENT]):
-    log.warning("Debugging options enabled!")
+    log.warning("cc_request: Debugging options enabled!")
 
 
 # =============================================================================
@@ -251,6 +252,35 @@ class CamcopsRequest(Request):
             self.dbsession.expunge(self._camcops_session)
         self._camcops_session = ccsession
 
+    def complete_request_add_cookies(self) -> None:
+        """
+        Finializes the response by adding session cookies.
+        We do this late so that we can hot-swap the session if we're using the
+        database/tablet API rather than a human web browser.
+
+        Response callbacks are called in the order first-to-most-recently-added.
+        See :class:`pyramid.request.CallbackMethodsMixin`.
+
+        That looks like we can add a callback in the process of running a
+        callback. And when we add a cookie to a Pyramid session, that sets a
+        callback. Let's give it a go...
+        """
+        # 2019-03-21: If we've not used a CamcopsSession (e.g. for serving
+        # a static view), do we care?
+        if self._camcops_session is None:
+            return
+
+        dbsession = self.dbsession
+        dbsession.flush()  # sets the PK for ccsession, if it wasn't set
+        # Write the details back to the Pyramid session (will be persisted
+        # via the Response automatically):
+        pyramid_session = self.session  # type: ISession
+        ccsession = self.camcops_session
+        pyramid_session[CookieKey.SESSION_ID] = str(ccsession.id)
+        pyramid_session[CookieKey.SESSION_TOKEN] = ccsession.token
+        # ... should cause the ISession to add a callback to add cookies,
+        # which will be called immediately after this one.
+
     # -------------------------------------------------------------------------
     # Config
     # -------------------------------------------------------------------------
@@ -301,7 +331,9 @@ class CamcopsRequest(Request):
         and if it requests that, the cleanup callbacks (COMMIT or ROLLBACK) get
         installed.
         """
-        session = self.get_bare_dbsession()
+        # log.critical("CamcopsRequest.dbsession: caller stack:\n{}",
+        #              "\n".join(get_caller_stack_info()))
+        _dbsession = self.get_bare_dbsession()
 
         def end_sqlalchemy_session(req: Request) -> None:
             # noinspection PyProtectedMember
@@ -317,7 +349,11 @@ class CamcopsRequest(Request):
         # - Use a context manager instead; see below.
         self.add_finished_callback(end_sqlalchemy_session)
 
-        return session
+        if DEBUG_DBSESSION_MANAGEMENT:
+            log.debug(
+                "Returning SQLAlchemy session as CamcopsRequest.dbsession")
+
+        return _dbsession
 
     def _finish_dbsession(self) -> None:
         """
@@ -1383,29 +1419,14 @@ class CamcopsRequest(Request):
 
 
 # noinspection PyUnusedLocal
-def complete_request_add_cookies(req: CamcopsRequest, response: Response):
+def complete_request_add_cookies(req: CamcopsRequest,
+                                 response: Response) -> None:
     """
     Finializes the response by adding session cookies.
-    We do this late so that we can hot-swap the session if we're using the
-    database/tablet API rather than a human web browser.
 
-    Response callbacks are called in the order first-to-most-recently-added.
-    See :class:`pyramid.request.CallbackMethodsMixin`.
-
-    That looks like we can add a callback in the process of running a callback.
-    And when we add a cookie to a Pyramid session, that sets a callback.
-    Let's give it a go...
+    See :meth:`CamcopsRequest.complete_request_add_cookies`.
     """
-    dbsession = req.dbsession
-    dbsession.flush()  # sets the PK for ccsession, if it wasn't set
-    # Write the details back to the Pyramid session (will be persisted
-    # via the Response automatically):
-    pyramid_session = req.session  # type: ISession
-    ccsession = req.camcops_session
-    pyramid_session[CookieKey.SESSION_ID] = str(ccsession.id)
-    pyramid_session[CookieKey.SESSION_TOKEN] = ccsession.token
-    # ... should cause the ISession to add a callback to add cookies,
-    # which will be called immediately after this one.
+    req.complete_request_add_cookies()
 
 
 # =============================================================================

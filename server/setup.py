@@ -122,6 +122,10 @@ INSTALL_REQUIRES = [
     'sphinx==1.7.6',  # development only
     # 'sphinx_rtd_theme==0.4.3',  # development only
     'sqlalchemy==1.2.8',  # database access
+
+    'tornado<6',  # used indirectly by Celery; v6+ breaks; see
+    # https://github.com/jupyter/notebook/issues/4311
+
     'typing==3.6.4',  # part of stdlib in python 3.5, but not 3.4
     'Wand==0.4.4',
 ]

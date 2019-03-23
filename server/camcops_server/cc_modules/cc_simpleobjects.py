@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_simpleobjects.py
 """
 
 import copy
-from typing import List, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING
 
 from pendulum import Date
 

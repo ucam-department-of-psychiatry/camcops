@@ -239,6 +239,8 @@ class RequestLoggingMiddleware(object):
         self.show_response = show_response
         self.show_request_immediately = show_request_immediately
         self.show_timing = show_timing
+        self.two_parts = show_request_immediately and (
+                show_response or show_timing)
 
     def log(self, msg) -> None:
         """
@@ -259,8 +261,8 @@ class RequestLoggingMiddleware(object):
             )
         except KeyError:
             forwarded_for = ""
-        msg_parts = [
-            'Request from {remote}{fwd}: '
+        request_details = (
+            '{remote}{fwd}: '
             '"{method} {path}{qmark}{query} {proto}"'.format(
                 remote=environ.get(WsgiEnvVar.REMOTE_ADDR, ""),
                 fwd=forwarded_for,
@@ -270,9 +272,12 @@ class RequestLoggingMiddleware(object):
                 query=query_string,
                 proto=environ.get(WsgiEnvVar.SERVER_PROTOCOL, ""),
             )
-        ]
+        )
+        msg_parts = []  # type: List[str]
         if self.show_request_immediately:
-            self.log("".join(msg_parts))
+            msg_parts.append("Request from")
+            msg_parts.append(request_details)
+            self.log(" ".join(msg_parts))
             msg_parts.clear()
         captured_status = None  # type: int
 
@@ -294,6 +299,11 @@ class RequestLoggingMiddleware(object):
             msg_parts.append("[RAISED EXCEPTION]")
             raise
         finally:
+            if self.show_request_immediately:
+                msg_parts.append("Response to")
+            else:
+                msg_parts.append("Request from")
+            msg_parts.append(request_details)
             if self.show_timing:
                 t2 = Pendulum.utcnow()
             if self.show_response:

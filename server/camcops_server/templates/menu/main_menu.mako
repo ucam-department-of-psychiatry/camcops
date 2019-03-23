@@ -86,10 +86,3 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     See <a href="${camcops_url}">${camcops_url}</a> for more information on CamCOPS.
     Clicking on the CamCOPS logo will return you to the main menu.
 </div>
-
-%if warn_bad_id_policies:
-    <div class="badidpolicy_severe">
-        Server’s group ID policies are missing or invalid.
-        This needs fixing urgently by the system administrator. See “Groups”.
-    </div>
-%endif

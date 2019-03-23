@@ -85,6 +85,7 @@ TR(FINISHED, "Finished");
 
 TR(ICD10, "World Health Organization International Classification of "
           "Diseases, 10th edition.");
+TR(ID_NUMBER_TYPE, "ID number type");
 TR(IN_ADDITION, "In addition");
 TR(INCORRECT, "Incorrect");
 

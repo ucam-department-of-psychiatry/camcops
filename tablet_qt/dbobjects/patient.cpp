@@ -722,7 +722,11 @@ void Patient::buildPage(bool read_only)
         const int which_idnum = idnum->whichIdNum();
         IdNumDescriptionConstPtr idinfo = m_app.getIdInfo(which_idnum);
         auto delete_id = new QuButton(
-                DELETE_ID_NUM + " " + QString::number(which_idnum),
+                QString("%1 %2 (%3)").arg(
+                    DELETE_ID_NUM,
+                    QString::number(which_idnum),
+                    m_app.idDescription(which_idnum)
+                ),
                 std::bind(&Patient::deleteIdNum, this, which_idnum));
         idgrid->addCell(QuGridCell(delete_id,
                                    row, 0, rowspan, colspan, lalign));
@@ -889,7 +893,12 @@ void Patient::addIdNum()
     }
     NameValueOptions options;
     for (const int which_idnum : unused) {
-        const NameValuePair pair(m_app.idDescription(which_idnum), which_idnum);
+        const QString description = QString("<b>%1</b> <i>[%2 %3]</i>").arg(
+            m_app.idDescription(which_idnum),
+            textconst::ID_NUMBER_TYPE,
+            QString::number(which_idnum)
+        );
+        const NameValuePair pair(description, which_idnum);
         options.append(pair);
     }
     NvpChoiceDialog dlg(m_questionnaire, options, tr("Add ID number"));

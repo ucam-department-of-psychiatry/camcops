@@ -2042,7 +2042,7 @@ class PolicyNode(MandatoryStringNode):
         policy = TokenizedPolicy(value)
         if not policy.is_syntactically_valid():
             raise Invalid(node, "Syntactically invalid policy")
-        if not policy.is_valid_from_req(req):
+        if not policy.is_valid_for_idnums(req.valid_which_idnums):
             raise Invalid(
                 node,
                 "Invalid policy. (Have you referred to non-existent ID "

@@ -10,6 +10,6 @@
 
 <h1>Groups that user ${ user.username | h } is a member of</h1>
 
-<%include file="groups_table.mako" args="groups_page=groups_page, with_edit=False"/>
+<%include file="groups_table.mako" args="groups_page=groups_page, valid_which_idnums=valid_which_idnums, with_edit=False"/>
 
 <%include file="to_main_menu.mako"/>

@@ -40,17 +40,17 @@ configuration).
 """
 
 import io
-from itertools import combinations, product
 import logging
 import tokenize
-from typing import (Generator, Iterable, List, Optional, Sequence, Tuple,
-                    TYPE_CHECKING)
+from typing import Callable, Dict, List, Optional, Tuple
 import unittest
 
+from cardinal_pythonlib.dicts import reversedict
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from cardinal_pythonlib.reprfunc import auto_repr
 from pendulum import Date
 
 from camcops_server.cc_modules.cc_simpleobjects import (
@@ -58,9 +58,6 @@ from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
 )
 from camcops_server.cc_modules.cc_unittest import ExtendedTestCase
-
-if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -109,110 +106,254 @@ POLICY_TOKEN_DICT = {
     "GP": TK_GP,
     "OTHERDETAILS": TK_OTHER_DETAILS,
 }
+TOKEN_POLICY_DICT = reversedict(POLICY_TOKEN_DICT)
+
+NON_IDNUM_INFO_TOKENS = [
+    TK_FORENAME, TK_SURNAME, TK_SEX, TK_DOB,
+    TK_ADDRESS, TK_GP, TK_OTHER_DETAILS, TK_OTHER_IDNUM,
+]
 
 TOKEN_IDNUM_PREFIX = "IDNUM"
 
 
+def token_to_str(token: int) -> str:
+    if token < 0:
+        return TOKEN_POLICY_DICT.get(token)
+    else:
+        return TOKEN_IDNUM_PREFIX + str(token)
+
+
 # =============================================================================
-# Helper functions for testing policies
+# Quad-state logic
 # =============================================================================
 
-def gen_test_bpis(which_idnums_present_options: Iterable[Iterable[int]],
-                  forename_present_options: Iterable[bool] = None,
-                  surname_present_options: Iterable[bool] = None,
-                  sex_present_options: Iterable[bool] = None,
-                  dob_present_options: Iterable[bool] = None,
-                  address_present_options: Iterable[bool] = None,
-                  gp_present_options: Iterable[bool] = None,
-                  otherdetails_present_options: Iterable[bool] = None) \
-        -> Generator[BarePatientInfo, None, None]:
+class QuadState(object):
+    def __str__(self) -> str:
+        if self is Q_TRUE:
+            return "QTrue"
+        elif self is Q_FALSE:
+            return "QFalse"
+        elif self is Q_DONT_CARE:
+            return "QDontCare"
+        else:
+            return "QError"
+
+
+Q_TRUE = QuadState()
+Q_FALSE = QuadState()
+Q_ERROR = QuadState()
+Q_DONT_CARE = QuadState()
+
+
+def bool_to_quad(x: bool) -> QuadState:
+    return Q_TRUE if x else Q_FALSE
+
+
+def quad_not(x: QuadState) -> QuadState:
+    # Boolean logic
+    if x is Q_TRUE:
+        return Q_FALSE
+    elif x is Q_FALSE:
+        return Q_TRUE
+    # Unusual logic
+    elif x is Q_DONT_CARE:
+        return Q_DONT_CARE
+    else:
+        return Q_ERROR
+
+
+def quad_and(x: QuadState, y: QuadState) -> QuadState:
+    either = (x, y)
+    # Unusual logic
+    if Q_ERROR in either:
+        return Q_ERROR
+    elif Q_DONT_CARE in either:
+        other = either[1] if either[0] == Q_DONT_CARE else either[0]
+        return other
+    # Boolean logic
+    elif x is Q_TRUE and y is Q_TRUE:
+        return Q_TRUE
+    else:
+        return Q_FALSE
+
+
+def quad_or(x: QuadState, y: QuadState) -> QuadState:
+    either = (x, y)
+    # Unusual logic
+    if Q_ERROR in either:
+        return Q_ERROR
+    elif Q_DONT_CARE in either:
+        other = either[1] if either[0] == Q_DONT_CARE else either[0]
+        return other
+    # Boolean logic
+    elif x is Q_TRUE or y is Q_TRUE:
+        return Q_TRUE
+    else:
+        return Q_FALSE
+
+
+def debug_wrapper(fn: Callable, name: str) -> Callable:
+    def wrap(*args, **kwargs) -> QuadState:
+        result = fn(*args, **kwargs)
+        arglist = [str(x) for x in args] + ["{}={}".format(k, v)
+                                            for k, v in kwargs.items()]
+        log.critical("{}({}) -> {}".format(name, ", ".join(arglist), result))
+        return result
+    return wrap
+
+
+DEBUG_QUAD_STATE_LOGIC = False
+
+if DEBUG_QUAD_STATE_LOGIC:
+    quad_not = debug_wrapper(quad_not, "quad_not")
+    quad_and = debug_wrapper(quad_and, "quad_and")
+    quad_or = debug_wrapper(quad_or, "quad_or")
+
+
+# =============================================================================
+# PatientInfoPresence
+# =============================================================================
+
+class PatientInfoPresence(object):
     """
-    Generates test `camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
-    objects.
-
-    Args:
-        which_idnums_present_options:
-            list of options, where each option is a list of ID number types
-            that should be present
-        forename_present_options:
-            options for "forename" present, e.g. ``[True]``, ``[True, False]``;
-            if ``None`` is passed, the default of ``[True, False]`` is used
-        surname_present_options:
-            as for forename_present_options
-        sex_present_options:
-            as for forename_present_options
-        dob_present_options:
-            as for forename_present_options
-        address_present_options:
-            as for forename_present_options
-        gp_present_options:
-            as for forename_present_options
-        otherdetails_present_options:
-            as for forename_present_options
-
-    Yields:
-        `camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo` objects,
-        for all combinations of the options requested
+    Represents simply the presence/absence of different kinds of information
+    about a patient.
     """
-    def strval(present: bool) -> str:
-        return "X" if present else ""
+    def __init__(self,
+                 forename_present: QuadState = Q_FALSE,
+                 surname_present: QuadState = Q_FALSE,
+                 sex_present: QuadState = Q_FALSE,
+                 dob_present: QuadState = Q_FALSE,
+                 address_present: QuadState = Q_FALSE,
+                 gp_present: QuadState = Q_FALSE,
+                 otherdetails_present: QuadState = Q_FALSE,
+                 idnum_presences: Dict[int, QuadState] = None,
+                 otheridnum_present: QuadState = Q_FALSE,
+                 special_anyidnum_present: QuadState = Q_FALSE) -> None:
+        self.forename_present = forename_present
+        self.surname_present = surname_present
+        self.sex_present = sex_present
+        self.dob_present = dob_present
+        self.address_present = address_present
+        self.gp_present = gp_present
+        self.otherdetails_present = otherdetails_present
+        self.idnum_presences = idnum_presences or {}  # type: Dict[int, QuadState]  # noqa
+        self.otheridnum_present = otheridnum_present
+        self.special_anyidnum_present = special_anyidnum_present
 
-    def dateval(present: bool) -> Optional[Date]:
-        return Date.today() if present else None
+    def __repr__(self) -> str:
+        return auto_repr(self)
 
-    default = [True, False]  # "most likely to be happy" first
+    def idnum_present(self, which_idnum: int) -> QuadState:
+        """
+        Is the specified ID number type present?
+        """
+        return self.idnum_presences.get(which_idnum, Q_FALSE)
 
-    forename_present_options = map(strval, forename_present_options or default)
-    surname_present_options = map(strval, surname_present_options or default)
-    sex_present_options = map(strval, sex_present_options or default)
-    # Sex must ALWAYS be present; it's required by the tablet.
-    # However, we may want to generate invalid things to test here.
-    dob_present_options = map(dateval, dob_present_options or default)
-    address_present_options = map(strval, address_present_options or default)
-    gp_present_options = map(strval, gp_present_options or default)
-    otherdetails_present_options = map(strval,
-                                       otherdetails_present_options or default)
+    def any_idnum_present(self) -> QuadState:
+        """
+        Is at least one ID number present?
+        """
+        for v in self.idnum_presences.values():
+            if v is Q_TRUE:
+                return Q_TRUE
+        return self.special_anyidnum_present
 
-    # Most to least plausible, so ID numbers last in loop and "present" before
-    # "absent" in default.
-    # https://docs.python.org/3/library/itertools.html#itertools.product
-    for forename, surname, sex, dob, address, gp, other, which_ids in product(
-                forename_present_options,
-                surname_present_options,
-                sex_present_options,
-                dob_present_options,
-                address_present_options,
-                gp_present_options,
-                otherdetails_present_options,
-                which_idnums_present_options,
-            ):
-        bpi = BarePatientInfo(
-            forename=forename,
-            surname=surname,
-            sex=sex,
-            dob=dob,
-            address=address,
-            gp=gp,
-            other=other,
-            idnum_definitions=[
-                IdNumReference(which_idnum=n, idnum_value=1)
-                for n in which_ids
-            ]
+    @classmethod
+    def make_from_ptinfo(
+            cls,
+            ptinfo: BarePatientInfo,
+            policy_mentioned_idnums: List[int]) -> "PatientInfoPresence":
+        """
+        Returns a :class:`PatientInfoPresence` representing whether different
+        kinds of information about the patient are present or not.
+        """
+        idnum_presences = {}  # type: Dict[int, QuadState]
+        otheridnum_present = False
+        for iddef in ptinfo.idnum_definitions:
+            this_idnum_present = iddef.idnum_value is not None
+            idnum_presences[iddef.which_idnum] = bool_to_quad(this_idnum_present)  # noqa
+            if iddef.which_idnum not in policy_mentioned_idnums:
+                otheridnum_present = True
+        return cls(
+            forename_present=bool_to_quad(ptinfo.forename),
+            surname_present=bool_to_quad(ptinfo.surname),
+            sex_present=bool_to_quad(ptinfo.sex),
+            dob_present=bool_to_quad(ptinfo.dob is not None),
+            address_present=bool_to_quad(ptinfo.address),
+            gp_present=bool_to_quad(ptinfo.gp),
+            otherdetails_present=bool_to_quad(ptinfo.otherdetails),
+            idnum_presences=idnum_presences,
+            otheridnum_present=bool_to_quad(otheridnum_present),
         )
-        yield bpi
+
+    @classmethod
+    def make_uncaring(cls, valid_idnums: List[int]) -> "PatientInfoPresence":
+        """
+        Makes a :class:`PatientInfoPresence` that doesn't care about anything.
+        """
+        idnum_presences = {}  # type: Dict[int, QuadState]
+        for which_idnum in valid_idnums:
+            idnum_presences[which_idnum] = Q_DONT_CARE
+        return cls(
+            forename_present=Q_DONT_CARE,
+            surname_present=Q_DONT_CARE,
+            sex_present=Q_DONT_CARE,
+            dob_present=Q_DONT_CARE,
+            address_present=Q_DONT_CARE,
+            gp_present=Q_DONT_CARE,
+            otherdetails_present=Q_DONT_CARE,
+            idnum_presences=idnum_presences,
+            otheridnum_present=Q_DONT_CARE,
+        )
+
+    def set_idnum_presence(self, which_idnum: int, present: QuadState) -> None:
+        """
+        Set the "presence" state for one ID number type.
+
+        Args:
+            which_idnum: which ID number type
+            present: its state of being present (or not, or other states)
+        """
+        self.idnum_presences[which_idnum] = present
+
+    @classmethod
+    def make_uncaring_except(cls, token: int,
+                             present: QuadState,
+                             valid_idnums: List[int]) -> "PatientInfoPresence":
+        """
+        Make a :class:`PatientInfoPresence` that is uncaring except for one
+        thing, specified by token.
+        """
+        pip = cls.make_uncaring(valid_idnums)
+        if token > 0:
+            pip.set_idnum_presence(token, present)
+        elif token == TK_FORENAME:
+            pip.forename_present = present
+        elif token == TK_SURNAME:
+            pip.surname_present = present
+        elif token == TK_SEX:
+            pip.sex_present = present
+        elif token == TK_DOB:
+            pip.dob_present = present
+        elif token == TK_ADDRESS:
+            pip.address_present = present
+        elif token == TK_GP:
+            pip.gp_present = present
+        elif token == TK_OTHER_DETAILS:
+            pip.otherdetails_present = present
+        elif token == TK_OTHER_IDNUM:
+            pip.otheridnum_present = present
+        else:
+            assert "Bad token for this function"
+        return pip
 
 
-def gen_all_combinations(x: Sequence[int]) \
-        -> Generator[Iterable[int], None, None]:
-    """
-    Yields all combinations of ``x``, of all lengths, including zero.
+# =============================================================================
+# More constants
+# =============================================================================
 
-    You can apply the ``reversed()`` iterator to get them in reverse order.
-    """
-    xlen = len(x)
-    for r in range(xlen + 1):
-        for combo in combinations(x, r):
-            yield combo
+CONTENT_TOKEN_PROCESSOR_TYPE = Callable[[int], QuadState]
 
 
 # =============================================================================
@@ -230,7 +371,42 @@ class TokenizedPolicy(object):
     """
     def __init__(self, policy: str) -> None:
         self.tokens = self.get_tokenized_id_policy(policy)
-        self._syntactically_valid = None
+        self._syntactically_valid = None  # type: bool
+        self.valid_idnums = None  # type: List[int]
+        self._valid_for_idnums = None  # type: bool
+
+    def __str__(self) -> str:
+        policy = " ".join(token_to_str(t) for t in self.tokens)
+        policy = policy.replace("( ", "(")
+        policy = policy.replace(" )", ")")
+        return policy
+
+    # -------------------------------------------------------------------------
+    # ID number info
+    # -------------------------------------------------------------------------
+
+    def set_valid_idnums(self, valid_idnums: List[int]) -> None:
+        """
+        Make a note of which ID number types are currently valid.
+        Caches "valid for these ID numbers" information.
+
+        Args:
+            valid_idnums: list of valid ID number types
+        """
+        assert valid_idnums, "Invalid valid_idnums to set_valid_idnums()"
+        sorted_idnums = sorted(valid_idnums)
+        if sorted_idnums != self.valid_idnums:
+            self.valid_idnums = sorted_idnums
+            self._valid_for_idnums = None  # clear cache
+
+    def require_valid_idnum_info(self) -> None:
+        """
+        Checks that set_valid_idnums() has been called properly, or raises
+        :exc:`AssertionError`.
+        """
+        assert self.valid_idnums is not None, (
+            "Must call set_valid_idnums() first! Currently: {!r}"
+        )
 
     # -------------------------------------------------------------------------
     # Tokenize
@@ -296,22 +472,28 @@ class TokenizedPolicy(object):
             else:
                 # Evaluate against a dummy patient info object. If we get None,
                 # it's gone wrong.
-                ptinfo = BarePatientInfo()
-                value = self.id_policy_chunk(self.tokens, ptinfo)
-                self._syntactically_valid = value is not None
+                pip = PatientInfoPresence()
+                value = self._value_for_pip(pip)
+                self._syntactically_valid = value is not Q_ERROR
         return self._syntactically_valid
 
-    def is_valid_from_req(self, req: "CamcopsRequest") -> bool:
+    def is_valid(self, verbose: bool = False) -> bool:
         """
         Is the policy valid in the context of the ID types available in our
         database?
 
         Args:
-            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            verbose: report reasons to debug log
         """
-        return self.is_valid(req.valid_which_idnums)
+        if self._valid_for_idnums is None:
+            # Cache information
+            self.require_valid_idnum_info()
+            self._valid_for_idnums = self.is_valid_for_idnums(
+                self.valid_idnums, verbose=verbose)
+        return self._valid_for_idnums
 
-    def is_valid(self, valid_idnums: List[int]) -> bool:
+    def is_valid_for_idnums(self, valid_idnums: List[int],
+                            verbose: bool = False) -> bool:
         """
         Is the policy valid, given a list of valid ID number types?
 
@@ -323,15 +505,27 @@ class TokenizedPolicy(object):
 
         Args:
             valid_idnums: ID number types that are valid on the server
+            verbose: report reasons to debug log
         """
         # First, syntax:
         if not self.is_syntactically_valid():
+            if verbose:
+                log.debug("is_valid_for_idnums(): Not syntactically valid")
             return False
         # Second, all ID numbers referred to by the policy exist:
         for token in self.tokens:
             if token > 0 and token not in valid_idnums:
+                if verbose:
+                    log.debug("is_valid_for_idnums(): Refers to ID number type "
+                              "{}, which does not exist", token)
                 return False
-        return self.compatible_with_tablet_id_policy(valid_idnums)
+        if not self._compatible_with_tablet_id_policy(valid_idnums,
+                                                      verbose=verbose):
+            if verbose:
+                log.debug("is_valid_for_idnums(): Less restrictive than the "
+                          "tablet minimum ID policy; invalid")
+            return False
+        return True
 
     # -------------------------------------------------------------------------
     # Information about the ID number types the policy refers to
@@ -361,6 +555,10 @@ class TokenizedPolicy(object):
         return relevant_idnums
 
     def specifically_mentioned_idnums(self) -> List[int]:
+        """
+        Returns the ID number tokens for all ID numbers mentioned in the
+        policy, as a list.
+        """
         return [x for x in self.tokens if x > 0]
 
     def contains_specific_idnum(self, which_idnum: int) -> bool:
@@ -377,93 +575,284 @@ class TokenizedPolicy(object):
     # More complex attributes
     # -------------------------------------------------------------------------
 
-    def find_critical_single_numerical_id_from_req(
-            self, req: "CamcopsRequest") -> Optional[int]:
-        """
-        Return the single critical required ID number type, if one exists.
-
-        Args:
-            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        """
-        return self.find_critical_single_numerical_id(req.valid_which_idnums)
-
     def find_critical_single_numerical_id(
             self,
-            valid_idnums: List[int]) -> Optional[int]:
+            valid_idnums: List[int],
+            verbose: bool = False) -> Optional[int]:
         """
         If the policy involves a single mandatory ID number, return that ID
         number; otherwise return None.
+
+        Args:
+            valid_idnums: ID number types that are valid on the server
+            verbose: report reasons to debug log
+
+        Returns:
+            int: the single critical ID number type, or ``None``
         """
-        # This method is a bit silly, but it should work.
-        if not self.is_valid(valid_idnums):
+        self.set_valid_idnums(valid_idnums)
+        if not self.is_valid():
+            if verbose:
+                log.debug("find_critical_single_numerical_id(): invalid")
             return None
         relevant_idnums = self.specifically_mentioned_idnums()
-        successes = 0
-        critical_idnum = None
-        for n in relevant_idnums:
-            bpis = gen_test_bpis(which_idnums_present_options=[[n]])
-            if any(self.satisfies_id_policy(bpi) for bpi in bpis):
-                # Set the idnum of interest
-                successes += 1
-                critical_idnum = n
-        if successes == 1:
-            return critical_idnum
-        else:
-            return None
-            # e.g. if no ID numbers are required, or if more than
-            # one ID number satisfies the requirement.
+        possible_critical_idnums = []  # type: List[int]
+        for which_idnum in relevant_idnums:
+            pip_with = PatientInfoPresence.make_uncaring_except(
+                which_idnum, Q_TRUE, relevant_idnums)
+            satisfies_with_1 = self._value_for_pip(pip_with)
+            pip_with.otheridnum_present = Q_FALSE
+            satisfies_with_2 = self._value_for_pip(pip_with)
+            pip_without = PatientInfoPresence.make_uncaring_except(
+                which_idnum, Q_FALSE, relevant_idnums)
+            satisfies_without_1 = self._value_for_pip(pip_without)
+            pip_without.otheridnum_present = Q_TRUE
+            satisfies_without_2 = self._value_for_pip(pip_without)
+            if verbose:
+                log.debug(
+                    "... {}: satisfies_with={}, satisfies_without_1={}, "
+                    "satisfies_without_2={}",
+                    which_idnum, satisfies_with_1, satisfies_without_1,
+                    satisfies_without_2,
+                )
+            if (satisfies_with_1 is Q_TRUE and
+                    satisfies_with_2 is Q_TRUE and
+                    satisfies_without_1 is Q_FALSE and
+                    satisfies_without_2 is Q_FALSE):
+                possible_critical_idnums.append(which_idnum)
+        if verbose:
+            log.debug(
+                "find_critical_single_numerical_id(): "
+                "possible_critical_idnums = {}",
+                possible_critical_idnums)
+        if len(possible_critical_idnums) == 1:
+            return possible_critical_idnums[0]
+        return None
 
     def is_idnum_mandatory_in_policy(
             self,
             which_idnum: int,
-            valid_idnums: List[int]) -> bool:
+            valid_idnums: List[int],
+            verbose: bool = False) -> bool:
         """
         Is the ID number mandatory in the specified policy?
 
         Args:
             which_idnum: ID number type to test
             valid_idnums: ID number types that are valid on the server
+            verbose: report reasons to debug log
         """
         if which_idnum is None or which_idnum < 1:
+            if verbose:
+                log.debug("is_idnum_mandatory_in_policy(): bad ID type")
             return False
         if not self.contains_specific_idnum(which_idnum):
+            if verbose:
+                log.debug("is_idnum_mandatory_in_policy(): policy does not "
+                          "contain ID {}, so not mandatory", which_idnum)
             return False
-        if not self.is_syntactically_valid():
+        self.set_valid_idnums(valid_idnums)
+        if not self.is_valid():
+            if verbose:
+                log.debug("is_idnum_mandatory_in_policy(): policy invalid")
             return False
-        # A hacky way...
-        relevant_idnums = self.relevant_idnums(valid_idnums)
-        other_idnums = [n for n in relevant_idnums if n != which_idnum]
-        for others in reversed(list(gen_all_combinations(other_idnums))):
-            # we start with "all other idnums populated", i.e. everthing but
-            # the idnum in question is set
-            bpis = gen_test_bpis(which_idnums_present_options=[others])
-            if any(self.satisfies_id_policy(bpi) for bpi in bpis):
-                return False  # because that means it wasn't mandatory
-        # That should be it...
+
+        pip_with = PatientInfoPresence.make_uncaring_except(
+            which_idnum, Q_TRUE, valid_idnums)
+        satisfies_with = self._value_for_pip(pip_with)
+        if satisfies_with != Q_TRUE:
+            if verbose:
+                log.debug("is_idnum_mandatory_in_policy(): policy not "
+                          "satisfied by presence of ID {}, so not mandatory",
+                          which_idnum)
+            return False
+        pip_without = PatientInfoPresence.make_uncaring_except(
+            which_idnum, Q_FALSE, valid_idnums)
+        satisfies_without = self._value_for_pip(pip_without)
+        if satisfies_without != Q_FALSE:
+            if verbose:
+                log.debug("is_idnum_mandatory_in_policy(): policy satisfied "
+                          "without presence of ID {}, so not mandatory",
+                          which_idnum)
+            return False
+        # Thus, if we get here, the policy is unhappy with the absence of our
+        # ID number type, but happy with it; therefore it is mandatory.
+        if verbose:
+            log.debug("is_idnum_mandatory_in_policy(): ID {} is mandatory",
+                      which_idnum)
         return True
 
-    def less_restrictive_than(self, other: "TokenizedPolicy",
-                              valid_idnums: List[int]) -> bool:
+    def _requires_prohibits(self, token: int,
+                            valid_idnums: List[int],
+                            verbose: bool = False) -> Tuple[bool, bool]:
         """
-        Is this ("self") policy at least as restrictive as the "other" policy?
+        Does this policy require, and/or prohibit, a particular token?
 
         Args:
-            other: the other policy
-            valid_idnums: ID number types that are valid on the server
+            token: token to check
+
+        Returns:
+            tuple: requires, prohibits
+            verbose: report reasons to debug log
+
         """
-        # Not elegant, but...
-        for which_idnums in gen_all_combinations(valid_idnums):
-            for bpi in gen_test_bpis(
-                    which_idnums_present_options=[which_idnums]):
-                if not other.satisfies_id_policy(bpi):
-                    # This bpi does NOT satisfy the others's minimum ID policy.
-                    if self.satisfies_id_policy(bpi):
-                        # The "self" policy is LESS RESTRICTIVE.
-                        return True
+        pip_with = PatientInfoPresence.make_uncaring_except(
+            token, Q_TRUE, valid_idnums)
+        satisfies_with = self._value_for_pip(pip_with)
+        pip_without = PatientInfoPresence.make_uncaring_except(
+            token, Q_FALSE, valid_idnums)
+        satisfies_without = self._value_for_pip(pip_without)
+        requires = (
+            satisfies_with is Q_TRUE and
+            satisfies_without is Q_FALSE
+        )
+        prohibits = (
+            satisfies_with is Q_FALSE and
+            satisfies_without is Q_TRUE
+        )
+        if verbose:
+            log.debug(
+                "_requires_prohibits(): "
+                "satisfies_with={sw}, "
+                "satisfies_without={swo}, "
+                "requires={r}, "
+                "prohibits={p}",
+                sw=satisfies_with,
+                swo=satisfies_without,
+                r=requires,
+                p=prohibits,
+            )
+        return requires, prohibits
+
+    def _requires_sex(self, valid_idnums: List[int],
+                      verbose: bool = False) -> bool:
+        """
+        Does this policy require sex to be present?
+
+        Args:
+            valid_idnums: ID number types that are valid on the server
+            verbose: report reasons to debug log
+        """
+        requires, _ = self._requires_prohibits(
+            TK_SEX, valid_idnums=valid_idnums, verbose=verbose)
+        return requires
+
+    def _requires_an_idnum(self, valid_idnums: List[int],
+                           verbose: bool = False) -> bool:
+        """
+        Does this policy require an ID number to be present?
+
+        Args:
+            valid_idnums: ID number types that are valid on the server
+            verbose: report reasons to debug log
+        """
+        if verbose:
+            log.debug("_requires_an_idnum():")
+        for token in self.specifically_mentioned_idnums() + [TK_ANY_IDNUM,
+                                                             TK_OTHER_IDNUM]:
+            requires, _ = self._requires_prohibits(
+                token, valid_idnums=valid_idnums, verbose=verbose)
+            if requires:
+                if verbose:
+                    log.debug("... requires ID number '{}'",
+                              token_to_str(token))
+                return True
         return False
 
-    def compatible_with_tablet_id_policy(self,
-                                         valid_idnums: List[int]) -> bool:
+    # def _less_restrictive_than(self, other: "TokenizedPolicy",
+    #                            valid_idnums: List[int],
+    #                            verbose: bool = False) -> bool:
+    #     """
+    #     Is this ("self") policy less restrictive than the "other" policy?
+    #
+    #     "More restrictive" means "requires more information".
+    #     "Less restrictive" means "requires or enforces less information".
+    #
+    #     Therefore, we must return True if we can find a situation where "self"
+    #     is satisfied but "other" is not.
+    #
+    #     Args:
+    #         other: the other policy
+    #         valid_idnums: ID number types that are valid on the server
+    #         verbose: report reasons to debug log
+    #
+    #     This is very difficult. Abandoned this generic attempt in favour of a
+    #     specific hard-coded check for the tablet policy.
+    #     """
+    #     if verbose:
+    #         log.debug("_less_restrictive_than(): self={}, other={}",
+    #                   self, other)
+    #     possible_tokens = valid_idnums + NON_IDNUM_INFO_TOKENS
+    #     for token in possible_tokens:
+    #         # Self
+    #         self_requires, self_prohibits = self._requires_prohibits(
+    #             token, valid_idnums)
+    #         # Other
+    #         pip_with = PatientInfoPresence.make_uncaring_except(
+    #             token, Q_TRUE, valid_idnums)
+    #         other_satisfies_with = other._value_for_pip(pip_with)
+    #         pip_without = PatientInfoPresence.make_uncaring_except(
+    #             token, Q_FALSE, valid_idnums)
+    #         other_satisfies_without_1 = other._value_for_pip(pip_without)
+    #         pip_without.special_anyidnum_present = Q_TRUE
+    #         other_satisfies_without_2 = other._value_for_pip(pip_without)
+    #         other_requires = (
+    #             other_satisfies_with is Q_TRUE and
+    #             other_satisfies_without_1 is Q_FALSE and
+    #             other_satisfies_without_2 is Q_FALSE
+    #         )
+    #         other_prohibits = (
+    #             other_satisfies_with is Q_FALSE and
+    #             other_satisfies_without_1 is Q_TRUE and
+    #             other_satisfies_without_2 is Q_TRUE
+    #         )
+    #         if verbose:
+    #             log.debug(
+    #                 "... for {t}: "
+    #                 "self_requires={sr}, "
+    #                 "self_prohibits={sp}, "
+    #                 "other_satisfies_with={osw}, "
+    #                 "other_satisfies_without_1={oswo1}, "
+    #                 "other_satisfies_without_2={oswo2}, "
+    #                 "other_requires={or_}",
+    #                 "other_prohibits={op}",
+    #                 t=token_to_str(token),
+    #                 sr=self_requires,
+    #                 sp=self_prohibits,
+    #                 osw=other_satisfies_with,
+    #                 oswo1=other_satisfies_without_1,
+    #                 oswo2=other_satisfies_without_2,
+    #                 or_=other_requires,
+    #                 op=other_prohibits,
+    #             )
+    #
+    #         if other_requires and not self_requires:
+    #             # The "self" policy is LESS RESTRICTIVE (requires less info).
+    #             if verbose:
+    #                 log.debug(
+    #                     "... self does not require ID type {}, but other does "  # noqa
+    #                     "require it; therefore self is less restrictive",
+    #                     token)
+    #             return True
+    #         # if self_prohibits and not other_prohibits:
+    #         #     # The "self" policy is LESS RESTRICTIVE (enforces less info).  # noqa
+    #         #     if verbose:
+    #         #         log.debug(
+    #         #             "... self prohibits ID type {}, but other does not "  # noqa
+    #         #             "prohibit it; therefore self is less restrictive",
+    #         #             token)
+    #         #     return True
+    #     if verbose:
+    #         log.debug(
+    #             "... by elimination, self [{}] not less "
+    #             "restrictive than other [{}]",
+    #             self, other
+    #         )
+    #     return False
+
+    def _compatible_with_tablet_id_policy(self,
+                                          valid_idnums: List[int],
+                                          verbose: bool = False) -> bool:
         """
         Is this policy compatible with :data:`TABLET_ID_POLICY`?
 
@@ -472,12 +861,111 @@ class TokenizedPolicy(object):
 
         Args:
             valid_idnums: ID number types that are valid on the server
+            verbose: report reasons to debug log
+
+        Internal function -- doesn't used cached information.
         """
-        return not self.less_restrictive_than(TABLET_ID_POLICY, valid_idnums)
+        # Method 1: abandoned.
+        # We previously used a version of _less_restrictive_than() that
+        # did a brute-force attempt, but that became prohibitive as ID numbers
+        # got added.
+        # A generic method is very hard (see above) -- not properly succeeded
+        # yet.
+        #
+        # return not self._less_restrictive_than(
+        #     TABLET_ID_POLICY, valid_idnums, verbose=verbose)
+
+        # Method 2: manual.
+        if verbose:
+            log.debug("_compatible_with_tablet_id_policy():")
+        requires_sex = self._requires_sex(valid_idnums, verbose=verbose)
+        if requires_sex:
+            if verbose:
+                log.debug("... requires sex")
+        else:
+            if verbose:
+                log.debug("... doesn't require sex; returning False")
+            return False
+        requires_an_idnum = self._requires_an_idnum(valid_idnums,
+                                                    verbose=verbose)
+        if requires_an_idnum:
+            if verbose:
+                log.debug("... requires an ID number; returning True")
+            return True
+        if verbose:
+            log.debug("... does not require an ID number; trying alternatives")
+        other_mandatory = [TK_FORENAME, TK_SURNAME, TK_DOB]
+        for token in other_mandatory:
+            requires, _ = self._requires_prohibits(
+                token, valid_idnums=valid_idnums, verbose=verbose)
+            if not requires:
+                if verbose:
+                    log.debug("... does not require '{}'; returning False",
+                              token_to_str(token))
+                return False
+        log.debug("... requires all of {!r}; returning True",
+                  [token_to_str(t) for t in other_mandatory])
+        return True
+
+    def compatible_with_tablet_id_policy(self,
+                                         valid_idnums: List[int],
+                                         verbose: bool = False) -> bool:
+        """
+        Is this policy compatible with :data:`TABLET_ID_POLICY`?
+
+        The "self" policy may be MORE restrictive than the tablet minimum ID
+        policy, but may not be LESS restrictive.
+
+        Args:
+            valid_idnums: ID number types that are valid on the server
+            verbose: report reasons to debug log
+        """
+        self.set_valid_idnums(valid_idnums)
+        if not self.is_valid(verbose=verbose):
+            return False
+        return self._compatible_with_tablet_id_policy(valid_idnums,
+                                                      verbose=verbose)
 
     # -------------------------------------------------------------------------
     # Check if a patient satisfies the policy
     # -------------------------------------------------------------------------
+
+    def _value_for_ptinfo(self, ptinfo: BarePatientInfo) -> QuadState:
+        """
+        What does the policy evaluate to for a given patient info object?
+
+        Args:
+            ptinfo:
+                a `camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
+
+        Returns:
+            a :class:`QuadState` quad-state value
+        """
+        pip = PatientInfoPresence.make_from_ptinfo(
+            ptinfo,
+            self.specifically_mentioned_idnums()
+        )
+        return self._value_for_pip(pip)
+
+    def _value_for_pip(self, pip: PatientInfoPresence) -> QuadState:
+        """
+        What does the policy evaluate to for a given patient info presence
+        object?
+
+        Args:
+            pip:
+                a `camcops_server.cc_modules.cc_simpleobjects.PatientInfoPresence`
+
+        Returns:
+            a :class:`QuadState` quad-state value
+        """  # noqa
+        def content_token_processor(token: int) -> QuadState:
+            return self._element_value_test_pip(pip, token)
+
+        return self._chunk_value(
+            self.tokens,
+            content_token_processor=content_token_processor)
+        # ... which is recursive
 
     def satisfies_id_policy(self, ptinfo: BarePatientInfo) -> bool:
         """
@@ -487,74 +975,82 @@ class TokenizedPolicy(object):
             ptinfo:
                 a `camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
         """
-        return bool(self.id_policy_chunk(self.tokens, ptinfo))
-        # ... which is recursive
+        return self._value_for_ptinfo(ptinfo) is Q_TRUE
 
     # -------------------------------------------------------------------------
     # Functions for the policy to parse itself and compare itself to a patient
     # -------------------------------------------------------------------------
 
-    def id_policy_chunk(self,
-                        policy: TOKENIZED_POLICY_TYPE,
-                        ptinfo: BarePatientInfo) -> Optional[bool]:
+    def _chunk_value(self,
+                     tokens: TOKENIZED_POLICY_TYPE,
+                     content_token_processor: CONTENT_TOKEN_PROCESSOR_TYPE) \
+            -> QuadState:
         """
         Applies the policy to the patient info in ``ptinfo``.
         Can be used recursively.
 
         Args:
-            policy:
+            tokens:
                 a tokenized policy
-            ptinfo:
-                a `camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
+            content_token_processor:
+                a function to be called for each "content" token, which returns
+                its Boolean value, or ``None`` in case of failure
 
         Returns:
-            bool: ``True`` if the ``ptinfo`` satisfies the policy; ``False`` if
-            it doesn't; ``None`` if there was an error.
+            a :class:`QuadState` quad-state value
         """
         want_content = True
         processing_and = False
         processing_or = False
         index = 0
-        value = None
-        while index < len(policy):
+        value = None  # type: QuadState
+        while index < len(tokens):
             if want_content:
-                nextchunk, index = self.id_policy_content(policy, ptinfo,
-                                                          index)
-                if nextchunk is None:
-                    return None  # fail
+                nextchunk, index = self._content_chunk_value(
+                    tokens, index, content_token_processor)
+                if nextchunk is Q_ERROR:
+                    return Q_ERROR  # fail
                 if value is None:
                     value = nextchunk
                 elif processing_and:
-                    value = value and nextchunk
+                    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    # implement logical AND
+                    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    value = quad_and(value, nextchunk)
                 elif processing_or:
-                    value = value or nextchunk
+                    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    # implement logical OR
+                    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    value = quad_or(value, nextchunk)
                 else:
                     # Error; shouldn't get here
-                    return None
+                    return Q_ERROR
                 processing_and = False
                 processing_or = False
             else:
                 # Want operator
-                operator, index = self.id_policy_op(policy, index)
+                operator, index = self._op(tokens, index)
                 if operator is None:
-                    return None  # fail
+                    return Q_ERROR  # fail
                 if operator == TK_AND:
                     processing_and = True
                 elif operator == TK_OR:
                     processing_or = True
                 else:
                     # Error; shouldn't get here
-                    return None
+                    return Q_ERROR
             want_content = not want_content
         if want_content:
-            log.debug("id_policy_chunk: ended wanting content; bad policy")
-            return None
+            log.debug("_chunk_value(): ended wanting content; bad policy")
+            return Q_ERROR
         return value
 
-    def id_policy_content(self,
-                          policy: TOKENIZED_POLICY_TYPE,
-                          ptinfo: BarePatientInfo,
-                          start: int) -> Tuple[Optional[bool], int]:
+    def _content_chunk_value(
+            self,
+            tokens: TOKENIZED_POLICY_TYPE,
+            start: int,
+            content_token_processor: CONTENT_TOKEN_PROCESSOR_TYPE) \
+            -> Tuple[QuadState, int]:
         """
         Applies part of a policy to ``ptinfo``. The part of policy pointed to
         by ``start`` represents something -- "content" -- that should return a
@@ -562,12 +1058,13 @@ class TokenizedPolicy(object):
         (q.v.).
 
         Args:
-            policy:
+            tokens:
                 a tokenized policy (list of integers)
-            ptinfo:
-                a `camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
             start:
                 zero-based index of the first token to check
+            content_token_processor:
+                a function to be called for each "content" token, which returns
+                its Boolean value, or ``None`` in case of failure
 
         Returns:
             tuple: chunk_value, next_index. ``chunk_value`` is ``True`` if the
@@ -576,46 +1073,53 @@ class TokenizedPolicy(object):
             index of the next token after this chunk.
 
         """
-        if start >= len(policy):
-            log.debug("id_policy_content: beyond end of policy")
-            return None, start
-        token = policy[start]
+        if start >= len(tokens):
+            log.debug("_content_chunk_value(): "
+                      "beyond end of policy; bad policy")
+            return Q_ERROR, start
+        token = tokens[start]
         if token in [TK_RPAREN, TK_AND, TK_OR]:
-            log.debug("id_policy_content: chunk starts with ), AND, or OR; "
-                      "bad policy")
-            return None, start
+            log.debug("_content_chunk_value(): "
+                      "chunk starts with ), AND, or OR; bad policy")
+            return Q_ERROR, start
         elif token == TK_LPAREN:
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # implement parentheses
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             subchunkstart = start + 1  # exclude the opening bracket
             # Find closing parenthesis
             depth = 1
             searchidx = subchunkstart
             while depth > 0:
-                if searchidx >= len(policy):
-                    log.debug("id_policy_content: Unmatched left parenthesis; "
-                              "bad policy")
-                    return None, start
-                elif policy[searchidx] == TK_LPAREN:
+                if searchidx >= len(tokens):
+                    log.debug("_content_chunk_value(): "
+                              "Unmatched left parenthesis; bad policy")
+                    return Q_ERROR, start
+                elif tokens[searchidx] == TK_LPAREN:
                     depth += 1
-                elif policy[searchidx] == TK_RPAREN:
+                elif tokens[searchidx] == TK_RPAREN:
                     depth -= 1
                 searchidx += 1
             subchunkend = searchidx - 1
             # ... to exclude the closing bracket from the analysed subchunk
-            chunk_value = self.id_policy_chunk(
-                policy[subchunkstart:subchunkend], ptinfo)
+            chunk_value = self._chunk_value(
+                tokens[subchunkstart:subchunkend], content_token_processor)
             return chunk_value, subchunkend + 1  # to move past the closing bracket  # noqa
         elif token == TK_NOT:
-            next_value, next_index = self.id_policy_content(
-                policy, ptinfo, start + 1)
-            if next_value is None:
+            next_value, next_index = self._content_chunk_value(
+                tokens, start + 1, content_token_processor)
+            if next_value is Q_ERROR:
                 return next_value, start
-            return not next_value, next_index
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # implement logical NOT
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            return quad_not(next_value), next_index
         else:
             # meaningful token
-            return self.id_policy_element(ptinfo, token), start + 1
+            return content_token_processor(token), start + 1
 
     @classmethod
-    def id_policy_op(cls, policy: TOKENIZED_POLICY_TYPE, start: int) \
+    def _op(cls, policy: TOKENIZED_POLICY_TYPE, start: int) \
             -> Tuple[Optional[TOKEN_TYPE], int]:
         """
         Returns an operator from the policy, beginning at index ``start``, or
@@ -632,70 +1136,57 @@ class TokenizedPolicy(object):
             the policy to check at.
         """
         if start >= len(policy):
-            log.debug("id_policy_op: beyond end of policy")
+            log.debug("_op(): beyond end of policy")
             return None, start
         token = policy[start]
         if token in [TK_AND, TK_OR]:
             return token, start + 1
         else:
-            log.debug("id_policy_op: not an operator; bad policy")
+            log.debug("_op(): not an operator; bad policy")
             # Not an operator
             return None, start
 
-    def id_policy_element(self, ptinfo: BarePatientInfo, token: TOKEN_TYPE) \
-            -> Optional[bool]:
+    # Things to do with content tokens 1: are they present in patient info?
+
+    def _element_value_test_pip(self, pip: PatientInfoPresence,
+                                token: TOKEN_TYPE) -> QuadState:
         """
         Returns the "value" of a content token as judged against the patient
         information. For example, if the patient information contains a date of
         birth, a ``TK_DOB`` token will evaluate to ``True``.
 
         Args:
-            ptinfo:
-                a `camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
+            pip:
+                a `camcops_server.cc_modules.cc_simpleobjects.PatientInfoPresence`
             token:
                 an integer token from the policy
 
         Returns:
-            bool: whether the token's information is present in the ``ptinfo``
-            (or ``None`` if it was not a content token)
-        """
+            a :class:`QuadState` quad-state value
+        """  # noqa
         if token > 0:  # ID token
-            for iddef in ptinfo.idnum_definitions:
-                if (iddef.which_idnum == token and
-                        iddef.idnum_value is not None):
-                    return True
-            return False
+            return pip.idnum_present(token)
         elif token == TK_ANY_IDNUM:
-            for idnumdef in ptinfo.idnum_definitions:
-                if idnumdef.idnum_value is not None:
-                    return True
-            return False
+            return pip.any_idnum_present()
         elif token == TK_OTHER_IDNUM:
-            mentioned_idnums = self.specifically_mentioned_idnums()
-            for idnumdef in ptinfo.idnum_definitions:
-                if idnumdef.which_idnum not in mentioned_idnums:  # "other"
-                    if idnumdef.idnum_value is not None:
-                        return True
-            return False
-
-        if token == TK_FORENAME:
-            return bool(ptinfo.forename)
+            return pip.otheridnum_present
+        elif token == TK_FORENAME:
+            return pip.forename_present
         elif token == TK_SURNAME:
-            return bool(ptinfo.surname)
+            return pip.surname_present
         elif token == TK_SEX:
-            return bool(ptinfo.sex)
+            return pip.sex_present
         elif token == TK_DOB:
-            return ptinfo.dob is not None
+            return pip.dob_present
         elif token == TK_ADDRESS:
-            return bool(ptinfo.address)
+            return pip.address_present
         elif token == TK_GP:
-            return bool(ptinfo.gp)
+            return pip.gp_present
         elif token == TK_OTHER_DETAILS:
-            return bool(ptinfo.otherdetails)
-
+            return pip.otherdetails_present
         else:
-            log.debug("id_policy_element: unknown token; bad policy")
-            return None
+            log.debug("_element_value_test_pip(): unknown token; bad policy")
+            return Q_ERROR
 
 
 # =============================================================================
@@ -717,36 +1208,28 @@ class PolicyTests(ExtendedTestCase):
     def test_policies(self) -> None:
         self.announce("test_policies")
 
-        empty = ""
-        bad1 = "sex AND (failure"
-        bad2 = "sex AND NOT"
-        bad3 = "OR OR"
-        bad4 = "idnum99"
-        good1 = "sex AND idnum1"
-        good2 = "sex AND NOT idnum1"
-        good3 = "sex AND NOT idnum2"
-        good4 = "sex AND NOT idnum1 AND idnum3"
-        good5 = "sex AND NOT idnum2 AND idnum10"
-        good6 = "sex AND NOT idnum1 AND NOT idnum2 AND NOT idnum3"
-        good7 = "sex AND NOT (idnum1 OR idnum2 OR idnum3)"  # same as previous
-        good8 = "NOT (sex OR forename OR surname OR dob OR anyidnum)"
-        good9 = """
-            NOT (sex OR forename OR surname OR dob OR
-                 idnum1 OR idnum2 OR idnum3)
-        """
-        good10 = "sex AND idnum1 AND otheridnum AND NOT address"
-        good11 = (
-             "sex AND idnum1 AND NOT (otheridnum OR forename OR surname OR "
-             "dob OR address OR gp OR otherdetails)"
-        )
-        test_idnums = [None, -1, 1, 3]
-        all_policies = [
-            empty,
-            bad1, bad2, bad3, bad4,
-            good1, good2, good3, good4, good5, good6, good7, good8, good9,
-            good10, good11,
-        ]
-        valid_idnums = [1, 2, 3]
+        class TestRig(object):
+            def __init__(
+                    self,
+                    policy: str,
+                    syntactically_valid: bool = None,
+                    valid: bool = None,
+                    ptinfo_satisfies_id_policy: bool = None,
+                    test_critical_single_numerical_id: bool = False,
+                    critical_single_numerical_id: int = None,
+                    compatible_with_tablet_id_policy: bool = None,
+                    is_idnum_mandatory_in_policy: Dict[int, bool] = None) \
+                    -> None:
+                self.policy = policy
+                self.syntactically_valid = syntactically_valid
+                self.valid = valid
+                self.ptinfo_satisfies_id_policy = ptinfo_satisfies_id_policy
+                self.test_critical_single_numerical_id = test_critical_single_numerical_id  # noqa
+                self.critical_single_numerical_id = critical_single_numerical_id  # noqa
+                self.compatible_with_tablet_id_policy = compatible_with_tablet_id_policy  # noqa
+                self.is_idnum_mandatory_in_policy = is_idnum_mandatory_in_policy or {}  # type: Dict[int, bool]  # noqa
+
+        valid_idnums = list(range(1, 10 + 1))
         # noinspection PyTypeChecker
         bpi = BarePatientInfo(
             forename="forename",
@@ -758,56 +1241,219 @@ class PolicyTests(ExtendedTestCase):
                 IdNumReference(10, 3),
             ],
         )
-        for policy_string in all_policies:
-            log.info("Testing {!r}", policy_string)
-            p = TokenizedPolicy(policy_string)
+        test_policies = [
+            TestRig(
+                "",
+                syntactically_valid=False,
+                valid=False,
+            ),
+            TestRig(
+                "sex AND (failure",
+                syntactically_valid=False,
+                valid=False,
+            ),
+            TestRig(
+                "sex AND NOT",
+                syntactically_valid=False,
+                valid=False,
+            ),
+            TestRig(
+                "OR OR",
+                syntactically_valid=False,
+                valid=False,
+            ),
+            TestRig(
+                "idnum99",
+                syntactically_valid=True,
+                valid=False,
+            ),
+            TestRig(
+                "sex AND idnum1",
+                syntactically_valid=True,
+                valid=True,
+                ptinfo_satisfies_id_policy=True,
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=1,
+                compatible_with_tablet_id_policy=True,
+                is_idnum_mandatory_in_policy={1: True, 3: False}
+            ),
+            TestRig(
+                "sex AND NOT idnum1",
+                syntactically_valid=True,
+                valid=False,  # not compatible with tablet policy
+                ptinfo_satisfies_id_policy=False,
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=None,
+                compatible_with_tablet_id_policy=False,
+                is_idnum_mandatory_in_policy={1: False, 3: False}
+            ),
+            TestRig(
+                "sex AND NOT idnum2",
+                syntactically_valid=True,
+                valid=False,  # not compatible with tablet policy
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=None,
+                compatible_with_tablet_id_policy=False,
+                is_idnum_mandatory_in_policy={1: False, 3: False}
+            ),
+            TestRig(
+                "sex AND NOT idnum1 AND idnum3",
+                syntactically_valid=True,
+                valid=True,
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=3,
+                compatible_with_tablet_id_policy=True,
+                is_idnum_mandatory_in_policy={1: False, 3: True}
+            ),
+            TestRig(
+                "sex AND NOT idnum2 AND idnum10",
+                syntactically_valid=True,
+                valid=True,
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=10,
+                compatible_with_tablet_id_policy=True,
+                is_idnum_mandatory_in_policy={1: False, 3: False}
+            ),
+            TestRig(
+                "sex AND NOT idnum1 AND NOT idnum2 AND NOT idnum3",
+                syntactically_valid=True,
+                valid=False,  # not compatible with tablet policy
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=None,
+                compatible_with_tablet_id_policy=False,
+                is_idnum_mandatory_in_policy={1: False, 3: False}
+            ),
+            TestRig(
+                "sex AND NOT (idnum1 OR idnum2 OR idnum3)",  # same as previous
+                syntactically_valid=True,
+                valid=False,  # not compatible with tablet policy
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=None,
+                compatible_with_tablet_id_policy=False,
+                is_idnum_mandatory_in_policy={1: False, 3: False}
+            ),
+            TestRig(
+                "NOT (sex OR forename OR surname OR dob OR anyidnum)",
+                syntactically_valid=True,
+                valid=False,  # not compatible with tablet policy
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=None,
+                compatible_with_tablet_id_policy=False,
+                is_idnum_mandatory_in_policy={1: False, 3: False}
+            ),
+            TestRig(
+                """
+                    NOT (sex OR forename OR surname OR dob OR
+                         idnum1 OR idnum2 OR idnum3)
+                """,
+                syntactically_valid=True,
+                valid=False,  # not compatible with tablet policy
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=None,
+                compatible_with_tablet_id_policy=False,
+                is_idnum_mandatory_in_policy={1: False, 3: False}
+            ),
+            TestRig(
+                "sex AND idnum1 AND otheridnum AND NOT address",
+                syntactically_valid=True,
+                valid=True,
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=None,
+                compatible_with_tablet_id_policy=True,
+                is_idnum_mandatory_in_policy={1: True, 3: False}
+            ),
+            TestRig(
+                "sex AND idnum1 AND NOT (otheridnum OR forename OR surname OR "
+                "dob OR address OR gp OR otherdetails)",
+                syntactically_valid=True,
+                valid=True,
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=1,
+                compatible_with_tablet_id_policy=True,
+                is_idnum_mandatory_in_policy={1: True, 3: False}
+            ),
+        ]
 
+        test_idnums = [None, -1, 1, 3]
+        correct_msg = "... correct"
+
+        for tp in test_policies:
+            policy_string = tp.policy
+            log.warning("Testing {!r}", policy_string)
+            p = TokenizedPolicy(policy_string)
+            p.set_valid_idnums(valid_idnums)
+
+            log.debug("Testing is_syntactically_valid()")
             x = p.is_syntactically_valid()
             self.assertIsInstance(x, bool)
-            print("is_syntactically_valid() -> {!r}".format(x))
+            log.info("is_syntactically_valid() -> {!r}".format(x))
+            if tp.syntactically_valid is not None:
+                self.assertEqual(x, tp.syntactically_valid)
+                log.info(correct_msg)
 
-            x = p.is_valid(valid_idnums=valid_idnums)
+            log.debug("Testing is_valid()")
+            x = p.is_valid(verbose=True)
             self.assertIsInstance(x, bool)
-            print("is_valid(valid_idnums={!r}) -> {!r}".format(
+            log.info("is_valid(valid_idnums={!r}) -> {!r}".format(
                 valid_idnums, x))
+            if tp.valid is not None:
+                self.assertEqual(x, tp.valid)
+                log.info(correct_msg)
 
-            x = p.find_critical_single_numerical_id(valid_idnums=valid_idnums)
-            self.assertIsInstanceOrNone(x, int)
-            print(
-                "find_critical_single_numerical_id(valid_idnums={!r}) "
-                "-> {!r}".format(valid_idnums, x)
-            )
-
-            x = p.compatible_with_tablet_id_policy(valid_idnums=valid_idnums)
-            self.assertIsInstance(x, bool)
-            print("compatible_with_tablet_id_policy(valid_idnums={!r}) "
-                  "-> {!r}".format(valid_idnums, x))
-
+            log.debug("Testing is_idnum_mandatory_in_policy()")
             for which_idnum in test_idnums:
+                log.debug("... for which_idnum = {}", which_idnum)
                 x = p.is_idnum_mandatory_in_policy(
                     which_idnum=which_idnum,
-                    valid_idnums=valid_idnums
+                    valid_idnums=valid_idnums,
+                    verbose=True
                 )
                 self.assertIsInstance(x, bool)
-                print(
+                log.info(
                     "is_idnum_mandatory_in_policy(which_idnum={!r}, "
                     "valid_idnums={!r}) -> {!r}".format(
                         which_idnum, valid_idnums, x))
+                if tp.is_idnum_mandatory_in_policy:
+                    if which_idnum in tp.is_idnum_mandatory_in_policy:
+                        self.assertEqual(
+                            x, tp.is_idnum_mandatory_in_policy[which_idnum])
+                        log.info(correct_msg)
 
+            log.debug("Testing find_critical_single_numerical_id()")
+            x = p.find_critical_single_numerical_id(valid_idnums=valid_idnums,
+                                                    verbose=True)
+            self.assertIsInstanceOrNone(x, int)
+            log.info("find_critical_single_numerical_id(valid_idnums={!r}) "
+                     "-> {!r}".format(valid_idnums, x))
+            if tp.test_critical_single_numerical_id:
+                self.assertEqual(x, tp.critical_single_numerical_id)
+                log.info(correct_msg)
+
+            log.debug("Testing compatible_with_tablet_id_policy()")
+            x = p.compatible_with_tablet_id_policy(valid_idnums=valid_idnums,
+                                                   verbose=True)
+            self.assertIsInstance(x, bool)
+            log.info("compatible_with_tablet_id_policy(valid_idnums={!r}) "
+                     "-> {!r}".format(valid_idnums, x))
+            if tp.compatible_with_tablet_id_policy is not None:
+                self.assertEqual(x, tp.compatible_with_tablet_id_policy)
+                log.info(correct_msg)
+
+            log.debug("Testing satisfies_id_policy()")
             x = p.satisfies_id_policy(bpi)
             self.assertIsInstance(x, bool)
-            print("satisfies_id_policy(bpi={}) -> {!r}".format(bpi, x))
-
-            if policy_string == good1:
-                self.assertEqual(p.find_critical_single_numerical_id(
-                    valid_idnums=valid_idnums), 1)
-                self.assertEqual(p.satisfies_id_policy(bpi), True)
-
-            if policy_string == good2:
-                self.assertEqual(p.satisfies_id_policy(bpi), False)
+            log.info("satisfies_id_policy(bpi={}) -> {!r}".format(bpi, x))
+            if tp.ptinfo_satisfies_id_policy is not None:
+                self.assertEqual(x, tp.ptinfo_satisfies_id_policy)
+                log.info(correct_msg)
 
 
 if __name__ == "__main__":
     # Run with "python cc_policy.py" to test.
-    main_only_quicksetup_rootlogger(level=logging.DEBUG)
+    import argparse  # delayed import
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--verbose", action="store_true")
+    cmdargs = parser.parse_args()
+    main_only_quicksetup_rootlogger(
+        level=logging.DEBUG if cmdargs.verbose else logging.INFO)
     unittest.main()

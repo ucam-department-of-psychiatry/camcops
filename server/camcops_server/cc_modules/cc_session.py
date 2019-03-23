@@ -70,7 +70,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 DEBUG_CAMCOPS_SESSION_CREATION = False
 
 if DEBUG_CAMCOPS_SESSION_CREATION:
-    log.warning("Debugging options enabled!")
+    log.warning("cc_session: Debugging options enabled!")
 
 # =============================================================================
 # Constants
@@ -284,6 +284,9 @@ class CamcopsSession(Base):
         found = candidate is not None
         if found:
             candidate.last_activity_utc = now
+            if DEBUG_CAMCOPS_SESSION_CREATION:
+                log.debug("Committing for last_activity_utc")
+            dbsession.commit()  # avoid holding a lock, 2019-03-21
             ccsession = candidate
         else:
             new_http_session = cls(ip_addr=ip_addr, last_activity_utc=now)

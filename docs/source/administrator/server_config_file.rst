@@ -455,12 +455,18 @@ WEBVIEW_LOGLEVEL
 Set the level of detail provided from the webview to ``stderr`` (e.g. to the
 Apache server log).
 
+Note that for "debug"-level information to show up, you must also provide the
+``--verbose`` argument to ``camcops_server``.
+
 CLIENT_API_LOGLEVEL
 ###################
 
 *Loglevel.*
 
 Set the log level for the tablet client database access script.
+
+Note that for "debug"-level information to show up, you must also provide the
+``--verbose`` argument to ``camcops_server``.
 
 ALLOW_INSECURE_COOKIES
 ######################

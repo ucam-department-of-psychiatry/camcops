@@ -98,6 +98,7 @@ extern const QString EXAMINER_COMMENTS;
 extern const QString EXAMINER_COMMENTS_PROMPT;
 
 extern const QString ICD10;
+extern const QString ID_NUMBER_TYPE;
 extern const QString IN_ADDITION;
 extern const QString INCORRECT;
 

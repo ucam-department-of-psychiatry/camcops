@@ -658,7 +658,7 @@ class RouteCollection(object):
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
     ERASE_TASK = RoutePath(Routes.ERASE_TASK)
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
-    HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)
+    HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
     LOGIN = RoutePath(Routes.LOGIN)
     LOGOUT = RoutePath(Routes.LOGOUT)
     OFFER_AUDIT_TRAIL = RoutePath(Routes.OFFER_AUDIT_TRAIL)

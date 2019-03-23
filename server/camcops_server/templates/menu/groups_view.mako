@@ -9,7 +9,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <h1>Groups</h1>
 
-<%include file="groups_table.mako" args="groups_page=groups_page, with_edit=True"/>
+<%include file="groups_table.mako" args="groups_page=groups_page, valid_which_idnums=valid_which_idnums, with_edit=True"/>
 
 <td><a href="${ req.route_url(Routes.ADD_GROUP) }">Add a group</a></td>
 
