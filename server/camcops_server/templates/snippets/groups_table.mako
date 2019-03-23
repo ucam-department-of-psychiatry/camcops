@@ -30,8 +30,8 @@ from markupsafe import escape
             finalize_tk = group.tokenized_finalize_policy()  # type: TokenizedPolicy
             upload_valid = upload_tk.is_valid(valid_which_idnums)
             finalize_valid = finalize_tk.is_valid(valid_which_idnums)
-            critical_upload_id = upload_tk.find_critical_single_numerical_id(valid_which_idnums)
-            critical_finalize_id = finalize_tk.find_critical_single_numerical_id(valid_which_idnums)
+            critical_upload_id = upload_tk.find_critical_single_numerical_id()
+            critical_finalize_id = finalize_tk.find_critical_single_numerical_id()
             users = list(group.users)
         %>
         <tr>
