@@ -20,7 +20,7 @@
 .. _epds:
 
 Edinburgh Postnatal Depression Scale (EPDS)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------
 
 .. include:: include_data_collection_plus_local_upgrade.rst
 
