@@ -61,6 +61,7 @@ All tasks
     demoquestionnaire.rst
     demqol.rst
     distressthermometer.rst
+    epds.rst
     eq5d5l.rst
     factg.rst
     fast.rst

@@ -24,14 +24,25 @@ Client upgrades and uninstallation
     :local:
     :depth: 3
 
-Uninstalling the client
------------------------
+Upgrading the client
+--------------------
 
-Use your operating system's uninstallation process. For example, in Windows,
-use "Add or remove programs".
+Just install a newer version. For example:
 
-Where is my data stored?
-------------------------
+- For Android, install a newer version from the Google Play Store.
+
+- For Windows, download the newer version and run its installer.
+
+This will replace the CamCOPS software but should
+
+.. note::
+
+    It shouldn't be critical, but as a matter of good practice, move all your
+    data to your CamCOPS server before upgrading the client.
+
+
+Where is the client storing my data?
+------------------------------------
 
 The CamCOPS client uses two encrypted databases called `camcops_data.sqlite`
 and `camcops_sys.sqlite`, stored in the device’s user-specific private area, as
@@ -53,9 +64,56 @@ more details, see :ref:`Client SQLCipher databases
 The client will tell you the location itself; see :menuselection:`Help --> View
 device ID and database details`.
 
-Will data be lost if I uninstall CamCOPS
-----------------------------------------
 
-It shouldn't be! The installer doesn't touch the data. If you uninstall
-CamCOPS, the data should be left behind. If you install a new version, it
-should pick up the old data.
+Uninstalling the client
+-----------------------
+
+Use your operating system's uninstallation process. For example, in Windows,
+use "Add or remove programs". In Android, remove the app. But **see below!**
+
+
+Could data be lost if I uninstall the CamCOPS client?
+----------------------------------------------------=
+
+- **Android.** Yes! All application data is typically deleted when an
+  application is removed.
+
+- **Windows, Linux.** It shouldn't be. The installer doesn't touch the data. If
+  you uninstall CamCOPS, the data should be left behind. If you install a new
+  version, it should pick up the old data.
+
+.. warning::
+
+    Ensure you've moved all your data to your CamCOPS server before you
+    uninstall the client!
+
+
+Could data be lost if I downgrade the CamCOPS client?
+-----------------------------------------------------
+
+Yes!
+
+CamCOPS doesn't delete unexpected database tables, but it does reshape existing
+tables. Suppose we have the following situation:
+
++----------------+-------------------------+-------------------------+
+| Table, column  | Present in old version? | Present in new version? |
++----------------+-------------------------+-------------------------+
+| table1.column1 | Y                       | Y                       |
++----------------+-------------------------+-------------------------+
+| table1.column2 | N                       | Y                       |
++----------------+-------------------------+-------------------------+
+| table2.*       | N                       | Y                       |
++----------------+-------------------------+-------------------------+
+
+When you upgrade from the old version to the new version, the new version will
+add column ``column2`` to table ``table1``, and it will create table
+``table2``. You might add data to those tables/columns. If you then manage to
+install the old version, the old version will ignore ``table2`` (and leave it
+intact) but it will notice that ``column2`` doesn't belong in ``table1`` and
+will delete it -- which might lose data.
+
+.. warning::
+
+    Avoid downgrading the CamCOPS client. If you must downgrade, be sure to
+    move all your data to your server first!

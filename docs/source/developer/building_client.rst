@@ -757,6 +757,14 @@ Windows client packaging
 This can be done automatically via the ``camcops_windows_innosetup.iss``
 script, which runs under `Inno Setup`_.
 
+.. warning::
+
+    Under Windows, be particularly careful that both the 32-bit and 64-bit
+    versions are fresh. Sometimes :menuselection:`Build --> Clean All` doesn't
+    seem to delete all the old executables -- just delete the whole build tree
+    manually if need be. Check from the development root directory with
+    ``dir camcops.exe /s``.
+
 
 Notes
 -----

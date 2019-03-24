@@ -1930,7 +1930,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Menu header functions updated so that anonymous tasks show the "anonymous"
   icon properly.
 
-- Report: tasks by month/username
+- Report: tasks by month/username.
 
 - ``check_index`` command.
 
