@@ -126,6 +126,7 @@ server/camcops_server
     extra_string_templates/apeqpt_TEMPLATE.xml.rst
     extra_string_templates/badls_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
+    extra_string_templates/epds_TEMPLATE.xml.rst
     extra_string_templates/eq5d5l_TEMPLATE.xml.rst
     extra_string_templates/factg_TEMPLATE.xml.rst
     extra_string_templates/hads_TEMPLATE.xml.rst

@@ -265,6 +265,7 @@ from camcops_server.cc_modules.cc_simpleobjects import (
     TaskExportOptions,
 )
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
+from camcops_server.cc_modules.cc_session import CamcopsSession
 from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_taskcollection import (
@@ -1908,10 +1909,23 @@ def view_server_info(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to show the server's ID policies, etc.
     """
+    now = req.now
+    recent_activity = OrderedDict([
+        ("Last 1 minute", CamcopsSession.n_sessions_active_since(
+            req, now.subtract(minutes=1))),
+        ("Last 5 minutes", CamcopsSession.n_sessions_active_since(
+            req, now.subtract(minutes=5))),
+        ("Last 10 minutes", CamcopsSession.n_sessions_active_since(
+            req, now.subtract(minutes=10))),
+        ("Last 1 hour", CamcopsSession.n_sessions_active_since(
+            req, now.subtract(hours=1))),
+    ])
     return dict(
         idnum_definitions=req.idnum_definitions,
         string_families=req.extrastring_families(),
         all_task_classes=Task.all_subclasses_by_longname(),
+        recent_activity=recent_activity,
+        session_timeout_minutes=req.config.session_timeout_minutes,
     )
 
 

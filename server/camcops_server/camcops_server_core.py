@@ -65,22 +65,11 @@ from wsgiref.simple_server import make_server  # nopep8
 
 from cardinal_pythonlib.classes import gen_all_subclasses  # nopep8
 from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
-from cardinal_pythonlib.wsgi.constants import (
-    TYPE_WSGI_APP,
-    TYPE_WSGI_APP_RESULT,
-    TYPE_WSGI_ENVIRON,
-    TYPE_WSGI_EXC_INFO,
-    TYPE_WSGI_RESPONSE_HEADERS,
-    TYPE_WSGI_START_RESPONSE,
-    TYPE_WSGI_START_RESP_RESULT,
-    TYPE_WSGI_STATUS,
-    WsgiEnvVar,
-)  # nopep8
+from cardinal_pythonlib.wsgi.request_logging_mw import RequestLoggingMiddleware  # nopep8
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import (
     ReverseProxiedConfig,
     ReverseProxiedMiddleware,
 )  # nopep8
-from pendulum import DateTime as Pendulum  # nopep8
 
 # Import this one early:
 # noinspection PyUnresolvedReferences
@@ -197,124 +186,6 @@ def precache() -> None:
 # =============================================================================
 # WSGI entry point
 # =============================================================================
-
-class RequestLoggingMiddleware(object):
-    """
-    WSGI middleware to log incoming request details (+/- the response status
-    code and timing information).
-
-    .. todo:: move to cardinal_pythonlib
-    """
-    def __init__(self, app: TYPE_WSGI_APP,
-                 logger: logging.Logger = log,
-                 loglevel: int = logging.INFO,
-                 show_request_immediately: bool = True,
-                 show_response: bool = True,
-                 show_timing: bool = True) -> None:
-        """
-        Args:
-            app:
-                The WSGI application to wrap
-            logger:
-                The Python logger to write to
-            loglevel:
-                The log level to use (e.g. ``logging.DEBUG``, ``logging.INFO``)
-            show_request_immediately:
-                Show the request immediately, so it's written to the log before
-                the WSGI app does its processing, and is guaranteed to be
-                visible even if the WSGI app hangs? The only reason to use
-                ``False`` is probably if you intend to show response and/or
-                timing information and you want to minimize the number of lines
-                written to the log; in this case, only a single line is written
-                to the log (after the wrapped WSGI app has finished
-                processing).
-            show_response:
-                Show the HTTP response code?
-            show_timing:
-                Show the time that the wrapped WSGI app took?
-        """
-        self.app = app
-        self.logger = logger
-        self.loglevel = loglevel
-        self.show_response = show_response
-        self.show_request_immediately = show_request_immediately
-        self.show_timing = show_timing
-        self.two_parts = show_request_immediately and (
-                show_response or show_timing)
-
-    def log(self, msg) -> None:
-        """
-        Writes a message to the chosen log.
-        """
-        self.logger.log(self.loglevel, msg)
-
-    def __call__(self,
-                 environ: TYPE_WSGI_ENVIRON,
-                 start_response: TYPE_WSGI_START_RESPONSE) \
-            -> TYPE_WSGI_APP_RESULT:
-        query_string = environ.get(WsgiEnvVar.QUERY_STRING, "")
-        try:
-            # https://stackoverflow.com/questions/7835030/obtaining-client-ip-address-from-a-wsgi-app-using-eventlet  # noqa
-            # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For  # noqa
-            forwarded_for = (
-                f" [forwarded for {environ[WsgiEnvVar.HTTP_X_FORWARDED_FOR]}]"
-            )
-        except KeyError:
-            forwarded_for = ""
-        request_details = (
-            f'{environ.get(WsgiEnvVar.REMOTE_ADDR, "")}{forwarded_for}: '
-            f'"{environ.get(WsgiEnvVar.REQUEST_METHOD, "")} '
-            f'{environ.get(WsgiEnvVar.PATH_INFO, "")}'
-            f'{"?" if query_string else ""}'
-            f'{query_string} '
-            f'{environ.get(WsgiEnvVar.SERVER_PROTOCOL, "")}"'
-        )
-        # ... might be clearer with str.format() but speed is critical here
-        msg_parts = []  # type: List[str]
-        if self.show_request_immediately:
-            msg_parts.append("Request from")
-            msg_parts.append(request_details)
-            self.log(" ".join(msg_parts))
-            msg_parts.clear()
-        captured_status = None  # type: int
-
-        def custom_start_response(status: TYPE_WSGI_STATUS,
-                                  headers: TYPE_WSGI_RESPONSE_HEADERS,
-                                  exc_info: TYPE_WSGI_EXC_INFO = None) \
-                -> TYPE_WSGI_START_RESP_RESULT:
-            nonlocal captured_status
-            captured_status = status
-            return start_response(status, headers, exc_info)
-
-        # noinspection PyBroadException
-        try:
-            if self.show_timing:
-                t1 = Pendulum.utcnow()
-            result = self.app(environ, custom_start_response)
-            return result
-        except Exception:
-            msg_parts.append("[RAISED EXCEPTION]")
-            raise
-        finally:
-            if self.show_request_immediately:
-                msg_parts.append("Response to")
-            else:
-                msg_parts.append("Request from")
-            msg_parts.append(request_details)
-            if self.show_timing:
-                t2 = Pendulum.utcnow()
-            if self.show_response:
-                if captured_status is not None:
-                    msg_parts.append(f"-> {captured_status}")
-                else:
-                    msg_parts.append("[no response status]")
-            if self.show_timing:
-                # noinspection PyUnboundLocalVariable
-                time_taken_s = (t2 - t1).total_seconds()
-                msg_parts.append(f"[{time_taken_s} s]")
-            if msg_parts:
-                self.log(" ".join(msg_parts))
-
 
 def make_wsgi_app(debug_toolbar: bool = False,
                   reverse_proxied_config: ReverseProxiedConfig = None,

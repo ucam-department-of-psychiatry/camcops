@@ -107,6 +107,7 @@ class DateFormat(object):
     SHORT_DATETIME_WITH_DAY_NO_TZ = "%a %d %b %Y, %H:%M"  # ... e.g. Wed 24 Jul 2013, 20:04  # noqa
     LONG_DATETIME_SECONDS = "%d %B %Y, %H:%M:%S %z"
     SHORT_DATETIME = "%d %b %Y, %H:%M %z"
+    SHORT_DATETIME_NO_TZ = "%d %b %Y, %H:%M"
     SHORT_DATETIME_SECONDS = "%d %b %Y, %H:%M:%S %z"
     HOURS_MINUTES = "%H:%M"
     ISO8601 = "%Y-%m-%dT%H:%M:%S%z"  # e.g. 2013-07-24T20:04:07+0100

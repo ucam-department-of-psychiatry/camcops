@@ -35,6 +35,7 @@ from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
+from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from pendulum import DateTime as Pendulum
 from pyramid.interfaces import ISession
 from sqlalchemy.orm import relationship, Session as SqlASession
@@ -326,6 +327,15 @@ class CamcopsSession(Base):
         dbsession.query(cls)\
             .filter(cls.last_activity_utc < oldest_last_activity_allowed)\
             .delete(synchronize_session=False)
+
+    @classmethod
+    def n_sessions_active_since(cls, req: "CamcopsRequest",
+                                when: Pendulum) -> int:
+        q = (
+            CountStarSpecializedQuery(cls, session=req.dbsession)
+            .filter(cls.last_activity_utc >= when)
+        )
+        return q.count_star()
 
     def __init__(self,
                  ip_addr: str = None,

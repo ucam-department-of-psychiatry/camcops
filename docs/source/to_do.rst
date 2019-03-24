@@ -149,10 +149,10 @@ Client core
   5.12.0 beta 1, so may be possible to improve dialogue boxes again on Android
   (but possibly our workaround sorted it; can't remember); check.
 
-**May not be worth it**
+**Not worth it**
 
-- Client-side task index, to speed up the client's patient summary view? (Not
-  clear that this is a major performance problem!)
+- Client-side task index, to speed up the client's patient summary view. (This
+  is not a performance problem!)
 
 Server
 ------
@@ -178,9 +178,6 @@ Server
 
 - Facility to hide individual sticky notes (with audit trail), so they're not
   shown in HTML (+ PDF) and XML views. See e-mail RNC/JK/RE, 2018-10-12.
-
-- Ensure that the “system user” and “server device” are used everywhere they
-  should be.
 
 - (SERVER + CLIENT) Concept of “tasks that need doing” in the context of a
   research study.
@@ -264,9 +261,6 @@ Server
 - Restore autogeneration of CRIS and CRATE data dictionaries. See
   ``cc_anon.py`` etc.
 
-- Introduce f-strings; requires Python 3.6+. (CPFT CentOS Python version is now
-  3.6; this is the minimum.)
-
 - More generic e-mails to administrators, via backend task. (E-mail framework
   now in place.)
 
@@ -320,6 +314,6 @@ for now.
 Documentation to-do list
 ------------------------
 
-Things to do collected from elsewhere in this documentation.
+Things to do collected from elsewhere in this documentation:
 
 .. todolist::

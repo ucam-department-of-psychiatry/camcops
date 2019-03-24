@@ -6,7 +6,6 @@
 <h1>CamCOPS: information about this database/server</h1>
 
 <h2>Identification (ID) numbers</h2>
-
 <table>
     <tr>
         <th>ID number</th>
@@ -21,6 +20,24 @@
         </tr>
     %endfor
 </table>
+
+<h2>Recent activity</h2>
+<table>
+    <tr>
+        <th>Time-scale</th>
+        <th>Number of active sessions</th>
+    </tr>
+    %for k, v in recent_activity.items():
+        <tr>
+            <td>${k}</td>
+            <td>${v}</td>
+        </tr>
+    %endfor
+</table>
+<p>
+    Sessions time out after ${session_timeout_minutes} minutes; sessions older
+    than this are periodically deleted.
+</p>
 
 <h2>Extra string families present</h2>
 <pre>

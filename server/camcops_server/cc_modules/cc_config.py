@@ -1228,9 +1228,9 @@ class CamcopsConfig(object):
         # currently not configurable, but easy to add in the future:
         self.plot_fontsize = DEFAULT_PLOT_FONTSIZE
 
-        session_timeout_minutes = _get_int(s, cs.SESSION_TIMEOUT_MINUTES, DEFAULT_TIMEOUT_MINUTES)  # noqa
+        self.session_timeout_minutes = _get_int(s, cs.SESSION_TIMEOUT_MINUTES, DEFAULT_TIMEOUT_MINUTES)  # noqa
         self.session_cookie_secret = _get_str(s, cs.SESSION_COOKIE_SECRET)
-        self.session_timeout = datetime.timedelta(minutes=session_timeout_minutes)  # noqa
+        self.session_timeout = datetime.timedelta(minutes=self.session_timeout_minutes)  # noqa
         self.snomed_task_xml_filename = _get_str(s, cs.SNOMED_TASK_XML_FILENAME)  # noqa
         self.snomed_icd9_xml_filename = _get_str(s, cs.SNOMED_ICD9_XML_FILENAME)  # noqa
         self.snomed_icd10_xml_filename = _get_str(s, cs.SNOMED_ICD10_XML_FILENAME)  # noqa

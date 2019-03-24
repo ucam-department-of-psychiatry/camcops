@@ -37,6 +37,8 @@ Contributors
 
 - Rudolf Cardinal, 2012–.
 
+  - Everything except as below.
+
 - Joe Kearney, 2018–2019.
 
   - :ref:`CES-D <cesd>`, :ref:`FACT-G <factg>`, :ref:`EQ-5D-5L <eq5d5l>`,
@@ -1585,9 +1587,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_2019:
 
-**Server v2.3.1 and client v2.3.1 (2018-11-27 to 2019-03-19)**
+**Server v2.3.1 and client v2.3.1 (2018-11-27 to 2019-03-24)**
 
-- ``cardinal_pythonlib`` to 1.0.46.
+- ``cardinal_pythonlib`` to 1.0.49.
 
   - Fixes misconversion of previous 24-hour filter times to their morning
     equivalents, in the task filter view. To test, set e.g. a start time of
@@ -1598,6 +1600,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - For ``build_qt.py`` under Windows, implement a directory change via
     Python and not ``tar`` for the "untar" operation.
+
+  - Request-logging middleware.
 
 - Fixed trivial bugs and added clarity about item sequencing.
 
@@ -1958,3 +1962,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ID number fields made mandatory in patient editing questionnaire on the
   client. (Reduces the chance of uploading a blank ID number, which wouldn't
   help anyone.)
+
+- f-strings
+
+- Server released to CPFT on 2019-03-24.

@@ -648,7 +648,7 @@ For versions, see:
 If you run this without a keystore, it produces a debug build (e.g.
 ``QtApp-debug.apk``). If you run it with a keystore/signature, it produces
 ``android-build-release-signed.apk`` (formerly ``QtApp-release-signed.apk``).
-The APK name is fixed at this point
+The APK filename is fixed at this point
 (https://forum.qt.io/topic/43329/qt-5-3-1-qtcreator-rename-qtapp-debug-apk-to-myapp).
 We can rename the APK if we want, or just upload to Google Play, distribute,
 etc.
@@ -691,7 +691,7 @@ Google Play Store settings
 
 - Developer URL is https://play.google.com/apps/publish
   :menuselection:`--> pick your application
-  --> e.g. Release management / App releases`
+  --> e.g. Release management --> App releases`
 
 - App category: "Utility/other".
 
@@ -711,8 +711,8 @@ Google Play Store settings
   The Google Developer site will check the version codes.
   Failed uploads can sometimes block that version number.
 
-- You upload a new version with :menuselection:`App releases --> Create
-  Release`.
+- You upload a new version with :menuselection:`Release management --> App
+  releases --> Create Release`.
 
 - Note also that if you try to install the .apk directly to a device that's
   had an installation from Google Play Store, you'll get the error
@@ -748,9 +748,7 @@ Google Play Store release history
 | 2.2.8 to      | N/A, internal only  | N/A, internal only  | N/A, internal only | 23      | 26      |
 | 2.3.0         |                     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.3.1         | 9                   | 2.3.1               | pending            | 23      | 26      |
-|               |                     |                     | due 2019-03-19     |         |         |
-|               |                     |                     |                    |         |         |
+| 2.3.1         | 9                   | 2.3.1               | 2019-03-24         | 23      | 26      |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 
 Windows client packaging

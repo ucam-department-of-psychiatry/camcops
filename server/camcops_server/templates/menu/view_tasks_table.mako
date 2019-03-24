@@ -63,8 +63,7 @@ OFFER_PDF_ANON_VERSION = False
                     %if patient:
                         <b>${ patient.get_surname_forename_upper() }</b>
                         (${ patient.get_sex_verbose() },
-                        ${ format_datetime(patient.dob, DateFormat.SHORT_DATE, default="?") },
-                        aged ${ patient.get_age(req=req, default="?") })
+                        ${ format_datetime(patient.dob, DateFormat.SHORT_DATE, default="?") })
                     %else:
                         ?
                     %endif
@@ -115,7 +114,7 @@ OFFER_PDF_ANON_VERSION = False
                     class="live_on_tablet"
                 %endif
                 >
-                ${ format_datetime(when_created, DateFormat.SHORT_DATETIME) }
+                ${ format_datetime(when_created, DateFormat.SHORT_DATETIME_NO_TZ) }
             </td>
             ## ------------------------------------------------------------
             ## Hyperlink to HTML
