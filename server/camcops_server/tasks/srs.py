@@ -108,16 +108,17 @@ class Srs(TaskHasPatientMixin, Task):
             question = field.split("_")[1].capitalize()
             q_a += tr_qa(question, getattr(self, field))
 
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {tr_session_number}
+                    {self.get_is_complete_tr(req)}
+                    {tr_qa("Session number", self.q_session)}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                Scores represent a selection on a scale from {vas_min} to
-                {vas_max} ({vas_max} better). Scores indicate the patient’s
+                Scores represent a selection on a scale from 
+                {self.VAS_MIN_INT} to {self.VAS_MAX_INT} 
+                ({self.VAS_MAX_INT} better). Scores indicate the patient’s
                 feelings about different aspects of the day’s therapy session.
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -129,12 +130,4 @@ class Srs(TaskHasPatientMixin, Task):
             </table>
             <div class="{CssClass.FOOTNOTES}">
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            tr_session_number=tr_qa("Session number", self.q_session),
-            vas_min=self.VAS_MIN_INT,
-            vas_max=self.VAS_MAX_INT,
-            q_a=q_a
-        )
-        return h
+        """

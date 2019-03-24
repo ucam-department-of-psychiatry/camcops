@@ -101,15 +101,16 @@ class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
             SummaryElement(
                 name="total_score", coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/ {})".format(self.MAX_TOTAL)
+                comment=f"Total score (/ {self.MAX_TOTAL})"
             ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content="ZBI-12 total score {}/{}".format(
-            self.total_score(), self.MAX_TOTAL))]
+        return [CtvInfo(
+            content=f"ZBI-12 total score {self.total_score()}/{self.MAX_TOTAL}"
+        )]
 
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
@@ -125,32 +126,26 @@ class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
         option_dict = {None: None}
         for a in range(self.MIN_PER_Q, self.MAX_PER_Q + 1):
             option_dict[a] = req.wappstring("zbi_a" + str(a))
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
-                        <td>Total score (/ {maxtotal})</td>
-                        <td>{total}</td>
+                        <td>Total score (/ {self.MAX_TOTAL})</td>
+                        <td>{answer(self.total_score())}</td>
                     </td>
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="75%">Question</th>
-                    <th width="25%">Answer ({minq}–{maxq})</th>
+                    <th width="25%">Answer ({self.MIN_PER_Q}–{self.MAX_PER_Q})
+                    </th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            total=answer(self.total_score()),
-            maxtotal=self.MAX_TOTAL,
-            minq=self.MIN_PER_Q,
-            maxq=self.MAX_PER_Q,
-        )
+        """
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))
-            fa = ("{}: {}".format(a, get_from_dict(option_dict, a))
+            fa = (f"{a}: {get_from_dict(option_dict, a)}"
                   if a is not None else None)
             h += tr(self.wxstring(req, "q" + str(q)), answer(fa))
         h += """

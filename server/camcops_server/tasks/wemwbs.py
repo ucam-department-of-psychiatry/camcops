@@ -108,8 +108,7 @@ class Wemwbs(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="WEMWBS total score (rating mental well-being)",
-            axis_label="Total score ({}-{})".format(
-                self.MINTOTALSCORE, self.MAXTOTALSCORE),
+            axis_label=f"Total score ({self.MINTOTALSCORE}-{self.MAXTOTALSCORE})",  # noqa
             axis_min=self.MINTOTALSCORE - 0.5,
             axis_max=self.MAXTOTALSCORE + 0.5
         )]
@@ -118,21 +117,18 @@ class Wemwbs(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="WEMWBS total score {} (range {}–{})".format(
-                self.total_score(),
-                self.MINTOTALSCORE,
-                self.MAXTOTALSCORE)
+            content=f"WEMWBS total score {self.total_score()} "
+                    f"(range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (range {}-{})".format(
-                               self.MINTOTALSCORE,
-                               self.MAXTOTALSCORE
-                           )),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment=f"Total score (range "
+                        f"{self.MINTOTALSCORE}-{self.MAXTOTALSCORE})"),
         ]
 
     def total_score(self) -> int:
@@ -180,10 +176,8 @@ class Wemwbs(TaskHasPatientMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             tr_total_score=tr(
                 req.wappstring("total_score"),
-                answer(self.total_score()) + " (range {}–{})".format(
-                    self.MINTOTALSCORE,
-                    self.MAXTOTALSCORE
-                )
+                answer(self.total_score()) +
+                f" (range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
             ),
             css_explanation=CssClass.EXPLANATION,
             css_taskdetail=CssClass.TASKDETAIL,
@@ -265,8 +259,7 @@ class Swemwbs(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="SWEMWBS total score (rating mental well-being)",
-            axis_label="Total score ({}-{})".format(
-                self.MINTOTALSCORE, self.MAXTOTALSCORE),
+            axis_label=f"Total score ({self.MINTOTALSCORE}-{self.MAXTOTALSCORE})",  # noqa
             axis_min=self.MINTOTALSCORE - 0.5,
             axis_max=self.MAXTOTALSCORE + 0.5
         )]
@@ -275,21 +268,18 @@ class Swemwbs(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="SWEMWBS total score {} (range {}–{})".format(
-                self.total_score(),
-                self.MINTOTALSCORE,
-                self.MAXTOTALSCORE)
+            content=f"SWEMWBS total score {self.total_score()} "
+                    f"(range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (range {}-{})".format(
-                               self.MINTOTALSCORE,
-                               self.MAXTOTALSCORE
-                           )),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment=f"Total score (range "
+                        f"{self.MINTOTALSCORE}-{self.MAXTOTALSCORE})"),
         ]
 
     def total_score(self) -> int:
@@ -339,10 +329,8 @@ class Swemwbs(TaskHasPatientMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.wappstring("total_score"),
-                answer(self.total_score()) + " (range {}–{})".format(
-                    self.MINTOTALSCORE,
-                    self.MAXTOTALSCORE
-                )
+                answer(self.total_score()) +
+                f" (range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
             ),
             q_a=q_a,
         )

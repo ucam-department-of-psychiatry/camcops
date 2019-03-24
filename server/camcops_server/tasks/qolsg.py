@@ -141,8 +141,7 @@ class QolSG(TaskHasPatientMixin, Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="Quality of life: {}".format(
-                ws.number_to_dp(self.utility, DP))
+            content=f"Quality of life: {ws.number_to_dp(self.utility, DP)}"
         )]
 
     def is_complete(self) -> bool:
@@ -152,11 +151,12 @@ class QolSG(TaskHasPatientMixin, Task):
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {utility}
+                    {self.get_is_complete_tr(req)}
+                    {tr_qa("Utility",
+                           ws.number_to_dp(self.utility, DP, default=None))}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
@@ -167,12 +167,7 @@ class QolSG(TaskHasPatientMixin, Task):
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            utility=tr_qa("Utility",
-                          ws.number_to_dp(self.utility, DP, default=None)),
-        )
+        """
         h += tr_qa("Category choice: start time", self.category_start_time)
         h += tr_qa("Category choice: responded?",
                    get_yes_no_none(req, self.category_responded))

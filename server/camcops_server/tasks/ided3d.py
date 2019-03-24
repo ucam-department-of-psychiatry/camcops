@@ -152,7 +152,7 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
 
     @classmethod
     def get_html_table_header(cls) -> str:
-        return """
+        return f"""
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
                     <th>Trial#</th>
@@ -172,7 +172,7 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
                     <th>Correct?</th>
                     <th>Incorrect?</th>
                 </tr>
-        """.format(CssClass=CssClass)
+        """
 
     def get_html_table_row(self) -> str:
         return tr(
@@ -287,7 +287,7 @@ class IDED3DStage(GenericTabletRecordMixin, Base):
 
     @classmethod
     def get_html_table_header(cls) -> str:
-        return """
+        return f"""
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
                     <th>Stage#</th>
@@ -308,7 +308,7 @@ class IDED3DStage(GenericTabletRecordMixin, Base):
                     <th>Passed?</th>
                     <th>Failed?</th>
                 </tr>
-        """.format(CssClass=CssClass)
+        """
 
     def get_html_table_row(self) -> str:
         return tr(
@@ -456,10 +456,10 @@ class IDED3D(TaskHasPatientMixin, Task):
         return html
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
@@ -473,10 +473,7 @@ class IDED3D(TaskHasPatientMixin, Task):
                     <th width="50%">Configuration variable</th>
                     <th width="50%">Value</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-        )
+        """
         h += tr_qa(self.wxstring(req, "last_stage"), self.last_stage)
         h += tr_qa(self.wxstring(req, "max_trials_per_stage"),
                    self.max_trials_per_stage)
@@ -499,11 +496,11 @@ class IDED3D(TaskHasPatientMixin, Task):
         h += tr_qa("Shapes (as a JSON-encoded array of SVG "
                    "definitions; X and Y range both –60 to +60)",
                    ws.webify(self.shape_definitions_svg))
-        h += """
+        h += f"""
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
-        """.format(CssClass=CssClass)
+        """
         h += tr_qa("Aborted?", get_yes_no_none(req, self.aborted))
         h += tr_qa("Finished?", get_yes_no_none(req, self.finished))
         h += tr_qa("Last trial completed", self.last_trial_completed)
@@ -515,7 +512,7 @@ class IDED3D(TaskHasPatientMixin, Task):
             self.get_stage_html() +
             "<div>Trial-by-trial results:</div>" +
             self.get_trial_html() +
-            """
+            f"""
                 <div class="{CssClass.FOOTNOTES}">
                     [1] Counterbalancing of dimensions is as follows, with
                     notation X/Y indicating that X is the first relevant
@@ -528,6 +525,6 @@ class IDED3D(TaskHasPatientMixin, Task):
                     4: colour/shape.
                     5: number/colour.
                 </div>
-            """.format(CssClass=CssClass)
+            """
         )
         return h

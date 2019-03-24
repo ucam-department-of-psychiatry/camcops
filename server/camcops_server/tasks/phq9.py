@@ -119,8 +119,7 @@ class Phq9(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PHQ-9 total score (rating depressive symptoms)",
-            axis_label="Score for Q1-9 (out of {})".format(
-                self.MAX_SCORE_MAIN),
+            axis_label=f"Score for Q1-9 (out of {self.MAX_SCORE_MAIN})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE_MAIN + 0.5,
             axis_ticks=[
@@ -150,17 +149,17 @@ class Phq9(TaskHasPatientMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="PHQ-9 total score {}/{} ({})".format(
-                self.total_score(), self.MAX_SCORE_MAIN, self.severity(req))
-        )]
+        return [CtvInfo(content=(
+            f"PHQ-9 total score {self.total_score()}/{self.MAX_SCORE_MAIN} "
+            f"({self.severity(req)})"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="total", coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/{})".format(self.MAX_SCORE_MAIN)),
+                comment=f"Total score (/{self.MAX_SCORE_MAIN})"),
             SummaryElement(
                 name="n_core", coltype=Integer(),
                 value=self.n_core(),
@@ -291,8 +290,7 @@ class Phq9(TaskHasPatientMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.wappstring("total_score") + " <sup>[1]</sup>",
-                answer(self.total_score()) +
-                " / {}".format(self.MAX_SCORE_MAIN)
+                answer(self.total_score()) + f" / {self.MAX_SCORE_MAIN}"
             ),
             depression_severity=tr_qa(
                 self.wxstring(req, "depression_severity") + " <sup>[2]</sup>",

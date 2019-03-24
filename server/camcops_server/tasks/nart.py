@@ -125,7 +125,7 @@ class NartMetaclass(DeclarativeMeta):
                 CamcopsColumn(
                     w, Boolean,
                     permitted_value_checker=BIT_CHECKER,
-                    comment="Pronounced {} correctly (0 no, 1 yes)".format(w)
+                    comment=f"Pronounced {w} correctly (0 no, 1 yes)"
                 )
             )
         super().__init__(name, bases, classdict)

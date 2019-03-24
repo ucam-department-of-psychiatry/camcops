@@ -128,31 +128,28 @@ class Iesr(TaskHasPatientMixin, Task,
             TrackerInfo(
                 value=self.total_score(),
                 plot_label="IES-R total score (lower is better)",
-                axis_label="Total score (out of {})".format(self.MAX_TOTAL),
+                axis_label=f"Total score (out of {self.MAX_TOTAL})",
                 axis_min=-0.5,
                 axis_max=self.MAX_TOTAL + 0.5
             ),
             TrackerInfo(
                 value=self.avoidance_score(),
                 plot_label="IES-R avoidance score",
-                axis_label="Avoidance score (out of {})".format(
-                    self.MAX_AVOIDANCE),
+                axis_label=f"Avoidance score (out of {self.MAX_AVOIDANCE})",
                 axis_min=-0.5,
                 axis_max=self.MAX_AVOIDANCE + 0.5
             ),
             TrackerInfo(
                 value=self.intrusion_score(),
                 plot_label="IES-R intrusion score",
-                axis_label="Intrusion score (out of {})".format(
-                    self.MAX_INTRUSION),
+                axis_label=f"Intrusion score (out of {self.MAX_INTRUSION})",
                 axis_min=-0.5,
                 axis_max=self.MAX_INTRUSION + 0.5
             ),
             TrackerInfo(
                 value=self.hyperarousal_score(),
                 plot_label="IES-R hyperarousal score",
-                axis_label="Hyperarousal score (out of {})".format(
-                    self.MAX_HYPERAROUSAL),
+                axis_label=f"Hyperarousal score (out of {self.MAX_HYPERAROUSAL})",  # noqa
                 axis_min=-0.5,
                 axis_max=self.MAX_HYPERAROUSAL + 0.5
             ),
@@ -164,23 +161,22 @@ class Iesr(TaskHasPatientMixin, Task,
                 name="total_score",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/ {})".format(self.MAX_TOTAL)),
+                comment=f"Total score (/ {self.MAX_TOTAL})"),
             SummaryElement(
                 name="avoidance_score",
                 coltype=Integer(),
                 value=self.avoidance_score(),
-                comment="Avoidance score (/ {})".format(self.MAX_AVOIDANCE)),
+                comment=f"Avoidance score (/ {self.MAX_AVOIDANCE})"),
             SummaryElement(
                 name="intrusion_score",
                 coltype=Integer(),
                 value=self.intrusion_score(),
-                comment="Intrusion score (/ {})".format(self.MAX_INTRUSION)),
+                comment=f"Intrusion score (/ {self.MAX_INTRUSION})"),
             SummaryElement(
                 name="hyperarousal_score",
                 coltype=Integer(),
                 value=self.hyperarousal_score(),
-                comment="Hyperarousal score (/ {})".format(
-                    self.MAX_HYPERAROUSAL)),
+                comment=f"Hyperarousal score (/ {self.MAX_HYPERAROUSAL})"),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -192,14 +188,10 @@ class Iesr(TaskHasPatientMixin, Task,
         h = self.hyperarousal_score()
         return [CtvInfo(
             content=(
-                "IES-R total score {t}/{tmax} (avoidance {a}/{amax} "
-                "intrusion {i}/{imax}, hyperarousal {h}/{hmax})".format(
-                    t=t, a=a, i=i, h=h,
-                    tmax=self.MAX_TOTAL,
-                    amax=self.MAX_AVOIDANCE,
-                    imax=self.MAX_INTRUSION,
-                    hmax=self.MAX_HYPERAROUSAL,
-                )
+                f"IES-R total score {t}/{self.MAX_TOTAL} "
+                f"(avoidance {a}/{self.MAX_AVOIDANCE} "
+                f"intrusion {i}/{self.MAX_INTRUSION}, "
+                f"hyperarousal {h}/{self.MAX_HYPERAROUSAL})"
             )
         )]
 
@@ -226,52 +218,40 @@ class Iesr(TaskHasPatientMixin, Task,
         option_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
             option_dict[a] = req.wappstring("iesr_a" + str(a))
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
                         <td>Total score</td>
-                        <td>{total} / {maxtotal}</td>
+                        <td>{answer(self.total_score())} / {self.MAX_TOTAL}</td>
                     </td>
                     <tr>
                         <td>Avoidance score</td>
-                        <td>{avoidance} / {maxavoidance}</td>
+                        <td>{answer(self.avoidance_score())} / {self.MAX_AVOIDANCE}</td>
                     </td>
                     <tr>
                         <td>Intrusion score</td>
-                        <td>{intrusion} / {maxintrusion}</td>
+                        <td>{answer(self.intrusion_score())} / {self.MAX_INTRUSION}</td>
                     </td>
                     <tr>
                         <td>Hyperarousal score</td>
-                        <td>{hyperarousal} / {maxhyperarousal}</td>
+                        <td>{answer(self.hyperarousal_score())} / {self.MAX_HYPERAROUSAL}</td>
                     </td>
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
-                {tr_event}
+                {tr_qa(req.wappstring("event"), self.event)}
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="75%">Question</th>
                     <th width="25%">Answer (0–4)</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            total=answer(self.total_score()),
-            maxtotal=self.MAX_TOTAL,
-            avoidance=answer(self.avoidance_score()),
-            maxavoidance=self.MAX_AVOIDANCE,
-            intrusion=answer(self.intrusion_score()),
-            maxintrusion=self.MAX_INTRUSION,
-            hyperarousal=answer(self.hyperarousal_score()),
-            maxhyperarousal=self.MAX_HYPERAROUSAL,
-            tr_event=tr_qa(req.wappstring("event"), self.event),
-        )
+        """  # noqa
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))
-            fa = ("{}: {}".format(a, get_from_dict(option_dict, a))
+            fa = (f"{a}: {get_from_dict(option_dict, a)}"
                   if a is not None else None)
             h += tr(self.wxstring(req, "q" + str(q)), answer(fa))
         h += """

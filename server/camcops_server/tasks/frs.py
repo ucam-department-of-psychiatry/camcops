@@ -198,16 +198,15 @@ class FrsMetaclass(DeclarativeMeta):
                  classdict: Dict[str, Any]) -> None:
         for n in range(1, NQUESTIONS + 1):
             pv = [NEVER, ALWAYS]
-            pc = ["{} = never".format(NEVER), "{} = always".format(ALWAYS)]
+            pc = [f"{NEVER} = never", f"{ALWAYS} = always"]
             if n not in NO_SOMETIMES_QUESTIONS:
                 pv.append(SOMETIMES)
-                pc.append("{} = sometimes".format(SOMETIMES))
+                pc.append(f"{SOMETIMES} = sometimes")
             if n in NA_QUESTIONS:
                 pv.append(NA)
-                pc.append("{} = N/A".format(NA))
-            comment = "Q{}, {} ({})".format(n, QUESTION_SNIPPETS[n - 1],
-                                            ", ".join(pc))
-            colname = "q" + str(n)
+                pc.append(f"{NA} = N/A")
+            comment = f"Q{n}, {QUESTION_SNIPPETS[n - 1]} ({', '.join(pc)})"
+            colname = f"q{n}"
             setattr(
                 cls,
                 colname,
@@ -332,29 +331,29 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
             qtext = self.wxstring(req, "q" + str(q) + "_q")
             atext = self.get_answer(req, q)
             q_a += tr_qa(qtext, atext)
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
                         <td>Total (0–n, higher better) <sup>1</sup></td>
-                        <td>{total}</td>
+                        <td>{scoredict['total']}</td>
                     </td>
                     <tr>
                         <td>n (applicable questions)</td>
-                        <td>{n}</td>
+                        <td>{scoredict['n']}</td>
                     </td>
                     <tr>
                         <td>Score (total / n; 0–1)</td>
-                        <td>{score}</td>
+                        <td>{ws.number_to_dp(scoredict['score'], DP)}</td>
                     </td>
                     <tr>
                         <td>logit score <sup>2</sup></td>
-                        <td>{logit}</td>
+                        <td>{ws.number_to_dp(scoredict['logit'], DP)}</td>
                     </td>
                     <tr>
                         <td>Severity <sup>3</sup></td>
-                        <td>{severity}</td>
+                        <td>{scoredict['severity']}</td>
                     </td>
                 </table>
             </div>
@@ -388,14 +387,4 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
                 <i>Very severe:</i> –4.99 ≤ <i>x</i> &lt; –2.58.
                 <i>Profound:</i> <i>x</i> &lt; –4.99.
             </div>
-        """.format(  # noqa
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            total=scoredict['total'],
-            n=scoredict['n'],
-            score=ws.number_to_dp(scoredict['score'], DP),
-            logit=ws.number_to_dp(scoredict['logit'], DP),
-            severity=scoredict['severity'],
-            q_a=q_a,
-        )
-        return h
+        """  # noqa

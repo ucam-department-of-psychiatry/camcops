@@ -94,7 +94,7 @@ class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="HAM-A total score",
-            axis_label="Total score (out of {})".format(self.MAX_SCORE),
+            axis_label=f"Total score (out of {self.MAX_SCORE})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=[30.5, 24.5, 17.5],
@@ -109,17 +109,17 @@ class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="HAM-A total score {}/{} ({})".format(
-                self.total_score(), self.MAX_SCORE, self.severity(req))
-        )]
+        return [CtvInfo(content=(
+            f"HAM-A total score {self.total_score()}/{self.MAX_SCORE} "
+            f"({self.severity(req)})"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(self.MAX_SCORE)),
+                           comment=f"Total score (/{self.MAX_SCORE})"),
             SummaryElement(name="severity",
                            coltype=SummaryCategoryColType,
                            value=self.severity(req),
@@ -163,7 +163,7 @@ class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 self.wxstring(req, "q" + str(q) + "_question"),
                 get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
-        h = """
+        return """
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
@@ -195,4 +195,3 @@ class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             ),
             q_a=q_a,
         )
-        return h

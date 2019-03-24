@@ -105,8 +105,8 @@ class Wsas(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="WSAS total score (lower is better)",
-            axis_label="Total score (out of {}–{})".format(
-                self.MAX_IF_RETIRED, self.MAX_IF_WORKING),
+            axis_label=f"Total score (out of "
+                       f"{self.MAX_IF_RETIRED}–{self.MAX_IF_WORKING})",
             axis_min=-0.5,
             axis_max=self.MAX_IF_WORKING + 0.5
         )]
@@ -117,14 +117,14 @@ class Wsas(TaskHasPatientMixin, Task,
                 name="total_score",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/ {})".format(self.max_score())),
+                comment=f"Total score (/ {self.max_score()})"),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content="WSAS total score {t}/{m}".format(
-            t=self.total_score(), m=self.max_score())
+        return [CtvInfo(
+            content=f"WSAS total score {self.total_score()}/{self.max_score()}"
         )]
 
     def total_score(self) -> int:
@@ -150,13 +150,13 @@ class Wsas(TaskHasPatientMixin, Task,
             a = getattr(self, "q" + str(q))
             fa = get_from_dict(option_dict, a) if a is not None else None
             q_a += tr(self.wxstring(req, "q" + str(q)), answer(fa))
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
                         <td>Total score</td>
-                        <td>{total} / 40</td>
+                        <td>{answer(self.total_score())} / 40</td>
                     </td>
                 </table>
             </div>
@@ -165,7 +165,8 @@ class Wsas(TaskHasPatientMixin, Task,
                     <th width="75%">Question</th>
                     <th width="25%">Answer</th>
                 </tr>
-                {retired_row}
+                {tr_qa(self.wxstring(req, "q_retired_etc"),
+                       get_true_false(req, self.retired_etc))}
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
@@ -175,16 +176,7 @@ class Wsas(TaskHasPatientMixin, Task,
                 {q_a}
             </table>
             {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
-        """.format(
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            total=answer(self.total_score()),
-            retired_row=tr_qa(self.wxstring(req, "q_retired_etc"),
-                              get_true_false(req, self.retired_etc)),
-            q_a=q_a,
-            DATA_COLLECTION_UNLESS_UPGRADED_DIV=DATA_COLLECTION_UNLESS_UPGRADED_DIV,  # noqa
-        )
-        return h
+        """
 
     # noinspection PyUnresolvedReferences
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:

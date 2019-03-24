@@ -97,14 +97,9 @@ class PerinatalPoem(Task):
     VAL_Q1_VERY_UNWELL = 4
     VAL_Q1_EXTREMELY_UNWELL = 5
     _MH_KEY = (
-        "({vw} very well, {we} well, {un} unwell, "
-        "{vu} very unwell, {eu} extremely unwell)".format(
-            vw=VAL_Q1_VERY_WELL,
-            we=VAL_Q1_WELL,
-            un=VAL_Q1_UNWELL,
-            vu=VAL_Q1_VERY_UNWELL,
-            eu=VAL_Q1_EXTREMELY_UNWELL
-        )
+        f"({VAL_Q1_VERY_WELL} very well, {VAL_Q1_WELL} well, "
+        f"{VAL_Q1_UNWELL} unwell, {VAL_Q1_VERY_UNWELL} very unwell, "
+        f"{VAL_Q1_EXTREMELY_UNWELL} extremely unwell)"
     )
 
     VAL_STRONGLY_AGREE = 1
@@ -112,13 +107,8 @@ class PerinatalPoem(Task):
     VAL_DISAGREE = 3
     VAL_STRONGLY_DISAGREE = 4
     _AGREE_KEY = (
-        "({sa} strongly agree, {ag} agree, "
-        "{di} disagree, {sd} strongly disagree)".format(
-            sa=VAL_STRONGLY_AGREE,
-            ag=VAL_AGREE,
-            di=VAL_DISAGREE,
-            sd=VAL_STRONGLY_DISAGREE,
-        )
+        f"({VAL_STRONGLY_AGREE} strongly agree, {VAL_AGREE} agree, "
+        f"{VAL_DISAGREE} disagree, {VAL_STRONGLY_DISAGREE} strongly disagree)"
     )
 
     _INPATIENT_ONLY = "[Inpatient services only]"
@@ -132,113 +122,106 @@ class PerinatalPoem(Task):
     qa = Column(
         FN_QA_RESPONDENT, Integer,
         comment=(
-            "Question A: Is the respondent the patient ({p}) or "
-            "other ({o})?".format(p=VAL_QA_PATIENT, o=VAL_QA_PARTNER_OTHER)
+            f"Question A: Is the respondent the patient ({VAL_QA_PATIENT}) "
+            f"or other ({VAL_QA_PARTNER_OTHER})?"
         )
     )
     qb = Column(
         FN_QB_SERVICE_TYPE, Integer,
         comment=(
-            "Question B: Was the service type inpatient [mother-and-baby "
-            "unit, MBU] ({i}) or community ({c})?".format(
-                i=VAL_QB_INPATIENT,
-                c=VAL_QB_COMMUNITY,
-            )
+            f"Question B: Was the service type inpatient [mother-and-baby "
+            f"unit, MBU] ({VAL_QB_INPATIENT}) or "
+            f"community ({VAL_QB_COMMUNITY})?"
         )
     )
 
     q1a = Column(
         FN_Q1A_MH_FIRST_CONTACT, Integer,
-        comment="Q1A: mental health at first contact {}".format(_MH_KEY)
+        comment=f"Q1A: mental health at first contact {_MH_KEY}"
     )
     q1b = Column(
         FN_Q1B_MH_DISCHARGE, Integer,
-        comment="Q1B: mental health at discharge {}".format(_MH_KEY)
+        comment=f"Q1B: mental health at discharge {_MH_KEY}"
     )
 
     q2a = Column(
         FN_Q2A_STAFF_DID_NOT_COMMUNICATE, Integer,
-        comment="Q2a: staff didn't communicate with others "
-                "{}".format(_AGREE_KEY)
+        comment=f"Q2a: staff didn't communicate with others {_AGREE_KEY}"
     )
     q2b = Column(
         FN_Q2B_STAFF_GAVE_RIGHT_SUPPORT, Integer,
-        comment="Q2b: Staff gave right amount of support "
-                "{}".format(_AGREE_KEY)
+        comment=f"Q2b: Staff gave right amount of support {_AGREE_KEY}"
     )
     q2c = Column(
         FN_Q2C_HELP_NOT_QUICK_ENOUGH, Integer,
-        comment="Q2c: Help not quick enough after referral "
-                "{}".format(_AGREE_KEY)
+        comment=f"Q2c: Help not quick enough after referral {_AGREE_KEY}"
     )
     q2d = Column(
         FN_Q2D_STAFF_LISTENED, Integer,
-        comment="Q2d: Staff listened/understood {}".format(_AGREE_KEY)
+        comment=f"Q2d: Staff listened/understood {_AGREE_KEY}"
     )
 
     q2e = Column(
         FN_Q2E_STAFF_DID_NOT_INVOLVE_ME, Integer,
-        comment="Q2e: Staff didn't involve pt enough {}".format(_AGREE_KEY)
+        comment=f"Q2e: Staff didn't involve pt enough {_AGREE_KEY}"
     )
     q2f = Column(
         FN_Q2F_SERVICE_PROVIDED_INFO, Integer,
-        comment="Q2f: Service provided information {}".format(_AGREE_KEY)
+        comment=f"Q2f: Service provided information {_AGREE_KEY}"
     )
     q2g = Column(
         FN_Q2G_STAFF_NOT_SENSITIVE_TO_ME, Integer,
-        comment="Q2g: Staff not very sensitive to pt {}".format(_AGREE_KEY)
+        comment=f"Q2g: Staff not very sensitive to pt {_AGREE_KEY}"
     )
     q2h = Column(
         FN_Q2H_STAFF_HELPED_ME_UNDERSTAND, Integer,
-        comment="Q2h: Staff helped understanding of illness "
-                "{}".format(_AGREE_KEY)
+        comment=f"Q2h: Staff helped understanding of illness {_AGREE_KEY}"
     )
 
     q2i = Column(
         FN_Q2I_STAFF_NOT_SENSITIVE_TO_BABY, Integer,
-        comment="Q2i: Staff not very sensitive to baby {}".format(_AGREE_KEY)
+        comment=f"Q2i: Staff not very sensitive to baby {_AGREE_KEY}"
     )
     q2j = Column(
         FN_Q2J_STAFF_HELPED_MY_CONFIDENCE, Integer,
-        comment="Q2j: Staff helped confidence re baby {}".format(_AGREE_KEY)
+        comment=f"Q2j: Staff helped confidence re baby {_AGREE_KEY}"
     )
     q2k = Column(
         FN_Q2K_SERVICE_INVOLVED_OTHERS_HELPFULLY, Integer,
-        comment="Q2k: Service involved others helpfully {}".format(_AGREE_KEY)
+        comment=f"Q2k: Service involved others helpfully {_AGREE_KEY}"
     )
     q2l = Column(
         FN_Q2L_I_WOULD_RECOMMEND_SERVICE, Integer,
-        comment="Q2l: Would recommend service {}".format(_AGREE_KEY)
+        comment=f"Q2l: Would recommend service {_AGREE_KEY}"
     )
 
     q3a = Column(
         FN_Q3A_UNIT_CLEAN, Integer,
-        comment="Q3a: MBU clean {} {}".format(_AGREE_KEY, _INPATIENT_ONLY)
+        comment=f"Q3a: MBU clean {_AGREE_KEY} {_INPATIENT_ONLY}"
     )
     q3b = Column(
         FN_Q3B_UNIT_NOT_GOOD_PLACE_TO_RECOVER, Integer,
-        comment="Q3b: MBU not a good place to recover "
-                "{} {}".format(_AGREE_KEY, _INPATIENT_ONLY)
+        comment=f"Q3b: MBU not a good place to recover "
+                f"{_AGREE_KEY} {_INPATIENT_ONLY}"
     )
     q3c = Column(
         FN_Q3C_UNIT_DID_NOT_PROVIDE_ACTIVITIES, Integer,
-        comment="Q3c: MBU did not provide helpful activities "
-                "{} {}".format(_AGREE_KEY, _INPATIENT_ONLY)
+        comment=f"Q3c: MBU did not provide helpful activities "
+                f"{_AGREE_KEY} {_INPATIENT_ONLY}"
     )
     q3d = Column(
         FN_Q3D_UNIT_GOOD_PLACE_FOR_BABY, Integer,
-        comment="Q3d: MBU a good place for baby to be with pt "
-                "{} {}".format(_AGREE_KEY, _INPATIENT_ONLY)
+        comment=f"Q3d: MBU a good place for baby to be with pt "
+                f"{_AGREE_KEY} {_INPATIENT_ONLY}"
     )
     q3e = Column(
         FN_Q3E_UNIT_SUPPORTED_FAMILY_FRIENDS_CONTACT, Integer,
-        comment="Q3e: MBU supported contact with family/friends "
-                "{} {}".format(_AGREE_KEY, _INPATIENT_ONLY)
+        comment=f"Q3e: MBU supported contact with family/friends "
+                f"{_AGREE_KEY} {_INPATIENT_ONLY}"
     )
     q3f = Column(
         FN_Q3F_FOOD_NOT_ACCEPTABLE, Integer,
-        comment="Q3f: Food not acceptable "
-                "{} {}".format(_AGREE_KEY, _INPATIENT_ONLY)
+        comment=f"Q3f: Food not acceptable {_AGREE_KEY} {_INPATIENT_ONLY}"
     )
 
     general_comments = Column(
@@ -247,8 +230,8 @@ class PerinatalPoem(Task):
     )
     future_participation = Column(
         FN_FUTURE_PARTICIPATION, Integer,
-        comment="Willing to participate in future studies "
-                "({y} yes, {n} no)".format(y=YES_INT, n=NO_INT)
+        comment=f"Willing to participate in future studies "
+                f"({YES_INT} yes, {NO_INT} no)"
     )
     contact_details = Column(
         FN_CONTACT_DETAILS, UnicodeText,
@@ -330,9 +313,8 @@ class PerinatalPoem(Task):
         def loadvalues(_dict: Dict[int, str], _first: int, _last: int,
                        _xstringprefix: str) -> None:
             for val in range(_first, _last + 1):
-                _dict[val] = "{} — {}".format(
-                    val,
-                    self.wxstring(req, "{}{}".format(_xstringprefix, val))
+                _dict[val] = (
+                    f"{val} — {self.wxstring(req, f'{_xstringprefix}{val}')}"
                 )
 
         respondent_dict = {}  # type: Dict[int, str]
@@ -392,10 +374,11 @@ class PerinatalPoem(Task):
                 self.contact_details
             ))
 
-        h = """
+        q_a = "\n".join(q_a_list)
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -407,11 +390,6 @@ class PerinatalPoem(Task):
             </table>
             <div class="{CssClass.FOOTNOTES}">
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            q_a="\n".join(q_a_list),
-        )
-        return h
+        """
 
     # No SNOMED codes for Perinatal-POEM.

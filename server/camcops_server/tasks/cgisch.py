@@ -26,7 +26,7 @@ camcops_server/tasks/cgisch.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -59,6 +59,9 @@ QUESTION_FRAGMENTS = ["positive", "negative", "depressive", "cognitive",
 
 
 class CgiSchMetaclass(DeclarativeMeta):
+    """
+    Metaclass for :class:`CgiSch`.
+    """
     # noinspection PyInitNewSignature
     def __init__(cls: Type['CgiSch'],
                  name: str,
@@ -149,6 +152,7 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
+        # pylint: disable=unused-argument
         return self.standard_task_summary_fields()
 
     def is_complete(self) -> bool:
@@ -180,7 +184,16 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             7: self.wxstring(req, "ii_option7"),
             9: self.wxstring(req, "ii_option9"),
         }
-        h = f"""
+
+        def tr_severity(xstring_name: str, value: Optional[int]) -> str:
+            return tr_qa(self.wxstring(req, xstring_name),
+                         get_from_dict(severity_dict, value))
+
+        def tr_change(xstring_name: str, value: Optional[int]) -> str:
+            return tr_qa(self.wxstring(req, xstring_name),
+                         get_from_dict(change_dict, value))
+
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
@@ -191,37 +204,26 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <th width="70%">Question</th>
                     <th width="30%">Answer <sup>[1]</sup></th>
                 </tr>
-        """
-        h += subheading_spanning_two_columns(self.wxstring(req, "i_title"))
-        h += tr_span_col(self.wxstring(req, "i_question"), cols=2)
-        h += tr_qa(self.wxstring(req, "q1"),
-                   get_from_dict(severity_dict, self.severity1))
-        h += tr_qa(self.wxstring(req, "q2"),
-                   get_from_dict(severity_dict, self.severity2))
-        h += tr_qa(self.wxstring(req, "q3"),
-                   get_from_dict(severity_dict, self.severity3))
-        h += tr_qa(self.wxstring(req, "q4"),
-                   get_from_dict(severity_dict, self.severity4))
-        h += tr_qa(self.wxstring(req, "q5"),
-                   get_from_dict(severity_dict, self.severity5))
-        h += subheading_spanning_two_columns(self.wxstring(req, "ii_title"))
-        h += tr_span_col(self.wxstring(req, "ii_question"), cols=2)
-        h += tr_qa(self.wxstring(req, "q1"),
-                   get_from_dict(change_dict, self.change1))
-        h += tr_qa(self.wxstring(req, "q2"),
-                   get_from_dict(change_dict, self.change2))
-        h += tr_qa(self.wxstring(req, "q3"),
-                   get_from_dict(change_dict, self.change3))
-        h += tr_qa(self.wxstring(req, "q4"),
-                   get_from_dict(change_dict, self.change4))
-        h += tr_qa(self.wxstring(req, "q5"),
-                   get_from_dict(change_dict, self.change5))
-        h += f"""
+                {subheading_spanning_two_columns(self.wxstring(req, "i_title"))}
+                {tr_span_col(self.wxstring(req, "i_question"), cols=2)}
+                {tr_severity("q1", self.severity1)}
+                {tr_severity("q2", self.severity2)}
+                {tr_severity("q3", self.severity3)}
+                {tr_severity("q4", self.severity4)}
+                {tr_severity("q5", self.severity5)}
+                
+                {subheading_spanning_two_columns(self.wxstring(req, "ii_title"))}
+                {tr_span_col(self.wxstring(req, "ii_question"), cols=2)}
+                {tr_change("q1", self.change1)}
+                {tr_change("q2", self.change2)}
+                {tr_change("q3", self.change3)}
+                {tr_change("q4", self.change4)}
+                {tr_change("q5", self.change5)}
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] All questions are scored 1–7, or 9 (not applicable, for
                 change questions).
                 {self.wxstring(req, "ii_postscript")}
             </div>
-        """
-        return h
+
+        """  # noqa

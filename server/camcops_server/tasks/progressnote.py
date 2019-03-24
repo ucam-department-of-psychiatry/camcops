@@ -67,28 +67,21 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         # Avoid tables - PDF generator crashes if text is too long.
-        h = """
+        return f"""
             <div class="{CssClass.HEADING}">
-                {heading_location}
+                {req.wappstring("location")}
             </div>
             <div>
-                {location}
+                {answer(ws.webify(self.location),
+                        default_for_blank_strings=True)}
             </div>
             <div class="{CssClass.HEADING}">
-                {heading_note}
+                {req.wappstring("note")}
             </div>
             <div>
-                {note}
+                {answer(self.note, default_for_blank_strings=True)}
             </div>
-        """.format(
-            CssClass=CssClass,
-            heading_location=req.wappstring("location"),
-            location=answer(ws.webify(self.location),
-                            default_for_blank_strings=True),
-            heading_note=req.wappstring("note"),
-            note=answer(self.note, default_for_blank_strings=True),
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.PROGRESS_NOTE_PROCEDURE))]  # noqa

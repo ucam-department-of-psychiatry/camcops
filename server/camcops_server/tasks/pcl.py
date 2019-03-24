@@ -120,8 +120,7 @@ class PclCommon(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PCL total score",
-            axis_label="Total score ({}-{})".format(self.MIN_SCORE,
-                                                    self.MAX_SCORE),
+            axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
             axis_min=self.MIN_SCORE - 0.5,
             axis_max=self.MAX_SCORE + 0.5
         )]
@@ -130,7 +129,7 @@ class PclCommon(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="PCL total score {}".format(self.total_score())
+            content=f"PCL total score {self.total_score()}"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -139,8 +138,7 @@ class PclCommon(TaskHasPatientMixin, Task,
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score ({}-{})".format(self.MIN_SCORE,
-                                                     self.MAX_SCORE)),
+                comment=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})"),
             SummaryElement(
                 name="num_symptomatic",
                 coltype=Integer(),
@@ -219,7 +217,7 @@ class PclCommon(TaskHasPatientMixin, Task,
             if q == 1 or q == 6 or q == 13:
                 section = "B" if q == 1 else ("C" if q == 6 else "D")
                 q_a += subheading_spanning_two_columns(
-                    "DSM-IV-TR section {}".format(section)
+                    f"DSM-IV-TR section {section}"
                 )
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_s"),
@@ -250,7 +248,7 @@ class PclCommon(TaskHasPatientMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr_qa(
-                "{} (17–85)".format(req.wappstring("total_score")),
+                f"{req.wappstring('total_score')} (17–85)",
                 score
             ),
             num_symptomatic=tr(

@@ -273,10 +273,10 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         }
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -284,11 +284,6 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-                {q_a}
+                {tr_qa(self.wxstring(req, "i_q"), self.get_rating_text(req))}
             </table>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            q_a=tr_qa(self.wxstring(req, "i_q"), self.get_rating_text(req)),
-        )
-        return h
+        """

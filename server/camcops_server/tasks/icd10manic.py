@@ -465,7 +465,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         for x in self.PSYCHOSIS_NAMES:
             h += self.row_true_false(req, x)
 
-        h += """
+        h += f"""
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] Hypomania:
@@ -489,9 +489,6 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 first-rank symptoms can occur in manic psychosis
                 (e.g. Conus P et al., 2004, PMID 15337330.).
             </div>
-            {icd10_copyright_div}
-        """.format(
-            CssClass=CssClass,
-            icd10_copyright_div=ICD10_COPYRIGHT_DIV,
-        )
+            {ICD10_COPYRIGHT_DIV}
+        """
         return h

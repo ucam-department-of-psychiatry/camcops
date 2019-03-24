@@ -262,29 +262,35 @@ class CopeBrief(TaskHasPatientMixin, Task,
             answer_dict[option] = (
                 str(option) + " — " + self.wxstring(req, "a" + str(option))
             )
-        h = f"""
+        q_a = ""
+        for q in range(1, self.NQUESTIONS + 1):
+            q_a += tr_qa(
+                f"Q{q}. {self.wxstring(req, 'q' + str(q))}",
+                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+            )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
-        """
-        h += tr_qa("Self-distraction (Q1, Q19)", self.self_distraction())
-        h += tr_qa("Active coping (Q2, Q7)", self.active_coping())
-        h += tr_qa("Denial (Q3, Q8)", self.denial())
-        h += tr_qa("Substance use (Q4, Q11)", self.substance_use())
-        h += tr_qa("Use of emotional support (Q5, Q15)",
-                   self.emotional_support())
-        h += tr_qa("Use of instrumental support (Q10, Q23)",
-                   self.instrumental_support())
-        h += tr_qa("Behavioural disengagement (Q6, Q16)",
-                   self.behavioural_disengagement())
-        h += tr_qa("Venting (Q9, Q21)", self.venting())
-        h += tr_qa("Positive reframing (Q12, Q17)", self.positive_reframing())
-        h += tr_qa("Planning (Q14, Q25)", self.planning())
-        h += tr_qa("Humour (Q18, Q28)", self.humour())
-        h += tr_qa("Acceptance (Q20, Q24)", self.acceptance())
-        h += tr_qa("Religion (Q22, Q27)", self.religion())
-        h += tr_qa("Self-blame (Q13, Q26)", self.self_blame())
-        h += f"""
+                    {tr_qa("Self-distraction (Q1, Q19)", 
+                           self.self_distraction())}
+                    {tr_qa("Active coping (Q2, Q7)", self.active_coping())}
+                    {tr_qa("Denial (Q3, Q8)", self.denial())}
+                    {tr_qa("Substance use (Q4, Q11)", self.substance_use())}
+                    {tr_qa("Use of emotional support (Q5, Q15)",
+                           self.emotional_support())}
+                    {tr_qa("Use of instrumental support (Q10, Q23)",
+                           self.instrumental_support())}
+                    {tr_qa("Behavioural disengagement (Q6, Q16)",
+                           self.behavioural_disengagement())}
+                    {tr_qa("Venting (Q9, Q21)", self.venting())}
+                    {tr_qa("Positive reframing (Q12, Q17)", 
+                           self.positive_reframing())}
+                    {tr_qa("Planning (Q14, Q25)", self.planning())}
+                    {tr_qa("Humour (Q18, Q28)", self.humour())}
+                    {tr_qa("Acceptance (Q20, Q24)", self.acceptance())}
+                    {tr_qa("Religion (Q22, Q27)", self.religion())}
+                    {tr_qa("Self-blame (Q13, Q26)", self.self_blame())}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
@@ -299,13 +305,6 @@ class CopeBrief(TaskHasPatientMixin, Task,
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """
-        for q in range(1, self.NQUESTIONS + 1):
-            h += tr_qa(
-                f"Q{q}. {self.wxstring(req, 'q' + str(q))}",
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
-            )
-        h += """
+                {q_a}
             </table>
         """
-        return h

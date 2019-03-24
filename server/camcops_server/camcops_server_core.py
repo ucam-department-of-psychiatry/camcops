@@ -269,6 +269,7 @@ class RequestLoggingMiddleware(object):
             f'{query_string} '
             f'{environ.get(WsgiEnvVar.SERVER_PROTOCOL, "")}"'
         )
+        # ... might be clearer with str.format() but speed is critical here
         msg_parts = []  # type: List[str]
         if self.show_request_immediately:
             msg_parts.append("Request from")

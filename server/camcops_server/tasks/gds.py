@@ -98,7 +98,7 @@ class Gds15(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="GDS-15 total score",
-            axis_label="Total score (out of {})".format(self.MAX_SCORE),
+            axis_label=f"Total score (out of {self.MAX_SCORE})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE + 0.5
         )]
@@ -107,8 +107,7 @@ class Gds15(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="GDS-15 total score {}/{}".format(
-                self.total_score(), self.MAX_SCORE)
+            content=f"GDS-15 total score {self.total_score()}/{self.MAX_SCORE}"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -116,7 +115,7 @@ class Gds15(TaskHasPatientMixin, Task,
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(self.MAX_SCORE)),
+                           comment=f"Total score (/{self.MAX_SCORE})"),
         ]
 
     def is_complete(self) -> bool:
@@ -146,11 +145,12 @@ class Gds15(TaskHasPatientMixin, Task,
                 getattr(self, "q" + str(q))
             )
 
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
+                    {self.get_is_complete_tr(req)}
+                    {tr(req.wappstring("total_score"),
+                        answer(score) + f" / {self.MAX_SCORE}")}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
@@ -167,16 +167,7 @@ class Gds15(TaskHasPatientMixin, Task,
                 (†) ‘Y’ scores 1; ‘N’ scores 0.
                 (*) ‘Y’ scores 0; ‘N’ scores 1.
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.MAX_SCORE)
-            ),
-            q_a=q_a,
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.GDS15_PROCEDURE_ASSESSMENT))]  # noqa

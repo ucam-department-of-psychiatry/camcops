@@ -98,7 +98,7 @@ class Pdss(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PDSS total score (lower is better)",
-            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
+            axis_label=f"Total score (out of {self.MAX_TOTAL})",
             axis_min=-0.5,
             axis_max=self.MAX_TOTAL + 0.5
         )]
@@ -108,12 +108,12 @@ class Pdss(TaskHasPatientMixin, Task,
             SummaryElement(
                 name="total_score", coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/ {})".format(self.MAX_TOTAL)
+                comment=f"Total score (/ {self.MAX_TOTAL})"
             ),
             SummaryElement(
                 name="composite_score", coltype=Float(),
                 value=self.composite_score(),
-                comment="Composite score (/ {})".format(self.MAX_COMPOSITE)
+                comment=f"Composite score (/ {self.MAX_COMPOSITE})"
             ),
         ]
 
@@ -123,12 +123,8 @@ class Pdss(TaskHasPatientMixin, Task,
         t = self.total_score()
         c = ws.number_to_dp(self.composite_score(), DP, default="?")
         return [CtvInfo(
-            content="PDSS total score {t}/{mt} (composite {c}/{mc})".format(
-                t=t,
-                mt=self.MAX_TOTAL,
-                c=c,
-                mc=self.MAX_COMPOSITE
-            )
+            content=f"PDSS total score {t}/{self.MAX_TOTAL} "
+                    f"(composite {c}/{self.MAX_COMPOSITE})"
         )]
 
     def total_score(self) -> int:
@@ -177,7 +173,7 @@ class Pdss(TaskHasPatientMixin, Task,
         for q in range(1, self.NQUESTIONS + 1):
             qtext = self.wxstring(req, "q" + str(q))
             a = getattr(self, "q" + str(q))
-            atext = (self.wxstring(req, "q{}_option{}".format(q, a), str(a))
+            atext = (self.wxstring(req, f"q{q}_option{a}", str(a))
                      if a is not None else None)
             h += tr(qtext, answer(atext))
         h += """

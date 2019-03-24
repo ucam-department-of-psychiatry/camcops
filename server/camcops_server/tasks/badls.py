@@ -149,13 +149,13 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                      if q is not None else None)
             score = self.score(fieldname)
             q_a += tr(qtext, answer(atext), score)
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
                         <td>Total score (0–60, higher worse)</td>
-                        <td>{total}</td>
+                        <td>{answer(self.total_score())}</td>
                     </td>
                 </table>
             </div>
@@ -171,14 +171,7 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                 [1] Scored a = 0, b = 1, c = 2, d = 3, e = 0.
             </div>
             {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
-        """.format(
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            total=answer(self.total_score()),
-            q_a=q_a,
-            DATA_COLLECTION_UNLESS_UPGRADED_DIV=DATA_COLLECTION_UNLESS_UPGRADED_DIV,  # noqa
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         # The BADLS is ALWAYS carer-rated, so it's appropriate to put the

@@ -111,17 +111,17 @@ class Gad7(TaskHasPatientMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="GAD-7 total score {}/{} ({})".format(
-                self.total_score(), self.MAX_SCORE, self.severity(req))
-        )]
+        return [CtvInfo(content=(
+            f"GAD-7 total score {self.total_score()}/{self.MAX_SCORE} "
+            f"({self.severity(req)})"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(self.MAX_SCORE)),
+                           comment=f"Total score (/{self.MAX_SCORE})"),
             SummaryElement(name="severity",
                            coltype=SummaryCategoryColType,
                            value=self.severity(req),
@@ -165,7 +165,7 @@ class Gad7(TaskHasPatientMixin, Task,
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
 
-        h = """
+        return """
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
@@ -210,7 +210,6 @@ class Gad7(TaskHasPatientMixin, Task,
             ),
             q_a=q_a,
         )
-        return h
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.GAD7_PROCEDURE_ASSESSMENT))]  # noqa

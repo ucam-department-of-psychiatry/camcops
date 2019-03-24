@@ -118,15 +118,15 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
             SummaryElement(
                 name="n_endorsed", coltype=Integer(),
                 value=self.n_endorsed(),
-                comment="Number endorsed (/ {})".format(self.NQUESTIONS)),
+                comment=f"Number endorsed (/ {self.NQUESTIONS})"),
             SummaryElement(
                 name="severity_score", coltype=Integer(),
                 value=self.severity_score(),
-                comment="Severity score (/ {})".format(self.MAX_SEVERITY)),
+                comment=f"Severity score (/ {self.MAX_SEVERITY})"),
             SummaryElement(
                 name="distress_score", coltype=Integer(),
                 value=self.distress_score(),
-                comment="Distress score (/ {})".format(self.MAX_DISTRESS)),
+                comment=f"Distress score (/ {self.MAX_DISTRESS})"),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -191,21 +191,21 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
                         <td>Endorsed</td>
-                        <td>{e} / 12</td>
+                        <td>{self.n_endorsed()} / 12</td>
                     </td>
                     <tr>
                         <td>Severity score</td>
-                        <td>{s} / 36</td>
+                        <td>{self.severity_score()} / 36</td>
                     </td>
                     <tr>
                         <td>Distress score</td>
-                        <td>{d} / 60</td>
+                        <td>{self.distress_score()} / 60</td>
                     </td>
                 </table>
             </div>
@@ -216,13 +216,7 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                     <th width="20%">Severity (patient)</th>
                     <th width="20%">Distress (carer)</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            e=self.n_endorsed(),
-            s=self.severity_score(),
-            d=self.distress_score(),
-        )
+        """
         for q in range(1, self.NQUESTIONS + 1):
             qstr = str(q)
             e = getattr(self, ENDORSED + qstr)
@@ -234,15 +228,16 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
             )
             etext = get_yes_no_unknown(req, e)
             if e:
-                stext = self.wxstring(req, "severity_{}".format(s), s,
+                stext = self.wxstring(req, f"severity_{s}", s,
                                       provide_default_if_none=False)
-                dtext = self.wxstring(req, "distress_{}".format(d), d,
+                dtext = self.wxstring(req, f"distress_{d}", d,
                                       provide_default_if_none=False)
             else:
                 stext = ""
                 dtext = ""
             h += tr(qtext, answer(etext), answer(stext), answer(dtext))
-        h += """
+        h += f"""
             </table>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+            {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
+        """
         return h

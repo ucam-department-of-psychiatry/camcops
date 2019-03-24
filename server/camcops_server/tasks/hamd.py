@@ -166,7 +166,7 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="HAM-D total score",
-            axis_label="Total score (out of {})".format(MAX_SCORE),
+            axis_label=f"Total score (out of {MAX_SCORE})",
             axis_min=-0.5,
             axis_max=MAX_SCORE + 0.5,
             horizontal_lines=[22.5, 19.5, 14.5, 7.5],
@@ -182,17 +182,17 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="HAM-D total score {}/{} ({})".format(
-                self.total_score(), MAX_SCORE, self.severity(req))
-        )]
+        return [CtvInfo(content=(
+            f"HAM-D total score {self.total_score()}/{MAX_SCORE} "
+            f"({self.severity(req)})"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(MAX_SCORE)),
+                           comment=f"Total score (/{MAX_SCORE})"),
             SummaryElement(name="severity",
                            coltype=SummaryCategoryColType,
                            value=self.severity(req),
@@ -290,7 +290,7 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 qstr = self.wxstring(req, "" + q + "_s") + rangestr
             q_a += tr_qa(qstr, get_from_dict(answer_dicts_dict[q],
                                              getattr(self, q)))
-        h = """
+        return """
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
@@ -328,7 +328,6 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             ),
             q_a=q_a,
         )
-        return h
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.HAMD_PROCEDURE_ASSESSMENT))]  # noqa

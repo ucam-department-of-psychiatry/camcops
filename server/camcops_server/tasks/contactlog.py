@@ -115,26 +115,26 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = f"""
+        return f"""
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <td width="33%">Location:</td>
                     <td width="67%"><b>{ws.webify(self.location)}</b></td>
                 </tr>
+                {tr_qa("Start:", format_datetime(self.start,
+                                                 DateFormat.SHORT_DATETIME,
+                                                 None))}
+                {tr_qa("End:", format_datetime(self.end,
+                                               DateFormat.SHORT_DATETIME,
+                                               None))}
+                {tr(italic("Calculated duration (hours:minutes)"),
+                    italic(get_duration_h_m(self.start, self.end)))}
+                {tr_qa("Patient contact?",
+                       get_yes_no_none(req, self.patient_contact))}
+                {tr_qa("Staff liaison?",
+                       get_yes_no_none(req, self.staff_liaison))}
+                {tr_qa("Other liaison?",
+                       get_yes_no_none(req, self.other_liaison))}
+                {tr_qa("Comment:", self.comment)}
+            </table>
         """
-        h += tr_qa("Start:", format_datetime(self.start,
-                                             DateFormat.SHORT_DATETIME,
-                                             None))
-        h += tr_qa("End:", format_datetime(self.end,
-                                           DateFormat.SHORT_DATETIME,
-                                           None))
-        h += tr(italic("Calculated duration (hours:minutes)"),
-                italic(get_duration_h_m(self.start, self.end)))
-        h += tr_qa("Patient contact?",
-                   get_yes_no_none(req, self.patient_contact))
-        h += tr_qa("Staff liaison?",
-                   get_yes_no_none(req, self.staff_liaison))
-        h += tr_qa("Other liaison?",
-                   get_yes_no_none(req, self.other_liaison))
-        h += tr_qa("Comment:", self.comment)
-        return h

@@ -369,7 +369,7 @@ class Rand36(TaskHasPatientMixin, Task,
     def format_float_for_display(val: Optional[float]) -> Optional[str]:
         if val is None:
             return None
-        return "{:.1f}".format(val)
+        return f"{val:.1f}"
 
     def score_overall(self) -> Optional[float]:
         values = []
@@ -413,19 +413,16 @@ class Rand36(TaskHasPatientMixin, Task,
     @staticmethod
     def scoreline(text: str, footnote_num: int, score: Optional[float]) -> str:
         return tr(
-            text + " <sup>[{}]</sup>".format(footnote_num),
+            text + f" <sup>[{footnote_num}]</sup>",
             answer(score) + " / 100"
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-        )
+                    {self.get_is_complete_tr(req)}
+        """
         h += self.scoreline(
             self.wxstring(req, "score_overall"), 1,
             self.format_float_for_display(self.score_overall()))
@@ -455,7 +452,7 @@ class Rand36(TaskHasPatientMixin, Task,
         h += self.scoreline(
             self.wxstring(req, "score_general_health"), 9,
             self.format_float_for_display(self.score_general_health()))
-        h += """
+        h += f"""
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -464,9 +461,7 @@ class Rand36(TaskHasPatientMixin, Task,
                     <th width="30%">Answer</th>
                     <th width="10%">Score</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-        )
+        """
         for q in range(1, 2 + 1):
             h += self.answer_row_html(req, q)
         h += self.section_row_html(self.wxstring(req, "activities_q"))
@@ -495,7 +490,7 @@ class Rand36(TaskHasPatientMixin, Task,
         h += self.section_row_html(self.wxstring(req, "q33to36stem"))
         for q in range(33, 36 + 1):
             h += self.answer_row_html(req, q)
-        h += """
+        h += f"""
             </table>
             <div class="{CssClass.COPYRIGHT}">
                 The RAND 36-Item Short Form Health Survey was developed at RAND
@@ -515,7 +510,5 @@ class Rand36(TaskHasPatientMixin, Task,
                 [8] Q21, 22.
                 [9] Q1, 33–36.
             </div>
-        """.format(
-            CssClass=CssClass,
-        )
+        """
         return h

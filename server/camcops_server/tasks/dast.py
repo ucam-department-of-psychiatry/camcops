@@ -205,7 +205,7 @@ class Dast(TaskHasPatientMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(req.wappstring("total_score"),
-                           answer(score) + " / {}".format(self.NQUESTIONS)),
+                           answer(score) + f" / {self.NQUESTIONS}"),
             exceeds_standard_cutoff_1=tr_qa(
                 self.wxstring(req, "exceeds_standard_cutoff_1"),
                 get_yes_no(req, exceeds_cutoff_1)

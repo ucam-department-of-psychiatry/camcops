@@ -89,7 +89,7 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content="GAF score {}".format(self.total_score()))]
+        return [CtvInfo(content=f"GAF score {self.total_score()}")]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields()
@@ -100,21 +100,15 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return self.score
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {score}
+                    {self.get_is_complete_tr(req)}
+                    {tr(req.wappstring("gaf_score"), answer(self.score))}
                 </table>
             </div>
             {DATA_COLLECTION_ONLY_DIV}
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            score=tr(req.wappstring("gaf_score"), answer(self.score)),
-            DATA_COLLECTION_ONLY_DIV=DATA_COLLECTION_ONLY_DIV,
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         if not self.is_complete():

@@ -564,16 +564,16 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                         </tr>
             """ +
             tr("Total ACE-III score <sup>[1]</sup>", answer(t) + " / 100") +
-            tr("Attention", answer(a) + " / {} ({}%)".format(
-                ATTN_MAX, percent(a, ATTN_MAX))) +
-            tr("Memory", answer(m) + " / {} ({}%)".format(
-                MEMORY_MAX, percent(m, MEMORY_MAX))) +
-            tr("Fluency", answer(f) + " / {} ({}%)".format(
-                FLUENCY_MAX, percent(f, FLUENCY_MAX))) +
-            tr("Language", answer(lang) + " / {} ({}%)".format(
-                LANG_MAX, percent(lang, LANG_MAX))) +
-            tr("Visuospatial", answer(v) + " / {} ({}%)".format(
-                VSP_MAX, percent(v, VSP_MAX))) +
+            tr("Attention",
+               answer(a) + f" / {ATTN_MAX} ({percent(a, ATTN_MAX)}%)") +
+            tr("Memory",
+               answer(m) + f" / {MEMORY_MAX} ({percent(m, MEMORY_MAX)}%)") +
+            tr("Fluency",
+               answer(f) + f" / {FLUENCY_MAX} ({percent(f, FLUENCY_MAX)}%)") +
+            tr("Language",
+               answer(lang) + f" / {LANG_MAX} ({percent(lang, LANG_MAX)}%)") +
+            tr("Visuospatial",
+               answer(v) + f" / {VSP_MAX} ({percent(v, VSP_MAX)}%)") +
             f"""
                     </table>
                 </div>

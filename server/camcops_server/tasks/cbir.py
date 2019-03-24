@@ -407,28 +407,26 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                     <th width="25%">Frequency (0–4)</th>
                     <th width="25%">Distress (0–4)</th>
                 </tr>
-        """
-        h += subheading_spanning_three_columns(heading_memory)
-        h += get_question_rows(*self.QNUMS_MEMORY)
-        h += subheading_spanning_three_columns(heading_everyday)
-        h += get_question_rows(*self.QNUMS_EVERYDAY)
-        h += subheading_spanning_three_columns(heading_selfcare)
-        h += get_question_rows(*self.QNUMS_SELF)
-        h += subheading_spanning_three_columns(heading_behaviour)
-        h += get_question_rows(*self.QNUMS_BEHAVIOUR)
-        h += subheading_spanning_three_columns(heading_mood)
-        h += get_question_rows(*self.QNUMS_MOOD)
-        h += subheading_spanning_three_columns(heading_beliefs)
-        h += get_question_rows(*self.QNUMS_BELIEFS)
-        h += subheading_spanning_three_columns(heading_eating)
-        h += get_question_rows(*self.QNUMS_EATING)
-        h += subheading_spanning_three_columns(heading_sleep)
-        h += get_question_rows(*self.QNUMS_SLEEP)
-        h += subheading_spanning_three_columns(heading_motor)
-        h += get_question_rows(*self.QNUMS_STEREOTYPY)
-        h += subheading_spanning_three_columns(heading_motivation)
-        h += get_question_rows(*self.QNUMS_MOTIVATION)
-        h += """
+                {subheading_spanning_three_columns(heading_memory)}
+                {get_question_rows(*self.QNUMS_MEMORY)}
+                {subheading_spanning_three_columns(heading_everyday)}
+                {get_question_rows(*self.QNUMS_EVERYDAY)}
+                {subheading_spanning_three_columns(heading_selfcare)}
+                {get_question_rows(*self.QNUMS_SELF)}
+                {subheading_spanning_three_columns(heading_behaviour)}
+                {get_question_rows(*self.QNUMS_BEHAVIOUR)}
+                {subheading_spanning_three_columns(heading_mood)}
+                {get_question_rows(*self.QNUMS_MOOD)}
+                {subheading_spanning_three_columns(heading_beliefs)}
+                {get_question_rows(*self.QNUMS_BELIEFS)}
+                {subheading_spanning_three_columns(heading_eating)}
+                {get_question_rows(*self.QNUMS_EATING)}
+                {subheading_spanning_three_columns(heading_sleep)}
+                {get_question_rows(*self.QNUMS_SLEEP)}
+                {subheading_spanning_three_columns(heading_motor)}
+                {get_question_rows(*self.QNUMS_STEREOTYPY)}
+                {subheading_spanning_three_columns(heading_motivation)}
+                {get_question_rows(*self.QNUMS_MOTIVATION)}
             </table>
         """
         return h

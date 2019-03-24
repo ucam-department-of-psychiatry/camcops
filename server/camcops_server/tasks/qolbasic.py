@@ -105,12 +105,10 @@ class QolBasic(TaskHasPatientMixin, Task):
         mean_qol = mean([tto_qol, rs_qol])
         return [CtvInfo(
             content=(
-                "Quality of life: time trade-off {}, rating scale {}, "
-                "mean {}.".format(
-                    ws.number_to_dp(tto_qol, DP),
-                    ws.number_to_dp(rs_qol, DP),
-                    ws.number_to_dp(mean_qol, DP)
-                )
+                f"Quality of life: time trade-off "
+                f"{ws.number_to_dp(tto_qol, DP)}, "
+                f"rating scale {ws.number_to_dp(rs_qol, DP)}, "
+                f"mean {ws.number_to_dp(mean_qol, DP)}."
             )
         )]
 

@@ -72,10 +72,10 @@ class YbocsMetaclass(DeclarativeMeta):
         cls.TARGET_COLUMNS = []  # type: List[Column]
         for target in ["obsession", "compulsion", "avoidance"]:
             for n in range(1, cls.NTARGETS + 1):
-                fname = "target_{}_{}".format(target, n)
+                fname = f"target_{target}_{n}"
                 col = Column(
                     fname, UnicodeText,
-                    comment="Target symptoms: {} {}".format(target, n)
+                    comment=f"Target symptoms: {target} {n}"
                 )
                 setattr(cls, fname, col)
                 cls.TARGET_COLUMNS.append(col)
@@ -88,8 +88,8 @@ class YbocsMetaclass(DeclarativeMeta):
                     fname, Integer,
                     permitted_value_checker=PermittedValueChecker(
                         minimum=0, maximum=maxscore),
-                    comment="Q{n}, {s} (0-{m}, higher worse)".format(
-                        n=qnumstr, s=comment, m=maxscore)
+                    comment=f"Q{qnumstr}, {comment} "
+                            f"(0-{maxscore}, higher worse)"
                 )
             )
         super().__init__(name, bases, classdict)
@@ -142,21 +142,21 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             TrackerInfo(
                 value=self.total_score(),
                 plot_label="Y-BOCS total score (lower is better)",
-                axis_label="Total score (out of {})".format(self.MAX_TOTAL),
+                axis_label=f"Total score (out of {self.MAX_TOTAL})",
                 axis_min=-0.5,
                 axis_max=self.MAX_TOTAL + 0.5
             ),
             TrackerInfo(
                 value=self.obsession_score(),
                 plot_label="Y-BOCS obsession score (lower is better)",
-                axis_label="Total score (out of {})".format(self.MAX_OBS),
+                axis_label=f"Total score (out of {self.MAX_OBS})",
                 axis_min=-0.5,
                 axis_max=self.MAX_OBS + 0.5
             ),
             TrackerInfo(
                 value=self.compulsion_score(),
                 plot_label="Y-BOCS compulsion score (lower is better)",
-                axis_label="Total score (out of {})".format(self.MAX_COM),
+                axis_label=f"Total score (out of {self.MAX_COM})",
                 axis_min=-0.5,
                 axis_max=self.MAX_COM + 0.5
             ),
@@ -168,19 +168,19 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                 name="total_score",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/ {})".format(self.MAX_TOTAL)
+                comment=f"Total score (/ {self.MAX_TOTAL})"
             ),
             SummaryElement(
                 name="obsession_score",
                 coltype=Integer(),
                 value=self.obsession_score(),
-                comment="Obsession score (/ {})".format(self.MAX_OBS)
+                comment=f"Obsession score (/ {self.MAX_OBS})"
             ),
             SummaryElement(
                 name="compulsion_score",
                 coltype=Integer(),
                 value=self.compulsion_score(),
-                comment="Compulsion score (/ {})".format(self.MAX_COM)
+                comment=f"Compulsion score (/ {self.MAX_COM})"
             ),
         ]
 
@@ -227,21 +227,24 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                 answer(self.wxstring(req, fieldname + "_a" + str(value), value)
                        if value is not None else None)
             )
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
                         <td>Total score</td>
-                        <td>{total_score} / {mt}</td>
+                        <td>{answer(self.total_score())} / 
+                            {self.MAX_TOTAL}</td>
                     </td>
                     <tr>
                         <td>Obsession score</td>
-                        <td>{obsession_score} / {mo}</td>
+                        <td>{answer(self.obsession_score())} / 
+                            {self.MAX_OBS}</td>
                     </td>
                     <tr>
                         <td>Compulsion score</td>
-                        <td>{compulsion_score} / {mc}</td>
+                        <td>{answer(self.compulsion_score())} / 
+                            {self.MAX_COM}</td>
                     </td>
                 </table>
             </div>
@@ -260,20 +263,7 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                 {q_a}
             </table>
             {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
-        """.format(
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            total_score=answer(self.total_score()),
-            mt=self.MAX_TOTAL,
-            obsession_score=answer(self.obsession_score()),
-            mo=self.MAX_OBS,
-            compulsion_score=answer(self.compulsion_score()),
-            mc=self.MAX_COM,
-            target_symptoms=target_symptoms,
-            q_a=q_a,
-            DATA_COLLECTION_UNLESS_UPGRADED_DIV=DATA_COLLECTION_UNLESS_UPGRADED_DIV,  # noqa
-        )
-        return h
+        """
 
 
 # =============================================================================
@@ -466,12 +456,9 @@ class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             if getattr(self, item + self.SUFFIX_PRINCIPAL):
                 principal_list.append(item)
         return [
-            CtvInfo(content="Current symptoms: {}".format(
-                ", ".join(current_list))),
-            CtvInfo(content="Past symptoms: {}".format(
-                ", ".join(past_list))),
-            CtvInfo(content="Principal symptoms: {}".format(
-                ", ".join(principal_list))),
+            CtvInfo(content=f"Current symptoms: {', '.join(current_list)}"),
+            CtvInfo(content=f"Past symptoms: {', '.join(past_list)}"),
+            CtvInfo(content=f"Principal symptoms: {', '.join(principal_list)}"),  # noqa
         ]
 
     # noinspection PyMethodOverriding
@@ -480,7 +467,7 @@ class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        h = f"""
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="55%">Symptom</th>
@@ -488,7 +475,7 @@ class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                     <th width="15%">Past</th>
                     <th width="15%">Principal</th>
                 </tr>
-        """.format(CssClass=CssClass)
+        """
         for group in self.GROUPS:
             h += subheading_spanning_four_columns(
                 self.wxstring(req, self.SC_PREFIX + group))
@@ -514,17 +501,15 @@ class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                                        value_none="")),
                 )
                 if item.endswith(self.SUFFIX_OTHER):
-                    h += """
+                    h += f"""
                         <tr>
                             <td><i>Specify:</i></td>
-                            <td colspan="3">{content}</td>
+                            <td colspan="3">{
+                    answer(getattr(self, item + self.SUFFIX_DETAIL), "")}</td>
                         </tr>
-                    """.format(
-                        content=answer(
-                            getattr(self, item + self.SUFFIX_DETAIL),
-                            "")
-                    )
-        h += """
+                    """
+        h += f"""
             </table>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+            {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
+        """
         return h

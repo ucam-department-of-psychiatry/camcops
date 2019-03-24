@@ -203,7 +203,7 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             )
         tr_total_score = tr(
             req.wappstring("total_score"),
-            answer(score) + " / {}".format(self.MAX_SCORE)
+            answer(score) + f" / {self.MAX_SCORE}"
         )
         tr_severity = tr_qa(
             self.wxstring(req, "severity") + " <sup>[1]</sup>",

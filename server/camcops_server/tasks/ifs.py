@@ -72,16 +72,15 @@ class IfsMetaclass(DeclarativeMeta):
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
         for seqlen in cls.Q4_DIGIT_LENGTHS:
-            fname1 = "q4_len{}_1".format(seqlen)
-            fname2 = "q4_len{}_2".format(seqlen)
+            fname1 = f"q4_len{seqlen}_1"
+            fname2 = f"q4_len{seqlen}_2"
             setattr(
                 cls,
                 fname1,
                 CamcopsColumn(
                     fname1, Boolean,
                     permitted_value_checker=BIT_CHECKER,
-                    comment="Q4. Digits backward, length {}, trial 1".format(
-                        seqlen)
+                    comment=f"Q4. Digits backward, length {seqlen}, trial 1"
                 )
             )
             setattr(
@@ -90,19 +89,18 @@ class IfsMetaclass(DeclarativeMeta):
                 CamcopsColumn(
                     fname2, Boolean,
                     permitted_value_checker=BIT_CHECKER,
-                    comment="Q4. Digits backward, length {}, trial 2".format(
-                        seqlen)
+                    comment=f"Q4. Digits backward, length {seqlen}, trial 2"
                 )
             )
         for n in cls.Q6_SEQUENCE_NUMS:
-            fname = "q6_seq{}".format(n)
+            fname = f"q6_seq{n}"
             setattr(
                 cls,
                 fname,
                 CamcopsColumn(
                     fname, Integer,
                     permitted_value_checker=BIT_CHECKER,
-                    comment="Q6. Spatial working memory, sequence {}".format(n)
+                    comment=f"Q6. Spatial working memory, sequence {n}"
                 )
             )
         for n in cls.Q7_PROVERB_NUMS:
@@ -113,8 +111,8 @@ class IfsMetaclass(DeclarativeMeta):
                 CamcopsColumn(
                     fname, Float,
                     permitted_value_checker=ZERO_TO_ONE_CHECKER,
-                    comment="Q7. Proverb {} (1 = correct explanation, "
-                            "0.5 = example, 0 = neither)".format(n)
+                    comment=f"Q7. Proverb {n} (1 = correct explanation, "
+                            f"0.5 = example, 0 = neither)"
                 )
             )
         for n in cls.Q8_SENTENCE_NUMS:
@@ -125,7 +123,7 @@ class IfsMetaclass(DeclarativeMeta):
                 CamcopsColumn(
                     fname, Integer,
                     permitted_value_checker=ZERO_TO_TWO_CHECKER,
-                    comment="Q8. Hayling, sentence {}".format(n)
+                    comment=f"Q8. Hayling, sentence {n}"
                 )
             )
         super().__init__(name, bases, classdict)
@@ -168,9 +166,9 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     Q8_SENTENCE_NUMS = list(range(1, 3 + 1))
     SIMPLE_Q = (
         ["q1", "q2", "q3", "q5"] +
-        ["q6_seq{}".format(n) for n in Q6_SEQUENCE_NUMS] +
-        ["q7_proverb{}".format(n) for n in Q7_PROVERB_NUMS] +
-        ["q8_sentence{}".format(n) for n in Q8_SENTENCE_NUMS]
+        [f"q6_seq{n}" for n in Q6_SEQUENCE_NUMS] +
+        [f"q7_proverb{n}" for n in Q7_PROVERB_NUMS] +
+        [f"q8_sentence{n}" for n in Q8_SENTENCE_NUMS]
     )
     MAX_TOTAL = 30
     MAX_WM = 10
@@ -181,14 +179,14 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             TrackerInfo(
                 value=scoredict['total'],
                 plot_label="IFS total score (higher is better)",
-                axis_label="Total score (out of {})".format(self.MAX_TOTAL),
+                axis_label=f"Total score (out of {self.MAX_TOTAL})",
                 axis_min=-0.5,
                 axis_max=self.MAX_TOTAL + 0.5
             ),
             TrackerInfo(
                 value=scoredict['wm'],
                 plot_label="IFS working memory index (higher is better)",
-                axis_label="Total score (out of {})".format(self.MAX_WM),
+                axis_label=f"Total score (out of {self.MAX_WM})",
                 axis_min=-0.5,
                 axis_max=self.MAX_WM + 0.5
             ),
@@ -201,14 +199,13 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 name="total",
                 coltype=Float(),
                 value=scoredict['total'],
-                comment="Total (out of {}, higher better)".format(
-                    self.MAX_TOTAL)),
+                comment=f"Total (out of {self.MAX_TOTAL}, higher better)"),
             SummaryElement(
                 name="wm",
                 coltype=Integer(),
                 value=scoredict['wm'],
-                comment="Working memory index (out of {}; "
-                        "sum of Q4 + Q6".format(self.MAX_WM)),
+                comment=f"Working memory index (out of {self.MAX_WM}; "
+                        f"sum of Q4 + Q6"),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -217,12 +214,8 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             return CTV_INCOMPLETE
         return [CtvInfo(
             content=(
-                "Total: {t}/{tmax}; working memory index {w}/{wmax}".format(
-                    t=scoredict['total'],
-                    tmax=self.MAX_TOTAL,
-                    w=scoredict['wm'],
-                    wmax=self.MAX_WM,
-                )
+                f"Total: {scoredict['total']}/{self.MAX_TOTAL}; "
+                f"working memory index {scoredict['wm']}/{self.MAX_WM}"
             )
         )]
 
@@ -232,8 +225,8 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         q3 = getattr(self, "q3", 0) or 0
         q4 = 0
         for seqlen in self.Q4_DIGIT_LENGTHS:
-            val1 = getattr(self, "q4_len{}_1".format(seqlen))
-            val2 = getattr(self, "q4_len{}_2".format(seqlen))
+            val1 = getattr(self, f"q4_len{seqlen}_1")
+            val2 = getattr(self, f"q4_len{seqlen}_2")
             if val1 or val2:
                 q4 += 1
             if not val1 and not val2:
@@ -255,8 +248,8 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         if not self.are_all_fields_complete(self.SIMPLE_Q):
             return False
         for seqlen in self.Q4_DIGIT_LENGTHS:
-            val1 = getattr(self, "q4_len{}_1".format(seqlen))
-            val2 = getattr(self, "q4_len{}_2".format(seqlen))
+            val1 = getattr(self, f"q4_len{seqlen}_1")
+            val2 = getattr(self, f"q4_len{seqlen}_2")
             if val1 is None or val2 is None:
                 return False
             if not val1 and not val2:
@@ -287,19 +280,19 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                   literal=True)
         required = True
         for n in self.Q4_DIGIT_LENGTHS:
-            val1 = getattr(self, "q4_len{}_1".format(n))
-            val2 = getattr(self, "q4_len{}_2".format(n))
+            val1 = getattr(self, f"q4_len{n}_1")
+            val2 = getattr(self, f"q4_len{n}_2")
             q = (
                 "… " +
-                self.wxstring(req, "q4_seq_len{}_1".format(n)) +
-                " / " + self.wxstring(req, "q4_seq_len{}_2".format(n))
+                self.wxstring(req, f"q4_seq_len{n}_1") +
+                " / " + self.wxstring(req, f"q4_seq_len{n}_2")
             )
             if required:
                 score = 1 if val1 or val2 else 0
                 a = (
                     answer(get_correct_incorrect_none(val1)) +
                     " / " + answer(get_correct_incorrect_none(val2)) +
-                    " (scores {})".format(score)
+                    f" (scores {score})"
                 )
             else:
                 a = ""
@@ -347,17 +340,17 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             a = q8map.get(val, INVALID_VALUE)
             q_a += tr_qa("… " + self.wxstring(req, "q8_sentence_" + nstr), a)
 
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
                         <td>Total (higher better)</td>
-                        <td>{total} / {tmax}</td>
+                        <td>{answer(scoredict['total'])} / {self.MAX_TOTAL}</td>
                     </td>
                     <tr>
                         <td>Working memory index <sup>1</sup></td>
-                        <td>{wm} / {wmax}</td>
+                        <td>{answer(scoredict['wm'])} / {self.MAX_WM}</td>
                     </td>
                 </table>
             </div>
@@ -372,14 +365,4 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 [1] Sum of scores for Q4 + Q6.
             </div>
             {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
-        """.format(
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            total=answer(scoredict['total']),
-            tmax=self.MAX_TOTAL,
-            wm=answer(scoredict['wm']),
-            wmax=self.MAX_WM,
-            q_a=q_a,
-            DATA_COLLECTION_UNLESS_UPGRADED_DIV=DATA_COLLECTION_UNLESS_UPGRADED_DIV,  # noqa
-        )
-        return h
+        """

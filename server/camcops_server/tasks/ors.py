@@ -122,17 +122,18 @@ class Ors(TaskHasPatientMixin, Task):
             question = field.split("_")[1].capitalize()
             q_a += tr_qa(question, getattr(self, field))
 
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {tr_session_number}
-                    {tr_completed_by}
+                    {self.get_is_complete_tr(req)}
+                    {tr_qa("Session number", self.q_session)}
+                    {tr_qa("Completed by", self.who())}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                Scores represent a selection on a scale from {vas_min} to
-                {vas_max} ({vas_max} better). Scores reflect the patient’s
+                Scores represent a selection on a scale from 
+                {self.VAS_MIN_INT} to {self.VAS_MAX_INT} 
+                ({self.VAS_MAX_INT} better). Scores reflect the patient’s
                 feelings about the indicated life areas over the past week.
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -144,13 +145,4 @@ class Ors(TaskHasPatientMixin, Task):
             </table>
             <div class="{CssClass.FOOTNOTES}">
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            tr_completed_by=tr_qa("Completed by", self.who()),
-            tr_session_number=tr_qa("Session number", self.q_session),
-            vas_min=self.VAS_MIN_INT,
-            vas_max=self.VAS_MAX_INT,
-            q_a=q_a
-        )
-        return h
+        """

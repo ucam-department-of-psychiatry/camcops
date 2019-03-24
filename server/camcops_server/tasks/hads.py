@@ -232,16 +232,14 @@ class HadsBase(TaskHasPatientMixin, Task,
             TrackerInfo(
                 value=self.anxiety_score(),
                 plot_label="HADS anxiety score",
-                axis_label="Anxiety score (out of {})".format(
-                    self.MAX_ANX_SCORE),
+                axis_label=f"Anxiety score (out of {self.MAX_ANX_SCORE})",
                 axis_min=-0.5,
                 axis_max=self.MAX_ANX_SCORE + 0.5,
             ),
             TrackerInfo(
                 value=self.depression_score(),
                 plot_label="HADS depression score",
-                axis_label="Depression score (out of {})".format(
-                    self.MAX_DEP_SCORE),
+                axis_label=f"Depression score (out of {self.MAX_DEP_SCORE})",
                 axis_min=-0.5,
                 axis_max=self.MAX_DEP_SCORE + 0.5
             ),
@@ -250,21 +248,21 @@ class HadsBase(TaskHasPatientMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="anxiety score {}/{}, depression score {}/21".format(
-                self.anxiety_score(), self.MAX_ANX_SCORE,
-                self.depression_score())
-        )]
+        return [CtvInfo(content=(
+            f"anxiety score {self.anxiety_score()}/{self.MAX_ANX_SCORE}, "
+            f"depression score {self.depression_score()}/{self.MAX_DEP_SCORE}"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="anxiety", coltype=Integer(),
                 value=self.anxiety_score(),
-                comment="Anxiety score (/{})".format(self.MAX_ANX_SCORE)),
-            SummaryElement(name="depression", coltype=Integer(),
-                           value=self.depression_score(),
-                           comment="Depression score (/21)"),
+                comment=f"Anxiety score (/{self.MAX_ANX_SCORE})"),
+            SummaryElement(
+                name="depression", coltype=Integer(),
+                value=self.depression_score(),
+                comment=f"Depression score (/{self.MAX_DEP_SCORE})"),
         ]
 
     def score(self, questions: List[int]) -> int:
@@ -283,15 +281,18 @@ class HadsBase(TaskHasPatientMixin, Task,
         crippled = not self.extrastrings_exist(req)
         a = self.anxiety_score()
         d = self.depression_score()
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {is_complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
-                        <td>{sa}</td><td>{a} / {maxa}</td>
+                        <td>{req.wappstring(
+            "hads_anxiety_score")}</td><td>{answer(
+            a)} / {self.MAX_ANX_SCORE}</td>
                     </tr>
                     <tr>
-                        <td>{sd}</td><td>{d} / 21</td>
+                        <td>{req.wappstring(
+            "hads_depression_score")}</td><td>{answer(d)} / 21</td>
                     </tr>
                 </table>
             </div>
@@ -304,23 +305,12 @@ class HadsBase(TaskHasPatientMixin, Task,
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            is_complete_tr=self.get_is_complete_tr(req),
-            sa=req.wappstring("hads_anxiety_score"),
-            a=answer(a),
-            maxa=self.MAX_ANX_SCORE,
-            sd=req.wappstring("hads_depression_score"),
-            d=answer(d),
-        )
+        """
         for n in range(1, self.NQUESTIONS + 1):
             if crippled:
-                q = "HADS: Q{}".format(n)
+                q = f"HADS: Q{n}"
             else:
-                q = "Q{}. {}".format(
-                    n,
-                    self.wxstring(req, "q" + str(n) + "_stem")
-                )
+                q = f"Q{n}. {self.wxstring(req, f'q{n}_stem')}"
             if n in self.ANXIETY_QUESTIONS:
                 q += " (A)"
             if n in self.DEPRESSION_QUESTIONS:
@@ -329,8 +319,7 @@ class HadsBase(TaskHasPatientMixin, Task,
             if crippled or v is None or v < min_score or v > max_score:
                 a = v
             else:
-                a = "{}: {}".format(
-                    v, self.wxstring(req, "q{}_a{}".format(n, v)))
+                a = f"{v}: {self.wxstring(req, f'q{n}_a{v}')}"
             h += tr_qa(q, a)
         h += """
             </table>

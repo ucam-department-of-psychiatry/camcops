@@ -121,7 +121,7 @@ class Phq15(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PHQ-15 total score (rating somatic symptoms)",
-            axis_label="Score for Q1-15 (out of {})".format(self.MAX_TOTAL),
+            axis_label=f"Score for Q1-15 (out of {self.MAX_TOTAL})",
             axis_min=-0.5,
             axis_max=self.MAX_TOTAL + 0.5,
             horizontal_lines=[14.5, 9.5, 4.5],
@@ -136,17 +136,17 @@ class Phq15(TaskHasPatientMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="PHQ-15 total score {}/{} ({})".format(
-                self.total_score(), self.MAX_TOTAL, self.severity(req))
-        )]
+        return [CtvInfo(content=(
+            f"PHQ-15 total score {self.total_score()}/{self.MAX_TOTAL} "
+            f"({self.severity( req)})"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(self.MAX_TOTAL)),
+                           comment=f"Total score (/{self.MAX_TOTAL})"),
             SummaryElement(name="severity",
                            coltype=SummaryCategoryColType,
                            value=self.severity(req),
@@ -219,7 +219,7 @@ class Phq15(TaskHasPatientMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.wappstring("total_score") + " <sup>[1]</sup>",
-                answer(score) + " / {}".format(self.MAX_TOTAL)
+                answer(score) + f" / {self.MAX_TOTAL}"
             ),
             n_severe_symptoms=tr_qa(
                 self.wxstring(req, "n_severe_symptoms") + " <sup>[2]</sup>",

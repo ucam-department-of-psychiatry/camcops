@@ -138,7 +138,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        return """
             {clinician_comments}
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
@@ -181,4 +181,3 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 req, "duration_at_least_2_weeks", self.wxstring(req, "b")),
             ICD10_COPYRIGHT_DIV=ICD10_COPYRIGHT_DIV,
         )
-        return h

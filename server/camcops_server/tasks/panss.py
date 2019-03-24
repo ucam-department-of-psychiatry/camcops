@@ -145,36 +145,35 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             TrackerInfo(
                 value=self.total_score(),
                 plot_label="PANSS total score",
-                axis_label="Total score ({}-{})".format(
-                    self.MIN_TOTAL, self.MAX_TOTAL),
+                axis_label=f"Total score ({self.MIN_TOTAL}-{self.MAX_TOTAL})",
                 axis_min=self.MIN_TOTAL - 0.5,
                 axis_max=self.MAX_TOTAL + 0.5
             ),
             TrackerInfo(
                 value=self.score_p(),
                 plot_label="PANSS P score",
-                axis_label="P score ({}-{})".format(self.MIN_P, self.MAX_P),
+                axis_label=f"P score ({self.MIN_P}-{self.MAX_P})",
                 axis_min=self.MIN_P - 0.5,
                 axis_max=self.MAX_P + 0.5
             ),
             TrackerInfo(
                 value=self.score_n(),
                 plot_label="PANSS N score",
-                axis_label="N score ({}-{})".format(self.MIN_N, self.MAX_N),
+                axis_label=f"N score ({self.MIN_N}-{self.MAX_N})",
                 axis_min=self.MIN_N - 0.5,
                 axis_max=self.MAX_N + 0.5
             ),
             TrackerInfo(
                 value=self.score_g(),
                 plot_label="PANSS G score",
-                axis_label="G score ({}-{})".format(self.MIN_G, self.MAX_G),
+                axis_label=f"G score ({self.MIN_G}-{self.MAX_G})",
                 axis_min=self.MIN_G - 0.5,
                 axis_max=self.MAX_G + 0.5
             ),
             TrackerInfo(
                 value=self.composite(),
-                plot_label="PANSS composite score ({} to {})".format(
-                    self.MIN_P_MINUS_N, self.MAX_P_MINUS_N),
+                plot_label=f"PANSS composite score "
+                           f"({self.MIN_P_MINUS_N} to {self.MAX_P_MINUS_N})",
                 axis_label="P - N"
             ),
         ]
@@ -184,14 +183,9 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             return CTV_INCOMPLETE
         return [CtvInfo(
             content=(
-                "PANSS total score {} (P {}, N {}, G {}, "
-                "composite P–N {})".format(
-                    self.total_score(),
-                    self.score_p(),
-                    self.score_n(),
-                    self.score_g(),
-                    self.composite()
-                )
+                f"PANSS total score {self.total_score()} "
+                f"(P {self.score_p()}, N {self.score_n()}, G {self.score_g()}, "
+                f"composite P–N {self.composite()})"
             )
         )]
 
@@ -201,36 +195,32 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score ({}-{})".format(
-                    self.MIN_TOTAL, self.MAX_TOTAL)
+                comment=f"Total score ({self.MIN_TOTAL}-{self.MAX_TOTAL})"
             ),
             SummaryElement(
                 name="p",
                 coltype=Integer(),
                 value=self.score_p(),
-                comment="Positive symptom (P) score ({}-{})".format(
-                    self.MIN_P, self.MAX_P)
+                comment=f"Positive symptom (P) score ({self.MIN_P}-{self.MAX_P})"  # noqa
             ),
             SummaryElement(
                 name="n",
                 coltype=Integer(),
                 value=self.score_n(),
-                comment="Negative symptom (N) score ({}-{})".format(
-                    self.MIN_N, self.MAX_N)
+                comment=f"Negative symptom (N) score ({self.MIN_N}-{self.MAX_N})"  # noqa
             ),
             SummaryElement(
                 name="g",
                 coltype=Integer(),
                 value=self.score_g(),
-                comment="General symptom (G) score ({}-{})".format(
-                    self.MIN_G, self.MAX_G)
+                comment=f"General symptom (G) score ({self.MIN_G}-{self.MAX_G})"  # noqa
             ),
             SummaryElement(
                 name="composite",
                 coltype=Integer(),
                 value=self.composite(),
-                comment="Composite score (P - N) ({} to {})".format(
-                    self.MIN_P_MINUS_N, self.MAX_P_MINUS_N)
+                comment=f"Composite score (P - N) ({self.MIN_P_MINUS_N} "
+                        f"to {self.MAX_P_MINUS_N})"
             ),
         ]
 
@@ -300,28 +290,25 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr_qa(
-                "{} ({}–{})".format(req.wappstring("total_score"),
-                                    self.MIN_TOTAL, self.MAX_TOTAL),
+                f"{req.wappstring('total_score')} "
+                f"({self.MIN_TOTAL}–{self.MAX_TOTAL})",
                 total
             ),
             p=tr_qa(
-                "{} ({}–{})".format(self.wxstring(req, "p"),
-                                    self.MIN_P, self.MAX_P),
+                f"{self.wxstring(req, 'p')} ({self.MIN_P}–{self.MAX_P})",
                 p
             ),
             n=tr_qa(
-                "{} ({}–{})".format(self.wxstring(req, "n"),
-                                    self.MIN_N, self.MAX_N),
+                f"{self.wxstring(req, 'n')} ({self.MIN_N}–{self.MAX_N})",
                 n
             ),
             g=tr_qa(
-                "{} ({}–{})".format(self.wxstring(req, "g"),
-                                    self.MIN_G, self.MAX_G),
+                f"{self.wxstring(req, 'g')} ({self.MIN_G}–{self.MAX_G})",
                 g
             ),
             composite=tr_qa(
-                "{} ({}–{})".format(self.wxstring(req, "composite"),
-                                    self.MIN_P_MINUS_N, self.MAX_P_MINUS_N),
+                f"{self.wxstring(req, 'composite')} "
+                f"({self.MIN_P_MINUS_N}–{self.MAX_P_MINUS_N})",
                 composite
             ),
             q_a=q_a,

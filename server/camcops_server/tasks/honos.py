@@ -86,15 +86,13 @@ class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         comment="Period being rated"
     )
 
-    COPYRIGHT_DIV = """
-        <div class="{css_copyright}">
+    COPYRIGHT_DIV = f"""
+        <div class="{CssClass.COPYRIGHT}">
             Health of the Nation Outcome Scales:
             Copyright © Royal College of Psychiatrists.
             Used here with permission.
         </div>
-    """.format(
-        css_copyright=CssClass.COPYRIGHT,
-    )
+    """
 
     QFIELDS = None  # type: List[str]  # must be overridden
     MAX_SCORE = None  # type: int  # must be overridden
@@ -102,8 +100,8 @@ class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
-            plot_label="{} total score".format(self.shortname),
-            axis_label="Total score (out of {})".format(self.MAX_SCORE),
+            plot_label=f"{self.shortname} total score",
+            axis_label=f"Total score (out of {self.MAX_SCORE})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE + 0.5
         )]
@@ -111,17 +109,17 @@ class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="{} total score {}/{}".format(
-                self.shortname, self.total_score(), self.MAX_SCORE)
-        )]
+        return [CtvInfo(content=(
+            f"{self.shortname} total score "
+            f"{self.total_score()}/{self.MAX_SCORE}"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(self.MAX_SCORE)),
+                           comment=f"Total score (/{self.MAX_SCORE})"),
         ]
 
     def _total_score_for_fields(self, fieldnames: List[str]) -> int:
@@ -273,7 +271,7 @@ class Honos(HonosBase,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.wappstring("total_score"),
-                answer(self.total_score()) + " / {}".format(self.MAX_SCORE)
+                answer(self.total_score()) + f" / {self.MAX_SCORE}"
             ),
             period_rated=tr_qa(self.wxstring(req, "period_rated"),
                                self.period_rated),
@@ -443,7 +441,7 @@ class Honos65(HonosBase,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.wappstring("total_score"),
-                answer(self.total_score()) + " / {}".format(self.MAX_SCORE)
+                answer(self.total_score()) + f" / {self.MAX_SCORE}"
             ),
             period_rated=tr_qa(self.wxstring(req, "period_rated"),
                                self.period_rated),
@@ -584,17 +582,17 @@ class Honosca(HonosBase,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.wappstring("total_score"),
-                answer(self.total_score()) + " / {}".format(self.MAX_SCORE)
+                answer(self.total_score()) + f" / {self.MAX_SCORE}"
             ),
             section_a_total=tr(
                 self.wxstring(req, "section_a_total"),
                 answer(self.section_a_score()) +
-                " / {}".format(self.MAX_SECTION_A)
+                f" / {self.MAX_SECTION_A}"
             ),
             section_b_total=tr(
                 self.wxstring(req, "section_b_total"),
                 answer(self.section_b_score()) +
-                " / {}".format(self.MAX_SECTION_B)
+                f" / {self.MAX_SECTION_B}"
             ),
             period_rated=tr_qa(self.wxstring(req, "period_rated"),
                                self.period_rated),

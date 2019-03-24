@@ -514,40 +514,38 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         )
 
     def pd_heading(self, req: CamcopsRequest, wstringname: str) -> str:
-        return """
-            <tr class="{CssClass.HEADING}"><td colspan="2">{s}</td></tr>
-        """.format(
-            CssClass=CssClass,
-            s=self.wxstring(req, wstringname)
-        )
+        return f"""
+            <tr class="{CssClass.HEADING}">
+                <td colspan="2">{self.wxstring(req, wstringname)}</td>
+            </tr>
+        """
 
     def pd_skiprow(self, req: CamcopsRequest, stem: str) -> str:
         return self.get_twocol_bool_row(
             req, "skip_" + stem, label=self.wxstring(req, "skip_this_pd"))
 
     def pd_subheading(self, req: CamcopsRequest, wstringname: str) -> str:
-        return """
-            <tr class="{CssClass.SUBHEADING}"><td colspan="2">{s}</td></tr>
-        """.format(
-            CssClass=CssClass,
-            s=self.wxstring(req, wstringname)
-        )
+        return f"""
+            <tr class="{CssClass.SUBHEADING}">
+                <td colspan="2">{self.wxstring(req, wstringname)}</td>
+            </tr>
+        """
 
     def pd_general_criteria_bits(self, req: CamcopsRequest) -> str:
-        return """
-            <tr><td>{}</td><td><i><b>{}</b></i></td></tr>
-        """.format(
-            self.wxstring(req, "general_criteria_must_be_met"),
-            get_yes_no_unknown(req, self.has_pd())
-        )
+        return f"""
+            <tr>
+                <td>{self.wxstring(req, "general_criteria_must_be_met")}</td>
+                <td><i><b>{get_yes_no_unknown(req, self.has_pd())}</b></i></td>
+            </tr>
+        """
 
     def pd_b_text(self, req: CamcopsRequest, wstringname: str) -> str:
-        return """
-            <tr><td>{s}</td><td class="{CssClass.SUBHEADING}"></td></tr>
-        """.format(
-            CssClass=CssClass,
-            s=self.wxstring(req, wstringname),
-        )
+        return f"""
+            <tr>
+                <td>{self.wxstring(req, wstringname)}</td>
+                <td class="{CssClass.SUBHEADING}"></td>
+            </tr>
+        """
 
     def pd_basic_row(self, req: CamcopsRequest, stem: str, i: int) -> str:
         return self.get_twocol_bool_row_true_false(
@@ -564,12 +562,10 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = self.get_standard_clinician_comments_block(req, self.comments)
-        h += """
+        h += f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-        """.format(
-            CssClass=CssClass,
-        )
+        """
         h += self.get_is_complete_tr(req)
         h += tr_qa(req.wappstring("date_pertains_to"),
                    format_datetime(self.date_pertains_to,
@@ -595,24 +591,20 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         h += tr_qa(self.wxstring(req, "dependent_pd_title"),
                    get_yes_no_none(req, self.has_dependent_pd()))
 
-        h += """
+        h += f"""
                 </table>
             </div>
             <div>
                 <p><i>Vignette:</i></p>
-                <p>{vignette}</p>
+                <p>{answer(ws.webify(self.vignette),
+                           default_for_blank_strings=True)}</p>
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="80%">Question</th>
                     <th width="20%">Answer</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            vignette=answer(
-                ws.webify(self.vignette), default_for_blank_strings=True
-            ),
-        )
+        """
 
         # General
         h += subheading_spanning_two_columns(self.wxstring(req, "general"))

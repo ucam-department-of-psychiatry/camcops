@@ -213,21 +213,16 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return bool(self.sequence_description) and self.get_num_photos() > 0
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        html = """
+        html = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {is_complete}
-                    {num_photos}
-                    {description}
+                    {self.get_is_complete_tr(req)}
+                    {tr_qa("Number of photos", self.get_num_photos())}
+                    {tr_qa("Description", self.sequence_description)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
-        """.format(
-            CssClass=CssClass,
-            is_complete=self.get_is_complete_tr(req),
-            num_photos=tr_qa("Number of photos", self.get_num_photos()),
-            description=tr_qa("Description", self.sequence_description),
-        )
+        """
         for p in self.photos:
             html += p.get_html_table_rows()
         html += """

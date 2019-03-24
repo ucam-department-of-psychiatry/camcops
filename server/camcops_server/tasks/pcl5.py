@@ -135,8 +135,7 @@ class Pcl5(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PCL-5 total score",
-            axis_label="Total score ({}-{})".format(self.MIN_SCORE,
-                                                    self.MAX_SCORE),
+            axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
             axis_min=self.MIN_SCORE - 0.5,
             axis_max=self.MAX_SCORE + 0.5,
             axis_ticks=regular_tracker_axis_ticks_int(
@@ -159,7 +158,7 @@ class Pcl5(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="PCL-5 total score {}".format(self.total_score())
+            content=f"PCL-5 total score {self.total_score()}"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -168,8 +167,7 @@ class Pcl5(TaskHasPatientMixin, Task,
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score ({}-{})".format(self.MIN_SCORE,
-                                                     self.MAX_SCORE)),
+                comment=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})"),
             SummaryElement(
                 name="num_symptomatic",
                 coltype=Integer(),
@@ -267,7 +265,7 @@ class Pcl5(TaskHasPatientMixin, Task,
             if q in section_start:
                 section = section_start[q]
                 q_a += subheading_spanning_two_columns(
-                    "DSM-5 section {}".format(section)
+                    f"DSM-5 section {section}"
                 )
 
             q_a += tr_qa(
@@ -301,7 +299,7 @@ class Pcl5(TaskHasPatientMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr_qa(
-                "{} (0–80)".format(req.wappstring("total_score")),
+                f"{req.wappstring('total_score')} (0–80)",
                 score
             ),
             num_symptomatic=tr(

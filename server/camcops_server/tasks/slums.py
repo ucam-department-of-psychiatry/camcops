@@ -242,7 +242,7 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="SLUMS total score",
-            axis_label="Total score (out of {})".format(self.MAX_SCORE),
+            axis_label=f"Total score (out of {self.MAX_SCORE})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=hlines,
@@ -257,8 +257,8 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="SLUMS total score {}/{} ({})".format(
-                self.total_score(), self.MAX_SCORE, self.category(req))
+            content=f"SLUMS total score {self.total_score()}/{self.MAX_SCORE} "
+                    f"({self.category(req)})"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -266,7 +266,7 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(self.MAX_SCORE)),
+                           comment=f"Total score (/{self.MAX_SCORE})"),
             SummaryElement(name="category",
                            coltype=SummaryCategoryColType,
                            value=self.category(req),
@@ -324,7 +324,7 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.MAX_SCORE)
+                answer(score) + f" / {self.MAX_SCORE}"
             ),
             category=tr_qa(
                 req.wappstring("category") + " <sup>[1]</sup>",
@@ -357,10 +357,10 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 "State she lived in? [<i>score 2 each</i>])",
                 ", ".join([answer(x) for x in [self.q11a, self.q11b,
                                                self.q11c, self.q11d]]))
-        h += """
+        h += f"""
             </table>
             <table class="{CssClass.TASKDETAIL}">
-        """.format(CssClass=CssClass)
+        """
         h += subheading_spanning_two_columns("Images of tests: clock, shapes")
         # noinspection PyTypeChecker
         h += tr(
@@ -370,7 +370,7 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                td_width="50%", td_class=CssClass.PHOTO),
             literal=True
         )
-        h += """
+        h += f"""
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] With high school education:
@@ -380,5 +380,5 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 (Tariq et al. 2006, PubMed ID 17068312.)
                 [2] Q4 (learning the five words) isn’t scored.
             </div>
-        """.format(CssClass=CssClass)
+        """
         return h

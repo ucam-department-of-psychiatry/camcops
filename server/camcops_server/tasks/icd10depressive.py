@@ -566,7 +566,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         for x in self.PSYCHOSIS_NAMES:
             h += self.row_present_absent(req, x)
 
-        h += """
+        h += f"""
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] Mild depression requires ≥2 core symptoms and ≥4 total
@@ -589,5 +589,6 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 Moreover, psychotic symptoms can occur in mild/moderate
                 depression (Maj M et al., 2007, PMID 17915981).
             </div>
-        """.format(CssClass=CssClass) + ICD10_COPYRIGHT_DIV
+            {ICD10_COPYRIGHT_DIV}
+        """
         return h

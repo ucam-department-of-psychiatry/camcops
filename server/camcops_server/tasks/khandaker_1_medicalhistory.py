@@ -121,25 +121,20 @@ class Khandaker1MedicalHistory(TaskHasPatientMixin, Task,
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        html = """
+        html = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {is_complete_tr}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="40%">{condition}</th>
-                    <th width="20%">{yn}</th>
-                    <th width="40%">{comment}</th>
+                    <th width="40%">{self.xstring(req,
+                                                  X_HEADING_CONDITION)}</th>
+                    <th width="20%">{self.xstring(req, X_HEADING_YN)}</th>
+                    <th width="40%">{self.xstring(req, X_HEADING_COMMENT)}</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            is_complete_tr=self.get_is_complete_tr(req),
-            condition=self.xstring(req, X_HEADING_CONDITION),
-            yn=self.xstring(req, X_HEADING_YN),
-            comment=self.xstring(req, X_HEADING_COMMENT),
-        )
+        """
 
         for qinfo in QUESTIONS:
             if qinfo.has_heading():
@@ -153,19 +148,14 @@ class Khandaker1MedicalHistory(TaskHasPatientMixin, Task,
             if yn_value:
                 yn_str = bold(yn_str)
             comment_value = getattr(self, qinfo.fieldname_comment)
-            html += """
+            html += f"""
                 <tr>
-                    <td>{question}</td>
-                    <td>{yn}</td>
-                    <td>{comment}</td>
+                    <td>{self.xstring(req, qinfo.question_xmlstr)}</td>
+                    <td>{yn_str}</td>
+                    <td>{bold(ws.webify(comment_value))
+                         if comment_value else ""}</td>
                 </tr>
-            """.format(
-                question=self.xstring(req, qinfo.question_xmlstr),
-                yn=yn_str,
-                comment=(
-                    bold(ws.webify(comment_value)) if comment_value else ""
-                ),
-            )
+            """
 
         html += "</table>"
         return html

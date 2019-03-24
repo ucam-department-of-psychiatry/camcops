@@ -223,7 +223,7 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def subsubhead_text(self, req: CamcopsRequest, fieldname: str) -> str:
         return (
             self.subsubheading(req, fieldname) +
-            '<div><b>{}</b></div>'.format(ws.webify(getattr(self, fieldname)))
+            f'<div><b>{ws.webify(getattr(self, fieldname))}</b></div>'
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:

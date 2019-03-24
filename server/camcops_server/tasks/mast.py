@@ -111,7 +111,7 @@ class Mast(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="MAST total score",
-            axis_label="Total score (out of {})".format(self.MAX_SCORE),
+            axis_label=f"Total score (out of {self.MAX_SCORE})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=[self.ROSS_THRESHOLD - 0.5],
@@ -125,8 +125,7 @@ class Mast(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="MAST total score {}/{}".format(self.total_score(),
-                                                    self.MAX_SCORE)
+            content=f"MAST total score {self.total_score()}/{self.MAX_SCORE}"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -135,13 +134,13 @@ class Mast(TaskHasPatientMixin, Task,
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/{})".format(self.MAX_SCORE)),
+                comment=f"Total score (/{self.MAX_SCORE})"),
             SummaryElement(
                 name="exceeds_threshold",
                 coltype=Boolean(),
                 value=self.exceeds_ross_threshold(),
-                comment="Exceeds Ross threshold (total score >= {})".format(
-                    self.ROSS_THRESHOLD)),
+                comment=f"Exceeds Ross threshold "
+                        f"(total score >= {self.ROSS_THRESHOLD})"),
         ]
 
     def is_complete(self) -> bool:
@@ -195,12 +194,14 @@ class Mast(TaskHasPatientMixin, Task,
                     answer(" — " + str(self.get_score(q)))
                 )
             )
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
-                    {exceeds_threshold}
+                    {self.get_is_complete_tr(req)}
+                    {tr(req.wappstring("total_score"),
+                        answer(score) + " / {}".format(self.MAX_SCORE))}
+                    {tr_qa(self.wxstring(req, "exceeds_threshold"),
+                           get_yes_no(req, exceeds_threshold))}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -210,20 +211,7 @@ class Mast(TaskHasPatientMixin, Task,
                 </tr>
                 {q_a}
             </table>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.MAX_SCORE)
-            ),
-            exceeds_threshold=tr_qa(
-                self.wxstring(req, "exceeds_threshold"),
-                get_yes_no(req, exceeds_threshold)
-            ),
-            q_a=q_a,
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.MAST_PROCEDURE_ASSESSMENT))]  # noqa

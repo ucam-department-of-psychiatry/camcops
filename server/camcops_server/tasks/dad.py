@@ -252,47 +252,76 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         d = self.get_score_dict()
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
-                    <tr><td>Total</td><td>{total}</td></tr>
-                    <tr><td>Activity: hygiene</td><td>{hygiene}</td></tr>
-                    <tr><td>Activity: dressing</td><td>{dressing}</td></tr>
-                    <tr><td>Activity: continence</td><td>{continence}</td></tr>
-                    <tr><td>Activity: eating</td><td>{eating}</td></tr>
+                    {self.get_is_complete_tr(req)}
+                    <tr>
+                        <td>Total</td>
+                        <td>{self.report_score(d['total'])}</td>
+                        </tr>
+                    <tr>
+                        <td>Activity: hygiene</td>
+                        <td>{self.report_score(d['hygiene'])}</td>
+                    </tr>
+                    <tr>
+                        <td>Activity: dressing</td>
+                        <td>{self.report_score(d['dressing'])}</td>
+                    </tr>
+                    <tr>
+                        <td>Activity: continence</td>
+                        <td>{self.report_score(d['continence'])}</td>
+                    </tr>
+                    <tr>
+                        <td>Activity: eating</td>
+                        <td>{self.report_score(d['eating'])}</td>
+                    </tr>
                     <tr>
                         <td>Basic activities of daily living (BADLs) (hygiene,
                         dressing, continence, eating)</td>
-                        <td>{badl}</td>
+                        <td>{self.report_score(d['badl'])}</td>
                     </tr>
                     <tr>
-                        <td>Activity: meal preparation</td><td>{mealprep}</td>
+                        <td>Activity: meal preparation</td>
+                        <td>{self.report_score(d['mealprep'])}</td>
                     </tr>
-                    <tr><td>Activity: telephone</td><td>{telephone}</td></tr>
-                    <tr><td>Activity: outings</td><td>{outing}</td></tr>
-                    <tr><td>Activity: finance</td><td>{finance}</td></tr>
                     <tr>
-                        <td>Activity: medications</td><td>{medications}</td>
+                        <td>Activity: telephone</td>
+                        <td>{self.report_score(d['telephone'])}</td>
                     </tr>
-                    <tr><td>Activity: leisure</td><td>{leisure}</td></tr>
+                    <tr>
+                        <td>Activity: outings</td>
+                        <td>{self.report_score(d['outing'])}</td>
+                    </tr>
+                    <tr>
+                        <td>Activity: finance</td>
+                        <td>{self.report_score(d['finance'])}</td>
+                    </tr>
+                    <tr>
+                        <td>Activity: medications</td>
+                        <td>{self.report_score(d['medications'])}</td>
+                    </tr>
+                    <tr>
+                        <td>Activity: leisure</td>
+                        <td>{self.report_score(d['leisure'])}</td>
+                    </tr>
                     <tr>
                         <td>Instrumental activities of daily living (IADLs)
                         (meal prep., telephone, outings, finance, medications,
                         leisure)</td>
-                        <td>{iadl}</td>
+                        <td>{self.report_score(d['iadl'])}</td>
                     </tr>
                     <tr>
                         <td>Phase: initiation</td>
-                        <td>{initiation}</td>
+                        <td>{self.report_score(d['initiation'])}</td>
                     </tr>
                     <tr>
                         <td>Phase: planning/organisation</td>
-                        <td>{planning}</td>
+                        <td>{self.report_score(d['planning'])}</td>
                     </tr>
                     <tr>
                         <td>Phase: execution/performance</td>
-                        <td>{execution}</td>
+                        <td>{self.report_score(d['execution'])}</td>
                     </tr>
                 </table>
             </div>
@@ -302,26 +331,7 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
                         E = execution)</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            total=self.report_score(d['total']),
-            hygiene=self.report_score(d['hygiene']),
-            dressing=self.report_score(d['dressing']),
-            continence=self.report_score(d['continence']),
-            eating=self.report_score(d['eating']),
-            badl=self.report_score(d['badl']),
-            mealprep=self.report_score(d['mealprep']),
-            telephone=self.report_score(d['telephone']),
-            outing=self.report_score(d['outing']),
-            finance=self.report_score(d['finance']),
-            medications=self.report_score(d['medications']),
-            leisure=self.report_score(d['leisure']),
-            iadl=self.report_score(d['iadl']),
-            initiation=self.report_score(d['initiation']),
-            planning=self.report_score(d['planning']),
-            execution=self.report_score(d['execution']),
-        )
+        """
         for group in self.GROUPS:
             h += subheading_spanning_two_columns(self.wxstring(req, group))
             for item in self.ITEMS:
@@ -338,7 +348,8 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
                     # Shouldn't happen
                     q += " (?)"
                 h += tr(q, self.report_answer(item))
-        h += """
+        h += f"""
             </table>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+            {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
+        """
         return h

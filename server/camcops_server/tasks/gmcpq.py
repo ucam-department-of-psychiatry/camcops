@@ -247,10 +247,10 @@ class GMCPQ(Task):
         for option in range(1, 17):
             dict_q12[option] = self.wxstring(req,
                                              "ethnicity_option" + str(option))
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -258,10 +258,7 @@ class GMCPQ(Task):
                     <th width="60%">Question</th>
                     <th width="40%">Answer</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-        )
+        """
         ell = "&hellip; "  # horizontal ellipsis
         sep_row = subheading_spanning_two_columns("<br>")
         blank_cell = td("", td_class=CssClass.SUBHEADING)

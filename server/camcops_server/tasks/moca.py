@@ -207,7 +207,7 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="MOCA total score",
-            axis_label="Total score (out of {})".format(self.MAX_SCORE),
+            axis_label=f"Total score (out of {self.MAX_SCORE})",
             axis_min=-0.5,
             axis_max=(self.MAX_SCORE + 0.5),
             horizontal_lines=[25.5],
@@ -223,8 +223,7 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="MOCA total score {}/{}".format(self.total_score(),
-                                                    self.MAX_SCORE)
+            content=f"MOCA total score {self.total_score()}/{self.MAX_SCORE}"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -232,7 +231,7 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(self.MAX_SCORE)),
+                           comment=f"Total score (/{self.MAX_SCORE})"),
             SummaryElement(name="category",
                            coltype=String(50),
                            value=self.category(req),
@@ -314,7 +313,7 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.wappstring("total_score"),
-                answer(totalscore) + " / {}".format(self.MAX_SCORE)
+                answer(totalscore) + f" / {self.MAX_SCORE}"
             ),
             category=tr_qa(self.wxstring(req, "category") + " <sup>[1]</sup>",
                            category),

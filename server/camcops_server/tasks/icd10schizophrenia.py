@@ -472,7 +472,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         for x in Icd10Schizophrenia.H_NAMES:
             h += self.row_present_absent(req, x)
 
-        h += """
+        h += f"""
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] All of:
@@ -489,5 +489,6 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                         edition, Saunders, Elsevier, Edinburgh.
                     (b) Pawar AV &amp; Spence SA (2003), PMID 14519605.
             </div>
-        """.format(CssClass=CssClass) + ICD10_COPYRIGHT_DIV
+            {ICD10_COPYRIGHT_DIV}
+        """
         return h

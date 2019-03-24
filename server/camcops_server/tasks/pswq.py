@@ -101,8 +101,7 @@ class Pswq(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PSWQ total score (lower is better)",
-            axis_label="Total score ({}–{})".format(self.MIN_TOTAL,
-                                                    self.MAX_TOTAL),
+            axis_label=f"Total score ({self.MIN_TOTAL}–{self.MAX_TOTAL})",
             axis_min=self.MIN_TOTAL - 0.5,
             axis_max=self.MAX_TOTAL + 0.5
         )]
@@ -118,8 +117,8 @@ class Pswq(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="PSWQ total score {} (range {}–{})".format(
-                self.total_score(), self.MIN_TOTAL, self.MAX_TOTAL)
+            content=f"PSWQ total score {self.total_score()} "
+                    f"(range {self.MIN_TOTAL}–{self.MAX_TOTAL})"
         )]
 
     def score(self, q: int) -> Optional[int]:
@@ -142,19 +141,21 @@ class Pswq(TaskHasPatientMixin, Task,
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
                         <td>Total score (16–80)</td>
-                        <td>{total}</td>
+                        <td>{answer(self.total_score())}</td>
                     </td>
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                Anchor points are 1 = {anchor1}, 5 = {anchor5}.
-                Questions {reversed_questions} are reverse-scored.
+                Anchor points are 1 = {self.wxstring(req, "anchor1")}, 
+                5 = {self.wxstring(req, "anchor5")}.
+                Questions {", ".join(str(x) for x in self.REVERSE_SCORE)} 
+                are reverse-scored.
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
@@ -162,14 +163,7 @@ class Pswq(TaskHasPatientMixin, Task,
                     <th width="15%">Answer (1–5)</th>
                     <th width="15%">Score (1–5)</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            total=answer(self.total_score()),
-            anchor1=self.wxstring(req, "anchor1"),
-            anchor5=self.wxstring(req, "anchor5"),
-            reversed_questions=", ".join(str(x) for x in self.REVERSE_SCORE)
-        )
+        """
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))
             score = self.score(q)

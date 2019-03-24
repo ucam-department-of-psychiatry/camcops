@@ -104,7 +104,7 @@ class Smast(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="SMAST total score",
-            axis_label="Total score (out of {})".format(self.NQUESTIONS),
+            axis_label=f"Total score (out of {self.NQUESTIONS})",
             axis_min=-0.5,
             axis_max=self.NQUESTIONS + 0.5,
             horizontal_lines=[
@@ -121,10 +121,10 @@ class Smast(TaskHasPatientMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="SMAST total score {}/{} ({})".format(
-                self.total_score(), self.NQUESTIONS, self.likelihood(req))
-        )]
+        return [CtvInfo(content=(
+            f"SMAST total score {self.total_score()}/{self.NQUESTIONS} "
+            f"({self.likelihood(req)})"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -132,7 +132,7 @@ class Smast(TaskHasPatientMixin, Task,
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/{})".format(self.NQUESTIONS)),
+                comment=f"Total score (/{self.NQUESTIONS})"),
             SummaryElement(
                 name="likelihood",
                 coltype=SummaryCategoryColType,
@@ -209,7 +209,7 @@ class Smast(TaskHasPatientMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.NQUESTIONS)
+                answer(score) + f" / {self.NQUESTIONS}"
             ),
             problem_likelihood=tr_qa(
                 self.wxstring(req, "problem_likelihood") + " <sup>[1]</sup>",

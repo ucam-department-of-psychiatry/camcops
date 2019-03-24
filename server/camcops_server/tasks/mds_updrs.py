@@ -403,10 +403,10 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             question = column.comment
             value = getattr(self, attrname)
             q_a += tr_qa(question, value)
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -417,13 +417,7 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 {q_a}
             </table>
             {DATA_COLLECTION_ONLY_DIV}
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            q_a=q_a,
-            DATA_COLLECTION_ONLY_DIV=DATA_COLLECTION_ONLY_DIV,
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         if not self.is_complete():

@@ -84,14 +84,13 @@ class Irac(TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         if self.achieved is not None:
-            achieved = "{}. {}".format(self.achieved,
-                                       self.get_achieved_text(req))
+            achieved = f"{self.achieved}. {self.get_achieved_text(req)}"
         else:
             achieved = None
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -99,13 +98,7 @@ class Irac(TaskHasPatientMixin, Task):
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-                {aim}
-                {achieved}
+                {tr_qa(self.wxstring(req, "q_aim"), ws.webify(self.aim))}
+                {tr_qa(self.wxstring(req, "q_achieved"), achieved)}
             </table>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            aim=tr_qa(self.wxstring(req, "q_aim"), ws.webify(self.aim)),
-            achieved=tr_qa(self.wxstring(req, "q_achieved"), achieved),
-        )
-        return h
+        """

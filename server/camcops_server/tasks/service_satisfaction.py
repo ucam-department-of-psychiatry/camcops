@@ -108,14 +108,14 @@ class AbstractSatisfaction(object):
                              good_q: str,
                              bad_q: str) -> str:
         if self.rating is not None:
-            r = "{}. {}".format(self.rating, self.get_rating_text(req))
+            r = f"{self.rating}. {self.get_rating_text(req)}"
         else:
             r = None
         # noinspection PyUnresolvedReferences
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -123,22 +123,14 @@ class AbstractSatisfaction(object):
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-                {service}
-                {rating}
-                {good}
-                {bad}
+                {tr_qa(req.wappstring("satis_service_being_rated"), 
+                       self.service)}
+                {tr_qa(f"{rating_q} {self.service}?", r)}
+                {tr_qa(good_q, self.good)}
+                {tr_qa(bad_q, self.bad)}
             </table>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            # ... self.get_is_complete_tr() is from Task, and we are a mixin
-            service=tr_qa(
-                req.wappstring("satis_service_being_rated"), self.service),
-            rating=tr_qa("{} {}?".format(rating_q, self.service), r),
-            good=tr_qa(good_q, self.good),
-            bad=tr_qa(bad_q, self.bad),
-        )
-        return h
+        """
+        # ... self.get_is_complete_tr() is from Task, and we are a mixin
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         raise NotImplementedError("implement in subclass")

@@ -113,7 +113,7 @@ class Gbogres(TaskHasPatientMixin, Task):
     completed_by = Column(
         FN_COMPLETED_BY, Integer,
         comment="Who completed the form ({})".format(
-            "; ".join("{} = {}".format(k, v)
+            "; ".join(f"{k} = {v}"
                       for k, v in AGENT_STRING_MAP.items())
         )
     )
@@ -133,7 +133,7 @@ class Gbogres(TaskHasPatientMixin, Task):
     def goals_set_tr(self) -> str:
         extra = " (additional goals specified)" if self.other_goals else ""
         return tr_qa("Number of goals set",
-                     "{}{}".format(self.get_n_core_goals(), extra))
+                     f"{self.get_n_core_goals()}{extra}")
 
     def completed_by_tr(self) -> str:
         who = agent_description(self.completed_by, self.completed_by_other)
@@ -155,13 +155,13 @@ class Gbogres(TaskHasPatientMixin, Task):
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        return """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
-                    {date_tr}
-                    {completed_by_tr}
-                    {goals_set_count_tr}
+                    {self.get_is_complete_tr(req)}
+                    {self.get_date_tr()}
+                    {self.completed_by_tr()}
+                    {self.goals_set_tr()}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -169,22 +169,16 @@ class Gbogres(TaskHasPatientMixin, Task):
                     <th width="15%">Goal number</th>
                     <th width="85%">Goal description</th>
                 </tr>
-                <tr><td>1</td><td>{g1}</td></tr>
-                <tr><td>2</td><td>{g2}</td></tr>
-                <tr><td>3</td><td>{g3}</td></tr>
-                <tr><td>Other</td><td>{go}</td></tr>
+                <tr><td>1</td><td>{answer(self.goal_1_description,
+                                          default="")}</td></tr>
+                <tr><td>2</td><td>{answer(self.goal_2_description,
+                                          default="")}</td></tr>
+                <tr><td>3</td><td>{answer(self.goal_3_description,
+                                          default="")}</td></tr>
+                <tr><td>Other</td><td>{answer(self.other_goals,
+                                              default="")}</td></tr>
             </table>
-        """.format(
-            CssClass=CssClass,
-            date_tr=self.get_date_tr(),
-            complete_tr=self.get_is_complete_tr(req),
-            completed_by_tr=self.completed_by_tr(),
-            goals_set_count_tr=self.goals_set_tr(),
-            g1=answer(self.goal_1_description, default=""),
-            g2=answer(self.goal_2_description, default=""),
-            g3=answer(self.goal_3_description, default=""),
-            go=answer(self.other_goals, default=""),
-        )
+        """
 
 
 # =============================================================================
@@ -222,7 +216,7 @@ class Gbogpc(TaskHasPatientMixin, Task):
     whose_goal = Column(
         FN_WHOSE_GOAL, Integer,
         comment="Whose goal is this ({})".format(
-            "; ".join("{} = {}".format(k, v)
+            "; ".join(f"{k} = {v}"
                       for k, v in AGENT_STRING_MAP.items())
         )
     )
@@ -278,55 +272,45 @@ class Gbogpc(TaskHasPatientMixin, Task):
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        return """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="30%">Date</th>
-                    <td width="70%">{date}</td>
+                    <td width="70%">{
+        answer(format_datetime(self.date, DateFormat.SHORT_DATE, 
+                               default=None))}</td>
                 </tr>
                 <tr>
                     <th>Session number</th>
-                    <td>{session}</td>
+                    <td>{answer(self.session)}</td>
                 </tr>
                 <tr>
                     <th>Goal number</th>
-                    <td>{goal_num}</td>
+                    <td>{answer(self.goal_number)}</td>
                 </tr>
                 <tr>
                     <th>Goal description</th>
-                    <td>{goal_desc}</td>
+                    <td>{answer(self.goal_text)}</td>
                 </tr>
                 <tr>
                     <th>Progress <sup>[1]</sup></th>
-                    <td>{progress}</td>
+                    <td>{answer(self.progress)}</td>
                 </tr>
                 <tr>
                     <th>Whose goal is this?</th>
-                    <td>{who}</td>
+                    <td>{answer(agent_description(self.whose_goal, 
+                                                  self.whose_goal_other))}</td>
                 </tr>
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] {progress_explanation}
+                [1] {self.wxstring(req, "progress_explanation")}
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            date=answer(format_datetime(self.date, DateFormat.SHORT_DATE,
-                                        default=None)),
-            session=answer(self.session),
-            goal_num=answer(self.goal_number),
-            goal_desc=answer(self.goal_text),
-            progress=answer(self.progress),
-            who=answer(
-                agent_description(self.whose_goal, self.whose_goal_other)
-            ),
-            progress_explanation=self.wxstring(req, "progress_explanation")
-        )
+        """
 
 
 # =============================================================================
@@ -382,7 +366,7 @@ class Gbogras(TaskHasPatientMixin, Task):
     completed_by = Column(
         FN_COMPLETED_BY, Integer,
         comment="Who completed the form ({})".format(
-            "; ".join("{} = {}".format(k, v)
+            "; ".join(f"{k} = {v}"
                       for k, v in AGENT_STRING_MAP.items()
                       if k != AGENT_CLINICIAN)
         )
@@ -461,19 +445,20 @@ class Gbogras(TaskHasPatientMixin, Task):
         rows = []  # type: List[str]
         for goalnum, rate_attr, desc_attr, prog_attr in self.GOAL_TUPLES:
             if getattr(self, rate_attr):
-                rows.append("""
-                    <tr><td>{gn}</td><td>{gd}</td><td>{p}</td></tr>
-                """.format(
-                    gn=answer(goalnum),
-                    gd=answer(getattr(self, desc_attr)),
-                    p=answer(getattr(self, prog_attr))
-                ))
-        return """
+                rows.append(f"""
+                    <tr>
+                        <td>{answer(goalnum)}</td>
+                        <td>{answer(getattr(self, desc_attr))}</td>
+                        <td>{answer(getattr(self, prog_attr))}</td>
+                    </tr>
+                """)
+        newline = "\n"
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
-                    {date_tr}
-                    {completed_by_tr}
+                    {self.get_is_complete_tr(req)}
+                    {self.get_date_tr()}
+                    {self.completed_by_tr()}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -482,16 +467,9 @@ class Gbogras(TaskHasPatientMixin, Task):
                     <th width="70%">Description</th>
                     <th width="15%">Progress <sup>[1]</sup></th>
                 </tr>
-                {rows}
+                {newline.join(rows)}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] {progress_explanation}
+                [1] {self.wxstring(req, "progress_explanation")}
             </div>
-        """.format(
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            date_tr=self.get_date_tr(),
-            completed_by_tr=self.completed_by_tr(),
-            rows="\n".join(rows),
-            progress_explanation=self.wxstring(req, "progress_explanation")
-        )
+        """
