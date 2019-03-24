@@ -128,7 +128,7 @@ class DistressThermometer(TaskHasPatientMixin, Task,
         if self.distress is None:
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="Overall distress: {}/10".format(self.distress)
+            content=f"Overall distress: {self.distress}/10"
         )]
 
     def is_complete(self) -> bool:
@@ -138,11 +138,11 @@ class DistressThermometer(TaskHasPatientMixin, Task,
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {distress}
+                    {self.get_is_complete_tr(req)}
+                    {tr_qa("Overall distress (0–10)", self.distress)}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
@@ -154,41 +154,37 @@ class DistressThermometer(TaskHasPatientMixin, Task,
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            distress=tr_qa("Overall distress (0–10)", self.distress),
-        )
+        """
         h += tr_qa("Distress (0 no distress – 10 extreme distress)",
                    self.distress)
         h += subheading_spanning_two_columns("Practical problems")
         for i in range(1, 5 + 1):
             h += tr_qa(
-                "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
+                f"{i}. {self.wxstring(req, 'q' + str(i))}",
                 get_yes_no_none(req, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Family problems")
         for i in range(6, 8 + 1):
             h += tr_qa(
-                "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
+                f"{i}. {self.wxstring(req, 'q' + str(i))}",
                 get_yes_no_none(req, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Emotional problems")
         for i in range(9, 14 + 1):
             h += tr_qa(
-                "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
+                f"{i}. {self.wxstring(req, 'q' + str(i))}",
                 get_yes_no_none(req, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Spiritual problems")
         for i in range(15, 15 + 1):
             h += tr_qa(
-                "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
+                f"{i}. {self.wxstring(req, 'q' + str(i))}",
                 get_yes_no_none(req, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Physical problems")
         for i in range(16, self.NQUESTIONS + 1):
             h += tr_qa(
-                "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
+                f"{i}. {self.wxstring(req, 'q' + str(i))}",
                 get_yes_no_none(req, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Other problems")

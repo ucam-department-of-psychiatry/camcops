@@ -1931,6 +1931,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``check_index`` command.
 
 - Removed support for Python 3.5 since we want ``typing.Collection``.
+  Minimum is now Python 3.6. (That also allows f-strings.)
 
 - Bugfix: when password change frequency was >0, got "TypeError: can't compare
   offset-naive and offset-aware datetimes" from
@@ -1946,3 +1947,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - avoid touching the database for static requests; see
     :meth:`camcops_server.cc_modules.cc_request.CamcopsRequest.complete_request_add_cookies`.
+
+- Bugfix: policy validation used a combinatorial approach that became extremely
+  slow when lots of ID numbers were in use (looking like a crash and sometimes
+  causing database timeouts and follow-on errors). Rewritten 2019-03-23.
+
+- New task: :ref:`Edinburgh Postnatal Depression Scale (EPDS) <epds>`.
+  (Database revision 0019.)
+
+- ID number fields made mandatory in patient editing questionnaire on the
+  client. (Reduces the chance of uploading a blank ID number, which wouldn't
+  help anyone.)

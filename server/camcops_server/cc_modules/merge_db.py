@@ -122,9 +122,9 @@ def get_skip_tables(src_tables: List[str]) -> List[TableIdentity]:
     for tname in [Patient.__tablename__, User.__tablename__]:
         if tname not in src_tables:
             raise ValueError(
-                "Cannot proceed; table {!r} missing from source; unlikely "
-                "that the source is any sort of old CamCOPS database!".format(
-                    tname))
+                f"Cannot proceed; table {tname!r} missing from source; "
+                f"unlikely that the source is any sort of old CamCOPS "
+                f"database!")
 
     # In general, we allow missing source tables.
     # However, we can't allow source tables to be missing if they are
@@ -304,8 +304,8 @@ def get_dst_group(dest_groupnum: int,
                      "Group ID was {!r}", dest_groupnum)
         raise
     except NoResultFound:
-        raise ValueError("Group with ID {} missing from destination "
-                         "database".format(dest_groupnum))
+        raise ValueError(f"Group with ID {dest_groupnum} missing from "
+                         f"destination database")
     return group
 
 
@@ -334,8 +334,8 @@ def ensure_dest_iddef_exists(which_idnum: int,
                      "which_idnum! which_idnum was {!r}", which_idnum)
         raise
     except NoResultFound:
-        raise ValueError("ID number type with which_idnum={} missing from "
-                         "destination database".format(which_idnum))
+        raise ValueError(f"ID number type with which_idnum={which_idnum} "
+                         f"missing from destination database")
     return iddef
 
 
@@ -828,7 +828,7 @@ def translate_fn(trcon: TranslationContext) -> None:
         src_which_idnum = src_pidnum.which_idnum
         # Is it present?
         if src_which_idnum is None:
-            raise ValueError("Bad PatientIdNum: {!r}".format(src_pidnum))
+            raise ValueError(f"Bad PatientIdNum: {src_pidnum!r}")
         # Ensure the new object has an appropriate ID number FK:
         dst_pidnum = newobj  # type: PatientIdNum
         dst_pidnum.which_idnum = get_dest_which_idnum(src_which_idnum,

@@ -24,6 +24,7 @@
 
 #include "tasks/bprs.h"
 #include "tasks/core10.h"
+#include "tasks/epds.h"
 #include "tasks/gad7.h"
 #include "tasks/honos.h"
 #include "tasks/honosca.h"
@@ -45,7 +46,7 @@ SetMenuFromPerinatal::SetMenuFromPerinatal(CamcopsApp& app) :
         MAKE_CHANGE_PATIENT(app),
 
         MenuItem(tr("COMMON MENTAL HEALTH DISORDERS")).setLabelOnly(),
-        // EPDS -- Royal College not currently permitting use
+        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
 

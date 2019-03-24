@@ -136,7 +136,7 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CIWA total score",
-            axis_label="Total score (out of {})".format(self.MAX_SCORE),
+            axis_label=f"Total score (out of {self.MAX_SCORE})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=[14.5, 7.5],
@@ -151,8 +151,7 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="CIWA total score: {}/{}".format(self.total_score(),
-                                                     self.MAX_SCORE)
+            content=f"CIWA total score: {self.total_score()}/{self.MAX_SCORE}"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -160,7 +159,7 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(self.MAX_SCORE)),
+                           comment=f"Total score (/{self.MAX_SCORE})"),
             SummaryElement(name="severity",
                            coltype=SummaryCategoryColType,
                            value=self.severity(req),
@@ -202,12 +201,20 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 get_from_dict(answer_dicts_dict["q" + str(q)],
                               getattr(self, "q" + str(q)))
             )
-        h = """
+        tr_total_score = tr(
+            req.wappstring("total_score"),
+            answer(score) + " / {}".format(self.MAX_SCORE)
+        )
+        tr_severity = tr_qa(
+            self.wxstring(req, "severity") + " <sup>[1]</sup>",
+            severity
+        )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
-                    {severity}
+                    {self.get_is_complete_tr(req)}
+                    {tr_total_score}
+                    {tr_severity}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -216,37 +223,19 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <th width="65%">Answer</th>
                 </tr>
                 {q_a}
-                {subhead_vitals}
-                {t}
-                {hr}
-                {bp}
-                {rr}
+                {subheading_spanning_two_columns(
+                    self.wxstring(req, "vitals_title"))}
+                {tr_qa(self.wxstring(req, "t"), self.t)}
+                {tr_qa(self.wxstring(req, "hr"), self.hr)}
+                {tr(self.wxstring(req, "bp"),
+                    answer(self.sbp) + " / " + answer(self.dbp))}
+                {tr_qa(self.wxstring(req, "rr"), self.rr)}
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] Total score ≥15 severe, ≥8 moderate, otherwise
                     mild/minimal.
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.MAX_SCORE)
-            ),
-            severity=tr_qa(
-                self.wxstring(req, "severity") + " <sup>[1]</sup>",
-                severity
-            ),
-            q_a=q_a,
-            subhead_vitals=subheading_spanning_two_columns(
-                self.wxstring(req, "vitals_title")),
-            t=tr_qa(self.wxstring(req, "t"), self.t),
-            hr=tr_qa(self.wxstring(req, "hr"), self.hr),
-            bp=tr(self.wxstring(req, "bp"),
-                  answer(self.sbp) + " / " + answer(self.dbp)),
-            rr=tr_qa(self.wxstring(req, "rr"), self.rr),
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.CIWA_AR_PROCEDURE_ASSESSMENT))]  # noqa

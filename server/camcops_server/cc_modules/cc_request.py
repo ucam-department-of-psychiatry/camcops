@@ -801,8 +801,7 @@ class CamcopsRequest(Request):
             if stringname in allstrings[taskname]:
                 return allstrings[taskname].get(stringname)
         if default is None and provide_default_if_none:
-            default = "EXTRA_STRING_NOT_FOUND({}.{})".format(taskname,
-                                                             stringname)
+            default = f"EXTRA_STRING_NOT_FOUND({taskname}.{stringname})"
         return default
 
     def wxstring(self,
@@ -1292,15 +1291,15 @@ class CamcopsRequest(Request):
                               collections.Counter(recipient_names).items()
                               if count > 1]
                 if duplicates:
-                    raise ValueError("Duplicate export recipients specified: "
-                                     "{!r}".format(duplicates))
+                    raise ValueError(f"Duplicate export recipients "
+                                     f"specified: {duplicates!r}")
                 valid_names = set(r.recipient_name for r in recipients)
                 bad_names = [name for name in recipient_names
                              if name not in valid_names]
                 if bad_names:
                     raise ValueError(
-                        "Bad export recipients specified: {!r}. Valid "
-                        "recipients are: {!r}".format(bad_names, valid_names))
+                        f"Bad export recipients specified: {bad_names!r}. "
+                        f"Valid recipients are: {valid_names!r}")
                 recipients = [r for r in recipients
                               if r.recipient_name in recipient_names]
 

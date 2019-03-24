@@ -374,7 +374,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
         Used by the ``merge_db`` function, and specifically the old-to-new map
         maintained by :func:`cardinal_pythonlib.sqlalchemy.merge_db.merge_db`.
         """
-        return hash("{}_{}".format(self.id, self.recipient_name))
+        return hash(f"{self.id}_{self.recipient_name}")
 
     @reconstructor
     def init_on_load(self) -> None:
@@ -444,13 +444,13 @@ class ExportRecipient(ExportRecipientInfo, Base):
             # allows the client API to skip some checks for speed.
 
         if self.tasks and task.tablename not in self.tasks:
-            _warn("Task type {!r} not included".format(task.tablename))
+            _warn(f"Task type {task.tablename!r} not included")
             return False
 
         if not self.all_groups:
             task_group_id = task.get_group_id()
             if task_group_id not in self.group_ids:
-                _warn("group_id {} not permitted".format(task_group_id))
+                _warn(f"group_id {task_group_id} not permitted")
                 return False
 
         if not self.include_anonymous and task.is_anonymous:
@@ -478,8 +478,8 @@ class ExportRecipient(ExportRecipientInfo, Base):
                 _warn("missing patient")
                 return False
             if not patient.has_idnum_type(self.primary_idnum):
-                _warn("task's patient is missing ID number type {}".format(
-                    self.primary_idnum))
+                _warn(f"task's patient is missing ID number type "
+                      f"{self.primary_idnum}")
                 return False
 
         return True

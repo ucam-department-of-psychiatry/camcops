@@ -320,9 +320,9 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
             for q in range(first, last + 1):
                 f = getattr(self, "frequency" + str(q))
                 d = getattr(self, "distress" + str(q))
-                fa = ("{}: {}".format(f, get_from_dict(freq_dict, f))
+                fa = (f"{f}: {get_from_dict(freq_dict, f)}"
                       if f is not None else None)
-                da = ("{}: {}".format(d, get_from_dict(distress_dict, d))
+                da = (f"{d}: {get_from_dict(distress_dict, d)}"
                       if d is not None else None)
                 html += tr(
                     self.wxstring(req, "q" + str(q)),
@@ -331,10 +331,10 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                 )
             return html
 
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {complete_tr}
+                    {self.get_is_complete_tr(req)}
                 </table>
                 <table class="{CssClass.SUMMARY}">
                     <tr>
@@ -344,59 +344,62 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                     </tr>
                     <tr>
                         <td>{heading_memory}</td>
-                        <td>{mem_f}</td>
-                        <td>{mem_d}</td>
+                        <td>{answer(self.frequency_subscore(*self.QNUMS_MEMORY))}</td>
+                        <td>{answer(self.distress_subscore(*self.QNUMS_MEMORY))}</td>
                     </tr>
                     <tr>
                         <td>{heading_everyday}</td>
-                        <td>{everyday_f}</td>
-                        <td>{everyday_d}</td>
+                        <td>{answer(self.frequency_subscore(*self.QNUMS_EVERYDAY))}</td>
+                        <td>{answer(self.distress_subscore(*self.QNUMS_EVERYDAY))}</td>
                     </tr>
                     <tr>
                         <td>{heading_selfcare}</td>
-                        <td>{self_f}</td>
-                        <td>{self_d}</td>
+                        <td>{answer(self.frequency_subscore(*self.QNUMS_SELF))}</td>
+                        <td>{answer(self.distress_subscore(*self.QNUMS_SELF))}</td>
                     </tr>
                     <tr>
                         <td>{heading_behaviour}</td>
-                        <td>{behav_f}</td>
-                        <td>{behav_d}</td>
+                        <td>{answer(self.frequency_subscore(*self.QNUMS_BEHAVIOUR))}</td>
+                        <td>{answer(self.distress_subscore(*self.QNUMS_BEHAVIOUR))}</td>
                     </tr>
                     <tr>
                         <td>{heading_mood}</td>
-                        <td>{mood_f}</td>
-                        <td>{mood_d}</td>
+                        <td>{answer(self.frequency_subscore(*self.QNUMS_MOOD))}</td>
+                        <td>{answer(self.distress_subscore(*self.QNUMS_MOOD))}</td>
                     </tr>
                     <tr>
                         <td>{heading_beliefs}</td>
-                        <td>{beliefs_f}</td>
-                        <td>{beliefs_d}</td>
+                        <td>{answer(self.frequency_subscore(*self.QNUMS_BELIEFS))}</td>
+                        <td>{answer(self.distress_subscore(*self.QNUMS_BELIEFS))}</td>
                     </tr>
                     <tr>
                         <td>{heading_eating}</td>
-                        <td>{eating_f}</td>
-                        <td>{eating_d}</td>
+                        <td>{answer(self.frequency_subscore(*self.QNUMS_EATING))}</td>
+                        <td>{answer(self.distress_subscore(*self.QNUMS_EATING))}</td>
                     </tr>
                     <tr>
                         <td>{heading_sleep}</td>
-                        <td>{sleep_f}</td>
-                        <td>{sleep_d}</td>
+                        <td>{answer(self.frequency_subscore(*self.QNUMS_SLEEP))}</td>
+                        <td>{answer(self.distress_subscore(*self.QNUMS_SLEEP))}</td>
                     </tr>
                     <tr>
                         <td>{heading_motor}</td>
-                        <td>{motor_f}</td>
-                        <td>{motor_d}</td>
+                        <td>{answer(self.frequency_subscore(*self.QNUMS_STEREOTYPY))}</td>
+                        <td>{answer(self.distress_subscore(*self.QNUMS_STEREOTYPY))}</td>
                     </tr>
                     <tr>
                         <td>{heading_motivation}</td>
-                        <td>{motivation_f}</td>
-                        <td>{motivation_d}</td>
+                        <td>{answer(self.frequency_subscore(*self.QNUMS_MOTIVATION))}</td>
+                        <td>{answer(self.distress_subscore(*self.QNUMS_MOTIVATION))}</td>
                     </tr>
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
-                {tr_blanks}
-                {tr_comments}
+                {tr(
+                    "Respondent confirmed that blanks are deliberate (N/A)",
+                    answer(get_yes_no(req, self.confirm_blanks))
+                )}
+                {tr("Comments", answer(self.comments, default=""))}
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
@@ -404,47 +407,7 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                     <th width="25%">Frequency (0–4)</th>
                     <th width="25%">Distress (0–4)</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            complete_tr=self.get_is_complete_tr(req),
-            heading_memory=heading_memory,
-            mem_f=answer(self.frequency_subscore(*self.QNUMS_MEMORY)),
-            mem_d=answer(self.distress_subscore(*self.QNUMS_MEMORY)),
-            heading_everyday=heading_everyday,
-            everyday_f=answer(self.frequency_subscore(*self.QNUMS_EVERYDAY)),
-            everyday_d=answer(self.distress_subscore(*self.QNUMS_EVERYDAY)),
-            heading_selfcare=heading_selfcare,
-            self_f=answer(self.frequency_subscore(*self.QNUMS_SELF)),
-            self_d=answer(self.distress_subscore(*self.QNUMS_SELF)),
-            heading_behaviour=heading_behaviour,
-            behav_f=answer(self.frequency_subscore(*self.QNUMS_BEHAVIOUR)),
-            behav_d=answer(self.distress_subscore(*self.QNUMS_BEHAVIOUR)),
-            heading_mood=heading_mood,
-            mood_f=answer(self.frequency_subscore(*self.QNUMS_MOOD)),
-            mood_d=answer(self.distress_subscore(*self.QNUMS_MOOD)),
-            heading_beliefs=heading_beliefs,
-            beliefs_f=answer(self.frequency_subscore(*self.QNUMS_BELIEFS)),
-            beliefs_d=answer(self.distress_subscore(*self.QNUMS_BELIEFS)),
-            heading_eating=heading_eating,
-            eating_f=answer(self.frequency_subscore(*self.QNUMS_EATING)),
-            eating_d=answer(self.distress_subscore(*self.QNUMS_EATING)),
-            heading_sleep=heading_sleep,
-            sleep_f=answer(self.frequency_subscore(*self.QNUMS_SLEEP)),
-            sleep_d=answer(self.distress_subscore(*self.QNUMS_SLEEP)),
-            heading_motor=heading_motor,
-            motor_f=answer(self.frequency_subscore(*self.QNUMS_STEREOTYPY)),
-            motor_d=answer(self.distress_subscore(*self.QNUMS_STEREOTYPY)),
-            heading_motivation=heading_motivation,
-            motivation_f=answer(
-                self.frequency_subscore(*self.QNUMS_MOTIVATION)),
-            motivation_d=answer(
-                self.distress_subscore(*self.QNUMS_MOTIVATION)),
-            tr_blanks=tr(
-                "Respondent confirmed that blanks are deliberate (N/A)",
-                answer(get_yes_no(req, self.confirm_blanks))),
-            tr_comments=tr("Comments",
-                           answer(self.comments, default="")),
-        )
+        """
         h += subheading_spanning_three_columns(heading_memory)
         h += get_question_rows(*self.QNUMS_MEMORY)
         h += subheading_spanning_three_columns(heading_everyday)

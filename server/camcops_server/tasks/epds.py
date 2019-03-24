@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/tasks_discarded/epds.py
+camcops_server/tasks/epds.py
 
 ===============================================================================
 
@@ -28,8 +28,6 @@ camcops_server/tasks_discarded/epds.py
 
 """
 
-_ = '''
-
 from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
@@ -38,7 +36,7 @@ from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import get_yes_no
+from camcops_server.cc_modules.cc_html import get_yes_no, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -66,8 +64,7 @@ class EpdsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Epds(TaskHasPatientMixin, Task,
-           metaclass=EpdsMetaclass):
+class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
     __tablename__ = "epds"
     shortname = "EPDS"
     longname = "Edinburgh Postnatal Depression Scale"
@@ -76,21 +73,25 @@ class Epds(TaskHasPatientMixin, Task,
     NQUESTIONS = 10
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = 30
+    CUTOFF_1_GREATER_OR_EQUAL = 10  # Cox et al. 1987, PubMed ID 3651732.
+    CUTOFF_2_GREATER_OR_EQUAL = 13  # Cox et al. 1987, PubMed ID 3651732.
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="EPDS total score (rating depressive symptoms)",
-            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
+            axis_label=f"Total score (out of {self.MAX_TOTAL})",
             axis_min=-0.5,
             axis_max=self.MAX_TOTAL + 0.5,
             horizontal_lines=[
-                12.5,
-                9.5,
+                self.CUTOFF_2_GREATER_OR_EQUAL - 0.5,
+                self.CUTOFF_1_GREATER_OR_EQUAL - 0.5,
             ],
             horizontal_labels=[
-                TrackerLabel(13, "likely depression"),
-                TrackerLabel(10, "possible depression"),
+                TrackerLabel(self.CUTOFF_2_GREATER_OR_EQUAL,
+                             "likely depression"),
+                TrackerLabel(self.CUTOFF_1_GREATER_OR_EQUAL,
+                             "possible depression"),
             ]
         )]
 
@@ -99,7 +100,7 @@ class Epds(TaskHasPatientMixin, Task,
             SummaryElement(
                 name="total", coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (out of {})".format(self.MAX_TOTAL)
+                comment=f"Total score (out of {self.MAX_TOTAL})"
             ),
         ]
 
@@ -124,32 +125,34 @@ class Epds(TaskHasPatientMixin, Task,
 
         q_a = ""
         for q in range(1, self.NQUESTIONS + 1):
-            q_a += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
+            q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_question"),
                 get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
 
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {is_complete}
+                    {self.get_is_complete_tr(req)}
                     <tr>
-                        <td>{total_score_str}</td>
-                        <td><b>{score}</b> / {max_total}</td>
+                        <td>{req.wappstring("total_score")}</td>
+                        <td><b>{score}</b> / {self.MAX_TOTAL}</td>
                     </tr>
                     <tr>
-                        <td>{ac1str} <sup>[1]</sup></td>
-                        <td><b>{above_cutoff_1}</b></td>
+                        <td>{self.wxstring(req, "above_cutoff_1")} 
+                            <sup>[1]</sup></td>
+                        <td><b>{get_yes_no(req, above_cutoff_1)}</b></td>
                     </tr>
                     <tr>
-                        <td>{ac2str} <sup>[2]</sup></td>
-                        <td><b>{above_cutoff_2}</b></td>
+                        <td>{self.wxstring(req, "above_cutoff_2")} 
+                            <sup>[2]</sup></td>
+                        <td><b>{get_yes_no(req, above_cutoff_2)}</b></td>
                     </tr>
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
                 Ratings are over the last week.
-                <b>{suicide}</b>
+                <b>{self.wxstring(req, "always_look_at_suicide")}</b>
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
@@ -159,23 +162,22 @@ class Epds(TaskHasPatientMixin, Task,
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] &ge;10.
-                [2] &ge;13.
+                [1] &ge;{self.CUTOFF_1_GREATER_OR_EQUAL}.
+                [2] &ge;{self.CUTOFF_2_GREATER_OR_EQUAL}.
                 (Cox et al. 1987, PubMed ID 3651732.)
             </div>
-        """.format(
-            CssClass=CssClass,
-            is_complete=self.get_is_complete_tr(req),
-            total_score_str=req.wappstring("total_score"),
-            score=score,
-            max_total=self.MAX_TOTAL,
-            ac1str=self.wxstring(req, "above_cutoff_1"),
-            above_cutoff_1=get_yes_no(req, above_cutoff_1),
-            ac2str=self.wxstring(req, "above_cutoff_2"),
-            above_cutoff_2=get_yes_no(req, above_cutoff_2),
-            suicide=self.wxstring(req, "always_look_at_suicide"),
-            q_a=q_a,
-        )
-        return h
-
-'''
+            <div class="{CssClass.COPYRIGHT}">
+                Edinburgh Postnatal Depression Scale:
+                © 1987 The Royal College of Psychiatrists. The Edinburgh
+                Postnatal Depression Scale may be photocopied by individual
+                researchers or clinicians for their own use without seeking
+                permission from the publishers. The scale must be copied in
+                full and all copies must acknowledge the following source: Cox,
+                J.L., Holden, J.M., & Sagovsky, R. (1987). Detection of
+                postnatal depression. Development of the 10-item Edinburgh
+                Postnatal Depression Scale. British Journal of Psychiatry, 150,
+                782-786. Written permission must be obtained from the Royal
+                College of Psychiatrists for copying and distribution to others
+                or for republication (in print, online or by any other medium).
+            </div>
+        """

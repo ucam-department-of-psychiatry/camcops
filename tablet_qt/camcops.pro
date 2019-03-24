@@ -802,7 +802,8 @@ SOURCES += \
     questionnairelib/qusequencecontainerbase.cpp \
     tasks/gbogpc.cpp \
     taskxtra/gbocommon.cpp \
-    tasks/gbogras.cpp
+    tasks/gbogras.cpp \
+    tasks/epds.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1209,7 +1210,8 @@ HEADERS += \
     questionnairelib/qusequencecontainerbase.h \
     tasks/gbogpc.h \
     taskxtra/gbocommon.h \
-    tasks/gbogras.h
+    tasks/gbogras.h \
+    tasks/epds.h
 
 DISTFILES += \
     LICENSE.txt \

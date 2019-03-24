@@ -75,18 +75,20 @@ NRATINGS = 5  # numbered 0-4 in the database
 # -- to match DETECTION_OPTIONS.length in the original task
 N_CUES = 8  # to match magic number in original task
 
-ERROR_RATING_OUT_OF_RANGE = """
+ERROR_RATING_OUT_OF_RANGE = f"""
     <div class="{CssClass.ERROR}">Can't draw figure: rating out of range</div>
-""".format(CssClass=CssClass)
-WARNING_INSUFFICIENT_DATA = """
+"""
+WARNING_INSUFFICIENT_DATA = f"""
     <div class="{CssClass.WARNING}">Insufficient data</div>
-""".format(CssClass=CssClass)
-WARNING_RATING_MISSING = """
+"""
+WARNING_RATING_MISSING = f"""
     <div class="{CssClass.WARNING}">One or more ratings are missing</div>
-""".format(CssClass=CssClass)
+"""
 PLAIN_ROC_TITLE = "ROC"
-Z_ROC_TITLE = "ROC in Z coordinates (0/1 first mapped to {}/{})".format(
-    CONVERT_0_P_TO, CONVERT_1_P_TO)
+Z_ROC_TITLE = (
+    f"ROC in Z coordinates (0/1 first mapped to "
+    f"{CONVERT_0_P_TO}/{CONVERT_1_P_TO})"
+)
 
 AUDITORY = 0
 VISUAL = 1
@@ -223,7 +225,7 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
 
     @classmethod
     def get_html_table_header(cls) -> str:
-        return """
+        return f"""
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
                     <th>Trial# (0-based)</th>
@@ -259,7 +261,7 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
                     <th>Points</th>
                     <th>Cumulative points</th>
                 </tr>
-        """.format(CssClass=CssClass)
+        """
 
     # ratings: 0, 1 absent -- 2 don't know -- 3, 4 present
     def judged_present(self) -> Optional[bool]:
@@ -360,7 +362,7 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, Base):
 
     @classmethod
     def get_html_table_header(cls) -> str:
-        return """
+        return f"""
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
                     <th>Group# (0-based)</th>
@@ -370,7 +372,7 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, Base):
                     <th># target trials</th>
                     <th># no-target trials</th>
                 </tr>
-        """.format(CssClass=CssClass)
+        """
 
     def get_html_table_row(self) -> str:
         return tr(
@@ -694,7 +696,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                 warned = True
             show_x_label = (groupnum > 3)
             show_y_label = (groupnum % 4 == 0)
-            subtitle = "Group {} (n = {})".format(groupnum, rocinfo["total_n"])
+            subtitle = f"Group {groupnum} (n = {rocinfo['total_n']})"
             self.plot_roc(
                 req,
                 ax,
@@ -770,10 +772,10 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
 
         # Provide HTML
         # HTML
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
@@ -784,10 +786,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                     <th width="50%">Configuration variable</th>
                     <th width="50%">Value</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-        )
+        """
         h += tr_qa("Number of blocks", self.num_blocks)
         h += tr_qa("Stimulus counterbalancing", self.stimulus_counterbalancing)
         h += tr_qa("“Detection” response on right?",
@@ -814,11 +813,11 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                    self.auditory_target_1_intensity)
         h += tr_qa("ITI minimum (s)", self.iti_min_s)
         h += tr_qa("ITI maximum (s)", self.iti_max_s)
-        h += """
+        h += f"""
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
-        """.format(CssClass=CssClass)
+        """
         h += tr_qa("Aborted?", get_yes_no_none(req, self.aborted))
         h += tr_qa("Finished?", get_yes_no_none(req, self.finished))
         h += tr_qa("Last trial completed", self.last_trial_completed)
@@ -878,19 +877,19 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             trialarray: List[ExpDetTrial]) -> str:
         if not trialarray:
             return div(italic("No trials"))
-        html = """
+        html = f"""
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
                     <th>Block</th>
-        """.format(CssClass=CssClass)
+        """
         for g in range(N_CUES):
             # Have spaces around | to allow web browsers to word-wrap
-            html += """
-                <th>Group {0} P(detected | present)</th>
-                <th>Group {0} P(detected | absent)</th>
-                <th>Group {0} c</th>
-                <th>Group {0} d'</th>
-            """.format(g)
+            html += f"""
+                <th>Group {g} P(detected | present)</th>
+                <th>Group {g} P(detected | absent)</th>
+                <th>Group {g} c</th>
+                <th>Group {g} d'</th>
+            """
         html += """
                     </th>
                 </tr>
@@ -927,10 +926,12 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         groups_lowprob = [x.group_num
                           for x in grouparray
                           if x.n_target == n_target_lowprob]
-        html = """
+        html = f"""
             <div><i>
-                High probability groups (cues): {high}.\n
-                Low probability groups (cues): {low}.\n
+                High probability groups (cues): 
+                {", ".join([str(x) for x in groups_highprob])}.\n
+                Low probability groups (cues): 
+                {", ".join([str(x) for x in groups_lowprob])}.\n
             </i></div>
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
@@ -941,11 +942,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                     <th>c</th>
                     <th>d'</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            high=", ".join([str(x) for x in groups_highprob]),
-            low=", ".join([str(x) for x in groups_lowprob])
-        )
+        """
         for half in [0, 1]:
             for prob in [0, 1]:
                 blocks = list(range(half * self.num_blocks // 2,
@@ -983,10 +980,12 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         groups_lowprob = [x.group_num
                           for x in grouparray
                           if x.n_target == n_target_lowprob]
-        html = """
+        html = f"""
             <div><i>
-                High probability groups (cues): {high}.\n
-                Low probability groups (cues): {low}.\n
+                High probability groups (cues):
+                {", ".join([str(x) for x in groups_highprob])}.\n
+                Low probability groups (cues): 
+                {", ".join([str(x) for x in groups_lowprob])}.\n
             </i></div>
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
@@ -997,11 +996,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                     <th>c</th>
                     <th>d'</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            high=", ".join([str(x) for x in groups_highprob]),
-            low=", ".join([str(x) for x in groups_lowprob])
-        )
+        """
         for b in range(self.num_blocks):
             for prob in [0, 1]:
                 groups = groups_lowprob if prob == 0 else groups_highprob
@@ -1026,7 +1021,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
     def get_html_correct_by_group(self, trialarray: List[ExpDetTrial]) -> str:
         if not trialarray:
             return div(italic("No trials"))
-        html = """
+        html = f"""
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
                     <th>Group</th>
@@ -1035,7 +1030,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                     <th>c</th>
                     <th>d'</th>
                 </tr>
-        """.format(CssClass=CssClass)
+        """
         for g in range(N_CUES):
             (p_detected_given_present,
              p_detected_given_absent,
@@ -1057,7 +1052,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
     def get_html_correct_by_block(self, trialarray: List[ExpDetTrial]) -> str:
         if not trialarray:
             return div(italic("No trials"))
-        html = """
+        html = f"""
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
                     <th>Block</th>
@@ -1066,7 +1061,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                     <th>c</th>
                     <th>d'</th>
                 </tr>
-        """.format(CssClass=CssClass)
+        """
         for b in range(self.num_blocks):
             (p_detected_given_present,
              p_detected_given_absent,

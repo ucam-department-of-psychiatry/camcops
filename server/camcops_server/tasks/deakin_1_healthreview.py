@@ -341,10 +341,10 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
         def twocol_bool_row(fieldname: str) -> str:
             return self.get_twocol_bool_row(req, fieldname)
 
-        return """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -352,10 +352,7 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-        ) + (
+        """ + (
             self.get_twocol_val_row("ethnicity") +
             self.get_twocol_string_row("ethnicity_text") +
             self.get_twocol_string_row("ethnicity_other_details") +

@@ -538,19 +538,16 @@ def ensure_valid_table_name(req: "CamcopsRequest", tablename: str) -> None:
     - 2018-01-16 (v2.2.0): check also that client version is OK
     """
     if tablename not in CLIENT_TABLE_MAP:
-        fail_user_error("Invalid client table name: {}".format(tablename))
+        fail_user_error(f"Invalid client table name: {tablename}")
     tables_versions = all_tables_with_min_client_version()
     assert tablename in tables_versions
     client_version = req.tabletsession.tablet_version_ver
     minimum_client_version = tables_versions[tablename]
     if client_version < minimum_client_version:
         fail_user_error(
-            "Client CamCOPS version {cv} is less than the version ({minver}) "
-            "required to handle table {t}".format(
-                cv=client_version,
-                minver=minimum_client_version,
-                t=tablename
-            )
+            f"Client CamCOPS version {client_version} is less than the "
+            f"version ({minimum_client_version}) "
+            f"required to handle table {tablename}"
         )
 
 
@@ -569,11 +566,11 @@ def ensure_valid_field_name(table: Table, fieldname: str) -> None:
         # ... but not all fields starting with "_" are reserved; e.g.
         # "_move_off_tablet" is allowed.
         if fieldname in RESERVED_FIELDS:
-            fail_user_error("Reserved field name for table {!r}: {!r}".format(
-                table.name, fieldname))
+            fail_user_error(
+                f"Reserved field name for table {table.name!r}: {fieldname!r}")
     if fieldname not in table.columns.keys():
-        fail_user_error("Invalid field name for table {!r}: {!r}".format(
-            table.name, fieldname))
+        fail_user_error(
+            f"Invalid field name for table {table.name!r}: {fieldname!r}")
     # Note that the reserved-field check is case-sensitive, but so is the
     # "present in table" check. So for a malicious uploader trying to use, for
     # example, "_PK", this would not be picked up as a reserved field (so would
@@ -605,7 +602,7 @@ def get_str_var(req: "CamcopsRequest",
     """
     val = req.get_str_param(var, default=None)
     if mandatory and val is None:
-        fail_user_error("Must provide the variable: {}".format(var))
+        fail_user_error(f"Must provide the variable: {var}")
     return val
 
 
@@ -628,8 +625,7 @@ def get_int_var(req: "CamcopsRequest", var: str) -> int:
     try:
         return int(s)
     except (TypeError, ValueError):
-        fail_user_error("Variable {} is not a valid integer; was {!r}".format(
-            var, s))
+        fail_user_error(f"Variable {var} is not a valid integer; was {s!r}")
 
 
 def get_bool_int_var(req: "CamcopsRequest", var: str) -> bool:
@@ -672,8 +668,7 @@ def get_table_from_req(req: "CamcopsRequest", var: str) -> Table:
     """
     tablename = get_str_var(req, var, mandatory=True)
     if tablename in SILENTLY_IGNORE_TABLENAMES:
-        raise IgnoringAntiqueTableException(
-            "Ignoring table {}".format(tablename))
+        raise IgnoringAntiqueTableException(f"Ignoring table {tablename}")
     ensure_valid_table_name(req, tablename)
     return CLIENT_TABLE_MAP[tablename]
 
@@ -829,8 +824,8 @@ def get_fields_and_values(req: "CamcopsRequest",
     values = get_values_from_post_var(req, values_var, mandatory=mandatory)
     if len(fields) != len(values):
         fail_user_error(
-            "Number of fields ({f}) doesn't match number of values "
-            "({v})".format(f=len(fields), v=len(values))
+            f"Number of fields ({len(fields)}) doesn't match number of values "
+            f"({len(values)})"
         )
     return dict(list(zip(fields, values)))
 
@@ -863,7 +858,7 @@ def get_json_from_post_var(req: "CamcopsRequest", key: str,
     try:
         return decoder.decode(j)
     except json.JSONDecodeError:
-        msg = "Bad JSON for key {!r}".format(key)
+        msg = f"Bad JSON for key {key!r}"
         if mandatory:
             fail_user_error(msg)
         else:
@@ -1350,13 +1345,13 @@ def process_upload_record_special(req: "CamcopsRequest",
         # ---------------------------------------------------------------------
         which_idnum = valuedict.get("which_idnum", None)
         if which_idnum not in req.valid_which_idnums:
-            fail_user_error("No such ID number type: {}".format(which_idnum))
+            fail_user_error(f"No such ID number type: {which_idnum}")
         idnum_value = valuedict.get("idnum_value", None)
         if not req.is_idnum_valid(which_idnum, idnum_value):
             why_invalid = req.why_idnum_invalid(which_idnum, idnum_value)
             fail_user_error(
-                "For ID type {}, ID number {} is invalid: {}".format(
-                    which_idnum, idnum_value, why_invalid))
+                f"For ID type {which_idnum}, ID number {idnum_value} is "
+                f"invalid: {why_invalid}")
 
 
 def upload_record_core(
@@ -1495,8 +1490,10 @@ def audit_upload(req: "CamcopsRequest",
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         changes: a list of :class:`UploadTableChanges` objects, one per table
     """
-    msg = "Upload from device {}, username {!r}: ".format(
-        req.tabletsession.device_id, req.tabletsession.username)
+    msg = (
+        f"Upload from device {req.tabletsession.device_id}, "
+        f"username {req.tabletsession.username!r}: "
+    )
     changes = [x for x in changes if x.any_changes]
     if changes:
         changes.sort(key=lambda x: x.tablename)
@@ -1535,8 +1532,7 @@ def get_batch_details(req: "CamcopsRequest") -> BatchDetails:
     )
     row = req.dbsession.execute(query).fetchone()
     if not row:
-        fail_server_error("Device {} missing from Device table".format(
-            device_id))  # will raise
+        fail_server_error(f"Device {device_id} missing from Device table")  # will raise  # noqa
     upload_batch_utc, uploading_user_id, currently_preserving = row
     if not upload_batch_utc or uploading_user_id != req.user_id:
         # SIDE EFFECT: if the username changes, we restart (and thus roll back
@@ -2083,8 +2079,8 @@ def op_register(req: "CamcopsRequest") -> Dict[str, Any]:
     ts.reload_device()
     audit(
         req,
-        "register, device_id={}, friendly_name={}".format(
-            ts.device_id, device_friendly_name),
+        f"register, device_id={ts.device_id}, "
+        f"friendly_name={device_friendly_name}",
         tablename=Device.__tablename__
     )
     return get_server_id_info(req)
@@ -2194,11 +2190,11 @@ def op_upload_table(req: "CamcopsRequest") -> str:
 
     nfields = len(fields)
     if nfields < 1:
-        fail_user_error("{}={}: can't be less than 1".format(
-            TabletParam.FIELDS, nfields))
+        fail_user_error(
+            f"{TabletParam.FIELDS}={nfields}: can't be less than 1")
     if nrecords < 0:
-        fail_user_error("{}={}: can't be less than 0".format(
-            TabletParam.NRECORDS, nrecords))
+        fail_user_error(
+            f"{TabletParam.NRECORDS}={nrecords}: can't be less than 0")
 
     batchdetails = get_batch_details(req)
 
@@ -2228,12 +2224,10 @@ def op_upload_table(req: "CamcopsRequest") -> str:
         nvalues = len(values)
         if nvalues != nfields:
             errmsg = (
-                "Number of fields in field list ({nfields}) doesn't match "
-                "number of values in record {r} ({nvalues})".format(
-                    nfields=nfields, r=r, nvalues=nvalues)
+                f"Number of fields in field list ({nfields}) doesn't match "
+                f"number of values in record {r} ({nvalues})"
             )
-            log.warning(errmsg + "\nfields: {!r}\n" "values: {!r}",
-                        fields, values)
+            log.warning(errmsg + f"\nfields: {fields!r}\nvalues: {values!r}")
             fail_user_error(errmsg)
         valuedict = dict(zip(fields, values))
         # log.debug("table {!r}, record {}: {!r}", table.name, r, valuedict)
@@ -2295,7 +2289,7 @@ def op_upload_table(req: "CamcopsRequest") -> str:
              "({new} new, {mod} modified, {i} identical, {nd} deleted)",
              n=nrecords, t=table.name, new=n_new, mod=n_modified,
              i=n_identical, nd=n_deleted)
-    return "Table {} upload successful".format(table.name)
+    return f"Table {table.name} upload successful"
 
 
 def op_upload_record(req: "CamcopsRequest") -> str:
@@ -2419,8 +2413,8 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
     ndatevalues = len(client_dates)
     if npkvalues != ndatevalues:
         fail_user_error(
-            "Number of PK values ({npk}) doesn't match number of dates "
-            "({nd})".format(npk=npkvalues, nd=ndatevalues))
+            f"Number of PK values ({npkvalues}) doesn't match number of dates "
+            f"({ndatevalues})")
 
     # v2.3.0:
     move_off_tablet_values = []  # type: List[int]  # for type checker
@@ -2432,13 +2426,13 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
         n_motv = len(move_off_tablet_values)
         if n_motv != npkvalues:
             fail_user_error(
-                "Number of move-off-tablet values ({n_motv}) doesn't match "
-                "number of PKs ({npk})".format(n_motv=n_motv, npk=npkvalues))
+                f"Number of move-off-tablet values ({n_motv}) doesn't match "
+                f"number of PKs ({npkvalues})")
         try:
             move_off_tablet_values = [bool(x) for x in move_off_tablet_values]
         except (TypeError, ValueError):
-            fail_user_error("Bad move-off-tablet values: {!r}".format(
-                move_off_tablet_values))
+            fail_user_error(
+                f"Bad move-off-tablet values: {move_off_tablet_values!r}")
     else:
         client_reports_move_off_tablet = False
         log.warning(
@@ -2452,15 +2446,14 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
     for i in range(npkvalues):
         cpkv = clientpk_values[i]
         if not isinstance(cpkv, int):
-            fail_user_error("Bad (non-integer) client PK: {!r}".format(cpkv))
+            fail_user_error(f"Bad (non-integer) client PK: {cpkv!r}")
         dt = None  # for type checker
         try:
             dt = coerce_to_pendulum(client_dates[i])
             if dt is None:
-                fail_user_error("Missing date/time for client "
-                                "PK {}".format(cpkv))
+                fail_user_error(f"Missing date/time for client PK {cpkv}")
         except ValueError:
-            fail_user_error("Bad date/time: {!r}".format(client_dates[i]))
+            fail_user_error(f"Bad date/time: {client_dates[i]!r}")
         clientinfo.append(WhichKeyToSendInfo(
             client_pk=cpkv,
             client_when=dt,
@@ -2557,14 +2550,14 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
                 ptinfo.surname = v
             elif k == TabletParam.SEX:
                 if v not in POSSIBLE_SEX_VALUES:
-                    fail_user_error("Bad sex value: {!r}".format(v))
+                    fail_user_error(f"Bad sex value: {v!r}")
                 ptinfo.sex = v
             elif k == TabletParam.DOB:
                 ensure_string(v)
                 if v:
                     dob = coerce_to_pendulum_date(v)
                     if dob is None:
-                        fail_user_error("Invalid DOB: {!r}".format(v))
+                        fail_user_error(f"Invalid DOB: {v!r}")
                 else:
                     dob = None
                 ptinfo.dob = dob
@@ -2582,33 +2575,31 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
                 try:
                     which_idnum = int(nstr)
                 except (TypeError, ValueError):
-                    fail_user_error("Bad idnum key: {!r}".format(k))
+                    fail_user_error(f"Bad idnum key: {k!r}")
                 # noinspection PyUnboundLocalVariable
                 if which_idnum not in valid_which_idnums:
-                    fail_user_error("Bad ID number type: {}".format(
-                        which_idnum))
+                    fail_user_error(f"Bad ID number type: {which_idnum}")
                 if v is not None and not isinstance(v, int):
-                    fail_user_error("Bad ID number value: {!r}".format(v))
+                    fail_user_error(f"Bad ID number value: {v!r}")
                 idref = IdNumReference(which_idnum, v)
                 if not idref.is_valid():
-                    fail_user_error("Bad ID number: {!r}".format(idref))
+                    fail_user_error(f"Bad ID number: {idref!r}")
                 ptinfo.add_idnum(idref)
             elif k == TabletParam.FINALIZING:
                 if not isinstance(v, bool):
-                    fail_user_error("Bad {!r} value: {!r}".format(k, v))
+                    fail_user_error(f"Bad {k!r} value: {v!r}")
                 finalizing = v
             else:
-                fail_user_error("Unknown JSON key: {!r}".format(k))
+                fail_user_error(f"Unknown JSON key: {k!r}")
 
         if finalizing is None:
-            fail_user_error("Missing {!r} JSON key".format(
-                TabletParam.FINALIZING))
+            fail_user_error(f"Missing {TabletParam.FINALIZING!r} JSON key")
 
         pt_ok, reason = is_candidate_patient_valid(ptinfo, group, finalizing)
         if not pt_ok:
-            errors.append("{} -> {}".format(ptinfo, reason))
+            errors.append(f"{ptinfo} -> {reason}")
     if errors:
-        fail_user_error("Invalid patients: {}".format(" // ".join(errors)))
+        fail_user_error(f"Invalid patients: {' // '.join(errors)}")
     else:
         return SUCCESS_MSG
 
@@ -2645,8 +2636,8 @@ def op_upload_entire_database(req: "CamcopsRequest") -> str:
     duff_tablenames = sorted(list(set(dbdata_tablenames) -
                                   set(CLIENT_TABLE_MAP.keys())))
     if duff_tablenames:
-        fail_user_error("Attempt to upload nonexistent tables: {!r}".format(
-            duff_tablenames))
+        fail_user_error(
+            f"Attempt to upload nonexistent tables: {duff_tablenames!r}")
 
     # Perform the upload
     batchdetails = BatchDetails(req.now_utc, preserving=preserving,
@@ -2698,8 +2689,8 @@ def process_table_for_onestep_upload(
         current_only=False)
     servercurrentrecs = [r for r in serverrecs if r.current]
     if rows and not clientpk_name:
-        fail_user_error("Client-side PK name not specified by client for "
-                        "non-empty table {!r}".format(table.name))
+        fail_user_error(f"Client-side PK name not specified by client for "
+                        f"non-empty table {table.name!r}")
     tablechanges = UploadTableChanges(table)
     server_pks_uploaded = []  # type: List[int]
     for row in rows:
@@ -2893,7 +2884,7 @@ def client_api(req: "CamcopsRequest") -> Response:
     resultdict[TabletParam.SESSION_TOKEN] = ts.session_token
 
     # Convert dictionary to text in name-value pair format
-    txt = "".join("{}:{}\n".format(k, v) for k, v in resultdict.items())
+    txt = "".join(f"{k}:{v}\n" for k, v in resultdict.items())
 
     t1 = time.time()
     log.debug("Time in script (s): {t}", t=t1 - t0)

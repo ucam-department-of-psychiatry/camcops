@@ -135,7 +135,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
 
     @classmethod
     def get_html_table_header(cls) -> str:
-        return """
+        return f"""
             <table class="{CssClass.EXTRADETAIL}">
                 <tr>
                     <th>Trial# (0-based)</th>
@@ -152,7 +152,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
                     <th>Caught out (and reset)?</th>
                     <th>Trial# in calculation sequence</th>
                 </tr>
-        """.format(CssClass=CssClass)
+        """
 
     def get_html_table_row(self) -> str:
         return ("<tr>" + "<td>{}</td>" * 13 + "</th>").format(
@@ -376,10 +376,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
             for t in trialarray:
                 if t.trial_num_in_calculation_sequence is not None:
                     all_x.append(t.intensity)
-                    approx_x = "{0:.{precision}f}".format(
-                        t.intensity,
-                        precision=dp_to_consider_same_for_jitter
-                    )
+                    approx_x = f"{t.intensity:.{dp_to_consider_same_for_jitter}f}"  # noqa
                     if t.yes:
                         detected_y.append(
                             1 -
@@ -414,18 +411,18 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
                              fontdict=req.fontdict)
             req.set_figure_font_sizes(fitax)
 
-        html += """
+        html += f"""
             <table class="{CssClass.NOBORDER}">
                 <tr>
-                    <td class="{CssClass.NOBORDERPHOTO}">{trialfig}</td>
-                    <td class="{CssClass.NOBORDERPHOTO}">{fitfig}</td>
+                    <td class="{CssClass.NOBORDERPHOTO}">
+                        {req.get_html_from_pyplot_figure(trialfig)}
+                    </td>
+                    <td class="{CssClass.NOBORDERPHOTO}">
+                        {req.get_html_from_pyplot_figure(fitfig)}
+                    </td>
                 </tr>
             </table>
-        """.format(
-            CssClass=CssClass,
-            trialfig=req.get_html_from_pyplot_figure(trialfig),
-            fitfig=req.get_html_from_pyplot_figure(fitfig)
-        )
+        """
 
         return html
 
@@ -442,10 +439,10 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
             modality = req.wappstring("visual")
         else:
             modality = None
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
@@ -459,10 +456,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
                     <th width="50%">Configuration variable</th>
                     <th width="50%">Value</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-        )
+        """
         h += tr_qa("Modality", modality)
         h += tr_qa("Target number", self.target_number)
         h += tr_qa("Background filename", ws.webify(self.background_filename))
@@ -481,11 +475,11 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         h += tr_qa("Probability of a catch trial", self.p_catch_trial)
         h += tr_qa("Prompt", self.prompt)
         h += tr_qa("Intertrial interval (ITI) (s)", self.iti_s)
-        h += """
+        h += f"""
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
-        """.format(CssClass=CssClass)
+        """
         h += tr_qa("Finished?", get_yes_no_none(req, self.finished))
         h += tr_qa("Logistic intercept",
                    ws.number_to_dp(self.intercept,
@@ -496,14 +490,13 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
                    ws.number_to_dp(self.k, DP))
         h += tr_qa("Logistic theta (= –intercept/slope)",
                    ws.number_to_dp(self.theta, DP))
-        h += tr_qa("Intensity for {}% detection".format(100*LOWER_MARKER),
+        h += tr_qa(f"Intensity for {100 * LOWER_MARKER}% detection",
                    ws.number_to_dp(self.logistic_x_from_p(LOWER_MARKER),
                                    DP))
         h += tr_qa("Intensity for 50% detection",
                    ws.number_to_dp(self.theta, DP))
-        h += tr_qa("Intensity for {}% detection".format(100*UPPER_MARKER),
-                   ws.number_to_dp(self.logistic_x_from_p(UPPER_MARKER),
-                                   DP))
+        h += tr_qa(f"Intensity for {100 * UPPER_MARKER}% detection",
+                   ws.number_to_dp(self.logistic_x_from_p(UPPER_MARKER), DP))
         h += """
             </table>
         """

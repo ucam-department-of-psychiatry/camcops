@@ -151,6 +151,8 @@ Affective (mood and anxiety) disorders
 
 - :ref:`Clinical Outcomes in Routine Evaluation 10 (CORE-10) <core10>`
 
+- :ref:`Edinburgh Postnatal Depression Scale (EPDS) <epds>`
+
 - :ref:`Generalized Anxiety Disorder Assessment (GAD-7) <gad7>`
 
 - :ref:`Geriatric Depression Scale, 15-item version (GDS-15) <gds>`

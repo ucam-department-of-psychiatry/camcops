@@ -165,7 +165,7 @@ class InvalidExportRecipient(ValueError):
     """
     def __init__(self, recipient_name: str, msg: str) -> None:
         super().__init__(
-            "For export recipient [{}]: {}".format(recipient_name, msg))
+            f"For export recipient [{recipient_name}]: {msg}")
 
 
 # Internal shorthand:
@@ -178,7 +178,7 @@ class _Missing(_Invalid):
     """
     def __init__(self, recipient_name: str, paramname: str) -> None:
         super().__init__(recipient_name,
-                         "Missing parameter {}".format(paramname))
+                         f"Missing parameter {paramname}")
 
 
 # =============================================================================
@@ -422,9 +422,10 @@ class ExportRecipientInfo(object):
         if r.transmission_method not in ALL_TRANSMISSION_METHODS:
             raise _Invalid(
                 r.recipient_name,
-                "Missing/invalid {}: {}".format(
-                    ConfigParamExportRecipient.TRANSMISSION_METHOD,
-                    r.transmission_method))
+                f"Missing/invalid "
+                f"{ConfigParamExportRecipient.TRANSMISSION_METHOD}: "
+                f"{r.transmission_method}"
+            )
         r.push = _get_bool(cpr.PUSH, False)
         r.task_format = _get_str(cpr.TASK_FORMAT, FileType.PDF)
         r.xml_field_comments = _get_bool(cpr.XML_FIELD_COMMENTS, True)
@@ -579,36 +580,35 @@ class ExportRecipientInfo(object):
         # Export type
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if self.transmission_method not in ALL_TRANSMISSION_METHODS:
-            fail_invalid("Missing/invalid {}: {}".format(
-                cpr.TRANSMISSION_METHOD, self.transmission_method))
+            fail_invalid(
+                f"Missing/invalid {cpr.TRANSMISSION_METHOD}: "
+                f"{self.transmission_method}")
         no_push = [ExportTransmissionMethod.DATABASE]
         if self.push and self.transmission_method in no_push:
-            fail_invalid("Push notifications not supported for these "
-                         "transmission methods: {!r}".format(no_push))
+            fail_invalid(f"Push notifications not supported for these "
+                         f"transmission methods: {no_push!r}")
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # What to export
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if not self.all_groups and not self.group_names:
-            fail_invalid("Missing group names (from {})".format(
-                cpr.GROUPS))
+            fail_invalid(f"Missing group names (from {cpr.GROUPS})")
 
         all_basetables = all_task_tablenames()
         for basetable in self.tasks:
             if basetable not in all_basetables:
-                fail_invalid("Task {!r} doesn't exist".format(basetable))
+                fail_invalid(f"Task {basetable!r} doesn't exist")
 
         if (self.transmission_method == ExportTransmissionMethod.HL7 and
                 not self.primary_idnum):
-            fail_invalid("Must specify {} with {} = {}".format(
-                cpr.PRIMARY_IDNUM,
-                cpr.TRANSMISSION_METHOD,
-                ExportTransmissionMethod.HL7
-            ))
+            fail_invalid(
+                f"Must specify {cpr.PRIMARY_IDNUM} with "
+                f"{cpr.TRANSMISSION_METHOD} = {ExportTransmissionMethod.HL7}"
+            )
 
         if not self.task_format or self.task_format not in ALL_TASK_FORMATS:
-            fail_invalid("Missing/invalid {}: {}".format(
-                cpr.TASK_FORMAT, self.task_format))
+            fail_invalid(
+                f"Missing/invalid {cpr.TASK_FORMAT}: {self.task_format}")
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Database
@@ -628,11 +628,13 @@ class ExportRecipientInfo(object):
             if not self.email_from:
                 fail_missing(cpr.EMAIL_FROM)
             if not any([self.email_to, self.email_cc, self.email_bcc]):
-                fail_invalid("Must specify some of: {}, {}, {}".format(
-                    cpr.EMAIL_TO, cpr.EMAIL_CC, cpr.EMAIL_BCC))
+                fail_invalid(
+                    f"Must specify some of: {cpr.EMAIL_TO}, {cpr.EMAIL_CC}, "
+                    f"{cpr.EMAIL_BCC}")
             if COMMA in self.email_reply_to:
-                fail_invalid("Only a single 'Reply-To:' address permitted; "
-                             "was {!r}".format(self.email_reply_to))
+                fail_invalid(
+                    f"Only a single 'Reply-To:' address permitted; was "
+                    f"{self.email_reply_to!r}")
 
             if not self.email_subject:
                 fail_missing(cpr.EMAIL_SUBJECT)
@@ -645,8 +647,8 @@ class ExportRecipientInfo(object):
                 if not self.hl7_host:
                     fail_missing(cpr.HL7_HOST)
                 if not self.hl7_port or self.hl7_port <= 0:
-                    fail_invalid("Missing/invalid {}: {}".format(
-                        cpr.HL7_PORT, self.hl7_port))
+                    fail_invalid(
+                        f"Missing/invalid {cpr.HL7_PORT}: {self.hl7_port}")
             if not self.primary_idnum:
                 fail_missing(cpr.PRIMARY_IDNUM)
             if self.include_anonymous:
@@ -670,12 +672,9 @@ class ExportRecipientInfo(object):
                     " " in self.rio_uploading_user or
                     len(self.rio_uploading_user) > RIO_MAX_USER_LEN):
                 fail_invalid(
-                    "Missing/invalid {}: {} (must be "
-                    "present, contain no spaces, and max length "
-                    "{})".format(
-                        cpr.RIO_UPLOADING_USER,
-                        self.rio_uploading_user,
-                        RIO_MAX_USER_LEN))
+                    f"Missing/invalid {cpr.RIO_UPLOADING_USER}: "
+                    f"{self.rio_uploading_user} (must be present, contain no "
+                    f"spaces, and max length {RIO_MAX_USER_LEN})")
             if not self.rio_document_type:
                 fail_missing(cpr.RIO_DOCUMENT_TYPE)
 
@@ -706,7 +705,7 @@ class ExportRecipientInfo(object):
         for groupname in self.group_names:
             group = Group.get_group_by_name(dbsession, groupname)
             if not group:
-                raise ValueError("No such group: {!r}".format(groupname))
+                raise ValueError(f"No such group: {groupname!r}")
             self.group_ids.append(group.id)
         self.group_ids.sort()
 
@@ -720,13 +719,13 @@ class ExportRecipientInfo(object):
             for gid in self.group_ids:
                 group = Group.get_group_by_id(dbsession, gid)
                 if not group:
-                    fail_invalid("Invalid group ID: {}".format(gid))
+                    fail_invalid(f"Invalid group ID: {gid}")
                 groups.append(group)
 
         if self.primary_idnum:
             if self.primary_idnum not in valid_which_idnums:
-                fail_invalid("Invalid {}: {}".format(
-                    cpr.PRIMARY_IDNUM, self.primary_idnum))
+                fail_invalid(
+                    f"Invalid {cpr.PRIMARY_IDNUM}: {self.primary_idnum}")
 
             if self.require_idnum_mandatory:
                 # (a) ID number must be mandatory in finalized records
@@ -736,9 +735,9 @@ class ExportRecipientInfo(object):
                             which_idnum=self.primary_idnum,
                             valid_idnums=valid_which_idnums):
                         fail_invalid(
-                            "primary_idnum ({}) must be mandatory in "
-                            "finalizing policy, but is not for group "
-                            "{}".format(self.primary_idnum, group)
+                            f"primary_idnum ({self.primary_idnum}) must be "
+                            f"mandatory in finalizing policy, but is not for "
+                            f"group {group}"
                         )
                     if not self.finalized_only:
                         # (b) ID number must also be mandatory in uploaded,
@@ -748,12 +747,10 @@ class ExportRecipientInfo(object):
                                 which_idnum=self.primary_idnum,
                                 valid_idnums=valid_which_idnums):
                             fail_invalid(
-                                "primary_idnum ({}) must be mandatory in "
-                                "upload policy (because {} is false), but is "
-                                "not for group {}".format(
-                                    self.primary_idnum,
-                                    cpr.FINALIZED_ONLY,
-                                    group))
+                                f"primary_idnum ({self.primary_idnum}) must "
+                                f"be mandatory in upload policy (because "
+                                f"{cpr.FINALIZED_ONLY} is false), but is not "
+                                f"for group {group}")
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # File
@@ -763,19 +760,19 @@ class ExportRecipientInfo(object):
             if not patient_spec_for_filename_is_valid(
                     patient_spec=self.file_patient_spec,
                     valid_which_idnums=valid_which_idnums):
-                fail_invalid("Invalid {}: {}".format(
-                    cpr.FILE_PATIENT_SPEC, self.file_patient_spec))
+                fail_invalid(f"Invalid {cpr.FILE_PATIENT_SPEC}: "
+                             f"{self.file_patient_spec}")
             if not filename_spec_is_valid(
                     filename_spec=self.file_filename_spec,
                     valid_which_idnums=valid_which_idnums):
-                fail_invalid("Invalid {}: {}".format(
-                    cpr.FILE_FILENAME_SPEC, self.file_filename_spec))
+                fail_invalid(f"Invalid {cpr.FILE_FILENAME_SPEC}: "
+                             f"{self.file_filename_spec}")
 
         if self._need_rio_metadata_options():
             # RiO metadata
             if self.rio_idnum not in valid_which_idnums:
-                fail_invalid("Invalid ID number type for {}: {}".format(
-                    cpr.RIO_IDNUM, self.rio_idnum))
+                fail_invalid(f"Invalid ID number type for "
+                             f"{cpr.RIO_IDNUM}: {self.rio_idnum}")
 
     def _need_file_name(self) -> bool:
         """

@@ -181,8 +181,8 @@ class SecurityAccountLockout(Base):
         # noinspection PyArgumentList
         lock = cls(username=username, lock_until=lock_until)
         dbsession.add(lock)
-        audit(req, "Account {} locked out for {} minutes".format(
-            username, lockout_minutes))
+        audit(req,
+              f"Account {username} locked out for {lockout_minutes} minutes")
 
     @classmethod
     def unlock_user(cls, req: "CamcopsRequest", username: str) -> None:
@@ -252,7 +252,7 @@ class SecurityLoginFailure(Base):
             username: the user's username
         """
         cfg = req.config
-        audit(req, "Failed login as user: {}".format(username))
+        audit(req, f"Failed login as user: {username}")
         cls.record_login_failure(req, username)
         nfailures = cls.how_many_login_failures(req, username)
         nlockouts = nfailures // cfg.lockout_threshold
@@ -305,7 +305,7 @@ class SecurityLoginFailure(Base):
         """
         SecurityAccountLockout.unlock_user(req, username)
         cls.clear_login_failures(req, username)
-        audit(req, "User {} re-enabled".format(username))
+        audit(req, f"User {username} re-enabled")
 
     @classmethod
     def clear_login_failures_for_nonexistent_users(
@@ -485,7 +485,7 @@ class User(Base):
         """
         assert username, "Can't create superuser with no name"
         assert username != USER_NAME_FOR_SYSTEM, (
-            "Can't create user with name {!r}".format(USER_NAME_FOR_SYSTEM))
+            f"Can't create user with name {USER_NAME_FOR_SYSTEM!r}")
         dbsession = req.dbsession
         user = cls.get_user_by_name(dbsession, username)
         if user:

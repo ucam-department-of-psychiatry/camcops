@@ -450,11 +450,11 @@ class Patient(GenericTabletRecordMixin, Base):
         HTML fragment for date of birth.
         """
         if longform:
-            return "<br>Date of birth: {}".format(
-                answer(format_datetime(
-                    self.dob, DateFormat.LONG_DATE, default=None)))
-        return "DOB: {}.".format(format_datetime(
-            self.dob, DateFormat.SHORT_DATE))
+            dob = answer(format_datetime(
+                self.dob, DateFormat.LONG_DATE, default=None))
+            return f"<br>Date of birth: {dob}"
+        dob = format_datetime(self.dob, DateFormat.SHORT_DATE)
+        return f"DOB: {dob}."
 
     def get_age(self, req: "CamcopsRequest",
                 default: str = "") -> Union[int, str]:
@@ -826,7 +826,7 @@ class DistinctPatientReport(Report):
             n = iddef.which_idnum
             desc = iddef.short_description
             # noinspection PyUnresolvedReferences
-            aliased_table = PatientIdNum.__table__.alias("i{}".format(n))
+            aliased_table = PatientIdNum.__table__.alias(f"i{n}")
             select_fields.append(aliased_table.c.idnum_value.label(desc))
             select_from = select_from.outerjoin(aliased_table, and_(
                 aliased_table.c.patient_id == Patient.id,

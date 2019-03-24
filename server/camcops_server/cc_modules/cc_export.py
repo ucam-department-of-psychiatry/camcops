@@ -227,8 +227,10 @@ def print_export_queue(req: "CamcopsRequest",
         collection = get_collection_for_export(req, recipient,
                                                via_index=via_index)
         for task in collection.gen_tasks_by_class():
-            print("{}: {}".format(recipient.recipient_name,
-                                  str(task) if pretty else repr(task)))
+            print(
+                f"{recipient.recipient_name}: "
+                f"{str(task) if pretty else repr(task)}"
+            )
 
 
 def export(req: "CamcopsRequest",
@@ -428,8 +430,10 @@ def gen_audited_tasks_for_task_class(
     for task in collection.tasks_for_task_class(cls):
         pklist.append(task.get_pk())
         yield task
-    audit_descriptions.append("{}: {}".format(
-        cls.__tablename__, ",".join(str(pk) for pk in pklist)))
+    audit_descriptions.append(
+        f"{cls.__tablename__}: "
+        f"{','.join(str(pk) for pk in pklist)}"
+    )
 
 
 def gen_audited_tasks_by_task_class(
@@ -553,12 +557,13 @@ def task_collection_to_sqlite_response(req: "CamcopsRequest",
         # ---------------------------------------------------------------------
         # Audit
         # ---------------------------------------------------------------------
-        audit(req, "SQL dump: {}".format("; ".join(audit_descriptions)))
+        audit(req, f"SQL dump: {'; '.join(audit_descriptions)}")
         # ---------------------------------------------------------------------
         # Fetch file contents, either as binary, or as SQL
         # ---------------------------------------------------------------------
-        filename_stem = "CamCOPS_dump_{}".format(
-            format_datetime(req.now, DateFormat.FILENAME))
+        filename_stem = (
+            f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}"
+        )
         suggested_filename = filename_stem + (
             ".sql" if as_sql_not_binary else ".sqlite3")
 
@@ -633,11 +638,12 @@ def task_collection_to_tsv_zip_response(
     z.close()
 
     # Audit
-    audit(req, "Basic dump: {}".format("; ".join(audit_descriptions)))
+    audit(req, f"Basic dump: {'; '.join(audit_descriptions)}")
 
     # Return the result
     zip_contents = memfile.getvalue()
     memfile.close()
-    zip_filename = "CamCOPS_dump_{}.zip".format(
-        format_datetime(req.now, DateFormat.FILENAME))
+    zip_filename = (
+        f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}.zip"
+    )
     return ZipResponse(body=zip_contents, filename=zip_filename)

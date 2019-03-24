@@ -170,9 +170,10 @@ void ChoosePatientMenu::deletePatient()
                     QMessageBox::Warning,
                     tr("Delete patient WITH TASKS"),
                     tr("Delete this patient?") + "\n\n" + patient_details +
-                        QString("\n\n<b>THERE ARE %1 ASSOCIATED TASKS!</b>")
+                        QString("\n\nTHERE ARE %1 ASSOCIATED TASKS!")
                             .arg(n_tasks),
                     this);
+        // NB can't use HTML "<b></b>" in the text there.
         QAbstractButton* delete_button = msgbox.addButton(
                     tr("Yes, delete despite tasks"), QMessageBox::YesRole);
         msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);

@@ -155,7 +155,7 @@ def get_celery_settings_dict() -> Dict[str, Any]:
     schedule = {}  # type: Dict[str, Any]
     for crontab_entry in config.crontab_entries:
         recipient_name = crontab_entry.content
-        schedule_name = "export_to_{}".format(recipient_name)
+        schedule_name = f"export_to_{recipient_name}"
         log.info("Adding regular export job {}: crontab: {}",
                  schedule_name, crontab_entry)
         schedule[schedule_name] = {
@@ -215,8 +215,8 @@ def debug_task(self) -> None:
     http://docs.celeryproject.org/en/latest/userguide/tasks.html#bound-tasks
 
     """
-    log.info("self: {!r}".format(self))
-    log.info("Backend: {}".format(current_task.backend))
+    log.info(f"self: {self!r}")
+    log.info(f"Backend: {current_task.backend}")
 
 
 @celery_app.task

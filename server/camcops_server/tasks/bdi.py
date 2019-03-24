@@ -161,10 +161,10 @@ class BdiMetaclass(DeclarativeMeta):
             minimum=0, maximum=3,
             comment_fmt="Q{n} [{s}] (0-3, higher worse)",
             comment_strings=[
-                "BDI-I: {i}; BDI-IA: {ia}; BDI-II: {ii}".format(
-                    i=BDI_I_QUESTION_TOPICS[q],
-                    ia=BDI_IA_QUESTION_TOPICS[q],
-                    ii=BDI_II_QUESTION_TOPICS[q],
+                (
+                    f"BDI-I: {BDI_I_QUESTION_TOPICS[q]}; "
+                    f"BDI-IA: {BDI_IA_QUESTION_TOPICS[q]}; "
+                    f"BDI-II: {BDI_II_QUESTION_TOPICS[q]}"
                 )
                 for q in range(1, NQUESTIONS + 1)
             ]
@@ -198,7 +198,7 @@ class Bdi(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="BDI total score (rating depressive symptoms)",
-            axis_label="Score for Q1-21 (out of {})".format(MAX_SCORE),
+            axis_label=f"Score for Q1-21 (out of {MAX_SCORE})",
             axis_min=-0.5,
             axis_max=MAX_SCORE + 0.5
         )]
@@ -206,17 +206,17 @@ class Bdi(TaskHasPatientMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="{} total score {}/{}".format(
-                ws.webify(self.bdi_scale), self.total_score(), MAX_SCORE)
-        )]
+        return [CtvInfo(content=(
+            f"{ws.webify(self.bdi_scale)} "
+            f"total score {self.total_score()}/{MAX_SCORE}"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(MAX_SCORE)),
+                           comment=f"Total score (/{MAX_SCORE})"),
         ]
 
     def total_score(self) -> int:
@@ -267,26 +267,37 @@ class Bdi(TaskHasPatientMixin, Task,
             if qdict:
                 topic = qdict.get(q, "??")
             q_a += tr_qa(
-                "{question} {qnum} ({topic})".format(
-                    question=req.wappstring("question"),
-                    qnum=q,
-                    topic=topic,
-                ),
+                f"{req.wappstring('question')} {q} ({topic})",
                 getattr(self, "q" + str(q))
             )
 
         # HTML:
-        h = """
+        tr_somatic_score = tr(
+            td(
+                "Custom somatic score for Insight study <sup>[2]</sup> "
+                "(sum of scores for questions {}, for BDI-II only)".format(
+                    ", ".join("Q" + str(qnum) for qnum in
+                              CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS))
+            ),
+            td(somatic_text, td_class=somatic_css_class),
+            literal=True
+        )
+        tr_which_scale = tr_qa(
+            req.wappstring("bdi_which_scale") + " <sup>[3]</sup>",
+            ws.webify(self.bdi_scale)
+        )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {tr_total_score}
+                    {self.get_is_complete_tr(req)}
+                    {tr(req.wappstring("total_score"),
+                        answer(score) + " / {}".format(MAX_SCORE))}
                     <tr>
                         <td>
                             Suicidal thoughts/wishes score
-                            (Q{suicidality_qnum}) <sup>[1]</sup>
+                            (Q{SUICIDALITY_QNUM}) <sup>[1]</sup>
                         </td>
-                        {td_suicidality}
+                        {td(suicidality_text, td_class=suicidality_css_class)}
                     </tr>
                     {tr_somatic_score}
                 </table>
@@ -304,7 +315,7 @@ class Bdi(TaskHasPatientMixin, Task,
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Suicidal thoughts are asked about in Q{suicidality_qnum}
+                [1] Suicidal thoughts are asked about in Q{SUICIDALITY_QNUM}
                     for all of: BDI-I (1961), BDI-IA (1978), and BDI-II (1996).
 
                 [2] Insight study:
@@ -325,34 +336,8 @@ class Bdi(TaskHasPatientMixin, Task,
                 </ul>
 
             </div>
-            {data_collection_only_div}
-        """.format(  # noqa
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            tr_total_score=tr(
-                req.wappstring("total_score"),
-                answer(score) + " / {}".format(MAX_SCORE)
-            ),
-            suicidality_qnum=SUICIDALITY_QNUM,
-            td_suicidality=td(suicidality_text, td_class=suicidality_css_class),  # noqa
-            tr_somatic_score=tr(
-                td(
-                    "Custom somatic score for Insight study <sup>[2]</sup> "
-                    "(sum of scores for questions {}, for BDI-II only)".format(
-                        ", ".join("Q" + str(qnum) for qnum in
-                                  CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS))
-                ),
-                td(somatic_text, td_class=somatic_css_class),
-                literal=True
-            ),
-            tr_which_scale=tr_qa(
-                req.wappstring("bdi_which_scale") + " <sup>[3]</sup>",
-                ws.webify(self.bdi_scale)
-            ),
-            q_a=q_a,
-            data_collection_only_div=DATA_COLLECTION_ONLY_DIV
-        )
-        return h
+            {DATA_COLLECTION_ONLY_DIV}
+        """  # noqa
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         scale_lookup = SnomedLookup.BDI_SCALE

@@ -137,8 +137,7 @@ class Core10(TaskHasPatientMixin, Task):
         return [TrackerInfo(
             value=self.clinical_score(),
             plot_label="CORE-10 clinical score (rating distress)",
-            axis_label="Clinical score (out of {})".format(
-                self.MAX_SCORE),
+            axis_label=f"Clinical score (out of {self.MAX_SCORE})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE + 0.5,
             axis_ticks=[
@@ -162,10 +161,9 @@ class Core10(TaskHasPatientMixin, Task):
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="CORE-10 clinical score {}/{}".format(
-                self.clinical_score(), self.MAX_SCORE)
-        )]
+        return [CtvInfo(content=(
+            f"CORE-10 clinical score {self.clinical_score()}/{self.MAX_SCORE}"
+        ))]
         # todo: CORE10: add suicidality to clinical text?
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -173,7 +171,7 @@ class Core10(TaskHasPatientMixin, Task):
             SummaryElement(
                 name="clinical_score", coltype=Integer(),
                 value=self.clinical_score(),
-                comment="Clinical score (/{})".format(self.MAX_SCORE)),
+                comment=f"Clinical score (/{self.MAX_SCORE})"),
         ]
 
     def total_score(self) -> int:
@@ -218,11 +216,15 @@ class Core10(TaskHasPatientMixin, Task):
         for qnum in range(4, self.N_QUESTIONS + 1):
             q_a += get_tr_qa(qnum, normal_dict)
 
-        h = """
+        tr_clinical_score = tr(
+            "Clinical score <sup>[1]</sup>",
+            answer(self.clinical_score()) + " / {}".format(self.MAX_SCORE)
+        )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {clinical_score}
+                    {self.get_is_complete_tr(req)}
+                    {tr_clinical_score}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
@@ -240,16 +242,7 @@ class Core10(TaskHasPatientMixin, Task):
                     ÷ number of questions completed. If all questions are
                     completed, it's just the total score.
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            clinical_score=tr(
-                "Clinical score <sup>[1]</sup>",
-                answer(self.clinical_score()) + " / {}".format(self.MAX_SCORE)
-            ),
-            q_a=q_a,
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.CORE10_PROCEDURE_ASSESSMENT))]  # noqa

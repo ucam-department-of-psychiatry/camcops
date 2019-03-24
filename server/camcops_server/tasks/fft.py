@@ -83,13 +83,13 @@ class Fft(TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         if self.rating is not None:
-            r = "{}. {}".format(self.rating, self.get_rating_text(req))
+            r = f"{self.rating}. {self.get_rating_text(req)}"
         else:
             r = None
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -97,14 +97,8 @@ class Fft(TaskHasPatientMixin, Task):
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-                {service}
-                {rating}
+                {tr_qa(req.wappstring("satis_service_being_rated"),
+                       self.service)}
+                {tr_qa(self.wxstring(req, "q"), r)}
             </table>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            service=tr_qa(req.wappstring("satis_service_being_rated"),
-                          self.service),
-            rating=tr_qa(self.wxstring(req, "q"), r),
-        )
-        return h
+        """

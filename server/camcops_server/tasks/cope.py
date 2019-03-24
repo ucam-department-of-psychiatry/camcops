@@ -210,7 +210,7 @@ class CopeBrief(TaskHasPatientMixin, Task,
         return (
             self.is_complete_responder() and
             self.are_all_fields_complete(
-                ["q{}".format(n) for n in range(1, self.NQUESTIONS + 1)]) and
+                [f"q{n}" for n in range(1, self.NQUESTIONS + 1)]) and
             self.field_contents_valid()
         )
 
@@ -262,14 +262,11 @@ class CopeBrief(TaskHasPatientMixin, Task,
             answer_dict[option] = (
                 str(option) + " — " + self.wxstring(req, "a" + str(option))
             )
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-        )
+                    {self.get_is_complete_tr(req)}
+        """
         h += tr_qa("Self-distraction (Q1, Q19)", self.self_distraction())
         h += tr_qa("Active coping (Q2, Q7)", self.active_coping())
         h += tr_qa("Denial (Q3, Q8)", self.denial())
@@ -287,7 +284,7 @@ class CopeBrief(TaskHasPatientMixin, Task,
         h += tr_qa("Acceptance (Q20, Q24)", self.acceptance())
         h += tr_qa("Religion (Q22, Q27)", self.religion())
         h += tr_qa("Self-blame (Q13, Q26)", self.self_blame())
-        h += """
+        h += f"""
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
@@ -302,10 +299,10 @@ class CopeBrief(TaskHasPatientMixin, Task,
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """.format(CssClass=CssClass)
+        """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                "Q{}. {}".format(q, self.wxstring(req, "q" + str(q))),
+                f"Q{q}. {self.wxstring(req, 'q' + str(q))}",
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """

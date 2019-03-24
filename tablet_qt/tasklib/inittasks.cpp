@@ -62,6 +62,7 @@
 #include "tasks/diagnosisicd10.h"
 #include "tasks/distressthermometer.h"
 
+#include "tasks/epds.h"
 #include "tasks/eq5d5l.h"
 
 #include "tasks/fast.h"
@@ -192,6 +193,7 @@ void InitTasks(TaskFactory& factory)
     initializeDiagnosisIcd10(factory);
     initializeDistressThermometer(factory);
 
+    initializeEpds(factory);
     initializeEq5d5l(factory);
 
     initializeFactg(factory);

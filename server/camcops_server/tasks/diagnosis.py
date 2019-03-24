@@ -190,10 +190,10 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        html = """
+        html = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -203,10 +203,7 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                     <th width="40%">Description</th>
                     <th width="40%">Comment</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-        )
+        """
         for item in self.items:
             html += item.get_html_table_row()
         html += """
@@ -217,10 +214,9 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         infolist = []
         for item in self.items:
-            infolist.append(CtvInfo(
-                content="<b>{}</b>: {}".format(ws.webify(item.code),
-                                               ws.webify(item.description))
-            ))
+            infolist.append(CtvInfo(content=(
+                f"<b>{ws.webify(item.code)}</b>: {ws.webify(item.description)}"
+            )))
         return infolist
 
     # noinspection PyUnusedLocal
@@ -433,7 +429,7 @@ def get_diagnosis_report_query(req: CamcopsRequest,
     for iddef in req.idnum_definitions:
         n = iddef.which_idnum
         desc = iddef.short_description
-        aliased_table = PatientIdNum.__table__.alias("i{}".format(n))
+        aliased_table = PatientIdNum.__table__.alias(f"i{n}")
         # ... [also] SELECT i1.idnum_value AS 'NHS' (etc.)
         select_fields.append(aliased_table.c.idnum_value.label(desc))
         # ... [from] OUTER JOIN patientidnum AS i1 ON (...)
@@ -608,8 +604,8 @@ class DiagnosesSequence(SequenceSchema):
     def validator(self, node: SchemaNode, value: List[str]) -> None:
         assert isinstance(value, list)
         if len(value) < self.minimum_number:
-            raise Invalid(node, "You must specify at least {}".format(
-                self.minimum_number))
+            raise Invalid(node,
+                          f"You must specify at least {self.minimum_number}")
         if len(value) != len(set(value)):
             raise Invalid(node, "You have specified duplicate diagnoses")
 

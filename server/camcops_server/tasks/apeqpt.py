@@ -135,10 +135,10 @@ class Apeqpt(Task):
         q_a += tr_qa(self.wxstring(req, "q2_satisfaction"),
                      self.q2_satisfaction, default="")
 
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
@@ -154,9 +154,4 @@ class Apeqpt(Task):
             </table>
             <div class="{CssClass.FOOTNOTES}">
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            q_a=q_a
-        )
-        return h
+        """

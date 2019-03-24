@@ -127,7 +127,7 @@ def task_factory(req: "CamcopsRequest", basetable: str,
     try:
         cls = d[basetable]  # may raise KeyError
     except KeyError:
-        raise exc.HTTPBadRequest("No such task table: {!r}".format(basetable))
+        raise exc.HTTPBadRequest(f"No such task table: {basetable!r}")
     dbsession = req.dbsession
     # noinspection PyProtectedMember
     q = dbsession.query(cls).filter(cls._pk == serverpk)

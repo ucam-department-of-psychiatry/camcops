@@ -102,7 +102,7 @@ class Audit(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="AUDIT total score {}/40".format(self.total_score())
+            content=f"AUDIT total score {self.total_score()}/40"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -166,12 +166,14 @@ class Audit(TaskHasPatientMixin, Task,
         q_a += tr_qa(self.wxstring(req, "q10_s"),
                      get_from_dict(q9_to_10_dict, self.q10))
 
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
-                    {exceeds_standard_cutoff}
+                    {self.get_is_complete_tr(req)}
+                    {tr(req.wappstring("total_score"),
+                        answer(score) + " / 40")}
+                    {tr_qa(self.wxstring(req, "exceeds_standard_cutoff"),
+                           get_yes_no(req, exceeds_cutoff))}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -187,17 +189,7 @@ class Audit(TaskHasPatientMixin, Task,
                 NON-COMMERCIAL use only. You must obtain permission from the
                 copyright holder for any other use.
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(req.wappstring("total_score"),
-                           answer(score) + " / 40"),
-            exceeds_standard_cutoff=tr_qa(
-                self.wxstring(req, "exceeds_standard_cutoff"),
-                get_yes_no(req, exceeds_cutoff)),
-            q_a=q_a,
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.AUDIT_PROCEDURE_ASSESSMENT))]  # noqa
@@ -255,7 +247,7 @@ class AuditC(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="AUDIT-C total score {}/12".format(self.total_score())
+            content=f"AUDIT-C total score {self.total_score()}/12"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -290,11 +282,12 @@ class AuditC(TaskHasPatientMixin, Task,
                 self.wxstring(req, "q3to8_option" + str(option))
 
         # noinspection PyUnresolvedReferences
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
+                    {self.get_is_complete_tr(req)}
+                    {tr(req.wappstring("total_score"),
+                        answer(score) + " / 12")}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -302,9 +295,12 @@ class AuditC(TaskHasPatientMixin, Task,
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-                {q1}
-                {q2}
-                {q3}
+                {tr_qa(self.wxstring(req, "c_q1_question"),
+                       get_from_dict(q1_dict, self.q1))}
+                {tr_qa(self.wxstring(req, "c_q2_question"),
+                       get_from_dict(q2_dict, self.q2))}
+                {tr_qa(self.wxstring(req, "c_q3_question"),
+                       get_from_dict(q3_dict, self.q3))}
             </table>
             <div class="{CssClass.COPYRIGHT}">
                 AUDIT: Copyright © World Health Organization.
@@ -314,19 +310,7 @@ class AuditC(TaskHasPatientMixin, Task,
 
                 AUDIT-C: presumed to have the same restrictions.
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(req.wappstring("total_score"),
-                           answer(score) + " / 12"),
-            q1=tr_qa(self.wxstring(req, "c_q1_question"),
-                     get_from_dict(q1_dict, self.q1)),
-            q2=tr_qa(self.wxstring(req, "c_q2_question"),
-                     get_from_dict(q2_dict, self.q2)),
-            q3=tr_qa(self.wxstring(req, "c_q3_question"),
-                     get_from_dict(q3_dict, self.q3)),
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.AUDITC_PROCEDURE_ASSESSMENT))]  # noqa

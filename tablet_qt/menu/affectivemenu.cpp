@@ -27,6 +27,7 @@
 #include "tasks/cesd.h"
 #include "tasks/cesdr.h"
 #include "tasks/core10.h"
+#include "tasks/epds.h"
 #include "tasks/gad7.h"
 #include "tasks/gds15.h"
 #include "tasks/hads.h"
@@ -61,7 +62,7 @@ AffectiveMenu::AffectiveMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Cesdr::CESDR_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
-        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("epds", app),
+        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gds15::GDS15_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Hads::HADS_TABLENAME, app),

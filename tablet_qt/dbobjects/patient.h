@@ -219,7 +219,8 @@ protected:
     // Delete an ID number of the specified type.
     void deleteIdNum(int which_idnum);
 
-    // Sort ID numbers by their type.
+    // Sort ID numbers by their type, and if we are editing the patient,
+    // refresh the questionnaire to reflect the current ID numbers.
     void sortIdNums();
 
     // Updates the "missing" alerts etc.

@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_simpleobjects.py
 """
 
 import copy
-from typing import Dict, List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
 from pendulum import Date
 
@@ -66,7 +66,7 @@ class IdNumReference(object):
         self.idnum_value = idnum_value
 
     def __str__(self) -> str:
-        return "idnum{}={}".format(self.which_idnum, self.idnum_value)
+        return f"idnum{self.which_idnum}={self.idnum_value}"
 
     def __repr__(self) -> str:
         return auto_repr(self)
@@ -88,8 +88,7 @@ class IdNumReference(object):
     def description(self, req: "CamcopsRequest") -> str:
         if not self.is_valid():
             return "[invalid_IdNumReference]"
-        return "{d} = {v}".format(d=req.get_id_shortdesc(self.which_idnum),
-                                  v=self.idnum_value)
+        return f"{req.get_id_shortdesc(self.which_idnum)} = {self.idnum_value}"
 
 
 # =============================================================================

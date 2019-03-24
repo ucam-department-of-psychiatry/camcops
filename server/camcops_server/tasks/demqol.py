@@ -64,19 +64,19 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 2
 MISSING_VALUE = -99
 PERMITTED_VALUES = list(range(1, 4 + 1)) + [MISSING_VALUE]
-END_DIV = """
+END_DIV = f"""
     </table>
     <div class="{CssClass.FOOTNOTES}">
         [1] Extrapolated total scores are: total_for_responded_questions ×
         n_questions / n_responses.
     </div>
-""".format(CssClass=CssClass)
-COPYRIGHT_DIV = """
+"""
+COPYRIGHT_DIV = f"""
     <div class="{CssClass.COPYRIGHT}">
         DEMQOL/DEMQOL-Proxy: Copyright © Institute of Psychiatry, King’s
         College London. Reproduced with permission.
     </div>
-""".format(CssClass=CssClass)
+"""
 
 
 # =============================================================================
@@ -152,8 +152,10 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="DEMQOL total score",
-            axis_label="Total score (range {}–{}, higher better)".format(
-                self.MIN_SCORE, self.MAX_SCORE),
+            axis_label=(
+                f"Total score (range {self.MIN_SCORE}–{self.MAX_SCORE}, "
+                f"higher better)"
+            ),
             axis_min=self.MIN_SCORE - 0.5,
             axis_max=self.MAX_SCORE + 0.5
         )]
@@ -161,19 +163,18 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="Total score {} (range {}–{}, higher better)".format(
-                ws.number_to_dp(self.total_score(), DP),
-                self.MIN_SCORE, self.MAX_SCORE)
-        )]
+        return [CtvInfo(content=(
+            f"Total score {ws.number_to_dp(self.total_score(), DP)} "
+            f"(range {self.MIN_SCORE}–{self.MAX_SCORE}, higher better)"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Float(),
-                           value=self.total_score(),
-                           comment="Total score ({}-{})".format(
-                               self.MIN_SCORE, self.MAX_SCORE)),
+            SummaryElement(
+                name="total",
+                coltype=Float(),
+                value=self.total_score(),
+                comment=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})"),
         ]
 
     def totalscore_extrapolated(self) -> Tuple[float, bool]:
@@ -218,18 +219,19 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         }
         # https://docs.python.org/2/library/stdtypes.html#mapping-types-dict
         # http://paltman.com/try-except-performance-in-python-a-simple-test/
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {is_complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
-                        <td>Total score ({min}–{max}), higher better</td>
-                        <td>{t}</td>
+                        <td>Total score ({self.MIN_SCORE}–{self.MAX_SCORE}), 
+                            higher better</td>
+                        <td>{answer(ws.number_to_dp(total, DP))}</td>
                     </tr>
                     <tr>
                         <td>Total score extrapolated using incomplete
                         responses? <sup>[1]</sup></td>
-                        <td>{e}</td>
+                        <td>{answer(get_yes_no(req, extrapolated))}</td>
                     </tr>
                 </table>
             </div>
@@ -238,14 +240,7 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            is_complete_tr=self.get_is_complete_tr(req),
-            min=self.MIN_SCORE,
-            max=self.MAX_SCORE,
-            t=answer(ws.number_to_dp(total, DP)),
-            e=answer(get_yes_no(req, extrapolated)),
-        )
+        """
         for n in range(1, self.NQUESTIONS + 1):
             if n in instruction_dict:
                 h += subheading_spanning_two_columns(instruction_dict.get(n))
@@ -332,8 +327,10 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="DEMQOL-Proxy total score",
-            axis_label="Total score (range {}–{}, higher better)".format(
-                self.MIN_SCORE, self.MAX_SCORE),
+            axis_label=(
+                f"Total score (range {self.MIN_SCORE}–{self.MAX_SCORE},"
+                f" higher better)"
+            ),
             axis_min=self.MIN_SCORE - 0.5,
             axis_max=self.MAX_SCORE + 0.5
         )]
@@ -341,19 +338,18 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="Total score {} (range {}–{}, higher better)".format(
-                ws.number_to_dp(self.total_score(), DP),
-                self.MIN_SCORE, self.MAX_SCORE)
-        )]
+        return [CtvInfo(content=(
+            f"Total score {ws.number_to_dp(self.total_score(), DP)} "
+            f"(range {self.MIN_SCORE}–{self.MAX_SCORE}, higher better)"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Float(),
-                           value=self.total_score(),
-                           comment="Total score ({}-{})".format(
-                               self.MIN_SCORE, self.MAX_SCORE)),
+            SummaryElement(
+                name="total",
+                coltype=Float(),
+                value=self.total_score(),
+                comment=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})"),
         ]
 
     def totalscore_extrapolated(self) -> Tuple[float, bool]:
@@ -396,18 +392,19 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
             21: self.wxstring(req, "proxy_instruction13"),
             32: self.wxstring(req, "proxy_instruction14"),
         }
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {is_complete_tr}
+                    {self.get_is_complete_tr(req)}
                     <tr>
-                        <td>Total score ({min}–{max}), higher better</td>
-                        <td>{t}</td>
+                        <td>Total score ({self.MIN_SCORE}–{self.MAX_SCORE}), 
+                            higher better</td>
+                        <td>{answer(ws.number_to_dp(total, DP))}</td>
                     </tr>
                     <tr>
                         <td>Total score extrapolated using incomplete
                         responses? <sup>[1]</sup></td>
-                        <td>{e}</td>
+                        <td>{answer(get_yes_no(req, extrapolated))}</td>
                     </tr>
                 </table>
             </div>
@@ -416,14 +413,7 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            is_complete_tr=self.get_is_complete_tr(req),
-            min=self.MIN_SCORE,
-            max=self.MAX_SCORE,
-            t=answer(ws.number_to_dp(total, DP)),
-            e=answer(get_yes_no(req, extrapolated)),
-        )
+        """
         for n in range(1, self.NQUESTIONS + 1):
             if n in instruction_dict:
                 h += subheading_spanning_two_columns(instruction_dict.get(n))

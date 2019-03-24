@@ -59,7 +59,7 @@ N_SLIDER = 2
 
 
 def divtest(divname: str) -> str:
-    return '<div class="{d}">.{d}</div>\n'.format(d=divname)
+    return f'<div class="{divname}">.{divname}</div>\n'
 
 
 class DemoQuestionnaireMetaclass(DeclarativeMeta):
@@ -140,10 +140,10 @@ class DemoQuestionnaire(Task,
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
@@ -155,10 +155,7 @@ class DemoQuestionnaire(Task,
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-        )
+        """
         for i in range(1, N_MCQ + 1):
             h += self.get_twocol_val_row("mcq" + str(i))
         for i in range(1, N_MCQBOOL + 1):

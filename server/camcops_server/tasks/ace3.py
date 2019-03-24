@@ -377,13 +377,11 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         v = self.vsp_score()
         t = a + m + f + lang + v
         text = (
-            "ACE-III total: {t}/{tmax} "
-            "(attention {a}/{amax}, memory {m}/{mmax}, "
-            "fluency {f}/{fmax}, language {lang}/{lmax}, "
-            "visuospatial {v}/{vmax})"
-        ).format(t=t, a=a, m=m, f=f, lang=lang, v=v,
-                 tmax=TOTAL_MAX, amax=ATTN_MAX, mmax=MEMORY_MAX,
-                 fmax=FLUENCY_MAX, lmax=LANG_MAX, vmax=VSP_MAX)
+            f"ACE-III total: {t}/{TOTAL_MAX} "
+            f"(attention {a}/{ATTN_MAX}, memory {m}/{MEMORY_MAX}, "
+            f"fluency {f}/{FLUENCY_MAX}, language {lang}/{LANG_MAX}, "
+            f"visuospatial {v}/{VSP_MAX})"
+        )
         return [CtvInfo(content=text)]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -391,27 +389,27 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(TOTAL_MAX)),
+                           comment=f"Total score (/{TOTAL_MAX})"),
             SummaryElement(name="attn",
                            coltype=Integer(),
                            value=self.attn_score(),
-                           comment="Attention (/{})".format(ATTN_MAX)),
+                           comment=f"Attention (/{ATTN_MAX})"),
             SummaryElement(name="mem",
                            coltype=Integer(),
                            value=self.mem_score(),
-                           comment="Memory (/{})".format(MEMORY_MAX)),
+                           comment=f"Memory (/{MEMORY_MAX})"),
             SummaryElement(name="fluency",
                            coltype=Integer(),
                            value=self.fluency_score(),
-                           comment="Fluency (/{})".format(FLUENCY_MAX)),
+                           comment=f"Fluency (/{FLUENCY_MAX})"),
             SummaryElement(name="lang",
                            coltype=Integer(),
                            value=self.lang_score(),
-                           comment="Language (/{})".format(LANG_MAX)),
+                           comment=f"Language (/{LANG_MAX})"),
             SummaryElement(name="vsp",
                            coltype=Integer(),
                            value=self.vsp_score(),
-                           comment="Visuospatial (/{})".format(VSP_MAX)),
+                           comment=f"Visuospatial (/{VSP_MAX})"),
         ]
 
     def attn_score(self) -> int:
@@ -556,18 +554,15 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             figurehtml = "<i>Incomplete; not plotted</i>"
         return (
             self.get_standard_clinician_comments_block(req, self.comments) +
-            """
+            f"""
                 <div class="{CssClass.SUMMARY}">
                     <table class="{CssClass.SUMMARY}">
                         <tr>
-                            {is_complete}
-                            <td class="{CssClass.FIGURE}" rowspan="7">{figurehtml}</td>
+                            {self.get_is_complete_td_pair(req)}
+                            <td class="{CssClass.FIGURE}" 
+                                rowspan="7">{figurehtml}</td>
                         </tr>
-            """.format(  # noqa
-                CssClass=CssClass,
-                is_complete=self.get_is_complete_td_pair(req),
-                figurehtml=figurehtml
-            ) +
+            """ +
             tr("Total ACE-III score <sup>[1]</sup>", answer(t) + " / 100") +
             tr("Attention", answer(a) + " / {} ({}%)".format(
                 ATTN_MAX, percent(a, ATTN_MAX))) +
@@ -579,7 +574,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 LANG_MAX, percent(lang, LANG_MAX))) +
             tr("Visuospatial", answer(v) + " / {} ({}%)".format(
                 VSP_MAX, percent(v, VSP_MAX))) +
-            """
+            f"""
                     </table>
                 </div>
                 <table class="{CssClass.TASKDETAIL}">
@@ -587,7 +582,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                         <th width="75%">Question</th>
                         <th width="25%">Answer/score</td>
                     </tr>
-            """.format(CssClass=CssClass) +
+            """ +
             tr_qa("Age on leaving full-time education",
                   self.age_at_leaving_full_time_education) +
             tr_qa("Occupation", ws.webify(self.occupation)) +
@@ -769,7 +764,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                         td_class=CssClass.PHOTO) +
             tr_span_col(get_blob_img_html(self.picture2),
                         td_class=CssClass.PHOTO) +
-            """
+            f"""
                 </table>
                 <div class="{CssClass.FOOTNOTES}">
                     [1] In the ACE-R (the predecessor of the ACE-III),
@@ -788,7 +783,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     clinical practice.”
                     (ACE-III FAQ, 7 July 2013, www.neura.edu.au).
                 </div>
-            """.format(CssClass=CssClass)
+            """
         )
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:

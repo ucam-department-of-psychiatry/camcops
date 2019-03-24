@@ -1951,10 +1951,10 @@ class CecaQ3(TaskHasPatientMixin, Task):
             4: "4 — " + wxstring("5_hit_option_4"),
         }
         html = (
-            """
+            f"""
                 <div class="{CssClass.SUMMARY}">
                     <table class="{CssClass.SUMMARY}">
-            """.format(CssClass=CssClass) +
+            """ +
             self.get_is_complete_tr(req) +
             tr_qa("Parental loss risk factor? <sup>[1]</sup>",
                   get_yes_no(req, self.parental_loss_risk())) +
@@ -1988,11 +1988,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
                   self.sexual_abuse_score_first()) +
             tr_qa("Other sexual abuse severity score (0–7) <sup>[7]</sup>",
                   self.sexual_abuse_score_other()) +
-            """
+            f"""
                     </table>
                 </div>
                 <table class="{CssClass.TASKDETAIL}">
-            """.format(CssClass=CssClass) +
+            """ +
 
             subheading_spanning_two_columns("1A: " +
                                             wxstring("1a_q")) +
@@ -2264,7 +2264,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
             subheading_from_wstring("any_other_comments") +
             wstring_string("any_other_comments", self.any_other_comments) +
 
-            """
+            f"""
                 </table>
                 <div class="{CssClass.FOOTNOTES}">
                     [1] Death of mother/father before age 17 or continuous
@@ -2287,7 +2287,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
                     [7] Sexual abuse (section 6): no=0, unsure=1, yes=1.
                     First three questions are the screen.
                 </div>
-            """.format(CssClass=CssClass)
+            """
         )
         return html
 
@@ -2301,11 +2301,7 @@ def subheading_from_string(s: str) -> str:
 
 
 def subsubheading_from_string(s: str) -> str:
-    return (
-        '<tr><td></td><td class="{CssClass.SUBHEADING}">{s}</td></tr>'.format(
-            CssClass=CssClass,
-            s=s)
-    )
+    return f'<tr><td></td><td class="{CssClass.SUBHEADING}">{s}</td></tr>'
 
 
 def row(label: str, value: Any, default: str = "") -> str:

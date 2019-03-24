@@ -281,11 +281,9 @@ def assert_constraint_name_ok(table_name: str, column_name: str) -> None:
     anticipated_name = NAMING_CONVENTION["ck"] % d
     if len(anticipated_name) > MYSQL_MAX_IDENTIFIER_LENGTH:
         raise AssertionError(
-            "Constraint name too long for table {!r}, column {!r]; will be "
-            "{!r} of length {}".format(
-                table_name, column_name, anticipated_name,
-                len(anticipated_name)
-            ))
+            f"Constraint name too long for table {table_name!r}, column "
+            f"{column_name!r}; will be {anticipated_name!r} "
+            f"of length {len(anticipated_name)}")
 
 
 # =============================================================================

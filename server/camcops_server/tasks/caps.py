@@ -212,20 +212,43 @@ class Caps(TaskHasPatientMixin, Task,
                        if getattr(self, "endorse" + str(q)) else "")
             )
 
-        h = """
+        tr_total_score = tr_qa(
+            f"{req.wappstring('total_score')} <sup>[1]</sup> (0–32)",
+            total
+        )
+        tr_distress = tr_qa(
+            "{} (0–160)".format(self.wxstring(req, "distress")),
+            distress
+        ),
+        tr_intrusiveness = tr_qa(
+            "{} (0–160)".format(self.wxstring(req, "intrusiveness")),
+            intrusiveness
+        ),
+        tr_frequency = tr_qa(
+            "{} (0–160)".format(self.wxstring(req, "frequency")),
+            frequency
+        )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
-                    {distress}
-                    {intrusiveness}
-                    {frequency}
+                    {self.get_is_complete_tr(req)}
+                    {tr_total_score}
+                    {tr_distress}
+                    {tr_intrusiveness}
+                    {tr_frequency}
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                Anchor points: DISTRESS {distress1}, {distress5}.
-                INTRUSIVENESS {intrusiveness1}, {intrusiveness5}.
-                FREQUENCY {frequency1}, {frequency5}.
+                Anchor points:
+                DISTRESS
+                    {self.wxstring(req, "distress_option1")},
+                    {self.wxstring(req, "distress_option5")}.
+                INTRUSIVENESS
+                    {self.wxstring(req, "intrusiveness_option1")},
+                    {self.wxstring(req, "intrusiveness_option5")}.
+                FREQUENCY
+                    {self.wxstring(req, "frequency_option1")}, 
+                    {self.wxstring(req, "frequency_option5")}.
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
@@ -264,31 +287,4 @@ class Caps(TaskHasPatientMixin, Task,
                 <b>This is a derivative work (partial reproduction, viz. the
                 scale text).</b>
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr_qa(
-                "{} <sup>[1]</sup> (0–32)".format(
-                    req.wappstring("total_score")),
-                total
-            ),
-            distress=tr_qa(
-                "{} (0–160)".format(self.wxstring(req, "distress")),
-                distress
-            ),
-            intrusiveness=tr_qa(
-                "{} (0–160)".format(self.wxstring(req, "intrusiveness")),
-                intrusiveness
-            ),
-            frequency=tr_qa(
-                "{} (0–160)".format(self.wxstring(req, "frequency")),
-                frequency
-            ),
-            distress1=self.wxstring(req, "distress_option1"),
-            distress5=self.wxstring(req, "distress_option5"),
-            intrusiveness1=self.wxstring(req, "intrusiveness_option1"),
-            intrusiveness5=self.wxstring(req, "intrusiveness_option5"),
-            frequency1=self.wxstring(req, "frequency_option1"),
-            frequency5=self.wxstring(req, "frequency_option5"),
-        )
-        return h
+        """

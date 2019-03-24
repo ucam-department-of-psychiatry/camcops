@@ -118,7 +118,7 @@ class Dast(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="DAST total score",
-            axis_label="Total score (out of {})".format(self.NQUESTIONS),
+            axis_label=f"Total score (out of {self.NQUESTIONS})",
             axis_min=-0.5,
             axis_max=self.NQUESTIONS + 0.5,
             horizontal_lines=[10.5, 5.5]
@@ -128,8 +128,7 @@ class Dast(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="DAST total score {}/{}".format(self.total_score(),
-                                                    self.NQUESTIONS)
+            content=f"DAST total score {self.total_score()}/{self.NQUESTIONS}"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:

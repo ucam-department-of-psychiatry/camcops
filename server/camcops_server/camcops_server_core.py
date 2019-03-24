@@ -256,22 +256,18 @@ class RequestLoggingMiddleware(object):
         try:
             # https://stackoverflow.com/questions/7835030/obtaining-client-ip-address-from-a-wsgi-app-using-eventlet  # noqa
             # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For  # noqa
-            forwarded_for = " [forwarded for {}]".format(
-                environ[WsgiEnvVar.HTTP_X_FORWARDED_FOR]
+            forwarded_for = (
+                f" [forwarded for {environ[WsgiEnvVar.HTTP_X_FORWARDED_FOR]}]"
             )
         except KeyError:
             forwarded_for = ""
         request_details = (
-            '{remote}{fwd}: '
-            '"{method} {path}{qmark}{query} {proto}"'.format(
-                remote=environ.get(WsgiEnvVar.REMOTE_ADDR, ""),
-                fwd=forwarded_for,
-                method=environ.get(WsgiEnvVar.REQUEST_METHOD, ""),
-                path=environ.get(WsgiEnvVar.PATH_INFO, ""),
-                qmark="?" if query_string else "",
-                query=query_string,
-                proto=environ.get(WsgiEnvVar.SERVER_PROTOCOL, ""),
-            )
+            f'{environ.get(WsgiEnvVar.REMOTE_ADDR, "")}{forwarded_for}: '
+            f'"{environ.get(WsgiEnvVar.REQUEST_METHOD, "")} '
+            f'{environ.get(WsgiEnvVar.PATH_INFO, "")}'
+            f'{"?" if query_string else ""}'
+            f'{query_string} '
+            f'{environ.get(WsgiEnvVar.SERVER_PROTOCOL, "")}"'
         )
         msg_parts = []  # type: List[str]
         if self.show_request_immediately:
@@ -308,13 +304,13 @@ class RequestLoggingMiddleware(object):
                 t2 = Pendulum.utcnow()
             if self.show_response:
                 if captured_status is not None:
-                    msg_parts.append("-> {}".format(captured_status))
+                    msg_parts.append(f"-> {captured_status}")
                 else:
                     msg_parts.append("[no response status]")
             if self.show_timing:
                 # noinspection PyUnboundLocalVariable
                 time_taken_s = (t2 - t1).total_seconds()
-                msg_parts.append("[{} s]".format(time_taken_s))
+                msg_parts.append(f"[{time_taken_s} s]")
             if msg_parts:
                 self.log(" ".join(msg_parts))
 
@@ -546,7 +542,7 @@ def serve_gunicorn(application: "Router",
         bind = "unix:" + unix_domain_socket_filename
     else:
         log.info("Starting Gunicorn server on host {}, port {}", host, port)
-        bind = "{}:{}".format(host, port)
+        bind = f"{host}:{port}"
     log.info("... using {} workers", num_workers)
 
     # We encapsulate this class definition in the function, since it inherits
@@ -647,14 +643,13 @@ def get_new_password_from_cli(username: str) -> str:
     username. Returns the password.
     """
     while True:
-        password1 = ask_user_password("New password for user "
-                                      "{}".format(username))
+        password1 = ask_user_password(f"New password for user {username}")
         if not password1 or len(password1) < MINIMUM_PASSWORD_LENGTH:
             log.error("... passwords can't be blank or shorter than {} "
                       "characters", MINIMUM_PASSWORD_LENGTH)
             continue
-        password2 = ask_user_password("New password for user {} "
-                                      "(again)".format(username))
+        password2 = ask_user_password(
+            f"New password for user {username} (again)")
         if password1 != password2:
             log.error("... passwords don't match; try again")
             continue
@@ -882,8 +877,8 @@ def launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
     cmdargs = [
         CELERY, "flower",
         "--app", CELERY_APP_NAME,
-        "--address {}".format(address),
-        "--port {}".format(port),
+        f"--address {address}",
+        f"--port {port}",
     ]
     log.info("Launching: {!r}", cmdargs)
     subprocess.call(cmdargs)

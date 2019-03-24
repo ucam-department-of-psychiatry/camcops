@@ -69,10 +69,10 @@ def meta_main() -> None:
         help="List of CamCOPS arguments, to which '--' will be prefixed")
     parser.add_argument(
         '--python', default=sys.executable,
-        help="Python interpreter (default: {})".format(sys.executable))
+        help=f"Python interpreter (default: {sys.executable})")
     parser.add_argument(
         '--camcops', default=DEFAULT_CAMCOPS,
-        help="CamCOPS server executable (default: {})".format(DEFAULT_CAMCOPS))
+        help=f"CamCOPS server executable (default: {DEFAULT_CAMCOPS})")
     parser.add_argument(
         '-d', '--dummyrun', action="store_true",
         help="Dummy run (show filenames only)")
@@ -95,7 +95,7 @@ def meta_main() -> None:
                 ['camcops_server',  # dummy argv[0]
                  args.cc_command,
                  "--config", filename] +
-                ['--{}'.format(x) for x in args.ccargs or []]
+                [f'--{x}' for x in args.ccargs or []]
             )
             log.debug("Executing command: {}", sys.argv)
             if args.dummyrun:

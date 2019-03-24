@@ -77,7 +77,6 @@ from camcops_server.cc_modules.cc_constants import (
     DEFAULT_FLOWER_ADDRESS,
     DEFAULT_FLOWER_PORT,
 )
-from camcops_server.cc_modules.cc_exception import raise_runtime_error
 from camcops_server.cc_modules.cc_snomed import send_athena_icd_snomed_to_xml
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
@@ -92,9 +91,8 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Check Python version (the shebang is not a guarantee)
 # =============================================================================
 
-if sys.version_info[0] < 3:
-    raise_runtime_error(
-        "CamCOPS needs Python 3+, and this Python version is: " + sys.version)
+if sys.version_info < (3, 6):
+    raise AssertionError("Need Python 3.6 or higher; this is " + sys.version)
 
 # =============================================================================
 # Debugging options
@@ -457,8 +455,10 @@ def add_sub(sp: "_SubParsersAction",
     if config_mandatory:  # True
         cfg_help = "Configuration file"
     else:  # None, False
-        cfg_help = ("Configuration file (if not specified, the environment"
-                    " variable {} is checked)".format(ENVVAR_CONFIG_FILE))
+        cfg_help = (
+            f"Configuration file (if not specified, the environment"
+            f" variable {ENVVAR_CONFIG_FILE} is checked)"
+        )
     if config_mandatory is None:  # None
         pass
     elif config_mandatory:  # True
@@ -514,9 +514,10 @@ def camcops_main() -> None:
 
     parser = ArgumentParser(
         description=(
-            "CamCOPS server, created by Rudolf Cardinal; version {}.\n"
-            "Use 'camcops_server <COMMAND> --help' for more detail on each "
-            "command.".format(CAMCOPS_SERVER_VERSION)
+            f"CamCOPS server, created by Rudolf Cardinal; version "
+            f"{CAMCOPS_SERVER_VERSION}.\n"
+            f"Use 'camcops_server <COMMAND> --help' for more detail on each "
+            f"command."
         ),
         formatter_class=RawDescriptionHelpFormatter,
         # add_help=False  # only do this if manually overriding the method
@@ -532,7 +533,7 @@ def camcops_main() -> None:
         help='show help for all commands and exit')
     parser.add_argument(
         "--version", action="version",
-        version="CamCOPS {}".format(CAMCOPS_SERVER_VERSION))
+        version=f"CamCOPS {CAMCOPS_SERVER_VERSION}")
     parser.add_argument(
         '-v', '--verbose', action='store_true',
         help="Be verbose")
@@ -782,7 +783,7 @@ def camcops_main() -> None:
         help="Print database schema (data definition language; DDL)")
     ddl_parser.add_argument(
         '--dialect', type=str, default=SqlaDialectName.MYSQL,
-        help="SQL dialect (options: {})".format(", ".join(ALL_SQLA_DIALECTS)))
+        help=f"SQL dialect (options: {', '.join(ALL_SQLA_DIALECTS)})")
     ddl_parser.set_defaults(
         func=lambda args: print(_get_all_ddl(dialect_name=args.dialect)))
 

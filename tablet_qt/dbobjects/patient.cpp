@@ -421,7 +421,10 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
     fieldRef(SEX_FIELD)->setMandatory(!tablet_ok);
     fieldRef(DOB_FIELD)->setMandatory(!tablet_ok);
     for (const PatientIdNumPtr& idnum : m_idnums) {
-        idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(!tablet_ok);
+        // idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(!tablet_ok);
+        idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(true);
+        // ... mandatory was "!tablet_ok", but that makes it easier to create blank
+        // ID number entries, which help nobody; changed 2019-03-23.
     }
 
     const bool upload_ok = compliesWithUpload();
@@ -734,7 +737,9 @@ void Patient::buildPage(bool read_only)
         idgrid->addCell(QuGridCell(id_label,
                                    row, 1, rowspan, colspan, ralign));
 
-        auto id_fr = idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE, false);
+        auto id_fr = idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE, true);
+        // ... mandatory was false, but that makes it easier to create blank
+        // ID number entries, which help nobody; changed 2019-03-23.
         QuLineEditInt64* num_editor;
         if (idinfo->validateAsNhsNumber()) {
             num_editor = new QuLineEditNHSNumber(id_fr);

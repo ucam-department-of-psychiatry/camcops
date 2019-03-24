@@ -24,6 +24,7 @@
 
 #include "tasks/apeqpt.h"
 #include "tasks/core10.h"
+#include "tasks/epds.h"
 #include "tasks/gad7.h"
 #include "tasks/gbogras.h"
 #include "tasks/gbogres.h"
@@ -48,6 +49,7 @@ SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Apeqpt::APEQPT_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, app),
         MenuItem(tr("Generic measures")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
         MenuItem(tr("Specific conditions")).setLabelOnly(),

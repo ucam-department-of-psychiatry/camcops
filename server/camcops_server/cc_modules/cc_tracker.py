@@ -79,15 +79,15 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 TRACKER_DATEFORMAT = "%Y-%m-%d"
-WARNING_NO_PATIENT_FOUND = """
+WARNING_NO_PATIENT_FOUND = f"""
     <div class="{CssClass.WARNING}">
     </div>
-""".format(CssClass=CssClass)
-WARNING_DENIED_INFORMATION = """
+"""
+WARNING_DENIED_INFORMATION = f"""
     <div class="{CssClass.WARNING}">
         Other tasks exist for this patient that you do not have access to view.
     </div>
-""".format(CssClass=CssClass)
+"""
 
 DEBUG_TRACKER_TASK_INCLUSION = False  # should be False for production system
 
@@ -125,15 +125,13 @@ def consistency(values: List[Any],
     if len(unique) == 0:
         return True, "consistent (no values)"
     if len(unique) == 1:
-        return True, "consistent ({})".format(unique[0])
+        return True, f"consistent ({unique[0]})"
     if len(unique) == 2:
         if None in unique:
-            return True, "consistent (all blank or {})".format(
-                unique[1 - unique.index(None)]
+            return True, (
+                f"consistent (all blank or {unique[1 - unique.index(None)]})"
             )
-    return False, "<b>INCONSISTENT (contains values {})</b>".format(
-        ", ".join(unique)
-    )
+    return False, f"<b>INCONSISTENT (contains values {', '.join(unique)})</b>"
 
 
 def consistency_idnums(idnum_lists: List[List["PatientIdNum"]]) \
@@ -166,16 +164,15 @@ def consistency_idnums(idnum_lists: List[List["PatientIdNum"]]) \
     for which_idnum, encountered_values in known.items():
         value_str = ", ".join(str(v) for v in sorted(list(encountered_values)))
         if len(encountered_values) > 1:
-            failures.append("idnum{} contains values {}".format(
-                which_idnum, value_str))
+            failures.append(f"idnum{which_idnum} contains values {value_str}")
         else:
-            successes.append("idnum{} all blank or {}".format(
-                which_idnum, value_str))
+            successes.append(f"idnum{which_idnum} all blank or {value_str}")
     if failures:
-        return False, "<b>INCONSISTENT ({})</b>".format(
-            "; ".join(failures + successes))
+        return False, (
+            f"<b>INCONSISTENT ({'; '.join(failures + successes)})</b>"
+        )
     else:
-        return True, "consistent ({})".format("; ".join(successes))
+        return True, f"consistent ({'; '.join(successes)})"
 
 
 def format_daterange(start: Optional[Pendulum],
@@ -185,10 +182,10 @@ def format_daterange(start: Optional[Pendulum],
 
     Arguments are datetime values.
     """
-    return "[{}, {})".format(
-        format_datetime(start, DateFormat.ISO8601_DATE_ONLY, default="−∞"),
-        format_datetime(end, DateFormat.ISO8601_DATE_ONLY, default="+∞")
-    )
+    start_str = format_datetime(start, DateFormat.ISO8601_DATE_ONLY,
+                                default="−∞")
+    end_str = format_datetime(end, DateFormat.ISO8601_DATE_ONLY, default="+∞")
+    return f"[{start_str}, {end_str})"
 
 
 # =============================================================================
@@ -236,11 +233,11 @@ class ConsistencyInfo(object):
         lack of it.
         """
         cons = [
-            "Forename: {}".format(self.msg_forename),
-            "Surname: {}".format(self.msg_surname),
-            "DOB: {}".format(self.msg_dob),
-            "Sex: {}".format(self.msg_sex),
-            "ID numbers: {}".format(self.msg_idnums),
+            f"Forename: {self.msg_forename}",
+            f"Surname: {self.msg_surname}",
+            f"DOB: {self.msg_dob}",
+            f"Sex: {self.msg_sex}",
+            f"ID numbers: {self.msg_idnums}",
         ]
         return cons
 
@@ -323,13 +320,12 @@ class TrackerCtvCommon(object):
                 for task in task_instances:
                     if DEBUG_TRACKER_TASK_INCLUSION:
                         # noinspection PyProtectedMember
-                        self.summary += " / PK {}".format(task._pk)
+                        self.summary += f" / PK {task._pk}"
             self.summary += " ~~~ "
         self.summary += " — ".join([
             "; ".join([
-                "({},{},{})".format(task.tablename,
-                                    task.get_pk(),
-                                    task.get_patient_server_pk())
+                f"({task.tablename},{task.get_pk()},"
+                f"{task.get_patient_server_pk()})"
                 for task in self.collection.tasks_for_task_class(cls)
             ])
             for cls in self.taskfilter.task_classes

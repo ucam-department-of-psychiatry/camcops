@@ -64,7 +64,7 @@ class TsvPage(object):
             self._add_headings_if_absent(row.keys())
 
     def __str__(self) -> str:
-        return "TsvPage: name={}\n{}".format(self.name, self.get_tsv())
+        return f"TsvPage: name={self.name}\n{self.get_tsv()}"
 
     @property
     def empty(self) -> bool:
@@ -232,5 +232,5 @@ class TsvCollection(object):
 
         """
         page = self.page_with_name(page_name)
-        assert page is not None, "No such page with name {}".format(page_name)
+        assert page is not None, f"No such page with name {page_name}"
         return page.get_tsv()

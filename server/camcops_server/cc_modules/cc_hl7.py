@@ -494,7 +494,7 @@ def make_obx_segment(req: "CamcopsRequest",
         ])
     else:
         raise AssertionError(
-            "make_obx_segment: invalid task_format: {}".format(task_format))
+            f"make_obx_segment: invalid task_format: {task_format}")
 
     observation_sub_id = ""
     units = ""
@@ -746,36 +746,43 @@ def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
 
     # Get segments (MSH, MSA)
     if len(msg) != 2:
-        return False, "Reply doesn't have 2 segments (has {})".format(len(msg))
+        return False, f"Reply doesn't have 2 segments (has {len(msg)})"
     msh_segment = msg[0]
     msa_segment = msg[1]
 
     # Check MSH segment
     if len(msh_segment) < 9:
-        return False, "First (MSH) segment has <9 fields (has {})".format(
-            len(msh_segment))
+        return False, (
+            f"First (MSH) segment has <9 fields (has {len(msh_segment)})"
+        )
     msh_segment_id = msh_segment[0]
     msh_message_type = msh_segment[8]
     if msh_segment_id != ["MSH"]:
-        return False, "First (MSH) segment ID is not 'MSH' (is {})".format(
-            msh_segment_id)
+        return False, (
+            f"First (MSH) segment ID is not 'MSH' (is {msh_segment_id})"
+        )
     if msh_message_type != ["ACK"]:
-        return False, "MSH message type is not 'ACK' (is {})".format(
-            msh_message_type)
+        return False, (
+            f"MSH message type is not 'ACK' (is {msh_message_type})"
+        )
 
     # Check MSA segment
     if len(msa_segment) < 2:
-        return False, "Second (MSA) segment has <2 fields (has {})".format(
-            len(msa_segment))
+        return False, (
+            f"Second (MSA) segment has <2 fields (has {len(msa_segment)})"
+        )
     msa_segment_id = msa_segment[0]
     msa_acknowledgment_code = msa_segment[1]
     if msa_segment_id != ["MSA"]:
-        return False, "Second (MSA) segment ID is not 'MSA' (is {})".format(
-            msa_segment_id)
+        return False, (
+            f"Second (MSA) segment ID is not 'MSA' (is {msa_segment_id})"
+        )
     if msa_acknowledgment_code != ["AA"]:
         # AA for success, AE for error
-        return False, "MSA acknowledgement code is not 'AA' (is {})".format(
-            msa_acknowledgment_code)
+        return False, (
+            f"MSA acknowledgement code is not 'AA' "
+            f"(is {msa_acknowledgment_code})"
+        )
 
     return True, None
 

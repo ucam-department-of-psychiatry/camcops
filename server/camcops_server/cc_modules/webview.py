@@ -757,7 +757,7 @@ def change_other_password(req: "CamcopsRequest") -> Response:
             new_password = appstruct.get(ViewParam.NEW_PASSWORD)
             user = User.get_user_by_id(req.dbsession, user_id)
             if not user:
-                raise HTTPBadRequest("Missing user for id {}".format(user_id))
+                raise HTTPBadRequest(f"Missing user for id {user_id}")
             assert_may_edit_user(req, user)
             user.set_password(req, new_password)
             if must_change_pw:
@@ -768,13 +768,12 @@ def change_other_password(req: "CamcopsRequest") -> Response:
     else:
         user_id = req.get_int_param(ViewParam.USER_ID)
         if user_id is None:
-            raise HTTPBadRequest("Improper user_id of {}".format(
-                repr(user_id)))
+            raise HTTPBadRequest(f"Improper user_id of {repr(user_id)}")
         if user_id == req.user_id:
             return change_own_password(req)
         user = User.get_user_by_id(req.dbsession, user_id)
         if user is None:
-            raise HTTPBadRequest("Missing user for id {}".format(user_id))
+            raise HTTPBadRequest(f"Missing user for id {user_id}")
         assert_may_edit_user(req, user)
         username = user.username
         appstruct = {ViewParam.USER_ID: user_id}
@@ -1033,15 +1032,15 @@ def serve_task(req: "CamcopsRequest") -> Response:
 
     if viewtype not in ALLOWED_TASK_VIEW_TYPES:
         raise HTTPBadRequest(
-            "Bad output type: {!r} (permissible: {!r}".format(
-                viewtype, ALLOWED_TASK_VIEW_TYPES))
+            f"Bad output type: {viewtype!r} "
+            f"(permissible: {ALLOWED_TASK_VIEW_TYPES!r}")
 
     task = task_factory(req, tablename, server_pk)
 
     if task is None:
         return HTTPNotFound(
-            "Task not found or not permitted: tablename={!r}, "
-            "server_pk={!r}".format(tablename, server_pk))
+            f"Task not found or not permitted: tablename={tablename!r}, "
+            f"server_pk={server_pk!r}")
 
     task.audit(req, "Viewed " + viewtype.upper())
 
@@ -1272,10 +1271,10 @@ def offer_report(req: "CamcopsRequest") -> Response:
     report_id = req.get_str_param(ViewParam.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
-        raise HTTPBadRequest("No such report ID: {!r}".format(report_id))
+        raise HTTPBadRequest(f"No such report ID: {report_id!r}")
     if report.superuser_only and not req.user.superuser:
-        raise HTTPBadRequest("Report {!r} is restricted to the "
-                             "superuser".format(report_id))
+        raise HTTPBadRequest(f"Report {report_id!r} is restricted to the "
+                             f"superuser")
     form = report.get_form(req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1313,10 +1312,10 @@ def serve_report(req: "CamcopsRequest") -> Response:
     report_id = req.get_str_param(ViewParam.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
-        raise HTTPBadRequest("No such report ID: {!r}".format(report_id))
+        raise HTTPBadRequest(f"No such report ID: {report_id!r}")
     if report.superuser_only and not req.user.superuser:
-        raise HTTPBadRequest("Report {!r} is restricted to the "
-                             "superuser".format(report_id))
+        raise HTTPBadRequest(f"Report {report_id!r} is restricted to the "
+                             f"superuser")
 
     return report.get_response(req)
 
@@ -1389,7 +1388,7 @@ def serve_tsv_dump(req: "CamcopsRequest") -> Response:
         taskfilter.task_types = task_names
         taskfilter.group_ids = group_ids
     else:
-        raise HTTPBadRequest("Bad {} parameter".format(ViewParam.DUMP_METHOD))
+        raise HTTPBadRequest(f"Bad {ViewParam.DUMP_METHOD} parameter")
     collection = TaskCollection(
         req=req,
         taskfilter=taskfilter,
@@ -1468,7 +1467,7 @@ def sql_dump(req: "CamcopsRequest") -> Response:
         taskfilter.task_types = task_names
         taskfilter.group_ids = group_ids
     else:
-        raise HTTPBadRequest("Bad {} parameter".format(ViewParam.DUMP_METHOD))
+        raise HTTPBadRequest(f"Bad {ViewParam.DUMP_METHOD} parameter")
     collection = TaskCollection(
         req=req,
         taskfilter=taskfilter,
@@ -1477,8 +1476,7 @@ def sql_dump(req: "CamcopsRequest") -> Response:
     )
 
     if sqlite_method not in [ViewArg.SQL, ViewArg.SQLITE]:
-        raise HTTPBadRequest("Bad {} parameter".format(
-            ViewParam.SQLITE_METHOD))
+        raise HTTPBadRequest(f"Bad {ViewParam.SQLITE_METHOD} parameter")
 
     as_sql_not_binary = sqlite_method == ViewArg.SQL
     export_options = TaskExportOptions(include_blobs=include_blobs)
@@ -1612,7 +1610,7 @@ def view_audit_trail(req: "CamcopsRequest") -> Response:
     conditions = []  # type: List[str]
 
     def add_condition(key: str, value: Any) -> None:
-        conditions.append("{} = {}".format(key, value))
+        conditions.append(f"{key} = {value}")
 
     dbsession = req.dbsession
     q = dbsession.query(AuditEntry)
@@ -1727,7 +1725,7 @@ def view_exported_task_list(req: "CamcopsRequest") -> Response:
     conditions = []  # type: List[str]
 
     def add_condition(key: str, value: Any) -> None:
-        conditions.append("{} = {}".format(key, value))
+        conditions.append(f"{key} = {value}")
 
     dbsession = req.dbsession
     q = dbsession.query(ExportedTask)
@@ -1793,7 +1791,7 @@ def _view_generic_object_by_id(req: "CamcopsRequest",
         .first()
     )
     if obj is None:
-        raise HTTPBadRequest("Bad {} ID {}".format(cls.__name__, item_id))
+        raise HTTPBadRequest(f"Bad {cls.__name__} ID {item_id}")
     d = {instance_name_for_mako: obj}
     return render_to_response(mako_template, d, request=req)
 
@@ -1955,7 +1953,7 @@ def get_user_from_request_user_id_or_raise(req: "CamcopsRequest") -> User:
     user_id = req.get_int_param(ViewParam.USER_ID)
     user = User.get_user_by_id(req.dbsession, user_id)
     if not user:
-        raise HTTPBadRequest("No such user ID: {}".format(repr(user_id)))
+        raise HTTPBadRequest(f"No such user ID: {repr(user_id)}")
     return user
 
 
@@ -2106,11 +2104,9 @@ def edit_user(req: "CamcopsRequest") -> Dict[str, Any]:
             if existing_user and existing_user.id != user.id:
                 # noinspection PyUnresolvedReferences
                 raise HTTPBadRequest(
-                    "Can't rename user {!r} (ID {!r}) to {!r}; that "
-                    "conflicts with existing user with ID {!r}".format(
-                        user.name, user.id, new_user_name,
-                        existing_user.id
-                    ))
+                    f"Can't rename user {user.name!r} (ID {user.id!r}) to "
+                    f"{new_user_name!r}; that conflicts with an existing user "
+                    f"with ID {existing_user.id!r}")
             for k in keys:
                 setattr(user, k, appstruct.get(k))
             group_ids = appstruct.get(ViewParam.GROUP_IDS)
@@ -2147,8 +2143,7 @@ def edit_user_group_membership(req: "CamcopsRequest") -> Dict[str, Any]:
     ugm_id = req.get_int_param(ViewParam.USER_GROUP_MEMBERSHIP_ID)
     ugm = UserGroupMembership.get_ugm_by_id(req.dbsession, ugm_id)
     if not ugm:
-        raise HTTPBadRequest("No such UserGroupMembership ID: {}".format(
-            repr(ugm_id)))
+        raise HTTPBadRequest(f"No such UserGroupMembership ID: {repr(ugm_id)}")
     user = ugm.user
     assert_may_edit_user(req, user)
     if req.user.superuser:
@@ -2247,7 +2242,7 @@ def unlock_user(req: "CamcopsRequest") -> Response:
     user = get_user_from_request_user_id_or_raise(req)
     assert_may_edit_user(req, user)
     user.enable(req)
-    return simple_success(req, "User {} enabled".format(user.username))
+    return simple_success(req, f"User {user.username} enabled")
 
 
 @view_config(route_name=Routes.ADD_USER,
@@ -2277,8 +2272,8 @@ def add_user(req: "CamcopsRequest") -> Dict[str, Any]:
             user.set_password(req, appstruct.get(ViewParam.NEW_PASSWORD))
             user.must_change_password = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)  # noqa
             if User.get_user_by_name(dbsession, user.username):
-                raise HTTPBadRequest("User with username {!r} already "
-                                     "exists!".format(user.username))
+                raise HTTPBadRequest(
+                    f"User with username {user.username!r} already exists!")
             dbsession.add(user)
             group_ids = appstruct.get(ViewParam.GROUP_IDS)
             for gid in group_ids:
@@ -2431,7 +2426,7 @@ def get_group_from_request_group_id_or_raise(req: "CamcopsRequest") -> Group:
         dbsession = req.dbsession
         group = dbsession.query(Group).filter(Group.id == group_id).first()
     if not group:
-        raise HTTPBadRequest("No such group ID: {}".format(repr(group_id)))
+        raise HTTPBadRequest(f"No such group ID: {repr(group_id)}")
     return group
 
 
@@ -2641,8 +2636,7 @@ def get_iddef_from_request_which_idnum_or_raise(
         .filter(IdNumDefinition.which_idnum == which_idnum)\
         .first()
     if not iddef:
-        raise HTTPBadRequest("No such ID definition: {}".format(
-            repr(which_idnum)))
+        raise HTTPBadRequest(f"No such ID definition: {repr(which_idnum)}")
     return iddef
 
 
@@ -2808,8 +2802,7 @@ def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
         raise HTTPFound(url_back)
     task = task_factory(req, table_name, server_pk)
     if task is None:
-        raise HTTPBadRequest("No such task: {}, PK={}".format(
-            table_name, server_pk))
+        raise HTTPBadRequest(f"No such task: {table_name}, PK={server_pk}")
     user = req.user
     # noinspection PyProtectedMember
     if not user.authorized_to_add_special_note(task._group_id):
@@ -2861,8 +2854,7 @@ def erase_task(req: "CamcopsRequest") -> Response:
         return HTTPFound(url_back)
     task = task_factory(req, table_name, server_pk)
     if task is None:
-        raise HTTPBadRequest("No such task: {}, PK={}".format(
-            table_name, server_pk))
+        raise HTTPBadRequest(f"No such task: {table_name}, PK={server_pk}")
     if task.is_erased():
         raise HTTPBadRequest("Task already erased")
     if task.is_live_on_tablet():
@@ -2883,9 +2875,8 @@ def erase_task(req: "CamcopsRequest") -> Response:
             task.manually_erase(req)
             return simple_success(
                 req,
-                "Task erased ({t}, server PK {pk}).".format(t=table_name,
-                                                            pk=server_pk),
-                '<a href="{url}">View amended task</a>.'.format(url=url_back)
+                f"Task erased ({table_name}, server PK {server_pk}).",
+                f'<a href="{url_back}">View amended task</a>.'
             )
         except ValidationFailure as e:
             rendered_form = e.render()
@@ -2996,15 +2987,10 @@ def delete_patient(req: "CamcopsRequest") -> Response:
             for p in patient_lineage_instances:
                 p.delete_with_dependants(req)
             msg = (
-                "Patient with idnum{wi} = {iv} and associated tasks DELETED "
-                "from group {g}. Deleted {nt} task records and {np} patient "
-                "records (current and/or old).".format(
-                    wi=which_idnum,
-                    iv=idnum_value,
-                    g=group_id,
-                    nt=n_tasks,
-                    np=n_patient_instances,
-                )
+                f"Patient with idnum{which_idnum} = {idnum_value} and "
+                f"associated tasks DELETED from group {group_id}. Deleted "
+                f"{n_tasks} task records and {n_patient_instances} patient "
+                f"records (current and/or old)."
             )
             audit(req, msg)
             return simple_success(req, msg)
@@ -3149,12 +3135,12 @@ def edit_patient(req: "CamcopsRequest") -> Response:
             if not changes:
                 return simple_success(
                     req,
-                    "No changes required for patient record with server PK {} "
-                    "(all new values matched old values)".format(server_pk))
+                    f"No changes required for patient record with server PK "
+                    f"{server_pk} (all new values matched old values)")
 
             # Below here, changes have definitely been made.
             change_msg = "Patient details edited. Changes: " + "; ".join(
-                "{k}: {old!r} → {new!r}".format(k=k, old=old, new=new)
+                f"{k}: {old!r} → {new!r}"
                 for k, (old, new) in changes.items()
             )
 
@@ -3168,8 +3154,8 @@ def edit_patient(req: "CamcopsRequest") -> Response:
             # Done
             return simple_success(
                 req,
-                "Amended patient record with server PK {}. Changes were: "
-                "{}".format(server_pk, change_msg))
+                f"Amended patient record with server PK {server_pk}. "
+                f"Changes were: {change_msg}")
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -3226,7 +3212,7 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
             device_id = appstruct.get(ViewParam.DEVICE_ID)
             device = Device.get_device_by_id(dbsession, device_id)
             if device is None:
-                raise HTTPBadRequest("No such device: {!r}".format(device_id))
+                raise HTTPBadRequest(f"No such device: {device_id!r}")
             # -----------------------------------------------------------------
             # If at the first stage, bin out and offer confirmation page
             # -----------------------------------------------------------------
@@ -3293,7 +3279,7 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
                                                 forcibly_preserved=True))
                 )
                 update_indexes_and_push_exports(req, batchdetails, tablechanges)
-                msgs.append("{} {}".format(clienttable.name, preservation_pks))
+                msgs.append(f"{clienttable.name} {preservation_pks}")
             # Field names are different in server-side tables, so they need
             # special handling:
             SpecialNote.forcibly_preserve_special_notes_for_device(req,
@@ -3302,12 +3288,9 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
             # Done
             # -----------------------------------------------------------------
             msg = (
-                "Live records for device {} ({}) forcibly finalized "
-                "(PKs: {})".format(
-                    device_id,
-                    device.friendly_name,
-                    "; ".join(msgs)
-                )
+                f"Live records for device {device_id} "
+                f"({device.friendly_name}) forcibly finalized "
+                f"(PKs: {'; '.join(msgs)})"
             )
             audit(req, msg)
             log.info(msg)

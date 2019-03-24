@@ -207,7 +207,7 @@ def quad_or(x: QuadState, y: QuadState) -> QuadState:
 def debug_wrapper(fn: Callable, name: str) -> Callable:
     def wrap(*args, **kwargs) -> QuadState:
         result = fn(*args, **kwargs)
-        arglist = [str(x) for x in args] + ["{}={}".format(k, v)
+        arglist = [str(x) for x in args] + [f"{k}={v}"
                                             for k, v in kwargs.items()]
         log.critical("{}({}) -> {}".format(name, ", ".join(arglist), result))
         return result

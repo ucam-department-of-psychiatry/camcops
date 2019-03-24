@@ -165,9 +165,7 @@ class Device(Base):
         """
         if self.friendly_name is None:
             return self.name
-        return "{} (device# {}, {})".format(self.name,
-                                            self.id,
-                                            self.friendly_name)
+        return f"{self.name} (device# {self.id}, {self.friendly_name})"
 
     def get_id(self) -> int:
         """

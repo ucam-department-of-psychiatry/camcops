@@ -392,17 +392,13 @@ WTCHANGE_WTGAIN_GE_HALF_STONE = 4
 # ... I'm not entirely sure why this labelling system is used!
 
 DESC_WEIGHT_CHANGE = (
-    "Weight change ({a}: none or appetite increase; "
-    "{b}: appetite loss without weight loss; "
-    "{c}: non-deliberate weight loss or gain <0.5 st; "
-    "{d}: weight loss ≥0.5 st; "
-    "{e}: weight gain ≥0.5 st)".format(
-        a=WTCHANGE_NONE_OR_APPETITE_INCREASE,
-        b=WTCHANGE_APPETITE_LOSS,
-        c=WTCHANGE_NONDELIBERATE_WTLOSS_OR_WTGAIN,
-        d=WTCHANGE_WTLOSS_GE_HALF_STONE,
-        e=WTCHANGE_WTGAIN_GE_HALF_STONE,
-    )
+    "Weight change "
+    f"({WTCHANGE_NONE_OR_APPETITE_INCREASE}: none or appetite increase; "
+    f"{WTCHANGE_APPETITE_LOSS}: appetite loss without weight loss; "
+    f"{WTCHANGE_NONDELIBERATE_WTLOSS_OR_WTGAIN}: "
+    "non-deliberate weight loss or gain <0.5 st; "
+    f"{WTCHANGE_WTLOSS_GE_HALF_STONE}: weight loss ≥0.5 st; "
+    f"{WTCHANGE_WTGAIN_GE_HALF_STONE}: weight gain ≥0.5 st)"
 )
 
 PHOBIATYPES_OTHER = 0
@@ -446,13 +442,10 @@ SLEEPCHANGE_INSOMNIA_NOT_EMW = 2
 SLEEPCHANGE_INCREASE = 3
 
 DESC_SLEEP_CHANGE = (
-    "Sleep change ({a}: none; {b}: early-morning waking; "
-    "{c}: insomnia without early-morning waking; {d}: sleep increase)".format(
-        a=SLEEPCHANGE_NONE,
-        b=SLEEPCHANGE_EMW,
-        c=SLEEPCHANGE_INSOMNIA_NOT_EMW,
-        d=SLEEPCHANGE_INCREASE,
-    )
+    f"Sleep change ({SLEEPCHANGE_NONE}: none; "
+    f"{SLEEPCHANGE_EMW}: early-morning waking; "
+    f"{SLEEPCHANGE_INSOMNIA_NOT_EMW}: insomnia without early-morning waking; "
+    f"{SLEEPCHANGE_INCREASE}: sleep increase)"
 )
 
 DIURNAL_MOOD_VAR_NONE = 0
@@ -1438,11 +1431,10 @@ class CisrResult(object):
             self.decisions.append(decision)
 
     def _showint(self, name: str, value: int) -> None:
-        self.decide("{}{}: {}".format(SCORE_PREFIX, name, value))
+        self.decide(f"{SCORE_PREFIX}{name}: {value}")
 
     def _showbool(self, name: str, value: bool) -> None:
-        self.decide("{}{}: {}".format(SCORE_PREFIX, name,
-                                      "true" if value else "false"))
+        self.decide(f"{SCORE_PREFIX}{name}: {'true' if value else 'false'}")
 
     def diagnosis_name(self, diagnosis_code: int) -> str:
         if self.incomplete:
@@ -2782,7 +2774,7 @@ class Cisr(TaskHasPatientMixin, Task):
 
     def value_for_question(self, q: CisrQuestion) -> Optional[int]:
         fieldname = fieldname_for_q(q)
-        assert fieldname, "Blank fieldname for question {}".format(q)
+        assert fieldname, f"Blank fieldname for question {q}"
         return getattr(self, fieldname)
 
     def int_value_for_question(self, q: CisrQuestion) -> int:
@@ -2798,7 +2790,7 @@ class Cisr(TaskHasPatientMixin, Task):
             return value == 2
         else:
             raise ValueError("answer_is_no() called for inappropriate "
-                             "question {}".format(q))
+                             f"question {q}")
 
     def answer_is_yes(self, q: CisrQuestion, value: int = V_UNKNOWN) -> bool:
         if value == V_UNKNOWN:  # "Please look it up for me"
@@ -2809,7 +2801,7 @@ class Cisr(TaskHasPatientMixin, Task):
             return value == 1
         else:
             raise ValueError("answer_is_yes() called for inappropriate "
-                             "question {}".format(q))
+                             f"question {q}")
 
     def answered(self, q: CisrQuestion, value: int = V_UNKNOWN) -> bool:
         if value == V_UNKNOWN:  # "Please look it up for me"
@@ -2831,22 +2823,22 @@ class Cisr(TaskHasPatientMixin, Task):
         if (q in QUESTIONS_YN_SPECIFIC_TEXT or
                 q in QUESTIONS_MULTIWAY or
                 q in QUESTIONS_MULTIWAY_WITH_EXTRA_STEM):
-            return self.wxstring(req, fieldname + "_a{}".format(value))
+            return self.wxstring(req, fieldname + f"_a{value}")
         elif q in QUESTIONS_OVERALL_DURATION:
-            return self.wxstring(req, "duration_a{}".format(value))
+            return self.wxstring(req, f"duration_a{value}")
         elif q in QUESTIONS_DAYS_PER_WEEK:
-            return self.wxstring(req, "dpw_a{}".format(value))
+            return self.wxstring(req, f"dpw_a{value}")
         elif q in QUESTIONS_NIGHTS_PER_WEEK:
-            return self.wxstring(req, "npw_a{}".format(value))
+            return self.wxstring(req, f"npw_a{value}")
         elif q in QUESTIONS_HOW_UNPLEASANT_STANDARD:
-            return self.wxstring(req, "how_unpleasant_a{}".format(value))
+            return self.wxstring(req, f"how_unpleasant_a{value}")
         elif q in QUESTIONS_FATIGUE_CAUSES:
-            return self.wxstring(req, "fatigue_causes_a{}".format(value))
+            return self.wxstring(req, f"fatigue_causes_a{value}")
         elif q in QUESTIONS_STRESSORS:
-            return self.wxstring(req, "stressors_a{}".format(value))
+            return self.wxstring(req, f"stressors_a{value}")
         elif q in QUESTIONS_NO_SOMETIMES_OFTEN:
-            return self.wxstring(req, "nso_a{}".format(value))
-        return "? [value: {}]".format(value)
+            return self.wxstring(req, f"nso_a{value}")
+        return f"? [value: {value}]"
 
     def next_q(self, q: CisrQuestion, r: CisrResult) -> CisrQuestion:
         # See equivalent in the C++ code.
@@ -2854,7 +2846,7 @@ class Cisr(TaskHasPatientMixin, Task):
 
         v = V_MISSING  # integer value
         if DEBUG_SHOW_QUESTIONS_CONSIDERED:
-            r.decide("Considering question {}: {}".format(q.value, q.name))
+            r.decide(f"Considering question {q.value}: {q.name}")
         fieldname = fieldname_for_q(q)
         if fieldname:  # eliminates prompt-only questions
             var_q = getattr(self, fieldname)  # integer-or-NULL value
@@ -3896,8 +3888,9 @@ class Cisr(TaskHasPatientMixin, Task):
                 yes_present = panic_symptom == 2
                 if yes_present:
                     n_panic_symptoms += 1
-            r.decide("{n} out of {t} specific panic symptoms endorsed.".format(
-                n=n_panic_symptoms, t=NUM_PANIC_SYMPTOMS))
+            r.decide(
+                f"{n_panic_symptoms} out of "
+                f"{NUM_PANIC_SYMPTOMS} specific panic symptoms endorsed.")
             # The next bit was coded in PANIC5, but lives more naturally here:
             if self.answer_is_no(CQ.ANX_PHOBIA1_SPECIFIC_PAST_MONTH):
                 jump_to(CQ.PANIC_DUR)
@@ -4010,8 +4003,9 @@ class Cisr(TaskHasPatientMixin, Task):
         elif q == CQ.OVERALL2_IMPACT_PAST_WEEK:
             if self.answered(q, v):
                 r.functional_impairment = v - 1
-                r.decide("Setting functional_impairment to {}".format(
-                             r.functional_impairment))
+                r.decide(
+                    f"Setting functional_impairment to "
+                    f"{r.functional_impairment}")
 
         elif q == CQ.THANKS_FINISHED:
             pass
@@ -4044,17 +4038,17 @@ class Cisr(TaskHasPatientMixin, Task):
         if result.incomplete:
             return CTV_INCOMPLETE
         return [
-            CtvInfo(content="Probable primary diagnosis: {d} ({i})".format(
-                d=bold(result.diagnosis_1_name()),
-                i=result.diagnosis_1_icd10_code(),
-            )),
-            CtvInfo(content="Probable secondary diagnosis: {d} ({i})".format(
-                d=bold(result.diagnosis_2_name()),
-                i=result.diagnosis_2_icd10_code(),
-            )),
-            CtvInfo(content="CIS-R suicide intent: {s}".format(
-                s=self.get_suicide_intent(req, result, with_warning=False)
-            )),
+            CtvInfo(content=(
+                f"Probable primary diagnosis: "
+                f"{bold(result.diagnosis_1_name())} "
+                f"({result.diagnosis_1_icd10_code()})")),
+            CtvInfo(content=(
+                f"Probable secondary diagnosis: "
+                f"{bold(result.diagnosis_2_name())} "
+                f"({result.diagnosis_2_icd10_code()})")),
+            CtvInfo(content=(
+                f"CIS-R suicide intent: "
+                f"{self.get_suicide_intent(req, result, with_warning=False)}")),
         ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -4102,7 +4096,7 @@ class Cisr(TaskHasPatientMixin, Task):
                 name="score_total",
                 coltype=Integer(),
                 value=result.get_score(),
-                comment="CIS-R total score (max. {})".format(MAX_TOTAL)),
+                comment=f"CIS-R total score (max. {MAX_TOTAL})"),
             # Functional impairment: directly encoded in data
 
             # Subscores
@@ -4275,12 +4269,12 @@ class Cisr(TaskHasPatientMixin, Task):
         return not result.incomplete
 
     def diagnosis_name(self, req: CamcopsRequest, diagnosis_code: int) -> str:
-        xstring_name = "diag_{}_desc".format(diagnosis_code)
+        xstring_name = f"diag_{diagnosis_code}_desc"
         return self.wxstring(req, xstring_name)
 
     def diagnosis_reason(self, req: CamcopsRequest,
                          diagnosis_code: int) -> str:
-        xstring_name = "diag_{}_explan".format(diagnosis_code)
+        xstring_name = f"diag_{diagnosis_code}_explan"
         return self.wxstring(req, xstring_name)
 
     def get_suicide_intent(self, req: CamcopsRequest,
@@ -4290,11 +4284,10 @@ class Cisr(TaskHasPatientMixin, Task):
             html = "TASK INCOMPLETE. SO FAR: "
         else:
             html = ""
-        html += self.wxstring(req, "suicid_{}".format(result.suicidality))
+        html += self.wxstring(req, f"suicid_{result.suicidality}")
         if (with_warning and
                 result.suicidality >= SUICIDE_INTENT_LIFE_NOT_WORTH_LIVING):
-            html += " <i>{}</i>".format(
-                self.wxstring(req, "suicid_instruction"))
+            html += f" <i>{self.wxstring(req, 'suicid_instruction')}</i>"
         if result.suicidality != SUICIDE_INTENT_NONE:
             html = bold(html)
         return html
@@ -4302,33 +4295,33 @@ class Cisr(TaskHasPatientMixin, Task):
     def get_doctell(self, req: CamcopsRequest) -> str:
         if self.doctor is None:
             return ""
-        return self.xstring(req, "doctell_{}".format(self.doctor))
+        return self.xstring(req, f"doctell_{self.doctor}")
         # ... xstring() as may use HTML
 
     def get_sleep_change(self, req: CamcopsRequest, result: CisrResult) -> str:
         if result.sleep_change == SLEEPCHANGE_NONE:
             return ""
-        return self.wxstring(req, "sleepch_{}".format(result.sleep_change))
+        return self.wxstring(req, f"sleepch_{result.sleep_change}")
 
     def get_weight_change(self, req: CamcopsRequest, result: CisrResult) -> str:
         if result.weight_change in [WTCHANGE_NONE_OR_APPETITE_INCREASE,
                                     WTCHANGE_APPETITE_LOSS]:
             return ""
-        return self.wxstring(req, "wtchange_{}".format(result.weight_change))
+        return self.wxstring(req, f"wtchange_{result.weight_change}")
 
     def get_impairment(self, req: CamcopsRequest, result: CisrResult) -> str:
         return self.wxstring(
-            req, "impair_{}".format(result.functional_impairment))
+            req, f"impair_{result.functional_impairment}")
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         # Iterate only once, for efficiency, so don't use get_result().
 
         def qa_row(q_: CisrQuestion, qtext: str,
                    a_: Optional[str]) -> str:
-            return tr("{}. {}".format(q_.value, qtext), answer(a_))
+            return tr(f"{q_.value}. {qtext}", answer(a_))
 
         def max_text(maxval: int) -> str:
-            return " (max. {})".format(maxval)
+            return f" (max. {maxval})"
 
         demographics_html_list = []  # type: List[str]
         question_html_list = []  # type: List[str]
@@ -4358,7 +4351,7 @@ class Cisr(TaskHasPatientMixin, Task):
                     target_list.append(qa_row(q, question, a))
             else:
                 fieldname = fieldname_for_q(q)
-                assert fieldname, "No fieldname for question {}".format(q)
+                assert fieldname, f"No fieldname for question {q}"
                 question = self.wxstring(req, fieldname + "_q")
                 a = self.get_textual_answer(req, q)
                 target_list.append(qa_row(q, question, a))
@@ -4370,7 +4363,7 @@ class Cisr(TaskHasPatientMixin, Task):
         is_complete = not result.incomplete
         is_complete_html_td = """{}<b>{}</b></td>""".format(
             "<td>" if is_complete
-            else """<td class="{}">""".format(CssClass.INCOMPLETE),
+            else f"""<td class="{CssClass.INCOMPLETE}">""",
             get_yes_no(req, is_complete)
         )
 
@@ -4382,7 +4375,7 @@ class Cisr(TaskHasPatientMixin, Task):
                 "Probable primary diagnosis",
                 (
                     bold(self.diagnosis_name(req, result.diagnosis_1)) +
-                    (" ({})".format(result.diagnosis_1_icd10_code())
+                    (f" ({result.diagnosis_1_icd10_code()})"
                      if result.has_diagnosis_1() else "")
                 )
             ),
@@ -4392,7 +4385,7 @@ class Cisr(TaskHasPatientMixin, Task):
                 "Probable secondary diagnosis",
                 (
                     bold(self.diagnosis_name(req, result.diagnosis_2)) +
-                    (" ({})".format(result.diagnosis_2_icd10_code())
+                    (f" ({result.diagnosis_2_icd10_code()})"
                      if result.has_diagnosis_2() else "")
                 )
             ),
@@ -4410,7 +4403,7 @@ class Cisr(TaskHasPatientMixin, Task):
             subheading_spanning_two_columns("Total score/overall impairment"),
 
             tr(
-                "CIS-R total score (max. {}) <sup>[1]</sup>".format(MAX_TOTAL),
+                f"CIS-R total score (max. {MAX_TOTAL}) <sup>[1]</sup>",
                 result.get_score()
             ),
             tr(self.wxstring(req, "impair_label"),
@@ -4472,22 +4465,22 @@ class Cisr(TaskHasPatientMixin, Task):
             tr(DISORDER_PANIC, result.panic_disorder),
         ]
 
-        html = """
-            <div class="{CssClass.HEADING}">{results_heading}</div>
-            <div>{results_caveat}</div>
+        return f"""
+            <div class="{CssClass.HEADING}">{self.wxstring(req, "results_1")}</div>
+            <div>{self.wxstring(req, "results_2")}</div>
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     <tr>
                         <td width="50%">Completed?</td>
                         {is_complete_html_td}
                     </tr>
-                    {summary_rows_html}
+                    {"".join(summary_rows)}
                 </table>
             </div>
 
             <div class="{CssClass.FOOTNOTES}">
-                [1] {total_score_footnote}
-                [2] {symptom_score_note}
+                [1] {self.wxstring(req, "score_note")}
+                [2] {self.wxstring(req, "symptom_score_note")}
             </div>
 
             <div class="{CssClass.HEADING}">
@@ -4498,7 +4491,7 @@ class Cisr(TaskHasPatientMixin, Task):
                     <th width="75%">Page</th>
                     <th width="25%">Answer</td>
                 </tr>
-                {demographics_html}
+                {"".join(demographics_html_list)}
             </table>
 
             <div class="{CssClass.HEADING}">
@@ -4510,41 +4503,34 @@ class Cisr(TaskHasPatientMixin, Task):
                     <th width="75%">Page</th>
                     <th width="25%">Answer</td>
                 </tr>
-                {questions_html}
+                {"".join(question_html_list)}
             </table>
 
             <div class="{CssClass.HEADING}">Decisions</div>
-            <pre>{decisions_html}</pre>
+            <pre>{"<br>".join(ws.webify("‣ " + x) for x in result.decisions)}</pre>
 
             <div class="{CssClass.COPYRIGHT}">
                 • Original papers:
+
                 ▶ Lewis G, Pelosi AJ, Aray R, Dunn G (1992).
                 Measuring psychiatric disorder in the community: a standardized
                 assessment for use by lay interviewers.
-                Psychological Medicine 22: 465-486.
-                PubMed ID <a href="https://www.ncbi.nlm.nih.gov/pubmed/1615114">1615114</a>.
+                Psychological Medicine 22: 465-486. PubMed ID 
+                <a href="https://www.ncbi.nlm.nih.gov/pubmed/1615114">1615114</a>.
+
                 ▶ Lewis G (1994).
-                Assessing psychiatric disorder with a human interviewer or a computer.
-                J Epidemiol Community Health 48: 207-210.</li>
-                PubMed ID <a href="https://www.ncbi.nlm.nih.gov/pubmed/8189180">8189180</a>.
+                Assessing psychiatric disorder with a human interviewer or a
+                computer.
+                J Epidemiol Community Health 48: 207-210. PubMed ID 
+                <a href="https://www.ncbi.nlm.nih.gov/pubmed/8189180">8189180</a>.
+
                 • Source/copyright: Glyn Lewis.
-                ▶ The task itself is not in the reference publications, so copyright
-                presumed to rest with the authors (not the journals).
-                ▶ “There are no copyright issues with the CISR so please adapt it for
-                use.” — Prof. Glyn Lewis, personal communication to Rudolf Cardinal,
-                27 Oct 2017.
+
+                ▶ The task itself is not in the reference publications, so
+                copyright presumed to rest with the authors (not the journals).
+
+                ▶ “There are no copyright issues with the CISR so please adapt
+                it for use.” — Prof. Glyn Lewis, personal communication to
+                Rudolf Cardinal, 27 Oct 2017.
             </div>
-        """.format(  # noqa
-            CssClass=CssClass,
-            is_complete_html_td=is_complete_html_td,
-            summary_rows_html="".join(summary_rows),
-            results_heading=self.wxstring(req, "results_1"),
-            results_caveat=self.wxstring(req, "results_2"),
-            demographics_html="".join(demographics_html_list),
-            questions_html="".join(question_html_list),
-            decisions_html="<br>".join(ws.webify("‣ " + x)
-                                       for x in result.decisions),
-            total_score_footnote=self.wxstring(req, "score_note"),
-            symptom_score_note=self.wxstring(req, "symptom_score_note"),
-        )
-        return html
+        """  # noqa

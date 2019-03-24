@@ -437,20 +437,16 @@ def isotzdatetime_to_utcdatetime_mysql(
     x = fetch_processed_single_clause(element, compiler)
 
     # Let's do this in a clear way:
-    date_time_part = "LEFT({x}, LENGTH({x}) - {tzl})".format(x=x, tzl=_TZ_LEN)
+    date_time_part = f"LEFT({x}, LENGTH({x}) - {_TZ_LEN})"
     # ... drop the rightmost 6 chars (the timezone component)
     fmt = compiler.process(text("'%Y-%m-%dT%H:%i:%S.%f'"))
     # ... the text() part deals with the necessary escaping of % for the DBAPI
-    the_date_time = "STR_TO_DATE({date_time_part}, {fmt})".format(
-        date_time_part=date_time_part, fmt=fmt)
+    the_date_time = f"STR_TO_DATE({date_time_part}, {fmt})"
     # ... STR_TO_DATE() returns a DATETIME if the string contains both date and
     #     time components.
-    old_timezone = "RIGHT({x}, {tzl})".format(x=x, tzl=_TZ_LEN)
+    old_timezone = f"RIGHT({x}, {_TZ_LEN})"
     result_utc = (
-        "CONVERT_TZ({the_date_time}, {old_timezone}, {utc})".format(
-            the_date_time=the_date_time,
-            old_timezone=old_timezone,
-            utc=_UTC_TZ_LITERAL)
+        f"CONVERT_TZ({the_date_time}, {old_timezone}, {_UTC_TZ_LITERAL})"
     )
 
     # log.debug(result_utc)
@@ -481,7 +477,7 @@ def isotzdatetime_to_utcdatetime_sqlite(
     # Moreover, the format is the OUTPUT format that a Python datetime will
     # recognize, so no 'T'.
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
-    result = "STRFTIME({fmt}, {x})".format(fmt=fmt, x=x)
+    result = f"STRFTIME({fmt}, {x})"
 
     # log.debug(result)
     return result
@@ -590,16 +586,18 @@ def isotzdatetime_to_utcdatetime_sqlserver(
     """  # noqa
     x = fetch_processed_single_clause(element, compiler)
 
-    date_time_part = "LEFT({x}, LEN({x}) - {tzl})".format(x=x, tzl=_TZ_LEN)  # a VARCHAR  # noqa
-    old_timezone = "RIGHT({x}, {tzl})".format(x=x, tzl=_TZ_LEN)  # a VARCHAR
-    date_time_no_tz = "CAST({dtp} AS DATETIME2)".format(dtp=date_time_part)  # a DATETIME2  # noqa
-    date_time_offset_with_old_tz = "TODATETIMEOFFSET({dt}, {tz})".format(
-        dt=date_time_no_tz, tz=old_timezone)  # a DATETIMEOFFSET
-    date_time_offset_with_utc_tz = "SWITCHOFFSET({dto}, {utc})".format(
-        dto=date_time_offset_with_old_tz,
-        utc=_UTC_TZ_LITERAL)  # a DATETIMEOFFSET in UTC
-    result_utc = "CAST({dtu} AS DATETIME2)".format(
-        dtu=date_time_offset_with_utc_tz)
+    date_time_part = f"LEFT({x}, LEN({x}) - {_TZ_LEN})"  # a VARCHAR
+    old_timezone = f"RIGHT({x}, {_TZ_LEN})"  # a VARCHAR
+    date_time_no_tz = f"CAST({date_time_part} AS DATETIME2)"  # a DATETIME2
+    date_time_offset_with_old_tz = (
+        f"TODATETIMEOFFSET({date_time_no_tz}, {old_timezone})"
+        # a DATETIMEOFFSET
+    )
+    date_time_offset_with_utc_tz = (
+        f"SWITCHOFFSET({date_time_offset_with_old_tz}, {_UTC_TZ_LITERAL})"
+        # a DATETIMEOFFSET in UTC
+    )
+    result_utc = f"CAST({date_time_offset_with_utc_tz} AS DATETIME2)"
 
     # log.debug(result_utc)
     return result_utc
@@ -647,11 +645,8 @@ def unknown_field_to_utcdatetime_mysql(
     (19), leave it as a ``DATETIME``; otherwise convert ISO -> ``DATETIME``.
     """
     x = fetch_processed_single_clause(element, compiler)
-    result = "IF(LENGTH({x}) = {dtlen}, {x}, {converted})".format(
-        x=x,
-        dtlen=_MYSQL_DATETIME_LEN,
-        converted=isotzdatetime_to_utcdatetime_mysql(element, compiler, **kw)
-    )
+    converted = isotzdatetime_to_utcdatetime_mysql(element, compiler, **kw)
+    result = f"IF(LENGTH({x}) = {_MYSQL_DATETIME_LEN}, {x}, {converted})"
     # log.debug(result)
     return result
 
@@ -666,7 +661,7 @@ def unknown_field_to_utcdatetime_sqlite(
     """
     x = fetch_processed_single_clause(element, compiler)
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
-    result = "STRFTIME({fmt}, {x})".format(fmt=fmt, x=x)
+    result = f"STRFTIME({fmt}, {x})"
     # log.debug(result)
     return result
 
@@ -692,17 +687,12 @@ def unknown_field_to_utcdatetime_sqlserver(
     """
     x = fetch_processed_single_clause(element, compiler)
     # https://stackoverflow.com/questions/5487892/sql-server-case-when-or-then-else-end-the-or-is-not-supported  # noqa
+    converted = isotzdatetime_to_utcdatetime_sqlserver(element, compiler, **kw)
     result = (
-        "CASE "
-        "WHEN LEN({x}) IN ({dtlen}, {dt2len}) THEN {x} "
-        "ELSE {converted} "
-        "END".format(
-            x=x,
-            dtlen=_SQLSERVER_DATETIME_LEN,
-            dt2len=_SQLSERVER_DATETIME2_LEN,
-            converted=isotzdatetime_to_utcdatetime_sqlserver(
-                element, compiler, **kw)
-        )
+        f"CASE WHEN LEN({x}) IN " 
+        f"({_SQLSERVER_DATETIME_LEN}, {_SQLSERVER_DATETIME2_LEN}) THEN {x} "
+        f"ELSE {converted} "
+        f"END"
     )
     # log.debug(result)
     return result
@@ -1073,14 +1063,14 @@ class PermittedValueChecker(object):
             else:
                 return ""  # value is OK
         if self.permitted_values is not None and value not in self.permitted_values:  # noqa
-            return "value {!r} not in permitted values {!r}".format(
-                value, self.permitted_values)
+            return (
+                f"value {value!r} not in permitted values "
+                f"{self.permitted_values!r}"
+            )
         if self.minimum is not None and value < self.minimum:
-            return "value {!r} less than minimum of {!r}".format(
-                value, self.minimum)
+            return f"value {value!r} less than minimum of {self.minimum!r}"
         if self.maximum is not None and value > self.maximum:
-            return "value {!r} more than maximum of {!r}".format(
-                value, self.maximum)
+            return f"value {value!r} more than maximum of {self.maximum!r}"
         return ""
 
     def __repr__(self):
@@ -1164,7 +1154,7 @@ class CamcopsColumn(Column):
 
     def __repr__(self) -> str:
         def kvp(attrname: str) -> str:
-            return "{}={!r}".format(attrname, getattr(self, attrname))
+            return f"{attrname}={getattr(self, attrname)!r}"
         elements = [
             kvp("cris_include"),
             kvp("exempt_from_anonymisation"),
@@ -1172,9 +1162,9 @@ class CamcopsColumn(Column):
             kvp("is_blob_id_field"),
             kvp("blob_relationship_attr_name"),
             kvp("permitted_value_checker"),
-            "super()={}".format(super().__repr__()),
+            f"super()={super().__repr__()}",
         ]
-        return "CamcopsColumn({})".format(", ".join(elements))
+        return f"CamcopsColumn({', '.join(elements)})"
 
     def set_permitted_value_checker(
             self, permitted_value_checker: PermittedValueChecker) -> None:
@@ -1290,7 +1280,7 @@ def permitted_value_failure_msgs(obj) -> List[str]:
         failure_msg = pv_checker.failure_msg(value)
         if failure_msg:
             failure_msgs.append(
-                "Invalid value for {}: {}".format(attrname, failure_msg))
+                f"Invalid value for {attrname}: {failure_msg}")
     return failure_msgs
 
 
@@ -1419,12 +1409,12 @@ class BoolColumn(CamcopsColumn):
 
     def __repr__(self) -> str:
         def kvp(attrname: str) -> str:
-            return "{}={!r}".format(attrname, getattr(self, attrname))
+            return f"{attrname}={getattr(self, attrname)!r}"
         elements = [
             kvp("constraint_name"),
-            "super()={}".format(super().__repr__()),
+            f"super()={super().__repr__()}",
         ]
-        return "BoolColumn({})".format(", ".join(elements))
+        return f"BoolColumn({', '.join(elements)})"
 
     def _constructor(self, *args: Any, **kwargs: Any) -> "BoolColumn":
         """
@@ -1452,7 +1442,7 @@ class SqlaColtypesTest(unittest.TestCase):
         a = coerce_to_pendulum(a)
         b = coerce_to_pendulum(b)
         diff = a - b
-        assert diff.microseconds < 1000, "{!r} != {!r}".format(a, b)
+        assert diff.microseconds < 1000, f"{a!r} != {b!r}"
 
     def test_iso_field(self) -> None:
         log.info("test_iso_field")

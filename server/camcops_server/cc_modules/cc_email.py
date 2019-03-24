@@ -333,10 +333,10 @@ class Email(Base):
         to_addrs = COMMASPACE.join(
             x for x in [self.to, self.cc, self.bcc] if x)
         header_components = filter(None, [
-            "To: {}".format(self.to) if self.to else "",
-            "Cc: {}".format(self.cc) if self.cc else "",
-            "Bcc: {}".format(self.bcc) if self.bcc else "",  # noqa
-            "Subject: {}".format(self.subject) if self.subject else "",
+            f"To: {self.to}" if self.to else "",
+            f"Cc: {self.cc}" if self.cc else "",
+            f"Bcc: {self.bcc}" if self.bcc else "",  # noqa
+            f"Subject: {self.subject}" if self.subject else "",
         ])
         log.info("Sending email -- {}", " -- ".join(header_components))
         try:

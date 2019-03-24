@@ -605,6 +605,8 @@ tablet_qt
     tasks/diagnosisicd9cm.h.rst
     tasks/distressthermometer.cpp.rst
     tasks/distressthermometer.h.rst
+    tasks/epds.cpp.rst
+    tasks/epds.h.rst
     tasks/eq5d5l.cpp.rst
     tasks/eq5d5l.h.rst
     tasks/factg.cpp.rst

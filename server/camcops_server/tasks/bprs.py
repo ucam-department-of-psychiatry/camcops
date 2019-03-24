@@ -93,7 +93,7 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="BPRS total score",
-            axis_label="Total score (out of {})".format(self.MAX_SCORE),
+            axis_label=f"Total score (out of {self.MAX_SCORE})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE + 0.5,
         )]
@@ -102,15 +102,14 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="BPRS total score {}/{}".format(self.total_score(),
-                                                    self.MAX_SCORE)
+            content=f"BPRS total score {self.total_score()}/{self.MAX_SCORE}"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(name="total", coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(self.MAX_SCORE)),
+                           comment=f"Total score (/{self.MAX_SCORE})"),
         ]
 
     def is_complete(self) -> bool:
@@ -169,10 +168,16 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         q_a += tr_qa(self.wxstring(req, "q20_title"),
                      get_from_dict(q20_dict, self.q20))
 
-        h = """
+        total_score = tr(
+            req.wappstring("total_score") +
+            f" (0–{self.MAX_SCORE}; 18–{self.MAX_SCORE} if all rated) "
+            "<sup>[1]</sup>",
+            answer(self.total_score())
+        )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                     {total_score}
                 </table>
             </div>
@@ -193,18 +198,7 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 [2] All answers are in the range 1–7, or 0 (not assessed, for
                     some).
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                req.wappstring("total_score") +
-                " (0–{maxscore}; 18–{maxscore} if all rated) "
-                "<sup>[1]</sup>".format(maxscore=self.MAX_SCORE),
-                answer(self.total_score())
-            ),
-            q_a=q_a,
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.BPRS1962_SCALE))]

@@ -151,8 +151,7 @@ class Cesd(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CESD total score",
-            axis_label="Total score ({}-{})".format(self.MIN_SCORE,
-                                                    self.MAX_SCORE),
+            axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
             axis_min=self.MIN_SCORE - 0.5,
             axis_max=self.MAX_SCORE + 0.5,
             axis_ticks=regular_tracker_axis_ticks_int(
@@ -175,7 +174,7 @@ class Cesd(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="CESD total score {}".format(self.total_score())
+            content=f"CESD total score {self.total_score()}"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -203,12 +202,21 @@ class Cesd(TaskHasPatientMixin, Task,
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
 
-        h = """
+        tr_total_score = tr_qa(
+            f"{req.wappstring('total_score')} (0–60)",
+            score
+        ),
+        tr_depression_or_risk_of = tr_qa(
+            self.wxstring(req, "depression_or_risk_of") +
+            "? <sup>[1]</sup>",
+            get_yes_no(req, self.has_depression_risk())
+        ),
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
-                    {depression_or_risk_of}
+                    {self.get_is_complete_tr(req)}
+                    {tr_total_score}
+                    {tr_depression_or_risk_of}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -222,19 +230,4 @@ class Cesd(TaskHasPatientMixin, Task,
             [1] Presence of depression (or depression risk) is indicated by a
                 score &ge; 16
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr_qa(
-                "{} (0–60)".format(req.wappstring("total_score")),
-                score
-            ),
-            depression_or_risk_of=tr_qa(
-                self.wxstring(req, "depression_or_risk_of") +
-                "? <sup>[1]</sup>",
-                get_yes_no(req, self.has_depression_risk())
-            ),
-            q_a=q_a,
-
-        )
-        return h
+        """

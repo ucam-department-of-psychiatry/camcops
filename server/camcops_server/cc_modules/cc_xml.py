@@ -249,11 +249,7 @@ def xml_header(eol: str = '\n') -> str:
     """
     XML declaration header.
     """
-    return (
-        '<?xml version="1.0" encoding="UTF-8"?>{eol}'.format(
-            eol=eol,
-        )
-    )
+    return f'<?xml version="1.0" encoding="UTF-8"?>{eol}'
 
 
 def get_xml_datatype_from_sqla_column_type(coltype: TypeEngine) -> str:
@@ -283,8 +279,8 @@ def get_xml_datatype_from_sqla_column_type(coltype: TypeEngine) -> str:
         return XmlDataTypes.STRING
     # BLOBs are handled separately.
     raise NotImplementedError(
-        "Don't know XML type for SQLAlchemy type {!r} with Python "
-        "type {!r}".format(coltype, pt))
+        f"Don't know XML type for SQLAlchemy type {coltype!r} with Python "
+        f"type {pt!r}")
 
 
 def get_xml_datatype_from_sqla_column(column: Column) -> Optional[str]:
@@ -399,26 +395,21 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
                     namespaces.extend(XML_IGNORE_NAMESPACES)
             namespace = " ".join(namespaces)
             if element.datatype:
-                dt = ' xsi:type="{}"'.format(element.datatype)
+                dt = f' xsi:type="{element.datatype}"'
             else:
                 # log.warning("XmlElement has no datatype: {!r}", element)
                 dt = ""
             cmt = ""
             if include_comments and element.comment:
-                cmt = ' ignore:comment={}'.format(
-                    xml_quote_attribute(element.comment))
-            attributes = "{ns}{dt}{cmt}".format(ns=namespace, dt=dt, cmt=cmt)
+                cmt = f' ignore:comment={xml_quote_attribute(element.comment)}'
+            attributes = f"{namespace}{dt}{cmt}"
 
             # Assemble
             if element.value is None:
                 # NULL handling
                 xmltext += (
-                    '{pr}<{name}{attributes} xsi:nil="true"/>{eol}'.format(
-                        name=element.name,
-                        pr=prefix,
-                        eol=eol,
-                        attributes=attributes,
-                    )
+                    f'{prefix}<{element.name}{attributes} '
+                    f'xsi:nil="true"/>{eol}'
                 )
             else:
                 complex_value = isinstance(element.value, XmlElement) \
@@ -430,23 +421,16 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
                 # user-inserted raw XML.
                 nl = eol if complex_value else ""
                 pr2 = prefix if complex_value else ""
+                v = get_xml_tree(
+                    value_to_recurse,
+                    level=level + 1,
+                    indent_spaces=indent_spaces,
+                    eol=eol,
+                    include_comments=include_comments
+                )
                 xmltext += (
-                    '{pr}<{name}{attributes}>{nl}'
-                    '{value}{pr2}</{name}>{eol}'.format(
-                        name=element.name,
-                        pr=prefix,
-                        eol=eol,
-                        pr2=pr2,
-                        nl=nl,
-                        value=get_xml_tree(
-                            value_to_recurse,
-                            level=level + 1,
-                            indent_spaces=indent_spaces,
-                            eol=eol,
-                            include_comments=include_comments
-                        ),
-                        attributes=attributes,
-                    )
+                    f'{prefix}<{element.name}{attributes}>{nl}'
+                    f'{v}{pr2}</{element.name}>{eol}'
                 )
 
     elif isinstance(element, list):
@@ -462,7 +446,7 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
         xmltext += xml_escape_value(str(element.value))
 
     else:
-        raise ValueError("Bad value to get_xml_tree: {!r}".format(element))
+        raise ValueError(f"Bad value to get_xml_tree: {element!r}")
 
     return xmltext
 

@@ -824,8 +824,8 @@ class UsernameNode(SchemaNode):
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         if value == USER_NAME_FOR_SYSTEM:
-            raise Invalid(node, "Cannot use system username {!r}".format(
-                USER_NAME_FOR_SYSTEM))
+            raise Invalid(
+                node, f"Cannot use system username {USER_NAME_FOR_SYSTEM!r}")
         self._length_validator(node, value)
 
 
@@ -1118,8 +1118,9 @@ class GroupsSequenceBase(SequenceSchema):
         if len(value) != len(set(value)):
             raise Invalid(node, "You have specified duplicate groups")
         if len(value) < self.minimum_number:
-            raise Invalid(node, "You must specify at least {} group(s)".format(
-                self.minimum_number))
+            raise Invalid(
+                node,
+                f"You must specify at least {self.minimum_number} group(s)")
 
 
 class AllGroupsSequence(GroupsSequenceBase):
@@ -2045,9 +2046,9 @@ class PolicyNode(MandatoryStringNode):
         if not policy.is_valid_for_idnums(req.valid_which_idnums):
             raise Invalid(
                 node,
-                "Invalid policy. (Have you referred to non-existent ID "
-                "numbers? Is the policy less restrictive than the tablet’s "
-                "minimum ID policy of {!r}?)".format(TABLET_ID_POLICY_STR)
+                f"Invalid policy. (Have you referred to non-existent ID "
+                f"numbers? Is the policy less restrictive than the tablet’s "
+                f"minimum ID policy of {TABLET_ID_POLICY_STR!r}?)"
             )
 
 
@@ -2590,9 +2591,8 @@ class EditPatientSchema(CSRFSchema):
         if not testpatient.satisfies_id_policy(tk_finalize_policy):
             raise Invalid(
                 node,
-                "Patient would not meet 'finalize' ID policy for group {}! "
-                "[That policy is: {!r}]".format(
-                    group.name, group.finalize_policy))
+                f"Patient would not meet 'finalize' ID policy for group "
+                f"{group.name}! [That policy is: {group.finalize_policy!r}]")
 
 
 class EditPatientForm(DangerousForm):
@@ -2664,10 +2664,8 @@ class SchemaTests(DemoRequestTestCase):
         assert not mismatch, (
             "Elements of final don't match corresponding elements of starting "
             "appstruct:\n"
-            "final = {}\n"
-            "start = {}".format(
-                pformat(final), pformat(appstruct)
-            )
+            f"final = {pformat(final)}\n"
+            f"start = {pformat(appstruct)}"
         )
 
     def test_login_schema(self) -> None:

@@ -91,7 +91,7 @@ def make_version(v: Union[str, float, None]) -> Version:
             # "x".ljust(3, "0") -> "x00"
         else:
             raise
-        return Version("{}.{}.{}".format(major, minor, patch))
+        return Version(f"{major}.{minor}.{patch}")
 
 
 TEST_CODE = """

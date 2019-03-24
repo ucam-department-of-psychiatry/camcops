@@ -69,65 +69,57 @@ def table_row(columns: List[str],
         # blank, or duff (in which case ignore)
         classes = [""] * n
     else:
-        classes = [(' class="{}"'.format(x) if x else '') for x in classes]
+        classes = [(f' class="{x}"' if x else '') for x in classes]
 
     if not colspans or len(colspans) != n:
         # blank, or duff (in which case ignore)
         colspans = [""] * n
     else:
-        colspans = [(' colspan="{}"'.format(x) if x else '') for x in colspans]
+        colspans = [(f' colspan="{x}"' if x else '') for x in colspans]
 
     if not colwidths or len(colwidths) != n:
         # blank, or duff (in which case ignore)
         colwidths = [""] * n
     else:
         colwidths = [
-            (' width="{}"'.format(x) if x else '')
+            (f' width="{x}"' if x else '')
             for x in colwidths
         ]
 
-    return (
-        "<tr>" +
-        "".join([
-            "<{cellspec}{classdetail}{colspan}{colwidth}>"
-            "{contents}</{cellspec}>".format(
-                cellspec="th" if heading else "td",
-                contents=default if columns[i] is None else columns[i],
-                classdetail=classes[i],
-                colspan=colspans[i],
-                colwidth=colwidths[i],
-            ) for i in range(n)
-        ]) +
-        "</tr>\n"
-    )
+    celltype = "th" if heading else "td"
+    rows = "".join([
+        (
+            f"<{celltype}{classes[i]}{colspans[i]}{colwidths[i]}>"
+            f"{default if columns[i] is None else columns[i]}"
+            f"</{celltype}>"
+        )
+        for i in range(n)
+    ])
+    return f"<tr>{rows}</tr>\n"
 
 
 def div(content: str, div_class: str = "") -> str:
     """
     Make simple HTML div.
     """
-    return """
-        <div{div_class}>
+    class_str = f' class="{div_class}"' if div_class else ''
+    return f"""
+        <div{class_str}>
             {content}
         </div>
-    """.format(
-        content=content,
-        div_class=' class="{}"'.format(div_class) if div_class else '',
-    )
+    """
 
 
 def table(content: str, table_class: str = "") -> str:
     """
     Make simple HTML table.
     """
-    return """
-        <table{table_class}>
+    class_str = f' class="{table_class}"' if table_class else ''
+    return f"""
+        <table{class_str}>
             {content}
         </table>
-    """.format(
-        content=content,
-        table_class=' class="{}"'.format(table_class) if table_class else '',
-    )
+    """
 
 
 def tr(*args, tr_class: str = "", literal: bool = False) -> str:
@@ -144,32 +136,27 @@ def tr(*args, tr_class: str = "", literal: bool = False) -> str:
         elements = args
     else:
         elements = [td(x) for x in args]
-    return "<tr{tr_class}>{contents}</tr>\n".format(
-        tr_class=' class="{}"'.format(tr_class) if tr_class else '',
-        contents="".join(elements),
-    )
+    tr_class = f' class="{tr_class}"' if tr_class else ''
+    contents = "".join(elements)
+    return f"<tr{tr_class}>{contents}</tr>\n"
 
 
 def td(contents: Any, td_class: str = "", td_width: str = "") -> str:
     """
     Make simple HTML table data ``<td>...</td>`` cell.
     """
-    return "<td{td_class}{td_width}>{contents}</td>\n".format(
-        td_class=' class="{}"'.format(td_class) if td_class else '',
-        td_width=' width="{}"'.format(td_width) if td_width else '',
-        contents=contents,
-    )
+    td_class = f' class="{td_class}"' if td_class else ''
+    td_width = f' width="{td_width}"' if td_width else ''
+    return f"<td{td_class}{td_width}>{contents}</td>\n"
 
 
 def th(contents: Any, th_class: str = "", th_width: str = "") -> str:
     """
     Make simple HTML table header ``<th>...</th>`` cell.
     """
-    return "<th{th_class}{th_width}>{contents}</th>\n".format(
-        th_class=' class="{}"'.format(th_class) if th_class else '',
-        th_width=' width="{}"'.format(th_width) if th_width else '',
-        contents=contents,
-    )
+    th_class = f' class="{th_class}"' if th_class else ''
+    th_width = f' width="{th_width}"' if th_width else ''
+    return f"<th{th_class}{th_width}>{contents}</th>\n"
 
 
 def tr_qa(q: str,
@@ -219,14 +206,14 @@ def bold(x: str) -> str:
     """
     Applies HTML bold.
     """
-    return "<b>{}</b>".format(x)
+    return f"<b>{x}</b>"
 
 
 def italic(x: str) -> str:
     """
     Applies HTML italic.
     """
-    return "<i>{}</i>".format(x)
+    return f"<i>{x}</i>"
 
 
 def identity(x: Any) -> Any:
@@ -247,14 +234,14 @@ def sub(x: str) -> str:
     """
     Applies HTML subscript.
     """
-    return "<sub>{}</sub>".format(x)
+    return f"<sub>{x}</sub>"
 
 
 def sup(x: str) -> str:
     """
     Applies HTML superscript.
     """
-    return "<sup>{}</sup>".format(x)
+    return f"<sup>{x}</sup>"
 
 
 def answer(x: Any,
@@ -292,13 +279,9 @@ def tr_span_col(x: str,
         th_not_td: make it a th, not a td.
     """
     cell = "th" if th_not_td else "td"
-    return '<tr{tr_cl}><{c} colspan="{cols}"{td_cl}>{x}</{c}></tr>'.format(
-        cols=cols,
-        x=x,
-        tr_cl=' class="{}"'.format(tr_class) if tr_class else "",
-        td_cl=' class="{}"'.format(td_class) if td_class else "",
-        c=cell,
-    )
+    tr_cl = f' class="{tr_class}"' if tr_class else ""
+    td_cl = f' class="{td_class}"' if td_class else ""
+    return f'<tr{tr_cl}><{cell} colspan="{cols}"{td_cl}>{x}</{cell}></tr>'
 
 
 def get_data_url(mimetype: str, data: Union[bytes, memoryview]) -> str:
@@ -310,10 +293,7 @@ def get_data_url(mimetype: str, data: Union[bytes, memoryview]) -> str:
 
         data:MIMETYPE;base64,B64_ENCODED_DATA
     """
-    return "data:{mimetype};base64,{b64encdata}".format(
-        mimetype=mimetype,
-        b64encdata=base64.b64encode(data).decode('ascii'),
-    )
+    return f"data:{mimetype};base64,{base64.b64encode(data).decode('ascii')}"
 
 
 def get_embedded_img_tag(mimetype: str, data: Union[bytes, memoryview]) -> str:
@@ -325,7 +305,7 @@ def get_embedded_img_tag(mimetype: str, data: Union[bytes, memoryview]) -> str:
 
         <img src="DATA_URL">
     """
-    return '<img src={}>'.format(get_data_url(mimetype, data))
+    return f'<img src={get_data_url(mimetype, data)}>'
 
 
 # =============================================================================

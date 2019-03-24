@@ -102,6 +102,7 @@ WORDLIST = [  # Value is true/1 for CORRECT, false/0 for INCORRECT
     "campanile"
 ]
 ACCENTED_WORDLIST = list(WORDLIST)
+# noinspection PyUnresolvedReferences
 ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("naive")] = "naïve"
 ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("facade")] = "façade"
 ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("detente")] = "détente"

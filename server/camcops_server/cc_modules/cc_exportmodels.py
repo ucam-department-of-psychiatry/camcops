@@ -712,7 +712,7 @@ class ExportedTaskHL7Message(Base):
             self.abort("Failed to send message via MLLP: timeout")
             return
         except Exception as e:
-            self.abort("Failed to send message via MLLP: {}".format(e))
+            self.abort(f"Failed to send message via MLLP: {e}")
             return
 
         if not server_replied:
@@ -726,7 +726,7 @@ class ExportedTaskHL7Message(Base):
         try:
             replymsg = hl7.parse(reply)
         except Exception as e:
-            self.abort("Malformed reply: {}".format(e))
+            self.abort(f"Malformed reply: {e}")
             return
 
         success, failure_reason = msg_is_successful_ack(replymsg)
@@ -787,23 +787,31 @@ class ExportedTaskFileGroup(Base):
     )
     script_called = Column(
         "script_called", Boolean, default=False, nullable=False,
-        comment="Was the {} script called?".format(
-            ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT)
+        comment=(
+            f"Was the {ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT} "
+            f"script called?"
+        )
     )
     script_retcode = Column(
         "script_retcode", Integer,
-        comment="Return code from the {} script".format(
-            ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT)
+        comment=(
+            f"Return code from the "
+            f"{ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT} script"
+        )
     )
     script_stdout = Column(
         "script_stdout", UnicodeText,
-        comment="stdout from the {} script".format(
-            ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT)
+        comment=(
+            f"stdout from the "
+            f"{ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT} script"
+        )
     )
     script_stderr = Column(
         "script_stderr", UnicodeText,
-        comment="stderr from the {} script".format(
-            ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT)
+        comment=(
+            f"stderr from the "
+            f"{ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT} script"
+        )
     )
 
     exported_task = relationship(ExportedTask)
@@ -839,15 +847,14 @@ class ExportedTaskFileGroup(Base):
         recipient = exported_task.recipient
 
         if not recipient.file_overwrite_files and os.path.isfile(filename):
-            self.abort("File already exists: {!r}".format(filename))
+            self.abort(f"File already exists: {filename!r}")
             return False
 
         if recipient.file_make_directory:
             try:
                 mkdir_p(directory)
             except Exception as e:
-                self.abort("Couldn't make directory {!r}: {}".format(
-                    directory, e))
+                self.abort(f"Couldn't make directory {directory!r}: {e}")
                 return False
 
         try:
@@ -859,8 +866,7 @@ class ExportedTaskFileGroup(Base):
                 with open(filename, mode="wb") as f:
                     f.write(binary)
         except Exception as e:
-            self.abort("Failed to open or write file {!r}: {}".format(
-                filename, e))
+            self.abort(f"Failed to open or write file {filename!r}: {e}")
             return False
 
         self.note_exported_file(filename)
@@ -904,7 +910,7 @@ class ExportedTaskFileGroup(Base):
                 target_filenames.append(rio_metadata_filename)
             for fname in target_filenames:
                 if os.path.isfile(os.path.abspath(fname)):
-                    self.abort("File already exists: {!r}".format(fname))
+                    self.abort(f"File already exists: {fname!r}")
                     return
 
         # Export task

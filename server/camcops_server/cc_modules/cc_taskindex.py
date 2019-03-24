@@ -102,7 +102,7 @@ def task_factory_unfiltered(dbsession: SqlASession,
     try:
         cls = d[basetable]  # may raise KeyError
     except KeyError:
-        raise exc.HTTPBadRequest("No such task table: {!r}".format(basetable))
+        raise exc.HTTPBadRequest(f"No such task table: {basetable!r}")
     # noinspection PyProtectedMember
     q = dbsession.query(cls).filter(cls._pk == serverpk)
     return q.first()
@@ -782,8 +782,7 @@ class TaskIndexEntry(Base):
         try:
             taskclass = d[tasktablename]  # may raise KeyError
         except KeyError:
-            fail_user_error("Bug: no such task table: {!r}".format(
-                tasktablename))
+            fail_user_error(f"Bug: no such task table: {tasktablename!r}")
 
         # noinspection PyUnresolvedReferences
         idxtable = cls.__table__  # type: Table

@@ -114,20 +114,19 @@ class SpecialNote(Base):
         """
         Return a string-formatted version of the note.
         """
-        return "[{dt}, {user}]\n{note}".format(
-            dt=self.note_at or "?",
-            user=self.get_username() or "?",
-            note=self.note or "",
+        return (
+            f"[{self.note_at or '?'}, "
+            f"{self.get_username() or '?'}]\n"
+            f"{self.note or ''}"
         )
 
     def get_note_as_html(self) -> str:
         """
         Return an HTML-formatted version of the note.
         """
-        return "[{dt}, {user}]<br><b>{note}</b>".format(
-            dt=self.note_at or "?",
-            user=self.get_username() or "?",
-            note=ws.webify(self.note) or "",
+        return (
+            f"[{self.note_at or '?'}, {self.get_username() or '?'}]<br>"
+            f"<b>{ws.webify(self.note) or ''}</b>"
         )
 
     def get_username(self) -> Optional[str]:

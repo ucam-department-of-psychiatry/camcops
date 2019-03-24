@@ -29,9 +29,6 @@ Tasks
 
 **Priority**
 
-- Completion of :ref:`Goal-Based Outcomes -- Goal Progress Chart (GBO-GPC)
-  <gbo_gpc>`.
-
 **To be prioritized**
 
 - Test Your Memory (TYM) task (Jerry M. Brown).
@@ -75,7 +72,6 @@ Tasks
 - discarded tasks - revitalize: BARS
 - discarded tasks - revitalize: BFCRS
 - discarded tasks - revitalize: CSI
-- discarded tasks - revitalize: EPDS
 - discarded tasks - revitalize: FAB
 - discarded tasks - revitalize: GASS
 - discarded tasks - revitalize: LSHSA
@@ -268,8 +264,8 @@ Server
 - Restore autogeneration of CRIS and CRATE data dictionaries. See
   ``cc_anon.py`` etc.
 
-- Introduce f-strings; requires Python 3.6+. Needs check against CPFT CentOS
-  version.
+- Introduce f-strings; requires Python 3.6+. (CPFT CentOS Python version is now
+  3.6; this is the minimum.)
 
 - More generic e-mails to administrators, via backend task. (E-mail framework
   now in place.)

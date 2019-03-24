@@ -170,8 +170,10 @@ class ServerSettings(Base):
     id = Column(
         "id", Integer,
         primary_key=True, autoincrement=True, index=True,
-        comment="PK (arbitrary integer but only a value of {} is ever "
-                "used)".format(SERVER_SETTINGS_SINGLETON_PK)
+        comment=(
+            f"PK (arbitrary integer but only a value of "
+            f"{SERVER_SETTINGS_SINGLETON_PK} is ever used)"
+        )
     )
     database_title = Column(
         "database_title", DatabaseTitleColType,

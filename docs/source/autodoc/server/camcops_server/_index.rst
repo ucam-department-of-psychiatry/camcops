@@ -48,6 +48,7 @@ server/camcops_server
     alembic/versions/0016_gbo_goal_progress_chart.py.rst
     alembic/versions/0017_perinatal_poem.py.rst
     alembic/versions/0018_gbo_goal_rating_sheet.py.rst
+    alembic/versions/0019_epds.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -236,6 +237,7 @@ server/camcops_server
     tasks/demqol.py.rst
     tasks/diagnosis.py.rst
     tasks/distressthermometer.py.rst
+    tasks/epds.py.rst
     tasks/eq5d5l.py.rst
     tasks/factg.py.rst
     tasks/fast.py.rst
@@ -294,7 +296,6 @@ server/camcops_server
     tasks_discarded/bars.py.rst
     tasks_discarded/bfcrs.py.rst
     tasks_discarded/csi.py.rst
-    tasks_discarded/epds.py.rst
     tasks_discarded/fab.py.rst
     tasks_discarded/gass.py.rst
     tasks_discarded/lshs.py.rst

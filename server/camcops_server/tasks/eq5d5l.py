@@ -181,12 +181,14 @@ class Eq5d5l(TaskHasPatientMixin, Task):
              "<sup>[2]</sup>"),
             self.health_vas)
 
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {mcq_score}
-                    {vis_score}
+                    {self.get_is_complete_tr(req)}
+                    {tr_qa("Health state code <sup>[1]</sup>",
+                           self.get_health_state_code())}
+                    {tr_qa("Visual analogue scale summary number <sup>[2]</sup>",
+                           self.get_vis_score_or_999())}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -205,19 +207,7 @@ class Eq5d5l(TaskHasPatientMixin, Task):
                 [2] This is the visual analogue health score, with missing 
                     values coded as 999.
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            mcq_score=tr_qa(
-                "Health state code <sup>[1]</sup>",
-                self.get_health_state_code()
-            ),
-            vis_score=tr_qa(
-                "Visual analogue scale summary number <sup>[2]</sup>",
-                self.get_vis_score_or_999()),
-            q_a=q_a
-        )
-        return h
+        """  # noqa
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.EQ5D5L_PROCEDURE_ASSESSMENT))]  # noqa

@@ -139,21 +139,12 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             return CTV_INCOMPLETE
         return [CtvInfo(
             content=(
-                "CGI-SCH. Severity: positive {}, negative {}, "
-                "depressive {}, cognitive {}, overall {}. Change: "
-                "positive {}, negative {}, depressive {}, "
-                "cognitive {}, overall {}.".format(
-                    self.severity1,
-                    self.severity2,
-                    self.severity3,
-                    self.severity4,
-                    self.severity5,
-                    self.change1,
-                    self.change2,
-                    self.change3,
-                    self.change4,
-                    self.change5,
-                )
+                f"CGI-SCH. Severity: positive {self.severity1}, "
+                f"negative {self.severity2}, depressive {self.severity3}, "
+                f"cognitive {self.severity4}, overall {self.severity5}. "
+                f"Change: positive {self.change1}, negative {self.change2}, "
+                f"depressive {self.change3}, cognitive {self.change4}, "
+                f"overall {self.change5}."
             )
         )]
 
@@ -189,10 +180,10 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             7: self.wxstring(req, "ii_option7"),
             9: self.wxstring(req, "ii_option9"),
         }
-        h = """
+        h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -200,10 +191,7 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <th width="70%">Question</th>
                     <th width="30%">Answer <sup>[1]</sup></th>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req)
-        )
+        """
         h += subheading_spanning_two_columns(self.wxstring(req, "i_title"))
         h += tr_span_col(self.wxstring(req, "i_question"), cols=2)
         h += tr_qa(self.wxstring(req, "q1"),
@@ -228,15 +216,12 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                    get_from_dict(change_dict, self.change4))
         h += tr_qa(self.wxstring(req, "q5"),
                    get_from_dict(change_dict, self.change5))
-        h += """
+        h += f"""
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] All questions are scored 1–7, or 9 (not applicable, for
                 change questions).
-                {postscript}
+                {self.wxstring(req, "ii_postscript")}
             </div>
-        """.format(
-            CssClass=CssClass,
-            postscript=self.wxstring(req, "ii_postscript"),
-        )
+        """
         return h

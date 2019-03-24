@@ -109,7 +109,7 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="AIMS total score {}/40".format(self.total_score())
+            content=f"AIMS total score {self.total_score()}/40"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -152,11 +152,12 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                   get_yes_no_none(req, self.q12))
         )
 
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
+                    {self.get_is_complete_tr(req)}
+                    {tr(req.wappstring("total_score") + " <sup>[1]</sup>",
+                        answer(score) + " / 40")}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -169,16 +170,7 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             <div class="{CssClass.FOOTNOTES}">
                 [1] Only Q1–10 are scored.
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                req.wappstring("total_score") + " <sup>[1]</sup>",
-                answer(score) + " / 40"
-            ),
-            q_a=q_a,
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.AIMS_PROCEDURE_ASSESSMENT))]  # noqa

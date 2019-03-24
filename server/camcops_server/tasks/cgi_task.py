@@ -99,7 +99,7 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CGI total score",
-            axis_label="Total score (out of {})".format(self.MAX_SCORE),
+            axis_label=f"Total score (out of {self.MAX_SCORE})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE + 0.5
         )]
@@ -108,8 +108,7 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="CGI total score {}/{}".format(self.total_score(),
-                                                   self.MAX_SCORE)
+            content=f"CGI total score {self.total_score()}/{self.MAX_SCORE}"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -170,11 +169,41 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
             3: self.wxstring(req, "q3s_option3"),
             4: self.wxstring(req, "q3s_option4"),
         }
-        h = """
+
+        tr_total_score = tr(
+            "Total score <sup>[1]</sup>",
+            answer(self.total_score())
+        )
+        tr_q1 = tr_qa(
+            self.wxstring(req, "q1_s") + " <sup>[2]</sup>",
+            get_from_dict(q1_dict, self.q1)
+        )
+        tr_q2 = tr_qa(
+            self.wxstring(req, "q2_s") + " <sup>[2]</sup>",
+            get_from_dict(q2_dict, self.q2)
+        )
+        tr_q3t = tr_qa(
+            self.wxstring(req, "q3t_s") + " <sup>[3]</sup>",
+            get_from_dict(q3t_dict, self.q3t)
+        )
+        tr_q3s = tr_qa(
+            self.wxstring(req, "q3s_s") + " <sup>[3]</sup>",
+            get_from_dict(q3s_dict, self.q3s)
+        )
+        tr_q3 = tr(
+            f"""
+                {self.wxstring(req, "q3_s")} <sup>[4]</sup>
+                <div class="{CssClass.SMALLPRINT}">
+                    [(Q3T – 1) × 4 + Q3S]
+                </div>
+            """,
+            answer(self.q3, formatter_answer=italic)
+        )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
+                    {self.get_is_complete_tr(req)}
+                    {tr_total_score}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -182,11 +211,11 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                     <th width="30%">Question</th>
                     <th width="70%">Answer</th>
                 </tr>
-                {q1}
-                {q2}
-                {q3t}
-                {q3s}
-                {q3}
+                {tr_q1}
+                {tr_q2}
+                {tr_q3t}
+                {tr_q3s}
+                {tr_q3}
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] Total score: Q1 + Q2 + Q3. Range 3–30 when complete.
@@ -194,43 +223,7 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 [3] Questions 3T and 3S are scored 1–4 (0 for not assessed).
                 [4] Q3 is scored 1–16 if Q3T/Q3S complete.
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                "Total score <sup>[1]</sup>",
-                answer(self.total_score())
-            ),
-            q1=tr_qa(
-                self.wxstring(req, "q1_s") + " <sup>[2]</sup>",
-                get_from_dict(q1_dict, self.q1)
-            ),
-            q2=tr_qa(
-                self.wxstring(req, "q2_s") + " <sup>[2]</sup>",
-                get_from_dict(q2_dict, self.q2)
-            ),
-            q3t=tr_qa(
-                self.wxstring(req, "q3t_s") + " <sup>[3]</sup>",
-                get_from_dict(q3t_dict, self.q3t)
-            ),
-            q3s=tr_qa(
-                self.wxstring(req, "q3s_s") + " <sup>[3]</sup>",
-                get_from_dict(q3s_dict, self.q3s)
-            ),
-            q3=tr(
-                """
-                    {q} <sup>[4]</sup>
-                    <div class="{CssClass.SMALLPRINT}">
-                        [(Q3T – 1) × 4 + Q3S]
-                    </div>
-                """.format(
-                    CssClass=CssClass,
-                    q=self.wxstring(req, "q3_s")
-                ),
-                answer(self.q3, formatter_answer=italic)
-            ),
-        )
-        return h
+        """
 
 
 # =============================================================================

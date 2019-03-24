@@ -595,7 +595,7 @@ def double_quoted(s: str) -> str:
         from camcops_server.cc_modules.cc_snomed import double_quoted
         
         def test(s):
-            print("double_quoted({!r}) -> {}".format(s, double_quoted(s)))
+            print(f"double_quoted({s!r}) -> {double_quoted(s)}")
         
         
         test("ab'cd")
@@ -619,7 +619,7 @@ def double_quoted(s: str) -> str:
         elif c == BACKSLASH:
             ret.append(r"\\")
         elif ord(c) < 32:
-            ret.append(r"\x{:02X}".format(ord(c)))
+            ret.append(fr"\x{ord(c):02X}")
         else:
             ret.append(c)
     ret.append(dquote)
@@ -683,16 +683,15 @@ class SnomedConcept(SnomedBase):
             term: associated term (description)
         """
         assert isinstance(identifier, int), (
-            "SNOMED-CT concept identifier is not an integer: "
-            "{!r}".format(identifier)
+            f"SNOMED-CT concept identifier is not an integer: {identifier!r}"
         )
         ndigits = len(str(identifier))
         assert ID_MIN_DIGITS <= ndigits <= ID_MAX_DIGITS, (
-            "SNOMED-CT concept identifier has wrong number of digits: "
-            "{!r}".format(identifier)
+            f"SNOMED-CT concept identifier has wrong number of digits: "
+            f"{identifier!r}"
         )
         assert PIPE not in term, (
-            "SNOMED-CT term has invalid pipe character: {!r}".format(term)
+            f"SNOMED-CT term has invalid pipe character: {term!r}"
         )
         self.identifier = identifier
         self.term = term
@@ -703,11 +702,7 @@ class SnomedConcept(SnomedBase):
     def as_string(self, longform: bool = True) -> str:
         # Docstring in base class.
         if longform:
-            return "{ident} {delim}{term}{delim}".format(
-                ident=self.identifier,
-                delim=PIPE,
-                term=self.term,
-            )
+            return f"{self.identifier} {PIPE}{self.term}{PIPE}"
         else:
             return str(self.identifier)
 
@@ -740,7 +735,7 @@ class SnomedValue(SnomedBase):
         """
         assert isinstance(value, (SnomedConcept, SnomedExpression,
                                   int, float, str)), (
-            "Invalid value type to SnomedValue: {!r}".format(value)
+            f"Invalid value type to SnomedValue: {value!r}"
         )
         self.value = value
 
@@ -751,11 +746,7 @@ class SnomedValue(SnomedBase):
             return x.concept_reference(longform)
         elif isinstance(x, SnomedExpression):
             # As per p16 of formal reference cited above.
-            return "{lbracket} {expr} {rbracket}".format(
-                lbracket=LBRACKET,
-                expr=x.as_string(longform),
-                rbracket=RBRACKET,
-            )
+            return f"{LBRACKET} {x.as_string(longform)} {RBRACKET}"
         elif isinstance(x, (int, float)):
             return HASH + str(x)
         elif isinstance(x, str):
@@ -815,10 +806,9 @@ class SnomedAttribute(SnomedBase):
 
     def as_string(self, longform: bool = True) -> str:
         # Docstring in base class.
-        return "{name} {eq} {value}".format(
-            name=self.name.concept_reference(longform),
-            eq=EQUALS,
-            value=self.value.as_string(longform)
+        return (
+            f"{self.name.concept_reference(longform)} {EQUALS} "
+            f"{self.value.as_string(longform)}"
         )
 
     def __repr__(self) -> str:
@@ -869,11 +859,7 @@ class SnomedAttributeGroup(SnomedBase):
 
     def as_string(self, longform: bool = True) -> str:
         # Docstring in base class.
-        return "{lbrace} {attrset} {rbrace}".format(
-            lbrace=LBRACE,
-            attrset=self.attribute_set.as_string(longform),
-            rbrace=RBRACE,
-        )
+        return f"{LBRACE} {self.attribute_set.as_string(longform)} {RBRACE}"
 
     def __repr__(self) -> str:
         return simple_repr(self, ["attribute_set"])
@@ -907,8 +893,7 @@ class SnomedRefinement(SnomedBase):
             elif isinstance(r, SnomedAttributeGroup):
                 self.attrgroups.append(r)
             else:
-                raise ValueError("Unknown object to SnomedRefinement: "
-                                 "{!r}".format(r))
+                raise ValueError(f"Unknown object to SnomedRefinement: {r!r}")
 
     def as_string(self, longform: bool = True) -> str:
         # Docstring in base class.
@@ -1440,12 +1425,11 @@ def get_all_task_snomed_concepts(xml_filename: str) \
             log.debug("Ignoring unknown SNOMED-CT lookup: {!r}", lookup)
             continue
         assert len(concepts) == 1, (
-            "More than one SNOMED-CT concept for lookup: {!r}".format(lookup)
+            f"More than one SNOMED-CT concept for lookup: {lookup!r}"
         )
         concept = concepts[0]
         assert concept.identifier not in identifiers_seen, (
-            "Duplicate SNOMED-CT identifier: {!r}".format(
-                concept.identifier))
+            f"Duplicate SNOMED-CT identifier: {concept.identifier!r}")
         identifiers_seen.add(concept.identifier)
         # Stash it
         camcops_concepts[lookup] = concept
@@ -1453,8 +1437,8 @@ def get_all_task_snomed_concepts(xml_filename: str) \
     missing = sorted(list(VALID_SNOMED_LOOKUPS - set(camcops_concepts.keys())))
     if missing:
         raise ValueError(
-            "The following SNOMED-CT concepts required by CamCOPS are missing "
-            "from the XML ({!r}): {!r}".format(xml_filename, missing))
+            f"The following SNOMED-CT concepts required by CamCOPS are "
+            f"missing from the XML ({xml_filename!r}): {missing!r}")
     # Done
     return camcops_concepts
 
@@ -1540,10 +1524,9 @@ class UmlsIcd9SnomedRow(object):
         return SnomedConcept(self.snomed_cid, self.snomed_fsn)
 
     def __str__(self) -> str:
-        return "ICD-9-CM {} ({}) -> SNOMED-CT {}".format(
-            self.icd_code,
-            self.icd_name,
-            self.snomed_concept()
+        return (
+            f"ICD-9-CM {self.icd_code} ({self.icd_name}) "
+            f"-> SNOMED-CT {self.snomed_concept()}"
         )
 
 
@@ -1570,8 +1553,8 @@ def get_all_icd9cm_snomed_concepts_from_umls(
         header = next(reader, None)
         if header != UmlsIcd9SnomedRow.HEADER:
             raise ValueError(
-                "ICD-9-CM TSV file has unexpected header: {!r}; expected "
-                "{!r}".format(header, UmlsIcd9SnomedRow.HEADER))
+                f"ICD-9-CM TSV file has unexpected header: {header!r}; "
+                f"expected {UmlsIcd9SnomedRow.HEADER!r}")
         for row in reader:
             entry = UmlsIcd9SnomedRow(*row)
             if entry.icd_code not in CLIENT_ICD9CM_CODES:
@@ -1700,10 +1683,9 @@ class UmlsSnomedToIcd10Row(object):
         return self.map_target_name
 
     def __str__(self) -> str:
-        return "ICD-10 {} ({}) -> SNOMED-CT {}".format(
-            self.icd_code,
-            self.icd_name,
-            self.snomed_concept()
+        return (
+            f"ICD-10 {self.icd_code} ({self.icd_name}) "
+            f"-> SNOMED-CT {self.snomed_concept()}"
         )
 
 
@@ -1729,8 +1711,8 @@ def get_all_icd10_snomed_concepts_from_umls(
         header = next(reader, None)
         if header != UmlsSnomedToIcd10Row.HEADER:
             raise ValueError(
-                "ICD-9-CM TSV file has unexpected header: {!r}; expected "
-                "{!r}".format(header, UmlsSnomedToIcd10Row.HEADER))
+                f"ICD-9-CM TSV file has unexpected header: {header!r}; "
+                f"expected {UmlsSnomedToIcd10Row.HEADER!r}")
         for row in reader:
             entry = UmlsSnomedToIcd10Row(*row)
             if entry.icd_code not in CLIENT_ICD10_CODES:
@@ -1837,11 +1819,9 @@ class AthenaConceptRow(object):
         return simple_repr(self, self.HEADER)
 
     def __str__(self) -> str:
-        return "Vocabulary {}, concept {} ({}) -> Athena concept {}".format(
-            self.vocabulary_id,
-            self.concept_code,
-            self.concept_name,
-            self.concept_id,
+        return (
+            f"Vocabulary {self.vocabulary_id}, concept {self.concept_code} "
+            f"({self.concept_name}) -> Athena concept {self.concept_id}"
         )
 
     # I looked at sorting them to find the best. Not wise; would need human
@@ -1966,10 +1946,9 @@ class AthenaConceptRelationshipRow(object):
         return simple_repr(self, self.HEADER)
 
     def __str__(self) -> str:
-        return "Athena concept relationship {} {!r} {}".format(
-            self.concept_id_1,
-            self.relationship_id,
-            self.concept_id_2,
+        return (
+            f"Athena concept relationship {self.concept_id_1} "
+            f"{self.relationship_id!r} {self.concept_id_2}"
         )
 
 
@@ -2007,8 +1986,8 @@ def get_athena_concepts(
         header = next(reader, None)
         if header != AthenaConceptRow.HEADER:
             raise ValueError(
-                "Athena concept file has unexpected header: "
-                "{!r}; expected {!r}".format(header, AthenaConceptRow.HEADER))
+                f"Athena concept file has unexpected header: {header!r}; "
+                f"expected {AthenaConceptRow.HEADER!r}")
         for row in reader:
             n_rows_read += 1
             concept = AthenaConceptRow(*row)
@@ -2056,9 +2035,9 @@ def get_athena_concept_relationships(
         header = next(reader, None)
         if header != AthenaConceptRelationshipRow.HEADER:
             raise ValueError(
-                "Athena concept relationship file has unexpected header: "
-                "{!r}; expected {!r}".format(
-                    header, AthenaConceptRelationshipRow.HEADER))
+                f"Athena concept relationship file has unexpected header: "
+                f"{header!r}; expected "
+                f"{AthenaConceptRelationshipRow.HEADER!r}")
         for row in reader:
             n_rows_read += 1
             rel = AthenaConceptRelationshipRow(*row)
@@ -2218,11 +2197,9 @@ def get_multiple_snomed_concepts_from_xml(xml_filename: str,
         missing = sorted(list(valid_lookups - set(camcops_concepts.keys())))
         if missing:
             msg = (
-                "The following {required}SNOMED-CT concepts are "
-                "missing from the XML ({fname!r}): {missing!r}".format(
-                    required="required " if require_all else "",
-                    fname=xml_filename,
-                    missing=missing)
+                f'The following {"required " if require_all else ""}'
+                f'SNOMED-CT concepts are missing from the XML '
+                f'({xml_filename!r}): {missing!r}'
             )
             if require_all:
                 log.critical(msg)

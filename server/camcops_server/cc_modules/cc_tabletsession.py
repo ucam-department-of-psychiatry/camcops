@@ -86,25 +86,26 @@ class TabletSession(object):
         try:
             self.tablet_version_ver = make_version(self.tablet_version_str)
         except ValueError:
-            fail_user_error("CamCOPS tablet version nonsensical: {!r}".format(
-                self.tablet_version_str))
+            fail_user_error(
+                f"CamCOPS tablet version nonsensical: "
+                f"{self.tablet_version_str!r}")
 
         # Basic security check: no pretending to be the server
         if self.device_name == DEVICE_NAME_FOR_SERVER:
-            fail_user_error("Tablets cannot use the device name {!r}".format(
-                DEVICE_NAME_FOR_SERVER))
+            fail_user_error(
+                f"Tablets cannot use the device name "
+                f"{DEVICE_NAME_FOR_SERVER!r}")
         if self.username == USER_NAME_FOR_SYSTEM:
-            fail_user_error("Tablets cannot use the username {!r}".format(
-                USER_NAME_FOR_SYSTEM))
+            fail_user_error(
+                f"Tablets cannot use the username {USER_NAME_FOR_SYSTEM!r}")
 
         self._device_obj = None  # type: Device
 
         # Ensure table version is OK
         if self.tablet_version_ver < MINIMUM_TABLET_VERSION:
             fail_user_error(
-                "Tablet CamCOPS version too old: is {v}, need {r}".format(
-                    v=self.tablet_version_str,
-                    r=MINIMUM_TABLET_VERSION))
+                f"Tablet CamCOPS version too old: is "
+                f"{self.tablet_version_str}, need {MINIMUM_TABLET_VERSION}")
         # Other version things are done via properties
 
         # Upload efficiency

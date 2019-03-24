@@ -262,7 +262,7 @@ class Factg(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="FACT-G total score (rating well-being)",
-            axis_label="Total score".format(self.MAX_SCORE_TOTAL),
+            axis_label=f"Total score (out of {self.MAX_SCORE_TOTAL})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE_TOTAL + 0.5,
             axis_ticks=[
@@ -289,13 +289,12 @@ class Factg(TaskHasPatientMixin, Task,
             elements.append(SummaryElement(
                 name=info.summary_fieldname, coltype=Float(),
                 value=subscore,
-                comment="{} (out of {})".format(info.summary_description,
-                                                info.max_score)
+                comment=f"{info.summary_description} (out of {info.max_score})"
             ))
         elements.append(SummaryElement(
             name="total_score", coltype=Float(),
             value=self.total_score(),
-            comment="Total score (out of {})".format(self.MAX_SCORE_TOTAL)
+            comment=f"Total score (out of {self.MAX_SCORE_TOTAL})"
         ))
         return elements
 
@@ -327,7 +326,7 @@ class Factg(TaskHasPatientMixin, Task,
                 heading,
                 (
                     answer(round(subscore, DISPLAY_DP)) +
-                    " / {}".format(info.max_score)
+                    f" / {info.max_score}"
                 )
             )
             answer_html += subheading_spanning_two_columns(heading)
@@ -343,11 +342,15 @@ class Factg(TaskHasPatientMixin, Task,
 
         tscore = round(self.total_score(), DISPLAY_DP)
 
-        h = """
+        tr_total_score = tr(
+            req.wappstring("total_score"),
+            answer(tscore) + f" / {self.MAX_SCORE_TOTAL}"
+        )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                  <table class="{CssClass.SUMMARY}">
-                     {tr_is_complete}
-                     {total_score}
+                     {self.get_is_complete_tr(req)}
+                     {tr_total_score}
                      {subscore_html}
                  </table>
             </div>
@@ -357,17 +360,5 @@ class Factg(TaskHasPatientMixin, Task,
                     <th width="50%">Answer</th>
                 </tr>
                 {answer_html}
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                req.wappstring("total_score"),
-                answer(tscore) + " / {}".format(self.MAX_SCORE_TOTAL)
-            ),
-            subscore_html=subscore_html,
-            answer_html=answer_html,
-        )
-        h += """
             </table>
         """
-        return h

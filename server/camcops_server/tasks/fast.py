@@ -86,7 +86,7 @@ class Fast(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="FAST total score",
-            axis_label="Total score (out of {})".format(self.MAX_SCORE),
+            axis_label=f"Total score (out of {self.MAX_SCORE})",
             axis_min=-0.5,
             axis_max=self.MAX_SCORE + 0.5
         )]
@@ -95,17 +95,17 @@ class Fast(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         classification = "positive" if self.is_positive() else "negative"
-        return [CtvInfo(
-            content="FAST total score {}/{} ({})".format(
-                self.total_score(), self.MAX_SCORE, classification)
-        )]
+        return [CtvInfo(content=(
+            f"FAST total score {self.total_score()}/{self.MAX_SCORE} "
+            f"({classification})"
+        ))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/{})".format(self.MAX_SCORE)),
+                           comment=f"Total score (/{self.MAX_SCORE})"),
             SummaryElement(name="positive",
                            coltype=Boolean(),
                            value=self.is_positive(),
@@ -150,12 +150,21 @@ class Fast(TaskHasPatientMixin, Task,
         q_a += tr_qa(self.wxstring(req, "q2"), get_from_dict(main_dict, self.q2))  # noqa
         q_a += tr_qa(self.wxstring(req, "q3"), get_from_dict(main_dict, self.q3))  # noqa
         q_a += tr_qa(self.wxstring(req, "q4"), get_from_dict(q4_dict, self.q4))
-        h = """
+
+        tr_total_score = tr(
+            req.wappstring("total_score"),
+            answer(self.total_score()) + f" / {self.MAX_SCORE}"
+        )
+        tr_positive = tr_qa(
+            self.wxstring(req, "positive") + " <sup>[1]</sup>",
+            get_yes_no(req, self.is_positive())
+        )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
-                    {positive}
+                    {self.get_is_complete_tr(req)}
+                    {tr_total_score}
+                    {tr_positive}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -169,20 +178,7 @@ class Fast(TaskHasPatientMixin, Task,
                 [1] Negative if Q1 = 0. Positive if Q1 ≥ 3. Otherwise positive
                     if total score ≥ 3.
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                req.wappstring("total_score"),
-                answer(self.total_score()) + " / {}".format(self.MAX_SCORE)
-            ),
-            positive=tr_qa(
-                self.wxstring(req, "positive") + " <sup>[1]</sup>",
-                get_yes_no(req, self.is_positive())
-            ),
-            q_a=q_a,
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.FAST_PROCEDURE_ASSESSMENT))]  # noqa

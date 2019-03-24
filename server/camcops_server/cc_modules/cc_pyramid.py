@@ -887,11 +887,11 @@ class CamcopsAuthorizationPolicy(object):
     def permits(context: ILocation, principals: List[str], permission: str) \
             -> PermitsResult:
         if permission in principals:
-            return Allowed("ALLOWED: permission {} present in principals "
-                           "{}".format(permission, principals))
+            return Allowed(f"ALLOWED: permission {permission} present in "
+                           f"principals {principals}")
 
-        return Denied("DENIED: permission {} not in principals "
-                      "{}".format(permission, principals))
+        return Denied(f"DENIED: permission {permission} not in principals "
+                      f"{principals}")
 
     @staticmethod
     def principals_allowed_by_permission(context: ILocation,

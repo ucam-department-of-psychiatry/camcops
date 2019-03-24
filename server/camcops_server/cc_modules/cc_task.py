@@ -619,7 +619,7 @@ class Task(GenericTabletRecordMixin, Base):
         if self.is_anonymous:
             patient_str = ""
         else:
-            patient_str = ", patient={p}".format(p=self.patient)
+            patient_str = f", patient={self.patient}"
         return "{t} (_pk={pk}, when_created={wc}{patient})".format(
             t=self.tablename,
             pk=self.get_pk(),
@@ -1002,7 +1002,7 @@ class Task(GenericTabletRecordMixin, Base):
         line_equals = "=" * 79
         lines = ["", line_equals]
         for f in self.get_fieldnames():
-            lines.append("{f}: {v!r}".format(f=f, v=getattr(self, f)))
+            lines.append(f"{f}: {getattr(self, f)!r}")
         lines.append(line_equals)
         log.info("\n".join(lines))
 
@@ -1938,10 +1938,8 @@ class Task(GenericTabletRecordMixin, Base):
             final_revision
         ]
         # UTF-8 is NOT supported by RiO for metadata. So:
-        csv_line = ",".join([
-            '"{}"'.format(mangle_unicode_to_ascii(x))
-            for x in item_list
-        ])
+        csv_line = ",".join([f'"{mangle_unicode_to_ascii(x)}"'
+                             for x in item_list])
         return csv_line + "\n"
 
     # -------------------------------------------------------------------------
@@ -1965,9 +1963,10 @@ class Task(GenericTabletRecordMixin, Base):
         very obvious visually when it isn't.
         """
         c = self.is_complete()
-        return """<td>Completed?</td>{}<b>{}</b></td>""".format(
-            "<td>" if c else """<td class="{}">""".format(CssClass.INCOMPLETE),
-            get_yes_no(req, c)
+        td_class = "" if c else f' class="{CssClass.INCOMPLETE}"'
+        return (
+            f"<td>Completed?</td>"
+            f"<td{td_class}><b>{get_yes_no(req, c)}</b></td>"
         )
 
     def get_is_complete_tr(self, req: "CamcopsRequest") -> str:
@@ -1975,7 +1974,7 @@ class Task(GenericTabletRecordMixin, Base):
         HTML table row to indicate whether task is complete or not, and to
         make it very obvious visually when it isn't.
         """
-        return "<tr>" + self.get_is_complete_td_pair(req) + "</tr>"
+        return f"<tr>{self.get_is_complete_td_pair(req)}</tr>"
 
     def get_twocol_val_row(self,
                            fieldname: str,
@@ -2283,8 +2282,7 @@ class Task(GenericTabletRecordMixin, Base):
                 "string x.y not found"
         """
         if defaultvalue is None and provide_default_if_none:
-            defaultvalue = "[{}: {}]".format(self.get_extrastring_taskname(),
-                                             name)
+            defaultvalue = f"[{self.get_extrastring_taskname()}: {name}]"
         return req.wxstring(
             self.get_extrastring_taskname(),
             name,
@@ -2310,8 +2308,7 @@ class Task(GenericTabletRecordMixin, Base):
                 "string x.y not found"
         """
         if defaultvalue is None and provide_default_if_none:
-            defaultvalue = "[{}: {}]".format(self.get_extrastring_taskname(),
-                                             name)
+            defaultvalue = f"[{self.get_extrastring_taskname()}: {name}]"
         return req.xstring(
             self.get_extrastring_taskname(),
             name,

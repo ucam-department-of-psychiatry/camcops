@@ -102,10 +102,10 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         contact_type = "Patient" if self.patient_contact else "Non-patient"
-        return [CtvInfo(
-            content="{} contact. Duration (hours:minutes) {}.".format(
-                contact_type, get_duration_h_m(self.start, self.end))
-        )]
+        return [CtvInfo(content=(
+            f"{contact_type} contact. Duration (hours:minutes) "
+            f"{get_duration_h_m(self.start, self.end)}."
+        ))]
 
     def is_complete(self) -> bool:
         return (
@@ -115,16 +115,13 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        h = f"""
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <td width="33%">Location:</td>
-                    <td width="67%"><b>{loc}</b></td>
+                    <td width="67%"><b>{ws.webify(self.location)}</b></td>
                 </tr>
-        """.format(
-            CssClass=CssClass,
-            loc=ws.webify(self.location),
-        )
+        """
         h += tr_qa("Start:", format_datetime(self.start,
                                              DateFormat.SHORT_DATETIME,
                                              None))

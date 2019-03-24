@@ -227,8 +227,7 @@ class Cesdr(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CESD-R total score",
-            axis_label="Total score ({}-{})".format(self.MIN_SCORE,
-                                                    self.MAX_SCORE),
+            axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
             axis_min=self.MIN_SCORE - 0.5,
             axis_max=self.MAX_SCORE + 0.5,
             axis_ticks=regular_tracker_axis_ticks_int(
@@ -251,7 +250,7 @@ class Cesdr(TaskHasPatientMixin, Task,
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="CESD-R total score {}".format(self.total_score())
+            content=f"CESD-R total score {self.total_score()}"
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -279,13 +278,27 @@ class Cesdr(TaskHasPatientMixin, Task,
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
 
-        h = """
+        tr_total_score = tr_qa(
+            f"{req.wappstring('total_score')} (0–60)",
+            score
+        )
+        tr_depression_or_risk_of = tr_qa(
+            self.wxstring(req, "depression_or_risk_of") +
+            "? <sup>[1]</sup>",
+            get_yes_no(req, self.has_depression_risk())
+        )
+        tr_provisional_diagnosis = tr(
+            'Provisional diagnosis <sup>[2]</sup>',
+            self.wxstring(req,
+                          "category_" + str(self.get_depression_category()))
+        )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {total_score}
-                    {depression_or_risk_of}
-                    {provisional_diagnosis}
+                    {self.get_is_complete_tr(req)}
+                    {tr_total_score}
+                    {tr_depression_or_risk_of}
+                    {tr_provisional_diagnosis}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -301,23 +314,4 @@ class Cesdr(TaskHasPatientMixin, Task,
             [2] Diagnostic criteria described at
                 <a href="https://cesd-r.com/cesdr/">https://cesd-r.com/cesdr/</a>
             </div>
-        """.format(  # noqa
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr_qa(
-                "{} (0–60)".format(req.wappstring("total_score")),
-                score
-            ),
-            depression_or_risk_of=tr_qa(
-                self.wxstring(req, "depression_or_risk_of") +
-                "? <sup>[1]</sup>",
-                get_yes_no(req, self.has_depression_risk())
-            ),
-            provisional_diagnosis=tr(
-                'Provisional diagnosis <sup>[2]</sup>',
-                self.wxstring(
-                    req, "category_" + str(self.get_depression_category()))),
-            q_a=q_a,
-
-        )
-        return h
+        """  # noqa

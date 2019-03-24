@@ -35,6 +35,7 @@ Tasks rejected or not included for copyright reasons include:
     :local:
     :depth: 1
 
+
 .. _ace_r:
 
 Addenbrooke’s Cognitive Examination (ACE-R) (prior to ACE-III)
@@ -42,6 +43,7 @@ Addenbrooke’s Cognitive Examination (ACE-R) (prior to ACE-III)
 
 Disputed ― elements are certainly public domain, but it also includes elements
 of the :ref:`MMSE <mmse>`. Replaced by the :ref:`ACE-III <ace3>`.
+
 
 .. _asrm:
 
@@ -57,6 +59,7 @@ RightsLink, 2013-03-19). Requires a license fee.
 - Clarification requested from Elsevier 2013-05-07, given presence in the
   STABLE toolkit. None received by 2013-08-26.
 
+
 .. _bars:
 
 Barnes Akathisia Rating Scale (BARS)
@@ -66,6 +69,7 @@ Copyright Royal College of Psychiatrists. Permission refused (personal
 communication, RCPsych to Rudolf Cardinal, 2013-07-31).
 
 - Barnes (1989), http://www.ncbi.nlm.nih.gov/pubmed/2574607.
+
 
 .. _bfcrs_csi:
 
@@ -79,6 +83,7 @@ Wiley to Rudolf Cardinal, 2013-04-09).
 
 - Original: Bush et al. (1996), https://www.pubmed.gov/8686483.
 
+
 .. _ess:
 
 Epworth Sleepiness Scale (ESS)
@@ -90,35 +95,6 @@ commercial uses) requires a licence fee.
 
 - http://epworthsleepinessscale.com
 
-.. _epds:
-
-Edinburgh Postnatal Depression Scale (EPDS)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Copyright Royal College of Psychiatrists.
-
-Ignore this (say the RCPsych): “Users may reproduce the scale without further
-permission providing they respect copyright by quoting the names of the
-authors, the title and the source of the paper in all reproduced copies.” (Cox
-et al. 1987.)
-
-Instead, use this: “© 1987 The Royal College of Psychiatrists. The Edinburgh
-Postnatal Depression Scale may be photocopied by individual researchers or
-clinicians for their own use without seeking permission from the publishers.
-The scale must be copied in full and all copies must acknowledge the following
-source: Cox, J.L., Holden, J.M., & Sagovsky, R. (1987). Detection of postnatal
-depression. Development of the 10-item Edinburgh Postnatal Depression Scale.
-British Journal of Psychiatry, 150, 782-786. Written permission must be
-obtained from the Royal College of Psychiatrists for copying and distribution
-to others or for republication (in print, online or by any other medium).”
-
-Permission refused (personal communication, RCPsych to Rudolf Cardinal,
-2013-08-06).
-
-- Original: Cox JL, Holden JM, and Sagovsky R (1987). Detection of postnatal
-  depression: Development of the 10-item Edinburgh Postnatal Depression Scale.
-  British Journal of Psychiatry 150:782–786,
-  http://www.ncbi.nlm.nih.gov/pubmed/3651732
 
 .. _eq5d:
 
@@ -130,6 +106,7 @@ Copyright EuroQol Research Foundation. Requires a license fee.
 - http://www.euroqol.org
 
 - http://www.euroqol.org/faqs/eq-5d-5l.html
+
 
 .. _fab:
 
@@ -149,6 +126,7 @@ Permissions to Rudolf Cardinal, 2013-08-01.
 - AAN = American Academy of Neurology. *Neurology* journal published by LWW and
   permissions requests directed to them.
 
+
 .. _gass:
 
 Glasgow Antipsychotic Side-effect Scale (GASS)
@@ -159,6 +137,7 @@ communication, SAGE to Rudolf Cardinal, 2013-04-19, 2013-04-25; ongoing fees
 would apply).
 
 - Waddell & Taylor (2008), http://www.pubmed.gov/18541624
+
 
 .. _lshs:
 
@@ -188,6 +167,7 @@ presumed unsafe as a result.
   participants' reports of hallucinatory experiences. Canadian Journal of
   Behavioural Science, Vol 37(1), Jan 2005, 33-43.
 
+
 .. _lunsers:
 
 Liverpool University Neuroleptic Side Effect Rating Scale (LUNSERS)
@@ -199,6 +179,7 @@ University of Manchester Intellectual Property [UMIP] to Rudolf Cardinal,
 
 - http://www.flintbox.com/public/project/22737/
 
+
 .. _mmse:
 
 Mini-Mental State Examination (MMSE)
@@ -207,6 +188,7 @@ Mini-Mental State Examination (MMSE)
 Copyright MiniMental / Psychological Assessment Resources (PAR). Commercial;
 see Newman & Feldman (2011) NEJM 365:2247,
 http://www.nejm.org/doi/full/10.1056/NEJMp1110652
+
 
 .. _madrs:
 
@@ -217,6 +199,7 @@ Copyright Royal College of Psychiatrists. Permission refused (personal
 communication, RCPsych to Rudolf Cardinal, 2013-07-31).
 
 - Montgomery & Åsberg (1979), http://www.ncbi.nlm.nih.gov/pubmed/444788.
+
 
 .. _psychlops:
 
@@ -230,6 +213,7 @@ researchers.”
 
 - http://www.psychlops.org.uk
 
+
 .. _sas:
 
 Simpson–Angus Extrapyramidal Side Effects Scale (SAS)
@@ -241,6 +225,7 @@ Wiley to Rudolf Cardinal, 2013-04-09).
 - Original: Simpson & Angus (1970), http://www.pubmed.gov/4917967.
 - http://outcometracker.org/library/SAS.pdf
 - http://www.cnsforum.com/streamfile.aspx?filename=SAS.pdf&path=pdf
+
 
 .. _sipat:
 

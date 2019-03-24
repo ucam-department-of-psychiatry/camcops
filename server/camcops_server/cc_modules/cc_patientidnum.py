@@ -116,7 +116,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
     )
 
     def __str__(self) -> str:
-        return "idnum{}={}".format(self.which_idnum, self.idnum_value)
+        return f"idnum{self.which_idnum}={self.idnum_value}"
 
     def __repr__(self) -> str:
         return simple_repr(self, [
@@ -175,8 +175,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         """
         if self.which_idnum is None or self.idnum_value is None:
             return ""
-        return "{}-{}".format(self.short_description(req),
-                              self.idnum_value)
+        return f"{self.short_description(req)}-{self.idnum_value}"
 
     def set_idnum(self, idnum_value: int) -> None:
         """

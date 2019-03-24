@@ -69,7 +69,7 @@ class DadMetaclass(DeclarativeMeta):
                  name: str,
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
-        explan = " ({} yes, {} no, {} not applicable)".format(YES, NO, NA)
+        explan = f" ({YES} yes, {NO} no, {NA} not applicable)"
         for colname in cls.ITEMS:
             setattr(
                 cls,
@@ -236,7 +236,7 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
 
     @staticmethod
     def report_score(score_tuple: Tuple[int, int]) -> str:
-        return "{} / {}".format(answer(score_tuple[0]), score_tuple[1])
+        return f"{answer(score_tuple[0])} / {score_tuple[1]}"
 
     def report_answer(self, field: str) -> str:
         value = getattr(self, field)

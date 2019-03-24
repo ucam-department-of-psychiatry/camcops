@@ -27,6 +27,7 @@
 #include "tasks/bmi.h"
 #include "tasks/cgii.h"
 #include "tasks/core10.h"
+#include "tasks/epds.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/fft.h"
 #include "tasks/gad7.h"
@@ -61,7 +62,7 @@ SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(AuditC::AUDITC_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, app),
-        // EPDS -- Royal College not currently permitting use
+        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),

@@ -150,13 +150,10 @@ class Bmi(TaskHasPatientMixin, Task):
             return CTV_INCOMPLETE
         return [CtvInfo(
             content=(
-                "BMI: {} kg⋅m<sup>–2</sup> [{}]. Mass: {} kg. "
-                "Height: {} m.".format(
-                    ws.number_to_dp(self.bmi(), BMI_DP),
-                    self.category(req),
-                    ws.number_to_dp(self.mass_kg, KG_DP),
-                    ws.number_to_dp(self.height_m, M_DP)
-                )
+                f"BMI: {ws.number_to_dp(self.bmi(), BMI_DP)} kg⋅m<sup>–2</sup>"
+                f" [{self.category(req)}]."
+                f" Mass: {ws.number_to_dp(self.mass_kg, KG_DP)} kg. "
+                f" Height: {ws.number_to_dp(self.height_m, M_DP)} m."
             )
         )]
 
@@ -199,18 +196,19 @@ class Bmi(TaskHasPatientMixin, Task):
             return self.wxstring(req, "underweight_under_13")
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = """
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                    {bmi}
-                    {category}
+                    {self.get_is_complete_tr(req)}
+                    {tr_qa("BMI (kg/m<sup>2</sup>)",
+                           ws.number_to_dp(self.bmi(), BMI_DP))}
+                    {tr_qa("Category <sup>[1]</sup>", self.category(req))}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
-                {mass}
-                {height}
-                {comment}
+                {tr_qa("Mass (kg)", ws.number_to_dp(self.mass_kg, KG_DP))}
+                {tr_qa("Height (m)", ws.number_to_dp(self.height_m, M_DP))}
+                {tr_qa("Comment", ws.webify(self.comment))}
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] Categorization <b>for adults</b> (square brackets
@@ -290,19 +288,7 @@ class Bmi(TaskHasPatientMixin, Task):
                     pp. 11, 15, 20, 56).</li>
                 </ul>
             </div>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            bmi=tr_qa(
-                "BMI (kg/m<sup>2</sup>)",
-                ws.number_to_dp(self.bmi(), BMI_DP)
-            ),
-            category=tr_qa("Category <sup>[1]</sup>", self.category(req)),
-            mass=tr_qa("Mass (kg)", ws.number_to_dp(self.mass_kg, KG_DP)),
-            height=tr_qa("Height (m)", ws.number_to_dp(self.height_m, M_DP)),
-            comment=tr_qa("Comment", ws.webify(self.comment)),
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         procedure = req.snomed(SnomedLookup.BMI_PROCEDURE_MEASUREMENT)

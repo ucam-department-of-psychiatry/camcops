@@ -122,7 +122,7 @@ class Group(Base):
     )
 
     def __str__(self) -> str:
-        return "Group {} ({})".format(self.id, self.name)
+        return f"Group {self.id} ({self.name})"
 
     def __repr__(self) -> str:
         attrnames = sorted(attrname for attrname, _ in gen_columns(self))

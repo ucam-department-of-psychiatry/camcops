@@ -398,8 +398,8 @@ class ReportTests(DemoDatabaseTestCase):
                 assert (q is None or
                         isinstance(q, SelectBase) or
                         isinstance(q, Query)), (
-                    "get_query() method of class {cls} returned {q} which is "
-                    "of type {t}".format(cls=cls, q=q, t=type(q))
+                    f"get_query() method of class {cls} returned {q} which is "
+                    f"of type {type(q)}"
                 )
             except HTTPBadRequest:
                 pass

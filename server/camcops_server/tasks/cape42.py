@@ -128,9 +128,7 @@ class Cape42(TaskHasPatientMixin, Task,
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         fstr1 = "CAPE-42 weighted frequency score: "
         dstr1 = "CAPE-42 weighted distress score: "
-        wtr = " ({low}–{high})".format(
-            low=MIN_SCORE_PER_Q,
-            high=MAX_SCORE_PER_Q)
+        wtr = f" ({MIN_SCORE_PER_Q}–{MAX_SCORE_PER_Q})"
         fstr2 = " weighted freq. score" + wtr
         dstr2 = " weighted distress score" + wtr
         axis_min = MIN_SCORE_PER_Q - 0.2
@@ -195,61 +193,59 @@ class Cape42(TaskHasPatientMixin, Task,
         ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        wtr = " ({low}-{high})".format(
-            low=MIN_SCORE_PER_Q,
-            high=MAX_SCORE_PER_Q)
+        wtr = f" ({MIN_SCORE_PER_Q}-{MAX_SCORE_PER_Q})"
         return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="all_freq", coltype=Integer(),
                 value=self.frequency_score(ALL),
                 comment=(
                     "Total score = frequency score for all questions "
-                    "({low}-{high})".format(low=ALL_MIN, high=ALL_MAX))),
+                    f"({ALL_MIN}-{ALL_MAX})")),
             SummaryElement(
                 name="all_distress", coltype=Integer(),
                 value=self.distress_score(ALL),
                 comment=(
                     "Distress score for all questions "
-                    "({low}-{high})".format(low=ALL_MIN, high=ALL_MAX))),
+                    f"({ALL_MIN}-{ALL_MAX})")),
 
             SummaryElement(
                 name="positive_frequency", coltype=Integer(),
                 value=self.frequency_score(POSITIVE),
                 comment=(
                     "Frequency score for positive symptom questions "
-                    "({low}-{high})".format(low=POS_MIN, high=POS_MAX))),
+                    f"({POS_MIN}-{POS_MAX})")),
             SummaryElement(
                 name="positive_distress", coltype=Integer(),
                 value=self.distress_score(POSITIVE),
                 comment=(
                     "Distress score for positive symptom questions "
-                    "({low}-{high})".format(low=POS_MIN, high=POS_MAX))),
+                    f"({POS_MIN}-{POS_MAX})")),
 
             SummaryElement(
                 name="negative_frequency", coltype=Integer(),
                 value=self.frequency_score(NEGATIVE),
                 comment=(
                     "Frequency score for negative symptom questions "
-                    "({low}-{high})".format(low=NEG_MIN, high=NEG_MAX))),
+                    f"({NEG_MIN}-{NEG_MAX})")),
             SummaryElement(
                 name="negative_distress", coltype=Integer(),
                 value=self.distress_score(NEGATIVE),
                 comment=(
                     "Distress score for negative symptom questions "
-                    "({low}-{high})".format(low=NEG_MIN, high=NEG_MAX))),
+                    f"({NEG_MIN}-{NEG_MAX})")),
 
             SummaryElement(
                 name="depressive_frequency", coltype=Integer(),
                 value=self.frequency_score(DEPRESSIVE),
                 comment=(
                     "Frequency score for depressive symptom questions "
-                    "({low}-{high})".format(low=DEP_MIN, high=DEP_MAX))),
+                    f"({DEP_MIN}-{DEP_MAX})")),
             SummaryElement(
                 name="depressive_distress", coltype=Integer(),
                 value=self.distress_score(DEPRESSIVE),
                 comment=(
                     "Distress score for depressive symptom questions "
-                    "({low}-{high})".format(low=DEP_MIN, high=DEP_MAX))),
+                    f"({DEP_MIN}-{DEP_MAX})")),
 
             SummaryElement(
                 name="wt_all_freq", coltype=Float(),
@@ -374,7 +370,7 @@ class Cape42(TaskHasPatientMixin, Task,
         q_a = ""
         for q in ALL:
             q_a += tr(
-                "{q}. ".format(q=q) +
+                f"{q}. " +
                 self.wxstring(req, "q" + str(q)) +
                 " (<i>" + self.question_category(q) + "</i>)",
                 answer(self.get_frequency(q)),
@@ -383,10 +379,50 @@ class Cape42(TaskHasPatientMixin, Task,
                     default=str(MIN_SCORE_PER_Q))
             )
 
-        h = """
+        raw_overall = tr(
+            f"Overall <sup>[1]</sup> ({ALL_MIN}–{ALL_MAX})",
+            self.frequency_score(ALL),
+            self.distress_score(ALL)
+        )
+        raw_positive = tr(
+            f"Positive symptoms ({POS_MIN}–{POS_MAX})",
+            self.frequency_score(POSITIVE),
+            self.distress_score(POSITIVE)
+        )
+        raw_negative = tr(
+            f"Negative symptoms ({NEG_MIN}–{NEG_MAX})",
+            self.frequency_score(NEGATIVE),
+            self.distress_score(NEGATIVE)
+        )
+        raw_depressive = tr(
+            f"Depressive symptoms ({DEP_MIN}–{DEP_MAX})",
+            self.frequency_score(DEPRESSIVE),
+            self.distress_score(DEPRESSIVE)
+        )
+        weighted_overall = tr(
+            f"Overall ({len(ALL)} questions)",
+            ws.number_to_dp(self.weighted_frequency_score(ALL), DP),
+            ws.number_to_dp(self.weighted_distress_score(ALL), DP)
+        )
+        weighted_positive = tr(
+            f"Positive symptoms ({len(POSITIVE)} questions)",
+            ws.number_to_dp(self.weighted_frequency_score(POSITIVE), DP),
+            ws.number_to_dp(self.weighted_distress_score(POSITIVE), DP)
+        )
+        weighted_negative = tr(
+            f"Negative symptoms ({len(NEGATIVE)} questions)",
+            ws.number_to_dp(self.weighted_frequency_score(NEGATIVE), DP),
+            ws.number_to_dp(self.weighted_distress_score(NEGATIVE), DP)
+        )
+        weighted_depressive = tr(
+            f"Depressive symptoms ({len(DEPRESSIVE)} questions)",
+            ws.number_to_dp(self.weighted_frequency_score(DEPRESSIVE), DP),
+            ws.number_to_dp(self.weighted_distress_score(DEPRESSIVE), DP)
+        )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {iscomplete}
+                    {self.get_is_complete_tr(req)}
                 </table>
                 <table class="{CssClass.SUMMARY}">
                     <tr>
@@ -412,16 +448,27 @@ class Cape42(TaskHasPatientMixin, Task,
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                FREQUENCY: 1 {f1}, 2 {f2}, 3 {f3}, 4 {f4}.
-                DISTRESS: 1 {d1}, 2 {d2}, 3 {d3}, 4 {d4}.
+                FREQUENCY: 
+                    1 {self.wxstring(req, "frequency_option1")}, 
+                    2 {self.wxstring(req, "frequency_option2")}, 
+                    3 {self.wxstring(req, "frequency_option3")}, 
+                    4 {self.wxstring(req, "frequency_option4")}.
+                DISTRESS:
+                    1 {self.wxstring(req, "distress_option1")},
+                    2 {self.wxstring(req, "distress_option2")},
+                    3 {self.wxstring(req, "distress_option3")},
+                    4 {self.wxstring(req, "distress_option4")}.
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="70%">
                         Question (P positive, N negative, D depressive)
                     </th>
-                    <th width="15%">Frequency ({low}–{high})</th>
-                    <th width="15%">Distress ({low}–{high}) <sup>[2]</sup></th>
+                    <th width="15%">Frequency
+                        ({MIN_SCORE_PER_Q}–{MAX_SCORE_PER_Q})</th>
+                    <th width="15%">Distress 
+                        ({MIN_SCORE_PER_Q}–{MAX_SCORE_PER_Q}) 
+                        <sup>[2]</sup></th>
                 </tr>
                 {q_a}
             </table>
@@ -430,67 +477,8 @@ class Cape42(TaskHasPatientMixin, Task,
                 frequency scores for all questions).
                 [2] Distress coerced to 1 if frequency is 1.
                 [3] Sum score per dimension divided by number of completed
-                items. Shown to {dp} decimal places. Will be in the range
-                {low}–{high}, or blank if not calculable.
+                items. Shown to {DP} decimal places. Will be in the range
+                {MIN_SCORE_PER_Q}–{MAX_SCORE_PER_Q}, or blank if not 
+                calculable.
             </div>
-        """.format(
-            CssClass=CssClass,
-            iscomplete=self.get_is_complete_tr(req),
-            raw_overall=tr(
-                "Overall <sup>[1]</sup> ({low}–{high})".format(
-                    low=ALL_MIN, high=ALL_MAX),
-                self.frequency_score(ALL),
-                self.distress_score(ALL)
-            ),
-            raw_positive=tr(
-                "Positive symptoms ({low}–{high})".format(
-                    low=POS_MIN, high=POS_MAX),
-                self.frequency_score(POSITIVE),
-                self.distress_score(POSITIVE)
-            ),
-            raw_negative=tr(
-                "Negative symptoms ({low}–{high})".format(
-                    low=NEG_MIN, high=NEG_MAX),
-                self.frequency_score(NEGATIVE),
-                self.distress_score(NEGATIVE)
-            ),
-            raw_depressive=tr(
-                "Depressive symptoms ({low}–{high})".format(
-                    low=DEP_MIN, high=DEP_MAX),
-                self.frequency_score(DEPRESSIVE),
-                self.distress_score(DEPRESSIVE)
-            ),
-            weighted_overall=tr(
-                "Overall ({n} questions)".format(n=len(ALL)),
-                ws.number_to_dp(self.weighted_frequency_score(ALL), DP),
-                ws.number_to_dp(self.weighted_distress_score(ALL), DP)
-            ),
-            weighted_positive=tr(
-                "Positive symptoms ({n} questions)".format(n=len(POSITIVE)),
-                ws.number_to_dp(self.weighted_frequency_score(POSITIVE), DP),
-                ws.number_to_dp(self.weighted_distress_score(POSITIVE), DP)
-            ),
-            weighted_negative=tr(
-                "Negative symptoms ({n} questions)".format(n=len(NEGATIVE)),
-                ws.number_to_dp(self.weighted_frequency_score(NEGATIVE), DP),
-                ws.number_to_dp(self.weighted_distress_score(NEGATIVE), DP)
-            ),
-            weighted_depressive=tr(
-                "Depressive symptoms ({n} questions)".format(n=len(DEPRESSIVE)),  # noqa
-                ws.number_to_dp(self.weighted_frequency_score(DEPRESSIVE), DP),
-                ws.number_to_dp(self.weighted_distress_score(DEPRESSIVE), DP)
-            ),
-            f1=self.wxstring(req, "frequency_option1"),
-            f2=self.wxstring(req, "frequency_option2"),
-            f3=self.wxstring(req, "frequency_option3"),
-            f4=self.wxstring(req, "frequency_option4"),
-            d1=self.wxstring(req, "distress_option1"),
-            d2=self.wxstring(req, "distress_option2"),
-            d3=self.wxstring(req, "distress_option3"),
-            d4=self.wxstring(req, "distress_option4"),
-            low=MIN_SCORE_PER_Q,
-            high=MAX_SCORE_PER_Q,
-            q_a=q_a,
-            dp=DP,
-        )
-        return h
+        """

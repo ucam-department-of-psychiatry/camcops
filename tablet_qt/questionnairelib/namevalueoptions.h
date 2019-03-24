@@ -92,10 +92,10 @@ public:
     // Is the index valid, i.e. in the range [0, size() - 1]?
     bool validIndex(int index) const;
 
-    // Randomize the order
+    // Randomize the order (in place).
     void shuffle();
 
-    // Reverse the order
+    // Reverse the order (in place).
     void reverse();
 
     // Returns the name for a given index, or "" if the index is invalid.

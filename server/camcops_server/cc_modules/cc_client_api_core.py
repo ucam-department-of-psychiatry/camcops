@@ -179,7 +179,7 @@ def exception_description(e: Exception) -> str:
     """
     Returns a formatted description of a Python exception.
     """
-    return "{t}: {m}".format(t=type(e).__name__, m=str(e))
+    return f"{type(e).__name__}: {str(e)}"
 
 
 # NO LONGER USED:
@@ -210,7 +210,7 @@ def require_keys(dictionary: Dict[Any, Any], keys: List[Any]) -> None:
     """
     for k in keys:
         if k not in dictionary:
-            fail_user_error("Field {} missing in client input".format(repr(k)))
+            fail_user_error(f"Field {repr(k)} missing in client input")
 
 
 def fail_user_error_from_exception(e: Exception) -> None:
@@ -243,7 +243,7 @@ def fail_unsupported_operation(operation: str) -> None:
     Abort the script (with a :exc:`UserErrorException`) when the
     operation is invalid.
     """
-    fail_user_error("operation={}: not supported".format(operation))
+    fail_user_error(f"operation={operation}: not supported")
 
 
 # =============================================================================
@@ -765,23 +765,16 @@ class UploadTableChanges(object):
 
     def __str__(self) -> str:
         return (
-            "{tablename}: "
-            "({n_added} added, PKs {pks_added}; "
-            "{n_modified} modified out, PKs {pks_modified}; "
-            "{n_deleted} deleted, PKs {pks_deleted}; "
-            "{n_preserved} preserved, PKs {pks_preserved}; "
-            "current PKs {current_pks})".format(
-                tablename=self.tablename,
-                n_added=self.n_added,
-                pks_added=self.addition_pks,
-                n_modified=self.n_removed_modified,
-                pks_modified=self.removal_modified_pks,
-                n_deleted=self.n_removed_deleted,
-                pks_deleted=self.removal_deleted_pks,
-                n_preserved=self.n_preserved,
-                pks_preserved=self.preservation_pks,
-                current_pks=self.current_pks,
-            )
+            f"{self.tablename}: "
+            f"({self.n_added} added, "
+            f"PKs {self.addition_pks}; "
+            f"{self.n_removed_modified} modified out, "
+            f"PKs {self.removal_modified_pks}; "
+            f"{self.n_removed_deleted} deleted, "
+            f"PKs {self.removal_deleted_pks}; "
+            f"{self.n_preserved} preserved, "
+            f"PKs {self.preservation_pks}; "
+            f"current PKs {self.current_pks})"
         )
 
     def description(self, always_show_current_pks: bool = True) -> str:
@@ -790,22 +783,24 @@ class UploadTableChanges(object):
         """
         parts = []  # type: List[str]
         if self._addition_pks:
-            parts.append("{} added, PKs {}".format(
-                self.n_added, self.addition_pks))
+            parts.append(f"{self.n_added} added, PKs {self.addition_pks}")
         if self._removal_modified_pks:
-            parts.append("{} modified out, PKs {}".format(
-                self.n_removed_modified, self.removal_modified_pks))
+            parts.append(
+                f"{self.n_removed_modified} modified out, "
+                f"PKs {self.removal_modified_pks}")
         if self._removal_deleted_pks:
-            parts.append("{} deleted, PKs {}".format(
-                self.n_removed_deleted, self.removal_deleted_pks))
+            parts.append(
+                f"{self.n_removed_deleted} deleted, "
+                f"PKs {self.removal_deleted_pks}")
         if self._preservation_pks:
-            parts.append("{} preserved, PKs {}".format(
-                self.n_preserved, self.preservation_pks))
+            parts.append(
+                f"{self.n_preserved} preserved, "
+                f"PKs {self.preservation_pks}")
         if not parts:
             parts.append("no changes")
         if always_show_current_pks or self.any_changes:
-            parts.append("current PKs {}".format(self.current_pks))
-        return "{} ({})".format(self.tablename, "; ".join(parts))
+            parts.append(f"current PKs {self.current_pks}")
+        return f"{self.tablename} ({'; '.join(parts)})"
 
 
 # =============================================================================

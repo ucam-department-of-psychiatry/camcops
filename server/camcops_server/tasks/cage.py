@@ -85,7 +85,7 @@ class Cage(TaskHasPatientMixin, Task,
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CAGE total score",
-            axis_label="Total score (out of {})".format(self.NQUESTIONS),
+            axis_label=f"Total score (out of {self.NQUESTIONS})",
             axis_min=-0.5,
             axis_max=self.NQUESTIONS + 0.5,
             horizontal_lines=[1.5]
@@ -94,15 +94,16 @@ class Cage(TaskHasPatientMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content="CAGE score {}/{}".format(self.total_score(),
-                                                          self.NQUESTIONS))]
+        return [CtvInfo(
+            content=f"CAGE score {self.total_score()}/{self.NQUESTIONS}"
+        )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="total", coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/{})".format(self.NQUESTIONS)),
+                comment=f"Total score (/{self.NQUESTIONS})"),
         ]
 
     def is_complete(self) -> bool:
@@ -127,10 +128,18 @@ class Cage(TaskHasPatientMixin, Task,
         for q in range(1, Cage.NQUESTIONS + 1):
             q_a += tr_qa(str(q) + " — " + self.wxstring(req, "q" + str(q)),
                          getattr(self, "q" + str(q)))  # answer is itself Y/N/NULL  # noqa
-        h = """
+        total_score = tr(
+            req.wappstring("total_score"),
+            answer(score) + f" / {self.NQUESTIONS}"
+        )
+        over_threshold = tr_qa(
+            self.wxstring(req, "over_threshold"),
+            get_yes_no(req, exceeds_cutoff)
+        )
+        return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
+                    {self.get_is_complete_tr(req)}
                     {total_score}
                     {over_threshold}
                 </table>
@@ -142,20 +151,7 @@ class Cage(TaskHasPatientMixin, Task,
                 </tr>
                 {q_a}
             </table>
-        """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                req.wappstring("total_score"),
-                answer(score) + " / {}".format(self.NQUESTIONS)
-            ),
-            over_threshold=tr_qa(
-                self.wxstring(req, "over_threshold"),
-                get_yes_no(req, exceeds_cutoff)
-            ),
-            q_a=q_a,
-        )
-        return h
+        """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.CAGE_PROCEDURE_ASSESSMENT))]  # noqa
