@@ -29,6 +29,8 @@ Tasks
 
 **Priority**
 
+- Fix CORE-10 alignment problem.
+
 **To be prioritized**
 
 - Test Your Memory (TYM) task (Jerry M. Brown).
@@ -85,6 +87,10 @@ Client core
 -----------
 
 **Priority**
+
+- Ensure dialogs (e.g. initial password prompt) show the title in full, and
+  don't clip text that they contain (e.g. good: upload dialogue; bad: ?some of
+  the cancellation dialogs).
 
 - Have facility to upload and/or automatically feed patient details into the
   server, then have clients restrict to these predefined patients. Since we are

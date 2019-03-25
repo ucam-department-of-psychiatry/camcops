@@ -1966,3 +1966,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - f-strings
 
 - Server released to CPFT on 2019-03-24.
+
+**Client v2.3.2 (2018-03-25 to -- IN PROGRESS)**
+
+- Session information in ORS and SRS summaries.
+
+- EPDS provides a CTV summary.

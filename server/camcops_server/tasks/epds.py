@@ -35,6 +35,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import get_yes_no, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -94,6 +95,12 @@ class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
                              "possible depression"),
             ]
         )]
+
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
+        if not self.is_complete():
+            return CTV_INCOMPLETE
+        text = f"EPDS total: {self.total_score()}/{self.MAX_TOTAL}"
+        return [CtvInfo(content=text)]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [

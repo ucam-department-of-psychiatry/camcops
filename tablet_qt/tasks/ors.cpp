@@ -159,24 +159,26 @@ bool Ors::isComplete() const
 
 QStringList Ors::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(),
-                                        static_cast<int>(VAS_MAX_TOTAL))};
+    return QStringList{
+        QString("%1<b>%2</b>.").arg(xstring("session_number_q"),
+                                    value(FN_SESSION).toString()),
+        QString("%1: <b>%2</b>.").arg(xstring("date_q"),
+                                      value(FN_DATE).toString()),
+        totalScorePhrase(totalScore(), static_cast<int>(VAS_MAX_TOTAL))
+    };
 }
 
 
 QStringList Ors::detail() const
 {
     QStringList lines;
-
-    lines.append(xstring("session_number_q") + value(FN_SESSION).toString());
-    lines.append(xstring("date_q") + value(FN_DATE).toString());
+    lines.append(summary());
     lines.append("<b>Scores</b>");
     const QString vas_sep = ": ";
     lines.append(xstring("q1_title") + vas_sep + value(FN_INDIVIDUAL).toString());
     lines.append(xstring("q2_title") + vas_sep + value(FN_INTERPERSONAL).toString());
     lines.append(xstring("q3_title") + vas_sep + value(FN_SOCIAL).toString());
     lines.append(xstring("q4_title") + vas_sep + value(FN_OVERALL).toString());
-    lines.append(summary());
     return lines;
 }
 
