@@ -90,7 +90,7 @@ QString Epds::menusubtitle() const
 
 bool Epds::isComplete() const
 {
-    return noneValuesNull(strseq(QPREFIX, FIRST_Q, N_QUESTIONS));
+    return noValuesNull(strseq(QPREFIX, FIRST_Q, N_QUESTIONS));
 }
 
 

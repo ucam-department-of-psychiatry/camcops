@@ -251,13 +251,13 @@ public:
     bool anyValuesNull(const QStringList& fieldnames) const;
 
     // Are none of the values null?
-    bool noneValuesNull(const QStringList& fieldnames) const;
+    bool noValuesNull(const QStringList& fieldnames) const;
 
     // Are any of the values null or empty strings?
     bool anyValuesNullOrEmpty(const QStringList& fieldnames) const;
 
     // Are none of the values null or empty strings?
-    bool noneValuesNullOrEmpty(const QStringList& fieldnames) const;
+    bool noValuesNullOrEmpty(const QStringList& fieldnames) const;
 
     // ========================================================================
     // PK access

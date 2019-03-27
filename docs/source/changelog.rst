@@ -1972,3 +1972,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Session information in ORS and SRS summaries.
 
 - EPDS provides a CTV summary.
+
+- EPDS moved within CPFT Perinatal Service menu from "generic measures" to
+  "specific conditions".
+
+- Bugfix to C++ scoring function ``Icd10Depressive::main_complete()``; some
+  combinations were being labelled as "unknown" when more accuracy was
+  possible.

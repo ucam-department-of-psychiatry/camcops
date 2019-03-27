@@ -566,8 +566,28 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         for x in self.PSYCHOSIS_NAMES:
             h += self.row_present_absent(req, x)
 
+        extradetail = [
+            f"n_core() = {self.n_core()}",
+            f"n_additional() = {self.n_additional()}",
+            f"n_total() = {self.n_total()}",
+            f"n_somatic() = {self.n_somatic()}",
+            f"main_complete() = {self.main_complete()}",
+            f"meets_criteria_severe_psychotic_schizophrenic() = {self.meets_criteria_severe_psychotic_schizophrenic()}",  # noqa
+            f"meets_criteria_severe_psychotic_icd() = {self.meets_criteria_severe_psychotic_icd()}",  # noqa
+            f"meets_criteria_severe_nonpsychotic() = {self.meets_criteria_severe_nonpsychotic()}",  # noqa
+            f"meets_criteria_severe_ignoring_psychosis() = {self.meets_criteria_severe_ignoring_psychosis()}",  # noqa
+            f"meets_criteria_moderate() = {self.meets_criteria_moderate()}",
+            f"meets_criteria_mild() = {self.meets_criteria_mild()}",
+            f"meets_criteria_none() = {self.meets_criteria_none()}",
+            f"meets_criteria_somatic() = {self.meets_criteria_somatic()}",
+        ]
+
         h += f"""
             </table>
+            <div class="{CssClass.HEADING}">Working</div>
+            <div class="{CssClass.EXTRADETAIL2}">
+                <pre>{"<br>".join(ws.webify(f"‣ {x}") for x in extradetail)}</pre>
+            </div>
             <div class="{CssClass.FOOTNOTES}">
                 [1] Mild depression requires ≥2 core symptoms and ≥4 total
                 diagnostic symptoms.
@@ -590,5 +610,5 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 depression (Maj M et al., 2007, PMID 17915981).
             </div>
             {ICD10_COPYRIGHT_DIV}
-        """
+        """  # noqa
         return h

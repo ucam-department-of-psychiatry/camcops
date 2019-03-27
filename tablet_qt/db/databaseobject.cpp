@@ -460,7 +460,7 @@ bool DatabaseObject::anyValuesNull(const QStringList& fieldnames) const
 }
 
 
-bool DatabaseObject::noneValuesNull(const QStringList& fieldnames) const
+bool DatabaseObject::noValuesNull(const QStringList& fieldnames) const
 {
     for (const QString& fieldname : fieldnames) {
         if (valueIsNull(fieldname)) {
@@ -482,7 +482,7 @@ bool DatabaseObject::anyValuesNullOrEmpty(const QStringList& fieldnames) const
 }
 
 
-bool DatabaseObject::noneValuesNullOrEmpty(const QStringList& fieldnames) const
+bool DatabaseObject::noValuesNullOrEmpty(const QStringList& fieldnames) const
 {
     for (const QString& fieldname : fieldnames) {
         if (valueIsNullOrEmpty(fieldname)) {

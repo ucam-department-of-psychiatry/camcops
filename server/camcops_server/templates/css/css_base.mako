@@ -226,7 +226,7 @@ table.extradetail td {
     border: ${va.THINLINE} solid black;
     font-size: ${va.TINYFONTSIZE};
 }
-tr.extradetail2 {
+.extradetail2 {
     background-color: rgb(240, 240, 240);
 }
 td.figure {

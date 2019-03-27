@@ -323,34 +323,9 @@ int Icd10Depressive::nSomatic() const
 
 bool Icd10Depressive::mainComplete() const
 {
-    if (valueBool(SEVERE_CLINICALLY)) {
-        return true;  // depression present and definitely severe
-    }
-    if (valueIsFalseNotNull(DURATION_AT_LEAST_2_WEEKS)) {
-        return true;  // depression absent; too short
-    }
-
-    const QVector<QVariant> core = values(CORE_NAMES);
-    const int t_core = countTrue(core);
-    const int u_core = countNull(core);
-    if (t_core + u_core < 2) {
-        return true;  // depression absent; definitely <2 core symptoms
-    }
-
-    const QVector<QVariant> additional = values(ADDITIONAL_NAMES);
-    const int t_additional = countTrue(additional);
-    const int u_additional = countNull(additional);
-
-    if (t_core == 3 && (t_core + t_additional) >= 8) {
-        return true;  // depression present and severe
-    }
-    if (t_core + u_core + t_additional + u_additional < 4) {
-        return true;  // depression absent; <4 total symptoms
-    }
-
-    // If we get here: changes in the "unknown" bits might change presence/
-    // absence, or severity.
-    return false;
+    return (!valueIsNull(DURATION_AT_LEAST_2_WEEKS) &&
+            noValuesNull(CORE_NAMES) &&
+            noValuesNull(ADDITIONAL_NAMES)) || valueBool(SEVERE_CLINICALLY);
 }
 
 
@@ -364,16 +339,16 @@ QVariant Icd10Depressive::meetsCriteriaSeverePsychoticSchizophrenic() const
                                      DELUSIONS_OTHER};
     const QStringList schizophreniform{HALLUCINATIONS_SCHIZOPHRENIC,
                                        DELUSIONS_SCHIZOPHRENIC};
-    if (anyTrue(values(icd10psychotic))) {
+    if (anyValuesTrue(icd10psychotic)) {
         return false;  // that counts as F32.3
     }
-    if (anyNull(values(icd10psychotic))) {
+    if (anyValuesNull(icd10psychotic)) {
         return QVariant();  // might be F32.3
     }
-    if (anyTrue(values(schizophreniform))) {
+    if (anyValuesTrue(schizophreniform)) {
         return true;
     }
-    if (anyNull(values(schizophreniform))) {
+    if (anyValuesNull(schizophreniform)) {
         return QVariant();
     }
     return false;
@@ -391,10 +366,10 @@ QVariant Icd10Depressive::meetsCriteriaSeverePsychoticIcd() const
     // of schizophreniform psychotic symptoms.
     const QStringList icd10psychotic{STUPOR, HALLUCINATIONS_OTHER,
                                      DELUSIONS_OTHER};
-    if (anyTrue(values(icd10psychotic))) {
+    if (anyValuesTrue(icd10psychotic)) {
         return true;
     }
-    if (anyNull(values(icd10psychotic))) {
+    if (anyValuesNull(icd10psychotic)) {
         return QVariant();
     }
     return false;
@@ -407,7 +382,7 @@ QVariant Icd10Depressive::meetsCriteriaSevereNonpsychotic() const
     if (!severe_ign_psy.toBool()) {
         return severe_ign_psy;  // might be false or NULL
     }
-    if (anyNull(values(PSYCHOSIS_AND_SIMILAR_NAMES))) {
+    if (anyValuesNull(PSYCHOSIS_AND_SIMILAR_NAMES)) {
         return QVariant();
     }
     return countTrue(values(PSYCHOSIS_AND_SIMILAR_NAMES)) == 0;

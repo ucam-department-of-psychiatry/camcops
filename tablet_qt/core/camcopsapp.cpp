@@ -278,7 +278,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             "Specify the database directory, in which the databases %1 and %2 "
             "are used or created. Order of precedence (highest to lowest) "
             "is (1) this argument, (2) the %3 environment variable, and (3) "
-            "the default of %4."
+            "the default, on this particular system, of %4."
         ).arg(
             convert::stringToCppLiteral(dbfunc::DATA_DATABASE_FILENAME),
             convert::stringToCppLiteral(dbfunc::SYSTEM_DATABASE_FILENAME),
