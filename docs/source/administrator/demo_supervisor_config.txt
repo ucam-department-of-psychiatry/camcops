@@ -1,7 +1,7 @@
 
 # =============================================================================
 # Demonstration 'supervisor' (supervisord) config file for CamCOPS.
-# Created by CamCOPS version 2.3.1 at 2019-03-21T10:09:07.272398+00:00.
+# Created by CamCOPS version 2.3.1 at 2019-03-27T11:22:30.962669+00:00.
 # =============================================================================
     # - Supervisor is a system for controlling background processes running on
     #   UNIX-like operating systems. See:
@@ -42,14 +42,14 @@
     #
     # SPECIFIC EXTRA NOTES FOR CAMCOPS:
     #
-    # - The MPLCONFIGDIR environment variable specifies a cache directory for
+    # - The MPLCONFIGDIR environment variable specifies a cache directory for 
     #   matplotlib, which greatly speeds up its subsequent loading.
     # - The typical "web server" user is "www-data" under Ubuntu Linux and
     #   "apache" under CentOS.
 
 [program:camcops_server]
 
-command = /usr/share/camcops/venv/bin/camcops_server serve_gunicorn
+command = /usr/share/camcops/venvbin/camcops_server serve_gunicorn
     --config /etc/camcops/camcops.conf
 
 directory = /usr/share/camcops
@@ -64,7 +64,7 @@ stopwaitsecs = 60
 
 [program:camcops_workers]
 
-command = /usr/share/camcops/venv/bin/camcops_server launch_workers
+command = /usr/share/camcops/venvbin/camcops_server launch_workers
     --config /etc/camcops/camcops.conf
 
 directory = /usr/share/camcops
@@ -79,7 +79,7 @@ stopwaitsecs = 60
 
 [program:camcops_scheduler]
 
-command = /usr/share/camcops/venv/bin/camcops_server launch_scheduler
+command = /usr/share/camcops/venvbin/camcops_server launch_scheduler
     --config /etc/camcops/camcops.conf
 
 directory = /usr/share/camcops
@@ -96,4 +96,4 @@ stopwaitsecs = 60
 
 programs = camcops_server, camcops_workers, camcops_scheduler
 
-
+    

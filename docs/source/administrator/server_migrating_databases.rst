@@ -33,8 +33,8 @@
 .. _SQL Server Migration Assistant: https://docs.microsoft.com/en-us/sql/ssma/sql-server-migration-assistant
 .. _SQuirreL SQL: http://squirrel-sql.sourceforge.net/
 
-Server: migrating databases
-===========================
+Server: migrating and merging databases
+=======================================
 
 As always, **back up your data first!**. Here are some suggestions for useful
 database tools and a summary of automatic migration tools in CamCOPS.

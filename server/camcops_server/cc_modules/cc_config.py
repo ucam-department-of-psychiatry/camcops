@@ -404,6 +404,7 @@ def get_demo_config(extra_strings_dir: str = None,
     HTTP_X_FORWARDED_SERVER
     HTTP_X_FORWARDED_PORT
     HTTP_X_FORWARDED_PROTO
+    HTTP_X_FORWARDED_FOR
     HTTP_X_SCRIPT_NAME
 
 # -----------------------------------------------------------------------------
@@ -767,12 +768,11 @@ def get_demo_apache_config(
         #   by the reverse proxy system. There are two ways:
         #   (i)  specifying headers or WSGI environment variables, such as
         #        the HTTP(S) headers X-Forwarded-Proto and X-Script-Name below
-        #        (CamCOPS is aware of these);
-        #   (ii) specifying options to "camcops serve", including
-        #           --script_name
-        #           --scheme
-        #        and optionally
-        #           --server
+        #        (and telling CamCOPS to trust them via its
+        #        TRUSTED_PROXY_HEADERS setting);
+        #   (ii) specifying other options to "camcops_server", including
+        #        PROXY_SCRIPT_NAME, PROXY_URL_SCHEME; see the help for the
+        #        CamCOPS config.
         #
         # So:
         #
@@ -797,7 +797,6 @@ def get_demo_apache_config(
         #
         #   - the protocol should be http, not https (Apache deals with the
         #     HTTPS part and passes HTTP on)
-        #   - the URL should not have a trailing slash
         #   - the EXTRA_URL_FOR_BACKEND needs to be (a) unique for each
         #     instance or Apache will use a single worker for multiple
         #     instances, and (b) blank for the backend's benefit. Since those

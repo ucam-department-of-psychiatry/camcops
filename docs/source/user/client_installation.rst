@@ -91,7 +91,7 @@ Under Windows 10, you may see the warning:
 
     Windows protected your PC
 
-    Windows Defender SmartScreen prevented an unrecogniezd app from
+    Windows Defender SmartScreen prevented an unrecognised app from
     starting. Running this app might put your PC at risk.
 
     [ More info ]
@@ -123,6 +123,38 @@ Linux
 
 
 .. _configure_client:
+
+
+Launching the CamCOPS client
+----------------------------
+
+Launch the app in the normal way. For Windows, run it from the desktop shortcut
+or the Start menu. For Android, launch it from the Apps screen.
+
+
+Advanced launch options
+~~~~~~~~~~~~~~~~~~~~~~~
+
+In operating systems that allow you to launch applications with options (e.g.
+Windows, Linux), there are some additional advanced options offered, as
+follows.
+
+Options as of 2019-03-25:
+
+..  literalinclude:: camcops_client_help.txt
+    :language: none
+
+
+.. _client_nonstandard_db_location:
+
+*Specifying a non-standard database location*
+
+By default, the CamCOPS client stores its encrypted databases in the "user
+data" area; see :ref:`Where does the client store my data?
+<client_default_db_location>` You can use the ``--dbdir`` option (see above)
+to change this. This is an **advanced** option. You cannot change the filenames
+of the databases, which are fixed to ``camcops_data.sqlite`` and
+``camcops_sys.sqlite``.
 
 
 Terminology: usernames and passwords in CamCOPS

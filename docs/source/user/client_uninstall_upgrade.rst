@@ -41,14 +41,16 @@ This will replace the CamCOPS software but should
     data to your CamCOPS server before upgrading the client.
 
 
-Where is the client storing my data?
+.. _client_default_db_location:
+
+Where does the client store my data?
 ------------------------------------
 
-The CamCOPS client uses two encrypted databases called `camcops_data.sqlite`
-and `camcops_sys.sqlite`, stored in the device’s user-specific private area, as
-below. (Note that some operating systems, such as Android and iOS, are designed
-for single-user use and don’t have the concept of a per-user private area.) For
-more details, see :ref:`Client SQLCipher databases
+The CamCOPS client uses two encrypted databases called ``camcops_data.sqlite``
+and ``camcops_sys.sqlite``, stored in the device’s user-specific private area,
+as below. (Note that some operating systems, such as Android and iOS, are
+designed for single-user use and don’t have the concept of a per-user private
+area.) For more details, see :ref:`Client SQLCipher databases
 <client_sqlcipher_databases>`.
 
 +------------------+----------------------------------------------------------+
@@ -64,6 +66,9 @@ more details, see :ref:`Client SQLCipher databases
 The client will tell you the location itself; see :menuselection:`Help --> View
 device ID and database details`.
 
+On some operating systems, you can specify a non-standard location for the
+client databases. See :ref:`Specifying a non-standard database location <client_nonstandard_db_location>`.
+
 
 Uninstalling the client
 -----------------------
@@ -73,7 +78,7 @@ use "Add or remove programs". In Android, remove the app. But **see below!**
 
 
 Could data be lost if I uninstall the CamCOPS client?
-----------------------------------------------------=
+-----------------------------------------------------
 
 - **Android.** Yes! All application data is typically deleted when an
   application is removed.

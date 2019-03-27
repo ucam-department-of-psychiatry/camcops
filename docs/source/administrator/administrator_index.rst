@@ -31,6 +31,7 @@ Details for people running a CamCOPS server.
     server_config_file.rst
     server_front_end_admin.rst
     server_command_line.rst
+    server_upgrading.rst
     server_troubleshooting.rst
     server_migrating_databases.rst
     snomed.rst

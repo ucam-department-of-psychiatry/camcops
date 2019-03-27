@@ -1,6 +1,6 @@
 
     # Demonstration Apache config file section for CamCOPS.
-    # Created by CamCOPS version 2.3.1 at 2019-03-21T10:15:50.129132+00:00.
+    # Created by CamCOPS version 2.3.1 at 2019-03-27T11:22:23.215789+00:00.
     #
     # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
     # Under CentOS, the Apache config will be somewhere in /etc/httpd/
@@ -77,12 +77,11 @@
         #   by the reverse proxy system. There are two ways:
         #   (i)  specifying headers or WSGI environment variables, such as
         #        the HTTP(S) headers X-Forwarded-Proto and X-Script-Name below
-        #        (CamCOPS is aware of these);
-        #   (ii) specifying options to "camcops serve", including
-        #           --script_name
-        #           --scheme
-        #        and optionally
-        #           --server
+        #        (and telling CamCOPS to trust them via its
+        #        TRUSTED_PROXY_HEADERS setting);
+        #   (ii) specifying other options to "camcops_server", including
+        #        PROXY_SCRIPT_NAME, PROXY_URL_SCHEME; see the help for the
+        #        CamCOPS config.
         #
         # So:
         #
@@ -107,7 +106,6 @@
         #
         #   - the protocol should be http, not https (Apache deals with the
         #     HTTPS part and passes HTTP on)
-        #   - the URL should not have a trailing slash
         #   - the EXTRA_URL_FOR_BACKEND needs to be (a) unique for each
         #     instance or Apache will use a single worker for multiple
         #     instances, and (b) blank for the backend's benefit. Since those
@@ -266,4 +264,4 @@
 
 </VirtualHost>
 
-
+    

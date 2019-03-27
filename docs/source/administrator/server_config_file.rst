@@ -27,6 +27,13 @@
 .. _TCP: https://en.wikipedia.org/wiki/Transmission_Control_Protocol
 .. _WSGI: https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface
 
+.. |use_trusted_headers| replace::
+
+    It is generally easiest to leave this blank and set
+    :ref:`TRUSTED_PROXY_HEADERS <serverconfig_wsgi_trusted_proxy_headers>`
+    instead.
+
+
 .. _server_config_file:
 
 The CamCOPS server configuration file
@@ -39,7 +46,7 @@ CamCOPS. It is the configuration file that points to your database.
 ..  contents::
     :local:
     :depth: 3
-
+s
 
 Databases and configuration files
 ---------------------------------
@@ -58,6 +65,7 @@ use the :ref:`camcops_server_meta <camcops_server_meta>` tool, which allows you
 to run the same :ref:`camcops <camcops_cli>` command over multiple
 configuration files in one go (for example, to upgrade the databases for a new
 version of CamCOPS).
+
 
 Format of the configuration file
 --------------------------------
@@ -142,12 +150,14 @@ http://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
 
     DB_URL = mssql+pyodbc://@<odbc_dsn_name>
 
+
 DB_ECHO
 #######
 
 *Boolean.*
 
 Echo all SQL?
+
 
 URLs and paths
 ~~~~~~~~~~~~~~
@@ -191,6 +201,7 @@ LOCAL_INSTITUTION_URL
 Clicking on your institution's logo in the CamCOPS menu will take you to this
 URL. Edit this to point to your institution:
 
+
 LOCAL_LOGO_FILE_ABSOLUTE
 ########################
 
@@ -202,6 +213,7 @@ views use the fixed string ``static/logo_local.png``, aliased to your file via
 the Apache configuration file). Edit this setting to point to your local
 institution's logo file:
 
+
 CAMCOPS_LOGO_FILE_ABSOLUTE
 ##########################
 
@@ -209,6 +221,7 @@ CAMCOPS_LOGO_FILE_ABSOLUTE
 
 As for ``LOCAL_LOGO_FILE_ABSOLUTE``, but for the CamCOPS logo. It's fine not to
 specify this; a default will be used.
+
 
 EXTRA_STRING_FILES
 ##################
@@ -220,6 +233,7 @@ used as EXTRA STRING FILES. Should **as a minimum** point to the string file
 ``camcops.xml``. May use "glob" pattern-matching (see
 https://docs.python.org/3.5/library/glob.html).
 
+
 SNOMED_TASK_XML_FILENAME
 ########################
 
@@ -228,6 +242,7 @@ SNOMED_TASK_XML_FILENAME
 Filename of special XML file containing SNOMED CT codes used by CamCOPS tasks.
 This file is OK to use in the UK, but not necessarily elsewhere. See
 :ref:`SNOMED CT <snomed>`.
+
 
 SNOMED_ICD9_XML_FILENAME
 ########################
@@ -239,6 +254,7 @@ Name of XML file mapping ICD-9-CM codes to SNOMED-CT.
 Created by ``camcops_server convert_athena_icd_snomed_to_xml``; see
 :ref:`SNOMED CT <snomed>`.
 
+
 SNOMED_ICD10_XML_FILENAME
 #########################
 
@@ -248,6 +264,7 @@ Name of XML file mapping ICD-10[-CM] codes to SNOMED-CT.
 
 Created by ``camcops_server convert_athena_icd_snomed_to_xml``; see
 :ref:`SNOMED CT <snomed>`.
+
 
 WKHTMLTOPDF_FILENAME
 ####################
@@ -274,12 +291,14 @@ Secret used for HTTP cookie signing via Pyramid. Put something random in here
 and keep it secret. (When you make a new CamCOPS demo config, the value shown
 is fresh and random.)
 
+
 SESSION_TIMEOUT_MINUTES
 #######################
 
 *Integer.* Default: 30.
 
 Time (in minutes) after which a session will expire.
+
 
 PASSWORD_CHANGE_FREQUENCY_DAYS
 ##############################
@@ -291,12 +310,14 @@ Note that password expiry will not prevent uploads from tablets, but when the
 user next logs on, a password change will be forced before they can do anything
 else.
 
+
 LOCKOUT_THRESHOLD
 #################
 
 *Integer.* Default: 10.
 
 Lock user accounts after every *n* login failures.
+
 
 LOCKOUT_DURATION_INCREMENT_MINUTES
 ##################################
@@ -313,6 +334,7 @@ Suppose ``LOCKOUT_THRESHOLD = 10`` and ``LOCKOUT_DURATION_INCREMENT_MINUTES =
 - After the next 10 failures, the account will be locked for 60 minutes, and so
   on. Time and administrators can unlock accounts.
 
+
 DISABLE_PASSWORD_AUTOCOMPLETE
 #############################
 
@@ -324,10 +346,12 @@ cache passwords, versus allow a password manager so that users can use
 better/unique passwords). Note that some browsers (e.g. Chrome v34 and up) may
 ignore this.
 
+
 Suggested filenames for saving PDFs from the web view
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Try these with Chrome, Firefox. Internet Explorer may be less obliging.
+
 
 .. _serverconfig_server_patient_spec_if_anonymous:
 
@@ -338,6 +362,7 @@ PATIENT_SPEC_IF_ANONYMOUS
 
 For anonymous tasks, this fixed string is used as the patient descriptor (see
 also ``PATIENT_SPEC`` below). Typically "anonymous".
+
 
 .. _serverconfig_server_patient_spec:
 
@@ -374,6 +399,7 @@ below). Possible substitutions:
 |                   | ``<idshortdesc1>-<idnum1>_<idshortdesc4>-<idnum4>_      |
 |                   | <idshortdesc5>-<idnum5>``                               |
 +-------------------+---------------------------------------------------------+
+
 
 .. _serverconfig_server_task_filename_spec:
 
@@ -429,12 +455,14 @@ the CamCOPS source code). Specifically:
     (Python's ``os.sep``, a forward slash ``/`` on UNIX or a backslash ``\``
     under Windows).
 
+
 TRACKER_FILENAME_SPEC
 #####################
 
 *String.*
 
 Filename specification used for tracker downloads; see ``TASK_FILENAME_SPEC``.
+
 
 CTV_FILENAME_SPEC
 #################
@@ -443,6 +471,7 @@ CTV_FILENAME_SPEC
 
 Filename specification used for clinical text view downloads; see
 ``TASK_FILENAME_SPEC``.
+
 
 Debugging options
 ~~~~~~~~~~~~~~~~~
@@ -458,6 +487,7 @@ Apache server log).
 Note that for "debug"-level information to show up, you must also provide the
 ``--verbose`` argument to ``camcops_server``.
 
+
 CLIENT_API_LOGLEVEL
 ###################
 
@@ -468,6 +498,7 @@ Set the log level for the tablet client database access script.
 Note that for "debug"-level information to show up, you must also provide the
 ``--verbose`` argument to ``camcops_server``.
 
+
 ALLOW_INSECURE_COOKIES
 ######################
 
@@ -475,6 +506,7 @@ ALLOW_INSECURE_COOKIES
 
 **DANGEROUS** option that removes the requirement that cookies be HTTPS (SSL)
 only.
+
 
 Options for the "[server]" section
 -------------------------------------
@@ -493,6 +525,7 @@ CamCOPS incorporates a Python web server. You can choose which one to lanuch:
 You may also want to configure a CamCOPS server behind a "front-end" web server
 such as Apache_. Further options to help with this are described below.
 
+
 HOST
 ####
 
@@ -510,12 +543,14 @@ Note some variations. For example, if your machine has an IP (v4) address of
 - Using ``localhost`` will trigger a lookup from ``localhost`` to an IP
   address, typically ``127.0.0.1``.
 
+
 PORT
 ####
 
 *Integer.* Default: 8000.
 
 TCP_ port number to listen on. (See also ``UNIX_DOMAIN_SOCKET``.)
+
 
 UNIX_DOMAIN_SOCKET
 ##################
@@ -529,6 +564,7 @@ UDS is typically faster than TCP. If specified, this overrides the TCP options,
 For example, ``/tmp/.camcops.sock``.
 
 (Not applicable to the Pyramid test web server; CherryPy/Gunicorn only.)
+
 
 SSL_CERTIFICATE
 ###############
@@ -544,6 +580,7 @@ If you host CamCOPS behind Apache, it's likely that you'll want Apache to
 handle HTTPS and CamCOPS to operate unencrypted behind a reverse proxy, in
 which case don't set this or ``SSL_PRIVATE_KEY``.
 
+
 SSL_PRIVATE_KEY
 ###############
 
@@ -554,6 +591,7 @@ SSL private key file for HTTPS_ (e.g.
 
 (Not applicable to the Pyramid test web server; CherryPy/Gunicorn only.)
 
+
 WSGI options
 ~~~~~~~~~~~~
 
@@ -561,6 +599,7 @@ This section controls how CamCOPS creates its WSGI_ application. They apply to
 all Python web servers provided (CherryPy, Gunicorn, Pyramid). These options
 are particularly relevant if you are reverse-proxying CamCOPS behind a
 front-end web server such as Apache_.
+
 
 DEBUG_REVERSE_PROXY
 ###################
@@ -584,6 +623,7 @@ A reverse proxy configuration will be used if any of the following are set (see
     PROXY_URL_SCHEME
     TRUSTED_PROXY_HEADERS
 
+
 DEBUG_TOOLBAR
 #############
 
@@ -593,12 +633,14 @@ Enable the Pyramid debug toolbar? **This should not be enabled for production
 systems; it carries security risks.** It will not operate via Gunicorn_, which
 has an incompatible process model.
 
+
 SHOW_REQUESTS
 #############
 
 *Boolean.* Default: false.
 
 Write incoming HTTP(S) requests to the server's log stream?
+
 
 SHOW_REQUEST_IMMEDIATELY
 ########################
@@ -614,6 +656,7 @@ response and/or timing information and you want to minimize the number of lines
 written to the log; in this case, only a single line is written to the log
 (after the wrapped WSGI app has finished processing).
 
+
 SHOW_RESPONSE
 #############
 
@@ -622,6 +665,7 @@ SHOW_RESPONSE
 [Only applicable if ``SHOW_REQUESTS`` is true.]
 
 Write the HTTP response code to the server's log?
+
 
 SHOW_TIMING
 ###########
@@ -632,6 +676,7 @@ SHOW_TIMING
 
 Write the time taken by the CamCOPS WSGI app to the server's log?
 
+
 PROXY_HTTP_HOST
 ###############
 
@@ -641,6 +686,9 @@ Option to set the WSGI HTTP host directly. This affects the WSGI variable
 ``HTTP_HOST``. If not specified, the variables ``HTTP_X_HOST,
 HTTP_X_FORWARDED_HOST`` will be used, if trusted.
 
+|use_trusted_headers|
+
+
 PROXY_REMOTE_ADDR
 #################
 
@@ -649,6 +697,9 @@ PROXY_REMOTE_ADDR
 Option to set the WSGI remote address directly. This affects the WSGI variable
 ``REMOTE_ADDR``. If not specified, the variables ``HTTP_X_FORWARDED_FOR,
 HTTP_X_REAL_IP`` will be used, if trusted.
+
+|use_trusted_headers|
+
 
 PROXY_REWRITE_PATH_INFO
 #######################
@@ -660,6 +711,7 @@ rewritten, if it starts with ``SCRIPT_NAME``, to strip off ``SCRIPT_NAME``.
 Appropriate for some front-end web browsers with limited reverse proxying
 support (but do not use for Apache with ``ProxyPass``, because that rewrites
 incoming URLs properly).
+
 
 PROXY_SCRIPT_NAME
 #################
@@ -681,6 +733,9 @@ trusted.
             
 This option affects the WSGI variables ``SCRIPT_NAME`` and ``PATH_INFO``.
 
+|use_trusted_headers|
+
+
 PROXY_SERVER_NAME
 #################
 
@@ -690,6 +745,9 @@ Option to set the WSGI server name directly. This affects the WSGI variable
 ``SERVER_NAME``. If not specified, the variable ``HTTP_X_FORWARDED_SERVER``
 will be used, if trusted.
 
+|use_trusted_headers|
+
+
 PROXY_SERVER_PORT
 #################
 
@@ -698,6 +756,9 @@ PROXY_SERVER_PORT
 Option to set the WSGI server port directly. This affects the WSGI variable
 ``SERVER_PORT``. If not specified, the variable ``HTTP_X_FORWARDED_PORT`` will
 be used, if trusted.
+
+|use_trusted_headers|
+
 
 PROXY_URL_SCHEME
 ################
@@ -711,6 +772,11 @@ HTTP_X_FORWARDED_PROTOCOL, HTTP_X_FORWARDED_SCHEME, HTTP_X_SCHEME`` (which can
 specify a protocol) or ``HTTP_X_FORWARDED_HTTPS, HTTP_X_FORWARDED_SSL,
 HTTP_X_HTTPS`` (which can contain Boolean information about which protocol is
 in use).
+
+|use_trusted_headers|
+
+
+.. _serverconfig_wsgi_trusted_proxy_headers:
 
 TRUSTED_PROXY_HEADERS
 #####################
@@ -745,10 +811,12 @@ Possible values:
 Variables that are not marked as trusted will not be used by the reverse-proxy
 middleware.
 
+
 CherryPy options
 ~~~~~~~~~~~~~~~~
 
 Additional options for the CherryPy web server.
+
 
 CHERRYPY_SERVER_NAME
 ####################
@@ -757,12 +825,14 @@ CHERRYPY_SERVER_NAME
 
 CherryPy's ``SERVER_NAME`` environment entry.
 
+
 CHERRYPY_THREADS_START
 ######################
 
 *Integer.* Default: 10.
 
 Number of threads for server to start with.
+
 
 CHERRYPY_THREADS_MAX
 ####################
@@ -773,12 +843,14 @@ Maximum number of threads for server to use (-1 for no limit).
 
 **BEWARE exceeding the permitted number of database connections.**
 
+
 CHERRYPY_LOG_SCREEN
 ###################
 
 *Boolean.* Default: true.
 
 Log access requests etc. to the terminal (stdout/stderr)?
+
 
 CHERRYPY_ROOT_PATH
 ##################
@@ -792,10 +864,12 @@ confuse this with the mount point within a wider, e.g. Apache, configuration,
 which is set instead by the WSGI variable ``SCRIPT_NAME``; see the
 ``TRUSTED_PROXY_HEADERS`` and ``PROXY_SCRIPT_NAME`` options.
 
+
 Gunicorn options
 ~~~~~~~~~~~~~~~~
 
 Additional options for the Gunicorn web server.
+
 
 GUNICORN_NUM_WORKERS
 ####################
@@ -804,12 +878,14 @@ GUNICORN_NUM_WORKERS
 
 Number of worker processes for the Gunicorn server to use.
 
+
 GUNICORN_DEBUG_RELOAD
 #####################
 
 *Boolean.* Default: false.
 
 Debugging option: reload Gunicorn upon code change?
+
 
 .. _server_config_param_gunicorn_timeout_s:
 
@@ -819,6 +895,7 @@ GUNICORN_TIMEOUT_S
 *Integer.* Default: 30.
 
 Gunicorn worker timeout (s).
+
 
 DEBUG_SHOW_GUNICORN_OPTIONS
 ###########################
@@ -871,6 +948,7 @@ CELERY_BEAT_SCHEDULE_DATABASE
 Filename used by CamCOPS as the Celery Beat scheduler database. Celery may
 append ``.db`` (see ``celery beat --help``).
 
+
 CELERY_BEAT_EXTRA_ARGS
 ######################
 
@@ -880,6 +958,7 @@ Each line of this multiline string is an extra option to the ``celery beat``
 command used by ``camcops_server launch_scheduler``, after ``celery worker
 --app camcops_server --loglevel <LOGLEVEL>``.
 
+
 CELERY_BROKER_URL
 #################
 
@@ -887,6 +966,7 @@ CELERY_BROKER_URL
 
 Broker URL for Celery. See
 http://docs.celeryproject.org/en/latest/userguide/configuration.html#conf-broker-settings.
+
 
 CELERY_WORKER_EXTRA_ARGS
 ########################
@@ -896,6 +976,7 @@ CELERY_WORKER_EXTRA_ARGS
 Each line of this multiline string is an extra option to the ``celery worker``
 command used by ``camcops_server launch_workers``, after ``celery worker --app
 camcops_server --loglevel <LOGLEVEL>``.
+
 
 EXPORT_LOCKDIR
 ##############
@@ -946,6 +1027,7 @@ then CamCOPS expects to see, elsewhere in the config file:
 
     # options defining recipient_B
 
+
 SCHEDULE_TIMEZONE
 #################
 
@@ -954,6 +1036,7 @@ SCHEDULE_TIMEZONE
 Timezone used by Celery for the *crontab(5)*-style ``SCHEDULE`` (see below), as
 per
 http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#time-zones.
+
 
 SCHEDULE
 ########
@@ -1010,6 +1093,7 @@ config file. Together, they define a single export recipient.
     https://docs.python.org/3/library/configparser.html#supported-ini-file-structure)
     and so are CamCOPS export recipient names.
 
+
 How to export
 ~~~~~~~~~~~~~
 
@@ -1024,6 +1108,7 @@ One of the following methods:
 - ``email``: Sends tasks via e-mail.
 - ``hl7``: Sends HL7 messages across a TCP/IP network.
 - ``file``: Writes files to a local filesystem.
+
 
 PUSH
 ####
@@ -1052,6 +1137,7 @@ database export is not supported.
     exported). This is normal. The back end double-checks all tasks that it's
     asked to export.
 
+
 TASK_FORMAT
 ###########
 
@@ -1063,6 +1149,7 @@ One of the following:
 - ``html``
 - ``xml``
 
+
 XML_FIELD_COMMENTS
 ##################
 
@@ -1071,6 +1158,7 @@ XML_FIELD_COMMENTS
 If ``TASK_FORMAT = xml``, then ``XML_FIELD_COMMENTS`` determines whether field
 comments are included. These describe the meaning of each field, so they take
 space but they provide more information for human readers.
+
 
 What to export
 ~~~~~~~~~~~~~~
@@ -1082,6 +1170,7 @@ ALL_GROUPS
 
 Export from all groups? If not, ``GROUPS`` will come into play (see below).
 
+
 GROUPS
 ######
 
@@ -1091,6 +1180,7 @@ Names of CamCOPS group(s) to export from.
 
 Only applicable if ``ALL_GROUPS`` is false.
 
+
 TASKS
 #####
 
@@ -1099,6 +1189,7 @@ TASKS
 Tasks to export. This is a list of base table names of CamCOPS tasks (e.g.
 `ace3`, `phq9`) to export. If this option is not specified, all tasks are
 exported.
+
 
 START_DATETIME_UTC
 ##################
@@ -1114,6 +1205,7 @@ specify it more precisely (and because it's stored as UTC in the database).
 However, if you want a non-UTC timezone, specify the date/time in `ISO 8601`_
 format and it will be autoconverted to UTC.
 
+
 END_DATETIME_UTC
 ################
 
@@ -1127,6 +1219,7 @@ The parameter is named ``_UTC`` to remind you that it's UTC if you don't
 specify it more precisely (and because it's stored as UTC in the database).
 However, if you want a non-UTC timezone, specify the date/time in `ISO 8601`_
 format and it will be autoconverted to UTC.
+
 
 FINALIZED_ONLY
 ##############
@@ -1144,6 +1237,7 @@ modified later).
     False. You may end up exporting multiple copies of tasks, all slightly
     different, if the user makes edits before finalizing.
 
+
 INCLUDE_ANONYMOUS
 #################
 
@@ -1156,6 +1250,7 @@ Include anonymous tasks?
 
 - Note also that this setting operates independently of the
   ``REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY`` setting.
+
 
 PRIMARY_IDNUM
 #############
@@ -1170,6 +1265,7 @@ If specified, only tasks with this ID number present will be exported.
 - For (e.g.) file/e-mail transmission, this does not control the behaviour of
   anonymous tasks, which are instead controlled by ``INCLUDE_ANONYMOUS`` (see
   below).
+
 
 REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY
 #########################################
@@ -1187,10 +1283,12 @@ Defines behaviour relating to the primary ID number. Applies only if
 - If you export from multiple groups simultaneously, setting this to true means
   that the primary ID number must be present (as above) for *all* groups.
 
+
 Options applicable to database export only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 At present, only full (not incremental) database export is supported.
+
 
 DB_URL
 ######
@@ -1199,12 +1297,14 @@ DB_URL
 
 SQLAlchemy URL to the receiving database.
 
+
 DB_ECHO
 #######
 
 *Boolean.* Default: false.
 
 Echo SQL sent to the destination database.
+
 
 DB_INCLUDE_BLOBS
 ################
@@ -1213,6 +1313,7 @@ DB_INCLUDE_BLOBS
 
 Include binary large objects (BLOBs) in the export?
 
+
 DB_ADD_SUMMARIES
 ################
 
@@ -1220,6 +1321,7 @@ DB_ADD_SUMMARIES
 
 Add summary information (including :ref:`SNOMED CT <snomed>` codes if
 available)?
+
 
 DB_PATIENT_ID_PER_ROW
 #####################
@@ -1231,11 +1333,13 @@ database in a more convenient format for subsequent anonymisation.
 
 .. todo:: DB_PATIENT_ID_PER_ROW not currently implemented.
 
+
 Options applicable to e-mail export only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Attachment filenames are based on ``FILE_FILENAME_SPEC``, but only the basename
 of the path is used.
+
 
 EMAIL_HOST
 ##########
@@ -1244,6 +1348,7 @@ EMAIL_HOST
 
 Hostname of e-mail (SMTP) server.
 
+
 EMAIL_PORT
 ##########
 
@@ -1251,6 +1356,7 @@ EMAIL_PORT
 
 Port number of e-mail (SMTP) server. The default is 25, but consider something
 more secure (see below).
+
 
 EMAIL_USE_TLS
 #############
@@ -1263,12 +1369,14 @@ but you should strongly consider using it!
 This is used for explicit TLS connections, usually on port 587 (in which the
 connection is opened and then a ``STARTTLS`` command is issued).
 
+
 EMAIL_HOST_USERNAME
 ###################
 
 *String.*
 
 Username on e-mail server.
+
 
 EMAIL_HOST_PASSWORD
 ###################
@@ -1277,6 +1385,7 @@ EMAIL_HOST_PASSWORD
 
 Password on e-mail server. (Not stored in database.)
 
+
 EMAIL_FROM
 ##########
 
@@ -1284,10 +1393,12 @@ EMAIL_FROM
 
 "From:" address used in e-mails. See `RFC 5322`_. Only one is permitted here.
 
+
 EMAIL_SENDER
 ############
 
 "Sender:" address used in e-mails. See `RFC 5322`_. Only one is permitted.
+
 
 EMAIL_REPLY_TO
 ##############
@@ -1296,12 +1407,14 @@ EMAIL_REPLY_TO
 
 "Reply-To:" address used in e-mails. See `RFC 5322`_.
 
+
 EMAIL_TO
 ########
 
 *Multiline string.*
 
 List of "To:" recipients.
+
 
 EMAIL_CC
 ########
@@ -1310,12 +1423,14 @@ EMAIL_CC
 
 List of "CC:" (carbon copy) recipients.
 
+
 EMAIL_BCC
 #########
 
 *Multiline string.*
 
 List of "BCC:" (blind carbon copy) recipients.
+
 
 EMAIL_PATIENT_SPEC_IF_ANONYMOUS
 ###############################
@@ -1328,6 +1443,7 @@ For anonymous tasks, this string is used as the patient descriptor (see
 (Thus: as for the main :ref:`PATIENT_SPEC_IF_ANONYMOUS
 <serverconfig_server_patient_spec_if_anonymous>` option.)
 
+
 EMAIL_PATIENT_SPEC
 ##################
 
@@ -1339,6 +1455,7 @@ element available for substitution into the ``EMAIL_SUBJECT_SPEC`` (see below).
 Options are as for the main :ref:`PATIENT_SPEC
 <serverconfig_server_patient_spec>` option.
 
+
 EMAIL_SUBJECT
 #############
 
@@ -1347,12 +1464,14 @@ EMAIL_SUBJECT
 Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
 <serverconfig_server_task_filename_spec>` option.
 
+
 EMAIL_BODY_IS_HTML
 ##################
 
 *Boolean.*
 
 Is the body HTML, rather than plain text? Default false.
+
 
 EMAIL_BODY
 ##########
@@ -1365,6 +1484,7 @@ E-mail body contents. Possible substitutions are as for the main
 Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
 <serverconfig_server_task_filename_spec>` option.
 
+
 EMAIL_KEEP_MESSAGE
 ##################
 
@@ -1372,6 +1492,7 @@ EMAIL_KEEP_MESSAGE
 
 Keep the entire message (including attachments). Turning this option on
 consumes lots of database space! Use only for debugging.
+
 
 Options applicable to HL7 only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1383,12 +1504,14 @@ HL7_HOST
 
 HL7 hostname or IP address.
 
+
 HL7_PORT
 ########
 
 *Integer.* Default: 2575.
 
 HL7 port.
+
 
 HL7_PING_FIRST
 ##############
@@ -1399,12 +1522,14 @@ If true, requires a successful ping to the server prior to sending HL7
 messages. (Note: this is a TCP/IP ping, and tests that the machine is up, not
 that it is running an HL7 server.)
 
+
 HL7_NETWORK_TIMEOUT_MS
 ######################
 
 *Integer.* Default: 10000.
 
 Network timeout (in milliseconds).
+
 
 HL7_KEEP_MESSAGE
 ################
@@ -1414,6 +1539,7 @@ HL7_KEEP_MESSAGE
 Keep a copy of the entire message in the databaase. *WARNING:** may consume
 significant space in the database.
 
+
 HL7_KEEP_REPLY
 ##############
 
@@ -1421,6 +1547,7 @@ HL7_KEEP_REPLY
 
 Keep a copy of the reply (e.g. acknowledgement) message received from the
 server. **WARNING:** may consume significant space.
+
 
 HL7_DEBUG_DIVERT_TO_FILE
 ########################
@@ -1443,6 +1570,7 @@ and inspect them. If chosen, the following options are used:
 
 and the files are named accordingly, but with ``filetype`` set to ``hl7``.
 
+
 HL7_DEBUG_TREAT_DIVERTED_AS_SENT
 ################################
 
@@ -1455,6 +1583,7 @@ to preview messages for debugging purposes without "swallowing" them. BEWARE,
 though: if you have an automatically scheduled job (for example, to send
 messages every minute) and you divert with this flag set to false, you will end
 up with a great many message attempts!
+
 
 Options applicable to file transfers and attachments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1470,6 +1599,7 @@ For anonymous tasks, this string is used as the patient descriptor (see
 (Thus: as for the main :ref:`PATIENT_SPEC_IF_ANONYMOUS
 <serverconfig_server_patient_spec_if_anonymous>` option.)
 
+
 FILE_PATIENT_SPEC
 #################
 
@@ -1480,6 +1610,7 @@ element available for substitution into the ``FILENAME_SPEC`` (see below).
 
 Options are as for the main :ref:`PATIENT_SPEC
 <serverconfig_server_patient_spec>` option.
+
 
 FILE_FILENAME_SPEC
 ##################
@@ -1493,12 +1624,14 @@ and ``FILE_PATIENT_SPEC_IF_ANONYMOUS``.)
 Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
 <serverconfig_server_task_filename_spec>` option.
 
+
 FILE_MAKE_DIRECTORY
 ###################
 
 *Boolean.* Default: false.
 
 Make the directory if it doesn't already exist.
+
 
 FILE_OVERWRITE_FILES
 ####################
@@ -1511,6 +1644,7 @@ a **DANGER** of inadvertent data loss if you set this to true.
 (Needing to overwrite a file suggests that your filenames are not task-unique;
 try ensuring that both the ``tasktype`` and ``serverpk`` attributes are used in
 the filename.)
+
 
 FILE_EXPORT_RIO_METADATA
 ########################
@@ -1528,6 +1662,7 @@ replaced by ``.metadata`` (e.g. ``X.pdf`` is accompanied by ``X.metadata``).
 
 If ``RIO_METADATA`` is true, the following options also apply: ``RIO_IDNUM``,
 ``RIO_UPLOADING_USER``, ``RIO_DOCUMENT_TYPE``.
+
 
 FILE_SCRIPT_AFTER_EXPORT
 ########################
@@ -1572,6 +1707,7 @@ Note:
 
     SCRIPT_AFTER_FILE_EXPORT = /usr/local/bin/print_arguments
 
+
 Extra options for RiO metadata for file-based export
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1582,12 +1718,14 @@ RIO_IDNUM
 
 Which of the ID numbers (as above) is the RiO ID?
 
+
 RIO_UPLOADING_USER
 ##################
 
 *String.* Applicable if ``RIO_METADATA`` is true.
 
 RiO username for the uploading user (maximum of 10 characters).
+
 
 RIO_DOCUMENT_TYPE
 #################
