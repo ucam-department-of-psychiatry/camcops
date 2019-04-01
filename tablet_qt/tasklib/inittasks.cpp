@@ -111,6 +111,7 @@
 
 #include "tasks/panss.h"
 #include "tasks/patientsatisfaction.h"
+#include "tasks/pbq.h"
 #include "tasks/pcl5.h"
 #include "tasks/pclc.h"
 #include "tasks/pclm.h"
@@ -242,6 +243,7 @@ void InitTasks(TaskFactory& factory)
 
     initializePanss(factory);
     initializePatientSatisfaction(factory);
+    initializePbq(factory);
     initializePcl5(factory);
     initializePclC(factory);
     initializePclM(factory);

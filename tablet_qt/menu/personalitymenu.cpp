@@ -25,6 +25,7 @@
 #include "tasks/cecaq3.h"
 #include "tasks/icd10schizotypal.h"
 #include "tasks/icd10specpd.h"
+#include "tasks/pbq.h"
 
 
 PersonalityMenu::PersonalityMenu(CamcopsApp& app) :
@@ -36,5 +37,6 @@ PersonalityMenu::PersonalityMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(CecaQ3::CECAQ3_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Icd10SpecPD::ICD10SPECPD_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Icd10Schizotypal::ICD10SZTYPAL_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Pbq::PBQ_TABLENAME, app),
     };
 }

@@ -29,6 +29,7 @@
 #include "tasks/honos.h"
 #include "tasks/honosca.h"
 #include "tasks/iesr.h"
+#include "tasks/pbq.h"
 #include "tasks/pdss.h"
 #include "tasks/perinatalpoem.h"
 #include "tasks/phq9.h"
@@ -58,8 +59,8 @@ SetMenuFromPerinatal::SetMenuFromPerinatal(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
         // CAN-M
 
-        // MenuItem(tr("MOTHER–INFANT MEASURES")).setLabelOnly(),
-        // PBQ...
+        MenuItem(tr("MOTHER–INFANT MEASURES")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Pbq::PBQ_TABLENAME, app),
         // BMIS...
         // MORS-SF...
         // CARE-Index...

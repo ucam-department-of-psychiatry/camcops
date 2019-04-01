@@ -1979,3 +1979,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix to C++ scoring function ``Icd10Depressive::main_complete()``; some
   combinations were being labelled as "unknown" when more accuracy was
   possible.
+
+- Fixed CORE-10 alignment problem.
+
+- That was a more general problem of different name/value pairings sharing the
+  same names. Fixable on that basis. See
+  ``QuMcqGrid::setAlternateNameValueOptions``.
+
+- :ref:`Postpartum Bonding Questionnaire (PBQ) <pbq>`

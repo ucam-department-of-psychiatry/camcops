@@ -19,6 +19,7 @@
 
 #include "qumcqgrid.h"
 #include "common/cssconst.h"
+#include "lib/uifunc.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgridsignaller.h"
@@ -114,6 +115,22 @@ QuMcqGrid* QuMcqGrid::setQuestionsBold(bool bold)
     m_questions_bold = bold;
     return this;
 }
+
+
+QuMcqGrid* QuMcqGrid::setAlternateNameValueOptions(
+        const QVector<int>& question_indexes,
+        const NameValueOptions& options)
+{
+    if (options.size() != m_options.size()) {
+        uifunc::stopApp("NameValueOptions size mismatch to "
+                        "QuMcqGrid::setAlternateNameValueOptions");
+    }
+    for (const int idx : question_indexes) {
+        m_alternate_options[idx] = options;
+    }
+    return this;
+}
+
 
 
 void QuMcqGrid::setFromFields()
@@ -270,7 +287,11 @@ void QuMcqGrid::clicked(const int question_index,
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
-    const QVariant newvalue = m_options.value(value_index);
+    const NameValueOptions& options =
+            m_alternate_options.contains(question_index)
+            ? m_alternate_options[question_index]
+            : m_options;
+    const QVariant newvalue = options.value(value_index);
     FieldRefPtr fieldref = m_question_field_pairs.at(question_index).fieldref();
     fieldref->setValue(newvalue);  // Will trigger valueChanged
     emit elementValueChanged();
@@ -299,5 +320,9 @@ void QuMcqGrid::fieldValueOrMandatoryChanged(const int question_index,
     const QVector<QPointer<BooleanWidget>>& question_widgets = m_widgets.at(
                 question_index);
 
-    mcqfunc::setResponseWidgets(m_options, question_widgets, fieldref);
+    const NameValueOptions& options =
+            m_alternate_options.contains(question_index)
+            ? m_alternate_options[question_index]
+            : m_options;
+    mcqfunc::setResponseWidgets(options, question_widgets, fieldref);
 }

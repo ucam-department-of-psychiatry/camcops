@@ -253,12 +253,14 @@ Personality and experience
 
 |personality|
 
+- :ref:`Childhood Experience of Care and Abuse Questionnaire (CECA-Q3)
+  <cecaq3>`
+
 - :ref:`ICD-10 criteria: specific personality disorders <icd10_personality>`
 
 - :ref:`ICD-10 criteria: schizotypal disorder <icd10_schizotypal>` (as above)
 
-- :ref:`Childhood Experience of Care and Abuse Questionnaire (CECA-Q3)
-  <cecaq3>`
+- :ref:`Postpartum Bonding Questionnaire (PBQ) <pbq>`
 
 Executive function
 ------------------
@@ -490,7 +492,7 @@ The FROM-Perinatal measures (not all implemented in CamCOPS) are:
 
 **Mother-infant measures**
 
-- Postpartum Bonding Questionnaire (PBQ); PROM
+- :ref:`Postpartum Bonding Questionnaire (PBQ) <pbq>`; PROM
 - Bethlem Mother–Infant Interaction Scale (BMIS); CROM
 - Mothers' Object Relations Scale (MORS-SF); PROM
 - CARE-Index; CROM

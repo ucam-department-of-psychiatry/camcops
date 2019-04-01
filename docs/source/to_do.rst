@@ -29,7 +29,6 @@ Tasks
 
 **Priority**
 
-- Fix CORE-10 alignment problem.
 
 **To be prioritized**
 

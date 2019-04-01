@@ -83,6 +83,16 @@ public:
     // Show the questions in bold? Default is true.
     QuMcqGrid* setQuestionsBold(bool bold);
 
+    // Without changing the displayed options, sets alternative hidden
+    // name/value options for specific questions. Typically used for questions
+    // that appear the same (e.g. Always - Sometimes - Never) but are sometimes
+    // scored ascending and sometimes scored descending.
+    // The NameValueOptions passed must have the same length as the main one
+    // passed to the constructor.
+    QuMcqGrid* setAlternateNameValueOptions(
+            const QVector<int>& question_indexes,
+            const NameValueOptions& options);
+
 protected:
     // Set the widget state from the fields' data.
     void setFromFields();
@@ -119,4 +129,5 @@ protected:
     QVector<QVector<QPointer<BooleanWidget>>> m_widgets;  // our response widgets
     QVector<QuMcqGridSignaller*> m_signallers;
         // ... objects to signal us when field data/mandatory status changes
+    QMap<int, NameValueOptions> m_alternate_options;
 };

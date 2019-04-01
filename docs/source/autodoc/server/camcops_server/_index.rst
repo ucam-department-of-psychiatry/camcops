@@ -49,6 +49,7 @@ server/camcops_server
     alembic/versions/0017_perinatal_poem.py.rst
     alembic/versions/0018_gbo_goal_rating_sheet.py.rst
     alembic/versions/0019_epds.py.rst
+    alembic/versions/0020_pbq.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -193,6 +194,7 @@ server/camcops_server
     extra_strings/mast.xml.rst
     extra_strings/moca.xml.rst
     extra_strings/panss.xml.rst
+    extra_strings/pbq.xml.rst
     extra_strings/pcl.xml.rst
     extra_strings/pcl5.xml.rst
     extra_strings/perinatal_poem.xml.rst
@@ -272,6 +274,7 @@ server/camcops_server
     tasks/npiq.py.rst
     tasks/ors.py.rst
     tasks/panss.py.rst
+    tasks/pbq.py.rst
     tasks/pcl.py.rst
     tasks/pcl5.py.rst
     tasks/pdss.py.rst

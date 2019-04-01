@@ -803,7 +803,8 @@ SOURCES += \
     tasks/gbogpc.cpp \
     taskxtra/gbocommon.cpp \
     tasks/gbogras.cpp \
-    tasks/epds.cpp
+    tasks/epds.cpp \
+    tasks/pbq.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1211,7 +1212,8 @@ HEADERS += \
     tasks/gbogpc.h \
     taskxtra/gbocommon.h \
     tasks/gbogras.h \
-    tasks/epds.h
+    tasks/epds.h \
+    tasks/pbq.h
 
 DISTFILES += \
     LICENSE.txt \

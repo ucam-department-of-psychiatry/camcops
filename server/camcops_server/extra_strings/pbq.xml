@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="pbq">
+    <!--
+        Postpartum Bonding Questionnaire (PBQ)
+
+        Question order is from Brockington et al. (2006), not Brockington et
+        al. (2001). Differences is that "my baby irritates me" was at Q8 in the
+        older one and has moved two spaces down to Q10 in the newer. Everything
+        else is the same.
+    -->
+
+    <string name="title">Postpartum Bonding Questionnaire (PBQ)</string>
+    <string name="stem">Please indicate how often the following are true for you.\nThere are no “right” or “wrong” answers:\nChoose the answer which seems right in your recent experience.</string>
+
+    <string name="q1">I feel close to my baby</string>
+    <string name="q2">I wish the old days when I had no baby would come back</string>
+    <string name="q3">I feel distant from my baby</string>
+    <string name="q4">I love to cuddle my baby</string>
+    <string name="q5">I regret having this baby</string>
+
+    <string name="q6">The baby does not seem to be mine</string>
+    <string name="q7">My baby winds me up</string>
+    <string name="q8">I love my baby to bits</string>
+    <string name="q9">I feel happy when my baby smiles or laughs</string>
+    <string name="q10">My baby irritates me</string>
+
+    <string name="q11">I enjoy playing with my baby</string>
+    <string name="q12">My baby cries too much</string>
+    <string name="q13">I feel trapped as a mother</string>
+    <string name="q14">I feel angry with my baby</string>
+    <string name="q15">I resent my baby</string>
+
+    <string name="q16">My baby is the most beautiful baby in the world</string>
+    <string name="q17">I wish my baby would somehow go away</string>
+    <string name="q18">I have done harmful things to my baby</string>
+    <string name="q19">My baby makes me anxious</string>
+    <string name="q20">I am afraid of my baby</string>
+
+    <string name="q21">My baby annoys me</string>
+    <string name="q22">I feel confident when changing my baby</string>
+    <string name="q23">I feel the only solution is for someone else to look after my baby</string>
+    <string name="q24">I feel like hurting my baby</string>
+    <string name="q25">My baby is easily comforted</string>
+
+    <string name="always">Always</string>
+    <string name="very_often">Very often</string>
+    <string name="quite_often">Quite often</string>
+    <string name="sometimes">Sometimes</string>
+    <string name="rarely">Rarely</string>
+    <string name="never">Never</string>
+
+  </task>
+</resources>

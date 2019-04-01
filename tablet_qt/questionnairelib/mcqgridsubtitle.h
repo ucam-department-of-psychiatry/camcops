@@ -8,7 +8,9 @@ class McqGridSubtitle
     // The subtitle goes in column 0.
 
 public:
-    McqGridSubtitle(int pos, const QString& string,
+    // We provide default options so this can be copied automatically and thus
+    // put in a QVector.
+    McqGridSubtitle(int pos = -1, const QString& string = "",
                     bool repeat_options = true);
 
     // Returns the index at (before) which to place the subtitle.

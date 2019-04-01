@@ -30,6 +30,7 @@
 #include "tasks/gbogres.h"
 #include "tasks/gbogpc.h"
 #include "tasks/honos.h"
+#include "tasks/pbq.h"
 #include "tasks/perinatalpoem.h"
 #include "tasks/phq9.h"
 #include "tasks/ors.h"
@@ -51,6 +52,8 @@ SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
         MenuItem(tr("Generic measures")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
+        MenuItem(tr("Mother–infant measures")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Pbq::PBQ_TABLENAME, app),
         MenuItem(tr("Specific conditions")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),

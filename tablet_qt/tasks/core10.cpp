@@ -40,6 +40,7 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 10;
 const int MAX_SCORE = 40;
 const QString QPREFIX("q");
+const QVector<int> REVERSE_SCORED_Q{2, 3};  // Q2 and Q3 are reverse-scored
 
 const QString Core10::CORE10_TABLENAME("core10");
 
@@ -137,49 +138,34 @@ OpenableWidget* Core10::editor(const bool read_only)
     // The problem here: two questions (Q2, Q3) are reverse-scored, but
     // we want that to be invisible to the user, while keeping an aligned
     // grid and not repeating titles.
+    // 2019-01-04: fixed alignment properly via
+    // QuMcqGrid::setAlternateNameValueOptions.
+
     const int question_width = 50;
     const QVector<int> option_widths{10, 10, 10, 10, 10};
+
+    QVector<int> reversed_indexes;
+    for (const int qnum : REVERSE_SCORED_Q) {
+        reversed_indexes.append(qnum - 1);  // zero-based indexes
+    }
+    QVector<QuestionWithOneField> qfp;
+    for (int qnum = FIRST_Q; qnum <= N_QUESTIONS; ++qnum) {
+        const QString qname = strnum(QPREFIX, qnum);
+        const QString qtext = xstring(qname);
+        qfp.append(QuestionWithOneField(qtext, fieldRef(qname)));
+    }
+
+    QuMcqGrid* grid = new QuMcqGrid(qfp, options_normal);
+    grid->setAlternateNameValueOptions(reversed_indexes, options_reversed);
+    grid->setTitle(xstring("stem"));
+    grid->setWidth(question_width, option_widths);
+    grid->setExpand(true);
+    grid->setQuestionsBold(false);
 
     QuPagePtr page((new QuPage{
         (new QuText(xstring("instruction_1")))->setBold(true),
         new QuText(xstring("instruction_2")),
-        (new QuMcqGrid(
-            {
-                QuestionWithOneField(xstring("q1"), fieldRef("q1")),
-            },
-            options_normal
-        ))
-            ->setTitle(xstring("stem"))
-            ->setWidth(question_width, option_widths)
-            ->setExpand(true)
-            ->setQuestionsBold(false),
-        (new QuMcqGrid(
-            {
-                QuestionWithOneField(xstring("q2"), fieldRef("q2")),
-                QuestionWithOneField(xstring("q3"), fieldRef("q3")),
-            },
-            options_reversed
-        ))
-            ->showTitle(false)
-            ->setWidth(question_width, option_widths)
-            ->setExpand(true)
-            ->setQuestionsBold(false),
-        (new QuMcqGrid(
-            {
-                QuestionWithOneField(xstring("q4"), fieldRef("q4")),
-                QuestionWithOneField(xstring("q5"), fieldRef("q5")),
-                QuestionWithOneField(xstring("q6"), fieldRef("q6")),
-                QuestionWithOneField(xstring("q7"), fieldRef("q7")),
-                QuestionWithOneField(xstring("q8"), fieldRef("q8")),
-                QuestionWithOneField(xstring("q9"), fieldRef("q9")),
-                QuestionWithOneField(xstring("q10"), fieldRef("q10")),
-            },
-            options_normal
-        ))
-            ->showTitle(false)
-            ->setWidth(question_width, option_widths)
-            ->setExpand(true)
-            ->setQuestionsBold(false),
+        grid,
         (new QuText(xstring("thanks")))->setBold(true),
     })->setTitle(xstring("title")));
 
