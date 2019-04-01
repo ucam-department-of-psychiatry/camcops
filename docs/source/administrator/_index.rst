@@ -1,4 +1,4 @@
-..  docs/source/administrator/administrator_index.rst
+..  docs/source/administrator/_index.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .

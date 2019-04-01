@@ -50,11 +50,11 @@ securely to your server.
     tasks/_tasks_all.rst
     tasks/_tasks_missing.rst
 
-    administrator/administrator_index.rst
+    administrator/_index.rst
 
     licences/licences.rst
 
-    developer/index.rst
+    developer/_index.rst
 
     autodoc/_index.rst
 

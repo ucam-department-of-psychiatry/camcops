@@ -27,56 +27,30 @@ Troubleshooting client problems
     :local:
     :depth: 3
 
-Windows client fails to start
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I've lost the password for my CamCOPS client app
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``MF.dll`` missing under Windows Server.
+Whoops! Any data that had not been uploaded to your server is lost, unless you
+can remember the password. The databases are encrypted and the password to
+unlock them is not stored anywhere by CamCOPS.
 
-  What follows assumes 64-bit CamCOPS under 64-bit Windows.
+Make a copy of the databases anyway, just in case you remember the password.
+See :ref:`Where does the client store my data? <client_default_db_location>`
 
-  This error can appear under e.g. Windows Server 2008 R2 64-bit (Windows
-  6.1.7601), when the CamCOPS client is launched. This component is part of
-  "normal" desktop Windows, but not Windows Server
-  (https://serverfault.com/questions/562362/program-missing-dlls). Download and
-  install the Windows Media Services 2008 for Windows Server 2008 R2 package
-  from https://www.microsoft.com/en-gb/download/details.aspx?id=20424. (See
-  also
-  https://support.microsoft.com/en-ca/help/963697/how-to-install-windows-media-services-for-windows-server-2008-r2;
-  potentially relevant.)
+Then you can delete them, and when you start CamCOPS it will make fresh
+databases, but you'll have to reconfigure CamCOPS from scratch and you won't
+get your data back.
 
-  The trouble is that this creates thousands of directories within
-  ``C:\Windows\winsxs``, each with a single file in, so (for example)
-  ``MF.DLL`` and ``MFPlat.DLL`` are in separate directories.
+Any data that was uploaded to the server should be fine.
 
-  So, copy the most recent OS-relevant version of the following into
-  ``C:\Windows\system32``:
+Windows client fails to start under Windows Server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  - ``MF.DLL``
-  - ``MFPlat.DLL``
-  - ``EVR.DLL``
-  - ``MFReadWrite.DLL``
-  - ``api-ms-win-core-winrt-l1-1-0.dll.DLL`` -- **stuck; missing**
-
-  For example, from an administrative command prompt:
-
-  .. code-block:: bat
-
-    cd c:\windows\system32
-    copy C:\Windows\winsxs\amd64_microsoft-windows-mediafoundation_31bf3856ad364e35_6.1.7601.24146_none_faf014703c95b62f\mf.dll .
-    copy C:\Windows\winsxs\amd64_microsoft-windows-mfplat_31bf3856ad364e35_6.1.7601.23471_none_5516292583660fc2\mfplat.dll .
-    copy C:\Windows\winsxs\amd64_microsoft-windows-enhancedvideorenderer_31bf3856ad364e35_6.1.7601.23471_none_ee0e0e23fc773db4\evr.dll .
-    copy C:\Windows\winsxs\amd64_microsoft-windows-mfreadwrite_31bf3856ad364e35_6.1.7601.17514_none_177bed732ea3f85f\mfreadwrite.dll .
-
-  See:
-
-  - https://forums.plex.tv/t/mfplat-dll-fix-for-windows-server/149701
-  - https://serverfault.com/questions/275314/should-i-add-syswow64-to-my-system-path-to-get-32bit-programs-in-the-path
-
-  Not yet fixed.
-
-  **Decision:** Windows Server is an unsuitable OS for the CamCOPS client. (It
-  should be fine for the CamCOPS server!) Use a client edition of Windows for
-  the CamCOPS client.
+Windows Server is not a supported operating system for the CamCOPS client. It's
+not the same as normal Windows, which is supported! Windows Server is intended
+for large-scale server use and doesn't have multimedia components that are a
+standard part of normal Windows. See :ref:`CamCOPS client won't run under
+Windows Server <client_windows_server>`.
 
 Tablet upload fails with error “Read timed out”
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

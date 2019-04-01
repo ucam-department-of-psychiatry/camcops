@@ -1,4 +1,4 @@
-..  docs/source/developer/index.rst
+..  docs/source/developer/_index.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
