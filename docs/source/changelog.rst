@@ -1967,7 +1967,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Server released to CPFT on 2019-03-24.
 
-**Client and server v2.3.2 (2018-03-25 to -- IN PROGRESS)**
+**Client and server v2.3.2 (2018-03-25 to 2018-04-04)**
 
 - Session information in ORS and SRS summaries.
 
