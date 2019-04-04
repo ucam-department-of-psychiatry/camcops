@@ -2003,3 +2003,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - ``EMAIL_HOST_USERNAME`` no longer mandatory -- surprisingly, some servers
   accept e-mails without a username.
+
+- Bugfix to
+  :meth:`camcops_server.cc_modules.cc_session.CamcopsSession.n_sessions_active_since`,
+  which wasn't converting to UTC properly.

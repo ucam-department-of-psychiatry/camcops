@@ -31,7 +31,10 @@ camcops_server/cc_modules/cc_session.py
 import logging
 from typing import Optional, TYPE_CHECKING
 
-from cardinal_pythonlib.datetimefunc import format_datetime
+from cardinal_pythonlib.datetimefunc import (
+    format_datetime,
+    pendulum_to_utc_datetime_without_tz,
+)
 from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
@@ -331,9 +334,10 @@ class CamcopsSession(Base):
     @classmethod
     def n_sessions_active_since(cls, req: "CamcopsRequest",
                                 when: Pendulum) -> int:
+        when_utc = pendulum_to_utc_datetime_without_tz(when)
         q = (
             CountStarSpecializedQuery(cls, session=req.dbsession)
-            .filter(cls.last_activity_utc >= when)
+            .filter(cls.last_activity_utc >= when_utc)
         )
         return q.count_star()
 
