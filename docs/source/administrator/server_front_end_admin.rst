@@ -114,11 +114,6 @@ one group, if you want them to be able to use the web front end! (You don’t
 have to do this, though – for example, some users may have permission only to
 upload from tablets, not use the server web interface.)
 
-.. note::
-
-    Groupadmins can’t currently change passwords for their users, but the
-    editing screen makes it look like they should. And they should, probably;
-    that would be tedious for the superuser otherwise. TODO: Fix this.
 
 .. _delete_patient:
 

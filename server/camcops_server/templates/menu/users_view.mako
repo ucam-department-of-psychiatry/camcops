@@ -1,6 +1,5 @@
 ## users_view.mako
 <%inherit file="base_web.mako"/>
-<%namespace file="displayfunc.mako" import="one_per_line"/>
 
 <%!
 from markupsafe import escape
@@ -23,9 +22,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>View details</th>
         <th>Edit</th>
         <th>Groups</th>
-        %if as_superuser:
-            <th>Upload group</th>
-        %endif
+        <th>Upload group</th>
         <th>Change password</th>
         <th>Delete</th>
     </tr>
@@ -49,20 +46,20 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             <td><a href="${ req.route_url(Routes.VIEW_USER, _query={ViewParam.USER_ID: user.id}) }">View</a></td>
             <td><a href="${ req.route_url(Routes.EDIT_USER, _query={ViewParam.USER_ID: user.id}) }">Edit</a></td>
             <td>
-                ${ one_per_line(
-                ['{} [<a href="{}">Permissions</a>]'.format(
-                    ugm.group.name,
-                    req.route_url(Routes.EDIT_USER_GROUP_MEMBERSHIP, _query={ViewParam.USER_GROUP_MEMBERSHIP_ID: ugm.id})
-                )
-                for ugm in sorted(list(user.user_group_memberships), key=lambda ugm: ugm.group.name)],
-                escape=False) }
+                %for i, ugm in enumerate(sorted(list(user.user_group_memberships), key=lambda ugm: ugm.group.name)):
+                    %if i > 0:
+                        <br>
+                    %endif
+                    ${ ugm.group.name }
+                    %if req.user.may_administer_group(ugm.group_id):
+                        [<a href="${ req.route_url(Routes.EDIT_USER_GROUP_MEMBERSHIP, _query={ViewParam.USER_GROUP_MEMBERSHIP_ID: ugm.id}) }">Permissions</a>]
+                    %endif
+                %endfor
             </td>
-            %if as_superuser:
-                <td>
-                    ${ (escape(user.upload_group.name) if user.upload_group else "<i>(None)</i>") }
-                    [<a href="${request.route_url(Routes.SET_OTHER_USER_UPLOAD_GROUP, _query={ViewParam.USER_ID: user.id})}">change</a>]
-                </td>
-            %endif
+            <td>
+                ${ (escape(user.upload_group.name) if user.upload_group else "<i>(None)</i>") }
+                [<a href="${request.route_url(Routes.SET_OTHER_USER_UPLOAD_GROUP, _query={ViewParam.USER_ID: user.id})}">change</a>]
+            </td>
             <td><a href="${ req.route_url(Routes.CHANGE_OTHER_PASSWORD, _query={ViewParam.USER_ID: user.id}) }">Change password</a></td>
             <td><a href="${ req.route_url(Routes.DELETE_USER, _query={ViewParam.USER_ID: user.id}) }">Delete</a></td>
         </tr>

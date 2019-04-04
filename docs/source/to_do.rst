@@ -24,6 +24,7 @@ Things to do
     :local:
     :depth: 3
 
+
 Tasks
 -----
 
@@ -46,12 +47,6 @@ Tasks
 - Cardinal_ExpDet* tasks: generate noise on the fly?
 
 - PDSQ screener (see Clark talk 2018-09-20, MQ Data Science)
-
-- Perinatal: an infant/mother relationship indicator (Zeyn, TBC); NOT the
-  Parent–Infant Interaction Observation Scale (PIIOS);
-  clinician-rated and needs training;
-  https://dx.doi.org/10.1080/02646838.2012.751586; INSTEAD the Care Index
-  (a/w details from JM/NK). **Currently deferred.**
 
 - Better SNOMED coding, with text values (for which: framework already in
   place) for clinical clerking tasks. See CRG minutes of 2019-02-26 for a draft
@@ -159,30 +154,11 @@ Client core
 - Client-side task index, to speed up the client's patient summary view. (This
   is not a performance problem!)
 
+
 Server
 ------
 
 **Priority**
-
-- Fix "delete user" bug -- if someone attempts to delete a user, but that's
-  prohibited because they feature in the audit trail, the delete fails because
-  of a database constraint but a general crash is shown, not the specific
-  error. Error shown is:
-
-  .. code-block:: none
-
-  sqlalchemy.exc.InvalidRequestError: This Session's transaction has been
-  rolled back due to a previous exception during flush. To begin a new
-  transaction with this Session, first issue Session.rollback(). Original
-  exception was: (pymysql.err.IntegrityError) (1451, 'Cannot delete or update a
-  parent row: a foreign key constraint fails (`camcops`.`_security_audit`,
-  CONSTRAINT `fk__security_audit_user_id` FOREIGN KEY (`user_id`) REFERENCES
-  `_security_users` (`id`))') [SQL: 'DELETE FROM _security_users WHERE
-  _security_users.id = %(id)s'] [parameters: {'id': 3}] (Background on this
-  error at: http://sqlalche.me/e/gkpj)
-
-- Facility to hide individual sticky notes (with audit trail), so they're not
-  shown in HTML (+ PDF) and XML views. See e-mail RNC/JK/RE, 2018-10-12.
 
 - (SERVER + CLIENT) Concept of “tasks that need doing” in the context of a
   research study.
@@ -271,10 +247,12 @@ Server
 
 - Move research export dumps to backend (via e-mail)?
 
+
 Documentation
 -------------
 
 - Finish manual esp. web site user guide.
+
 
 Wishlist and blue-sky thoughts
 ------------------------------
@@ -315,6 +293,7 @@ Should we add an extra field for an ISO-639-1 two-letter language code (e.g.
 servers can already distribute whichever language they want, so the feature
 would only be relevant for “simultaneously multilingual” environments. Deferred
 for now.
+
 
 Documentation to-do list
 ------------------------

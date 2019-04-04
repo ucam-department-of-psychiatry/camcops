@@ -31,10 +31,10 @@ camcops_server/cc_modules/cc_specialnote.py
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql.expression import update
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -44,6 +44,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     TableNameColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_xml import (
     make_xml_branches_from_columns,
     XmlElement,
@@ -108,6 +109,10 @@ class SpecialNote(Base):
     note = Column(
         "note", UnicodeText,
         comment="Special note, added manually"
+    )
+    hidden = Column(
+        "hidden", Boolean, nullable=False, default=False,
+        comment="Manually hidden (effectively: deleted)"
     )
 
     def get_note_as_string(self) -> str:
@@ -178,3 +183,67 @@ class SpecialNote(Base):
             .where(cls.era == ERA_NOW)
             .values(era=new_era)
         )
+
+    @classmethod
+    def get_specialnote_by_id(cls, dbsession: SqlASession,
+                              note_id: int) -> Optional["SpecialNote"]:
+        """
+        Returns a special note, given its ID.
+        """
+        return (
+            dbsession.query(cls)
+            .filter(cls.note_id == note_id)
+            .first()
+        )
+
+    def get_group_id_of_target(self) -> Optional[int]:
+        """
+        Returns the group ID for the object (task or patient) that this
+        special note is about.
+        """
+        from camcops_server.cc_modules.cc_patient import Patient
+        from camcops_server.cc_modules.cc_taskfactory import task_factory_clientkeys_no_security_checks  # noqa
+        dbsession = SqlASession.object_session(self)
+        group_id = None
+        if self.basetable == Patient.__tablename__:
+            # Patient
+            patient = Patient.get_patient_by_id_device_era(
+                dbsession=dbsession,
+                client_id=self.task_id,
+                device_id=self.device_id,
+                era=self.era
+            )
+            if patient:
+                # noinspection PyProtectedMember
+                group_id = patient._group_id
+        else:
+            # Task
+            task = task_factory_clientkeys_no_security_checks(
+                dbsession=dbsession,
+                basetable=self.basetable,
+                client_id=self.task_id,
+                device_id=self.device_id,
+                era=self.era
+            )
+            if task:
+                # noinspection PyProtectedMember
+                group_id = task._group_id
+        return group_id
+
+    def user_may_delete_specialnote(self, user: "User") -> bool:
+        """
+        May the specified user delete this note?
+        """
+        if user.superuser:
+            # Superuser can delete anything
+            return True
+        if self.user_id == user.id:
+            # Created by the current user, therefore deletable by them.
+            return True
+        dbsession = SqlASession.object_session(self)
+        group_id = self.get_group_id_of_target()
+        if group_id is None:
+            return False
+        # Can the current user administer the group that the task/patient
+        # belongs to? If so, they may delete the special note.
+        return user.may_administer_group(group_id)

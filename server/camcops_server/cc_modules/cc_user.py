@@ -31,7 +31,7 @@ camcops_server/cc_modules/cc_user.py
 import datetime
 import logging
 import re
-from typing import List, Optional, Set, TYPE_CHECKING
+from typing import List, Optional, Set, Tuple, TYPE_CHECKING
 
 import cardinal_pythonlib.crypto as rnc_crypto
 from cardinal_pythonlib.datetimefunc import convert_datetime_to_local
@@ -43,7 +43,9 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
 )
 from pendulum import DateTime as Pendulum
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.orm import relationship, Session as SqlASession
+from sqlalchemy.orm import relationship, Session as SqlASession, Query
+from sqlalchemy.sql import false
+from sqlalchemy.sql.expression import and_, exists, not_
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
@@ -1043,6 +1045,70 @@ class User(Base):
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return any(m.may_register_devices for m in memberships
                    if m.group_id == self.upload_group_id)
+
+    def managed_users(self) -> Optional[Query]:
+        """
+        Return a query for all users managed by this user.
+
+        LOGIC SHOULD MATCH :meth:`may_edit_user`.
+        """
+        dbsession = SqlASession.object_session(self)
+        if not self.superuser and not self.is_a_groupadmin:
+            return dbsession.query(User).filter(false())
+            # https://stackoverflow.com/questions/10345327/sqlalchemy-create-an-intentionally-empty-query  # noqa
+        q = (
+            dbsession.query(User)
+            .filter(User.username != USER_NAME_FOR_SYSTEM)
+            .order_by(User.username)
+        )
+        if not self.superuser:
+            # LOGIC SHOULD MATCH assert_may_edit_user
+            # Restrict to users who are members of groups that I am an admin
+            # for:
+            groupadmin_group_ids = self.ids_of_groups_user_is_admin_for
+            # noinspection PyUnresolvedReferences
+            ugm2 = UserGroupMembership.__table__.alias("ugm2")
+            q = q.join(User.user_group_memberships)\
+                .filter(not_(User.superuser))\
+                .filter(UserGroupMembership.group_id.in_(groupadmin_group_ids))\
+                .filter(
+                    ~exists().select_from(ugm2).where(
+                        and_(
+                            ugm2.c.user_id == User.id,
+                            ugm2.c.groupadmin
+                        )
+                    )
+                )
+            # ... no superusers
+            # ... user must be a member of one of our groups
+            # ... no groupadmins
+            # https://stackoverflow.com/questions/14600619/using-not-exists-clause-in-sqlalchemy-orm-query  # noqa
+        return q
+
+    def may_edit_user(self, other: "User") -> Tuple[bool, str]:
+        """
+        May the ``self`` user edit the ``other`` user?
+
+        Args:
+            other: the user to be edited (potentially)
+
+        Returns:
+            tuple: may_edit (bool), reason_why_not (str)
+
+        LOGIC SHOULD MATCH :meth:`managed_users`.
+        """
+        if other.username == USER_NAME_FOR_SYSTEM:
+            return False, "Nobody may edit the system user"
+        if not self.superuser:
+            if other.superuser:
+                return False, "You may not edit a superuser"
+            if other.is_a_groupadmin:
+                return False, "You may not edit a group administrator"
+            groupadmin_group_ids = self.ids_of_groups_user_is_admin_for
+            if not any(gid in groupadmin_group_ids for gid in other.group_ids):
+                return False, ("You are not a group administrator for any "
+                               "groups that this user is in")
+        return True, ""
 
 
 def set_password_directly(req: "CamcopsRequest",

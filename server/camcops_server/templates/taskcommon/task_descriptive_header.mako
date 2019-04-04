@@ -16,7 +16,7 @@ from camcops_server.cc_modules.cc_html import answer
         <div class="warning">Patient details hidden at user’s request!</div>
     %else:
         %if task.patient:
-            <%include file="patient.mako" args="patient=task.patient, anonymise=anonymise"/>
+            <%include file="patient.mako" args="patient=task.patient, anonymise=anonymise, viewtype=viewtype"/>
         %else:
             <div class="warning">Missing patient information!</div>
         %endif

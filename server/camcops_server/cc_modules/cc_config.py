@@ -1075,14 +1075,15 @@ class CrontabEntry(object):
             content:
                 crontab "thing to run" entry
         """
-        has_line = bool(line)
+        has_line = line is not None
         has_components = bool(minute and hour and day_of_week and
                               day_of_month and month_of_year and content)
         assert has_line != has_components, (
             "Specify either a crontab line or all the time components"
         )
         if has_line:
-            components = line.split()
+            line = line.split("#")[0].strip()  # everything before a '#'
+            components = line.split()  # split on whitespace
             assert len(components) >= 6, (
                 "Must specify 5 time components and then contents"
             )
@@ -1173,8 +1174,17 @@ class CamcopsConfig(object):
                 return None
 
         def _get_multiline(section: str, paramname: str) -> List[str]:
+            # http://stackoverflow.com/questions/335695/lists-in-configparser
             return get_config_parameter_multiline(
                 parser, section, paramname, [])
+
+        def _get_multiline_ignoring_comments(section: str,
+                                             paramname: str) -> List[str]:
+            # Returns lines with any trailing comments removed, and any
+            # comment-only lines removed.
+            lines = _get_multiline(section, paramname)
+            return list(filter(None,
+                               (x.split("#")[0].strip() for x in lines if x)))
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Open config file
@@ -1322,8 +1332,8 @@ class CamcopsConfig(object):
         if not self.export_lockdir:
             raise_missing(es, ConfigParamExportGeneral.EXPORT_LOCKDIR)
 
-        self.export_recipient_names = _get_multiline(CONFIG_FILE_EXPORT_SECTION, ce.RECIPIENTS)  # noqa
-        # http://stackoverflow.com/questions/335695/lists-in-configparser
+        self.export_recipient_names = _get_multiline_ignoring_comments(
+            CONFIG_FILE_EXPORT_SECTION, ce.RECIPIENTS)
         duplicates = [name for name, count in
                       collections.Counter(self.export_recipient_names).items()
                       if count > 1]
@@ -1345,7 +1355,8 @@ class CamcopsConfig(object):
         self.crontab_entries = []  # type: List[CrontabEntry]
         crontab_lines = _get_multiline(es, ce.SCHEDULE)
         for crontab_line in crontab_lines:
-            if crontab_line.startswith("#"):  # comment line
+            crontab_line = crontab_line.split("#")[0].strip()  # everything before a '#'  # noqa
+            if not crontab_line:  # comment line
                 continue
             crontab_entry = CrontabEntry(line=crontab_line)
             if crontab_entry.content not in self.export_recipient_names:

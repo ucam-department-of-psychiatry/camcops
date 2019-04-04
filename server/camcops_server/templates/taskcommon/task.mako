@@ -78,7 +78,7 @@ def inherit_file(context):
 ## ============================================================================
 
 %if task.special_notes:
-    <%include file="special_notes.mako" args="special_notes=task.special_notes, title='TASK SPECIAL NOTES'"/>
+    <%include file="special_notes.mako" args="special_notes=task.special_notes, title='TASK SPECIAL NOTES', viewtype=viewtype"/>
 %endif
 
 ## ============================================================================

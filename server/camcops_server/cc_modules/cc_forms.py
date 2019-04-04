@@ -2480,6 +2480,25 @@ class AddSpecialNoteForm(DangerousForm):
                          request=request, **kwargs)
 
 
+class DeleteSpecialNoteSchema(CSRFSchema):
+    """
+    Schema to add a special note to a task.
+    """
+    note_id = HiddenIntegerNode()  # must match ViewParam.NOTE_ID
+    danger = ValidateDangerousOperationNode()
+
+
+class DeleteSpecialNoteForm(DangerousForm):
+    """
+    Form to delete (hide) a special note.
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=DeleteSpecialNoteSchema,
+                         submit_action=FormAction.SUBMIT,
+                         submit_title="Delete",
+                         request=request, **kwargs)
+
+
 # =============================================================================
 # The unusual data manipulation operations
 # =============================================================================

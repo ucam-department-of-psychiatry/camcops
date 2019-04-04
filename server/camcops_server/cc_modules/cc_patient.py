@@ -222,7 +222,8 @@ class Patient(GenericTabletRecordMixin, Base):
                 " remote(SpecialNote.basetable) == literal({repr_patient_tablename}), "  # noqa
                 " remote(SpecialNote.task_id) == foreign(Patient.id), "
                 " remote(SpecialNote.device_id) == foreign(Patient._device_id), "  # noqa
-                " remote(SpecialNote.era) == foreign(Patient._era) "
+                " remote(SpecialNote.era) == foreign(Patient._era), "
+                " not_(SpecialNote.hidden)"
                 ")".format(
                     repr_patient_tablename=repr(cls.__tablename__),
                 )
@@ -276,6 +277,22 @@ class Patient(GenericTabletRecordMixin, Base):
         Fetch a patient by the server PK.
         """
         return dbsession.query(cls).filter(cls._pk == server_pk).first()
+
+    @classmethod
+    def get_patient_by_id_device_era(cls, dbsession: SqlASession,
+                                     client_id: int,
+                                     device_id: int,
+                                     era: str) -> Optional["Patient"]:
+        """
+        Fetch a patient by the client ID, device ID, and era.
+        """
+        return (
+            dbsession.query(cls)
+            .filter(cls.id == client_id)
+            .filter(cls._device_id == device_id)
+            .filter(cls._era == era)
+            .first()
+        )
 
     def __str__(self) -> str:
         return "{sf} ({sex}, {dob}, {ids})".format(

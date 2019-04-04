@@ -48,3 +48,15 @@ Intellectual property rights
   FROM-Perinatal: Framework for Routine Outcome Measures in Perinatal
   Psychiatry. College Report CR216.
   https://www.rcpsych.ac.uk/docs/default-source/improving-care/better-mh-policy/college-reports/college-report-cr216.pdf
+
+Caveat
+~~~~~~
+
+*(Personal communication, Ian F. Brockington to Jo Peterkin, 2019-04-02.)*
+
+It is important to remember that the PBQ is merely a screening questionnaire.
+If the scores are high (especially the score on Factor 2), it is essential to
+interview the mother about her responses to the questionnaire and her feelings
+about the infant, including her anger. We recommend the Stafford Interview,
+developed over the course of 22 years and also widely translated: pages 66-71
+are devoted to the mother-infant relationship.

@@ -81,7 +81,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                         <%include file="task_contents_invalid.mako" args="task=task"/>
                     %endif
                     %if task.special_notes:
-                        <%include file="special_notes.mako" args="special_notes=task.special_notes, title='TASK SPECIAL NOTES'"/>
+                        <%include file="special_notes.mako" args="special_notes=task.special_notes, title='TASK SPECIAL NOTES', viewtype=viewtype"/>
                     %endif
                 </div>
             %endif

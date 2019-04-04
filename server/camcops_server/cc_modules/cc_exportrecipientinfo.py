@@ -469,7 +469,7 @@ class ExportRecipientInfo(object):
             r.email_host = _get_str(cpr.EMAIL_HOST)
             r.email_port = _get_int(cpr.EMAIL_PORT, DEFAULT_SMTP_PORT)
             r.email_use_tls = _get_bool(cpr.EMAIL_USE_TLS, False)
-            r.email_host_username = _get_str(cpr.EMAIL_HOST_USERNAME)
+            r.email_host_username = _get_str(cpr.EMAIL_HOST_USERNAME, "")
             r.email_host_password = _get_str(cpr.EMAIL_HOST_PASSWORD, "")
             r.email_from = _get_str(cpr.EMAIL_FROM, "")
             r.email_sender = _get_str(cpr.EMAIL_SENDER, "")
@@ -622,21 +622,34 @@ class ExportRecipientInfo(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if self.transmission_method == ExportTransmissionMethod.EMAIL:
             if not self.email_host:
+                # You can't send an e-mail without knowing which server to send
+                # it to.
                 fail_missing(cpr.EMAIL_HOST)
-            if not self.email_host_username:
-                fail_missing(cpr.EMAIL_HOST_USERNAME)
+            # Username is *not* required by all servers!
             if not self.email_from:
+                # From is mandatory in all e-mails.
+                # (Sender and Reply-To are optional.)
                 fail_missing(cpr.EMAIL_FROM)
+            if COMMA in self.email_from:
+                # RFC 5322 permits multiple addresses in From, but Python
+                # sendmail doesn't.
+                fail_invalid(
+                    f"Only a single 'From:' address permitted; was "
+                    f"{self.email_from!r}")
             if not any([self.email_to, self.email_cc, self.email_bcc]):
+                # At least one destination is required (obviously).
                 fail_invalid(
                     f"Must specify some of: {cpr.EMAIL_TO}, {cpr.EMAIL_CC}, "
                     f"{cpr.EMAIL_BCC}")
-            if COMMA in self.email_reply_to:
+            if COMMA in self.email_sender:
+                # RFC 5322 permits multiple addresses in From and Reply-To,
+                # but only one in Sender.
                 fail_invalid(
-                    f"Only a single 'Reply-To:' address permitted; was "
-                    f"{self.email_reply_to!r}")
-
+                    f"Only a single 'Sender:' address permitted; was "
+                    f"{self.email_sender!r}")
             if not self.email_subject:
+                # A subject is not obligatory for e-mails in general, but we
+                # will require one for e-mails sent from CamCOPS.
                 fail_missing(cpr.EMAIL_SUBJECT)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1967,7 +1967,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Server released to CPFT on 2019-03-24.
 
-**Client v2.3.2 (2018-03-25 to -- IN PROGRESS)**
+**Client and server v2.3.2 (2018-03-25 to -- IN PROGRESS)**
 
 - Session information in ORS and SRS summaries.
 
@@ -1986,4 +1986,20 @@ Current C++/SQLite client, Python/SQLAlchemy server
   same names. Fixable on that basis. See
   ``QuMcqGrid::setAlternateNameValueOptions``.
 
-- :ref:`Postpartum Bonding Questionnaire (PBQ) <pbq>`
+- New task: :ref:`Postpartum Bonding Questionnaire (PBQ) <pbq>`.
+
+- On the server, group administrators can change passwords and upload groups
+  for users that they manage (meaning those users who are a member of one of
+  their groups, and who are not a group administrator or superuser).
+
+- User deletion failed if the audit trail referred to the user (but no other
+  checks failed). Was failing at a low (database) level with a foreign key
+  constraint. Now performs a check for audit trail in
+  :func:`camcops_server.cc_modules.webview.any_records_use_user`.
+
+- Facility to hide individual special/sticky notes (with audit trail), so
+  they're not shown in HTML (+ PDF) and XML views. See e-mail RNC/JK/RE,
+  2018-10-12.
+
+- ``EMAIL_HOST_USERNAME`` no longer mandatory -- surprisingly, some servers
+  accept e-mails without a username.

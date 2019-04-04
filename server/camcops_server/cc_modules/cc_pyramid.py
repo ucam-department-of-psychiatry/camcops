@@ -38,6 +38,7 @@ from typing import (Any, Callable, Dict, List, Optional, Sequence, Tuple,
                     Type, TYPE_CHECKING, Union)
 from urllib.parse import urlencode
 
+# from cardinal_pythonlib.debugging import get_caller_stack_info
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
 from mako.lookup import TemplateLookup
@@ -198,6 +199,7 @@ class ViewParam(object):
     MUST_CHANGE_PASSWORD = "must_change_password"
     NAME = "name"
     NOTE = "note"
+    NOTE_ID = "note_id"
     NEW_PASSWORD = "new_password"
     OLD_PASSWORD = "old_password"
     OTHER = "other"
@@ -318,19 +320,54 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
 
     (a) loads the Mako template
     (b) shoves any other keys we specify into its dictionary
-    """
+
+    Typical incoming parameters look like:
+    
+    .. code-block:: none
+    
+        spec = 'some_template.mako'
+        value = {'comment': None}
+        system = {
+            'context': <pyramid.traversal.DefaultRootFactory ...>,
+            'get_csrf_token': functools.partial(<function get_csrf_token ... >, ...>),
+            'renderer_info': <pyramid.renderers.RendererHelper ...>,
+            'renderer_name': 'some_template.mako',
+            'req': <CamcopsRequest ...>,
+            'request': <CamcopsRequest ...>,
+            'view': None
+        }
+        
+    Showing the incoming call stack info (see commented-out code) indicates
+    that ``req`` and ``request`` (etc.) join at, and are explicitly introduced
+    by, :func:`pyramid.renderers.render`. That function includes this code:
+    
+    .. code-block:: python
+    
+        if system_values is None:
+            system_values = {
+                'view':None,
+                'renderer_name':self.name, # b/c
+                'renderer_info':self,
+                'context':getattr(request, 'context', None),
+                'request':request,
+                'req':request,
+                'get_csrf_token':partial(get_csrf_token, request),
+            }
+
+    """  # noqa
     def __call__(self, value: Dict[str, Any], system: Dict[str, Any]) -> str:
         if DEBUG_TEMPLATE_PARAMETERS:
             log.debug("spec: {!r}", self.spec)
             log.debug("value: {}", pprint.pformat(value))
             log.debug("system: {}", pprint.pformat(system))
+        # log.critical("\n{}", "\n    ".join(get_caller_stack_info()))
 
         # ---------------------------------------------------------------------
         # RNC extra values:
         # ---------------------------------------------------------------------
         # Note that <%! ... %> Python blocks are not themselves inherited.
         # So putting "import" calls in base.mako doesn't deliver the following
-        # as ever-present variable. Instead, plumb them in like this:
+        # as ever-present variable. Instead, plumb them in ldef gike this:
         #
         # system['Routes'] = Routes
         # system['ViewArg'] = ViewArg
@@ -535,6 +572,7 @@ class Routes(object):
     DELETE_GROUP = "delete_group"
     DELETE_ID_DEFINITION = "delete_id_definition"
     DELETE_PATIENT = "delete_patient"
+    DELETE_SPECIAL_NOTE = "delete_special_note"
     DELETE_USER = "delete_user"
     DEVELOPER = "developer"
     EDIT_GROUP = "edit_group"
@@ -648,6 +686,7 @@ class RouteCollection(object):
     DELETE_GROUP = RoutePath(Routes.DELETE_GROUP)
     DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION)
     DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT)
+    DELETE_SPECIAL_NOTE = RoutePath(Routes.DELETE_SPECIAL_NOTE)
     DELETE_USER = RoutePath(Routes.DELETE_USER)
     DEVELOPER = RoutePath(Routes.DEVELOPER)
     EDIT_GROUP = RoutePath(Routes.EDIT_GROUP)

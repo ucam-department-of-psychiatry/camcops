@@ -74,7 +74,7 @@ def inherit_file(context):
 
 ## Patient
 %if tracker.patient:
-    <%include file="patient.mako" args="patient=tracker.patient"/>
+    <%include file="patient.mako" args="patient=tracker.patient, viewtype=viewtype"/>
 %else:
     <div class="warning">
         No patient found, or the patient has no relevant tasks in the time

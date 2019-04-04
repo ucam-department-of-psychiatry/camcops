@@ -1375,7 +1375,8 @@ EMAIL_HOST_USERNAME
 
 *String.*
 
-Username on e-mail server.
+Username on e-mail server. (Surprisingly, some e-mail servers allow this to
+be blank. Be wary of them!)
 
 
 EMAIL_HOST_PASSWORD

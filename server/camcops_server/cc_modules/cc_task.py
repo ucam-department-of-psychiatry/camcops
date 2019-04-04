@@ -467,7 +467,7 @@ class Task(GenericTabletRecordMixin, Base):
     def special_notes(cls) -> RelationshipProperty:
         """
         List-style SQLAlchemy relationship to any :class:`SpecialNote` objects
-        attached to this class.
+        attached to this class. Skips hidden (quasi-deleted) notes.
         """
         return relationship(
             SpecialNote,
@@ -476,7 +476,8 @@ class Task(GenericTabletRecordMixin, Base):
                 " remote(SpecialNote.basetable) == literal({repr_task_tablename}), "  # noqa
                 " remote(SpecialNote.task_id) == foreign({task}.id), "
                 " remote(SpecialNote.device_id) == foreign({task}._device_id), "  # noqa
-                " remote(SpecialNote.era) == foreign({task}._era) "
+                " remote(SpecialNote.era) == foreign({task}._era), "
+                " not_(SpecialNote.hidden)"
                 ")".format(
                     task=cls.__name__,
                     repr_task_tablename=repr(cls.__tablename__),

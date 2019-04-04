@@ -50,6 +50,7 @@ server/camcops_server
     alembic/versions/0018_gbo_goal_rating_sheet.py.rst
     alembic/versions/0019_epds.py.rst
     alembic/versions/0020_pbq.py.rst
+    alembic/versions/0021_hidden_specialnote.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst

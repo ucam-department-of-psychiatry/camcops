@@ -159,8 +159,7 @@ import pygments.lexers.web
 import pygments.formatters
 from sqlalchemy.orm import Query
 from sqlalchemy.sql.functions import func
-from sqlalchemy.sql.expression import (and_, desc, exists, not_, or_,
-                                       select, update)
+from sqlalchemy.sql.expression import desc, or_, select, update
 
 from camcops_server.cc_modules.cc_audit import audit, AuditEntry
 from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
@@ -179,7 +178,6 @@ from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     ERA_NOW,
     MINIMUM_PASSWORD_LENGTH,
-    USER_NAME_FOR_SYSTEM,
 )
 from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
@@ -216,6 +214,7 @@ from camcops_server.cc_modules.cc_forms import (
     DeleteIdDefinitionForm,
     DeletePatientChooseForm,
     DeletePatientConfirmForm,
+    DeleteSpecialNoteForm,
     DeleteUserForm,
     DIALECT_CHOICES,
     EditGroupForm,
@@ -1972,34 +1971,8 @@ def get_user_from_request_user_id_or_raise(req: "CamcopsRequest") -> User:
 
 
 def query_users_that_i_manage(req: "CamcopsRequest") -> Query:
-    dbsession = req.dbsession
-    q = (
-        dbsession.query(User)
-        .filter(User.username != USER_NAME_FOR_SYSTEM)
-        .order_by(User.username)
-    )
-    if not req.user.superuser:
-        # LOGIC SHOULD MATCH assert_may_edit_user
-        # Restrict to users who are members of groups that I am an admin for:
-        groupadmin_group_ids = req.user.ids_of_groups_user_is_admin_for
-        # noinspection PyUnresolvedReferences
-        ugm2 = UserGroupMembership.__table__.alias("ugm2")
-        q = q.join(User.user_group_memberships)\
-            .filter(not_(User.superuser))\
-            .filter(UserGroupMembership.group_id.in_(groupadmin_group_ids))\
-            .filter(
-                ~exists().select_from(ugm2).where(
-                    and_(
-                        ugm2.c.user_id == User.id,
-                        ugm2.c.groupadmin
-                    )
-                )
-            )
-        # ... no superusers
-        # ... user must be a member of one of our groups
-        # ... no groupadmins
-        # https://stackoverflow.com/questions/14600619/using-not-exists-clause-in-sqlalchemy-orm-query  # noqa
-    return q
+    me = req.user
+    return me.managed_users()
 
 
 @view_config(route_name=Routes.VIEW_ALL_USERS,
@@ -2018,8 +1991,7 @@ def view_all_users(req: "CamcopsRequest") -> Dict[str, Any]:
                              page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req))
-    return dict(page=page,
-                as_superuser=req.user.superuser)
+    return dict(page=page)
 
 
 @view_config(route_name=Routes.VIEW_USER_EMAIL_ADDRESSES,
@@ -2039,18 +2011,19 @@ def assert_may_edit_user(req: "CamcopsRequest", user: User) -> None:
     Checks that the requesting user (``req.user``) is allowed to edit the other
     user (``user``). Raises :exc:`HTTPBadRequest` otherwise.
     """
-    # LOGIC SHOULD MATCH query_users_that_i_manage
-    if user.username == USER_NAME_FOR_SYSTEM:
-        raise HTTPBadRequest("Nobody may edit the system user")
-    if not req.user.superuser:
-        if user.superuser:
-            raise HTTPBadRequest("You may not edit a superuser")
-        if user.is_a_groupadmin:
-            raise HTTPBadRequest("You may not edit a group administrator")
-        groupadmin_group_ids = req.user.ids_of_groups_user_is_admin_for
-        if not any(gid in groupadmin_group_ids for gid in user.group_ids):
-            raise HTTPBadRequest("You are not a group administrator for any "
-                                 "groups that this user is in")
+    may_edit, why_not = req.user.may_edit_user(user)
+    if not may_edit:
+        raise HTTPBadRequest(why_not)
+
+
+def assert_may_administer_group(req: "CamcopsRequest", group_id: int) -> None:
+    """
+    Checks that the requesting user (``req.user``) is allowed to adminster the
+    specified group (specified by ``group_id``). Raises :exc:`HTTPBadRequest`
+    otherwise.
+    """
+    if not req.user.may_administer_group(group_id):
+        raise HTTPBadRequest("You may not administer this group")
 
 
 @view_config(route_name=Routes.VIEW_USER,
@@ -2160,6 +2133,7 @@ def edit_user_group_membership(req: "CamcopsRequest") -> Dict[str, Any]:
         raise HTTPBadRequest(f"No such UserGroupMembership ID: {repr(ugm_id)}")
     user = ugm.user
     assert_may_edit_user(req, user)
+    assert_may_administer_group(req, ugm.group_id)
     if req.user.superuser:
         form = EditUserGroupPermissionsFullForm(request=req)
         keys = EDIT_USER_GROUP_MEMBERSHIP_KEYS_SUPERUSER
@@ -2188,17 +2162,19 @@ def edit_user_group_membership(req: "CamcopsRequest") -> Dict[str, Any]:
 
 def set_user_upload_group(req: "CamcopsRequest",
                           user: User,
-                          as_superuser: bool) -> Response:
+                          by_another: bool) -> Response:
     """
     Provides a view to choose which group a user uploads into.
+
+    TRUSTS ITS CALLER that this is permitted.
 
     Args:
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         user: the :class:`camcops_server.cc_modules.cc_user.User` to edit
-        as_superuser: is the current user a superuser? Determines the
-            screen we return to afterwards.
+        by_another: is the current user a superuser/group administrator, i.e.
+            another user? Determines the screen we return to afterwards.
     """
-    route_back = Routes.VIEW_ALL_USERS if as_superuser else Routes.HOME
+    route_back = Routes.VIEW_ALL_USERS if by_another else Routes.HOME
     if FormAction.CANCEL in req.POST:
         return HTTPFound(req.route_url(route_back))
     form = SetUserUploadGroupForm(request=req, user=user)
@@ -2238,12 +2214,15 @@ def set_own_user_upload_group(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.SET_OTHER_USER_UPLOAD_GROUP,
-             permission=Permission.SUPERUSER)
+             permission=Permission.GROUPADMIN)
 def set_other_user_upload_group(req: "CamcopsRequest") -> Response:
     """
     View to set the upload group for another user.
     """
     user = get_user_from_request_user_id_or_raise(req)
+    if user.id != req.user.id:
+        assert_may_edit_user(req, user)
+    # ... but always OK to edit this for your own user; no such check required
     return set_user_upload_group(req, user, True)
 
 
@@ -2325,6 +2304,11 @@ def any_records_use_user(req: "CamcopsRequest", user: User) -> bool:
         .filter(SpecialNote.user_id == user_id)
     if q.count_star() > 0:
         return True
+    # Audit trail?
+    q = CountStarSpecializedQuery(AuditEntry, session=dbsession)\
+        .filter(AuditEntry.user_id == user_id)
+    if q.count_star() > 0:
+        return True
     # Uploaded records?
     for cls in gen_orm_classes_from_base(GenericTabletRecordMixin):  # type: Type[GenericTabletRecordMixin]  # noqa
         # noinspection PyProtectedMember
@@ -2367,8 +2351,10 @@ def delete_user(req: "CamcopsRequest") -> Dict[str, Any]:
                 "not administer"
     else:
         if any_records_use_user(req, user):
-            error = "Unable to delete user; records refer to that user. " \
-                    "Disable login and upload permissions instead."
+            error = (
+                "Unable to delete user; records (or audit trails) refer to "
+                "that user. Disable login and upload permissions instead."
+            )
         else:
             if FormAction.DELETE in req.POST:
                 try:
@@ -2842,6 +2828,50 @@ def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
         }
         rendered_form = form.render(appstruct)
     return dict(task=task,
+                form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
+
+
+@view_config(route_name=Routes.DELETE_SPECIAL_NOTE,
+             renderer="special_note_delete.mako")
+def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    View to delete a special note (after confirmation).
+
+    .. todo:: IMPLEMENTING THIS ***
+    """
+    note_id = req.get_int_param(ViewParam.NOTE_ID, None)
+    url_back = req.route_url(Routes.HOME)
+    # ... too fiddly to be more precise as we could be routing back to the task
+    # relating to a patient relating to this special note
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(url_back)
+    sn = SpecialNote.get_specialnote_by_id(req.dbsession, note_id)
+    if sn is None:
+        raise HTTPBadRequest(f"No such SpecialNote: note_id={note_id}")
+    if sn.hidden:
+        raise HTTPBadRequest(f"SpecialNote already deleted/hidden: "
+                             f"note_id={note_id}")
+    if not sn.user_may_delete_specialnote(req.user):
+        raise HTTPBadRequest("Not authorized to delete this special note")
+    form = DeleteSpecialNoteForm(request=req)
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            form.validate(controls)
+            # -----------------------------------------------------------------
+            # Delete special note
+            # -----------------------------------------------------------------
+            sn.hidden = True
+            raise HTTPFound(url_back)
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        appstruct = {
+            ViewParam.NOTE_ID: note_id,
+        }
+        rendered_form = form.render(appstruct)
+    return dict(sn=sn,
                 form=rendered_form,
                 head_form_html=get_head_form_html(req, [form]))
 

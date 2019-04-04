@@ -157,3 +157,41 @@ def task_factory_no_security_checks(dbsession: SqlASession, basetable: str,
     # noinspection PyProtectedMember
     q = dbsession.query(cls).filter(cls._pk == serverpk)
     return q.first()
+
+
+# =============================================================================
+# Make a single task given its base table name and server PK
+# =============================================================================
+
+def task_factory_clientkeys_no_security_checks(dbsession: SqlASession,
+                                               basetable: str,
+                                               client_id: int,
+                                               device_id: int,
+                                               era: str) -> Optional[Task]:
+    """
+    Load a task from the database and return it.
+    Filters to tasks permitted to the current user.
+
+    Args:
+        dbsession: a :class:`sqlalchemy.orm.session.Session`
+        basetable: name of the task's base table
+        client_id: task's ``_id`` value
+        device_id: task's ``_device_id`` value
+        era: task's ``_era`` value
+
+    Returns:
+        the task, or ``None`` if it doesn't exist
+
+    Raises:
+        :exc:`KeyError` if the table doesn't exist
+    """
+    d = tablename_to_task_class_dict()
+    cls = d[basetable]  # may raise KeyError
+    # noinspection PyProtectedMember
+    q = (
+        dbsession.query(cls)
+        .filter(cls.id == client_id)
+        .filter(cls._device_id == device_id)
+        .filter(cls._era == era)
+    )
+    return q.first()
