@@ -318,9 +318,7 @@ class Email(Base):
             log.error("Can't send message; not present (not saved?)")
             return False
 
-        if not password:
-            log.error("Can't send message; password unknown")
-            return False
+        # Password not always required (for insecure servers...)
 
         if self.sent:
             log.info("Resending message")
