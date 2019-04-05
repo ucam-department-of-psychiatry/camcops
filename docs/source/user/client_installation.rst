@@ -42,6 +42,7 @@ Install the Android app directly from the Google Play Store:
 
 - https://play.google.com/store/apps/details?id=org.camcops.camcops
 
+
 Android: manual installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -55,6 +56,7 @@ Manual installation of an Android package is possible like this:
 
 #. Download and install the CamCOPS client (see :ref:`download <download>`) as
    an .APK (Android Package Kit) file.
+
 
 iOS
 ~~~
@@ -76,6 +78,7 @@ Apple developers, and install the app to their own devices or distribute them
 within their own organization as above; or (b) wait for the App Store version.
 
 .. todo:: Submit CamCOPS to Apple App Store.
+
 
 Windows
 ~~~~~~~
@@ -115,6 +118,7 @@ If it says
     ...
 
 then choose "Yes".
+
 
 Linux
 ~~~~~
@@ -202,6 +206,7 @@ CamCOPS uses the following usernames and passwords:
     tablets. Administrators can also use this interface to create or edit
     authorized users.
 
+
 Configuring your tablet before using CamCOPS
 --------------------------------------------
 
@@ -254,6 +259,8 @@ Android
 
 - Install CamCOPS; see :ref:`above <client_installation>`.
 
+
+.. _configuring_client:
 
 Configuring CamCOPS before using it
 -----------------------------------
@@ -391,6 +398,7 @@ Configuring CamCOPS before using it
 
 Good to go! See :ref:`using the tablet app <client_using>`.
 
+
 Other CamCOPS app settings
 --------------------------
 
@@ -409,6 +417,7 @@ length (e.g. 10cm for the :ref:`ORS <ors>`). To get these right, CamCOPS needs
 to know the physical DPI of your screen. If your computer isn't reporting it
 right, you can override the settings here. Changes take effect when CamCOPS is
 restarted.
+
 
 Upload after each task is complete?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -24,6 +24,7 @@ Client upgrades and uninstallation
     :local:
     :depth: 3
 
+
 Upgrading the client
 --------------------
 
@@ -33,12 +34,25 @@ Just install a newer version. For example:
 
 - For Windows, download the newer version and run its installer.
 
-This will replace the CamCOPS software but should
+This will replace the CamCOPS software but should find your old (client)
+databases, upgrade them if necessary, and continue working with them.
 
 .. note::
 
     It shouldn't be critical, but as a matter of good practice, move all your
     data to your CamCOPS server before upgrading the client.
+
+.. note::
+
+    If your client and your institution's server are upgraded to support new
+    CamCOPS tasks, you should tell the client to check in with the server to
+    retrieve any new strings (etc.) that it might need. :ref:`Re-register
+    <configuring_client>` with the server.
+
+.. todo::
+
+    Implement a simpler way to do this, without the need to re-register (which
+    requires elevated privilege),
 
 
 .. _client_default_db_location:
