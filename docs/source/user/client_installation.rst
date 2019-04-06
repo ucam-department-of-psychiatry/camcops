@@ -24,6 +24,7 @@ Installing and configuring the client
     :local:
     :depth: 3
 
+
 Hardware and operating system requirements
 ------------------------------------------
 
