@@ -91,7 +91,7 @@ QString Icd10Mixed::longname() const
 }
 
 
-QString Icd10Mixed::menusubtitle() const
+QString Icd10Mixed::description() const
 {
     return textconst::ICD10;
 }

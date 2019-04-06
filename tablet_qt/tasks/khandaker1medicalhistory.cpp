@@ -133,7 +133,7 @@ QString Khandaker1MedicalHistory::longname() const
 }
 
 
-QString Khandaker1MedicalHistory::menusubtitle() const
+QString Khandaker1MedicalHistory::description() const
 {
     return "Medical history screening for Insight immunopsychiatry study.";
 }
@@ -202,7 +202,7 @@ OpenableWidget* Khandaker1MedicalHistory::editor(const bool read_only)
     // AlignLeft makes multiline expanding text boxes become too narrow.
 
     QuPagePtr page(new QuPage);
-    page->setTitle(menusubtitle());
+    page->setTitle(description());
     page->addElement(new QuHeading(xstring(X_TITLE)));
     page->addElement(new QuText(xstring(X_INSTRUCTION)));
 

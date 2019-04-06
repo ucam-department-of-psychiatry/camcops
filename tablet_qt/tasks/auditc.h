@@ -42,7 +42,7 @@ public:
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
-    virtual QString menusubtitle() const override;
+    virtual QString description() const override;
     virtual bool prohibitsCommercial() const override { return true; }
     virtual QString xstringTaskname() const override;  // shares strings with AUDIT
     // ------------------------------------------------------------------------

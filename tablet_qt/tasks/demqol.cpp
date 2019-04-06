@@ -75,7 +75,7 @@ QString Demqol::longname() const
 }
 
 
-QString Demqol::menusubtitle() const
+QString Demqol::description() const
 {
     return tr("28-item interviewer-administered questionnaire answered by the "
               "person with dementia.");

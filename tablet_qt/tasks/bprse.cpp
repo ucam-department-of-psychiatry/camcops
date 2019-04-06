@@ -70,7 +70,7 @@ QString BprsE::longname() const
 }
 
 
-QString BprsE::menusubtitle() const
+QString BprsE::description() const
 {
     return tr("24-item clinician-administered rating of multiple aspects of "
               "psychopathology.");

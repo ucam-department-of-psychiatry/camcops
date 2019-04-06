@@ -72,7 +72,7 @@ QString Gad7::longname() const
 }
 
 
-QString Gad7::menusubtitle() const
+QString Gad7::description() const
 {
     return tr("7-item self-report scale.");
 }

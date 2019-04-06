@@ -70,7 +70,7 @@ QString Pswq::longname() const
 }
 
 
-QString Pswq::menusubtitle() const
+QString Pswq::description() const
 {
     return tr("16-item self-report scale.");
 }

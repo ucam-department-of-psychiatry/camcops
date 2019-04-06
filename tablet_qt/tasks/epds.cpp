@@ -18,7 +18,6 @@
 */
 
 #include "epds.h"
-#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
@@ -73,12 +72,11 @@ QString Epds::shortname() const
 
 QString Epds::longname() const
 {
-    return tr("Edinburgh Postnatal Depression Scale") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    return tr("Edinburgh Postnatal Depression Scale");
 }
 
 
-QString Epds::menusubtitle() const
+QString Epds::description() const
 {
     return tr("10-item self-rating scale.");
 }

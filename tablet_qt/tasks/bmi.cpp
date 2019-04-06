@@ -94,7 +94,7 @@ QString Bmi::longname() const
 }
 
 
-QString Bmi::menusubtitle() const
+QString Bmi::description() const
 {
     return tr("Mass, height.");
 }

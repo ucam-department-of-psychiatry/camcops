@@ -73,7 +73,7 @@ QString Phq15::longname() const
 }
 
 
-QString Phq15::menusubtitle() const
+QString Phq15::description() const
 {
     return tr("Self-scoring of 15 common somatic symptoms (relevant to "
               "somatoform disorders).");

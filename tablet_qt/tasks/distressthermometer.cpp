@@ -81,7 +81,7 @@ QString DistressThermometer::longname() const
 }
 
 
-QString DistressThermometer::menusubtitle() const
+QString DistressThermometer::description() const
 {
     return tr("Self-rating of overall distress, plus Y/N rating of a range "
               "of potential problems.");

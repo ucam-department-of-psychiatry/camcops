@@ -82,7 +82,7 @@ QString CbiR::longname() const
 }
 
 
-QString CbiR::menusubtitle() const
+QString CbiR::description() const
 {
     return tr("45-item caregiver rating scale, applicable to dementias.");
 }

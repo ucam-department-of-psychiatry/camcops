@@ -72,7 +72,7 @@ QString QolBasic::longname() const
 }
 
 
-QString QolBasic::menusubtitle() const
+QString QolBasic::description() const
 {
     return tr("Time trade-off and response scale measures of quality of life.");
 }

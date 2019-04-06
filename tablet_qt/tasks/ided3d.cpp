@@ -305,7 +305,7 @@ QString IDED3D::longname() const
 }
 
 
-QString IDED3D::menusubtitle() const
+QString IDED3D::description() const
 {
     return tr("Simple discrimination, reversal, compound discrimination, "
               "reversal, ID set shift, reversal, ED set shift, reversal. "

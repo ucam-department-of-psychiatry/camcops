@@ -264,15 +264,13 @@ QString CardinalExpectationDetection::shortname() const
 
 QString CardinalExpectationDetection::longname() const
 {
-    return tr("Cardinal RN — Expectation–Detection task") +
-            textconst::EXPERIMENTAL_TITLE_SUFFIX;
+    return tr("Cardinal RN — Expectation–Detection task");
 }
 
 
-QString CardinalExpectationDetection::menusubtitle() const
+QString CardinalExpectationDetection::description() const
 {
-    return tr("Putative assay of proneness to hallucinations.") +
-            textconst::EXPERIMENTAL_SUBTITLE_SUFFIX;
+    return tr("Putative assay of proneness to hallucinations.");
 }
 
 

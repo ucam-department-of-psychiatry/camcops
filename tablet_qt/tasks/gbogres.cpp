@@ -95,7 +95,7 @@ QString GboGReS::longname() const
 }
 
 
-QString GboGReS::menusubtitle() const
+QString GboGReS::description() const
 {
     return tr("For recording goals of therapy.");
 }

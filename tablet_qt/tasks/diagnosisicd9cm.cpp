@@ -59,7 +59,7 @@ QString DiagnosisIcd9CM::longname() const
 }
 
 
-QString DiagnosisIcd9CM::menusubtitle() const
+QString DiagnosisIcd9CM::description() const
 {
     return tr("Diagnostic codes, using ICD-9-CM/DSM-IV-TR codes.");
 }

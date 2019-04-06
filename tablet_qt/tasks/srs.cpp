@@ -114,7 +114,7 @@ QString Srs::longname() const
 }
 
 
-QString Srs::menusubtitle() const
+QString Srs::description() const
 {
     return tr("Fixed-length visual analogue scales for providing "
               "psychotherapy session feedback.");

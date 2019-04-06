@@ -70,7 +70,7 @@ QString AuditC::longname() const
 }
 
 
-QString AuditC::menusubtitle() const
+QString AuditC::description() const
 {
     return tr("3-item consumption subset of the AUDIT; "
               "clinician-administered screening test.");

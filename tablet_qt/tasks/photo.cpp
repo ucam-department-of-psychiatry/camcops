@@ -69,7 +69,7 @@ QString Photo::longname() const
 }
 
 
-QString Photo::menusubtitle() const
+QString Photo::description() const
 {
     return tr("Photograph with accompanying detail.");
 }

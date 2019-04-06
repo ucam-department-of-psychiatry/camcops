@@ -140,7 +140,7 @@ QString Slums::longname() const
 }
 
 
-QString Slums::menusubtitle() const
+QString Slums::description() const
 {
     return tr("30-point clinician-administered brief cognitive assessment.");
 }

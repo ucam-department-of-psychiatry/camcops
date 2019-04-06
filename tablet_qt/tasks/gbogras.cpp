@@ -121,7 +121,7 @@ QString GboGRaS::longname() const
 }
 
 
-QString GboGRaS::menusubtitle() const
+QString GboGRaS::description() const
 {
     return tr("For recording progress towards the goals of therapy "
               "(up to 3 goals).");

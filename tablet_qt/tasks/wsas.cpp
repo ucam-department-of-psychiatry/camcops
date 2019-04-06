@@ -18,7 +18,6 @@
 */
 
 #include "wsas.h"
-#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -70,15 +69,13 @@ QString Wsas::shortname() const
 
 QString Wsas::longname() const
 {
-    return tr("Work and Social Adjustment Scale") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    return tr("Work and Social Adjustment Scale");
 }
 
 
-QString Wsas::menusubtitle() const
+QString Wsas::description() const
 {
-    return tr("5-item self-report scale.") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+    return tr("5-item self-report scale.");
 }
 
 

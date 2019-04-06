@@ -71,7 +71,7 @@ QString Pbq::longname() const
 }
 
 
-QString Pbq::menusubtitle() const
+QString Pbq::description() const
 {
     return tr("25-item self-report scale.");
 }

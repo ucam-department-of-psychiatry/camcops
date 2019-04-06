@@ -246,7 +246,7 @@ QString QolSG::longname() const
 }
 
 
-QString QolSG::menusubtitle() const
+QString QolSG::description() const
 {
     return tr("Standard-gamble measure of quality of life.");
 }

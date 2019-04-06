@@ -157,7 +157,7 @@ QString Icd10Manic::longname() const
 }
 
 
-QString Icd10Manic::menusubtitle() const
+QString Icd10Manic::description() const
 {
     return textconst::ICD10;
 }

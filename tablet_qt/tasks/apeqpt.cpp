@@ -109,7 +109,7 @@ QString Apeqpt::longname() const
 }
 
 
-QString Apeqpt::menusubtitle() const
+QString Apeqpt::description() const
 {
     return tr("Patient feedback questionnaire on assessment for psychological "
               "therapy/choosing treatment.");

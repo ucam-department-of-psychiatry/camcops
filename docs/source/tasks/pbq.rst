@@ -22,7 +22,7 @@
 Postpartum Bonding Questionnaire
 --------------------------------
 
-.. include:: include_under_development.rst
+.. include:: include_from_perinatal_mother_infant.rst
 
 History and guide
 ~~~~~~~~~~~~~~~~~
@@ -54,9 +54,10 @@ Caveat
 
 *(Personal communication, Ian F. Brockington to Jo Peterkin, 2019-04-02.)*
 
-It is important to remember that the PBQ is merely a screening questionnaire.
-If the scores are high (especially the score on Factor 2), it is essential to
-interview the mother about her responses to the questionnaire and her feelings
-about the infant, including her anger. We recommend the Stafford Interview,
-developed over the course of 22 years and also widely translated: pages 66-71
-are devoted to the mother-infant relationship.
+    "It is important to remember that the PBQ is merely a screening
+    questionnaire. If the scores are high (especially the score on Factor 2),
+    it is essential to interview the mother about her responses to the
+    questionnaire and her feelings about the infant, including her anger. We
+    recommend the Stafford Interview, developed over the course of 22 years and
+    also widely translated: pages 66-71 are devoted to the mother-infant
+    relationship."

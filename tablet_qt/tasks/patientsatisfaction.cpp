@@ -52,7 +52,7 @@ QString PatientSatisfaction::longname() const
 }
 
 
-QString PatientSatisfaction::menusubtitle() const
+QString PatientSatisfaction::description() const
 {
     return tr("Short rating of a clinical service received.");
 }

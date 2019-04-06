@@ -76,7 +76,7 @@ QString Mast::longname() const
 }
 
 
-QString Mast::menusubtitle() const
+QString Mast::description() const
 {
     return tr("24-item Y/N self-report scale.");
 }

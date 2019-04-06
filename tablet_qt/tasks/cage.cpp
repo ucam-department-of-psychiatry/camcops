@@ -74,7 +74,7 @@ QString Cage::longname() const
 }
 
 
-QString Cage::menusubtitle() const
+QString Cage::description() const
 {
     return tr("4-item Y/N self-report scale.");
 }

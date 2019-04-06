@@ -53,7 +53,7 @@ QString ReferrerSatisfactionGen::longname() const
 }
 
 
-QString ReferrerSatisfactionGen::menusubtitle() const
+QString ReferrerSatisfactionGen::description() const
 {
     return tr("Short rating of a clinical service received (survey).");
 }

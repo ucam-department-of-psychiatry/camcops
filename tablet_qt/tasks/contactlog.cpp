@@ -83,7 +83,7 @@ QString ContactLog::longname() const
 }
 
 
-QString ContactLog::menusubtitle() const
+QString ContactLog::description() const
 {
     return tr("Record of clinical contact with times.");
 }

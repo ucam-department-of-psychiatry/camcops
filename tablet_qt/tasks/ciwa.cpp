@@ -84,7 +84,7 @@ QString Ciwa::longname() const
 }
 
 
-QString Ciwa::menusubtitle() const
+QString Ciwa::description() const
 {
     return tr("10-item clinician-administered scale.");
 }

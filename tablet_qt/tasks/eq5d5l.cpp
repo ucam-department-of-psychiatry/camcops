@@ -89,7 +89,7 @@ QString Eq5d5l::longname() const
 }
 
 
-QString Eq5d5l::menusubtitle() const
+QString Eq5d5l::description() const
 {
     return tr("Self-rated health scale; 5 questions plus a visual analogue scale.");
 }

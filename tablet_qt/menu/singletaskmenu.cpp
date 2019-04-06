@@ -192,6 +192,7 @@ void SingleTaskMenu::showTaskStatus() const
     add("Long name", specimen->longname());
     add("Short name", specimen->shortname());
     add("Main database table name", specimen->tablename());
+    add("Implementation type", specimen->implementationTypeDescription());
     add("Anonymous", uifunc::yesNo(specimen->isAnonymous()));
     add("Has a clinician", uifunc::yesNo(specimen->hasClinician()));
     add("Has a respondent", uifunc::yesNo(specimen->hasRespondent()));

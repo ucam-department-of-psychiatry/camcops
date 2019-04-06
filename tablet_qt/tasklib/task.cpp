@@ -121,9 +121,81 @@ Task::Task(CamcopsApp& app,
 // General info
 // ============================================================================
 
+QString Task::implementationTypeDescription() const
+{
+    switch (implementationType()) {
+    case TaskImplementationType::Full:
+    default:
+        return textconst::FULL_TASK;
+    case TaskImplementationType::UpgradableSkeleton:
+        return textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    case TaskImplementationType::Skeleton:
+        return textconst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+    }
+}
+
+
+QString Task::menuTitleSuffix() const
+{
+    QString suffix;
+    switch (implementationType()) {
+    case TaskImplementationType::Full:
+        break;
+    case TaskImplementationType::UpgradableSkeleton:
+        suffix += textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+        break;
+    case TaskImplementationType::Skeleton:
+        suffix += textconst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+        break;
+    }
+    if (isExperimental()) {
+        suffix += textconst::EXPERIMENTAL_TITLE_SUFFIX;
+    }
+    if (isDefunct()) {
+        suffix += textconst::DEFUNCT_TITLE_SUFFIX;
+    }
+    return suffix;
+}
+
 QString Task::menutitle() const
 {
-    return QString("%1 (%2)").arg(longname(), shortname());
+    return QString("%1 (%2)%3").arg(longname(), shortname(), menuTitleSuffix());
+}
+
+
+QString Task::menuSubtitleSuffix() const
+{
+    QString suffix;
+    switch (implementationType()) {
+    case TaskImplementationType::Full:
+        break;
+    case TaskImplementationType::UpgradableSkeleton:
+        suffix += textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+        break;
+    case TaskImplementationType::Skeleton:
+        suffix += textconst::DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX;
+        break;
+    }
+    if (isExperimental()) {
+        suffix += textconst::EXPERIMENTAL_SUBTITLE_SUFFIX;
+    }
+    if (isDefunct()) {
+        suffix += textconst::DEFUNCT_SUBTITLE_SUFFIX;
+    }
+    return suffix;
+}
+
+
+QString Task::menusubtitle() const
+{
+    return description() + menuSubtitleSuffix();
+}
+
+
+bool Task::isCrippled() const
+{
+    return implementationType() == TaskImplementationType::Skeleton ||
+            !hasExtraStrings();
 }
 
 

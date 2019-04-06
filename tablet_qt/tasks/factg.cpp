@@ -137,7 +137,7 @@ QString Factg::longname() const
 }
 
 
-QString Factg::menusubtitle() const
+QString Factg::description() const
 {
     return tr("A 27-item general cancer quality-of-life (QL) measure; "
               "version 4.");

@@ -76,7 +76,7 @@ QString DemqolProxy::longname() const
 }
 
 
-QString DemqolProxy::menusubtitle() const
+QString DemqolProxy::description() const
 {
     return tr("31-item interviewer-administered questionnaire answered by a "
               "caregiver.");

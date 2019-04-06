@@ -67,7 +67,7 @@ QString Irac::longname() const
 }
 
 
-QString Irac::menusubtitle() const
+QString Irac::description() const
 {
     return tr("Clinician-specified aim of contact, and whether aim achieved.");
 }

@@ -82,6 +82,7 @@ TR(EXAMINER_COMMENTS_PROMPT, "Optional — Examiner’s comments (e.g. "
 
 TR(FALSE, "False");
 TR(FINISHED, "Finished");
+TR(FULL_TASK, "Full task without content restriction");
 
 TR(ICD10, "World Health Organization International Classification of "
           "Diseases, 10th edition.");

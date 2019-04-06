@@ -18,7 +18,6 @@
 */
 
 #include "pdss.h"
-#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -71,15 +70,13 @@ QString Pdss::shortname() const
 
 QString Pdss::longname() const
 {
-    return tr("Panic Disorder Severity Scale") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    return tr("Panic Disorder Severity Scale");
 }
 
 
-QString Pdss::menusubtitle() const
+QString Pdss::description() const
 {
-    return tr("7-item self-report scale.") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+    return tr("7-item self-report scale.");
 }
 
 

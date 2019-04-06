@@ -41,7 +41,7 @@ public:
     // ------------------------------------------------------------------------
     virtual QString shortname() const override = 0;
     virtual QString longname() const override = 0;
-    virtual QString menusubtitle() const override;
+    virtual QString description() const override;
     virtual QString infoFilenameStem() const override;
     virtual QString xstringTaskname() const override;
     // ------------------------------------------------------------------------

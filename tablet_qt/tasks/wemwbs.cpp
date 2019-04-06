@@ -71,7 +71,7 @@ QString Wemwbs::longname() const
 }
 
 
-QString Wemwbs::menusubtitle() const
+QString Wemwbs::description() const
 {
     return tr("14 positively-phrased Likert-style items measuring mental "
               "well-being over the preceding 2 weeks.");

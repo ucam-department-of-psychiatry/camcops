@@ -19,7 +19,6 @@
 
 #include "badls.h"
 #include <QMap>
-#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -74,15 +73,13 @@ QString Badls::shortname() const
 
 QString Badls::longname() const
 {
-    return tr("Bristol Activities of Daily Living Scale") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    return tr("Bristol Activities of Daily Living Scale");
 }
 
 
-QString Badls::menusubtitle() const
+QString Badls::description() const
 {
-    return tr("20-item carer-rated scale for use in dementia.") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+    return tr("20-item carer-rated scale for use in dementia.");
 }
 
 

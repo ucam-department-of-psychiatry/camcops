@@ -94,7 +94,7 @@ QString Cape42::longname() const
 }
 
 
-QString Cape42::menusubtitle() const
+QString Cape42::description() const
 {
     return tr("42-item self-rated scale for psychosis with positive, "
               "negative, and depressive dimensions.");

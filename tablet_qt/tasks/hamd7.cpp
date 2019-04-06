@@ -71,7 +71,7 @@ QString HamD7::longname() const
 }
 
 
-QString HamD7::menusubtitle() const
+QString HamD7::description() const
 {
     return tr("7-item derivative of the HDRS.");
 }

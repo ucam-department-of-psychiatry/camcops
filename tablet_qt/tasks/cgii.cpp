@@ -64,7 +64,7 @@ QString CgiI::longname() const
 }
 
 
-QString CgiI::menusubtitle() const
+QString CgiI::description() const
 {
     return tr("Clinician-administered; briefly rates global improvement.");
 }

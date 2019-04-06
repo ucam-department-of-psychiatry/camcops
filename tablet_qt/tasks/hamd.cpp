@@ -105,7 +105,7 @@ QString HamD::longname() const
 }
 
 
-QString HamD::menusubtitle() const
+QString HamD::description() const
 {
     return tr("21-item professional-administered depression scale commonly "
               "used for monitoring and research.");

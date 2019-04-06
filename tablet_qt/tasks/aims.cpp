@@ -72,7 +72,7 @@ QString Aims::longname() const
 }
 
 
-QString Aims::menusubtitle() const
+QString Aims::description() const
 {
     return tr("14-item clinician-rated scale.");
 }

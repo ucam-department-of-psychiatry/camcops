@@ -19,7 +19,6 @@
 
 #include "cpftlpsresetresponseclock.h"
 #include "core/camcopsapp.h"
-#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/datetime.h"
 #include "maths/mathfunc.h"
@@ -78,16 +77,14 @@ QString CPFTLPSResetResponseClock::shortname() const
 
 QString CPFTLPSResetResponseClock::longname() const
 {
-    return tr("CPFT LPS – reset response clock") +
-            textconst::DEFUNCT_TITLE_SUFFIX;
+    return tr("CPFT LPS – reset response clock");
 }
 
 
-QString CPFTLPSResetResponseClock::menusubtitle() const
+QString CPFTLPSResetResponseClock::description() const
 {
     return tr("Reset referral response clock "
-              "(CPFT Liaison Psychiatry Service).") +
-            textconst::DEFUNCT_SUBTITLE_SUFFIX;
+              "(CPFT Liaison Psychiatry Service).");
 }
 
 

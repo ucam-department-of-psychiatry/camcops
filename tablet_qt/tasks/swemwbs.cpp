@@ -71,7 +71,7 @@ QString Swemwbs::longname() const
 }
 
 
-QString Swemwbs::menusubtitle() const
+QString Swemwbs::description() const
 {
     return tr("7-item shortened version of the WEMWBS.");
 }

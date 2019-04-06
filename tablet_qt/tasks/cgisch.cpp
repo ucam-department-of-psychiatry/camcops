@@ -69,7 +69,7 @@ QString CgiSch::longname() const
 }
 
 
-QString CgiSch::menusubtitle() const
+QString CgiSch::description() const
 {
     return tr("Clinician-administered; briefly rates illness severity and "
               "degree of change in four domains and overall.");

@@ -122,7 +122,7 @@ QString Ors::longname() const
 }
 
 
-QString Ors::menusubtitle() const
+QString Ors::description() const
 {
     return tr("Fixed-length visual analogue scales measuring well-being.");
 }

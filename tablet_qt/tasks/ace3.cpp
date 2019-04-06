@@ -229,7 +229,7 @@ QString Ace3::longname() const
 }
 
 
-QString Ace3::menusubtitle() const
+QString Ace3::description() const
 {
     return tr("100-point clinician-administered assessment of attention/"
               "orientation, memory, fluency, language, and visuospatial "

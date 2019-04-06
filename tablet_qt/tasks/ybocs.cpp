@@ -18,7 +18,6 @@
 */
 
 #include "ybocs.h"
-#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -124,15 +123,13 @@ QString Ybocs::shortname() const
 
 QString Ybocs::longname() const
 {
-    return tr("Yale–Brown Obsessive Compulsive Scale, 9/89 revision") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    return tr("Yale–Brown Obsessive Compulsive Scale, 9/89 revision");
 }
 
 
-QString Ybocs::menusubtitle() const
+QString Ybocs::description() const
 {
-    return tr("10-item clinician-rated scale.") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+    return tr("10-item clinician-rated scale.");
 }
 
 

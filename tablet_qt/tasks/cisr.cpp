@@ -1037,7 +1037,7 @@ QString Cisr::longname() const
 }
 
 
-QString Cisr::menusubtitle() const
+QString Cisr::description() const
 {
     return tr("Structured diagnostic interview, yielding ICD-10 diagnoses for "
               "depressive and anxiety disorders.");

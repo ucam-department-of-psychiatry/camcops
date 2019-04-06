@@ -78,17 +78,15 @@ QString Panss::shortname() const
 
 QString Panss::longname() const
 {
-    return tr("Positive and Negative Syndrome Scale") +
-            textconst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+    return tr("Positive and Negative Syndrome Scale");
 }
 
 
-QString Panss::menusubtitle() const
+QString Panss::description() const
 {
     return tr("Scale for positive (7 items) and negative symptoms of "
               "schizophrenia (7 items), and general psychopathology "
-              "(16 items).") +
-            textconst::DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX;
+              "(16 items).");
 }
 
 

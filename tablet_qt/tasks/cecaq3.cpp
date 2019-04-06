@@ -548,7 +548,7 @@ QString CecaQ3::longname() const
 }
 
 
-QString CecaQ3::menusubtitle() const
+QString CecaQ3::description() const
 {
     return tr("Family relationships in childhood. Version 3 with "
               "psychological abuse and role reversal.");

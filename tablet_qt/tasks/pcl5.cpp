@@ -80,7 +80,7 @@ QString Pcl5::longname() const
 }
 
 
-QString Pcl5::menusubtitle() const
+QString Pcl5::description() const
 {
     return tr("20-item self-report scale, based on DSM-5 criteria.");
 }

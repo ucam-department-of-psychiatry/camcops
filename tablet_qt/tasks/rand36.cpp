@@ -90,7 +90,7 @@ QString Rand36::longname() const
 }
 
 
-QString Rand36::menusubtitle() const
+QString Rand36::description() const
 {
     return tr("Patient-reported survey of general health.");
 }

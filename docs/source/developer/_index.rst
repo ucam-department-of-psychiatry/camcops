@@ -31,3 +31,4 @@ Developer notes
     design_notes.rst
     development_command_line.rst
     external_dependencies.rst
+    specific_os_notes.rst

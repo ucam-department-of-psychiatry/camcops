@@ -172,7 +172,7 @@ QString Icd10Schizophrenia::longname() const
 }
 
 
-QString Icd10Schizophrenia::menusubtitle() const
+QString Icd10Schizophrenia::description() const
 {
     return textconst::ICD10;
 }

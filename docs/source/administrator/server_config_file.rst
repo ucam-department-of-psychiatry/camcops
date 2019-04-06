@@ -46,7 +46,7 @@ CamCOPS. It is the configuration file that points to your database.
 ..  contents::
     :local:
     :depth: 3
-s
+
 
 Databases and configuration files
 ---------------------------------

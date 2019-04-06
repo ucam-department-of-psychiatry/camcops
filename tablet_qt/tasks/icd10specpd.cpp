@@ -145,7 +145,7 @@ QString Icd10SpecPD::longname() const
 }
 
 
-QString Icd10SpecPD::menusubtitle() const
+QString Icd10SpecPD::description() const
 {
     return textconst::ICD10;
 }

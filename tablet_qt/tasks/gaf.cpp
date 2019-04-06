@@ -63,15 +63,13 @@ QString Gaf::shortname() const
 
 QString Gaf::longname() const
 {
-    return tr("Global Assessment of Functioning") +
-            textconst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+    return tr("Global Assessment of Functioning");
 }
 
 
-QString Gaf::menusubtitle() const
+QString Gaf::description() const
 {
-    return tr("Single scale from 1–100.") +
-            textconst::DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX;
+    return tr("Single scale from 1–100.");
 }
 
 

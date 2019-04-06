@@ -223,16 +223,14 @@ QString CardinalExpDetThreshold::shortname() const
 
 QString CardinalExpDetThreshold::longname() const
 {
-    return tr("Cardinal RN — ExpDet-Threshold task") +
-            textconst::EXPERIMENTAL_TITLE_SUFFIX;
+    return tr("Cardinal RN — ExpDet-Threshold task");
 }
 
 
-QString CardinalExpDetThreshold::menusubtitle() const
+QString CardinalExpDetThreshold::description() const
 {
     return tr("Rapid assessment of auditory/visual thresholds "
-              "(for expectation–detection task).") +
-            textconst::EXPERIMENTAL_SUBTITLE_SUFFIX;
+              "(for expectation–detection task).");
 }
 
 

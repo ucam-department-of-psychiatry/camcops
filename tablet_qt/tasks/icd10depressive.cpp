@@ -155,7 +155,7 @@ QString Icd10Depressive::longname() const
 }
 
 
-QString Icd10Depressive::menusubtitle() const
+QString Icd10Depressive::description() const
 {
     return textconst::ICD10;
 }

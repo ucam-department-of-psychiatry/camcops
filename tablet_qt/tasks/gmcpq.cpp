@@ -123,7 +123,7 @@ QString GmcPq::longname() const
 }
 
 
-QString GmcPq::menusubtitle() const
+QString GmcPq::description() const
 {
     return tr("Questionnaire for patients to provide anonymous feedback to "
               "their doctors.");

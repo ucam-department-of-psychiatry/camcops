@@ -75,7 +75,7 @@ QString Audit::longname() const
 }
 
 
-QString Audit::menusubtitle() const
+QString Audit::description() const
 {
     return tr("World Health Organization; "
               "10-item clinician-administered screening test.");

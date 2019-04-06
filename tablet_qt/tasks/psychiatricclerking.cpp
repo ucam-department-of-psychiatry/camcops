@@ -175,7 +175,7 @@ QString PsychiatricClerking::longname() const
 }
 
 
-QString PsychiatricClerking::menusubtitle() const
+QString PsychiatricClerking::description() const
 {
     return tr("Standard psychiatric clerking form.");
 }

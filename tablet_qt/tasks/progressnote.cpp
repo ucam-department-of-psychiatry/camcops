@@ -65,7 +65,7 @@ QString ProgressNote::longname() const
 }
 
 
-QString ProgressNote::menusubtitle() const
+QString ProgressNote::description() const
 {
     return tr("Clinical progress note entry.");
 }

@@ -100,7 +100,7 @@ QString GboGPC::longname() const
 }
 
 
-QString GboGPC::menusubtitle() const
+QString GboGPC::description() const
 {
     return tr("For recording progress towards the goals of therapy "
               "(one goal at a time).");

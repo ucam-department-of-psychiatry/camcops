@@ -71,7 +71,7 @@ QString Fast::longname() const
 }
 
 
-QString Fast::menusubtitle() const
+QString Fast::description() const
 {
     return tr("4-item self-report scale.");
 }

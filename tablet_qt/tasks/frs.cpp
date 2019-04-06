@@ -122,16 +122,14 @@ QString Frs::shortname() const
 
 QString Frs::longname() const
 {
-    return tr("Frontotemporal Dementia Rating Scale") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    return tr("Frontotemporal Dementia Rating Scale");
 }
 
 
-QString Frs::menusubtitle() const
+QString Frs::description() const
 {
     return tr("30-item clinician-administered scale based on carer "
-              "information.") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+              "information.");
 }
 
 

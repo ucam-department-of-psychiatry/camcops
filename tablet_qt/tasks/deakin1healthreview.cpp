@@ -344,7 +344,7 @@ QString Deakin1HealthReview::longname() const
 }
 
 
-QString Deakin1HealthReview::menusubtitle() const
+QString Deakin1HealthReview::description() const
 {
     return "Health review for antibody-mediated psychosis study.";
 }

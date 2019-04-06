@@ -59,7 +59,7 @@ QString DiagnosisIcd10::longname() const
 }
 
 
-QString DiagnosisIcd10::menusubtitle() const
+QString DiagnosisIcd10::description() const
 {
     return tr("Diagnostic codes, using ICD-10 codes.");
 }

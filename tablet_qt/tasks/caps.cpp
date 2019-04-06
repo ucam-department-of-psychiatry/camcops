@@ -86,7 +86,7 @@ QString Caps::longname() const
 }
 
 
-QString Caps::menusubtitle() const
+QString Caps::description() const
 {
     return tr("32-item self-rated scale for perceptual anomalies.");
 }

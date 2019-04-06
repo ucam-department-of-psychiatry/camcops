@@ -18,7 +18,6 @@
 */
 
 #include "npiq.h"
-#include "common/textconst.h"
 #include "lib/convert.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
@@ -79,15 +78,13 @@ QString NpiQ::shortname() const
 
 QString NpiQ::longname() const
 {
-    return tr("Neuropsychiatry Inventory Questionnaire") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    return tr("Neuropsychiatry Inventory Questionnaire");
 }
 
 
-QString NpiQ::menusubtitle() const
+QString NpiQ::description() const
 {
-    return tr("12-item carer-rated scale for use in dementia.") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+    return tr("12-item carer-rated scale for use in dementia.");
 }
 
 

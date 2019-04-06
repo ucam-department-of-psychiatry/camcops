@@ -75,7 +75,7 @@ QString Phq9::longname() const
 }
 
 
-QString Phq9::menusubtitle() const
+QString Phq9::description() const
 {
     return tr("Self-scoring of the 9 depressive symptoms in DSM-IV.");
 }

@@ -71,7 +71,7 @@ QString PhotoSequence::longname() const
 }
 
 
-QString PhotoSequence::menusubtitle() const
+QString PhotoSequence::description() const
 {
     return tr("Sequence of photographs with accompanying detail. "
               "Suitable for use as a photocopier.");

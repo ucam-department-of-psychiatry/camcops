@@ -73,7 +73,7 @@ QString Smast::longname() const
 }
 
 
-QString Smast::menusubtitle() const
+QString Smast::description() const
 {
     return tr("13-item Y/N self-report scale.");
 }

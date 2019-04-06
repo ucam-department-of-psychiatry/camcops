@@ -81,7 +81,7 @@ QString Honos65::longname() const
 }
 
 
-QString Honos65::menusubtitle() const
+QString Honos65::description() const
 {
     return tr("12-item clinician-rated scale.");
 }

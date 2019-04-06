@@ -72,7 +72,7 @@ QString Gds15::longname() const
 }
 
 
-QString Gds15::menusubtitle() const
+QString Gds15::description() const
 {
     return tr("15-item self-report scale.");
 }

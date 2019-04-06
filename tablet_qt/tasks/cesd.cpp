@@ -83,7 +83,7 @@ QString Cesd::longname() const
 }
 
 
-QString Cesd::menusubtitle() const
+QString Cesd::description() const
 {
     return tr("20-item self-report depression scale.");
 }

@@ -37,6 +37,14 @@ class Task : public DatabaseObject
     Q_OBJECT
     friend class SingleTaskMenu;  // so it can call setPatient
     friend class Patient;  // so it can call setPatient
+
+public:
+    enum class TaskImplementationType {
+        Full,
+        UpgradableSkeleton,
+        Skeleton,
+    };
+
 public:
     // Constructor
     // Args:
@@ -69,12 +77,29 @@ public:
     // Long name of the task (e.g. "Patient Health Questionnaire-9")
     virtual QString longname() const = 0;
 
+    // How is the task implemented -- does it come with all its content, or
+    // is it a bare-bones skeleton (for tasks whose content we can't
+    // reproduce), or is it an upgradeable skeleton (depending on institutional
+    // permissions)?
+    virtual TaskImplementationType implementationType() const { return TaskImplementationType::Full; }
+
+    QString implementationTypeDescription() const;
+
+    // Suffix for menu title (e.g. symbols for restricted/defunct tasks).
+    QString menuTitleSuffix() const;
+
     // Title to be used on the menu. By default this is of the format
     // "longname (shortname)".
     virtual QString menutitle() const;
 
     // Description to be used on the menu.
-    virtual QString menusubtitle() const = 0;
+    virtual QString description() const = 0;
+
+    // Suffix for menu subtitle.
+    QString menuSubtitleSuffix() const;
+
+    // Menu subtitle with any necessary information suffix.
+    QString menusubtitle() const;
 
     // Filename stem (e.g. "phq9") that will be used to form a URL to the
     // online documentation for this task. By default, it's tablename().
@@ -117,7 +142,13 @@ public:
 
     // Is the task less than fully functional, e.g. requiring strings that have
     // not been downloaded (or are not available) from a CamCOPS server?
-    virtual bool isCrippled() const { return !hasExtraStrings(); }
+    virtual bool isCrippled() const;
+
+    // Is this an experimental task? (Affects labelling.)
+    virtual bool isExperimental() const { return false; }
+
+    // Is this a defunct task? (Affects labelling.)
+    virtual bool isDefunct() const { return false; }
 
     // Are there any extra strings (xstrings) for the task, downloaded from the
     // server?

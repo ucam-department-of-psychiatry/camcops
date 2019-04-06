@@ -135,7 +135,7 @@ QString Nart::longname() const
 }
 
 
-QString Nart::menusubtitle() const
+QString Nart::description() const
 {
     return tr("Estimation of premorbid IQ by reading irregular words.");
 }

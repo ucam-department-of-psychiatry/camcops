@@ -225,14 +225,13 @@ QString CPFTLPSDischarge::shortname() const
 
 QString CPFTLPSDischarge::longname() const
 {
-    return tr("CPFT LPS – discharge") + textconst::DEFUNCT_TITLE_SUFFIX;
+    return tr("CPFT LPS – discharge");
 }
 
 
-QString CPFTLPSDischarge::menusubtitle() const
+QString CPFTLPSDischarge::description() const
 {
-    return tr("Discharge from CPFT Liaison Psychiatry Service.") +
-            textconst::DEFUNCT_SUBTITLE_SUFFIX;
+    return tr("Discharge from CPFT Liaison Psychiatry Service.");
 }
 
 

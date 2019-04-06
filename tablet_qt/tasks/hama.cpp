@@ -72,7 +72,7 @@ QString HamA::longname() const
 }
 
 
-QString HamA::menusubtitle() const
+QString HamA::description() const
 {
     return tr("14-item clinician-administered scale.");
 }

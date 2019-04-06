@@ -92,6 +92,7 @@ extern const QString EXPERIMENTAL_SUBTITLE_SUFFIX;
 
 extern const QString FALSE;
 extern const QString FINISHED;
+extern const QString FULL_TASK;
 
 extern const QString ENTER_THE_ANSWERS;
 extern const QString EXAMINER_COMMENTS;

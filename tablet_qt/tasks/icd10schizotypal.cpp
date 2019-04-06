@@ -90,7 +90,7 @@ QString Icd10Schizotypal::longname() const
 }
 
 
-QString Icd10Schizotypal::menusubtitle() const
+QString Icd10Schizotypal::description() const
 {
     return textconst::ICD10;
 }

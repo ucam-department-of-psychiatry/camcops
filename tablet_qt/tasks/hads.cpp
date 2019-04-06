@@ -89,15 +89,13 @@ QString Hads::shortname() const
 
 QString Hads::longname() const
 {
-    return tr("Hospital Anxiety and Depression Scale") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    return tr("Hospital Anxiety and Depression Scale");
 }
 
 
-QString Hads::menusubtitle() const
+QString Hads::description() const
 {
-    return tr("14-item self-report scale.") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+    return tr("14-item self-report scale.");
 }
 
 

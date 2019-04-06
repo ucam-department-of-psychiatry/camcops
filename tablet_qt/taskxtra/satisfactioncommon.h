@@ -39,7 +39,7 @@ public:
     // ------------------------------------------------------------------------
     virtual QString shortname() const override = 0;
     virtual QString longname() const override = 0;
-    virtual QString menusubtitle() const override = 0;
+    virtual QString description() const override = 0;
     virtual QString infoFilenameStem() const override;
     virtual bool isCrippled() const override { return false; }
     // ------------------------------------------------------------------------

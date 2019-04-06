@@ -71,7 +71,7 @@ QString Dast::longname() const
 }
 
 
-QString Dast::menusubtitle() const
+QString Dast::description() const
 {
     return tr("28-item Y/N self-report scale.");
 }

@@ -148,7 +148,7 @@ QString PerinatalPoem::longname() const
 }
 
 
-QString PerinatalPoem::menusubtitle() const
+QString PerinatalPoem::description() const
 {
     return tr("2 questions on mental health; 12 questions on patient "
               "experience; ±6 questions specific to mother/baby units.");

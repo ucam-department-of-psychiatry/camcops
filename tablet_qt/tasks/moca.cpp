@@ -115,7 +115,7 @@ QString Moca::longname() const
 }
 
 
-QString Moca::menusubtitle() const
+QString Moca::description() const
 {
     return tr("30-point clinician-administered brief cognitive assessment.");
 }

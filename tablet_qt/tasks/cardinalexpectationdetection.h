@@ -52,9 +52,10 @@ public:
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
-    virtual QString menusubtitle() const override;
+    virtual QString description() const override;
     virtual bool isEditable() const override { return false; }
     virtual bool isCrippled() const override { return false; }
+    virtual bool isExperimental() const override { return true; }
     // ------------------------------------------------------------------------
     // Ancillary management
     // ------------------------------------------------------------------------

@@ -64,15 +64,13 @@ QString Zbi12::shortname() const
 
 QString Zbi12::longname() const
 {
-    return tr("Zarit Burden Interview, 12-item version") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    return tr("Zarit Burden Interview, 12-item version");
 }
 
 
-QString Zbi12::menusubtitle() const
+QString Zbi12::description() const
 {
-    return tr("12-item caregiver-report scale.") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+    return tr("12-item caregiver-report scale.");
 }
 
 

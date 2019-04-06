@@ -18,7 +18,6 @@
 */
 
 #include "iesr.h"
-#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -86,15 +85,13 @@ QString Iesr::shortname() const
 
 QString Iesr::longname() const
 {
-    return tr("Impact of Events Scale – Revised") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    return tr("Impact of Events Scale – Revised");
 }
 
 
-QString Iesr::menusubtitle() const
+QString Iesr::description() const
 {
-    return tr("22-item self-report scale.") +
-            textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+    return tr("22-item self-report scale.");
 }
 
 

@@ -137,7 +137,7 @@ QString DemoQuestionnaire::longname() const
 }
 
 
-QString DemoQuestionnaire::menusubtitle() const
+QString DemoQuestionnaire::description() const
 {
     return tr("Tutorial and illustration of questionnaire task elements.");
 }

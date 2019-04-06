@@ -78,7 +78,7 @@ QString Cgi::longname() const
 }
 
 
-QString Cgi::menusubtitle() const
+QString Cgi::description() const
 {
     return tr("Clinician-administered; briefly rates illness severity, global "
               "improvement, and efficacy/side-effect balance of treatment.");

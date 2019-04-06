@@ -315,16 +315,14 @@ QString MdsUpdrs::shortname() const
 QString MdsUpdrs::longname() const
 {
     return tr("Movement Disorder Society-Sponsored Revision of the Unified "
-              "Parkinson’s Disease Rating Scale") +
-            textconst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+              "Parkinson’s Disease Rating Scale");
 }
 
 
-QString MdsUpdrs::menusubtitle() const
+QString MdsUpdrs::description() const
 {
     return tr("Assessment of experiences of daily living and motor "
-              "examination/complications.") +
-            textconst::DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX;
+              "examination/complications.");
 }
 
 

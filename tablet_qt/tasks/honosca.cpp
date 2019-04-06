@@ -76,7 +76,7 @@ QString Honosca::longname() const
 }
 
 
-QString Honosca::menusubtitle() const
+QString Honosca::description() const
 {
     return tr("13- to 15-item clinician-rated scale.");
 }
