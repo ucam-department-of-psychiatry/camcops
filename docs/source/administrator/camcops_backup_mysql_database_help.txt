@@ -6,7 +6,10 @@ usage: camcops_backup_mysql_database [-h]
                                      [--with_drop_create_database] [--verbose]
                                      databases [databases ...]
 
-Back up a specific MySQL database
+Back up a specific MySQL database. The resulting filename has the format
+'<DATABASENAME>_<DATETIME><SUFFIX>.sql', where <DATETIME> is of the format
+'%Y%m%dT%H%M%S' and <SUFFIX> is either blank or '_with_drop_create_database'.
+A typical filename is therefore 'mydb_20190415T205524.sql'.
 
 positional arguments:
   databases             Database(s) to back up

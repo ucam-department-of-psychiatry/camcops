@@ -2837,8 +2837,6 @@ def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
 def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to delete a special note (after confirmation).
-
-    .. todo:: IMPLEMENTING THIS ***
     """
     note_id = req.get_int_param(ViewParam.NOTE_ID, None)
     url_back = req.route_url(Routes.HOME)

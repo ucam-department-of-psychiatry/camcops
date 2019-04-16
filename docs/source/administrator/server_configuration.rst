@@ -28,6 +28,7 @@
 .. _Supervisor: http://supervisord.org/
 .. _Ubuntu: http://www.ubuntu.com/
 
+
 .. _server_configuration:
 
 Configuring the server
@@ -39,6 +40,7 @@ configuration file <server_config_file>`. Here, we deal with everything else.
 ..  contents::
     :local:
     :depth: 3
+
 
 Overview
 --------
@@ -236,6 +238,7 @@ above), by choosing the command you pass to `camcops`. For high-performance
 work under Linux, use Gunicorn, with the `serve_gunicorn` command; see the
 :ref:`options for the camcops command <camcops_cli>`.
 
+
 .. _configure_apache:
 
 Point the front-end web server to CamCOPS
@@ -299,6 +302,7 @@ Once you are happy with your Apache config file:
 
         sudo chkconfig --level 2345 httpd on
 
+
 Browse to the web site
 -----------------------
 
@@ -349,6 +353,7 @@ Troubleshooting access to the web site
     then there is a slash error; potentially you have an incorrect slash at
     the end of the Unix domain socket "dummy" URL.
 
+
 Configure backups
 -----------------
 
@@ -372,6 +377,13 @@ as it contains a password. You can then run your script regularly from
 
 Obviously, you will also need the dumped files to be backed up to a physically
 secure location regularly.
+
+If you want to keep daily backups for a few days, then only weekly or monthly
+backups (etc.), you could use a script like this:
+
+..  literalinclude:: prune_camcops_backups.sh
+    :language: bash
+
 
 More than one CamCOPS instance
 ------------------------------
@@ -401,6 +413,7 @@ Database performance tuning
 
 Ignore this section unless you actually have performance problems.
 
+
 MySQL/InnoDB commit
 ~~~~~~~~~~~~~~~~~~~
 
@@ -428,12 +441,12 @@ you can change it dynamically at the MySQL command line with:
 
     # Use SHOW VARIABLES; to show the current values.
 
-
 See also:
 
 - http://stackoverflow.com/questions/14121464/mysql-is-slow-with-innodb-during-insert-compared-to-myisam
 
 - http://dev.mysql.com/doc/refman/5.5/en/innodb-parameters.html
+
 
 Cosmetics
 ---------
