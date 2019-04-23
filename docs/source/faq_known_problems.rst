@@ -25,6 +25,7 @@ FAQ and known problems
     :local:
     :depth: 3
 
+
 Known client problems relating directly to CamCOPS
 --------------------------------------------------
 
@@ -38,6 +39,7 @@ It seems likely that the Qt function `QLabel::heightForWidth()` sometimes gets
 heights wrong for some stylesheets, leading to excessive vertical height. See
 `labelwordwrapwide.cpp` (and to see the problem: try the demo `QuMcqGrid`). I
 think I’ve largely compensated for this, though.
+
 
 Spinboxes are relatively poor for entering numbers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,11 +59,13 @@ intrinsic weakness in Qt’s `QSpinBox` and `QDoubleSpinBox` that works like thi
 There’s no clear way round this, except that `QuLineEditInteger` and
 `QuLineEditDouble` do a better job.
 
+
 QuPickerInline is visually a bit suboptimal
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The width requirements of `QuPickerInline` are a bit much, but then it’s also a
 bit duff visually compared to `QuPickerPopup`.
+
 
 Qt: ScrollMessageBox scrolling under Android
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,6 +77,7 @@ requires a two-finger swipe in `ScrollMessageBox`, whereas Samsung Galaxy S5 (?)
 provides a one-finger swipe. See my thoughts in `uifunc::applyScrollGestures()`.
 See also https://forum.qt.io/topic/62385/one-finger-swipe-gestures and
 https://bugreports.qt.io/browse/QTBUG-40461.
+
 
 Qt: cursor positioning bug under Android
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -86,6 +91,7 @@ Also potentially related to this: when `LogBox` or `LogMessageBox` are used with
 `word_wrap = true` on Android, the touch-to-scroll goes wrong. These classes
 use a `QPlainTextEdit`.
 
+
 Qt: expand/collapse arrows in tree views are too small on high-DPI screens
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -95,6 +101,7 @@ them programmatically. In fact, this is very hard indeed; see also my attempts
 in `TreeViewProxyStyle` and `TreeViewControlDelegate`, neither of which can
 make the changes where they’re needed. Reported as a bug:
 https://bugreports.qt.io/browse/QTBUG-62323.
+
 
 Potential Qt performance bug; not recently verified; may have gone
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -108,6 +115,7 @@ DEBUG_CLICK_TIMING` shows that the delay is not because the widget's overridden
 `sizeHint` (etc.) code is being called. I’m not sure that this is a problem in
 my code. Not retested recently; other things have also improved performance
 (e.g. threaded database writes).
+
 
 VerticalScrollArea layout
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,6 +153,7 @@ proxy: error reading...”, in which case you should also edit the Apache
 configuration file to add e.g. `ProxyTimeout 300`.
 
 Then restart CamCOPS and Apache.
+
 
 Known server problems relating to other third-party software
 ------------------------------------------------------------
@@ -222,6 +231,7 @@ Plug the prongs of the "international" adapter (the one with the USB socket)
 sideways into the UK plug (i.e. into the neutral and live pins, not the earth).
 The prongs fit at least three ways, but only that way works.
 
+
 Where's the USB port?
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -258,17 +268,20 @@ https://en.wikipedia.org/wiki/Android_version_history:
     8.1.0       Oreo                27          2017-12-05      Untested; should be fine.
     =========== =================== =========== =============== ===============================================
 
+
 I can't find the beta version of CamCOPS on Google Play
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To refresh :menuselection:`Settings --> Apps --> Google Play services -->
 Manage space --> Clear all data`.
 
+
 How to remove a Google account from an Android device
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :menuselection:`Settings --> [Accounts] Google --> click the account --> Menu
 (⋮) --> Remove account`
+
 
 How to upgrade Android
 ~~~~~~~~~~~~~~~~~~~~~~

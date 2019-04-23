@@ -20,6 +20,7 @@
 Specific OS notes
 -----------------
 
+
 .. _client_windows_server:
 
 CamCOPS client won't run under Windows Server

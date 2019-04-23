@@ -33,6 +33,7 @@
 .. _SQL Server Migration Assistant: https://docs.microsoft.com/en-us/sql/ssma/sql-server-migration-assistant
 .. _SQuirreL SQL: http://squirrel-sql.sourceforge.net/
 
+
 Server: migrating and merging databases
 =======================================
 
@@ -42,6 +43,7 @@ database tools and a summary of automatic migration tools in CamCOPS.
 ..  contents::
     :local:
     :depth: 3
+
 
 Database-specific tools
 -----------------------
@@ -66,6 +68,7 @@ SQL Server
 SQLite
 
 - A good one is SQLiteStudio_.
+
 
 Generic tools
 -------------
@@ -128,6 +131,7 @@ These include:
   #. Then launch SQuirreL.
 
   #. Still fails, silently, with SQuirreL 3.8.1 under Ubuntu 18.04.
+
 
 Merging old CamCOPS databases
 -----------------------------

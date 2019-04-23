@@ -32,6 +32,7 @@ Quick links:
 - :ref:`2018 <changelog_2018>`
 - :ref:`2019 <changelog_2019>`
 
+
 Contributors
 ------------
 
@@ -45,8 +46,10 @@ Contributors
     :ref:`SRS <srs>`, :ref:`ORS <ors>`, :ref:`APEQPT <apeqpt>`, :ref:`GBO-GReS
     <gbo_gres>`, and :ref:`GBO-GPC <gbo_gpc>` tasks.
 
+
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
 ----------------------------------------------------------------------------------------
+
 
 .. _changelog_2013:
 
@@ -103,6 +106,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   e.g. "#!/usr/bin/python2.7":
   http://lintian.debian.org/tags/python-script-but-no-python-dep.html
 - Clinical text view.
+
 
 .. _changelog_2014:
 
@@ -532,6 +536,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   ... upgraded to 3.5.0.RC (install SDK + change tiapp.xml)
   ... fixed. So a Titanium bug.
 
+
 .. _changelog_2015:
 
 2015
@@ -725,6 +730,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - boldPrompt option to QuestionTypedVariables
 - editing_time_s field as standard on all tasks
 
+
 .. _changelog_2016:
 
 2016
@@ -913,6 +919,7 @@ Indirectly:
 
 Human-readable details are shown in this file.
 
+
 .. _changelog_2017:
 
 Current C++/SQLite client, Python/SQLAlchemy server
@@ -970,6 +977,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix: WSAS “is complete?” flag failed to recognize the “retired or work
   irrelevant for other reasons” flag.
+
 
 .. _changelog_2018:
 
@@ -1585,7 +1593,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Improvements to Debian/RPM packaging, including use of ``venv`` from the
   Python 3.3+ standard library rather than ``virtualenv``.
 
+
 .. _changelog_2019:
+
+2019
+~~~~
 
 **Server v2.3.1 and client v2.3.1 (2018-11-27 to 2019-03-24)**
 

@@ -26,6 +26,7 @@ Patient/subject identification in CamCOPS
     :local:
     :depth: 3
 
+
 Overview
 --------
 
@@ -41,6 +42,7 @@ A single instance of CamCOPS supports multiple **groups**, and each group can
 have its own identification policies. Thus, for example, a pseudonymous
 research study can co-exist with identifiable records. See
 :ref:`Groups <groups>` for more detail.
+
 
 Patient identification fields
 -----------------------------
@@ -84,6 +86,7 @@ otherdetails  Other details
     ``otheridnum``, ``address``, ``gp``, and ``otherdetails`` were added in
     CamCOPS v2.2.8.
 
+
 Configuring the meaning of the ID number fields
 -----------------------------------------------
 
@@ -99,6 +102,7 @@ selector will default to it. So, pick your institution’s main ID number for
 this slot; that will save your users some effort.
 
 .. todo:: Have the default ID number type configurable per group?
+
 
 Uploading and finalizing policies
 ---------------------------------
@@ -120,6 +124,7 @@ option on the server main menu.
 .. versionadded:: 2.2.8
 
     ``NOT`` was added in CamCOPS v2.2.8.
+
 
 Examples
 --------
@@ -179,6 +184,7 @@ surname, DOB, sex).
 An alternative organization might standardize upon NHS numbers instead, and
 edit its finalizing policy accordingly.
 
+
 Example 2: research
 ~~~~~~~~~~~~~~~~~~~
 
@@ -208,6 +214,7 @@ ID number   Description         Short description
 
 This requires users to enter the subject’s sex and research ID only.
 
+
 Example 3: research hosted by a clinical institution
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -221,6 +228,7 @@ There are at least three possible approaches. You could set up a new server, or
 you could add a second CamCOPS database to your existing server, or you can
 simply add a new group to your CamCOPS server. The last is likely to be
 quickest and best.
+
 
 Example 4: research where personal identifying data (PID) is prohibited
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

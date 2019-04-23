@@ -26,6 +26,7 @@ CamCOPS command-line tools
     :local:
     :depth: 3
 
+
 .. _camcops_cli:
 
 camcops_server
@@ -52,7 +53,6 @@ Options as of 2018-11-09:
 
 ..  literalinclude:: camcops_server_meta_help.txt
     :language: none
-
 
 
 .. _camcops_backup_mysql_database:

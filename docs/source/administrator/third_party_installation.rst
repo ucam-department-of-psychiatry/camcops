@@ -29,8 +29,8 @@ depends on Y" software package system.
     :local:
     :depth: 3
 
-.. _windows_install_python:
 
+.. _windows_install_python:
 
 Installing Python (with tkinter) for Windows
 --------------------------------------------
@@ -234,6 +234,7 @@ For details, see
 https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-requests-transact-sql?view=sql-server-2017.
 
 Note that this query contributes exactly one row to its own results.
+
 
 DELETE takes forever
 ~~~~~~~~~~~~~~~~~~~~

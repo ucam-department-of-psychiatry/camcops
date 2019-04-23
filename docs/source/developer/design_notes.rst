@@ -55,6 +55,7 @@ share the ‘sys’ database and its information. It also simplifies the upload
 process a little (as the client can simply upload everything from the ‘data’
 database and nothing from the ‘sys’ database).
 
+
 Inline CSS
 ----------
 
@@ -62,11 +63,13 @@ The server currently provides CSS inline. It could refer to CSS as files, so
 that browsers cache them better. However, inline CSS is still required for PDF
 creation, and it’s not clear this is an important performance constraint.
 
+
 SFTP export
 -----------
 
 Not necessary, as one can mount an SFTP directory via NFS, then just export as a
 plain file.
+
 
 Anonymisation
 -------------
@@ -74,6 +77,7 @@ Anonymisation
 Proper anonymisation is Somebody Else’s Business; CamCOPS supports convenient
 export for subsequent anonymisation (see, for example, CRATE;
 https://crateanon.readthedocs.io/).
+
 
 BLOB handling
 -------------
@@ -127,6 +131,7 @@ BLOB handling
 - I tried the Blob method (with rotation as a field in the Blob table) --
   massively faster than before. Makes the difference between dire and
   respectable performance.
+
 
 Why not code it all in Java?
 ----------------------------

@@ -26,11 +26,13 @@ Installing CamCOPS on the server
     :local:
     :depth: 3
 
+
 Hardware and operating system requirements
 ------------------------------------------
 
 The CamCOPS server is cross-platform software written in Python. It’s been
 tested primarily under Linux with MySQL.
+
 
 URLs for CamCOPS source code
 ----------------------------
@@ -39,11 +41,13 @@ URLs for CamCOPS source code
 
 .. TODO: https://pypi.io/project/XXX/ (for pip install XXX)
 
+
 Installing CamCOPS
 ------------------
 
 See :ref:`Linux flavours <linux_flavours>` for a reminder of some common
 differences between Linux operating systems.
+
 
 Ubuntu installation from Debian package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,6 +65,7 @@ where :code:`VERSION` is the CamCOPS version you're installing.
 CamCOPS will now be installed in `/usr/share/camcops`.
 
 You should be able to type ``camcops`` and see something relevant.
+
 
 CentOS installation from RPM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -82,6 +87,7 @@ First, to get Centos 6.5 to a basic standard, :ref:`see here
 
 You should be able to type ``camcops`` and see something relevant.
 
+
 Windows prerequisites
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -90,6 +96,7 @@ Windows prerequisites
 
 - Install ImageMagick (see :ref:`Installing ImageMagick for Windows
   <windows_install_imagemagick>`).
+
 
 Generic installation for any OS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,6 +119,7 @@ Generic installation for any OS
 .. todo:: sort out MySQL dependencies and/or provide database driver advice
 
 .. todo:: implement Windows service
+
 
 Installing other prerequisites
 ------------------------------
@@ -150,6 +158,7 @@ You may also want MySQL, e.g.
     sudo dpkg -i mysql-apt-config_0.8.10-1_all.deb  # and follow on-screen instructions
     sudo apt update
     sudo apt install mysql-server  # and enter a root password when prompted
+
 
 .. _server_installation_win10_specimen:
 

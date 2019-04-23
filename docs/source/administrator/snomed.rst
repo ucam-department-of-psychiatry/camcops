@@ -33,6 +33,7 @@ SNOMED CT coding
     :local:
     :depth: 3
 
+
 Overview
 --------
 
@@ -69,6 +70,7 @@ output like this:
         </snomed_ct_expression>
     </snomed_ct_codes>
 
+
 Licensing
 ---------
 
@@ -78,6 +80,7 @@ https://digital.nhs.uk/services/terminology-and-classifications/snomed-ct.
 It is not permitted to distribute it generally; users must accept the license
 terms and obtain the SNOMED CT codes/descriptions separately. CamCOPS does not
 contain any (it uses arbitrary strings to reference them).
+
 
 Adding SNOMED CT support for CamCOPS
 ------------------------------------

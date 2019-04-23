@@ -23,6 +23,7 @@ Upgrading a CamCOPS server
 This involves two steps: upgrading CamCOPS itself, then upgrading the CamCOPS
 server database(s).
 
+
 Upgrade the CamCOPS software
 ----------------------------
 

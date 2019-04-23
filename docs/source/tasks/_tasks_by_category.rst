@@ -28,6 +28,7 @@ Tasks in CamCOPS by category
     :local:
     :depth: 1
 
+
 Clinical notes and logs
 -----------------------
 
@@ -63,6 +64,7 @@ Clinical notes and logs
 - :ref:`Progress note <progress_note>`
 
 - :ref:`Psychiatric clerking <clerking>`
+
 
 Global function and multiple aspects of psychopathology
 -------------------------------------------------------
@@ -121,6 +123,7 @@ Global function and multiple aspects of psychopathology
 
 - :ref:`Zarit Burden Inventory (ZBI), 12-item version <zbi>`
 
+
 Cognitive assessment
 --------------------
 
@@ -133,6 +136,7 @@ Cognitive assessment
 - :ref:`National Adult Reading Test (NART) <nart>`
 
 - :ref:`Saint Louis University Mental Status (SLUMS) Examination <slums>`
+
 
 Affective (mood and anxiety) disorders
 --------------------------------------
@@ -197,6 +201,7 @@ Affective (mood and anxiety) disorders
 
 - :ref:`Y-BOCS Symptom Checklist (Y-BOCS-SC) <ybocs_sc>`
 
+
 Drug/alcohol abuse and addiction
 --------------------------------
 
@@ -219,6 +224,7 @@ Drug/alcohol abuse and addiction
 
 - :ref:`Short Michigan Alcohol Screening Test (SMAST) <smast>`
 
+
 Psychosis
 ---------
 
@@ -236,6 +242,7 @@ Psychosis
 
 - :ref:`Positive and negative syndrome scale (PANSS) for schizophrenia <panss>`
 
+
 Catatonia and extrapyramidal side effects
 -----------------------------------------
 
@@ -247,6 +254,7 @@ Catatonia and extrapyramidal side effects
   Disease Rating Scale (MDS-UPDRS) <mdsupdrs>`
 
 .. - Catatonia examination technique (info only)
+
 
 Personality and experience
 --------------------------
@@ -262,12 +270,14 @@ Personality and experience
 
 - :ref:`Postpartum Bonding Questionnaire (PBQ) <pbq>`
 
+
 Executive function
 ------------------
 
 |executive|
 
 - :ref:`INECO Frontal Screening (IFS) <ifs>`
+
 
 Service evaluation
 ------------------
@@ -292,6 +302,7 @@ Service evaluation
 - :ref:`Referrer Satisfaction Scale (survey version) <rss_survey>`
 
 - :ref:`Service Rating Scale (SRS) <srs>`
+
 
 Research tasks
 --------------
@@ -322,6 +333,7 @@ Some may be experimental.
 
 .. - Demonstration of chained tasks
 
+
 Anonymous questionnaires
 ------------------------
 
@@ -337,6 +349,7 @@ Anonymous questionnaires
 
 - :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`
 
+
 Set menus for research
 ----------------------
 
@@ -349,6 +362,7 @@ as generic tasks listed above, there are some specific ones:
   <deakin_1>`
 
 - :ref:`Khandaker GM — 1 — Insight study — medical history <khandaker_1>`
+
 
 Set menus for clinical purposes
 -------------------------------
@@ -427,6 +441,7 @@ Measurement in Liaison Psychiatry.
 
 - Medically unexplained symptoms: the :ref:`EQ-5D-5L <eq5d5l>`.
 
+
 History and guide
 ~~~~~~~~~~~~~~~~~
 
@@ -447,10 +462,12 @@ History and guide
   Guidance. Department of Health. [2015 edition at
   http://www.england.nhs.uk/wp-content/uploads/2015/03/fft-guidance-march-2015.pdf.]
 
+
 Source
 ~~~~~~
 
 FROM-LP report (2015), as above, and some original sources.
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -520,9 +537,9 @@ The FROM-Perinatal measures (not all implemented in CamCOPS) are:
 - :ref:`Panic Disorder Severity Scale (PDSS) <pdss>`; PROM
 - Agoraphobia–Mobility Inventory (MI); PROM
 
-
 [PREM, patient-rated experience measure; PROM, patient-rated outcome measure;
 CROM, clinician-rated outcome measure.]
+
 
 History and guide
 ~~~~~~~~~~~~~~~~~
@@ -539,6 +556,7 @@ Demonstration task
 |info_big|
 
 - :ref:`Demonstration questionnaire <demoquestionnaire>`
+
 
 Some tasks not in CamCOPS
 -------------------------

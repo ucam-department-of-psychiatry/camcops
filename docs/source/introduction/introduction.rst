@@ -29,6 +29,7 @@ A quick sense of CamCOPS:
     tour.rst
     requirements.rst
 
+
 Practical things:
 
 ..  toctree::
@@ -37,6 +38,7 @@ Practical things:
     patient_identification.rst
     groups.rst
     registration.rst
+
 
 Technical things:
 

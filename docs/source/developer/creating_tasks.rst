@@ -50,12 +50,14 @@ PDF representations). More or less everything else is optional, but tasks may
 provide numerical summary information (for trackers) or customize their
 clinical text views.
 
+
 Questionnaire elements
 ----------------------
 
 Programmers can embed arbitrary logic in a task. Several elements are
 available; all inherit from `QuElement`. Elements are grouped into pages
 (`QuPage`).
+
 
 Display/sound
 ~~~~~~~~~~~~~
@@ -77,6 +79,7 @@ programmer can manipulate the contents of static text dynamically).
 - `QuSpacer`. A fixed-size spacer.
 
 - `QuText`. Static text.
+
 
 User input
 ~~~~~~~~~~
@@ -283,6 +286,7 @@ more pages to go (given the integer index of the current page).
   answers, and the subject can browse back and forth. New pages are created and
   build dynamically; see ``Cisr::makePage()`` and ``Cisr::morePagesToGo()``.
 
+
 Implementing specific elements
 ------------------------------
 
@@ -396,6 +400,7 @@ Alternatives might include:
 - a (vertical) ``QuThermometer``;
 - a future modification to make ``QuSlider`` tap-to-choose;
 - a future modification to make ``QuThermometer`` operate horizontally.
+
 
 Visual analogue scales
 ~~~~~~~~~~~~~~~~~~~~~~

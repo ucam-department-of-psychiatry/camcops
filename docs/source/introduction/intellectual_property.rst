@@ -30,6 +30,7 @@ on.
     :local:
     :depth: 3
 
+
 CamCOPS itself
 --------------
 
@@ -64,6 +65,7 @@ Note also:
   (https://en.wikipedia.org/wiki/GNU_General_Public_License) and on a
   comparison of free/open-source licences
   (https://en.wikipedia.org/wiki/Comparison_of_free_and_open-source_software_licenses).
+
 
 Tasks, scales, and questionnaires distributed with CamCOPS
 ----------------------------------------------------------
@@ -103,6 +105,7 @@ cover a spectrum:
 
 - For details on each task, see their :ref:`individual descriptions
   <tasks_all>`.
+
 
 Software libraries
 ------------------

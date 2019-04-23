@@ -35,6 +35,7 @@
 .. _Visual Studio: https://visualstudio.microsoft.com/
 .. _Windows SDK: https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 
+
 Building the CamCOPS client
 ===========================
 
