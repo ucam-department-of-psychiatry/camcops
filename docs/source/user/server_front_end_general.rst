@@ -26,16 +26,19 @@ Using the web site
     :local:
     :depth: 3
 
+
 First
 -----
 
 Log into CamCOPS via a web browser.
+
 
 General navigation
 ------------------
 
 Any time you see the CamCOPS logo (it’s at the top of most pages), you can
 click it to get back to the main menu.
+
 
 Task, trackers, and clinical text views
 ---------------------------------------
@@ -44,6 +47,7 @@ Client devices upload *tasks*. You can view these individually in a variety of
 formats. You can also view numeric information over time for a patient in a
 tracker, and clinically relevant textual information for a patient in a
 *clinical text view*.
+
 
 Set task filters
 ----------------
@@ -68,6 +72,7 @@ or users, or the group to which a task belongs.
 
 As well as a “set filters” button, there is a “clear” button to clear all
 current filters.
+
 
 View tasks
 ----------
@@ -112,6 +117,7 @@ Specimen tasks in PDF format:
 
 .. http://www.sphinx-doc.org/en/stable/markup/inline.html#referencing-downloadable-files
 
+
 Trackers for numerical information
 ----------------------------------
 
@@ -137,6 +143,7 @@ Specimen tracker:
 
 .. include:: include_consistency_warning.rst
 
+
 Clinical text views
 -------------------
 
@@ -159,6 +166,7 @@ Specimen CTV:
 - :download:`Fictional CTV <demotasks/dummy_clinicaltextview.pdf>`
 
 .. include:: include_consistency_warning.rst
+
 
 Research views
 --------------
@@ -203,6 +211,7 @@ You can choose to dump everything that you have permission for, or restrict to
 the criteria you’ve set in your current session filter, or specify tasks and/or
 groups manually.
 
+
 Dump table data as SQL
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -222,6 +231,7 @@ for individual questions, but not the total (which is calculated dynamically).
 When you download the data, the total (amongst other things) is calculated and
 added to the data that you download (within the SQLite table or CSV file).
 
+
 Inspect table definitions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -230,6 +240,7 @@ database, as data definition language (DDL), meaning the subset of SQL used to
 create tables. In SQL dialects that support it (e.g. MySQL), the DDL contains
 comments for every field, usually in considerable detail, so viewing the DDL
 this is a good way of understanding how CamCOPS tasks store their data.
+
 
 Reports
 -------
@@ -277,16 +288,21 @@ F32% and F33%; exclude F30%, F31%, F50%):
 To view a report’s SQL in a formatted state, paste it into an online SQL
 formatter [#sqlformat]_.
 
+
 Help
 ----
 
 Click “CamCOPS documentation” for this manual.
+
 
 Log out
 -------
 
 Click “Log out” to end your CamCOPS session.
 
+
+
+===============================================================================
 
 .. rubric:: Footnotes
 

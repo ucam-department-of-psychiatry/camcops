@@ -286,6 +286,8 @@ How to upgrade Android
      easier from a physical machine.
 
 
+===============================================================================
+
 .. rubric:: Footnotes
 
 .. [#xperiaz2upgrade]

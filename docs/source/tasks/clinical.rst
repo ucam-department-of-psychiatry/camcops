@@ -37,6 +37,11 @@ Sources
   electronic health records*,
   http://www.rcplondon.ac.uk/sites/default/files/core_clinical_headings_for_electronic_health_records.pdf.
 
+- UK Health & Social Care Information Centre (HSCIC) and Academy of Medical
+  Royal Colleges (AoMRC) (July 2013) *Standards for the clinical structure and
+  content of patient records*,
+  https://www.aomrc.org.uk/wp-content/uploads/2016/05/Standards_for_the_Clinical_Structure_and_Content_of_Patient_Records_0713.pdf
+
 
 .. _progress_note:
 

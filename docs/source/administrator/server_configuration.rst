@@ -461,6 +461,8 @@ left if they look funny. See picture below.
 .. image:: images/scaling_logos.png
 
 
+===============================================================================
+
 .. rubric:: Footnotes
 
 .. [#linuxflavours]

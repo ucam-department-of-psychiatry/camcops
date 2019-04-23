@@ -29,6 +29,7 @@ Downloading CamCOPS
     :local:
     :depth: 3
 
+
 Overview
 ~~~~~~~~
 
@@ -116,6 +117,8 @@ Pending
 - Linux client app download
 - Windows server package (unless PyPI is enough)
 
+
+===============================================================================
 
 .. rubric:: Footnotes
 

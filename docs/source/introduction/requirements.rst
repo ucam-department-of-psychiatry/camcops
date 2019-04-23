@@ -24,6 +24,7 @@ Requirements and costs
     :local:
     :depth: 3
 
+
 .. _hardware_requirements_client:
 
 Android clients: hardware requirements
@@ -36,10 +37,11 @@ released in 2012). For development, we have used:
   with an extra battery in it, though WiFi only with no 3G connection.
   (Its charger uses a non-standard USB specification that supplies 15V, rather
   than the standard 5V, so it can fail to charge properly if you plug a random
-  USB charger into it! [#asus_charger]_
+  USB charger into it! [#asuscharger]_
 
 - Sony Xperia Z2 tablet (2014; available in WiFi and 3G versions), with
   Bluetooth keyboard.
+
 
 iOS clients: hardware requirements
 ----------------------------------
@@ -52,6 +54,7 @@ iOS clients: hardware requirements
 
 - Not much information is stored on the tablet (it’s shipped periodically to
   the server) so we think any model of iPad will do.
+
 
 Mobile Windows clients: hardware requirements
 ---------------------------------------------
@@ -85,11 +88,13 @@ resizing them) but the physical keyboard is good.
     "correct" sound works fine (and listed correctly in resource file, and
     working on other platorms). Investigate.
 
+
 Other desktop/laptop clients: hardware requirements
 ---------------------------------------------------
 
 There are no specific hardware requirements. The CamCOPS client runs on the
 following desktop operating systems: Linux, Windows, and Mac OS/X.
+
 
 .. _hardware_requirements_server:
 
@@ -116,6 +121,7 @@ Database:
   database-agnostic, though it does provide some custom date/time fields,
   currently specialized for MySQL, Microsoft SQL Server, and SQLite (though
   SQLite is for clients, not servers!).
+
 
 Representative costs
 --------------------
@@ -181,6 +187,9 @@ costs, with dates, from those environments.
      - **£0.**
 
 
+===============================================================================
+
 .. rubric:: Footnotes
 
-.. [#asus_charger] http://www.transformerforums.com/forum/asus-transformer-tf101-help/23451-solved-transformer-not-charging.html
+.. [#asuscharger]
+   http://www.transformerforums.com/forum/asus-transformer-tf101-help/23451-solved-transformer-not-charging.html

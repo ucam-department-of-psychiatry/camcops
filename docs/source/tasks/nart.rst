@@ -36,12 +36,14 @@ History and guide
 
 - Bright P et al (2016). [#bright2016]_
 
+
 Source
 ~~~~~~
 
 - NART: Second (1991) edition, as above.
 
 - NART-R: http://www.calcaprt.com/nart.PDF
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,6 +71,7 @@ Copyright © Hazel E. Nelson. Used with permission.
   without restriction; so I am happy for it to be included in any publication
   or on any website.” (Personal communication, Hazel Nelson to Rudolf Cardinal,
   2013-05-30.)
+
 
 Instructions
 ~~~~~~~~~~~~
@@ -104,6 +107,7 @@ not familiar with the written form of the target word. At the end of the task,
 sum the number of errors and the number of correct items. It is very important
 the subject attempt *all* of the items. If the subject refuses to complete the
 entire task, do not score the task.
+
 
 Pronunciation guide and definitions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -792,6 +796,7 @@ Plain NART word list
 
 There are 50 words in the NART.
 
+
 NART scoring
 ~~~~~~~~~~~~
 
@@ -895,6 +900,7 @@ NART-R word list (North American revision of the NART)
 
 There are 61 words in the NART-R.
 
+
 NART-R scoring
 ~~~~~~~~~~~~~~
 
@@ -908,6 +914,8 @@ Scoring system [#blair1989]_:
 
 - (The standard errors of estimate are 6.56, 10.67, and 7.63, respectively.)
 
+
+===============================================================================
 
 .. rubric:: Footnotes
 

@@ -148,6 +148,9 @@ Why not code it all in Java?
 - Also, http://tech.jonathangardner.net/wiki/Why_Java_Sucks;
   http://steve-yegge.blogspot.com/2006/03/execution-in-kingdom-of-nouns.html
 
+
+===============================================================================
+
 .. rubric:: Footnotes
 
 .. [#sqlcipher] See https://www.zetetic.net/sqlcipher/design/

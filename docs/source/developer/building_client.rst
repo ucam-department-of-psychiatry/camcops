@@ -44,11 +44,13 @@ The CamCOPS client is written in C++11 using the Qt_ cross-platform framework.
     :local:
     :depth: 3
 
+
 Prerequisites
 -------------
 
 **Ensure the following prerequisites are met:**
 https://wiki.qt.io/Building_Qt_5_from_Git
+
 
 Linux
 ~~~~~
@@ -64,6 +66,7 @@ Linux
 
     Ubuntu 16.04
     Ubuntu 18.04 / gcc 7.3.0
+
 
 Windows
 ~~~~~~~
@@ -137,6 +140,7 @@ Windows
     Python 3.6
     Qt Creator 4.7.0
     Windows 10 (64-bit)
+
 
 macOS (formerly OS X)
 ~~~~~~~~~~~~~~~~~~~~~
@@ -225,6 +229,7 @@ All operating systems
     %CAMCOPS_VENV%\Scripts\activate
     pip install cardinal_pythonlib
 
+
 Build OpenSSL, SQLCipher, Qt
 ----------------------------
 
@@ -240,6 +245,7 @@ the CamCOPS :ref:`build_qt` tool (q.v.). For example:
 
     REM Windows
     python %CAMCOPS_SOURCE_DIR%/tablet_qt/tools/build_qt.py --build_all
+
 
 Troubleshooting build_qt
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -263,6 +269,7 @@ via Cygwin.
 
 **Fixed** by using ``cardinal_pythonlib==1.0.46`` and the
 ``chdir_via_python=True`` argument to ``untar_to_directory``.
+
 
 Problem: CL.EXE cannot open program database
 ############################################
@@ -300,6 +307,7 @@ Run and set up Qt Creator
     Settings`.
 
 - Proceed with the instructions below.
+
 
 Qt versions
 -----------
@@ -560,6 +568,7 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
     ``amd64``; if you have a 32-bit machine, you definitely want to use ``x86``
     and ``x86_amd64``.
 
+
 Build settings
 --------------
 
@@ -653,6 +662,7 @@ The APK filename is fixed at this point
 We can rename the APK if we want, or just upload to Google Play, distribute,
 etc.
 
+
 Linux
 ~~~~~
 
@@ -682,6 +692,7 @@ isn't working well at present.)
     Not sure why!
 
 - Build.
+
 
 Distributing the CamCOPS client
 -------------------------------
@@ -725,6 +736,7 @@ Google Play Store settings
   https://play.google.com/store/apps/details?id=org.camcops.camcops). Perhaps
   10 minutes to the main web site?
 
+
 Google Play Store release history
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -754,6 +766,7 @@ Google Play Store release history
 |               |                     |                     | (pending)          |         |         |
 |               |                     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
+
 
 Windows client packaging
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -809,6 +822,7 @@ Version constraints for third-party software
 - Qt favour Android NDK r10e (the May 2015 release)
   (http://doc.qt.io/qt-5/androidgs.html) but r11c also seems to work fine.
 
+
 Android
 ~~~~~~~
 
@@ -824,6 +838,7 @@ Android
 - ``Error: "unsupported_android_version" is not translated``: see
   https://bugreports.qt.io/browse/QTBUG-63952. This error does not prevent you
   from continuing.
+
 
 Debugging
 ~~~~~~~~~
@@ -855,6 +870,7 @@ Debugging
   your build* directories.
 
 - For debugging, consider install Valgrind_: ``sudo apt install valgrind``
+
 
 Troubleshooting qmake/compilation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -901,6 +917,7 @@ Troubleshooting qmake/compilation
     :-1: error: dependent 'C:\Users\rudol\dev\qt_local_build\qt_windows_x86_64_install\lib\Qt5MultimediaWidgetsd.lib' does not exist.
 
   Try switching from "debug" to "release" build.
+
 
 Troubleshooting running CamCOPS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -966,6 +983,8 @@ Troubleshooting running CamCOPS
 
 .. That symlink implemented manually on wombat, osprey
 
+
+===============================================================================
 
 .. rubric:: Footnotes
 

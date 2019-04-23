@@ -35,6 +35,7 @@ functions:
     :local:
     :depth: 3
 
+
 .. _group_access_control:
 
 Access control
@@ -303,6 +304,8 @@ This is a bit tricky conceptually. CamCOPS implements it as follows:
   Sandra, that'd be different -- Bob could create Sandra's user and assign her
   to group B simultaneously.)
 
+
+===============================================================================
 
 .. rubric:: Footnotes
 

@@ -24,11 +24,13 @@ Beck Depression Inventory (BDI)
 
 .. include:: include_data_collection_only.rst
 
+
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Copyright to the BDI is held by Pearson, and the scale is commercial; see
 http://www.pearsonassessments.com/.
+
 
 Sources and notes
 ~~~~~~~~~~~~~~~~~
@@ -119,6 +121,9 @@ Sources and notes
     (15) loss of energy, (16) changes in sleeping pattern, (17) irritability,
     (18) changes in appetite, (19) concentration difficulty, (20) tiredness or
     fatigue, (21) loss of interest in sex.
+
+
+===============================================================================
 
 .. rubric:: Footnotes
 

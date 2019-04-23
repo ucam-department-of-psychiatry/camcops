@@ -26,6 +26,7 @@ Linux flavours
     :local:
     :depth: 3
 
+
 Common administrative commands
 ------------------------------
 
@@ -250,6 +251,7 @@ Ensure you have Supervisor:
         sudo chkconfig --add supervisord
         sudo chkconfig supervisord on  # default runlevels (--level 2345) are fine
 
+
 .. _linux_mysql_setup:
 
 Setting up MySQL under Linux
@@ -344,6 +346,8 @@ Setting up MySQL under Linux
 #. **Create the CamCOPS database.** See :ref:`create a database
    <create_database>`.
 
+
+===============================================================================
 
 .. rubric:: Footnotes
 

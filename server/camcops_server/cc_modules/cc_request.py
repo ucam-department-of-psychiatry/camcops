@@ -197,9 +197,9 @@ class CamcopsRequest(Request):
         super().__init__(*args, **kwargs)
         self.use_svg = False
         self.add_response_callback(complete_request_add_cookies)
-        self._camcops_session = None
-        self._debugging_db_session = None  # type: SqlASession  # for unit testing only  # noqa
-        self._debugging_user = None  # type: User  # for unit testing only  # noqa
+        self._camcops_session = None  # type: Optional[CamcopsSession]
+        self._debugging_db_session = None  # type: Optional[SqlASession]  # for unit testing only  # noqa
+        self._debugging_user = None  # type: Optional[User]  # for unit testing only  # noqa
         self._pending_export_push_requests = []  # type: List[Tuple[str, str, int]]  # noqa
         # Don't make the _camcops_session yet; it will want a Registry, and
         # we may not have one yet; see command_line_request().

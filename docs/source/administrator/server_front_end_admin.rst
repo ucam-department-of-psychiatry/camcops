@@ -26,6 +26,7 @@ Web site: admin functions
     :local:
     :depth: 3
 
+
 .. _task_admin:
 
 Administrative options available for individual tasks
@@ -33,6 +34,7 @@ Administrative options available for individual tasks
 
 In the HTML view of a task, some users will have some of these additional
 options, shown at the very bottom:
+
 
 Apply special note
 ~~~~~~~~~~~~~~~~~~
@@ -45,6 +47,7 @@ data.)
 The note will be visible when viewing all predecessor/successor versions of the
 same record.
 
+
 .. _edit_patient:
 
 Edit patient details
@@ -53,6 +56,7 @@ Edit patient details
 This allows you to edit the patient record for this task, and others created
 alongside it on the same client device (e.g. if someone has misspelled a name).
 The option is only available for finalized tasks.
+
 
 Erase task instance
 ~~~~~~~~~~~~~~~~~~~
@@ -69,11 +73,13 @@ first.
 When might one want to erase a task? See :ref:`Delete patient entirely
 <delete_patient>`.
 
+
 Group administrator options
 ---------------------------
 
 These options, on the main menu, are only available to users who are marked as
 administrators for one or more groups.
+
 
 User management
 ~~~~~~~~~~~~~~~
@@ -144,6 +150,7 @@ are required.
     The other criteria for deletion (e.g. mental disorder, death) are outside
     the scope of CamCOPS.
 
+
 .. _force_finalize:
 
 Forcibly preserve/finalize records for a device
@@ -167,10 +174,12 @@ The option will allow you to proceed even if the patient identification does
 not meet the necessary requirements; see also the facility to :ref:`edit
 patient details, above <edit_patient>`.
 
+
 Superuser options
 -----------------
 
 These options are only available to users with the superuser flag set.
+
 
 .. _group_management:
 
@@ -181,6 +190,7 @@ This option allows you to define groups, define ID policies for groups, and to
 configure which groups have intrinsic permission to see which other groups (if
 any). See :ref:`Groups <groups>`.
 
+
 Audit trail
 ~~~~~~~~~~~
 
@@ -188,6 +198,7 @@ View the CamCOPS audit trail (optionally, filtering it according to a range of
 criteria).
 
 Internally, this audit trail is stored in the `_security_audit` table.
+
 
 HL7 message log
 ~~~~~~~~~~~~~~~
@@ -197,12 +208,14 @@ success/failure status).
 
 .. todo:: change docs once webview updated for new export system
 
+
 HL7 run log
 ~~~~~~~~~~~
 
 View a log of HL7 runs. A run is when CamCOPS checks to see if any HL7 messages
 should be sent. Each message belongs to a run. An individual run may cause
 zero, one, or many messages to be sent.
+
 
 Manage ID number definitions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -222,6 +235,7 @@ ID type number  Description                 Short description
 You can create and edit these definitions here. When you edit them, there are a
 few additional options for HL7 messaging.
 
+
 Edit server settings
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -230,10 +244,12 @@ You can edit the following server-wide settings here:
 - The server’s master database title here. The title is displayed to all users
   using the database.
 
+
 Developer test page
 ~~~~~~~~~~~~~~~~~~~
 
 This is a page offering server test options; it’s not for general use.
+
 
 Settings
 --------
@@ -244,10 +260,12 @@ Show database/server settings
 This shows the server’s ID number definitions, which extra string families are
 present, and which tasks the server knows about.
 
+
 Change password
 ~~~~~~~~~~~~~~~
 
 This should be self-explanatory!
+
 
 Choose group into which to upload data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -258,11 +276,14 @@ and task details in a group. Which group should this be? You get to choose
 here, from the groups that you are a member of (and have permission to upload
 into).
 
+
 Show your user settings
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 This shows details about your user (including group memberships).
 
+
+===============================================================================
 
 .. rubric:: Footnotes
 

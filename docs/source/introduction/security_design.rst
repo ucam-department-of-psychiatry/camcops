@@ -29,6 +29,7 @@ The CamCOPS security model is multi-layered. It is not enough to have a
     :local:
     :depth: 3
 
+
 Summary
 -------
 
@@ -50,6 +51,7 @@ Summary
   policies that individual clinicians can’t alter.
 
 - The link and the server also need to be secure. See below.
+
 
 Tablet security
 ---------------
@@ -76,6 +78,7 @@ For relevant CamCOPS platforms:
 
 You should enable tablet encryption, choosing a strong password for your
 tablet; see :ref:`tablet configuration <configure_client>`.
+
 
 CamCOPS app security
 --------------------
@@ -110,6 +113,7 @@ Basics
   point to the appropriate NHS server and then give the clinician(s) the app
   (unlock) password but not the privileged-mode password.
 
+
 Internally in the tablet app
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -141,6 +145,7 @@ Internally in the tablet app
   password [#androiddatawithoutroot]_, though this would still be AES-256
   encrypted).
 
+
 Link security
 -------------
 
@@ -154,6 +159,7 @@ Link security
 - Privileged-mode access is required to change the server; therefore, from a
   non-privileged clinician’s point of view, the device is locked to a single
   server.
+
 
 Server security
 ---------------
@@ -181,12 +187,14 @@ Communication between tablet and server
 
 - The server takes standard precautions against SQL injection [#sqlinjection]_.
 
+
 Communication between user and server using the web front end
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - The web front end should be constrained to HTTPS to ensure link security.
 
 - Access is governed by username/password pairs.
+
 
 Internally in the server
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -204,6 +212,7 @@ Internally in the server
 
 - The server stores CamCOPS passwords using bcrypt hashes.
 
+
 Security against data loss
 --------------------------
 
@@ -211,11 +220,13 @@ Security against data loss
   affect data integrity, as the SQLite backend is designed to cope with this
   [#sqliterobust]_.
 
+
 “Analytics” security
 --------------------
 
 CamCOPS doesn’t send a copy of your data back to its base. Your data is private
 to you.
+
 
 Audit trails
 ------------
@@ -238,12 +249,14 @@ Audit trails
 - Read access requests to the server (via the web viewer) are also audited, as
   are command-line CamCOPS operations.
 
+
 Legacy security
 ---------------
 
 The code is open-source, and should only include content from
 tasks/questionnaires that are in the public domain or where permission exists
 to use the task in perpetuity.
+
 
 Black Hat’s options
 -------------------
@@ -286,6 +299,7 @@ These methods of attack sound plausible but should not be possible:
   filesystem encryption is enabled; the necessary keys are not stored on the
   device [#androidfilesystemencryption]_. (2) The CamCOPS database is still
   AES-256-encrypted.
+
 
 Match to NHS security requirements
 ----------------------------------
@@ -340,6 +354,7 @@ Mobile device
     having an administrator configure and password-protect each device – this
     takes ~30 seconds).
 
+
 Server
 ~~~~~~
 
@@ -349,6 +364,8 @@ Server
   from within an appropriate domain (e.g. within a given NHS Trust or
   university).
 
+
+===============================================================================
 
 .. rubric:: Footnotes
 

@@ -24,6 +24,7 @@ Troubleshooting server problems
     :local:
     :depth: 3
 
+
 Installation problems
 ---------------------
 
@@ -52,6 +53,7 @@ Successful method:
 
 - Upgrade ``matplotlib`` from 2.2.0 to 3.0.2 (as of CamCOPS v2.3.1).
 
+
 Web server errors from Apache
 -----------------------------
 
@@ -61,6 +63,7 @@ Web server returns "permission denied"-type messages; Apache error log is full o
 Ownerships, permissions, or SELinux security settings on files in the
 `DocumentRoot` tree are probably wrong. See :ref:`Server configuration
 <server_configuration>`; :ref:`Linux flavours <linux_flavours>`.
+
 
 Operation (e.g. table upload) fails; Apache error log says "client denied by server configuration"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,12 +82,14 @@ The Apache configuration file might be missing a section saying
 
 .. include:: include_old_bug_defunct.rst
 
+
 SSL not working; Apache log contains "Invalid method in request ``\x16\x03\x01``"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Misconfigured server; it is speaking unencrypted HTTP on port 443. Do you have
 the VirtualHost section configured properly? Do you have `LoadModule ssl_module
 modules/mod_ssl.so`?
+
 
 Slow upload fails; Apache error log contains "Internal server error" or "Proxy error"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -130,6 +135,7 @@ Other Apache errors
 See :ref:`front-end web server configuration <configure_apache>`, which has
 specimen Apache config sections.
 
+
 Web server URL errors
 ---------------------
 
@@ -152,6 +158,7 @@ then change it to
         ProxyPass /camcops/ ...
         ProxyPassReverse /camcops/ ...
 
+
 Web server errors in general
 ----------------------------
 
@@ -165,12 +172,14 @@ ownerships/permissions/SELinux security settings. See the ``chown`` and
 files have been damaged, or that the Apache configuration file is pointing to a
 non-existing configuration file.
 
+
 I can log in, but then seem to be logged out again immediately
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Is your browser correctly storing session cookies? Especially, are you trying
 to run CamCOPS over a non-encrypted (HTTP) link? The session cookies are set to
 secure and httponly for security reasons, and will not work without HTTPS.
+
 
 Tablet upload errors
 --------------------
@@ -202,6 +211,8 @@ least that long after starting to send it. Increase the tablet’s network
 timeout (e.g. try increasing from 5000 to 60000 ms) in :menuselection:`Settings
 --> Server settings.`
 
+
+.. _mysql_row_size_too_large:
 
 Row size too large (>8126)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -261,6 +272,7 @@ log file bigger, e.g. 512 Mb.
 From CamCOPS v1.32, the server autoconverts tables to Barracuda when using the
 make-tables command, to avoid this problem.
 
+
 MySQL: "Too many connections"
 -----------------------------
 
@@ -272,6 +284,7 @@ of threads, in excess of the MySQL limit, and then work the web server hard.
 Fix the problem by limiting the maximum number of threads/processes used by
 CamCOPS or by increasing the MySQL connection limit.
 
+
 .. _mysql_illegal_mix_of_collations:
 
 MySQL: "Illegal mix of collations..."
@@ -282,6 +295,7 @@ and (utf8mb4_general_ci,IMPLICIT) for operation '='”
 
 In summary, part of your database is out of date, and this is probably because
 you’ve upgraded from an old version of CamCOPS.
+
 
 Background: character sets and collations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -301,6 +315,7 @@ A *collation* is a MySQL term for the way that characters are compared. For
 example, if you are sorting in Swedish and you don’t care about case
 sensitivity, you want the ordering A–Z then ÅÄÖ, and you want a to be considered
 equal to A, å to be considered equal to Å, and so on.
+
 
 Background: MySQL's support for character sets and collations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -347,6 +362,7 @@ Collations are supported for the following (from greatest to least precedence):
         WHERE collation_name IS NOT NULL
         AND table_schema = 'camcops';  -- or whatever your database is named
 
+
 How CamCOPS configures MySQL character sets and collations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -372,6 +388,7 @@ the “Inspect table definitions” view. You’ll see table definitions like:
         -- lots of CONSTRAINT statements next
     ) CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC ENGINE=InnoDB;
 
+
 The problem that creates this error
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -383,6 +400,7 @@ the table collations set properly. Pick some tables and use syntax like ``SHOW
 CREATE TABLE phq9 \\G``. (The `\\G` is a special MySQL console suffix to show
 the results in non-tabular format.) If you don’t see a `COLLATE` command at the
 end, that’s probably the reason for the error.
+
 
 How to generate the error
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -404,6 +422,7 @@ following SQL:
         AND c._era = p._era  -- string; collation mismatch; not fine
         -- COLLATE utf8mb4_unicode_ci  -- uncomment to fix the error for this query only
     ;
+
 
 A quick solution
 ~~~~~~~~~~~~~~~~
@@ -437,6 +456,7 @@ execute the following command to generate all the necessary SQL:
     AND table_type = 'BASE TABLE';
 
 Then a quick bit of copying/pasting and you should be there.
+
 
 A CamCOPS table-creation bug, fixed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -575,8 +595,8 @@ Remove the transparency layer. For example:
 Use a newer version of CamCOPS; from server version 1.40, it uses wkhtmltopdf
 instead, which is also faster.
 
-.. _mysql_row_size_too_large:
 
+===============================================================================
 
 .. rubric:: Footnotes
 

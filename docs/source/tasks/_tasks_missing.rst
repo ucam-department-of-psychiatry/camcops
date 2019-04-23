@@ -239,6 +239,8 @@ communication, José Maldonado to Rudolf Cardinal, 2013-08-01).
 - Maldonado et al. 2012, http://www.pubmed.gov/22424160.
 
 
+===============================================================================
+
 .. rubric:: Footnotes
 
 .. [#fabcutoff]

@@ -24,6 +24,7 @@ Internal data structure in CamCOPS
     :local:
     :depth: 3
 
+
 The basics
 ----------
 
@@ -38,6 +39,7 @@ The basics
 To overcome this complexity for most practical purposes, the server provides
 methods of viewing or downloading task data that hides out-of-date versions and
 so forth.
+
 
 Audit trail and preserve-and-delete function
 --------------------------------------------
@@ -100,6 +102,7 @@ The thought process behind the design runs as follows.
   - The combination of the `_device`, `_era`, and `id` fields is unique for all
     `_current` fields.
 
+
 Transactional upload
 --------------------
 
@@ -107,6 +110,7 @@ The upload process is transactional: it either succeeds as a whole, or fails as
 a whole. (This is necessary because there may be arbitrary relationships
 between tables on the tablet, e.g. between the main table of a task and its
 sub-tables.)
+
 
 Date/time storage
 -----------------
@@ -127,6 +131,7 @@ used.
 There are a few fields that are an exception to this rule and use DATETIME
 format, but these are only used by the server and are not generally accessible
 to users.
+
 
 Tables in the CamCOPS database
 ------------------------------
@@ -157,6 +162,8 @@ Note in particular the following conventions
   Summary fields are not present on the server, but are created dynamically.
   See :ref:`summary fields <summary_fields>`.
 
+
+===============================================================================
 
 .. rubric:: Footnotes
 
