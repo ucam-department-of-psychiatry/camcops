@@ -239,9 +239,10 @@ Windows 10
   directory changing that makes relative filenames fail!).
 
   .. todo:: Current Windows problems: SQL DELETE taking forever during
-     ``upgrade_db``. Probably to do with constraints/triggers. Temporary
-     workaround: use ``create_db`` instead. (However, the ``reindex`` command
-     works fine.)
+     ``upgrade_db``. See :ref:`DELETE takes forever
+     <sql_server_delete_takes_forever>`. Probably to do with
+     constraints/triggers. Temporary workaround: use ``create_db`` instead.
+     (However, the ``reindex`` command works fine.)
 
 - Create a superuser
 

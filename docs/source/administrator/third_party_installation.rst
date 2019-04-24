@@ -236,6 +236,9 @@ https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-managem
 Note that this query contributes exactly one row to its own results.
 
 
+
+.. _sql_server_delete_takes_forever:
+
 DELETE takes forever
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -257,12 +260,12 @@ DELETE takes forever
     FROM sys.dm_exec_requests
     WHERE session_id = <session_id>
 
-- In an example we had, a query ``DELETE FROM _idnum_index`` was taking a
-  phenomenally long time and was suspended; serially, a lot of queries were
-  being executed like ``SELECT tr.name AS [Name], tr.object_id AS [ID] FROM
-  sys.triggers AS tr WHERE (tr.parent_class = 0) ORDER BY [Name] ASC``. So
-  that's an indication that the ``DELETE`` is causing a large set of triggers
-  to be searched.
+In an example we had, a query ``DELETE FROM _idnum_index`` was taking a
+phenomenally long time and was suspended; serially, a lot of queries were being
+executed like ``SELECT tr.name AS [Name], tr.object_id AS [ID] FROM
+sys.triggers AS tr WHERE (tr.parent_class = 0) ORDER BY [Name] ASC``. So that's
+an indication that the ``DELETE`` is causing a large set of triggers to be
+searched.
 
 - Remember that any working CamCOPS server its DDL (for any supported database
   engine), so you can use a working Linux/MySQL server to show DDL for SQL
@@ -270,6 +273,12 @@ DELETE takes forever
 
 - Remember the ``DB_ECHO`` parameter in the CamCOPS config file for "routine"
   SQL, and the ``--show_sql_only`` parameter to the ``upgrade_db`` command.
+
+Potential solutions:
+
+- https://stackoverflow.com/questions/155246/how-do-you-truncate-all-tables-in-a-database-using-tsql#156813
+
+- https://stackoverflow.com/questions/123558/sql-server-2005-t-sql-to-temporarily-disable-a-trigger#123966
 
 
 MySQL tips

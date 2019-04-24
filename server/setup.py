@@ -81,7 +81,7 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 # Package dependencies
 INSTALL_REQUIRES = [
     'alembic==1.0.7',  # database migrations
-    'cardinal_pythonlib==1.0.49',  # RNC libraries
+    'cardinal_pythonlib==1.0.52',  # RNC libraries
     'celery==4.2.1',  # background tasks
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.1.0',  # web server
@@ -389,6 +389,7 @@ setup(
             'camcops_server=camcops_server.camcops_server:main',
             'camcops_server_meta=camcops_server.camcops_server_meta:meta_main',
             'camcops_backup_mysql_database=cardinal_pythonlib.tools.backup_mysql_database:main',  # noqa
+            'camcops_windows_service=camcops_server.camcops_windows_service:main',  # noqa
         ],
     },
 )

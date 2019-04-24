@@ -112,10 +112,6 @@ Client core
 
 - Test task upload (and date filtering) under Windows/SQL Server.
 
-- See if "database upgrade" SQL Server bug is fixable; see changelog for server
-  v2.3.1. See also
-  https://stackoverflow.com/questions/155246/how-do-you-truncate-all-tables-in-a-database-using-tsql#156813
-
 **Medium priority**
 
 - iOS build.
@@ -228,8 +224,6 @@ Server
 
   - Best to implement by fixed column names for all ID numbers, e.g.
     ``_patient_idnum1``, ``_patient_idnum17``, etc.? NULL if absent.
-
-- A database migration to fix all old field comments?
 
 - Upgrade Qt to 5.12 LTS.
 

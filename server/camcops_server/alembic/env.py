@@ -133,7 +133,8 @@ def types_equivalent(database_type: TypeEngine,
 
 
 def filter_column_ops(column_ops: Iterable[AlterColumnOp],
-                      upgrade: bool) \
+                      upgrade: bool,
+                      debug: bool = False) \
         -> Generator[AlterColumnOp, None, None]:
     """
     Generates column operations removing redundant changes from one type
@@ -146,25 +147,33 @@ def filter_column_ops(column_ops: Iterable[AlterColumnOp],
             yield column_op  # don't know what it is; yield it unmodified
             continue
 
-        existing_type = column_op.existing_type
         modify_type = column_op.modify_type
 
-        if upgrade:
-            database_type = existing_type
-            metadata_type = modify_type
-        else:
-            database_type = modify_type
-            metadata_type = existing_type
-
-        if types_equivalent(database_type=database_type,
-                            metadata_type=metadata_type):
-            log.info(
-                "Skipping duff {} type change of {!r} to {!r} for {}.{}",
-                method,
-                existing_type, modify_type,
-                column_op.table_name, column_op.column_name
-            )
-            continue  # skip this one!
+        if modify_type:
+            existing_type = column_op.existing_type
+            if upgrade:
+                database_type = existing_type
+                metadata_type = modify_type
+            else:
+                database_type = modify_type
+                metadata_type = existing_type
+            if types_equivalent(database_type=database_type,
+                                metadata_type=metadata_type):
+                log.debug(
+                    "Skipping duff {} type change of {!r} to {!r} for {}.{}",
+                    method,
+                    existing_type, modify_type,
+                    column_op.table_name, column_op.column_name
+                )
+                column_op.modify_type = None  # "don't change the type"
+                # ... though there may be other things we want to change
+            elif debug:
+                log.debug(
+                    "Processing {} type change of {!r} to {!r} for {}.{}",
+                    method,
+                    existing_type, modify_type,
+                    column_op.table_name, column_op.column_name
+                )
 
         yield column_op
 

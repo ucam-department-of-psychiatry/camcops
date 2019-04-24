@@ -51,9 +51,12 @@ server/camcops_server
     alembic/versions/0019_epds.py.rst
     alembic/versions/0020_pbq.py.rst
     alembic/versions/0021_hidden_specialnote.py.rst
+    alembic/versions/0022_index_exported_tasks_start_at.py.rst
+    alembic/versions/0023_comments.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
+    camcops_windows_service.py.rst
     cc_modules/cc_alembic.py.rst
     cc_modules/cc_all_models.py.rst
     cc_modules/cc_anon.py.rst

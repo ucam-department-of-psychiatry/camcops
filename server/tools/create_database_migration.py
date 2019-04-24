@@ -66,6 +66,10 @@ def main() -> None:
 
     - https://bitbucket.org/zzzeek/alembic/issues/433/variant-base-not-taken-into-account-when
     - https://bitbucket.org/zzzeek/alembic/issues/131/create-special-rendering-for-variant
+    
+    We deal with these via
+    :func:`camcops_server.alembic.env.process_revision_directives` in
+    ``env.py``.
     """  # noqa
     desc = (
         "Create database revision. Note:\n"
@@ -92,8 +96,18 @@ def main() -> None:
     )
     parser = ArgumentParser(description=wrapped,
                             formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument("message", help="Revision message")
+    parser.add_argument(
+        "message",
+        help="Revision message"
+    )
+    parser.add_argument(
+        "--verbose", action="store_true",
+        help="Be verbose"
+    )
     args = parser.parse_args()
+    main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
+                                    else logging.INFO)
+    # ... hmpf; ignored (always debug); possible Alembic forces this.
 
     # Check the existing database version is OK.
     config = get_default_config_from_os_env()
@@ -127,5 +141,4 @@ Now:
 
 
 if __name__ == "__main__":
-    main_only_quicksetup_rootlogger(level=logging.DEBUG)
     main()

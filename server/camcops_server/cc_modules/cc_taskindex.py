@@ -39,6 +39,9 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from cardinal_pythonlib.sqlalchemy.schema import table_exists
+from cardinal_pythonlib.sqlalchemy.sqlserver import (
+    if_sqlserver_disable_constraints_triggers,
+)
 from pendulum import DateTime as Pendulum
 import pyramid.httpexceptions as exc
 from sqlalchemy.orm import relationship, Session as SqlASession
@@ -215,9 +218,11 @@ class PatientIdNumIndexEntry(Base):
         patientcols = patienttable.columns
 
         # Delete all entries
-        session.execute(
-            indextable.delete()
-        )
+        with if_sqlserver_disable_constraints_triggers(session,
+                                                       indextable.name):
+            session.execute(
+                indextable.delete()
+            )
 
         # Create new ones
         # noinspection PyProtectedMember,PyPep8
@@ -737,10 +742,14 @@ class TaskIndexEntry(Base):
         log.info("Rebuilding entire task index")
         # noinspection PyUnresolvedReferences
         idxtable = cls.__table__  # type: Table
+
         # Delete all entries
-        session.execute(
-            idxtable.delete()
-        )
+        with if_sqlserver_disable_constraints_triggers(session,
+                                                       idxtable.name):
+            session.execute(
+                idxtable.delete()
+            )
+
         # Now rebuild:
         for taskclass in Task.all_subclasses_by_tablename():
             if skip_tasks_with_missing_tables:

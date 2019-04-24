@@ -1683,11 +1683,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - Fully operational **except** ``upgrade_db`` command triggers reindexing for
     revision ``0013`` and that executes a ``DELETE`` query that gets stuck.
-    Trigger problem. See link above. The ``create_db`` command works fine, and
-    so does manual reindexing, but this remains a problem.
-
-  .. todo:: understand SQL Server behaviour (?bug) that causes a neverending
-     DELETE during the ``upgrade_db`` command.
+    Trigger problem. See :ref:`DELETE takes forever
+    <sql_server_delete_takes_forever>`. The ``create_db`` command works fine,
+    and so does manual reindexing, but this remains a problem.
 
 - SNOMED-CT support.
 
@@ -2019,3 +2017,34 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix to
   :meth:`camcops_server.cc_modules.cc_session.CamcopsSession.n_sessions_active_since`,
   which wasn't converting to UTC properly.
+
+**Server v2.3.3 (IN PROGRESS)**
+
+- Windows service.
+
+- Bump from ``cardinal_pythonlib==1.0.49`` to ``'cardinal_pythonlib==1.0.52``
+  for a bugfix (1.0.51) then SQL Server custom functions (1.0.52).
+
+- Improvement to default behaviour of ``tools/create_database_migration.py``:
+  modified :func:`camcops_server.alembic.env.filter_column_ops` to skip
+  modifications where ``modify_type is None``. I'm not sure why these are now
+  coming in droves from Alembic (it might be that this is what happens when a
+  comment is changed).
+
+- In the process, indexed ``_exported_tasks.start_at_utc`` (somehow missed
+  from ``0014_new_export_mechanism.py``).
+
+- Database revision to add all column comments. Note also:
+
+  - Alembic misses out ``existing_nullable=False`` for fields with
+    ``autoincrement=True``
+  - Manual checks are required for ``mysql.VARCHAR(...)`` as these can either
+    be ``sa.String(length=...)`` or ``sa.Unicode(length=...)``.
+
+- Attempted fix for :ref:`DELETE takes forever
+  <sql_server_delete_takes_forever>` bug under SQL Server when reindexing as
+  part of the ``upgrade_db`` command.
+
+  - Search for ``if_sqlserver_disable_constraints_triggers``.
+
+  .. todo:: check this fixes the SQL Server "DELETE" bug
