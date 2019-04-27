@@ -24,7 +24,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %if authorized_to_dump:
     <h3>Research views</h3>
     <ul>
-        <li><a href="${request.route_url(Routes.OFFER_TSV_DUMP)}">Basic research dump (fields and summaries)</a></li>
+        <li><a href="${request.route_url(Routes.OFFER_BASIC_DUMP)}">Basic research dump (fields and summaries)</a></li>
         <li><a href="${request.route_url(Routes.OFFER_SQL_DUMP)}">Advanced research dump (SQL or database)</a></li>
         <li><a href="${request.route_url(Routes.VIEW_DDL)}">Inspect table definitions</a>
     </ul>

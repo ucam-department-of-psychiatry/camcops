@@ -81,7 +81,7 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 # Package dependencies
 INSTALL_REQUIRES = [
     'alembic==1.0.7',  # database migrations
-    'cardinal_pythonlib==1.0.52',  # RNC libraries
+    'cardinal_pythonlib==1.0.53',  # RNC libraries
     'celery==4.2.1',  # background tasks
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.1.0',  # web server
@@ -102,6 +102,7 @@ INSTALL_REQUIRES = [
     # # ... but adds dependency on C and mysql.h
 
     'numpy==1.14.5',  # Used by some tasks. SLOW INSTALLATION.
+    'odswriter==0.4.0',  # Write OpenOffice ODS files
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.0.4',  # better than Arrow
     'pexpect==4.6.0',  # for open_sqlcipher.py

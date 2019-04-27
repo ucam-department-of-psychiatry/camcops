@@ -2022,8 +2022,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Windows service.
 
-- Bump from ``cardinal_pythonlib==1.0.49`` to ``'cardinal_pythonlib==1.0.52``
-  for a bugfix (1.0.51) then SQL Server custom functions (1.0.52).
+- Bump from ``cardinal_pythonlib==1.0.49`` to ``'cardinal_pythonlib==1.0.53``
+  for a bugfix (1.0.51) then SQL Server custom functions (1.0.52), then new
+  MIME types (1.0.53).
 
 - Improvement to default behaviour of ``tools/create_database_migration.py``:
   modified :func:`camcops_server.alembic.env.filter_column_ops` to skip
@@ -2048,3 +2049,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - Search for ``if_sqlserver_disable_constraints_triggers``.
 
   .. todo:: check this fixes the SQL Server "DELETE" bug
+
+- Excel XLSX and OpenOffice/LibreOffice ODS formats supported for basic
+  download.

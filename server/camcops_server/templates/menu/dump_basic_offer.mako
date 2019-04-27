@@ -13,8 +13,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <div>
     <ul>
         <li>
-            Provides a ZIP file containing tab-separated value (TSV) files
-            (usually one per task; for some tasks, more than one).
+            Provides a spreadsheet-style download (usually one sheet per task;
+            for some tasks, more than one).
         </li>
         <li>
             Restricted to current records (i.e. ignores historical
@@ -67,7 +67,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     </ul>
 </div>
 
-<h2>Choose TSV dump parameters</h2>
+<h2>Choose basic dump settings</h2>
 
 ${ form }
 

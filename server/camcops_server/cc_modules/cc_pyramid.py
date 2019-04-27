@@ -248,13 +248,16 @@ class ViewArg(object):
     """
     EVERYTHING = "everything"
     HTML = "html"
+    ODS = "ods"
     PDF = "pdf"
     PDFHTML = "pdfhtml"
     SPECIFIC_TASKS_GROUPS = "specific_tasks_groups"
     SQL = "sql"
     SQLITE = "sqlite"
     TSV = "tsv"
+    TSV_ZIP = "tsv_zip"
     USE_SESSION_FILTER = "use_session_filter"
+    XLSX = "xlsx"
     XML = "xml"
 
 
@@ -561,6 +564,7 @@ class Routes(object):
     ADD_SPECIAL_NOTE = "add_special_note"
     ADD_USER = "add_user"
     AUDIT_MENU = "audit_menu"
+    BASIC_DUMP = "basic_dump"
     BUGFIX_DEFORM_MISSING_GLYPHS = "bugfix_deform_missing_glyphs"  # ... test by visiting the Task Filters page  # noqa
     CHANGE_OTHER_PASSWORD = "change_other_password"
     CHANGE_OWN_PASSWORD = "change_own_password"
@@ -592,7 +596,7 @@ class Routes(object):
     OFFER_REPORT = "offer_report"
     OFFER_SQL_DUMP = "offer_sql_dump"
     OFFER_TERMS = "offer_terms"
-    OFFER_TSV_DUMP = "offer_tsv_dump"
+    OFFER_BASIC_DUMP = "offer_basic_dump"
     REPORT = "report"
     REPORTS_MENU = "reports_menu"
     SET_FILTERS = "set_filters"
@@ -605,7 +609,6 @@ class Routes(object):
     TESTPAGE_PRIVATE_3 = "testpage_private_3"
     TESTPAGE_PUBLIC_1 = "testpage_public_1"
     TRACKER = "tracker"
-    TSV_DUMP = "tsv_dump"
     UNLOCK_USER = "unlock_user"
     VIEW_ALL_USERS = "view_all_users"
     VIEW_AUDIT_TRAIL = "view_audit_trail"
@@ -624,6 +627,7 @@ class Routes(object):
     VIEW_TASKS = "view_tasks"
     VIEW_USER = "view_user"
     VIEW_USER_EMAIL_ADDRESSES = "view_user_email_addresses"
+    XLSX_DUMP = "xlsx_dump"
 
 
 class RoutePath(object):
@@ -675,6 +679,7 @@ class RouteCollection(object):
     ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE)
     ADD_USER = RoutePath(Routes.ADD_USER)
     AUDIT_MENU = RoutePath(Routes.AUDIT_MENU)
+    BASIC_DUMP = RoutePath(Routes.BASIC_DUMP)
     BUGFIX_DEFORM_MISSING_GLYPHS = RoutePath(Routes.BUGFIX_DEFORM_MISSING_GLYPHS, "/deform_static/fonts/glyphicons-halflings-regular.woff2")  # noqa
     CHANGE_OTHER_PASSWORD = RoutePath(Routes.CHANGE_OTHER_PASSWORD)
     CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD)
@@ -705,7 +710,7 @@ class RouteCollection(object):
     OFFER_REPORT = RoutePath(Routes.OFFER_REPORT)
     OFFER_SQL_DUMP = RoutePath(Routes.OFFER_SQL_DUMP)
     OFFER_TERMS = RoutePath(Routes.OFFER_TERMS)
-    OFFER_TSV_DUMP = RoutePath(Routes.OFFER_TSV_DUMP)
+    OFFER_BASIC_DUMP = RoutePath(Routes.OFFER_BASIC_DUMP)
     REPORT = RoutePath(Routes.REPORT)
     REPORTS_MENU = RoutePath(Routes.REPORTS_MENU)
     SET_FILTERS = RoutePath(Routes.SET_FILTERS)
@@ -718,7 +723,6 @@ class RouteCollection(object):
     TESTPAGE_PRIVATE_3 = RoutePath(Routes.TESTPAGE_PRIVATE_3)
     TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1)
     TRACKER = RoutePath(Routes.TRACKER)
-    TSV_DUMP = RoutePath(Routes.TSV_DUMP)
     UNLOCK_USER = RoutePath(Routes.UNLOCK_USER)
     VIEW_ALL_USERS = RoutePath(Routes.VIEW_ALL_USERS)
     VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL)
@@ -737,6 +741,7 @@ class RouteCollection(object):
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS)
     VIEW_USER = RoutePath(Routes.VIEW_USER)
     VIEW_USER_EMAIL_ADDRESSES = RoutePath(Routes.VIEW_USER_EMAIL_ADDRESSES)
+    XLSX_DUMP = RoutePath(Routes.XLSX_DUMP)
 
     @classmethod
     def all_routes(cls) -> List[RoutePath]:

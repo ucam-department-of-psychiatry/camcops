@@ -189,8 +189,10 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_export import (
+    task_collection_to_ods_response,
     task_collection_to_sqlite_response,
     task_collection_to_tsv_zip_response,
+    task_collection_to_xlsx_response,
 )
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
@@ -308,10 +310,6 @@ if DEBUG_REDIRECT:
 # Constants
 # =============================================================================
 
-ALLOWED_TASK_VIEW_TYPES = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML,
-                           ViewArg.XML]
-ALLOWED_TRACKER_VIEW_TYPE = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML,
-                             ViewArg.XML]
 CANNOT_DUMP = "User not authorized to dump data (for any group)."
 CANNOT_REPORT = "User not authorized to run reports (for any group)."
 # CAN_ONLY_CHANGE_OWN_PASSWORD = "You can only change your own password!"
@@ -1030,11 +1028,6 @@ def serve_task(req: "CamcopsRequest") -> Response:
     server_pk = req.get_int_param(ViewParam.SERVER_PK)
     anonymise = req.get_bool_param(ViewParam.ANONYMISE, False)
 
-    if viewtype not in ALLOWED_TASK_VIEW_TYPES:
-        raise HTTPBadRequest(
-            f"Bad output type: {viewtype!r} "
-            f"(permissible: {ALLOWED_TASK_VIEW_TYPES!r}")
-
     task = task_factory(req, tablename, server_pk)
 
     if task is None:
@@ -1074,7 +1067,9 @@ def serve_task(req: "CamcopsRequest") -> Response:
         )
         return XmlResponse(task.get_xml(req=req, options=options))
     else:
-        assert False, "Bug in logic above"
+        permissible = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML, ViewArg.XML]
+        raise HTTPBadRequest(
+            f"Bad output type: {viewtype!r} (permissible: {permissible!r})")
 
 
 # =============================================================================
@@ -1180,9 +1175,6 @@ def serve_tracker_or_ctv(req: "CamcopsRequest",
         if not all(c.provides_trackers for c in task_classes):
             raise HTTPBadRequest("Not all tasks specified provide trackers")
 
-    if viewtype not in ALLOWED_TRACKER_VIEW_TYPE:
-        raise HTTPBadRequest("Invalid view type")
-
     iddefs = [IdNumReference(which_idnum, idnum_value)]
 
     as_tracker = not as_ctv
@@ -1219,7 +1211,9 @@ def serve_tracker_or_ctv(req: "CamcopsRequest",
             tracker.get_xml(include_comments=include_comments)
         )
     else:
-        assert False, "Bug in logic above"
+        permissible = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML, ViewArg.XML]
+        raise HTTPBadRequest(
+            f"Invalid view type: {viewtype!r} (permissible: {permissible!r})")
 
 
 @view_config(route_name=Routes.TRACKER)
@@ -1324,8 +1318,8 @@ def serve_report(req: "CamcopsRequest") -> Response:
 # Research downloads
 # =============================================================================
 
-@view_config(route_name=Routes.OFFER_TSV_DUMP)
-def offer_tsv_dump(req: "CamcopsRequest") -> Response:
+@view_config(route_name=Routes.OFFER_BASIC_DUMP)
+def offer_basic_dump(req: "CamcopsRequest") -> Response:
     """
     View to configure a basic research dump.
     Following submission success, it redirects to a view serving a TSV/ZIP
@@ -1344,10 +1338,11 @@ def offer_tsv_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.SORT: appstruct.get(ViewParam.SORT),
                 ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
+                ViewParam.VIEWTYPE: appstruct.get(ViewParam.VIEWTYPE),
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
-            return HTTPFound(req.route_url(Routes.TSV_DUMP,
+            return HTTPFound(req.route_url(Routes.BASIC_DUMP,
                                            _query=querydict))
         except ValidationFailure as e:
             rendered_form = e.render()
@@ -1361,10 +1356,10 @@ def offer_tsv_dump(req: "CamcopsRequest") -> Response:
     )
 
 
-@view_config(route_name=Routes.TSV_DUMP)
-def serve_tsv_dump(req: "CamcopsRequest") -> Response:
+def get_dump_collection(req: "CamcopsRequest") -> TaskCollection:
     """
-    View serving a TSV/ZIP basic research dump.
+    Returns the collection of tasks being requested for a dump operation.
+    Raises an error if the request is bad.
     """
     if not req.user.authorized_to_dump:
         raise HTTPBadRequest(CANNOT_DUMP)
@@ -1372,7 +1367,6 @@ def serve_tsv_dump(req: "CamcopsRequest") -> Response:
     # Get parameters
     # -------------------------------------------------------------------------
     dump_method = req.get_str_param(ViewParam.DUMP_METHOD)
-    sort_by_heading = req.get_bool_param(ViewParam.SORT, False)
     group_ids = req.get_int_list_param(ViewParam.GROUP_IDS)
     task_names = req.get_str_list_param(ViewParam.TASKS)
 
@@ -1389,18 +1383,48 @@ def serve_tsv_dump(req: "CamcopsRequest") -> Response:
         taskfilter.group_ids = group_ids
     else:
         raise HTTPBadRequest(f"Bad {ViewParam.DUMP_METHOD} parameter")
-    collection = TaskCollection(
+    return TaskCollection(
         req=req,
         taskfilter=taskfilter,
         as_dump=True,
         sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
     )
 
-    return task_collection_to_tsv_zip_response(
-        req=req,
-        collection=collection,
-        sort_by_heading=sort_by_heading,
-    )
+
+@view_config(route_name=Routes.BASIC_DUMP)
+def serve_basic_dump(req: "CamcopsRequest") -> Response:
+    """
+    View serving a TSV/ZIP basic research dump.
+    """
+    # Get view-specific parameters
+    sort_by_heading = req.get_bool_param(ViewParam.SORT, False)
+    viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.TSV_ZIP,
+                                 lower=True)
+    # Get tasks (and perform checks)
+    collection = get_dump_collection(req)
+    # Return response
+    if viewtype == ViewArg.TSV_ZIP:
+        return task_collection_to_tsv_zip_response(
+            req=req,
+            collection=collection,
+            sort_by_heading=sort_by_heading,
+        )
+    elif viewtype == ViewArg.XLSX:
+        return task_collection_to_xlsx_response(
+            req=req,
+            collection=collection,
+            sort_by_heading=sort_by_heading,
+        )
+    elif viewtype == ViewArg.ODS:
+        return task_collection_to_ods_response(
+            req=req,
+            collection=collection,
+            sort_by_heading=sort_by_heading,
+        )
+    else:
+        permissible = [ViewArg.TSV_ZIP, ViewArg.XLSX]
+        raise HTTPBadRequest(
+            f"Bad output type: {viewtype!r} (permissible: {permissible!r})")
 
 
 @view_config(route_name=Routes.OFFER_SQL_DUMP)
@@ -1444,40 +1468,16 @@ def sql_dump(req: "CamcopsRequest") -> Response:
     """
     View serving an SQL dump in the chosen format (e.g. SQLite binary, SQL).
     """
-    if not req.user.authorized_to_dump:
-        raise HTTPBadRequest(CANNOT_DUMP)
-    # -------------------------------------------------------------------------
-    # Get parameters
-    # -------------------------------------------------------------------------
-    dump_method = req.get_str_param(ViewParam.DUMP_METHOD)
+    # Get view-specific parameters
     sqlite_method = req.get_str_param(ViewParam.SQLITE_METHOD)
     include_blobs = req.get_bool_param(ViewParam.INCLUDE_BLOBS, False)
-    group_ids = req.get_int_list_param(ViewParam.GROUP_IDS)
-    task_names = req.get_str_list_param(ViewParam.TASKS)
-
-    # -------------------------------------------------------------------------
-    # Select tasks
-    # -------------------------------------------------------------------------
-    if dump_method == ViewArg.EVERYTHING:
-        taskfilter = TaskFilter()
-    elif dump_method == ViewArg.USE_SESSION_FILTER:
-        taskfilter = req.camcops_session.get_task_filter()
-    elif dump_method == ViewArg.SPECIFIC_TASKS_GROUPS:
-        taskfilter = TaskFilter()
-        taskfilter.task_types = task_names
-        taskfilter.group_ids = group_ids
-    else:
-        raise HTTPBadRequest(f"Bad {ViewParam.DUMP_METHOD} parameter")
-    collection = TaskCollection(
-        req=req,
-        taskfilter=taskfilter,
-        as_dump=True,
-        sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
-    )
-
     if sqlite_method not in [ViewArg.SQL, ViewArg.SQLITE]:
         raise HTTPBadRequest(f"Bad {ViewParam.SQLITE_METHOD} parameter")
 
+    # Get tasks (and perform checks)
+    collection = get_dump_collection(req)
+
+    # Return response
     as_sql_not_binary = sqlite_method == ViewArg.SQL
     export_options = TaskExportOptions(include_blobs=include_blobs)
     return task_collection_to_sqlite_response(

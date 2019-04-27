@@ -154,14 +154,15 @@ import logging
 import os
 import sqlite3
 import tempfile
-from typing import List, Generator, Type, TYPE_CHECKING
-import zipfile
+from typing import List, Generator, Tuple, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
+    OdsResponse,
     SqliteBinaryResponse,
     TextAttachmentResponse,
+    XlsxResponse,
     ZipResponse,
 )
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
@@ -587,6 +588,43 @@ def task_collection_to_sqlite_response(req: "CamcopsRequest",
                                         filename=suggested_filename)
 
 
+def get_tsv_collection_from_task_collection(
+        req: "CamcopsRequest",
+        collection: "TaskCollection",
+        sort_by_heading: bool) -> Tuple[TsvCollection, List[str]]:
+    """
+    Converts a collection of tasks to a collection of spreadsheet-style data.
+
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
+        sort_by_heading: sort columns within each page by heading name? 
+
+    Returns:
+        tuple: ``tsv_collection, audit_descriptions`` where ``tsv_collection``
+        is a :class:`camcops_server.cc_modules.cc_tsv.TsvCollection` object and
+        ``audit_descriptions`` is a list of strings describing the data being
+        fetched.
+
+    """  # noqa
+    # -------------------------------------------------------------------------
+    # Iterate through tasks, creating the TSV collection
+    # -------------------------------------------------------------------------
+    audit_descriptions = []  # type: List[str]
+    # Task may return >1 file for TSV output (e.g. for subtables).
+    tsvcoll = TsvCollection()
+    for cls in collection.task_classes():
+        for task in gen_audited_tasks_for_task_class(collection, cls,
+                                                     audit_descriptions):
+            tsv_pages = task.get_tsv_pages(req)
+            tsvcoll.add_pages(tsv_pages)
+
+    if sort_by_heading:
+        tsvcoll.sort_headings_within_all_pages()
+
+    return tsvcoll, audit_descriptions
+
+
 def task_collection_to_tsv_zip_response(
         req: "CamcopsRequest",
         collection: "TaskCollection",
@@ -604,46 +642,65 @@ def task_collection_to_tsv_zip_response(
         a :class:`pyramid.response.Response` object
 
     """  # noqa
-    # -------------------------------------------------------------------------
-    # Create memory file and ZIP file within it
-    # -------------------------------------------------------------------------
-    memfile = io.BytesIO()
-    z = zipfile.ZipFile(memfile, "w")
-
-    # -------------------------------------------------------------------------
-    # Iterate through tasks
-    # -------------------------------------------------------------------------
-    audit_descriptions = []  # type: List[str]
-    # Task may return >1 file for TSV output (e.g. for subtables).
-    tsvcoll = TsvCollection()
-    for cls in collection.task_classes():
-        for task in gen_audited_tasks_for_task_class(collection, cls,
-                                                     audit_descriptions):
-            tsv_pages = task.get_tsv_pages(req)
-            tsvcoll.add_pages(tsv_pages)
-
-    if sort_by_heading:
-        tsvcoll.sort_headings_within_all_pages()
-
-    # Write to ZIP.
-    # If there are no valid task instances, there'll be no TSV; that's OK.
-    for filename_stem in tsvcoll.get_page_names():
-        tsv_filename = filename_stem + ".tsv"
-        tsv_contents = tsvcoll.get_tsv_file(filename_stem)
-        z.writestr(tsv_filename, tsv_contents.encode("utf-8"))
-
-    # -------------------------------------------------------------------------
-    # Finish and serve
-    # -------------------------------------------------------------------------
-    z.close()
-
-    # Audit
+    tsvcoll, audit_descriptions = get_tsv_collection_from_task_collection(
+        req, collection, sort_by_heading)
     audit(req, f"Basic dump: {'; '.join(audit_descriptions)}")
-
-    # Return the result
-    zip_contents = memfile.getvalue()
-    memfile.close()
-    zip_filename = (
+    body = tsvcoll.as_zip()
+    filename = (
         f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}.zip"
     )
-    return ZipResponse(body=zip_contents, filename=zip_filename)
+    return ZipResponse(body=body, filename=filename)
+
+
+def task_collection_to_xlsx_response(
+        req: "CamcopsRequest",
+        collection: "TaskCollection",
+        sort_by_heading: bool) -> Response:
+    """
+    Converts a set of tasks to an Excel XLSX file.
+
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
+        sort_by_heading: sort columns within each page by heading name? 
+
+    Returns:
+        a :class:`pyramid.response.Response` object
+
+    """  # noqa
+    tsvcoll, audit_descriptions = get_tsv_collection_from_task_collection(
+        req, collection, sort_by_heading)
+    audit(req, f"Basic dump: {'; '.join(audit_descriptions)}")
+    tsvcoll.sort_pages()
+    body = tsvcoll.as_xlsx()
+    filename = (
+        f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}.xlsx"
+    )
+    return XlsxResponse(body=body, filename=filename)
+
+
+def task_collection_to_ods_response(
+        req: "CamcopsRequest",
+        collection: "TaskCollection",
+        sort_by_heading: bool) -> Response:
+    """
+    Converts a set of tasks to an OpenOffice ODS file.
+
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
+        sort_by_heading: sort columns within each page by heading name? 
+
+    Returns:
+        a :class:`pyramid.response.Response` object
+
+    """  # noqa
+    tsvcoll, audit_descriptions = get_tsv_collection_from_task_collection(
+        req, collection, sort_by_heading)
+    audit(req, f"Basic dump: {'; '.join(audit_descriptions)}")
+    tsvcoll.sort_pages()
+    body = tsvcoll.as_ods()
+    filename = (
+        f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}.ods"
+    )
+    return OdsResponse(body=body, filename=filename)

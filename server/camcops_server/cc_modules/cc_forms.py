@@ -2172,6 +2172,29 @@ class DumpTypeSelector(SchemaNode):
     validator = OneOf(list(x[0] for x in _choices))
 
 
+SPREADSHEET_FORMAT_CHOICES = (
+    (ViewArg.ODS, "OpenOffice spreadsheet (ODS) file"),
+    (ViewArg.XLSX, "XLSX (Microsoft Excel) file"),
+    (ViewArg.TSV_ZIP, "ZIP file of tab-separated value (TSV) files"),
+)
+
+
+class SpreadsheetFormatSelector(SchemaNode):
+    """
+    Node to select a way of downloading an SQLite database.
+    """
+    schema_type = String
+    default = ViewArg.TSV_ZIP
+    missing = ViewArg.XLSX
+    title = "Spreadsheet format"
+
+    def __init__(self, *args, **kwargs) -> None:
+        values, pv = get_values_and_permissible(SPREADSHEET_FORMAT_CHOICES)
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
+        super().__init__(*args, **kwargs)
+
+
 SQLITE_CHOICES = (
     # http://docs.sqlalchemy.org/en/latest/dialects/
     (ViewArg.SQLITE, "Binary SQLite database"),
@@ -2200,7 +2223,7 @@ class SortTsvByHeadingsNode(SchemaNode):
     Boolean node: sort TSV files by column name?
     """
     schema_type = Boolean
-    label = "Sort TSV files by heading (column) names?"
+    label = "Sort by heading (column) names within spreadsheets?"
     title = "Sort columns?"
     default = False
     missing = False
@@ -2235,6 +2258,7 @@ class OfferBasicDumpSchema(CSRFSchema):
     dump_method = DumpTypeSelector()  # must match ViewParam.DUMP_METHOD
     sort = SortTsvByHeadingsNode()  # must match ViewParam.SORT
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
+    viewtype = SpreadsheetFormatSelector()  # must match ViewParams.VIEWTYPE  # noqa
 
 
 class OfferBasicDumpForm(SimpleSubmitForm):

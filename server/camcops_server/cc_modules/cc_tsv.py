@@ -34,8 +34,17 @@ import csv
 import io
 import logging
 from typing import Any, Dict, Iterable, List, Optional, Union
+import zipfile
 
+from cardinal_pythonlib.excel import (
+    convert_for_openpyxl,
+    excel_to_bytes,
+)
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from odswriter import ODSWriter, Sheet as ODSSheet
+from openpyxl.workbook.workbook import Workbook as XLWorkbook
+from openpyxl.worksheet.worksheet import Worksheet as XLWorksheet
+# from pyexcel_ods3 import save_data  # poor; use odswriter
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -140,7 +149,7 @@ class TsvPage(object):
         """
         self.headings.sort()
 
-    def get_tsv(self, dialect="excel-tab") -> str:
+    def get_tsv(self, dialect: str = "excel-tab") -> str:
         """
         Returns the entire page (sheet) as TSV: one header row and then
         lots of data rows.
@@ -157,6 +166,23 @@ class TsvPage(object):
         for row in self.rows:
             writer.writerow([row.get(h) for h in self.headings])
         return f.getvalue()
+
+    def write_to_xlsx_worksheet(self, ws: XLWorksheet) -> None:
+        """
+        Writes data from this page to an existing XLSX worksheet.
+        """
+        ws.append(self.headings)
+        for row in self.rows:
+            ws.append([convert_for_openpyxl(row.get(h))
+                       for h in self.headings])
+
+    def write_to_ods_worksheet(self, ws: ODSSheet) -> None:
+        """
+        Writes data from this page to an existing ODS sheet.
+        """
+        ws.writerow(self.headings)
+        for row in self.rows:
+            ws.writerow([row.get(h) for h in self.headings])
 
 
 class TsvCollection(object):
@@ -234,3 +260,46 @@ class TsvCollection(object):
         page = self.page_with_name(page_name)
         assert page is not None, f"No such page with name {page_name}"
         return page.get_tsv()
+
+    def as_zip(self, encoding: str = "utf-8") -> bytes:
+        """
+        Returns the TSV collection as a ZIP file containing TSV files.
+
+        Args:
+            encoding: encoding to use when writing the TSV files
+        """
+        with io.BytesIO() as memfile:
+            with zipfile.ZipFile(memfile, "w") as z:
+                # Write to ZIP.
+                # If there are no valid task instances, there'll be no TSV;
+                # that's OK.
+                for filename_stem in self.get_page_names():
+                    tsv_filename = filename_stem + ".tsv"
+                    tsv_contents = self.get_tsv_file(page_name=filename_stem)
+                    z.writestr(tsv_filename, tsv_contents.encode(encoding))
+            zip_contents = memfile.getvalue()
+        return zip_contents
+
+    def as_xlsx(self) -> bytes:
+        """
+        Returns the TSV collection as an XLSX (Excel) file.
+        """
+        wb = XLWorkbook()
+        wb.remove_sheet(wb.active)  # remove the autocreated blank sheet
+        for page in self.pages:
+            ws = wb.create_sheet(title=page.name)
+            page.write_to_xlsx_worksheet(ws)
+        return excel_to_bytes(wb)
+
+    def as_ods(self, encoding: str = "utf-8") -> bytes:
+        """
+        Returns the TSV collection as an ODS (OpenOffice spreadsheet document)
+        file.
+        """
+        with io.BytesIO() as memfile:
+            with ODSWriter(memfile) as odsfile:
+                for page in self.pages:
+                    sheet = odsfile.new_sheet(name=page.name)
+                    page.write_to_ods_worksheet(sheet)
+            contents = memfile.getvalue()
+        return contents
