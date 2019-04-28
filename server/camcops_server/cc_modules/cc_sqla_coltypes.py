@@ -106,6 +106,8 @@ import unittest
 from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum,
     convert_datetime_to_utc,
+    duration_from_iso,
+    duration_to_iso,
     PotentialDatetimeType,
 )
 from cardinal_pythonlib.lists import chunks
@@ -125,7 +127,8 @@ from cardinal_pythonlib.sqlalchemy.sqlfunc import (
     fail_unknown_dialect,
     fetch_processed_single_clause
 )
-from pendulum import DateTime as Pendulum
+from isodate.isoerror import ISO8601Error
+from pendulum import DateTime as Pendulum, Duration
 from pendulum.parsing.exceptions import ParserError
 from semantic_version import Version
 from sqlalchemy import util
@@ -168,12 +171,14 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 DEBUG_DATETIME_AS_ISO_TEXT = False
+DEBUG_DURATION_AS_ISO_TEXT = False
 DEBUG_IDNUMDEF_LIST = False
 DEBUG_INT_LIST_COLTYPE = False
 DEBUG_SEMANTIC_VERSION = False
 DEBUG_STRING_LIST_COLTYPE = False
 
 if any([DEBUG_DATETIME_AS_ISO_TEXT,
+        DEBUG_DURATION_AS_ISO_TEXT,
         DEBUG_SEMANTIC_VERSION,
         DEBUG_IDNUMDEF_LIST,
         DEBUG_INT_LIST_COLTYPE,
@@ -183,99 +188,184 @@ if any([DEBUG_DATETIME_AS_ISO_TEXT,
 # =============================================================================
 # Constants
 # =============================================================================
+#
 # Note: "191" relates to MySQL indexing of VARCHAR fields using utf8mb4;
 # - https://stackoverflow.com/questions/6172798/
 # - https://dev.mysql.com/doc/refman/5.7/en/innodb-restrictions.html
 # There are alternative workarounds, but these fields are OK at 191.
+#
+# Re commenting variables in Sphinx:
+# - https://stackoverflow.com/questions/20227051/how-to-document-a-module-constant-in-python  # noqa
+# - http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#directive-autodata  # noqa
+# - URLs are a bit tricky; the colons get re-interpreted sometimes; it seems
+#   that inserting an extra colon after "#:", e.g. "#: : see http://somewhere"
+#   works.
+# - If a comment needs "# noqa" for the linter, then make it a docstring,
+#   because it will appear in the Sphinx string.
 
-AUDIT_SOURCE_MAX_LEN = 20  # our choice based on use in CamCOPS code
+AUDIT_SOURCE_MAX_LEN = 20  #: our choice based on use in CamCOPS code
 
+#: : See https://docs.python.org/3.7/library/codecs.html#standard-encodings.
+#: Probably ~18 so give it some headroom.
 CHARSET_MAX_LEN = 64
-# ... https://docs.python.org/3.7/library/codecs.html#standard-encodings
-# ... probably ~18 so give it some headroom
 
-DATABASE_TITLE_MAX_LEN = 255  # our choice
-DEVICE_NAME_MAX_LEN = 191  # our choice; must be compatible with tablet
+DATABASE_TITLE_MAX_LEN = 255  #: our choice
 
-EMAIL_ADDRESS_MAX_LEN = 255  # https://en.wikipedia.org/wiki/Email_address
-EXPORT_RECIPIENT_NAME_MAX_LEN = 191  # our choice
+#: 191 is the maximum for MySQL + InnoDB + VARCHAR + utf8mb4 + index;
+#: must be compatible with tablet
+DEVICE_NAME_MAX_LEN = 191
 
-FILTER_TEXT_MAX_LEN = 255  # our choice
-FULLNAME_MAX_LEN = 255  # our choice; used for user full names on the server
-FILESPEC_MAX_LEN = 255  # our choice
+#: : See https://en.wikipedia.org/wiki/Email_address.
+EMAIL_ADDRESS_MAX_LEN = 255
 
-GROUP_DESCRIPTION_MAX_LEN = 255  # our choice
-GROUP_NAME_MAX_LEN = 191  # our choice
+#: 191 is the maximum for MySQL + InnoDB + VARCHAR + utf8mb4 + index
+EXPORT_RECIPIENT_NAME_MAX_LEN = 191
 
-HASHED_PW_MAX_LEN = 60  # for bcrypt
-# ... empirically; we use bcrypt; its length is:
-#       "$2a$" (4)
-#       cost parameter, e.g. "$09" for 9 rounds (3)
-#       b64-enc 128-bit salt (22)
-#       b64enc 184-bit hash (31)
-# ... total 60
-# https://stackoverflow.com/questions/5881169/what-column-type-length-should-i-use-for-storing-a-bcrypt-hashed-password-in-a-d  # noqa
+#: Our choice
+FILTER_TEXT_MAX_LEN = 255
+
+#: Our choice; used for user full names on the server
+FULLNAME_MAX_LEN = 255
+
+#: Our choice
+FILESPEC_MAX_LEN = 255
+
+#: Our choice
+GROUP_DESCRIPTION_MAX_LEN = 255
+
+#: 191 is the maximum for MySQL + InnoDB + VARCHAR + utf8mb4 + index
+GROUP_NAME_MAX_LEN = 191
+
+HASHED_PW_MAX_LEN = 60
+"""
+:
+We use ``bcrypt``. Empirically, the length of its hashed output is:
+
+.. code-block:: none
+
+       "$2a$" (4)
+       cost parameter, e.g. "$09" for 9 rounds (3)
+       b64-enc 128-bit salt (22)
+       b64enc 184-bit hash (31)
+
+    ... total 60
+
+See https://stackoverflow.com/questions/5881169/what-column-type-length-should-i-use-for-storing-a-bcrypt-hashed-password-in-a-d
+"""  # noqa
+
 HOSTNAME_MAX_LEN = 255
-# ... FQDN; https://stackoverflow.com/questions/8724954/what-is-the-maximum-number-of-characters-for-a-host-name-in-unix  # noqa
+"""
+FQDN; see
+https://stackoverflow.com/questions/8724954/what-is-the-maximum-number-of-characters-for-a-host-name-in-unix
+"""  # noqa
 
-ICD9_CODE_MAX_LEN = 6  # longest is "xxx.xx"; thus, 6; see
-# https://www.cms.gov/Medicare/Quality-Initiatives-Patient-Assessment-Instruments/HospitalQualityInits/Downloads/HospitalAppendix_F.pdf  # noqa
-ICD10_CODE_MAX_LEN = 7  # longest is e.g. "F00.000"; "F10.202"; thus, 7
+ICD9_CODE_MAX_LEN = 6
+"""
+Longest is "xxx.xx"; thus, 6; see
+https://www.cms.gov/Medicare/Quality-Initiatives-Patient-Assessment-Instruments/HospitalQualityInits/Downloads/HospitalAppendix_F.pdf
+"""  # noqa
+
+#: longest is e.g. "F00.000"; "F10.202"; thus, 7
+ICD10_CODE_MAX_LEN = 7
 
 DIAGNOSTIC_CODE_MAX_LEN = max(ICD9_CODE_MAX_LEN, ICD10_CODE_MAX_LEN)
 
 HL7_AA_MAX_LEN = 20
-# ... the AA appears in Table 4.6 "Extended composite ID", p46-47 of
-#     hl7guide-1-4-2012-08.pdf
-# ... but is defined in Table 4.9 "Entity Identifier", p50, in which:
-#     - component 2 is the Assigning Authority (see component 1)
-#     - component 2 is also a Namespace ID with a length of 20
-# ... and multiple other examples of an Assigning Authority being one example
-#     of a Namespace ID
-# ... and examples are in Table 0363 (p229 of the PDF), which are all 3-char.
-# ... and several other examples of "Namespace ID" being of length 1..20
-#     meaning 1-20.
-HL7_ID_TYPE_MAX_LEN = 5
-# ... Table 4.6 "Extended composite ID", p46-47 of hl7guide-1-4-2012-08.pdf
-# ... and Table 0203 "Identifier type", p204 of that PDF, in Appendix B
+"""
+- The AA appears in Table 4.6 "Extended composite ID", p46-47 of
+  hl7guide-1-4-2012-08.pdf
+- ... but is defined in Table 4.9 "Entity Identifier", p50, in which:
 
-ID_DESCRIPTOR_MAX_LEN = 255  # our choice
-ID_POLICY_MAX_LEN = 255  # our choice
-IP_ADDRESS_MAX_LEN = 45  # http://stackoverflow.com/questions/166132  # noqa
-ISO8601_STRING_MAX_LEN = 32
-# ... max length e.g. 2013-07-24T20:04:07.123456+01:00
-#                     1234567890123456789012345678901234567890
-#     (with punctuation, T, microseconds, colon in timezone).
+  - component 2 is the Assigning Authority (see component 1)
+  - component 2 is also a Namespace ID with a length of 20
+
+- ... and multiple other examples of an Assigning Authority being one example
+  of a Namespace ID
+
+- ... and examples are in Table 0363 (p229 of the PDF), which are all 3-char.
+
+- ... and several other examples of "Namespace ID" being of length 1..20
+  meaning 1-20.
+"""
+
+HL7_ID_TYPE_MAX_LEN = 5
+"""
+Table 4.6 "Extended composite ID", p46-47 of hl7guide-1-4-2012-08.pdf,
+and Table 0203 "Identifier type", p204 of that PDF, in Appendix B.
+"""
+
+#: Our choice
+ID_DESCRIPTOR_MAX_LEN = 255
+
+#: Our choice
+ID_POLICY_MAX_LEN = 255
+
+#: : See http://stackoverflow.com/questions/166132
+IP_ADDRESS_MAX_LEN = 45
+
+ISO8601_DATETIME_STRING_MAX_LEN = 32
+"""
+Max length e.g.
+
+.. code-block:: none
+
+    2013-07-24T20:04:07.123456+01:00
+    1234567890123456789012345678901234567890
+    
+(with punctuation, T, microseconds, colon in timezone).
+"""
+
+#: See :func:`cardinal_pythonlib.datetimefunc.duration_to_iso`
+ISO8601_DURATION_STRING_MAX_LEN = 29
 
 # LONGBLOB_LONGTEXT_MAX_LEN = (2 ** 32) - 1
 # ... https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html
 
-MIMETYPE_MAX_LEN = 255  # https://stackoverflow.com/questions/643690
+#: See https://stackoverflow.com/questions/643690
+MIMETYPE_MAX_LEN = 255
 
-PATIENT_NAME_MAX_LEN = 255  # for forename and surname, each; our choice but must match tablet  # noqa
+#: For forename and surname, each; our choice but must match tablet
+PATIENT_NAME_MAX_LEN = 255
 
-RFC_2822_DATE_MAX_LEN = 31  # e.g. "Fri, 09 Nov 2001 01:08:47 -0000"
-# ... 3.3 in https://tools.ietf.org/html/rfc2822
-# ... assuming extra white space not added
+RFC_2822_DATE_MAX_LEN = 31
+"""
+e.g. ``Fri, 09 Nov 2001 01:08:47 -0000``; 3.3 in
+https://tools.ietf.org/html/rfc2822, assuming extra white space not added
+"""
 
-SENDING_FORMAT_MAX_LEN = 50  # for export; our choice based on use in CamCOPS code  # noqa
-SESSION_TOKEN_MAX_BYTES = 64  # our choice; 64 bytes => 512 bits, which is a lot in 2017  # noqa
+#: for export; our choice based on use in CamCOPS code
+SENDING_FORMAT_MAX_LEN = 50
+
+#: our choice; 64 bytes => 512 bits, which is a lot in 2017
+SESSION_TOKEN_MAX_BYTES = 64
+
 SESSION_TOKEN_MAX_LEN = len(
     create_base64encoded_randomness(SESSION_TOKEN_MAX_BYTES))
 
 TABLENAME_MAX_LEN = 128
-# MySQL: 64 -- https://dev.mysql.com/doc/refman/5.7/en/identifiers.html
-# SQL Server: 128  -- https://msdn.microsoft.com/en-us/library/ms191240.aspx
-# Oracle: 32, then 128 from v12.2 (2017)
+"""
+For
+
+- MySQL: 64 -- https://dev.mysql.com/doc/refman/5.7/en/identifiers.html
+- SQL Server: 128  -- https://msdn.microsoft.com/en-us/library/ms191240.aspx
+- Oracle: 32, then 128 from v12.2 (2017)
+"""
 
 TASK_SUMMARY_TEXT_FIELD_DEFAULT_MAX_LEN = 50
-# ... our choice, contains short strings like "normal", "abnormal", "severe".
-# Easy to change, since it's only used when exporting summaries, and not in
-# the core database.
+"""
+... our choice, contains short strings like "normal", "abnormal", "severe".
+Easy to change, since it's only used when exporting summaries, and not in
+the core database.
+"""
 
-URL_MAX_LEN = 255  # our choice
-USERNAME_CAMCOPS_MAX_LEN = 191  # our choice
-USERNAME_EXTERNAL_MAX_LEN = 255  # our choice
+#: Our choice
+URL_MAX_LEN = 255
+
+#: 191 is the maximum for MySQL + InnoDB + VARCHAR + utf8mb4 + index
+USERNAME_CAMCOPS_MAX_LEN = 191
+
+#: Our choice
+USERNAME_EXTERNAL_MAX_LEN = 255
 
 
 class RelationshipInfo(object):
@@ -308,7 +398,7 @@ DeviceNameColType = String(length=DEVICE_NAME_MAX_LEN)
 DiagnosticCodeColType = String(length=DIAGNOSTIC_CODE_MAX_LEN)
 
 EmailAddressColType = Unicode(length=EMAIL_ADDRESS_MAX_LEN)
-EraColType = String(length=ISO8601_STRING_MAX_LEN)  # underlying SQL type
+EraColType = String(length=ISO8601_DATETIME_STRING_MAX_LEN)  # underlying SQL type  # noqa
 ExportRecipientNameColType = String(length=EXPORT_RECIPIENT_NAME_MAX_LEN)
 ExportTransmissionMethodColType = String(length=SENDING_FORMAT_MAX_LEN)
 
@@ -699,8 +789,8 @@ def unknown_field_to_utcdatetime_sqlserver(
 
 
 # =============================================================================
-# Custom date/time field as ISO-8601 text including timezone, using Pendulum
-# on the Python side.
+# Custom date/time field as ISO-8601 text including timezone, using
+# pendulum.DateTime on the Python side.
 # =============================================================================
 
 class PendulumDateTimeAsIsoTextColType(TypeDecorator):
@@ -709,7 +799,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
     Uses Pendulum on the Python side.
     """
 
-    impl = String(length=ISO8601_STRING_MAX_LEN)  # underlying SQL type
+    impl = String(length=ISO8601_DATETIME_STRING_MAX_LEN)  # underlying SQL type  # noqa
 
     _coltype_name = "PendulumDateTimeAsIsoTextColType"
 
@@ -827,13 +917,101 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
 
 
 # =============================================================================
+# Custom duration field as ISO-8601 text, using pendulum.Duration on the Python
+# side.
+# =============================================================================
+
+class PendulumDurationAsIsoTextColType(TypeDecorator):
+    """
+    Stores time durations as ISO-8601, in a specific format.
+    Uses :class:`pendulum.Duration` on the Python side.
+    """
+
+    impl = String(length=ISO8601_DURATION_STRING_MAX_LEN)  # underlying SQL type  # noqa
+
+    _coltype_name = "PendulumDurationAsIsoTextColType"
+
+    @property
+    def python_type(self) -> type:
+        """
+        The Python type of the object.
+        """
+        return Duration
+
+    @staticmethod
+    def pendulum_duration_to_isostring(x: Optional[Duration]) -> Optional[str]:
+        """
+        From a :class:`pendulum.Duration` (or ``None``) an ISO-formatted string
+        in our particular format (or ``NULL``).
+        """
+        if x is None:
+            return None
+        return duration_to_iso(x, permit_years_months=True,
+                               minus_sign_at_front=True)
+
+    @staticmethod
+    def isostring_to_pendulum_duration(x: Optional[str]) -> Optional[Duration]:
+        """
+        From an ISO-formatted string to a Python Pendulum, with timezone.
+        """
+        if not x:  # None (NULL) or blank string
+            return None
+        try:
+            return duration_from_iso(x)
+        except (ISO8601Error, ValueError):
+            log.warning("Bad ISO duration string: {!r}", x)
+            return None
+
+    def process_bind_param(self, value: Optional[Pendulum],
+                           dialect: Dialect) -> Optional[str]:
+        """
+        Convert parameters on the way from Python to the database.
+        """
+        retval = self.pendulum_duration_to_isostring(value)
+        if DEBUG_DURATION_AS_ISO_TEXT:
+            log.debug(
+                "{}.process_bind_param("
+                "self={!r}, value={!r}, dialect={!r}) -> {!r}",
+                self._coltype_name, self, value, dialect, retval)
+        return retval
+
+    def process_literal_param(self, value: Optional[Pendulum],
+                              dialect: Dialect) -> Optional[str]:
+        """
+        Convert literals on the way from Python to the database.
+        """
+        retval = self.pendulum_duration_to_isostring(value)
+        if DEBUG_DURATION_AS_ISO_TEXT:
+            log.debug(
+                "{}.process_literal_param("
+                "self={!r}, value={!r}, dialect={!r}) -> {!r}",
+                self._coltype_name, self, value, dialect, retval)
+        return retval
+
+    def process_result_value(self, value: Optional[str],
+                             dialect: Dialect) -> Optional[Pendulum]:
+        """
+        Convert things on the way from the database to Python.
+        """
+        retval = self.isostring_to_pendulum_duration(value)
+        if DEBUG_DURATION_AS_ISO_TEXT:
+            log.debug(
+                "{}.process_result_value("
+                "self={!r}, value={!r}, dialect={!r}) -> {!r}",
+                self._coltype_name, self, value, dialect, retval)
+        return retval
+
+    # No comparator_factory; we do not use SQL to compare ISO durations.
+
+
+# =============================================================================
 # Semantic version column type
 # =============================================================================
 
 class SemanticVersionColType(TypeDecorator):
     """
     Stores semantic versions in the database.
-    Uses semantic_version.Version on the Python side.
+    Uses :class:`semantic_version.Version` on the Python side.
     """
 
     impl = String(length=147)  # https://github.com/mojombo/semver/issues/79
@@ -892,12 +1070,23 @@ class SemanticVersionColType(TypeDecorator):
                 self._coltype_name, self, value, dialect, retval)
         return retval
 
+    '''
     # noinspection PyPep8Naming
     class comparator_factory(TypeDecorator.Comparator):
         """
         Process SQL for when we are comparing our column, in the database,
         to something else.
-        """
+        
+        See https://docs.sqlalchemy.org/en/13/core/type_api.html#sqlalchemy.types.TypeEngine.comparator_factory.
+
+        .. warning::
+
+            I'm not sure this is either (a) correct or (b) used; it may
+            produce a string comparison of e.g. ``14.0.0`` versus ``2.0.0``,
+            which will be alphabetical and therefore wrong.
+            Disabled on 2019-04-28.
+
+        """  # noqa
 
         def operate(self, op, *other, **kwargs):
             assert len(other) == 1
@@ -911,6 +1100,7 @@ class SemanticVersionColType(TypeDecorator):
 
         def reverse_operate(self, op, *other, **kwargs):
             assert False, "I don't think this is ever being called"
+    '''
 
 
 # =============================================================================
@@ -1387,7 +1577,7 @@ class BoolColumn(CamcopsColumn):
         # in args, so we must handle that, too...
 
         _, type_in_args = _name_type_in_column_args(args)
-        self.constraint_name = None  # type: str
+        self.constraint_name = None  # type: Optional[str]
         if not type_in_args:
             self.constraint_name = kwargs.pop("constraint_name", None)
             if self.constraint_name:
@@ -1444,8 +1634,8 @@ class SqlaColtypesTest(unittest.TestCase):
         diff = a - b
         assert diff.microseconds < 1000, f"{a!r} != {b!r}"
 
-    def test_iso_field(self) -> None:
-        log.info("test_iso_field")
+    def test_iso_datetime_field(self) -> None:
+        log.info("test_iso_datetime_field")
 
         # from pprint import pformat
         import pendulum
@@ -1522,6 +1712,121 @@ class SqlaColtypesTest(unittest.TestCase):
         self._assert_dt_equal(rows[1]["iso_to_utcdt"], yesterday_utc)
         self._assert_dt_equal(rows[1]["uk_utcdt_to_utcdt"], yesterday_utc)
         self._assert_dt_equal(rows[1]["uk_iso_to_utc_dt"], yesterday_utc)
+
+    @staticmethod
+    def _assert_duration_equal(a: Duration, b: Duration) -> None:
+        assert a == b, f"{a!r} != {b!r}"
+
+    def test_iso_duration_field(self) -> None:
+        log.info("test_iso_duration_field")
+
+        from sqlalchemy.engine import create_engine
+        from sqlalchemy.sql.expression import select
+        from sqlalchemy.sql.schema import MetaData, Table
+
+        # As above:
+        engine = create_engine(SQLITE_MEMORY_URL, echo=True)
+        meta = MetaData()
+        meta.bind = engine
+
+        id_colname = 'id'
+        duration_colname = 'duration_iso'
+        id_col = Column(id_colname, Integer, primary_key=True)
+        duration_col = Column(duration_colname,
+                              PendulumDurationAsIsoTextColType)
+
+        table = Table('testtable', meta,
+                      id_col, duration_col)
+        table.create()
+
+        d1 = Duration(years=1, months=3, seconds=3, microseconds=4)
+        d2 = Duration(seconds=987.654321)
+        d3 = Duration(days=-5)
+
+        table.insert().values([
+            {
+                id_colname: 1,
+                duration_colname: d1,
+            },
+            {
+                id_colname: 2,
+                duration_colname: d2,
+            },
+            {
+                id_colname: 3,
+                duration_colname: d3,
+            },
+        ]).execute()
+        select_fields = [
+            id_col,
+            duration_col,
+        ]
+        rows = list(
+            select(select_fields)
+            .select_from(table)
+            .order_by(id_col)
+            .execute()
+        )
+        self._assert_duration_equal(rows[0][duration_col], d1)
+        self._assert_duration_equal(rows[1][duration_col], d2)
+        self._assert_duration_equal(rows[2][duration_col], d3)
+
+    @staticmethod
+    def _assert_version_equal(a: Version, b: Version) -> None:
+        assert a == b, f"{a!r} != {b!r}"
+
+    def test_semantic_version_field(self) -> None:
+        log.info("test_semantic_version_field")
+
+        from sqlalchemy.engine import create_engine
+        from sqlalchemy.sql.expression import select
+        from sqlalchemy.sql.schema import MetaData, Table
+
+        # As above:
+        engine = create_engine(SQLITE_MEMORY_URL, echo=True)
+        meta = MetaData()
+        meta.bind = engine
+
+        id_colname = 'id'
+        version_colname = 'version'
+        id_col = Column(id_colname, Integer, primary_key=True)
+        version_col = Column(version_colname, SemanticVersionColType)
+
+        table = Table('testtable', meta,
+                      id_col, version_col)
+        table.create()
+
+        v1 = Version("1.1.0")
+        v2 = Version("2.0.1")
+        v3 = Version("14.0.0")
+
+        table.insert().values([
+            {
+                id_colname: 1,
+                version_colname: v1,
+            },
+            {
+                id_colname: 2,
+                version_colname: v2,
+            },
+            {
+                id_colname: 3,
+                version_colname: v3,
+            },
+        ]).execute()
+        select_fields = [
+            id_col,
+            version_col,
+        ]
+        rows = list(
+            select(select_fields)
+            .select_from(table)
+            .order_by(id_col)
+            .execute()
+        )
+        self._assert_version_equal(rows[0][version_col], v1)
+        self._assert_version_equal(rows[1][version_col], v2)
+        self._assert_version_equal(rows[2][version_col], v3)
 
 
 # =============================================================================

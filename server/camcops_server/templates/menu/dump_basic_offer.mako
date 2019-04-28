@@ -17,42 +17,26 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             for some tasks, more than one).
         </li>
         <li>
+            Incorporates patient and summary information into each row.
+            Doesn’t provide BLOBs (e.g. pictures).
+        </li>
+        <li>
+            If there are no instances of a particular task, no sheet is returned.
+        </li>
+        <li>
             Restricted to current records (i.e. ignores historical
             versions of tasks that have been edited).
         </li>
         <li>
-            If there are no instances of a particular task, no TSV is returned.
-        </li>
-        <li>
-            Incorporates patient and summary information into each row.
-            Doesn’t provide BLOBs (e.g. pictures).
-            NULL values are represented by blank fields and are therefore
-            indistinguishable from blank strings.
-            The Excel dialect of TSV is used.
-        </li>
-        <li>
-            Once you’ve unzipped the resulting file, you can import TSV files
-            into many other software packages. Here are some examples:
-            <ul>
-                <li>
-                    <b>Excel:</b> Delimited / Tab.
-                    <i>(Make sure no other delimiters are selected!)</i>
-                </li>
-                <li>
-                    <b>OpenOffice:</b>
-                    Character set =  UTF-8; Separated by / Tab.
-                    <i>(Make sure no other delimiters are selected!)</i>
-                </li>
-                <li>
-                    <b>R:</b>
-                    <code>mydf = read.table("something.tsv", sep="\t",
-                    header=TRUE, na.strings="", comment.char="")</code>
-                    <i>(note that R will prepend ‘X’ to variable names starting
-                    with an underscore; see <code>?make.names</code>)</i>.
-                    Inspect the results with e.g. <code>colnames(mydf)</code>,
-                    or in RStudio, <code>View(mydf)</code>.
-                </li>
-            </ul>
+            For TSV, NULL values are represented by blank fields and are
+            therefore indistinguishable from blank strings, and the Excel
+            dialect of TSV is used. If you want to read TSV files into R, try
+            <code>mydf = read.table("something.tsv", sep="\t", header=TRUE,
+            na.strings="", comment.char="")</code> (note that R will prepend
+            ‘X’ to variable names starting with an underscore; see
+            <code>?make.names</code>). Inspect the results with e.g.
+            <code>colnames(mydf)</code>, or in RStudio,
+            <code>View(mydf)</code>.
         </li>
         <li>
             For more advanced features, use the

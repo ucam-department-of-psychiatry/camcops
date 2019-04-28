@@ -167,9 +167,11 @@ Server
 
   - ScheduledTask -- "task needs doing"
 
-    - patient (by ID number); group; task; due_from; due_by; cancelled?
+    - patient (by ID number); group; task; due_from; due_by;
+      skip_if_not_done_by; cancelled?
 
-    - Example: "PHQ9 due for Mr X on 1 July; must be completed by 1 Aug"
+    - Example: "PHQ9 due for Mr X after 1 July; due by 7 July; must be
+      completed by 1 Aug"
 
   - then for metacreation: “StudySchedule” or “TaskPanel”
 
@@ -185,9 +187,26 @@ Server
 
     - e.g. “Mr Jones starts today.... enrol!”
 
+  - ALTERNATIVELY: do we need ScheduledTask if the main thing is a person/panel
+    association?
+
   - Tablets should fetch “what needs doing” for any patients defined on the
     tablet, and display them nicely.
   - Tasks must be complete to satisfy the requirement.
+
+  - Database field type: represent :class:`pendulum.Duration` in ISO-8601
+    format, which is ``P[n]Y[n]M[n]DT[n]H[n]M[n]S``. The
+    ``pendulum.Duration.min`` and ``pendulum.Duration.max`` values are
+    ``Duration(weeks=-142857142, days=-5)`` and ``Duration(weeks=142857142,
+    days=6)`` respectively. A possible database output standard is
+    ``PT[x.y]S``, with floating-point seconds; this maps from the
+    :func:`pendulum.Duration.total_seconds` function.
+
+    - See new functions :func:`cardinal_pythonlib.datetimefunc.duration_to_iso`
+      and :func:`cardinal_pythonlib.datetimefunc.duration_from_iso`.
+
+    - New column type
+      :class:`camcops_server.cc_modules.cc_sqla_coltypes.PendulumDurationAsIsoTextColType`.
 
 - … Relating to that: consider, on the client, a “single-patient” mode
   (distinct from the current “researcher” mode), tied to a specific server.

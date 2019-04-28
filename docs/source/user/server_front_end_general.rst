@@ -176,9 +176,9 @@ Research views
 Basic research dump (fields and summaries)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The basic research dump generates a ZIP file. The ZIP file contains one TSV
-(tab-separated value) file for every current task [#current]_, and includes raw
-data and summary measures (e.g. total scores).
+This option allows you to download a spreadsheet or similar file that contains
+one worksheet for every current task [#current]_, and includes raw data and
+summary measures (e.g. total scores).
 
 .. note::
 
@@ -210,6 +210,14 @@ data and summary measures (e.g. total scores).
 You can choose to dump everything that you have permission for, or restrict to
 the criteria you’ve set in your current session filter, or specify tasks and/or
 groups manually.
+
+The download formats include:
+
+- OpenOffice/LibreOffice spreadsheet (ODS) format;
+- Microsoft Excel (XLSX);
+- A ZIP file containing multiple TSV files, one per worksheet. This is the
+  least human-friendly format, but is good for automatically importing into
+  statistics packages.
 
 
 Dump table data as SQL

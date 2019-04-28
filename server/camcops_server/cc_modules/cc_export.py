@@ -607,18 +607,17 @@ def get_tsv_collection_from_task_collection(
         fetched.
 
     """  # noqa
-    # -------------------------------------------------------------------------
-    # Iterate through tasks, creating the TSV collection
-    # -------------------------------------------------------------------------
     audit_descriptions = []  # type: List[str]
     # Task may return >1 file for TSV output (e.g. for subtables).
     tsvcoll = TsvCollection()
+    # Iterate through tasks, creating the TSV collection
     for cls in collection.task_classes():
         for task in gen_audited_tasks_for_task_class(collection, cls,
                                                      audit_descriptions):
             tsv_pages = task.get_tsv_pages(req)
             tsvcoll.add_pages(tsv_pages)
 
+    tsvcoll.sort_pages()
     if sort_by_heading:
         tsvcoll.sort_headings_within_all_pages()
 
@@ -671,7 +670,6 @@ def task_collection_to_xlsx_response(
     tsvcoll, audit_descriptions = get_tsv_collection_from_task_collection(
         req, collection, sort_by_heading)
     audit(req, f"Basic dump: {'; '.join(audit_descriptions)}")
-    tsvcoll.sort_pages()
     body = tsvcoll.as_xlsx()
     filename = (
         f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}.xlsx"
@@ -698,7 +696,6 @@ def task_collection_to_ods_response(
     tsvcoll, audit_descriptions = get_tsv_collection_from_task_collection(
         req, collection, sort_by_heading)
     audit(req, f"Basic dump: {'; '.join(audit_descriptions)}")
-    tsvcoll.sort_pages()
     body = tsvcoll.as_ods()
     filename = (
         f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}.ods"
