@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""
+r"""
 tools/build_qt.py
 
 ===============================================================================
@@ -524,7 +524,7 @@ CMAKE = "cmake"
 CYGPATH = "cygpath"
 GCC = "gcc"
 GIT = "git"
-GOBJDUMP = "gobjdump"  # macOS equivalent of readelf
+GOBJDUMP = "gobjdump"  # macOS 32-bit equivalent of readelf, via brew
 JAVAC = "javac"  # for Android builds
 LD = "ld"
 MAKE = "make"
@@ -532,6 +532,7 @@ MAKEDEPEND = "makedepend"  # used by OpenSSL via "make"
 NASM = "nasm.exe"  # Assembler for Windows (for OpenSSL); http://www.nasm.us/
 NMAKE = "nmake.exe"  # Visual Studio make tool
 OBJDUMP = "objdump"
+OTOOL = "otool"  # macOS 64-bit equivalent of gobjdump
 PERL = "perl"
 READELF = "readelf"  # read ELF-format library files
 SED = "sed"  # stream editor
@@ -586,7 +587,7 @@ def run(*args, **kwargs) -> Tuple[str, str]:
     Uses our library command-running tool, but forces the debug_show_env
     parameter.
     """
-    run2(*args, **kwargs, debug_show_env=DEBUG_SHOW_ENV)
+    return run2(*args, **kwargs, debug_show_env=DEBUG_SHOW_ENV)
 
 
 # =============================================================================
@@ -824,7 +825,10 @@ class Platform(object):
             require(READELF)
             require(OBJDUMP)  # for Windows DLL files
         elif self.osx:
-            require(GOBJDUMP)
+            if self.cpu_64bit:
+                require(OTOOL)
+            else:
+                require(GOBJDUMP)
         elif self.windows:
             pass
         else:
@@ -872,15 +876,19 @@ class Platform(object):
                 elif not self.cpu_arm_family and arm_tag_present:
                     raise ValueError(f"File {filename} was built for ARM")
         elif BUILD_PLATFORM.osx:
-            # https://lowlevelbits.org/parsing-mach-o-files/
-            # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
-            # gobjdump --help
-            dumpcmd = [GOBJDUMP, "-f", filename]
+            if self.cpu_64bit:
+                dumpcmd = [OTOOL, "-f", filename]
+            else:
+                # https://lowlevelbits.org/parsing-mach-o-files/
+                # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
+                # gobjdump --help
+                dumpcmd = [GOBJDUMP, "-f", filename]
+            # *** WHAT FOLLOWS IS OK FOR GOBJDUMP BUT IS TO BE VERIFIED FOR OTOOL ***  # noqa
             dumpresult = fetch(dumpcmd)
             arm64tag = "file format mach-o-arm64"
             arm64tag_present = arm64tag in dumpresult
             if self.cpu == Cpu.ARM_V8_64 and not arm64tag_present:
-                raise ValueError(f"File {filename} was not built for ARM64")
+                raise ValueError(f"File {filename} was not built for ARM64")  # noqa
             elif self.cpu != Cpu.ARM_V8_64 and arm64tag_present:
                 raise ValueError(f"File {filename} was built for ARM64")
         else:
@@ -2614,7 +2622,6 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # ---------------------------------------------------------------------
         makefile = join(workdir, "Makefile")  # written to by Configure
 
-
         if target_platform.ios:
             # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
             # add -isysroot to CC=
@@ -2714,7 +2721,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # OpenSSL: Test
         # ---------------------------------------------------------------------
         test_openssl = (
-            (not OPENSSL_FAILS_OWN_TESTS)  and
+            (not OPENSSL_FAILS_OWN_TESTS) and
             target_platform.os == BUILD_PLATFORM.os
             # can't really test e.g. Android code directly under Linux
         )

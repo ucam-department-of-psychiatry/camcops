@@ -120,3 +120,9 @@ Setting up an iMac for CamCOPS development
   ``$CAMCOPS_SOURCE_DIR/server`` directory. This installs all the Python
   dependencies for the CamCOPS server, which is overkill, but includes packages
   used by the :ref:`build_qt.py <build_qt>` script.
+
+- Install Homebrew; see the instructions at https://brew.sh/.
+
+- Run ``${CAMCOPS_SOURCE_DIR}/tablet_qt/tools/build_qt.py --build_all`` and
+  every time it stops and says there's an OS command missing, follow its
+  suggestion.
