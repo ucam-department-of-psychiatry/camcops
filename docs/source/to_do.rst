@@ -76,6 +76,8 @@ Tasks
 - discarded tasks - revitalize: MADRS
 - discarded tasks - revitalize: SAS
 
+- Kirby delay-discounting task.
+
 
 Client core
 -----------

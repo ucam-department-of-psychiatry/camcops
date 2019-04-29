@@ -72,3 +72,51 @@ Not yet fixed.
 **Decision:** Windows Server is an unsuitable OS for the CamCOPS client. (It
 should be fine for the CamCOPS server!) Use a client edition of Windows for
 the CamCOPS client.
+
+
+Setting up an iMac for CamCOPS development
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- General computer setup. This includes picking an Apple ID (generally) as well
+  as creating a user.
+
+- Download and install the open-source edition Qt from https://www.qt.io/. This
+  gets you Qt Creator. You'll need to log in with your Qt account.
+
+  - Installing Qt triggers installation of Xcode, if it wasn't already
+    installed.
+
+  - Maybe include also the Qt Installer Framework.
+
+- Download and install Git from https://git-scm.com/.
+
+  - Since this is a third-party app, you need to enable installation first.
+    :menuselection:`Apple icon [top left] --> System Preferences --> Security &
+    Privacy --> General --> Allow apps downloaded from...`
+
+- Fire up a terminal and clone the Git repository (e.g. to ``~/camcops/``).
+
+- Download and install Python 3 from https://www.python.com/ (MacOS comes with
+  Python 2).
+
+- Make and activate a Python 3 virtual environment (e.g. in
+  ``~/dev/venvs/camcops/``).
+
+- Save some time and effort in the future with a script like this:
+
+  .. code-block:: bash
+
+    #!/bin/bash
+    # ~/ACTIVATE_CAMCOPS_VENV.sh
+
+    export CAMCOPS_SOURCE_DIR=~/camcops
+    export CAMCOPS_VENV=~/dev/venvs/camcops
+    export CAMCOPS_QT_BASE_DIR=~/dev/qt_local_build
+
+    . ${CAMCOPS_VENV}/bin/activate
+    cd ${CAMCOPS_SOURCE_DIR}
+
+- Same some time and effort by executing ``pip install -e .`` from the
+  ``$CAMCOPS_SOURCE_DIR/server`` directory. This installs all the Python
+  dependencies for the CamCOPS server, which is overkill, but includes packages
+  used by the :ref:`build_qt.py <build_qt>` script.

@@ -261,7 +261,7 @@ if sys.version_info < (3, 6):
 
 MINIMUM_CARDINAL_PYTHONLIB = "1.0.8"
 if Version(cardinal_pythonlib.version.VERSION) < Version(MINIMUM_CARDINAL_PYTHONLIB):  # noqa
-    raise ImportError("Need cardinal_pythonlib >= {}".format(MINIMUM_CARDINAL_PYTHONLIB))  # noqa
+    raise ImportError(f"Need cardinal_pythonlib >= {MINIMUM_CARDINAL_PYTHONLIB}")  # noqa
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 PYTHON_3_6_OR_HIGHER = sys.version_info >= (3, 6)
@@ -355,10 +355,11 @@ OPENSSL_AT_LEAST_1_1 = True
 OPENSSL_FAILS_OWN_TESTS = True
 # https://bugs.launchpad.net/ubuntu/+source/openssl/+bug/1581084
 DEFAULT_OPENSSL_SRC_URL = (
-    "https://www.openssl.org/source/openssl-{}.tar.gz".format(
-        DEFAULT_OPENSSL_VERSION))
-DEFAULT_OPENSSL_ANDROID_SCRIPT_URL = \
+    f"https://www.openssl.org/source/openssl-{DEFAULT_OPENSSL_VERSION}.tar.gz"
+)
+DEFAULT_OPENSSL_ANDROID_SCRIPT_URL = (
     "https://wiki.openssl.org/images/7/70/Setenv-android.sh"
+)
 
 # SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
 DEFAULT_SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
@@ -387,9 +388,9 @@ DEFAULT_BOOST_SRC_URL = (
 # Armadillo (NO LONGER IN USE)
 DEFAULT_ARMA_VERSION = "7.950.0"
 DEFAULT_ARMA_SRC_URL = (
-    "http://sourceforge.net/projects/arma/files/"
-    "armadillo-{}.tar.xz".format(
-        DEFAULT_ARMA_VERSION))
+    f"http://sourceforge.net/projects/arma/files/"
+    f"armadillo-{DEFAULT_ARMA_VERSION}.tar.xz"
+)
 
 # MLPACK; http://mlpack.org/ (NO LONGER IN USE)
 DEFAULT_MLPACK_GIT_URL = "https://github.com/mlpack/mlpack"
@@ -639,14 +640,14 @@ class Platform(object):
         self.cpu = cpu
         self.distro_id = distro_id
         if os not in ALL_OSS:
-            raise NotImplementedError("Unknown target OS: {!r}".format(os))
+            raise NotImplementedError(f"Unknown target OS: {os!r}")
         if cpu not in ALL_CPUS:
-            raise NotImplementedError("Unknown target CPU: {!r}".format(cpu))
+            raise NotImplementedError(f"Unknown target CPU: {cpu!r}")
 
         # 64-bit support only (thus far)?
         if os in [Os.LINUX, Os.OSX] and not self.cpu_x86_64bit_family:
-            raise NotImplementedError("Don't know how to build for CPU " +
-                                      cpu + " on system " + os)
+            raise NotImplementedError(
+                f"Don't know how to build for CPU {cpu} on system {os}")
 
     # -------------------------------------------------------------------------
     # Descriptives
@@ -667,7 +668,7 @@ class Platform(object):
         """
         Short description, for user information.
         """
-        return "{}/{}".format(self.os, self.cpu)
+        return f"{self.os}/{self.cpu}"
 
     @property
     def os_shortname(self) -> str:
@@ -685,7 +686,7 @@ class Platform(object):
         elif self.os == Os.IOS:
             return "ios"
         else:
-            raise ValueError("Unknown OS: {!r}".format(self.os))
+            raise ValueError(f"Unknown OS: {self.os!r}")
 
     @property
     def cpu_shortname(self) -> str:
@@ -703,14 +704,14 @@ class Platform(object):
         elif self.cpu == Cpu.ARM_V8_64:
             return "armv8_64"
         else:
-            raise ValueError("Unknown CPU: {!r}".format(self.cpu))
+            raise ValueError(f"Unknown CPU: {self.cpu!r}")
 
     @property
     def dirpart(self) -> str:
         """
         Used to name our build directories.
         """
-        return "{}_{}".format(self.os_shortname, self.cpu_shortname)
+        return f"{self.os_shortname}_{self.cpu_shortname}"
 
     # -------------------------------------------------------------------------
     # OS/CPU information
@@ -827,8 +828,8 @@ class Platform(object):
         elif self.windows:
             pass
         else:
-            raise NotImplementedError("Don't know ELF reader for {}".format(
-                BUILD_PLATFORM))
+            raise NotImplementedError(
+                f"Don't know ELF reader for {BUILD_PLATFORM}")
 
     def verify_lib(self, filename: str) -> None:
         """
@@ -858,22 +859,18 @@ class Platform(object):
                 pe32_tag = "file format pe-i386"
                 pe64_tag = "file format pe-x86-64"
                 if self.cpu_64bit and pe64_tag not in dumpresult:
-                    raise ValueError("File {!r} is not a Win64 "
-                                     "DLL".format(filename))
+                    raise ValueError(f"File {filename!r} is not a Win64 DLL")
                 if not self.cpu_64bit and pe32_tag not in dumpresult:
-                    raise ValueError("File {!r} is not a Win32 "
-                                     "DLL".format(filename))
+                    raise ValueError(f"File {filename!r} is not a Win32 DLL")
             else:
                 elf_arm_tag = "Tag_ARM_ISA_use: Yes"
                 elfcmd = [READELF, "-A", filename]
                 elfresult = fetch(elfcmd)
                 arm_tag_present = elf_arm_tag in elfresult
                 if self.cpu_arm_family and not arm_tag_present:
-                    raise ValueError(
-                            "File {} was not built for ARM".format(filename))
+                    raise ValueError(f"File {filename} was not built for ARM")
                 elif not self.cpu_arm_family and arm_tag_present:
-                    raise ValueError(
-                            "File {} was built for ARM".format(filename))
+                    raise ValueError(f"File {filename} was built for ARM")
         elif BUILD_PLATFORM.osx:
             # https://lowlevelbits.org/parsing-mach-o-files/
             # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
@@ -883,11 +880,9 @@ class Platform(object):
             arm64tag = "file format mach-o-arm64"
             arm64tag_present = arm64tag in dumpresult
             if self.cpu == Cpu.ARM_V8_64 and not arm64tag_present:
-                raise ValueError(
-                    "File {} was not built for ARM64".format(filename))
+                raise ValueError(f"File {filename} was not built for ARM64")
             elif self.cpu != Cpu.ARM_V8_64 and arm64tag_present:
-                raise ValueError(
-                    "File {} was built for ARM64".format(filename))
+                raise ValueError(f"File {filename} was built for ARM64")
         else:
             log.warning("Don't know how to verify library under build "
                         "platform {}", BUILD_PLATFORM)
@@ -932,7 +927,7 @@ class Platform(object):
         Needs to match Android SDK naming. Don't alter.
         """
         # e.g. arch-x86
-        return "arch-{}".format(self.android_arch_short)
+        return f"arch-{self.android_arch_short}"
 
     # -------------------------------------------------------------------------
     # iOS
@@ -1151,8 +1146,8 @@ class Platform(object):
                 # "configure: error: cannot run C compiled programs.
                 #  If you meant to cross compile, use `--host'."
                 # ... despite using --host!
-        raise NotImplementedError("Don't know how to support SQLCipher for "
-                                  "{}".format(self))
+        raise NotImplementedError(
+            f"Don't know how to support SQLCipher for {self}")
 
 
 def get_build_platform() -> Platform:
@@ -1167,7 +1162,7 @@ def get_build_platform() -> Platform:
     elif s == "Windows":
         os_ = Os.WINDOWS
     else:
-        raise NotImplementedError("Don't know host (build) OS {!r}".format(s))
+        raise NotImplementedError(f"Don't know host (build) OS {s!r}")
     m = platform.machine()
     if m == "i386":
         cpu = Cpu.X86_32
@@ -1176,7 +1171,7 @@ def get_build_platform() -> Platform:
     elif m == "AMD64":
         cpu = Cpu.AMD_64
     else:
-        raise NotImplementedError("Don't know host (build) CPU {!r}".format(m))
+        raise NotImplementedError(f"Don't know host (build) CPU {m!r}")
     distro_id = distro.id() if distro else ""
     return Platform(os_, cpu, distro_id)
 
@@ -1256,7 +1251,7 @@ class Config(object):
         self.android_ndk_root = args.android_ndk_root  # type: str
         self.android_ndk_host = args.android_ndk_host  # type: str
         self.android_toolchain_version = args.android_toolchain_version  # type: str  # noqa
-        self.android_api = "android-{}".format(self.android_api_number)
+        self.android_api = f"android-{self.android_api_number}"
         # ... see $ANDROID_SDK_ROOT/platforms/
 
         # iOS
@@ -1274,8 +1269,7 @@ class Config(object):
         self.openssl_android_script_url = args.openssl_android_script_url  # type: str  # noqa
         # ... derived:
         self.openssl_src_dir = join(self.src_rootdir, "openssl")
-        self.openssl_src_filename = "openssl-{}.tar.gz".format(
-            self.openssl_version)
+        self.openssl_src_filename = f"openssl-{self.openssl_version}.tar.gz"
         self.openssl_src_fullpath = join(self.openssl_src_dir,
                                          self.openssl_src_filename)
         self.openssl_android_script_fullpath = join(
@@ -1300,8 +1294,7 @@ class Config(object):
             # ... derived:
             boost_version_underscores = self.boost_version.replace(".", "_")
             self.boost_src_dir = join(self.src_rootdir, "boost")
-            self.boost_src_filename = "boost_{}.tar.xz".format(
-                boost_version_underscores)
+            self.boost_src_filename = f"boost_{boost_version_underscores}.tar.xz"  # noqa
             self.boost_src_fullpath = join(self.boost_src_dir,
                                            self.boost_src_filename)
             self.boost_dest_dir = join(self.root_dir, "boost")
@@ -1318,7 +1311,7 @@ class Config(object):
             self.arma_version = args.arma_version  # type: str
             self.arma_src_url = args.arma_src_url  # type: str
             # ... derived:
-            arma_w_version = "armadillo-{}".format(self.arma_version)
+            arma_w_version = f"armadillo-{self.arma_version}"
             self.arma_src_dir = join(self.src_rootdir, "armadillo")
             self.arma_src_filename = arma_w_version + ".tar.xz"
             self.arma_src_fullpath = join(self.arma_src_dir,
@@ -1340,13 +1333,12 @@ class Config(object):
         if USE_EIGEN:
             self.eigen_version = args.eigen_version  # type: str
             self.eigen_src_url = (
-                "http://bitbucket.org/eigen/eigen/get/{}.tar.gz".format(
-                    self.eigen_version)
+                f"http://bitbucket.org/eigen/eigen/get/{self.eigen_version}.tar.gz"  # noqa
             )
             self.eigen_src_dir = join(self.src_rootdir, "eigen")
             self.eigen_src_fullpath = join(
                 self.eigen_src_dir,
-                "eigen-{}.tar.gz".format(self.eigen_version))
+                f"eigen-{self.eigen_version}.tar.gz")
             self.eigen_unpacked_dir = join(self.root_dir, "eigen")
 
         # jom: comes with QtCreator
@@ -1368,7 +1360,7 @@ class Config(object):
         self._cached_xcode_developer_path = ""
 
     def __repr__(self) -> str:
-        elements = ["    {}={}".format(k, repr(v))
+        elements = [f"    {k}={repr(v)}"
                     for k, v in self.__dict__.items()]
         elements.sort()
         return "{q}(\n{e}\n)".format(q=self.__class__.__qualname__,
@@ -1382,16 +1374,18 @@ class Config(object):
         """
         The directory in which we will compile and build Qt.
         """
-        return join(self.root_dir, "qt_{}_build{}".format(
-            target_platform.dirpart, self._qt_dir_suffix()))
+        return join(
+            self.root_dir,
+            f"qt_{target_platform.dirpart}_build{self._qt_dir_suffix()}")
 
     def qt_install_dir(self, target_platform: Platform) -> str:
         """
         The directory to which we'll install Qt, culminating in the "qmake"
         tool.
         """
-        return join(self.root_dir, "qt_{}_install{}".format(
-            target_platform.dirpart, self._qt_dir_suffix()))
+        return join(
+            self.root_dir,
+            f"qt_{target_platform.dirpart}_install{self._qt_dir_suffix()}")
 
     def _qt_dir_suffix(self) -> str:
         if self.qt_build_type == QT_BUILD_RELEASE:
@@ -1411,8 +1405,8 @@ class Config(object):
         interesting stuff lives).
         """
         rootdir = join(self.root_dir,
-                       "openssl_{}_build".format(target_platform.dirpart))
-        workdir = join(rootdir, "openssl-{}".format(self.openssl_version))
+                       f"openssl_{target_platform.dirpart}_build")
+        workdir = join(rootdir, f"openssl-{self.openssl_version}")
         return rootdir, workdir
 
     # -------------------------------------------------------------------------
@@ -1457,8 +1451,8 @@ class Config(object):
             self._set_osx_env(env, target_platform=target_platform)
         else:
             raise NotImplementedError(
-                "Don't know how to set compilation environment for "
-                "{}".format(target_platform))
+                f"Don't know how to set compilation environment "
+                f"for {target_platform}")
 
     def _set_linux_env(self,
                        env: Dict[str, str],
@@ -1500,8 +1494,7 @@ class Config(object):
             # ... unnecessary as we are specifying AR, CC directly
         env["HOSTCC"] = BUILD_PLATFORM.gcc(fullpath=not use_cross_compile_var,
                                            cfg=self)
-        env["PATH"] = "{}{}{}".format(android_toolchain, os.pathsep,
-                                      env["PATH"])
+        env["PATH"] = f"{android_toolchain}{os.pathsep}{env['PATH']}"
         env["SYSROOT"] = android_sysroot
         env["NDK_SYSROOT"] = android_sysroot
 
@@ -1553,26 +1546,20 @@ class Config(object):
         env["BUILD_TOOLS"] = developer
         if use_gcc:
             env["CC"] = (
-                "{gcc}"
-                " -fembed-bitcode"
-                " -mios-version-min={min_ios_version}"
-                " -arch {arch}".format(
-                    gcc=os.path.join(developer, 'usr', 'bin', GCC),
-                    min_ios_version=self.ios_min_version,
-                    arch=arch,
-                )
+                f"{os.path.join(developer, 'usr', 'bin', GCC)} "
+                f"-fembed-bitcode "
+                f"-mios-version-min={self.ios_min_version} "
+                f"-arch {arch}"
             )
         else:
             env["CC"] = fetch([XCRUN, "-sdk", sdk_name_lower,
                                "-find", CLANG]).strip()
 
         cflags = [
-            "-arch {}".format(arch),
-            "-isysroot {}".format(escaped_sysroot),
-            "-m{platform}-version-min={ios_min_version}".format(
-                platform=xcode_platform.lower(),
-                ios_min_version=self.ios_min_version,
-            ),  # ... likely to be "-miphoneos-version-min"
+            f"-arch {arch}",
+            f"-isysroot {escaped_sysroot}",
+            f"-m{xcode_platform.lower()}-version-min={self.ios_min_version}",
+            # ... likely to be "-miphoneos-version-min"
             # "--sysroot={}".format(sysroot),
         ]
         env["CFLAGS"] = " ".join(cflags)
@@ -1581,10 +1568,7 @@ class Config(object):
         env["CROSS_TOP"] = self._xcode_platform_dev_path(
             xcode_platform=xcode_platform)
         env["CROSS_SDK"] = sdk_name + ".sdk"
-        env["LDFLAGS"] = "-arch {arch} -isysroot {sysroot}".format(
-            arch=arch,
-            sysroot=escaped_sysroot,
-        )
+        env["LDFLAGS"] = f"-arch {arch} -isysroot {escaped_sysroot}"
         env["PLATFORM"] = xcode_platform
         env["RANLIB"] = fetch([XCRUN, "-sdk", sdk_name_lower, "-find",
                                "ranlib"]).strip()
@@ -1623,7 +1607,7 @@ class Config(object):
         Find the XCode Developer path for a specific target platform.
         """
         return join(self._xcode_platforms_path,
-                    "{}.platform".format(xcode_platform),
+                    f"{xcode_platform}.platform",
                     "Developer")
 
     def _xcode_all_sdks_path(self, xcode_platform: str) -> str:
@@ -1638,7 +1622,7 @@ class Config(object):
         """
         Find the short name of a specific SDK version for a platform.
         """
-        return "{p}{s}".format(p=xcode_platform, s=sdk_version)
+        return f"{xcode_platform}{sdk_version}"
 
     def _xcode_sdk_path(self, xcode_platform: str, sdk_version: str) -> str:
         """
@@ -1703,7 +1687,7 @@ class Config(object):
                     fullpath=not use_cross_compile_var, cfg=self)
                 env["PATH"] += os.pathsep + self.mxe_bin_dir
                 # As per MXE:
-                env["PKG_CONFIG"] = "{}pkg-config".format(crosscomp)
+                env["PKG_CONFIG"] = f"{crosscomp}pkg-config"
                 env["PKG_CONFIG_DIR"] = ""
                 # ... https://autotools.io/pkgconfig/cross-compiling.html
                 env["PKG_CONFIG_SYSROOT_DIR"] = pkgconfig_sysroot  # proper
@@ -1748,8 +1732,8 @@ class Config(object):
                 arch = "amd64"
             else:
                 raise NotImplementedError(
-                    "Don't know how to compile for Windows for target "
-                    "platform {}".format(target_platform))
+                    f"Don't know how to compile for Windows for target "
+                    f"platform {target_platform}")
             # Now read the result from vcvarsall.bat directly
             args = [VCVARSALL, arch]
             fetched_env = windows_get_environment_from_batch_command(
@@ -1769,8 +1753,8 @@ class Config(object):
 
         else:
             raise NotImplementedError(
-                "Don't know how to compile for Windows on build platform "
-                "{}".format(BUILD_PLATFORM))
+                f"Don't know how to compile for Windows on build platform "
+                f"{BUILD_PLATFORM}")
 
     def _android_eabi(self, target_platform: Platform) -> str:
         """
@@ -1845,8 +1829,8 @@ class Config(object):
             return "/"  # default sysroot
         elif target_platform.windows:
             return env["WindowsSdkDir"]
-        raise NotImplementedError("Don't know sysroot for target: {}".format(
-            target_platform))
+        raise NotImplementedError(
+            f"Don't know sysroot for target: {target_platform}")
 
     # -------------------------------------------------------------------------
     # Conversion functions
@@ -1878,7 +1862,7 @@ class Config(object):
             "-Wl,--no-whole-archive",
             # "-L{}".format(directory),
             # "-l{}".format(libname),
-            "--sysroot={}".format(self.android_sysroot(target_platform)),
+            f"--sysroot={self.android_sysroot(target_platform)}",
         ])
         target_platform.verify_lib(newlibfilename)
         return newlibfilename
@@ -1930,7 +1914,7 @@ def escape_literal_for_shell(x: str) -> str:
     #         x += backslash
     # else:
     x = x.replace(backslash, backslash + backslash)
-    x = '"{}"'.format(x)
+    x = f'"{x}"'
     return x
 
 
@@ -2068,7 +2052,7 @@ def require(command: str) -> None:
     if shutil.which(command):
         return
     # Failure, so offer some help
-    missing_msg = "Missing OS command: {}".format(command)
+    missing_msg = f"Missing OS command: {command}"
     helpmsg = "If core commands are missing:\n"
     if BUILD_PLATFORM.linux:
         helpmsg += UBUNTU_PACKAGE_HELP
@@ -2144,10 +2128,11 @@ def ensure_first_perl_is_not_cygwin() -> None:
     require(PERL)
     which = shutil.which(PERL)
     if "cygwin" in which.lower():  # imperfect check based on default Cygwin installation path  # noqa
-        fail("The first instance of Perl on your path ({}) is from Cygwin. "
-             "This will fail when building OpenSSL. Please re-order your PATH "
-             "so that a Windows version, e.g. ActiveState Perl, comes "
-             "first.".format(which))
+        fail(
+            f"The first instance of Perl on your path ({which}) is from "
+            f"Cygwin. This will fail when building OpenSSL. Please re-order "
+            f"your PATH so that a Windows version, e.g. ActiveState Perl, "
+            f"comes first.")
 
 
 def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
@@ -2213,14 +2198,14 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
         return True
     elif result == incorrect:
         log.warning(
-            "The TCL shell, {!r}, is a UNIX version (e.g. Cygwin) "
-            "incompatible with Windows backslash-delimited filenames; switch "
-            "to a Windows version (e.g. ActiveState ActiveTCL).".format(tclsh))
+            f"The TCL shell, {tclsh!r}, is a UNIX version (e.g. Cygwin) "
+            f"incompatible with Windows backslash-delimited filenames; switch "
+            f"to a Windows version (e.g. ActiveState ActiveTCL).")
         return False
     else:
         raise RuntimeError(
-            "Don't understand output from TCL shell {!r} with input {!r}; "
-            "output was {!r}".format(tclsh, tcl_cmd, result))
+            f"Don't understand output from TCL shell {tclsh!r} with input "
+            f"{tcl_cmd!r}; output was {result!r}")
 
 
 # =============================================================================
@@ -2441,8 +2426,8 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
                 else:
                     return ["mingw"]
 
-    raise NotImplementedError("Don't known OpenSSL target name for "
-                              "{}".format(target_platform))
+    raise NotImplementedError(
+        f"Don't known OpenSSL target name for {target_platform}")
 
     # For new platforms: if you're not sure, use target_os = "crashme" and
     # you'll get the list of permitted values, which as of 2017-11-12 is:
@@ -2474,8 +2459,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     static_lib_ext = target_platform.static_lib_ext
     if BUILD_PLATFORM.windows:
         openssl_verparts = cfg.openssl_version.split(".")
-        openssl_major = "-{}_{}".format(openssl_verparts[0],
-                                        openssl_verparts[1])
+        openssl_major = f"-{openssl_verparts[0]}_{openssl_verparts[1]}"
         if target_platform.cpu_x86_64bit_family:
             fname_arch = "-x64"
         else:
@@ -2484,10 +2468,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     else:
         fname_extra = ""
     main_targets = [
-        join(workdir, "libssl{}{}".format(fname_extra, dynamic_lib_ext)),
-        join(workdir, "libssl{}".format(static_lib_ext)),
-        join(workdir, "libcrypto{}{}".format(fname_extra, dynamic_lib_ext)),
-        join(workdir, "libcrypto{}".format(static_lib_ext)),
+        join(workdir, f"libssl{fname_extra}{dynamic_lib_ext}"),
+        join(workdir, f"libssl{static_lib_ext}"),
+        join(workdir, f"libcrypto{fname_extra}{dynamic_lib_ext}"),
+        join(workdir, f"libcrypto{static_lib_ext}"),
     ]
 
     # Now, also: Linux likes to use "-lcrypto" and have that mean "look at
@@ -2639,18 +2623,14 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
                 "-i",  # in place
                 "-e",  # execute the script expression that follows
                 (
-                    "s"  # s/regexp/replacement/
-                    "!"  # use '!' not '/' to delineate regex
-                    "^CFLAGS="
-                    "!"
-                    "CFLAGS=-isysroot {cross_top}/SDKs/{cross_sdk}"
-                    " -mios-version-min={min_ios_version}"
-                    " -miphoneos-version-min={min_ios_version} "
-                    "!".format(
-                        cross_top=env["CROSS_TOP"],
-                        cross_sdk=env["CROSS_SDK"],
-                        min_ios_version=cfg.ios_min_version,
-                    )
+                    f"s"  # s/regexp/replacement/
+                    f"!"  # use '!' not '/' to delineate regex
+                    f"^CFLAGS="
+                    f"!"
+                    f"CFLAGS=-isysroot {env['CROSS_TOP']}/SDKs/{env['CROSS_SDK']} "  # noqa
+                    f"-mios-version-min={cfg.ios_min_version} "
+                    f"-miphoneos-version-min={cfg.ios_min_version} "
+                    f"!"
                 ),
                 makefile
             ])
@@ -2841,7 +2821,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # Qt: Environment
     # -------------------------------------------------------------------------
     env = get_starting_env()
-    openssl_libs = "-L{} -lssl -lcrypto".format(openssl_lib_root)
+    openssl_libs = f"-L{openssl_lib_root} -lssl -lcrypto"
     # See also https://bugreports.qt.io/browse/QTBUG-62016
     env['OPENSSL_LIBS'] = openssl_libs
     # Setting OPENSSL_LIBS as an *environment variable* may be unnecessary,
@@ -2897,8 +2877,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         elif target_platform.cpu == Cpu.ARM_V7_32:
             android_arch_short = "armeabi-v7a"
         else:
-            raise NotImplementedError("Don't know how to use CPU {!r} for "
-                                      "Android".format(target_platform.cpu))
+            raise NotImplementedError(
+                f"Don't know how to use CPU {target_platform.cpu!r} "
+                f"for Android")
         qt_config_args += [
             "-android-sdk", cfg.android_sdk_root,
             "-android-ndk", cfg.android_ndk_root,
@@ -2991,7 +2972,7 @@ define $(PKG)_BUILD
                 # ... or get: "fatal error: EGL/egl.h: No such file or directory"  # noqa
 
                 # These as per MXE:
-                "-device-option", "PKG_CONFIG={}pkg-config".format(crosscomp),
+                "-device-option", f"PKG_CONFIG={crosscomp}pkg-config",
                 "-pkg-config",
                 "-force-pkg-config",
                 "-no-use-gold-linker",
@@ -3019,8 +3000,9 @@ define $(PKG)_BUILD
             qt_config_args += []
 
         else:
-            raise NotImplementedError("Don't know how to compile Qt for "
-                                      "Windows on {}".format(target_platform))
+            raise NotImplementedError(
+                f"Don't know how to compile Qt for Windows on "
+                f"{target_platform}")
 
     else:
         raise NotImplementedError("Don't know how to compile Qt for " +
@@ -3069,13 +3051,11 @@ define $(PKG)_BUILD
         def check_bad_super_cache(bad_super_cache: str) -> None:
             if os.path.exists(bad_super_cache):
                 fail(
-                    "You must delete {!r} first, or Qt's 'configure' will "
-                    "fail with the error 'Project ERROR: You cannot configure "
-                    "qt separately within a top-level build.' (from "
-                    "qtbase/mkspecs/features/qt_configure.prf, when it checks "
-                    "_QMAKE_SUPER_CACHE_).".format(
-                        bad_super_cache
-                    )
+                    f"You must delete {bad_super_cache!r} first, or Qt's "
+                    f"'configure' will fail with the error 'Project ERROR: "
+                    f"You cannot configure qt separately within a top-level "
+                    f"build.' (from qtbase/mkspecs/features/qt_configure.prf, "
+                    f"when it checks _QMAKE_SUPER_CACHE_)."
                 )
 
         check_bad_super_cache(os.path.expanduser("~/.qmake.super"))
@@ -3168,8 +3148,8 @@ Troubleshooting Qt 'configure' failures
     # -------------------------------------------------------------------------
     # Qt: make (can take several hours)
     # -------------------------------------------------------------------------
-    log.info("Making Qt {} build into {}".format(target_platform.description,
-                                                 installdir))
+    log.info(
+        f"Making Qt {target_platform.description} build into {installdir}")
     with pushd(builddir):
         # run(cfg.make_args(command="qmake_all", env=env), env)
         try:
@@ -3237,8 +3217,9 @@ A.  !!! does MXE build, and if so, can we copy it?
 
 def make_missing_libqtforandroid_so(cfg: Config,
                                     target_platform: Platform) -> None:
-    log.info("Making Android Qt dynamic library (from static version) for "
-             "{}".format(target_platform))
+    log.info(
+        f"Making Android Qt dynamic library (from static version) for "
+        f"{target_platform}")
     qt_install_dir = cfg.qt_install_dir(target_platform)
     parent_dir = join(qt_install_dir, "plugins", "platforms")
     starting_lib_dir = join(parent_dir, "android")
@@ -3382,7 +3363,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         # Compiler:
         cflags = [
             "-DSQLITE_HAS_CODEC",
-            "-I{}".format(openssl_include_dir),
+            f"-I{openssl_include_dir}",
             # ... sqlite.c does e.g. "#include <openssl/rand.h>"
         ]
         if "CFLAGS" in env:
@@ -3393,7 +3374,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         ]
 
         # Linker:
-        ldflags = ["-L{}".format(openssl_workdir)]
+        ldflags = [f"-L{openssl_workdir}"]
 
         link_openssl_statically = target_platform.desktop
         # ... try for dynamic linking on Android
@@ -3433,8 +3414,8 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             join(destdir, "configure"),
             "--enable-tempstore=yes",  # see README.md; equivalent to SQLITE_TEMP_STORE=2  # noqa
             # no quotes (they're fine on the command line but not here):
-            'CFLAGS={}'.format(" ".join(cflags + gccflags)),
-            'LDFLAGS={}'.format(" ".join(ldflags)),
+            f'CFLAGS={" ".join(cflags + gccflags)}',
+            f'LDFLAGS={" ".join(ldflags)}',
         ]
         # By default, SQLCipher compiles with "-O2" optimizations under gcc;
         # see its "configure" script.
@@ -3444,12 +3425,9 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         # presumably not supported, but "--build" and "--host" are used (where
         # "host" means "target").
 
-        config_args.append("--build={}".format(
-            BUILD_PLATFORM.sqlcipher_platform))
-        config_args.append("--host={}".format(
-            target_platform.sqlcipher_platform))
-        config_args.append("--prefix={}".format(
-            cfg.sysroot(target_platform, env)))
+        config_args.append(f"--build={BUILD_PLATFORM.sqlcipher_platform}")
+        config_args.append(f"--host={target_platform.sqlcipher_platform}")
+        config_args.append(f"--prefix={cfg.sysroot(target_platform, env)}")
 
         # ---------------------------------------------------------------------
         # SQLCipher/Unix: configure
@@ -3480,13 +3458,14 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         # -------------------------------------------------------------------------
         target_platform.verify_lib(target_o)
 
-    log.info("If successful, you should have the amalgation files:\n"
-             "- {}\n"
-             "- {}\n"
-             "and the library:\n"
-             "- {}\n"
-             "and, on non-mobile platforms, the executable:\n"
-             "- {}".format(target_c, target_h, target_o, target_exe))
+    log.info(
+        f"If successful, you should have the amalgation files:\n"
+        f"- {target_c}\n"
+        f"- {target_h}\n"
+        f"and the library:\n"
+        f"- {target_o}\n"
+        f"and, on non-mobile platforms, the executable:\n"
+        f"- {target_exe}")
 
 
 # =============================================================================
@@ -3601,7 +3580,7 @@ def build_mlpack(cfg: Config) -> None:
         (
             '''set(Boost_ADDITIONAL_VERSIONS
   "1.49.0" "1.50.0" "1.51.0" "1.52.0" "1.53.0" "1.54.0" "1.55.0")''',
-            'set(Boost_ADDITIONAL_VERSIONS "{}")'.format(cfg.boost_version)
+            f'set(Boost_ADDITIONAL_VERSIONS "{cfg.boost_version}")'
         ),
         # Note that FindBoost.cmake looks for
         #       boost_program_options
@@ -3619,7 +3598,7 @@ def build_mlpack(cfg: Config) -> None:
       serialization
     REQUIRED
 )""",
-            "find_package(Boost {})".format(cfg.boost_version)
+            f"find_package(Boost {cfg.boost_version})"
         ),
     ]
     replace_multiple_in_file(cmakelists, replacements)
@@ -3629,10 +3608,10 @@ def build_mlpack(cfg: Config) -> None:
         run([
             CMAKE,
             #  "-D", "ARMADILLO_LIBRARY={}".format(cfg.arma_lib),
-            "-D", "ARMADILLO_INCLUDE_DIR={}".format(cfg.arma_include_dir),
-            "-D", "BOOST_ROOT={}".format(cfg.boost_root),
-            "-D", "BOOST_INCLUDEDIR={}".format(cfg.boost_include_dir),
-            "-D", "BOOST_LIBRARYDIR={}".format(cfg.boost_library_dir),
+            "-D", f"ARMADILLO_INCLUDE_DIR={cfg.arma_include_dir}",
+            "-D", f"BOOST_ROOT={cfg.boost_root}",
+            "-D", f"BOOST_INCLUDEDIR={cfg.boost_include_dir}",
+            "-D", f"BOOST_LIBRARYDIR={cfg.boost_library_dir}",
             # "-D", "CMAKE_CXX_FLAGS=-I/usr/local/opt/llvm/include -std=c++11",
             "-D", "FORCE_CXX11=1"
             # "-D", "Boost_DEBUG=ON",  # tell FindBoost.cmake to be verbose
@@ -3691,7 +3670,7 @@ def build_mxe(cfg: Config, target_platform: Platform,
     """
     Builds MXE. (This is a prerequisite to using MXE to build something else!)
     """
-    log.info("Building MXE for {}...".format(target_platform))
+    log.info(f"Building MXE for {target_platform}...")
     if BUILD_PLATFORM.debian:
         require_debian_packages(
             "autoconf automake autopoint bash bison bzip2 flex gettext "
@@ -3830,8 +3809,8 @@ def master_builder(args) -> None:
         if USE_MXE and BUILD_PLATFORM.linux and target_platform.windows:
             log.info("Building MXE for cross-compilation (Linux -> Windows)")
             build_mxe(cfg, target_platform)
-        log.info("Building (1) OpenSSL, (2) SQLite/SQLCipher, (3) Qt for "
-                 "{}".format(target_platform))
+        log.info(f"Building (1) OpenSSL, (2) SQLite/SQLCipher, (3) Qt "
+                 f"for {target_platform}")
         build_openssl(cfg, target_platform)
         build_sqlcipher(cfg, target_platform)
         installdirs.append(
@@ -3897,9 +3876,7 @@ Now, to compile CamCOPS using Qt Creator:
 
 See tablet_qt/notes/QT_PROJECT_SETTINGS.txt
 
-    """.format(  # noqa
-        bindirs=", ".join(join(x, "bin") for x in installdirs)
-    ))
+    """)
     sys.exit(0)
 
 
@@ -3928,8 +3905,8 @@ def main() -> None:
     general.add_argument(
         "--root_dir", default=default_root_dir,
         help=(
-            "Root directory for source and builds (default taken from "
-            "environment variable {} if present)".format(ENVVAR_QT_BASE)
+            f"Root directory for source and builds (default taken from "
+            f"environment variable {ENVVAR_QT_BASE} if present)"
         )
     )
     general.add_argument(
@@ -3950,8 +3927,10 @@ def main() -> None:
         "Choose architecture for which to build")
     archgroup.add_argument(
         "--build_all", action="store_true",
-        help="Build for all architectures supported on this host ({})".format(
-            BUILD_PLATFORM)
+        help=(
+            f"Build for all architectures supported on this host (this host "
+            f"is: {BUILD_PLATFORM})"
+        )
     )
     archgroup.add_argument(
         "--build_android_x86_32", action="store_true",
