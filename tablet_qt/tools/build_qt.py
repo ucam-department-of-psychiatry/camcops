@@ -356,7 +356,7 @@ MXE_HAS_GCC_WITH_I386_BUG = True  # True as of 2017-11-19
 
 # Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 DEFAULT_MIN_IOS_VERSION = "7.0"
-DEFAULT_MIN_OSX_VERSION = "10.7"
+DEFAULT_MIN_MACOS_VERSION = "10.7"
 
 # -----------------------------------------------------------------------------
 # Building Qt
@@ -551,7 +551,7 @@ class Os(object):
     ANDROID = "Android"
     LINUX = "Linux"
     WINDOWS = "Windows"
-    OSX = "macOS"  # Mac OS X, then OS X, then macOS
+    MACOS = "macOS"  # Named Mac OS X, then OS X, then macOS
     IOS = "iOS"
 
 
@@ -594,7 +594,7 @@ class Platform(object):
             raise NotImplementedError(f"Unknown target CPU: {cpu!r}")
 
         # 64-bit support only (thus far)?
-        if os in [Os.LINUX, Os.OSX] and not self.cpu_x86_64bit_family:
+        if os in [Os.LINUX, Os.MACOS] and not self.cpu_x86_64bit_family:
             raise NotImplementedError(
                 f"Don't know how to build for CPU {cpu} on system {os}")
 
@@ -630,7 +630,7 @@ class Platform(object):
             return "linux"
         elif self.os == Os.WINDOWS:
             return "windows"
-        elif self.os == Os.OSX:
+        elif self.os == Os.MACOS:
             return "macos"
         elif self.os == Os.IOS:
             return "ios"
@@ -676,12 +676,12 @@ class Platform(object):
         return self.distro_id in ["ubuntu", "debian"]
 
     @property
-    def osx(self) -> bool:
-        return self.os == Os.OSX
+    def macos(self) -> bool:
+        return self.os == Os.MACOS
 
     @property
     def unix(self) -> bool:
-        return self.linux or self.osx
+        return self.linux or self.macos
 
     @property
     def android(self) -> bool:
@@ -734,7 +734,7 @@ class Platform(object):
         """
         # I think this depends on the build system, not the target.
         # ... no; on the target.
-        if self.osx or self.ios:
+        if self.macos or self.ios:
             return ".dylib"
             # ... sometimes also ".so" or ".bundle"
         elif self.windows:
@@ -747,7 +747,7 @@ class Platform(object):
         """
         What STATIC library filename extension is in use?
         """
-        if self.osx or self.ios:
+        if self.macos or self.ios:
             return ".a"
         elif self.windows:
             return ".lib"
@@ -772,7 +772,7 @@ class Platform(object):
         if self.linux:
             require(READELF)
             require(OBJDUMP)  # for Windows DLL files
-        elif self.osx:
+        elif self.macos:
             if self.cpu_64bit:
                 require(OTOOL)
             else:
@@ -823,7 +823,7 @@ class Platform(object):
                     raise ValueError(f"File {filename} was not built for ARM")
                 elif not self.cpu_arm_family and arm_tag_present:
                     raise ValueError(f"File {filename} was built for ARM")
-        elif BUILD_PLATFORM.osx:
+        elif BUILD_PLATFORM.macos:
             if BUILD_PLATFORM.cpu_64bit:
                 dumpcmd = [OTOOL, "-hv", "-arch", "all", filename]
                 dumpresult = fetch(dumpcmd)
@@ -845,7 +845,7 @@ class Platform(object):
                 arm64tag = "file format mach-o-arm64"
                 arm64tag_present = arm64tag in dumpresult
             if self.cpu == Cpu.ARM_V8_64 and not arm64tag_present:
-                raise ValueError(f"File {filename} was not built for ARM64")  # noqa
+                raise ValueError(f"File {filename} was not built for ARM64")
             elif self.cpu != Cpu.ARM_V8_64 and arm64tag_present:
                 raise ValueError(f"File {filename} was built for ARM64")
         else:
@@ -1082,7 +1082,7 @@ class Platform(object):
                 return "arm-linux"
             elif self.cpu_x86_32bit_family:
                 return "i686-unknown-linux"  # ?
-        elif self.osx:
+        elif self.macos:
             # e.g. empirically: "i386-apple-darwin15.6.0"
             # "uname -m" tells you whether you're 32 or 64 bit
             # "uname -r" gives you the release
@@ -1123,7 +1123,7 @@ def get_build_platform() -> Platform:
     if s == "Linux":
         os_ = Os.LINUX
     elif s == "Darwin":
-        os_ = Os.OSX
+        os_ = Os.MACOS
     elif s == "Windows":
         os_ = Os.WINDOWS
     else:
@@ -1157,7 +1157,7 @@ class Config(object):
         self.build_android_x86_32 = args.build_android_x86_32  # type: bool
         self.build_android_arm_v7_32 = args.build_android_arm_v7_32  # type: bool  # noqa
         self.build_linux_x86_64 = args.build_linux_x86_64  # type: bool
-        self.build_osx_x86_64 = args.build_macos_x86_64  # type: bool
+        self.build_macos_x86_64 = args.build_macos_x86_64  # type: bool
         self.build_windows_x86_64 = args.build_windows_x86_64  # type: bool
         self.build_windows_x86_32 = args.build_windows_x86_32  # type: bool
         self.build_ios_arm_v7_32 = args.build_ios_arm_v7_32  # type: bool
@@ -1174,11 +1174,17 @@ class Config(object):
                     if not MXE_HAS_GCC_WITH_I386_BUG:
                         self.build_windows_x86_32 = True
                     self.build_windows_x86_64 = True
-            elif BUILD_PLATFORM.osx:
+            elif BUILD_PLATFORM.macos:
+                # MacOS
                 self.build_ios_arm_v7_32 = True
-                self.build_osx_x86_64 = True
+                # iOS
+                self.build_macos_x86_64 = True
                 self.build_ios_arm_v8_64 = True
-                # NOT WORKING # self.build_ios_simulator_x86_64 = True
+                # iOS simulators for MacOS
+                if BUILD_PLATFORM.cpu_64bit:
+                    self.build_ios_simulator_x86_64 = True
+                else:
+                    self.build_ios_simulator_x86_32 = True
             elif BUILD_PLATFORM.windows:
                 self.build_windows_x86_32 = True
                 self.build_windows_x86_64 = True
@@ -1224,7 +1230,7 @@ class Config(object):
         self.ios_min_version = args.ios_min_version  # type: str
 
         # macOS
-        self.osx_min_version = args.macos_min_version  # type: str
+        self.macos_min_version = args.macos_min_version  # type: str
 
         # OpenSSL
         # - download tar file to src/openssl
@@ -1412,8 +1418,8 @@ class Config(object):
         elif target_platform.windows:
             self._set_windows_env(env, target_platform=target_platform,
                                   use_cross_compile_var=use_cross_compile_var)
-        elif target_platform.osx:
-            self._set_osx_env(env, target_platform=target_platform)
+        elif target_platform.macos:
+            self._set_macos_env(env, target_platform=target_platform)
         else:
             raise NotImplementedError(
                 f"Don't know how to set compilation environment "
@@ -1464,8 +1470,8 @@ class Config(object):
         env["NDK_SYSROOT"] = android_sysroot
 
     # noinspection PyUnusedLocal
-    def _set_osx_env(self, env: Dict[str, str],
-                     target_platform: Platform) -> None:
+    def _set_macos_env(self, env: Dict[str, str],
+                       target_platform: Platform) -> None:
         """
         Implementation of set_compile_env() for macOS targets.
         """
@@ -1790,7 +1796,7 @@ class Config(object):
                 xcode_platform=target_platform.ios_platform_name,
                 sdk_version=self._get_ios_sdk_version(
                     target_platform=target_platform))
-        elif target_platform.linux or target_platform.osx:
+        elif target_platform.linux or target_platform.macos:
             return "/"  # default sysroot
         elif target_platform.windows:
             return env["WindowsSdkDir"]
@@ -2021,7 +2027,7 @@ def require(command: str) -> None:
     helpmsg = "If core commands are missing:\n"
     if BUILD_PLATFORM.linux:
         helpmsg += UBUNTU_PACKAGE_HELP
-    if BUILD_PLATFORM.osx:
+    if BUILD_PLATFORM.macos:
         helpmsg += OS_X_PACKAGE_HELP
     if BUILD_PLATFORM.windows:
         helpmsg += WINDOWS_PACKAGE_HELP
@@ -2336,7 +2342,7 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
         if target_platform.cpu_x86_64bit_family:
             return ["linux-x86_64"]
 
-    elif target_platform.osx:
+    elif target_platform.macos:
         if target_platform.cpu_x86_64bit_family:
             # https://gist.github.com/tmiz/1441111
             return ["darwin64-x86_64-cc"]
@@ -2859,7 +2865,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
             qt_config_args.append("-system-xcb")  # use system XCB libraries
             # http://doc.qt.io/qt-5/linux-requirements.html
         qt_config_args += ["-gstreamer", "1.0"]  # gstreamer version; see troubleshooting below  # noqa
-    elif target_platform.osx:
+    elif target_platform.macos:
         pass
     elif target_platform.ios:
         # http://doc.qt.io/qt-5/building-from-source-ios.html
@@ -3792,8 +3798,8 @@ def master_builder(args) -> None:
     if cfg.build_linux_x86_64:  # for 64-bit Linux
         build_for(Os.LINUX, Cpu.X86_64)
 
-    if cfg.build_osx_x86_64:  # for 64-bit Intel macOS
-        build_for(Os.OSX, Cpu.X86_64)
+    if cfg.build_macos_x86_64:  # for 64-bit Intel macOS
+        build_for(Os.MACOS, Cpu.X86_64)
 
     if cfg.build_windows_x86_64:  # for 64-bit Windows
         build_for(Os.WINDOWS, Cpu.X86_64)
@@ -4002,9 +4008,9 @@ def main() -> None:
         help="Minimum target iOS version"
     )
 
-    osx = parser.add_argument_group("macOS", "macOS (OS X) options")
-    osx.add_argument(
-        "--macos_min_version", default=DEFAULT_MIN_OSX_VERSION,
+    macos = parser.add_argument_group("macOS", "macOS (OS X) options")
+    macos.add_argument(
+        "--macos_min_version", default=DEFAULT_MIN_MACOS_VERSION,
         help="Minimum target macOS version"
     )
 
