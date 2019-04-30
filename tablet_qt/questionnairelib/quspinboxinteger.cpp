@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_SIGNALS
+// #define DEBUG_SIGNALS
 
 #include "quspinboxinteger.h"
 #include <QSpinBox>

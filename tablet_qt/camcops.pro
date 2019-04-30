@@ -146,6 +146,8 @@ msvc {
 }
 
 # For compilers that support it, make the visibility hidden
+# Note: there may be linker warnings relating to access to Qt functions, but
+# they're only warnings.
 gcc {
     # http://gcc.gnu.org/wiki/Visibility
     QMAKE_CXXFLAGS += -fvisibility=hidden
