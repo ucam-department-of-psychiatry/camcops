@@ -1480,12 +1480,13 @@ class Config(object):
         env["BUILD_TOOLS"] = env.get("BUILD_TOOLS", self._xcode_developer_path)
         # This bit breaks SQLCipher compilation for macOS, which wants to
         # autodiscover gcc:
-        # env["CC"] = (
-        #     f"{shutil.which(CLANG)} "
-        #     f"-mmacosx-version-min={self.macos_min_version}"
-        # )
+        env["CC"] = (
+            f"{shutil.which(CLANG)} "
+            f"-mmacosx-version-min={self.macos_min_version}"
+        )
         # Let's try this:
-        env["CXXFLAGS"] = f"-mmacosx-version-min={self.macos_min_version}"
+        # env["CXXFLAGS"] = f"-mmacosx-version-min={self.macos_min_version}"
+        # ... nope, doesn't work
 
     def _set_ios_env(self, env: Dict[str, str],
                      target_platform: Platform) -> None:
