@@ -1105,11 +1105,12 @@ class Platform(object):
                 return "i386-apple-darwin"
                 # guess as per https://jira.appcelerator.org/browse/TIMOB-23652
             elif self.cpu_x86_64bit_family:  # iOS simulator
-                return "x86_64-apple-darwin"
+                # return "x86_64-apple-darwin"
                 # ... gives:
                 # "configure: error: cannot run C compiled programs.
                 #  If you meant to cross compile, use `--host'."
                 # ... despite using --host!
+                return "armv8-apple-darwin"  # ???
                 pass  # this one doesn't work; raise an error
         raise NotImplementedError(
             f"Don't know how to support SQLCipher for {self}")
