@@ -284,7 +284,7 @@ ios {
     CAMCOPS_QT_LINKAGE = "dynamic"
     CAMCOPS_OPENSSL_LINKAGE = "dynamic"
 
-    contains(QT_ARCH, x86_64) {
+    contains(QT_ARCH, arm64) {
         message("Building for iOS/ARM v8 64-bit architecture")
         CAMCOPS_ARCH_TAG = "ios_armv8_64"
     } else {
