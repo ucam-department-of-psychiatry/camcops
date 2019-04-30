@@ -356,7 +356,7 @@ MXE_HAS_GCC_WITH_I386_BUG = True  # True as of 2017-11-19
 
 # Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 DEFAULT_MIN_IOS_VERSION = "7.0"
-DEFAULT_MIN_MACOS_VERSION = "10.7"
+DEFAULT_MIN_MACOS_VERSION = "10.10"
 
 # -----------------------------------------------------------------------------
 # Building Qt
