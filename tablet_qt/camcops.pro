@@ -460,6 +460,7 @@ SOURCES += \
     common/appstrings.cpp \
     common/cssconst.cpp \
     common/dbconst.cpp \
+    common/dpi.cpp \
     common/globals.cpp \
     common/platform.cpp \
     common/textconst.cpp \
@@ -587,11 +588,13 @@ SOURCES += \
     menu/psychosismenu.cpp \
     menu/researchmenu.cpp \
     menu/researchsetsmenu.cpp \
+    menu/serviceevaluationmenu.cpp \
     menu/setmenucpftaffective1.cpp \
     menu/setmenucpftperinatal1.cpp \
     menu/setmenucpftpsychooncology1.cpp \
     menu/setmenudeakin1.cpp \
     menu/setmenufromlp.cpp \
+    menu/setmenufromperinatal.cpp \
     menu/setmenukhandaker1.cpp \
     menu/setmenuobrien1.cpp \
     menu/settingsmenu.cpp \
@@ -652,8 +655,10 @@ SOURCES += \
     questionnairelib/quimage.cpp \
     questionnairelib/qulineedit.cpp \
     questionnairelib/qulineeditdouble.cpp \
+    questionnairelib/qulineeditint64.cpp \
     questionnairelib/qulineeditinteger.cpp \
     questionnairelib/qulineeditnhsnumber.cpp \
+    questionnairelib/qulineedituint64.cpp \
     questionnairelib/qumcq.cpp \
     questionnairelib/qumcqgrid.cpp \
     questionnairelib/qumcqgriddouble.cpp \
@@ -666,6 +671,7 @@ SOURCES += \
     questionnairelib/quphoto.cpp \
     questionnairelib/qupickerinline.cpp \
     questionnairelib/qupickerpopup.cpp \
+    questionnairelib/qusequencecontainerbase.cpp \
     questionnairelib/quslider.cpp \
     questionnairelib/quspacer.cpp \
     questionnairelib/quspinboxdouble.cpp \
@@ -720,6 +726,7 @@ SOURCES += \
     tasks/diagnosisicd10.cpp \
     tasks/diagnosisicd9cm.cpp \
     tasks/distressthermometer.cpp \
+    tasks/epds.cpp \
     tasks/eq5d5l.cpp \
     tasks/factg.cpp \
     tasks/fast.cpp \
@@ -727,6 +734,8 @@ SOURCES += \
     tasks/frs.cpp \
     tasks/gad7.cpp \
     tasks/gaf.cpp \
+    tasks/gbogpc.cpp \
+    tasks/gbogras.cpp \
     tasks/gbogres.cpp \
     tasks/gds15.cpp \
     tasks/gmcpq.cpp \
@@ -757,11 +766,13 @@ SOURCES += \
     tasks/ors.cpp \
     tasks/panss.cpp \
     tasks/patientsatisfaction.cpp \
+    tasks/pbq.cpp \
     tasks/pcl5.cpp \
     tasks/pclc.cpp \
     tasks/pclm.cpp \
     tasks/pcls.cpp \
     tasks/pdss.cpp \
+    tasks/perinatalpoem.cpp \
     tasks/photo.cpp \
     tasks/photosequence.cpp \
     tasks/phq15.cpp \
@@ -792,6 +803,7 @@ SOURCES += \
     taskxtra/diagnosisicd9cmitem.cpp \
     taskxtra/diagnosisitembase.cpp \
     taskxtra/diagnosistaskbase.cpp \
+    taskxtra/gbocommon.cpp \
     taskxtra/ided3dexemplars.cpp \
     taskxtra/ided3dstage.cpp \
     taskxtra/ided3dtrial.cpp \
@@ -831,25 +843,13 @@ SOURCES += \
     widgets/screenlikegraphicsview.cpp \
     widgets/spacer.cpp \
     widgets/svgwidgetclickable.cpp \
+    widgets/thermometer.cpp \
     widgets/tickslider.cpp \
     widgets/treeviewcontroldelegate.cpp \
     widgets/treeviewproxystyle.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
-    widgets/verticalscrollareaviewport.cpp \
-    widgets/thermometer.cpp \
-    menu/setmenufromperinatal.cpp \
-    menu/serviceevaluationmenu.cpp \
-    questionnairelib/qulineeditint64.cpp \
-    questionnairelib/qulineedituint64.cpp \
-    common/dpi.cpp \
-    tasks/perinatalpoem.cpp \
-    questionnairelib/qusequencecontainerbase.cpp \
-    tasks/gbogpc.cpp \
-    taskxtra/gbocommon.cpp \
-    tasks/gbogras.cpp \
-    tasks/epds.cpp \
-    tasks/pbq.cpp
+    widgets/verticalscrollareaviewport.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -859,6 +859,7 @@ HEADERS += \
     common/cssconst.h \
     common/dbconst.h \
     common/design_defines.h \
+    common/dpi.h \
     common/globals.h \
     common/gui_defines.h \
     common/platform.h \
@@ -995,11 +996,13 @@ HEADERS += \
     menu/psychosismenu.h \
     menu/researchmenu.h \
     menu/researchsetsmenu.h \
+    menu/serviceevaluationmenu.h \
     menu/setmenucpftaffective1.h \
     menu/setmenucpftperinatal1.h \
     menu/setmenucpftpsychooncology1.h \
     menu/setmenudeakin1.h \
     menu/setmenufromlp.h \
+    menu/setmenufromperinatal.h \
     menu/setmenukhandaker1.h \
     menu/setmenuobrien1.h \
     menu/settingsmenu.h \
@@ -1061,8 +1064,10 @@ HEADERS += \
     questionnairelib/quimage.h \
     questionnairelib/qulineedit.h \
     questionnairelib/qulineeditdouble.h \
+    questionnairelib/qulineeditint64.h \
     questionnairelib/qulineeditinteger.h \
     questionnairelib/qulineeditnhsnumber.h \
+    questionnairelib/qulineedituint64.h \
     questionnairelib/qumcq.h \
     questionnairelib/qumcqgrid.h \
     questionnairelib/qumcqgriddouble.h \
@@ -1075,6 +1080,7 @@ HEADERS += \
     questionnairelib/quphoto.h \
     questionnairelib/qupickerinline.h \
     questionnairelib/qupickerpopup.h \
+    questionnairelib/qusequencecontainerbase.h \
     questionnairelib/quslider.h \
     questionnairelib/quspacer.h \
     questionnairelib/quspinboxdouble.h \
@@ -1129,6 +1135,7 @@ HEADERS += \
     tasks/diagnosisicd10.h \
     tasks/diagnosisicd9cm.h \
     tasks/distressthermometer.h \
+    tasks/epds.h \
     tasks/eq5d5l.h \
     tasks/factg.h \
     tasks/fast.h \
@@ -1136,6 +1143,8 @@ HEADERS += \
     tasks/frs.h \
     tasks/gad7.h \
     tasks/gaf.h \
+    tasks/gbogpc.h \
+    tasks/gbogras.h \
     tasks/gbogres.h \
     tasks/gds15.h \
     tasks/gmcpq.h \
@@ -1166,11 +1175,13 @@ HEADERS += \
     tasks/ors.h \
     tasks/panss.h \
     tasks/patientsatisfaction.h \
+    tasks/pbq.h \
     tasks/pcl5.h \
     tasks/pclc.h \
     tasks/pclm.h \
     tasks/pcls.h \
     tasks/pdss.h \
+    tasks/perinatalpoem.h \
     tasks/photo.h \
     tasks/photosequence.h \
     tasks/phq15.h \
@@ -1201,6 +1212,7 @@ HEADERS += \
     taskxtra/diagnosisicd9cmitem.h \
     taskxtra/diagnosisitembase.h \
     taskxtra/diagnosistaskbase.h \
+    taskxtra/gbocommon.h \
     taskxtra/ided3dexemplars.h \
     taskxtra/ided3dstage.h \
     taskxtra/ided3dtrial.h \
@@ -1240,28 +1252,20 @@ HEADERS += \
     widgets/screenlikegraphicsview.h \
     widgets/spacer.h \
     widgets/svgwidgetclickable.h \
+    widgets/thermometer.h \
     widgets/tickslider.h \
     widgets/treeviewcontroldelegate.h \
     widgets/treeviewproxystyle.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
-    widgets/verticalscrollareaviewport.h \
-    widgets/thermometer.h \
-    menu/setmenufromperinatal.h \
-    menu/serviceevaluationmenu.h \
-    questionnairelib/qulineeditint64.h \
-    questionnairelib/qulineedituint64.h \
-    common/dpi.h \
-    tasks/perinatalpoem.h \
-    questionnairelib/qusequencecontainerbase.h \
-    tasks/gbogpc.h \
-    taskxtra/gbocommon.h \
-    tasks/gbogras.h \
-    tasks/epds.h \
-    tasks/pbq.h
+    widgets/verticalscrollareaviewport.h
 
+# DISTFILES appear in the Qt Creator editing tree. Otherwise, there's not much
+# practical impact:
+# https://stackoverflow.com/questions/38102160/in-qt-when-should-you-use-resources-vs-distfiles-vs-other-files
+# They are separate from resource files (see RESOURCES above).
 DISTFILES += \
-    LICENSE.txt \
+    camcops_windows_innosetup.iss \
     android/AndroidManifest.xml \
     android/build.gradle \
     android/gradle/wrapper/gradle-wrapper.jar \
@@ -1270,45 +1274,21 @@ DISTFILES += \
     android/gradlew.bat \
     android/res/drawable-ldpi/icon.png \
     android/res/values/libs.xml \
-    images/dt/dt_sel_0.png \
-    images/dt/dt_sel_1.png \
-    images/dt/dt_sel_10.png \
-    images/dt/dt_sel_2.png \
-    images/dt/dt_sel_3.png \
-    images/dt/dt_sel_4.png \
-    images/dt/dt_sel_5.png \
-    images/dt/dt_sel_6.png \
-    images/dt/dt_sel_7.png \
-    images/dt/dt_sel_8.png \
-    images/dt/dt_sel_9.png \
-    images/dt/dt_unsel_0.png \
-    images/dt/dt_unsel_1.png \
-    images/dt/dt_unsel_10.png \
-    images/dt/dt_unsel_2.png \
-    images/dt/dt_unsel_3.png \
-    images/dt/dt_unsel_4.png \
-    images/dt/dt_unsel_5.png \
-    images/dt/dt_unsel_6.png \
-    images/dt/dt_unsel_7.png \
-    images/dt/dt_unsel_8.png \
-    images/dt/dt_unsel_9.png \
     notes/compilation_android.txt \
     notes/compilation_linux.txt \
     notes/compilation_windows.txt \
     notes/database_performance.txt \
+    notes/glm_calculations.R \
     notes/layout_notes.txt \
     notes/overall_design.txt \
     notes/qt_notes.txt \
     notes/string_formats.txt \
-    stylesheets/camcops.css \
-    stylesheets/camcops_menu.css \
-    stylesheets/camcops_questionnaire.css \
-    stylesheets/camera.css \
-    taskinfo/cisr.html \
     tools/build_qt.py \
     tools/chord.py \
     tools/cppclean_all.sh \
     tools/decrypt_sqlcipher.py \
+    tools/encrypt_sqlcipher.py \
+    tools/open_sqlcipher.py \
     windows/camcops.rc
 
 message("--- CamCOPS qmake finishing.")

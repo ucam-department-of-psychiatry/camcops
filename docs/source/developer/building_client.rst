@@ -663,6 +663,57 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Additional Qbs Profile Settings
           -
 
+If Qt accept the settings, a section marked "iOS Settings" will appear in the
+"Build Settings" part of your project when configured for this kit.
+
+**Custom_iOS_Simulator_x86_64**
+
+*BEING TESTED*
+
+    .. list-table::
+        :header-rows: 1
+        :stub-columns: 1
+
+        * - Option
+          - Setting
+        * - Name
+          - **[non-default]** ``Custom_iOS_Simulator_x86_64``
+        * - File system name
+          -
+        * - Device type
+          - **iOS Simulator**
+        * - Device
+          - iOS Simulator (default for iOS Simulator)
+        * - Sysroot
+          - **[non-default]**
+            ``/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk``
+        * - Compiler: C
+          - GCC (C, x86 64bit in /usr/bin)
+        * - Compiler: C++
+          - Clang (C++, x86 64bit in /usr/bin)
+        * - Environment
+          - [not editable: "No changes to apply."]
+        * - Debugger
+          - System LLDB at /usr/bin/ldb
+        * - Qt version
+          - **THE "iOS SIMULATOR 64-BIT" ONE FROM QT VERSIONS, ABOVE**
+        * - Qt mkspec
+          -
+        * - CMake Tool
+          - System CMake at /usr/local/bin/cmake
+        * - CMake Generator
+          - CodeBlocks - Unix Makefiles, Platform: <none>, Toolset: <none>
+        * - CMake Configuration
+          - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
+            ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
+            ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
+            ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
+        * - Additional Qbs Profile Settings
+          -
+
+If Qt accept the settings, a section marked "iOS Settings" will appear in the
+"Build Settings" part of your project when configured for this kit.
+
 
 Build settings
 --------------
@@ -764,6 +815,21 @@ Linux
 Under :menuselection:`Build Settings --> Build Environment``, set e.g.
 ``LD_LIBRARY_PATH=/home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.0g/``
 
+
+iOS
+~~~
+
+*TO BE ADDED.*
+
+See:
+
+- https://doc.qt.io/qt-5/ios.html
+- https://doc.qt.io/qtcreator/creator-developing-ios.html
+- https://doc.qt.io/qt-5/ios-platform-notes.html
+
+.. todo:: custom ios/Info.plist as per https://doc.qt.io/qt-5/ios-platform-notes.html
+
+.. todo:: iOS appicons as per https://doc.qt.io/qt-5/ios-platform-notes.html
 
 General
 ~~~~~~~
