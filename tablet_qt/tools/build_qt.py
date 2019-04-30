@@ -1402,7 +1402,8 @@ class Config(object):
     def set_compile_env(self,
                         env: Dict[str, str],
                         target_platform: Platform,
-                        use_cross_compile_var: bool = True) -> None:
+                        use_cross_compile_var: bool = True,
+                        building_sqlcipher: bool = False) -> None:
         """
         Adds variables to the environment for compilation or cross-compilation.
         Modifies env.
@@ -1419,7 +1420,8 @@ class Config(object):
             self._set_windows_env(env, target_platform=target_platform,
                                   use_cross_compile_var=use_cross_compile_var)
         elif target_platform.macos:
-            self._set_macos_env(env, target_platform=target_platform)
+            self._set_macos_env(env, target_platform=target_platform,
+                                building_sqlcipher=building_sqlcipher)
         else:
             raise NotImplementedError(
                 f"Don't know how to set compilation environment "
@@ -1471,22 +1473,25 @@ class Config(object):
 
     # noinspection PyUnusedLocal
     def _set_macos_env(self, env: Dict[str, str],
-                       target_platform: Platform) -> None:
+                       target_platform: Platform,
+                       building_sqlcipher: bool = False) -> None:
         """
         Implementation of set_compile_env() for macOS targets.
         """
         # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
         require(CLANG)
         env["BUILD_TOOLS"] = env.get("BUILD_TOOLS", self._xcode_developer_path)
-        # This bit breaks SQLCipher compilation for macOS, which wants to
-        # autodiscover gcc:
-        env["CC"] = (
-            f"{shutil.which(CLANG)} "
-            f"-mmacosx-version-min={self.macos_min_version}"
-        )
-        # Let's try this:
-        # env["CXXFLAGS"] = f"-mmacosx-version-min={self.macos_min_version}"
-        # ... nope, doesn't work
+        if building_sqlcipher:
+            # Let's try this:
+            env["CXXFLAGS"] = f"-mmacosx-version-min={self.macos_min_version}"
+        else:
+            # This bit breaks SQLCipher compilation for macOS, which wants to
+            # autodiscover gcc:
+            env["CC"] = (
+                f"{shutil.which(CLANG)} "
+                f"-mmacosx-version-min={self.macos_min_version}"
+            )
+            # ... but it's necessary for OpenSSL.
 
     def _set_ios_env(self, env: Dict[str, str],
                      target_platform: Platform) -> None:
@@ -3261,7 +3266,8 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     copy_tree_contents(cfg.sqlcipher_src_gitdir, destdir, destroy=True)
 
     env = get_starting_env()
-    cfg.set_compile_env(env, target_platform, use_cross_compile_var=False)
+    cfg.set_compile_env(env, target_platform, use_cross_compile_var=False,
+                        building_sqlcipher=True)
 
     _, openssl_workdir = cfg.get_openssl_rootdir_workdir(target_platform)
     openssl_include_dir = join(openssl_workdir, "include")
