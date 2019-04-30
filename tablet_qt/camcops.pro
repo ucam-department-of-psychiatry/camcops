@@ -32,7 +32,7 @@ isEmpty(QT_BASE_DIR) {
 }
 message("Using custom Qt/library base directory: $${QT_BASE_DIR}")
 message("... Qt version: $$[QT_VERSION]")
-message("... Qt is installed in $$[QT_INSTALL_PREFIX]")
+message("... Qt is installed in: $$[QT_INSTALL_PREFIX]")
 message("... Qt resources can be found in the following locations:")
 message("... Documentation: $$[QT_INSTALL_DOCS]")
 message("... Header files: $$[QT_INSTALL_HEADERS]")
@@ -50,7 +50,7 @@ message("Expecting CamCOPS source root at: $${CAMCOPS_SOURCE_ROOT}")
 
 # message("QMAKESPEC: $${QMAKESPEC}")
 # message("QMAKE_PLATFORM: $${QMAKE_PLATFORM}")
-message("... QT_ARCH: $$[QT_ARCH]")
+message("... QT_ARCH: $${QT_ARCH}")
 
 # =============================================================================
 # Parts of Qt
@@ -186,7 +186,7 @@ OPENSSL_VERSION = 1.1.0g
 # Architecture
 # -----------------------------------------------------------------------------
 
-OBJ_EXT = ".o"
+OBJ_EXT = ".o"  # unless otherwise set
 
 # Set OS-specific variables
 # Operating system tests include "linux", "unix", "macx", "android", "windows",
@@ -264,7 +264,6 @@ macx {
     # -------------------------------------------------------------------------
     STATIC_LIB_EXT = ".a"
     DYNAMIC_LIB_EXT = ".dylib"
-    OBJ_EXT = ".o"
     CAMCOPS_QT_LINKAGE = "static"
     CAMCOPS_OPENSSL_LINKAGE = "static"
 
@@ -280,12 +279,10 @@ ios {
     # -------------------------------------------------------------------------
     # iOS
     # -------------------------------------------------------------------------
-    error("camcops.pro doesn't know how to build for iOS yet")
     STATIC_LIB_EXT = ".a"
     DYNAMIC_LIB_EXT = ".dylib"
-    OBJ_EXT = ".o"
-    CAMCOPS_QT_LINKAGE = "static"
-    CAMCOPS_OPENSSL_LINKAGE = "static"
+    CAMCOPS_QT_LINKAGE = "dynamic"
+    CAMCOPS_OPENSSL_LINKAGE = "dynamic"
 
     contains(QT_ARCH, x86_64) {
         message("Building for iOS/ARM v8 64-bit architecture")
