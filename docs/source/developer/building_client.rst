@@ -155,13 +155,8 @@ macOS (formerly OS X)
   .. code-block:: none
 
     # macOS Mojave 10.14.4
-    # Xcode *** CHANGE: *** 9.4.1 (macOS SDK 10.13; iOS SDK 11.4)
-    build_qt \
-        --build_macos_x86_64 \
-        --build_ios_arm_v7_32 \ *** test
-        --build_ios_arm_v8_64 \ *** test
-        --build_ios_simulator_x86_32 \ *** test
-        --build_ios_simulator_x86_64 *** test
+    # Xcode 10.2.1 (macOS SDK 10.14; iOS SDK 12.2)
+    build_qt --build_all
 
 
 All operating systems
@@ -179,7 +174,7 @@ All operating systems
         :header-rows: 1
 
         * - Environment variable
-          - Example value (Linux)
+          - Example value (Linux, MacOS)
           - Example value (Windows)
           - Notes
 
@@ -314,7 +309,8 @@ Run and set up Qt Creator
 Qt versions
 -----------
 
-See :menuselection:`Tools --> Options --> Kits --> Qt Versions`.
+See :menuselection:`Tools --> Options --> Kits --> Qt Versions`, or on MacOS,
+see :menuselection:`Qt Creator --> Preferences --> Kits --> Qt Versions`.
 
 Assuming you set your qt_local_build directory to ``~/dev/qt_local_build``, the
 :ref:`build_qt` script should have generated a series of ``qmake`` (or, under
@@ -333,14 +329,18 @@ Windows, ``qmake.exe``) files within that directory:
     Windows 64-bit      qt_windows_x86_64_install/bin/qmake
     ==================  ==============================================
 
+Select the correct ``qmake`` and it will be added as a Qt version. You can
+change its name (prefixing "Custom" may be helpful to recognize it).
+
 
 Qt kits
 -------
 
-See :menuselection:`Tools --> Options --> Kits --> Kits`.
+See :menuselection:`Tools --> Options --> Kits --> Kits`, or on MacOS, see
+:menuselection:`Qt Creator --> Preferences --> Kits --> Kits`.
 
 Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
-(built Jan 2019).
+(built Jan 2019) under Linux/Windows and 4.9.0 (built 11 Apr 2019) under MacOS.
 
 .. note::
 
@@ -539,13 +539,13 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
         * - Debugger
           - None
         * - Qt version
-          - **THE "WINDOWS 32-BIT" ONE FROM QT VERSIONS, ABOVE**
+          - **THE "MACOS 64-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
         * - CMake Tool
-          - System CMake at ``C:\Program Files (x86)\CMake\bin\cmake.exe``
+          -
         * - CMake Generator
-          - CodeBlocks - MinGW Makefiles, Platform: <none>, Toolset: <none>
+          - ``<none> - <none>, Platform: <none>, Toolset: <none>``
         * - CMake Configuration
           - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
             ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
@@ -569,6 +569,50 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
     have a 64-bit machine, you probably want to use ``amd64_x86`` and
     ``amd64``; if you have a 32-bit machine, you definitely want to use ``x86``
     and ``x86_amd64``.
+
+
+**Custom_MacOS_x86_64**
+
+    .. list-table::
+        :header-rows: 1
+        :stub-columns: 1
+
+        * - Option
+          - Setting
+        * - Name
+          - ``Custom_MacOS_x86_64``
+        * - File system name
+          -
+        * - Device type
+          - Desktop
+        * - Device
+          - Local PC (default for Desktop)
+        * - Sysroot
+          - ``[...]/qt_local_build/qt_macos_x86_64_install/bin``
+        * - Compiler: C
+          - GCC (C, x86 64bit in /usr/bin)
+        * - Compiler: C++
+          - Clang (C++, x86 64bit in /usr/bin)
+        * - Environment
+          - [not editable: "No changes to apply."]
+        * - Debugger
+          - System LLDB at /usr/bin/ldb
+        * - Qt version
+          - **THE "WINDOWS 32-BIT" ONE FROM QT VERSIONS, ABOVE**
+        * - Qt mkspec
+          -
+        * - CMake Tool
+          - System CMake at ``C:\Program Files (x86)\CMake\bin\cmake.exe``
+        * - CMake Generator
+          - CodeBlocks - MinGW Makefiles, Platform: <none>, Toolset: <none>
+        * - CMake Configuration
+          - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
+            ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
+            ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
+            ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
+        * - Additional Qbs Profile Settings
+          -
+
 
 
 Build settings

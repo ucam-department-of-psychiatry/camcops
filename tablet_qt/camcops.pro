@@ -180,6 +180,8 @@ OPENSSL_VERSION = 1.1.0g
 OBJ_EXT = ".o"
 
 # Set OS-specific variables
+# Operating system tests include "linux", "unix", "macx", "android", "windows",
+# "ios".
 linux : !android {
     # -------------------------------------------------------------------------
     # LINUX -- and not Android Linux!
@@ -246,6 +248,30 @@ windows {
     }
 
     RC_FILE = windows/camcops.rc
+}
+macx {
+    # -------------------------------------------------------------------------
+    # MacOS (formerly OS X)
+    # -------------------------------------------------------------------------
+    STATIC_LIB_EXT = ".a"
+    DYNAMIC_LIB_EXT = ".dylib"
+    OBJ_EXT = ".o"
+    CAMCOPS_QT_LINKAGE = "static"
+    CAMCOPS_OPENSSL_LINKAGE = "static"
+
+    contains(QT_ARCH, x86_64) {
+        message("Building for MacOS/x86_64 architecture")
+        CAMCOPS_ARCH_TAG = "macos_x86_64"
+    } else {
+        message("Building for MacOS/x86_32 architecture")
+        CAMCOPS_ARCH_TAG = "macos_x86_32"
+    }
+}
+ios {
+    # -------------------------------------------------------------------------
+    # iOS
+    # -------------------------------------------------------------------------
+    error("camcops.pro doesn't know how to build for iOS yet")
 }
 
 isEmpty(CAMCOPS_ARCH_TAG) {

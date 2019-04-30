@@ -104,6 +104,10 @@ Setting up an iMac for CamCOPS development
 
   - Maybe include also the Qt Installer Framework.
 
+  - To make it show up in Launchpad, create a symlink to ``~/Qt/Qt
+    Creator.app`` in ``/Applications``, e.g. with
+    ``ln -s ~/Qt/Qt\ Creator.app/ /Applications/Qt\ Creator``.
+
 - Install Xcode_ in full from the App Store. Run it, agree to conditions.
   Installing Xcode automatically installs the iOS SDK.
 
@@ -133,6 +137,28 @@ Setting up an iMac for CamCOPS development
 
     . ${CAMCOPS_VENV}/bin/activate
     cd ${CAMCOPS_SOURCE_DIR}
+
+- However, this won't affect environment variables for GUI applications. So to
+  get Qt Creator to see the environment variable:
+
+  - see https://superuser.com/questions/476752/setting-environment-variables-in-os-x-for-gui-applications
+
+  - edit ``~/Qt/Qt Creator.app/Contents/Info.plist`` and add a section like:
+
+    .. code-block:: xml
+
+        <key>LSEnvironment</key
+        <dict>
+            <key>CAMCOPS_QT_BASE_DIR</key>
+            <string>/Users/camcops/dev/qt_local_build</string>
+        </dict>
+
+  - force a refresh by doing this:
+
+    .. code-block:: bash
+
+        /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
+        killall Finder
 
 - Same some time and effort by executing ``pip install -e .`` from the
   ``$CAMCOPS_SOURCE_DIR/server`` directory. This installs all the Python

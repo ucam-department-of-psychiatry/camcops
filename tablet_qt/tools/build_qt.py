@@ -1110,8 +1110,7 @@ class Platform(object):
                 # "configure: error: cannot run C compiled programs.
                 #  If you meant to cross compile, use `--host'."
                 # ... despite using --host!
-                return "armv8-apple-darwin"  # ???
-                pass  # this one doesn't work; raise an error
+                return "armv8-apple-darwin"  # ??? Compiles, anyway. ***
         raise NotImplementedError(
             f"Don't know how to support SQLCipher for {self}")
 
@@ -3826,7 +3825,7 @@ Compiler bug is:
     if cfg.build_ios_arm_v8_64:  # for iOS (e.g. iPad) with 64-bit ARM processor  # noqa
         build_for(Os.IOS, Cpu.ARM_V8_64)
 
-    # *** build_qt: also to build for iOS 32-bit, and "fat binary" with 32- and 64-bit versions?  # noqa
+    # *** build_qt: also build iOS "fat binary" with 32- and 64-bit versions?
 
     if cfg.build_ios_simulator_x86_32:  # 32-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_32)
