@@ -54,6 +54,13 @@ namespace platform {
     const bool PLATFORM_WINDOWS = false;
 #endif
 
+#ifdef Q_OS_MACOS
+    const bool PLATFORM_MACOS = true;
+    const QString OS_CLASS("MacOS");
+#else
+    const bool PLATFORM_MACOS = false;
+#endif
+
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
     const bool PLATFORM_TABLET = true;
 #else

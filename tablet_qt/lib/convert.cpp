@@ -67,7 +67,7 @@ const ushort UNICODE_CR = CR.unicode();
 const ushort UNICODE_TAB = TAB.unicode();
 const ushort UNICODE_BACKSLASH = BACKSLASH.unicode();
 const ushort UNICODE_SPACE = SPACE.unicode();
-const ushort UNICODE_ZERO = ZERO.unicode();
+// const ushort UNICODE_ZERO = ZERO.unicode();
 
 // ============================================================================
 // SQL literals
@@ -248,8 +248,10 @@ QString toSqlLiteral(const QVariant& value)
     // Other
     case QVariant::Invalid:
         uifunc::stopApp("toSqlLiteral: Invalid field type");
+#ifdef COMPILER_IGNORES_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
+#endif
 
     case QVariant::UserType:
         if (isQVariantOfUserType(value, TYPENAME_QVECTOR_INT)) {
@@ -257,13 +259,17 @@ QString toSqlLiteral(const QVariant& value)
             return sqlQuoteString(intVectorToCsvString(intvec));
         }
         uifunc::stopApp("toSqlLiteral: Unknown user type");
+#ifdef COMPILER_IGNORES_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
+#endif
 
     default:
         uifunc::stopApp(QString("toSqlLiteral: Unknown user type: %1").arg(variant_type));
+#ifdef COMPILER_IGNORES_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
+#endif
     }
 }
 
@@ -707,7 +713,9 @@ QString prettyValue(const QVariant& variant,
             return intVectorToCsvString(intvec);
         }
         uifunc::stopApp("prettyValue: Unknown user type");
+#ifdef COMPILER_IGNORES_NORETURN
         return "";  // will never get here; for clang-tidy
+#endif
     default:
         return variant.toString();
     }

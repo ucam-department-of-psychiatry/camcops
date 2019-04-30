@@ -94,6 +94,7 @@ protected:
     // From SQLiteResultPrivate:
     // ------------------------------------------------------------------------
     void cleanup();
+    using SqlCachedResult::fetchNext;  // prevent Clang warning "... hides overloaded virtual function..."
     bool fetchNext(SqlCachedResult::ValueCache& values, int idx,
                    bool initial_fetch);
     // initializes the recordInfo and the cache

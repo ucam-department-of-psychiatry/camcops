@@ -232,7 +232,7 @@ OpenableWidget* YbocsSc::editor(const bool read_only)
     auto text = [this](const QString& xstringname) -> QuElement* {
         return new QuText(xstring(xstringname));
     };
-    auto textRaw = [this](const QString& text) -> QuElement* {
+    auto textRaw = [](const QString& text) -> QuElement* {
         return new QuText(text);
     };
     auto boldtext = [this](const QString& xstringname) -> QuElement* {

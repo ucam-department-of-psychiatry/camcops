@@ -141,16 +141,16 @@ private:
     QString holderAt(int index) const;
 
     QPointer<QSqlDriver> m_sqldriver;
-    int m_idx;
+    // UNUSED, CLANG COMPLAINS // int m_idx;
     QString m_sql;
-    bool m_active;
-    bool m_is_sel;
+    // UNUSED, CLANG COMPLAINS // bool m_active;
+    // UNUSED, CLANG COMPLAINS // bool m_is_sel;
     QSqlError m_error;
     bool m_forward_only;
-    QSql::NumericalPrecisionPolicy m_precision_policy;
+    // UNUSED, CLANG COMPLAINS // QSql::NumericalPrecisionPolicy m_precision_policy;
 
     int m_bind_count;
-    QSqlResult::BindingSyntax m_binds;
+    // UNUSED, CLANG COMPLAINS // QSqlResult::BindingSyntax m_binds;
 
     QString m_executed_query;
     QHash<int, QSql::ParamType> m_types;

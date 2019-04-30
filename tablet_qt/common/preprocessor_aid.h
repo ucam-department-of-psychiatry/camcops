@@ -30,6 +30,16 @@
 #define PREPROCESSOR_STRING2(x) #x
 #define PREPROCESSOR_STRING(x) PREPROCESSOR_STRING2(x)
 
+// Note that Clang also defines __GNUC__, but also defines __clang__.
+
+// ============================================================================
+// COMPILER_IGNORES_NORETURN
+// ============================================================================
+
+#ifndef __clang__
+    #define COMPILER_IGNORES_NORETURN
+#endif
+
 // ============================================================================
 // GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
 // ============================================================================
@@ -49,7 +59,7 @@
 // ============================================================================
 // "expansion of date or time macro is not reproducible"
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)  // Running proper GCC
     #define DISABLE_GCC_DATE_TIME_MACRO_WARNING
 #endif
 
