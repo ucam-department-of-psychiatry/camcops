@@ -1482,8 +1482,9 @@ class Config(object):
         require(CLANG)
         env["BUILD_TOOLS"] = env.get("BUILD_TOOLS", self._xcode_developer_path)
         if building_sqlcipher:
-            # Let's try this:
-            env["CXXFLAGS"] = f"-mmacosx-version-min={self.macos_min_version}"
+            pass
+            # must instead modify CFLAGS to the SQLCipher "configure" tool;
+            # see build_sqlcipher()
         else:
             # This bit breaks SQLCipher compilation for macOS, which wants to
             # autodiscover gcc:
@@ -3343,6 +3344,8 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             f"-I{openssl_include_dir}",
             # ... sqlite.c does e.g. "#include <openssl/rand.h>"
         ]
+        if target_platform.macos:
+            cflags.append(f"-mmacosx-version-min={cfg.macos_min_version}")
         if "CFLAGS" in env:
             # inherit this too; 2018-08-24
             cflags.append(env["CFLAGS"])
