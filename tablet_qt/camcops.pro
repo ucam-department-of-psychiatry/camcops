@@ -50,6 +50,7 @@ message("Expecting CamCOPS source root at: $${CAMCOPS_SOURCE_ROOT}")
 
 # message("QMAKESPEC: $${QMAKESPEC}")
 # message("QMAKE_PLATFORM: $${QMAKE_PLATFORM}")
+message("... QT_ARCH: $$[QT_ARCH]")
 
 # =============================================================================
 # Parts of Qt
@@ -280,6 +281,19 @@ ios {
     # iOS
     # -------------------------------------------------------------------------
     error("camcops.pro doesn't know how to build for iOS yet")
+    STATIC_LIB_EXT = ".a"
+    DYNAMIC_LIB_EXT = ".dylib"
+    OBJ_EXT = ".o"
+    CAMCOPS_QT_LINKAGE = "static"
+    CAMCOPS_OPENSSL_LINKAGE = "static"
+
+    contains(QT_ARCH, x86_64) {
+        message("Building for iOS/ARM v8 64-bit architecture")
+        CAMCOPS_ARCH_TAG = "ios_armv8_64"
+    } else {
+        message("Building for iOS/ARM v7 (32-bit) architecture")
+        CAMCOPS_ARCH_TAG = "ios_armv7"
+    }
 }
 
 isEmpty(CAMCOPS_ARCH_TAG) {

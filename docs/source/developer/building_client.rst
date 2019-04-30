@@ -593,8 +593,7 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Device
           - Local PC (default for Desktop)
         * - Sysroot
-          - **[non-default]**
-            ``[...]/qt_local_build/qt_macos_x86_64_install/bin``
+          -
         * - Compiler: C
           - GCC (C, x86 64bit in /usr/bin)
         * - Compiler: C++
@@ -639,11 +638,11 @@ Non-default options are marked in bold and/or as "[non-default]".
           -
         * - Sysroot
           - **[non-default]**
-            ``[...]/qt_local_build/qt_ios_armv8_64_install/bin``
+            ``/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk``
         * - Compiler: C
-          - GCC (C, x86 64bit in /usr/bin)
+          - **Apple Clang (arm64)**
         * - Compiler: C++
-          - Clang (C++, x86 64bit in /usr/bin)
+          - **Apple Clang (arm64)**
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
