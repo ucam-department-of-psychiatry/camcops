@@ -876,17 +876,26 @@ class Platform(object):
                 elif not self.cpu_arm_family and arm_tag_present:
                     raise ValueError(f"File {filename} was built for ARM")
         elif BUILD_PLATFORM.osx:
-            if self.cpu_64bit:
-                dumpcmd = [OTOOL, "-f", filename]
+            if BUILD_PLATFORM.cpu_64bit:
+                dumpcmd = [OTOOL, "-hv", "-arch", "all", filename]
+                dumpresult = fetch(dumpcmd)
+                # https://stackoverflow.com/questions/1085137/how-do-i-determine-the-target-architecture-of-static-library-a-on-mac-os-x  # noqa
+                # Output looks like [number of space not right]:
+                #
+                # Mach header
+                #       magic cputype cpusubtype  caps filetype sizeofcmds flags  # noqa
+                #  0xfeedface     ARM         V7  0x00        6       1564 NOUNDEFS DYLDLINK TWOLEVEL NO_REEXPORTED_DYLIBS  # noqa
+                lines = dumpresult.splitlines()
+                _, cputype, cpusubtype, *_ = lines[2].split()
+                arm64tag_present = cputype == "ARM" and cpusubtype == "V8"  # ** to be verified
             else:
                 # https://lowlevelbits.org/parsing-mach-o-files/
                 # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
                 # gobjdump --help
                 dumpcmd = [GOBJDUMP, "-f", filename]
-            # *** WHAT FOLLOWS IS OK FOR GOBJDUMP BUT IS TO BE VERIFIED FOR OTOOL ***  # noqa
-            dumpresult = fetch(dumpcmd)
-            arm64tag = "file format mach-o-arm64"
-            arm64tag_present = arm64tag in dumpresult
+                dumpresult = fetch(dumpcmd)
+                arm64tag = "file format mach-o-arm64"
+                arm64tag_present = arm64tag in dumpresult
             if self.cpu == Cpu.ARM_V8_64 and not arm64tag_present:
                 raise ValueError(f"File {filename} was not built for ARM64")  # noqa
             elif self.cpu != Cpu.ARM_V8_64 and arm64tag_present:

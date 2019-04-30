@@ -36,6 +36,8 @@
 .. _Windows SDK: https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 
 
+.. _dev_building_client:
+
 Building the CamCOPS client
 ===========================
 
@@ -146,21 +148,20 @@ Windows
 macOS (formerly OS X)
 ~~~~~~~~~~~~~~~~~~~~~
 
-- Tested in July 2018 with:
+- See :ref:`Setting up an iMac for CamCOPS development <set_up_imac_for_dev>`.
+
+- Tested in Apr 2019 with:
 
   .. code-block:: none
 
-    macOS 10.13.4
-    Xcode 9.4.1 (macOS SDK 10.13; iOS SDK 11.4)
-    *** IN PROGRESS
-        *** build_qt:
-            --build_macos_x86_64
-            --build_ios_arm_v7_32
-            --build_ios_arm_v8_64
-            --build_ios_simulator_x86_32)
-            --build_ios_simulator_x86_64 *** can't build SQLCipher
-
-        *** redo build_qt command-line help
+    # macOS Mojave 10.14.4
+    # Xcode *** CHANGE: *** 9.4.1 (macOS SDK 10.13; iOS SDK 11.4)
+    build_qt \
+        --build_macos_x86_64 \
+        --build_ios_arm_v7_32 \ *** test
+        --build_ios_arm_v8_64 \ *** test
+        --build_ios_simulator_x86_32 \ *** test
+        --build_ios_simulator_x86_64 *** test
 
 
 All operating systems

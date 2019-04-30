@@ -17,6 +17,13 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _Git: https://git-scm.com/
+.. _Homebrew: https://brew.sh/
+.. _Python: https://www.python.com/
+.. _Qt: https://www.qt.io/
+.. _Xcode: https://developer.apple.com/xcode/
+
+
 Specific OS notes
 -----------------
 
@@ -74,21 +81,33 @@ should be fine for the CamCOPS server!) Use a client edition of Windows for
 the CamCOPS client.
 
 
+.. _set_up_imac_for_dev:
+
 Setting up an iMac for CamCOPS development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+
+    Avoid using a Mac Mini; they are too weedy (e.g. a 2012 model: 2.5 GHz
+    dual-core Intel Core i5, 4 GB RAM, 500 Gb HD) and compiling Qt takes ages.
+    Our 2019 development machine is an iMac 21.5", 3.2 GHz 6-core (12-thread)
+    Intel Core i7-8700, 32 GB RAM, 1 TB SSD; that's fine.
 
 - General computer setup. This includes picking an Apple ID (generally) as well
   as creating a user.
 
-- Download and install the open-source edition Qt from https://www.qt.io/. This
-  gets you Qt Creator. You'll need to log in with your Qt account.
+- Download and install the open-source edition of Qt_. This gets you Qt
+  Creator. You'll need to log in with your Qt account.
 
-  - Installing Qt triggers installation of Xcode, if it wasn't already
-    installed.
+  - Installing Qt triggers installation part of Xcode, if it wasn't already
+    installed. But not all.
 
   - Maybe include also the Qt Installer Framework.
 
-- Download and install Git from https://git-scm.com/.
+- Install Xcode_ in full from the App Store. Run it, agree to conditions.
+  Installing Xcode automatically installs the iOS SDK.
+
+- Download and install Git_.
 
   - Since this is a third-party app, you need to enable installation first.
     :menuselection:`Apple icon [top left] --> System Preferences --> Security &
@@ -96,8 +115,7 @@ Setting up an iMac for CamCOPS development
 
 - Fire up a terminal and clone the Git repository (e.g. to ``~/camcops/``).
 
-- Download and install Python 3 from https://www.python.com/ (MacOS comes with
-  Python 2).
+- Download and install Python_ 3 (MacOS comes with Python 2).
 
 - Make and activate a Python 3 virtual environment (e.g. in
   ``~/dev/venvs/camcops/``).
@@ -121,8 +139,11 @@ Setting up an iMac for CamCOPS development
   dependencies for the CamCOPS server, which is overkill, but includes packages
   used by the :ref:`build_qt.py <build_qt>` script.
 
-- Install Homebrew; see the instructions at https://brew.sh/.
+- Install Homebrew_.
 
 - Run ``${CAMCOPS_SOURCE_DIR}/tablet_qt/tools/build_qt.py --build_all`` and
   every time it stops and says there's an OS command missing, follow its
   suggestion.
+
+  - See :ref:`Building the CamCOPS client <dev_building_client>` and
+    :ref:`build_qt`.
