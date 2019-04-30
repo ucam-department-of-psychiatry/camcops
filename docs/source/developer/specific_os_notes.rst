@@ -113,9 +113,10 @@ Setting up an iMac for CamCOPS development
 
 - Download and install Git_.
 
-  - Since this is a third-party app, you need to enable installation first.
-    :menuselection:`Apple icon [top left] --> System Preferences --> Security &
-    Privacy --> General --> Allow apps downloaded from...`
+  - Since this is a third-party app, you need to enable installation first, or
+    when it complains. :menuselection:`Apple icon [top left] --> System
+    Preferences --> Security & Privacy --> General --> Allow apps downloaded
+    from...`
 
 - Fire up a terminal and clone the Git repository (e.g. to ``~/camcops/``).
 

@@ -247,8 +247,8 @@ the CamCOPS :ref:`build_qt` tool (q.v.). For example:
 Troubleshooting build_qt
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Problem:: tar fails to work under Windows
-#########################################
+Problem: tar fails to work under Windows
+########################################
 
 .. code-block:: none
 
@@ -316,18 +316,19 @@ Assuming you set your qt_local_build directory to ``~/dev/qt_local_build``, the
 :ref:`build_qt` script should have generated a series of ``qmake`` (or, under
 Windows, ``qmake.exe``) files within that directory:
 
-    ==================  ==============================================
-    Operating system    qmake
-    ==================  ==============================================
-    Linux 64-bit        qt_linux_x86_64_install/bin/qmake
-    Android (ARM)       qt_android_armv7_install/bin/qmake
-    Android emulator    qt_android_x86_32_install/bin/qmake
-    Mac OS/X 64-bit     qt_osx_x86_64_install/bin/qmake
-    iOS (ARM)           qt_ios_armv8_64_install/bin/qmake
-    iOS Simulator       qt_ios_x86_64_install/bin/qmake
-    Windows 32-bit      qt_windows_x86_32_install/bin/qmake
-    Windows 64-bit      qt_windows_x86_64_install/bin/qmake
-    ==================  ==============================================
+    =============================== ===========================================
+    Operating system                qmake
+    =============================== ===========================================
+    Linux, x86 64-bit               ``qt_linux_x86_64_install/bin/qmake``
+    Android, ARM 32-bit             ``qt_android_armv7_install/bin/qmake``
+    Android emulator, x86 32-bit    ``qt_android_x86_32_install/bin/qmake``
+    Mac OS/X, x86 64-bit            ``qt_osx_x86_64_install/bin/qmake``
+    iOS, ARM 32-bit                 ``qt_ios_armv7_install/bin/qmake``
+    iOS, ARM 64-bit                 ``qt_ios_armv8_64_install/bin/qmake``
+    iOS Simulator, x86 64-bit       ``qt_ios_x86_64_install/bin/qmake``
+    Windows, x86 32-bit             ``qt_windows_x86_32_install/bin/qmake``
+    Windows, x86 64-bit             ``qt_windows_x86_64_install/bin/qmake``
+    =============================== ===========================================
 
 Select the correct ``qmake`` and it will be added as a Qt version. You can
 change its name (prefixing "Custom" may be helpful to recognize it).
@@ -350,6 +351,8 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
     when you open your application) and the ``.pro`` (project) file will not
     parse. See https://stackoverflow.com/questions/27524680.
 
+Non-default options are marked in bold and/or as "[non-default]".
+
 **Custom_Linux_x86_64**
 
     .. list-table::
@@ -359,11 +362,11 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
         * - Option
           - Setting
         * - Name
-          - ``Custom_Linux_x86_64``
+          - **[non-default]** ``Custom_Linux_x86_64``
         * - File system name
           -
         * - Device type
-          - Desktop
+          - **Desktop**
         * - Device
           - Local PC (default for Desktop)
         * - Sysroot
@@ -398,11 +401,11 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
         * - Option
           - Setting
         * - Name
-          - ``Custom_Android_ARM``
+          - **[non-default]** ``Custom_Android_ARM``
         * - File system name
           -
         * - Device type
-          - Android Device
+          - **Android Device**
         * - Device
           - Run on Android (default for Android)
         * - Sysroot
@@ -437,11 +440,11 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
         * - Option
           - Setting
         * - Name
-          - ``Custom_Android_x86``
+          - **[non-default]** ``Custom_Android_x86``
         * - File system name
           -
         * - Device type
-          - Android Device
+          - **Android Device**
         * - Device
           - Run on Android (default for Android)
         * - Sysroot
@@ -476,19 +479,20 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
         * - Option
           - Setting
         * - Name
-          - ``Custom_Windows_x86_64``
+          - **[non-default]** ``Custom_Windows_x86_64``
         * - File system name
           -
         * - Device type
-          - Desktop
+          - **Desktop**
         * - Device
           - Local PC (default for Desktop)
         * - Sysroot
-          - ``[...]\qt_local_build\qt_windows_x86_64_install\bin``
+          - **[non-default]**
+            ``[...]\qt_local_build\qt_windows_x86_64_install\bin``
         * - Compiler: C
-          - Microsoft Visual C++ Compiler 14.0 (amd64)
+          - **Microsoft Visual C++ Compiler 14.0 (amd64)**
         * - Compiler: C++
-          - Microsoft Visual C++ Compiler 14.0 (amd64)
+          - **Microsoft Visual C++ Compiler 14.0 (amd64)**
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
@@ -498,7 +502,7 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
         * - Qt mkspec
           -
         * - CMake Tool
-          - System CMake at ``C:\Program Files (x86)\CMake\bin\cmake.exe``
+          - **System CMake at** ``C:\Program Files (x86)\CMake\bin\cmake.exe``
         * - CMake Generator
           - CodeBlocks - MinGW Makefiles, Platform: <none>, Toolset: <none>
         * - CMake Configuration
@@ -521,31 +525,32 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
         * - Option
           - Setting
         * - Name
-          - ``Custom_Windows_x86_32``
+          - **``Custom_Windows_x86_32``**
         * - File system name
           -
         * - Device type
-          - Desktop
+          - **Desktop**
         * - Device
           - Local PC (default for Desktop)
         * - Sysroot
-          - ``[...]\qt_local_build\qt_windows_x86_32_install\bin``
+          - **[non-default]**
+            ``[...]\qt_local_build\qt_windows_x86_32_install\bin``
         * - Compiler: C
-          - Microsoft Visual C++ Compiler 14.0 (amd64_x86)
+          - **Microsoft Visual C++ Compiler 14.0 (amd64_x86)**
         * - Compiler: C++
-          - Microsoft Visual C++ Compiler 14.0 (amd64_x86)
+          - **Microsoft Visual C++ Compiler 14.0 (amd64_x86)**
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
           - None
         * - Qt version
-          - **THE "MACOS 64-BIT" ONE FROM QT VERSIONS, ABOVE**
+          - **THE "WINDOWS 32-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
         * - CMake Tool
           -
         * - CMake Generator
-          - ``<none> - <none>, Platform: <none>, Toolset: <none>``
+          - **System CMake at** ``C:\Program Files (x86)\CMake\bin\cmake.exe``
         * - CMake Configuration
           - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
             ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
@@ -580,15 +585,16 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
         * - Option
           - Setting
         * - Name
-          - ``Custom_MacOS_x86_64``
+          - **[non-default]** ``Custom_MacOS_x86_64``
         * - File system name
           -
         * - Device type
-          - Desktop
+          - **Desktop**
         * - Device
           - Local PC (default for Desktop)
         * - Sysroot
-          - ``[...]/qt_local_build/qt_macos_x86_64_install/bin``
+          - **[non-default]**
+            ``[...]/qt_local_build/qt_macos_x86_64_install/bin``
         * - Compiler: C
           - GCC (C, x86 64bit in /usr/bin)
         * - Compiler: C++
@@ -598,13 +604,13 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
         * - Debugger
           - System LLDB at /usr/bin/ldb
         * - Qt version
-          - **THE "WINDOWS 32-BIT" ONE FROM QT VERSIONS, ABOVE**
+          - **THE "MACOS 64-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
         * - CMake Tool
-          - System CMake at ``C:\Program Files (x86)\CMake\bin\cmake.exe``
+          - System CMake at /usr/local/bin/cmake
         * - CMake Generator
-          - CodeBlocks - MinGW Makefiles, Platform: <none>, Toolset: <none>
+          - CodeBlocks - Unix Makefiles, Platform: <none>, Toolset: <none>
         * - CMake Configuration
           - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
             ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
@@ -613,6 +619,50 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
         * - Additional Qbs Profile Settings
           -
 
+**Custom_iOS_armv8_64**
+
+*BEING TESTED*
+
+    .. list-table::
+        :header-rows: 1
+        :stub-columns: 1
+
+        * - Option
+          - Setting
+        * - Name
+          - **[non-default]** ``Custom_iOS_armv8_64``
+        * - File system name
+          -
+        * - Device type
+          - **iOS device**
+        * - Device
+          -
+        * - Sysroot
+          - **[non-default]**
+            ``[...]/qt_local_build/qt_ios_armv8_64_install/bin``
+        * - Compiler: C
+          - GCC (C, x86 64bit in /usr/bin)
+        * - Compiler: C++
+          - Clang (C++, x86 64bit in /usr/bin)
+        * - Environment
+          - [not editable: "No changes to apply."]
+        * - Debugger
+          - System LLDB at /usr/bin/ldb
+        * - Qt version
+          - **THE "iOS 64-BIT" ONE FROM QT VERSIONS, ABOVE**
+        * - Qt mkspec
+          -
+        * - CMake Tool
+          - System CMake at /usr/local/bin/cmake
+        * - CMake Generator
+          - CodeBlocks - Unix Makefiles, Platform: <none>, Toolset: <none>
+        * - CMake Configuration
+          - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
+            ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
+            ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
+            ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
+        * - Additional Qbs Profile Settings
+          -
 
 
 Build settings

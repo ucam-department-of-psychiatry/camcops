@@ -55,6 +55,7 @@ Tasks
 **Consider**
 
 - review Guo 2015 "measurement-based care":
+
   - HADS/HDRS already
   - QIDS -- permissible?
   - Maudsley Treatment Inventory?
@@ -122,7 +123,7 @@ Client core
 
 **Not a priority**
 
-- OS/X build.
+- MacOS build.
 
 - Think about a web-based client, e.g. via VNC (but this is complex and loads
   servers/networks considerably). Potentially more promising is Qt for
