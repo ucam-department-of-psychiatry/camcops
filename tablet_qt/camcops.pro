@@ -145,6 +145,12 @@ msvc {
     QMAKE_CXXFLAGS_RELEASE += /MD
 }
 
+# For compilers that support it, make the visibility hidden
+gcc {
+    # http://gcc.gnu.org/wiki/Visibility
+    QMAKE_CXXFLAGS += -fvisibility=hidden
+}
+
 # QMAKE_LFLAGS += --verbose  # make the linker verbose
 
 # =============================================================================
