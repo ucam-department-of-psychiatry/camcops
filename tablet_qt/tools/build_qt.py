@@ -27,83 +27,92 @@ tools/build_qt.py
 This script is design to download and build the prerequisites for building
 the CamCOPS client, including:
 
+    =========== ==========================
     Qt          C++ cross-platform library
     OpenSSL     Encryption
     Eigen       Matrix algebra
     SQLCipher   Encrypted SQLite
+    =========== ==========================
 
-This script is intended to run on PYTHON 2 as well as Python 3, and to have
-dependencies except the system libraries. That's why it's a bit bare-bones.
-
-===============================================================================
 Why?
-===============================================================================
+====
 
 When is it NECESSARY to compile OpenSSL from source?
-    - OpenSSL for Android
-      http://doc.qt.io/qt-5/opensslsupport.html
-      ... so: necessary.
+
+- OpenSSL for Android
+
+  - http://doc.qt.io/qt-5/opensslsupport.html
+  - ... so: necessary.
 
 When is it NECESSARY to compile Qt from source?
-    - Static linking of OpenSSL (non-critical)
-    - SQLite support (critical)
-      http://doc.qt.io/qt-5/sql-driver.html
-      ... so: necessary.
 
-===============================================================================
+- Static linking of OpenSSL (non-critical)
+
+- SQLite support (critical)
+  - http://doc.qt.io/qt-5/sql-driver.html
+  - ... so: necessary.
+
+
 Windows
-===============================================================================
+=======
 
 Several compilers are possible, in principle.
 
--   Cygwin
-    Very nice installation and cross-operation with native Windows.
-    May be useful for toolchains.
-    However, software that its compilers produce run under POSIX, so require an
+- Cygwin
+
+  - Very nice installation and cross-operation with native Windows.
+  - May be useful for toolchains.
+  - However, software that its compilers produce run under POSIX, so require an
     intermediate Cygwin DLL layer to run; we don't want that.
 
--   Microsoft Visual Studio (free or paid)
-    An obvious potential candidate, but not open-source.
+- Microsoft Visual Studio (free or paid)
 
--   MinGW
-    Runs under Windows and produces native code.
-    Qt supports it.
-    Provides the MSYS bash environment to assist for compilation.
-    Can also run under Linux and cross-compile to Windows.
+  - An obvious potential candidate, but not open-source.
 
-    -   More specifically: mingw-w64, which is GCC for 32- and 64-bit Windows
-        http://mingw-w64.org/
-        ... i686-w64-mingw32 for 32-bit executables
-        ... x86_64-w64-mingw32 for 64-bits executables
+- MinGW
 
-    -   Within this option, there is MXE, which is a cross-compilation
-        environment.
+  - Runs under Windows and produces native code.
+  - Qt supports it.
+  - Provides the MSYS bash environment to assist for compilation.
+  - Can also run under Linux and cross-compile to Windows.
 
-    -   Upshot: I tried hard. As of 2017-11-19:
-        -   MinGW itself is the old version and has been superseded by
-            mingw-w64 (a.k.a. mingw64).
-        -   attempts to use MinGW-W64 to build 32-bit Windows code (via the MXE
-            build of mingw-w64) lead to a GCC compiler crash; this is because
-            the version of mingw-w64 that MXE supports uses an old GCC.
-        -   getting Qt happy is very hard
-        -   For the 64-bit compilation, I ended up with a "make" process that
-            reaches this error:
+    - More specifically: mingw-w64, which is GCC for 32- and 64-bit Windows
+      - http://mingw-w64.org/
+      - ... i686-w64-mingw32 for 32-bit executables
+      - ... x86_64-w64-mingw32 for 64-bit executables
 
-/home/rudolf/dev/qt_local_build/src/qt5/qtwebglplugin/src/plugins/platforms/webgl/qwebglwindow_p.h:64:48: error: field 'defaults' has incomplete type 'std::promise<QMap<unsigned int, QVariant> >'
-     std::promise<QMap<unsigned int, QVariant>> defaults;
+    - Within this option, there is MXE, which is a cross-compilation
+      environment.
 
-        -   Not clear that it's worth the effort to use a manual build of
-            mingw-w64 as well.
-        -   And none of this reached the stage of actually testing on Windows.
+    - Upshot: I tried hard. As of 2017-11-19:
+    
+      - MinGW itself is the old version and has been superseded by
+        mingw-w64 (a.k.a. mingw64).
+      - attempts to use MinGW-W64 to build 32-bit Windows code (via the MXE
+        build of mingw-w64) lead to a GCC compiler crash; this is because
+        the version of mingw-w64 that MXE supports uses an old GCC.
+      - getting Qt happy is very hard
+      - For the 64-bit compilation, I ended up with a "make" process that
+        reaches this error:
+        
+        .. code-block:: none
+
+            /home/rudolf/dev/qt_local_build/src/qt5/qtwebglplugin/src/plugins/platforms/webgl/qwebglwindow_p.h:64:48: error: field 'defaults' has incomplete type 'std::promise<QMap<unsigned int, QVariant> >'
+                 std::promise<QMap<unsigned int, QVariant>> defaults;
+
+      - Not clear that it's worth the effort to use a manual build of
+        mingw-w64 as well.
+      - And none of this reached the stage of actually testing on Windows.
 
 DECISION:
 
--   Use Microsoft Visual Studio and native compilation under Windows.
+- Use Microsoft Visual Studio and native compilation under Windows.
 
 THEREFORE:
 
+    ======================= ===================================================
     build OS                target OS
-    ===========================================================
+    ======================= ===================================================
     Linux, x86, 64-bit      Linux, x86, 32-bit
                             Linux, x86, 64-bit
                             Android, x86, 32-bit (for emulator)
@@ -116,81 +125,20 @@ THEREFORE:
 
     Windows, x86, 64-bit    Windows, x86, 64-bit
                             Windows, x86, 32-bit
+    ======================= ===================================================
 
-... reflected in the build_all option.
+... reflected in the ``--build_all`` option.
 
--------------------------------------------------------------------------------
-IGNORE FOR NOW - moving towards MinGW under Windows
--------------------------------------------------------------------------------
-
-FROM SCRATCH:
-    - install Git
-      ... allow it to add to the PATH
-    - install Python 3.5 or higher (e.g. Python 3.6, 64-bit, for a 64-bit OS)
-      ... allow it to add to the PATH
-    - clone the CamCOPS repository: git clone https://.../camcops
-    - python camcops/tablet_qt/tools/build_qt.py
-
--------------------------------------------------------------------------------
-IGNORE - deprecated - Cygwin
--------------------------------------------------------------------------------
-
-We'll try with Cygwin.
-
-1.  INSTALL CYGWIN
-
-    From https://www.cygwin.com/, download the installer (e.g.
-    setup-x86_64.exe) and run it. If you want to add more packages later, run
-    it again. The screens you'll see, in order (at least for a standard
-    installation from the Internet), are:
-
-        - saying hello
-        - choose a download source
-        - select root install directory / install for whom?
-        - select local package directory
-        - select your internet connection
-        - choose a download site
-        - ... progress...
-        - SELECT PACKAGES -- the interesting bit.
-        - ... progress...
-        - done; create icons on desktop?
-
-2.  If you accept its default, it'll install to C:\cygwin64 (on 64-bit
-    systems).
-
-3.  At the package selector, make sure you include:
-
-        binutils                GNU assembler, linker, and similar utilities
-        colorgcc                Colorizer for GCC warning/error messages (*)
-        gcc-core                GNU Compiler Collection (C, OpenMP)
-        gcc-g++                 GNU Compiler Collection (C++)
-        gccmakedep              X Makefile dependency tool for GCC
-        mingw64-x86_64-gcc-g++  GCC for Win64 toolchain (C++)
-
-            (*) Not necessary, but nice.
-
-    If you can't see a package at the Cygwin installer's "Select Packages"
-    screen, make sure "View" shows "Full" or "Category". You can type package
-    names into the "Search" box to restrict the list. To install a package,
-    click on "skip" and it'll change to the version number. When you've chosen
-    everything, click "next".
-
-    # Under Windows: Cygwin or MinGW? Need MinGW, for direct Windows API code
-    # (rather than a compatibility layer via Cygwin). We want to build a
-    # maximally portable executable.
-
-
-===============================================================================
 Notes
-===============================================================================
+=====
 
-OTHER NOTES:
-# configure: http://doc.qt.io/qt-5/configure-options.html
-# sqlite: http://doc.qt.io/qt-5/sql-driver.html
-# build for Android: http://wiki.qt.io/Qt5ForAndroidBuilding
-# multi-core builds: http://stackoverflow.com/questions/9420825/how-to-compile-on-multiple-cores-using-mingw-inside-qtcreator  # noqa
+- configure: http://doc.qt.io/qt-5/configure-options.html
+- sqlite: http://doc.qt.io/qt-5/sql-driver.html
+- build for Android: http://wiki.qt.io/Qt5ForAndroidBuilding
+- multi-core builds:
+  http://stackoverflow.com/questions/9420825/how-to-compile-on-multiple-cores-using-mingw-inside-qtcreator
 
-"""
+"""  # noqa
 
 import argparse
 import logging
@@ -880,14 +828,14 @@ class Platform(object):
                 dumpcmd = [OTOOL, "-hv", "-arch", "all", filename]
                 dumpresult = fetch(dumpcmd)
                 # https://stackoverflow.com/questions/1085137/how-do-i-determine-the-target-architecture-of-static-library-a-on-mac-os-x  # noqa
-                # Output looks like [number of space not right]:
+                # Output looks like [number of spaces not right]:
                 #
                 # Mach header
                 #       magic cputype cpusubtype  caps filetype sizeofcmds flags  # noqa
                 #  0xfeedface     ARM         V7  0x00        6       1564 NOUNDEFS DYLDLINK TWOLEVEL NO_REEXPORTED_DYLIBS  # noqa
                 lines = dumpresult.splitlines()
-                _, cputype, cpusubtype, *_ = lines[2].split()
-                arm64tag_present = cputype == "ARM" and cpusubtype == "V8"  # ** to be verified
+                _, cputype, *_ = lines[2].split()
+                arm64tag_present = cputype == "ARM64"
             else:
                 # https://lowlevelbits.org/parsing-mach-o-files/
                 # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
