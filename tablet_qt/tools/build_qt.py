@@ -1481,11 +1481,11 @@ class Config(object):
         # This bit breaks SQLCipher compilation for macOS, which wants to
         # autodiscover gcc:
         # env["CC"] = (
-        #     "{clang} -mmacosx-version-min={min_osx_version}".format(
-        #         clang=shutil.which(CLANG),
-        #         min_osx_version=self.osx_min_version,
-        #     )
+        #     f"{shutil.which(CLANG)} "
+        #     f"-mmacosx-version-min={self.macos_min_version}"
         # )
+        # Let's try this:
+        env["CXXFLAGS"] = f"-mmacosx-version-min={self.macos_min_version}"
 
     def _set_ios_env(self, env: Dict[str, str],
                      target_platform: Platform) -> None:
