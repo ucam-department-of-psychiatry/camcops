@@ -18,6 +18,7 @@
 */
 
 #include "field.h"
+#include "common/preprocessor_aid.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
 #include "lib/uifunc.h"
@@ -308,7 +309,9 @@ QString Field::sqlColumnType() const
     }
     uifunc::stopApp(
         QString("Field::sqlColumnType: Unknown field type: %1").arg(m_type));
+#ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
     return "";
+#endif
 }
 
 

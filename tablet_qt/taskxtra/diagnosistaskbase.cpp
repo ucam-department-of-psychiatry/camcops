@@ -108,7 +108,7 @@ OpenableWidget* DiagnosisTaskBase::editor(const bool read_only)
                         ->setOfferNowButton(true),
         })->setWidgetAlignment(Qt::AlignTop)),
         QuElementPtr(new QuButton(
-            textconst::ADD,
+            TextConst::add(),
             std::bind(&DiagnosisTaskBase::addItem, this)
         )),
     };
@@ -292,7 +292,7 @@ void DiagnosisTaskBase::rebuildPage(QuPage* page)
         const bool first = i == 0;
         const bool last = i == n - 1;
         elements.append(new QuHorizontalLine());
-        elements.append((new QuText(textconst::DIAGNOSIS + " " +
+        elements.append((new QuText(TextConst::diagnosis() + " " +
                                     QString::number(i + 1)))->setBold());
 
         FieldRef::GetterFunction get_code = std::bind(
@@ -313,22 +313,22 @@ void DiagnosisTaskBase::rebuildPage(QuPage* page)
 
         auto buttons = new QuFlowContainer({
             new QuButton(
-                textconst::DELETE,
+                TextConst::DELETE(),
                 std::bind(&DiagnosisTaskBase::deleteItem, this, i)
             ),
             (new QuButton(
-                textconst::MOVE_UP,
+                TextConst::moveUp(),
                 std::bind(&DiagnosisTaskBase::moveUp, this, i)
             ))->setActive(!first),
             (new QuButton(
-                textconst::MOVE_DOWN,
+                TextConst::moveDown(),
                 std::bind(&DiagnosisTaskBase::moveDown, this, i)
             ))->setActive(!last),
         });
         buttons->setContainedWidgetAlignments(widget_align);
 
         auto dx = new QuDiagnosticCode(m_codeset, fr_code, fr_desc);
-        auto comment_label = new QuText(textconst::COMMENT + ":");
+        auto comment_label = new QuText(TextConst::comment() + ":");
         auto comment_edit = new QuLineEdit(fr_comment);
 
         auto maingrid = new QuGridContainer();

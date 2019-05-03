@@ -100,8 +100,8 @@ bool Fft::isComplete() const
 QStringList Fft::summary() const
 {
     return QStringList{
-        fieldSummary(SERVICE, textconst::SERVICE, ": ", "."),
-        standardResult(textconst::RATING, ratingText()),
+        fieldSummary(SERVICE, TextConst::service(), ": ", "."),
+        standardResult(TextConst::rating(), ratingText()),
     };
 }
 

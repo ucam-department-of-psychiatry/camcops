@@ -40,7 +40,7 @@ public:
     SlowGuiGuard(QApplication& app,
                  QWidget* parent,
                  const QString& text = "Operation in progress...",
-                 const QString& title = textconst::PLEASE_WAIT,
+                 const QString& title = TextConst::pleaseWait(),
                  int minimum_duration_ms = 100);
     ~SlowGuiGuard();
 protected:

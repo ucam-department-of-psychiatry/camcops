@@ -81,6 +81,7 @@
 #include <QVBoxLayout>
 #include <QVideoFrame>
 #include "common/cssconst.h"
+#include "common/preprocessor_aid.h"
 #include "common/uiconst.h"
 #include "dialogs/scrollmessagebox.h"
 #include "graphics/imagefunc.h"
@@ -423,7 +424,9 @@ void CameraQCamera::toggleLock()
     switch (m_camera->lockStatus()) {
     case QCamera::Searching:
     case QCamera::Locked:
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
     default:
+#endif
         unlockCamera();
         break;
     case QCamera::Unlocked:

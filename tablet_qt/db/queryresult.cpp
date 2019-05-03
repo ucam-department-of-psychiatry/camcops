@@ -23,6 +23,7 @@
 #include <QJsonObject>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include "common/preprocessor_aid.h"
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 
@@ -247,8 +248,10 @@ QString QueryResult::fetchModeDescription(const FetchMode fetch_mode)
         return "FetchAll";
     case FetchMode::FetchFirst:
         return "FetchFirst";
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
     default:
         return "?";
+#endif
     }
 }
 

@@ -84,42 +84,6 @@ const QString FN_SLOPE("slope");
 const QString FN_K("k");
 const QString FN_THETA("theta");
 
-// Text for user
-#define TR(stringname, text) const QString stringname(QObject::tr(text))
-TR(TX_CONFIG_TITLE, "Configure ExpDetThreshold task");
-TR(TX_CONFIG_MAIN_INSTRUCTIONS_1,
-        "Set your device’s brightness and volume BEFORE running this task, "
-        "and DO NOT ALTER THEM in between runs or before completing the main "
-        "Expectation–Detection task. Also, try to keep the lighting and "
-        "background noise constant throughout.");
-TR(TX_CONFIG_MAIN_INSTRUCTIONS_2,
-        "Before you run the Expectation–Detection task for a given subject, "
-        "please run this task FOUR times to determine the subject’s threshold "
-        "for each of two auditory stimuli (tone, voice) and each of two "
-        "auditory stimuli (circle, word).");
-TR(TX_CONFIG_MAIN_INSTRUCTIONS_3,
-        "Then, make a note of the 75% (“x75”) threshold intensities for each "
-        "stimulus, and start the Expectation–Detection task (which only needs "
-        "to be run once). It will ask you for these four intensities.");
-TR(TX_CONFIG_INSTRUCTIONS_1, "Choose a modality:");
-TR(TX_AUDITORY, "Auditory");
-TR(TX_VISUAL, "Visual");
-TR(TX_CONFIG_INSTRUCTIONS_2, "Choose a target stimulus:");
-TR(TX_CONFIG_INFO, "Intensities and probabilities are in the range 0–1.");
-TR(TX_CONFIG_START_INTENSITY_MIN, "Minimum starting intensity (e.g. 0.9)");
-TR(TX_CONFIG_START_INTENSITY_MAX, "Maximum starting intensity (e.g. 1.0)");
-TR(TX_CONFIG_INITIAL_LARGE_INTENSITY_STEP,
-   "Initial, large, intensity step (e.g. 0.1)");
-TR(TX_CONFIG_MAIN_SMALL_INTENSITY_STEP,
-   "Main, small, intensity step (e.g. 0.01)");
-TR(TX_CONFIG_NUM_TRIALS_IN_MAIN_SEQUENCE,
-   "Number of trials in the main test sequence (e.g. 14)");
-TR(TX_CONFIG_P_CATCH_TRIAL, "Probability of a catch trial (e.g. 0.2)");
-TR(TX_CONFIG_BACKGROUND_INTENSITY, "Background intensity (usually 1.0)");
-TR(TX_CONFIG_ITI_S, "Intertrial interval (s) (e.g. 0.2)");
-TR(TX_DETECTION_Q_VISUAL, "Did you see a");
-TR(TX_DETECTION_Q_AUDITORY, "Did you hear a");
-
 // Defaults
 const qreal DEFAULT_VISUAL_TARGET_DURATION_S = 1.0;
 const qreal DEFAULT_BACKGROUND_INTENSITY = 1.0;
@@ -330,17 +294,18 @@ OpenableWidget* CardinalExpDetThreshold::editor(const bool read_only)
     // Configure the task using a Questionnaire
     // ------------------------------------------------------------------------
 
+    const QString TX_CONFIG_TITLE(tr("Configure ExpDetThreshold task"));
     const NameValueOptions modality_options{
-        {TX_AUDITORY, MODALITY_AUDITORY},
-        {TX_VISUAL, MODALITY_VISUAL},
+        {txtAuditory(), MODALITY_AUDITORY},
+        {txtVisual(), MODALITY_VISUAL},
     };
     const NameValueOptions target_options_auditory{
-        {TX_AUDITORY_TARGET_0, 0},
-        {TX_AUDITORY_TARGET_1, 1},
+        {ExpDetTextConst::auditoryTarget0(), 0},
+        {ExpDetTextConst::auditoryTarget1(), 1},
     };
     const NameValueOptions target_options_visual{
-        {TX_VISUAL_TARGET_0, 0},
-        {TX_VISUAL_TARGET_1, 1},
+        {ExpDetTextConst::visualTarget0(), 0},
+        {ExpDetTextConst::visualTarget1(), 1},
     };
 
     // const int no_max = std::numeric_limits<int>::max();
@@ -360,15 +325,30 @@ OpenableWidget* CardinalExpDetThreshold::editor(const bool read_only)
     };
 
     QuPagePtr page1((new QuPage{
-        boldtext(TX_CONFIG_MAIN_INSTRUCTIONS_1),
-        text(TX_CONFIG_MAIN_INSTRUCTIONS_2),
-        text(TX_CONFIG_MAIN_INSTRUCTIONS_3),
-        boldtext(TX_CONFIG_INSTRUCTIONS_1),
+        boldtext(tr(
+            "Set your device’s brightness and volume BEFORE running this "
+            "task, and DO NOT ALTER THEM in between runs or before completing "
+            "the main Expectation–Detection task. Also, try to keep the "
+            "lighting and background noise constant throughout."
+        )),
+        text(tr(
+            "Before you run the Expectation–Detection task for a given "
+            "subject, please run this task FOUR times to determine the "
+            "subject’s threshold for each of two auditory stimuli (tone, "
+            "voice) and each of two auditory stimuli (circle, word)."
+        )),
+        text(tr(
+            "Then, make a note of the 75% (“x75”) threshold intensities for "
+            "each stimulus, and start the Expectation–Detection task (which "
+            "only needs to be run once). It will ask you for these four "
+            "intensities."
+        )),
+        boldtext(tr("Choose a modality:")),
         mcq(FN_MODALITY, modality_options),
     })->setTitle(TX_CONFIG_TITLE + " (1)"));
 
     QuPagePtr page2((new QuPage{
-        boldtext(TX_CONFIG_INSTRUCTIONS_2),
+        boldtext(tr("Choose a target stimulus:")),
         mcq(FN_TARGET_NUMBER, target_options_auditory)->addTag(TAG_AUDITORY),
         mcq(FN_TARGET_NUMBER, target_options_visual)->addTag(TAG_VISUAL),
     })->setTitle(TX_CONFIG_TITLE + " (2)")->addTag(TAG_P2));
@@ -377,25 +357,25 @@ OpenableWidget* CardinalExpDetThreshold::editor(const bool read_only)
     const qreal one = 1.0;
 
     QuPagePtr page3((new QuPage{
-        text(TX_CONFIG_INFO),
+        text(tr("Intensities and probabilities are in the range 0–1.")),
         questionnairefunc::defaultGridRawPointer({
-            {TX_CONFIG_VISUAL_TARGET_DURATION_S,
+            {ExpDetTextConst::configVisualTargetDurationS(),
              new QuLineEditDouble(fieldRef(FN_VISUAL_TARGET_DURATION_S), 0.1, 10.0)},
-            {TX_CONFIG_BACKGROUND_INTENSITY,
+            {tr("Background intensity (usually 1.0)"),
              new QuLineEditDouble(fieldRef(FN_BACKGROUND_INTENSITY), zero, one)},
-            {TX_CONFIG_START_INTENSITY_MIN,
+            {tr("Minimum starting intensity (e.g. 0.9)"),
              new QuLineEditDouble(fieldRef(FN_START_INTENSITY_MIN), zero, one)},
-            {TX_CONFIG_START_INTENSITY_MAX,
+            {tr("Maximum starting intensity (e.g. 1.0)"),
              new QuLineEditDouble(fieldRef(FN_START_INTENSITY_MAX), zero, one)},
-            {TX_CONFIG_INITIAL_LARGE_INTENSITY_STEP,
+            {tr("Initial, large, intensity step (e.g. 0.1)"),
              new QuLineEditDouble(fieldRef(FN_INITIAL_LARGE_INTENSITY_STEP), zero, one)},
-            {TX_CONFIG_MAIN_SMALL_INTENSITY_STEP,
+            {tr("Main, small, intensity step (e.g. 0.01)"),
              new QuLineEditDouble(fieldRef(FN_MAIN_SMALL_INTENSITY_STEP), zero, one)},
-            {TX_CONFIG_NUM_TRIALS_IN_MAIN_SEQUENCE,
+            {tr("Number of trials in the main test sequence (e.g. 14)"),
              new QuLineEditInteger(fieldRef(FN_NUM_TRIALS_IN_MAIN_SEQUENCE), 0, 100)},
-            {TX_CONFIG_P_CATCH_TRIAL,
+            {tr("Probability of a catch trial (e.g. 0.2)"),
              new QuLineEditDouble(fieldRef(FN_P_CATCH_TRIAL), zero, one)},
-            {TX_CONFIG_ITI_S,
+            {tr("Intertrial interval (s) (e.g. 0.2)"),
              new QuLineEditDouble(fieldRef(FN_ITI_S), zero, 100.0)},
         }),
         (new QuText(warning_min_max))
@@ -500,15 +480,15 @@ QString CardinalExpDetThreshold::getDescriptiveModality() const
     const QVariant modality = value(FN_MODALITY);
     // can't use external constants in a switch statement
     if (modality.isNull()) {
-        return textconst::UNKNOWN;
+        return TextConst::unknown();
     }
     if (modality.toInt() == MODALITY_AUDITORY) {
-        return TX_AUDITORY;
+        return txtAuditory();
     }
     if (modality.toInt() == MODALITY_VISUAL) {
-        return TX_VISUAL;
+        return txtVisual();
     }
-    return textconst::UNKNOWN;
+    return TextConst::unknown();
 }
 
 
@@ -517,24 +497,24 @@ QString CardinalExpDetThreshold::getTargetName() const
     const QVariant modality = value(FN_MODALITY);
     const QVariant target_number = value(FN_TARGET_NUMBER);
     if (modality.isNull() || target_number.isNull()) {
-        return textconst::UNKNOWN;
+        return TextConst::unknown();
     }
     if (modality.toInt() == MODALITY_AUDITORY) {
         switch (target_number.toInt()) {
         case 0:
-            return TX_AUDITORY_TARGET_0;
+            return ExpDetTextConst::auditoryTarget0();
         case 1:
-            return TX_AUDITORY_TARGET_1;
+            return ExpDetTextConst::auditoryTarget1();
         }
     } else if (modality.toInt() == MODALITY_VISUAL) {
         switch (target_number.toInt()) {
         case 0:
-            return TX_VISUAL_TARGET_0;
+            return ExpDetTextConst::visualTarget0();
         case 1:
-            return TX_VISUAL_TARGET_1;
+            return ExpDetTextConst::visualTarget1();
         }
     }
-    return textconst::UNKNOWN;
+    return TextConst::unknown();
 }
 
 
@@ -700,7 +680,7 @@ void CardinalExpDetThreshold::showVisualStimulus(const QString& filename_stem,
 void CardinalExpDetThreshold::savingWait()
 {
     clearScene();
-    makeText(m_scene, SCENE_CENTRE, BASE_TEXT_CONFIG, textconst::SAVING);
+    makeText(m_scene, SCENE_CENTRE, BASE_TEXT_CONFIG, TextConst::saving());
 }
 
 
@@ -774,24 +754,30 @@ void CardinalExpDetThreshold::startTask()
     editStarted();  // will have been stopped by the end of the questionnaire?
 
     // Finalize the parameters
+    const QString TX_DETECTION_Q_VISUAL(tr("Did you see a"));
+    const QString TX_DETECTION_Q_AUDITORY(tr("Did you hear a"));
     const bool auditory = isAuditory();
     if (auditory) {
         setValue(FN_BACKGROUND_FILENAME, AUDITORY_BACKGROUND);
         if (valueInt(FN_TARGET_NUMBER) == 0) {
             setValue(FN_TARGET_FILENAME, AUDITORY_TARGETS.at(0));
-            setValue(FN_PROMPT, TX_DETECTION_Q_AUDITORY + " " + TX_AUDITORY_TARGET_0_SHORT + "?");
+            setValue(FN_PROMPT, TX_DETECTION_Q_AUDITORY + " " +
+                     ExpDetTextConst::auditoryTarget0Short() + "?");
         } else {
             setValue(FN_TARGET_FILENAME, AUDITORY_TARGETS.at(1));
-            setValue(FN_PROMPT, TX_DETECTION_Q_AUDITORY + " " + TX_AUDITORY_TARGET_1_SHORT + "?");
+            setValue(FN_PROMPT, TX_DETECTION_Q_AUDITORY + " " +
+                     ExpDetTextConst::auditoryTarget1Short() + "?");
         }
     } else {
         setValue(FN_BACKGROUND_FILENAME, VISUAL_BACKGROUND);
         if (valueInt(FN_TARGET_NUMBER) == 0) {
             setValue(FN_TARGET_FILENAME, VISUAL_TARGETS.at(0));
-            setValue(FN_PROMPT, TX_DETECTION_Q_VISUAL + " " + TX_VISUAL_TARGET_0_SHORT + "?");
+            setValue(FN_PROMPT, TX_DETECTION_Q_VISUAL + " " +
+                     ExpDetTextConst::visualTarget0Short() + "?");
         } else {
             setValue(FN_TARGET_FILENAME, VISUAL_TARGETS.at(1));
-            setValue(FN_PROMPT, TX_DETECTION_Q_VISUAL + " " + TX_VISUAL_TARGET_1_SHORT + "?");
+            setValue(FN_PROMPT, TX_DETECTION_Q_VISUAL + " " +
+                     ExpDetTextConst::visualTarget1Short() + "?");
         }
     }
 
@@ -819,7 +805,7 @@ void CardinalExpDetThreshold::startTask()
     // Start
     ButtonAndProxy start = makeTextButton(
                 m_scene, START_BUTTON_RECT, BASE_BUTTON_CONFIG,
-                textconst::TOUCH_TO_START);
+                TextConst::touchToStart());
     CONNECT_BUTTON(start, nextTrial);
 }
 
@@ -932,11 +918,11 @@ void CardinalExpDetThreshold::offerChoice()
 
     makeText(m_scene, PROMPT_CENTRE, BASE_TEXT_CONFIG, valueString(FN_PROMPT));
     ButtonAndProxy y = makeTextButton(m_scene, YES_BUTTON_RECT,
-                                      BASE_BUTTON_CONFIG, textconst::YES);
+                                      BASE_BUTTON_CONFIG, TextConst::yes());
     ButtonAndProxy n = makeTextButton(m_scene, NO_BUTTON_RECT,
-                                      BASE_BUTTON_CONFIG, textconst::NO);
+                                      BASE_BUTTON_CONFIG, TextConst::no());
     ButtonAndProxy a = makeTextButton(m_scene, ABORT_BUTTON_RECT,
-                                      ABORT_BUTTON_CONFIG, textconst::ABORT);
+                                      ABORT_BUTTON_CONFIG, TextConst::abort());
     CONNECT_BUTTON_PARAM(y, recordChoice, true);
     CONNECT_BUTTON_PARAM(n, recordChoice, false);
     CONNECT_BUTTON(a, abort);
@@ -976,7 +962,7 @@ void CardinalExpDetThreshold::thanks()
     clearScene();
     ButtonAndProxy thx = makeTextButton(
                 m_scene, THANKS_BUTTON_RECT, BASE_BUTTON_CONFIG,
-                textconst::THANK_YOU_TOUCH_TO_EXIT);
+                TextConst::thankYouTouchToExit());
     CONNECT_BUTTON(thx, finish);
 }
 
@@ -1003,4 +989,20 @@ void CardinalExpDetThreshold::finish()
     Q_ASSERT(m_widget);
     editFinishedProperly();  // will save
     emit m_widget->finished();
+}
+
+
+// ============================================================================
+// Translatable text
+// ============================================================================
+
+QString CardinalExpDetThreshold::txtAuditory()
+{
+    return tr("Auditory");
+}
+
+
+QString CardinalExpDetThreshold::txtVisual()
+{
+    return tr("Visual");
 }

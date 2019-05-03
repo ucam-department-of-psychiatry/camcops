@@ -21,6 +21,7 @@
 #include <QRegularExpression>  // replacing QRegExp; http://doc.qt.io/qt-5.7/qregexp.html#details
 #include "common/dbconst.h"
 #include "common/design_defines.h"
+#include "common/preprocessor_aid.h"
 #include "dbobjects/patient.h"
 
 // ============================================================================
@@ -370,7 +371,9 @@ IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QVector<int>& tokens,
             switch (nextchunk) {
             case ChunkValue::SyntaxError:
             case ChunkValue::Unknown:
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
             default:
+#endif
                 return nextchunk;
             case ChunkValue::False:  // invert
                 return ChunkValue::True;

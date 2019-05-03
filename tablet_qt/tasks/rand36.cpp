@@ -209,7 +209,7 @@ OpenableWidget* Rand36::editor(const bool read_only)
     QVector<QuPagePtr> pages;
 
     auto title = [this](int pagenum) -> QString {
-        return xstring("title") + " " + textconst::PAGE + " " +
+        return xstring("title") + " " + TextConst::page() + " " +
                 QString::number(pagenum);
     };
     auto text = [this](const QString& xstringname) -> QuElement* {

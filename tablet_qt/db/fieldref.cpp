@@ -23,6 +23,7 @@
 
 #include "core/camcopsapp.h"
 #include "common/globals.h"
+#include "common/preprocessor_aid.h"
 #include "db/fieldref.h"
 #include "dbobjects/blob.h"
 #include "lib/convert.h"
@@ -175,10 +176,12 @@ bool FieldRef::valid() const
     case FieldRefMethod::CachedStoredVar:
         return m_app && m_app->hasVar(m_storedvar_name);
 
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
     default:
         // Shouldn't get here
         qCritical() << Q_FUNC_INFO << "Bad method";
         return false;
+#endif
     }
 }
 
@@ -258,10 +261,12 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
         changed = m_app->setCachedVar(m_storedvar_name, value);
         break;
 
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
     default:
         qCritical() << Q_FUNC_INFO << "Bad method";
         break;
     }
+#endif
 
     return signalSetValue(changed, originator);
 }
@@ -341,10 +346,12 @@ QVariant FieldRef::value() const
     case FieldRefMethod::CachedStoredVar:
         return m_app->getCachedVar(m_storedvar_name);
 
-    default:  // to remove warning
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
+    default:
         qCritical() << Q_FUNC_INFO << "Bad method";
         return QVariant();
     }
+#endif
 }
 
 
@@ -597,10 +604,12 @@ QString FieldRef::getFieldRefMethodDescription() const
     case FieldRef::FieldRefMethod::CachedStoredVar:
         return "CachedStoredVar";
 
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
     default:
         // Shouldn't get here
         return "Bad_method";
     }
+#endif
 }
 
 
@@ -650,9 +659,11 @@ QString FieldRef::getTargetDescription() const
     case FieldRef::FieldRefMethod::CachedStoredVar:
         return "CachedStoredVar";
 
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
     default:
         // Shouldn't get here
         return "?";
+#endif
     }
 }
 

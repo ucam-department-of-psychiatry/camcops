@@ -34,6 +34,7 @@
 #include <QRegularExpression>
 #include <QtMath>
 #include <QUrl>
+#include "common/preprocessor_aid.h"
 #include "common/uiconst.h"
 #include "lib/datetime.h"
 #include "lib/uifunc.h"
@@ -248,7 +249,7 @@ QString toSqlLiteral(const QVariant& value)
     // Other
     case QVariant::Invalid:
         uifunc::stopApp("toSqlLiteral: Invalid field type");
-#ifdef COMPILER_IGNORES_NORETURN
+#ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
 #endif
@@ -259,14 +260,14 @@ QString toSqlLiteral(const QVariant& value)
             return sqlQuoteString(intVectorToCsvString(intvec));
         }
         uifunc::stopApp("toSqlLiteral: Unknown user type");
-#ifdef COMPILER_IGNORES_NORETURN
+#ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
 #endif
 
     default:
         uifunc::stopApp(QString("toSqlLiteral: Unknown user type: %1").arg(variant_type));
-#ifdef COMPILER_IGNORES_NORETURN
+#ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
 #endif
@@ -599,7 +600,7 @@ int convertLengthByDpi(const int old_length,
 {
     // For example: 48 pixels (old_length) on a 96 dpi monitor (from_dpi)
     // should become 96 pixels on a 192-dpi screen
-    if (to_dpi == from_dpi) {
+    if (qFuzzyCompare(to_dpi, from_dpi)) {
         return old_length;
     }
     return qRound(old_length * to_dpi / from_dpi);
@@ -713,7 +714,7 @@ QString prettyValue(const QVariant& variant,
             return intVectorToCsvString(intvec);
         }
         uifunc::stopApp("prettyValue: Unknown user type");
-#ifdef COMPILER_IGNORES_NORETURN
+#ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         return "";  // will never get here; for clang-tidy
 #endif
     default:

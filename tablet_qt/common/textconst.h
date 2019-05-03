@@ -18,15 +18,13 @@
 */
 
 #pragma once
+#include <QObject>
 #include <QString>
 
 
-namespace textconst
-{
-
-// ============================================================================
+// ========================================================================
 // PRINCIPLES:
-// ============================================================================
+// ========================================================================
 //
 // - If a string is used only once, it can live in the source code (*).
 //
@@ -46,153 +44,154 @@ namespace textconst
 // use the Qt tr() mechanism to support internationalization. (The downloaded
 // string system already supports this, as users can swap in a different string
 // file.)
+//
+// Note also that proper use of the internationalization system via Qt Linguist
+// also leads to function calls rather than constants; see
+// internationalization.rst.
 
 
-// ============================================================================
-// Common text
-// ============================================================================
+class TextConst : public QObject
+{
+public:
 
-extern const QString ABNORMAL;
-extern const QString ABORT;
-extern const QString ADD;
-extern const QString AND;
+    // ========================================================================
+    // Common text
+    // ========================================================================
+    
+    static QString abnormal();
+    static QString abort();
+    static QString add();
+    
+    static QString back();
+    
+    static QString cancel();
+    static QString category();
+    static QString clinician();
+    static QString clinicianAndRespondentDetails();
+    static QString clinicianComments();
+    static QString clinicianContactDetails();
+    static QString clinicianDetails();
+    static QString clinicianName();
+    static QString clinicianPost();
+    static QString clinicianProfessionalRegistration();
+    static QString clinicianService();
+    static QString clinicianSpecialty();
+    static QString cliniciansComments();
+    static QString comment();
+    static QString comments();
+    static QString correct();
+    
+    static QString dataCollectionOnlyAnnouncement();
+    static QString DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+    static QString dataCollectionOnlySubtitleSuffix();
+    static QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    static QString dataCollectionOnlyUnlessUpgradedSubtitleSuffix();
+    static QString defaultHintText();
+    static QString DEFUNCT_TITLE_SUFFIX;
+    static QString defunctSubtitleSuffix();
+    static QString DELETE();
+    static QString description();
+    static QString diagnosis();
+    
+    static QString EXPERIMENTAL_TITLE_SUFFIX;
+    static QString experimentalSubtitleSuffix();
+    
+    static QString finished();
+    static QString fullTask();
+    
+    static QString enterTheAnswers();
+    static QString examinerComments();
+    static QString examinerCommentsPrompt();
+    
+    static QString icd10();
+    static QString idNumberType();
+    static QString inAddition();
+    static QString incorrect();
+    
+    static QString location();
+    
+    static QString meetsCriteria();
+    static QString mild();
+    static QString mildToModerate();
+    static QString moderate();
+    static QString moderateToSevere();
+    static QString moderatelySevere();
+    static QString moveDown();
+    static QString moveUp();
+    
+    static QString na();  // as in "N/A", short for "not applicable"
+    static QString no();
+    static QString none();
+    static QString noDetailSeeFacsimile();
+    static QString noSummarySeeFacsimile();
+    static QString normal();
+    static QString notApplicable();
+    static QString notRecalled();
+    static QString notSpecified();
+    static QString note();
+    
+    static QString of();
+    static QString off();
+    static QString on();
+    
+    static QString page();
+    static QString part();
+    static QString patient();
+    static QString pleaseWait();
+    static QString pressNextToContinue();
+    
+    static QString question();
+    
+    static QString rating();
+    static QString reallyAbort();
+    static QString recalled();
+    static QString respondentDetails();
+    static QString respondentNameSecondPerson();
+    static QString respondentNameThirdPerson();
+    static QString respondentRelationshipSecondPerson();
+    static QString respondentRelationshipThirdPerson();
+    
+    static QString saving();
+    static QString score();
+    static QString seeFacsimile();
+    static QString seeFacsimileForMoreDetail();
+    static QString service();
+    static QString severe();
+    static QString sex();
+    static QString soundTestFor();
+    
+    static QString thankYou();
+    static QString thankYouTouchToExit();
+    static QString totalScore();
+    static QString touchToStart();
 
-extern const QString BACK;
+    static QString txtAnd();  // "and" is a C++ keyword
+    // ... since C++98;
+    // https://stackoverflow.com/questions/2419805/when-did-and-become-an-operator-in-c
+    static QString txtFalse();  // "false" is a C++ keyword
+    static QString txtTrue();  // "true" is a C++ keyword
 
-extern const QString CANCEL;
-extern const QString CATEGORY;
-extern const QString CLINICIAN;
-extern const QString CLINICIAN_AND_RESPONDENT_DETAILS;
-extern const QString CLINICIAN_COMMENTS;
-extern const QString CLINICIAN_CONTACT_DETAILS;
-extern const QString CLINICIAN_DETAILS;
-extern const QString CLINICIAN_NAME;
-extern const QString CLINICIAN_POST;
-extern const QString CLINICIAN_PROFESSIONAL_REGISTRATION;
-extern const QString CLINICIAN_SERVICE;
-extern const QString CLINICIAN_SPECIALTY;
-extern const QString CLINICIANS_COMMENTS;
-extern const QString COMMENT;
-extern const QString COMMENTS;
-extern const QString CORRECT;
+    static QString unknown();
+    
+    static QString verySevere();
+    
+    static QString wrong();
+    
+    static QString yes();
+    
+    // ========================================================================
+    // Terms and conditions
+    // ========================================================================
+    
+    static QString termsConditions();
+    
+    // ========================================================================
+    // Test text
+    // ========================================================================
+    
+    static QString LOREM_IPSUM_1;
+    static QString LOREM_IPSUM_2;
+    static QString LOREM_IPSUM_3;
 
-extern const QString DATA_COLLECTION_ONLY_ANNOUNCEMENT;
-extern const QString DATA_COLLECTION_ONLY_TITLE_SUFFIX;
-extern const QString DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX;
-extern const QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
-extern const QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
-extern const QString DEFUNCT_TITLE_SUFFIX;
-extern const QString DEFUNCT_SUBTITLE_SUFFIX;
-extern const QString DELETE;
-extern const QString DESCRIPTION;
-extern const QString DIAGNOSIS;
+};
 
-extern const QString EXPERIMENTAL_TITLE_SUFFIX;
-extern const QString EXPERIMENTAL_SUBTITLE_SUFFIX;
-
-extern const QString FALSE;
-extern const QString FINISHED;
-extern const QString FULL_TASK;
-
-extern const QString ENTER_THE_ANSWERS;
-extern const QString EXAMINER_COMMENTS;
-extern const QString EXAMINER_COMMENTS_PROMPT;
-
-extern const QString ICD10;
-extern const QString ID_NUMBER_TYPE;
-extern const QString IN_ADDITION;
-extern const QString INCORRECT;
-
-extern const QString LOCATION;
-
-extern const QString MEETS_CRITERIA;
-extern const QString MILD;
-extern const QString MILD_TO_MODERATE;
-extern const QString MODERATE;
-extern const QString MODERATE_TO_SEVERE;
-extern const QString MODERATELY_SEVERE;
-extern const QString MOVE_DOWN;
-extern const QString MOVE_UP;
-
-extern const QString NA;
-extern const QString NO;
-extern const QString NONE;
-extern const QString NO_DETAIL_SEE_FACSIMILE;
-extern const QString NO_SUMMARY_SEE_FACSIMILE;
-extern const QString NORMAL;
-extern const QString NOT_APPLICABLE;
-extern const QString NOT_RECALLED;
-extern const QString NOT_SPECIFIED;
-extern const QString NOTE;
-// Don't use NULL; it's a keyword
-
-extern const QString OF;
-extern const QString OFF;
-extern const QString ON;
-
-extern const QString PAGE;
-extern const QString PART;
-extern const QString PATIENT;
-extern const QString PHOTO;
-extern const QString PHOTOS;
-extern const QString PHOTO_TITLE;
-extern const QString PHOTO_Q;
-extern const QString PHOTOSEQUENCE_ADD;
-extern const QString PHOTOSEQUENCE_DELETE;
-extern const QString PHOTOSEQUENCE_PHOTO_DESCRIPTION;
-extern const QString PHOTOSEQUENCE_SEQUENCE_DESCRIPTION;
-extern const QString PHOTOSEQUENCE_MOVE_BACK;
-extern const QString PHOTOSEQUENCE_MOVE_FORWARDS;
-extern const QString PLEASE_WAIT;
-extern const QString PRESS_NEXT_TO_CONTINUE;
-
-extern const QString QUESTION;
-
-extern const QString RATING;
-extern const QString REALLY_ABORT;
-extern const QString RECALLED;
-extern const QString RESPONDENT_DETAILS;
-extern const QString RESPONDENT_NAME_2P;
-extern const QString RESPONDENT_NAME_3P;
-extern const QString RESPONDENT_RELATIONSHIP_2P;
-extern const QString RESPONDENT_RELATIONSHIP_3P;
-
-extern const QString SAVING;
-extern const QString SCORE;
-extern const QString SEE_FACSIMILE;
-extern const QString SEE_FACSIMILE_FOR_MORE_DETAIL;
-extern const QString SERVICE;
-extern const QString SEVERE;
-extern const QString SEX;
-extern const QString SOUND_TEST_FOR;
-
-extern const QString TEXT_DEFAULT_HINT;
-extern const QString THANK_YOU;
-extern const QString THANK_YOU_TOUCH_TO_EXIT;
-extern const QString TOTAL_SCORE;
-extern const QString TOUCH_TO_START;
-extern const QString TRUE;
-
-extern const QString UNKNOWN;
-
-extern const QString VERY_SEVERE;
-
-extern const QString WRONG;
-
-extern const QString YES;
-
-// ============================================================================
-// Terms and conditions
-// ============================================================================
-
-extern const QString TERMS_CONDITIONS;
-
-// ============================================================================
-// Test text
-// ============================================================================
-
-extern const QString LOREM_IPSUM_1;
-extern const QString LOREM_IPSUM_2;
-extern const QString LOREM_IPSUM_3;
-
-}  // namespace textconst

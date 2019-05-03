@@ -107,7 +107,7 @@ QStringList CbiR::summary() const
 QStringList CbiR::detail() const
 {
     return completenessInfo() + summary() +
-            QStringList{textconst::NO_DETAIL_SEE_FACSIMILE};
+            QStringList{TextConst::noDetailSeeFacsimile()};
 }
 
 

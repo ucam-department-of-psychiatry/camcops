@@ -90,7 +90,7 @@ QStringList Pswq::summary() const
 {
     return QStringList{
         QString("%1: <b>%2</b> (range 16–80)")
-                .arg(textconst::TOTAL_SCORE)
+                .arg(TextConst::totalScore())
                 .arg(totalScore()),
     };
 }

@@ -410,6 +410,13 @@ protected:
     bool m_has_respondent;  // does the task have a respondent?
 
     // ------------------------------------------------------------------------
+    // Translatable text
+    // ------------------------------------------------------------------------
+public:
+    // String for "task is incomplete", for summary views.
+    static QString incompleteMarker();
+
+    // ------------------------------------------------------------------------
     // Static data
     // ------------------------------------------------------------------------
 public:
@@ -429,7 +436,4 @@ public:
 
     static const QString RESPONDENT_NAME;
     static const QString RESPONDENT_RELATIONSHIP;
-
-    // String for "task is incomplete", for summary views.
-    static const QString INCOMPLETE_MARKER;
 };

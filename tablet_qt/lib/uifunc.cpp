@@ -59,16 +59,6 @@
 namespace uifunc {
 
 // ============================================================================
-// Translation convenience function
-// ============================================================================
-
-QString tr(const char* text)
-{
-    return QObject::tr(text);
-}
-
-
-// ============================================================================
 // QPixmap loader
 // ============================================================================
 
@@ -462,7 +452,7 @@ void stopApp(const QString& error, const QString& title)
     // so callers don't need to worry about what happens afterwards.
     if (amInGuiThread()) {
         ScrollMessageBox box(QMessageBox::Critical, title, error);
-        box.addButton(tr("Abort"), QDialogButtonBox::AcceptRole);
+        box.addButton(QObject::tr("Abort"), QDialogButtonBox::AcceptRole);
         box.exec();
     }
     const QString msg = "ABORTING: " + error;
@@ -513,8 +503,8 @@ void alertLogMessageBox(const QStringList& lines, const QString& title,
 
 void alertNotWhenLocked()
 {
-    alert(tr("Can’t perform this action when CamCOPS is locked"),
-          tr("Unlock first"));
+    alert(QObject::tr("Can’t perform this action when CamCOPS is locked"),
+          QObject::tr("Unlock first"));
 }
 
 
@@ -526,10 +516,10 @@ bool confirm(const QString& text, const QString& title,
              QString yes, QString no, QWidget* parent)
 {
     if (yes.isEmpty()) {
-        yes = tr("Yes");
+        yes = TextConst::yes();
     }
     if (no.isEmpty()) {
-        no = tr("No");
+        no = TextConst::no();
     }
     ScrollMessageBox box(QMessageBox::Question, title, text, parent);
     QAbstractButton* yes_button = box.addButton(yes, QDialogButtonBox::YesRole);
@@ -610,7 +600,7 @@ void visitUrl(const QString& url)
 {
     bool success = QDesktopServices::openUrl(QUrl(url));
     if (!success) {
-        alert(tr("Failed to open browser"));
+        alert(QObject::tr("Failed to open browser"));
     }
 }
 
@@ -648,7 +638,7 @@ QString escapeString(const QString& string)
 
 QString yesNo(const bool yes)
 {
-    return yes ? textconst::YES : textconst::NO;
+    return yes ? TextConst::yes() : TextConst::no();
 }
 
 
@@ -660,13 +650,13 @@ QString yesNoNull(const QVariant& value)
 
 QString yesNoUnknown(const QVariant& value)
 {
-    return value.isNull() ? textconst::UNKNOWN : yesNo(value.toBool());
+    return value.isNull() ? TextConst::unknown() : yesNo(value.toBool());
 }
 
 
 QString trueFalse(const bool yes)
 {
-    return yes ? textconst::TRUE : textconst::FALSE;
+    return yes ? TextConst::txtTrue() : TextConst::txtFalse();
 }
 
 
@@ -678,7 +668,7 @@ QString trueFalseNull(const QVariant& value)
 
 QString trueFalseUnknown(const QVariant& value)
 {
-    return value.isNull() ? textconst::UNKNOWN : trueFalse(value.toBool());
+    return value.isNull() ? TextConst::unknown() : trueFalse(value.toBool());
 }
 
 

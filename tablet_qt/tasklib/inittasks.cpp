@@ -51,6 +51,7 @@
 #include "tasks/cpftlpsdischarge.h"
 #include "tasks/cpftlpsreferral.h"
 #include "tasks/cpftlpsresetresponseclock.h"
+#include "tasks/ctqsf.h"
 
 #include "tasks/dad.h"
 #include "tasks/dast.h"
@@ -99,6 +100,9 @@
 #include "tasks/irac.h"
 
 #include "tasks/khandaker1medicalhistory.h"
+
+#include "tasks/lynall1iam.h"
+#include "tasks/lynall2iam.h"
 
 #include "tasks/mast.h"
 #include "tasks/mdsupdrs.h"
@@ -183,6 +187,7 @@ void InitTasks(TaskFactory& factory)
     initializeCPFTLPSDischarge(factory);
     initializeCPFTLPSReferral(factory);
     initializeCPFTLPSResetResponseClock(factory);
+    // *** // initializeCtqsf(factory);
 
     initializeDad(factory);
     initializeDast(factory);
@@ -231,6 +236,9 @@ void InitTasks(TaskFactory& factory)
     initializeIrac(factory);
 
     initializeKhandaker1MedicalHistory(factory);
+
+    // *** // initializeLynall1IamMedicalHistory(factory);
+    // *** // initializeLynall2IamLifeEvents(factory);
 
     initializeMast(factory);
     initializeMdsUpdrs(factory);

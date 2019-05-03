@@ -92,7 +92,7 @@ QString Icd10Schizotypal::longname() const
 
 QString Icd10Schizotypal::description() const
 {
-    return textconst::ICD10;
+    return TextConst::icd10();
 }
 
 
@@ -119,7 +119,7 @@ QStringList Icd10Schizotypal::summary() const
     return QStringList{
         standardResult(appstring(appstrings::DATE_PERTAINS_TO),
                        shortDate(value(DATE_PERTAINS_TO))),
-        standardResult(textconst::MEETS_CRITERIA,
+        standardResult(TextConst::meetsCriteria(),
                        yesNoUnknown(meetsCriteria())),
     };
 }
@@ -129,7 +129,7 @@ QStringList Icd10Schizotypal::detail() const
 {
     QStringList lines = completenessInfo() + summary();
     lines.append(fieldSummary(COMMENTS,
-                              textconst::EXAMINER_COMMENTS));
+                              TextConst::examinerComments()));
     return lines;
 }
 
@@ -161,9 +161,9 @@ OpenableWidget* Icd10Schizotypal::editor(const bool read_only)
             ->setOfferNowButton(true),
         new QuHeading(xstring("a")),
         grid(strseq(A_PREFIX, 1, N_A)),
-        new QuHeading(textconst::AND),
+        new QuHeading(TextConst::txtAnd()),
         grid({B}),
-        new QuHeading(textconst::COMMENTS),
+        new QuHeading(TextConst::comments()),
         new QuTextEdit(fieldRef(COMMENTS, false)),
     })->setTitle(longname()));
 

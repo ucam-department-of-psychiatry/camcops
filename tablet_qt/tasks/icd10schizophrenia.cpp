@@ -174,7 +174,7 @@ QString Icd10Schizophrenia::longname() const
 
 QString Icd10Schizophrenia::description() const
 {
-    return textconst::ICD10;
+    return TextConst::icd10();
 }
 
 
@@ -211,7 +211,7 @@ QStringList Icd10Schizophrenia::detail() const
     lines.append(standardResult(appstring(appstrings::DATE_PERTAINS_TO),
                                 shortDate(value(DATE_PERTAINS_TO))));
     lines.append(fieldSummary(COMMENTS,
-                              textconst::EXAMINER_COMMENTS));
+                              TextConst::examinerComments()));
     lines.append("");
     for (const QString& fieldname : (A_NAMES + B_NAMES + C_NAMES + D_NAMES +
                                      E_NAMES + F_NAMES + G_NAMES + H_NAMES)) {
@@ -277,7 +277,7 @@ OpenableWidget* Icd10Schizophrenia::editor(const bool read_only)
         grid(G_NAMES, true),
         heading("subtypes"),
         grid(H_NAMES, true),
-        new QuHeading(textconst::COMMENTS),
+        new QuHeading(TextConst::comments()),
         new QuTextEdit(fieldRef(COMMENTS, false)),
     })->setTitle(longname()));
 

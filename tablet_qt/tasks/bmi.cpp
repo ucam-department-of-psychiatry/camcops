@@ -258,7 +258,7 @@ OpenableWidget* Bmi::editor(const bool read_only)
         // --------------------------------------------------------------------
         // Comments
         // --------------------------------------------------------------------
-        (new QuText(textconst::COMMENTS))->setBold(true),
+        (new QuText(TextConst::comments()))->setBold(true),
         new QuTextEdit(fr_comment),
     })->setTitle(longname()));
 

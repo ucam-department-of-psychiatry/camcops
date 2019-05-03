@@ -58,10 +58,10 @@ SetMenuDeakin1::SetMenuDeakin1(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Deakin1HealthReview::DEAKIN1HEALTHREVIEW_TABLENAME, app),
         MenuItem(
-            cardinalexpdetcommon::SOUNDTEST_TITLE,
+            cardinalexpdetcommon::ExpDetTextConst::soundtestTitle(),
             std::bind(&SetMenuDeakin1::soundTestCardinalExpDet, this),
             "",
-            cardinalexpdetcommon::SOUNDTEST_SUBTITLE
+            cardinalexpdetcommon::ExpDetTextConst::soundtestSubtitle()
         ),
         MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, app),

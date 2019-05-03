@@ -1,4 +1,4 @@
-..  docs/source/tasks/deakin_1.rst
+..  docs/source/tasks/khandaker_1.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -19,18 +19,20 @@
 
 .. _khandaker_1:
 
-Khandaker G — 1 — Insight
--------------------------
+Khandaker GM — 1 — Insight study — medical history
+--------------------------------------------------
 
 Medical history form, plus other tasks indexed elsewhere.
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Copyright © 2018 GM Khandaker, University of Cambridge.
+- Copyright © 2018 Golam M. Khandaker, University of Cambridge.
 
 - License: Creative Commons Attribution 3.0 Unported (CC BY 3.0);
   http://creativecommons.org/licenses/by/3.0/
+
 
 Source
 ~~~~~~

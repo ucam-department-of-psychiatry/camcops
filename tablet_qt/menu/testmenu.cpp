@@ -60,6 +60,10 @@ TestMenu::TestMenu(CamcopsApp& app)
     m_items = {
         MenuItem(tr("User testing")).setLabelOnly(),
         MenuItem(
+            tr("Test translation"),
+            std::bind(&TestMenu::testTranslation, this)
+        ).setNotIfLocked(),
+        MenuItem(
             tr("Test sound"),
             std::bind(&TestMenu::testSound, this)
         ).setNotIfLocked(),
@@ -311,7 +315,7 @@ void TestMenu::testScrollMessageBox()
 {
     ScrollMessageBox msgbox(QMessageBox::Question,
                             "ScrollMessageBox, with some lengthy text",
-                            textconst::TERMS_CONDITIONS,
+                            TextConst::termsConditions(),
                             this);
     QAbstractButton* one = msgbox.addButton("One (Yes)",
                                             QMessageBox::YesRole);
@@ -624,4 +628,10 @@ Rcpp
 
     uifunc::alertLogMessageBox(results.join("\n"),
                                tr("Test logistic regression"), false);
+}
+
+
+void TestMenu::testTranslation()
+{
+    uifunc::alert(tr("Hello, world!"));
 }

@@ -273,7 +273,7 @@ QStringList CPFTLPSDischarge::detail() const
 {
     return completenessInfo() + summary() + QStringList{
         "",
-        textconst::SEE_FACSIMILE_FOR_MORE_DETAIL,
+        TextConst::seeFacsimileForMoreDetail(),
     };
 }
 

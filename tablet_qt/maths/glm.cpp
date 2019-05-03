@@ -83,6 +83,7 @@ For logistic regression, then:
 #include "glm.h"
 #include <algorithm>
 #include <QDebug>
+#include "common/preprocessor_aid.h"
 #include "maths/dqrls.h"
 #include "maths/eigenfunc.h"
 #include "maths/mathfunc.h"
@@ -615,10 +616,12 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
         case RankDeficiencyMethod::Error:
             addError("Near rank-deficient model matrix");
             return;
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
         default:
             addError("Unknown rank deficiency method!");
             return;
         }
+#endif
     }
 
     ArrayXd t = ArrayXd::Zero(m);  // nobs,1  // NB confusing name choice, cf. R's t() for transpose

@@ -147,8 +147,8 @@ QStringList Moca::detail() const
     const int memory = subScore(18, 22);
     const int orientation = subScore(23, 28);
     const int totalscore = totalScore();
-    const QString category = totalscore >= NORMAL_IF_GEQ ? textconst::NORMAL
-                                                         : textconst::ABNORMAL;
+    const QString category = totalscore >= NORMAL_IF_GEQ ? TextConst::normal()
+                                                         : TextConst::abnormal();
     QStringList reg1;
     QStringList reg2;
     QStringList recallcat;
@@ -217,8 +217,8 @@ OpenableWidget* Moca::editor(const bool read_only)
         {xstring("q12_option3"), 3},
     };
     const NameValueOptions options_recalled{
-        {textconst::NOT_RECALLED, 0},
-        {textconst::RECALLED, 1},
+        {TextConst::notRecalled(), 0},
+        {TextConst::recalled(), 1},
     };
     const NameValueOptions options_corr_incorr = CommonOptions::incorrectCorrectInteger();
     const NameValueOptions options_yesno = CommonOptions::noYesInteger();
@@ -423,10 +423,10 @@ OpenableWidget* Moca::editor(const bool read_only)
         italic(correct_date),
     });
 
-    addpage(textconst::EXAMINER_COMMENTS, {
-        new QuText(textconst::EXAMINER_COMMENTS_PROMPT),
+    addpage(TextConst::examinerComments(), {
+        new QuText(TextConst::examinerCommentsPrompt()),
         (new QuTextEdit(fieldRef(COMMENTS, false)))
-                ->setHint(textconst::EXAMINER_COMMENTS),
+                ->setHint(TextConst::examinerComments()),
     });
 
     m_questionnaire = new Questionnaire(m_app, pages);

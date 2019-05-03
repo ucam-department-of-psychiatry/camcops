@@ -172,17 +172,17 @@ OpenableWidget* Panss::editor(const bool read_only)
     pages.append(getClinicianDetailsPage());
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext(textconst::DATA_COLLECTION_ONLY_ANNOUNCEMENT),
+        boldtext(TextConst::dataCollectionOnlyAnnouncement()),
         new QuMcqGrid(p_qfields, panss_options),
     })->setTitle(longname() + " (P)")));
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext(textconst::DATA_COLLECTION_ONLY_ANNOUNCEMENT),
+        boldtext(TextConst::dataCollectionOnlyAnnouncement()),
         new QuMcqGrid(n_qfields, panss_options),
     })->setTitle(longname() + " (N)")));
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext(textconst::DATA_COLLECTION_ONLY_ANNOUNCEMENT),
+        boldtext(TextConst::dataCollectionOnlyAnnouncement()),
         new QuMcqGrid(g_qfields, panss_options),
     })->setTitle(longname() + " (G)")));
 

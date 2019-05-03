@@ -572,7 +572,7 @@ void MenuWindow::deleteTask()
     }
     {
         SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Deleting task"),
-                                                   textconst::PLEASE_WAIT);
+                                                   TextConst::pleaseWait());
 #ifdef SHOW_PID_TO_DEBUG_STREAM
         const QString& instance_title_for_debug = instance_title_for_user;
 #else

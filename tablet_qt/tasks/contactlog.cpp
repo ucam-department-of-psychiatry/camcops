@@ -131,7 +131,7 @@ QStringList ContactLog::detail() const
     auto add = [&lines](const QString& desc, const QString& value) {
         lines.append(QString("%1: <b>%2</b>.").arg(desc, value));
     };
-    add(textconst::CLINICIAN_NAME, prettyValue(CLINICIAN_NAME));
+    add(TextConst::clinicianName(), prettyValue(CLINICIAN_NAME));
     add(xstring("location"), prettyValue(LOCATION));
     add(xstring("patient_contact"), yesNoNull(value(PATIENT_CONTACT)));
     add(xstring("staff_liaison"), yesNoNull(value(STAFF_LIAISON)));

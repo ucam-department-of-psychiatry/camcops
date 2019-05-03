@@ -110,11 +110,15 @@ QStringList Photo::detail() const
 OpenableWidget* Photo::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
-        new QuText(textconst::PHOTO_Q),
-        new QuText(textconst::DESCRIPTION),
+        new QuText(tr(
+            "1. Ensure consent is documented, if applicable.\n"
+            "2. Take a photograph.\n"
+            "3. Enter a description."
+        )),
+        new QuText(TextConst::description()),
         new QuTextEdit(fieldRef(DESCRIPTION)),
         new QuPhoto(blobFieldRef(PHOTO_BLOBID, false)),
-    })->setTitle(textconst::PHOTO_TITLE));
+    })->setTitle(tr("Clinical photograph")));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);

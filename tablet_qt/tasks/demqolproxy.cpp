@@ -109,7 +109,7 @@ QStringList DemqolProxy::summary() const
 {
     const int dp = 2;
     return QStringList{stringfunc::standardResult(
-                    textconst::TOTAL_SCORE,
+                    TextConst::totalScore(),
                     convert::prettyValue(totalScore(), dp)),
                     " (Q1–31, range 31–124)"};
 }
@@ -145,7 +145,7 @@ OpenableWidget* DemqolProxy::editor(const bool read_only)
     };
 
     auto title = [this](int pagenum) -> QString {
-        return shortname() + " " + textconst::PAGE + " " +
+        return shortname() + " " + TextConst::page() + " " +
                 QString::number(pagenum) + "/5";
     };
     auto bold = [this](const QString& xstringname) -> QuElement* {

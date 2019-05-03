@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="ctqsf">
+    <!-- Childhood Trauma Questionnaire, Short Form (CTQ-SF) -->
+
+    <string name="a1">Never true</string>
+    <string name="a2">Rarely true</string>
+    <string name="a3">Sometimes true</string>
+    <string name="a4">Often true</string>
+    <string name="a5">Very often true</string>
+
+    <string name="intro">XXX</string>
+    <string name="stem">XXX</string>
+
+    <string name="q1">XXX</string>
+    <string name="q2">XXX</string>
+    <string name="q3">XXX</string>
+    <string name="q4">XXX</string>
+    <string name="q5">XXX</string>
+    <string name="q6">XXX</string>
+    <string name="q7">XXX</string>
+    <string name="q8">XXX</string>
+    <string name="q9">XXX</string>
+    <string name="q10">XXX</string>
+    <string name="q11">XXX</string>
+    <string name="q12">XXX</string>
+    <string name="q13">XXX</string>
+    <string name="q14">XXX</string>
+    <string name="q15">XXX</string>
+    <string name="q16">XXX</string>
+    <string name="q17">XXX</string>
+    <string name="q18">XXX</string>
+    <string name="q19">XXX</string>
+    <string name="q21">XXX</string>
+    <string name="q22">XXX</string>
+    <string name="q23">XXX</string>
+    <string name="q24">XXX</string>
+    <string name="q25">XXX</string>
+    <string name="q26">XXX</string>
+    <string name="q27">XXX</string>
+    <string name="q28">XXX</string>
+
+  </task>
+</resources>

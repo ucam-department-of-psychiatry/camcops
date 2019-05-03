@@ -83,7 +83,6 @@ const QString TAG_IDCLASH_OK("idclash_ok");
 const QString TAG_IDCLASH_FAIL("idclash_fail");
 const QString TAG_IDCLASH_DETAIL("idclash_detail");
 
-const QString DELETE_ID_NUM(QObject::tr("Delete ID#"));
 
 // Keys used by server or client (S server, C client, B bidirectional)
 // SEE ALSO patient.cpp, for the JSON ones.
@@ -726,7 +725,7 @@ void Patient::buildPage(bool read_only)
         IdNumDescriptionConstPtr idinfo = m_app.getIdInfo(which_idnum);
         auto delete_id = new QuButton(
                 QString("%1 %2 (%3)").arg(
-                    DELETE_ID_NUM,
+                    tr("Delete ID#"),
                     QString::number(which_idnum),
                     m_app.idDescription(which_idnum)
                 ),
@@ -900,7 +899,7 @@ void Patient::addIdNum()
     for (const int which_idnum : unused) {
         const QString description = QString("<b>%1</b> <i>[%2 %3]</i>").arg(
             m_app.idDescription(which_idnum),
-            textconst::ID_NUMBER_TYPE,
+            TextConst::idNumberType(),
             QString::number(which_idnum)
         );
         const NameValuePair pair(description, which_idnum);
@@ -924,7 +923,7 @@ void Patient::deleteIdNum(const int which_idnum)
     const QString strnum = QString::number(which_idnum);
     const QString text(tr("Really delete ID number") + " " + strnum + " (" +
                        m_app.idDescription(which_idnum) + ")?");
-    const QString title(DELETE_ID_NUM + strnum + "?");
+    const QString title(tr("Delete ID#") + strnum + "?");
     if (!uifunc::confirm(text, title,
                          tr("Yes, delete it"), tr("No, cancel"),
                          m_questionnaire)) {

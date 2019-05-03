@@ -109,10 +109,10 @@ QStringList Phq15::detail() const
     const bool somatoform_likely = n_severe >= 3;
     const int total_score = totalScore();
     const QString severity = total_score >= 15
-            ? textconst::SEVERE
-            : (total_score >= 10 ? textconst::MODERATE
-                                 : (total_score >= 5 ? textconst::MILD
-                                                     : textconst::NONE));
+            ? TextConst::severe()
+            : (total_score >= 10 ? TextConst::moderate()
+                                 : (total_score >= 5 ? TextConst::mild()
+                                                     : TextConst::none()));
 
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", spacer, QPREFIX, FIRST_Q, N_QUESTIONS);

@@ -85,6 +85,14 @@ Client core
 
 **Priority**
 
+- Internationalization
+
+  - client chooses tr() strings based on locale;
+    https://doc.qt.io/qt-5/internationalization.html
+  - client downloads all languages, picks xstring() based on locale,
+    with a default language
+  - Sep 2019 for 3D/ID-ED
+
 - Ensure dialogs (e.g. initial password prompt) show the title in full, and
   don't clip text that they contain (e.g. good: upload dialogue; bad: ?some of
   the cancellation dialogs).
@@ -158,6 +166,12 @@ Server
 ------
 
 **Priority**
+
+- Internationalization
+
+  - all XML strings have an associated language
+  - THINK: e.g. British vs American English
+  - server has a default language; ?configurable by user
 
 - (SERVER + CLIENT) Concept of “tasks that need doing” in the context of a
   research study.

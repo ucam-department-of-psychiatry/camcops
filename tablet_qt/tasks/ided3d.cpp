@@ -124,9 +124,6 @@ const QString FN_LAST_TRIAL_COMPLETED("last_trial_completed");
 const QString TAG_WARNING_PROGRESS_CRITERION("pc");
 const QString TAG_WARNING_MIN_MAX("mm");
 
-// Strings shown to the user
-#define TR(stringname, text) const QString stringname(QObject::tr(text))
-
 // Graphics
 const qreal SCENE_WIDTH = 1000;
 const qreal SCENE_HEIGHT = 750;  // 4:3 aspect ratio
@@ -1020,7 +1017,7 @@ void IDED3D::startTask()
                 QRectF(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
                        0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT),
                 BASE_BUTTON_CONFIG,
-                textconst::TOUCH_TO_START);
+                TextConst::touchToStart());
     CONNECT_BUTTON(start, nextTrial);
 }
 
@@ -1108,7 +1105,7 @@ void IDED3D::startTrial()
                     QRectF(0.01 * SCENE_WIDTH, 0.94 * SCENE_HEIGHT,
                            0.07 * SCENE_WIDTH, 0.05 * SCENE_HEIGHT),
                     abort_cfg,
-                    textconst::ABORT);
+                    TextConst::abort());
         CONNECT_BUTTON(abort_button, abort);
     }
     trial->recordTrialStart();
@@ -1135,7 +1132,7 @@ void IDED3D::showAnswer(bool correct)
 #ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO << "correct" << correct;
 #endif
-    const QString& text = correct ? textconst::CORRECT : textconst::WRONG;
+    const QString& text = correct ? TextConst::correct() : TextConst::wrong();
     const QColor& colour = correct ? CORRECT_BG_COLOUR : INCORRECT_BG_COLOUR;
     makeObscuringRect(m_scene, SCENE_RECT, FEEDBACK_OPACITY, colour);
     m_scene->addRect(ANSWER_BACKDROP_RECT, QPen(Qt::NoPen), QBrush(colour));
@@ -1189,7 +1186,7 @@ void IDED3D::thanks()
                 QRectF(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
                        0.4 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT),
                 BASE_BUTTON_CONFIG,
-                textconst::THANK_YOU_TOUCH_TO_EXIT);
+                TextConst::thankYouTouchToExit());
     CONNECT_BUTTON(thx, finish);
 }
 

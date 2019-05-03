@@ -23,6 +23,7 @@
 #include <QStyle>
 #include <QVariant>
 #include "common/cssconst.h"
+#include "common/preprocessor_aid.h"
 #include "common/uiconst.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
@@ -175,7 +176,9 @@ void BooleanWidget::updateWidget(const bool full_refresh)
         break;
 
     case Appearance::CheckRed:
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
     default:
+#endif
         switch (m_state) {
         case State::Disabled:
             img = CHECK_DISABLED;

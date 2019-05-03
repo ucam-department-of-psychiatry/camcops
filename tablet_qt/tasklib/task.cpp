@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QVariant>
 #include "core/camcopsapp.h"
+#include "common/preprocessor_aid.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -56,25 +57,6 @@ const QString Task::CLINICIAN_CONTACT_DETAILS("clinician_contact_details");
 
 const QString Task::RESPONDENT_NAME("respondent_name");
 const QString Task::RESPONDENT_RELATIONSHIP("respondent_relationship");
-
-const QString Task::INCOMPLETE_MARKER(QObject::tr("<b>(INCOMPLETE)</b>"));
-
-const QString PROHIBITS_COMMERCIAL(QObject::tr(
-    "Task not allowed for commercial use (see Task Information)."));
-const QString PROHIBITS_CLINICAL(QObject::tr(
-    "Task not allowed for research use (see Task Information)."));
-const QString PROHIBITS_EDUCATIONAL(QObject::tr(
-    "Task not allowed for educational use (see Task Information)."));
-const QString PROHIBITS_RESEARCH(QObject::tr(
-    "Task not allowed for research use (see Task Information)."));
-const QString PROHIBITED_YES(QObject::tr(
-    " You have said you ARE using this software in that context "
-    "(see Settings). To use this task, you must seek permission "
-    "from the copyright holder (see Task Information)."));
-const QString PROHIBITED_UNKNOWN(QObject::tr(
-    " You have NOT SAID whether you are using this "
-    "software in that context (see Settings)."));
-const QString PERMISSIBLE(QObject::tr("Task permissible"));
 
 
 Task::Task(CamcopsApp& app,
@@ -125,12 +107,14 @@ QString Task::implementationTypeDescription() const
 {
     switch (implementationType()) {
     case TaskImplementationType::Full:
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
     default:
-        return textconst::FULL_TASK;
+#endif
+        return TextConst::fullTask();
     case TaskImplementationType::UpgradableSkeleton:
-        return textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+        return TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
     case TaskImplementationType::Skeleton:
-        return textconst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+        return TextConst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
     }
 }
 
@@ -142,17 +126,17 @@ QString Task::menuTitleSuffix() const
     case TaskImplementationType::Full:
         break;
     case TaskImplementationType::UpgradableSkeleton:
-        suffix += textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+        suffix += TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
         break;
     case TaskImplementationType::Skeleton:
-        suffix += textconst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+        suffix += TextConst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
         break;
     }
     if (isExperimental()) {
-        suffix += textconst::EXPERIMENTAL_TITLE_SUFFIX;
+        suffix += TextConst::EXPERIMENTAL_TITLE_SUFFIX;
     }
     if (isDefunct()) {
-        suffix += textconst::DEFUNCT_TITLE_SUFFIX;
+        suffix += TextConst::DEFUNCT_TITLE_SUFFIX;
     }
     return suffix;
 }
@@ -170,17 +154,17 @@ QString Task::menuSubtitleSuffix() const
     case TaskImplementationType::Full:
         break;
     case TaskImplementationType::UpgradableSkeleton:
-        suffix += textconst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SUBTITLE_SUFFIX;
+        suffix += TextConst::dataCollectionOnlyUnlessUpgradedSubtitleSuffix();
         break;
     case TaskImplementationType::Skeleton:
-        suffix += textconst::DATA_COLLECTION_ONLY_SUBTITLE_SUFFIX;
+        suffix += TextConst::dataCollectionOnlySubtitleSuffix();
         break;
     }
     if (isExperimental()) {
-        suffix += textconst::EXPERIMENTAL_SUBTITLE_SUFFIX;
+        suffix += TextConst::experimentalSubtitleSuffix();
     }
     if (isDefunct()) {
-        suffix += textconst::DEFUNCT_SUBTITLE_SUFFIX;
+        suffix += TextConst::defunctSubtitleSuffix();
     }
     return suffix;
 }
@@ -264,28 +248,41 @@ bool Task::isTaskPermissible(QString& why_not_permissible) const
         return v.isNull() || v.toInt() == CommonOptions::UNKNOWN_INT;
     };
 
+    const QString PROHIBITED_YES(tr(
+        " You have said you ARE using this software in that context "
+        "(see Settings). To use this task, you must seek permission "
+        "from the copyright holder (see Task Information)."));
+    const QString PROHIBITED_UNKNOWN(tr(
+        " You have NOT SAID whether you are using this "
+        "software in that context (see Settings)."));
+    const QString PERMISSIBLE(tr("Task permissible"));
+
     if (prohibitsCommercial() && not_definitely_false(commercial)) {
-        why_not_permissible = PROHIBITS_COMMERCIAL +
-                (is_unknown(commercial) ? PROHIBITED_UNKNOWN
-                                        : PROHIBITED_YES);
+        why_not_permissible =
+            tr("Task not allowed for commercial use (see Task Information).") +
+            (is_unknown(commercial) ? PROHIBITED_UNKNOWN
+                                    : PROHIBITED_YES);
         return false;
     }
     if (prohibitsClinical() && not_definitely_false(clinical)) {
-        why_not_permissible = PROHIBITS_CLINICAL +
-                (is_unknown(clinical) ? PROHIBITED_UNKNOWN
-                                      : PROHIBITED_YES);
+        why_not_permissible =
+            tr("Task not allowed for research use (see Task Information).") +
+            (is_unknown(clinical) ? PROHIBITED_UNKNOWN
+                                  : PROHIBITED_YES);
         return false;
     }
     if (prohibitsEducational() && not_definitely_false(educational)) {
-        why_not_permissible = PROHIBITS_EDUCATIONAL +
-                (is_unknown(educational) ? PROHIBITED_UNKNOWN
-                                         : PROHIBITED_YES);
+        why_not_permissible =
+            tr("Task not allowed for educational use (see Task Information).") +
+            (is_unknown(educational) ? PROHIBITED_UNKNOWN
+                                     : PROHIBITED_YES);
         return false;
     }
     if (prohibitsResearch() && not_definitely_false(research)) {
-        why_not_permissible = PROHIBITS_RESEARCH +
-                (is_unknown(research) ? PROHIBITED_UNKNOWN
-                                      : PROHIBITED_YES);
+        why_not_permissible =
+            tr("Task not allowed for research use (see Task Information).") +
+            (is_unknown(research) ? PROHIBITED_UNKNOWN
+                                  : PROHIBITED_YES);
         return false;
     }
 
@@ -463,7 +460,7 @@ QStringList Task::completenessInfo() const
 {
     QStringList result;
     if (!isComplete()) {
-        result.append(INCOMPLETE_MARKER);
+        result.append(incompleteMarker());
     }
     return result;
 }
@@ -535,17 +532,17 @@ QStringList Task::clinicianDetails(const QString& separator) const
         return QStringList();
     }
     return QStringList{
-        fieldSummary(CLINICIAN_SPECIALTY, textconst::CLINICIAN_SPECIALTY,
+        fieldSummary(CLINICIAN_SPECIALTY, TextConst::clinicianSpecialty(),
                      separator),
-        fieldSummary(CLINICIAN_NAME, textconst::CLINICIAN_NAME, separator),
+        fieldSummary(CLINICIAN_NAME, TextConst::clinicianName(), separator),
         fieldSummary(CLINICIAN_PROFESSIONAL_REGISTRATION,
-                     textconst::CLINICIAN_PROFESSIONAL_REGISTRATION,
+                     TextConst::clinicianProfessionalRegistration(),
                      separator),
-        fieldSummary(CLINICIAN_POST, textconst::CLINICIAN_POST, separator),
-        fieldSummary(CLINICIAN_SERVICE, textconst::CLINICIAN_SERVICE,
+        fieldSummary(CLINICIAN_POST, TextConst::clinicianPost(), separator),
+        fieldSummary(CLINICIAN_SERVICE, TextConst::clinicianService(),
                      separator),
         fieldSummary(CLINICIAN_CONTACT_DETAILS,
-                     textconst::CLINICIAN_CONTACT_DETAILS, separator),
+                     TextConst::clinicianContactDetails(), separator),
     };
 }
 
@@ -556,9 +553,9 @@ QStringList Task::respondentDetails() const
         return QStringList();
     }
     return QStringList{
-        fieldSummary(RESPONDENT_NAME, textconst::RESPONDENT_NAME_3P),
+        fieldSummary(RESPONDENT_NAME, TextConst::respondentNameThirdPerson()),
         fieldSummary(RESPONDENT_RELATIONSHIP,
-                     textconst::RESPONDENT_RELATIONSHIP_3P),
+                     TextConst::respondentRelationshipThirdPerson()),
     };
 }
 
@@ -619,17 +616,17 @@ OpenableWidget* Task::makeGraphicsWidgetForImmediateEditing(
 QuElement* Task::getClinicianQuestionnaireBlockRawPointer()
 {
     return questionnairefunc::defaultGridRawPointer({
-        {textconst::CLINICIAN_SPECIALTY,
+        {TextConst::clinicianSpecialty(),
          new QuLineEdit(fieldRef(CLINICIAN_SPECIALTY))},
-        {textconst::CLINICIAN_NAME,
+        {TextConst::clinicianName(),
          new QuLineEdit(fieldRef(CLINICIAN_NAME))},
-        {textconst::CLINICIAN_PROFESSIONAL_REGISTRATION,
+        {TextConst::clinicianProfessionalRegistration(),
          new QuLineEdit(fieldRef(CLINICIAN_PROFESSIONAL_REGISTRATION))},
-        {textconst::CLINICIAN_POST,
+        {TextConst::clinicianPost(),
          new QuLineEdit(fieldRef(CLINICIAN_POST))},
-        {textconst::CLINICIAN_SERVICE,
+        {TextConst::clinicianService(),
          new QuLineEdit(fieldRef(CLINICIAN_SERVICE))},
-        {textconst::CLINICIAN_CONTACT_DETAILS,
+        {TextConst::clinicianContactDetails(),
          new QuLineEdit(fieldRef(CLINICIAN_CONTACT_DETAILS))},
     }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A);
 }
@@ -645,7 +642,7 @@ QuPagePtr Task::getClinicianDetailsPage()
 {
     return QuPagePtr(
         (new QuPage{getClinicianQuestionnaireBlockRawPointer()})
-            ->setTitle(textconst::CLINICIAN_DETAILS)
+            ->setTitle(TextConst::clinicianDetails())
             ->setType(QuPage::PageType::Clinician)
     );
 }
@@ -683,11 +680,11 @@ QuElement* Task::getRespondentQuestionnaireBlockRawPointer(
         const bool second_person)
 {
     const QString name = second_person
-            ? textconst::RESPONDENT_NAME_2P
-            : textconst::RESPONDENT_NAME_3P;
+            ? TextConst::respondentNameSecondPerson()
+            : TextConst::respondentNameThirdPerson();
     const QString relationship = second_person
-            ? textconst::RESPONDENT_RELATIONSHIP_2P
-            : textconst::RESPONDENT_RELATIONSHIP_3P;
+            ? TextConst::respondentRelationshipSecondPerson()
+            : TextConst::respondentRelationshipThirdPerson();
     return questionnairefunc::defaultGridRawPointer({
         {name, new QuLineEdit(fieldRef(RESPONDENT_NAME))},
         {relationship, new QuLineEdit(fieldRef(RESPONDENT_RELATIONSHIP))},
@@ -706,7 +703,7 @@ QuPagePtr Task::getRespondentDetailsPage(const bool second_person)
 {
     return QuPagePtr(
         (new QuPage{getRespondentQuestionnaireBlockRawPointer(second_person)})
-            ->setTitle(textconst::RESPONDENT_DETAILS)
+            ->setTitle(TextConst::respondentDetails())
             ->setType(second_person ? QuPage::PageType::Patient
                                     : QuPage::PageType::Clinician)
     );
@@ -723,7 +720,7 @@ QuPagePtr Task::getClinicianAndRespondentDetailsPage(const bool second_person)
             }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
             getRespondentQuestionnaireBlockRawPointer(second_person)
         })
-            ->setTitle(textconst::CLINICIAN_AND_RESPONDENT_DETAILS)
+            ->setTitle(TextConst::clinicianAndRespondentDetails())
             ->setType(second_person ? QuPage::PageType::ClinicianWithPatient
                                     : QuPage::PageType::Clinician)
     );
@@ -840,4 +837,14 @@ bool Task::isMale() const
 {
     Patient* pt = patient();
     return pt ? pt->isMale() : false;
+}
+
+
+// ============================================================================
+// Translatable text
+// ============================================================================
+
+QString Task::incompleteMarker()
+{
+    return tr("<b>(INCOMPLETE)</b>");
 }

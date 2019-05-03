@@ -49,6 +49,7 @@ protected:
     void testEigenFunctions();
     void testRandom();
     void testLogisticRegression();
+    void testTranslation();
 
 protected:
     QSharedPointer<QMediaPlayer> m_player;

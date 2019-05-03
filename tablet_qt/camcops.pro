@@ -849,7 +849,12 @@ SOURCES += \
     widgets/treeviewproxystyle.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
-    widgets/verticalscrollareaviewport.cpp
+    widgets/verticalscrollareaviewport.cpp \
+    menu/setmenulynall1.cpp \
+    tasks/ctqsf.cpp \
+    tasks/lynall1iam.cpp \
+    tasks/lynall2iam.cpp \
+    tasks/kirby.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1258,13 +1263,18 @@ HEADERS += \
     widgets/treeviewproxystyle.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
-    widgets/verticalscrollareaviewport.h
+    widgets/verticalscrollareaviewport.h \
+    menu/setmenulynall1.h \
+    tasks/ctqsf.h \
+    tasks/lynall1iam.h \
+    tasks/lynall2iam.h \
+    tasks/kirby.h
 
-# DISTFILES appear in the Qt Creator editing tree. Otherwise, there's not much
-# practical impact:
+# DISTFILES/OTHER_FILES appear in the Qt Creator editing tree. Otherwise,
+# there's not much practical impact:
 # https://stackoverflow.com/questions/38102160/in-qt-when-should-you-use-resources-vs-distfiles-vs-other-files
 # They are separate from resource files (see RESOURCES above).
-DISTFILES += \
+OTHER_FILES += \
     camcops_windows_innosetup.iss \
     android/AndroidManifest.xml \
     android/build.gradle \
@@ -1290,5 +1300,9 @@ DISTFILES += \
     tools/encrypt_sqlcipher.py \
     tools/open_sqlcipher.py \
     windows/camcops.rc
+
+TRANSLATIONS = \
+    translations/camcops_da_DK.ts
+
 
 message("--- CamCOPS qmake finishing.")

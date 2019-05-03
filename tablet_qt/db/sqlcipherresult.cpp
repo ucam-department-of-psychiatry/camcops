@@ -63,6 +63,7 @@
 #include <QDateTime>
 #include <QSqlDriver>
 #include <QSqlField>
+#include "common/preprocessor_aid.h"
 #include "db/sqlcipherhelpers.h"
 #include "db/sqlcipherdriver.h"
 
@@ -234,7 +235,9 @@ bool SQLCipherResult::fetchNext(SqlCachedResult::ValueCache& values,
                         break;
                     case QSql::LowPrecisionDouble:
                     case QSql::HighPrecision:
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
                     default:
+#endif
                         values[i + idx] = sqlite3_column_double(m_stmt, i);
                         break;
                 };

@@ -103,7 +103,7 @@ QStringList Swemwbs::summary() const
 {
     return QStringList{
         QString("%1 <b>%2</b> (range %3–%4)")
-                .arg(textconst::TOTAL_SCORE)
+                .arg(TextConst::totalScore())
                 .arg(totalScore())
                 .arg(N_QUESTIONS * MIN_Q_SCORE)
                 .arg(N_QUESTIONS * MAX_Q_SCORE)

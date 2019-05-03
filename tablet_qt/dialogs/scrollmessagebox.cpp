@@ -35,6 +35,7 @@
 #include <QScrollArea>
 #include <QSize>
 #include <QStyle>
+#include "common/preprocessor_aid.h"
 #include "layouts/gridlayouthfw.h"
 #include "lib/uifunc.h"
 #include "widgets/verticalscrollarea.h"
@@ -210,7 +211,9 @@ QPixmap ScrollMessageBox::standardIcon(const QMessageBox::Icon icon)
         tmp_icon = style->standardIcon(QStyle::SP_MessageBoxQuestion, nullptr, this);
         break;
     case QMessageBox::NoIcon:
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
     default:
+#endif
         break;
     }
     if (!tmp_icon.isNull()) {

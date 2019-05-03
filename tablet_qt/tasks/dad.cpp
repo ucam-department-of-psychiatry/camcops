@@ -205,7 +205,7 @@ OpenableWidget* Dad::editor(const bool read_only)
     const NameValueOptions y_n_na_options{
         {CommonOptions::yes(), YES},
         {CommonOptions::no(), NO},
-        {textconst::NOT_APPLICABLE, NA},
+        {TextConst::notApplicable(), NA},
     };
 
     QuPagePtr page1 = getClinicianAndRespondentDetailsPage(false);

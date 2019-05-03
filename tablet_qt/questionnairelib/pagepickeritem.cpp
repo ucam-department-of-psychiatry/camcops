@@ -18,6 +18,7 @@
 */
 
 #include "pagepickeritem.h"
+#include "common/preprocessor_aid.h"
 #include "common/uiconst.h"
 
 
@@ -70,7 +71,9 @@ QString PagePickerItem::iconFilename() const
     case PagePickerItemType::IncompleteSelectable:
         return uiconst::ICON_WARNING;
     case PagePickerItemType::BlockedByPrevious:
-    default:  // to prevent compiler warning
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
+    default:
+#endif
         return uiconst::ICON_STOP;
     }
 }

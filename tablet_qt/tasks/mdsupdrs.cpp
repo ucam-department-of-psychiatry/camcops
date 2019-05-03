@@ -32,7 +32,6 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::noneNull;
 using stringfunc::strnum;
-#define TR(stringname, text) const QString stringname(QObject::tr(text))
 
 const QString MdsUpdrs::MDS_UPDRS_TABLENAME("mds_updrs");
 
@@ -200,15 +199,6 @@ const QStringList EXTRAFIELDS{
     Q4_6,
 };
 
-TR(RESPONDENT_PT, "Patient");
-TR(RESPONDENT_CG, "Caregiver");
-TR(RESPONDENT_BOTH, "Patient and caregiver");
-TR(A0, "Normal");
-TR(A1, "Slight");
-TR(A2, "Mild");
-TR(A3, "Moderate");
-TR(A4, "Severe");
-
 
 void initializeMdsUpdrs(TaskFactory& factory)
 {
@@ -344,7 +334,7 @@ bool MdsUpdrs::isComplete() const
 
 QStringList MdsUpdrs::summary() const
 {
-    return QStringList{textconst::NO_SUMMARY_SEE_FACSIMILE};
+    return QStringList{TextConst::noSummarySeeFacsimile()};
 }
 
 
@@ -361,20 +351,20 @@ QStringList MdsUpdrs::detail() const
 OpenableWidget* MdsUpdrs::editor(const bool read_only)
 {
     const NameValueOptions main_options{
-        {A0, 0},
-        {A1, 1},
-        {A2, 2},
-        {A3, 3},
-        {A4, 4},
+        {tr("Normal"), 0},
+        {tr("Slight"), 1},
+        {tr("Mild"), 2},
+        {tr("Moderate"), 3},
+        {tr("Severe"), 4},
     };
     const NameValueOptions source_options{
-        {RESPONDENT_PT, 0},
-        {RESPONDENT_CG, 1},
-        {RESPONDENT_BOTH, 2},
+        {tr("Patient"), 0},
+        {tr("Caregiver"), 1},
+        {tr("Patient and caregiver"), 2},
     };
     const NameValueOptions on_off_options{
-        {textconst::OFF, 0},
-        {textconst::ON, 1},
+        {TextConst::off(), 0},
+        {TextConst::on(), 1},
     };
     const NameValueOptions hy_options{
         {"0", 0},
@@ -389,7 +379,7 @@ OpenableWidget* MdsUpdrs::editor(const bool read_only)
     auto pagetitle = [this](int partnum) -> QString {
         return QString("%1 %2: %3")
                 .arg(shortname(),
-                     textconst::PART,
+                     TextConst::part(),
                      roman::romanize(partnum));
     };
     auto text = [](const QString& text) -> QuElement* {

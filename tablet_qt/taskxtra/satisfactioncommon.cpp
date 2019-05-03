@@ -77,7 +77,7 @@ bool SatisfactionCommon::isComplete() const
 
 QStringList SatisfactionCommon::summary() const
 {
-    return QStringList{standardResult(textconst::RATING, getRatingText())};
+    return QStringList{standardResult(TextConst::rating(), getRatingText())};
 }
 
 

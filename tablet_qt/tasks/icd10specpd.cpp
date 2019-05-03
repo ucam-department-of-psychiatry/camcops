@@ -147,7 +147,7 @@ QString Icd10SpecPD::longname() const
 
 QString Icd10SpecPD::description() const
 {
-    return textconst::ICD10;
+    return TextConst::icd10();
 }
 
 
@@ -195,7 +195,7 @@ QStringList Icd10SpecPD::detail() const
     return completenessInfo() + QStringList{
         standardResult(appstring(appstrings::DATE_PERTAINS_TO),
                        shortDate(value(DATE_PERTAINS_TO))),
-        fieldSummary(COMMENTS, textconst::EXAMINER_COMMENTS),
+        fieldSummary(COMMENTS, TextConst::examinerComments()),
         standardResult(xstring("meets_general_criteria"),
                        yesNoUnknown(hasPD())),
         standardResult(xstring("paranoid_pd_title"),
@@ -276,7 +276,7 @@ OpenableWidget* Icd10SpecPD::editor(const bool read_only)
         page->addElement(text("G1b"));
         page->addElement(gridbase(strseq(G1_PREFIX, 1, N_GENERAL_1),
                                   strseq("G1_", 1, N_GENERAL_1)));
-        page->addElement(new QuText(textconst::IN_ADDITION + ":"));
+        page->addElement(new QuText(TextConst::inAddition() + ":"));
         page->addElement(gridbase(strseq(G_PREFIX, 2, N_GENERAL),
                                   strseq("G", 2, N_GENERAL)));
         page->addElement(text("comments"));
@@ -327,7 +327,7 @@ OpenableWidget* Icd10SpecPD::editor(const bool read_only)
         (new QuDateTime(fieldRef(DATE_PERTAINS_TO)))
             ->setMode(QuDateTime::Mode::DefaultDate)
             ->setOfferNowButton(true),
-        new QuText(textconst::COMMENTS),
+        new QuText(TextConst::comments()),
         new QuTextEdit(fieldRef(COMMENTS, false)),
     })->setTitle(longname()))};
 

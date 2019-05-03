@@ -157,7 +157,7 @@ OpenableWidget* Hads::editor(const bool read_only)
         };
         QVector<QuestionWithOneField> qfields;
         for (int n = 1; n <= N_QUESTIONS; ++n) {
-            QString question = QString("%1 %2").arg(textconst::QUESTION).arg(n);
+            QString question = QString("%1 %2").arg(TextConst::question()).arg(n);
             if (ANXIETY_QUESTIONS.contains(n)) {
                 question += " (A)";
             }
@@ -171,9 +171,9 @@ OpenableWidget* Hads::editor(const bool read_only)
         if (hasRespondent()) {  // for HadsRespondent
             elements.append(getRespondentQuestionnaireBlockRawPointer(true));
         }
-        elements.append((new QuText(textconst::DATA_COLLECTION_ONLY_ANNOUNCEMENT))
+        elements.append((new QuText(TextConst::dataCollectionOnlyAnnouncement()))
                         ->setBold());
-        elements.append(new QuText(textconst::ENTER_THE_ANSWERS));
+        elements.append(new QuText(TextConst::enterTheAnswers()));
         elements.append(new QuMcqGrid(qfields, options));
         pages.append(QuPagePtr((new QuPage(elements))->setTitle(longname())));
 
@@ -188,7 +188,7 @@ OpenableWidget* Hads::editor(const bool read_only)
         elements.append(text("instruction_1"));
         elements.append(text("instruction_2"));
         elements.append(text("instruction_3"));
-        elements.append((new QuText(textconst::PRESS_NEXT_TO_CONTINUE))
+        elements.append((new QuText(TextConst::pressNextToContinue()))
                         ->setBold());
         pages.append(QuPagePtr((new QuPage(elements))->setTitle(longname())));
         for (int n = 1; n <= N_QUESTIONS; ++n) {

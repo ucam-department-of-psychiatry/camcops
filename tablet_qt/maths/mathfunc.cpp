@@ -466,7 +466,7 @@ QString scorePhraseVariant(const QString& description,
 QString totalScorePhrase(const int numerator, const int denominator,
                          const QString& separator, const QString& suffix)
 {
-    return scorePhrase(textconst::TOTAL_SCORE, numerator, denominator,
+    return scorePhrase(TextConst::totalScore(), numerator, denominator,
                        separator, suffix);
 }
 
@@ -475,7 +475,7 @@ QString totalScorePhrase(const double numerator, const int denominator,
                          const QString& separator, const QString& suffix,
                          const int dp)
 {
-    return scorePhrase(textconst::TOTAL_SCORE, numerator, denominator,
+    return scorePhrase(TextConst::totalScore(), numerator, denominator,
                        separator, suffix, dp);
 }
 

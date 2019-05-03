@@ -279,7 +279,7 @@ OpenableWidget* Bdi::editor(const bool read_only)
     QVector<QuestionWithOneField> fields_i;
     QVector<QuestionWithOneField> fields_ia;
     QVector<QuestionWithOneField> fields_ii;
-    const QString& question_prefix = textconst::QUESTION;
+    const QString& question_prefix = TextConst::question();
     for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
         const QString qstrnum = QString::number(n);
         const QString fieldname = QPREFIX + qstrnum;
@@ -321,7 +321,7 @@ OpenableWidget* Bdi::editor(const bool read_only)
         (new QuMcq(fr_scale, scale_options))
             ->setHorizontal(true)
             ->setAsTextButton(true),
-        new QuText(textconst::ENTER_THE_ANSWERS),
+        new QuText(TextConst::enterTheAnswers()),
         // Add all three grids; we'll swap between them.
         m_grid_i,
         m_grid_ia,

@@ -389,7 +389,7 @@ bool Deakin1HealthReview::isComplete() const
 
 QStringList Deakin1HealthReview::summary() const
 {
-    return QStringList{textconst::NO_SUMMARY_SEE_FACSIMILE};
+    return QStringList{TextConst::noSummarySeeFacsimile()};
 }
 
 
@@ -734,8 +734,8 @@ OpenableWidget* Deakin1HealthReview::editor(const bool read_only)
     })->setTitle("Questions related to MRI scanning")));
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext(textconst::THANK_YOU),
-    })->setTitle(textconst::FINISHED)));
+        boldtext(TextConst::thankYou()),
+    })->setTitle(TextConst::finished())));
 
     updateMandatory();
 

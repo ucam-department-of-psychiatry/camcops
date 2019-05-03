@@ -157,7 +157,7 @@ QString Icd10Depressive::longname() const
 
 QString Icd10Depressive::description() const
 {
-    return textconst::ICD10;
+    return TextConst::icd10();
 }
 
 
@@ -182,7 +182,7 @@ QStringList Icd10Depressive::summary() const
     return QStringList{
         standardResult(appstring(appstrings::DATE_PERTAINS_TO),
                        shortDate(value(DATE_PERTAINS_TO))),
-        standardResult(textconst::CATEGORY, getFullDescription()),
+        standardResult(TextConst::category(), getFullDescription()),
     };
 }
 
@@ -193,7 +193,7 @@ QStringList Icd10Depressive::detail() const
     lines.append(standardResult(appstring(appstrings::DATE_PERTAINS_TO),
                                 shortDate(value(DATE_PERTAINS_TO))));
     lines.append(fieldSummary(COMMENTS,
-                              textconst::EXAMINER_COMMENTS));
+                              TextConst::examinerComments()));
     lines.append(fieldSummaryTrueFalseUnknown(DURATION_AT_LEAST_2_WEEKS,
                                               DURATION_AT_LEAST_2_WEEKS));
     lines.append("");
@@ -204,7 +204,7 @@ QStringList Icd10Depressive::detail() const
     lines += detailGroup(SOMATIC_NAMES);
     lines += detailGroup(PSYCHOSIS_AND_SIMILAR_NAMES);
     lines.append("");
-    lines.append(standardResult(textconst::CATEGORY, getFullDescription()));
+    lines.append(standardResult(TextConst::category(), getFullDescription()));
 #ifdef SHOW_CLASSIFICATION_WORKING
     auto pv = [](const QVariant& v) -> QString {
         return bold(convert::prettyValue(v));
@@ -275,7 +275,7 @@ OpenableWidget* Icd10Depressive::editor(const bool read_only)
         grid(SOMATIC_NAMES, present_absent_options, false),
         heading("psychotic"),
         grid(PSYCHOSIS_AND_SIMILAR_NAMES, present_absent_options, false),
-        new QuHeading(textconst::COMMENTS),
+        new QuHeading(TextConst::comments()),
         new QuTextEdit(fieldRef(COMMENTS, false)),
     })->setTitle(longname()));
 
@@ -508,7 +508,7 @@ QString Icd10Depressive::getMainDescription() const
     if (meetsCriteriaNone().toBool()) {
         return xstring("category_none");
     }
-    return textconst::UNKNOWN;
+    return TextConst::unknown();
 }
 
 

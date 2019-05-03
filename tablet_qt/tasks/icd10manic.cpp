@@ -159,7 +159,7 @@ QString Icd10Manic::longname() const
 
 QString Icd10Manic::description() const
 {
-    return textconst::ICD10;
+    return TextConst::icd10();
 }
 
 
@@ -184,7 +184,7 @@ QStringList Icd10Manic::summary() const
     return QStringList{
         standardResult(appstring(appstrings::DATE_PERTAINS_TO),
                        shortDate(value(DATE_PERTAINS_TO))),
-        standardResult(textconst::CATEGORY, getDescription()),
+        standardResult(TextConst::category(), getDescription()),
     };
 }
 
@@ -195,7 +195,7 @@ QStringList Icd10Manic::detail() const
     lines.append(standardResult(appstring(appstrings::DATE_PERTAINS_TO),
                                 shortDate(value(DATE_PERTAINS_TO))));
     lines.append(fieldSummary(COMMENTS,
-                              textconst::EXAMINER_COMMENTS));
+                              TextConst::examinerComments()));
     lines.append("");
     lines += detailGroup(CORE_NAMES);
     lines += detailGroup(HYPOMANIA_MANIA_NAMES);
@@ -203,7 +203,7 @@ QStringList Icd10Manic::detail() const
     lines += detailGroup(OTHER_CRITERIA_NAMES);
     lines += detailGroup(PSYCHOSIS_AND_SIMILAR_NAMES);
     lines.append("");
-    lines.append(standardResult(textconst::CATEGORY, getDescription()));
+    lines.append(standardResult(TextConst::category(), getDescription()));
 #ifdef SHOW_CLASSIFICATION_WORKING
     auto pv = [](const QVariant& v) -> QString {
         return bold(convert::prettyValue(v));
@@ -265,7 +265,7 @@ OpenableWidget* Icd10Manic::editor(const bool read_only)
         grid(OTHER_CRITERIA_NAMES, true_false_options, false),
         heading("psychosis"),
         grid(PSYCHOSIS_AND_SIMILAR_NAMES, true_false_options, false),
-        new QuHeading(textconst::COMMENTS),
+        new QuHeading(TextConst::comments()),
         new QuTextEdit(fieldRef(COMMENTS, false)),
     })->setTitle(longname()));
 
@@ -445,7 +445,7 @@ QString Icd10Manic::getDescription() const
     if (meetsCriteriaNone().toBool()) {
         return xstring("category_none");
     }
-    return textconst::UNKNOWN;
+    return TextConst::unknown();
 }
 
 

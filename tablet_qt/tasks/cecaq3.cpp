@@ -579,7 +579,7 @@ bool CecaQ3::isComplete() const
 
 QStringList CecaQ3::summary() const
 {
-    return QStringList{textconst::NO_SUMMARY_SEE_FACSIMILE};
+    return QStringList{TextConst::noSummarySeeFacsimile()};
 }
 
 
@@ -1215,7 +1215,7 @@ OpenableWidget* CecaQ3::editor(const bool read_only)
     // end
     // ------------------------------------------------------------------------
     pages.append(QuPagePtr((new QuPage{
-        headingRaw(textconst::THANK_YOU),
+        headingRaw(TextConst::thankYou()),
         text("final_1"),
         text("final_2"),
         text("any_other_comments"),

@@ -870,9 +870,9 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_comments((new QuPage{
-        instructionRaw(textconst::EXAMINER_COMMENTS_PROMPT),
+        instructionRaw(TextConst::examinerCommentsPrompt()),
         (new QuLineEdit(fieldRef(FN_COMMENTS, false)))
-            ->setHint(textconst::EXAMINER_COMMENTS),
+            ->setHint(TextConst::examinerComments()),
     })
         ->setTitle(makeTitle("Comments"))
         ->setType(QuPage::PageType::Clinician));

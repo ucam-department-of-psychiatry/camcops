@@ -200,7 +200,7 @@ bool PsychiatricClerking::isComplete() const
 QStringList PsychiatricClerking::summary() const
 {
     return QStringList{
-        fieldSummary(LOCATION, textconst::LOCATION, ": "),
+        fieldSummary(LOCATION, TextConst::location(), ": "),
     };
 }
 

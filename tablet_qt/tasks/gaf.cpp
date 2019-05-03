@@ -100,7 +100,7 @@ OpenableWidget* Gaf::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
         getClinicianQuestionnaireBlockRawPointer(),
-        (new QuText(textconst::DATA_COLLECTION_ONLY_ANNOUNCEMENT))->setBold(),
+        (new QuText(TextConst::dataCollectionOnlyAnnouncement()))->setBold(),
         new QuText(appstring(appstrings::GAF_SCORE) + ":"),
         new QuLineEditInteger(fieldRef(SCORE), 0, 100),
     })->setTitle(longname()));

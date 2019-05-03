@@ -227,11 +227,11 @@ int Phq9::nOtherSymptoms() const
 
 QString Phq9::severity(const int score)
 {
-    if (score >= 20) return textconst::SEVERE;
-    if (score >= 15) return textconst::MODERATELY_SEVERE;
-    if (score >= 10) return textconst::MODERATE;
-    if (score >=  5) return textconst::MILD;
-    return textconst::NONE;
+    if (score >= 20) return TextConst::severe();
+    if (score >= 15) return TextConst::moderatelySevere();
+    if (score >= 10) return TextConst::moderate();
+    if (score >=  5) return TextConst::mild();
+    return TextConst::none();
 }
 
 

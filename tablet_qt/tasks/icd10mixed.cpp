@@ -93,7 +93,7 @@ QString Icd10Mixed::longname() const
 
 QString Icd10Mixed::description() const
 {
-    return textconst::ICD10;
+    return TextConst::icd10();
 }
 
 
@@ -118,7 +118,7 @@ QStringList Icd10Mixed::summary() const
     return QStringList{
         standardResult(appstring(appstrings::DATE_PERTAINS_TO),
                        shortDate(value(DATE_PERTAINS_TO))),
-        standardResult(textconst::MEETS_CRITERIA,
+        standardResult(TextConst::meetsCriteria(),
                        trueFalseUnknown(meetsCriteria())),
     };
 }
@@ -127,7 +127,7 @@ QStringList Icd10Mixed::summary() const
 QStringList Icd10Mixed::detail() const
 {
     QStringList lines = completenessInfo() + summary() + QStringList{
-        fieldSummary(COMMENTS, textconst::EXAMINER_COMMENTS),
+        fieldSummary(COMMENTS, TextConst::examinerComments()),
         fieldSummary(MIXTURE_OR_RAPID_ALTERNATION, xstring("a")),
         fieldSummary(DURATION_AT_LEAST_2_WEEKS, xstring("b")),
     };
@@ -151,7 +151,7 @@ OpenableWidget* Icd10Mixed::editor(const bool read_only)
             ->setMode(QuDateTime::Mode::DefaultDate)
             ->setOfferNowButton(true),
         new QuMcqGrid(qfields, true_false_options),
-        new QuHeading(textconst::COMMENTS),
+        new QuHeading(TextConst::comments()),
         new QuTextEdit(fieldRef(COMMENTS, false)),
     })->setTitle(longname()));
 

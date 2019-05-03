@@ -76,6 +76,12 @@ protected:
     void movePhotoForwards(int index);
     void movePhotoBackwards(int index);
     // ------------------------------------------------------------------------
+    // Text
+    // ------------------------------------------------------------------------
+    static QString txtPhoto();
+    static QString txtPhotos();
+    static QString txtAdd();
+    // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
 protected:

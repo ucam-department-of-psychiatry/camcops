@@ -142,14 +142,14 @@ QStringList PhotoSequence::summary() const
     const int n = numPhotos();
     QStringList lines{stringfunc::abbreviate(valueString(SEQUENCE_DESCRIPTION))};
     lines.append(QString("[%1: <b>%2</b>]")
-                 .arg(textconst::PHOTOS)
+                 .arg(txtPhotos())
                  .arg(n));
     for (int i = 0; i < n; ++i) {
         const int human_num = i + 1;
         const QString description = m_photos.at(i)->description();
         if (!description.isEmpty()) {
             lines.append(QString("%1 %2: %3")
-                         .arg(textconst::PHOTO)
+                         .arg(txtPhoto())
                          .arg(human_num)
                          .arg(stringfunc::abbreviate(description)));
         }
@@ -227,11 +227,10 @@ void PhotoSequence::rebuildPage(QuPage* page, const int page_index)
     if (page_index == 0) {
         // First page
         elements.append(getClinicianQuestionnaireBlockRawPointer());
-        elements.append(new QuText(textconst::PHOTOSEQUENCE_SEQUENCE_DESCRIPTION));
+        elements.append(new QuText(tr("Sequence description")));
         elements.append(new QuTextEdit(fieldRef(SEQUENCE_DESCRIPTION)));
         if (m_photos.length() == 0) {
-            elements.append(new QuButton(textconst::PHOTOSEQUENCE_ADD,
-                                         callback_add));
+            elements.append(new QuButton(txtAdd(), callback_add));
         }
     }
     if (page_index < m_photos.length()) {
@@ -244,15 +243,15 @@ void PhotoSequence::rebuildPage(QuPage* page, const int page_index)
                 std::bind(&PhotoSequence::movePhotoForwards, this, page_index);
         const bool is_first = page_index == 0;
         const bool is_last = page_index == m_photos.length() - 1;
-        auto add = new QuButton(textconst::PHOTOSEQUENCE_ADD, callback_add);
+        auto add = new QuButton(txtAdd(), callback_add);
         add->setActive(is_last);
-        auto del = new QuButton(textconst::PHOTOSEQUENCE_DELETE, callback_del);
-        auto back = new QuButton(textconst::PHOTOSEQUENCE_MOVE_BACK, callback_back);
+        auto del = new QuButton(tr("Delete this photo"), callback_del);
+        auto back = new QuButton(tr("Move this photo backwards"), callback_back);
         back->setActive(!is_first);
-        auto fwd = new QuButton(textconst::PHOTOSEQUENCE_MOVE_FORWARDS, callback_fwd);
+        auto fwd = new QuButton(tr("Move this photo forwards"), callback_fwd);
         fwd->setActive(!is_last);
         elements.append(new QuFlowContainer({add, del, back, fwd}));
-        elements.append(new QuText(textconst::PHOTOSEQUENCE_PHOTO_DESCRIPTION));
+        elements.append(new QuText(tr("Photo description")));
         elements.append(new QuTextEdit(
                             photo->fieldRef(PhotoSequencePhoto::DESCRIPTION)));
         elements.append(new QuPhoto(photo->blobFieldRef(
@@ -261,9 +260,9 @@ void PhotoSequence::rebuildPage(QuPage* page, const int page_index)
     page->clearElements();
     page->addElements(elements);
     page->setTitle(QString("%1 %2 %3 %4")
-                   .arg(textconst::PHOTO)
+                   .arg(txtPhoto())
                    .arg(page_index + 1)
-                   .arg(textconst::OF)
+                   .arg(TextConst::of())
                    .arg(m_photos.length()));
 }
 
@@ -351,4 +350,26 @@ void PhotoSequence::movePhotoBackwards(const int index)
     rebuildPage(m_questionnaire->pagePtr(index), index);
     m_questionnaire->goToPage(index - 1);
     refreshQuestionnaire();
+}
+
+
+// ============================================================================
+// Text
+// ============================================================================
+
+QString PhotoSequence::txtPhoto()
+{
+    return tr("Photo");
+}
+
+
+QString PhotoSequence::txtPhotos()
+{
+    return tr("Photos");
+}
+
+
+QString PhotoSequence::txtAdd()
+{
+    return tr("Add new photo");
 }

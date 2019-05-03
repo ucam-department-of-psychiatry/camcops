@@ -19,6 +19,7 @@
 
 #include "whiskercallbackdefinition.h"
 #include <QDebug>
+#include "common/preprocessor_aid.h"
 #include "whisker/whiskerinboundmessage.h"
 
 
@@ -80,8 +81,10 @@ bool WhiskerCallbackDefinition::hasExpired(const QDateTime& now) const
         return now > m_when_expires;
     case ExpiryType::TimeOrCount:
         return m_n_calls >= m_target_n_calls || now > m_when_expires;
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
     default:
         return true;  // a bug, so we may as well delete it!
+#endif
     }
 }
 

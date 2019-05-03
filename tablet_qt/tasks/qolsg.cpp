@@ -473,7 +473,7 @@ void QolSG::giveChoice(const QString& category_chosen)
                 QRectF(0.05 * SCENE_WIDTH, 0.94 * SCENE_HEIGHT,
                        0.1 * SCENE_WIDTH, 0.05 * SCENE_HEIGHT),
                 back_button_cfg,
-                textconst::BACK);
+                TextConst::back());
     CONNECT_BUTTON(b, askCategory);
 
     // Off we go

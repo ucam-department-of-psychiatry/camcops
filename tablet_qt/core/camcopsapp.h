@@ -39,6 +39,7 @@ class QSqlDatabase;
 class QMainWindow;
 class QStackedWidget;
 class QTextStream;
+class QTranslator;
 class SlowGuiGuard;
 class Version;
 
@@ -136,6 +137,9 @@ public:
     // Returns the full path to a (SQLite/SQLCipher) database that we'll use.
     QString dbFullPath(const QString& filename);
 
+    // Change the language used.
+    void setLanguage(const QString& language_code = DEFAULT_LANGUAGE);
+
 protected:
     // Directory used by CamCOPS to store its SQLite/SQLCipher directory.
     QString defaultDatabaseDir() const;
@@ -222,7 +226,7 @@ public:
     // Creates and returns an object that will show a wait box whilst you do
     // something slow via the main (GUI) thread.
     SlowGuiGuard getSlowGuiGuard(const QString& text = "Opening...",
-                                 const QString& title = textconst::PLEASE_WAIT,
+                                 const QString& title = TextConst::pleaseWait(),
                                  int minimum_duration_ms = 100);
 
 signals:
@@ -585,10 +589,16 @@ public:
     // Returns name/value options for the standard UK NHS ethnicity codes.
     NameValueOptions nhsEthnicCategoryCodeOptions();
 
+    static const QString DEFAULT_LANGUAGE;
+
     // ------------------------------------------------------------------------
     // Internal data
     // ------------------------------------------------------------------------
 protected:
+
+    // Translators; see https://doc.qt.io/qt-5/internationalization.html
+    QSharedPointer<QTranslator> m_qt_translator;  // translates Qt strings
+    QSharedPointer<QTranslator> m_app_translator;  // translates CamCOPS strings
 
     // Database directory.
     QString m_database_path;

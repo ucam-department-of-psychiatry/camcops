@@ -95,7 +95,7 @@ Version Core10::minimumServerVersion() const
 
 bool Core10::isComplete() const
 {
-    return !anyNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+    return !anyValuesNull(strseq(QPREFIX, FIRST_Q, N_QUESTIONS));
 }
 
 

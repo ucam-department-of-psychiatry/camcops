@@ -398,16 +398,16 @@ OpenableWidget* CardinalExpectationDetection::editor(const bool read_only)
         }),
         boldtext(TX_CONFIG_INSTRUCTIONS_2),
         questionnairefunc::defaultGridRawPointer({
-            {TX_CONFIG_INTENSITY_PREFIX + TX_AUDITORY_TARGET_0,
+            {TX_CONFIG_INTENSITY_PREFIX + ExpDetTextConst::auditoryTarget0(),
              new QuLineEditDouble(fieldRef(FN_AUDITORY_TARGET_0_INTENSITY),
                                   MIN_INTENSITY, MAX_INTENSITY)},
-            {TX_CONFIG_INTENSITY_PREFIX + TX_AUDITORY_TARGET_1,
+            {TX_CONFIG_INTENSITY_PREFIX + ExpDetTextConst::auditoryTarget1(),
              new QuLineEditDouble(fieldRef(FN_AUDITORY_TARGET_1_INTENSITY),
                                   MIN_INTENSITY, MAX_INTENSITY)},
-            {TX_CONFIG_INTENSITY_PREFIX + TX_VISUAL_TARGET_0,
+            {TX_CONFIG_INTENSITY_PREFIX + ExpDetTextConst::visualTarget0(),
              new QuLineEditDouble(fieldRef(FN_VISUAL_TARGET_0_INTENSITY),
                                   MIN_INTENSITY, MAX_INTENSITY)},
-            {TX_CONFIG_INTENSITY_PREFIX + TX_VISUAL_TARGET_1,
+            {TX_CONFIG_INTENSITY_PREFIX + ExpDetTextConst::visualTarget1(),
              new QuLineEditDouble(fieldRef(FN_VISUAL_TARGET_1_INTENSITY),
                                   MIN_INTENSITY, MAX_INTENSITY)},
         }),
@@ -432,7 +432,7 @@ OpenableWidget* CardinalExpectationDetection::editor(const bool read_only)
             {TX_CONFIG_AUDITORY_CUE_INTENSITY,
              new QuLineEditDouble(fieldRef(FN_AUDITORY_CUE_INTENSITY),
                                   MIN_INTENSITY, MAX_INTENSITY, INTENSITY_DP)},
-            {TX_CONFIG_VISUAL_TARGET_DURATION_S,
+            {ExpDetTextConst::configVisualTargetDurationS(),
              new QuLineEditDouble(fieldRef(FN_VISUAL_TARGET_DURATION_S),
                                   0.1, 10.0, TIME_DP)},
             {TX_CONFIG_VISUAL_BACKGROUND_INTENSITY,
@@ -612,8 +612,10 @@ QString CardinalExpectationDetection::getPromptText(
     const bool first = target_number == 0;
     const QString sense = auditory ? TX_DETECTION_Q_AUDITORY : TX_DETECTION_Q_VISUAL;
     const QString target = auditory
-            ? (first ? TX_AUDITORY_TARGET_0_SHORT : TX_AUDITORY_TARGET_1_SHORT)
-            : (first ? TX_VISUAL_TARGET_0_SHORT : TX_VISUAL_TARGET_1_SHORT);
+            ? (first ? ExpDetTextConst::auditoryTarget0Short()
+                     : ExpDetTextConst::auditoryTarget1Short())
+            : (first ? ExpDetTextConst::visualTarget0Short()
+                     : ExpDetTextConst::visualTarget1Short());
     return QString("%1 %2 %3?").arg(TX_DETECTION_Q_PREFIX, sense, target);
 }
 
@@ -791,7 +793,7 @@ void CardinalExpectationDetection::startTask()
     // Start
     ButtonAndProxy start = makeTextButton(
                 m_scene, START_BTN_RECT, BASE_BUTTON_CONFIG,
-                textconst::TOUCH_TO_START);
+                TextConst::touchToStart());
     CONNECT_BUTTON(start, nextTrial);
 }
 
@@ -833,7 +835,7 @@ void CardinalExpectationDetection::userPause()
     makeText(m_scene, PROMPT_2, BASE_TEXT_CONFIG, msg_time);
     ButtonAndProxy a = makeTextButton(
                 m_scene, ABORT_BUTTON_RECT,
-                ABORT_BUTTON_CONFIG, textconst::ABORT);
+                ABORT_BUTTON_CONFIG, TextConst::abort());
     ButtonAndProxy s = makeTextButton(
                 m_scene, CONTINUE_BTN_RECT,
                 CONTINUE_BUTTON_CONFIG, TX_CONTINUE_WHEN_READY);
@@ -984,7 +986,7 @@ void CardinalExpectationDetection::displayScore()
     makeText(m_scene, PROMPT_2, BASE_TEXT_CONFIG, cumpoints_msg);
     ButtonAndProxy a = makeTextButton(
                 m_scene, ABORT_BUTTON_RECT,
-                ABORT_BUTTON_CONFIG, textconst::ABORT);
+                ABORT_BUTTON_CONFIG, TextConst::abort());
     ButtonAndProxy cont = makeTextButton(
                 m_scene, CONTINUE_BTN_RECT,
                 CONTINUE_BUTTON_CONFIG, TX_CONTINUE_WHEN_READY);
@@ -1024,7 +1026,7 @@ void CardinalExpectationDetection::thanks()
     clearScene();
     ButtonAndProxy thx = makeTextButton(
                 m_scene, THANKS_BUTTON_RECT, BASE_BUTTON_CONFIG,
-                textconst::THANK_YOU_TOUCH_TO_EXIT);
+                TextConst::thankYouTouchToExit());
     CONNECT_BUTTON(thx, finish);
 }
 
@@ -1035,13 +1037,13 @@ void CardinalExpectationDetection::askAbort(FuncPtr nextfn)
     qDebug() << Q_FUNC_INFO;
 #endif
     clearScene();
-    makeText(m_scene, PROMPT_1, BASE_TEXT_CONFIG, textconst::REALLY_ABORT);
+    makeText(m_scene, PROMPT_1, BASE_TEXT_CONFIG, TextConst::reallyAbort());
     ButtonAndProxy a = makeTextButton(
                 m_scene, REALLY_ABORT_RECT,
-                ABORT_BUTTON_CONFIG, textconst::ABORT);
+                ABORT_BUTTON_CONFIG, TextConst::abort());
     ButtonAndProxy c = makeTextButton(
                 m_scene, CANCEL_ABORT_RECT,
-                CONTINUE_BUTTON_CONFIG, textconst::CANCEL);
+                CONTINUE_BUTTON_CONFIG, TextConst::cancel());
     CONNECT_BUTTON(a, abort);
     connect(c.button, &QPushButton::clicked,
             this, nextfn, Qt::QueuedConnection);

@@ -172,7 +172,7 @@ bool Khandaker1MedicalHistory::isComplete() const
 
 QStringList Khandaker1MedicalHistory::summary() const
 {
-    return QStringList{textconst::NO_SUMMARY_SEE_FACSIMILE};
+    return QStringList{TextConst::noSummarySeeFacsimile()};
 }
 
 

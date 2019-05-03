@@ -217,7 +217,7 @@ bool YbocsSc::isComplete() const
 
 QStringList YbocsSc::summary() const
 {
-    return QStringList{textconst::SEE_FACSIMILE};
+    return QStringList{TextConst::seeFacsimile()};
 }
 
 

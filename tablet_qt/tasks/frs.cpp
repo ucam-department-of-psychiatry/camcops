@@ -185,7 +185,7 @@ OpenableWidget* Frs::editor(const bool read_only)
             if (SPECIAL_NA_TEXT_QUESTIONS.contains(q)) {
                 options.append(NameValuePair(xstring(prefix + "na"), NA));
             } else {
-                options.append(NameValuePair(textconst::NA, NA));
+                options.append(NameValuePair(TextConst::na(), NA));
             }
         }
         return options;
@@ -246,10 +246,10 @@ OpenableWidget* Frs::editor(const bool read_only)
                   ->setTitle(xstring("h_selfcare"))),
 
         QuPagePtr((new QuPage{
-            new QuText(textconst::CLINICIANS_COMMENTS),
+            new QuText(TextConst::cliniciansComments()),
             new QuTextEdit(fieldRef(COMMENTS, false)),
         })
-                  ->setTitle(textconst::COMMENTS)),
+                  ->setTitle(TextConst::comments())),
     };
 
     auto questionnaire = new Questionnaire(m_app, pages);

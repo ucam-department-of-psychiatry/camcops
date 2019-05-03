@@ -189,7 +189,7 @@ QStringList GmcPq::detail() const
     lines.append(fieldSummaryYesNoNull(Q7, xstring("q7"), co));
     lines.append(fieldSummaryYesNoNull(Q8, xstring("q8"), sp));
     lines.append(fieldSummary(Q9, "9. " + xstring("q9_s"), co));
-    lines.append(fieldSummary(Q10, "10. " + textconst::SEX, co));
+    lines.append(fieldSummary(Q10, "10. " + TextConst::sex(), co));
     lines.append(fieldSummaryNameValueOptions(Q11, optionsQ11(), xstring("q11"), sp));
     lines.append(fieldSummaryNameValueOptions(Q12, ethnicityOptions(m_app), xstring("q12"), sp));
     lines.append(fieldSummary(Q12_DETAILS, xstring("ethnicity_other_s"), co));
@@ -311,8 +311,8 @@ OpenableWidget* GmcPq::editor(const bool read_only)
     })->setTitle(maketitle(12))));
 
     pages.append(QuPagePtr((new QuPage{
-        new QuText(textconst::THANK_YOU),
-    })->setTitle(textconst::FINISHED)));
+        new QuText(TextConst::thankYou()),
+    })->setTitle(TextConst::finished())));
 
 
     connect(fieldRef(Q2F).data(), &FieldRef::valueChanged,

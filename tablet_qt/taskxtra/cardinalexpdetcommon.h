@@ -54,19 +54,6 @@ extern const int MODALITY_AUDITORY;
 extern const int MODALITY_VISUAL;
 
 extern const int SOUNDTEST_VOLUME;
-extern const QString SOUNDTEST_TITLE;
-extern const QString SOUNDTEST_SUBTITLE;
-
-extern const QString TX_CONFIG_VISUAL_TARGET_DURATION_S;
-
-extern const QString TX_AUDITORY_TARGET_0;
-extern const QString TX_AUDITORY_TARGET_0_SHORT;
-extern const QString TX_AUDITORY_TARGET_1;
-extern const QString TX_AUDITORY_TARGET_1_SHORT;
-extern const QString TX_VISUAL_TARGET_0;
-extern const QString TX_VISUAL_TARGET_0_SHORT;
-extern const QString TX_VISUAL_TARGET_1;
-extern const QString TX_VISUAL_TARGET_1_SHORT;
 
 extern const QRectF SCENE_RECT;
 extern const QPointF SCENE_CENTRE;
@@ -104,5 +91,26 @@ extern const TextConfig BASE_TEXT_CONFIG;
 
 QUrl urlFromStem(const QString& stem);
 QString filenameFromStem(const QString& stem);
+
+
+// ============================================================================
+// Translatable text (ugly coding for Qt lupdate tool)
+// ============================================================================
+
+class ExpDetTextConst : public QObject {
+public:
+    static QString soundtestTitle();
+    static QString soundtestSubtitle();
+    static QString configVisualTargetDurationS();
+    static QString auditoryTarget0();
+    static QString auditoryTarget0Short();
+    static QString auditoryTarget1();
+    static QString auditoryTarget1Short();
+    static QString visualTarget0();
+    static QString visualTarget0Short();
+    static QString visualTarget1();
+    static QString visualTarget1Short();
+};
+
 
 }  // namespace cardinalexpdetcommon

@@ -235,7 +235,7 @@ QString CopeBrief::getResponder() const
         return "?";
     }
     if (valueBool(COMPLETED_BY_PATIENT)) {
-        return textconst::PATIENT;
+        return TextConst::patient();
     }
 
     QString c = valueString(COMPLETED_BY);

@@ -19,15 +19,17 @@
 
 .. _deakin_1:
 
-Deakin JB — 1 — Antibody-mediated psychosis study
--------------------------------------------------
+
+Deakin JB — 1 — Antibody-mediated psychosis study — health review
+-----------------------------------------------------------------
 
 Health review form, plus other tasks indexed elsewhere.
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Copyright © 2013 JB Deakin, University of Cambridge
+- Copyright © 2013 Julia B. Deakin, University of Cambridge
 
 - License: Creative Commons Attribution 3.0 Unported (CC BY 3.0);
   http://creativecommons.org/licenses/by/3.0/

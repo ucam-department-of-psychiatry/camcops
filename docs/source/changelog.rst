@@ -2018,7 +2018,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   :meth:`camcops_server.cc_modules.cc_session.CamcopsSession.n_sessions_active_since`,
   which wasn't converting to UTC properly.
 
-**Server v2.3.3 (IN PROGRESS)**
+**Client and server v2.3.3 (IN PROGRESS)**
 
 - Windows service.
 
@@ -2048,7 +2048,23 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - Search for ``if_sqlserver_disable_constraints_triggers``.
 
-  .. todo:: check this fixes the SQL Server "DELETE" bug
+  .. todo:: check this fixes the SQL Server "DELETE" bug ***
 
 - Excel XLSX and OpenOffice/LibreOffice ODS formats supported for basic
   download.
+
+- New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
+
+  .. todo:: IN PROGRESS ***
+
+- :ref:`Lynall M-E — 1 — IAM study — medical history <lynall_1>`
+
+  .. todo:: IN PROGRESS ***
+
+- :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2>`
+
+  .. todo:: IN PROGRESS ***
+
+- :ref:`Kirby delay discounting task <kirby>`
+
+  .. todo:: IN PROGRESS ***

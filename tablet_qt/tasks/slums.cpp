@@ -169,12 +169,12 @@ QStringList Slums::detail() const
     const QString category =
         valueBool(HIGHSCHOOLEDUCATION)
             ? (score >= NORMAL_IF_GEQ_HIGHSCHOOL
-               ? textconst::NORMAL
+               ? TextConst::normal()
                : (score >= MCI_IF_GEQ_HIGHSCHOOL
                   ? xstring("category_mci")
                   : xstring("category_dementia")))
             : (score >= NORMAL_IF_GEQ_NO_HIGHSCHOOL
-               ? textconst::NORMAL
+               ? TextConst::normal()
                : (score >= MCI_IF_GEQ_NO_HIGHSCHOOL
                   ? xstring("category_mci")
                   : xstring("category_dementia")));
@@ -189,7 +189,7 @@ QStringList Slums::detail() const
     lines.append("");
     lines += summary();
     lines.append("");
-    lines.append(standardResult(textconst::CATEGORY, category));
+    lines.append(standardResult(TextConst::category(), category));
     return lines;
 }
 
@@ -257,8 +257,8 @@ OpenableWidget* Slums::editor(const bool read_only)
         {xstring("q6_option3"), 3},
     };
     const NameValueOptions q7_options{
-        {textconst::NOT_RECALLED, 0},
-        {textconst::RECALLED, 1},
+        {TextConst::notRecalled(), 0},
+        {TextConst::recalled(), 1},
     };
     const QDateTime now = datetime::now();
     const QString correct_date = "     " + now.toString("dddd d MMMM yyyy");
@@ -334,9 +334,9 @@ OpenableWidget* Slums::editor(const bool read_only)
     })->setTitle(singular + " 11")));
 
     pages.append(QuPagePtr((new QuPage{
-        textRaw(textconst::EXAMINER_COMMENTS),
+        textRaw(TextConst::examinerComments()),
         (new QuTextEdit(fieldRef(COMMENTS, false)))
-            ->setHint(textconst::EXAMINER_COMMENTS_PROMPT),
+            ->setHint(TextConst::examinerCommentsPrompt()),
     })->setTitle(singular + " 12")));
 
     auto questionnaire = new Questionnaire(m_app, pages);

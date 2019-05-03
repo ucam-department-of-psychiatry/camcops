@@ -324,6 +324,8 @@ tablet_qt
     menu/setmenufromperinatal.h.rst
     menu/setmenukhandaker1.cpp.rst
     menu/setmenukhandaker1.h.rst
+    menu/setmenulynall1.cpp.rst
+    menu/setmenulynall1.h.rst
     menu/setmenuobrien1.cpp.rst
     menu/setmenuobrien1.h.rst
     menu/settingsmenu.cpp.rst
@@ -587,6 +589,8 @@ tablet_qt
     tasks/cpftlpsreferral.h.rst
     tasks/cpftlpsresetresponseclock.cpp.rst
     tasks/cpftlpsresetresponseclock.h.rst
+    tasks/ctqsf.cpp.rst
+    tasks/ctqsf.h.rst
     tasks/dad.cpp.rst
     tasks/dad.h.rst
     tasks/dast.cpp.rst
@@ -669,6 +673,12 @@ tablet_qt
     tasks/irac.h.rst
     tasks/khandaker1medicalhistory.cpp.rst
     tasks/khandaker1medicalhistory.h.rst
+    tasks/kirby.cpp.rst
+    tasks/kirby.h.rst
+    tasks/lynall1iam.cpp.rst
+    tasks/lynall1iam.h.rst
+    tasks/lynall2iam.cpp.rst
+    tasks/lynall2iam.h.rst
     tasks/mast.cpp.rst
     tasks/mast.h.rst
     tasks/mdsupdrs.cpp.rst

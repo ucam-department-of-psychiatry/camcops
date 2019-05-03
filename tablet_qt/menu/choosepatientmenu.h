@@ -40,4 +40,5 @@ public slots:
     void refreshPatientList();
 protected:
     void mergePatients();
+    static QString txtMergeTitle();
 };

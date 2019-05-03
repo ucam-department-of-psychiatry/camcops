@@ -234,6 +234,8 @@ Psychosis
 
 - :ref:`Cardiff Anomalous Perceptions Scale (CAPS) <caps>`
 
+- :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
+
 - :ref:`Clinical Global Impression – Schizophrenia (CGI-SCH) <cgisch>`
 
 - :ref:`ICD-10 criteria: schizophrenia <icd10_schizophrenia>`
@@ -309,20 +311,12 @@ Research tasks
 
 |research|
 
-Some may be experimental.
-
-- :ref:`Cardinal RN — Threshold predetermination for Expectation–Detection task
-  <cardinal_expdetthreshold>`
-
-- :ref:`Cardinal RN — Expectation–Detection task (with associated sound test)
-  <cardinal_expdet>`
-
-- :ref:`Deakin JB — 1 — Antibody-mediated psychosis study <deakin_1>`
+These are well known or fairly generic:
 
 - :ref:`Diagnostic coding, ICD-9-CM codes (compatible with DSM-IV-TR)
   <diagnosis_icd9cm>`
 
-- :ref:`Khandaker GM — 1 — Insight — Medical history <khandaker_1>`
+- :ref:`Kirby Monetary Choice Questionnaire <kirby>`
 
 - :ref:`Quality of Life: time trade-off and rating scale <qol_basic>`
 
@@ -331,7 +325,13 @@ Some may be experimental.
 - :ref:`Three-dimensional intradimensional/extradimensional set-shifting task
   (IDED-3D) <ided3d>`
 
-.. - Demonstration of chained tasks
+These are more experimental:
+
+- :ref:`Cardinal RN — Threshold predetermination for Expectation–Detection task
+  <cardinal_expdetthreshold>`
+
+- :ref:`Cardinal RN — Expectation–Detection task (with associated sound test)
+  <cardinal_expdet>`
 
 
 Anonymous questionnaires
@@ -356,12 +356,16 @@ Set menus for research
 |sets_research|
 
 Individual research projects may have specific menus of tasks created. As well
-as generic tasks listed above, there are some specific ones:
+as generic tasks listed above, there are some very specific ones, as follows.
 
 - :ref:`Deakin JB — 1 — Antibody-mediated psychosis study — health review
   <deakin_1>`
 
 - :ref:`Khandaker GM — 1 — Insight study — medical history <khandaker_1>`
+
+- :ref:`Lynall M-E — 1 — IAM study — medical history <lynall_1>`
+
+- :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2>`
 
 
 Set menus for clinical purposes

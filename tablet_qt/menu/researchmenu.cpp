@@ -39,18 +39,20 @@ ResearchMenu::ResearchMenu(CamcopsApp& app) :
 {
     m_items = {
         MAKE_CHANGE_PATIENT(app),
+        MenuItem(tr("Well known or generic")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(QolSG::QOLSG_TABLENAME, app),
+        MenuItem(tr("Experimental")).setLabelOnly(),
         MenuItem(
-            cardinalexpdetcommon::SOUNDTEST_TITLE,
+            cardinalexpdetcommon::ExpDetTextConst::soundtestTitle(),
             std::bind(&ResearchMenu::soundTestCardinalExpDet, this),
             "",
-            cardinalexpdetcommon::SOUNDTEST_SUBTITLE
+            cardinalexpdetcommon::ExpDetTextConst::soundtestSubtitle()
         ),
         MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, app),
     };
 }
 

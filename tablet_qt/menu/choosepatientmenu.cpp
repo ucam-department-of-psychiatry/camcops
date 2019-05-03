@@ -30,8 +30,6 @@
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
 
-const QString MERGE_TITLE = QObject::tr("Merge patients");
-
 
 ChoosePatientMenu::ChoosePatientMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Choose patient"),
@@ -60,7 +58,7 @@ void ChoosePatientMenu::build()
     m_items = {
         MenuItem(tr("Special functions")).setLabelOnly(),
         MenuItem(
-            MERGE_TITLE,
+            txtMergeTitle(),
             std::bind(&ChoosePatientMenu::mergePatients, this),
             "",  // icon
             tr("Choose one patient, then select this option to merge with another")  // subtitle
@@ -208,7 +206,7 @@ void ChoosePatientMenu::refreshPatientList()
 void ChoosePatientMenu::mergePatients()
 {
     auto reportFail = [this](const char* text) -> void {
-        ScrollMessageBox::warning(this, MERGE_TITLE, tr(text));
+        ScrollMessageBox::warning(this, txtMergeTitle(), tr(text));
     };
 
     // Is one selected?
@@ -269,12 +267,12 @@ void ChoosePatientMenu::mergePatients()
     QString confirm_text = confirm_lines.join("<br><br>");
     const QString yes = tr("Yes, merge");
     const QString no = tr("No, cancel");
-    if (!uifunc::confirm(confirm_text, MERGE_TITLE, yes, no, this)) {
+    if (!uifunc::confirm(confirm_text, txtMergeTitle(), yes, no, this)) {
         return;
     }
     confirm_lines.prepend(tr("ARE YOU SURE?"));
     confirm_text = confirm_lines.join("<br><br>");
-    if (!uifunc::confirm(confirm_text, MERGE_TITLE, yes, no, this)) {
+    if (!uifunc::confirm(confirm_text, txtMergeTitle(), yes, no, this)) {
         return;
     }
 
@@ -288,4 +286,10 @@ void ChoosePatientMenu::mergePatients()
     // Refresh list, etc.
     m_app.deselectPatient();
     build();  // refresh patient list
+}
+
+
+QString ChoosePatientMenu::txtMergeTitle()
+{
+    return tr("Merge patients");
 }

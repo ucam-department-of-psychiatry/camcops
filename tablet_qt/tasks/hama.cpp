@@ -98,10 +98,10 @@ QStringList HamA::detail() const
 {
     const int score = totalScore();
     const QString severity = score >= 31
-            ? textconst::VERY_SEVERE
-            : (score >= 25 ? textconst::MODERATE_TO_SEVERE
-                           : score >= 18 ? textconst::MILD_TO_MODERATE
-                                         : textconst::MILD);
+            ? TextConst::verySevere()
+            : (score >= 25 ? TextConst::moderateToSevere()
+                           : score >= 18 ? TextConst::mildToModerate()
+                                         : TextConst::mild());
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");

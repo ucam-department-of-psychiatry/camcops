@@ -35,6 +35,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QIcon>
+#include <QLibraryInfo>
 #include <QMainWindow>
 #include <QProcessEnvironment>
 #include <QPushButton>
@@ -44,6 +45,7 @@
 #include <QStackedWidget>
 #include <QStandardPaths>
 #include <QTextStream>
+#include <QTranslator>
 #include <QUuid>
 #include "common/appstrings.h"
 #include "common/dbconst.h"  // for NONEXISTENT_PK
@@ -92,6 +94,8 @@
 #include "db/sqlcipherdriver.h"
 #endif
 
+const QString CamcopsApp::DEFAULT_LANGUAGE("en_GB");
+
 const QString APPSTRING_TASKNAME("camcops");  // task name used for generic but downloaded tablet strings
 const QString APP_NAME("camcops");  // e.g. subdirectory of ~/.local/share; DO NOT ALTER
 const QString APP_PRETTY_NAME("CamCOPS");
@@ -113,6 +117,7 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_qt_logical_dpi(uiconst::DEFAULT_DPI),
     m_qt_physical_dpi(uiconst::DEFAULT_DPI)
 {
+    setLanguage("da_DK");  // try "da_DK"
     setApplicationName(APP_NAME);
     setApplicationDisplayName(APP_PRETTY_NAME);
     setApplicationVersion(camcopsversion::CAMCOPS_CLIENT_VERSION.toString());
@@ -127,6 +132,42 @@ CamcopsApp::~CamcopsApp()
     // http://doc.qt.io/qt-5.7/objecttrees.html
     // Only delete things that haven't been assigned a parent
     delete m_p_main_window;
+}
+
+
+void CamcopsApp::setLanguage(const QString& language_code)
+{
+    if (m_qt_translator) {
+        removeTranslator(m_qt_translator.data());
+        m_qt_translator = nullptr;
+    }
+    if (m_app_translator) {
+        removeTranslator(m_app_translator.data());
+        m_app_translator = nullptr;
+    }
+    // There are polymorphic versions of load(). See
+    // https://doc.qt.io/qt-5/qtranslator.html#load
+    const QString qt_filename = QString("qt_%1.qm").arg(language_code);
+    const QString qt_directory = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+    m_qt_translator = QSharedPointer<QTranslator>(new QTranslator());
+    bool loaded = m_qt_translator->load(qt_filename, qt_directory);
+    if (loaded) {
+        installTranslator(m_qt_translator.data());
+    } else {
+        qWarning() << "Failed to load Qt translator" << qt_filename
+                   << "from" << qt_directory;
+    }
+
+    const QString cc_filename = QString("camcops_%1.qm").arg(language_code);
+    const QString cc_directory(":/translations");
+    m_app_translator = QSharedPointer<QTranslator>(new QTranslator());
+    loaded = m_app_translator->load(cc_filename, cc_directory);
+    if (loaded) {
+        installTranslator(m_app_translator.data());
+    } else {
+        qWarning() << "Failed to load CamCOPS translator" << cc_filename
+                   << "from" << cc_directory;
+    }
 }
 
 
@@ -199,8 +240,8 @@ int CamcopsApp::run()
         SlowNonGuiFunctionCaller slow_gui_caller(
             std::bind(&CamcopsApp::backgroundStartup, this),
             m_p_main_window,
-            "Configuring internal database",
-            "Please wait");
+            tr("Configuring internal database"),
+            TextConst::pleaseWait());
     }
 
     openMainWindow();  // uses HelpMenu etc. and so must be AFTER TASK REGISTRATION
@@ -472,15 +513,15 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
         const bool no_password_data = m_datadb->canReadDatabase();
 
         if (no_password_sys != no_password_data) {
-            const QString msg = QString(
+            const QString msg = QString(tr(
                         "CamCOPS uses a system and a data database; one has a "
                         "password and one doesn't (no_password_sys = %1, "
                         "no_password_data = %2); this is an incongruent state "
                         "that has probably arisen from user error, and "
-                        "CamCOPS will not continue until this is fixed.")
+                        "CamCOPS will not continue until this is fixed."))
                     .arg(no_password_sys)
                     .arg(no_password_data);
-            const QString title = "Inconsistent database state";
+            const QString title(tr("Inconsistent database state"));
             uifunc::stopApp(msg, title);
         }
 
@@ -1387,7 +1428,7 @@ bool CamcopsApp::changePassword(const QString& hashed_password_varname,
     }
     if (old_password_exists && !cryptofunc::matchesHash(old_password_from_user,
                                                         old_password_hash)) {
-        uifunc::alert("Incorrect old password");
+        uifunc::alert(tr("Incorrect old password"));
         return false;
     }
     if (p_old_password) {
@@ -2107,7 +2148,7 @@ void CamcopsApp::offerTerms()
 {
     ScrollMessageBox msgbox(QMessageBox::Question,
                             tr("Terms and conditions of use"),
-                            textconst::TERMS_CONDITIONS,
+                            TextConst::termsConditions(),
                             m_p_main_window);
     // Keep agree/disagree message short, for phones:
     QAbstractButton* yes = msgbox.addButton(tr("I AGREE"), QMessageBox::YesRole);
@@ -2137,7 +2178,7 @@ void CamcopsApp::upload()
         uifunc::alertNotWhenLocked();
         return;
     }
-    QString text =
+    QString text(tr(
             "Copy data to server, or move it to server?\n"
             "\n"
             "COPY: copies unfinished patients, moves finished patients.\n"
@@ -2146,7 +2187,7 @@ void CamcopsApp::upload()
             "patient details (for adding more tasks later).\n"
             "\n"
             "Please MOVE whenever possible; this reduces the amount of "
-            "patient-identifiable information stored on this device.";
+            "patient-identifiable information stored on this device."));
     ScrollMessageBox msgbox(QMessageBox::Question,
                             tr("Upload to server"),
                             text,
@@ -2154,7 +2195,7 @@ void CamcopsApp::upload()
     QAbstractButton* copy = msgbox.addButton(tr("Copy"), QMessageBox::YesRole);
     QAbstractButton* move_keep = msgbox.addButton(tr("Keep patients and move"), QMessageBox::NoRole);
     QAbstractButton* move = msgbox.addButton(tr("Move"), QMessageBox::AcceptRole);  // e.g. OK
-    msgbox.addButton(tr("Cancel"), QMessageBox::RejectRole);  // e.g. Cancel
+    msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);  // e.g. Cancel
     msgbox.exec();
     NetworkManager::UploadMethod method;
     QAbstractButton* reply = msgbox.clickedButton();

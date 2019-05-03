@@ -42,7 +42,7 @@ public:
     SlowNonGuiFunctionCaller(const ThreadWorker::PlainWorkerFunction& func,
                              QWidget* parent,
                              const QString& text = "Operation in progress...",
-                             const QString& title = textconst::PLEASE_WAIT);
+                             const QString& title = TextConst::pleaseWait());
     ~SlowNonGuiFunctionCaller();
 protected:
     QThread m_worker_thread;

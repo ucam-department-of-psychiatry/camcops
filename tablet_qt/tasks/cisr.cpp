@@ -1068,7 +1068,7 @@ QStringList Cisr::detail() const
     QStringList lines;
     CisrResult result = getResult();
     if (result.incomplete) {
-        lines.append(INCOMPLETE_MARKER);
+        lines.append(incompleteMarker());
     }
     lines += summaryForResult(result);
     lines.append("");  // blank line

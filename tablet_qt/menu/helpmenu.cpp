@@ -215,5 +215,5 @@ void HelpMenu::viewTermsConditions()
 {
     QString title = QString("You agreed to these terms and conditions at: %1")
             .arg(datetime::shortDateTime(m_app.agreedTermsAt()));
-    ScrollMessageBox::information(this, title, textconst::TERMS_CONDITIONS);
+    ScrollMessageBox::information(this, title, TextConst::termsConditions());
 }

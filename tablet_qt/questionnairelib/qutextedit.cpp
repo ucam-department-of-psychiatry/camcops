@@ -35,7 +35,7 @@ QuTextEdit::QuTextEdit(FieldRefPtr fieldref, const bool accept_rich_text) :
     m_fieldref(fieldref),
     m_accept_rich_text(accept_rich_text),
     m_allow_tabs_in_content(false),
-    m_hint(textconst::TEXT_DEFAULT_HINT),
+    m_hint(TextConst::defaultHintText()),
 #ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
     m_plain_editor(nullptr),
 #endif

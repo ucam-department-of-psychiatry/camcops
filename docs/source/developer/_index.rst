@@ -32,3 +32,4 @@ Developer notes
     development_command_line.rst
     external_dependencies.rst
     specific_os_notes.rst
+    internationalization.rst

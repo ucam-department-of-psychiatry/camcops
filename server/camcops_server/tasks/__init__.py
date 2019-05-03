@@ -62,6 +62,7 @@ from camcops_server.tasks.cpft_lps import (
     CPFTLPSResetResponseClock,
     CPFTLPSDischarge,
 )
+from camcops_server.tasks.ctqsf import Ctqsf
 
 from camcops_server.tasks.dad import Dad
 from camcops_server.tasks.dast import Dast
@@ -105,6 +106,9 @@ from camcops_server.tasks.irac import Irac
 from camcops_server.tasks.khandaker_1_medicalhistory import (
     Khandaker1MedicalHistory,
 )
+
+from camcops_server.tasks.lynall_1_iam import Lynall1IamMedicalHistory
+from camcops_server.tasks.lynall_2_iam import Lynall2LifeEvents
 
 from camcops_server.tasks.mast import Mast
 from camcops_server.tasks.mds_updrs import MdsUpdrs

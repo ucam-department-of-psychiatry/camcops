@@ -98,10 +98,10 @@ QStringList Gad7::detail() const
 {
     const int total = totalScore();
     const QString severity =
-            total >= 15 ? textconst::SEVERE
-                        : (total >= 10 ? textconst::MODERATE
-                                       : (total >= 5 ? textconst::MILD
-                                                     : textconst::NONE));
+            total >= 15 ? TextConst::severe()
+                        : (total >= 10 ? TextConst::moderate()
+                                       : (total >= 5 ? TextConst::mild()
+                                                     : TextConst::none()));
 
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);

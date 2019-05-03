@@ -268,6 +268,7 @@ DEFAULT_QT_GIT_BRANCH = "5.12"
 # At present we're building against 5.12 (i.e. in the development chain). This
 # includes patches for compatibility with glibc 2.28 (released 2018-08-01).
 # See: https://bugreports.qt.io/browse/QTBUG-69843
+# As of May 2019: 5.12 is now the long-term support (LTS) release.
 
 USING_QT_5_7 = False
 USING_QT_5_9 = False

@@ -33,11 +33,29 @@
 // Note that Clang also defines __GNUC__, but also defines __clang__.
 
 // ============================================================================
-// COMPILER_IGNORES_NORETURN
+// COMPILER_WANTS_RETURN_AFTER_NORETURN
 // ============================================================================
+// - If compiler pays attention to "[[ noreturn ]]", you get e.g.
+//   - "'return' will never be executed"
 
 #ifndef __clang__
-    #define COMPILER_IGNORES_NORETURN
+    #define COMPILER_WANTS_RETURN_AFTER_NORETURN
+#endif
+
+// ============================================================================
+// COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
+// ============================================================================
+// - If default label is present, and compiler doesn't want it, you get e.g.
+//   "default label in switch which covers all enumeration values"
+// - If default label is absent, and the compiler wants it, you get e.g.
+//   - "control reaches end of non-void function"
+//   - "this statement may fall through"
+// - clang-tidy warns about the superfluous default
+//   - https://softwareengineering.stackexchange.com/questions/179269/why-does-clang-llvm-warn-me-about-using-default-in-a-switch-statement-where-all
+// - The "// NOLINT" comment does not suppress clang-tidy in Qt Creator.
+
+#ifndef __clang__
+    #define COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
 #endif
 
 // ============================================================================

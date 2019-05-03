@@ -33,7 +33,6 @@ using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strnumlist;
 using stringfunc::strseq;
-#define TR(stringname, text) const QString stringname(QObject::tr(text))
 
 const QString Iesr::IESR_TABLENAME("iesr");
 
@@ -48,13 +47,6 @@ const QVector<int> AVOIDANCE_QUESTIONS{5, 7, 8, 11, 12, 13, 17, 22};
 const QVector<int> INTRUSION_QUESTIONS{1, 2, 3, 6, 9, 16, 20};
 const QVector<int> HYPERAROUSAL_QUESTIONS{4, 10, 14, 15, 18, 19, 21};
 const QString FN_EVENT("event");
-
-TR(PROMPT_EVENT, "Event:");
-TR(A0, "Not at all");
-TR(A1, "A little bit");
-TR(A2, "Moderately");
-TR(A3, "Quite a bit");
-TR(A4, "Extremely");
 
 
 void initializeIesr(TaskFactory& factory)
@@ -129,11 +121,11 @@ QStringList Iesr::detail() const
 OpenableWidget* Iesr::editor(const bool read_only)
 {
     const NameValueOptions options{
-        {A0, 0},
-        {A1, 1},
-        {A2, 2},
-        {A3, 3},
-        {A4, 4},
+        {tr("Not at all"), 0},
+        {tr("A little bit"), 1},
+        {tr("Moderately"), 2},
+        {tr("Quite a bit"), 3},
+        {tr("Extremely"), 4},
     };
 
     QVector<QuestionWithOneField> qfields;
@@ -144,7 +136,7 @@ OpenableWidget* Iesr::editor(const bool read_only)
 
     QuPagePtr page = QuPagePtr((new QuPage{
         (new QuText(xstring("instruction_1")))->setBold(),
-        new QuText(PROMPT_EVENT),
+        new QuText(tr("Event:")),
         new QuTextEdit(fieldRef(FN_EVENT)),
         (new QuText(xstring("instruction_2")))->setBold(),
         new QuMcqGrid(qfields, options),

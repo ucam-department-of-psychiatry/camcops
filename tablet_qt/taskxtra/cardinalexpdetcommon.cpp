@@ -24,8 +24,6 @@
 #include "common/colourdefs.h"
 #include "lib/uifunc.h"
 
-#define TR(stringname, text) const QString stringname(QObject::tr(text))
-
 
 namespace cardinalexpdetcommon
 {
@@ -69,23 +67,6 @@ const int MODALITY_AUDITORY = 0;
 const int MODALITY_VISUAL = 1;
 
 const int SOUNDTEST_VOLUME = 100;
-TR(SOUNDTEST_TITLE, "Sound test for Cardinal RN / Expectation–Detection task");
-TR(SOUNDTEST_SUBTITLE,
-   "Plays the auditory background sound. [Use maximum device volume. "
-   "The sound should be 60.0 dB(A).]");
-
-TR(TX_CONFIG_VISUAL_TARGET_DURATION_S,
-   "Visual target duration (s) (e.g. 1.0):");
-
-TR(TX_AUDITORY_TARGET_0, "tone (auditory target 0)");
-TR(TX_AUDITORY_TARGET_0_SHORT, "tone");
-TR(TX_AUDITORY_TARGET_1, "voice (auditory target 1)");
-TR(TX_AUDITORY_TARGET_1_SHORT, "voice");
-TR(TX_VISUAL_TARGET_0, "circle (visual target 0)");
-TR(TX_VISUAL_TARGET_0_SHORT, "circle");
-TR(TX_VISUAL_TARGET_1, "word (visual target 1)");
-TR(TX_VISUAL_TARGET_1_SHORT, "word");
-
 
 // Graphics: positioning
 const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
@@ -151,6 +132,79 @@ QUrl urlFromStem(const QString& stem)
 QString filenameFromStem(const QString& stem)
 {
     return uifunc::resourceFilename(QString("/expdet/%1").arg(stem));
+}
+
+
+// ============================================================================
+// Translatable text (ugly coding for Qt lupdate tool)
+// ============================================================================
+
+QString ExpDetTextConst::soundtestTitle()
+{
+    return tr("Sound test for Cardinal RN / Expectation–Detection task");
+}
+
+
+QString ExpDetTextConst::soundtestSubtitle()
+{
+    return tr(
+        "Plays the auditory background sound. [Use maximum device volume. "
+        "The sound should be 60.0 dB(A).]"
+    );
+}
+
+
+QString ExpDetTextConst::configVisualTargetDurationS()
+{
+    return tr("Visual target duration (s) (e.g. 1.0):");
+}
+
+
+QString ExpDetTextConst::auditoryTarget0()
+{
+    return tr("tone (auditory target 0)");
+}
+
+
+QString ExpDetTextConst::auditoryTarget0Short()
+{
+    return tr("tone");
+}
+
+
+QString ExpDetTextConst::auditoryTarget1()
+{
+    return tr("voice (auditory target 1)");
+}
+
+
+QString ExpDetTextConst::auditoryTarget1Short()
+{
+    return tr("voice");
+}
+
+
+QString ExpDetTextConst::visualTarget0()
+{
+    return tr("circle (visual target 0)");
+}
+
+
+QString ExpDetTextConst::visualTarget0Short()
+{
+    return tr("circle");
+}
+
+
+QString ExpDetTextConst::visualTarget1()
+{
+    return tr("word (visual target 1)");
+}
+
+
+QString ExpDetTextConst::visualTarget1Short()
+{
+    return tr("word");
 }
 
 

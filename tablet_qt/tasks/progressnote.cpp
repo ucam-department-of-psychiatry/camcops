@@ -96,8 +96,8 @@ QStringList ProgressNote::summary() const
 QStringList ProgressNote::detail() const
 {
     QStringList lines = completenessInfo() + clinicianDetails();
-    lines.append(fieldSummary(LOCATION, textconst::LOCATION));
-    lines.append(fieldSummary(NOTE, textconst::NOTE));
+    lines.append(fieldSummary(LOCATION, TextConst::location()));
+    lines.append(fieldSummary(NOTE, TextConst::note()));
     return lines;
 }
 
@@ -106,9 +106,9 @@ OpenableWidget* ProgressNote::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
         getClinicianQuestionnaireBlockRawPointer(),
-        new QuText(textconst::LOCATION),
+        new QuText(TextConst::location()),
         new QuLineEdit(fieldRef(LOCATION)),
-        new QuText(textconst::NOTE),
+        new QuText(TextConst::note()),
         new QuTextEdit(fieldRef(NOTE)),
     })->setTitle(longname()));
 

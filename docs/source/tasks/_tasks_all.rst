@@ -55,6 +55,7 @@ All tasks
     clinical.rst
     cope.rst
     core10.rst
+    ctqsf.rst
     dad.rst
     dast.rst
     deakin_1.rst
@@ -82,6 +83,8 @@ All tasks
     ifs.rst
     irac.rst
     khandaker_1.rst
+    lynall_1.rst
+    lynall_2.rst
     mast.rst
     mds_updrs.rst
     moca.rst

@@ -46,6 +46,7 @@
 #include <QAbstractScrollArea>
 #include <QApplication>
 #include <QBasicTimer>
+#include <QDebug>
 #include <QEvent>
 #include <QHash>
 #include <QList>
@@ -56,8 +57,7 @@
 #include <QWebFrame>
 #include <QWebView>
 #endif
-
-#include <QDebug>
+#include "common/preprocessor_aid.h"
 
 const int fingerAccuracyThreshold = 3;
 
@@ -404,8 +404,10 @@ bool FlickCharm::eventFilter(QObject* object, QEvent* event)
         }
         break;
 
-    default:  // NOLINT
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
+    default:
         break;
+#endif
     }
     data->lastPos = mousePos;
 

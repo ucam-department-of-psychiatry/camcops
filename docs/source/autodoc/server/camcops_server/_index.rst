@@ -130,6 +130,7 @@ server/camcops_server
     extra_string_templates/BLANK_TEMPLATE.xml.rst
     extra_string_templates/apeqpt_TEMPLATE.xml.rst
     extra_string_templates/badls_TEMPLATE.xml.rst
+    extra_string_templates/ctqsf_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
     extra_string_templates/epds_TEMPLATE.xml.rst
     extra_string_templates/eq5d5l_TEMPLATE.xml.rst
@@ -237,6 +238,7 @@ server/camcops_server
     tasks/cope.py.rst
     tasks/core10.py.rst
     tasks/cpft_lps.py.rst
+    tasks/ctqsf.py.rst
     tasks/dad.py.rst
     tasks/dast.py.rst
     tasks/deakin_1_healthreview.py.rst
@@ -271,6 +273,9 @@ server/camcops_server
     tasks/ifs.py.rst
     tasks/irac.py.rst
     tasks/khandaker_1_medicalhistory.py.rst
+    tasks/kirby.py.rst
+    tasks/lynall_1_iam.py.rst
+    tasks/lynall_2_iam.py.rst
     tasks/mast.py.rst
     tasks/mds_updrs.py.rst
     tasks/moca.py.rst
