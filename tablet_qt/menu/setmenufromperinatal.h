@@ -26,4 +26,8 @@ class SetMenuFromPerinatal : public MenuWindow
     Q_OBJECT
 public:
     SetMenuFromPerinatal(CamcopsApp& app);
+    virtual QString title() const override;
+    virtual QString subtitle() const override;
+protected:
+    virtual void makeItems() override;
 };

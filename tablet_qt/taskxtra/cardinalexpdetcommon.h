@@ -98,6 +98,7 @@ QString filenameFromStem(const QString& stem);
 // ============================================================================
 
 class ExpDetTextConst : public QObject {
+    Q_OBJECT
 public:
     static QString soundtestTitle();
     static QString soundtestSubtitle();

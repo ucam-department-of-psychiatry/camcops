@@ -111,8 +111,7 @@ const QString DEFAULT_MEDIA_DIR(R"(C:\Program Files (x86)\WhiskerControl\Server 
 
 
 WhiskerTestMenu::WhiskerTestMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Test interface to Whisker"),
-               uifunc::iconFilename(uiconst::ICON_WHISKER)),
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_WHISKER)),
     m_whisker(nullptr),
     m_logbox(nullptr),
     m_host("localhost"),
@@ -127,6 +126,17 @@ WhiskerTestMenu::WhiskerTestMenu(CamcopsApp& app) :
     m_video_filename_2("mediaexample.wmv"),
     m_input_line_num(0),
     m_output_line_num(8)
+{
+}
+
+
+QString WhiskerTestMenu::title() const
+{
+    return tr("Test interface to Whisker");
+}
+
+
+void WhiskerTestMenu::makeItems()
 {
     m_items = {
         MenuItem(
@@ -191,7 +201,7 @@ void WhiskerTestMenu::testWhiskerNetworkLatency()
     }
     int latency_ms = m_whisker->getNetworkLatencyMs();
     uifunc::alert(
-                QString("Network latency: %1 ms").arg(latency_ms),
+                tr("Network latency: %1 ms").arg(latency_ms),
                 whiskerconstants::WHISKER_ALERT_TITLE);
 }
 
@@ -212,90 +222,90 @@ OpenableWidget* WhiskerTestMenu::configureWhisker(CamcopsApp& app)
     FieldRef::SetterFunction set_host = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_host, std::placeholders::_1);
     FieldRefPtr host_fr(new FieldRef(get_host, set_host, true));
-    const QString host_t = tr("Whisker host");
-    const QString host_h = tr("host name or IP address; default: localhost");
+    const QString host_t(tr("Whisker host"));
+    const QString host_h(tr("host name or IP address; default: localhost"));
 
     FieldRef::GetterFunction get_port = std::bind(
                 &WhiskerTestMenu::getValue, this, &m_main_port);
     FieldRef::SetterFunction set_port = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_main_port, std::placeholders::_1);
     FieldRefPtr port_fr(new FieldRef(get_port, set_port, true));
-    const QString port_t = tr("Whisker main port");
-    const QString port_h = tr("default 3233");
+    const QString port_t(tr("Whisker main port"));
+    const QString port_h(tr("default 3233"));
 
     FieldRef::GetterFunction get_display_num = std::bind(
                 &WhiskerTestMenu::getValue, this, &m_display_num);
     FieldRef::SetterFunction set_display_num = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_display_num, std::placeholders::_1);
     FieldRefPtr display_num_fr(new FieldRef(get_display_num, set_display_num, true));
-    const QString display_num_t("Whisker display number");
-    const QString display_num_h("e.g. 0");
+    const QString display_num_t(tr("Whisker display number"));
+    const QString display_num_h(tr("e.g. 0"));
 
     FieldRef::GetterFunction get_use_video = std::bind(
                 &WhiskerTestMenu::getValue, this, &m_use_video);
     FieldRef::SetterFunction set_use_video = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_use_video, std::placeholders::_1);
     FieldRefPtr use_video_fr(new FieldRef(get_use_video, set_use_video, true));
-    const QString use_video_t("Use video");
+    const QString use_video_t(tr("Use video"));
 
     FieldRef::GetterFunction get_use_two_videos = std::bind(
                 &WhiskerTestMenu::getValue, this, &m_use_two_videos);
     FieldRef::SetterFunction set_use_two_videos = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_use_two_videos, std::placeholders::_1);
     FieldRefPtr use_two_videos_fr(new FieldRef(get_use_two_videos, set_use_two_videos, true));
-    const QString use_two_videos_t("Use two videos");
+    const QString use_two_videos_t(tr("Use two videos"));
 
     FieldRef::GetterFunction get_media_directory = std::bind(
                 &WhiskerTestMenu::getValue, this, &m_media_directory);
     FieldRef::SetterFunction set_media_directory = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_media_directory, std::placeholders::_1);
     FieldRefPtr media_directory_fr(new FieldRef(get_media_directory, set_media_directory, true));
-    const QString media_directory_t("Media directory");
-    const QString media_directory_h(QString("(e.g. ") + DEFAULT_MEDIA_DIR);
+    const QString media_directory_t(tr("Media directory"));
+    const QString media_directory_h(tr("(e.g. ") + DEFAULT_MEDIA_DIR);
 
     FieldRef::GetterFunction get_bmp_filename_1 = std::bind(
                 &WhiskerTestMenu::getValue, this, &m_bmp_filename_1);
     FieldRef::SetterFunction set_bmp_filename_1 = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_bmp_filename_1, std::placeholders::_1);
     FieldRefPtr bmp_filename_1_fr(new FieldRef(get_bmp_filename_1, set_bmp_filename_1, true));
-    const QString bmp_filename_1_t("Bitmap (.BMP) filename 1");
+    const QString bmp_filename_1_t(tr("Bitmap (.BMP) filename 1"));
 
     FieldRef::GetterFunction get_bmp_filename_2 = std::bind(
                 &WhiskerTestMenu::getValue, this, &m_bmp_filename_2);
     FieldRef::SetterFunction set_bmp_filename_2 = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_bmp_filename_2, std::placeholders::_1);
     FieldRefPtr bmp_filename_2_fr(new FieldRef(get_bmp_filename_2, set_bmp_filename_2, true));
-    const QString bmp_filename_2_t("Bitmap (.BMP) filename 2");
+    const QString bmp_filename_2_t(tr("Bitmap (.BMP) filename 2"));
 
     FieldRef::GetterFunction get_video_filename_1 = std::bind(
                 &WhiskerTestMenu::getValue, this, &m_video_filename_1);
     FieldRef::SetterFunction set_video_filename_1 = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_video_filename_1, std::placeholders::_1);
     FieldRefPtr video_filename_1_fr(new FieldRef(get_video_filename_1, set_video_filename_1, true));
-    const QString video_filename_1_t("Video (.WMV) filename 1");
+    const QString video_filename_1_t(tr("Video (.WMV) filename 1"));
 
     FieldRef::GetterFunction get_video_filename_2 = std::bind(
                 &WhiskerTestMenu::getValue, this, &m_video_filename_2);
     FieldRef::SetterFunction set_video_filename_2 = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_video_filename_2, std::placeholders::_1);
     FieldRefPtr video_filename_2_fr(new FieldRef(get_video_filename_2, set_video_filename_2, true));
-    const QString video_filename_2_t("Video (.WMV) filename 2");
+    const QString video_filename_2_t(tr("Video (.WMV) filename 2"));
 
     FieldRef::GetterFunction get_input_line_num = std::bind(
                 &WhiskerTestMenu::getValue, this, &m_input_line_num);
     FieldRef::SetterFunction set_input_line_num = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_input_line_num, std::placeholders::_1);
     FieldRefPtr input_line_num_fr(new FieldRef(get_input_line_num, set_input_line_num, true));
-    const QString input_line_num_t("Digital input line number");
-    const QString input_line_num_h("e.g. 0");
+    const QString input_line_num_t(tr("Digital input line number"));
+    const QString input_line_num_h(tr("e.g. 0"));
 
     FieldRef::GetterFunction get_output_line_num = std::bind(
                 &WhiskerTestMenu::getValue, this, &m_output_line_num);
     FieldRef::SetterFunction set_output_line_num = std::bind(
                 &WhiskerTestMenu::setValue, this, &m_output_line_num, std::placeholders::_1);
     FieldRefPtr output_line_num_fr(new FieldRef(get_output_line_num, set_output_line_num, true));
-    const QString output_line_num_t("Digital output line number");
-    const QString output_line_num_h("e.g. 8");
+    const QString output_line_num_t(tr("Digital output line number"));
+    const QString output_line_num_h(tr("e.g. 8"));
 
     const int max_display_num = 1000;  // silly
     const int max_line_num = 1000;  // probably silly
@@ -370,13 +380,13 @@ OpenableWidget* WhiskerTestMenu::configureWhisker(CamcopsApp& app)
 
 void WhiskerTestMenu::runDemoWhiskerTask()
 {
-    status("Starting demo Whisker task");  // ensures modal logbox
+    status(tr("Starting demo Whisker task"));  // ensures modal logbox
     ensureWhiskerManager();
     if (m_whisker->isConnected()) {
-        status("Whisker server already connected.");
+        status(tr("Whisker server already connected."));
         demoWhiskerTaskMain();
     } else {
-        status("Connecting to Whisker server...");
+        status(tr("Connecting to Whisker server..."));
         connect(m_whisker.data(), &WhiskerManager::onFullyConnected,
                 this, &WhiskerTestMenu::demoWhiskerTaskMain,
                 Qt::UniqueConnection);
@@ -390,7 +400,7 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
     using namespace whiskerapi;
     using namespace whiskerconstants;
 
-    status("Setting up Whisker manager");
+    status(tr("Setting up Whisker manager"));
     WhiskerManager* w = m_whisker.data();  // for briefer notation
     connect(w, &WhiskerManager::eventReceived,
             this, &WhiskerTestMenu::eventReceived,
@@ -447,7 +457,7 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
     // Setup
     // ------------------------------------------------------------------------
 
-    status("Claiming devices and setting up display documents");
+    status(tr("Claiming devices and setting up display documents"));
     w->lineClaim(input_line_num, false, digital_input, ResetState::Leave);
     w->lineClaim(output_line_num, true, digital_output, ResetState::Leave);
     w->displayClaim(display_num, main_display);
@@ -465,7 +475,7 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
     // Simple objects
     // ------------------------------------------------------------------------
 
-    status("Creating simple display objects");
+    status(tr("Creating simple display objects"));
     Pen pen(1, yellow, PenStyle::Solid);
     Brush brush(blue, darkcyan, true,
                 BrushStyle::Solid, BrushHatchStyle::BDiagonal);
@@ -540,7 +550,7 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
                     pen, brush, false),
                 ignore_reply);
 
-    Text text(QPoint(50, 50), "CamCOPS Whisker demo", 0, "Times New Roman");
+    Text text(QPoint(50, 50), tr("CamCOPS Whisker demo"), 0, "Times New Roman");
     text.italic = true;
     w->displayAddObject(doc, text_obj, text, ignore_reply);
 
@@ -610,7 +620,7 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
     // Video
     // ------------------------------------------------------------------------
 
-    status("Creating video objects");
+    status(tr("Creating video objects"));
     auto setVideoDemoEvents = [&](const QString& obj,
                                   const QString& touchevent) -> void {
         w->displaySetEvent(doc, obj, DocEventType::MouseDown,
@@ -762,8 +772,9 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
     w->timerSetEvent(event_counted_tick, counted_tick_period_ms,
                      counted_tick_reloads, ignore_reply);
 
-    status("All objects created. Try responding to display objects, providing "
-           "keyboard input, toggling digital input lines via Whisker.");
+    status(tr(
+        "All objects created. Try responding to display objects, providing "
+        "keyboard input, toggling digital input lines via Whisker."));
 }
 
 
@@ -909,7 +920,7 @@ bool WhiskerTestMenu::setValue(QVariant* member, const QVariant& value)
 void WhiskerTestMenu::ensureLogBox()
 {
     if (!m_logbox) {
-        m_logbox = new LogBox(this, "Whisker test task", true);
+        m_logbox = new LogBox(this, tr("Whisker test task"), true);
         m_logbox->setStyleSheet(
                     m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MAIN));
         m_logbox->useWaitCursor(false);

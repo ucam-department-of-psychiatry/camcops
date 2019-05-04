@@ -68,6 +68,7 @@ QString taskHtmlFilename(const QString& stem)
 }
 */
 
+
 bool deleteFile(const QString& filename)
 {
     QFile file(filename);
@@ -99,10 +100,10 @@ bool ensureDirectoryExists(const QString& dir)
 void ensureDirectoryExistsOrDie(const QString& dir)
 {
     if (!ensureDirectoryExists(dir)) {
-        uifunc::stopApp("dbFullPath: Failed to make directory: " + dir);
+        uifunc::stopApp(QObject::tr("dbFullPath: Failed to make directory: ") +
+                        dir);
     }
 }
-
 
 
 }  // namespace filefunc

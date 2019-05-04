@@ -29,7 +29,7 @@ class TaskFactory;
 class PclCommon : public Task
 {
     // abstract base class
-    // not a Q_OBJECT
+    Q_OBJECT  // for tr()
 public:
     PclCommon(CamcopsApp& app, DatabaseManager& db,
               const QString& tablename,

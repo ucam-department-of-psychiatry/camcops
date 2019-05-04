@@ -26,7 +26,9 @@
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QThread>
+#include "common/languages.h"
 #include "common/platform.h"
+#include "common/textconst.h"
 #include "core/networkmanager.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
@@ -52,22 +54,41 @@ const int EXPENSIVE_FUNCTION_DURATION_MS = 5000;
 
 
 TestMenu::TestMenu(CamcopsApp& app)
-    : MenuWindow(app, tr("CamCOPS self-tests"),
-                 uifunc::iconFilename(uiconst::CBS_SPANNER)),
+    : MenuWindow(app, uifunc::iconFilename(uiconst::CBS_SPANNER)),
       m_player(nullptr)
+{
+}
+
+
+QString TestMenu::title() const
+{
+    return tr("CamCOPS self-tests");
+}
+
+
+void TestMenu::makeItems()
 {
     const QString spanner(uifunc::iconFilename(uiconst::CBS_SPANNER));
     m_items = {
         MenuItem(tr("User testing")).setLabelOnly(),
         MenuItem(
-            tr("Test translation"),
-            std::bind(&TestMenu::testTranslation, this)
-        ).setNotIfLocked(),
-        MenuItem(
             tr("Test sound"),
             std::bind(&TestMenu::testSound, this)
         ).setNotIfLocked(),
         MenuItem(tr("Developer testing")).setLabelOnly(),
+        MenuItem(
+            tr("Test translation"),
+            std::bind(&TestMenu::testTranslation, this),
+            spanner
+        ).setNotIfLocked(),
+        MenuItem(
+            tr("Switch to Danish"),
+            std::bind(&TestMenu::switchToDanish, this)
+        ).setNotIfLocked(),
+        MenuItem(
+            tr("Switch to English"),
+            std::bind(&TestMenu::switchToEnglish, this)
+        ).setNotIfLocked(),
         MenuItem(
             tr("Test debug console"),
             std::bind(&TestMenu::testDebugConsole, this),
@@ -165,9 +186,9 @@ TestMenu::TestMenu(CamcopsApp& app)
             std::bind(&TestMenu::testLogisticRegression, this),
             spanner
         ),
-        MAKE_MENU_MENU_ITEM(WhiskerTestMenu, app),
-        MAKE_MENU_MENU_ITEM(WidgetTestMenu, app),
-        MAKE_TASK_MENU_ITEM(DemoQuestionnaire::DEMOQUESTIONNAIRE_TABLENAME, app),
+        MAKE_MENU_MENU_ITEM(WhiskerTestMenu, m_app),
+        MAKE_MENU_MENU_ITEM(WidgetTestMenu, m_app),
+        MAKE_TASK_MENU_ITEM(DemoQuestionnaire::DEMOQUESTIONNAIRE_TABLENAME, m_app),
     };
 }
 
@@ -205,7 +226,7 @@ void TestMenu::testHttps()
     // const QString url = "https://www.veltigroup.com/";  // bad cert (then Forbidden)
 
     NetworkManager* netmgr = m_app.networkManager();
-    netmgr->setTitle("Test HTTPS");
+    netmgr->setTitle(tr("Test HTTPS"));
     netmgr->testHttpsGet(url);
 }
 
@@ -214,7 +235,7 @@ void TestMenu::testHttp()
 {
     const QString url = "http://egret.psychol.cam.ac.uk/index.html";
     NetworkManager* netmgr = m_app.networkManager();
-    netmgr->setTitle("Test HTTP");
+    netmgr->setTitle(tr("Test HTTP"));
     netmgr->testHttpGet(url);
 }
 
@@ -258,9 +279,9 @@ void TestMenu::testIcd9cmCodeSetCreation()
 void TestMenu::doneSeeConsole()
 {
     if (platform::PLATFORM_TABLET) {
-        uifunc::alert("Done; see USB debugging output");
+        uifunc::alert(tr("Done; see USB debugging output"));
     } else {
-        uifunc::alert("Done; see console");
+        uifunc::alert(tr("Done; see console"));
     }
 }
 
@@ -272,9 +293,9 @@ void TestMenu::testProgress()
     // http://stackoverflow.com/questions/3752742/how-do-i-create-a-pause-wait-function-using-qt
     const int num_things = 100;
     QProgressDialog progress(
-        "Testing progress (but not doing anything; safe to abort)...",
-        "Abort test", 0, num_things, this);
-    progress.setWindowTitle("Progress dialog");
+        tr("Testing progress (but not doing anything; safe to abort)..."),
+        tr("Abort test"), 0, num_things, this);
+    progress.setWindowTitle(tr("Progress dialog"));
     progress.setWindowModality(Qt::WindowModal);
     progress.setMinimumDuration(0);
     for (int i = 0; i < num_things; i++) {
@@ -297,9 +318,9 @@ void TestMenu::testWait()
     SlowNonGuiFunctionCaller(
         std::bind(&TestMenu::expensiveFunction, this),
         this,
-        QString("Running uninterruptible expensive function in worker thread "
-                "(for %1 ms)").arg(EXPENSIVE_FUNCTION_DURATION_MS),
-        "Please wait");
+        tr("Running uninterruptible expensive function in worker "
+           "thread (for %1 ms)").arg(EXPENSIVE_FUNCTION_DURATION_MS),
+        TextConst::pleaseWait());
 }
 
 
@@ -314,14 +335,14 @@ void TestMenu::expensiveFunction()
 void TestMenu::testScrollMessageBox()
 {
     ScrollMessageBox msgbox(QMessageBox::Question,
-                            "ScrollMessageBox, with some lengthy text",
+                            tr("ScrollMessageBox, with some lengthy text"),
                             TextConst::termsConditions(),
                             this);
-    QAbstractButton* one = msgbox.addButton("One (Yes)",
+    QAbstractButton* one = msgbox.addButton(tr("One (Yes)"),
                                             QMessageBox::YesRole);
-    QAbstractButton* two = msgbox.addButton("Two (No)",
+    QAbstractButton* two = msgbox.addButton(tr("Two (No)"),
                                             QMessageBox::NoRole);
-    QAbstractButton* three = msgbox.addButton("Three (Reject)",
+    QAbstractButton* three = msgbox.addButton(tr("Three (Reject)"),
                                               QMessageBox::RejectRole);
     const int ret = msgbox.exec();
     qInfo() << "exec() returned" << ret;
@@ -344,7 +365,7 @@ void TestMenu::testSizeFormatter()
 {
     const bool space = true;
     const bool longform = false;
-    const QString suffix = longform ? "bytes" : "B";
+    const QString suffix = longform ? tr("bytes") : "B";
     const QVector<double> nums{
         3e0, 3e1, 3e2, 3e3, 3e4, 3e5, 3e6, 3e7, 3e8, 3e9,
         3e10, 3e11, 3e12, 3e13, 3e14, 3e15, 3e16, 3e17, 3e18, 3e19,
@@ -359,14 +380,14 @@ void TestMenu::testSizeFormatter()
               .arg(convert::prettySize(num, space, binary, longform, suffix));
         }
     }
-    uifunc::alertLogMessageBox(text, "Size formatting", false);
+    uifunc::alertLogMessageBox(text, tr("Size formatting"), false);
 }
 
 
 void TestMenu::testConversions()
 {
     convert::testConversions();
-    uifunc::alert("Conversion test: OK");
+    uifunc::alert(tr("Conversion test: OK"));
 }
 
 
@@ -374,7 +395,7 @@ void TestMenu::testEigenFunctions()
 {
     const QString text = eigenfunc::testEigenFunctions().join("\n");
 
-    uifunc::alertLogMessageBox(text, "Eigen functions successfully tested",
+    uifunc::alertLogMessageBox(text, tr("Eigen functions successfully tested"),
                                false);
 }
 
@@ -382,10 +403,11 @@ void TestMenu::testEigenFunctions()
 void TestMenu::testRandom()
 {
     const QString text = ccrandom::testRandom().join("\n");
-    uifunc::alertLogMessageBox(text,
-                               "Random-number functions (and supporting "
-                               "floating-point-delta functions): OK",
-                               false);
+    uifunc::alertLogMessageBox(
+                text,
+                tr("Random-number functions (and supporting "
+                   "floating-point-delta functions): OK"),
+                false);
 }
 
 
@@ -633,5 +655,20 @@ Rcpp
 
 void TestMenu::testTranslation()
 {
-    uifunc::alert(tr("Hello, world!"));
+    uifunc::alert(
+        "[TestMenu::testTranslation] " + tr("Hello, world!") +
+        "\n[TextConst::thankYou()] " + TextConst::thankYou()
+    );
+}
+
+
+void TestMenu::switchToDanish()
+{
+    m_app.setLanguage(languages::DANISH);
+}
+
+
+void TestMenu::switchToEnglish()
+{
+    m_app.setLanguage(languages::ENGLISH);
 }

@@ -26,4 +26,7 @@ class AffectiveMenu : public MenuWindow
     Q_OBJECT
 public:
     AffectiveMenu(CamcopsApp& app);
+    virtual QString title() const override;
+protected:
+    virtual void makeItems() override;
 };

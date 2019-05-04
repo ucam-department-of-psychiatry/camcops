@@ -26,4 +26,8 @@ class SetMenuLynall1 : public MenuWindow
     Q_OBJECT
 public:
     SetMenuLynall1(CamcopsApp& app);
+    virtual QString title() const override;
+    virtual QString subtitle() const override;
+protected:
+    virtual void makeItems() override;
 };

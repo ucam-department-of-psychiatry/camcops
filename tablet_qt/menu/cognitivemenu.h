@@ -26,4 +26,7 @@ class CognitiveMenu : public MenuWindow
     Q_OBJECT
 public:
     CognitiveMenu(CamcopsApp& app);
+    virtual QString title() const override;
+protected:
+    virtual void makeItems() override;
 };

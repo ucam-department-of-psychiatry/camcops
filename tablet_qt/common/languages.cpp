@@ -17,16 +17,12 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include "menulib/menuwindow.h"
+#include "languages.h"
 
-
-class GlobalMenu : public MenuWindow
+namespace languages
 {
-    Q_OBJECT
-public:
-    GlobalMenu(CamcopsApp& app);
-    virtual QString title() const override;
-protected:
-    virtual void makeItems() override;
-};
+
+const QString DANISH("da_DK");
+const QString ENGLISH("en_GB");
+
+}  // namespace languages

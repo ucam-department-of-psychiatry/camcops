@@ -60,9 +60,13 @@ Overview of the Qt translation system
   Translations (lupdate)`
 
   - ``.ts`` translation files are XML.
-  - Qt bug as of 2019-05-03: C++11 raw strings generate the error "Unterminated
-    C++ string"; https://bugreports.qt.io/browse/QTBUG-42736; fixed in Qt
-    5.12.2
+  - **Pay close attention to error messages from lupdate.**
+    In particular, ``static`` methods are fine, but classes implementing
+    ``tr()`` must both (a) inherit from ``QObject`` and (b) use the
+    ``Q_OBJECT`` macro.
+  - However, there is a Qt bug as of 2019-05-03: C++11 raw strings generate the
+    error "Unterminated C++ string";
+    https://bugreports.qt.io/browse/QTBUG-42736; fixed in Qt 5.12.2.
 
 - The Qt Linguist tool edits ``.ts`` files.
 
@@ -166,7 +170,11 @@ Making the binary translation files
 CamCOPS language rules
 ~~~~~~~~~~~~~~~~~~~~~~
 
-- Code: English.
-- Qt debugging streams: English.
-- Command-line text: English.
-- Everything else: translatable.
+English is OK for the following:
+
+- code
+- Qt debugging stream
+- command-line text
+- debugging tests
+
+Everything else should be translatable.

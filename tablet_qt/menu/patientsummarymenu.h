@@ -26,7 +26,9 @@ class PatientSummaryMenu : public MenuWindow
     Q_OBJECT
 public:
     PatientSummaryMenu(CamcopsApp& app);
-    virtual void build() override;
+    virtual QString title() const override;
+protected:
+    virtual void makeItems() override;
 public slots:
     void selectedPatientChanged(const Patient* patient);
     void taskFinished();

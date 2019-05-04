@@ -31,16 +31,26 @@
 
 
 PsychosisMenu::PsychosisMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Psychosis"),
-               uifunc::iconFilename(uiconst::ICON_PSYCHOSIS))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_PSYCHOSIS))
+{
+}
+
+
+QString PsychosisMenu::title() const
+{
+    return tr("Psychosis");
+}
+
+
+void PsychosisMenu::makeItems()
 {
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Cape42::CAPE42_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Caps::CAPS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CgiSch::CGISCH_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Panss::PANSS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Icd10Schizophrenia::ICD10SZ_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Icd10Schizotypal::ICD10SZTYPAL_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Cape42::CAPE42_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Caps::CAPS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CgiSch::CGISCH_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Panss::PANSS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Icd10Schizophrenia::ICD10SZ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Icd10Schizotypal::ICD10SZTYPAL_TABLENAME, m_app),
     };
 }

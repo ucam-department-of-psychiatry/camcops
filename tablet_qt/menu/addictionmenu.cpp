@@ -33,18 +33,28 @@
 
 
 AddictionMenu::AddictionMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Drug/alcohol abuse and addiction"),
-               uifunc::iconFilename(uiconst::ICON_ADDICTION))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_ADDICTION))
+{
+}
+
+
+QString AddictionMenu::title() const
+{
+    return tr("Drug/alcohol abuse and addiction");
+}
+
+
+void AddictionMenu::makeItems()
 {
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Audit::AUDIT_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(AuditC::AUDITC_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Cage::CAGE_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Ciwa::CIWA_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Dast::DAST_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Fast::FAST_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Mast::MAST_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Smast::SMAST_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Audit::AUDIT_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(AuditC::AUDITC_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Cage::CAGE_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Ciwa::CIWA_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Dast::DAST_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Fast::FAST_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Mast::MAST_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Smast::SMAST_TABLENAME, m_app),
     };
 }

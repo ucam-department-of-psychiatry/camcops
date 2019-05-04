@@ -28,6 +28,8 @@ class ChoosePatientMenu : public MenuWindow
     Q_OBJECT
 public:
     ChoosePatientMenu(CamcopsApp& app);
+    virtual QString title() const override;
+protected:
     virtual void build() override;
     virtual void viewItem() override;
     virtual void editItem() override;
@@ -39,6 +41,7 @@ public slots:
     void selectedPatientDetailsChanged(const Patient* patient);
     void refreshPatientList();
 protected:
+    // virtual void makeItems() override;  // unused; see build()
     void mergePatients();
     static QString txtMergeTitle();
 };

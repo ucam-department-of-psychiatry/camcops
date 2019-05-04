@@ -40,32 +40,46 @@
 
 
 SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("FROM-LP"),
-               uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
-    m_subtitle = "RCPsych Framework for Routine Outcome Measurement in "
-                 "Liaison Psychiatry (FROM-LP)";
+}
+
+
+QString SetMenuFromLp::title() const
+{
+    return "FROM-LP";
+}
+
+
+QString SetMenuFromLp::subtitle() const
+{
+    return tr("RCPsych Framework for Routine Outcome Measurement in "
+              "Liaison Psychiatry (FROM-LP)");
+}
+
+
+void SetMenuFromLp::makeItems()
+{
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
+        MAKE_CHANGE_PATIENT(m_app),
 
         MenuItem(tr("GENERIC SCALES")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Irac::IRAC_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Irac::IRAC_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, m_app),
 
         MenuItem(tr("DISEASE-SPECIFIC SCALES")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(AuditC::AUDITC_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(AuditC::AUDITC_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
     };
 }

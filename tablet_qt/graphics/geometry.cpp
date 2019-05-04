@@ -162,7 +162,7 @@ qreal polarThetaDeg(const QPointF& from, const QPointF& to)
 {
     const qreal dx = to.x() - from.x();
     const qreal dy = to.y() - from.y();
-    if (dx == 0 && dy == 0) {
+    if (qFuzzyIsNull(dx) && qFuzzyIsNull(dy)) {
         // Nonsensical; no movement.
         return 0.0;
     }

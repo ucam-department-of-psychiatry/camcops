@@ -129,7 +129,7 @@ bool LineSegment::pointOn(const QPointF& point) const
     if (x < xlow || x > xhigh || y < ylow || y > yhigh) {
         return false;
     }
-    return c(point) == 0;
+    return qFuzzyIsNull(c(point));
 }
 
 

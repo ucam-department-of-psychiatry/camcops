@@ -320,23 +320,23 @@ bool Task::isTaskUploadable(QString& why_not_uploadable) const
         why_not_uploadable = "Task uploadable";
     } else {
         if (!server_has_table) {
-            why_not_uploadable = QString(
+            why_not_uploadable = tr(
                     "Table '%1' absent on server.").arg(table);
         } else if (camcopsversion::CAMCOPS_CLIENT_VERSION < min_client_version) {
-            why_not_uploadable = QString(
+            why_not_uploadable = tr(
                     "Server requires client version >=%1 for table '%2', "
                     "but we are only client version %3."
                     ).arg(min_client_version.toString(),
                           table,
                           camcopsversion::CAMCOPS_CLIENT_VERSION.toString());
         } else if (server_version < overall_min_server_version) {
-            why_not_uploadable = QString(
+            why_not_uploadable = tr(
                     "This client requires server version >=%1, "
                     "but the server is only version %2."
                     ).arg(overall_min_server_version.toString(),
                           server_version.toString());
         } else if (server_version < min_server_version) {
-            why_not_uploadable = QString(
+            why_not_uploadable = tr(
                     "This client requires server version >=%1 for table '%2', "
                     "but the server is only version %3."
                     ).arg(min_server_version.toString(),

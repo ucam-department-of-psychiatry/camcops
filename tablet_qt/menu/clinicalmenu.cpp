@@ -39,24 +39,34 @@
 
 
 ClinicalMenu::ClinicalMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Clinical notes and logs"),
-               uifunc::iconFilename(uiconst::ICON_CLINICAL))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_CLINICAL))
+{
+}
+
+
+QString ClinicalMenu::title() const
+{
+    return tr("Clinical notes and logs");
+}
+
+
+void ClinicalMenu::makeItems()
 {
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(ContactLog::CONTACTLOG_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CPFTLPSReferral::CPFTLPSREFERRAL_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CPFTLPSResetResponseClock::CPFTLPSRESETCLOCK_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CPFTLPSDischarge::CPFTLPSDISCHARGE_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(DiagnosisIcd10::DIAGNOSIS_ICD10_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(GboGReS::GBOGRES_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(GboGPC::GBOGPC_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(GboGRaS::GBOGRAS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Irac::IRAC_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Photo::PHOTO_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(PhotoSequence::PHOTOSEQUENCE_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(ProgressNote::PROGNOTE_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(PsychiatricClerking::PSYCLERK_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(ContactLog::CONTACTLOG_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CPFTLPSReferral::CPFTLPSREFERRAL_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CPFTLPSResetResponseClock::CPFTLPSRESETCLOCK_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CPFTLPSDischarge::CPFTLPSDISCHARGE_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(DiagnosisIcd10::DIAGNOSIS_ICD10_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(GboGReS::GBOGRES_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(GboGPC::GBOGPC_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(GboGRaS::GBOGRAS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Irac::IRAC_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Photo::PHOTO_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(PhotoSequence::PHOTOSEQUENCE_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(ProgressNote::PROGNOTE_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(PsychiatricClerking::PSYCLERK_TABLENAME, m_app),
     };
 }

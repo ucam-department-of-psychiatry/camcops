@@ -105,7 +105,7 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     // - Debug
     if (debug_allowed) {
-        m_button_debug = new QPushButton("Dump layout");
+        m_button_debug = new QPushButton(tr("Dump layout"));
         connect(m_button_debug, &QAbstractButton::clicked,
                 this, &MenuHeader::debugLayout);
         rh_icons->addWidget(m_button_debug, text_align);

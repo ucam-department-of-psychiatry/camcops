@@ -26,8 +26,7 @@
 
 
 PatientSummaryMenu::PatientSummaryMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Patient summary"),
-               uifunc::iconFilename(uiconst::ICON_PATIENT_SUMMARY))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_PATIENT_SUMMARY))
 {
     // m_items is EXPENSIVE (and depends on security), so leave it to build()
 
@@ -41,7 +40,13 @@ PatientSummaryMenu::PatientSummaryMenu(CamcopsApp& app) :
 }
 
 
-void PatientSummaryMenu::build()
+QString PatientSummaryMenu::title() const
+{
+    return tr("Patient summary");
+}
+
+
+void PatientSummaryMenu::makeItems()
 {
     TaskFactory* factory = m_app.taskFactory();
 
@@ -58,20 +63,17 @@ void PatientSummaryMenu::build()
     for (const TaskPtr& task : tasklist) {
         m_items.append(MenuItem(task, true, false));
     }
-
-    // Call parent build()
-    MenuWindow::build();
 }
 
 
 void PatientSummaryMenu::selectedPatientChanged(const Patient* patient)
 {
     Q_UNUSED(patient);
-    build();  // refresh task list
+    rebuild();  // refresh task list
 }
 
 
 void PatientSummaryMenu::taskFinished()
 {
-    build();  // refresh task list
+    rebuild();  // refresh task list
 }

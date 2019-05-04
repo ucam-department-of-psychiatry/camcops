@@ -49,7 +49,7 @@ class MenuWindow : public OpenableWidget
     Q_OBJECT
 
 public:
-    MenuWindow(CamcopsApp& app, const QString& title,
+    MenuWindow(CamcopsApp& app,
                const QString& icon = "", bool top = false,
                bool offer_search = false);
     // Derived constructors should be LIGHTWEIGHT, as
@@ -69,18 +69,16 @@ public:
     // (b) call MenuWindow::build();
     // (c) +/- any additional work (e.g. signals/slots).
 
-    virtual void build() override;  // called by framework prior to opening
-
     // Set the menu's icon (displayed on other menus leading to it, and at the
     // top of the menu itself. The parameter is a CamCOPS icon filename stub.
     void setIcon(const QString& icon);
     QString icon() const;
 
-    // Menu title.
-    QString title() const;
+    // Menu title. Dynamic, so that the language can be changed dynamically.
+    virtual QString title() const = 0;
 
     // Menu subtitle.
-    QString subtitle() const;
+    virtual QString subtitle() const;
 
     // Returns the zero-based index of the currently selected item.
     int currentIndex() const;
@@ -91,7 +89,19 @@ public:
     // Returns the patient instance represented by the currently selected item.
     PatientPtr currentPatient() const;
 
+    // Catch generic events
+    virtual bool event(QEvent* e) override;
+
 protected:
+    // Ensures items are recreated in full
+    void rebuild();
+
+    // Called by the default implementation of build(), for simplicity
+    virtual void makeItems();
+
+    // Create widgets. Called by the OpenableWidget framework prior to opening.
+    virtual void build() override;
+
     // Load or reload the stylesheet on our widget.
     void reloadStyleSheet();
     void loadStyleSheet();
@@ -161,8 +171,6 @@ protected:
 
 protected:
     CamcopsApp& m_app;
-    QString m_title;
-    QString m_subtitle;
     QString m_icon;
     bool m_top;
     bool m_offer_search;

@@ -49,39 +49,49 @@
 MainMenu::MainMenu(CamcopsApp& app)
     : MenuWindow(
           app,
-          tr("CamCOPS: Cambridge Cognitive and Psychiatric Assessment Kit"),
           uifunc::iconFilename(uiconst::ICON_CAMCOPS),
           true)
 {
+}
+
+
+QString MainMenu::title() const
+{
+    return tr("CamCOPS: Cambridge Cognitive and Psychiatric Assessment Kit");
+}
+
+
+void MainMenu::makeItems()
+{
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_MENU_MENU_ITEM(PatientSummaryMenu, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_MENU_MENU_ITEM(PatientSummaryMenu, m_app),
         MenuItem(
             tr("Upload data to server"),
             std::bind(&MainMenu::upload, this),
             uifunc::iconFilename(uiconst::ICON_UPLOAD)
         ).setNotIfLocked(),
-        MAKE_MENU_MENU_ITEM(HelpMenu, app),
-        MAKE_MENU_MENU_ITEM(SettingsMenu, app),
+        MAKE_MENU_MENU_ITEM(HelpMenu, m_app),
+        MAKE_MENU_MENU_ITEM(SettingsMenu, m_app),
 
         MenuItem(tr("Tasks by type")).setLabelOnly(),
-        MAKE_MENU_MENU_ITEM(ClinicalMenu, app),
-        MAKE_MENU_MENU_ITEM(GlobalMenu, app),
-        MAKE_MENU_MENU_ITEM(CognitiveMenu, app),
-        MAKE_MENU_MENU_ITEM(AffectiveMenu, app),
-        MAKE_MENU_MENU_ITEM(AddictionMenu, app),
-        MAKE_MENU_MENU_ITEM(PsychosisMenu, app),
-        MAKE_MENU_MENU_ITEM(CatatoniaEpseMenu, app),
-        MAKE_MENU_MENU_ITEM(PersonalityMenu, app),
-        MAKE_MENU_MENU_ITEM(ExecutiveMenu, app),
-        MAKE_MENU_MENU_ITEM(ServiceEvaluationMenu, app),
-        MAKE_MENU_MENU_ITEM(ResearchMenu, app),
-        MAKE_MENU_MENU_ITEM(AnonymousMenu, app),
+        MAKE_MENU_MENU_ITEM(ClinicalMenu, m_app),
+        MAKE_MENU_MENU_ITEM(GlobalMenu, m_app),
+        MAKE_MENU_MENU_ITEM(CognitiveMenu, m_app),
+        MAKE_MENU_MENU_ITEM(AffectiveMenu, m_app),
+        MAKE_MENU_MENU_ITEM(AddictionMenu, m_app),
+        MAKE_MENU_MENU_ITEM(PsychosisMenu, m_app),
+        MAKE_MENU_MENU_ITEM(CatatoniaEpseMenu, m_app),
+        MAKE_MENU_MENU_ITEM(PersonalityMenu, m_app),
+        MAKE_MENU_MENU_ITEM(ExecutiveMenu, m_app),
+        MAKE_MENU_MENU_ITEM(ServiceEvaluationMenu, m_app),
+        MAKE_MENU_MENU_ITEM(ResearchMenu, m_app),
+        MAKE_MENU_MENU_ITEM(AnonymousMenu, m_app),
 
         MenuItem(tr("Task collections")).setLabelOnly(),
-        MAKE_MENU_MENU_ITEM(ClinicalSetsMenu, app),
-        MAKE_MENU_MENU_ITEM(ResearchSetsMenu, app),
-        MAKE_MENU_MENU_ITEM(AllTasksMenu, app),
+        MAKE_MENU_MENU_ITEM(ClinicalSetsMenu, m_app),
+        MAKE_MENU_MENU_ITEM(ResearchSetsMenu, m_app),
+        MAKE_MENU_MENU_ITEM(AllTasksMenu, m_app),
     };
     connect(&m_app, &CamcopsApp::fontSizeChanged,
             this, &MainMenu::reloadStyleSheet);

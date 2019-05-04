@@ -854,7 +854,8 @@ SOURCES += \
     tasks/ctqsf.cpp \
     tasks/lynall1iam.cpp \
     tasks/lynall2iam.cpp \
-    tasks/kirby.cpp
+    tasks/kirby.cpp \
+    common/languages.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1268,7 +1269,8 @@ HEADERS += \
     tasks/ctqsf.h \
     tasks/lynall1iam.h \
     tasks/lynall2iam.h \
-    tasks/kirby.h
+    tasks/kirby.h \
+    common/languages.h
 
 # DISTFILES/OTHER_FILES appear in the Qt Creator editing tree. Otherwise,
 # there's not much practical impact:

@@ -50,36 +50,45 @@
 
 
 GlobalMenu::GlobalMenu(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("Global function and multiple aspects of psychopathology"),
-               uifunc::iconFilename(uiconst::ICON_GLOBAL))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_GLOBAL))
+{
+}
+
+
+QString GlobalMenu::title() const
+{
+    return tr("Global function and multiple aspects of psychopathology");
+}
+
+
+void GlobalMenu::makeItems()
 {
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Badls::BADLS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Bprs::BPRS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(BprsE::BPRSE_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CbiR::CBIR_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Cgi::CGI_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Dad::DAD_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Demqol::DEMQOL_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(DemqolProxy::DEMQOLPROXY_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(DistressThermometer::DT_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Factg::FACTG_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Frs::FRS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Gaf::GAF_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Honos65::HONOS65_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Honosca::HONOSCA_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(NpiQ::NPIQ_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Wemwbs::WEMWBS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Wsas::WSAS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Zbi12::ZBI12_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Badls::BADLS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Bprs::BPRS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(BprsE::BPRSE_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CbiR::CBIR_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Cgi::CGI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Dad::DAD_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Demqol::DEMQOL_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(DemqolProxy::DEMQOLPROXY_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(DistressThermometer::DT_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Factg::FACTG_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Frs::FRS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Gaf::GAF_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Honos65::HONOS65_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Honosca::HONOSCA_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(NpiQ::NPIQ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Wemwbs::WEMWBS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Wsas::WSAS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Zbi12::ZBI12_TABLENAME, m_app),
     };
 }

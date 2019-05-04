@@ -29,14 +29,24 @@
 
 
 CognitiveMenu::CognitiveMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Cognitive assessment"),
-               uifunc::iconFilename(uiconst::ICON_COGNITIVE))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_COGNITIVE))
+{
+}
+
+
+QString CognitiveMenu::title() const
+{
+    return tr("Cognitive assessment");
+}
+
+
+void CognitiveMenu::makeItems()
 {
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Moca::MOCA_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Slums::SLUMS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Nart::NART_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Moca::MOCA_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Slums::SLUMS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Nart::NART_TABLENAME, m_app),
     };
 }

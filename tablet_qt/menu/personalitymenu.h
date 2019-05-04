@@ -26,4 +26,7 @@ class PersonalityMenu : public MenuWindow
     Q_OBJECT
 public:
     PersonalityMenu(CamcopsApp& app);
+    virtual QString title() const override;
+protected:
+    virtual void makeItems() override;
 };

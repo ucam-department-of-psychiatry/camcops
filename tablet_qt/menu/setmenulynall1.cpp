@@ -32,19 +32,33 @@
 
 
 SetMenuLynall1::SetMenuLynall1(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("Lynall M-E — 1 — Inflammation in Mind (IAM) study"),
-               uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
-    m_subtitle = "Khandaker GM, University of Cambridge, UK — "
-                 "Insight immunopsychiatry study";
+}
+
+
+QString SetMenuLynall1::title() const
+{
+    return tr("Lynall M-E — 1 — IAM study");
+}
+
+
+QString SetMenuLynall1::subtitle() const
+{
+    return tr("Lynall M-E, University of Cambridge, UK — "
+              "Inflammation in Mind (IAM) study");
+}
+
+
+void SetMenuLynall1::makeItems()
+{
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Audit::AUDIT_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, app),
-        // *** // MAKE_TASK_MENU_ITEM(Ctqsf::CTQSF_TABLENAME, app),
-        // *** // MAKE_TASK_MENU_ITEM(Lynall1IamMedicalHistory::LYNALL_1_IAM_MEDICALHISTORY_TABLENAME, app),
-        // *** // MAKE_TASK_MENU_ITEM(Lynall2IamLifeEvents::LYNALL_2_IAM_LIFEEVENTS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Audit::AUDIT_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
+        // *** // MAKE_TASK_MENU_ITEM(Ctqsf::CTQSF_TABLENAME, m_app),
+        // *** // MAKE_TASK_MENU_ITEM(Lynall1IamMedicalHistory::LYNALL_1_IAM_MEDICALHISTORY_TABLENAME, m_app),
+        // *** // MAKE_TASK_MENU_ITEM(Lynall2IamLifeEvents::LYNALL_2_IAM_LIFEEVENTS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, m_app),
     };
 }

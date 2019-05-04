@@ -94,11 +94,9 @@ const QString& sampleText(const bool long_text)
 
 
 WidgetTestMenu::WidgetTestMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Widget tests"),
-               uifunc::iconFilename(uiconst::CBS_SPANNER))
+    MenuWindow(app, uifunc::iconFilename(uiconst::CBS_SPANNER))
 
 {
-    const bool qutext_bold = false;
     const bool mandatory = true;
 
     FieldRef::GetterFunction getter1 = std::bind(&WidgetTestMenu::dummyGetter1,
@@ -126,6 +124,18 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app) :
     m_options_3.append(NameValuePair("Option C1", 1));
     m_options_3.append(NameValuePair("Option C2 " + TextConst::LOREM_IPSUM_1, 2));
     m_options_3.append(NameValuePair("Option C3", 3));
+}
+
+
+QString WidgetTestMenu::title() const
+{
+    return tr("Widget tests");
+}
+
+
+void WidgetTestMenu::makeItems()
+{
+    const bool qutext_bold = false;
 
     const QSizePolicy fixed_fixed(QSizePolicy::Fixed, QSizePolicy::Fixed);
     const QSizePolicy expand_expand(QSizePolicy::Expanding, QSizePolicy::Expanding);

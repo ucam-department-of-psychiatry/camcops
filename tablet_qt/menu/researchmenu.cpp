@@ -34,16 +34,26 @@
 
 
 ResearchMenu::ResearchMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Research tasks"),
-               uifunc::iconFilename(uiconst::ICON_RESEARCH))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_RESEARCH))
+{
+}
+
+
+QString ResearchMenu::title() const
+{
+    return tr("Research tasks");
+}
+
+
+void ResearchMenu::makeItems()
 {
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
+        MAKE_CHANGE_PATIENT(m_app),
         MenuItem(tr("Well known or generic")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(QolSG::QOLSG_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(QolSG::QOLSG_TABLENAME, m_app),
         MenuItem(tr("Experimental")).setLabelOnly(),
         MenuItem(
             cardinalexpdetcommon::ExpDetTextConst::soundtestTitle(),
@@ -51,8 +61,8 @@ ResearchMenu::ResearchMenu(CamcopsApp& app) :
             "",
             cardinalexpdetcommon::ExpDetTextConst::soundtestSubtitle()
         ),
-        MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, m_app),
     };
 }
 

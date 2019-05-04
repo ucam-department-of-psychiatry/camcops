@@ -29,15 +29,24 @@
 
 
 ResearchSetsMenu::ResearchSetsMenu(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("Sets of tasks collected together for research purposes"),
-               uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
+{
+}
+
+
+QString ResearchSetsMenu::title() const
+{
+    return tr("Sets of tasks collected together for research purposes");
+}
+
+
+void ResearchSetsMenu::makeItems()
 {
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftAffective1, app),
-        MAKE_MENU_MENU_ITEM(SetMenuDeakin1, app),
-        MAKE_MENU_MENU_ITEM(SetMenuKhandaker1, app),
-        MAKE_MENU_MENU_ITEM(SetMenuOBrien1, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftAffective1, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuDeakin1, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuKhandaker1, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuOBrien1, m_app),
     };
 }

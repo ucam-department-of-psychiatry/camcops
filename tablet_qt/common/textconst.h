@@ -52,6 +52,7 @@
 
 class TextConst : public QObject
 {
+    Q_OBJECT
 public:
 
     // ========================================================================
@@ -195,3 +196,5 @@ public:
 
 };
 
+
+extern const TextConst textconst;

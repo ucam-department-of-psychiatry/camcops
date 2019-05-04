@@ -41,7 +41,9 @@ public:
     // result to new_page_number.
     virtual int choose(int* new_page_number);
 
+    // Catch generic events
     virtual bool event(QEvent* e) override;
+
 protected slots:
     void itemClicked(int item_index);
 protected:

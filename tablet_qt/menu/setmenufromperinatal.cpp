@@ -37,30 +37,44 @@
 
 
 SetMenuFromPerinatal::SetMenuFromPerinatal(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("FROM-Perinatal"),
-               uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
-    m_subtitle = "RCPsych Framework for Routine Outcome Measurement in "
-                 "Perinatal Psychiatry (FROM-Perinatal)";
+}
+
+
+QString SetMenuFromPerinatal::title() const
+{
+    return tr("FROM-Perinatal");
+}
+
+
+QString SetMenuFromPerinatal::subtitle() const
+{
+    return tr("RCPsych Framework for Routine Outcome Measurement in "
+              "Perinatal Psychiatry (FROM-Perinatal)");
+}
+
+
+void SetMenuFromPerinatal::makeItems()
+{
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
+        MAKE_CHANGE_PATIENT(m_app),
 
         MenuItem(tr("COMMON MENTAL HEALTH DISORDERS")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
 
         MenuItem(tr("GENERIC MEASURES")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Honosca::HONOSCA_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Honosca::HONOSCA_TABLENAME, m_app),
         // ReQoL...
         // CORE-OM...
-        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, m_app),
         // CAN-M
 
         MenuItem(tr("MOTHER–INFANT MEASURES")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(Pbq::PBQ_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Pbq::PBQ_TABLENAME, m_app),
         // BMIS...
         // MORS-SF...
         // CARE-Index...
@@ -71,18 +85,18 @@ SetMenuFromPerinatal::SetMenuFromPerinatal(CamcopsApp& app) :
         // ADBB...
 
         MenuItem(tr("PATIENT EXPERIENCE MEASURES")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, m_app),
         // Perinatal VOICE...
 
         MenuItem(tr("SPECIFIC CONDITIONS")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(Bprs::BPRS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Bprs::BPRS_TABLENAME, m_app),
         // YMRS...
         // DERS...
         // DERS-SF...
         // SHAI...
-        MAKE_TASK_MENU_ITEM(Ybocs::YBOCS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Pdss::PDSS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Ybocs::YBOCS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Pdss::PDSS_TABLENAME, m_app),
         // MI...
     };
 }

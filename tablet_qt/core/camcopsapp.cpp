@@ -50,6 +50,7 @@
 #include "common/appstrings.h"
 #include "common/dbconst.h"  // for NONEXISTENT_PK
 #include "common/design_defines.h"
+#include "common/languages.h"
 #include "common/platform.h"
 #include "common/preprocessor_aid.h"
 #include "common/textconst.h"
@@ -117,7 +118,7 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_qt_logical_dpi(uiconst::DEFAULT_DPI),
     m_qt_physical_dpi(uiconst::DEFAULT_DPI)
 {
-    setLanguage("da_DK");  // try "da_DK"
+    setLanguage(languages::DANISH);  // try languages::DANISH
     setApplicationName(APP_NAME);
     setApplicationDisplayName(APP_PRETTY_NAME);
     setApplicationVersion(camcopsversion::CAMCOPS_CLIENT_VERSION.toString());

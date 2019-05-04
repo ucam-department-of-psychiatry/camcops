@@ -33,18 +33,28 @@
 
 
 CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Catatonia and extrapyramidal side effects"),
-               uifunc::iconFilename(uiconst::ICON_CATATONIA))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_CATATONIA))
+{
+}
+
+
+QString CatatoniaEpseMenu::title() const
+{
+    return tr("Catatonia and extrapyramidal side effects");
+}
+
+
+void CatatoniaEpseMenu::makeItems()
 {
 #ifdef INCLUDE_CATATONIA_EXAMINATION
     const QString examtitle = tr("Catatonia examination technique");
     const QString examsubtitle = tr("Standardized technique (for BFCRS, BFCSI)");
 #endif
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Aims::AIMS_TABLENAME, app),
-        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("bars", app),
-        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("bfcrs", app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Aims::AIMS_TABLENAME, m_app),
+        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("bars", m_app),
+        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("bfcrs", m_app),
 #ifdef INCLUDE_CATATONIA_EXAMINATION
         MenuItem(examtitle,
                  HtmlMenuItem(examtitle,
@@ -52,10 +62,10 @@ CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
                  "",
                  examsubtitle),
 #endif
-        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("csi", app), // == bfcsi
-        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("gass", app),
-        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("lunsers", app),
-        MAKE_TASK_MENU_ITEM(MdsUpdrs::MDS_UPDRS_TABLENAME, app),
-        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("sas", app),
+        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("csi", m_app), // == bfcsi
+        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("gass", m_app),
+        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("lunsers", m_app),
+        MAKE_TASK_MENU_ITEM(MdsUpdrs::MDS_UPDRS_TABLENAME, m_app),
+        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("sas", m_app),
     };
 }

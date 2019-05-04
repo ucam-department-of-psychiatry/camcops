@@ -41,7 +41,9 @@ public:
     // result to new_value.
     virtual int choose(QVariant* new_value);
 
+    // Catch generic events
     virtual bool event(QEvent* e) override;
+
 protected slots:
     void itemClicked(int index);
 protected:

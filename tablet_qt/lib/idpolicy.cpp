@@ -18,6 +18,7 @@
 */
 
 #include "idpolicy.h"
+#include <QObject>
 #include <QRegularExpression>  // replacing QRegExp; http://doc.qt.io/qt-5.7/qregexp.html#details
 #include "common/dbconst.h"
 #include "common/design_defines.h"
@@ -214,7 +215,7 @@ QString IdPolicy::original() const
 QString IdPolicy::pretty() const
 {
     if (!m_valid) {
-        return "[Invalid policy]";
+        return QObject::tr("[Invalid policy]");
     }
     return stringify(m_tokens);
 }

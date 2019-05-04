@@ -29,17 +29,31 @@
 
 
 SetMenuKhandaker1::SetMenuKhandaker1(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("Khandaker GM — 1 — Insight study"),
-               uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
-    m_subtitle = "Khandaker GM, University of Cambridge, UK — "
-                 "Insight immunopsychiatry study";
+}
+
+
+QString SetMenuKhandaker1::title() const
+{
+    return tr("Khandaker GM — 1 — Insight study");
+}
+
+
+QString SetMenuKhandaker1::subtitle() const
+{
+    return tr("Khandaker GM, University of Cambridge, UK — "
+              "Insight immunopsychiatry study");
+}
+
+
+void SetMenuKhandaker1::makeItems()
+{
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(
-            Khandaker1MedicalHistory::KHANDAKER1MEDICALHISTORY_TABLENAME, app),
+            Khandaker1MedicalHistory::KHANDAKER1MEDICALHISTORY_TABLENAME, m_app),
     };
 }

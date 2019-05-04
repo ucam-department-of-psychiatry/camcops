@@ -30,7 +30,9 @@ class WhiskerTestMenu : public MenuWindow
     Q_OBJECT
 public:
     WhiskerTestMenu(CamcopsApp& app);
+    virtual QString title() const override;
 protected:
+    virtual void makeItems() override;
     OpenableWidget* configureWhisker(CamcopsApp& app);
     void connectWhisker();
     void disconnectWhisker();

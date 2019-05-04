@@ -32,8 +32,7 @@
 
 
 ChoosePatientMenu::ChoosePatientMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Choose patient"),
-               uifunc::iconFilename(uiconst::ICON_CHOOSE_PATIENT))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_CHOOSE_PATIENT))
 {
     connect(&m_app, &CamcopsApp::selectedPatientDetailsChanged,
             this, &ChoosePatientMenu::selectedPatientDetailsChanged,
@@ -48,6 +47,12 @@ ChoosePatientMenu::ChoosePatientMenu(CamcopsApp& app) :
     connect(m_p_header, &MenuHeader::addClicked,
             this, &ChoosePatientMenu::addPatient,
             Qt::UniqueConnection);
+}
+
+
+QString ChoosePatientMenu::title() const
+{
+    return tr("Choose patient");
 }
 
 
@@ -168,8 +173,7 @@ void ChoosePatientMenu::deletePatient()
                     QMessageBox::Warning,
                     tr("Delete patient WITH TASKS"),
                     tr("Delete this patient?") + "\n\n" + patient_details +
-                        QString("\n\nTHERE ARE %1 ASSOCIATED TASKS!")
-                            .arg(n_tasks),
+                        tr("\n\nTHERE ARE %1 ASSOCIATED TASKS!").arg(n_tasks),
                     this);
         // NB can't use HTML "<b></b>" in the text there.
         QAbstractButton* delete_button = msgbox.addButton(
@@ -205,14 +209,14 @@ void ChoosePatientMenu::refreshPatientList()
 
 void ChoosePatientMenu::mergePatients()
 {
-    auto reportFail = [this](const char* text) -> void {
-        ScrollMessageBox::warning(this, txtMergeTitle(), tr(text));
+    auto reportFail = [this](const QString& text) -> void {
+        ScrollMessageBox::warning(this, txtMergeTitle(), text);
     };
 
     // Is one selected?
     if (!m_app.isPatientSelected()) {
-        reportFail("Select a patient first, then choose this option to merge "
-                   "with another.");
+        reportFail(tr("Select a patient first, then choose this option to "
+                      "merge with another."));
         return;
     }
 
@@ -227,10 +231,11 @@ void ChoosePatientMenu::mergePatients()
         }
     }
     if (other_patients.isEmpty()) {
-        reportFail("No other patients available that match the selected "
-                   "patient. (Information can be present in one patient and "
-                   "missing from the other, but where information is present, "
-                   "it must match.)");
+        reportFail(tr(
+                "No other patients available that match the selected "
+                "patient. (Information can be present in one patient and "
+                "missing from the other, but where information is present, "
+                "it must match.)"));
         return;
     }
 

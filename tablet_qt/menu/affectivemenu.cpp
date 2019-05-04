@@ -51,38 +51,48 @@
 
 
 AffectiveMenu::AffectiveMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Affective (mood and anxiety) disorders"),
-               uifunc::iconFilename(uiconst::ICON_AFFECTIVE))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_AFFECTIVE))
+{
+}
+
+
+QString AffectiveMenu::title() const
+{
+    return tr("Affective (mood and anxiety) disorders");
+}
+
+
+void AffectiveMenu::makeItems()
 {
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("asrm", app),
-        MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Cesd::CESD_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Cesdr::CESDR_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Gds15::GDS15_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Hads::HADS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(HamA::HAMA_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(HamD::HAMD_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(HamD7::HAMD7_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Icd10Depressive::ICD10DEP_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Icd10Manic::ICD10MANIC_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Icd10Mixed::ICD10MIXED_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, app),
-        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("madrs", app),
-        MAKE_TASK_MENU_ITEM(Pcl5::PCL5_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(PclM::PCLM_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(PclC::PCLC_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(PclS::PCLS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Pdss::PDSS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Phq15::PHQ15_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Pswq::PSWQ_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Ybocs::YBOCS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(YbocsSc::YBOCSSC_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("asrm", m_app),
+        MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Cesd::CESD_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Cesdr::CESDR_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Gds15::GDS15_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Hads::HADS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(HamA::HAMA_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(HamD::HAMD_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(HamD7::HAMD7_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Icd10Depressive::ICD10DEP_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Icd10Manic::ICD10MANIC_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Icd10Mixed::ICD10MIXED_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, m_app),
+        // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("madrs", m_app),
+        MAKE_TASK_MENU_ITEM(Pcl5::PCL5_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(PclM::PCLM_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(PclC::PCLC_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(PclS::PCLS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Pdss::PDSS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Phq15::PHQ15_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Pswq::PSWQ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Ybocs::YBOCS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(YbocsSc::YBOCSSC_TABLENAME, m_app),
     };
 }

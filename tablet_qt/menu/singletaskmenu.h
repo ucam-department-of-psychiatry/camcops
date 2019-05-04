@@ -30,6 +30,9 @@ class SingleTaskMenu : public MenuWindow
     Q_OBJECT
 public:
     SingleTaskMenu(const QString& tablename, CamcopsApp& app);
+    virtual QString title() const override;
+protected:
+    // virtual void makeItems() override;  // unused; see build()
     virtual void build() override;
 public slots:  // http://stackoverflow.com/questions/19129133/qt-signals-and-slots-permissions
     void addTask();

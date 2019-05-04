@@ -32,16 +32,26 @@
 
 ClinicalSetsMenu::ClinicalSetsMenu(CamcopsApp& app) :
     MenuWindow(app,
-               tr("Sets of tasks collected together for clinical purposes"),
                uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
+}
+
+
+QString ClinicalSetsMenu::title() const
+{
+    return tr("Sets of tasks collected together for clinical purposes");
+}
+
+
+void ClinicalSetsMenu::makeItems()
+{
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftAffective1, app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftPerinatal1, app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftPsychooncology1, app),
-        MAKE_MENU_MENU_ITEM(SetMenuFromLp, app),
-        MAKE_MENU_MENU_ITEM(SetMenuFromPerinatal, app),
-        MAKE_MENU_MENU_ITEM(SetMenuOBrien1, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftAffective1, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftPerinatal1, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftPsychooncology1, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuFromLp, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuFromPerinatal, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuOBrien1, m_app),
     };
 }

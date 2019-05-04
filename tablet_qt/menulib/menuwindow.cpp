@@ -49,12 +49,10 @@
 const int BAD_INDEX = -1;
 
 
-MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
+MenuWindow::MenuWindow(CamcopsApp& app,
                        const QString& icon, const bool top,
                        const bool offer_search) :
     m_app(app),
-    m_title(title),
-    m_subtitle(""),
     m_icon(icon),
     m_top(top),
     m_offer_search(offer_search),
@@ -130,8 +128,9 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
 #else
     const bool offer_debug_layout = false;
 #endif
-    m_p_header = new MenuHeader(this, m_app, m_top, m_title, m_icon,
+    m_p_header = new MenuHeader(this, m_app, m_top, "", m_icon,
                                 offer_debug_layout);
+    // ... we'll set its title later in build()
     m_mainlayout->addWidget(m_p_header);
 
     // header to us
@@ -242,9 +241,27 @@ void MenuWindow::reloadStyleSheet()
 }
 
 
+void MenuWindow::rebuild()
+{
+    makeItems();
+    build();
+}
+
+
+void MenuWindow::makeItems()
+{
+}
+
+
 void MenuWindow::build()
 {
     qDebug() << Q_FUNC_INFO;
+
+    m_p_header->setTitle(title());
+
+    if (m_items.isEmpty()) {
+        makeItems();
+    }
 
     m_p_listwidget->clear();
 
@@ -298,15 +315,9 @@ void MenuWindow::build()
 }
 
 
-QString MenuWindow::title() const
-{
-    return m_title;
-}
-
-
 QString MenuWindow::subtitle() const
 {
-    return m_subtitle;
+    return "";
 }
 
 
@@ -414,7 +425,18 @@ void MenuWindow::lockStateChanged(CamcopsApp::LockState lockstate)
     Q_UNUSED(lockstate);
     // mark as unused; http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
     // qDebug() << Q_FUNC_INFO;
-    build();  // calls down to derived cl tuass
+    build();  // calls down to derived class
+}
+
+
+bool MenuWindow::event(QEvent* e)
+{
+    const bool result = OpenableWidget::event(e);  // call parent
+    const QEvent::Type type = e->type();
+    if (type == QEvent::Type::LanguageChange) {
+        rebuild();
+    }
+    return result;
 }
 
 
@@ -581,7 +603,7 @@ void MenuWindow::deleteTask()
         qInfo() << "Delete:" << instance_title_for_debug;
         DbNestableTransaction trans(m_app.db());
         task->deleteFromDatabase();
-        build();
+        rebuild();
     }
 }
 

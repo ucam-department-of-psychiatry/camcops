@@ -30,8 +30,10 @@ class TestMenu : public MenuWindow
 
 public:
     TestMenu(CamcopsApp& app);
-    ~TestMenu();
+    ~TestMenu() override;
+    virtual QString title() const override;
 protected:
+    virtual void makeItems() override;
     void testPhq9Creation();
     void testDebugConsole();
     void testSound();
@@ -50,6 +52,8 @@ protected:
     void testRandom();
     void testLogisticRegression();
     void testTranslation();
+    void switchToEnglish();
+    void switchToDanish();
 
 protected:
     QSharedPointer<QMediaPlayer> m_player;

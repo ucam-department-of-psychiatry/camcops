@@ -30,15 +30,25 @@
 
 
 PersonalityMenu::PersonalityMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Personality and experience"),
-               uifunc::iconFilename(uiconst::ICON_PERSONALITY))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_PERSONALITY))
+{
+}
+
+
+QString PersonalityMenu::title() const
+{
+    return tr("Personality and experience");
+}
+
+
+void PersonalityMenu::makeItems()
 {
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(CecaQ3::CECAQ3_TABLENAME, app),
-        // *** // MAKE_TASK_MENU_ITEM(Ctqsf::CTQSF_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Icd10SpecPD::ICD10SPECPD_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Icd10Schizotypal::ICD10SZTYPAL_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Pbq::PBQ_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(CecaQ3::CECAQ3_TABLENAME, m_app),
+        // *** // MAKE_TASK_MENU_ITEM(Ctqsf::CTQSF_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Icd10SpecPD::ICD10SPECPD_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Icd10Schizotypal::ICD10SZTYPAL_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Pbq::PBQ_TABLENAME, m_app),
     };
 }

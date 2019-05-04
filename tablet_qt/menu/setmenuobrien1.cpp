@@ -39,27 +39,41 @@
 
 
 SetMenuOBrien1::SetMenuOBrien1(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("O’Brien JT — 1"),
-               uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
-    m_subtitle = "O’Brien JT, University of Cambridge, UK — "
-                 "dementia research clinic";
+}
+
+
+QString SetMenuOBrien1::title() const
+{
+    return "O’Brien JT — 1";
+}
+
+
+QString SetMenuOBrien1::subtitle() const
+{
+    return tr("O’Brien JT, University of Cambridge, UK — "
+              "dementia research clinic");
+}
+
+
+void SetMenuOBrien1::makeItems()
+{
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Badls::BADLS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CbiR::CBIR_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Dad::DAD_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Demqol::DEMQOL_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(DemqolProxy::DEMQOLPROXY_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Frs::FRS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Hads::HADS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(HadsRespondent::HADSRESPONDENT_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Ifs::IFS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(NpiQ::NPIQ_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(MdsUpdrs::MDS_UPDRS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Zbi12::ZBI12_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Badls::BADLS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CbiR::CBIR_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Dad::DAD_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Demqol::DEMQOL_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(DemqolProxy::DEMQOLPROXY_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Frs::FRS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Hads::HADS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(HadsRespondent::HADSRESPONDENT_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Ifs::IFS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(NpiQ::NPIQ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(MdsUpdrs::MDS_UPDRS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Zbi12::ZBI12_TABLENAME, m_app),
     };
 }

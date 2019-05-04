@@ -33,7 +33,9 @@ class WidgetTestMenu : public MenuWindow
     Q_OBJECT
 public:
     WidgetTestMenu(CamcopsApp& app);
+    virtual QString title() const override;
 protected:
+    virtual void makeItems() override;
     QVariant dummyGetter1() const;
     bool dummySetter1(const QVariant& value);
     QVariant dummyGetter2() const;

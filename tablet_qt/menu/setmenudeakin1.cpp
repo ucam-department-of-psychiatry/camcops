@@ -41,33 +41,47 @@
 
 
 SetMenuDeakin1::SetMenuDeakin1(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("Deakin JB — 1"),
-               uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
-    m_subtitle = "Deakin JB, University of Cambridge, UK — "
-                 "antibody-mediated psychosis";
+}
+
+
+QString SetMenuDeakin1::title() const
+{
+    return "Deakin JB — 1";
+}
+
+
+QString SetMenuDeakin1::subtitle() const
+{
+    return tr("Deakin JB, University of Cambridge, UK — "
+              "antibody-mediated psychosis");
+}
+
+
+void SetMenuDeakin1::makeItems()
+{
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Caps::CAPS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CecaQ3::CECAQ3_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CgiSch::CGISCH_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Deakin1HealthReview::DEAKIN1HEALTHREVIEW_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Caps::CAPS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CecaQ3::CECAQ3_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CgiSch::CGISCH_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Deakin1HealthReview::DEAKIN1HEALTHREVIEW_TABLENAME, m_app),
         MenuItem(
             cardinalexpdetcommon::ExpDetTextConst::soundtestTitle(),
             std::bind(&SetMenuDeakin1::soundTestCardinalExpDet, this),
             "",
             cardinalexpdetcommon::ExpDetTextConst::soundtestSubtitle()
         ),
-        MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Gaf::GAF_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Nart::NART_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Panss::PANSS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Gaf::GAF_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Nart::NART_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Panss::PANSS_TABLENAME, m_app),
     };
 }
 

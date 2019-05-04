@@ -36,24 +36,38 @@
 
 
 SetMenuCpftAffective1::SetMenuCpftAffective1(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("CPFT Affective Disorders Research Database"),
-               uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
-    m_subtitle = "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
-                 "affective disorders";
+}
+
+
+QString SetMenuCpftAffective1::title() const
+{
+    return tr("CPFT Affective Disorders Research Database");
+}
+
+
+QString SetMenuCpftAffective1::subtitle() const
+{
+    return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
+              "affective disorders");
+}
+
+
+void SetMenuCpftAffective1::makeItems()
+{
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),  // = DSM-IV
-        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(HamD::HAMD_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Pdss::PDSS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Pswq::PSWQ_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Wsas::WSAS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Ybocs::YBOCS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(YbocsSc::YBOCSSC_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),  // = DSM-IV
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(HamD::HAMD_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Pdss::PDSS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Pswq::PSWQ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Wsas::WSAS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Ybocs::YBOCS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(YbocsSc::YBOCSSC_TABLENAME, m_app),
     };
 }

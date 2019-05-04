@@ -36,25 +36,39 @@
 
 
 SetMenuCpftPsychooncology1::SetMenuCpftPsychooncology1(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("CPFT Psycho-oncology Service"),
-               uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
-    m_subtitle = "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
-                 "psycho-oncology service";
+}
+
+
+QString SetMenuCpftPsychooncology1::title() const
+{
+    return tr("CPFT Psycho-oncology Service");
+}
+
+
+QString SetMenuCpftPsychooncology1::subtitle() const
+{
+    return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
+              "psycho-oncology service");
+}
+
+
+void SetMenuCpftPsychooncology1::makeItems()
+{
     // See e-mail from Ruaidhri McCormack to Rudolf Cardinal, 2018-07-12.
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Cesd::CESD_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Cesdr::CESDR_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Factg::FACTG_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Hads::HADS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Pcl5::PCL5_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Wsas::WSAS_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Cesd::CESD_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Cesdr::CESDR_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CgiI::CGI_I_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CopeBrief::COPEBRIEF_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Factg::FACTG_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Hads::HADS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Pcl5::PCL5_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Wsas::WSAS_TABLENAME, m_app),
     };
 }

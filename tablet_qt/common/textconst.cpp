@@ -272,3 +272,10 @@ QString TextConst::LOREM_IPSUM_3(
     "Donec lectus diam, accumsan quis tortor at, congue laoreet augue. Ut "
     "mollis consectetur elit sit amet tincidunt."
 );
+
+
+// ============================================================================
+// Instance
+// ============================================================================
+
+const TextConst textconst;

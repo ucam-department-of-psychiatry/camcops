@@ -18,15 +18,12 @@
 */
 
 #pragma once
-#include "menulib/menuwindow.h"
+#include <QString>
 
-
-class GlobalMenu : public MenuWindow
+namespace languages
 {
-    Q_OBJECT
-public:
-    GlobalMenu(CamcopsApp& app);
-    virtual QString title() const override;
-protected:
-    virtual void makeItems() override;
-};
+
+extern const QString DANISH;
+extern const QString ENGLISH;
+
+}  // namespace languages

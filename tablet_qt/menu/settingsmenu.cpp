@@ -82,12 +82,23 @@ const QString TAG_DPI_PHYSICAL("dpi_physical");
 
 
 SettingsMenu::SettingsMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Settings"),
-               uifunc::iconFilename(uiconst::ICON_SETTINGS)),
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETTINGS)),
     m_plaintext_pw_live(false),
     m_fontsize_questionnaire(nullptr),
     m_ip_questionnaire(nullptr)
 {
+}
+
+
+QString SettingsMenu::title() const
+{
+    return tr("Settings");
+}
+
+
+void SettingsMenu::makeItems()
+{
+    const QString PRIVPREFIX("(†) ");
     m_fontsize_fr = m_app.storedVarFieldRef(
                 varconst::QUESTIONNAIRE_SIZE_PERCENT, true);
     m_ip_clinical_fr = m_app.storedVarFieldRef(
@@ -165,35 +176,35 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
         ).setNotIfLocked(),
         // PRIVILEGED FUNCTIONS BELOW HERE
         MenuItem(
-            tr("(†) Configure server settings"),
+            PRIVPREFIX + tr("Configure server settings"),
             MenuItem::OpenableWidgetMaker(
                 std::bind(&SettingsMenu::configureServer, this,
                           std::placeholders::_1)
             )
         ).setNeedsPrivilege(),
         MenuItem(
-            tr("(†) Register this device with the server"),
+            PRIVPREFIX + tr("Register this device with the server"),
             std::bind(&SettingsMenu::registerWithServer, this)
         ).setNeedsPrivilege(),
         MenuItem(
-            tr("(†) Change privileged-mode password"),
+            PRIVPREFIX + tr("Change privileged-mode password"),
             std::bind(&SettingsMenu::changePrivPassword, this)
         ).setNeedsPrivilege(),
         // --------------------------------------------------------------------
         MenuItem(tr("Rare functions")).setLabelOnly(),
         // --------------------------------------------------------------------
-        MAKE_MENU_MENU_ITEM(TestMenu, app),
+        MAKE_MENU_MENU_ITEM(TestMenu, m_app),
         MenuItem(
-            tr("(†) Wipe extra strings downloaded from server"),
+            PRIVPREFIX + tr("Wipe extra strings downloaded from server"),
             [this](){ deleteAllExtraStrings(); }  // alternative lambda syntax
         ).setNeedsPrivilege(),
         MenuItem(
-            tr("(†) View record counts for all data tables"),
+            PRIVPREFIX + tr("View record counts for all data tables"),
             std::bind(&SettingsMenu::viewDataCounts, this),
             spanner
         ).setNeedsPrivilege(),
         MenuItem(
-            tr("(†) View record counts for all system tables"),
+            PRIVPREFIX + tr("View record counts for all system tables"),
             std::bind(&SettingsMenu::viewSystemCounts, this),
             spanner
         ).setNeedsPrivilege(),
@@ -202,23 +213,23 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
         // --------------------------------------------------------------------
 #ifdef OFFER_VIEW_SQL
         MenuItem(
-            tr("(†) View data database as SQL"),
+            PRIVPREFIX + tr("View data database as SQL"),
             std::bind(&SettingsMenu::viewDataDbAsSql, this),
             spanner
         ).setNeedsPrivilege(),
         MenuItem(
-            tr("(†) View system database as SQL"),
+            PRIVPREFIX + tr("View system database as SQL"),
             std::bind(&SettingsMenu::viewSystemDbAsSql, this),
             spanner
         ).setNeedsPrivilege(),
 #endif
         MenuItem(
-            tr("(†) Send decrypted data database to debugging stream"),
+            PRIVPREFIX + tr("Send decrypted data database to debugging stream"),
             std::bind(&SettingsMenu::debugDataDbAsSql, this),
             spanner
         ).setNeedsPrivilege(),
         MenuItem(
-            tr("(†) Send decrypted system database to debugging stream"),
+            PRIVPREFIX + tr("Send decrypted system database to debugging stream"),
             std::bind(&SettingsMenu::debugSystemDbAsSql, this),
             spanner
         ).setNeedsPrivilege(),
@@ -227,12 +238,12 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
         // These options are not supported under iOS.
         m_items.append({
             MenuItem(
-                tr("(†) Dump decrypted data database to SQL file"),
+                PRIVPREFIX + tr("Dump decrypted data database to SQL file"),
                 std::bind(&SettingsMenu::saveDataDbAsSql, this),
                 spanner
             ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
             MenuItem(
-                tr("(†) Dump decrypted system database to SQL file"),
+                PRIVPREFIX + tr("Dump decrypted system database to SQL file"),
                 std::bind(&SettingsMenu::saveSystemDbAsSql, this),
                 spanner
             ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
@@ -255,6 +266,8 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
     // and having a fieldref to a cached storedvar.
     // A third option is to use a database transaction (and forgo or invalidate
     // any copies of storedvars maintained in memory).
+
+    const QString DEPRECATED("(†) ");
 
     app.clearCachedVars();  // ... in case any are left over
 
@@ -292,19 +305,19 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
                                    "can’t cope with it.");
     const NameValueOptions options_ssl_protocol{
         // http://doc.qt.io/qt-5/qssl.html#SslProtocol-enum
-        {"Known secure [default]", convert::SSLPROTODESC_SECUREPROTOCOLS},
-        {"(†) SSL v3", convert::SSLPROTODESC_SSLV3},
-        {"(†) SSL v2", convert::SSLPROTODESC_SSLV2},
-        {"(†) TLS v1.0", convert::SSLPROTODESC_TLSV1_0},
-        {"(†) TLS v1.0 or later", convert::SSLPROTODESC_TLSV1_0_OR_LATER},
-        {"TLS v1.1", convert::SSLPROTODESC_TLSV1_1},
-        {"TLS v1.1 or later", convert::SSLPROTODESC_TLSV1_1_OR_LATER},
-        {"TLS v1.2", convert::SSLPROTODESC_TLSV1_2},
-        {"TLS v1.2 or later", convert::SSLPROTODESC_TLSV1_2_OR_LATER},
-        {"(†) SSLv2, SSLv3, or TLSv1.0", convert::SSLPROTODESC_ANYPROTOCOL},
-        {"(†) TLS v1.0 or SSL v3", convert::SSLPROTODESC_TLSV1_SSLV3},
+        {tr("Known secure [default]"), convert::SSLPROTODESC_SECUREPROTOCOLS},
+        {DEPRECATED + tr("SSL v3"), convert::SSLPROTODESC_SSLV3},
+        {DEPRECATED + tr("SSL v2"), convert::SSLPROTODESC_SSLV2},
+        {DEPRECATED + tr("TLS v1.0"), convert::SSLPROTODESC_TLSV1_0},
+        {DEPRECATED + tr("TLS v1.0 or later"), convert::SSLPROTODESC_TLSV1_0_OR_LATER},
+        {tr("TLS v1.1"), convert::SSLPROTODESC_TLSV1_1},
+        {tr("TLS v1.1 or later"), convert::SSLPROTODESC_TLSV1_1_OR_LATER},
+        {tr("TLS v1.2"), convert::SSLPROTODESC_TLSV1_2},
+        {tr("TLS v1.2 or later"), convert::SSLPROTODESC_TLSV1_2_OR_LATER},
+        {DEPRECATED + tr("SSLv2, SSLv3, or TLSv1.0"), convert::SSLPROTODESC_ANYPROTOCOL},
+        {DEPRECATED + tr("TLS v1.0 or SSL v3"), convert::SSLPROTODESC_TLSV1_SSLV3},
     };
-    const QString ssl_proto_explanation = "(†) Insecure, deprecated.";
+    const QString ssl_proto_explanation = DEPRECATED + "Insecure, deprecated.";
 
     FieldRefPtr storepw_fr = app.storedVarFieldRef(varconst::STORE_SERVER_PASSWORD);
     const QString storepw_t = tr("Store user’s server password?");
@@ -316,9 +329,9 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
                 varconst::UPLOAD_METHOD);
     const QString uploadmethod_t = tr("Upload method");
     const NameValueOptions options_upload_method{
-        {"Multi-step (original)", varconst::UPLOAD_METHOD_MULTISTEP},
-        {"Always one-step (faster)", varconst::UPLOAD_METHOD_ONESTEP},
-        {"One-step if small enough (default)", varconst::UPLOAD_METHOD_BYSIZE},
+        {tr("Multi-step (original)"), varconst::UPLOAD_METHOD_MULTISTEP},
+        {tr("Always one-step (faster)"), varconst::UPLOAD_METHOD_ONESTEP},
+        {tr("One-step if small enough (default)"), varconst::UPLOAD_METHOD_BYSIZE},
     };
 
     FieldRefPtr maxsizeonestep_fr = app.storedVarFieldRef(
@@ -706,9 +719,8 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app)
 
     const double dpi_min = 50;  // 67 realistic low end; https://en.wikipedia.org/wiki/Pixel_density
     const double dpi_max = 4000;  // 3760 has been achieved; https://en.wikipedia.org/wiki/Pixel_density
-    const QString dpi_hint = QString(
-        "Dots per inch (DPI), e.g. 96; range %1-%2")
-            .arg(dpi_min).arg(dpi_max);
+    const QString dpi_hint(tr("Dots per inch (DPI), e.g. 96; range %1-%2")
+            .arg(dpi_min).arg(dpi_max));
 
     auto dpi_grid = new QuGridContainer();
     dpi_grid->setColumnStretch(0, 1);
@@ -1220,6 +1232,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     questionnaire->setReadOnly(true);
     return questionnaire;
 }
+
 
 void SettingsMenu::viewDataDbAsSql()
 {

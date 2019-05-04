@@ -26,16 +26,26 @@
 
 AllTasksMenu::AllTasksMenu(CamcopsApp& app) :
     MenuWindow(app,
-               tr("Search all tasks"),
                uifunc::iconFilename(uiconst::ICON_ALLTASKS),
                false,  // top
                true)  // offer_search
 {
-    TaskFactory* factory = app.taskFactory();
+}
+
+
+QString AllTasksMenu::title() const
+{
+    return tr("Search all tasks");
+}
+
+
+void AllTasksMenu::makeItems()
+{
+    TaskFactory* factory = m_app.taskFactory();
     // Sort by what you see:
     QStringList tablenames = factory->tablenames(
                 TaskFactory::TaskClassSortMethod::Longname);
     for (const QString& tablename : tablenames) {
-        m_items.append(MAKE_TASK_MENU_ITEM(tablename, app));
+        m_items.append(MAKE_TASK_MENU_ITEM(tablename, m_app));
     }
 }

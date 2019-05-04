@@ -26,11 +26,21 @@
 
 
 ExecutiveMenu::ExecutiveMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Executive function"),
-               uifunc::iconFilename(uiconst::ICON_EXECUTIVE))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_EXECUTIVE))
+{
+}
+
+
+QString ExecutiveMenu::title() const
+{
+    return tr("Executive function");
+}
+
+
+void ExecutiveMenu::makeItems()
 {
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
-        MAKE_TASK_MENU_ITEM(Ifs::IFS_TABLENAME, app),
+        MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Ifs::IFS_TABLENAME, m_app),
     };
 }

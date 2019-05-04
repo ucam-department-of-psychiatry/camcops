@@ -38,10 +38,8 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     m_tablename(tablename)
 {
     // Title
-    TaskFactory* factory = app.taskFactory();
+    TaskFactory* factory = m_app.taskFactory();
     TaskPtr specimen = factory->create(m_tablename);
-    m_title = specimen->menutitle();
-    m_p_header->setTitle(m_title);
     m_anonymous = specimen->isAnonymous();
     if (m_anonymous) {
         setIcon(uifunc::iconFilename(uiconst::ICON_ANONYMOUS));
@@ -62,6 +60,14 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     connect(m_p_header, &MenuHeader::addClicked,
             this, &SingleTaskMenu::addTask,
             Qt::UniqueConnection);
+}
+
+
+QString SingleTaskMenu::title() const
+{
+    TaskFactory* factory = m_app.taskFactory();
+    TaskPtr specimen = factory->create(m_tablename);
+    return specimen->menutitle();
 }
 
 
@@ -91,7 +97,9 @@ void SingleTaskMenu::build()
                             std::bind(&SingleTaskMenu::showTaskStatus, this),
                             info_icon_filename));
     m_items.append(
-        MenuItem(tr("Task instances") + ": " + m_title).setLabelOnly()
+        MenuItem(
+            tr("Task instances") + ": " + specimen->menutitle()
+        ).setLabelOnly()
     );
 
     // Task items
@@ -184,31 +192,30 @@ void SingleTaskMenu::showTaskStatus() const
     QStringList info;
     QString why_not_permissible;
     QString why_not_uploadable;
-    auto add = [&info](const char* desc, const QString& value) -> void {
+    auto add = [&info](const QString& desc, const QString& value) -> void {
         info.append(QString("%1: %2")
-                    .arg(tr(desc),
-                         stringfunc::bold(value)));
+                    .arg(desc, stringfunc::bold(value)));
     };
-    add("Long name", specimen->longname());
-    add("Short name", specimen->shortname());
-    add("Main database table name", specimen->tablename());
-    add("Implementation type", specimen->implementationTypeDescription());
-    add("Anonymous", uifunc::yesNo(specimen->isAnonymous()));
-    add("Has a clinician", uifunc::yesNo(specimen->hasClinician()));
-    add("Has a respondent", uifunc::yesNo(specimen->hasRespondent()));
-    add("Prohibits clinical use", uifunc::yesNo(specimen->prohibitsClinical()));
-    add("Prohibits commercial use", uifunc::yesNo(specimen->prohibitsCommercial()));
-    add("Prohibits educational use", uifunc::yesNo(specimen->prohibitsEducational()));
-    add("Prohibits research use", uifunc::yesNo(specimen->prohibitsResearch()));
-    add("Permissible (creatable) with current settings", uifunc::yesNo(
+    add(tr("Long name"), specimen->longname());
+    add(tr("Short name"), specimen->shortname());
+    add(tr("Main database table name"), specimen->tablename());
+    add(tr("Implementation type"), specimen->implementationTypeDescription());
+    add(tr("Anonymous"), uifunc::yesNo(specimen->isAnonymous()));
+    add(tr("Has a clinician"), uifunc::yesNo(specimen->hasClinician()));
+    add(tr("Has a respondent"), uifunc::yesNo(specimen->hasRespondent()));
+    add(tr("Prohibits clinical use"), uifunc::yesNo(specimen->prohibitsClinical()));
+    add(tr("Prohibits commercial use"), uifunc::yesNo(specimen->prohibitsCommercial()));
+    add(tr("Prohibits educational use"), uifunc::yesNo(specimen->prohibitsEducational()));
+    add(tr("Prohibits research use"), uifunc::yesNo(specimen->prohibitsResearch()));
+    add(tr("Permissible (creatable) with current settings"), uifunc::yesNo(
             specimen->isTaskPermissible(why_not_permissible)));
-    add("If not, why not permissible", why_not_permissible);
-    add("Uploadable to current server", uifunc::yesNo(
+    add(tr("If not, why not permissible"), why_not_permissible);
+    add(tr("Uploadable to current server"), uifunc::yesNo(
             specimen->isTaskUploadable(why_not_uploadable)));
-    add("If not, why not uploadable", why_not_uploadable);
-    add("Fully functional", uifunc::yesNo(!specimen->isCrippled()));
-    add("Extra strings present from server", uifunc::yesNo(
+    add(tr("If not, why not uploadable"), why_not_uploadable);
+    add(tr("Fully functional"), uifunc::yesNo(!specimen->isCrippled()));
+    add(tr("Extra strings present from server"), uifunc::yesNo(
             specimen->hasExtraStrings()));
-    add("Editable once created", uifunc::yesNo(specimen->isEditable()));
+    add(tr("Editable once created"), uifunc::yesNo(specimen->isEditable()));
     uifunc::alert(info.join("<br>"), tr("Task status"));
 }

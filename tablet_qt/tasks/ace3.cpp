@@ -297,9 +297,9 @@ QStringList Ace3::summary() const
 OpenableWidget* Ace3::editor(const bool read_only)
 {
     int pagenum = 1;
-    auto makeTitle = [this, &pagenum](const char* title) -> QString {
+    auto makeTitle = [this, &pagenum](const QString& title) -> QString {
         return xstring("title_prefix") + QString(" %1").arg(pagenum++) + ": "
-                + tr(title);
+                + title;
     };
     auto textRaw = [](const QString& string) -> QuElement* {
         return new QuText(string);
@@ -358,7 +358,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
              (new QuMcq(fieldRef(FN_HANDEDNESS), options_handedness))->setHorizontal(true)},
         }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
     })
-        ->setTitle(makeTitle("Preamble"))
+        ->setTitle(makeTitle(tr("Preamble")))
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
@@ -461,7 +461,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
             boolean("mem_word2", strnum(FP_MEM_RECALL_WORD, 2)),
             boolean("mem_word3", strnum(FP_MEM_RECALL_WORD, 3)),
         },
-    })->setTitle(makeTitle("Attention"))->setType(QuPage::PageType::Clinician));
+    })->setTitle(makeTitle(tr("Attention")))->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
     // Fluency
@@ -507,7 +507,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         text("fluency_prompt_animals_cor"),
         (new QuMcq(fieldRef(FN_FLUENCY_ANIMALS_SCORE),
                              options_fluency_animals))->setHorizontal(true),
-    })->setTitle(makeTitle("Fluency"))->setType(QuPage::PageType::Clinician));
+    })->setTitle(makeTitle(tr("Fluency")))->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
     // Learning the address; famous people
@@ -570,7 +570,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         boolean("famous_4", strnum(FP_MEM_FAMOUS, 4), true, true),
         explanation("instruction_famous"),
     })
-        ->setTitle(makeTitle("Address learning; famous people"))
+        ->setTitle(makeTitle(tr("Address learning; famous people")))
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
@@ -592,7 +592,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         boolean("lang_sentences_point1", strnum(FP_LANG_WRITE_SENTENCES_POINT, 1)),
         boolean("lang_sentences_point2", strnum(FP_LANG_WRITE_SENTENCES_POINT, 2)),
     })
-        ->setTitle(makeTitle("Commands; writing sentences"))
+        ->setTitle(makeTitle(tr("Commands; writing sentences")))
         ->addTag(TAG_PG_LANG_COMMANDS_SENTENCES)
         ->setType(QuPage::PageType::Clinician));
 
@@ -627,7 +627,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         explanation("advance_warning_7"),
         explanation("advance_warning_8"),
     })
-        ->setTitle(makeTitle("Repetition"))
+        ->setTitle(makeTitle(tr("Repetition")))
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
@@ -661,7 +661,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         boolean("lang_concept4", strnum(FP_LANG_IDENTIFY_CONCEPT, 4)),
         explanation("lang_instruction_identify_concept"),
     })
-        ->setTitle(makeTitle("Naming pictures"))
+        ->setTitle(makeTitle(tr("Naming pictures")))
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -678,7 +678,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         boolean("lang_read_aloud_all_correct", FN_LANG_READ_WORDS_ALOUD),
         explanation("lang_instruction_read_aloud"),
     })
-        ->setTitle(makeTitle("Reading irregular words"))
+        ->setTitle(makeTitle(tr("Reading irregular words")))
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -691,7 +691,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         new QuImage(uifunc::resourceFilename(IMAGE_INFINITY)),
         boolean("vsp_infinity_correct", FN_VSP_COPY_INFINITY),
     })
-        ->setTitle(makeTitle("Infinity"))
+        ->setTitle(makeTitle(tr("Infinity")))
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -705,7 +705,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         text("vsp_score_cube"),
         (new QuMcq(fieldRef(FN_VSP_COPY_CUBE), options_cube))->setHorizontal(true),
     })
-        ->setTitle(makeTitle("Cube"))
+        ->setTitle(makeTitle(tr("Cube")))
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -719,7 +719,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
                               text("vsp_score_clock"),
                               (new QuMcq(fieldRef(FN_VSP_DRAW_CLOCK), options_clock))->setHorizontal(true),
     })
-        ->setTitle(makeTitle("Clock"))
+        ->setTitle(makeTitle(tr("Clock")))
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
@@ -736,7 +736,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
             boolimg(IMAGE_DOTS9, strnum(FP_VSP_COUNT_DOTS, 4)),
         }),
     })
-        ->setTitle(makeTitle("Dot counting"))
+        ->setTitle(makeTitle(tr("Dot counting")))
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -753,7 +753,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
             boolimg(IMAGE_T, strnum(FP_VSP_IDENTIFY_LETTER, 4)),
         }),
     })
-        ->setTitle(makeTitle("Noisy letters"))
+        ->setTitle(makeTitle(tr("Noisy letters")))
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -764,7 +764,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         textRaw(tr("Please make sure the subject can’t see the screen "
                    "before you proceed. (Memory prompts coming up.)")),
     })
-        ->setTitle(makeTitle("[reminder to clinician]"))
+        ->setTitle(makeTitle(tr("[reminder to clinician]")))
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
@@ -788,7 +788,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
             boolean("address_7", strnum(FP_MEM_RECALL_ADDRESS, 7)),
         },
     })
-        ->setTitle(makeTitle("Free recall"))
+        ->setTitle(makeTitle(tr("Free recall")))
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
@@ -861,7 +861,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
                     ->addTag(TAG_RECOG_COUNTY),
 
     })
-        ->setTitle(makeTitle("Cued recall"))
+        ->setTitle(makeTitle(tr("Cued recall")))
         ->addTag(TAG_PG_MEM_PROMPTED_RECALL)
         ->setType(QuPage::PageType::Clinician));
 
@@ -874,7 +874,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         (new QuLineEdit(fieldRef(FN_COMMENTS, false)))
             ->setHint(TextConst::examinerComments()),
     })
-        ->setTitle(makeTitle("Comments"))
+        ->setTitle(makeTitle(tr("Comments")))
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
@@ -887,7 +887,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         explanation("picture_instruction2"),
         new QuPhoto(blobFieldRef(FN_PICTURE1_BLOBID, false)),
     })
-        ->setTitle(makeTitle("Photo 1"))
+        ->setTitle(makeTitle(tr("Photo 1")))
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
@@ -900,7 +900,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         explanation("picture_instruction2"),
         new QuPhoto(blobFieldRef(FN_PICTURE2_BLOBID, false)),
     })
-        ->setTitle(makeTitle("Photo 2"))
+        ->setTitle(makeTitle(tr("Photo 2")))
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------

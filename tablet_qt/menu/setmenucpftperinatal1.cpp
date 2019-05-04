@@ -38,33 +38,47 @@
 
 
 SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
-    MenuWindow(app,
-               tr("CPFT Perinatal Service"),
-               uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
-    m_subtitle = "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
-                 "perinatal psychiatry service";
+}
+
+
+QString SetMenuCpftPerinatal1::title() const
+{
+    return tr("CPFT Perinatal Service");
+}
+
+
+QString SetMenuCpftPerinatal1::subtitle() const
+{
+    return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
+              "perinatal psychiatry service");
+}
+
+
+void SetMenuCpftPerinatal1::makeItems()
+{
     m_items = {
-        MAKE_CHANGE_PATIENT(app),
+        MAKE_CHANGE_PATIENT(m_app),
         MenuItem(tr("Assessment/choice")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(Apeqpt::APEQPT_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Apeqpt::APEQPT_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, m_app),
         MenuItem(tr("Generic measures")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, m_app),
         MenuItem(tr("Mother–infant measures")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(Pbq::PBQ_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Pbq::PBQ_TABLENAME, m_app),
         MenuItem(tr("Specific conditions")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
         MenuItem(tr("Treatment/care")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(GboGReS::GBOGRES_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(GboGPC::GBOGPC_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(GboGRaS::GBOGRAS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, app),
-        MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(GboGReS::GBOGRES_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(GboGPC::GBOGPC_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(GboGRaS::GBOGRAS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, m_app),
         MenuItem(tr("End of treatment/care")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, m_app),
     };
 }
