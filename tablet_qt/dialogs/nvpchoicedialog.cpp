@@ -21,9 +21,13 @@
 #include <functional>
 #include <QDialogButtonBox>
 #include <QEvent>
+#include <QLabel>
 #include <QVariant>
+#include <QWidget>
+#include "common/uiconst.h"
 #include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
+#include "lib/uifunc.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/verticalscrollarea.h"
 
@@ -34,8 +38,19 @@ NvpChoiceDialog::NvpChoiceDialog(QWidget* parent,
     QDialog(parent),
     m_options(options),
     m_title(title),
-    m_new_value(nullptr)
+    m_show_existing_choice(false),
+    m_p_new_value(nullptr)
 {
+}
+
+
+void NvpChoiceDialog::showExistingChoice(const bool show_existing_choice,
+                                         const QString& icon_filename,
+                                         const QSize& icon_size)
+{
+    m_show_existing_choice = show_existing_choice;
+    m_icon_filename = icon_filename;
+    m_icon_size = icon_size;
 }
 
 
@@ -44,8 +59,9 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     if (!new_value) {
         return QDialog::DialogCode::Rejected;
     }
-    m_new_value = new_value;
+    m_p_new_value = new_value;
     setWindowTitle(m_title);
+    const QVariant old_value = *m_p_new_value;
 
     auto contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
     auto contentlayout = new VBoxLayout();
@@ -54,7 +70,18 @@ int NvpChoiceDialog::choose(QVariant* new_value)
         const NameValuePair& nvp = m_options.at(i);
         auto label = new ClickableLabelWordWrapWide(nvp.name());
         label->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
-        contentlayout->addWidget(label);
+        if (m_show_existing_choice) {
+            const bool this_is_it = old_value == nvp.value();
+            QLabel* icon = this_is_it
+                    ? uifunc::iconWidget(m_icon_filename, nullptr, true, m_icon_size)
+                    : uifunc::blankIcon(nullptr, m_icon_size);
+            auto hlayout = new HBoxLayout();
+            hlayout->addWidget(icon);
+            hlayout->addWidget(label);
+            contentlayout->addLayout(hlayout);
+        } else {
+            contentlayout->addWidget(label);
+        }
         // Safe object lifespan signal: can use std::bind
         connect(label, &ClickableLabelWordWrapWide::clicked,
                 std::bind(&NvpChoiceDialog::itemClicked, this, i));
@@ -81,10 +108,10 @@ int NvpChoiceDialog::choose(QVariant* new_value)
 
 void NvpChoiceDialog::itemClicked(const int index)
 {
-    if (!m_new_value) {
+    if (!m_p_new_value) {
         return;
     }
-    *m_new_value = m_options.value(index);
+    *m_p_new_value = m_options.value(index);
     accept();
 }
 

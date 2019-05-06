@@ -19,11 +19,16 @@
 
 #pragma once
 #include <QString>
+class NameValueOptions;
 
 namespace languages
 {
 
 extern const QString DANISH;
-extern const QString ENGLISH;
+extern const QString ENGLISH_UK;
+
+extern const QString& DEFAULT_LANGUAGE;
+
+NameValueOptions possibleLanguages();
 
 }  // namespace languages

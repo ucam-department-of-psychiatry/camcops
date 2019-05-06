@@ -36,6 +36,7 @@
 #include <QSize>
 #include <QStyle>
 #include "common/preprocessor_aid.h"
+#include "common/textconst.h"
 #include "layouts/gridlayouthfw.h"
 #include "lib/uifunc.h"
 #include "widgets/verticalscrollarea.h"
@@ -258,7 +259,7 @@ QDialogButtonBox::StandardButton ScrollMessageBox::critical(
         const QString& text)
 {
     ScrollMessageBox box(QMessageBox::Critical, title, text, parent);
-    box.addButton(tr("OK"), QDialogButtonBox::YesRole);
+    box.addButton(TextConst::ok(), QDialogButtonBox::YesRole);
     return static_cast<QDialogButtonBox::StandardButton>(box.exec());
 }
 
@@ -269,7 +270,7 @@ QDialogButtonBox::StandardButton ScrollMessageBox::information(
         const QString& text)
 {
     ScrollMessageBox box(QMessageBox::Information, title, text, parent);
-    box.addButton(tr("OK"), QDialogButtonBox::YesRole);
+    box.addButton(TextConst::ok(), QDialogButtonBox::YesRole);
     return static_cast<QDialogButtonBox::StandardButton>(box.exec());
 }
 
@@ -280,7 +281,7 @@ QDialogButtonBox::StandardButton ScrollMessageBox::question(
         const QString& text)
 {
     ScrollMessageBox box(QMessageBox::Question, title, text, parent);
-    box.addButton(tr("OK"), QDialogButtonBox::YesRole);
+    box.addButton(TextConst::ok(), QDialogButtonBox::YesRole);
     return static_cast<QDialogButtonBox::StandardButton>(box.exec());
 }
 
@@ -291,7 +292,7 @@ QDialogButtonBox::StandardButton ScrollMessageBox::warning(
         const QString& text)
 {
     ScrollMessageBox box(QMessageBox::Warning, title, text, parent);
-    box.addButton(tr("OK"), QDialogButtonBox::YesRole);
+    box.addButton(TextConst::ok(), QDialogButtonBox::YesRole);
     return static_cast<QDialogButtonBox::StandardButton>(box.exec());
 }
 
@@ -302,6 +303,6 @@ QDialogButtonBox::StandardButton ScrollMessageBox::plain(
         const QString& text)
 {
     ScrollMessageBox box(QMessageBox::NoIcon, title, text, parent);
-    box.addButton(tr("OK"), QDialogButtonBox::YesRole);
+    box.addButton(TextConst::ok(), QDialogButtonBox::YesRole);
     return static_cast<QDialogButtonBox::StandardButton>(box.exec());
 }

@@ -18,6 +18,40 @@
 */
 
 #include "sqlargs.h"
+#include "lib/convert.h"
+using convert::SQUOTE;
+using convert::QMARK;
+using convert::toSqlLiteral;
+
+
+QString SqlArgs::literalForDebuggingOnly() const
+{
+    QString result;
+    const int nchars = sql.length();
+    const int nargs = args.length();
+    bool in_quote = false;
+    int argidx = 0;
+    for (int i = 0; i < nchars; ++i) {
+        const QChar c = sql.at(i);
+        if (c == SQUOTE) {
+            // Found a quote
+            in_quote = !in_quote;
+            result += c;
+        } else if (!in_quote && c == QMARK) {
+            // Found a placeholder
+            if (argidx < nargs) {
+                result += toSqlLiteral(args.at(argidx++));
+            } else {
+                // Bad SQL; #placeholders > #args
+                result += QMARK;
+            }
+        } else {
+            // Anything else
+            result += c;
+        }
+    }
+    return result;
+}
 
 
 QDebug operator<<(QDebug debug, const SqlArgs& s)

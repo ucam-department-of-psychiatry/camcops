@@ -19,7 +19,10 @@
 
 #pragma once
 #include <QDialog>
+#include <QSize>
 #include <QString>
+#include "common/uiconst.h"
+#include "lib/uifunc.h"
 #include "questionnairelib/namevalueoptions.h"
 
 class QVariant;
@@ -37,6 +40,12 @@ public:
     NvpChoiceDialog(QWidget* parent, const NameValueOptions& options,
                     const QString& title = "");
 
+    // Choose whether any existing choice should be indicated graphically.
+    void showExistingChoice(
+            bool show_existing_choice = true,
+            const QString& icon_filename = uifunc::iconFilename(uiconst::CBS_OK),
+            const QSize& icon_size = uiconst::g_small_iconsize);
+
     // Call this to offer a choice, return the result of exec(), and write the
     // result to new_value.
     virtual int choose(QVariant* new_value);
@@ -49,5 +58,8 @@ protected slots:
 protected:
     NameValueOptions m_options;
     QString m_title;
-    QVariant* m_new_value;
+    bool m_show_existing_choice;
+    QString m_icon_filename;
+    QSize m_icon_size;
+    QVariant* m_p_new_value;
 };

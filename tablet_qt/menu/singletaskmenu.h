@@ -32,8 +32,9 @@ public:
     SingleTaskMenu(const QString& tablename, CamcopsApp& app);
     virtual QString title() const override;
 protected:
-    // virtual void makeItems() override;  // unused; see build()
-    virtual void build() override;
+    virtual void extraLayoutCreation() override;
+    virtual void makeItems() override;
+    virtual void afterBuild() override;
 public slots:  // http://stackoverflow.com/questions/19129133/qt-signals-and-slots-permissions
     void addTask();
     void selectedPatientChanged(const Patient* patient);

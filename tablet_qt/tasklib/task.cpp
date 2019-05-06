@@ -317,7 +317,7 @@ bool Task::isTaskUploadable(QString& why_not_uploadable) const
              << "min_server_version" << min_server_version;
 #endif
     if (may_upload) {
-        why_not_uploadable = "Task uploadable";
+        why_not_uploadable = tr("Task uploadable");
     } else {
         if (!server_has_table) {
             why_not_uploadable = tr(

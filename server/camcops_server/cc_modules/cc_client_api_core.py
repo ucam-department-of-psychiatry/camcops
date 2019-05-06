@@ -127,6 +127,7 @@ class ExtraStringFieldNames(object):
     """
     TASK = "task"
     NAME = "name"
+    LANGUAGE = "language"
     VALUE = "value"
 
 

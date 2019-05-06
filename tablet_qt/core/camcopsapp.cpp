@@ -95,8 +95,6 @@
 #include "db/sqlcipherdriver.h"
 #endif
 
-const QString CamcopsApp::DEFAULT_LANGUAGE("en_GB");
-
 const QString APPSTRING_TASKNAME("camcops");  // task name used for generic but downloaded tablet strings
 const QString APP_NAME("camcops");  // e.g. subdirectory of ~/.local/share; DO NOT ALTER
 const QString APP_PRETTY_NAME("CamCOPS");
@@ -114,11 +112,12 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_p_hidden_stack(nullptr),
     m_maximized_before_fullscreen(true),  // true because openMainWindow() goes maximized
     m_patient(nullptr),
+    m_storedvars_available(false),
     m_netmgr(nullptr),
     m_qt_logical_dpi(uiconst::DEFAULT_DPI),
     m_qt_physical_dpi(uiconst::DEFAULT_DPI)
 {
-    setLanguage(languages::DANISH);  // try languages::DANISH
+    setLanguage(QLocale::system().name());  // try languages::DANISH
     setApplicationName(APP_NAME);
     setApplicationDisplayName(APP_PRETTY_NAME);
     setApplicationVersion(camcopsversion::CAMCOPS_CLIENT_VERSION.toString());
@@ -136,8 +135,16 @@ CamcopsApp::~CamcopsApp()
 }
 
 
-void CamcopsApp::setLanguage(const QString& language_code)
+void CamcopsApp::setLanguage(const QString& language_code,
+                             const bool store_to_database)
 {
+    qInfo() << "Setting language to:" << language_code;
+    m_current_language = language_code;
+    if (store_to_database && m_storedvars_available) {
+        setVar(varconst::LANGUAGE, language_code);
+    }
+    clearExtraStringCache();
+
     if (m_qt_translator) {
         removeTranslator(m_qt_translator.data());
         m_qt_translator = nullptr;
@@ -146,14 +153,18 @@ void CamcopsApp::setLanguage(const QString& language_code)
         removeTranslator(m_app_translator.data());
         m_app_translator = nullptr;
     }
-    // There are polymorphic versions of load(). See
+
+    // There are polymorphic versions of QTranslator::load(). See
     // https://doc.qt.io/qt-5/qtranslator.html#load
+
     const QString qt_filename = QString("qt_%1.qm").arg(language_code);
     const QString qt_directory = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
     m_qt_translator = QSharedPointer<QTranslator>(new QTranslator());
     bool loaded = m_qt_translator->load(qt_filename, qt_directory);
     if (loaded) {
         installTranslator(m_qt_translator.data());
+        qInfo() << "Loaded Qt translator" << qt_filename
+                << "from" << qt_directory;
     } else {
         qWarning() << "Failed to load Qt translator" << qt_filename
                    << "from" << qt_directory;
@@ -165,10 +176,18 @@ void CamcopsApp::setLanguage(const QString& language_code)
     loaded = m_app_translator->load(cc_filename, cc_directory);
     if (loaded) {
         installTranslator(m_app_translator.data());
+        qInfo() << "Loaded CamCOPS translator" << cc_filename
+                << "from" << cc_directory;
     } else {
         qWarning() << "Failed to load CamCOPS translator" << cc_filename
                    << "from" << cc_directory;
     }
+}
+
+
+QString CamcopsApp::getLanguage() const
+{
+    return m_current_language;
 }
 
 
@@ -212,6 +231,9 @@ int CamcopsApp::run()
     // Make storedvar table (used by menus for font size etc.)
     makeStoredVarTable();
     createStoredVars();
+
+    // Since that might have changed our language, reset it.
+    setLanguage(varString(varconst::LANGUAGE));
 
     // Set the tablet internal password to match the database password, if
     // we've just changed it. Uses a storedvar.
@@ -590,12 +612,12 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
     if (!dbfunc::canReadDatabase(m_sysdb)) {
         stopApp(tr("Can't read system database; corrupted? encrypted? (This "
                    "version of CamCOPS has had its encryption facilities "
-                   "disabled."));
+                   "disabled.)"));
     }
     if (!dbfunc::canReadDatabase(m_datadb)) {
         stopApp(tr("Can't read data database; corrupted? encrypted? (This "
                    "version of CamCOPS has had its encryption facilities "
-                   "disabled."));
+                   "disabled.)"));
     }
     return false;  // user password not changed
 #endif
@@ -653,6 +675,10 @@ void CamcopsApp::createStoredVars()
     // Create stored variables: name, type, default
     // ------------------------------------------------------------------------
     DbNestableTransaction trans(*m_sysdb);  // https://www.sqlite.org/faq.html#q19
+
+    // Language
+    createVar(varconst::LANGUAGE, QVariant::String,
+              QLocale::system().name());
 
     // Version
     createVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, QVariant::String,
@@ -731,6 +757,8 @@ void CamcopsApp::createStoredVars()
     if (var(varconst::DEVICE_ID).isNull()) {
         regenerateDeviceId();
     }
+
+    m_storedvars_available = true;
 }
 
 
@@ -1827,7 +1855,7 @@ QString CamcopsApp::xstringDirect(const QString& taskname,
                                   const QString& stringname,
                                   const QString& default_str)
 {
-    ExtraString extrastring(*this, *m_sysdb, taskname, stringname);
+    ExtraString extrastring(*this, *m_sysdb, taskname, stringname, getLanguage());
     const bool found = extrastring.existsInDb();
     if (found) {
         QString result = extrastring.value();
@@ -1878,6 +1906,9 @@ void CamcopsApp::deleteAllExtraStrings()
 
 void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
 {
+    // Note that this function, updated in May 2019 to support multiple
+    // languages, is perfectly happy if the language field is absent, since our
+    // record representation is a fieldname-value dictionary.
     DbNestableTransaction trans(*m_sysdb);
     deleteAllExtraStrings();
     for (auto record : recordlist) {
@@ -1885,11 +1916,13 @@ void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
                 !record.contains(ExtraString::NAME_FIELD) ||
                 !record.contains(ExtraString::VALUE_FIELD)) {
             qWarning() << Q_FUNC_INFO << "Failing: recordlist has bad format";
+            // The language field is optional (arriving with server 2.3.3)
             trans.fail();
             return;
         }
         const QString task = record[ExtraString::TASK_FIELD].toString();
         const QString name = record[ExtraString::NAME_FIELD].toString();
+        const QString language = record[ExtraString::LANGUAGE_FIELD].toString();
         const QString value = record[ExtraString::VALUE_FIELD].toString();
         if (task.isEmpty() || name.isEmpty()) {
             qWarning() << Q_FUNC_INFO
@@ -1897,7 +1930,7 @@ void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
             trans.fail();
             return;
         }
-        ExtraString extrastring(*this, *m_sysdb, task, name, value);
+        ExtraString extrastring(*this, *m_sysdb, task, name, language, value);
         // ... special constructor that doesn't attempt to load
         extrastring.saveWithoutKeepingPk();
     }
@@ -2193,7 +2226,7 @@ void CamcopsApp::upload()
                             tr("Upload to server"),
                             text,
                             m_p_main_window);
-    QAbstractButton* copy = msgbox.addButton(tr("Copy"), QMessageBox::YesRole);
+    QAbstractButton* copy = msgbox.addButton(TextConst::copy(), QMessageBox::YesRole);
     QAbstractButton* move_keep = msgbox.addButton(tr("Keep patients and move"), QMessageBox::NoRole);
     QAbstractButton* move = msgbox.addButton(tr("Move"), QMessageBox::AcceptRole);  // e.g. OK
     msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);  // e.g. Cancel

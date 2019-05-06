@@ -18,11 +18,25 @@
 */
 
 #include "languages.h"
+#include "questionnairelib/namevalueoptions.h"
 
 namespace languages
 {
 
+
 const QString DANISH("da_DK");
-const QString ENGLISH("en_GB");
+const QString ENGLISH_UK("en_GB");
+
+const QString& DEFAULT_LANGUAGE = ENGLISH_UK;
+
+
+NameValueOptions possibleLanguages()
+{
+    return NameValueOptions{
+        {"Dansk", DANISH},
+        {"English (UK)", ENGLISH_UK},
+    };
+}
+
 
 }  // namespace languages

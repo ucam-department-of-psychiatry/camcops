@@ -133,7 +133,7 @@ QString DemoQuestionnaire::shortname() const
 
 QString DemoQuestionnaire::longname() const
 {
-    return "Demonstration task";
+    return tr("Demonstration task");
 }
 
 
@@ -155,7 +155,7 @@ bool DemoQuestionnaire::isComplete() const
 
 QStringList DemoQuestionnaire::summary() const
 {
-    return QStringList{"Demonstration questionnaire; no summary"};
+    return QStringList{tr("Demonstration questionnaire; no summary")};
 }
 
 
@@ -177,27 +177,27 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     QuPagePtr page_text((new QuPage{
         new QuText(tr("We’ll demonstrate the elements from which questionnaire"
                       " tasks can be made. Press the ‘Next’ button at the top "
-                      "right of the screen.\n")),
-        (new QuText("normal text"))->addTag("tag1"),
-        (new QuText("bold text"))->setBold(),
-        (new QuText("italic text"))->setItalic(),
+                      "right of the screen.") + "\n"),
+        (new QuText(tr("normal text")))->addTag("tag1"),
+        (new QuText(tr("bold text")))->setBold(),
+        (new QuText(tr("italic text")))->setItalic(),
         (new QuText(html))->setOpenLinks(),
-        (new QuText("big text"))->setBig(),
-        (new QuText("warning text"))->setWarning(),
-        new QuText("Below here: space fillers, just to test scrolling"),
+        (new QuText(tr("big text")))->setBig(),
+        (new QuText(tr("warning text")))->setWarning(),
+        new QuText(tr("Below here: space fillers, just to test scrolling")),
         (new QuText(longtext))->setBig(),
-    })->setTitle(QString("Text [With a long title: %1]")
+    })->setTitle(tr("Text [With a long title: %1]")
                  .arg(TextConst::LOREM_IPSUM_3)));
     for (int i = 0; i < 20; ++i) {
-        page_text->addElement((new QuText("big text"))->setBig());
+        page_text->addElement((new QuText(tr("big text")))->setBig());
     }
     page_text->addElement(
-        (new QuText("... was that enough to scroll vertically?"))->setBold()
+        (new QuText(tr("... was that enough to scroll vertically?")))->setBold()
     );
 
 #ifdef DEBUG_BIG_HEADER_ONLY_PAGE
     QuPagePtr page_text_header_only((new QuPage{
-        new QuText("Very long title, to check sizing."),
+        new QuText(tr("Very long title, to check sizing.")),
     })->setTitle(textconst::LOREM_IPSUM_1));
 #endif
 
@@ -206,10 +206,10 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_image((new QuPage{
-        new QuHeading("Image:"),
+        new QuHeading(tr("Image:")),
         new QuImage(uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
-        new QuHeading("... heading under image, to check vertical size"),
-    })->setTitle("Headings, images"));
+        new QuHeading(tr("... heading under image, to check vertical size")),
+    })->setTitle(tr("Headings, images")));
 
     // ------------------------------------------------------------------------
     // Headings, containers, text alignment, lines
@@ -220,52 +220,52 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     const Qt::Alignment topright = Qt::AlignRight | Qt::AlignTop;
 
     auto horiz1 = new QuHorizontalContainer();
-    horiz1->addElement((new QuText("Text 1 (right/top)"))->setTextAndWidgetAlignment(topright));
-    horiz1->addElement((new QuText("Text 2 (centre/vcentre)"))->setTextAndWidgetAlignment(centre));
-    horiz1->addElement((new QuText("Text 3 (left/bottom)"))->setTextAndWidgetAlignment(bottomleft));
-    horiz1->addElement(new QuText("Text 4: " + longtext));
+    horiz1->addElement((new QuText(tr("Text 1 (right/top)")))->setTextAndWidgetAlignment(topright));
+    horiz1->addElement((new QuText(tr("Text 2 (centre/vcentre)")))->setTextAndWidgetAlignment(centre));
+    horiz1->addElement((new QuText(tr("Text 3 (left/bottom)")))->setTextAndWidgetAlignment(bottomleft));
+    horiz1->addElement(new QuText(tr("Text 4: ") + longtext));
     horiz1->setOverrideWidgetAlignment(false);
     horiz1->setAddStretchRight(false);
 
     auto vert1 = new QuVerticalContainer;
-    vert1->addElement((new QuText("Text 1 (right/top)"))->setTextAndWidgetAlignment(topright));
-    vert1->addElement((new QuText("Text 2 (centre/vcentre)"))->setTextAndWidgetAlignment(centre));
-    vert1->addElement((new QuText("Text 3 (left/bottom)"))->setTextAndWidgetAlignment(bottomleft));
-    vert1->addElement(new QuText("Text 4: " + lipsum2));
+    vert1->addElement((new QuText(tr("Text 1 (right/top)")))->setTextAndWidgetAlignment(topright));
+    vert1->addElement((new QuText(tr("Text 2 (centre/vcentre)")))->setTextAndWidgetAlignment(centre));
+    vert1->addElement((new QuText(tr("Text 3 (left/bottom)")))->setTextAndWidgetAlignment(bottomleft));
+    vert1->addElement(new QuText(tr("Text 4: ") + lipsum2));
     vert1->setOverrideWidgetAlignment(false);
 
     QuPagePtr page_headings_layout((new QuPage{
-        new QuHeading("This is a heading"),
-        new QuHeading("Horizontal line, line, spacer, line:"),
+        new QuHeading(tr("This is a heading")),
+        new QuHeading(tr("Horizontal line, line, spacer, line:")),
         new QuHorizontalLine(),
         new QuHorizontalLine(),
         new QuSpacer(),
         new QuHorizontalLine(),
-        new QuHeading("Flow container (generally preferred to horizontal "
-                      "container; better on small screens):"),
+        new QuHeading(tr("Flow container (generally preferred to horizontal "
+                         "container; better on small screens):")),
         new QuFlowContainer{
-            (new QuText("Text 1 (right/top)"))->setTextAlignment(topright),
-            (new QuText("Text 2 (centre/vcentre)"))->setTextAlignment(centre),
-            (new QuText("Text 3 (left/bottom)"))->setTextAlignment(bottomleft),
-            new QuText("Text 4: " + lipsum2),
+            (new QuText(tr("Text 1 (right/top)")))->setTextAlignment(topright),
+            (new QuText(tr("Text 2 (centre/vcentre)")))->setTextAlignment(centre),
+            (new QuText(tr("Text 3 (left/bottom)")))->setTextAlignment(bottomleft),
+            new QuText(tr("Text 4: ") + lipsum2),
         },
-        new QuHeading("Horizontal container (with stretch on right):"),
+        new QuHeading(tr("Horizontal container (with stretch on right):")),
         (new QuHorizontalContainer{
-            new QuText("Text 1"),
-            new QuText("Text 2"),
-            new QuText("Text 3"),
+            new QuText(tr("Text 1")),
+            new QuText(tr("Text 2")),
+            new QuText(tr("Text 3")),
         })->setAddStretchRight(true),
-        new QuHeading("Horizontal container (without stretch on right; blank widget alignment):"),
+        new QuHeading(tr("Horizontal container (without stretch on right; blank widget alignment):")),
         (new QuHorizontalContainer{
-            (new QuText("Text 1 (right/top)"))->setTextAlignment(topright),
-            (new QuText("Text 2 (centre/vcentre)"))->setTextAlignment(centre),
-            (new QuText("Text 3 (left/bottom)"))->setTextAlignment(bottomleft),
+            (new QuText(tr("Text 1 (right/top)")))->setTextAlignment(topright),
+            (new QuText(tr("Text 2 (centre/vcentre)")))->setTextAlignment(centre),
+            (new QuText(tr("Text 3 (left/bottom)")))->setTextAlignment(bottomleft),
         })->setAddStretchRight(false)->setContainedWidgetAlignments(Qt::Alignment()),
-        new QuHeading("Horizontal container (no stretch on right, showing alignments):"),
+        new QuHeading(tr("Horizontal container (no stretch on right, showing alignments):")),
         horiz1,
-        new QuHeading("Vertical container:"),
+        new QuHeading(tr("Vertical container:")),
         vert1,
-        new QuHeading("Grid container:"),
+        new QuHeading(tr("Grid container:")),
         new QuGridContainer{
             QuGridCell(new QuText("<b>row 0, col 0:</b> " + lipsum2), 0, 0),
             QuGridCell(new QuText("<b>row 0, col 1 [+1]:</b> " + lipsum2), 0, 1, 1, 2),
@@ -286,7 +286,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         })
             ->setColumnStretch(0, 2)
             ->setColumnStretch(1, 1),
-        new QuHeading("Another grid (5 equal columns), with image alignment settings (L/T, HC/VC, R/B):"),
+        new QuHeading(tr("Another grid (5 equal columns), with image alignment settings (L/T, HC/VC, R/B):")),
         (new QuGridContainer{
             QuGridCell(new QuImage(uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
                        0, 0, 1, 1, Qt::AlignLeft | Qt::AlignTop),
@@ -304,7 +304,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
             ->setColumnStretch(2, 1)
             ->setColumnStretch(3, 1)
             ->setColumnStretch(4, 1),
-        new QuHeading("Another grid (1:1 columns):"),
+        new QuHeading(tr("Another grid (1:1 columns):")),
         (new QuGridContainer{
             QuGridCell(new QuText("<b>r0 c0</b> " + lipsum2), 0, 0),
             QuGridCell(new QuText("<b>r0 c1</b> " + lipsum2), 0, 1),
@@ -313,8 +313,8 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         })
             ->setColumnStretch(0, 1)
             ->setColumnStretch(1, 1),
-        new QuHeading("Another grid (1:1:1 columns, expanding horizontally, "
-                      "fixed column style = default):"),
+        new QuHeading(tr("Another grid (1:1:1 columns, expanding horizontally, "
+                         "fixed column style = default):")),
         (new QuGridContainer{
             QuGridCell(new QuText("1. Short"), 0, 0),
             QuGridCell(new QuText("2. Medium sort of length"), 0, 1),
@@ -337,7 +337,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
             ->setColumnStretch(2, 1)
             ->setExpandHorizontally(false)
             ->setFixedGrid(false),
-        new QuHeading("More automated grid (of label/element pairs):"),
+        new QuHeading(tr("More automated grid (of label/element pairs):")),
         questionnairefunc::defaultGridRawPointer({
             {"<b>LHS:</b> " + lipsum2,
              new QuText("<b>RHS:</b> " + lipsum2)},
@@ -346,28 +346,28 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
             {"<b>LHS:</b> " + lipsum2,
              new QuText("<b>RHS:</b> " + lipsum2)},
         }),
-    })->setTitle("Headings, containers, text alignment, lines"));
+    })->setTitle(tr("Headings, containers, text alignment, lines")));
 
     // ------------------------------------------------------------------------
     // Audio players, countdown
     // ------------------------------------------------------------------------
 
     QuPagePtr page_audio_countdown((new QuPage{
-        new QuHeading("Simple audio player:"),
-        new QuText(
-            "Except from Mozart WA, <i>Vesperae solennes de confessore</i> "
+        new QuHeading(tr("Simple audio player:")),
+        new QuText(tr(
+            "Excerpt from Mozart WA, <i>Vesperae solennes de confessore</i> "
             "(K.339), fifth movement, <i>Laudate Dominum</i>, by the Advent "
-            "Chamber Orchestra (see docs)."),
+            "Chamber Orchestra (see docs).")),
         (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_2))->setVolume(SOUNDTEST_1_VOLUME),
-        new QuHeading("Audio player with volume control:"),
-        new QuText(
+        new QuHeading(tr("Audio player with volume control:")),
+        new QuText(tr(
             "Excerpt from Bach JS, <i>Brandenburg Concerto No. 3, third "
             "movement (Allegro)</i>, by the Advent Chamber Orchestra "
-            "(see docs)."),
+            "(see docs).")),
         (new QuAudioPlayer(uiconst::DEMO_SOUND_URL_1))->setOfferVolumeControl(),
-        new QuHeading("Countdown:"),
+        new QuHeading(tr("Countdown:")),
         new QuCountdown(20),
-    })->setTitle("Audio players, countdowns"));
+    })->setTitle(tr("Audio players, countdowns")));
 
     // ------------------------------------------------------------------------
     // Boolean
@@ -377,28 +377,28 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuText(tr(
             "On this page, some questions must be completed before the ‘Next’ "
             "button appears. <b>Make the yellow disappear to continue!</b>")),
-        new QuHeading("Boolean text, not allowing ‘unset’, with clickable "
-                                "content:"),
-        new QuBoolean("Click me to toggle (null → true → false → true → …)",
+        new QuHeading(tr("Boolean text, not allowing ‘unset’, with clickable "
+                         "content:")),
+        new QuBoolean(tr("Click me to toggle (null → true → false → true → …)"),
                       fieldRef("booltext1")),
-        new QuHeading("Boolean text, allowing ‘unset’, on the "
-                                   "<i>same</i> field, with a smaller icon, "
-                                   "and non-clickable content:"),
-        (new QuBoolean("Click me (null → true → false → null → …)",
+        new QuHeading(tr("Boolean text, allowing ‘unset’, on the "
+                         "<i>same</i> field, with a smaller icon, "
+                         "and non-clickable content:")),
+        (new QuBoolean(tr("Click me (null → true → false → null → …)"),
                       fieldRef("booltext1")))
                       ->setBigIndicator(false)
                       ->setAllowUnset()
                       ->setContentClickable(false),
-        new QuHeading("Same field, with text-style widget:"),
-        (new QuBoolean("Boolean-as-text",
+        new QuHeading(tr("Same field, with text-style widget:")),
+        (new QuBoolean(tr("Boolean-as-text"),
                       fieldRef("booltext1")))
                       ->setAsTextButton(),
-        new QuHeading("Text field from the Boolean field used above:"),
+        new QuHeading(tr("Text field from the Boolean field used above:")),
         new QuText(fieldRef("booltext1")),
-        new QuHeading("Another boolean field, using an image:"),
+        new QuHeading(tr("Another boolean field, using an image:")),
         new QuBoolean(uifunc::iconFilename(uiconst::ICON_CAMCOPS),
                       QSize(), fieldRef("boolimage1")),
-        new QuHeading("... clone with non-clickable image:"),
+        new QuHeading(tr("... clone with non-clickable image:")),
         (new QuBoolean(uifunc::iconFilename(uiconst::ICON_CAMCOPS),
                       QSize(), fieldRef("boolimage1")))->setContentClickable(false),
         // Now the ACE-III address example:
@@ -449,47 +449,51 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
             fieldRef("boolimage2"))
         )->setBigIndicator(false),
 
-    })->setTitle("Booleans; multiple views on a single field"));
+    })->setTitle(tr("Booleans; multiple views on a single field")));
 
     // ------------------------------------------------------------------------
     // MCQ
     // ------------------------------------------------------------------------
 
+    const QString soption(tr("option"));
+    auto makeoptn = [&soption](int n) {
+        return QString("%1_%2").arg(soption, QString::number(n));
+    };
     const NameValueOptions options_A{
-        {"option_1", 1},
-        {"option_2", 2},
-        {"option_3, with much longer text: " + longtext, 3},
+        {makeoptn(1), 1},
+        {makeoptn(2), 2},
+        {makeoptn(3) + ", " + tr("with much longer text: ") + longtext, 3},
     };
     const NameValueOptions options_B{
-        {"option_1", 1},
-        {"option_2", 2},
-        {"option_3", 3},
-        {"option_4", 4},
-        {"option_5", 5},
-        {"option_6", 6},
-        {"option_7", 7},
-        {"option_8", 8},
-        {"option_9", 9},
-        {"option_10", 10},
-        {"option_11", 11},
-        {"option_12", 12},
-        {"option_13", 13},
-        {"option_14", 14},
-        {"option_15", 15},
-        {"option_16", 16},
-        {"option_17", 17},
+        {makeoptn(1), 1},
+        {makeoptn(2), 2},
+        {makeoptn(3), 3},
+        {makeoptn(4), 4},
+        {makeoptn(5), 5},
+        {makeoptn(6), 6},
+        {makeoptn(7), 7},
+        {makeoptn(8), 8},
+        {makeoptn(9), 9},
+        {makeoptn(10), 10},
+        {makeoptn(11), 11},
+        {makeoptn(12), 12},
+        {makeoptn(13), 13},
+        {makeoptn(14), 14},
+        {makeoptn(15), 15},
+        {makeoptn(16), 16},
+        {makeoptn(17), 17},
     };
     const NameValueOptions options_C{
-        {"option_1", 1},
-        {"option_2", 2},
+        {makeoptn(1), 1},
+        {makeoptn(2), 2},
         // {"option_NULL", QVariant()},  // will assert
-        {"option_99", 99},
+        {makeoptn(99), 99},
     };
     const NameValueOptions options_D{
-        {"Not at all", 0},
-        {"Several days", 1},
-        {"More than half the days", 2},
-        {"Nearly every day", 3},
+        {tr("Not at all"), 0},
+        {tr("Several days"), 1},
+        {tr("More than half the days"), 2},
+        {tr("Nearly every day"), 3},
     };
     const NameValueOptions options_E{
         {"A", "A"},
@@ -503,144 +507,145 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         {"Z", "Z"},
     };
     QuPagePtr page_mcq((new QuPage{
-        new QuHeading("Plain MCQ:"),
+        new QuHeading(tr("Plain MCQ:")),
         new QuMcq(fieldRef("mcq1"), options_A),
-        new QuHeading("Same MCQ/field, reconfigured (randomized, "
-                      "instructions, horizontal, as text button):"),
+        new QuHeading(tr("Same MCQ/field, reconfigured (randomized, "
+                         "instructions, horizontal, as text button):")),
         (new QuMcq(fieldRef("mcq1"), options_A))
                             ->setRandomize(true)
                             ->setShowInstruction(true)
                             ->setHorizontal(true)
                             ->setAsTextButton(true),
-        new QuHeading("Same MCQ/field, reconfigured:"),
+        new QuHeading(tr("Same MCQ/field, reconfigured:")),
         (new QuMcq(fieldRef("mcq1"), options_A))
                             ->setAsTextButton(true),
-        new QuHeading("A second MCQ:"),
+        new QuHeading(tr("A second MCQ:")),
         new QuMcq(fieldRef("mcq2"), options_C),
-        new QuHeading("Another:"),
+        new QuHeading(tr("Another:")),
         new QuMcq(fieldRef("mcq3"), options_B),
-        new QuHeading("The previous MCQ, reconfigured:"),
+        new QuHeading(tr("The previous MCQ, reconfigured:")),
         (new QuMcq(fieldRef("mcq3"), options_B))
                             ->setHorizontal(true),
-        new QuHeading("A fourth MCQ, as text:"),
+        new QuHeading(tr("A fourth MCQ, as text:")),
         (new QuMcq(fieldRef("mcq4"), options_B))
                             ->setHorizontal(true)
                             ->setAsTextButton(true),
-    })->setTitle("Multiple-choice questions (MCQs)"));
+    })->setTitle(tr("Multiple-choice questions (MCQs)")));
 
     // ------------------------------------------------------------------------
     // MCQ variants
     // ------------------------------------------------------------------------
 
+    const QString squestion(tr("Question"));
     QuPagePtr page_mcq_variants((new QuPage{
-         new QuHeading("MCQ grid:"),
+         new QuHeading(tr("MCQ grid:")),
          (new QuMcqGrid(
             {
-                QuestionWithOneField("Question A", fieldRef("mcq5")),
-                QuestionWithOneField("Question B", fieldRef("mcq6")),
-                QuestionWithOneField("Question C", fieldRef("mcq7")),
-                QuestionWithOneField("Question D (= A)", fieldRef("mcq5")),
-                QuestionWithOneField("Question E (= B)", fieldRef("mcq6")),
+                QuestionWithOneField(squestion + " A", fieldRef("mcq5")),
+                QuestionWithOneField(squestion + " B", fieldRef("mcq6")),
+                QuestionWithOneField(squestion + " C", fieldRef("mcq7")),
+                QuestionWithOneField(squestion + " D (= A)", fieldRef("mcq5")),
+                QuestionWithOneField(squestion + " E (= B)", fieldRef("mcq6")),
             },
             options_D
-        ))->setSubtitles({{3, "subtitle before D"}}),
-        new QuHeading("Another MCQ grid:"),
+        ))->setSubtitles({{3, tr("subtitle before D")}}),
+        new QuHeading(tr("Another MCQ grid:")),
         (new QuMcqGrid(
             {
-                QuestionWithOneField("Question A", fieldRef("mcq8")),
-                QuestionWithOneField("Question B; " + lipsum2, fieldRef("mcq9")),
-                QuestionWithOneField("Question C", fieldRef("mcq10")),
+                QuestionWithOneField(squestion + " A", fieldRef("mcq8")),
+                QuestionWithOneField(squestion + " B; " + lipsum2, fieldRef("mcq9")),
+                QuestionWithOneField(squestion + " C", fieldRef("mcq10")),
             },
         options_A
-        ))->setTitle("MCQ 2 title; " + lipsum2),
-        new QuHeading("Double MCQ grid:"),
+        ))->setTitle(tr("MCQ 2 title; ") + lipsum2),
+        new QuHeading(tr("Double MCQ grid:")),
         (new QuMcqGridDouble(
             {
-                QuestionWithTwoFields("Question A",
+                QuestionWithTwoFields(squestion + " A",
                                          fieldRef("mcqtext_1a"),
                                          fieldRef("mcqtext_1b")),
-                QuestionWithTwoFields("Question B; " + lipsum2,
+                QuestionWithTwoFields(squestion + " B; " + lipsum2,
                                          fieldRef("mcqtext_2a"),
                                          fieldRef("mcqtext_2b")),
-                QuestionWithTwoFields("Question C",
+                QuestionWithTwoFields(squestion + " C",
                                          fieldRef("mcqtext_3a"),
                                          fieldRef("mcqtext_3b")),
             },
         options_E, options_F
-        ))  ->setTitle("Double-MCQ title")
-            ->setSubtitles({{2, "subtitle before C"}}),
-        new QuHeading("MCQ grid with single Boolean (right):"),
+        ))  ->setTitle(tr("Double-MCQ title"))
+            ->setSubtitles({{2, tr("subtitle before C")}}),
+        new QuHeading(tr("MCQ grid with single Boolean (right):")),
         (new QuMcqGridSingleBoolean(
             {
-                QuestionWithTwoFields("Question A",
+                QuestionWithTwoFields(squestion + " A",
                                          fieldRef("mcq5"), fieldRef("mcqbool1")),
-                QuestionWithTwoFields("Question B; " + lipsum2,
+                QuestionWithTwoFields(squestion + " B; " + lipsum2,
                                          fieldRef("mcq6"), fieldRef("mcqbool2")),
-                QuestionWithTwoFields("Question C",
+                QuestionWithTwoFields(squestion + " C",
                                          fieldRef("mcq7"), fieldRef("mcqbool3")),
             },
             options_D,
-            "Happy?"
-        ))  ->setTitle("Title for MCQ grid with single boolean")
-            ->setSubtitles({{2, "subtitle before C"}}),
-        new QuHeading("MCQ grid with single Boolean (left):"),
+            tr("Happy?")
+        ))  ->setTitle(tr("Title for MCQ grid with single boolean"))
+            ->setSubtitles({{2, tr("subtitle before C")}}),
+        new QuHeading(tr("MCQ grid with single Boolean (left):")),
         (new QuMcqGridSingleBoolean(
             {
-                QuestionWithTwoFields("Question A",
+                QuestionWithTwoFields(squestion + " A",
                                          fieldRef("mcq5"), fieldRef("mcqbool1")),
-                QuestionWithTwoFields("Question B; " + lipsum2,
+                QuestionWithTwoFields(squestion + " B; " + lipsum2,
                                          fieldRef("mcq6"), fieldRef("mcqbool2")),
-                QuestionWithTwoFields("Question C",
+                QuestionWithTwoFields(squestion + " C",
                                          fieldRef("mcq7"), fieldRef("mcqbool3")),
             },
             options_D,
-            "Happy?"
-        ))  ->setTitle("Title for MCQ grid with single boolean")
+            tr("Happy?")
+        ))  ->setTitle(tr("Title for MCQ grid with single boolean"))
             ->setBooleanLeft(true),
-    })->setTitle("MCQ variants"));
+    })->setTitle(tr("MCQ variants")));
 
     // ------------------------------------------------------------------------
     // Multiple responses
     // ------------------------------------------------------------------------
 
     QuPagePtr page_multiple_response((new QuPage{
-        new QuHeading("Standard n-from-many format:"),
+        new QuHeading(tr("Standard n-from-many format:")),
         (new QuMultipleResponse({
-            QuestionWithOneField(fieldRef("multipleresponse1"), "(a) First stem"),
-            QuestionWithOneField(fieldRef("multipleresponse2"), "(b) Second stem"),
-            QuestionWithOneField(fieldRef("multipleresponse3"), "(c) Third stem"),
-            QuestionWithOneField(fieldRef("multipleresponse4"), "(d) Fourth stem"),
-            QuestionWithOneField(fieldRef("multipleresponse5"), "(e) Fifth stem"),
-            QuestionWithOneField(fieldRef("multipleresponse6"), "(f) Sixth stem"),
+            QuestionWithOneField(fieldRef("multipleresponse1"), tr("(a) First stem")),
+            QuestionWithOneField(fieldRef("multipleresponse2"), tr("(b) Second stem")),
+            QuestionWithOneField(fieldRef("multipleresponse3"), tr("(c) Third stem")),
+            QuestionWithOneField(fieldRef("multipleresponse4"), tr("(d) Fourth stem")),
+            QuestionWithOneField(fieldRef("multipleresponse5"), tr("(e) Fifth stem")),
+            QuestionWithOneField(fieldRef("multipleresponse6"), tr("(f) Sixth stem")),
         }))->setMinimumAnswers(2)->setMaximumAnswers(3),
-        new QuHeading("With instructions off, horizontally, and text-button style:"),
+        new QuHeading(tr("With instructions off, horizontally, and text-button style:")),
         (new QuMultipleResponse({
-            QuestionWithOneField(fieldRef("multipleresponse1"), "(a) First stem"),
-            QuestionWithOneField(fieldRef("multipleresponse2"), "(b) Second stem"),
-            QuestionWithOneField(fieldRef("multipleresponse3"), "(c) Third stem"),
-            QuestionWithOneField(fieldRef("multipleresponse4"), "(d) Fourth stem"),
-            QuestionWithOneField(fieldRef("multipleresponse5"), "(e) Fifth stem"),
-            QuestionWithOneField(fieldRef("multipleresponse6"), "(f) Sixth stem"),
+            QuestionWithOneField(fieldRef("multipleresponse1"), tr("(a) First stem")),
+            QuestionWithOneField(fieldRef("multipleresponse2"), tr("(b) Second stem")),
+            QuestionWithOneField(fieldRef("multipleresponse3"), tr("(c) Third stem")),
+            QuestionWithOneField(fieldRef("multipleresponse4"), tr("(d) Fourth stem")),
+            QuestionWithOneField(fieldRef("multipleresponse5"), tr("(e) Fifth stem")),
+            QuestionWithOneField(fieldRef("multipleresponse6"), tr("(f) Sixth stem")),
         }))->setMinimumAnswers(2)
             ->setMaximumAnswers(3)
             ->setShowInstruction(false)
             ->setHorizontal(true)
             ->setAsTextButton(true),
-    })->setTitle("Multiple-response questions"));
+    })->setTitle(tr("Multiple-response questions")));
 
     // ------------------------------------------------------------------------
     // Pickers
     // ------------------------------------------------------------------------
 
     QuPagePtr page_pickers((new QuPage{
-        new QuHeading("Inline picker:"),
+        new QuHeading(tr("Inline picker:")),
         new QuPickerInline(fieldRef("picker1"), options_A),
-        new QuHeading("Its clone:"),
+        new QuHeading(tr("Its clone:")),
         new QuPickerInline(fieldRef("picker1"), options_A),
-        new QuHeading("Popup picker:"),
+        new QuHeading(tr("Popup picker:")),
         (new QuPickerPopup(fieldRef("picker2"), options_A))
-                                ->setPopupTitle("Pickers; question 5"),
-    })->setTitle("Pickers"));
+                                ->setPopupTitle(tr("Pickers; question 5")),
+    })->setTitle(tr("Pickers")));
 
     // ------------------------------------------------------------------------
     // Sliders, thermometer
@@ -650,9 +655,9 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     for (int i = 0; i <= 10; ++i) {
         QString text = QString::number(i);
         if (i == 10) {
-            text += " - very distressed";
+            text += tr(" - very distressed");
         } else if (i == 0) {
-            text += " - chilled out";
+            text += tr(" - chilled out");
         }
         QuThermometerItem item(
             uifunc::resourceFilename(
@@ -684,7 +689,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     // --------------------------------------------------------------------
 
 #ifndef DEBUG_DISABLE_MOST_SLIDERS
-    auto rose_q = new QuText("Roses are best when red.");
+    auto rose_q = new QuText(tr("Roses are best when red."));
 #endif
 
     // --------------------------------------------------------------------
@@ -702,11 +707,11 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
 
     // Labels
     likert_slider->setTickLabels({
-        {STRONGLY_DISAGREE, "Strongly\ndisagree"},  // or an xstring()
-        {DISAGREE, "Disagree"},
-        {NEUTRAL, "Neutral"},
-        {AGREE, "Agree"},
-        {STRONGLY_AGREE, "Strongly\nagree"},
+        {STRONGLY_DISAGREE, tr("Strongly\ndisagree")},  // or an xstring()
+        {DISAGREE, tr("Disagree")},
+        {NEUTRAL, tr("Neutral")},
+        {AGREE, tr("Agree")},
+        {STRONGLY_AGREE, tr("Strongly\nagree")},
     });
     likert_slider->setTickLabelPosition(QSlider::TicksAbove);
 
@@ -811,7 +816,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
 
     vas_slider2->setAbsoluteLengthCm(VAS_ABSOLUTE_SIZE_CM, VAS_CAN_SHRINK);
 
-    const QString vas_description = QString(
+    const QString vas_description = tr(
         "Slider is set to %1 cm; can_shrink = %2"
     ).arg(QString::number(VAS_ABSOLUTE_SIZE_CM),
           uifunc::trueFalse(VAS_CAN_SHRINK));
@@ -822,13 +827,13 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
 
     QuPagePtr page_sliders((new QuPage{
 #ifndef DEBUG_DISABLE_MOST_SLIDERS
-        new QuHeading("Integer slider:"),
+        new QuHeading(tr("Integer slider:")),
         (new QuSlider(fieldRef("thermometer"), 0, 10, 1))
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksBothSides)
                                 ->setShowValue(true),
 #endif
-        new QuHeading("Integer slider (same field as above), vertical"),
+        new QuHeading(tr("Integer slider (same field as above), vertical")),
         (new QuSlider(fieldRef("thermometer"), 0, 10, 1))
                                 ->setShowValue(true)
                                 ->setTickInterval(2)
@@ -837,13 +842,13 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                 ->setTickLabelPosition(QSlider::TicksBothSides)
                                 ->setHorizontal(false),
 #ifndef DEBUG_DISABLE_MOST_SLIDERS
-        new QuHeading("Real/float slider:"),
+        new QuHeading(tr("Real number/floating-point slider:")),
         (new QuSlider(fieldRef("slider1"), 0, 10, 1))
                                 ->setShowValue(true)
                                 ->setTickInterval(1)
                                 ->setTickPosition(QSlider::TicksBelow)
                                 ->setConvertForRealField(true, 0, 1),
-        new QuHeading("Real slider with custom labels (edging in extreme labels):"),
+        new QuHeading(tr("Real number slider with custom labels (edging in extreme labels):")),
         (new QuSlider(fieldRef("slider2"), 100, 500, 1))
                                 ->setConvertForRealField(true, 1, 5)
                                 ->setShowValue(false)
@@ -857,7 +862,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                 })
                                 ->setShowValue(true)
                                 ->setEdgeInExtremeLabels(true),
-        new QuHeading("Real slider with custom labels (standard labels):"),
+        new QuHeading(tr("Real number slider with custom labels (standard labels):")),
         (new QuSlider(fieldRef("slider2"), 100, 500, 1))
                                 ->setConvertForRealField(true, 1, 5)
                                 ->setShowValue(false)
@@ -871,26 +876,26 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                                 // ->setTickLabelPosition(QSlider::TicksBelow)
                                 ->setTickLabelPosition(QSlider::TicksBothSides)
                                 ->setTickLabels({
-                                    {100, "one: low"},
-                                    {300, "three: medium"},
-                                    {500, "five: maximum!"},
+                                    {100, tr("one: low")},
+                                    {300, tr("three: medium")},
+                                    {500, tr("five: maximum!")},
                                 })
                                 ->setShowValue(true),
-        new QuHeading("Thermometer:"),
+        new QuHeading(tr("Thermometer:")),
         (new QuThermometer(fieldRef("thermometer"), thermometer_items))
                                 ->setRescale(true, 0.4),
-        new QuHeading("Likert-style (discrete) slider, in grid (70% of window width)"),
+        new QuHeading(tr("Likert-style (discrete) slider, in grid (70% of window width)")),
         rose_q,
         likert_slider_grid,
-        new QuHeading("Visual analogue scale-style slider (approximating continuous)"),
+        new QuHeading(tr("Visual analogue scale-style slider (approximating continuous)")),
         new QuText(vas_description),
         vas_slider,
-        new QuHeading("Visual analogue scale-style slider (vertical version)"),
+        new QuHeading(tr("Visual analogue scale-style slider (vertical version)")),
         new QuText(vas_description),
         vas_slider2,
 #endif
     })
-        ->setTitle("Sliders and thermometers")
+        ->setTitle(tr("Sliders and thermometers"))
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -898,61 +903,59 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_vars((new QuPage{
-        new QuText("Pages for clinicians have a different background colour."),
-        new QuHeading("Date/time:"),
+        new QuText(tr("Pages for clinicians have a different background colour.")),
+        new QuHeading(tr("Date/time:")),
         new QuDateTime(fieldRef("date_time")),
-        new QuHeading("Date/time (with ‘now’ and ‘nullify’ buttons):"),
+        new QuHeading(tr("Date/time (with ‘now’ and ‘nullify’ buttons):")),
         (new QuDateTime(fieldRef("date_time")))
                              ->setOfferNowButton(true)
                              ->setOfferNullButton(true),
-        new QuHeading("Date/time (custom format):"),
+        new QuHeading(tr("Date/time (custom format):")),
         (new QuDateTime(fieldRef("date_time")))
                              ->setMode(QuDateTime::CustomDateTime)
                              ->setCustomFormat("yyyy MM dd HH:mm:ss:zzz"),
-        new QuHeading("Date:"),
+        new QuHeading(tr("Date:")),
         (new QuDateTime(fieldRef("date_only")))
                              ->setMode(QuDateTime::DefaultDate),
-        new QuHeading("Date (custom format):"),
+        new QuHeading(tr("Date (custom format):")),
         (new QuDateTime(fieldRef("date_only")))
                              ->setMode(QuDateTime::CustomDate)
                              ->setCustomFormat("yyyy MM dd"),
-        new QuHeading("Time:"),
+        new QuHeading(tr("Time:")),
         (new QuDateTime(fieldRef("time_only")))
                              ->setMode(QuDateTime::DefaultTime),
-        new QuHeading("Time (custom format):"),
+        new QuHeading(tr("Time (custom format):")),
         (new QuDateTime(fieldRef("time_only")))
                              ->setMode(QuDateTime::CustomTime)
                              ->setCustomFormat("HH:mm:ss"),
-        new QuHeading("Integer spinbox (range 5–10):"),
+        new QuHeading(tr("Integer spinbox (range 5–10):")),
         new QuSpinBoxInteger(fieldRef("spinbox_int"), 5, 10),
-        new QuHeading("Double spinbox (range 7.1–7.9):"),
+        new QuHeading(tr("Double spinbox (range 7.1–7.9):")),
         new QuSpinBoxDouble(fieldRef("spinbox_real"), 7.1, 7.9),
-        new QuHeading("Text editor (plain text):"),
+        new QuHeading(tr("Text editor (plain text):")),
         new QuTextEdit(fieldRef("typedvar_text_multiline"), false),
-        new QuHeading("Text editor (clone of previous):"),
+        new QuHeading(tr("Text editor (clone of previous):")),
         new QuTextEdit(fieldRef("typedvar_text_multiline"), false),
-        new QuHeading("Text editor (rich text):"),
+        new QuHeading(tr("Text editor (rich text):")),
         (new QuTextEdit(fieldRef("typedvar_text_rich"), true))
-                             ->setHint("This one has a hint "
-                                       "(placeholder text)"),
-        new QuHeading("Line editor (plain):"),
+                             ->setHint(tr("This one has a hint (placeholder text)")),
+        new QuHeading(tr("Line editor (plain):")),
         (new QuLineEdit(fieldRef("typedvar_text")))
-                             ->setHint("hint: plain text"),
-        new QuHeading("Line editor (integer, range 13–19):"),
+                             ->setHint(tr("hint: plain text")),
+        new QuHeading(tr("Line editor (integer, range 13–19):")),
         new QuLineEditInteger(fieldRef("typedvar_int"), 13, 19),
-        new QuHeading("Line editor (double, "
-                             "range -0.05 to -0.09, 2dp):"),
+        new QuHeading(tr("Line editor (double, range -0.05 to -0.09, 2dp):")),
         new QuLineEditDouble(fieldRef("typedvar_real"), -0.05, -0.09, 2),
-        new QuHeading("Variables in a grid:"),
+        new QuHeading(tr("Variables in a grid:")),
         questionnairefunc::defaultGridRawPointer({
-            {"label 1 (text)", new QuLineEdit(fieldRef("typedvar_text"))},
-            {"label 2 (int 13-19)", new QuLineEditInteger(fieldRef("typedvar_int"), 13, 19)},
-            {"label 3", new QuHeading("Just a heading: " + lipsum2)},
-            {"label 4", new QuDateTime(fieldRef("date_time"))},
-            {"label 5 (multiline text)", new QuTextEdit(fieldRef("typedvar_text"))},
+            {tr("label 1 (text)"), new QuLineEdit(fieldRef("typedvar_text"))},
+            {tr("label 2 (int 13-19)"), new QuLineEditInteger(fieldRef("typedvar_int"), 13, 19)},
+            {tr("label 3"), new QuHeading("Just a heading: " + lipsum2)},
+            {tr("label 4"), new QuDateTime(fieldRef("date_time"))},
+            {tr("label 5 (multiline text)"), new QuTextEdit(fieldRef("typedvar_text"))},
         }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
     })
-        ->setTitle("Editable variable including dates/times")
+        ->setTitle(tr("Editable variable including dates/times"))
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
@@ -972,47 +975,47 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     qDebug() << Q_FUNC_INFO << "... done";
 #endif
     QuPagePtr page_diag((new QuPage{
-        new QuHeading("Diagnostic code, ICD-10:"),
+        new QuHeading(tr("Diagnostic code, ICD-10:")),
         new QuDiagnosticCode(icd10,
                              fieldRef("diagnosticcode_code"),
                              fieldRef("diagnosticcode_description")),
-        new QuHeading("Diagnostic code, clone of the preceding:"),
+        new QuHeading(tr("Diagnostic code, clone of the preceding:")),
         new QuDiagnosticCode(icd10,
                              fieldRef("diagnosticcode_code"),
                              fieldRef("diagnosticcode_description")),
-        new QuHeading("Diagnostic code, ICD-9-CM:"),
+        new QuHeading(tr("Diagnostic code, ICD-9-CM:")),
         new QuDiagnosticCode(icd9cm,
                              fieldRef("diagnosticcode2_code"),
                              fieldRef("diagnosticcode2_description")),
-    })->setTitle("Diagnostic codes"));
+    })->setTitle(tr("Diagnostic codes")));
 
     // ------------------------------------------------------------------------
     // Canvas
     // ------------------------------------------------------------------------
 
     QuPagePtr page_canvas_1((new QuPage{
-        (new QuText("Page style: ClinicianWithPatient"))->setItalic(true),
-        (new QuText("WATCH OUT: scrolling enabled for this page; may conflict "
-                    "with canvas; see next page too"))->setWarning(true),
-        new QuHeading("Canvas, blank start:"),
+        (new QuText(tr("Page style: ClinicianWithPatient")))->setItalic(true),
+        (new QuText(tr("WATCH OUT: scrolling enabled for this page; may "
+                       "conflict with canvas; see next page too")))->setWarning(true),
+        new QuHeading(tr("Canvas, blank start:")),
         new QuCanvas(blobFieldRef("canvas2_blobid", true)),
-        new QuHeading("Canvas, using files:"),
+        new QuHeading(tr("Canvas, using files:")),
         new QuCanvas(
             blobFieldRef("canvas_blobid", true),
             uifunc::resourceFilename("ace3/rhinoceros.png")),
-        new QuHeading("Canvas, clone of the first one:"),
+        new QuHeading(tr("Canvas, clone of the first one:")),
         new QuCanvas(blobFieldRef("canvas2_blobid", true)),
     })
-        ->setTitle("Canvas (allowing scrolling)")
+        ->setTitle(tr("Canvas (allowing scrolling)"))
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     QuPagePtr page_canvas_2((new QuPage{
-        new QuHeading("As before, but with scrolling disabled:"),
+        new QuHeading(tr("As before, but with scrolling disabled:")),
         new QuCanvas(
             blobFieldRef("canvas_blobid", true),
             uifunc::resourceFilename("ace3/rhinoceros.png")),
     })
-        ->setTitle("Canvas (disabling scrolling)")
+        ->setTitle(tr("Canvas (disabling scrolling)"))
         ->allowScroll(false)
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
@@ -1023,22 +1026,22 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     // Safe object lifespan signal: can use std::bind
     QuPagePtr page_buttons((new QuPage{
         new QuButton(
-            "Say hello",
+            tr("Say hello"),
             std::bind(&DemoQuestionnaire::callbackHello, this)),
         (new QuButton(
-            "Say hello [disabled]",
+            tr("Say hello [disabled]"),
             std::bind(&DemoQuestionnaire::callbackHello, this)))
                                 ->setActive(false),
         new QuButton(
-            "Button with args ('foo')",
+            tr("Button with args ('foo')"),
             std::bind(&DemoQuestionnaire::callbackArg, this, "foo")),
         new QuButton(
-            "Button with args ('bar')",
+            tr("Button with args ('bar')"),
             std::bind(&DemoQuestionnaire::callbackArg, this, "bar")),
         new QuButton(
             uiconst::CBS_ADD, true, true,
             std::bind(&DemoQuestionnaire::callbackHello, this)),
-    })->setTitle("Buttons"));
+    })->setTitle(tr("Buttons")));
 
     // ------------------------------------------------------------------------
     // Photo (for a mandatory photo: last page in case we have no camera)
@@ -1046,9 +1049,9 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_photo((new QuPage{
-        new QuHeading("Photo:"),
+        new QuHeading(tr("Photo:")),
         new QuPhoto(blobFieldRef("photo_blobid", false)),
-    })->setTitle("Photo"));
+    })->setTitle(tr("Photo")));
 
     // ------------------------------------------------------------------------
     // Layout test: cf. WidgetTestMenu::testQuestionnaire()
@@ -1056,7 +1059,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
 
     QuPagePtr page_minimal_layout((new QuPage{
         new QuText(TextConst::LOREM_IPSUM_1),
-    })->setTitle("Reasonably long title with several words"));
+    })->setTitle(tr("Reasonably long title with several words")));
 
     // ------------------------------------------------------------------------
     // Questionnaire
@@ -1086,13 +1089,13 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
 
 void DemoQuestionnaire::callbackHello()
 {
-    uifunc::alert("Hello!");
+    uifunc::alert(tr("Hello!"));
 }
 
 
 void DemoQuestionnaire::callbackArg(const QString& arg)
 {
-    uifunc::alert("Function argument was: " + arg);
+    uifunc::alert(tr("Function argument was: ") + arg);
 }
 
 

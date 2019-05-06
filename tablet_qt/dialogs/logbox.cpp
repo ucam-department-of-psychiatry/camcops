@@ -24,6 +24,7 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include "common/textconst.h"
 #include "lib/uifunc.h"
 
 const QSize MIN_SIZE(600, 600);
@@ -65,12 +66,12 @@ LogBox::LogBox(QWidget* parent,
     // ... https://stackoverflow.com/questions/23675845/qt-conflict-between-qscroller-and-qscrollbar
 
     auto buttonlayout = new QHBoxLayout();
-    auto copybutton = new QPushButton(tr("Copy"));
+    auto copybutton = new QPushButton(TextConst::copy());
     buttonlayout->addWidget(copybutton);
     connect(copybutton, &QPushButton::clicked, this, &LogBox::copyClicked);
 
     if (offer_cancel) {
-        m_cancel = new QPushButton(tr("Cancel"));
+        m_cancel = new QPushButton(TextConst::cancel());
         buttonlayout->addWidget(m_cancel);
         connect(m_cancel, &QPushButton::clicked, this, &LogBox::reject);
     }
@@ -80,7 +81,7 @@ LogBox::LogBox(QWidget* parent,
     // it's the OK button, based on shared location).
 
     if (offer_ok_at_end) {
-        m_ok = new QPushButton(tr("OK"));
+        m_ok = new QPushButton(TextConst::ok());
         buttonlayout->addWidget(m_ok);
         connect(m_ok, &QPushButton::clicked, this, &LogBox::okClicked);
         m_ok->hide();

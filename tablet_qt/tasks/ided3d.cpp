@@ -380,10 +380,10 @@ QStringList IDED3D::summary() const
     }
     QStringList lines;
     const int n_trials = m_trials.length();
-    lines.append(QString("Performed %1 trial(s).").arg(n_trials));
+    lines.append(tr("Performed %1 trial(s).").arg(n_trials));
     if (n_trials > 0) {
         IDED3DTrialPtr last_trial = m_trials.at(n_trials - 1);
-        lines.append(QString("Last trial was at stage %1.")
+        lines.append(tr("Last trial was at stage %1.")
                      .arg(last_trial->valueInt(IDED3DTrial::FN_STAGE)));
     }
     return lines;
@@ -394,12 +394,12 @@ QStringList IDED3D::detail() const
 {
     QStringList lines = completenessInfo() + recordSummaryLines();
     lines.append("\n");
-    lines.append("Stages:");
+    lines.append(tr("Stages:"));
     for (const IDED3DStagePtr& stage : m_stages) {
         lines.append(stage->recordSummaryCSVString());
     }
     lines.append("\n");
-    lines.append("Trials:");
+    lines.append(tr("Trials:"));
     for (const IDED3DTrialPtr& trial : m_trials) {
         lines.append(trial->recordSummaryCSVString());
     }

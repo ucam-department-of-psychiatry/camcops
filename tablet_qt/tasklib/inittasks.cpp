@@ -100,6 +100,7 @@
 #include "tasks/irac.h"
 
 #include "tasks/khandaker1medicalhistory.h"
+#include "tasks/kirby.h"
 
 #include "tasks/lynall1iam.h"
 #include "tasks/lynall2iam.h"
@@ -236,6 +237,7 @@ void InitTasks(TaskFactory& factory)
     initializeIrac(factory);
 
     initializeKhandaker1MedicalHistory(factory);
+    // *** // initializeKirby(factory);
 
     // *** // initializeLynall1IamMedicalHistory(factory);
     // *** // initializeLynall2IamLifeEvents(factory);

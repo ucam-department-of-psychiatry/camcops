@@ -95,10 +95,10 @@ class KirbyRewardPair(object):
 
 class Kirby(TaskHasPatientMixin, Task):
     """
-    Server implementation of the Lynall_1_MedicalHistory task.
+    Server implementation of the Kirby Monetary Choice Questionnaire task.
     """
     __tablename__ = "kirby"
-    shortname = "Kirby"
+    shortname = "KirbyMCQ"
     longname = "Kirby et al. Monetary Choice Questionnaire"
 
     # *** fields

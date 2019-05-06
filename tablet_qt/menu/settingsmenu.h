@@ -68,6 +68,7 @@ protected:
     void debugSystemDbAsSql();
     void saveDataDbAsSql();
     void saveSystemDbAsSql();
+    void chooseLanguage();
 
     // Internal helpers:
     QString makeTitle(const QString& part1, const QString& part2 = "",

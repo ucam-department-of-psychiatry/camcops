@@ -24,6 +24,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include "common/design_defines.h"
+#include "common/languages.h"
 #include "common/platform.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -34,6 +35,7 @@
 #include "db/fieldref.h"
 #include "dbobjects/idnumdescription.h"
 #include "dialogs/logmessagebox.h"
+#include "dialogs/nvpchoicedialog.h"
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 #include "menu/testmenu.h"
@@ -124,12 +126,16 @@ void SettingsMenu::makeItems()
         MenuItem(tr("Common user settings")).setLabelOnly(),
         // --------------------------------------------------------------------
         MenuItem(
+            tr("Choose language"),
+            std::bind(&SettingsMenu::chooseLanguage, this)
+        ),
+        MenuItem(
             tr("Questionnaire font size and DPI settings"),
             MenuItem::OpenableWidgetMaker(
                 std::bind(&SettingsMenu::setQuestionnaireFontSize, this,
                           std::placeholders::_1)
             )
-        ).setNotIfLocked(),
+        ),
         MenuItem(
             tr("User settings"),
             MenuItem::OpenableWidgetMaker(
@@ -551,7 +557,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     FieldRefPtr clin_post_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_POST, false);
     const QString clin_post_t = tr("Default clinician’s post");
-    const QString clin_post_h = tr("e.g. “Specialist registrar");
+    const QString clin_post_h = tr("e.g. “Specialist registrar”");
     FieldRefPtr clin_service_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_SERVICE, false);
     const QString clin_service_t = tr("Default clinician’s service");
@@ -1353,4 +1359,17 @@ void SettingsMenu::viewCounts(DatabaseManager& db, const QString& title)
     const QString text = lines.join("<br>");
     LogMessageBox box(this, title, text, true);
     box.exec();
+}
+
+
+void SettingsMenu::chooseLanguage()
+{
+    QVariant language = m_app.getLanguage();
+    NvpChoiceDialog dlg(this, languages::possibleLanguages(),
+                        tr("Choose language"));
+    dlg.showExistingChoice(true);
+    if (dlg.choose(&language) != QDialog::Accepted) {
+        return;  // user pressed cancel, or some such
+    }
+    m_app.setLanguage(language.toString(), true);
 }

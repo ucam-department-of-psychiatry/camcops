@@ -41,40 +41,54 @@ void WhereConditions::add(const QString& column, const QString& op,
 }
 
 
+void WhereConditions::set(const SqlArgs &sql_args)
+{
+    m_raw_sqlargs = sql_args;
+}
+
+
 void WhereConditions::appendWhereClauseTo(SqlArgs& sqlargs_altered) const
 {
-    if (m_columns.isEmpty()) {
-        return;
+    if (!m_raw_sqlargs.sql.isEmpty()) {
+        sqlargs_altered.sql += " WHERE " + m_raw_sqlargs.sql;
+        sqlargs_altered.args += m_raw_sqlargs.args;
+    } else {
+        if (m_columns.isEmpty()) {
+            return;
+        }
+        QStringList whereclauses;
+        const int n = m_columns.size();
+        Q_ASSERT(n == m_operators.size());
+        Q_ASSERT(n == m_values.size());
+        for (int i = 0; i < n; ++i) {
+            whereclauses.append(dbfunc::delimit(m_columns.at(i)) +
+                                " " + m_operators.at(i) + " ?");
+            sqlargs_altered.args.append(m_values.at(i));
+        }
+        sqlargs_altered.sql += " WHERE " + whereclauses.join(" AND ");
     }
-    QStringList whereclauses;
-    const int n = m_columns.size();
-    Q_ASSERT(n == m_operators.size());
-    Q_ASSERT(n == m_values.size());
-    for (int i = 0; i < n; ++i) {
-        whereclauses.append(dbfunc::delimit(m_columns.at(i)) +
-                            m_operators.at(i) +
-                            "?");
-        sqlargs_altered.args.append(m_values.at(i));
-    }
-    sqlargs_altered.sql += " WHERE " + whereclauses.join(" AND ");
 }
 
 
 QString WhereConditions::whereLiteralForDebuggingOnly() const
 {
-    if (m_columns.isEmpty()) {
-        return "";
+    if (!m_raw_sqlargs.sql.isEmpty()) {
+        return "WHERE " + m_raw_sqlargs.literalForDebuggingOnly();
+    } else {
+        if (m_columns.isEmpty()) {
+            return "";
+        }
+        QStringList whereclauses;
+        const int n = m_columns.size();
+        Q_ASSERT(n == m_operators.size());
+        Q_ASSERT(n == m_values.size());
+        for (int i = 0; i < n; ++i) {
+            whereclauses.append(dbfunc::delimit(m_columns.at(i)) +
+                                " " + m_operators.at(i) + " " +
+                                convert::toSqlLiteral(m_values.at(i)));
+        }
+        return "WHERE " + whereclauses.join(" AND ");
     }
-    QStringList whereclauses;
-    const int n = m_columns.size();
-    Q_ASSERT(n == m_operators.size());
-    Q_ASSERT(n == m_values.size());
-    for (int i = 0; i < n; ++i) {
-        whereclauses.append(dbfunc::delimit(m_columns.at(i)) +
-                            m_operators.at(i) +
-                            convert::toSqlLiteral(m_values.at(i)));
-    }
-    return "WHERE " + whereclauses.join(" AND ");
 }
 
 

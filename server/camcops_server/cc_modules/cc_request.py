@@ -91,6 +91,7 @@ from camcops_server.cc_modules.cc_idnumdef import (
     IdNumDefinition,
     validate_id_number,
 )
+from camcops_server.cc_modules.cc_language import DEFAULT_LANGUAGE
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
 from camcops_server.cc_modules.cc_pyramid import (
@@ -111,6 +112,7 @@ from camcops_server.cc_modules.cc_serversettings import (
 from camcops_server.cc_modules.cc_string import (
     all_extra_strings_as_dicts,
     APPSTRING_TASKNAME,
+    MISSING_LANGUAGE,
 )
 from camcops_server.cc_modules.cc_tabletsession import TabletSession
 from camcops_server.cc_modules.cc_user import User
@@ -752,26 +754,10 @@ class CamcopsRequest(Request):
     # -------------------------------------------------------------------------
 
     @reify
-    def _all_extra_strings(self) -> Dict[str, Dict[str, str]]:
+    def _all_extra_strings(self) -> Dict[str, Dict[str, Dict[str, str]]]:
         """
-        Returns all CamCOPS "extra strings" (from XML files) in the format:
-
-        .. code-block:: none
-
-            {
-                taskname1: {
-                    stringname1: value1,
-                    stringname2: value2,
-                    ...
-                },
-                taskname2: {
-                    stringname1: value1,
-                    stringname2: value2,
-                    ...
-                },
-                ...
-            }
-
+        Returns all CamCOPS "extra strings" (from XML files) in the format
+        used by :func:`camcops_server.cc_string.all_extra_strings_as_dicts`.
         """
         return all_extra_strings_as_dicts(self.config_filename)
 
@@ -779,7 +765,8 @@ class CamcopsRequest(Request):
                 taskname: str,
                 stringname: str,
                 default: str = None,
-                provide_default_if_none: bool = True) -> Optional[str]:
+                provide_default_if_none: bool = True,
+                language: str = None) -> Optional[str]:
         """
         Looks up a string from one of the optional extra XML string files.
 
@@ -790,6 +777,7 @@ class CamcopsRequest(Request):
             provide_default_if_none: if ``True`` and ``default is None``,
                 return a helpful missing-string message in the style
                 "string x.y not found"
+            language: language code to use, e.g. ``en-GB``
 
         Returns:
             the "extra string"
@@ -798,22 +786,43 @@ class CamcopsRequest(Request):
         # For speed, calculate default only if needed:
         allstrings = self._all_extra_strings
         if taskname in allstrings:
-            if stringname in allstrings[taskname]:
-                return allstrings[taskname].get(stringname)
+            taskstrings = allstrings[taskname]
+            if stringname in taskstrings:
+                langversions = taskstrings[stringname]
+                if language:  # Specific language requested
+                    # 1. Requested language, e.g. "en-GB"
+                    if language in langversions:
+                        return langversions[language]
+                    # 2. Same language, different country, e.g. "en-US"
+                    shortlang = language[:2]  # e.g. "en"
+                    for key in langversions.keys():
+                        if key.startswith(shortlang):
+                            return langversions[shortlang]
+                # 3. Default language
+                if DEFAULT_LANGUAGE in langversions:
+                    return langversions[DEFAULT_LANGUAGE]
+                # 4. Strings with no language specified in the XML
+                if MISSING_LANGUAGE in langversions:
+                    return langversions[MISSING_LANGUAGE]
+        # Not found
         if default is None and provide_default_if_none:
-            default = f"EXTRA_STRING_NOT_FOUND({taskname}.{stringname})"
+            default = (
+                f"EXTRA_STRING_NOT_FOUND({taskname}.{stringname}[{language}])"
+            )
         return default
 
     def wxstring(self,
                  taskname: str,
                  stringname: str,
                  default: str = None,
-                 provide_default_if_none: bool = True) -> Optional[str]:
+                 provide_default_if_none: bool = True,
+                 language: str = None) -> Optional[str]:
         """
         Returns a web-safe version of an :func:`xstring` (q.v.).
         """
         value = self.xstring(taskname, stringname, default,
-                             provide_default_if_none=provide_default_if_none)
+                             provide_default_if_none=provide_default_if_none,
+                             language=language)
         if value is None and not provide_default_if_none:
             return None
         return ws.webify(value)
@@ -821,25 +830,29 @@ class CamcopsRequest(Request):
     def wappstring(self,
                    stringname: str,
                    default: str = None,
-                   provide_default_if_none: bool = True) -> Optional[str]:
+                   provide_default_if_none: bool = True,
+                   language: str = None) -> Optional[str]:
         """
         Returns a web-safe version of an appstring (an app-wide extra string).
         """
         value = self.xstring(APPSTRING_TASKNAME, stringname, default,
-                             provide_default_if_none=provide_default_if_none)
+                             provide_default_if_none=provide_default_if_none,
+                             language=language)
         if value is None and not provide_default_if_none:
             return None
         return ws.webify(value)
 
-    def get_all_extra_strings(self) -> List[Tuple[str, str, str]]:
+    def get_all_extra_strings(self) -> List[Tuple[str, str, str, str]]:
         """
-        Returns all extra strings, as a list of ``task, name, value`` tuples.
+        Returns all extra strings, as a list of ``task, name, language, value``
+        tuples.
         """
         allstrings = self._all_extra_strings
         rows = []
-        for task, subdict in allstrings.items():
-            for name, value in subdict.items():
-                rows.append((task, name, value))
+        for task, taskstrings in allstrings.items():
+            for name, langversions in taskstrings.items():
+                for language, value in langversions.items():
+                    rows.append((task, name, language, value))
         return rows
 
     def task_extrastrings_exist(self, taskname: str) -> bool:
@@ -1279,12 +1292,12 @@ class CamcopsRequest(Request):
             raise AssertionError("Can't save unless taking database versions")
 
         # Start with ExportRecipientInfo objects:
-        recipients = self.config.get_all_export_recipient_info()
+        recipientinfolist = self.config.get_all_export_recipient_info()
 
         # Restrict
         if not all_recipients:
             if all_push_recipients:
-                recipients = [r for r in recipients if r.push]
+                recipientinfolist = [r for r in recipientinfolist if r.push]
             else:
                 # Specified by name
                 duplicates = [name for name, count in
@@ -1293,26 +1306,26 @@ class CamcopsRequest(Request):
                 if duplicates:
                     raise ValueError(f"Duplicate export recipients "
                                      f"specified: {duplicates!r}")
-                valid_names = set(r.recipient_name for r in recipients)
+                valid_names = set(r.recipient_name for r in recipientinfolist)
                 bad_names = [name for name in recipient_names
                              if name not in valid_names]
                 if bad_names:
                     raise ValueError(
                         f"Bad export recipients specified: {bad_names!r}. "
                         f"Valid recipients are: {valid_names!r}")
-                recipients = [r for r in recipients
-                              if r.recipient_name in recipient_names]
+                recipientinfolist = [r for r in recipientinfolist
+                                     if r.recipient_name in recipient_names]
 
         # Complete validation
-        for r in recipients:
+        for r in recipientinfolist:
             r.validate(self)
 
         # Does the caller want them as ExportRecipientInfo objects
         if not database_versions:
-            return recipients
+            return recipientinfolist
 
         # Convert to SQLAlchemy ORM ExportRecipient objects:
-        recipients = [ExportRecipient(x) for x in recipients]  # type: List[ExportRecipient]  # noqa
+        recipients = [ExportRecipient(x) for x in recipientinfolist]  # type: List[ExportRecipient]  # noqa
 
         final_recipients = []  # type: List[ExportRecipient]
         dbsession = self.dbsession

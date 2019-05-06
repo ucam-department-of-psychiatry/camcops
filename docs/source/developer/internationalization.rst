@@ -68,6 +68,10 @@ Overview of the Qt translation system
     error "Unterminated C++ string";
     https://bugreports.qt.io/browse/QTBUG-42736; fixed in Qt 5.12.2.
 
+  - To delete obsolete strings, use the ``-no-obsolete`` option; e.g.
+    ``~/dev/qt_local_build/qt_linux_x86_64_install/bin/lupdate -no-obsolete
+    camcops.pro``
+
 - The Qt Linguist tool edits ``.ts`` files.
 
   - Class-related strings appear helpfully in against their class.
@@ -176,5 +180,20 @@ English is OK for the following:
 - Qt debugging stream
 - command-line text
 - debugging tests
+- task short names (typically standardized abbreviations)
+- database structure (e.g. table names, field names)
 
 Everything else should be translatable.
+
+
+Server side and xstrings
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: ***
+
+
+Determining the language
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. todo:: ***

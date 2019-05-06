@@ -2096,6 +2096,7 @@ def op_get_extra_strings(req: "CamcopsRequest") -> Dict[str, str]:
     """
     fields = [ExtraStringFieldNames.TASK,
               ExtraStringFieldNames.NAME,
+              ExtraStringFieldNames.LANGUAGE,
               ExtraStringFieldNames.VALUE]
     rows = req.get_all_extra_strings()
     reply = get_select_reply(fields, rows)

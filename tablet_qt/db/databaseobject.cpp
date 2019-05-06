@@ -658,7 +658,9 @@ bool DatabaseObject::load(const WhereConditions& where)
     const QueryResult result = m_db.query(sqlargs, QueryResult::FetchMode::FetchFirst);
     const bool found = result.nRows() > 0;
     if (found) {
-        setFromQuery(result, 0, true);  // sets m_exists_in_db
+        setFromQuery(result, 0, true);
+        // ... uses the first result found
+        // ... sets m_exists_in_db
         loadAllAncillary();
     } else {
         nullify();  // clears m_exists_in_db

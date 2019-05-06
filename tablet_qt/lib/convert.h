@@ -38,6 +38,30 @@ class QImage;
 namespace convert {
 
 // ============================================================================
+// Constants used in several places internally
+// ============================================================================
+
+extern const QChar BACKSLASH;
+extern const QChar COMMA;
+extern const QChar CR;  // carriage return
+extern const QChar DQUOTE;  // double quote
+extern const QChar NL;  // newline
+extern const QChar QMARK;  // question mark
+extern const QChar SPACE;
+extern const QChar SQUOTE;  // single quote
+extern const QChar TAB;
+extern const QChar ZERO;
+
+extern const ushort UNICODE_BACKSLASH;
+extern const ushort UNICODE_COMMA;
+extern const ushort UNICODE_CR;
+extern const ushort UNICODE_DQUOTE;
+extern const ushort UNICODE_NL;
+extern const ushort UNICODE_SPACE;
+extern const ushort UNICODE_TAB;
+
+
+// ============================================================================
 // SQL literals (and things very like them)
 // ============================================================================
 

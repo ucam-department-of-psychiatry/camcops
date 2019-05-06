@@ -51,23 +51,24 @@ namespace convert {
 // Constants used in several places internally
 // ============================================================================
 
+const QChar BACKSLASH('\\');
 const QChar COMMA(',');
-const QChar SQUOTE('\'');  // single quote
+const QChar CR('\r');  // carriage return
 const QChar DQUOTE('"');  // double quote
 const QChar NL('\n');  // newline
-const QChar CR('\r');  // carriage return
-const QChar TAB('\t');
-const QChar BACKSLASH('\\');
+const QChar QMARK('?');
 const QChar SPACE(' ');
+const QChar SQUOTE('\'');  // single quote
+const QChar TAB('\t');
 const QChar ZERO('0');
 
+const ushort UNICODE_BACKSLASH = BACKSLASH.unicode();
 const ushort UNICODE_COMMA = COMMA.unicode();
+const ushort UNICODE_CR = CR.unicode();
 const ushort UNICODE_DQUOTE = DQUOTE.unicode();
 const ushort UNICODE_NL = NL.unicode();
-const ushort UNICODE_CR = CR.unicode();
-const ushort UNICODE_TAB = TAB.unicode();
-const ushort UNICODE_BACKSLASH = BACKSLASH.unicode();
 const ushort UNICODE_SPACE = SPACE.unicode();
+const ushort UNICODE_TAB = TAB.unicode();
 // const ushort UNICODE_ZERO = ZERO.unicode();
 
 // ============================================================================
@@ -323,7 +324,7 @@ QVector<QVariant> csvSqlLiteralsToValues(const QString& csv)
     int startpos = 0;
     int pos = 0;
     while (pos < n) {
-        QChar at_pos = csv.at(pos);
+        const QChar at_pos = csv.at(pos);
         if (!in_quotes) {
             if (at_pos == COMMA) {
                 // end of chunk

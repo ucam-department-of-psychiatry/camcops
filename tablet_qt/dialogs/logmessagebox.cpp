@@ -23,6 +23,7 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include "common/textconst.h"
 #include "lib/uifunc.h"
 
 const int MIN_WIDTH = 600;
@@ -58,13 +59,13 @@ LogMessageBox::LogMessageBox(QWidget* parent,
     }
 
     auto buttonlayout = new QHBoxLayout();
-    auto copybutton = new QPushButton(tr("Copy"));
+    auto copybutton = new QPushButton(TextConst::copy());
     buttonlayout->addWidget(copybutton);
     connect(copybutton, &QPushButton::clicked, this, &LogMessageBox::copyClicked);
 
     buttonlayout->addStretch();
 
-    auto okbutton = new QPushButton(tr("OK"));
+    auto okbutton = new QPushButton(TextConst::ok());
     buttonlayout->addWidget(okbutton);
     connect(okbutton, &QPushButton::clicked, this, &LogMessageBox::accept);
 

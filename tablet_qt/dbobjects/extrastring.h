@@ -33,16 +33,27 @@ public:
     // String loading constructor:
     ExtraString(CamcopsApp& app, DatabaseManager& db,
                 const QString& task,
-                const QString& name);
+                const QString& name,
+                const QString& language_code);
 
     // String saving constructor:
     ExtraString(CamcopsApp& app, DatabaseManager& db,
                 const QString& task,
                 const QString& name,
+                const QString& language_code,
                 const QString& value);
 
     // Destructor
     virtual ~ExtraString() = default;
+
+    // Returns the string's task.
+    QString task() const;
+
+    // Returns the string's name.
+    QString name() const;
+
+    // Returns the string's language.
+    QString languageCode() const;
 
     // Returns the string's value.
     QString value() const;
@@ -62,6 +73,7 @@ public:
 public:
     static const QString TASK_FIELD;
     static const QString NAME_FIELD;
+    static const QString LANGUAGE_FIELD;
     static const QString VALUE_FIELD;
 
 protected:

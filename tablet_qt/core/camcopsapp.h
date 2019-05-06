@@ -138,7 +138,11 @@ public:
     QString dbFullPath(const QString& filename);
 
     // Change the language used.
-    void setLanguage(const QString& language_code = DEFAULT_LANGUAGE);
+    void setLanguage(const QString& language_code,
+                     bool store_to_database = false);
+
+    // Return the current language code
+    QString getLanguage() const;
 
 protected:
     // Directory used by CamCOPS to store its SQLite/SQLCipher directory.
@@ -466,6 +470,8 @@ public:
                       const QString& default_str = "");
 
 protected:
+    // Load an "extra string" from the database.
+    // This is also (partly) where translations get implemented.
     QString xstringDirect(const QString& taskname, const QString& stringname,
                           const QString& default_str = "");
     mutable QMap<QPair<QString, QString>, QString> m_extrastring_cache;
@@ -632,6 +638,12 @@ protected:
 
     // Information about windows we've opened in the stack.
     QStack<OpenableInfo> m_info_stack;
+
+    // Are stored variables available for use?
+    bool m_storedvars_available;
+
+    // Current language code
+    QString m_current_language;
 
     // "Stored variables" (app config settings), by name.
     QMap<QString, StoredVarPtr> m_storedvars;

@@ -28,6 +28,7 @@ public:
     PatientSummaryMenu(CamcopsApp& app);
     virtual QString title() const override;
 protected:
+    virtual void extraLayoutCreation() override;
     virtual void makeItems() override;
 public slots:
     void selectedPatientChanged(const Patient* patient);

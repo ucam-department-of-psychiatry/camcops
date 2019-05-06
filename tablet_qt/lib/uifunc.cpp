@@ -95,18 +95,19 @@ QPixmap getPixmap(const QString& filename, const QSize& size,
 // ============================================================================
 
 QLabel* iconWidget(const QString& filename, QWidget* parent,
-                   const bool scale)
+                   const bool scale, const QSize& size)
 {
 #ifdef DEBUG_ICON_LOAD
     qDebug() << "iconWidget:" << filename;
 #endif
     auto iconlabel = new QLabel(parent);
-    setLabelToIcon(iconlabel, filename, scale);
+    setLabelToIcon(iconlabel, filename, scale, size);
     return iconlabel;
 }
 
 
-void setLabelToIcon(QLabel* iconlabel, const QString& filename, bool scale)
+void setLabelToIcon(QLabel* iconlabel, const QString& filename, bool scale,
+                    const QSize& size)
 {
     if (!iconlabel) {
         return;
@@ -115,11 +116,11 @@ void setLabelToIcon(QLabel* iconlabel, const QString& filename, bool scale)
         iconlabel->setFixedSize(QSize());
         iconlabel->setText("");
     } else {
-        QSize size;  // invalid size
+        QSize target_size;  // invalid size
         if (scale) {
-            size = uiconst::g_iconsize;
+            target_size = size;
         }
-        QPixmap iconimage = getPixmap(filename, size);
+        QPixmap iconimage = getPixmap(filename, target_size);
         iconlabel->setFixedSize(iconimage.size());
         iconlabel->setPixmap(iconimage);
     }
@@ -173,12 +174,12 @@ QPixmap makeDisabledIcon(const QPixmap& image)
 }
 
 
-QLabel* blankIcon(QWidget* parent)
+QLabel* blankIcon(QWidget* parent, const QSize& size)
 {
-    QPixmap iconimage(uiconst::g_iconsize);
+    QPixmap iconimage(size);
     iconimage.fill(QCOLOR_TRANSPARENT);
     auto iconlabel = new QLabel(parent);
-    iconlabel->setFixedSize(uiconst::g_iconsize);
+    iconlabel->setFixedSize(size);
     iconlabel->setPixmap(iconimage);
     return iconlabel;
 }
@@ -373,32 +374,43 @@ void setPropertyMissing(QWidget* widget,
 }
 
 
-/*
-
-DANGER if this is used from signals from within this layout; you can get a
-segfault from e.g. QAbstractItemView::mouseReleaseEvent.
-
-void UiFunc::clearLayout(QLayout* layout)
+void clearLayout(QLayout* layout, bool delete_widgets)
 {
+    // DANGER: do not use "delete"; use "deleteLater()".
+    // If you use delete, if this is used from signals from within this layout;
+    // you can get a segfault from e.g. QAbstractItemView::mouseReleaseEvent.
+
     if (!layout) {
         qWarning() << "Null pointer passed to clearLayout";
         return;
     }
     // http://stackoverflow.com/questions/4857188/clearing-a-layout-in-qt
-    QLayoutItem* item;
-    while ((item = layout->takeAt(0))) {
-        if (item->layout()) {
-            clearLayout(item->layout());
-            delete item->layout();
+    // https://stackoverflow.com/questions/4272196/qt-remove-all-widgets-from-layout
+
+    // For all the layout items in our layout...
+    while (QLayoutItem* item = layout->takeAt(0)) {
+        // We now own "item", so may (and will) delete it.
+
+        // If the layout item has a layout, clear it out
+        if (QLayout* child_layout = item->layout()) {
+            clearLayout(child_layout, delete_widgets);
+            child_layout->deleteLater();
         }
-        if (item->widget()) {
-            delete item->widget();
+
+        // If the layout item has a widget, and we're deleting widgets, delete
+        // this widget
+        if (delete_widgets) {
+            if (QWidget* child_widget = item->widget()) {
+                child_widget->deleteLater();
+            }
         }
+
+        // Delete the layout item (which we own).
         delete item;
     }
     layout->invalidate();
 }
-*/
+
 
 void scrollToEnd(QPlainTextEdit* editor)
 {

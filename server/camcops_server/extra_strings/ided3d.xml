@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="ided3d">
-    <!-- Three-dimensional ID/ED task -->
 
+  <!--
+  =============================================================================
+  Three-dimensional ID/ED task
+  =============================================================================
+  -->
+
+  <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ENGLISH
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  -->
+
+  <task name="ided3d" language="en-GB">
     <string name="last_stage">Last stage to use (1 [SD] – 8 [EDR], default 8)</string>
     <string name="max_trials_per_stage">Maximum number of trials per stage (abort if this reached without success)</string>
     <string name="progress_criterion_x">Criterion to proceed to next stage: X correct out of the last Y trials, where this is X</string>
@@ -16,6 +27,28 @@
     <string name="offer_abort">Offer abort button?</string>
     <string name="debug_display_stimuli_only">DEBUG: display stimuli only (don’t run task)</string>
     <string name="instructions">On each trial, you will see two stimuli. One is correct, and one is incorrect.\nTry to choose the correct one.\nYou will need to learn which one this is on any given trial.</string>
-
   </task>
+
+  <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  DANISH
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  -->
+
+  <task name="ided3d" language="da-DK">
+    <string name="last_stage">Sidste fase til brug (1 [SD] – 8 [EDR], standard 8)</string>
+    <string name="max_trials_per_stage">Maksimalt antal forsøg pro fase (stop hvis denne fase er nået uden succes)</string>
+    <string name="progress_criterion_x">Kriterium for at gå videre til næste fase: X korrekt ud af de sidste Y forsøg, hvor dette er X</string>
+    <string name="progress_criterion_y">Kriterium for at gå videre til næste fase: X korrekt ud af de sidste Y forsøg, hvor dette er Y</string>
+    <string name="min_number">Mindste antal stimuli [1–9]</string>
+    <string name="max_number">Maksimalt antal stimuli [1–9]</string>
+    <string name="pause_after_beep_ms">Varighed for at fortsætte den visuelle tilbagemelding, efter at auditive tilbagemelding er færdig (ms)</string>
+    <string name="iti_ms">Tid mellem forsøg (ms)</string>
+    <string name="counterbalance_dimensions">Dimension modbalancering [0–5]</string>
+    <string name="volume">Lydstyrke (0–1)</string>
+    <string name="offer_abort">Tilbyd afbryde-knap?</string>
+    <string name="debug_display_stimuli_only">DEBUG: vis kun stimuli (ikke kør opgave)</string>
+    <string name="instructions">På hvert forsøg vil du se to stimuli. Den ene er korrekt, og den ene er forkert.\nPrøv at vælge den rigtige.\nDu bliver nødt til at lære, hvilken en der er på en given prøveperiode.</string>
+  </task>
+
 </resources>

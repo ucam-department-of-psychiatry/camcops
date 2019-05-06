@@ -1405,7 +1405,7 @@ bool NetworkManager::isPatientInfoComplete()
         // Finalizing; must meet all requirements
         statusMessage(tr(
             "Failure: %1 patient(s) do not meet the server's upload ID policy "
-            "[%2]; %3 patient(s) do not meet the its finalize ID policy [%4]")
+            "[%2]; %3 patient(s) do not meet its finalize ID policy [%4]")
                       .arg(nfailures_upload)
                       .arg(m_app.uploadPolicy().pretty())
                       .arg(nfailures_finalize)
@@ -1720,7 +1720,7 @@ bool NetworkManager::catalogueTablesForUpload()
                         statusMessage(tr(
                             "ERROR: Table '%1' contains data; it is present "
                             "on the server but the client requires server "
-                            "version >=%2; the server is version %3'"
+                            "version >=%2; the server is version %3"
                         ).arg(table, min_server_version.toString(),
                               server_version.toString()));
                         return false;
@@ -1737,7 +1737,7 @@ bool NetworkManager::catalogueTablesForUpload()
                         statusMessage(tr(
                             "ERROR: Table '%1' contains data; it is present "
                             "on the server but the server requires client "
-                            "version >=%2; you are using version %3'"
+                            "version >=%2; you are using version %3"
                         ).arg(table, min_client_version.toString(),
                               camcopsversion::CAMCOPS_CLIENT_VERSION.toString()));
                         return false;
@@ -1817,7 +1817,7 @@ bool NetworkManager::isServerVersionOK() const
         return false;
     }
     if (server_version != stored_server_version) {
-        statusMessage(tr("Server version (%1) doesn't match stored version (%2). ")
+        statusMessage(tr("Server version (%1) doesn't match stored version (%2).")
                       .arg(server_version.toString(),
                            stored_server_version.toString()) +
                       txtPleaseReregister());
@@ -1837,13 +1837,13 @@ bool NetworkManager::arePoliciesOK() const
     const QString server_finalize = IdPolicy(m_reply_dict[KEY_ID_POLICY_FINALIZE]).pretty();
     bool ok = true;
     if (local_upload != server_upload) {
-        statusMessage(tr("Local upload policy [%1] doesn't match server's [%2]. ")
+        statusMessage(tr("Local upload policy [%1] doesn't match server's [%2].")
                       .arg(local_upload, server_upload) +
                       txtPleaseReregister());
         ok = false;
     }
     if (local_finalize != server_finalize) {
-        statusMessage(tr("Local finalize policy [%1] doesn't match server's [%2]. ")
+        statusMessage(tr("Local finalize policy [%1] doesn't match server's [%2].")
                       .arg(local_finalize, server_finalize) +
                       txtPleaseReregister());
         ok = false;
@@ -1899,9 +1899,9 @@ bool NetworkManager::areDescriptionsOK() const
         statusMessage(tr("... OK"));
     } else if (!idnums_all_on_server) {
         statusMessage(tr("Some ID numbers defined on the tablet are absent on "
-                         "the server! ") + txtPleaseReregister());
+                         "the server!") + txtPleaseReregister());
     } else if (!descriptions_match) {
-        statusMessage(tr("Descriptions do not match! ") + txtPleaseReregister());
+        statusMessage(tr("Descriptions do not match!") + txtPleaseReregister());
     } else if (extra_idnums) {
         statusMessage(tr(
                 "ID numbers %1 are used on the tablet but not defined "
@@ -2132,5 +2132,5 @@ QString NetworkManager::getPkInfoAsJson()
 
 QString NetworkManager::txtPleaseReregister()
 {
-    return tr("Please re-register with the server.");
+    return " " + tr("Please re-register with the server.");
 }

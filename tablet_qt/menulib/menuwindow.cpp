@@ -55,15 +55,7 @@ MenuWindow::MenuWindow(CamcopsApp& app,
     m_app(app),
     m_icon(icon),
     m_top(top),
-    m_offer_search(offer_search),
-#ifdef MENUWINDOW_USE_HFW_LAYOUT
-    m_mainlayout(new VBoxLayout()),
-#else
-    m_mainlayout(new QVBoxLayout()),
-#endif
-    m_p_header(nullptr),
-    m_search_box(nullptr),
-    m_p_listwidget(nullptr)
+    m_offer_search(offer_search)
 {
     setEscapeKeyCanAbort(!top, true);
 
@@ -108,6 +100,11 @@ MenuWindow::MenuWindow(CamcopsApp& app,
     dummy_widget->setObjectName(cssconst::MENU_WINDOW_BACKGROUND);
     dummy_layout->addWidget(dummy_widget);
 
+#ifdef MENUWINDOW_USE_HFW_LAYOUT
+    m_mainlayout = new VBoxLayout();
+#else
+    m_mainlayout = new QVBoxLayout();
+#endif
     m_mainlayout->setContentsMargins(uiconst::NO_MARGINS);
     dummy_widget->setLayout(m_mainlayout);
 
@@ -118,6 +115,58 @@ MenuWindow::MenuWindow(CamcopsApp& app,
     // keep the menu header visible, and have scroll bars showing the position
     // within the list view (both for menus and questionnaires, I'd think).
     // So we'll stick with a simple layout.
+
+    // ------------------------------------------------------------------------
+    // Rest of layout
+    // ------------------------------------------------------------------------
+    // When the framework calls build(), that'll set up the layout, etc.
+
+    // ------------------------------------------------------------------------
+    // Other signals
+    // ------------------------------------------------------------------------
+
+    // Do this in main constructor, not build(), since build() can be called
+    // from this signal!
+    connect(&m_app, &CamcopsApp::lockStateChanged,
+            this, &MenuWindow::lockStateChanged,
+            Qt::UniqueConnection);
+}
+
+
+void MenuWindow::setIcon(const QString& icon)
+{
+    m_icon = icon;
+    m_p_header->setIcon(icon);
+}
+
+
+void MenuWindow::loadStyleSheet()
+{
+    setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MENU));
+}
+
+
+void MenuWindow::reloadStyleSheet()
+{
+    loadStyleSheet();
+    uifunc::repolish(this);
+}
+
+
+void MenuWindow::rebuild()
+{
+    makeLayout();
+    makeItems();
+    build();
+}
+
+
+void MenuWindow::makeLayout()
+{
+    // ------------------------------------------------------------------------
+    // Clear any existing layout (in case we're rebuilding)
+    // ------------------------------------------------------------------------
+    uifunc::clearLayout(m_mainlayout);
 
     // ------------------------------------------------------------------------
     // Header
@@ -210,46 +259,10 @@ MenuWindow::MenuWindow(CamcopsApp& app,
     uifunc::applyScrollGestures(m_p_listwidget->viewport());
 
     // ------------------------------------------------------------------------
-    // Other signals
+    // Subclass specialization of layout
     // ------------------------------------------------------------------------
 
-    // Do this in main constructor, not build(), since build() can be called
-    // from this signal!
-    connect(&m_app, &CamcopsApp::lockStateChanged,
-            this, &MenuWindow::lockStateChanged,
-            Qt::UniqueConnection);
-}
-
-
-void MenuWindow::setIcon(const QString& icon)
-{
-    m_icon = icon;
-    m_p_header->setIcon(icon);
-}
-
-
-void MenuWindow::loadStyleSheet()
-{
-    setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MENU));
-}
-
-
-void MenuWindow::reloadStyleSheet()
-{
-    loadStyleSheet();
-    uifunc::repolish(this);
-}
-
-
-void MenuWindow::rebuild()
-{
-    makeItems();
-    build();
-}
-
-
-void MenuWindow::makeItems()
-{
+    extraLayoutCreation();
 }
 
 
@@ -257,11 +270,12 @@ void MenuWindow::build()
 {
     qDebug() << Q_FUNC_INFO;
 
-    m_p_header->setTitle(title());
-
-    if (m_items.isEmpty()) {
+    if (m_items.isEmpty()) {  // First time through
+        makeLayout();
         makeItems();
     }
+
+    m_p_header->setTitle(title());
 
     m_p_listwidget->clear();
 
@@ -312,6 +326,8 @@ void MenuWindow::build()
 
     // Stretch not necessary, even if the menu is short (the QListWidget
     // seems to handle this fine).
+
+    afterBuild();
 }
 
 
@@ -466,7 +482,7 @@ void MenuWindow::viewTask()
                 this);
     QAbstractButton* summary = msgbox.addButton(tr("Summary"), QMessageBox::YesRole);
     QAbstractButton* detail = msgbox.addButton(tr("Detail"), QMessageBox::NoRole);
-    msgbox.addButton(tr("Cancel"), QMessageBox::RejectRole);  // e.g. Cancel
+    msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);  // e.g. Cancel
     QAbstractButton* facsimile = nullptr;
     if (facsimile_available) {
         facsimile = msgbox.addButton(tr("Facsimile"), QMessageBox::AcceptRole);

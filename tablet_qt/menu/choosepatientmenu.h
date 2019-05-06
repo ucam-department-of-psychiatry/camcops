@@ -30,7 +30,8 @@ public:
     ChoosePatientMenu(CamcopsApp& app);
     virtual QString title() const override;
 protected:
-    virtual void build() override;
+    virtual void extraLayoutCreation() override;
+    virtual void makeItems() override;
     virtual void viewItem() override;
     virtual void editItem() override;
     virtual void deleteItem() override;

@@ -80,6 +80,7 @@ public:
     static QString cliniciansComments();
     static QString comment();
     static QString comments();
+    static QString copy();
     static QString correct();
     
     static QString dataCollectionOnlyAnnouncement();
@@ -133,6 +134,7 @@ public:
     
     static QString of();
     static QString off();
+    static QString ok();
     static QString on();
     
     static QString page();

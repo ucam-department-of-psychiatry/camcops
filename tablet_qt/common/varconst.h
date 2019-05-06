@@ -27,6 +27,9 @@ namespace varconst {
 // Names of server variables, and a few associated constants.
 // ----------------------------------------------------------------------------
 
+// Language
+extern const QString LANGUAGE;
+
 // Version storage
 extern const QString CAMCOPS_TABLET_VERSION_AS_STRING;
 

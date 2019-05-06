@@ -22,7 +22,7 @@
 #include <QString>
 #include <QVariant>
 #include <QVector>
-struct SqlArgs;
+#include "db/sqlargs.h"
 
 // Represents the WHERE clause of an SQL query/command.
 
@@ -37,6 +37,9 @@ public:
     // Adds a condition: "WHERE ... [AND] <column> <op> <value>"
     void add(const QString& column, const QString& op,
              const QVariant& value);
+
+    // Sets the WHERE clause by hand. Overrides the "add" methods.
+    void set(const SqlArgs& sql_args);
 
     // Modifies the SQL in the supplied SqlArgs object to add the WHERE.
     void appendWhereClauseTo(SqlArgs& sqlargs_altered) const;
@@ -54,6 +57,9 @@ protected:
 
     // Values
     QVector<QVariant> m_values;
+
+    // Raw SQL and arguments
+    SqlArgs m_raw_sqlargs;
 
 public:
     // Debugging description

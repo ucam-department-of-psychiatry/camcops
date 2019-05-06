@@ -45,6 +45,7 @@ QString TextConst::clinicianSpecialty() { return tr("Clinician’s specialty"); 
 QString TextConst::cliniciansComments() { return tr("Clinician’s comments"); }
 QString TextConst::comment() { return tr("Comment"); }
 QString TextConst::comments() { return tr("Comments"); }
+QString TextConst::copy() { return tr("Copy"); }
 QString TextConst::correct() { return tr("Correct"); }
 
 QString TextConst::dataCollectionOnlyAnnouncement()
@@ -114,8 +115,8 @@ QString TextConst::moveUp() { return tr("Move up"); }
 QString TextConst::na() { return tr("N/A"); }
 QString TextConst::none() { return tr("None"); }
 QString TextConst::no() { return tr("No"); }
-QString TextConst::noDetailSeeFacsimile() { return tr("No detail available; } see the facsimile instead"); }
-QString TextConst::noSummarySeeFacsimile() { return tr("No summary available; } see the facsimile instead"); }
+QString TextConst::noDetailSeeFacsimile() { return tr("No detail available; see the facsimile instead"); }
+QString TextConst::noSummarySeeFacsimile() { return tr("No summary available; see the facsimile instead"); }
 QString TextConst::normal() { return tr("Normal"); }
 QString TextConst::notApplicable() { return tr("Not applicable"); }
 QString TextConst::notRecalled() { return tr("Not recalled"); }
@@ -124,6 +125,7 @@ QString TextConst::note() { return tr("Note"); }
 
 QString TextConst::of() { return tr("of"); }
 QString TextConst::off() { return tr("Off"); }
+QString TextConst::ok() { return tr("OK"); }
 QString TextConst::on() { return tr("On"); }
 
 QString TextConst::page() { return tr("page"); }
@@ -197,7 +199,7 @@ QString TextConst::termsConditions() {
         "CamCOPS is distributed in the hope that it will be useful, "
         "but WITHOUT ANY WARRANTY; without even the implied warranty of "
         "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the "
-        "GNU General Public License for more details\n\n"
+        "GNU General Public License for more details.\n\n"
 
         "You should have received a copy of the GNU General Public License "
         "along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.\n\n"

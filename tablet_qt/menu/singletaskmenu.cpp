@@ -37,6 +37,11 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     MenuWindow(app, ""),  // start with a blank title
     m_tablename(tablename)
 {
+}
+
+
+void SingleTaskMenu::extraLayoutCreation()
+{
     // Title
     TaskFactory* factory = m_app.taskFactory();
     TaskPtr specimen = factory->create(m_tablename);
@@ -71,7 +76,7 @@ QString SingleTaskMenu::title() const
 }
 
 
-void SingleTaskMenu::build()
+void SingleTaskMenu::makeItems()
 {
     TaskFactory* factory = m_app.taskFactory();
     TaskPtr specimen = factory->create(m_tablename);
@@ -112,10 +117,11 @@ void SingleTaskMenu::build()
     for (const TaskPtr& task : tasklist) {
         m_items.append(MenuItem(task, false, show_patient_name));
     }
+}
 
-    // Call parent buildMenu()
-    MenuWindow::build();
 
+void SingleTaskMenu::afterBuild()
+{
     emit offerAdd(m_anonymous || m_app.isPatientSelected());
 }
 
@@ -174,14 +180,14 @@ void SingleTaskMenu::addTask()
 
 void SingleTaskMenu::selectedPatientChanged(const Patient* patient)
 {
-    build();  // refresh task list
+    rebuild();  // refresh task list
     emit offerAdd(m_anonymous || patient);
 }
 
 
 void SingleTaskMenu::taskFinished()
 {
-    build();  // refresh task list
+    rebuild();  // refresh task list
 }
 
 

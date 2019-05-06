@@ -28,6 +28,7 @@
 #include "tasks/cardinalexpectationdetection.h"
 #include "tasks/diagnosisicd9cm.h"
 #include "tasks/ided3d.h"
+#include "tasks/kirby.h"
 #include "tasks/qolbasic.h"
 #include "tasks/qolsg.h"
 #include "taskxtra/cardinalexpdetcommon.h"
@@ -52,6 +53,7 @@ void ResearchMenu::makeItems()
         MenuItem(tr("Well known or generic")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, m_app),
+        // *** // MAKE_TASK_MENU_ITEM(Kirby::KIRBY_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolSG::QOLSG_TABLENAME, m_app),
         MenuItem(tr("Experimental")).setLabelOnly(),

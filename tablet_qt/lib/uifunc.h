@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QSize>
 #include <QString>
+#include "common/uiconst.h"
 
 class QAbstractButton;
 class QLabel;
@@ -46,15 +47,16 @@ QPixmap getPixmap(const QString& filename, const QSize& size = QSize(),
 // ============================================================================
 
 // Returns a QLabel with an image loaded from the specified filename.
-// If scale is true, scale to uiconst::ICONSIZE.
+// If scale is true, scale to the specified size.
 QLabel* iconWidget(const QString& filename,
                    QWidget* parent = nullptr,
-                   bool scale = true);
+                   bool scale = true,
+                   const QSize& size = uiconst::g_iconsize);
 
 // Given an existing QLabel, force it to show an icon of the standard size
 // (or nothing, with zero size, if "filename" is empty).
 void setLabelToIcon(QLabel* iconlabel, const QString& filename,
-                    bool scale = true);
+                    bool scale = true, const QSize& size = uiconst::g_iconsize);
 
 // Adds a circle behind (or on top of) the supplied image (used for "you are
 // touching this" indicators on icons).
@@ -71,8 +73,9 @@ QPixmap addUnpressedBackground(const QPixmap& image, bool behind = true);
 // Adds a standard "this button is unavailable" indicator.
 QPixmap makeDisabledIcon(const QPixmap& image);
 
-// Creates a blank icon of our standard size, uiconst::ICONSIZE.
-QLabel* blankIcon(QWidget* parent = nullptr);
+// Creates a blank icon of our standard size (or a specified size).
+QLabel* blankIcon(QWidget* parent = nullptr,
+                  const QSize& size = uiconst::g_iconsize);
 
 // Returns the full "path" to a Qt QRC resource file; e.g. if given
 // "somepath/somefile.txt", returns ":/resources/somepath/somefile.txt".
@@ -142,6 +145,9 @@ void setPropertyItalic(QWidget* widget, bool italic, bool repolish = true);
 // Sets the widget's "missing" property.
 void setPropertyMissing(QWidget* widget, bool missing,
                         bool repolish = true);
+
+// Clear all widgets from a layout
+void clearLayout(QLayout* layout, bool delete_widgets = true);
 
 // Handy functions:
 

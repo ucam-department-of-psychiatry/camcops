@@ -100,7 +100,7 @@ bool ensureDirectoryExists(const QString& dir)
 void ensureDirectoryExistsOrDie(const QString& dir)
 {
     if (!ensureDirectoryExists(dir)) {
-        uifunc::stopApp(QObject::tr("dbFullPath: Failed to make directory: ") +
+        uifunc::stopApp(QObject::tr("Failed to make directory: ") +
                         dir);
     }
 }

@@ -34,7 +34,7 @@ QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref,
     m_allow_empty(allow_empty),
     m_strict_validator(true)
 {
-    setHint(QString("real number, %1 dp").arg(m_decimals));
+    setHint(tr("real number, %1 dp").arg(m_decimals));
 }
 
 
@@ -50,7 +50,7 @@ QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref,
     m_allow_empty(allow_empty),
     m_strict_validator(true)
 {
-    setHint(QString("real number, %1 to %2, %3 dp")
+    setHint(tr("real number, %1 to %2, %3 dp")
             .arg(m_minimum)
             .arg(m_maximum)
             .arg(m_decimals));

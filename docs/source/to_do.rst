@@ -161,6 +161,11 @@ Client core
 - Client-side task index, to speed up the client's patient summary view. (This
   is not a performance problem!)
 
+- Tasks record the language operational on the client at the moment of their
+  creation. (Would need the client to remove this field for older server
+  versions at the moment of upload.) A reason not to: users can switch language
+  mid-way, and we're not going to track all those potential changes.
+
 
 Server
 ------

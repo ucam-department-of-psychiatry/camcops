@@ -21,6 +21,9 @@
 
 namespace varconst {
 
+// Language
+const QString LANGUAGE("language");
+
 // Version storage
 const QString CAMCOPS_TABLET_VERSION_AS_STRING("camcopsVersion");
 

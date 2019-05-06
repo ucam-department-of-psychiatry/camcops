@@ -96,11 +96,21 @@ protected:
     // Ensures items are recreated in full
     void rebuild();
 
+    // Make the Qt widget layout. Calls extraLayoutCreation().
+    void makeLayout();
+
+    // Additional function that subclasses can override to specialize layout.
+    virtual void extraLayoutCreation() {}
+
     // Called by the default implementation of build(), for simplicity
-    virtual void makeItems();
+    virtual void makeItems() {}
 
     // Create widgets. Called by the OpenableWidget framework prior to opening.
-    virtual void build() override;
+    void build() override;
+
+    // Called by build() as it finishes. Allows subclasses to do extra
+    // processing, e.g. emitting signals.
+    virtual void afterBuild() {}
 
     // Load or reload the stylesheet on our widget.
     void reloadStyleSheet();

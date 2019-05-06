@@ -28,8 +28,11 @@
 PatientSummaryMenu::PatientSummaryMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_PATIENT_SUMMARY))
 {
-    // m_items is EXPENSIVE (and depends on security), so leave it to build()
+}
 
+
+void PatientSummaryMenu::extraLayoutCreation()
+{
     // Signals
     connect(&m_app, &CamcopsApp::selectedPatientChanged,
             this, &PatientSummaryMenu::selectedPatientChanged,

@@ -82,6 +82,7 @@
 #include <QVideoFrame>
 #include "common/cssconst.h"
 #include "common/preprocessor_aid.h"
+#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "dialogs/scrollmessagebox.h"
 #include "graphics/imagefunc.h"
@@ -161,7 +162,7 @@ CameraQCamera::CameraQCamera(const QCameraInfo& camera_info,
     connect(m_button_take, &QAbstractButton::clicked,
             this, &CameraQCamera::takeImage);
 
-    m_button_cancel = new QPushButton(tr("Cancel"));
+    m_button_cancel = new QPushButton(TextConst::cancel());
     connect(m_button_cancel, &QAbstractButton::clicked,
             this, &CameraQCamera::cancelled);
 

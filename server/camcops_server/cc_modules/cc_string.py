@@ -49,6 +49,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 APPSTRING_TASKNAME = "camcops"
+MISSING_LANGUAGE = ""
 
 
 # =============================================================================
@@ -116,7 +117,7 @@ def text_contents(e: Element, plain: bool = False, strip: bool = True) -> str:
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def all_extra_strings_as_dicts(
-        config_filename: str) -> Dict[str, Dict[str, str]]:
+        config_filename: str) -> Dict[str, Dict[str, Dict[str, str]]]:
     r"""
     Returns strings from the all the extra XML string files.
 
@@ -125,19 +126,54 @@ def all_extra_strings_as_dicts(
     Args:
         config_filename: a CamCOPS config filename
 
-    Returns:
+    Returns: a dictionary like
 
-        a dictionary whose keys are tasknames,
+        .. code-block:: none
 
-        - and whose values are each a dictionary
+            {
+                'task1': {
+                    'stringname1': {
+                        "en-GB": "a string in British English",
+                        "da-DK": "a string in Danish",
+                    },
+                    'stringname1': {
+                    },
+                },
+                'task2: {
+                    ...
+                },
+                ...
+            }
 
-            - whose keys are string names
-            - and whose values are strings.
+    ... in other words a ``Dict[taskname: str, Dict[stringname: str,
+    Dict[language: str, stringvalue: str]]]``.
 
-    For example, ``result['phq9']['q5'] == "5. Poor appetite or overeating"``.
-    There is also a top-level dictionary with the key ``APPSTRING_TASKNAME``.
+    For example, ``result['phq9']['q5'][language] == "5. Poor appetite or
+    overeating"``. There is also a top-level dictionary with the key
+    ``APPSTRING_TASKNAME``.
 
-    The extra string files look like this:
+    **XML format**
+
+    The extra string files should look like this:
+
+    .. code-block:: xml
+
+        <?xml version="1.0" encoding="UTF-8"?>
+        <resources>
+            <task name="TASK_1" language="en-GB">
+                <string name="NAME_1">VALUE</string>
+                <string name="NAME_2">VALUE WITH\nNEWLINE</string>
+                <!-- ... -->
+            </task>
+            <!-- ... -->
+        </resources>
+
+    If the ``language`` attribute is not specified, a language tag of ``""`` is
+    used internally and will be the fallback position if nothing else is found.
+
+    """
+    _ = """
+    The extra string files looked like this prior to 2019-05-05:
 
     .. code-block:: xml
 
@@ -151,7 +187,59 @@ def all_extra_strings_as_dicts(
             <!-- ... -->
         </resources>
 
+    Designing XML:
+
+    - an "element" looks like ``<thing>blah</thing>``, or ``<thing />``;
+      the "element name" is "thing" in this example, and "blah" is called the
+      "content".
+    - the delimiters of an element are tags: start tags such as ``<thing>``,
+      end tags such as ``</thing>``, or empty-element tags such as
+      ``<thing />``.
+    - an "attribute" is a name-value pair, e.g. ``<tagname attrname=value
+      ...>``; "attrname" in this example is called the "attribute name".
+    - So you can add information via the element structure or the attribute
+      system.
+
+    So, as we add language support (2019-05-05), we start with:
+
+    - element names for types of information (task, string)
+    - attribute values for labelling the content
+    - content for the string data
+
+    There are many ways we could add language information. Adding an attribute
+    to every string seems verbose, though. We could use one of these systems:
+
+    .. code-block:: xml
+
+        <?xml version="1.0" encoding="UTF-8"?>
+        <resources>
+            <task name="TASK_1">
+                <language name="en-GB">
+                    <string name="NAME_1">VALUE</string>
+                    <string name="NAME_2">VALUE WITH\nNEWLINE</string>
+                    <!-- ... -->
+                </language>
+            </task>
+            <!-- ... -->
+        </resources>
+
+    .. code-block:: xml
+
+        <?xml version="1.0" encoding="UTF-8"?>
+        <resources>
+            <task name="TASK_1" language="en-GB">
+                <string name="NAME_1">VALUE</string>
+                <string name="NAME_2">VALUE WITH\nNEWLINE</string>
+                <!-- ... -->
+            </task>
+            <!-- ... -->
+        </resources>
+
+    The second seems a bit clearer (fewer levels). Let's do that. It also makes
+    all existing XML files automatically compatible (with minor code
+    adaptations).
     """
+
     cfg = get_config(config_filename)
     assert cfg.extra_string_files is not None
     filenames = []  # type: List [str]
@@ -162,21 +250,28 @@ def all_extra_strings_as_dicts(
     if not filenames:
         raise_runtime_error("No CamCOPS extra string files specified; "
                             "config is misconfigured; aborting")
-    allstrings = {}  # type: Dict[str, Dict[str, str]]
+    allstrings = {}  # type: Dict[str, Dict[str, Dict[str, str]]]
     for filename in filenames:
         log.info("Loading string XML file: {}", filename)
         parser = ElementTree.XMLParser(encoding="UTF-8")
         tree = ElementTree.parse(filename, parser=parser)
         root = tree.getroot()
+        # We'll search via an XPath. See
+        # https://docs.python.org/3.7/library/xml.etree.elementtree.html#xpath-support  # noqa
         for taskroot in root.findall("./task[@name]"):
+            # ... "all elements with the tag 'task' that have an attribute
+            # named 'name'"
             taskname = taskroot.attrib.get("name")
-            if taskname not in allstrings:
-                allstrings[taskname] = {}  # type: Dict[str, str]
+            language = taskroot.attrib.get("language", MISSING_LANGUAGE)
+            taskstrings = allstrings.setdefault(taskname, {})  # type: Dict[str, Dict[str, str]]  # noqa
             for e in taskroot.findall("./string[@name]"):
+                # ... "all elements with the tag 'string' that have an attribute
+                # named 'name'"
                 stringname = e.attrib.get("name")
                 final_string = text_contents(e)
                 final_string = unescape_newlines(final_string)
-                allstrings[taskname][stringname] = final_string
+                langversions = taskstrings.setdefault(stringname, {})  # type: Dict[str, str]  # noqa
+                langversions[language] = final_string
 
     if APPSTRING_TASKNAME not in allstrings:
         raise_runtime_error(

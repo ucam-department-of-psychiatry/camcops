@@ -664,11 +664,11 @@ void TestMenu::testTranslation()
 
 void TestMenu::switchToDanish()
 {
-    m_app.setLanguage(languages::DANISH);
+    m_app.setLanguage(languages::DANISH, true);
 }
 
 
 void TestMenu::switchToEnglish()
 {
-    m_app.setLanguage(languages::ENGLISH);
+    m_app.setLanguage(languages::ENGLISH_UK, true);
 }

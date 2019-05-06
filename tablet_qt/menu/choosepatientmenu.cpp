@@ -34,6 +34,11 @@
 ChoosePatientMenu::ChoosePatientMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_CHOOSE_PATIENT))
 {
+}
+
+
+void ChoosePatientMenu::extraLayoutCreation()
+{
     connect(&m_app, &CamcopsApp::selectedPatientDetailsChanged,
             this, &ChoosePatientMenu::selectedPatientDetailsChanged,
             Qt::UniqueConnection);
@@ -56,7 +61,7 @@ QString ChoosePatientMenu::title() const
 }
 
 
-void ChoosePatientMenu::build()
+void ChoosePatientMenu::makeItems()
 {
     // Patient
     PatientPtrList patients = m_app.getAllPatients();
@@ -74,11 +79,6 @@ void ChoosePatientMenu::build()
     for (const PatientPtr& patient : patients) {
         m_items.append(MenuItem(patient));
     }
-
-    // Call parent buildMenu()
-    MenuWindow::build();
-    // ... which has special facilities for detecting a currently selected
-    // patient and setting offerView, offerEditDelete
 }
 
 
@@ -173,7 +173,7 @@ void ChoosePatientMenu::deletePatient()
                     QMessageBox::Warning,
                     tr("Delete patient WITH TASKS"),
                     tr("Delete this patient?") + "\n\n" + patient_details +
-                        tr("\n\nTHERE ARE %1 ASSOCIATED TASKS!").arg(n_tasks),
+                        "\n\n" + tr("THERE ARE %1 ASSOCIATED TASKS!").arg(n_tasks),
                     this);
         // NB can't use HTML "<b></b>" in the text there.
         QAbstractButton* delete_button = msgbox.addButton(
@@ -190,20 +190,20 @@ void ChoosePatientMenu::deletePatient()
     patient->deleteFromDatabase();
     qInfo() << "... patient deleted";
     m_app.deselectPatient();
-    build();
+    rebuild();
 }
 
 
 void ChoosePatientMenu::selectedPatientDetailsChanged(const Patient* patient)
 {
     Q_UNUSED(patient);
-    build();  // refresh patient list
+    rebuild();  // refresh patient list
 }
 
 
 void ChoosePatientMenu::refreshPatientList()
 {
-    build();  // refresh patient list
+    rebuild();  // refresh patient list
 }
 
 
@@ -290,7 +290,7 @@ void ChoosePatientMenu::mergePatients()
 
     // Refresh list, etc.
     m_app.deselectPatient();
-    build();  // refresh patient list
+    rebuild();  // refresh patient list
 }
 
 
