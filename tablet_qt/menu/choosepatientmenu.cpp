@@ -40,7 +40,7 @@ ChoosePatientMenu::ChoosePatientMenu(CamcopsApp& app) :
 void ChoosePatientMenu::extraLayoutCreation()
 {
     connect(&m_app, &CamcopsApp::selectedPatientDetailsChanged,
-            this, &ChoosePatientMenu::selectedPatientDetailsChanged,
+            this, &ChoosePatientMenu::refreshPatientList,
             Qt::UniqueConnection);
     connect(&m_app, &CamcopsApp::refreshPatientList,
             this, &ChoosePatientMenu::refreshPatientList,
@@ -190,20 +190,13 @@ void ChoosePatientMenu::deletePatient()
     patient->deleteFromDatabase();
     qInfo() << "... patient deleted";
     m_app.deselectPatient();
-    rebuild();
-}
-
-
-void ChoosePatientMenu::selectedPatientDetailsChanged(const Patient* patient)
-{
-    Q_UNUSED(patient);
-    rebuild();  // refresh patient list
+    refreshPatientList();
 }
 
 
 void ChoosePatientMenu::refreshPatientList()
 {
-    rebuild();  // refresh patient list
+    rebuild(false);  // no need to rebuild header
 }
 
 
@@ -290,7 +283,7 @@ void ChoosePatientMenu::mergePatients()
 
     // Refresh list, etc.
     m_app.deselectPatient();
-    rebuild();  // refresh patient list
+    refreshPatientList();
 }
 
 

@@ -56,10 +56,10 @@ CameraButton {
 
     text: {
         if (camera.lockStatus === Camera.Unlocked)
-            "Focus";
+            qsTr("Focus");
         else if (camera.lockStatus === Camera.Searching)
-            "Focusing"
+            qsTr("Focusing");
         else
-            "Unlock"
+            qsTr("Unlock");
     }
 }

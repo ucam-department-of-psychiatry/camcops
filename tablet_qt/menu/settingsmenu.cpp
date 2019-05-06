@@ -33,6 +33,7 @@
 #include "db/dbnestabletransaction.h"
 #include "db/dumpsql.h"
 #include "db/fieldref.h"
+#include "dbobjects/extrastring.h"
 #include "dbobjects/idnumdescription.h"
 #include "dialogs/logmessagebox.h"
 #include "dialogs/nvpchoicedialog.h"
@@ -1222,6 +1223,28 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
         ++row;
     }
 
+    ExtraString extrastring(m_app, m_app.sysdb());
+    QMap<QString, int> count_by_language = extrastring.getStringCountByLanguage();
+    auto g4 = new QuGridContainer();
+    g4->setColumnStretch(0, 1);
+    g4->setColumnStretch(1, 1);
+    row = 0;
+    g4->addCell(QuGridCell((new QuText(tr("Language")))
+                           ->setTextAlignment(labelalign)
+                           ->setItalic(), row, 0));
+    g4->addCell(QuGridCell((new QuText(tr("Number of strings")))
+                           ->setTextAlignment(dataalign)
+                           ->setItalic(), row, 1));
+    ++row;
+    for (const QString& lang : count_by_language.keys()) {
+        const int count = count_by_language[lang];
+        g4->addCell(QuGridCell((new QuText(lang.isEmpty() ? "–" : lang))
+                               ->setTextAlignment(labelalign), row, 0));
+        g4->addCell(QuGridCell((new QuText(QString::number(count)))
+                               ->setTextAlignment(dataalign)->setBold(), row, 1));
+        ++row;
+    }
+
     QuPagePtr page(new QuPage{
         g1,
         new QuHorizontalLine(),
@@ -1229,6 +1252,9 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
         new QuHorizontalLine(),
         new QuText(tr("ID number descriptions:")),
         g3,
+        new QuHorizontalLine(),
+        new QuText(tr("Extra string counts by language:")),
+        g4,
     });
 
     page->setTitle(tr("Show server information"));

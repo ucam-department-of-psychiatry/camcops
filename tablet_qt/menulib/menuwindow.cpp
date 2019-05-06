@@ -153,9 +153,11 @@ void MenuWindow::reloadStyleSheet()
 }
 
 
-void MenuWindow::rebuild()
+void MenuWindow::rebuild(bool rebuild_header)
 {
-    makeLayout();
+    if (rebuild_header) {
+        makeLayout();
+    }
     makeItems();
     build();
 }
@@ -268,7 +270,7 @@ void MenuWindow::makeLayout()
 
 void MenuWindow::build()
 {
-    qDebug() << Q_FUNC_INFO;
+    // qDebug() << Q_FUNC_INFO;
 
     if (m_items.isEmpty()) {  // First time through
         makeLayout();
@@ -450,7 +452,7 @@ bool MenuWindow::event(QEvent* e)
     const bool result = OpenableWidget::event(e);  // call parent
     const QEvent::Type type = e->type();
     if (type == QEvent::Type::LanguageChange) {
-        rebuild();
+        rebuild();  // including rebuilding the header
     }
     return result;
 }

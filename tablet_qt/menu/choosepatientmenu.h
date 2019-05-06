@@ -39,10 +39,8 @@ protected:
     void deletePatient();
 public slots:
     void addPatient();
-    void selectedPatientDetailsChanged(const Patient* patient);
     void refreshPatientList();
 protected:
-    // virtual void makeItems() override;  // unused; see build()
     void mergePatients();
     static QString txtMergeTitle();
 };

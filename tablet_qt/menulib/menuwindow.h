@@ -94,7 +94,7 @@ public:
 
 protected:
     // Ensures items are recreated in full
-    void rebuild();
+    void rebuild(bool rebuild_header = true);
 
     // Make the Qt widget layout. Calls extraLayoutCreation().
     void makeLayout();

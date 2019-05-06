@@ -2058,7 +2058,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - Client
   - ``MenuWindow`` changes to permit dynamic language change
   - Server
-  - Basic strings to Danish
+  - Client strings, core server to Danish
 
   .. todo:: server internationalization: (1) server (2) per-user
 
@@ -2067,8 +2067,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
   format QSurfaceFormat``; see https://bugreports.qt.io/browse/QTBUG-47191;
   this is with Qt 5.12.0.
 
-  - Added ``qputenv("QT_OPENGL", "software");`` as per that bug report
+  - I think this was because I'd upgraded the OS but not rebooted.
+  - Multiple attempts to fix this, but it applied to all OpenGL programs (e.g.
+    the Qt 3D bar graph demo) and the right thing to do was to make CamCOPS
+    check for OpenGL rather than just assume its presence. See ``QuPhoto`` and
+    ``openglfunc.cpp``.
 
+- Bugfix to ``SingleTaskMenu``: if you had a patient unselected, then locked
+  the app, the task list wasn't appropriately refreshed.
 
 - New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 

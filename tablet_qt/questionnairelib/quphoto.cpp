@@ -47,10 +47,20 @@ QuPhoto::QuPhoto(BlobFieldRefPtr fieldref) :
     m_camera(nullptr),
     m_main_widget(nullptr)
 {
-    m_have_camera = QCameraInfo::availableCameras().count() > 0;
-    // qDebug() << "m_have_camera:" << m_have_camera;
+    m_have_opengl = openglfunc::isOpenGLPresent();
+    const int n_cameras = QCameraInfo::availableCameras().count();
+    m_have_camera = m_have_opengl && n_cameras > 0;
+    // We check for OpenGL. If it's absent, and we try to create a camera,
+    // we can get an instant segfault/crash. Better to
+
+    qDebug().nospace()
+            << "OpenGL present: " << m_have_opengl
+            << "; number of cameras: " << n_cameras
+            << "; have a camera: " << m_have_camera;
+
     if (!m_fieldref) {
         qCritical() << "Null fieldref pointer to QuPhoto";
+        return;
     }
     if (m_fieldref->mandatory()) {
         qWarning() << "You have set a QuPhoto to be mandatory, but not all "
@@ -94,7 +104,8 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
                     this, &QuPhoto::takePhoto);
         }
     } else {
-        no_camera = new QLabel(tr("No camera"));
+        no_camera = new QLabel(m_have_opengl ? tr("No camera")
+                                             : tr("No OpenGL"));
     }
 
     auto button_reset = new ImageButton(uiconst::CBS_DELETE);
@@ -227,23 +238,45 @@ void QuPhoto::takePhoto()
     SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
 
 #ifdef QUPHOTO_USE_CAMERA_QML
+
+#ifdef DEBUG_CAMERA
+    qDebug() << "Creating new CameraQml()...";
+#endif
     m_camera = new CameraQml();
+#ifdef DEBUG_CAMERA
+    qDebug() << "... CameraQml() created";
+#endif
     connect(m_camera, &CameraQml::cancelled, this, &QuPhoto::cameraCancelled);
     connect(m_camera, &CameraQml::rawImageCaptured,
             this, &QuPhoto::rawImageCaptured);
     connect(m_camera, &CameraQml::imageCaptured,
             this, &QuPhoto::imageCaptured);
+
 #else
+
     QString stylesheet = m_questionnaire->getSubstitutedCss(
                 uiconst::CSS_CAMCOPS_CAMERA);
+#ifdef DEBUG_CAMERA
+    qDebug() << "Creating new CameraQCamera()...";
+#endif
     m_camera = new CameraQCamera(stylesheet);
+#ifdef DEBUG_CAMERA
+    qDebug() << "... CameraQCamera() created";
+#endif
     connect(m_camera, &CameraQCamera::imageCaptured,
             this, &QuPhoto::imageCaptured);
     connect(m_camera, &CameraQCamera::cancelled,
             this, &QuPhoto::cameraCancelled);
+
 #endif
 
+#ifdef DEBUG_CAMERA
+    qDebug() << "Asking questionnaire to open camera as subwidget...";
+#endif
     m_questionnaire->openSubWidget(m_camera);
+#ifdef DEBUG_CAMERA
+    qDebug() << "... questionnaire has opened camera as subwidget.";
+#endif
 }
 
 

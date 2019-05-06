@@ -84,7 +84,7 @@ FocusScope {
 
             CameraButton {
                 // RNC: button that triggers the "proper" photo
-                text: "Capture"
+                text: qsTr("Capture")
                 visible: camera.imageCapture.ready
                 onClicked: {
                     // RNC: delete old file
@@ -110,34 +110,34 @@ FocusScope {
                     ListElement {
                         icon: "images/camera_auto_mode.png"
                         value: CameraImageProcessing.WhiteBalanceAuto
-                        text: "Auto"
+                        text: qsTr("Auto")
                     }
                     ListElement {
                         icon: "images/camera_white_balance_sunny.png"
                         value: CameraImageProcessing.WhiteBalanceSunlight
-                        text: "Sunlight"
+                        text: qsTr("Sunlight")
                     }
                     ListElement {
                         icon: "images/camera_white_balance_cloudy.png"
                         value: CameraImageProcessing.WhiteBalanceCloudy
-                        text: "Cloudy"
+                        text: qsTr("Cloudy")
                     }
                     ListElement {
                         icon: "images/camera_white_balance_incandescent.png"
                         value: CameraImageProcessing.WhiteBalanceTungsten
-                        text: "Tungsten"
+                        text: qsTr("Tungsten")
                     }
                     ListElement {
                         icon: "images/camera_white_balance_fluorescent.png"
                         value: CameraImageProcessing.WhiteBalanceFluorescent
-                        text: "Fluorescent"
+                        text: qsTr("Fluorescent")
                     }
                 }
                 onValueChanged: captureControls.camera.imageProcessing.whiteBalanceMode = wbModesButton.value
             }
 
             CameraButton {
-                text: "View"
+                text: qsTr("View")
                 onClicked: captureControls.previewSelected()
                 visible: captureControls.previewAvailable
             }
@@ -161,14 +161,14 @@ FocusScope {
 
             /* RNC: commented out
             CameraButton {
-                text: "Switch to Video"
+                text: qsTr("Switch to video")
                 onClicked: captureControls.videoModeSelected()
             }
             */
 
             CameraButton {
                 id: quitButton
-                text: "Quit"
+                text: qsTr("Quit")
                 onClicked: {
                     // RNC:
                     console.log("Quitting; requesting deletion of superfluous file:", filePath)

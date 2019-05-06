@@ -548,6 +548,7 @@ SOURCES += \
     lib/margins.cpp \
     lib/nhs.cpp \
     lib/numericfunc.cpp \
+    lib/openglfunc.cpp \
     lib/reentrydepthguard.cpp \
     lib/roman.cpp \
     lib/sizehelpers.cpp \
@@ -958,6 +959,7 @@ HEADERS += \
     lib/margins.h \
     lib/nhs.h \
     lib/numericfunc.h \
+    lib/openglfunc.h \
     lib/reentrydepthguard.h \
     lib/roman.h \
     lib/sizehelpers.h \

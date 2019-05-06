@@ -48,6 +48,8 @@ tablet_qt
     common/globals.cpp.rst
     common/globals.h.rst
     common/gui_defines.h.rst
+    common/languages.cpp.rst
+    common/languages.h.rst
     common/platform.cpp.rst
     common/platform.h.rst
     common/preprocessor_aid.h.rst
@@ -224,6 +226,8 @@ tablet_qt
     lib/nhs.h.rst
     lib/numericfunc.cpp.rst
     lib/numericfunc.h.rst
+    lib/openglfunc.cpp.rst
+    lib/openglfunc.h.rst
     lib/reentrydepthguard.cpp.rst
     lib/reentrydepthguard.h.rst
     lib/roman.cpp.rst

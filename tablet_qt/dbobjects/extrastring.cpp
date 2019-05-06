@@ -191,3 +191,29 @@ void ExtraString::makeIndexes()
                      {ExtraString::TASK_FIELD,
                       ExtraString::NAME_FIELD});
 }
+
+
+QMap<QString, int> ExtraString::getStringCountByLanguage() const
+{
+    using dbfunc::delimit;
+    const QString sql_languages(
+        QString("SELECT DISTINCT(%1) FROM %2")
+            .arg(delimit(LANGUAGE_FIELD),
+                 delimit(EXTRASTRINGS_TABLENAME))
+    );
+    const QueryResult result_languages = m_db.query(sql_languages);
+    QStringList languages = result_languages.firstColumnAsStringList();
+    languages.sort();
+    QMap<QString, int> count_by_language;
+    for (const QString& language : languages) {
+        const SqlArgs query_lang(
+            QString("SELECT COUNT(*) FROM %1 WHERE %2 = ?")
+                    .arg(delimit(EXTRASTRINGS_TABLENAME),
+                         delimit(LANGUAGE_FIELD)),
+            {language}
+        );
+        const int c = m_db.fetchInt(query_lang);
+        count_by_language[language] = c;
+    }
+    return count_by_language;
+}

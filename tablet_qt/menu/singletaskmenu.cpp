@@ -59,7 +59,10 @@ void SingleTaskMenu::extraLayoutCreation()
             this, &SingleTaskMenu::selectedPatientChanged,
             Qt::UniqueConnection);
     connect(&m_app, &CamcopsApp::taskAlterationFinished,
-            this, &SingleTaskMenu::taskFinished,
+            this, &SingleTaskMenu::refreshTaskList,
+            Qt::UniqueConnection);
+    connect(&m_app, &CamcopsApp::lockStateChanged,
+            this, &SingleTaskMenu::refreshTaskList,
             Qt::UniqueConnection);
 
     connect(m_p_header, &MenuHeader::addClicked,
@@ -180,14 +183,8 @@ void SingleTaskMenu::addTask()
 
 void SingleTaskMenu::selectedPatientChanged(const Patient* patient)
 {
-    rebuild();  // refresh task list
+    refreshTaskList();
     emit offerAdd(m_anonymous || patient);
-}
-
-
-void SingleTaskMenu::taskFinished()
-{
-    rebuild();  // refresh task list
 }
 
 
@@ -224,4 +221,10 @@ void SingleTaskMenu::showTaskStatus() const
             specimen->hasExtraStrings()));
     add(tr("Editable once created"), uifunc::yesNo(specimen->isEditable()));
     uifunc::alert(info.join("<br>"), tr("Task status"));
+}
+
+
+void SingleTaskMenu::refreshTaskList()
+{
+    rebuild(false);  // no need to recreate hader
 }

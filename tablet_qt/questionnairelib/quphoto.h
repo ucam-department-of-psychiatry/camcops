@@ -22,6 +22,7 @@
 #define QUPHOTO_USE_CAMERA_QML
 
 #include "db/blobfieldref.h"
+#include "lib/openglfunc.h"
 #include "questionnairelib/quelement.h"
 
 class AspectRatioPixmap;
@@ -82,6 +83,7 @@ protected slots:
 
 protected:
     BlobFieldRefPtr m_fieldref;  // our field
+    bool m_have_opengl;  // is OpenGL available?
     bool m_have_camera;  // are any cameras available?
 
     QPointer<Questionnaire> m_questionnaire;  // our questionnaire

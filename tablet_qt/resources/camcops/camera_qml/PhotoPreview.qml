@@ -72,7 +72,7 @@ Item {
             top: parent.top
             margins: 8
         }
-        text: "Save"
+        text: qsTr("Save")
         onClicked: {
             imageSavedToFile()
         }

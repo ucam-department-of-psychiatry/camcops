@@ -175,17 +175,19 @@ void CamcopsApp::setLanguage(const QString& language_code,
         removeTranslator(m_app_translator.data());
         m_app_translator = nullptr;
     }
-    const QString cc_filename = QString("camcops_%1.qm").arg(language_code);
-    const QString cc_directory(":/translations");
-    m_app_translator = QSharedPointer<QTranslator>(new QTranslator());
-    loaded = m_app_translator->load(cc_filename, cc_directory);
-    if (loaded) {
-        installTranslator(m_app_translator.data());
-        qInfo() << "Loaded CamCOPS translator" << cc_filename
-                << "from" << cc_directory;
-    } else {
-        qWarning() << "Failed to load CamCOPS translator" << cc_filename
-                   << "from" << cc_directory;
+    if (language_code != languages::DEFAULT_LANGUAGE) {
+        const QString cc_filename = QString("camcops_%1.qm").arg(language_code);
+        const QString cc_directory(":/translations");
+        m_app_translator = QSharedPointer<QTranslator>(new QTranslator());
+        loaded = m_app_translator->load(cc_filename, cc_directory);
+        if (loaded) {
+            installTranslator(m_app_translator.data());
+            qInfo() << "Loaded CamCOPS translator" << cc_filename
+                    << "from" << cc_directory;
+        } else {
+            qWarning() << "Failed to load CamCOPS translator" << cc_filename
+                       << "from" << cc_directory;
+        }
     }
 
     // 5. Set the locale (so that e.g. calendar widgets use the right

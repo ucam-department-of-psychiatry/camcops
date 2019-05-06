@@ -27,6 +27,7 @@ namespace languages
 extern const QString DANISH;
 extern const QString ENGLISH_UK;
 
+// The language that the original C++ code of CamCOPS uses:
 extern const QString& DEFAULT_LANGUAGE;
 
 NameValueOptions possibleLanguages();

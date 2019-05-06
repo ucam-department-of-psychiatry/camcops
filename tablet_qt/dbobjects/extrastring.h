@@ -70,6 +70,9 @@ public:
     // (Resembles a Python classmethod; sort-of static function.)
     void makeIndexes();
 
+    // "Classmethod": count number of strings by language
+    QMap<QString, int> getStringCountByLanguage() const;
+
 public:
     static const QString TASK_FIELD;
     static const QString NAME_FIELD;

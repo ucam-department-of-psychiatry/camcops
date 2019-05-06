@@ -20,7 +20,7 @@
 // #define TEST_BASIC_QT_ONLY  // Disables CamCOPS! Just says hello.
 #define FULL_LOG_FORMAT
 #define DISABLE_ANDROID_NATIVE_DIALOGS
-#define QT_OPENGL_IN_SOFTWARE
+// #define QT_OPENGL_IN_SOFTWARE
 
 #include <QApplication>
 #include <QDebug>
@@ -68,8 +68,47 @@ int main(int argc, char* argv[])
     // For when it all breaks!
     return runMinimalQtApp(argc, argv);
 #else
+
+    // ========================================================================
+    // Qt environment variables
+    // ========================================================================
+
+#ifdef DISABLE_ANDROID_NATIVE_DIALOGS
+    // To fix a message box bug: https://bugreports.qt.io/browse/QTBUG-35313
+    qputenv("QT_USE_ANDROID_NATIVE_DIALOGS", "0");
+    // ... read by QAndroidPlatformTheme::usePlatformNativeDialog in qandroidplatformtheme.cpp
+#endif
+
+#ifdef QT_OPENGL_IN_SOFTWARE
+    // To fix a crash when opening the camera system of
+    // "fatal: unknown(0): Failed to create OpenGL context for format QSurfaceFormat"
+    // ... see https://bugreports.qt.io/browse/QTBUG-47540
+
+    // Set OpenGL to use software rendering:
+    // qputenv("QT_OPENGL", "software");  // doesn't fix it
+
+    // Show Qt scenegraph information:
+    // qputenv("QSG_INFO", "1");  // doesn't seem to do much
+
+    // Also try:
+    // $ ~/dev/qt_local_build/qt_linux_x86_64_install/bin/qtdiag
+    // ... which might say "Unable to create an Open GL context."
+
+    // See also:
+    // - https://stackoverflow.com/questions/41021681/qt-how-to-detect-which-version-of-opengl-is-being-used
+    // - https://blog.qt.io/blog/2017/01/18/opengl-implementation-qt-quick-app-using-today/
+
+    // THE UPSHOT: I needed (1) to reboot my computer, and (2) to make CamCOPS
+    // check for OpenGL, rather than just crashing if it wasn't present.
+    // See QuPhoto.
+#endif
+
+    // ========================================================================
+    // Qt style preamble
+    // ========================================================================
+
     /*
-    -   The VERY FIRST THING we do is to create a QApplication, and that
+    -   Almost the VERY FIRST THING we do is to create a QApplication, and that
         requires one bit of preamble.
         http://stackoverflow.com/questions/27963697
     -   Prevent native styling, which makes (for example) QListWidget colours
@@ -82,25 +121,22 @@ int main(int argc, char* argv[])
     QApplication::setStyle(style);
     // ... https://stackoverflow.com/questions/41184723/i-want-qt-app-to-look-like-qt-app-rather-than-android-native
 
-#ifdef DISABLE_ANDROID_NATIVE_DIALOGS
-    // To fix a message box bug: https://bugreports.qt.io/browse/QTBUG-35313
-    qputenv("QT_USE_ANDROID_NATIVE_DIALOGS", "0");
-    // ... read by QAndroidPlatformTheme::usePlatformNativeDialog in qandroidplatformtheme.cpp
-#endif
-#ifdef QT_OPENGL_IN_SOFTWARE
-    // To fix a crash when opening the camera system of
-    // "fatal: unknown(0): Failed to create OpenGL context for format QSurfaceFormat"
-    // ... see https://bugreports.qt.io/browse/QTBUG-47540
-    qputenv("QT_OPENGL", "software");
-#endif
+    // ========================================================================
+    // Set up log format
+    // ========================================================================
 
     qSetMessagePattern(message_pattern);
     // See also http://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output
+
+    // ========================================================================
+    // Create and run QApplication
+    // ========================================================================
 
     CamcopsApp app(argc, argv);
 #ifdef OPENSSL_VIA_QLIBRARY
     cryptofunc::ensureAllCryptoFunctionsLoaded();
 #endif
     return app.run();
+
 #endif
 }

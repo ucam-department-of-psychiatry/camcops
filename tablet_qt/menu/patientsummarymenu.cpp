@@ -35,10 +35,10 @@ void PatientSummaryMenu::extraLayoutCreation()
 {
     // Signals
     connect(&m_app, &CamcopsApp::selectedPatientChanged,
-            this, &PatientSummaryMenu::selectedPatientChanged,
+            this, &PatientSummaryMenu::refreshTaskList,
             Qt::UniqueConnection);
     connect(&m_app, &CamcopsApp::taskAlterationFinished,
-            this, &PatientSummaryMenu::taskFinished,
+            this, &PatientSummaryMenu::refreshTaskList,
             Qt::UniqueConnection);
 }
 
@@ -69,14 +69,7 @@ void PatientSummaryMenu::makeItems()
 }
 
 
-void PatientSummaryMenu::selectedPatientChanged(const Patient* patient)
+void PatientSummaryMenu::refreshTaskList()
 {
-    Q_UNUSED(patient);
-    rebuild();  // refresh task list
-}
-
-
-void PatientSummaryMenu::taskFinished()
-{
-    rebuild();  // refresh task list
+    rebuild(false);  // no need to rebuild header
 }

@@ -8,6 +8,7 @@ build-*/
 # Temporary
 *~
 *.tmp
+core
 
 # PyCharm
 .idea/*

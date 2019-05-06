@@ -113,8 +113,8 @@ Rectangle {
     }
 
     PhotoPreview {  // see .qml file
-        id : photoPreview
-        anchors.fill : parent
+        id: photoPreview
+        anchors.fill: parent
         onClosed: cameraUI.state = "PhotoCapture"
         visible: cameraUI.state == "PhotoPreview"
         focus: visible
@@ -125,8 +125,8 @@ Rectangle {
     }
 
     VideoPreview {  // see .qml file
-        id : videoPreview
-        anchors.fill : parent
+        id: videoPreview
+        anchors.fill: parent
         onClosed: cameraUI.state = "VideoCapture"
         visible: cameraUI.state == "VideoPreview"
         focus: visible

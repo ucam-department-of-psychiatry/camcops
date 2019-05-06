@@ -86,6 +86,7 @@ server/camcops_server
     cc_modules/cc_hl7.py.rst
     cc_modules/cc_html.py.rst
     cc_modules/cc_idnumdef.py.rst
+    cc_modules/cc_language.py.rst
     cc_modules/cc_membership.py.rst
     cc_modules/cc_nhs.py.rst
     cc_modules/cc_nlp.py.rst

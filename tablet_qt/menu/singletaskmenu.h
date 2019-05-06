@@ -38,9 +38,9 @@ protected:
 public slots:  // http://stackoverflow.com/questions/19129133/qt-signals-and-slots-permissions
     void addTask();
     void selectedPatientChanged(const Patient* patient);
-    void taskFinished();
 protected:
     void showTaskStatus() const;
+    void refreshTaskList();
 protected:
     QString m_tablename;
     bool m_anonymous;
