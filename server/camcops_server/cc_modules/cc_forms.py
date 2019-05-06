@@ -127,6 +127,11 @@ from camcops_server.cc_modules.cc_idnumdef import (
     IdNumDefinition,
     ID_NUM_VALIDATION_METHOD_CHOICES,
 )
+from camcops_server.cc_modules.cc_language import (
+    DEFAULT_LANGUAGE,
+    POSSIBLE_LANGUAGES,
+    POSSIBLE_LANGUAGES_WITH_DESCRIPTIONS,
+)
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_policy import (
@@ -1164,6 +1169,23 @@ class AllowedGroupsSequence(GroupsSequenceBase):
 
 
 # -----------------------------------------------------------------------------
+# Languages
+# -----------------------------------------------------------------------------
+
+class LanguageSelector(SchemaNode):
+    """
+    Node to choose a language code, from those supported by the server.
+    """
+    _choices = POSSIBLE_LANGUAGES_WITH_DESCRIPTIONS
+    schema_type = String
+    default = DEFAULT_LANGUAGE
+    missing = DEFAULT_LANGUAGE
+    title = "Language"
+    widget = RadioChoiceWidget(values=_choices)
+    validator = OneOf(POSSIBLE_LANGUAGES)
+
+
+# -----------------------------------------------------------------------------
 # Validating dangerous operations
 # -----------------------------------------------------------------------------
 
@@ -1894,6 +1916,7 @@ class EditUserGroupAdminSchema(CSRFSchema):
         title="E-mail address",
     )
     must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute  # noqa
+    language = LanguageSelector()  # must match ViewParam.LANGUAGE
     group_ids = AdministeredGroupsSequence()  # must match ViewParam.GROUP_IDS
 
 

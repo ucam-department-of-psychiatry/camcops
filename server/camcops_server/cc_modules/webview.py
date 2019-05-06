@@ -568,6 +568,7 @@ def login_view(req: "CamcopsRequest") -> Response:
             rendered_form = e.render()
 
     else:
+        log.critical(f"req.language: {req.language}")
         redirect_url = req.get_str_param(ViewParam.REDIRECT_URL, "")
         # ... use default of "", because None gets serialized to "None", which
         #     would then get read back later as "None".
@@ -1938,6 +1939,7 @@ EDIT_USER_KEYS_GROUPADMIN = [
     ViewParam.FULLNAME,
     ViewParam.EMAIL,
     ViewParam.MUST_CHANGE_PASSWORD,
+    ViewParam.LANGUAGE,
     # SPECIAL HANDLING # ViewParam.GROUP_IDS,
 ]
 EDIT_USER_KEYS_SUPERUSER = EDIT_USER_KEYS_GROUPADMIN + [
@@ -2095,6 +2097,8 @@ def edit_user(req: "CamcopsRequest") -> Dict[str, Any]:
                     f"{new_user_name!r}; that conflicts with an existing user "
                     f"with ID {existing_user.id!r}")
             for k in keys:
+                # What follows assumes that the keys are relevant and valid
+                # attributes of a User.
                 setattr(user, k, appstruct.get(k))
             group_ids = appstruct.get(ViewParam.GROUP_IDS)
             # Add back in the groups we're not going to alter:

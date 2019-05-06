@@ -189,6 +189,7 @@ class ViewParam(object):
     INCLUDE_COMMENTS = "include_comments"
     INCLUDE_PATIENT = "include_patient"
     INCLUDE_SNOMED = "include_snomed"
+    LANGUAGE = "language"
     MANUAL = "manual"
     MAY_ADD_NOTES = "may_add_notes"
     MAY_DUMP_DATA = "may_dump_data"

@@ -777,7 +777,9 @@ class CamcopsRequest(Request):
             provide_default_if_none: if ``True`` and ``default is None``,
                 return a helpful missing-string message in the style
                 "string x.y not found"
-            language: language code to use, e.g. ``en-GB``
+            language: language code to use, e.g. ``en-GB``; if ``None`` is
+                passed, the default behaviour is to look up the current
+                language for this request (see :meth:`language`).
 
         Returns:
             the "extra string"
@@ -789,6 +791,8 @@ class CamcopsRequest(Request):
             taskstrings = allstrings[taskname]
             if stringname in taskstrings:
                 langversions = taskstrings[stringname]
+                if language is None:
+                    language = self.language
                 if language:  # Specific language requested
                     # 1. Requested language, e.g. "en-GB"
                     if language in langversions:
@@ -872,6 +876,23 @@ class CamcopsRequest(Request):
         if sort:
             families.sort()
         return families
+
+    @reify
+    def language(self) -> str:
+        """
+        Returns the language code selected by the current user, or if none is
+        selected (or the user isn't logged in) the server's default language.
+
+        Returns:
+            str: a language code of the form ``en-GB``
+
+        """
+        if self.user is not None:
+            language = self.user.language
+            if language:
+                return language
+        # Fallback to default
+        return self.config.language
 
     # -------------------------------------------------------------------------
     # PNG versus SVG output, so tasks don't have to care (for e.g. PDF/web)

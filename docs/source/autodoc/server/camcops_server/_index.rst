@@ -53,6 +53,7 @@ server/camcops_server
     alembic/versions/0021_hidden_specialnote.py.rst
     alembic/versions/0022_index_exported_tasks_start_at.py.rst
     alembic/versions/0023_comments.py.rst
+    alembic/versions/0024_user_language.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst

@@ -59,7 +59,7 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
-INVALID_USERNAME_PASSWORD = "Invalid username/password"
+INVALID_USERNAME_PASSWORD = "Invalid username/password (or user not authorized)"
 NO_UPLOAD_GROUP_SET = "No upload group set for user "
 
 

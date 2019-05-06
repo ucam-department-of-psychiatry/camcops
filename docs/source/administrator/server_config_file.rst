@@ -234,6 +234,23 @@ used as EXTRA STRING FILES. Should **as a minimum** point to the string file
 https://docs.python.org/3.5/library/glob.html).
 
 
+LANGUAGE
+########
+
+*String.* Default: ``en-GB``.
+
+This setting determines the language in which the server operates for users
+who have not set a language preference, or who are not logged in.
+
+.. todo:: Many server strings are not yet internationalized.
+
+The language code is in the format ``en-GB`` (two-letter language code, hyphen,
+two- or three-letter country code).
+
+If the language is not recognized, a warning is given and the server switches
+to its default.
+
+
 SNOMED_TASK_XML_FILENAME
 ########################
 

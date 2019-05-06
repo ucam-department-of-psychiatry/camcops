@@ -318,6 +318,8 @@ Max length e.g.
 #: See :func:`cardinal_pythonlib.datetimefunc.duration_to_iso`
 ISO8601_DURATION_STRING_MAX_LEN = 29
 
+LANGUAGE_CODE_MAX_LEN = 6  # two-letter language, hyphen, 2/3-letter country
+
 # LONGBLOB_LONGTEXT_MAX_LEN = (2 ** 32) - 1
 # ... https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html
 
@@ -430,6 +432,8 @@ IdPolicyColType = String(length=ID_POLICY_MAX_LEN)
 IPAddressColType = String(length=IP_ADDRESS_MAX_LEN)
 # This is a plain string.
 # See also e.g. http://sqlalchemy-utils.readthedocs.io/en/latest/_modules/sqlalchemy_utils/types/ip_address.html  # noqa
+
+LanguageCodeColType = String(length=LANGUAGE_CODE_MAX_LEN)
 
 # Large BLOB:
 # https://stackoverflow.com/questions/43791725/sqlalchemy-how-to-make-a-longblob-column-in-mysql  # noqa

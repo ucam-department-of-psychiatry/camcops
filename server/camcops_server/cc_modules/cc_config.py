@@ -146,6 +146,10 @@ from camcops_server.cc_modules.cc_exception import raise_runtime_error
 from camcops_server.cc_modules.cc_filename import (
     PatientSpecElementForFilename,
 )
+from camcops_server.cc_modules.cc_language import (
+    DEFAULT_LANGUAGE,
+    POSSIBLE_LANGUAGES,
+)
 from camcops_server.cc_modules.cc_pyramid import MASTER_ROUTE_CLIENT_API
 from camcops_server.cc_modules.cc_snomed import (
     get_all_task_snomed_concepts,
@@ -214,6 +218,7 @@ class ConfigParamSite(object):
     DB_ECHO = "DB_ECHO"
     DISABLE_PASSWORD_AUTOCOMPLETE = "DISABLE_PASSWORD_AUTOCOMPLETE"
     EXTRA_STRING_FILES = "EXTRA_STRING_FILES"
+    LANGUAGE = "LANGUAGE"
     LOCAL_INSTITUTION_URL = "LOCAL_INSTITUTION_URL"
     LOCAL_LOGO_FILE_ABSOLUTE = "LOCAL_LOGO_FILE_ABSOLUTE"
     LOCKOUT_DURATION_INCREMENT_MINUTES = "LOCKOUT_DURATION_INCREMENT_MINUTES"
@@ -328,6 +333,7 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamSite.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
 
 {ConfigParamSite.EXTRA_STRING_FILES} = {extra_strings_spec}
+{ConfigParamSite.LANGUAGE} = {DEFAULT_LANGUAGE}
 
 {ConfigParamSite.SNOMED_TASK_XML_FILENAME} =
 {ConfigParamSite.SNOMED_ICD9_XML_FILENAME} =
@@ -1226,6 +1232,11 @@ class CamcopsConfig(object):
 
         self.extra_string_files = _get_multiline(s, cs.EXTRA_STRING_FILES)
 
+        self.language = _get_str(s, cs.LANGUAGE, DEFAULT_LANGUAGE)
+        if self.language not in POSSIBLE_LANGUAGES:
+            log.warning(f"Invalid language {self.language!r}, "
+                        f"switching to {DEFAULT_LANGUAGE!r}")
+            self.language = DEFAULT_LANGUAGE
         self.local_institution_url = _get_str(s, cs.LOCAL_INSTITUTION_URL, DEFAULT_LOCAL_INSTITUTION_URL)  # noqa
         self.local_logo_file_absolute = _get_str(s, cs.LOCAL_LOGO_FILE_ABSOLUTE, DEFAULT_LOCAL_LOGO_FILE)  # noqa
         self.lockout_threshold = _get_int(s, cs.LOCKOUT_THRESHOLD, DEFAULT_LOCKOUT_THRESHOLD)  # noqa

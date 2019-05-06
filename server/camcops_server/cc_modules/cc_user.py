@@ -58,6 +58,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     EmailAddressColType,
     FullNameColType,
     HashedPasswordColType,
+    LanguageCodeColType,
     PendulumDateTimeAsIsoTextColType,
     UserNameCamcopsColType,
 )
@@ -364,6 +365,10 @@ class User(Base):
     """
     __tablename__ = "_security_users"
 
+    # -------------------------------------------------------------------------
+    # Columns
+    # -------------------------------------------------------------------------
+
     id = Column(
         "id", Integer,
         primary_key=True, autoincrement=True, index=True,
@@ -410,13 +415,20 @@ class User(Base):
         comment="Date/time this user acknowledged the Terms and "
                 "Conditions of Use (ISO 8601)"
     )
-
     upload_group_id = Column(
         "upload_group_id", Integer, ForeignKey("_security_groups.id"),
         comment="ID of the group to which this user uploads at present",
         # OK to be NULL in the database, but the user will not be able to
         # upload while it is.
     )
+    language = Column(
+        "language", LanguageCodeColType,
+        comment="Language code preferred by this user"
+    )
+
+    # -------------------------------------------------------------------------
+    # Relationships
+    # -------------------------------------------------------------------------
 
     # groups = relationship(
     #     Group,
