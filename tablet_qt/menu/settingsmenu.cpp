@@ -127,7 +127,8 @@ void SettingsMenu::makeItems()
         // --------------------------------------------------------------------
         MenuItem(
             tr("Choose language"),
-            std::bind(&SettingsMenu::chooseLanguage, this)
+            std::bind(&SettingsMenu::chooseLanguage, this),
+            uifunc::iconFilename(uiconst::CBS_LANGUAGE)
         ),
         MenuItem(
             tr("Questionnaire font size and DPI settings"),

@@ -146,6 +146,7 @@ const QString CBS_EDIT("edit.png");
 const QString CBS_FAST_FORWARD("fast_forward.png");
 const QString CBS_FINISH("finish.png");
 const QString CBS_FINISHFLAG("finishflag.png");
+const QString CBS_LANGUAGE("language.png");
 const QString CBS_LOCKED("locked.png");
 const QString CBS_MAGNIFY("magnify.png");
 const QString CBS_NEXT("next.png");

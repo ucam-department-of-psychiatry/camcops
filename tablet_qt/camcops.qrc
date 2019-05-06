@@ -191,5 +191,6 @@
         <file>resources/eq5d5lslider/top_sel.png</file>
         <file>resources/camcops/images/thumbs.png</file>
         <file>translations/camcops_da_DK.qm</file>
+        <file>resources/camcops/images/language.png</file>
     </qresource>
 </RCC>

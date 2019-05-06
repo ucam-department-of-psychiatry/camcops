@@ -836,7 +836,7 @@ def main() -> None:
         none_row,
         row('speaker_playing', 'thumbs', 'upload', 'info', 'back', None),
         none_row,
-        row(None, None, 'settings', None, 'next', None),
+        row(None, 'language', 'settings', None, 'next', None),
         # ... first column: old "reload"
         # ... fourth column: old "info"
         none_row,

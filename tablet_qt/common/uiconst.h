@@ -163,6 +163,7 @@ extern const QString CBS_EDIT;
 extern const QString CBS_FAST_FORWARD;
 extern const QString CBS_FINISH;
 extern const QString CBS_FINISHFLAG;
+extern const QString CBS_LANGUAGE;
 extern const QString CBS_LOCKED;
 extern const QString CBS_MAGNIFY;
 extern const QString CBS_NEXT;
