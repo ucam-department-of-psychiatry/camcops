@@ -20,6 +20,7 @@
 // #define TEST_BASIC_QT_ONLY  // Disables CamCOPS! Just says hello.
 #define FULL_LOG_FORMAT
 #define DISABLE_ANDROID_NATIVE_DIALOGS
+#define QT_OPENGL_IN_SOFTWARE
 
 #include <QApplication>
 #include <QDebug>
@@ -85,6 +86,12 @@ int main(int argc, char* argv[])
     // To fix a message box bug: https://bugreports.qt.io/browse/QTBUG-35313
     qputenv("QT_USE_ANDROID_NATIVE_DIALOGS", "0");
     // ... read by QAndroidPlatformTheme::usePlatformNativeDialog in qandroidplatformtheme.cpp
+#endif
+#ifdef QT_OPENGL_IN_SOFTWARE
+    // To fix a crash when opening the camera system of
+    // "fatal: unknown(0): Failed to create OpenGL context for format QSurfaceFormat"
+    // ... see https://bugreports.qt.io/browse/QTBUG-47540
+    qputenv("QT_OPENGL", "software");
 #endif
 
     qSetMessagePattern(message_pattern);

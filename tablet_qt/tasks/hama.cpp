@@ -68,7 +68,7 @@ QString HamA::shortname() const
 
 QString HamA::longname() const
 {
-    return tr("Hamilton Rating Scale for Anxiety (HAM-A)");
+    return tr("Hamilton Rating Scale for Anxiety");
 }
 
 

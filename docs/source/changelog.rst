@@ -2062,6 +2062,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   .. todo:: server internationalization: (1) server (2) per-user
 
+- Discovered camera bug (on Ubuntu system): opening camera system crashed
+  client with error ``fatal: unknown(0): Failed to create OpenGL context for
+  format QSurfaceFormat``; see https://bugreports.qt.io/browse/QTBUG-47191;
+  this is with Qt 5.12.0.
+
+  - Added ``qputenv("QT_OPENGL", "software");`` as per that bug report
+
+
 - New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
   .. todo:: IN PROGRESS ***

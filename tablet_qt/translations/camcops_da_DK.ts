@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="da_DK">
+<TS version="2.0" language="da_DK">
 <context>
     <name>Ace3</name>
     <message>
         <location filename="../tasks/ace3.cpp" line="228"/>
         <source>Addenbrooke’s Cognitive Examination, revision 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Addenbrooke’s Cognitive Examination [Addenbrooke&apos;s kognitive undersøgelse], revision 3</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="234"/>
@@ -16,132 +16,132 @@
     <message>
         <location filename="../tasks/ace3.cpp" line="361"/>
         <source>Preamble</source>
-        <translation type="unfinished"></translation>
+        <translation>Præambel</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="464"/>
         <source>Attention</source>
-        <translation type="unfinished"></translation>
+        <translation>Opmærksomhed</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="510"/>
         <source>Fluency</source>
-        <translation type="unfinished"></translation>
+        <translation>Udtryksevne</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="573"/>
         <source>Address learning; famous people</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresseindlæring: berømte mennesker</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="588"/>
         <source>Other commands not shown; subject failed practice trial</source>
-        <translation type="unfinished"></translation>
+        <translation>Emne mislykket praksis prøve. Andre kommandoer vises ikke.</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="595"/>
         <source>Commands; writing sentences</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandoer; skrive sætninger</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="630"/>
         <source>Repetition</source>
-        <translation type="unfinished"></translation>
+        <translation>Gentagelse</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="664"/>
         <source>Naming pictures</source>
-        <translation type="unfinished"></translation>
+        <translation>Navngivning af billeder</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="681"/>
         <source>Reading irregular words</source>
-        <translation type="unfinished"></translation>
+        <translation>Læsning af uregelmæssige ord</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="694"/>
         <source>Infinity</source>
-        <translation type="unfinished"></translation>
+        <translation>Uendeligt symbol</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="708"/>
         <source>Cube</source>
-        <translation type="unfinished"></translation>
+        <translation>Cube</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="722"/>
         <source>Clock</source>
-        <translation type="unfinished"></translation>
+        <translation>Ur</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="739"/>
         <source>Dot counting</source>
-        <translation type="unfinished"></translation>
+        <translation>Tælle prikker</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="756"/>
         <source>Noisy letters</source>
-        <translation type="unfinished"></translation>
+        <translation>Uklare bogstaver i alfabetet</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="764"/>
         <source>Please make sure the subject can’t see the screen before you proceed. (Memory prompts coming up.)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sørg for, at motivet ikke kan se skærmen, før du fortsætter. (Hukommelsesopkald kommer op.)</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="767"/>
         <source>[reminder to clinician]</source>
-        <translation type="unfinished"></translation>
+        <translation>[påmindelse til kliniker]</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="791"/>
         <source>Free recall</source>
-        <translation type="unfinished"></translation>
+        <translation>Uopfordret tilbagekaldelse</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="842"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Navn:</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="846"/>
         <source>Number:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nummer:</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="850"/>
         <source>Street:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gade:</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="854"/>
         <source>Town:</source>
-        <translation type="unfinished"></translation>
+        <translation>By:</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="858"/>
         <source>County:</source>
-        <translation type="unfinished"></translation>
+        <translation>Amt:</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="864"/>
         <source>Cued recall</source>
-        <translation type="unfinished"></translation>
+        <translation>Forespurgt tilbagekaldelse</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="877"/>
         <source>Comments</source>
-        <translation type="unfinished">Kommentarer</translation>
+        <translation>Kommentarer</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="890"/>
         <source>Photo 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Foto 1</translation>
     </message>
     <message>
         <location filename="../tasks/ace3.cpp" line="903"/>
         <source>Photo 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Foto 2</translation>
     </message>
 </context>
 <context>
@@ -165,7 +165,7 @@
     <message>
         <location filename="../tasks/aims.cpp" line="71"/>
         <source>Abnormal Involuntary Movement Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Abnormal Involuntary Movement Scale [unormal ufrivillig bevægelsesskala]</translation>
     </message>
     <message>
         <location filename="../tasks/aims.cpp" line="77"/>
@@ -194,7 +194,7 @@
     <message>
         <location filename="../tasks/apeqpt.cpp" line="107"/>
         <source>Assessment Patient Experience Questionnaire: For Psychological Therapies</source>
-        <translation type="unfinished"></translation>
+        <translation>Assessment Patient Experience Questionnaire: For Psychological Therapies [vurdering af patienters oplevelsesspørgeskema for psykologiske] terapier</translation>
     </message>
     <message>
         <location filename="../tasks/apeqpt.cpp" line="114"/>
@@ -207,7 +207,7 @@
     <message>
         <location filename="../tasks/audit.cpp" line="74"/>
         <source>Alcohol Use Disorders Identification Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Alcohol Use Disorders Identification Test [alkoholforstyrrelser identifikationstest]</translation>
     </message>
     <message>
         <location filename="../tasks/audit.cpp" line="80"/>
@@ -219,13 +219,13 @@
     <name>AuditC</name>
     <message>
         <location filename="../tasks/auditc.cpp" line="69"/>
-        <source>Alcohol Use Disorders Identification Test</source>
-        <translation type="unfinished"></translation>
+        <source>AUDIT Alcohol Consumption Questions</source>
+        <translation>AUDIT Alcohol Consumption Questions [alkoholforbrug spørgsmål]</translation>
     </message>
     <message>
         <location filename="../tasks/auditc.cpp" line="75"/>
         <source>3-item consumption subset of the AUDIT; clinician-administered screening test.</source>
-        <translation type="unfinished">3-vare forbrug delmængde af AUDIT; klinisk administreret screening test.</translation>
+        <translation>3-vare forbrug delmængde af AUDIT; klinisk administreret screening test.</translation>
     </message>
 </context>
 <context>
@@ -233,12 +233,12 @@
     <message>
         <location filename="../tasks/badls.cpp" line="76"/>
         <source>Bristol Activities of Daily Living Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Bristol Activities of Daily Living Scale [Bristol aktiviteter med daglig levetidskala]</translation>
     </message>
     <message>
         <location filename="../tasks/badls.cpp" line="82"/>
         <source>20-item carer-rated scale for use in dementia.</source>
-        <translation type="unfinished">20-vare plejepersonale-rated skala til brug i demens.</translation>
+        <translation>20-vare plejepersonale-rated skala til brug i demens.</translation>
     </message>
 </context>
 <context>
@@ -246,12 +246,12 @@
     <message>
         <location filename="../tasks/bdi.cpp" line="166"/>
         <source>Beck Depression Inventory</source>
-        <translation type="unfinished"></translation>
+        <translation>Beck Depression Inventory [Beck depression inventar]</translation>
     </message>
     <message>
         <location filename="../tasks/bdi.cpp" line="172"/>
         <source>21-item self-report scale (for BDI, BDI-1A, BDI-II).</source>
-        <translation type="unfinished"></translation>
+        <translation>21-vare selvrapporteringsskala (for BDI, BDI-1A, BDI-II).</translation>
     </message>
 </context>
 <context>
@@ -259,17 +259,17 @@
     <message>
         <location filename="../tasks/bmi.cpp" line="93"/>
         <source>Body mass index</source>
-        <translation type="unfinished"></translation>
+        <translation>Kropsmasseindeks</translation>
     </message>
     <message>
         <location filename="../tasks/bmi.cpp" line="99"/>
         <source>Mass, height.</source>
-        <translation type="unfinished"></translation>
+        <translation>Masse, højde.</translation>
     </message>
     <message>
         <location filename="../tasks/bmi.cpp" line="118"/>
         <source>Comments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommentarer:</translation>
     </message>
 </context>
 <context>
@@ -277,12 +277,12 @@
     <message>
         <location filename="../tasks/bprs.cpp" line="72"/>
         <source>Brief Psychiatric Rating Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Brief Psychiatric Rating Scale [kort psykiatrisk vurdering skala]</translation>
     </message>
     <message>
         <location filename="../tasks/bprs.cpp" line="78"/>
         <source>18-item clinician-administered rating of multiple aspects of psychopathology.</source>
-        <translation type="unfinished"></translation>
+        <translation>18-punkts kliniker administreret rating af flere aspekter af psykopatologi.</translation>
     </message>
 </context>
 <context>
@@ -290,12 +290,12 @@
     <message>
         <location filename="../tasks/bprse.cpp" line="69"/>
         <source>Brief Psychiatric Rating Scale, Expanded</source>
-        <translation type="unfinished"></translation>
+        <translation>Brief Psychiatric Rating Scale, Expanded [kort psykiatrisk vurdering skala, udvidet]</translation>
     </message>
     <message>
         <location filename="../tasks/bprse.cpp" line="75"/>
         <source>24-item clinician-administered rating of multiple aspects of psychopathology.</source>
-        <translation type="unfinished"></translation>
+        <translation>24-art kliniker administreret rating af flere aspekter af psykopatologi.</translation>
     </message>
 </context>
 <context>
@@ -303,12 +303,12 @@
     <message>
         <location filename="../tasks/cpftlpsdischarge.cpp" line="228"/>
         <source>CPFT LPS – discharge</source>
-        <translation type="unfinished"></translation>
+        <translation>CPFT LPS – udledning</translation>
     </message>
     <message>
         <location filename="../tasks/cpftlpsdischarge.cpp" line="234"/>
         <source>Discharge from CPFT Liaison Psychiatry Service.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afladning fra CPFT Liaison Psychiatry Service (forbindelsespsykiatriskjeneste).</translation>
     </message>
 </context>
 <context>
@@ -316,12 +316,12 @@
     <message>
         <location filename="../tasks/cpftlpsreferral.cpp" line="141"/>
         <source>CPFT LPS – referral</source>
-        <translation type="unfinished"></translation>
+        <translation>CPFT LPS – henvisning</translation>
     </message>
     <message>
         <location filename="../tasks/cpftlpsreferral.cpp" line="147"/>
         <source>Referral to CPFT’s Liaison Psychiatry Service.</source>
-        <translation type="unfinished"></translation>
+        <translation>Henvisning til CPFTs forbindelsespsykiatriskjeneste.</translation>
     </message>
 </context>
 <context>
@@ -329,12 +329,12 @@
     <message>
         <location filename="../tasks/cpftlpsresetresponseclock.cpp" line="80"/>
         <source>CPFT LPS – reset response clock</source>
-        <translation type="unfinished"></translation>
+        <translation>CPFT LPS – nulstil svarklok</translation>
     </message>
     <message>
         <location filename="../tasks/cpftlpsresetresponseclock.cpp" line="86"/>
         <source>Reset referral response clock (CPFT Liaison Psychiatry Service).</source>
-        <translation type="unfinished"></translation>
+        <translation>Nulstil henvisningsreaktionsklokke (CPFTs forbindelsespsykiatriskjeneste).</translation>
     </message>
 </context>
 <context>
@@ -342,12 +342,12 @@
     <message>
         <location filename="../tasks/cage.cpp" line="73"/>
         <source>CAGE Questionnaire</source>
-        <translation type="unfinished"></translation>
+        <translation>CAGE Questionnaire [CAGE spørgeskema]</translation>
     </message>
     <message>
         <location filename="../tasks/cage.cpp" line="79"/>
         <source>4-item Y/N self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>4-vare ja/nej selvrapporteringsskala om alkoholbrug: “cut down” (C, nedskåret), “angry” (A, vred), “guilty” (G, skyldig), “eye-opener” (E, øjenåbner).</translation>
     </message>
 </context>
 <context>
@@ -522,7 +522,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../core/camcopsapp.h" line="232"/>
         <source>Opening...</source>
-        <translation type="unfinished"></translation>
+        <translation>Åbning...</translation>
     </message>
 </context>
 <context>
@@ -579,12 +579,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cape42.cpp" line="93"/>
         <source>Community Assessment of Psychic Experiences</source>
-        <translation type="unfinished"></translation>
+        <translation>Community Assessment of Psychic Experiences [samfundsvurdering af psykiske oplevelser]</translation>
     </message>
     <message>
         <location filename="../tasks/cape42.cpp" line="99"/>
         <source>42-item self-rated scale for psychosis with positive, negative, and depressive dimensions.</source>
-        <translation type="unfinished"></translation>
+        <translation>42-punkts selvbedømt skala for psykose med positive, negative og depressive dimensioner.</translation>
     </message>
 </context>
 <context>
@@ -592,12 +592,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/caps.cpp" line="85"/>
         <source>Cardiff Anomalous Perceptions Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Cardiff Anomalous Perceptions Scale [Cardiff anomaløse opfattelser skala]</translation>
     </message>
     <message>
         <location filename="../tasks/caps.cpp" line="91"/>
         <source>32-item self-rated scale for perceptual anomalies.</source>
-        <translation type="unfinished"></translation>
+        <translation>32-punkts selvvurderet skala for perceptuelle anomalier.</translation>
     </message>
 </context>
 <context>
@@ -605,112 +605,112 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="190"/>
         <source>Cardinal RN — ExpDet-Threshold task</source>
-        <translation type="unfinished"></translation>
+        <translation>Cardinal RN — ExpDet-tærskelværdi opgave</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="196"/>
         <source>Rapid assessment of auditory/visual thresholds (for expectation–detection task).</source>
-        <translation type="unfinished"></translation>
+        <translation>Hurtig vurdering af auditive / visuelle tærskler (til forventningsopdagelsesopgave).</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="297"/>
         <source>Configure ExpDetThreshold task</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurer ExpDet-tærskelværdi opgave</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="328"/>
         <source>Set your device’s brightness and volume BEFORE running this task, and DO NOT ALTER THEM in between runs or before completing the main Expectation–Detection task. Also, try to keep the lighting and background noise constant throughout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Indstil enhedens lysstyrke og lydstyrke FØR du kører denne opgave, og IKKE ALTER DEM mellem kørsler eller inden du gennemfører hovedforventningsdetekteringsopgaven. Prøv også at holde belysningen og baggrundsstøj konstant hele vejen igennem.</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="334"/>
         <source>Before you run the Expectation–Detection task for a given subject, please run this task FOUR times to determine the subject’s threshold for each of two auditory stimuli (tone, voice) and each of two auditory stimuli (circle, word).</source>
-        <translation type="unfinished"></translation>
+        <translation>Før du kører forventningsopdagelsesopgaven for et givet emne, skal du køre denne opgave FIRE gange for at bestemme emnets tærskel for hver af de to auditive stimuli (tone, stemme) og hver af to auditive stimuli (cirkel, ord).</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="340"/>
         <source>Then, make a note of the 75% (“x75”) threshold intensities for each stimulus, and start the Expectation–Detection task (which only needs to be run once). It will ask you for these four intensities.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dernæst noter tærskelintensiteterne for 75% (&quot;x75&quot;) for hver stimulus, og start Opgavelsesdetekteringsopgaven (som kun skal køres én gang). Det vil bede dig om disse fire intensiteter.</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="312"/>
         <source>WARNING: cannot proceed: must satisfy min start intensity &lt;= max start intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>ADVARSEL: Kan ikke fortsætte: skal opfylde minimumstartintensitet &lt;= maksimal startintensitet</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="346"/>
         <source>Choose a modality:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vælg en modalitet:</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="351"/>
         <source>Choose a target stimulus:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vælg en målstimulering:</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="360"/>
         <source>Intensities and probabilities are in the range 0–1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Intensiteter og sandsynligheder ligger i området 0–1.</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="364"/>
         <source>Background intensity (usually 1.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Baggrundsintensitet (normalt 1,0)</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="366"/>
         <source>Minimum starting intensity (e.g. 0.9)</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimum startintensitet (fx 0,9)</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="368"/>
         <source>Maximum starting intensity (e.g. 1.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Maksimal startintensitet (fx 1,0)</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="370"/>
         <source>Initial, large, intensity step (e.g. 0.1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Indledende stort intensitetstrin (fx 0,1)</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="372"/>
         <source>Main, small, intensity step (e.g. 0.01)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hoved, lille intensitetstrin (f.eks. 0,01)</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="374"/>
         <source>Number of trials in the main test sequence (e.g. 14)</source>
-        <translation type="unfinished"></translation>
+        <translation>Antal forsøg i hovedtestsekvensen (fx 14)</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="376"/>
         <source>Probability of a catch trial (e.g. 0.2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sandsynligheden for et trickforsøg (fx 0,2)</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="378"/>
         <source>Intertrial interval (s) (e.g. 0.2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tid mellem forsøg (s) (fx 0,2)</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="757"/>
         <source>Did you see a</source>
-        <translation type="unfinished"></translation>
+        <translation>Så du en</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="758"/>
         <source>Did you hear a</source>
-        <translation type="unfinished"></translation>
+        <translation>Har du hørt en</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="1001"/>
         <source>Auditory</source>
-        <translation type="unfinished"></translation>
+        <translation>Auditiv</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpdetthreshold.cpp" line="1007"/>
         <source>Visual</source>
-        <translation type="unfinished"></translation>
+        <translation>Visuel</translation>
     </message>
 </context>
 <context>
@@ -718,12 +718,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cardinalexpectationdetection.cpp" line="267"/>
         <source>Cardinal RN — Expectation–Detection task</source>
-        <translation type="unfinished"></translation>
+        <translation>Cardinal RN — Expectation–Detection task [forventning/påvisningsopgave]</translation>
     </message>
     <message>
         <location filename="../tasks/cardinalexpectationdetection.cpp" line="273"/>
         <source>Putative assay of proneness to hallucinations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Putativ analyse af, om nogen er tilbøjelige til hallucinationer.</translation>
     </message>
 </context>
 <context>
@@ -749,12 +749,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cbir.cpp" line="81"/>
         <source>Cambridge Behavioural Inventory, Revised</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambridge Behavioural Inventory, Revised [Cambridge adfærdsmæssige opgørelse, revideret]</translation>
     </message>
     <message>
         <location filename="../tasks/cbir.cpp" line="87"/>
         <source>45-item caregiver rating scale, applicable to dementias.</source>
-        <translation type="unfinished"></translation>
+        <translation>45-vare plejegivende rating skala, der gælder for demens.</translation>
     </message>
 </context>
 <context>
@@ -762,12 +762,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cecaq3.cpp" line="547"/>
         <source>Childhood Experience of Care and Abuse Questionnaire, v3</source>
-        <translation type="unfinished"></translation>
+        <translation>Childhood Experience of Care and Abuse Questionnaire [barndomserfaring af spørgeskema om pleje og misbrug], v3</translation>
     </message>
     <message>
         <location filename="../tasks/cecaq3.cpp" line="553"/>
         <source>Family relationships in childhood. Version 3 with psychological abuse and role reversal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Familieforhold i barndommen. Version 3, med psykologisk misbrug og rollevending.</translation>
     </message>
 </context>
 <context>
@@ -775,12 +775,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cesd.cpp" line="82"/>
         <source>Center for Epidemiologic Studies Depression Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Center for Epidemiologic Studies Depression Scale [center for epidemiologiske studier, depression skala]</translation>
     </message>
     <message>
         <location filename="../tasks/cesd.cpp" line="88"/>
         <source>20-item self-report depression scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>20-vare selvbetænkning depression skala.</translation>
     </message>
 </context>
 <context>
@@ -788,12 +788,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cesdr.cpp" line="73"/>
         <source>Center for Epidemiologic Studies Depression Scale (Revised)</source>
-        <translation type="unfinished"></translation>
+        <translation>Center for Epidemiologic Studies Depression Scale, Revised [center for epidemiologiske studier, depression skala, reviderede]</translation>
     </message>
     <message>
         <location filename="../tasks/cesdr.cpp" line="79"/>
         <source>20-item self-report depression scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>20-vare selvbetænkning depression skala.</translation>
     </message>
 </context>
 <context>
@@ -801,12 +801,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cgi.cpp" line="77"/>
         <source>Clinical Global Impressions</source>
-        <translation type="unfinished"></translation>
+        <translation>Clinical Global Impressions [kliniske globale indtryk]</translation>
     </message>
     <message>
         <location filename="../tasks/cgi.cpp" line="83"/>
         <source>Clinician-administered; briefly rates illness severity, global improvement, and efficacy/side-effect balance of treatment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kliniker administreret; kort satser sværhedsgrad, global forbedring og effekt/bivirkningsbalance af behandlingen.</translation>
     </message>
 </context>
 <context>
@@ -814,12 +814,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cgii.cpp" line="62"/>
         <source>Clinical Global Impressions – Improvement subscale (FROM-LP version)</source>
-        <translation type="unfinished"></translation>
+        <translation>Clinical Global Impressions – Improvement subscale [kliniske globale indtryk – forbedring sub-skala] (FROM-LP version)</translation>
     </message>
     <message>
         <location filename="../tasks/cgii.cpp" line="69"/>
         <source>Clinician-administered; briefly rates global improvement.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kliniker administreret; kort satser på global forbedring.</translation>
     </message>
 </context>
 <context>
@@ -827,12 +827,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cgisch.cpp" line="68"/>
         <source>Clinical Global Impression – Schizophrenia</source>
-        <translation type="unfinished"></translation>
+        <translation>Clinical Global Impression – Schizophrenia [klinisk global indtryk – skizofreni]</translation>
     </message>
     <message>
         <location filename="../tasks/cgisch.cpp" line="74"/>
         <source>Clinician-administered; briefly rates illness severity and degree of change in four domains and overall.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kliniker administreret; kort vurderer sværhedsgrad og grad af forandring i fire domæner og generelt.</translation>
     </message>
 </context>
 <context>
@@ -946,12 +946,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cisr.cpp" line="1036"/>
         <source>Clinical Interview Schedule – Revised</source>
-        <translation type="unfinished"></translation>
+        <translation>Clinical Interview Schedule – Revised [klinisk interviewplan - revideret]</translation>
     </message>
     <message>
         <location filename="../tasks/cisr.cpp" line="1042"/>
         <source>Structured diagnostic interview, yielding ICD-10 diagnoses for depressive and anxiety disorders.</source>
-        <translation type="unfinished"></translation>
+        <translation>Struktureret diagnostisk interview, der giver ICD-10 diagnoser for depressive og angstlidelser.</translation>
     </message>
 </context>
 <context>
@@ -959,12 +959,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/ciwa.cpp" line="82"/>
         <source>Clinical Institute Withdrawal Assessment for Alcohol Scale, Revised</source>
-        <translation type="unfinished"></translation>
+        <translation>Clinical Institute Withdrawal Assessment for Alcohol Scale, Revised [klinisk institut tilbagetrækning vurdering for alkohol skala, revideret]</translation>
     </message>
     <message>
         <location filename="../tasks/ciwa.cpp" line="89"/>
         <source>10-item clinician-administered scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>10-punkts klinisk administreret skala.</translation>
     </message>
 </context>
 <context>
@@ -1059,12 +1059,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/contactlog.cpp" line="82"/>
         <source>Contact log</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakt log</translation>
     </message>
     <message>
         <location filename="../tasks/contactlog.cpp" line="88"/>
         <source>Record of clinical contact with times.</source>
-        <translation type="unfinished"></translation>
+        <translation>Optagelse af klinisk kontakt med tider.</translation>
     </message>
 </context>
 <context>
@@ -1072,12 +1072,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/copebrief.cpp" line="91"/>
         <source>Brief COPE Inventory</source>
-        <translation type="unfinished"></translation>
+        <translation>Brief COPE Inventory [kortfattet COPE fortegnelse]</translation>
     </message>
     <message>
         <location filename="../tasks/copebrief.cpp" line="97"/>
         <source>28-item brief measure of coping.</source>
-        <translation type="unfinished"></translation>
+        <translation>28-punkts mål for, hvor godt folk klare sig</translation>
     </message>
 </context>
 <context>
@@ -1085,17 +1085,17 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/core10.cpp" line="75"/>
         <source>Clinical Outcomes in Routine Evaluation, 10-item measure</source>
-        <translation type="unfinished"></translation>
+        <translation>Clinical Outcomes in Routine Evaluation [kliniske resultater i rutinemæssig evaluering], 10-punkts mål</translation>
     </message>
     <message>
         <location filename="../tasks/core10.cpp" line="81"/>
         <source>Self-rating of distress (wellbeing, symptoms, functioning, risk).</source>
-        <translation type="unfinished"></translation>
+        <translation>Self-rating af nød (velvære, symptomer, funktion, risiko).</translation>
     </message>
     <message>
         <location filename="../tasks/core10.cpp" line="105"/>
         <source>Clinical score</source>
-        <translation type="unfinished"></translation>
+        <translation>Klinisk score</translation>
     </message>
 </context>
 <context>
@@ -1103,12 +1103,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/ctqsf.cpp" line="62"/>
         <source>Childhood Trauma Questionnaire, Short Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Childhood Trauma Questionnaire, Short Form [barndoms traume spørgeskema, kort formular]</translation>
     </message>
     <message>
         <location filename="../tasks/ctqsf.cpp" line="68"/>
         <source>28-item self-rating scale of adverse childhood experiences.</source>
-        <translation type="unfinished"></translation>
+        <translation>28-punkts selvbedømmelsesskala af ugunstige barndomserfaringer.</translation>
     </message>
 </context>
 <context>
@@ -1116,12 +1116,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/dad.cpp" line="148"/>
         <source>Disability Assessment for Dementia</source>
-        <translation type="unfinished"></translation>
+        <translation>Disability Assessment for Dementia [handicapvurdering for demens]</translation>
     </message>
     <message>
         <location filename="../tasks/dad.cpp" line="154"/>
         <source>40-item clinician-administered, carer-rated scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>40-punkts skala, administreret af en kliniker, vurderet af en plejeperson.</translation>
     </message>
 </context>
 <context>
@@ -1129,12 +1129,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/dast.cpp" line="70"/>
         <source>Drug Abuse Screening Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Drug Abuse Screening Test [screening test af stofmisbrug]</translation>
     </message>
     <message>
         <location filename="../tasks/dast.cpp" line="76"/>
         <source>28-item Y/N self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>28-vare ja/nej selvrapporteringsskala.</translation>
     </message>
 </context>
 <context>
@@ -2019,12 +2019,12 @@ enig</translation>
     <message>
         <location filename="../tasks/demqol.cpp" line="74"/>
         <source>Dementia Quality of Life measure, self-report version</source>
-        <translation type="unfinished"></translation>
+        <translation>Demens livskvalitet skala, selvrapporteringsversion</translation>
     </message>
     <message>
         <location filename="../tasks/demqol.cpp" line="80"/>
         <source>28-item interviewer-administered questionnaire answered by the person with dementia.</source>
-        <translation type="unfinished"></translation>
+        <translation>28-emne spørgeskema, administreret af en interviewer, besvaret af den person med demens.</translation>
     </message>
 </context>
 <context>
@@ -2032,12 +2032,12 @@ enig</translation>
     <message>
         <location filename="../tasks/demqolproxy.cpp" line="75"/>
         <source>Dementia Quality of Life measure, proxy version</source>
-        <translation type="unfinished"></translation>
+        <translation>Demens livskvalitet skala, version besvaret af en fuldmægtig</translation>
     </message>
     <message>
         <location filename="../tasks/demqolproxy.cpp" line="81"/>
         <source>31-item interviewer-administered questionnaire answered by a caregiver.</source>
-        <translation type="unfinished"></translation>
+        <translation>31-emne spørgeskema, administreret af en interviewer, svaret af en omsorgsperson.</translation>
     </message>
 </context>
 <context>
@@ -2102,12 +2102,12 @@ enig</translation>
     <message>
         <location filename="../tasks/distressthermometer.cpp" line="80"/>
         <source>Distress Thermometer</source>
-        <translation type="unfinished"></translation>
+        <translation>Nød termometer</translation>
     </message>
     <message>
         <location filename="../tasks/distressthermometer.cpp" line="86"/>
         <source>Self-rating of overall distress, plus Y/N rating of a range of potential problems.</source>
-        <translation type="unfinished"></translation>
+        <translation>Selvbedømmelse af generel nød, med ja/nej vurdering af en række potentielle problemer.</translation>
     </message>
 </context>
 <context>
@@ -2115,12 +2115,12 @@ enig</translation>
     <message>
         <location filename="../tasks/epds.cpp" line="75"/>
         <source>Edinburgh Postnatal Depression Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Edinburgh Postnatal Depression Scale [postnatal depression skala]</translation>
     </message>
     <message>
         <location filename="../tasks/epds.cpp" line="81"/>
         <source>10-item self-rating scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>10-punkts selvbedømmelsesskala.</translation>
     </message>
 </context>
 <context>
@@ -2128,12 +2128,12 @@ enig</translation>
     <message>
         <location filename="../tasks/eq5d5l.cpp" line="88"/>
         <source>EuroQol 5-Dimension, 5-Level Health Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>EuroQol 5-dimension, 5-niveau sundhedsskala</translation>
     </message>
     <message>
         <location filename="../tasks/eq5d5l.cpp" line="94"/>
         <source>Self-rated health scale; 5 questions plus a visual analogue scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>Selvbedømmelses sundhed skala; 5 spørgsmål plus en visuel analog skala.</translation>
     </message>
 </context>
 <context>
@@ -2149,12 +2149,12 @@ enig</translation>
     <message>
         <location filename="../tasks/factg.cpp" line="136"/>
         <source>Functional Assessment of Cancer Therapy—General</source>
-        <translation type="unfinished"></translation>
+        <translation>Functional Assessment of Cancer Therapy—General [funktionel vurdering af kræftbehandling—generel]</translation>
     </message>
     <message>
         <location filename="../tasks/factg.cpp" line="142"/>
         <source>A 27-item general cancer quality-of-life (QL) measure; version 4.</source>
-        <translation type="unfinished"></translation>
+        <translation>En 27-punkts generel måling af livskvalitet med kræft; version 4.</translation>
     </message>
 </context>
 <context>
@@ -2162,12 +2162,12 @@ enig</translation>
     <message>
         <location filename="../tasks/fast.cpp" line="70"/>
         <source>Fast Alcohol Screening Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Fast Alcohol Screening Test [hurtig alkohol screening test]</translation>
     </message>
     <message>
         <location filename="../tasks/fast.cpp" line="76"/>
         <source>4-item self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>4-vare selvrapporteringsskala.</translation>
     </message>
 </context>
 <context>
@@ -2175,12 +2175,12 @@ enig</translation>
     <message>
         <location filename="../tasks/fft.cpp" line="74"/>
         <source>Friends and Family Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Friends and Family Test [venner og familie test]</translation>
     </message>
     <message>
         <location filename="../tasks/fft.cpp" line="80"/>
         <source>Single-question patient rating of a clinical service.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anmoder patienten om at vurdere en klinisk service med et enkelt spørgsmål.</translation>
     </message>
 </context>
 <context>
@@ -2188,12 +2188,12 @@ enig</translation>
     <message>
         <location filename="../tasks/frs.cpp" line="125"/>
         <source>Frontotemporal Dementia Rating Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Frontotemporal Dementia Rating Scale [frontotemporal demens rating skala]</translation>
     </message>
     <message>
         <location filename="../tasks/frs.cpp" line="131"/>
         <source>30-item clinician-administered scale based on carer information.</source>
-        <translation type="unfinished"></translation>
+        <translation>30 vare skala, administreret af en kliniker, baseret på information fra en plejeperson.</translation>
     </message>
 </context>
 <context>
@@ -2201,12 +2201,12 @@ enig</translation>
     <message>
         <location filename="../tasks/gad7.cpp" line="71"/>
         <source>Generalized Anxiety Disorder Assessment</source>
-        <translation type="unfinished"></translation>
+        <translation>Generalized Anxiety Disorder Assessment [generaliseret angstlidelse vurdering]</translation>
     </message>
     <message>
         <location filename="../tasks/gad7.cpp" line="77"/>
         <source>7-item self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>7-vare selvrapporteringsskala.</translation>
     </message>
 </context>
 <context>
@@ -2214,12 +2214,12 @@ enig</translation>
     <message>
         <location filename="../tasks/gaf.cpp" line="66"/>
         <source>Global Assessment of Functioning</source>
-        <translation type="unfinished"></translation>
+        <translation>Global Assessment of Functioning [global vurdering af funktionen]</translation>
     </message>
     <message>
         <location filename="../tasks/gaf.cpp" line="72"/>
         <source>Single scale from 1–100.</source>
-        <translation type="unfinished"></translation>
+        <translation>Enkeltskala fra 1–100.</translation>
     </message>
 </context>
 <context>
@@ -2227,12 +2227,12 @@ enig</translation>
     <message>
         <location filename="../tasks/gbogpc.cpp" line="99"/>
         <source>Goal-Based Outcomes – 2 – Goal Progress Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Goal-Based Outcomes [målbaserede resultater] – 2 – mål fremskridt diagram</translation>
     </message>
     <message>
         <location filename="../tasks/gbogpc.cpp" line="105"/>
         <source>For recording progress towards the goals of therapy (one goal at a time).</source>
-        <translation type="unfinished"></translation>
+        <translation>Til optagelse af fremskridt hen imod målene for terapi (et mål ad gangen).</translation>
     </message>
 </context>
 <context>
@@ -2240,12 +2240,12 @@ enig</translation>
     <message>
         <location filename="../tasks/gbogras.cpp" line="120"/>
         <source>Goal-Based Outcomes – 3 – Goal Rating Sheet</source>
-        <translation type="unfinished"></translation>
+        <translation>Goal-Based Outcomes [målbaserede resultater] – 3 – målsætningsskema</translation>
     </message>
     <message>
         <location filename="../tasks/gbogras.cpp" line="126"/>
         <source>For recording progress towards the goals of therapy (up to 3 goals).</source>
-        <translation type="unfinished"></translation>
+        <translation>Til optagelse af fremskridt hen imod målene for terapi (op til 3 mål).</translation>
     </message>
 </context>
 <context>
@@ -2253,12 +2253,12 @@ enig</translation>
     <message>
         <location filename="../tasks/gbogres.cpp" line="94"/>
         <source>Goal-Based Outcomes – 1 – Goal Record Sheet</source>
-        <translation type="unfinished"></translation>
+        <translation>Goal-Based Outcomes [målbaserede resultater] – 1 – mål rekord ark</translation>
     </message>
     <message>
         <location filename="../tasks/gbogres.cpp" line="100"/>
         <source>For recording goals of therapy.</source>
-        <translation type="unfinished"></translation>
+        <translation>Til optagelse af mål for terapi.</translation>
     </message>
 </context>
 <context>
@@ -2266,12 +2266,12 @@ enig</translation>
     <message>
         <location filename="../tasks/gds15.cpp" line="71"/>
         <source>Geriatric Depression Scale, 15-item version</source>
-        <translation type="unfinished"></translation>
+        <translation>Geriatric Depression Scale [geriatrisk depression skala], 15-vare version</translation>
     </message>
     <message>
         <location filename="../tasks/gds15.cpp" line="77"/>
         <source>15-item self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>15-vare selvrapporteringsskala.</translation>
     </message>
 </context>
 <context>
@@ -2287,12 +2287,12 @@ enig</translation>
     <message>
         <location filename="../tasks/gmcpq.cpp" line="122"/>
         <source>UK General Medical Council (GMC) Patient Questionnaire</source>
-        <translation type="unfinished"></translation>
+        <translation>UK General Medical Council (GMC) [generel medicinsk rådsforsamling] patient spørgeskema</translation>
     </message>
     <message>
         <location filename="../tasks/gmcpq.cpp" line="128"/>
         <source>Questionnaire for patients to provide anonymous feedback to their doctors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Spørgeskema for patienter at give anonym læge til deres læger.</translation>
     </message>
 </context>
 <context>
@@ -2300,33 +2300,33 @@ enig</translation>
     <message>
         <location filename="../tasks/hads.cpp" line="92"/>
         <source>Hospital Anxiety and Depression Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Hospital Anxiety and Depression Scale [hospital angst og depression skala]</translation>
     </message>
     <message>
         <location filename="../tasks/hads.cpp" line="98"/>
         <source>14-item self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>14-vare selvrapporteringsskala.</translation>
     </message>
 </context>
 <context>
     <name>HadsRespondent</name>
     <message>
         <location filename="../tasks/hadsrespondent.cpp" line="52"/>
-        <source>Hospital Anxiety and Depression Scale (¶+), non-patient respondent version</source>
-        <translation type="unfinished"></translation>
+        <source>Hospital Anxiety and Depression Scale, non-patient respondent version</source>
+        <translation>Hospital Anxiety and Depression Scale [hospital angst og depression skala], version, hvor respondenten ikke er patienten</translation>
     </message>
 </context>
 <context>
     <name>HamA</name>
     <message>
         <location filename="../tasks/hama.cpp" line="71"/>
-        <source>Hamilton Rating Scale for Anxiety (HAM-A)</source>
-        <translation type="unfinished"></translation>
+        <source>Hamilton Rating Scale for Anxiety</source>
+        <translation>Hamilton Rating Scale for Anxiety [Hamilton rating skala for angst]</translation>
     </message>
     <message>
         <location filename="../tasks/hama.cpp" line="77"/>
         <source>14-item clinician-administered scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>14-art kliniker administreret skala.</translation>
     </message>
 </context>
 <context>
@@ -2334,12 +2334,12 @@ enig</translation>
     <message>
         <location filename="../tasks/hamd.cpp" line="104"/>
         <source>Hamilton Depression Rating Scale [HDRS/HAM-D/HRSD]</source>
-        <translation type="unfinished"></translation>
+        <translation>Hamilton Depression Rating Scale (depression bedømmelse skala) [HDRS/HAM-D/HRSD]</translation>
     </message>
     <message>
         <location filename="../tasks/hamd.cpp" line="110"/>
         <source>21-item professional-administered depression scale commonly used for monitoring and research.</source>
-        <translation type="unfinished"></translation>
+        <translation>21-punkts professionelt administreret depressionskalab, der almindeligvis anvendes til overvågning og forskning.</translation>
     </message>
 </context>
 <context>
@@ -2347,12 +2347,12 @@ enig</translation>
     <message>
         <location filename="../tasks/hamd7.cpp" line="70"/>
         <source>Hamilton Depression Rating Scale, 7-item version</source>
-        <translation type="unfinished"></translation>
+        <translation>Hamilton Depression Rating Scale (depression bedømmelse skala), 7-vare version</translation>
     </message>
     <message>
         <location filename="../tasks/hamd7.cpp" line="76"/>
         <source>7-item derivative of the HDRS.</source>
-        <translation type="unfinished"></translation>
+        <translation>7-vare derivat af HDRS.</translation>
     </message>
 </context>
 <context>
@@ -2528,12 +2528,12 @@ enig</translation>
     <message>
         <location filename="../tasks/honos.cpp" line="80"/>
         <source>Health of the Nation Outcome Scales, working age adults</source>
-        <translation type="unfinished"></translation>
+        <translation>Health of the Nation Outcome Scales [sundhed af nationen resultat skalaer], voksne i erhvervsalderen</translation>
     </message>
     <message>
         <location filename="../tasks/honos.cpp" line="86"/>
         <source>12-item clinician-rated scale.</source>
-        <translation type="unfinished">14-punkts klinikerklassificeret skala. {12-?}</translation>
+        <translation>12-vare skala, klassificeret af kliniker</translation>
     </message>
 </context>
 <context>
@@ -2541,12 +2541,12 @@ enig</translation>
     <message>
         <location filename="../tasks/honos65.cpp" line="80"/>
         <source>Health of the Nation Outcome Scales, older adults</source>
-        <translation type="unfinished"></translation>
+        <translation>Health of the Nation Outcome Scales [sundhed af nationen resultat skalaer], ældre voksne</translation>
     </message>
     <message>
         <location filename="../tasks/honos65.cpp" line="86"/>
         <source>12-item clinician-rated scale.</source>
-        <translation type="unfinished">14-punkts klinikerklassificeret skala. {12-?}</translation>
+        <translation>12-vare skala, klassificeret af kliniker.</translation>
     </message>
 </context>
 <context>
@@ -2554,12 +2554,12 @@ enig</translation>
     <message>
         <location filename="../tasks/honosca.cpp" line="75"/>
         <source>Health of the Nation Outcome Scales, Children and Adolescents</source>
-        <translation type="unfinished"></translation>
+        <translation>Health of the Nation Outcome Scales [sundhed af nationen resultat skalaer], børn og unge</translation>
     </message>
     <message>
         <location filename="../tasks/honosca.cpp" line="81"/>
         <source>13- to 15-item clinician-rated scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>13- til 15-vare skala, klassificeret af kliniker.</translation>
     </message>
 </context>
 <context>
@@ -2623,7 +2623,7 @@ enig</translation>
     <message>
         <location filename="../tasks/icd10depressive.cpp" line="153"/>
         <source>ICD-10 symptomatic criteria for a depressive episode (as in e.g. F06.3, F25, F31, F32, F33)</source>
-        <translation type="unfinished"></translation>
+        <translation>ICD-10 symptomatiske kriterier for en depressiv episode (som i fx F06.3, F25, F31, F32, F33)</translation>
     </message>
 </context>
 <context>
@@ -2631,7 +2631,7 @@ enig</translation>
     <message>
         <location filename="../tasks/icd10manic.cpp" line="155"/>
         <source>ICD-10 symptomatic criteria for a manic/hypomanic episode (as in e.g. F06.3, F25, F30, F31)</source>
-        <translation type="unfinished"></translation>
+        <translation>ICD-10 symptomatiske kriterier for en manisk/hypomanisk episode (som i fx F06.3, F25, F30, F31)</translation>
     </message>
 </context>
 <context>
@@ -2639,7 +2639,7 @@ enig</translation>
     <message>
         <location filename="../tasks/icd10mixed.cpp" line="89"/>
         <source>ICD-10 symptomatic criteria for a mixed affective episode (as in e.g. F06.3, F25, F38.00, F31.6)</source>
-        <translation type="unfinished"></translation>
+        <translation>ICD-10 symptomatiske kriterier for en blandet affektiv episode (som i fx F06.3, F25, F38.00, F31.6)</translation>
     </message>
 </context>
 <context>
@@ -2647,7 +2647,7 @@ enig</translation>
     <message>
         <location filename="../tasks/icd10schizophrenia.cpp" line="171"/>
         <source>ICD-10 criteria for schizophrenia (F20)</source>
-        <translation type="unfinished"></translation>
+        <translation>ICD-10 kriterier for skizofreni (F20)</translation>
     </message>
 </context>
 <context>
@@ -2655,7 +2655,7 @@ enig</translation>
     <message>
         <location filename="../tasks/icd10schizotypal.cpp" line="89"/>
         <source>ICD-10 criteria for schizotypal disorder (F21)</source>
-        <translation type="unfinished"></translation>
+        <translation>ICD-10 kriterier for schizotypisk lidelse (F21)</translation>
     </message>
 </context>
 <context>
@@ -2663,7 +2663,7 @@ enig</translation>
     <message>
         <location filename="../tasks/icd10specpd.cpp" line="144"/>
         <source>ICD-10 criteria for specific personality disorders (F60)</source>
-        <translation type="unfinished"></translation>
+        <translation>ICD-10 kriterier for specifikke personlighedsforstyrrelser (F60)</translation>
     </message>
 </context>
 <context>
@@ -2671,42 +2671,42 @@ enig</translation>
     <message>
         <location filename="../tasks/iesr.cpp" line="80"/>
         <source>Impact of Events Scale – Revised</source>
-        <translation type="unfinished"></translation>
+        <translation>Impact of Events Scale – Revised [virkning af begivenhedsskala – revideret]</translation>
     </message>
     <message>
         <location filename="../tasks/iesr.cpp" line="86"/>
         <source>22-item self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>22-vare selvrapporteringsskala.</translation>
     </message>
     <message>
         <location filename="../tasks/iesr.cpp" line="124"/>
         <source>Not at all</source>
-        <translation type="unfinished">Slet ikke</translation>
+        <translation>Slet ikke</translation>
     </message>
     <message>
         <location filename="../tasks/iesr.cpp" line="125"/>
         <source>A little bit</source>
-        <translation type="unfinished"></translation>
+        <translation>En lille smule</translation>
     </message>
     <message>
         <location filename="../tasks/iesr.cpp" line="126"/>
         <source>Moderately</source>
-        <translation type="unfinished"></translation>
+        <translation>Moderat</translation>
     </message>
     <message>
         <location filename="../tasks/iesr.cpp" line="127"/>
         <source>Quite a bit</source>
-        <translation type="unfinished"></translation>
+        <translation>En hel del</translation>
     </message>
     <message>
         <location filename="../tasks/iesr.cpp" line="128"/>
         <source>Extremely</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekstremt</translation>
     </message>
     <message>
         <location filename="../tasks/iesr.cpp" line="139"/>
         <source>Event:</source>
-        <translation type="unfinished"></translation>
+        <translation>Begivenhed:</translation>
     </message>
 </context>
 <context>
@@ -2714,12 +2714,12 @@ enig</translation>
     <message>
         <location filename="../tasks/ifs.cpp" line="136"/>
         <source>INECO Frontal Screening</source>
-        <translation type="unfinished"></translation>
+        <translation>INECO Frontal Screening [frontallappen screening test]</translation>
     </message>
     <message>
         <location filename="../tasks/ifs.cpp" line="142"/>
         <source>30-point clinician-administered assessment.</source>
-        <translation type="unfinished"></translation>
+        <translation>30-point klinisk administreret vurdering.</translation>
     </message>
 </context>
 <context>
@@ -2727,12 +2727,12 @@ enig</translation>
     <message>
         <location filename="../tasks/irac.cpp" line="66"/>
         <source>Identify and Rate the Aim of the Contact</source>
-        <translation type="unfinished"></translation>
+        <translation>Identify and Rate the Aim of the Contact [identificere og vurdere formålet med kontakten]</translation>
     </message>
     <message>
         <location filename="../tasks/irac.cpp" line="72"/>
         <source>Clinician-specified aim of contact, and whether aim achieved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klinikeren angiver formålet med kontakten, og om målet er nået.</translation>
     </message>
 </context>
 <context>
@@ -2771,12 +2771,12 @@ enig</translation>
     <message>
         <location filename="../tasks/mast.cpp" line="75"/>
         <source>Michigan Alcohol Screening Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Michigan Alcohol Screening Test [Michigan alkohol screening test]</translation>
     </message>
     <message>
         <location filename="../tasks/mast.cpp" line="81"/>
         <source>24-item Y/N self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>24-punkts ja/nej selvrapporteringsskala.</translation>
     </message>
 </context>
 <context>
@@ -2784,52 +2784,52 @@ enig</translation>
     <message>
         <location filename="../tasks/mdsupdrs.cpp" line="307"/>
         <source>Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s Disease Rating Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s Disease Rating Scale [Revision af den samlede Parkinsons sygdomskvalitetsskala, sponsoreret af bevægelsesforstyrrelsessamfundet]</translation>
     </message>
     <message>
         <location filename="../tasks/mdsupdrs.cpp" line="314"/>
         <source>Assessment of experiences of daily living and motor examination/complications.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vurdering af erfaringer med dagliglivet og motorundersøgelser/komplikationer.</translation>
     </message>
     <message>
         <location filename="../tasks/mdsupdrs.cpp" line="354"/>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <location filename="../tasks/mdsupdrs.cpp" line="355"/>
         <source>Slight</source>
-        <translation type="unfinished"></translation>
+        <translation>Lille</translation>
     </message>
     <message>
         <location filename="../tasks/mdsupdrs.cpp" line="356"/>
         <source>Mild</source>
-        <translation type="unfinished">Mild</translation>
+        <translation>Mild</translation>
     </message>
     <message>
         <location filename="../tasks/mdsupdrs.cpp" line="357"/>
         <source>Moderate</source>
-        <translation type="unfinished">Moderat</translation>
+        <translation>Moderat</translation>
     </message>
     <message>
         <location filename="../tasks/mdsupdrs.cpp" line="358"/>
         <source>Severe</source>
-        <translation type="unfinished">Alvorlig</translation>
+        <translation>Alvorlig</translation>
     </message>
     <message>
         <location filename="../tasks/mdsupdrs.cpp" line="361"/>
         <source>Patient</source>
-        <translation type="unfinished">Patient</translation>
+        <translation>Patient</translation>
     </message>
     <message>
         <location filename="../tasks/mdsupdrs.cpp" line="362"/>
         <source>Caregiver</source>
-        <translation type="unfinished"></translation>
+        <translation>Omsorgsgiver</translation>
     </message>
     <message>
         <location filename="../tasks/mdsupdrs.cpp" line="363"/>
         <source>Patient and caregiver</source>
-        <translation type="unfinished"></translation>
+        <translation>Patient og omsorgsgiver</translation>
     </message>
 </context>
 <context>
@@ -2962,12 +2962,12 @@ enig</translation>
     <message>
         <location filename="../tasks/moca.cpp" line="114"/>
         <source>Montreal Cognitive Assessment</source>
-        <translation type="unfinished"></translation>
+        <translation>Montreal Cognitive Assessment [Montreal kognitiv vurdering]</translation>
     </message>
     <message>
         <location filename="../tasks/moca.cpp" line="120"/>
         <source>30-point clinician-administered brief cognitive assessment.</source>
-        <translation type="unfinished"></translation>
+        <translation>30-point klinisk administreret kort kognitiv vurdering.</translation>
     </message>
 </context>
 <context>
@@ -2975,12 +2975,12 @@ enig</translation>
     <message>
         <location filename="../tasks/nart.cpp" line="134"/>
         <source>National Adult Reading Test</source>
-        <translation type="unfinished"></translation>
+        <translation>National Adult Reading Test [national voksen læsning test; ENGELSK SPROG]</translation>
     </message>
     <message>
         <location filename="../tasks/nart.cpp" line="140"/>
         <source>Estimation of premorbid IQ by reading irregular words.</source>
-        <translation type="unfinished"></translation>
+        <translation>Estimering af præmorbide intelligens kvotient ved at læse uregelmæssige ord.</translation>
     </message>
 </context>
 <context>
@@ -3424,12 +3424,12 @@ enig</translation>
     <message>
         <location filename="../tasks/npiq.cpp" line="81"/>
         <source>Neuropsychiatry Inventory Questionnaire</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuropsychiatry Inventory Questionnaire [neuropsykiatrisk opgørelse spørgeskema]</translation>
     </message>
     <message>
         <location filename="../tasks/npiq.cpp" line="87"/>
         <source>12-item carer-rated scale for use in dementia.</source>
-        <translation type="unfinished"></translation>
+        <translation>12-vare omsorgsgiver-rated skala til brug i demens.</translation>
     </message>
 </context>
 <context>
@@ -3450,12 +3450,12 @@ enig</translation>
     <message>
         <location filename="../tasks/ors.cpp" line="121"/>
         <source>Outcome Rating Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Outcome Rating Scale [resultat vurdering skala]</translation>
     </message>
     <message>
         <location filename="../tasks/ors.cpp" line="127"/>
         <source>Fixed-length visual analogue scales measuring well-being.</source>
-        <translation type="unfinished"></translation>
+        <translation>Faste længde visuelle analog skalaer måling velvære.</translation>
     </message>
 </context>
 <context>
@@ -3476,12 +3476,12 @@ enig</translation>
     <message>
         <location filename="../tasks/panss.cpp" line="81"/>
         <source>Positive and Negative Syndrome Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Positive and Negative Syndrome Scale [positiv og negativ syndrom skala]</translation>
     </message>
     <message>
         <location filename="../tasks/panss.cpp" line="87"/>
         <source>Scale for positive (7 items) and negative symptoms of schizophrenia (7 items), and general psychopathology (16 items).</source>
-        <translation type="unfinished"></translation>
+        <translation>Skala for positive (7 poster) og negative symptomer på skizofreni (7 artikler) og generel psykopatologi (16 elementer).</translation>
     </message>
 </context>
 <context>
@@ -3627,12 +3627,12 @@ enig</translation>
     <message>
         <location filename="../tasks/patientsatisfaction.cpp" line="51"/>
         <source>Patient Satisfaction Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Patient Satisfaction Scale [patient tilfredshed skala]</translation>
     </message>
     <message>
         <location filename="../tasks/patientsatisfaction.cpp" line="57"/>
         <source>Short rating of a clinical service received.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kort bedømmelse af en patient af en klinisk tjeneste, som de har modtaget.</translation>
     </message>
 </context>
 <context>
@@ -3658,12 +3658,12 @@ enig</translation>
     <message>
         <location filename="../tasks/pbq.cpp" line="70"/>
         <source>Postpartum Bonding Questionnaire</source>
-        <translation type="unfinished"></translation>
+        <translation>Postpartum Bonding Questionnaire [postpartum moder-spædbarn bindings spørgeskema]</translation>
     </message>
     <message>
         <location filename="../tasks/pbq.cpp" line="76"/>
         <source>25-item self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>25-vare selvrapporteringsskala.</translation>
     </message>
 </context>
 <context>
@@ -3671,12 +3671,12 @@ enig</translation>
     <message>
         <location filename="../tasks/pcl5.cpp" line="79"/>
         <source>PTSD Checklist for DSM-5</source>
-        <translation type="unfinished"></translation>
+        <translation>PTSD Checklist [post-traumatisk stresslidelse tjekliste] til DSM-5</translation>
     </message>
     <message>
         <location filename="../tasks/pcl5.cpp" line="85"/>
         <source>20-item self-report scale, based on DSM-5 criteria.</source>
-        <translation type="unfinished"></translation>
+        <translation>20-vare selvrapporteringsskala, baseret på DSM-5 kriterier.</translation>
     </message>
 </context>
 <context>
@@ -3684,7 +3684,7 @@ enig</translation>
     <message>
         <location filename="../tasks/pclc.cpp" line="50"/>
         <source>PTSD Checklist, Civilian version</source>
-        <translation type="unfinished"></translation>
+        <translation>PTSD Checklist [post-traumatisk stresslidelse tjekliste], civilist version</translation>
     </message>
 </context>
 <context>
@@ -3692,7 +3692,7 @@ enig</translation>
     <message>
         <location filename="../taskxtra/pclcommon.cpp" line="76"/>
         <source>17-item self-report scale, based on DSM-IV-TR criteria.</source>
-        <translation type="unfinished"></translation>
+        <translation>17-items självrapporteringsskala, baserad på DSM-IV-TR-kriterier.</translation>
     </message>
 </context>
 <context>
@@ -3700,7 +3700,7 @@ enig</translation>
     <message>
         <location filename="../tasks/pclm.cpp" line="50"/>
         <source>PTSD Checklist, Military version</source>
-        <translation type="unfinished"></translation>
+        <translation>PTSD Checklist [post-traumatisk stresslidelse tjekliste], militær version</translation>
     </message>
 </context>
 <context>
@@ -3708,7 +3708,7 @@ enig</translation>
     <message>
         <location filename="../tasks/pcls.cpp" line="50"/>
         <source>PTSD Checklist, Stressor-specific version</source>
-        <translation type="unfinished"></translation>
+        <translation>PTSD Checklist [post-traumatisk stresslidelse tjekliste], stressfaktor-specifik version</translation>
     </message>
 </context>
 <context>
@@ -3716,12 +3716,12 @@ enig</translation>
     <message>
         <location filename="../tasks/pdss.cpp" line="73"/>
         <source>Panic Disorder Severity Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Panic Disorder Severity Scale [paniklidelse alvorlighedsskala]</translation>
     </message>
     <message>
         <location filename="../tasks/pdss.cpp" line="79"/>
         <source>7-item self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>7-vare selvrapporteringsskala.</translation>
     </message>
 </context>
 <context>
@@ -3729,12 +3729,12 @@ enig</translation>
     <message>
         <location filename="../tasks/perinatalpoem.cpp" line="147"/>
         <source>Perinatal Patient-rated Outcome and Experience Measure</source>
-        <translation type="unfinished"></translation>
+        <translation>Perinatal Patient-rated Outcome and Experience Measure [perinatalt patientrelateret udfald og erfaringsmål]</translation>
     </message>
     <message>
         <location filename="../tasks/perinatalpoem.cpp" line="153"/>
         <source>2 questions on mental health; 12 questions on patient experience; ±6 questions specific to mother/baby units.</source>
-        <translation type="unfinished"></translation>
+        <translation>2 spørgsmål om mental sundhed; 12 spørgsmål om patienters erfaring; ±6 spørgsmål specifikt til psykiatriafdelinger for mødre og babyer.</translation>
     </message>
 </context>
 <context>
@@ -3835,12 +3835,12 @@ enig</translation>
     <message>
         <location filename="../tasks/phq15.cpp" line="72"/>
         <source>Patient Health Questionnaire-15</source>
-        <translation type="unfinished"></translation>
+        <translation>Patient Health Questionnaire-15 [patientundersøgelse spørgeskema-15]</translation>
     </message>
     <message>
         <location filename="../tasks/phq15.cpp" line="78"/>
         <source>Self-scoring of 15 common somatic symptoms (relevant to somatoform disorders).</source>
-        <translation type="unfinished"></translation>
+        <translation>Selvscoring af 15 almindelige somatiske symptomer (relevant for somatoformforstyrrelser).</translation>
     </message>
 </context>
 <context>
@@ -3848,12 +3848,12 @@ enig</translation>
     <message>
         <location filename="../tasks/phq9.cpp" line="74"/>
         <source>Patient Health Questionnaire-9</source>
-        <translation type="unfinished"></translation>
+        <translation>Patient Health Questionnaire-9 [patientundersøgelse spørgeskema-9]</translation>
     </message>
     <message>
         <location filename="../tasks/phq9.cpp" line="80"/>
         <source>Self-scoring of the 9 depressive symptoms in DSM-IV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Selv scoring af de 9 depressive symptomer i DSM-IV.</translation>
     </message>
 </context>
 <context>
@@ -3874,12 +3874,12 @@ enig</translation>
     <message>
         <location filename="../tasks/pswq.cpp" line="69"/>
         <source>Penn State Worry Questionnaire</source>
-        <translation type="unfinished"></translation>
+        <translation>Penn State Worry Questionnaire [Penn State bekymre spørgeskema]</translation>
     </message>
     <message>
         <location filename="../tasks/pswq.cpp" line="75"/>
         <source>16-item self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>16-vare selvrapporteringsskala.</translation>
     </message>
 </context>
 <context>
@@ -3887,12 +3887,12 @@ enig</translation>
     <message>
         <location filename="../tasks/psychiatricclerking.cpp" line="174"/>
         <source>Psychiatric clerking</source>
-        <translation type="unfinished"></translation>
+        <translation>Interview af en psykiater.</translation>
     </message>
     <message>
         <location filename="../tasks/psychiatricclerking.cpp" line="180"/>
         <source>Standard psychiatric clerking form.</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardformular til at optage et interview af en psykiater.</translation>
     </message>
 </context>
 <context>
@@ -3952,12 +3952,12 @@ enig</translation>
     <message>
         <location filename="../tasks/qolbasic.cpp" line="71"/>
         <source>Quality of Life: basic assessment</source>
-        <translation type="unfinished"></translation>
+        <translation>Livskvalitet: grundlæggende vurdering</translation>
     </message>
     <message>
         <location filename="../tasks/qolbasic.cpp" line="77"/>
         <source>Time trade-off and response scale measures of quality of life.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidafvejnings og respons skala foranstaltninger af livskvalitet</translation>
     </message>
 </context>
 <context>
@@ -3965,12 +3965,12 @@ enig</translation>
     <message>
         <location filename="../tasks/qolsg.cpp" line="245"/>
         <source>Quality of Life: Standard Gamble</source>
-        <translation type="unfinished"></translation>
+        <translation>Livskvalitet: standard gamble</translation>
     </message>
     <message>
         <location filename="../tasks/qolsg.cpp" line="251"/>
         <source>Standard-gamble measure of quality of life.</source>
-        <translation type="unfinished"></translation>
+        <translation>Standard gamble måling af livskvalitet</translation>
     </message>
 </context>
 <context>
@@ -4108,12 +4108,12 @@ enig</translation>
     <message>
         <location filename="../tasks/rand36.cpp" line="89"/>
         <source>RAND 36-Item Short Form Health Survey 1.0</source>
-        <translation type="unfinished"></translation>
+        <translation>RAND 36-vare Short Form Health Survey [kort formundersøgelse] 1.0</translation>
     </message>
     <message>
         <location filename="../tasks/rand36.cpp" line="95"/>
         <source>Patient-reported survey of general health.</source>
-        <translation type="unfinished"></translation>
+        <translation>Patientanmeldt undersøgelse af generel sundhed.</translation>
     </message>
 </context>
 <context>
@@ -4121,12 +4121,12 @@ enig</translation>
     <message>
         <location filename="../tasks/referrersatisfactiongen.cpp" line="52"/>
         <source>Referrer Satisfaction Scale (anonymous survey)</source>
-        <translation type="unfinished"></translation>
+        <translation>Referrer Satisfaction Scale [referrer tilfredshed skala], anonym undersøgelse</translation>
     </message>
     <message>
         <location filename="../tasks/referrersatisfactiongen.cpp" line="58"/>
         <source>Short rating of a clinical service received (survey).</source>
-        <translation type="unfinished"></translation>
+        <translation>Kort bedømmelse af en klinisk service modtaget (undersøgelse).</translation>
     </message>
 </context>
 <context>
@@ -4134,12 +4134,12 @@ enig</translation>
     <message>
         <location filename="../tasks/referrersatisfactionspec.cpp" line="52"/>
         <source>Referrer Satisfaction Scale (patient-specific)</source>
-        <translation type="unfinished"></translation>
+        <translation>Referrer Satisfaction Scale [referrer tilfredshed skala], patientspecifikke</translation>
     </message>
     <message>
         <location filename="../tasks/referrersatisfactionspec.cpp" line="58"/>
         <source>Short rating of a clinical service received (patient-specific).</source>
-        <translation type="unfinished"></translation>
+        <translation>Kort bedømmelse af en klinisk service modtaget (patientspecifik).</translation>
     </message>
 </context>
 <context>
@@ -4249,12 +4249,12 @@ enig</translation>
     <message>
         <location filename="../menu/setmenucpftaffective1.cpp" line="46"/>
         <source>CPFT Affective Disorders Research Database</source>
-        <translation type="unfinished"></translation>
+        <translation>CPFT Affective Disorders Research Database [affektive sygdomsforskningsdatabase]</translation>
     </message>
     <message>
         <location filename="../menu/setmenucpftaffective1.cpp" line="52"/>
         <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — affective disorders</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambridgeshire and Peterborough NHS Foundation Trust, UK — affektive lidelser</translation>
     </message>
 </context>
 <context>
@@ -4262,42 +4262,42 @@ enig</translation>
     <message>
         <location filename="../menu/setmenucpftperinatal1.cpp" line="48"/>
         <source>CPFT Perinatal Service</source>
-        <translation type="unfinished"></translation>
+        <translation>CPFT Perinatal Service [perinatal mental sundhedstjeneste]</translation>
     </message>
     <message>
         <location filename="../menu/setmenucpftperinatal1.cpp" line="54"/>
         <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — perinatal psychiatry service</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambridgeshire and Peterborough NHS Foundation Trust, UK — perinatal mental sundhedstjeneste</translation>
     </message>
     <message>
         <location filename="../menu/setmenucpftperinatal1.cpp" line="63"/>
         <source>Assessment/choice</source>
-        <translation type="unfinished"></translation>
+        <translation>Evaluering/valg</translation>
     </message>
     <message>
         <location filename="../menu/setmenucpftperinatal1.cpp" line="66"/>
         <source>Generic measures</source>
-        <translation type="unfinished"></translation>
+        <translation>Generiske foranstaltninger</translation>
     </message>
     <message>
         <location filename="../menu/setmenucpftperinatal1.cpp" line="69"/>
         <source>Mother–infant measures</source>
-        <translation type="unfinished"></translation>
+        <translation>Moder–spædbarnsforanstaltninger</translation>
     </message>
     <message>
         <location filename="../menu/setmenucpftperinatal1.cpp" line="71"/>
         <source>Specific conditions</source>
-        <translation type="unfinished"></translation>
+        <translation>Specifikke betingelser</translation>
     </message>
     <message>
         <location filename="../menu/setmenucpftperinatal1.cpp" line="75"/>
         <source>Treatment/care</source>
-        <translation type="unfinished"></translation>
+        <translation>Behandling/pleje</translation>
     </message>
     <message>
         <location filename="../menu/setmenucpftperinatal1.cpp" line="81"/>
         <source>End of treatment/care</source>
-        <translation type="unfinished"></translation>
+        <translation>Afslutning af behandling/pleje</translation>
     </message>
 </context>
 <context>
@@ -4305,12 +4305,12 @@ enig</translation>
     <message>
         <location filename="../menu/setmenucpftpsychooncology1.cpp" line="46"/>
         <source>CPFT Psycho-oncology Service</source>
-        <translation type="unfinished"></translation>
+        <translation>CPFT Psycho-oncology Service [psykiatri i onkologi service]</translation>
     </message>
     <message>
         <location filename="../menu/setmenucpftpsychooncology1.cpp" line="52"/>
         <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — psycho-oncology service</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambridgeshire and Peterborough NHS Foundation Trust, UK — psykiatri i onkologi service</translation>
     </message>
 </context>
 <context>
@@ -4318,7 +4318,7 @@ enig</translation>
     <message>
         <location filename="../menu/setmenudeakin1.cpp" line="57"/>
         <source>Deakin JB, University of Cambridge, UK — antibody-mediated psychosis</source>
-        <translation type="unfinished"></translation>
+        <translation>Deakin JB, University of Cambridge, UK — antistof-medieret psykose</translation>
     </message>
 </context>
 <context>
@@ -4331,12 +4331,12 @@ enig</translation>
     <message>
         <location filename="../menu/setmenufromlp.cpp" line="66"/>
         <source>GENERIC SCALES</source>
-        <translation type="unfinished">GENERISKE OPGAVE</translation>
+        <translation>GENERISKE OPGAVE</translation>
     </message>
     <message>
         <location filename="../menu/setmenufromlp.cpp" line="75"/>
         <source>DISEASE-SPECIFIC SCALES</source>
-        <translation type="unfinished">SYGDOMSPECIFIKKE OPGAVE</translation>
+        <translation>SYGDOMSPECIFIKKE OPGAVE</translation>
     </message>
 </context>
 <context>
@@ -4382,12 +4382,12 @@ enig</translation>
     <message>
         <location filename="../menu/setmenukhandaker1.cpp" line="39"/>
         <source>Khandaker GM — 1 — Insight study</source>
-        <translation type="unfinished"></translation>
+        <translation>Khandaker GM — 1 — Insight forskningsundersøgelse</translation>
     </message>
     <message>
         <location filename="../menu/setmenukhandaker1.cpp" line="45"/>
         <source>Khandaker GM, University of Cambridge, UK — Insight immunopsychiatry study</source>
-        <translation type="unfinished"></translation>
+        <translation>Khandaker GM, University of Cambridge, UK — Insight immunopsykiatri forskningsundersøgelse</translation>
     </message>
 </context>
 <context>
@@ -4395,12 +4395,12 @@ enig</translation>
     <message>
         <location filename="../menu/setmenulynall1.cpp" line="42"/>
         <source>Lynall M-E — 1 — IAM study</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynall M-E — 1 — IAM forskningsundersøgelse</translation>
     </message>
     <message>
         <location filename="../menu/setmenulynall1.cpp" line="48"/>
         <source>Lynall M-E, University of Cambridge, UK — Inflammation in Mind (IAM) study</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynall M-E, University of Cambridge, UK — Inflammation in Mind (IAM) [betændelse i tankerne] forskningsundersøgelse</translation>
     </message>
 </context>
 <context>
@@ -4408,7 +4408,7 @@ enig</translation>
     <message>
         <location filename="../menu/setmenuobrien1.cpp" line="55"/>
         <source>O’Brien JT, University of Cambridge, UK — dementia research clinic</source>
-        <translation type="unfinished"></translation>
+        <translation>O’Brien JT, University of Cambridge, UK — demensforskningsklinik</translation>
     </message>
 </context>
 <context>
@@ -5305,12 +5305,12 @@ Anonym</translation>
     <message>
         <location filename="../tasks/slums.cpp" line="139"/>
         <source>St Louis University Mental Status</source>
-        <translation type="unfinished"></translation>
+        <translation>St Louis University Mental Status [St Louis universitet mental status]</translation>
     </message>
     <message>
         <location filename="../tasks/slums.cpp" line="145"/>
         <source>30-point clinician-administered brief cognitive assessment.</source>
-        <translation type="unfinished"></translation>
+        <translation>30-point klinisk administreret kort kognitiv vurdering.</translation>
     </message>
 </context>
 <context>
@@ -5318,12 +5318,12 @@ Anonym</translation>
     <message>
         <location filename="../tasks/smast.cpp" line="72"/>
         <source>Short Michigan Alcohol Screening Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Short Michigan Alcohol Screening Test [kort Michigan alkohol screening test]</translation>
     </message>
     <message>
         <location filename="../tasks/smast.cpp" line="78"/>
         <source>13-item Y/N self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>13-vare ja/nej selvrapporteringsskala.</translation>
     </message>
 </context>
 <context>
@@ -5339,12 +5339,12 @@ Anonym</translation>
     <message>
         <location filename="../tasks/srs.cpp" line="113"/>
         <source>Session Rating Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Session Rating Scale [sessionsvurdering skalaen]</translation>
     </message>
     <message>
         <location filename="../tasks/srs.cpp" line="119"/>
         <source>Fixed-length visual analogue scales for providing psychotherapy session feedback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Faste længde visuelle analog skalaer for at give feedback fra psykoterapi session.</translation>
     </message>
 </context>
 <context>
@@ -5352,12 +5352,12 @@ Anonym</translation>
     <message>
         <location filename="../tasks/swemwbs.cpp" line="70"/>
         <source>Short Warwick–Edinburgh Mental Well-Being Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Short Warwick–Edinburgh Mental Well-Being Scale [kort Warwick-Edinburgh mental velfærd skala]</translation>
     </message>
     <message>
         <location filename="../tasks/swemwbs.cpp" line="76"/>
         <source>7-item shortened version of the WEMWBS.</source>
-        <translation type="unfinished"></translation>
+        <translation>7-vare forkortet version af WEMWBS.</translation>
     </message>
 </context>
 <context>
@@ -5401,7 +5401,7 @@ Anonym</translation>
     <message>
         <location filename="../tasklib/task.cpp" line="320"/>
         <source>Task uploadable</source>
-        <translation type="unfinished"></translation>
+        <translation>Opgave kan uploades</translation>
     </message>
     <message>
         <location filename="../tasklib/task.cpp" line="323"/>
@@ -5464,197 +5464,197 @@ Anonym</translation>
     <message>
         <location filename="../menu/testmenu.cpp" line="85"/>
         <source>Switch to Danish</source>
-        <translation type="unfinished"></translation>
+        <translation>Skift til dansk</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="89"/>
         <source>Switch to English</source>
-        <translation type="unfinished"></translation>
+        <translation>Skift til engelsk</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="93"/>
         <source>Test debug console</source>
-        <translation type="unfinished"></translation>
+        <translation>Test fejlfindingskonsol</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="98"/>
         <source>Test network (HTTP)</source>
-        <translation type="unfinished"></translation>
+        <translation>Test netværket (HTTP)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="103"/>
         <source>Test network (HTTPS/SSL)</source>
-        <translation type="unfinished"></translation>
+        <translation>Test netværket (HTTPS/SSL)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="109"/>
         <source>Test PHQ9 creation (nothing is saved)</source>
-        <translation type="unfinished"></translation>
+        <translation>Test PHQ9 oprettelse (intet er gemt)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="114"/>
         <source>Test ICD-10 code set creation (nothing is saved)</source>
-        <translation type="unfinished"></translation>
+        <translation>Test ICD-10 kode sæt oprettelse (intet er gemt)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="119"/>
         <source>Test ICD-9-CM code set creation (nothing is saved)</source>
-        <translation type="unfinished"></translation>
+        <translation>Test ICD-9-CM kode sæt oprettelse (intet er gemt)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="125"/>
         <source>Test HTML display (not fullscreen)</source>
-        <translation type="unfinished"></translation>
+        <translation>Test HTML-visning (ikke fuldskærm)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="132"/>
         <source>Test HTML display, and fullscreen display</source>
-        <translation type="unfinished"></translation>
+        <translation>Test HTML-visning og fuldskærm display</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="139"/>
         <source>Enter fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Indtast fuldskærm</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="144"/>
         <source>Leave fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Forlad fuldskærm</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="149"/>
         <source>Test progress dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Test fremdriftsdialog</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="154"/>
         <source>Test wait dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Test vent dialog</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="159"/>
         <source>Test scrolling message dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Test rullende meddelelsesdialog</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="164"/>
         <source>Test size formatter</source>
-        <translation type="unfinished"></translation>
+        <translation>Test størrelsesformateren</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="169"/>
         <source>Test conversions</source>
-        <translation type="unfinished"></translation>
+        <translation>Test konverteringer</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="174"/>
         <source>Test Eigen functions</source>
-        <translation type="unfinished"></translation>
+        <translation>Test Eigen funktioner</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="179"/>
         <source>Test random number functions (and associated floating point assistance functions)</source>
-        <translation type="unfinished"></translation>
+        <translation>Test tilfældige talfunktioner (og tilhørende funktionsfunktioner for real tal)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="185"/>
         <source>Test logistic regression, and the underlying generalized linear model (GLM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Test logistisk regression, og den underliggende generaliserede lineære model (GLM)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="229"/>
         <source>Test HTTPS</source>
-        <translation type="unfinished"></translation>
+        <translation>Test HTTPS</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="238"/>
         <source>Test HTTP</source>
-        <translation type="unfinished"></translation>
+        <translation>Test HTTP</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="282"/>
         <source>Done; see USB debugging output</source>
-        <translation type="unfinished"></translation>
+        <translation>Færdig; se USB debugging tekst</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="284"/>
         <source>Done; see console</source>
-        <translation type="unfinished"></translation>
+        <translation>Færdig; se konsol</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="296"/>
         <source>Testing progress (but not doing anything; safe to abort)...</source>
-        <translation type="unfinished"></translation>
+        <translation>Test fremskridt (men ikke gør noget, sikkert at afbryde)...</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="297"/>
         <source>Abort test</source>
-        <translation type="unfinished"></translation>
+        <translation>Afbryd test</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="298"/>
         <source>Progress dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Progress dialog</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="321"/>
         <source>Running uninterruptible expensive function in worker thread (for %1 ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kører uafbrudt dyre funktion i arbejdstråd (for %1 ms)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="338"/>
         <source>ScrollMessageBox, with some lengthy text</source>
-        <translation type="unfinished"></translation>
+        <translation>ScrollMessageBox, med lidt lang tekst</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="341"/>
         <source>One (Yes)</source>
-        <translation type="unfinished"></translation>
+        <translation>En (Ja)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="343"/>
         <source>Two (No)</source>
-        <translation type="unfinished"></translation>
+        <translation>To (Nej)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="345"/>
         <source>Three (Reject)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tre (Afvis)</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="368"/>
         <source>bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>bytes</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="383"/>
         <source>Size formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>Størrelsesformatering</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="390"/>
         <source>Conversion test: OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Konverteringstest: OK</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="398"/>
         <source>Eigen functions successfully tested</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktioner af Eigen med succes testet</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="408"/>
         <source>Random-number functions (and supporting floating-point-delta functions): OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilfældige talfunktioner (og understøtter real tal funktioner): OK</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="652"/>
         <source>Test logistic regression</source>
-        <translation type="unfinished"></translation>
+        <translation>Test logistisk regression</translation>
     </message>
     <message>
         <location filename="../menu/testmenu.cpp" line="659"/>
         <source>Hello, world!</source>
-        <translation type="unfinished">Hej, verden!</translation>
+        <translation>Hej, verden!</translation>
     </message>
 </context>
 <context>
@@ -6181,12 +6181,12 @@ Disse vilkår og betingelser blev senest revideret 2017-01-23.</translation>
     <message>
         <location filename="../tasks/wemwbs.cpp" line="70"/>
         <source>Warwick–Edinburgh Mental Well-Being Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Warwick–Edinburgh Mental Well-Being Scale [mental velfærd skala]</translation>
     </message>
     <message>
         <location filename="../tasks/wemwbs.cpp" line="76"/>
         <source>14 positively-phrased Likert-style items measuring mental well-being over the preceding 2 weeks.</source>
-        <translation type="unfinished"></translation>
+        <translation>14 positivt formulerede Likert-stilartikler, der måler mental velvære i de foregående 2 uger.</translation>
     </message>
 </context>
 <context>
@@ -6194,178 +6194,178 @@ Disse vilkår og betingelser blev senest revideret 2017-01-23.</translation>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="135"/>
         <source>Test interface to Whisker</source>
-        <translation type="unfinished"></translation>
+        <translation>Test grænseflade til Whisker</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="143"/>
         <source>Configure demo Whisker task</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurer demonstration Whisker opgave</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="149"/>
         <source>Connect to Whisker server</source>
-        <translation type="unfinished"></translation>
+        <translation>Opret forbindelse til Whisker-serveren</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="151"/>
         <source>Disconnect from Whisker server</source>
-        <translation type="unfinished"></translation>
+        <translation>Afbryd forbindelsen til Whisker-serveren</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="153"/>
         <source>Test network latency to Whisker server</source>
-        <translation type="unfinished"></translation>
+        <translation>Test netværksforsinkelse til Whisker-serveren</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="156"/>
         <source>Run demo Whisker task</source>
-        <translation type="unfinished"></translation>
+        <translation>Kør demonstration Whisker opgave</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="204"/>
         <source>Network latency: %1 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>Netværksforsinkelse: %1 ms</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="225"/>
         <source>Whisker host</source>
-        <translation type="unfinished"></translation>
+        <translation>Whisker vært/server</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="226"/>
         <source>host name or IP address; default: localhost</source>
-        <translation type="unfinished"></translation>
+        <translation>værtsnavn eller IP-adresse; standard: localhost</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="233"/>
         <source>Whisker main port</source>
-        <translation type="unfinished"></translation>
+        <translation>Whisker hovedport</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="234"/>
         <source>default 3233</source>
-        <translation type="unfinished">standard 3233</translation>
+        <translation>standard 3233</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="241"/>
         <source>Whisker display number</source>
-        <translation type="unfinished"></translation>
+        <translation>Whisker display nummer</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="242"/>
         <location filename="../menu/whiskertestmenu.cpp" line="300"/>
         <source>e.g. 0</source>
-        <translation type="unfinished">f.eks. 0</translation>
+        <translation>f.eks. 0</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="249"/>
         <source>Use video</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug video</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="256"/>
         <source>Use two videos</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug to videoer</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="263"/>
         <source>Media directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Mediemappe</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="264"/>
         <source>(e.g. </source>
-        <translation type="unfinished"></translation>
+        <translation>(f.eks. </translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="271"/>
         <source>Bitmap (.BMP) filename 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitmap (.BMP) filnavn 1</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="278"/>
         <source>Bitmap (.BMP) filename 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitmap (.BMP) filnavn 2</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="285"/>
         <source>Video (.WMV) filename 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Video (.WMV) filnavn 1</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="292"/>
         <source>Video (.WMV) filename 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Video (.WMV) filnavn 2</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="299"/>
         <source>Digital input line number</source>
-        <translation type="unfinished"></translation>
+        <translation>Digitalt indtastnings linjenummer</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="307"/>
         <source>Digital output line number</source>
-        <translation type="unfinished"></translation>
+        <translation>Digitalt udgange linjenummer</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="308"/>
         <source>e.g. 8</source>
-        <translation type="unfinished">f.eks. 8</translation>
+        <translation>f.eks. 8</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="369"/>
         <source>Configure Whisker demo task</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurer demonstration Whisker opgave</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="383"/>
         <source>Starting demo Whisker task</source>
-        <translation type="unfinished"></translation>
+        <translation>Start demonstration Whisker opgave</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="386"/>
         <source>Whisker server already connected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Whisker server allerede forbundet.</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="389"/>
         <source>Connecting to Whisker server...</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilslutning til Whisker-serveren...</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="403"/>
         <source>Setting up Whisker manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Opsætning af Whisker manager</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="460"/>
         <source>Claiming devices and setting up display documents</source>
-        <translation type="unfinished"></translation>
+        <translation>Hævder enhederne og opsætter skærm dokumenterne</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="478"/>
         <source>Creating simple display objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Oprettelse af enkle displayobjekter</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="553"/>
         <source>CamCOPS Whisker demo</source>
-        <translation type="unfinished"></translation>
+        <translation>CamCOPS Whisker demonstration</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="623"/>
         <source>Creating video objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Oprettelse af videoobjekte</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="775"/>
         <source>All objects created. Try responding to display objects, providing keyboard input, toggling digital input lines via Whisker.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle objekter oprettet. Prøv at reagere på visning af objekter, tilvejebringelse af tastaturindgang og bytte digitale indgangslinjer via Whisker.</translation>
     </message>
     <message>
         <location filename="../menu/whiskertestmenu.cpp" line="923"/>
         <source>Whisker test task</source>
-        <translation type="unfinished"></translation>
+        <translation>Whisker test opgave</translation>
     </message>
 </context>
 <context>
@@ -6381,12 +6381,12 @@ Disse vilkår og betingelser blev senest revideret 2017-01-23.</translation>
     <message>
         <location filename="../tasks/wsas.cpp" line="72"/>
         <source>Work and Social Adjustment Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Work and Social Adjustment Scale [arbejds- og socialjusteringskala]</translation>
     </message>
     <message>
         <location filename="../tasks/wsas.cpp" line="78"/>
         <source>5-item self-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>5-vare selvrapporteringsskala.</translation>
     </message>
 </context>
 <context>
@@ -6394,27 +6394,27 @@ Disse vilkår og betingelser blev senest revideret 2017-01-23.</translation>
     <message>
         <location filename="../tasks/ybocs.cpp" line="126"/>
         <source>Yale–Brown Obsessive Compulsive Scale, 9/89 revision</source>
-        <translation type="unfinished"></translation>
+        <translation>Yale–Brown Obsessive Compulsive Scale [obsessiv kompulsiv skala], 9/89 revision</translation>
     </message>
     <message>
         <location filename="../tasks/ybocs.cpp" line="132"/>
         <source>10-item clinician-rated scale.</source>
-        <translation type="unfinished">14-punkts klinikerklassificeret skala. {10-?}</translation>
+        <translation>10-punkts klinikerklassificeret skala.</translation>
     </message>
     <message>
         <location filename="../tasks/ybocs.cpp" line="150"/>
         <source>Obsession score</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultat af tvangstanke</translation>
     </message>
     <message>
         <location filename="../tasks/ybocs.cpp" line="152"/>
         <source>Compulsion score</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultat af kompulsivitet</translation>
     </message>
     <message>
         <location filename="../tasks/ybocs.cpp" line="241"/>
         <source>End matter</source>
-        <translation type="unfinished"></translation>
+        <translation>Slutningen af emnet</translation>
     </message>
 </context>
 <context>
@@ -6422,32 +6422,32 @@ Disse vilkår og betingelser blev senest revideret 2017-01-23.</translation>
     <message>
         <location filename="../tasks/ybocssc.cpp" line="186"/>
         <source>Y-BOCS Symptom Checklist, 9/89 revision</source>
-        <translation type="unfinished"></translation>
+        <translation>Y-BOCS Symptom Checklist [symptom checkliste], 9/89 revision</translation>
     </message>
     <message>
         <location filename="../tasks/ybocssc.cpp" line="192"/>
         <source>Symptom checklist (past, current, principal) for Y-BOCS.</source>
-        <translation type="unfinished"></translation>
+        <translation>Symptom checkliste (tidligere, nuværende, hovedstol) for Y-BOCS.</translation>
     </message>
     <message>
         <location filename="../tasks/ybocssc.cpp" line="254"/>
         <source>Current</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuværende</translation>
     </message>
     <message>
         <location filename="../tasks/ybocssc.cpp" line="255"/>
         <source>Past</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidligere</translation>
     </message>
     <message>
         <location filename="../tasks/ybocssc.cpp" line="256"/>
         <source>Principal</source>
-        <translation type="unfinished"></translation>
+        <translation>Vigtigst</translation>
     </message>
     <message>
         <location filename="../tasks/ybocssc.cpp" line="257"/>
         <source>... specify:</source>
-        <translation type="unfinished"></translation>
+        <translation>... specificere:</translation>
     </message>
 </context>
 <context>
@@ -6455,12 +6455,12 @@ Disse vilkår og betingelser blev senest revideret 2017-01-23.</translation>
     <message>
         <location filename="../tasks/zbi12.cpp" line="67"/>
         <source>Zarit Burden Interview, 12-item version</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarit Burden Interview [Zarit byrdeinterview], 12-vare version</translation>
     </message>
     <message>
         <location filename="../tasks/zbi12.cpp" line="73"/>
         <source>12-item caregiver-report scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>12-punkts skala rapporteret af en omsorgsgiver</translation>
     </message>
 </context>
 <context>
@@ -6468,57 +6468,57 @@ Disse vilkår og betingelser blev senest revideret 2017-01-23.</translation>
     <message>
         <location filename="../taskxtra/cardinalexpdetcommon.cpp" line="144"/>
         <source>Sound test for Cardinal RN / Expectation–Detection task</source>
-        <translation type="unfinished"></translation>
+        <translation>Lydtest for Cardinal RN / Expectation–Detection task [forventning/påvisningsopgave]</translation>
     </message>
     <message>
         <location filename="../taskxtra/cardinalexpdetcommon.cpp" line="150"/>
         <source>Plays the auditory background sound. [Use maximum device volume. The sound should be 60.0 dB(A).]</source>
-        <translation type="unfinished"></translation>
+        <translation>Afspiller den auditive baggrundslyd. [Brug maksimal enhedsvolumen. Lyden skal være 60,0 dB (A).]</translation>
     </message>
     <message>
         <location filename="../taskxtra/cardinalexpdetcommon.cpp" line="159"/>
         <source>Visual target duration (s) (e.g. 1.0):</source>
-        <translation type="unfinished"></translation>
+        <translation>Visuel målvarighed (er) (fx 1,0):</translation>
     </message>
     <message>
         <location filename="../taskxtra/cardinalexpdetcommon.cpp" line="165"/>
         <source>tone (auditory target 0)</source>
-        <translation type="unfinished"></translation>
+        <translation>tone (lydmål 0)</translation>
     </message>
     <message>
         <location filename="../taskxtra/cardinalexpdetcommon.cpp" line="171"/>
         <source>tone</source>
-        <translation type="unfinished"></translation>
+        <translation>tone</translation>
     </message>
     <message>
         <location filename="../taskxtra/cardinalexpdetcommon.cpp" line="177"/>
         <source>voice (auditory target 1)</source>
-        <translation type="unfinished"></translation>
+        <translation>stemme (lydmål 1)</translation>
     </message>
     <message>
         <location filename="../taskxtra/cardinalexpdetcommon.cpp" line="183"/>
         <source>voice</source>
-        <translation type="unfinished"></translation>
+        <translation>stemme</translation>
     </message>
     <message>
         <location filename="../taskxtra/cardinalexpdetcommon.cpp" line="189"/>
         <source>circle (visual target 0)</source>
-        <translation type="unfinished"></translation>
+        <translation>cirkel (visuel mål 0)</translation>
     </message>
     <message>
         <location filename="../taskxtra/cardinalexpdetcommon.cpp" line="195"/>
         <source>circle</source>
-        <translation type="unfinished"></translation>
+        <translation>cirkel</translation>
     </message>
     <message>
         <location filename="../taskxtra/cardinalexpdetcommon.cpp" line="201"/>
         <source>word (visual target 1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ord (visuelt mål 1)</translation>
     </message>
     <message>
         <location filename="../taskxtra/cardinalexpdetcommon.cpp" line="207"/>
         <source>word</source>
-        <translation type="unfinished"></translation>
+        <translation>ord</translation>
     </message>
 </context>
 </TS>

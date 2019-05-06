@@ -49,7 +49,7 @@ QString HadsRespondent::shortname() const
 
 QString HadsRespondent::longname() const
 {
-    return tr("Hospital Anxiety and Depression Scale (¶+), "
+    return tr("Hospital Anxiety and Depression Scale, "
               "non-patient respondent version");
 }
 

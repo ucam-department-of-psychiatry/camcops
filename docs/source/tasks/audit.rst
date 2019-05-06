@@ -78,7 +78,7 @@ http://www.integration.samhsa.gov/images/res/tool_auditc.pdf, accessed
 
 .. _audit_c:
 
-Alcohol Use Disorders Identification Test (AUDIT-C)
----------------------------------------------------
+AUDIT Alcohol Consumption Questions (AUDIT-C)
+---------------------------------------------
 
 See :ref:`AUDIT <audit>` above.

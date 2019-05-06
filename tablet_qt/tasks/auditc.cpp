@@ -66,7 +66,7 @@ QString AuditC::shortname() const
 
 QString AuditC::longname() const
 {
-    return tr("Alcohol Use Disorders Identification Test");
+    return tr("AUDIT Alcohol Consumption Questions");
 }
 
 
