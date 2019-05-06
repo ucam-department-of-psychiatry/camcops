@@ -139,24 +139,24 @@ void CamcopsApp::setLanguage(const QString& language_code,
                              const bool store_to_database)
 {
     qInfo() << "Setting language to:" << language_code;
+
+    // 1. Store the new code
     m_current_language = language_code;
     if (store_to_database && m_storedvars_available) {
         setVar(varconst::LANGUAGE, language_code);
     }
-    clearExtraStringCache();
 
-    if (m_qt_translator) {
-        removeTranslator(m_qt_translator.data());
-        m_qt_translator = nullptr;
-    }
-    if (m_app_translator) {
-        removeTranslator(m_app_translator.data());
-        m_app_translator = nullptr;
-    }
+    // 2. Clear the string cache
+    clearExtraStringCache();
 
     // There are polymorphic versions of QTranslator::load(). See
     // https://doc.qt.io/qt-5/qtranslator.html#load
 
+    // 3. Qt translator
+    if (m_qt_translator) {
+        removeTranslator(m_qt_translator.data());
+        m_qt_translator = nullptr;
+    }
     const QString qt_filename = QString("qt_%1.qm").arg(language_code);
     const QString qt_directory = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
     m_qt_translator = QSharedPointer<QTranslator>(new QTranslator());
@@ -170,6 +170,11 @@ void CamcopsApp::setLanguage(const QString& language_code,
                    << "from" << qt_directory;
     }
 
+    // 4. App translator
+    if (m_app_translator) {
+        removeTranslator(m_app_translator.data());
+        m_app_translator = nullptr;
+    }
     const QString cc_filename = QString("camcops_%1.qm").arg(language_code);
     const QString cc_directory(":/translations");
     m_app_translator = QSharedPointer<QTranslator>(new QTranslator());
@@ -182,6 +187,10 @@ void CamcopsApp::setLanguage(const QString& language_code,
         qWarning() << "Failed to load CamCOPS translator" << cc_filename
                    << "from" << cc_directory;
     }
+
+    // 5. Set the locale (so that e.g. calendar widgets use the right
+    // language).
+    QLocale::setDefault(QLocale(language_code));
 }
 
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="da_DK">
+<TS version="2.1" language="da_DK">
 <context>
     <name>Ace3</name>
     <message>
@@ -353,142 +353,142 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="266"/>
+        <location filename="../core/camcopsapp.cpp" line="275"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="528"/>
+        <location filename="../core/camcopsapp.cpp" line="537"/>
         <source>Enter a new password for the CamCOPS application</source>
         <translation>Indtast en ny adgangskode til CamCOPS-applikationen</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="529"/>
+        <location filename="../core/camcopsapp.cpp" line="538"/>
         <source>Set CamCOPS password</source>
         <translation>Indstil CamCOPS adgangskode</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="530"/>
+        <location filename="../core/camcopsapp.cpp" line="539"/>
         <source>Enter the password to unlock CamCOPS</source>
         <translation>Indtast adgangskoden for at låse CamCOPS op</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="531"/>
+        <location filename="../core/camcopsapp.cpp" line="540"/>
         <source>Enter CamCOPS password</source>
         <translation>Indtast CamCOPS adgangskode</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="539"/>
+        <location filename="../core/camcopsapp.cpp" line="548"/>
         <source>CamCOPS uses a system and a data database; one has a password and one doesn&apos;t (no_password_sys = %1, no_password_data = %2); this is an incongruent state that has probably arisen from user error, and CamCOPS will not continue until this is fixed.</source>
         <translation>CamCOPS bruger et system og en databas. Man har et kodeord, og man gør det ikke (no_password_sys = %1, no_password_data = %2). Dette er en inkongruent tilstand, der sandsynligvis er opstået som følge af brugerfejl, og CamCOPS fortsætter ikke, før dette er løst.</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="547"/>
+        <location filename="../core/camcopsapp.cpp" line="556"/>
         <source>Inconsistent database state</source>
         <translation>Inkonsekvent database tilstand</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="613"/>
+        <location filename="../core/camcopsapp.cpp" line="622"/>
         <source>Can&apos;t read system database; corrupted? encrypted? (This version of CamCOPS has had its encryption facilities disabled.)</source>
         <translation>Kan ikke læse systemdatabasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="618"/>
+        <location filename="../core/camcopsapp.cpp" line="627"/>
         <source>Can&apos;t read data database; corrupted? encrypted? (This version of CamCOPS has had its encryption facilities disabled.)</source>
         <translation>Kan ikke læse databasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1197"/>
+        <location filename="../core/camcopsapp.cpp" line="1206"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1198"/>
+        <location filename="../core/camcopsapp.cpp" line="1207"/>
         <source>Task finished. Upload data to server now?</source>
         <translation>Opgave færdig. Upload data til server nu?</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1200"/>
+        <location filename="../core/camcopsapp.cpp" line="1209"/>
         <source>Yes, upload</source>
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1202"/>
+        <location filename="../core/camcopsapp.cpp" line="1211"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1367"/>
+        <location filename="../core/camcopsapp.cpp" line="1376"/>
         <source>Enter app password</source>
         <translation>Indtast programadgangskode</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1368"/>
+        <location filename="../core/camcopsapp.cpp" line="1377"/>
         <source>Unlock</source>
         <translation>Lås</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1383"/>
+        <location filename="../core/camcopsapp.cpp" line="1392"/>
         <source>Enter privileged-mode password</source>
         <translation>Indtast adgangskode med privilegeret tilstand</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1384"/>
+        <location filename="../core/camcopsapp.cpp" line="1393"/>
         <source>Set privileged mode</source>
         <translation>Indstil privilegeret tilstand</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1405"/>
+        <location filename="../core/camcopsapp.cpp" line="1414"/>
         <source>Wrong password</source>
         <translation>Forkert kodeord</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1413"/>
+        <location filename="../core/camcopsapp.cpp" line="1422"/>
         <source>Change app password</source>
         <translation>Skift programadgangskode</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1421"/>
+        <location filename="../core/camcopsapp.cpp" line="1430"/>
         <source>Re-encrypting databases...</source>
         <translation>Genkrypterende databaser...</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1437"/>
+        <location filename="../core/camcopsapp.cpp" line="1446"/>
         <source>Change privileged-mode password</source>
         <translation>Skift adgangskode til privilegeret tilstand</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1460"/>
+        <location filename="../core/camcopsapp.cpp" line="1469"/>
         <source>Incorrect old password</source>
         <translation>Forkert gammel adgangskode</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2184"/>
+        <location filename="../core/camcopsapp.cpp" line="2193"/>
         <source>Terms and conditions of use</source>
         <translation>Vilkår og betingelser for brug</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2188"/>
+        <location filename="../core/camcopsapp.cpp" line="2197"/>
         <source>I AGREE</source>
         <translation>JEG ER ENIG</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2189"/>
+        <location filename="../core/camcopsapp.cpp" line="2198"/>
         <source>I DO NOT AGREE</source>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2200"/>
+        <location filename="../core/camcopsapp.cpp" line="2209"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2200"/>
+        <location filename="../core/camcopsapp.cpp" line="2209"/>
         <source>You refused the conditions.</source>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2215"/>
+        <location filename="../core/camcopsapp.cpp" line="2224"/>
         <source>Copy data to server, or move it to server?
 
 COPY: copies unfinished patients, moves finished patients.
@@ -505,19 +505,24 @@ HOLD PATIENTER OG FLYG: Flytter alle opgaver, holder kun grundlæggende patiento
 Flyt venligst, når det er muligt; dette reducerer mængden af patientidentificerbare oplysninger, der er gemt på denne enhed.</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2226"/>
+        <location filename="../core/camcopsapp.cpp" line="2235"/>
         <source>Upload to server</source>
         <translation>Upload til server</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2230"/>
+        <location filename="../core/camcopsapp.cpp" line="2239"/>
         <source>Keep patients and move</source>
         <translation>Hold patienter og flyt data</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2231"/>
+        <location filename="../core/camcopsapp.cpp" line="2240"/>
         <source>Move</source>
         <translation>Flyt</translation>
+    </message>
+    <message>
+        <location filename="../core/camcopsapp.h" line="232"/>
+        <source>Opening...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1150,6 +1155,11 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>Demonstration spørgeskema; ingen oversigt</translation>
     </message>
     <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="167"/>
+        <source>Text with embedded HTML markup, providing &lt;b&gt;bold&lt;/b&gt;, &lt;i&gt;italic&lt;/i&gt;, and others as per Qt rich text syntax at &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;.</source>
+        <translation>Tekst med indlejret HTML-markering, der giver &lt;b&gt;fed&lt;/b&gt;, &lt;i&gt;kursiv&lt;/i&gt; og andre som pr. Qt-rige tekstsyntax på &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;.</translation>
+    </message>
+    <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="178"/>
         <source>We’ll demonstrate the elements from which questionnaire tasks can be made. Press the ‘Next’ button at the top right of the screen.</source>
         <translation>Vi demonstrerer de elementer, hvorfra spørgeskemaopgaver kan laves. Tryk på &apos;Næste&apos; knappen øverst til højre på skærmen.</translation>
@@ -1302,6 +1312,11 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>Gitterbeholder:</translation>
     </message>
     <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="280"/>
+        <source>Another grid (2:1 columns):</source>
+        <translation>Et andet gitter (1:1 kolonner):</translation>
+    </message>
+    <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="289"/>
         <source>Another grid (5 equal columns), with image alignment settings (L/T, HC/VC, R/B):</source>
         <translation>Et andet gitter (5 ens kolonner), med billedjusteringsindstillinger (venstre/top, horisontalt centreret/centreret lodret, right/bund):</translation>
@@ -1314,7 +1329,30 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="316"/>
         <source>Another grid (1:1:1 columns, expanding horizontally, fixed column style = default):</source>
-        <translation type="unfinished">Et andet gitter (1:1:1 kolonner, der udvider vandret, fast kolonne stil = standard):</translation>
+        <translation>Et andet gitter (1:1:1 kolonner, der udvider vandret, fast kolonne stil = standard):</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="319"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="331"/>
+        <source>1. Short</source>
+        <translation>1. Kort</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="320"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="332"/>
+        <source>2. Medium sort of length</source>
+        <translation>2. Mellemlang længde</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="321"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="333"/>
+        <source>3. Longer </source>
+        <translation>3. Længere </translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="328"/>
+        <source>Another grid (1:1:1 columns, non-expanding, non-fixed style):</source>
+        <translation>Et andet gitter (1:1:1 kolonner, ikke-ekspanderende, ikke-fast stil):</translation>
     </message>
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="340"/>
@@ -1417,563 +1455,563 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>mulighed</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="468"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="465"/>
         <source>with much longer text: </source>
         <translation>med langt længere tekst: </translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="496"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="493"/>
         <source>Not at all</source>
         <translation>Slet ikke</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="497"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="494"/>
         <source>Several days</source>
         <translation>Adskillige dage</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="498"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="495"/>
         <source>More than half the days</source>
         <translation>Mere end halvdelen af dagene</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="499"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="496"/>
         <source>Nearly every day</source>
         <translation>Næsten hver dag</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="513"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="510"/>
         <source>Plain MCQ:</source>
         <translation>Almindeligt multiple choice spørgsmål (MCQ):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="515"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="512"/>
         <source>Same MCQ/field, reconfigured (randomized, instructions, horizontal, as text button):</source>
         <translation>Samme MCQ/felt, omkonfigureret (randomiseret, instruktioner, vandret, som tekstknap):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="522"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="519"/>
         <source>Same MCQ/field, reconfigured:</source>
         <translation>Samme MCQ/felt, omkonfigureret:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="525"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="522"/>
         <source>A second MCQ:</source>
         <translation>Et andet MCQ:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="527"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="524"/>
         <source>Another:</source>
         <translation>En anden:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="529"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="526"/>
         <source>The previous MCQ, reconfigured:</source>
         <translation>Den tidligere MCQ, omkonfigureret:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="532"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="529"/>
         <source>A fourth MCQ, as text:</source>
         <translation>En fjerde MCQ, som tekst:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="536"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="533"/>
         <source>Multiple-choice questions (MCQs)</source>
         <translation>Flere valgmuligheder (MCQ&apos;er)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="542"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="539"/>
         <source>Question</source>
         <translation>Spørgsmål</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="544"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="541"/>
         <source>MCQ grid:</source>
         <translation>Gitter til MCQ&apos;er:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="554"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="551"/>
         <source>subtitle before D</source>
         <translation>undertekst før D</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="555"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="552"/>
         <source>Another MCQ grid:</source>
         <translation>Et andet net til MCQ&apos;er:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="563"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="560"/>
         <source>MCQ 2 title; </source>
         <translation>MCQ 2 titel; </translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="564"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="561"/>
         <source>Double MCQ grid:</source>
         <translation>Dobbelt MCQ-net:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="578"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="575"/>
         <source>Double-MCQ title</source>
         <translation>Dobbelt MCQ titel</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="579"/>
-        <location filename="../tasks/demoquestionnaire.cpp" line="593"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="576"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="590"/>
         <source>subtitle before C</source>
         <translation>undertekst før C</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="580"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="577"/>
         <source>MCQ grid with single Boolean (right):</source>
         <translation>MCQ-net med enkeltboolsk (højre):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="591"/>
-        <location filename="../tasks/demoquestionnaire.cpp" line="605"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="588"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="602"/>
         <source>Happy?</source>
         <translation>Glad?</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="592"/>
-        <location filename="../tasks/demoquestionnaire.cpp" line="606"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="589"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="603"/>
         <source>Title for MCQ grid with single boolean</source>
         <translation>Titel til MCQ-net med enkeltboolsk</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="594"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="591"/>
         <source>MCQ grid with single Boolean (left):</source>
         <translation>MCQ-net med enkeltboolsk (venstre):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="608"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="605"/>
         <source>MCQ variants</source>
         <translation>MCQ varianter</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="615"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="612"/>
         <source>Standard n-from-many format:</source>
         <translation>Standard n-fra-mange format:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="617"/>
-        <location filename="../tasks/demoquestionnaire.cpp" line="626"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="614"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="623"/>
         <source>(a) First stem</source>
         <translation>(a) Første stamme</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="618"/>
-        <location filename="../tasks/demoquestionnaire.cpp" line="627"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="615"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="624"/>
         <source>(b) Second stem</source>
         <translation>(b) Andet stamme</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="619"/>
-        <location filename="../tasks/demoquestionnaire.cpp" line="628"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="616"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="625"/>
         <source>(c) Third stem</source>
         <translation>(c) Tredje stamme</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="620"/>
-        <location filename="../tasks/demoquestionnaire.cpp" line="629"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="617"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="626"/>
         <source>(d) Fourth stem</source>
         <translation>(d) Fjerde stamme</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="621"/>
-        <location filename="../tasks/demoquestionnaire.cpp" line="630"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="618"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="627"/>
         <source>(e) Fifth stem</source>
         <translation>(e) Femte stamme</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="622"/>
-        <location filename="../tasks/demoquestionnaire.cpp" line="631"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="619"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="628"/>
         <source>(f) Sixth stem</source>
         <translation>(f) Sjette stamme</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="624"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="621"/>
         <source>With instructions off, horizontally, and text-button style:</source>
         <translation>Med instruktionerne slukket, vandret og tekst-knappen stil:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="637"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="634"/>
         <source>Multiple-response questions</source>
         <translation>Multiple-respons spørgsmål</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="644"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="641"/>
         <source>Inline picker:</source>
         <translation>Inline plukkere:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="646"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="643"/>
         <source>Its clone:</source>
         <translation>Dens klon:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="648"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="645"/>
         <source>Popup picker:</source>
         <translation>Popup-plukkere:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="650"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="647"/>
         <source>Pickers; question 5</source>
         <translation>Plukkere; spørgsmål 5</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="651"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="648"/>
         <source>Pickers</source>
         <translation>Plukkere</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="661"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="658"/>
         <source> - very distressed</source>
         <translation> - meget nødt</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="663"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="660"/>
         <source> - chilled out</source>
         <translation> - kølet ud</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="695"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="692"/>
         <source>Roses are best when red.</source>
         <translation>Roser er bedst, når de er røde.</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="713"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="710"/>
         <source>Strongly
 disagree</source>
         <translation>Meget
 uenig</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="714"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="711"/>
         <source>Disagree</source>
         <translation>Være
 uenig</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="715"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="712"/>
         <source>Neutral</source>
         <translation>Neutral</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="716"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="713"/>
         <source>Agree</source>
         <translation>Enig</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="717"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="714"/>
         <source>Strongly
 agree</source>
         <translation>Meget
 enig</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="822"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="819"/>
         <source>Slider is set to %1 cm; can_shrink = %2</source>
-        <translation>Skyderen er indstillet til %1 cm; “kan krympe” =%2</translation>
+        <translation>Skyderen er indstillet til %1 cm; “kan krympe” = %2</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="833"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="830"/>
         <source>Integer slider:</source>
         <translation>Heltal glideskala:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="839"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="836"/>
         <source>Integer slider (same field as above), vertical</source>
         <translation>Heltal glideskala (samme felt som ovenfor), lodret</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="848"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="845"/>
         <source>Real number/floating-point slider:</source>
         <translation>Reelt-tal glideskala:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="854"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="851"/>
         <source>Real number slider with custom labels (edging in extreme labels):</source>
         <translation>Reelt-tal glideskala med brugerdefinerede etiketter (kantning i ekstreme etiketter):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="868"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="865"/>
         <source>Real number slider with custom labels (standard labels):</source>
         <translation>Reelt-tal glideskala med brugerdefinerede etiketter (standard etiketter):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="882"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="879"/>
         <source>one: low</source>
         <translation>en: lav</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="883"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="880"/>
         <source>three: medium</source>
         <translation>tre: mellemlangt</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="884"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="881"/>
         <source>five: maximum!</source>
         <translation>fem: maksimum!</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="887"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="884"/>
         <source>Thermometer:</source>
         <translation>Termometer:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="890"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="887"/>
         <source>Likert-style (discrete) slider, in grid (70% of window width)</source>
         <translation>Likert-stil (diskret) glideskala, i gitter (70% af vinduets bredde)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="893"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="890"/>
         <source>Visual analogue scale-style slider (approximating continuous)</source>
         <translation>Visuel analog skalaformet glideskala (tilnærmet kontinuerlig)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="896"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="893"/>
         <source>Visual analogue scale-style slider (vertical version)</source>
         <translation>Visuel analog skalaformet glideskala (vertikal udgave)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="901"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="898"/>
         <source>Sliders and thermometers</source>
         <translation>Glidere og termometre</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="909"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="906"/>
         <source>Pages for clinicians have a different background colour.</source>
         <translation>Sider for klinikere har en anden baggrundsfarve.</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="910"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="907"/>
         <source>Date/time:</source>
         <translation>Dato/tid:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="912"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="909"/>
         <source>Date/time (with ‘now’ and ‘nullify’ buttons):</source>
         <translation>Dato/tid (med ‘nu’ og ‘indstillet til nul’ knapper):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="916"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="913"/>
         <source>Date/time (custom format):</source>
         <translation>Dato/tid (brugerdefineret format):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="920"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="917"/>
         <source>Date:</source>
         <translation>Dato:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="923"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="920"/>
         <source>Date (custom format):</source>
         <translation>Dato (brugerdefineret format):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="927"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="924"/>
         <source>Time:</source>
         <translation>Tid:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="930"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="927"/>
         <source>Time (custom format):</source>
         <translation>Tid (brugerdefineret format):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="934"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="931"/>
         <source>Integer spinbox (range 5–10):</source>
         <translation>Heltal spinfeltet (område 9-10):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="936"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="933"/>
         <source>Double spinbox (range 7.1–7.9):</source>
         <translation>Reelt tal spinfeltet (område 9-10):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="938"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="935"/>
         <source>Text editor (plain text):</source>
         <translation>Tekstredigerer (almindelig tekst):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="940"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="937"/>
         <source>Text editor (clone of previous):</source>
         <translation>Tekstredigerer (klon af tidligere):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="942"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="939"/>
         <source>Text editor (rich text):</source>
         <translation>Teksteditor (rig tekst):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="944"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="941"/>
         <source>This one has a hint (placeholder text)</source>
         <translation>Denne har et tip (pladsholdertekst)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="945"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="942"/>
         <source>Line editor (plain):</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekstlinjeditor (almindelig):</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="944"/>
+        <source>hint: plain text</source>
+        <translation>antydning: almindelig tekst</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="945"/>
+        <source>Line editor (integer, range 13–19):</source>
+        <translation>Tekstlinjeditor (heltal, rækkevidde 13-19):</translation>
     </message>
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="947"/>
-        <source>hint: plain text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="948"/>
-        <source>Line editor (integer, range 13–19):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="950"/>
         <source>Line editor (double, range -0.05 to -0.09, 2dp):</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekstlinjeditor (reelt tal, rækkevidde -0.05 to -0.09, 2dp):</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="949"/>
+        <source>Variables in a grid:</source>
+        <translation>Variabler i et gitterlayout:</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="951"/>
+        <source>label 1 (text)</source>
+        <translation>etiket 1 (tekst)</translation>
     </message>
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="952"/>
-        <source>Variables in a grid:</source>
-        <translation type="unfinished"></translation>
+        <source>label 2 (int 13-19)</source>
+        <translation>etiket 2 (heltal 13-19)</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="953"/>
+        <source>label 3</source>
+        <translation>etiket 3</translation>
     </message>
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="954"/>
-        <source>label 1 (text)</source>
-        <translation type="unfinished"></translation>
+        <source>label 4</source>
+        <translation>etiket 4</translation>
     </message>
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="955"/>
-        <source>label 2 (int 13-19)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="956"/>
-        <source>label 3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="957"/>
-        <source>label 4</source>
-        <translation type="unfinished"></translation>
+        <source>label 5 (multiline text)</source>
+        <translation>etiket 5 (tekst med flere linjer)</translation>
     </message>
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="958"/>
-        <source>label 5 (multiline text)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="961"/>
         <source>Editable variable including dates/times</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerbar variabel inklusive datoer/tider</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="981"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="978"/>
         <source>Diagnostic code, ICD-10:</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagnostisk kode, ICD-10:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="985"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="982"/>
         <source>Diagnostic code, clone of the preceding:</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagnostisk kode, klon af det foregående:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="989"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="986"/>
         <source>Diagnostic code, ICD-9-CM:</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagnostisk kode, ICD-9-CM:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="993"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="990"/>
         <source>Diagnostic codes</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagnostiske koder</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="997"/>
+        <source>Page style: ClinicianWithPatient</source>
+        <translation>Sidestil: kliniker med patient</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="998"/>
+        <source>WATCH OUT: scrolling enabled for this page; may conflict with canvas; see next page too</source>
+        <translation>PAS PÅ: Rulning aktiveret til denne side; kan være i konflikt med lærred; se også næste side</translation>
     </message>
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="1000"/>
-        <source>Page style: ClinicianWithPatient</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1001"/>
-        <source>WATCH OUT: scrolling enabled for this page; may conflict with canvas; see next page too</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1003"/>
         <source>Canvas, blank start:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lærred, blank start:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1005"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1002"/>
         <source>Canvas, using files:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lærred ved hjælp af filer:</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1006"/>
+        <source>Canvas, clone of the first one:</source>
+        <translation>Lærred, klon af den første:</translation>
     </message>
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="1009"/>
-        <source>Canvas, clone of the first one:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1012"/>
         <source>Canvas (allowing scrolling)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lærred (gør det muligt at rulle)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1016"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1013"/>
         <source>As before, but with scrolling disabled:</source>
-        <translation type="unfinished"></translation>
+        <translation>Som før, men med scrolling deaktiveret:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1021"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1018"/>
         <source>Canvas (disabling scrolling)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lærred (deaktiveret rulning)</translation>
+    </message>
+    <message>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1029"/>
+        <source>Say hello</source>
+        <translation>Sig hej</translation>
     </message>
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="1032"/>
-        <source>Say hello</source>
-        <translation type="unfinished"></translation>
+        <source>Say hello [disabled]</source>
+        <translation>Sig hej [deaktiveret]</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1035"/>
-        <source>Say hello [disabled]</source>
-        <translation type="unfinished"></translation>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1036"/>
+        <source>Button with args (&apos;foo&apos;)</source>
+        <translation>Knap med funktionsargumenter (&apos;foo&apos;)</translation>
     </message>
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="1039"/>
-        <source>Button with args (&apos;foo&apos;)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1042"/>
         <source>Button with args (&apos;bar&apos;)</source>
-        <translation type="unfinished"></translation>
+        <translation>Knap med funktionsargumenter (&apos;bar&apos;)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1047"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1044"/>
         <source>Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Knapper</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1055"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1052"/>
         <source>Photo:</source>
-        <translation type="unfinished"></translation>
+        <translation>Foto:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1057"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1054"/>
         <source>Photo</source>
-        <translation type="unfinished">Foto</translation>
+        <translation>Foto</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1065"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1062"/>
         <source>Reasonably long title with several words</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimelig lang titel med flere ord</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1095"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1092"/>
         <source>Hello!</source>
-        <translation type="unfinished"></translation>
+        <translation>Hej!</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1101"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1098"/>
         <source>Function argument was: </source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionsargument var:</translation>
     </message>
 </context>
 <context>
@@ -2643,7 +2681,7 @@ enig</translation>
     <message>
         <location filename="../tasks/iesr.cpp" line="124"/>
         <source>Not at all</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Slet ikke</translation>
     </message>
     <message>
         <location filename="../tasks/iesr.cpp" line="125"/>
@@ -2843,78 +2881,78 @@ enig</translation>
         <translation>Skriv for at filtrere</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="478"/>
+        <location filename="../menulib/menuwindow.cpp" line="480"/>
         <source>View task</source>
         <translation>Se opgave</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="479"/>
+        <location filename="../menulib/menuwindow.cpp" line="481"/>
         <source>View in what format?</source>
         <translation>Se i hvilket format?</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="481"/>
+        <location filename="../menulib/menuwindow.cpp" line="483"/>
         <source>Summary</source>
         <translation>Oversigt</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="482"/>
+        <location filename="../menulib/menuwindow.cpp" line="484"/>
         <source>Detail</source>
         <translation>Detalje</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="486"/>
+        <location filename="../menulib/menuwindow.cpp" line="488"/>
         <source>Facsimile</source>
         <translation>Faksimile</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="530"/>
+        <location filename="../menulib/menuwindow.cpp" line="532"/>
         <source>Edit</source>
         <translation>Redigere</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="531"/>
+        <location filename="../menulib/menuwindow.cpp" line="533"/>
         <source>Edit this task?</source>
         <translation>Rediger denne opgave?</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="533"/>
+        <location filename="../menulib/menuwindow.cpp" line="535"/>
         <source>Yes, edit</source>
         <translation>Ja, rediger</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="535"/>
-        <location filename="../menulib/menuwindow.cpp" line="604"/>
+        <location filename="../menulib/menuwindow.cpp" line="537"/>
+        <location filename="../menulib/menuwindow.cpp" line="606"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="565"/>
+        <location filename="../menulib/menuwindow.cpp" line="567"/>
         <source>Task has declined to supply an editor!</source>
         <translation>Opgaven er afvist for at levere en redaktør!</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="566"/>
+        <location filename="../menulib/menuwindow.cpp" line="568"/>
         <source>Can&apos;t edit/view task</source>
         <translation>Kan ikke redigere/se opgave</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="599"/>
+        <location filename="../menulib/menuwindow.cpp" line="601"/>
         <source>Delete</source>
         <translation>Slet</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="600"/>
+        <location filename="../menulib/menuwindow.cpp" line="602"/>
         <source>Delete this task?</source>
         <translation>Slet denne opgave?</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="602"/>
+        <location filename="../menulib/menuwindow.cpp" line="604"/>
         <source>Yes, delete</source>
         <translation>Ja, slet</translation>
     </message>
     <message>
-        <location filename="../menulib/menuwindow.cpp" line="610"/>
+        <location filename="../menulib/menuwindow.cpp" line="612"/>
         <source>Deleting task</source>
         <translation>Sletning af opgave</translation>
     </message>
@@ -3512,74 +3550,74 @@ enig</translation>
         <translation>Fødselsdato</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="701"/>
+        <location filename="../dbobjects/patient.cpp" line="700"/>
         <source>Address</source>
         <translation>Adresse</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="705"/>
+        <location filename="../dbobjects/patient.cpp" line="704"/>
         <source>General practitioner (GP)</source>
         <translation>Praktiserende læge</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="709"/>
+        <location filename="../dbobjects/patient.cpp" line="708"/>
         <source>Other details</source>
         <translation>Andre detaljer</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="728"/>
-        <location filename="../dbobjects/patient.cpp" line="926"/>
+        <location filename="../dbobjects/patient.cpp" line="727"/>
+        <location filename="../dbobjects/patient.cpp" line="925"/>
         <source>Delete ID#</source>
         <translation>Slet ID#</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="752"/>
-        <location filename="../dbobjects/patient.cpp" line="908"/>
+        <location filename="../dbobjects/patient.cpp" line="751"/>
+        <location filename="../dbobjects/patient.cpp" line="907"/>
         <source>Add ID number</source>
         <translation>Tilføj id-nummer</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="761"/>
+        <location filename="../dbobjects/patient.cpp" line="760"/>
         <source>Minimum ID required for app:</source>
         <translation>Mindste id er påkrævet for programmet:</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="766"/>
+        <location filename="../dbobjects/patient.cpp" line="765"/>
         <source>Minimum ID required for upload to server:</source>
         <translation>Mindste id kræves for upload til server:</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="771"/>
+        <location filename="../dbobjects/patient.cpp" line="770"/>
         <source>Minimum ID required to finalize on server:</source>
         <translation>Mindste id, der kræves for at færdiggøre på serveren:</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="776"/>
+        <location filename="../dbobjects/patient.cpp" line="775"/>
         <source>ID numbers must not clash with another patient:</source>
         <translation>ID-numre må ikke kollidere med en anden patient:</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="890"/>
+        <location filename="../dbobjects/patient.cpp" line="889"/>
         <source>All ID numbers offered by the server are already here!</source>
         <translation>Alle ID-numre tilbydes af serveren er allerede her!</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="892"/>
+        <location filename="../dbobjects/patient.cpp" line="891"/>
         <source> (There are no ID numbers at all – have you registered with a server?)</source>
         <translation>(Der er slet ingen ID-numre – har du registreret dig hos en server?)</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="924"/>
+        <location filename="../dbobjects/patient.cpp" line="923"/>
         <source>Really delete ID number</source>
         <translation>Virkelig slet ID-nummer</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="928"/>
+        <location filename="../dbobjects/patient.cpp" line="927"/>
         <source>Yes, delete it</source>
         <translation>Ja, slet det</translation>
     </message>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="928"/>
+        <location filename="../dbobjects/patient.cpp" line="927"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
@@ -3974,6 +4012,19 @@ enig</translation>
         <location filename="../questionnairelib/qudiagnosticcode.cpp" line="115"/>
         <source>Clear</source>
         <translation>Rydde</translation>
+    </message>
+</context>
+<context>
+    <name>QuLineEditDouble</name>
+    <message>
+        <location filename="../questionnairelib/qulineeditdouble.cpp" line="37"/>
+        <source>real number, %1 dp</source>
+        <translation>reelt tal, %1 decimaler</translation>
+    </message>
+    <message>
+        <location filename="../questionnairelib/qulineeditdouble.cpp" line="53"/>
+        <source>real number, %1 to %2, %3 dp</source>
+        <translation>reelt tal, %1 til %2, %3 decimaler</translation>
     </message>
 </context>
 <context>
@@ -4373,722 +4424,722 @@ enig</translation>
         <translation>Fælles brugerindstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="133"/>
+        <location filename="../menu/settingsmenu.cpp" line="134"/>
         <source>Questionnaire font size and DPI settings</source>
         <translation>Spørgeskema skriftstørrelse og DPI indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="140"/>
-        <location filename="../menu/settingsmenu.cpp" line="653"/>
+        <location filename="../menu/settingsmenu.cpp" line="141"/>
+        <location filename="../menu/settingsmenu.cpp" line="654"/>
         <source>User settings</source>
         <translation>Brugerindstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="147"/>
-        <location filename="../menu/settingsmenu.cpp" line="484"/>
+        <location filename="../menu/settingsmenu.cpp" line="148"/>
+        <location filename="../menu/settingsmenu.cpp" line="485"/>
         <source>Intellectual property (IP) permissions</source>
         <translation>Intellektuelle ejendomsrettigheder</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="154"/>
+        <location filename="../menu/settingsmenu.cpp" line="155"/>
         <source>Change app password</source>
         <translation>Skift programadgangskode</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="157"/>
+        <location filename="../menu/settingsmenu.cpp" line="158"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="159"/>
-        <location filename="../menu/settingsmenu.cpp" line="1233"/>
+        <location filename="../menu/settingsmenu.cpp" line="160"/>
+        <location filename="../menu/settingsmenu.cpp" line="1234"/>
         <source>Show server information</source>
         <translation>Vis serveroplysninger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="166"/>
+        <location filename="../menu/settingsmenu.cpp" line="167"/>
         <source>Infrequent user functions</source>
         <translation>Ufrivillige brugerfunktioner</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="169"/>
+        <location filename="../menu/settingsmenu.cpp" line="170"/>
         <source>Re-accept ID descriptions from the server</source>
         <translation>Genoptag ID-beskrivelser fra serveren</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="173"/>
+        <location filename="../menu/settingsmenu.cpp" line="174"/>
         <source>Re-fetch extra task strings from the server</source>
         <translation>Hent ekstra opgave strenger fra serveren</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="177"/>
+        <location filename="../menu/settingsmenu.cpp" line="178"/>
         <source>Administrator functions</source>
         <translation>Administrator funktioner</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="180"/>
+        <location filename="../menu/settingsmenu.cpp" line="181"/>
         <source>Set privileged mode (for items marked †)</source>
         <translation>Indstil privilegeret tilstand (for poster markeret †)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="200"/>
+        <location filename="../menu/settingsmenu.cpp" line="201"/>
         <source>Rare functions</source>
         <translation>Sjældne funktioner</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="218"/>
+        <location filename="../menu/settingsmenu.cpp" line="219"/>
         <source>Rescue operations</source>
         <translation>Redningsfunktioner</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="281"/>
+        <location filename="../menu/settingsmenu.cpp" line="282"/>
         <source>Server address</source>
         <translation>Serveradresse</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="282"/>
+        <location filename="../menu/settingsmenu.cpp" line="283"/>
         <source>host name or IP address</source>
         <translation>Værtsnavn eller IP-adresse</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="285"/>
+        <location filename="../menu/settingsmenu.cpp" line="286"/>
         <source>Server port for HTTPS</source>
         <translation>Serverport til HTTPS</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="286"/>
+        <location filename="../menu/settingsmenu.cpp" line="287"/>
         <source>default 443</source>
         <translation>standard 443</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="289"/>
+        <location filename="../menu/settingsmenu.cpp" line="290"/>
         <source>Path on server</source>
         <translation>Sti på server</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="290"/>
+        <location filename="../menu/settingsmenu.cpp" line="291"/>
         <source>no leading /; e.g. camcops/database</source>
         <translation>ingen ledende /; f.eks. camcops/database</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="293"/>
+        <location filename="../menu/settingsmenu.cpp" line="294"/>
         <source>Network timeout (ms)</source>
         <translation>Netværk timeout (ms)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="294"/>
+        <location filename="../menu/settingsmenu.cpp" line="295"/>
         <source>e.g. 50000</source>
         <translation>f.eks. 50000</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="298"/>
+        <location filename="../menu/settingsmenu.cpp" line="299"/>
         <source>Use HTTPS to server?</source>
         <translation>Brug HTTPS til server?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="299"/>
+        <location filename="../menu/settingsmenu.cpp" line="300"/>
         <source>You should &lt;b&gt;only&lt;/b&gt; disable this for debugging!</source>
         <translation>Du bør &lt;b&gt;kun &lt;/b&gt; deaktivere dette til debugging!</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="304"/>
+        <location filename="../menu/settingsmenu.cpp" line="305"/>
         <source>Validate HTTPS (TLS/SSL) certificates?</source>
         <translation>Validér HTTPS (TLS/SSL) certifikater?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="305"/>
+        <location filename="../menu/settingsmenu.cpp" line="306"/>
         <source>Should always be YES for security-conscious systems.</source>
         <translation>Bør altid være JA for sikkerhedsbevidste systemer.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="309"/>
+        <location filename="../menu/settingsmenu.cpp" line="310"/>
         <source>HTTPS (TLS/SSL) protocol?</source>
         <translation>HTTPS (TLS/SSL) protokol?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="310"/>
+        <location filename="../menu/settingsmenu.cpp" line="311"/>
         <source>Stick with the default unless your server can’t cope with it.</source>
         <translation>Stand med standard, medmindre din server ikke kan klare det.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="329"/>
+        <location filename="../menu/settingsmenu.cpp" line="330"/>
         <source>Store user’s server password?</source>
         <translation>Gem brugerens serveradgangskode?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="330"/>
+        <location filename="../menu/settingsmenu.cpp" line="331"/>
         <source>NO = fractionally more secure; YES = more convenient/fractionally less secure, but still AES-256-encrypted.</source>
         <translation>NEJ = fraktioneret mere sikker; JA = mere praktisk / fraktioneret mindre sikker, men stadig AES-256-krypteret.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="336"/>
+        <location filename="../menu/settingsmenu.cpp" line="337"/>
         <source>Upload method</source>
         <translation>Upload metode</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="345"/>
+        <location filename="../menu/settingsmenu.cpp" line="346"/>
         <source>Maximum (approximate) database size for one-step upload (bytes)</source>
         <translation>Maksimal (omtrentlig) databasestørrelse for en trins upload (bytes)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="347"/>
+        <location filename="../menu/settingsmenu.cpp" line="348"/>
         <source>e.g. 2000000 for ~2Mb</source>
         <translation>f.eks. 2000000 til ~2Mb</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="185"/>
-        <location filename="../menu/settingsmenu.cpp" line="413"/>
+        <location filename="../menu/settingsmenu.cpp" line="186"/>
+        <location filename="../menu/settingsmenu.cpp" line="414"/>
         <source>Configure server settings</source>
         <translation>Konfigurer serverindstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="192"/>
+        <location filename="../menu/settingsmenu.cpp" line="193"/>
         <source>Register this device with the server</source>
         <translation>Registrér denne enhed med serveren</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="196"/>
+        <location filename="../menu/settingsmenu.cpp" line="197"/>
         <source>Change privileged-mode password</source>
         <translation>Skift adgangskode til privilegeret tilstand</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="204"/>
+        <location filename="../menu/settingsmenu.cpp" line="205"/>
         <source>Wipe extra strings downloaded from server</source>
         <translation>Slet ekstra strenger downloadet fra serveren</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="208"/>
+        <location filename="../menu/settingsmenu.cpp" line="209"/>
         <source>View record counts for all data tables</source>
         <translation>Se rekordtællinger for alle datatabeller</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="213"/>
+        <location filename="../menu/settingsmenu.cpp" line="214"/>
         <source>View record counts for all system tables</source>
         <translation>Se rekordtællinger for alle systemtabeller</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="222"/>
+        <location filename="../menu/settingsmenu.cpp" line="223"/>
         <source>View data database as SQL</source>
         <translation>Se databas som SQL</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="227"/>
+        <location filename="../menu/settingsmenu.cpp" line="228"/>
         <source>View system database as SQL</source>
         <translation>Se systemdatabasen som SQL</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="233"/>
+        <location filename="../menu/settingsmenu.cpp" line="234"/>
         <source>Send decrypted data database to debugging stream</source>
         <translation>Send dekrypteret databasen til debugging stream</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="238"/>
+        <location filename="../menu/settingsmenu.cpp" line="239"/>
         <source>Send decrypted system database to debugging stream</source>
         <translation>Send dekrypteret systemdatabasen til debugging stream</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="247"/>
+        <location filename="../menu/settingsmenu.cpp" line="248"/>
         <source>Dump decrypted data database to SQL file</source>
         <translation>Skriv dekrypteret databasen til SQL-fil</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="252"/>
+        <location filename="../menu/settingsmenu.cpp" line="253"/>
         <source>Dump decrypted system database to SQL file</source>
         <translation>Skriv dekrypteret systemdatabasen til SQL-fil</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="314"/>
+        <location filename="../menu/settingsmenu.cpp" line="315"/>
         <source>Known secure [default]</source>
         <translation>Kendt for at være sikker [standard]</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="315"/>
+        <location filename="../menu/settingsmenu.cpp" line="316"/>
         <source>SSL v3</source>
         <translation>SSL v3</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="316"/>
+        <location filename="../menu/settingsmenu.cpp" line="317"/>
         <source>SSL v2</source>
         <translation>SSL v2</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="317"/>
+        <location filename="../menu/settingsmenu.cpp" line="318"/>
         <source>TLS v1.0</source>
         <translation>TLS v1.0</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="318"/>
+        <location filename="../menu/settingsmenu.cpp" line="319"/>
         <source>TLS v1.0 or later</source>
         <translation>TLS v1.0 eller senere</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="319"/>
+        <location filename="../menu/settingsmenu.cpp" line="320"/>
         <source>TLS v1.1</source>
         <translation>TLS v1.1</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="320"/>
+        <location filename="../menu/settingsmenu.cpp" line="321"/>
         <source>TLS v1.1 or later</source>
         <translation>TLS v1.1 eller senere</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="321"/>
+        <location filename="../menu/settingsmenu.cpp" line="322"/>
         <source>TLS v1.2</source>
         <translation>TLS v1.2</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="322"/>
+        <location filename="../menu/settingsmenu.cpp" line="323"/>
         <source>TLS v1.2 or later</source>
         <translation>TLS v1.2 eller senere</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="323"/>
+        <location filename="../menu/settingsmenu.cpp" line="324"/>
         <source>SSLv2, SSLv3, or TLSv1.0</source>
         <translation>SSLv2, SSLv3, eller TLSv1.0</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="324"/>
+        <location filename="../menu/settingsmenu.cpp" line="325"/>
         <source>TLS v1.0 or SSL v3</source>
         <translation>TLS v1.0 eller SSL v3</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="338"/>
+        <location filename="../menu/settingsmenu.cpp" line="339"/>
         <source>Multi-step (original)</source>
         <translation>Multi-trin (original)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="339"/>
+        <location filename="../menu/settingsmenu.cpp" line="340"/>
         <source>Always one-step (faster)</source>
         <translation>Altid en-trins (hurtigere)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="340"/>
+        <location filename="../menu/settingsmenu.cpp" line="341"/>
         <source>One-step if small enough (default)</source>
         <translation>Ét trin, hvis det er lille nok (standard)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="430"/>
+        <location filename="../menu/settingsmenu.cpp" line="431"/>
         <source>The settings here influence whether CamCOPS will consider some third-party tasks “permitted” on your behalf, according to their published use criteria. They do &lt;b&gt;not&lt;/b&gt; remove your responsibility to ensure that you use them in accordance with their own requirements.</source>
         <translation>Indstillingerne her påvirker, om CamCOPS overvejer nogle tredjepartsopgaver “tilladt” på dine vegne i henhold til deres offentliggjorte brugskriterier. De fjerner &lt;b&gt;ikke&lt;/b&gt; dit ansvar for at sikre, at du bruger dem i overensstemmelse med deres egne krav.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="436"/>
+        <location filename="../menu/settingsmenu.cpp" line="437"/>
         <source>WARNING. Providing incorrect information here may lead to you VIOLATING copyright law, by using a task for a purpose that is not permitted, and being subject to damages and/or prosecution.</source>
         <translation>ADVARSEL. Hvis du angiver unøjagtige oplysninger her, kan du krænke ophavsretslovgivningen ved at bruge en opgave på en uautoriseret måde, og du kan være ansvarlig for bøder og / eller retsforfølgning.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="440"/>
+        <location filename="../menu/settingsmenu.cpp" line="441"/>
         <source>The authors of CamCOPS cannot be held responsible or liable for any consequences of you misusing materials subject to copyright.</source>
         <translation>Forfatterne til CamCOPS kan ikke holdes ansvarlige for eventuelle konsekvenser af misbrug af materiale, der er underlagt ophavsret.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="444"/>
+        <location filename="../menu/settingsmenu.cpp" line="445"/>
         <source>Are you using this application for:</source>
         <translation>Bruger du denne ansøgning til:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="464"/>
+        <location filename="../menu/settingsmenu.cpp" line="465"/>
         <source>Clinical use?</source>
         <translation>Klinisk brug?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="467"/>
+        <location filename="../menu/settingsmenu.cpp" line="468"/>
         <source>WARNING: NOT FOR GENERAL CLINICAL USE; not a Medical Device; see Terms and Conditions</source>
         <translation>ADVARSEL: IKKE FOR GENEREL KLINISK BRUG; ikke en medicinsk enhed; se vilkår og betingelser</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="472"/>
+        <location filename="../menu/settingsmenu.cpp" line="473"/>
         <source>Commercial use?</source>
         <translation>Kommerciel brug?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="476"/>
+        <location filename="../menu/settingsmenu.cpp" line="477"/>
         <source>Educational use?</source>
         <translation>Uddannelsesmæssig brug?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="480"/>
+        <location filename="../menu/settingsmenu.cpp" line="481"/>
         <source>Research use?</source>
         <translation>Forskning bruger?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="528"/>
+        <location filename="../menu/settingsmenu.cpp" line="529"/>
         <source>Interactions with the server</source>
         <translation>Interaktioner med serveren</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="530"/>
+        <location filename="../menu/settingsmenu.cpp" line="531"/>
         <source>Device friendly name</source>
         <translation>Et venligt navn på enheden</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="531"/>
+        <location filename="../menu/settingsmenu.cpp" line="532"/>
         <source>e.g. “Research tablet 17 (Bob’s)”</source>
         <translation>f.eks. “Forskningstablet 17 (Victor’s)”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="533"/>
+        <location filename="../menu/settingsmenu.cpp" line="534"/>
         <source>Username on server</source>
         <translation>Brugernavn på server</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="540"/>
+        <location filename="../menu/settingsmenu.cpp" line="541"/>
         <source>Password on server</source>
         <translation>Adgangskode på server</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="542"/>
+        <location filename="../menu/settingsmenu.cpp" line="543"/>
         <source>Offer to upload every time a task is edited?</source>
         <translation>Tilbud om at uploade hver gang en opgave er redigeret?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="544"/>
+        <location filename="../menu/settingsmenu.cpp" line="545"/>
         <source>Default clinician’s details (to save you typing)</source>
         <translation>Standard klinikerens detaljer (for at gemme dig at skrive)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="547"/>
+        <location filename="../menu/settingsmenu.cpp" line="548"/>
         <source>Default clinician’s specialty</source>
         <translation>Standard klinikerens specialitet</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="548"/>
+        <location filename="../menu/settingsmenu.cpp" line="549"/>
         <source>e.g. “Liaison Psychiatry”</source>
         <translation>f.eks. “Forbindelsespsykiatri”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="551"/>
+        <location filename="../menu/settingsmenu.cpp" line="552"/>
         <source>Default clinician’s name</source>
         <translation>Standard klinikerens navn</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="552"/>
+        <location filename="../menu/settingsmenu.cpp" line="553"/>
         <source>e.g. “Dr Bob Smith”</source>
         <translation>f.eks. “Dr Viktor Jensen”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="555"/>
+        <location filename="../menu/settingsmenu.cpp" line="556"/>
         <source>Default clinician’s professional registration</source>
         <translation>Standard klinikerens faglige registrering</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="556"/>
+        <location filename="../menu/settingsmenu.cpp" line="557"/>
         <source>e.g. “GMC# 12345”</source>
         <translation>e.g. “STPS# 12345”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="559"/>
+        <location filename="../menu/settingsmenu.cpp" line="560"/>
         <source>Default clinician’s post</source>
         <translation>Standard klinikerens arbejde</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="560"/>
+        <location filename="../menu/settingsmenu.cpp" line="561"/>
         <source>e.g. “Specialist registrar”</source>
         <translation>f.eks. “Konsulent psykiater”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="563"/>
+        <location filename="../menu/settingsmenu.cpp" line="564"/>
         <source>Default clinician’s service</source>
         <translation>Standard klinikerens service</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="564"/>
+        <location filename="../menu/settingsmenu.cpp" line="565"/>
         <source>e.g. “Liaison Psychiatry Service”</source>
         <translation>f.eks. “Forbindelsespsykiatri Service”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="567"/>
+        <location filename="../menu/settingsmenu.cpp" line="568"/>
         <source>Default clinician’s contact details</source>
         <translation>Standard klinikerens kontaktoplysninger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="568"/>
+        <location filename="../menu/settingsmenu.cpp" line="569"/>
         <source>e.g. “x2167”</source>
         <translation>f.eks. “x2167”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="692"/>
+        <location filename="../menu/settingsmenu.cpp" line="693"/>
         <source>Questionnaire font size</source>
         <translation>Spørgeskema skriftstørrelse</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="693"/>
+        <location filename="../menu/settingsmenu.cpp" line="694"/>
         <source>Set the font size, as a percentage of the default.</source>
         <translation>Indstil skriftstørrelsen som en procentdel af standardværdien.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="694"/>
+        <location filename="../menu/settingsmenu.cpp" line="695"/>
         <source>Changes take effect when a screen is reloaded.</source>
         <translation>Ændringer træder i kraft, når en skærm genindlæses.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="695"/>
+        <location filename="../menu/settingsmenu.cpp" line="696"/>
         <source>You can type it in:</source>
         <translation>Du kan skrive det i:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="696"/>
+        <location filename="../menu/settingsmenu.cpp" line="697"/>
         <source>... or set it with a slider:</source>
         <translation>... eller sæt det med en skyder:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="698"/>
+        <location filename="../menu/settingsmenu.cpp" line="699"/>
         <source>DPI settings</source>
         <translation>Punkter pr. tommer indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="699"/>
+        <location filename="../menu/settingsmenu.cpp" line="700"/>
         <source>Dots per inch (DPI), or more accurately pixels per inch (PPI), are a measure of screen resolution. Higher-resolution monitors have higher DPI settings. In some circumstances, CamCOPS needs to know your screen&apos;s DPI settings accurately. If your operating system mis-reports them, you can override the system settings here.</source>
         <translation>Punkter pr. tommer (DPI) eller mere præcist pixel pr. tomme (PPI) er et mål for skærmopløsning. Højere opløsning skærme har højere DPI indstillinger. Under nogle omstændigheder skal CamCOPS kende din skærms DPI-indstillinger nøjagtigt. Hvis dit operativsystem mis-rapporterer dem, kan du tilsidesætte systemindstillingerne her.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="706"/>
+        <location filename="../menu/settingsmenu.cpp" line="707"/>
         <source>These settings take effect when you restart CamCOPS.</source>
         <translation>Disse indstillinger træder i kraft, når du genstarter CamCOPS.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="708"/>
+        <location filename="../menu/settingsmenu.cpp" line="709"/>
         <source>Logical DPI settings are used for icon sizes and similar. You are unlikely to need to override these. Current system logical DPI: </source>
         <translation>Logiske DPI-indstillinger bruges til ikonstørrelser og lignende. Det er usandsynligt, at du skal tilsidesætte disse. Nuværende system logisk DPI:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="713"/>
+        <location filename="../menu/settingsmenu.cpp" line="714"/>
         <source>Override system logical DPI settings</source>
         <translation>Overstyr systemets logiske DPI-indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="714"/>
+        <location filename="../menu/settingsmenu.cpp" line="715"/>
         <source>Logical DPI, X</source>
         <translation>Logisk DPI, X</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="715"/>
+        <location filename="../menu/settingsmenu.cpp" line="716"/>
         <source>Logical DPI, Y</source>
         <translation>Logisk DPI, Y</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="717"/>
+        <location filename="../menu/settingsmenu.cpp" line="718"/>
         <source>Physical DPI settings are used for absolute sizes (e.g. visual analogue scales). Override this for precise scaling if your system gets it slightly wrong. Current system physical DPI: </source>
         <translation>Fysiske DPI-indstillinger anvendes til absolutte størrelser (fx visuelle analoge skalaer). Overstyr dette for præcis skalering, hvis dit system får det lidt forkert. Nuværende system fysisk DPI:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="722"/>
+        <location filename="../menu/settingsmenu.cpp" line="723"/>
         <source>Override system physical DPI settings</source>
         <translation>Overstyr systemets fysiske DPI-indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="723"/>
+        <location filename="../menu/settingsmenu.cpp" line="724"/>
         <source>Physical DPI, X</source>
         <translation>Fysisk DPI, X</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="724"/>
+        <location filename="../menu/settingsmenu.cpp" line="725"/>
         <source>Physical DPI, Y</source>
         <translation>Fysisk DPI, Y</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="728"/>
+        <location filename="../menu/settingsmenu.cpp" line="729"/>
         <source>Dots per inch (DPI), e.g. 96; range %1-%2</source>
         <translation>Punkter pr. tommer (DPI), f.eks. 96; interval %1-%2</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="841"/>
+        <location filename="../menu/settingsmenu.cpp" line="842"/>
         <source>Reset to 100%</source>
         <translation>Nulstil til 100%</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="859"/>
+        <location filename="../menu/settingsmenu.cpp" line="860"/>
         <source>Set questionnaire font size and DPI settings</source>
         <translation>Indstil spørgeskema skriftstørrelse og DPI indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1001"/>
+        <location filename="../menu/settingsmenu.cpp" line="1002"/>
         <source>Server details have changed. You should consider re-registering with the server.</source>
         <translation>Serveroplysningerne er ændret. Du bør overveje at omregistrere til serveren.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1003"/>
+        <location filename="../menu/settingsmenu.cpp" line="1004"/>
         <source>Registration advised</source>
         <translation>Registrering anbefales</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1058"/>
+        <location filename="../menu/settingsmenu.cpp" line="1059"/>
         <source>&lt;b&gt;Are you sure you want to delete all extra strings?&lt;/b&gt;&lt;br&gt;(To get them back, re-download them from your server.)</source>
         <translation>&lt;b&gt;Er du sikker på, at du vil slette alle ekstra strenger?&lt;/b&gt;&lt;br&gt;(For at få dem tilbage, genindlæs dem fra din server.)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1062"/>
+        <location filename="../menu/settingsmenu.cpp" line="1063"/>
         <source>Wipe all extra strings?</source>
         <translation>Slet alle ekstra strenger?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1063"/>
+        <location filename="../menu/settingsmenu.cpp" line="1064"/>
         <source>Yes, delete them</source>
         <translation>Ja, slet dem</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1064"/>
+        <location filename="../menu/settingsmenu.cpp" line="1065"/>
         <source>No! Leave them alone</source>
         <translation>Nej! Lad dem være alene</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1094"/>
+        <location filename="../menu/settingsmenu.cpp" line="1095"/>
         <source>Server hostname/IP address:</source>
         <translation>Server værtsnavn/IP-adresse:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1095"/>
+        <location filename="../menu/settingsmenu.cpp" line="1096"/>
         <source>Port for HTTPS:</source>
         <translation>Port til HTTPS:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1096"/>
+        <location filename="../menu/settingsmenu.cpp" line="1097"/>
         <source>Path on server:</source>
         <translation>Sti på server:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1097"/>
+        <location filename="../menu/settingsmenu.cpp" line="1098"/>
         <source>Network timeout (ms):</source>
         <translation>Netværk timeout (ms):</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1098"/>
+        <location filename="../menu/settingsmenu.cpp" line="1099"/>
         <source>Last server registration/ID info acceptance:</source>
         <translation>Seneste server registrering/ID info accept:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1100"/>
+        <location filename="../menu/settingsmenu.cpp" line="1101"/>
         <source>Last successful upload:</source>
         <translation>Sidste vellykket upload:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1101"/>
+        <location filename="../menu/settingsmenu.cpp" line="1102"/>
         <source>Database title (from the server):</source>
         <translation>Database titel (fra serveren):</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1102"/>
+        <location filename="../menu/settingsmenu.cpp" line="1103"/>
         <source>Server’s upload ID policy:</source>
         <translation>Serverens upload id-politik:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1103"/>
+        <location filename="../menu/settingsmenu.cpp" line="1104"/>
         <source>Server’s finalizing ID policy:</source>
         <translation>Serverens endelige id-politik:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1104"/>
+        <location filename="../menu/settingsmenu.cpp" line="1105"/>
         <source>Server CamCOPS version:</source>
         <translation>Serverens CamCOPS version:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1208"/>
+        <location filename="../menu/settingsmenu.cpp" line="1209"/>
         <source>Description for patient identifier </source>
         <translation>Beskrivelse for patientidentifikator </translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1216"/>
+        <location filename="../menu/settingsmenu.cpp" line="1217"/>
         <source>Short description for patient identifier </source>
         <translation>Kort beskrivelse af patientidentifikator </translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1229"/>
+        <location filename="../menu/settingsmenu.cpp" line="1230"/>
         <source>ID number descriptions:</source>
         <translation>ID nummer beskrivelser:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1246"/>
+        <location filename="../menu/settingsmenu.cpp" line="1247"/>
         <source>Main data database</source>
         <translation>Hoveddatabase</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1254"/>
+        <location filename="../menu/settingsmenu.cpp" line="1255"/>
         <source>CamCOPS system database</source>
         <translation>CamCOPS system database</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1274"/>
+        <location filename="../menu/settingsmenu.cpp" line="1275"/>
         <source>Data</source>
         <translation>Data</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1280"/>
+        <location filename="../menu/settingsmenu.cpp" line="1281"/>
         <source>System</source>
         <translation>System</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1287"/>
+        <location filename="../menu/settingsmenu.cpp" line="1288"/>
         <source>Sending data...</source>
         <translation>Afsendelse af data...</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1288"/>
+        <location filename="../menu/settingsmenu.cpp" line="1289"/>
         <source>Please wait</source>
         <translation>Vent venligst</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1296"/>
+        <location filename="../menu/settingsmenu.cpp" line="1297"/>
         <source>database sent to debugging stream</source>
         <translation>database skrevet til debugging stream</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1297"/>
+        <location filename="../menu/settingsmenu.cpp" line="1298"/>
         <source>Finished</source>
         <translation>Færdig</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1304"/>
+        <location filename="../menu/settingsmenu.cpp" line="1305"/>
         <source>Save data database as...</source>
         <translation>Gem databas som...</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1305"/>
+        <location filename="../menu/settingsmenu.cpp" line="1306"/>
         <source>Data database written to:</source>
         <translation>Databas skrevet til:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1312"/>
+        <location filename="../menu/settingsmenu.cpp" line="1313"/>
         <source>Save system database as...</source>
         <translation>Gem systemdatabasen som...</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1313"/>
+        <location filename="../menu/settingsmenu.cpp" line="1314"/>
         <source>System database written to:</source>
         <translation>Systemdatabase skrevet til:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1327"/>
+        <location filename="../menu/settingsmenu.cpp" line="1328"/>
         <source>Unable to open file: </source>
         <translation>Kan ikke åbne fil: </translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1327"/>
+        <location filename="../menu/settingsmenu.cpp" line="1328"/>
         <source>Failure</source>
         <translation>Fiasko</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1333"/>
+        <location filename="../menu/settingsmenu.cpp" line="1334"/>
         <source>You can import it into SQLite with a command like</source>
         <translation>Du kan importere den til SQLite med en kommando som</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1335"/>
+        <location filename="../menu/settingsmenu.cpp" line="1336"/>
         <source>Success</source>
         <translation>Succes</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1341"/>
+        <location filename="../menu/settingsmenu.cpp" line="1342"/>
         <source>Record counts for data database</source>
         <translation>Optagelsestællinger for database</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1347"/>
+        <location filename="../menu/settingsmenu.cpp" line="1348"/>
         <source>Record counts for system database</source>
         <translation>Optagelsestællinger for systemdatabasen</translation>
     </message>
     <message>
         <location filename="../menu/settingsmenu.cpp" line="129"/>
-        <location filename="../menu/settingsmenu.cpp" line="1369"/>
+        <location filename="../menu/settingsmenu.cpp" line="1370"/>
         <source>Choose language</source>
         <translation>Vælg sprog</translation>
     </message>

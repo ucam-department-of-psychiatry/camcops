@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_LANGUAGE_LOOKUP
+// #define DEBUG_LANGUAGE_LOOKUP
 
 #include "extrastring.h"
 #include "core/camcopsapp.h"

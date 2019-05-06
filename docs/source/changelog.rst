@@ -2053,6 +2053,15 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Excel XLSX and OpenOffice/LibreOffice ODS formats supported for basic
   download.
 
+- Internationalization
+
+  - Client
+  - ``MenuWindow`` changes to permit dynamic language change
+  - Server
+  - Basic strings to Danish
+
+  .. todo:: server internationalization: (1) server (2) per-user
+
 - New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
   .. todo:: IN PROGRESS ***

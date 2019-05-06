@@ -695,8 +695,7 @@ void Patient::buildPage(bool read_only)
     grid->addCell(QuGridCell(new QuText(tr("Date of birth")),
                              row, 0, rowspan, colspan, ralign));
     grid->addCell(QuGridCell(
-        (new QuDateTime(fieldRef(DOB_FIELD,
-                                 false)))->setMode(QuDateTime::DefaultDate),
+        (new QuDateTime(fieldRef(DOB_FIELD, false)))->setMode(QuDateTime::DefaultDate),
         row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Address")),
                              row, 0, rowspan, colspan, ralign));

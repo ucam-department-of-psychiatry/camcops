@@ -164,7 +164,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
     const QString& longtext = TextConst::LOREM_IPSUM_1;
     const QString& lipsum2 = TextConst::LOREM_IPSUM_2;
     const QString url("http://doc.qt.io/qt-5.7/richtext-html-subset.html");
-    const QString html(QString(
+    const QString html(tr(
         "Text with embedded HTML markup, providing <b>bold</b>, "
         "<i>italic</i>, and others as per Qt rich text syntax at "
         "<a href=\"%1\">%1</a>."
@@ -277,7 +277,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
             QuGridCell(new QuText("<b>row 2, col 0:</b> " + lipsum2), 2, 0),
             QuGridCell(new QuText("<b>row 2, col 1:</b> " + lipsum2), 2, 1),
         },
-        new QuHeading("Another grid (2:1 columns):"),
+        new QuHeading(tr("Another grid (2:1 columns):")),
         (new QuGridContainer{
             QuGridCell(new QuText("<b>r0 c0</b> " + lipsum2), 0, 0, 1, 1),
             QuGridCell(new QuText("<b>r0 c1 [+1]</b> " + lipsum2), 0, 1, 1, 2),
@@ -316,21 +316,21 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuHeading(tr("Another grid (1:1:1 columns, expanding horizontally, "
                          "fixed column style = default):")),
         (new QuGridContainer{
-            QuGridCell(new QuText("1. Short"), 0, 0),
-            QuGridCell(new QuText("2. Medium sort of length"), 0, 1),
-            QuGridCell(new QuText("3. Longer " + lipsum2), 0, 2),
+            QuGridCell(new QuText(tr("1. Short")), 0, 0),
+            QuGridCell(new QuText(tr("2. Medium sort of length")), 0, 1),
+            QuGridCell(new QuText(tr("3. Longer ") + lipsum2), 0, 2),
         })
             ->setColumnStretch(0, 1)
             ->setColumnStretch(1, 1)
             ->setColumnStretch(2, 1)
             ->setExpandHorizontally(true)
             ->setFixedGrid(true),
-        new QuHeading("Another grid (1:1:1 columns, non-expanding, "
-                      "non-fixed style):"),
+        new QuHeading(tr("Another grid (1:1:1 columns, non-expanding, "
+                         "non-fixed style):")),
         (new QuGridContainer{
-            QuGridCell(new QuText("1. Short"), 0, 0),
-            QuGridCell(new QuText("2. Medium sort of length"), 0, 1),
-            QuGridCell(new QuText("3. Longer " + lipsum2), 0, 2),
+            QuGridCell(new QuText(tr("1. Short")), 0, 0),
+            QuGridCell(new QuText(tr("2. Medium sort of length")), 0, 1),
+            QuGridCell(new QuText(tr("3. Longer ") + lipsum2), 0, 2),
         })
             ->setColumnStretch(0, 1)
             ->setColumnStretch(1, 1)

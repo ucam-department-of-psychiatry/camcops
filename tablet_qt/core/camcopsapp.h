@@ -229,7 +229,7 @@ public:
 
     // Creates and returns an object that will show a wait box whilst you do
     // something slow via the main (GUI) thread.
-    SlowGuiGuard getSlowGuiGuard(const QString& text = "Opening...",
+    SlowGuiGuard getSlowGuiGuard(const QString& text = tr("Opening..."),
                                  const QString& title = TextConst::pleaseWait(),
                                  int minimum_duration_ms = 100);
 
