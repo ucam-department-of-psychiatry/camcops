@@ -10,7 +10,7 @@ from camcops_server.cc_modules.cc_report import get_all_report_classes
 
 <%include file="db_user_info.mako"/>
 
-<h1>Available reports</h1>
+<h1>${_("Available reports")}</h1>
 
 <ul>
     %for cls in get_all_report_classes():

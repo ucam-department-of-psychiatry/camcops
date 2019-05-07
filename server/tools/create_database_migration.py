@@ -50,7 +50,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 N_SEQUENCE_CHARS = 4  # like Django
 CURRENT_DIR = dirname(abspath(__file__))  # camcops/server/tools
 SERVER_BASE_DIR = abspath(join(CURRENT_DIR, pardir))  # camcops/server
-SERVER_PACKAGE_DIR = join(SERVER_BASE_DIR, "camcops_server")  # # camcops/server/camcops_server  # noqa
+SERVER_PACKAGE_DIR = join(SERVER_BASE_DIR, "camcops_server")  # camcops/server/camcops_server  # noqa
 ALEMBIC_INI_FILE = join(SERVER_PACKAGE_DIR, "alembic.ini")
 ALEMBIC_VERSIONS_DIR = join(SERVER_PACKAGE_DIR, 'alembic', 'versions')
 

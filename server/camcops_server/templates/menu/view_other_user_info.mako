@@ -4,7 +4,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Information about user ${ user.username | h }</h1>
+<h1>${_("Information about user")} ${ user.username | h }</h1>
 
 <%include file="user_info_detail.mako" args="user=user"/>
 

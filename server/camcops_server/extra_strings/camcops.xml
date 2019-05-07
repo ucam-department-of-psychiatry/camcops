@@ -13,7 +13,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
 
-  <task name="camcops" language="en-GB">
+  <task name="camcops" locale="en_GB">
     <!-- Strings that are used jointly by the CamCOPS client and server -->
 
     <!--
@@ -176,7 +176,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
 
-  <task name="camcops" language="da-DK">
+  <task name="camcops" locale="da_DK">
     <string name="nhs_ethnic_category_code_A">A. Hvid – Britisk</string>
     <string name="nhs_ethnic_category_code_B">B. Hvid – Irsk</string>
     <string name="nhs_ethnic_category_code_C">C. Hvid – Enhver anden hvid baggrund</string>

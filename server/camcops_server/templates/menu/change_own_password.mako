@@ -5,14 +5,14 @@
 
 %if expired:
     <div class="important">
-        Your password has expired and must be changed.
+        ${_("Your password has expired and must be changed.")}
     </div>
 %endif
 
-<h1>Change your password</h1>
+<h1>${_("Change your password")}</h1>
 
 ${form}
 
 <div>
-    Minimum password length is ${min_pw_length} characters.
+    ${_("Minimum password length is ${min_pw_length} characters.")}
 </div>

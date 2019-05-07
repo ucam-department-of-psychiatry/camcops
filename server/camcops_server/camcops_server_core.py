@@ -258,7 +258,9 @@ def make_wsgi_app(debug_toolbar: bool = False,
     """
     log.debug("Creating WSGI app")
 
-    # Make WSGI app
+    # Make Pyramid WSGI app
+    # - pyramid_configurator_context() is our function; see that
+    # - config.make_wsgi_app() is then a Pyramid function
     with pyramid_configurator_context(debug_toolbar=debug_toolbar) as config:
         app = config.make_wsgi_app()
 

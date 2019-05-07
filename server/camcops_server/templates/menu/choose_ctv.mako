@@ -3,7 +3,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Clinical text view (CTV): clinically relevant summaries</h1>
+<h1>${_("Clinical text view (CTV): clinically relevant summaries")}</h1>
 
 ${ form }
 

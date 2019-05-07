@@ -3,7 +3,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Add master ID number definition</h1>
+<h1>${_("Add master ID number definition")}</h1>
 
 ${ form }
 

@@ -7,7 +7,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%include file="db_user_info.mako"/>
 
-<h1>Individual HL7 message</h1>
+<h1>${_("Individual HL7 message")}</h1>
 
 <table>
     <tr>

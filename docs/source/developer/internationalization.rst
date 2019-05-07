@@ -20,6 +20,22 @@
 Internationalization
 --------------------
 
+CamCOPS language rules
+~~~~~~~~~~~~~~~~~~~~~~
+
+English is OK for the following:
+
+- code
+- Qt debugging stream
+- command-line text
+- debugging tests
+- task short names (typically standardized abbreviations)
+- database structure (e.g. table names, field names)
+- config file settings, and things that refer to them
+
+Everything else should be translatable.
+
+
 Overview of the Qt translation system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -44,6 +60,15 @@ Overview of the Qt translation system
 
   - https://en.wikipedia.org/wiki/IETF_language_tag
   - https://witekio.com/de/blog/qt-internationalization-arabic-chinese-right-left/
+
+  Moreover, the underscore is the standard format for **locale** (rather than
+  **language** tags); the underscore is also used by POSIX and Python
+
+  - https://en.wikipedia.org/wiki/Locale_(computer_software)
+  - Python: see ``locale.getlocale()``
+  - Babel insists on it (rejecting hyphens).
+
+  **We will use the underscore notation throughout.**
 
   For example, to add Danish:
 
@@ -171,29 +196,103 @@ Making the binary translation files
   to the resources.
 
 
-CamCOPS language rules
-~~~~~~~~~~~~~~~~~~~~~~
+Tasks: xstrings
+~~~~~~~~~~~~~~~
 
-English is OK for the following:
-
-- code
-- Qt debugging stream
-- command-line text
-- debugging tests
-- task short names (typically standardized abbreviations)
-- database structure (e.g. table names, field names)
-
-Everything else should be translatable.
-
-
-Server side and xstrings
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. todo:: ***
+- Language-specific xstring fetch mechanism implemented.
+- When the client asks for server strings, all languages are sent.
 
 
 Determining the language
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+- Client: the user chooses the language.
 
-.. todo:: ***
+- Server: (a) there is a default server language, which also applies when the
+  user is not logged in; (b) users can choose a language.
+
+
+Server core
+~~~~~~~~~~~
+
+- We need to internationalize (a) Python strings and (b) Mako template strings.
+
+  - https://docs.pylonsproject.org/projects/pyramid-cookbook/en/latest/templates/mako_i18n.html
+  - https://docs.pylonsproject.org/projects/pylons-webframework/en/latest/i18n.html
+  - http://danilodellaquila.com/en/blog/pyramid-internationalization-howto
+  - http://babel.pocoo.org/en/latest/
+  - https://github.com/wichert/lingua
+  - https://docs.python.org/3/library/gettext.html#class-based-api; there are
+    editors for ``gettext`` systems, like
+
+    - https://poedit.net/
+
+      - this is a pretty good open-source one (with a paid professional
+        upgrade); from Ubuntu, install with ``sudo snap install poedit``
+
+    - https://wiki.gnome.org/Apps/Gtranslator
+    - https://userbase.kde.org/Lokalize
+
+  - https://stackoverflow.com/questions/37998300/python-gettext-specify-locale-in
+
+- Systems like ``gettext`` and Qt's work on the basis that you write the actual
+  string in the code, then translate it (rather than having an intermediate
+  "lookup string name") -- clearer for developers.
+
+- ``gettext`` is very much like Qt's system:
+
+  - ``xgettext`` or Babel_ scans your code and extracts message catalogues,
+    producing ``.po`` (Portable Object) files.
+
+  - ``.po`` files are compiled to ``.mo`` (Machine Object) files
+
+  - ``gettext`` loads ``.mo`` files and does the translation.
+
+  - The convention is to use ``_("some string")`` as the notation for the
+    translation function. (Is that what Babel looks for?) Thus, in Mako, the
+    equivalent is ``${_("some string")}``.
+
+- This looks like a well-established framework. Babel supports Mako.
+
+- The difficulty is that many have a monolithic context, rather than a
+  request-specific context, in which they translate.
+
+We manage this as follows.
+
+**Mako**
+
+.. code-block:: none
+
+    <% _ = request.gettext %>
+    <p>${_("Please translate me")}</p>
+
+It would be nice if we could just put the ``_`` definition in ``base.mako``,
+but that doesn't come through with ``<%inherit file=.../>``. But we can add
+it to the system context via
+:class:`camcops_server.cc_pyramid.CamcopsMakoLookupTemplateRenderer`.
+
+**Generic Python**
+
+.. code-block:: python
+
+    _ = request.gettext
+    mytext = _("Please translate me")
+
+**Forms**
+
+See ``cc_forms.py``; the forms need to be request-aware. This is quite fiddly.
+
+
+Updating server strings
+~~~~~~~~~~~~~~~~~~~~~~~
+
+There is a CamCOPS development tool, ``build_translations.py``. Its help is as
+follows:
+
+.. literalinclude:: build_translation_help.txt
+    :language: none
+
+
+.. todo:: Mako string internationalization
+.. todo:: Task long name internationalization
+.. todo:: Report title internationalization

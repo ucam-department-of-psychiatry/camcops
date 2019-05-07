@@ -49,7 +49,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 APPSTRING_TASKNAME = "camcops"
-MISSING_LANGUAGE = ""
+MISSING_LOCALE = ""
 
 
 # =============================================================================
@@ -146,9 +146,9 @@ def all_extra_strings_as_dicts(
             }
 
     ... in other words a ``Dict[taskname: str, Dict[stringname: str,
-    Dict[language: str, stringvalue: str]]]``.
+    Dict[locale: str, stringvalue: str]]]``.
 
-    For example, ``result['phq9']['q5'][language] == "5. Poor appetite or
+    For example, ``result['phq9']['q5'][locale] == "5. Poor appetite or
     overeating"``. There is also a top-level dictionary with the key
     ``APPSTRING_TASKNAME``.
 
@@ -160,7 +160,7 @@ def all_extra_strings_as_dicts(
 
         <?xml version="1.0" encoding="UTF-8"?>
         <resources>
-            <task name="TASK_1" language="en-GB">
+            <task name="TASK_1" locale="en_GB">
                 <string name="NAME_1">VALUE</string>
                 <string name="NAME_2">VALUE WITH\nNEWLINE</string>
                 <!-- ... -->
@@ -214,11 +214,11 @@ def all_extra_strings_as_dicts(
         <?xml version="1.0" encoding="UTF-8"?>
         <resources>
             <task name="TASK_1">
-                <language name="en-GB">
+                <locale name="en_GB">
                     <string name="NAME_1">VALUE</string>
                     <string name="NAME_2">VALUE WITH\nNEWLINE</string>
                     <!-- ... -->
-                </language>
+                </locale>
             </task>
             <!-- ... -->
         </resources>
@@ -227,7 +227,7 @@ def all_extra_strings_as_dicts(
 
         <?xml version="1.0" encoding="UTF-8"?>
         <resources>
-            <task name="TASK_1" language="en-GB">
+            <task name="TASK_1" locale="en_GB">
                 <string name="NAME_1">VALUE</string>
                 <string name="NAME_2">VALUE WITH\nNEWLINE</string>
                 <!-- ... -->
@@ -262,7 +262,7 @@ def all_extra_strings_as_dicts(
             # ... "all elements with the tag 'task' that have an attribute
             # named 'name'"
             taskname = taskroot.attrib.get("name")
-            language = taskroot.attrib.get("language", MISSING_LANGUAGE)
+            locale = taskroot.attrib.get("locale", MISSING_LOCALE)
             taskstrings = allstrings.setdefault(taskname, {})  # type: Dict[str, Dict[str, str]]  # noqa
             for e in taskroot.findall("./string[@name]"):
                 # ... "all elements with the tag 'string' that have an attribute
@@ -271,7 +271,7 @@ def all_extra_strings_as_dicts(
                 final_string = text_contents(e)
                 final_string = unescape_newlines(final_string)
                 langversions = taskstrings.setdefault(stringname, {})  # type: Dict[str, str]  # noqa
-                langversions[language] = final_string
+                langversions[locale] = final_string
 
     if APPSTRING_TASKNAME not in allstrings:
         raise_runtime_error(

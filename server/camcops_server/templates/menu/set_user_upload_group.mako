@@ -6,13 +6,11 @@
 <h1>Set upload group for user ${ user.username | h }</h1>
 
 <div class="important">
-    A group must be selected for the server to permit uploads.
+    ${_("A group must be selected for the server to permit uploads.")}
 </div>
 
 <div class="warning">
-    Don’t change groups if tasks have been uploaded by this user but not
-    finalized; this may lead to incorrect group assignment. (Finalize first,
-    then change groups.)
+    ${_("Don’t change groups if tasks have been uploaded by this user but not finalized; this may lead to incorrect group assignment. (Finalize first, then change groups.)")}
 </div>
 
 ${ form }

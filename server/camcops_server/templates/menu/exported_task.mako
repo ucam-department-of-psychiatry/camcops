@@ -17,7 +17,7 @@ def listview(req, objects, route_name, description):
 
 <%include file="db_user_info.mako"/>
 
-<h1>Individual task export attempt</h1>
+<h1>${_("Individual task export attempt")}</h1>
 
 <table>
     <tr>

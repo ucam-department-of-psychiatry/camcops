@@ -13,12 +13,12 @@ from camcops_server.cc_modules.cc_html import answer
 
 %if task.has_patient:
     %if anonymise:
-        <div class="warning">Patient details hidden at user’s request!</div>
+        <div class="warning">${_("Patient details hidden at user’s request!")}</div>
     %else:
         %if task.patient:
             <%include file="patient.mako" args="patient=task.patient, anonymise=anonymise, viewtype=viewtype"/>
         %else:
-            <div class="warning">Missing patient information!</div>
+            <div class="warning">${_("Missing patient information!")}</div>
         %endif
     %endif
 %else:
@@ -33,11 +33,11 @@ from camcops_server.cc_modules.cc_html import answer
 
 <div class="taskheader">
     <b>${ task.longname | h } (${ task.shortname | h })</b><br>
-    Created: ${ answer(format_datetime(task.when_created,
-                                       DateFormat.LONG_DATETIME_WITH_DAY,
-                                       default=None)) }
+    ${_("Created:")} ${ answer(format_datetime(task.when_created,
+                                               DateFormat.LONG_DATETIME_WITH_DAY,
+                                               default=None)) }
     %if not task.is_anonymous and task.patient:
-        (patient aged ${ answer(task.patient.get_age_at(task.when_created),
-                                default_for_blank_strings=True) })
+        (${_("patient aged")} ${ answer(task.patient.get_age_at(task.when_created),
+                                        default_for_blank_strings=True) })
     %endif
 </div>

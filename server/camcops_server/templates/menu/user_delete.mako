@@ -3,7 +3,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Delete user ${ user.username | h }?</h1>
+<h1>${_("Delete user")} ${ user.username | h }?</h1>
 
 %if error:
     <div class="error">${ error | h }</div>

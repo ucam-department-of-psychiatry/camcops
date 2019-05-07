@@ -41,10 +41,10 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <%block name="additional_report_below_results"></%block>
 
 <div>
-    <a href="${ request.route_url(Routes.OFFER_REPORT, _query={ViewParam.REPORT_ID: report_id}) }">Re-configure report</a>
+    <a href="${ request.route_url(Routes.OFFER_REPORT, _query={ViewParam.REPORT_ID: report_id}) }">${_("Re-configure report")}</a>
 </div>
 <div>
-    <a href="${request.route_url(Routes.REPORTS_MENU)}">Return to reports menu</a>
+    <a href="${request.route_url(Routes.REPORTS_MENU)}">${_("Return to reports menu")}</a>
 </div>
 <%include file="to_main_menu.mako"/>
 

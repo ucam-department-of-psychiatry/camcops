@@ -3,7 +3,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Edit user ${ user.username | h }</h1>
+<h1>${_("Edit user")} ${ user.username | h }</h1>
 
 ${ form }
 

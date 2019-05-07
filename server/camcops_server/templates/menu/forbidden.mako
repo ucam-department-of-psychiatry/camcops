@@ -16,14 +16,13 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             will cause cookies not to be saved, because they're marked to the
             client as being HTTPS-only cookies by default.)
        -->
-        You are not logged in (or your session has timed out).
+        ${_("You are not logged in (or your session has timed out).")}
         <div>
             Click <a href="${request.route_url(Routes.LOGIN, _query=querydict)}">here</a> to log in.
         </div>
     %else:
         <!-- Logged in, but permission denied: probably a non-administrator trying an administrative function. -->
-        You do not have permission to view this page.
-        It may be restricted to administrators.
+        ${_("You do not have permission to view this page. It may be restricted to administrators.")}
         <%include file="to_main_menu.mako"/>
     %endif
 </div>

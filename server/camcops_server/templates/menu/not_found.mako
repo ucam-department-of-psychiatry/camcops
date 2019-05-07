@@ -2,5 +2,5 @@
 <%inherit file="generic_failure.mako"/>
 
 <div class="error">
-    Page not found!
+    ${_("Page not found!")}
 </div>

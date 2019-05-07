@@ -13,7 +13,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
 
-  <task name="ided3d" language="en-GB">
+  <task name="ided3d" language="en_GB">
     <string name="last_stage">Last stage to use (1 [SD] – 8 [EDR], default 8)</string>
     <string name="max_trials_per_stage">Maximum number of trials per stage (abort if this reached without success)</string>
     <string name="progress_criterion_x">Criterion to proceed to next stage: X correct out of the last Y trials, where this is X</string>
@@ -35,7 +35,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
 
-  <task name="ided3d" language="da-DK">
+  <task name="ided3d" language="da_DK">
     <string name="last_stage">Sidste fase til brug (1 [SD] – 8 [EDR], standard 8)</string>
     <string name="max_trials_per_stage">Maksimalt antal forsøg pro fase (stop hvis denne fase er nået uden succes)</string>
     <string name="progress_criterion_x">Kriterium for at gå videre til næste fase: X korrekt ud af de sidste Y forsøg, hvor dette er X</string>

@@ -57,13 +57,14 @@ ExtraString::ExtraString(CamcopsApp& app,
     // Not a specimen; load, or set defaults and save
 
     // Qt, and (following Qt) the CamCOPS client, use underscores, e.g.
-    // "en_GB". However, the normal practice is to use a hyphen, e.g. "en-GB",
-    // as per:
+    // "en_GB". The normal practice for language tags is to use a hyphen, e.g.
+    // "en-GB", as per:
     // - https://en.wikipedia.org/wiki/IETF_language_tag
     // - https://tools.ietf.org/html/rfc5646
-    // The CamCOPS server, and thus our downloaded strings, use the hyphen.
-    QString hyphenated_code = language_code;
-    hyphenated_code.replace("_", "-");
+    // However, the normal practice for locales is to use an underscore, as per
+    // Python's "locale.getlocale()" and
+    // https://en.wikipedia.org/wiki/Locale_(computer_software)
+    // The CamCOPS server, and thus our downloaded strings, use the underscore.
 
 #ifdef DEBUG_LANGUAGE_LOOKUP
     const QString debugprefix = QString("Lookup string %1.%2[%3]:")
@@ -75,7 +76,7 @@ ExtraString::ExtraString(CamcopsApp& app,
     WhereConditions where_exact_lang;
     where_exact_lang.add(TASK_FIELD, task);
     where_exact_lang.add(NAME_FIELD, name);
-    where_exact_lang.add(LANGUAGE_FIELD, hyphenated_code);
+    where_exact_lang.add(LANGUAGE_FIELD, language_code);
 #ifdef DEBUG_LANGUAGE_LOOKUP
     qDebug().noquote() << debugprefix << where_exact_lang;
 #endif
@@ -84,7 +85,7 @@ ExtraString::ExtraString(CamcopsApp& app,
     }
 
     // 2. Match to language if not country
-    const QString close_lang = hyphenated_code.left(2) + "%";
+    const QString close_lang = language_code.left(2) + "%";
     //    "close_lang" is e.g. "en%".
     WhereConditions where_close_lang;
     where_close_lang.add(TASK_FIELD, task);
@@ -102,7 +103,7 @@ ExtraString::ExtraString(CamcopsApp& app,
             .arg(dbfunc::delimit(TASK_FIELD),
                  dbfunc::delimit(NAME_FIELD),
                  dbfunc::delimit(LANGUAGE_FIELD));
-    ArgList args{task, name, hyphenated_code};
+    ArgList args{task, name, language_code};
     WhereConditions where_default_lang;
     where_default_lang.set(SqlArgs(sql, args));
 #ifdef DEBUG_LANGUAGE_LOOKUP

@@ -3,11 +3,11 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>View data definition language (DDL), in SQL</h1>
+<h1>${_("View data definition language (DDL), in SQL")}</h1>
 
 <div>
-    The server’s database is using dialect <code>${ current_dialect }</code>
-    (${ current_dialect_description }).
+    ${_("The server’s database is using dialect")}
+    <code>${ current_dialect }</code> (${ current_dialect_description }).
 </div>
 
 ${ form }

@@ -1581,9 +1581,8 @@ class BoolColumn(CamcopsColumn):
         # in args, so we must handle that, too...
 
         _, type_in_args = _name_type_in_column_args(args)
-        self.constraint_name = None  # type: Optional[str]
+        self.constraint_name = kwargs.pop("constraint_name", None)  # type: Optional[str]  # noqa
         if not type_in_args:
-            self.constraint_name = kwargs.pop("constraint_name", None)
             if self.constraint_name:
                 constraint_name_conv = conv(self.constraint_name)
                 # ... see help for ``conv``

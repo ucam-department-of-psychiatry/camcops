@@ -7,13 +7,13 @@
     <table class="noborder">
         <tr class="signature_label">
             <td class="signature_label" width="33%">
-                Signature of author/validator
+                ${_("Signature of author/validator")}
             </td>
             <td class="signature_label" width="33%">
-                Print name
+                ${_("Print name")}
             </td>
             <td class="signature_label" width="33%">
-                Date and time
+                ${_("Date and time")}
             </td>
         </tr>
         <tr class="signature">

@@ -1,0 +1,4 @@
+# Additional .mo files that may be created by Poedit, e.g. "camcops_da_DK.mo"
+# ... the proper one is "camcops.mo"
+camcops_*.mo
+

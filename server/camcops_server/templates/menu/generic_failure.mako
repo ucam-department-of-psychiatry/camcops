@@ -25,7 +25,7 @@ ${next.body()}
     %if request.user_id is None:
         <%block go_to_login>
             <div>
-                Click <a href="${request.route_url(Routes.LOGIN)}">here</a> to log in.
+                ${_("Click")} <a href="${request.route_url(Routes.LOGIN)}">${_("here")}</a> ${_("to log in")}.
             </div>
         </%block>
     %else:

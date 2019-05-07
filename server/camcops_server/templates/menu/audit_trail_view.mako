@@ -28,32 +28,32 @@ def get_username(audit_entry):
 
 <%include file="db_user_info.mako"/>
 
-<h1>Audit trail</h1>
+<h1>${_("Audit trail")}</h1>
 
 %if conditions:
-    <h2>Conditions</h2>
+    <h2>${_("Conditions")}</h2>
     ${conditions | h}
 %endif
 
-<h2>Results</h2>
+<h2>${_("Results")}</h2>
 
 <div>${page.pager()}</div>
 
 <table>
     <tr>
-        <th>ID</th>
-        <th>When (UTC)</th>
-        <th>Source</th>
-        <th>Remote IP</th>
-        <th>Username</th>
-        <th>Device ID</th>
-        <th>Table name</th>
-        <th>Server PK</th>
-        <th>Patient server PK</th>
+        <th>${_("ID")}</th>
+        <th>${_("When (UTC)")}</th>
+        <th>${_("Source")}</th>
+        <th>${_("Remote IP")}</th>
+        <th>${_("Username")}</th>
+        <th>${_("Device ID")}</th>
+        <th>${_("Table name")}</th>
+        <th>${_("Server PK")}</th>
+        <th>${_("Patient server PK")}</th>
         %if truncate:
-            <th>Details (truncated)</th>
+            <th>${_("Details (truncated)")}</th>
         %else:
-            <th>Details</th>
+            <th>${_("Details")}</th>
         %endif
     </tr>
     %for audit in page:
@@ -68,7 +68,7 @@ def get_username(audit_entry):
             <td>
                 ${ filter_generic_value(audit.server_pk) }
                 %if audit.server_pk:
-                    (<a href="${ req.route_url(Routes.TASK, _query={ViewParam.TABLE_NAME: audit.table_name, ViewParam.SERVER_PK: audit.server_pk, ViewParam.VIEWTYPE: ViewArg.HTML}) }">View task</a>)
+                    (<a href="${ req.route_url(Routes.TASK, _query={ViewParam.TABLE_NAME: audit.table_name, ViewParam.SERVER_PK: audit.server_pk, ViewParam.VIEWTYPE: ViewArg.HTML}) }">${_("View task")}</a>)
                 %endif
             </td>
             <td>${ filter_generic_value(audit.patient_server_pk) }</td>
@@ -80,7 +80,7 @@ def get_username(audit_entry):
 <div>${page.pager()}</div>
 
 <div>
-    <a href="${ req.route_url(Routes.OFFER_AUDIT_TRAIL)}">Choose different options</a>
+    <a href="${ req.route_url(Routes.OFFER_AUDIT_TRAIL)}">${_("Choose different options")}</a>
 </div>
 
 <%include file="to_main_menu.mako"/>

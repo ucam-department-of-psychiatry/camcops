@@ -4,5 +4,5 @@
 %if tracker.patient:
     <%include file="patient_page_header.mako" args="patient=tracker.patient"/>
 %else:
-    <div class="warning">Missing patient!</div>
+    <div class="warning">${_("Missing patient!")}</div>
 %endif

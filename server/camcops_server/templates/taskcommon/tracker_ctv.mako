@@ -48,13 +48,9 @@ def inherit_file(context):
 ## ============================================================================
 
 <div class="trackerheader">
-    Patient identified by: <b>${ ("; ".join(x.description(request) for x in tracker.taskfilter.idnum_criteria) + ".") }</b>
-    Date range for search: <b>${ format_daterange(tracker.taskfilter.start_datetime, tracker.taskfilter.end_datetime) }</b>.
-    The tracker information will <b>only be valid</b> (i.e. will
-    only be from only one patient!) if all contributing tablet
-    devices use these identifiers consistently. The consistency
-    check is below. The patient information shown below is taken
-    from the first task used.
+    ${_("Patient identified by:")} <b>${ ("; ".join(x.description(request) for x in tracker.taskfilter.idnum_criteria) + ".") }</b>
+    ${_("Date range for search:")} <b>${ format_daterange(tracker.taskfilter.start_datetime, tracker.taskfilter.end_datetime) }</b>.
+    ${_("The tracker information will <b>only be valid</b> (i.e. will only be from only one patient!) if all contributing tablet devices use these identifiers consistently. The consistency check is below. The patient information shown below is taken from the first task used.")}
 </div>
 
 ## Consistency
@@ -77,8 +73,7 @@ def inherit_file(context):
     <%include file="patient.mako" args="patient=tracker.patient, viewtype=viewtype"/>
 %else:
     <div class="warning">
-        No patient found, or the patient has no relevant tasks in the time
-        period requested.
+        ${_("No patient found, or the patient has no relevant tasks in the time period requested.")}
     </div>
 %endif
 
@@ -95,13 +90,13 @@ ${next.body()}
 <div class="office">
     <%block name="office_preamble"/>
 
-    Requested tasks:
+    ${_("Requested tasks:")}
         ${ (", ".join(tracker.taskfilter.task_tablename_list) if tracker.taskfilter.task_classes else "None") }.
-    Sources (tablename, task server PK, patient server PK):
+    ${_("Sources (tablename, task server PK, patient server PK):")}
         ${ tracker.summary }.
-    Information retrieved from ${ request.application_url }
-        (server version ${ CAMCOPS_SERVER_VERSION_STRING })
-        at: ${ format_datetime(request.now, DateFormat.SHORT_DATETIME_SECONDS) }.
+    ${_("Information retrieved from")} ${ request.application_url }
+        (${_("server version")} ${ CAMCOPS_SERVER_VERSION_STRING })
+        ${_("at:")} ${ format_datetime(request.now, DateFormat.SHORT_DATETIME_SECONDS) }.
 </div>
 
 ## ============================================================================
@@ -122,6 +117,6 @@ ${next.body()}
                 ViewParam.END_DATETIME: tracker.taskfilter.end_datetime,
                 ViewParam.TASKS: tracker.taskfilter.task_tablename_list,
                 ViewParam.VIEWTYPE: ViewArg.PDF,
-            }) }">View PDF for printing/saving</a>
+            }) }">${_("View PDF for printing/saving")}</a>
     </div>
 %endif

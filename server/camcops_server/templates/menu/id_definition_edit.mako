@@ -3,7 +3,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Edit master ID number definition for ID# ${ iddef.which_idnum }</h1>
+<h1>${_("Edit master ID number definition for ID#")} ${ iddef.which_idnum }</h1>
 
 ${ form }
 

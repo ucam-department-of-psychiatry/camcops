@@ -3,9 +3,9 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Add group</h1>
+<h1>${_("Add group")}</h1>
 
-<div class="important">Once created, you can set the group’s description/permissions.</div>
+<div class="important">${_("Once created, you can set the group’s description/permissions.")}</div>
 
 ${ form }
 

@@ -3,7 +3,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Change password for user: ${username}</h1>
+<h1>${_("Change password for user:")} ${username}</h1>
 
 %if extra_msg:
     <div class="warning">${extra_msg}</div>
@@ -12,7 +12,7 @@
 ${form}
 
 <div>
-    Minimum password length is ${min_pw_length} characters.
+    ${_("Minimum password length is ${min_pw_length} characters.")}
 </div>
 
 <%include file="to_view_all_users.mako"/>

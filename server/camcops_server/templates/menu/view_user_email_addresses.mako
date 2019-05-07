@@ -9,9 +9,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%include file="db_user_info.mako" args="offer_main_menu=True"/>
 
-<h1>Users’ e-mail addresses</h1>
+<h1>${_("Users’ e-mail addresses")}</h1>
 
-<h2>Users that you manage who have missing e-mail addresses</h2>
+<h2>${_("Users that you manage who have missing e-mail addresses")}</h2>
 <ul>
     %for user in query:
         %if not user.email:
@@ -20,10 +20,10 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     %endfor
 </ul>
 
-<h2>E-mail addresses for users that you manage</h2>
+<h2>${_("E-mail addresses for users that you manage")}</h2>
 <ul>
-    <li>Click one to e-mail that user using your computer's e-mail client.</li>
-    <li>Copy/paste the whole list into your e-mail client for a bulk e-mail.</li>
+    <li>${_("Click one to e-mail that user using your computer's e-mail client.")}</li>
+    <li>${_("Copy/paste the whole list into your e-mail client for a bulk e-mail.")}</li>
 </ul>
 <p>
 %for user in query:

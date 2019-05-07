@@ -3,11 +3,11 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Edit group permissions</h1>
+<h1>${_("Edit group permissions")}</h1>
 
 <div>
-    User: <b>${ ugm.user.username | h }</b><br>
-    Group: <b>${ ugm.group.name | h }</b>
+    ${_("User:")} <b>${ ugm.user.username | h }</b><br>
+    ${_("Group:")} <b>${ ugm.group.name | h }</b>
 </div>
 
 ${ form }

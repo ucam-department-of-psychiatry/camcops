@@ -2,5 +2,5 @@
 <%inherit file="generic_failure.mako"/>
 
 <div class="error">
-    Bad request!
+    ${_("Bad request!")}
 </div>

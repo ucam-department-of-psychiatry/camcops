@@ -42,6 +42,6 @@ function subst() {
 </%block>
 
 <div>
-    Page <span class="page"></span> of <span class="topage"></span>.
+    ${_("Page")} <span class="page"></span> ${_("of")} <span class="topage"></span>.
     ${inner_text}
 </div>

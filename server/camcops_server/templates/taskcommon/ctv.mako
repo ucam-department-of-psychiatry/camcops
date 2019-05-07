@@ -13,21 +13,21 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <%inherit file="tracker_ctv.mako"/>
 
 <%block name="office_preamble">
-    The clinical text view uses only information from tasks that are flagged
-    CURRENT.
+    ${_("The clinical text view uses only information from tasks that are flagged CURRENT.")}
 </%block>
 
 %if not tracker.patient:
 
     <div class="warning">
-        No patient found for tracker.
+        ${_("No patient found for tracker.")}
     </div>
 
 %else:
 
     <div class="ctv_datelimit_start">
-        Start date/time for search: ${ format_datetime(tracker.taskfilter.start_datetime,
-                                                       DateFormat.ISO8601_HUMANIZED_TO_MINUTES, default="−∞") }
+        ${_("Start date/time for search:")}
+        ${ format_datetime(tracker.taskfilter.start_datetime,
+                           DateFormat.ISO8601_HUMANIZED_TO_MINUTES, default="−∞") }
     </div>
 
     %for task in tracker.collection.all_tasks:
@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ## Task name
             ${ task.longname | h }
             %if not ctvinfo_list:
-                exists
+                ${_("exists")}
             %endif
             ## Hyperlinks
             %if viewtype == ViewArg.HTML:
@@ -64,7 +64,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             %endif
             ## Clinician
             %if task.has_clinician and ctvinfo_list:
-                <i>(Clinician: ${ task.get_clinician_name() | h })</i>
+                <i>(${_("Clinician:")} ${ task.get_clinician_name() | h })</i>
             %endif
         </div>
 
@@ -118,7 +118,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     %endfor
 
     <div class="ctv_datelimit_end">
-        End date/time for search: ${ format_datetime(tracker.taskfilter.end_datetime,
-                                                     DateFormat.ISO8601_HUMANIZED_TO_MINUTES, default="+∞") }
+        ${_("End date/time for search:")}
+        ${ format_datetime(tracker.taskfilter.end_datetime,
+                           DateFormat.ISO8601_HUMANIZED_TO_MINUTES, default="+∞") }
     </div>
 %endif

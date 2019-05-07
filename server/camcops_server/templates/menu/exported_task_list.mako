@@ -8,14 +8,14 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%include file="db_user_info.mako"/>
 
-<h1>Exported task log</h1>
+<h1>${_("Exported task log")}</h1>
 
 %if conditions:
-    <h2>Conditions</h2>
+    <h2>${_("Conditions")}</h2>
     ${conditions | h}
 %endif
 
-<h2>Results</h2>
+<h2>${_("Results")}</h2>
 
 <div>${page.pager()}</div>
 
@@ -50,7 +50,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <div>${page.pager()}</div>
 
 <div>
-    <a href="${ req.route_url(Routes.OFFER_EXPORTED_TASK_LIST)}">Choose different options</a>
+    <a href="${ req.route_url(Routes.OFFER_EXPORTED_TASK_LIST)}">${_("Choose different options")}</a>
 </div>
 
 <%include file="to_main_menu.mako"/>

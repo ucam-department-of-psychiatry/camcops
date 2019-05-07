@@ -20,7 +20,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             <br>[<a href="${
                 req.route_url(Routes.DELETE_SPECIAL_NOTE,
                               _query={ViewParam.NOTE_ID: sn.note_id}
-                ) }">Delete special note</a>]
+                ) }">${_("Delete special note")}</a>]
         %endif
     %endfor
 </div>

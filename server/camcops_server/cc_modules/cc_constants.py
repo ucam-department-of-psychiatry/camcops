@@ -139,7 +139,7 @@ YES_CHAR = 'Y'
 POSSIBLE_SEX_VALUES = ["F", "M", "X"]
 
 # For forms:
-SEX_CHOICES = [("F", "F"), ("M", "M"), ("X", "X")]
+SEX_CHOICES = [("F", "F"), ("M", "M"), ("X", "X")]  # *** translation
 
 
 # =============================================================================

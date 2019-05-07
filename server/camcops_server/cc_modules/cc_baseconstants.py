@@ -63,9 +63,10 @@ LINUX_DEFAULT_LOCK_DIR = "/var/lock/camcops"
 LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR = "/var/cache/camcops/matplotlib"
 # ... Lintian dislikes using /var/local
 
-STATIC_ROOT_DIR = join(CAMCOPS_SERVER_DIRECTORY, 'static')
+STATIC_ROOT_DIR = join(CAMCOPS_SERVER_DIRECTORY, "static")
 # ... mostly but not entirely superseded by STATIC_CAMCOPS_PACKAGE_PATH
-TEMPLATE_DIR = join(CAMCOPS_SERVER_DIRECTORY, 'templates')
+TEMPLATE_DIR = join(CAMCOPS_SERVER_DIRECTORY, "templates")
+TRANSLATIONS_DIR = join(CAMCOPS_SERVER_DIRECTORY, "translations")
 
 
 # =============================================================================

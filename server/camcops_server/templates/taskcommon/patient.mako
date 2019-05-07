@@ -13,13 +13,13 @@
         %endif
     %endfor
     %if patient.other:
-        <br>Other details: <b>${ patient.other | h }</b>
+        <br>${_("Other details:")} <b>${ patient.other | h }</b>
     %endif
     %if patient.address:
-        <br>Address: <b>${ patient.address | h }</b>
+        <br>${_("Address:")} <b>${ patient.address | h }</b>
     %endif
     %if patient.gp:
-        <br>GP: <b>${ patient.gp | h }</b>
+        <br>${_("GP:")} <b>${ patient.gp | h }</b>
     %endif
 </div>
 

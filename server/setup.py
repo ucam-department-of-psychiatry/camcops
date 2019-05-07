@@ -81,6 +81,7 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 # Package dependencies
 INSTALL_REQUIRES = [
     'alembic==1.0.7',  # database migrations
+    'Babel==2.6.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
     'cardinal_pythonlib==1.0.53',  # RNC libraries
     'celery==4.2.1',  # background tasks
     'colorlog==3.1.4',  # colour in logs
@@ -287,6 +288,9 @@ if getattr(our_args, EXTRAS_ARG):
                   extra_files, absolute=False, include_n_parents=1)
     add_all_files(os.path.join(CAMCOPS_SERVER_DIR, 'templates'),
                   extra_files, absolute=False, include_n_parents=1)
+    add_all_files(os.path.join(CAMCOPS_SERVER_DIR, 'translations'),
+                  extra_files, absolute=False, include_n_parents=1,
+                  skip_patterns=SKIP_PATTERNS + ["*.pot", "*.po"])
 
     extra_files.sort()
     print("EXTRA_FILES: \n{}".format(pformat(extra_files)))

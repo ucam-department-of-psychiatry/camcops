@@ -33,7 +33,7 @@
 #include <QtOpenGL/QGLFormat>
 #include <QtWidgets/QOpenGLWidget>
 
-static bool s_opengl_initialized = false;
+static bool s_opengl_presence_checked = false;
 static bool s_opengl_present = false;
 
 
@@ -42,8 +42,8 @@ namespace openglfunc {
 
 bool isOpenGLPresent()
 {
-    if (!s_opengl_initialized) {
-        s_opengl_initialized = true;
+    if (!s_opengl_presence_checked) {
+        s_opengl_presence_checked = true;
         s_opengl_present = false;
 
         QOffscreenSurface surf;
@@ -66,17 +66,18 @@ bool isOpenGLPresent()
         const bool npot_textures = glfuncs->hasOpenGLFeature(QOpenGLFunctions::NPOTTextures);
         const bool shaders = glfuncs->hasOpenGLFeature(QOpenGLFunctions::Shaders);
         const bool framebuffers = glfuncs->hasOpenGLFeature(QOpenGLFunctions::Framebuffers);
+        qInfo() << "OpenGL v2.0 present:" << opengl_v2;
+        qInfo() << "OpenGL has NPOTTextures:" << npot_textures;
+        // ... "not powers of two" textures
+        qInfo() << "OpenGL has shaders:" << shaders;
+        qInfo() << "OpenGL has framebuffers:" << framebuffers;
 
-        s_opengl_present = opengl_v2 && npot_textures && shaders && framebuffers;
+        s_opengl_present = opengl_v2;  // we don't need the fancy bits
 
         if (s_opengl_present) {
             qInfo() << "OpenGL v2.0 is present and satisfactory";
         } else {
-            qWarning() << "OpenGL v2.0 present:" << opengl_v2;
-            qWarning() << "OpenGL has NPOTTextures:" << npot_textures;
-            qWarning() << "OpenGL has Shaders:" << shaders;
-            qWarning() << "OpenGL has Framebuffers:" << framebuffers;
-            qCritical() << "Error: This program requires OpenGL version 2.0 with the framebuffer object extension.";
+            qCritical() << "Error: This program requires OpenGL version 2.0";
         }
     }
     return s_opengl_present;

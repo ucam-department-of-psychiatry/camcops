@@ -10,18 +10,18 @@ from markupsafe import escape
 
 <table>
     <tr>
-        <th>Group name</th>
-        <th>Group ID</th>
-        <th>Description</th>
-        <th>Groups this group is allowed to see, in addition to itself</th>
-        <th>Upload ID policy</th>
-        <th>Principal (single necessary) ID number required by Upload policy</th>
-        <th>Finalize ID policy</th>
-        <th>Principal (single necessary) ID number required by Finalize policy</th>
-        <th>Members</th>
+        <th>${_("Group name")}</th>
+        <th>${_("Group ID")}</th>
+        <th>${_("Description")}</th>
+        <th>${_("Groups this group is allowed to see, in addition to itself")}</th>
+        <th>${_("Upload ID policy")}</th>
+        <th>${_("Principal (single necessary) ID number required by Upload policy")}</th>
+        <th>${_("Finalize ID policy")}</th>
+        <th>${_("Principal (single necessary) ID number required by Finalize policy")}</th>
+        <th>${_("Members")}</th>
         %if with_edit:
-            <th>Edit</th>
-            <th>Delete</th>
+            <th>${_("Edit")}</th>
+            <th>${_("Delete")}</th>
         %endif
     </tr>
     %for group in groups_page:
@@ -68,8 +68,8 @@ from markupsafe import escape
             </td>
 
             %if with_edit:
-                <td><a href="${ req.route_url(Routes.EDIT_GROUP, _query={ViewParam.GROUP_ID: group.id}) }">Edit</a></td>
-                <td><a href="${ req.route_url(Routes.DELETE_GROUP, _query={ViewParam.GROUP_ID: group.id}) }">Delete</a></td>
+                <td><a href="${ req.route_url(Routes.EDIT_GROUP, _query={ViewParam.GROUP_ID: group.id}) }">${_("Edit")}</a></td>
+                <td><a href="${ req.route_url(Routes.DELETE_GROUP, _query={ViewParam.GROUP_ID: group.id}) }">${_("Delete")}</a></td>
             %endif
         </tr>
     %endfor
@@ -78,7 +78,5 @@ from markupsafe import escape
 <div>${groups_page.pager(show_if_single_page=False)}</div>
 
 <div class="footnotes">
-    Colour in a policy column means that an ID policy is not valid
-    (syntactically, because it refers to ID numbers that do not exist, or
-    because it's less restrictive than the tablet's minimum ID policy).
+    ${_("Colour in a policy column means that an ID policy is not valid (syntactically, because it refers to ID numbers that do not exist, or because it's less restrictive than the tablet's minimum ID policy).")}
 </div>

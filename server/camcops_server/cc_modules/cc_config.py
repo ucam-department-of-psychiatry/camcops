@@ -147,8 +147,8 @@ from camcops_server.cc_modules.cc_filename import (
     PatientSpecElementForFilename,
 )
 from camcops_server.cc_modules.cc_language import (
-    DEFAULT_LANGUAGE,
-    POSSIBLE_LANGUAGES,
+    DEFAULT_LOCALE,
+    POSSIBLE_LOCALES,
 )
 from camcops_server.cc_modules.cc_pyramid import MASTER_ROUTE_CLIENT_API
 from camcops_server.cc_modules.cc_snomed import (
@@ -333,7 +333,7 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamSite.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
 
 {ConfigParamSite.EXTRA_STRING_FILES} = {extra_strings_spec}
-{ConfigParamSite.LANGUAGE} = {DEFAULT_LANGUAGE}
+{ConfigParamSite.LANGUAGE} = {DEFAULT_LOCALE}
 
 {ConfigParamSite.SNOMED_TASK_XML_FILENAME} =
 {ConfigParamSite.SNOMED_ICD9_XML_FILENAME} =
@@ -1232,11 +1232,11 @@ class CamcopsConfig(object):
 
         self.extra_string_files = _get_multiline(s, cs.EXTRA_STRING_FILES)
 
-        self.language = _get_str(s, cs.LANGUAGE, DEFAULT_LANGUAGE)
-        if self.language not in POSSIBLE_LANGUAGES:
+        self.language = _get_str(s, cs.LANGUAGE, DEFAULT_LOCALE)
+        if self.language not in POSSIBLE_LOCALES:
             log.warning(f"Invalid language {self.language!r}, "
-                        f"switching to {DEFAULT_LANGUAGE!r}")
-            self.language = DEFAULT_LANGUAGE
+                        f"switching to {DEFAULT_LOCALE!r}")
+            self.language = DEFAULT_LOCALE
         self.local_institution_url = _get_str(s, cs.LOCAL_INSTITUTION_URL, DEFAULT_LOCAL_INSTITUTION_URL)  # noqa
         self.local_logo_file_absolute = _get_str(s, cs.LOCAL_LOGO_FILE_ABSOLUTE, DEFAULT_LOCAL_LOGO_FILE)  # noqa
         self.lockout_threshold = _get_int(s, cs.LOCKOUT_THRESHOLD, DEFAULT_LOCKOUT_THRESHOLD)  # noqa

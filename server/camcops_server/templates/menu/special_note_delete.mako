@@ -3,9 +3,9 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Delete special note?</h1>
+<h1>${_("Delete special note?")}</h1>
 
-You are about to delete this note:
+${_("You are about to delete this note:")}
 
 <table>
     <tr><th>note_id</th><td>${ sn.note_id }</td></tr>
@@ -18,7 +18,7 @@ You are about to delete this note:
     <tr><th>note</th><td>${ sn.note }</td></tr>
 </table>
 
-<p><i>The special note will vanish (though preserved in the database for auditing).</i></p>
+<p><i>${_("The special note will vanish (though preserved in the database for auditing).")}</i></p>
 
 ${ form }
 

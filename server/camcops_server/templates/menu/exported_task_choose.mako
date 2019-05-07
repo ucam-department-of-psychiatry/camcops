@@ -3,7 +3,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>View export log (starting with most recent)</h1>
+<h1>${_("View export log (starting with most recent)")}</h1>
 
 ${form}
 

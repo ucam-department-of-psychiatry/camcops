@@ -3,9 +3,9 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>View audit trail (starting with most recent)</h1>
+<h1>${_("View audit trail (starting with most recent)")}</h1>
 
-<p>Values below are optional.</p>
+<p>${_("Values below are optional.")}</p>
 
 ${form}
 

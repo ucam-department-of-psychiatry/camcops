@@ -8,7 +8,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%include file="db_user_info.mako"/>
 
-<h1>Export recipient</h1>
+<h1>${_("Export recipient")}</h1>
 
 <table>
     <!-- Identification, current -->

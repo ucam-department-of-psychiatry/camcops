@@ -31,6 +31,7 @@ camcops_server/cc_modules/cc_request.py
 import collections
 from contextlib import contextmanager
 import datetime
+import gettext
 import logging
 from typing import (Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING,
                     Union)
@@ -74,6 +75,7 @@ from webob.multidict import MultiDict
 from camcops_server.cc_modules.cc_baseconstants import (
     DOCUMENTATION_URL,
     ENVVAR_CONFIG_FILE,
+    TRANSLATIONS_DIR,
 )
 from camcops_server.cc_modules.cc_config import (
     CamcopsConfig,
@@ -91,7 +93,10 @@ from camcops_server.cc_modules.cc_idnumdef import (
     IdNumDefinition,
     validate_id_number,
 )
-from camcops_server.cc_modules.cc_language import DEFAULT_LANGUAGE
+from camcops_server.cc_modules.cc_language import (
+    DEFAULT_LOCALE,
+    GETTEXT_DOMAIN,
+)
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
 from camcops_server.cc_modules.cc_pyramid import (
@@ -112,7 +117,7 @@ from camcops_server.cc_modules.cc_serversettings import (
 from camcops_server.cc_modules.cc_string import (
     all_extra_strings_as_dicts,
     APPSTRING_TASKNAME,
-    MISSING_LANGUAGE,
+    MISSING_LOCALE,
 )
 from camcops_server.cc_modules.cc_tabletsession import TabletSession
 from camcops_server.cc_modules.cc_user import User
@@ -135,17 +140,19 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 DEBUG_ADD_ROUTES = False
 DEBUG_AUTHORIZATION = False
-DEBUG_REQUEST_CREATION = False
 DEBUG_CAMCOPS_SESSION = False
-DEBUG_TABLET_SESSION = False
 DEBUG_DBSESSION_MANAGEMENT = False
+DEBUG_GETTEXT = False
+DEBUG_REQUEST_CREATION = False
+DEBUG_TABLET_SESSION = False
 
 if any([DEBUG_ADD_ROUTES,
         DEBUG_AUTHORIZATION,
-        DEBUG_REQUEST_CREATION,
         DEBUG_CAMCOPS_SESSION,
-        DEBUG_TABLET_SESSION,
-        DEBUG_DBSESSION_MANAGEMENT]):
+        DEBUG_DBSESSION_MANAGEMENT,
+        DEBUG_GETTEXT,
+        DEBUG_REQUEST_CREATION,
+        DEBUG_TABLET_SESSION]):
     log.warning("cc_request: Debugging options enabled!")
 
 
@@ -803,11 +810,11 @@ class CamcopsRequest(Request):
                         if key.startswith(shortlang):
                             return langversions[shortlang]
                 # 3. Default language
-                if DEFAULT_LANGUAGE in langversions:
-                    return langversions[DEFAULT_LANGUAGE]
+                if DEFAULT_LOCALE in langversions:
+                    return langversions[DEFAULT_LOCALE]
                 # 4. Strings with no language specified in the XML
-                if MISSING_LANGUAGE in langversions:
-                    return langversions[MISSING_LANGUAGE]
+                if MISSING_LOCALE in langversions:
+                    return langversions[MISSING_LOCALE]
         # Not found
         if default is None and provide_default_if_none:
             default = (
@@ -893,6 +900,32 @@ class CamcopsRequest(Request):
                 return language
         # Fallback to default
         return self.config.language
+
+    def gettext(self, message: str) -> str:
+        """
+        Returns a version of ``msg`` translated into the current language.
+        """
+        lang = self.language
+        if lang == DEFAULT_LOCALE:
+            translated = message
+        else:
+            try:
+                translator = gettext.translation(
+                    domain=GETTEXT_DOMAIN,
+                    localedir=TRANSLATIONS_DIR,
+                    languages=[lang]
+                )
+                translated = translator.gettext(message)
+            except OSError:  # e.g. translation file not found
+                log.warning(f"Failed to find translation files for {lang}")
+                if DEBUG_GETTEXT:
+                    translated = "MISSING→" + message
+                else:
+                    translated = message
+        if DEBUG_GETTEXT:
+            return f"[{message}→{lang}→{translated}]"
+        else:
+            return translated
 
     # -------------------------------------------------------------------------
     # PNG versus SVG output, so tasks don't have to care (for e.g. PDF/web)
@@ -1520,6 +1553,9 @@ def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
         config.set_session_factory(get_session_factory())
         # ... for request.session
 
+        # ---------------------------------------------------------------------
+        # Renderers
+        # ---------------------------------------------------------------------
         camcops_add_mako_renderer(config, extension='.mako')
 
         # deform_bootstrap.includeme(config)

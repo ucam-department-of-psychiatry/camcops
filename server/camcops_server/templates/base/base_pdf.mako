@@ -2,9 +2,7 @@
 <%inherit file="base.mako"/>
 
 <%!
-
-from camcops_server.cc_modules.cc_constants import PDF_ENGINE
-
+    from camcops_server.cc_modules.cc_constants import PDF_ENGINE
 %>
 
 ## For CSS paged media:
@@ -17,7 +15,7 @@ from camcops_server.cc_modules.cc_constants import PDF_ENGINE
 ## For CSS paged media:
 <%block name="footer_block">
     <div id="footerContent">
-        Page <pdf:pagenumber/> of <pdf:pagecount/>.
+        ${_("Page")} <pdf:pagenumber/> ${_("of")} <pdf:pagecount/>.
         <%block name="extra_footer_content"/>
     </div>
 </%block>

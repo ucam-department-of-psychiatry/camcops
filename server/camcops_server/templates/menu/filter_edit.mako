@@ -3,7 +3,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Task filters (criteria)</h1>
+<h1>${_("Task filters (criteria)")}</h1>
 
 ${ form }
 

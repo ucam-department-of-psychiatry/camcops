@@ -3,7 +3,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Edit master database title</h1>
+<h1>${_("Edit master database title")}</h1>
 
 ${ form }
 

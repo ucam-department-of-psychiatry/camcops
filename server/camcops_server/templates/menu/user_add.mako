@@ -3,9 +3,9 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Add user</h1>
+<h1>${_("Add user")}</h1>
 
-<div class="important">Once created, you can set permissions.</div>
+<div class="important">${_("Once created, you can set permissions.")}</div>
 
 ${ form }
 

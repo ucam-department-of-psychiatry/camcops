@@ -218,7 +218,6 @@ from camcops_server.cc_modules.cc_forms import (
     DeletePatientConfirmForm,
     DeleteSpecialNoteForm,
     DeleteUserForm,
-    DIALECT_CHOICES,
     EditGroupForm,
     EditIdDefinitionForm,
     EditPatientForm,
@@ -230,6 +229,7 @@ from camcops_server.cc_modules.cc_forms import (
     EditUserGroupMembershipGroupAdminForm,
     EraseTaskForm,
     ExportedTaskListForm,
+    get_sql_dialect_choices,
     ForciblyFinalizeChooseDeviceForm,
     ForciblyFinalizeConfirmForm,
     LoginForm,
@@ -568,7 +568,6 @@ def login_view(req: "CamcopsRequest") -> Response:
             rendered_form = e.render()
 
     else:
-        log.critical(f"req.language: {req.language}")
         redirect_url = req.get_str_param(ViewParam.REDIRECT_URL, "")
         # ... use default of "", because None gets serialized to "None", which
         #     would then get read back later as "None".
@@ -1531,7 +1530,8 @@ def view_ddl(req: "CamcopsRequest") -> Response:
     else:
         rendered_form = form.render()
     current_dialect = get_dialect_name(get_engine_from_session(req.dbsession))
-    current_dialect_description = {k: v for k, v in DIALECT_CHOICES}.get(
+    sql_dialect_choices = get_sql_dialect_choices(req)
+    current_dialect_description = {k: v for k, v in sql_dialect_choices}.get(
         current_dialect, "?")
     return render_to_response(
         "view_ddl_choose_dialect.mako",

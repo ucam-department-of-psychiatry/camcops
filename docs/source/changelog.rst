@@ -2091,3 +2091,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - :ref:`Kirby delay discounting task <kirby>`
 
   .. todo:: IN PROGRESS ***
+
+.. todo:: FORMS/TRANSLATION -- IN PROGRESS ***

@@ -16,13 +16,13 @@ OFFER_PDF_ANON_VERSION = False
 
 <table>
     <tr>
-        <th>Patient</th>
-        <th>Identifiers</th>
-        <th>Task type</th>
-        <th>Added by</th>
-        <th>Created</th>
-        <th>View</th>
-        <th>Print/save</th>
+        <th>${_("Patient")}</th>
+        <th>${_("Identifiers")}</th>
+        <th>${_("Task type")}</th>
+        <th>${_("Added by")}</th>
+        <th>${_("Created")}</th>
+        <th>${_("View")}</th>
+        <th>${_("Print/save")}</th>
     </tr>
 
     %for task in tasks:

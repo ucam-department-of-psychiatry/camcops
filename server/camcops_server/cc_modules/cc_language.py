@@ -26,23 +26,36 @@ camcops_server/cc_modules/cc_language.py
 
 **Constants for languages/internationalization.**
 
-This represents known languages. Compare ``language.cpp`` on the client.
+This represents known languages (or, strictly, locales). Compare
+``language.cpp`` on the client.
 
 At present we don't make this user-configurable and arbitrary (e.g. via an XML
 file to define languages), largely because it would a little complexity for the
 user, and because there's not much point in adding a language to the server
 without adding it for the client, too -- and the client needs recompiling.
 
+Note that both Python locales (see e.g. ``locale.getlocale()``) and Qt use
+underscores -- e.g. ``en_GB`` -- so we will too.
+
 """
 
-DANISH = "da-DK"
-ENGLISH_UK = "en-GB"
+# =============================================================================
+# Languages
+# =============================================================================
 
-DEFAULT_LANGUAGE = ENGLISH_UK
+DANISH = "da_DK"
+ENGLISH_UK = "en_GB"
 
-POSSIBLE_LANGUAGES_WITH_DESCRIPTIONS = (
+POSSIBLE_LOCALES_WITH_DESCRIPTIONS = (
     (DANISH, "Dansk"),
     (ENGLISH_UK, "English (UK)"),
 )
 
-POSSIBLE_LANGUAGES = [_[0] for _ in POSSIBLE_LANGUAGES_WITH_DESCRIPTIONS]
+
+# =============================================================================
+# Other constants
+# =============================================================================
+
+GETTEXT_DOMAIN = "camcops"  # don't alter this
+DEFAULT_LOCALE = ENGLISH_UK
+POSSIBLE_LOCALES = [_[0] for _ in POSSIBLE_LOCALES_WITH_DESCRIPTIONS]

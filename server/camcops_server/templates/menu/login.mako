@@ -4,10 +4,10 @@
 <%include file="db_user_info.mako"/>
 
 <div>
-    <b>Unauthorized access prohibited.</b>
-    All use is recorded and monitored.
+    <b>${_("Unauthorized access prohibited.")}</b>
+    ${_("All use is recorded and monitored.")}
 </div>
 
-<h1>Please log in to CamCOPS</h1>
+<h1>${_("Please log in to CamCOPS")}</h1>
 
 ${form}

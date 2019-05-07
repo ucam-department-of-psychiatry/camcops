@@ -3,7 +3,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Delete master ID definition number ${ iddef.which_idnum } (${ iddef.description | h })</h1>
+<h1>${_("Delete master ID definition number")} ${ iddef.which_idnum } (${ iddef.description | h })</h1>
 
 %if error:
     <div class="error">${ error | h }</div>

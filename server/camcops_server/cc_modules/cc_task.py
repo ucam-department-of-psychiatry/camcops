@@ -2411,6 +2411,7 @@ class TaskTests(DemoDatabaseTestCase):
         from camcops_server.cc_modules.cc_patient import Patient
         from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
         from camcops_server.cc_modules.cc_snomed import SnomedExpression
+        from camcops_server.cc_modules.cc_string import APPSTRING_TASKNAME
         from camcops_server.cc_modules.cc_summaryelement import SummaryElement
         from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
         from camcops_server.cc_modules.cc_tsv import TsvPage
@@ -2423,6 +2424,7 @@ class TaskTests(DemoDatabaseTestCase):
         recipdef = self.recipdef
         for cls in subclasses:
             log.info("Testing {}", cls)
+            assert cls.extrastring_taskname != APPSTRING_TASKNAME
             q = self.dbsession.query(cls)
             t = q.first()  # type: Task
 

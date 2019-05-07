@@ -3,7 +3,7 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Trackers: numerical information across time</h1>
+<h1>${_("Trackers: numerical information across time")}</h1>
 
 ${ form }
 

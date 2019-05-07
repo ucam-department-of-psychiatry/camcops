@@ -3,20 +3,19 @@
 <%inherit file="tracker_ctv.mako"/>
 
 <%block name="office_preamble">
-    Trackers use only information from tasks that are flagged CURRENT and
-    COMPLETE.
+    ${_("Trackers use only information from tasks that are flagged CURRENT and COMPLETE.")}
 </%block>
 
 %if not tracker.collection.all_tasks:
 
     <div class="warning">
-        No tasks found for tracker.
+        ${_("No tasks found for tracker.")}
     </div>
 
 %elif not tracker.patient:
 
     <div class="warning">
-        No patient found for tracker.
+        ${_("No patient found for tracker.")}
     </div>
 
 %else:

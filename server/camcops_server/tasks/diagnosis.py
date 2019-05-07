@@ -30,7 +30,10 @@ import logging
 from typing import Any, Dict, List, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.colander_utils import OptionalIntNode
+from cardinal_pythonlib.colander_utils import (
+    get_child_node,
+    OptionalIntNode,
+)
 from cardinal_pythonlib.datetimefunc import pendulum_date_to_datetime_date
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
@@ -62,8 +65,9 @@ from camcops_server.cc_modules.cc_db import (
 )
 from camcops_server.cc_modules.cc_forms import (
     LinkingIdNumSelector,
-    OR_JOIN_DESCRIPTION,
+    or_join_description,
     ReportParamSchema,
+    RequestAwareMixin,
 )
 from camcops_server.cc_modules.cc_hl7 import make_dg1_segment
 from camcops_server.cc_modules.cc_html import answer, tr
@@ -579,52 +583,74 @@ class DiagnosisAllReport(Report):
 # "Find me patients matching certain diagnostic criteria"
 # -----------------------------------------------------------------------------
 
-class DiagnosisNode(SchemaNode):
+class DiagnosisNode(SchemaNode, RequestAwareMixin):
     schema_type = String
-    title = "Diagnostic code"
-    description = (
-        "Type in a diagnostic code; you may use SQL 'LIKE' syntax for "
-        "wildcards, i.e. _ for one character and % for zero/one/lots"
-    )
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.description = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Diagnostic code")
+        self.description = _(
+            "Type in a diagnostic code; you may use SQL 'LIKE' syntax for "
+            "wildcards, i.e. _ for one character and % for zero/one/lots"
+        )
 
 
-class DiagnosesSequence(SequenceSchema):
+class DiagnosesSequence(SequenceSchema, RequestAwareMixin):
     diagnoses = DiagnosisNode()
-    title = "Diagnostic codes"
-    description = (
-        "Use % as a wildcard (e.g. F32 matches only F32, but F32% matches "
-        "F32, F32.1, F32.2...). " +
-        OR_JOIN_DESCRIPTION
-    )
 
     def __init__(self, *args, minimum_number: int = 0, **kwargs) -> None:
         self.minimum_number = minimum_number
+        self.title = ""  # for type checker
+        self.description = ""  # for type checker
         super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        request = self.request
+        _ = request.gettext
+        self.title = _("Diagnostic codes")
+        self.description = (
+            _("Use % as a wildcard (e.g. F32 matches only F32, but F32% "
+              "matches F32, F32.1, F32.2...).") +
+            " " +
+            or_join_description(request)
+        )
 
     def validator(self, node: SchemaNode, value: List[str]) -> None:
         assert isinstance(value, list)
+        _ = self.gettext
         if len(value) < self.minimum_number:
-            raise Invalid(node,
-                          f"You must specify at least {self.minimum_number}")
+            raise Invalid(
+                node,
+                _("You must specify at least") + f" {self.minimum_number}")
         if len(value) != len(set(value)):
-            raise Invalid(node, "You have specified duplicate diagnoses")
+            raise Invalid(node, _("You have specified duplicate diagnoses"))
 
 
 class DiagnosisFinderReportSchema(ReportParamSchema):
     which_idnum = LinkingIdNumSelector()  # must match ViewParam.WHICH_IDNUM
-    diagnoses_inclusion = DiagnosesSequence(  # must match ViewParam.DIAGNOSES_INCLUSION  # noqa
-        title="Inclusion diagnoses (lifetime)",
-        minimum_number=1,
-    )
-    diagnoses_exclusion = DiagnosesSequence(  # must match ViewParam.DIAGNOSES_EXCLUSION  # noqa
-        title="Exclusion diagnoses (lifetime)",
-    )
-    age_minimum = OptionalIntNode(  # must match ViewParam.AGE_MINIMUM
-        title="Minimum age (years) (optional)",
-    )
-    age_maximum = OptionalIntNode(  # must match ViewParam.AGE_MAXIMUM
-        title="Maximum age (years) (optional)",
-    )
+    diagnoses_inclusion = DiagnosesSequence(minimum_number=1)  # must match ViewParam.DIAGNOSES_INCLUSION  # noqa
+    diagnoses_exclusion = DiagnosesSequence()  # must match ViewParam.DIAGNOSES_EXCLUSION  # noqa
+    age_minimum = OptionalIntNode()  # must match ViewParam.AGE_MINIMUM
+    age_maximum = OptionalIntNode()  # must match ViewParam.AGE_MAXIMUM
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        diagnoses_inclusion = get_child_node(self, "diagnoses_inclusion")
+        diagnoses_inclusion.title = _("Inclusion diagnoses (lifetime)")
+        diagnoses_exclusion = get_child_node(self, "diagnoses_exclusion")
+        diagnoses_exclusion.title = _("Exclusion diagnoses (lifetime)")
+        age_minimum = get_child_node(self, "age_minimum")
+        age_minimum.title = _("Minimum age (years) (optional)")
+        age_maximum = get_child_node(self, "age_maximum")
+        age_maximum.title = _("Maximum age (years) (optional)")
 
 
 # noinspection PyProtectedMember
