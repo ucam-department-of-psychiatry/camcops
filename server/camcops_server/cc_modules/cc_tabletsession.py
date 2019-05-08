@@ -99,7 +99,7 @@ class TabletSession(object):
             fail_user_error(
                 f"Tablets cannot use the username {USER_NAME_FOR_SYSTEM!r}")
 
-        self._device_obj = None  # type: Device
+        self._device_obj = None  # type: Optional[Device]
 
         # Ensure table version is OK
         if self.tablet_version_ver < MINIMUM_TABLET_VERSION:

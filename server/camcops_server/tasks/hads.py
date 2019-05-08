@@ -334,7 +334,12 @@ class HadsBase(TaskHasPatientMixin, Task,
 class Hads(HadsBase):
     __tablename__ = "hads"
     shortname = "HADS"
-    longname = "Hospital Anxiety and Depression Scale (data collection only)"
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _(
+            "Hospital Anxiety and Depression Scale (data collection only)")
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         codes = [SnomedExpression(req.snomed(SnomedLookup.HADS_PROCEDURE_ASSESSMENT))]  # noqa
@@ -356,8 +361,12 @@ class Hads(HadsBase):
 class HadsRespondent(TaskHasRespondentMixin, HadsBase):
     __tablename__ = "hads_respondent"
     shortname = "HADS-Respondent"
-    longname = "Hospital Anxiety and Depression Scale (data collection " \
-               "only), non-patient respondent version"
     extrastring_taskname = "hads"
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Hospital Anxiety and Depression Scale (data collection "
+                 "only), non-patient respondent version")
 
     # No SNOMED codes; not for the patient!

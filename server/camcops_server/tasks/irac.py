@@ -55,7 +55,6 @@ class Irac(TaskHasPatientMixin, Task):
     """
     __tablename__ = "irac"
     shortname = "IRAC"
-    longname = "Identify and Rate the Aim of the Contact"
 
     aim = Column(
         "aim", UnicodeText,
@@ -68,6 +67,11 @@ class Irac(TaskHasPatientMixin, Task):
     )
 
     TASK_FIELDS = ["aim", "achieved"]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Identify and Rate the Aim of the Contact")
 
     def is_complete(self) -> bool:
         return (self.are_all_fields_complete(self.TASK_FIELDS) and

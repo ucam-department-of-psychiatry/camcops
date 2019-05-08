@@ -69,7 +69,6 @@ class Bmi(TaskHasPatientMixin, Task):
     """
     __tablename__ = "bmi"
     shortname = "BMI"
-    longname = "Body mass index"
     provides_trackers = True
 
     height_m = CamcopsColumn(
@@ -86,6 +85,11 @@ class Bmi(TaskHasPatientMixin, Task):
         "comment", UnicodeText,
         comment="Clinician's comment"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Body mass index")
 
     def is_complete(self) -> bool:
         return (

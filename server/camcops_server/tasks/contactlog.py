@@ -64,7 +64,6 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "contactlog"
     shortname = "ContactLog"
-    longname = "Clinical contact log"
 
     location = Column(
         "location", UnicodeText,
@@ -97,6 +96,11 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "comment", UnicodeText,
         comment="Comment"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Clinical contact log")
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

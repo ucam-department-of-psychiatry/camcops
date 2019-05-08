@@ -117,7 +117,6 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "panss"
     shortname = "PANSS"
-    longname = "Positive and Negative Syndrome Scale"
     provides_trackers = True
 
     NUM_P = 7
@@ -139,6 +138,11 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     MAX_TOTAL = MAX_P + MAX_N + MAX_G
     MIN_P_MINUS_N = MIN_P - MAX_N
     MAX_P_MINUS_N = MAX_P - MIN_N
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Positive and Negative Syndrome Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [

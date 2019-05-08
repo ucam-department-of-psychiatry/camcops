@@ -107,7 +107,11 @@ class Khandaker1MedicalHistory(TaskHasPatientMixin, Task,
     """
     __tablename__ = "khandaker_1_medicalhistory"
     shortname = "Khandaker_1_MedicalHistory"
-    longname = "Khandaker GM — 1 — Insight — Medical history"
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Khandaker GM — 1 — Insight — Medical history")
 
     def is_complete(self) -> bool:
         for qinfo in QUESTIONS:

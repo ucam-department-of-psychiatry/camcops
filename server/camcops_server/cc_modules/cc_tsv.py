@@ -291,7 +291,7 @@ class TsvCollection(object):
             page.write_to_xlsx_worksheet(ws)
         return excel_to_bytes(wb)
 
-    def as_ods(self, encoding: str = "utf-8") -> bytes:
+    def as_ods(self) -> bytes:
         """
         Returns the TSV collection as an ODS (OpenOffice spreadsheet document)
         file.

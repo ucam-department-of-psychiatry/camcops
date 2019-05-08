@@ -71,7 +71,6 @@ class Madrs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             metaclass=MadrsMetaclass):
     __tablename__ = "madrs"
     shortname = "MADRS"
-    longname = "Montgomery–Åsberg Depression Rating Scale"
     provides_trackers = True
 
     period_rated = Column("period_rated", Text)
@@ -80,6 +79,11 @@ class Madrs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     QFIELDS = strseq("q", 1, NQUESTIONS)
     TASK_FIELDS = QFIELDS + ["period_rated"]
     MAX_TOTAL = 60
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Montgomery–Åsberg Depression Rating Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

@@ -88,13 +88,17 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "aims"
     shortname = "AIMS"
-    longname = "Abnormal Involuntary Movement Scale"
     provides_trackers = True
 
     NQUESTIONS = 12
     NSCOREDQUESTIONS = 10
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORED_FIELDS = strseq("q", 1, NSCOREDQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Abnormal Involuntary Movement Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

@@ -53,7 +53,6 @@ class Fft(TaskHasPatientMixin, Task):
     """
     __tablename__ = "fft"
     shortname = "FFT"
-    longname = "Friends and Family Test"
 
     service = Column(
         "service", UnicodeText,
@@ -65,6 +64,11 @@ class Fft(TaskHasPatientMixin, Task):
         comment="Likelihood of recommendation to friends/family (1 "
                 "extremely likely - 5 extremely unlikely, 6 don't know)"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Friends and Family Test")
 
     def is_complete(self) -> bool:
         return self.rating is not None and self.field_contents_valid()

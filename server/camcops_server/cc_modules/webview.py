@@ -307,16 +307,22 @@ if DEBUG_REDIRECT:
 
 
 # =============================================================================
-# Constants
+# Constants -- mutated into translated phrases
 # =============================================================================
 
-CANNOT_DUMP = "User not authorized to dump data (for any group)."
-CANNOT_REPORT = "User not authorized to run reports (for any group)."
-# CAN_ONLY_CHANGE_OWN_PASSWORD = "You can only change your own password!"
-# TASK_FAIL_MSG = "Task not found or user not authorized."
-# NOT_AUTHORIZED_MSG = "User not authorized."
-ERROR_TASK_LIVE = (
-    "Task is live on tablet; finalize (or force-finalize) first.")
+def errormsg_cannot_dump(req: "CamcopsRequest") -> str:
+    _ = req.gettext
+    return _("User not authorized to dump data (for any group).")
+
+
+def errormsg_cannot_report(req: "CamcopsRequest") -> str:
+    _ = req.gettext
+    return _("User not authorized to run reports (for any group).")
+
+
+def errormsg_task_live(req: "CamcopsRequest") -> str:
+    _ = req.gettext
+    return _("Task is live on tablet; finalize (or force-finalize) first.")
 
 
 # =============================================================================
@@ -420,7 +426,8 @@ def test_page_1(req: "CamcopsRequest") -> Response:
     """
     A public test page with no content.
     """
-    return Response("Hello! This is a public CamCOPS test page.")
+    _ = req.gettext
+    return Response(_("Hello! This is a public CamCOPS test page."))
 
 
 # noinspection PyUnusedLocal
@@ -430,7 +437,8 @@ def test_page_private_1(req: "CamcopsRequest") -> Response:
     A private test page with no informative content, but which should only
     be accessible to authenticated users.
     """
-    return Response("Private test page.")
+    _ = req.gettext
+    return Response(_("Private test page."))
 
 
 # noinspection PyUnusedLocal
@@ -457,14 +465,15 @@ def test_page_3(req: "CamcopsRequest") -> Dict[str, Any]:
     return {}
 
 
-# noinspection PyUnusedLocal
+# noinspection PyUnusedLocal,PyTypeChecker
 @view_config(route_name=Routes.CRASH, permission=Permission.SUPERUSER)
 def crash(req: "CamcopsRequest") -> Response:
     """
     A view that deliberately raises an exception.
     """
-    raise RuntimeError("Deliberately crashed. Should not affect other "
-                       "processes.")
+    _ = req.gettext
+    raise RuntimeError(_(
+        "Deliberately crashed. Should not affect other processes."))
 
 
 # noinspection PyUnusedLocal
@@ -600,12 +609,13 @@ def account_locked(req: "CamcopsRequest", locked_until: Pendulum) -> Response:
     Response given when account locked out.
     Returned by :func:`login_view` only.
     """
+    _ = req.gettext
     return render_to_response(
         "accounted_locked.mako",
         dict(
             locked_until=format_datetime(locked_until,
                                          DateFormat.LONG_DATETIME_WITH_DAY,
-                                         "(never)")
+                                         _("(never)"))
         ),
         request=req
     )
@@ -741,6 +751,7 @@ def change_other_password(req: "CamcopsRequest") -> Response:
     """
     form = ChangeOtherPasswordForm(request=req)
     username = None  # for type checker
+    _ = req.gettext
     if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
@@ -755,7 +766,7 @@ def change_other_password(req: "CamcopsRequest") -> Response:
             new_password = appstruct.get(ViewParam.NEW_PASSWORD)
             user = User.get_user_by_id(req.dbsession, user_id)
             if not user:
-                raise HTTPBadRequest(f"Missing user for id {user_id}")
+                raise HTTPBadRequest(f"{_('Missing user for id')} {user_id}")
             assert_may_edit_user(req, user)
             user.set_password(req, new_password)
             if must_change_pw:
@@ -766,12 +777,12 @@ def change_other_password(req: "CamcopsRequest") -> Response:
     else:
         user_id = req.get_int_param(ViewParam.USER_ID)
         if user_id is None:
-            raise HTTPBadRequest(f"Improper user_id of {repr(user_id)}")
+            raise HTTPBadRequest(f"{_('Improper user_id of')} {user_id!r}")
         if user_id == req.user_id:
             return change_own_password(req)
         user = User.get_user_by_id(req.dbsession, user_id)
         if user is None:
-            raise HTTPBadRequest(f"Missing user for id {user_id}")
+            raise HTTPBadRequest(f"{_('Missing user for id')} {user_id}")
         assert_may_edit_user(req, user)
         username = user.username
         appstruct = {ViewParam.USER_ID: user_id}
@@ -1002,7 +1013,8 @@ def view_tasks(req: "CamcopsRequest") -> Dict[str, Any]:
     page = paginator(collection,
                      page=page_num,
                      items_per_page=rows_per_page,
-                     url_maker=PageUrl(req))
+                     url_maker=PageUrl(req),
+                     request=req)
     return dict(
         page=page,
         head_form_html=get_head_form_html(req, [tpp_form,
@@ -1023,6 +1035,7 @@ def serve_task(req: "CamcopsRequest") -> Response:
     View that serves an individual task, in a variety of possible formats
     (e.g. HTML, PDF, XML).
     """
+    _ = req.gettext
     viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML, lower=True)
     tablename = req.get_str_param(ViewParam.TABLE_NAME)
     server_pk = req.get_int_param(ViewParam.SERVER_PK)
@@ -1032,8 +1045,8 @@ def serve_task(req: "CamcopsRequest") -> Response:
 
     if task is None:
         return HTTPNotFound(
-            f"Task not found or not permitted: tablename={tablename!r}, "
-            f"server_pk={server_pk!r}")
+            f"{_('Task not found or not permitted:')} "
+            f"tablename={tablename!r}, server_pk={server_pk!r}")
 
     task.audit(req, "Viewed " + viewtype.upper())
 
@@ -1069,7 +1082,8 @@ def serve_task(req: "CamcopsRequest") -> Response:
     else:
         permissible = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML, ViewArg.XML]
         raise HTTPBadRequest(
-            f"Bad output type: {viewtype!r} (permissible: {permissible!r})")
+            f"{_('Bad output type:')} {viewtype!r} "
+            f"({_('permissible:')} {permissible!r})")
 
 
 # =============================================================================
@@ -1155,6 +1169,7 @@ def serve_tracker_or_ctv(req: "CamcopsRequest",
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         as_ctv: CTV, rather than tracker?
     """
+    _ = req.gettext
     which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
     idnum_value = req.get_int_param(ViewParam.IDNUM_VALUE)
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
@@ -1171,9 +1186,9 @@ def serve_tracker_or_ctv(req: "CamcopsRequest",
             task_classes = task_classes_from_table_names(
                 tasks, sortmethod=TaskClassSortMethod.SHORTNAME)
         except KeyError:
-            raise HTTPBadRequest("Invalid tasks specified")
+            raise HTTPBadRequest(_("Invalid tasks specified"))
         if not all(c.provides_trackers for c in task_classes):
-            raise HTTPBadRequest("Not all tasks specified provide trackers")
+            raise HTTPBadRequest(_("Not all tasks specified provide trackers"))
 
     iddefs = [IdNumReference(which_idnum, idnum_value)]
 
@@ -1184,7 +1199,7 @@ def serve_tracker_or_ctv(req: "CamcopsRequest",
     taskfilter.start_datetime = start_datetime
     taskfilter.end_datetime = end_datetime
     taskfilter.complete_only = True  # trackers require complete tasks
-    taskfilter.sort_method = TaskClassSortMethod.SHORTNAME
+    taskfilter.set_sort_method(TaskClassSortMethod.SHORTNAME)
     taskfilter.tasks_offering_trackers_only = as_tracker
     taskfilter.tasks_with_patient_only = True
 
@@ -1213,7 +1228,8 @@ def serve_tracker_or_ctv(req: "CamcopsRequest",
     else:
         permissible = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML, ViewArg.XML]
         raise HTTPBadRequest(
-            f"Invalid view type: {viewtype!r} (permissible: {permissible!r})")
+            f"{_('Invalid view type:')} {viewtype!r} "
+            f"({_('permissible:')} {permissible!r})")
 
 
 @view_config(route_name=Routes.TRACKER)
@@ -1250,7 +1266,7 @@ def reports_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     to run reports for.)
     """
     if not req.user.authorized_for_reports:
-        raise HTTPBadRequest(CANNOT_REPORT)
+        raise HTTPBadRequest(errormsg_cannot_report(req))
     return {}
 
 
@@ -1261,14 +1277,15 @@ def offer_report(req: "CamcopsRequest") -> Response:
     redirect to serve that report (with configuration parameters in the URL).
     """
     if not req.user.authorized_for_reports:
-        raise HTTPBadRequest(CANNOT_REPORT)
+        raise HTTPBadRequest(errormsg_cannot_report(req))
     report_id = req.get_str_param(ViewParam.REPORT_ID)
     report = get_report_instance(report_id)
+    _ = req.gettext
     if not report:
-        raise HTTPBadRequest(f"No such report ID: {report_id!r}")
+        raise HTTPBadRequest(f"{_('No such report ID:')} {report_id!r}")
     if report.superuser_only and not req.user.superuser:
-        raise HTTPBadRequest(f"Report {report_id!r} is restricted to the "
-                             f"superuser")
+        raise HTTPBadRequest(
+            f"{_('Report is restricted to the superuser:')} {report_id!r}")
     form = report.get_form(req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1302,14 +1319,15 @@ def serve_report(req: "CamcopsRequest") -> Response:
     Serve a configured report.
     """
     if not req.user.authorized_for_reports:
-        raise HTTPBadRequest(CANNOT_REPORT)
+        raise HTTPBadRequest(errormsg_cannot_report(req))
     report_id = req.get_str_param(ViewParam.REPORT_ID)
     report = get_report_instance(report_id)
+    _ = req.gettext
     if not report:
-        raise HTTPBadRequest(f"No such report ID: {report_id!r}")
+        raise HTTPBadRequest(f"{_('No such report ID:')} {report_id!r}")
     if report.superuser_only and not req.user.superuser:
-        raise HTTPBadRequest(f"Report {report_id!r} is restricted to the "
-                             f"superuser")
+        raise HTTPBadRequest(
+            f"{_('Report is restricted to the superuser:')} {report_id!r}")
 
     return report.get_response(req)
 
@@ -1326,7 +1344,7 @@ def offer_basic_dump(req: "CamcopsRequest") -> Response:
     dump.
     """
     if not req.user.authorized_to_dump:
-        raise HTTPBadRequest(CANNOT_DUMP)
+        raise HTTPBadRequest(errormsg_cannot_dump(req))
     form = OfferBasicDumpForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1362,7 +1380,7 @@ def get_dump_collection(req: "CamcopsRequest") -> TaskCollection:
     Raises an error if the request is bad.
     """
     if not req.user.authorized_to_dump:
-        raise HTTPBadRequest(CANNOT_DUMP)
+        raise HTTPBadRequest(errormsg_cannot_dump(req))
     # -------------------------------------------------------------------------
     # Get parameters
     # -------------------------------------------------------------------------
@@ -1382,7 +1400,9 @@ def get_dump_collection(req: "CamcopsRequest") -> TaskCollection:
         taskfilter.task_types = task_names
         taskfilter.group_ids = group_ids
     else:
-        raise HTTPBadRequest(f"Bad {ViewParam.DUMP_METHOD} parameter")
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('Bad parameter:')} "
+                             f"{ViewParam.DUMP_METHOD}={dump_method!r}")
     return TaskCollection(
         req=req,
         taskfilter=taskfilter,
@@ -1422,9 +1442,11 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
             sort_by_heading=sort_by_heading,
         )
     else:
+        _ = req.gettext
         permissible = [ViewArg.TSV_ZIP, ViewArg.XLSX]
         raise HTTPBadRequest(
-            f"Bad output type: {viewtype!r} (permissible: {permissible!r})")
+            f"{_('Bad output type:')} {viewtype!r} "
+            f"({_('permissible:')} {permissible!r})")
 
 
 @view_config(route_name=Routes.OFFER_SQL_DUMP)
@@ -1434,7 +1456,7 @@ def offer_sql_dump(req: "CamcopsRequest") -> Response:
     Following submission success, it redirects to a view serving the SQL dump.
     """
     if not req.user.authorized_to_dump:
-        raise HTTPBadRequest(CANNOT_DUMP)
+        raise HTTPBadRequest(errormsg_cannot_dump(req))
     form = OfferSqlDumpForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1472,7 +1494,9 @@ def sql_dump(req: "CamcopsRequest") -> Response:
     sqlite_method = req.get_str_param(ViewParam.SQLITE_METHOD)
     include_blobs = req.get_bool_param(ViewParam.INCLUDE_BLOBS, False)
     if sqlite_method not in [ViewArg.SQL, ViewArg.SQLITE]:
-        raise HTTPBadRequest(f"Bad {ViewParam.SQLITE_METHOD} parameter")
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('Bad  parameter:')} "
+                             f"{ViewParam.SQLITE_METHOD}={sqlite_method!r}")
 
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
@@ -1647,7 +1671,8 @@ def view_audit_trail(req: "CamcopsRequest") -> Response:
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
-                             url_maker=PageUrl(req))
+                             url_maker=PageUrl(req),
+                             request=req)
     return render_to_response("audit_trail_view.mako",
                               dict(conditions="; ".join(conditions),
                                    page=page,
@@ -1758,7 +1783,8 @@ def view_exported_task_list(req: "CamcopsRequest") -> Response:
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
-                             url_maker=PageUrl(req))
+                             url_maker=PageUrl(req),
+                             request=req)
     return render_to_response("exported_task_list.mako",
                               dict(conditions="; ".join(conditions),
                                    page=page),
@@ -1792,7 +1818,9 @@ def _view_generic_object_by_id(req: "CamcopsRequest",
         .first()
     )
     if obj is None:
-        raise HTTPBadRequest(f"Bad {cls.__name__} ID {item_id}")
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('Bad ID for object type')} "
+                             f"{cls.__name__}: {item_id}")
     d = {instance_name_for_mako: obj}
     return render_to_response(mako_template, d, request=req)
 
@@ -1897,7 +1925,8 @@ def view_own_user_info(req: "CamcopsRequest") -> Dict[str, Any]:
     View to provide information about your own user.
     """
     groups_page = CamcopsPage(req.user.groups,
-                              url_maker=PageUrl(req))
+                              url_maker=PageUrl(req),
+                              request=req)
     return dict(user=req.user,
                 groups_page=groups_page,
                 valid_which_idnums=req.valid_which_idnums)
@@ -1909,21 +1938,22 @@ def view_server_info(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to show the server's ID policies, etc.
     """
+    _ = req.gettext
     now = req.now
     recent_activity = OrderedDict([
-        ("Last 1 minute", CamcopsSession.n_sessions_active_since(
+        (_("Last 1 minute"), CamcopsSession.n_sessions_active_since(
             req, now.subtract(minutes=1))),
-        ("Last 5 minutes", CamcopsSession.n_sessions_active_since(
+        (_("Last 5 minutes"), CamcopsSession.n_sessions_active_since(
             req, now.subtract(minutes=5))),
-        ("Last 10 minutes", CamcopsSession.n_sessions_active_since(
+        (_("Last 10 minutes"), CamcopsSession.n_sessions_active_since(
             req, now.subtract(minutes=10))),
-        ("Last 1 hour", CamcopsSession.n_sessions_active_since(
+        (_("Last 1 hour"), CamcopsSession.n_sessions_active_since(
             req, now.subtract(hours=1))),
     ])
     return dict(
         idnum_definitions=req.idnum_definitions,
         string_families=req.extrastring_families(),
-        all_task_classes=Task.all_subclasses_by_longname(),
+        all_task_classes=Task.all_subclasses_by_longname(req),
         recent_activity=recent_activity,
         session_timeout_minutes=req.config.session_timeout_minutes,
     )
@@ -1968,7 +1998,8 @@ def get_user_from_request_user_id_or_raise(req: "CamcopsRequest") -> User:
     user_id = req.get_int_param(ViewParam.USER_ID)
     user = User.get_user_by_id(req.dbsession, user_id)
     if not user:
-        raise HTTPBadRequest(f"No such user ID: {repr(user_id)}")
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('No such user ID:')} {user_id!r}")
     return user
 
 
@@ -1992,7 +2023,8 @@ def view_all_users(req: "CamcopsRequest") -> Dict[str, Any]:
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
-                             url_maker=PageUrl(req))
+                             url_maker=PageUrl(req),
+                             request=req)
     return dict(page=page)
 
 
@@ -2013,7 +2045,7 @@ def assert_may_edit_user(req: "CamcopsRequest", user: User) -> None:
     Checks that the requesting user (``req.user``) is allowed to edit the other
     user (``user``). Raises :exc:`HTTPBadRequest` otherwise.
     """
-    may_edit, why_not = req.user.may_edit_user(user)
+    may_edit, why_not = req.user.may_edit_user(req, user)
     if not may_edit:
         raise HTTPBadRequest(why_not)
 
@@ -2025,7 +2057,8 @@ def assert_may_administer_group(req: "CamcopsRequest", group_id: int) -> None:
     otherwise.
     """
     if not req.user.may_administer_group(group_id):
-        raise HTTPBadRequest("You may not administer this group")
+        _ = req.gettext
+        raise HTTPBadRequest(_("You may not administer this group"))
 
 
 @view_config(route_name=Routes.VIEW_USER,
@@ -2092,10 +2125,12 @@ def edit_user(req: "CamcopsRequest") -> Dict[str, Any]:
             existing_user = User.get_user_by_name(dbsession, new_user_name)
             if existing_user and existing_user.id != user.id:
                 # noinspection PyUnresolvedReferences
+                _ = req.gettext
+                cant_rename_user = _("Can't rename user")
+                conflicts = _("that conflicts with an existing user with ID")
                 raise HTTPBadRequest(
-                    f"Can't rename user {user.name!r} (ID {user.id!r}) to "
-                    f"{new_user_name!r}; that conflicts with an existing user "
-                    f"with ID {existing_user.id!r}")
+                    f"{cant_rename_user} {user.username!r} (#{user.id!r}) → "
+                    f"{new_user_name!r}; {conflicts} {existing_user.id!r}")
             for k in keys:
                 # What follows assumes that the keys are relevant and valid
                 # attributes of a User.
@@ -2134,7 +2169,9 @@ def edit_user_group_membership(req: "CamcopsRequest") -> Dict[str, Any]:
     ugm_id = req.get_int_param(ViewParam.USER_GROUP_MEMBERSHIP_ID)
     ugm = UserGroupMembership.get_ugm_by_id(req.dbsession, ugm_id)
     if not ugm:
-        raise HTTPBadRequest(f"No such UserGroupMembership ID: {repr(ugm_id)}")
+        _ = req.gettext
+        raise HTTPBadRequest(
+            f"{_('No such UserGroupMembership ID:')} {ugm_id!r}")
     user = ugm.user
     assert_may_edit_user(req, user)
     assert_may_administer_group(req, ugm.group_id)
@@ -2341,21 +2378,23 @@ def delete_user(req: "CamcopsRequest") -> Dict[str, Any]:
     form = DeleteUserForm(request=req)
     rendered_form = ""
     error = ""
+    _ = req.gettext
     if user.id == req.user.id:
-        error = "Can't delete your own user!"
+        error = _("Can't delete your own user!")
     elif user.may_use_webviewer or user.may_upload:
-        error = "Unable to delete user: user still has webviewer login " \
-                "and/or tablet upload permission"
+        error = _("Unable to delete user: user still has webviewer login "
+                  "and/or tablet upload permission")
     elif user.superuser and (not req.user.superuser):
-        error = "Unable to delete user: they are a superuser and you are not"
+        error = _("Unable to delete user: "
+                  "they are a superuser and you are not")
     elif ((not req.user.superuser) and
             bool(set(user.group_ids) -
                  set(req.user.ids_of_groups_user_is_admin_for))):
-        error = "Unable to delete user: user belongs to groups that you do " \
-                "not administer"
+        error = _("Unable to delete user: "
+                  "user belongs to groups that you do not administer")
     else:
         if any_records_use_user(req, user):
-            error = (
+            error = _(
                 "Unable to delete user; records (or audit trails) refer to "
                 "that user. Disable login and upload permissions instead."
             )
@@ -2410,7 +2449,8 @@ def view_groups(req: "CamcopsRequest") -> Dict[str, Any]:
     page = CamcopsPage(collection=groups,
                        page=page_num,
                        items_per_page=rows_per_page,
-                       url_maker=PageUrl(req))
+                       url_maker=PageUrl(req),
+                       request=req)
 
     valid_which_idnums = req.valid_which_idnums
 
@@ -2430,7 +2470,8 @@ def get_group_from_request_group_id_or_raise(req: "CamcopsRequest") -> Group:
         dbsession = req.dbsession
         group = dbsession.query(Group).filter(Group.id == group_id).first()
     if not group:
-        raise HTTPBadRequest(f"No such group ID: {repr(group_id)}")
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('No such group ID:')} {group_id!r}")
     return group
 
 
@@ -2554,11 +2595,12 @@ def delete_group(req: "CamcopsRequest") -> Dict[str, Any]:
     form = DeleteGroupForm(request=req)
     rendered_form = ""
     error = ""
+    _ = req.gettext
     if group.users:
-        error = "Unable to delete group; there are users who are members!"
+        error = _("Unable to delete group; there are users who are members!")
     else:
         if any_records_use_group(req, group):
-            error = "Unable to delete group; records refer to it."
+            error = _("Unable to delete group; records refer to it.")
         else:
             if FormAction.DELETE in req.POST:
                 try:
@@ -2640,7 +2682,8 @@ def get_iddef_from_request_which_idnum_or_raise(
         .filter(IdNumDefinition.which_idnum == which_idnum)\
         .first()
     if not iddef:
-        raise HTTPBadRequest(f"No such ID definition: {repr(which_idnum)}")
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('No such ID definition:')} {which_idnum!r}")
     return iddef
 
 
@@ -2758,7 +2801,8 @@ def delete_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
     rendered_form = ""
     error = ""
     if any_records_use_iddef(req, iddef):
-        error = "Unable to delete ID definition; records refer to it."
+        _ = req.gettext
+        error = _("Unable to delete ID definition; records refer to it.")
     else:
         if FormAction.DELETE in req.POST:
             try:
@@ -2805,13 +2849,15 @@ def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(url_back)
     task = task_factory(req, table_name, server_pk)
+    _ = req.gettext
     if task is None:
-        raise HTTPBadRequest(f"No such task: {table_name}, PK={server_pk}")
+        raise HTTPBadRequest(
+            f"{_('No such task:')} {table_name}, PK={server_pk}")
     user = req.user
     # noinspection PyProtectedMember
     if not user.authorized_to_add_special_note(task._group_id):
-        raise HTTPBadRequest("Not authorized to add special notes for this "
-                             "task's group")
+        raise HTTPBadRequest(
+            _("Not authorized to add special notes for this task's group"))
     form = AddSpecialNoteForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -2849,13 +2895,14 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(url_back)
     sn = SpecialNote.get_specialnote_by_id(req.dbsession, note_id)
+    _ = req.gettext
     if sn is None:
-        raise HTTPBadRequest(f"No such SpecialNote: note_id={note_id}")
+        raise HTTPBadRequest(f"{_('No such SpecialNote:')} note_id={note_id}")
     if sn.hidden:
-        raise HTTPBadRequest(f"SpecialNote already deleted/hidden: "
+        raise HTTPBadRequest(f"{_('SpecialNote already deleted/hidden:')} "
                              f"note_id={note_id}")
     if not sn.user_may_delete_specialnote(req.user):
-        raise HTTPBadRequest("Not authorized to delete this special note")
+        raise HTTPBadRequest(_("Not authorized to delete this special note"))
     form = DeleteSpecialNoteForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -2899,17 +2946,19 @@ def erase_task(req: "CamcopsRequest") -> Response:
     if FormAction.CANCEL in req.POST:
         return HTTPFound(url_back)
     task = task_factory(req, table_name, server_pk)
+    _ = req.gettext
     if task is None:
-        raise HTTPBadRequest(f"No such task: {table_name}, PK={server_pk}")
+        raise HTTPBadRequest(
+            f"{_('No such task:')} {table_name}, PK={server_pk}")
     if task.is_erased():
-        raise HTTPBadRequest("Task already erased")
+        raise HTTPBadRequest(_("Task already erased"))
     if task.is_live_on_tablet():
-        raise HTTPBadRequest(ERROR_TASK_LIVE)
+        raise HTTPBadRequest(errormsg_task_live(req))
     user = req.user
     # noinspection PyProtectedMember
     if not user.authorized_to_erase_tasks(task._group_id):
-        raise HTTPBadRequest("Not authorized to erase tasks for this "
-                             "task's group")
+        raise HTTPBadRequest(
+            _("Not authorized to erase tasks for this task's group"))
     form = EraseTaskForm(request=req)
     if FormAction.DELETE in req.POST:
         try:
@@ -2919,10 +2968,12 @@ def erase_task(req: "CamcopsRequest") -> Response:
             # Erase task
             # -----------------------------------------------------------------
             task.manually_erase(req)
+            msg_erased = _("Task erased:")
+            msg_view_amended = _("View amended task")
             return simple_success(
                 req,
-                f"Task erased ({table_name}, server PK {server_pk}).",
-                f'<a href="{url_back}">View amended task</a>.'
+                f'{msg_erased} ({table_name}, server PK {server_pk}).',
+                f'<a href="{url_back}">{msg_view_amended}</a>.'
             )
         except ValidationFailure as e:
             rendered_form = e.render()
@@ -2964,6 +3015,7 @@ def delete_patient(req: "CamcopsRequest") -> Response:
         # SECOND AND FINAL form has been submitted
         form = second_form
         final_phase = True
+    _ = req.gettext
     if form is not None:
         try:
             controls = list(req.POST.items())
@@ -2974,7 +3026,7 @@ def delete_patient(req: "CamcopsRequest") -> Response:
             if group_id not in req.user.ids_of_groups_user_is_admin_for:
                 # rare occurrence; form should prevent it;
                 # unless superuser has changed status since form was read
-                raise HTTPBadRequest("You're not an admin for this group")
+                raise HTTPBadRequest(_("You're not an admin for this group"))
             # -----------------------------------------------------------------
             # Fetch tasks to be deleted.
             # -----------------------------------------------------------------
@@ -3033,10 +3085,11 @@ def delete_patient(req: "CamcopsRequest") -> Response:
             for p in patient_lineage_instances:
                 p.delete_with_dependants(req)
             msg = (
-                f"Patient with idnum{which_idnum} = {idnum_value} and "
-                f"associated tasks DELETED from group {group_id}. Deleted "
-                f"{n_tasks} task records and {n_patient_instances} patient "
-                f"records (current and/or old)."
+                f"{_('Patient and associated tasks DELETED from group')} "
+                f"{group_id}: idnum{which_idnum} = {idnum_value}. "
+                f"{_('Task records deleted:')} {n_tasks}."
+                f"{_('Patient records (current and/or old) deleted')} "
+                f"{n_patient_instances}."
             )
             audit(req, msg)
             return simple_success(req, msg)
@@ -3066,16 +3119,17 @@ def edit_patient(req: "CamcopsRequest") -> Response:
     server_pk = req.get_int_param(ViewParam.SERVER_PK)
     patient = Patient.get_patient_by_pk(req.dbsession, server_pk)
 
+    _ = req.gettext
     if not patient:
-        raise HTTPBadRequest("No such patient")
+        raise HTTPBadRequest(_("No such patient"))
     if not patient.group:
-        raise HTTPBadRequest("Bad patient: not in a group")
+        raise HTTPBadRequest(_("Bad patient: not in a group"))
     if not patient.user_may_edit(req):
-        raise HTTPBadRequest("Not authorized to edit this patient")
+        raise HTTPBadRequest(_("Not authorized to edit this patient"))
     if not patient.is_editable:
         raise HTTPBadRequest(
-            "Patient is not editable (likely: not finalized, so a copy is "
-            "still on a client device")
+            _("Patient is not editable (likely: not finalized, so a copy is "
+              "still on a client device)"))
 
     taskfilter = TaskFilter()
     taskfilter.device_ids = [patient.get_device_id()]
@@ -3181,13 +3235,15 @@ def edit_patient(req: "CamcopsRequest") -> Response:
             if not changes:
                 return simple_success(
                     req,
-                    f"No changes required for patient record with server PK "
-                    f"{server_pk} (all new values matched old values)")
+                    f"{_('No changes required for patient record with server PK')} "  # noqa
+                    f"{server_pk} {_('(all new values matched old values)')}")
 
             # Below here, changes have definitely been made.
-            change_msg = "Patient details edited. Changes: " + "; ".join(
-                f"{k}: {old!r} → {new!r}"
-                for k, (old, new) in changes.items()
+            change_msg = (
+                _("Patient details edited. Changes:") + " " + "; ".join(
+                    f"{k}: {old!r} → {new!r}"
+                    for k, (old, new) in changes.items()
+                )
             )
 
             # Apply special note to patient
@@ -3200,8 +3256,8 @@ def edit_patient(req: "CamcopsRequest") -> Response:
             # Done
             return simple_success(
                 req,
-                f"Amended patient record with server PK {server_pk}. "
-                f"Changes were: {change_msg}")
+                f"{_('Amended patient record with server PK')} {server_pk}. "
+                f"{_('Changes were:')} {change_msg}")
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -3250,6 +3306,7 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
         # SECOND form has been submitted:
         form = second_form
         final_phase = True
+    _ = req.gettext
     if form is not None:
         try:
             controls = list(req.POST.items())
@@ -3258,7 +3315,7 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
             device_id = appstruct.get(ViewParam.DEVICE_ID)
             device = Device.get_device_by_id(dbsession, device_id)
             if device is None:
-                raise HTTPBadRequest(f"No such device: {device_id!r}")
+                raise HTTPBadRequest(f"{_('No such device:')} {device_id!r}")
             # -----------------------------------------------------------------
             # If at the first stage, bin out and offer confirmation page
             # -----------------------------------------------------------------
@@ -3299,8 +3356,8 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
                     n = dbsession.execute(count_query).scalar()
                     if n > 0:
                         raise HTTPBadRequest(
-                            "Some records for this device are in groups for "
-                            "which you are not an administrator")
+                            _("Some records for this device are in groups for "
+                              "which you are not an administrator"))
             # -----------------------------------------------------------------
             # Forcibly finalize
             # -----------------------------------------------------------------
@@ -3334,8 +3391,8 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
             # Done
             # -----------------------------------------------------------------
             msg = (
-                f"Live records for device {device_id} "
-                f"({device.friendly_name}) forcibly finalized "
+                f"{_('Live records for device')} {device_id} "
+                f"({device.friendly_name}) {_('forcibly finalized')} "
                 f"(PKs: {'; '.join(msgs)})"
             )
             audit(req, msg)

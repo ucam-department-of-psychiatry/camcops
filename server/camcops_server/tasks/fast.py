@@ -76,11 +76,15 @@ class Fast(TaskHasPatientMixin, Task,
     """
     __tablename__ = "fast"
     shortname = "FAST"
-    longname = "Fast Alcohol Screening Test"
 
     NQUESTIONS = 4
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 16
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Fast Alcohol Screening Test")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

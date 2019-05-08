@@ -24,7 +24,7 @@
         <% instances = tracker.collection.tasks_for_task_class(cls) %>
         %if instances:
             <div class="taskheader">
-                <b>${ instances[0].longname | h } (${ instances[0].shortname | h })</b>
+                <b>${ instances[0].longname(req) | h } (${ instances[0].shortname | h })</b>
             </div>
             ${ tracker.get_all_plots_for_one_task_html(instances) }
         %endif

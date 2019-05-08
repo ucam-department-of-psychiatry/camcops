@@ -107,7 +107,6 @@ class Cesdr(TaskHasPatientMixin, Task,
     """
     __tablename__ = 'cesdr'
     shortname = 'CESD-R'
-    longname = 'Center for Epidemiologic Studies Depression Scale (Revised)'
     provides_trackers = True
     extrastring_taskname = "cesdr"
 
@@ -136,6 +135,11 @@ class Cesdr(TaskHasPatientMixin, Task,
     TASK_FIELDS = SCORED_FIELDS
     MIN_SCORE = 0
     MAX_SCORE = 3 * N_QUESTIONS
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _('Center for Epidemiologic Studies Depression Scale (Revised)')
 
     # noinspection PyMethodParameters
     @classproperty

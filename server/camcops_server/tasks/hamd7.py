@@ -86,12 +86,16 @@ class Hamd7(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "hamd7"
     shortname = "HAMD-7"
-    longname = "Hamilton Rating Scale for Depression (7-item scale)"
     provides_trackers = True
 
     NQUESTIONS = 7
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 26
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Hamilton Rating Scale for Depression (7-item scale)")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

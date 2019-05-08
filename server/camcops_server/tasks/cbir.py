@@ -136,7 +136,6 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
     """
     __tablename__ = "cbir"
     shortname = "CBI-R"
-    longname = "Cambridge Behavioural Inventory, Revised"
 
     confirm_blanks = CamcopsColumn(
         "confirm_blanks", Integer,
@@ -165,6 +164,11 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
     NQUESTIONS = 45
     TASK_FIELDS = (strseq("frequency", 1, NQUESTIONS) +
                    strseq("distress", 1, NQUESTIONS))
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Cambridge Behavioural Inventory, Revised")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [

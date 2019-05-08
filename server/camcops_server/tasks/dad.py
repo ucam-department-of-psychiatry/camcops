@@ -89,7 +89,6 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
     """
     __tablename__ = "dad"
     shortname = "DAD"
-    longname = "Disability Assessment for Dementia"
 
     GROUPS = [
         "hygiene",
@@ -154,6 +153,11 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
         "leisure_exec_complete_chores",
         "leisure_exec_safe_at_home"
     ]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Disability Assessment for Dementia")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         d = self.get_score_dict()

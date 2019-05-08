@@ -56,7 +56,6 @@ class Srs(TaskHasPatientMixin, Task):
     """
     __tablename__ = "srs"
     shortname = "SRS"
-    longname = "Session Rating Scale"
     provides_trackers = True
 
     COMPLETED_BY_SELF = 0
@@ -83,6 +82,11 @@ class Srs(TaskHasPatientMixin, Task):
         "q_overall", Float,
         comment="Overall rating (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Session Rating Scale")
 
     def is_complete(self) -> bool:
         required_always = [

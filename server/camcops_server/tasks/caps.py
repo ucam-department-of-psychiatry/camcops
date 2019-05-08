@@ -110,11 +110,15 @@ class Caps(TaskHasPatientMixin, Task,
     """
     __tablename__ = "caps"
     shortname = "CAPS"
-    longname = "Cardiff Anomalous Perceptions Scale"
     provides_trackers = True
 
     NQUESTIONS = 32
     ENDORSE_FIELDS = strseq("endorse", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Cardiff Anomalous Perceptions Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

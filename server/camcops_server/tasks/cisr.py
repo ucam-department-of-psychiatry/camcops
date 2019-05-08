@@ -1841,7 +1841,6 @@ class Cisr(TaskHasPatientMixin, Task):
     """
     __tablename__ = "cisr"
     shortname = "CIS-R"
-    longname = "Clinical Interview Schedule, Revised"
     provides_trackers = False
 
     # Demographics
@@ -2766,6 +2765,11 @@ class Cisr(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     # Functions
     # -------------------------------------------------------------------------
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Clinical Interview Schedule, Revised")
 
     # noinspection PyMethodParameters
     @classproperty

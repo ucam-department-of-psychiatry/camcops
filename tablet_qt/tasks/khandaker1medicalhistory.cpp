@@ -129,13 +129,13 @@ QString Khandaker1MedicalHistory::shortname() const
 
 QString Khandaker1MedicalHistory::longname() const
 {
-    return "Khandaker GM — 1 — Insight — Medical history";
+    return tr("Khandaker GM — 1 — Insight — Medical history");
 }
 
 
 QString Khandaker1MedicalHistory::description() const
 {
-    return "Medical history screening for Insight immunopsychiatry study.";
+    return tr("Medical history screening for Insight immunopsychiatry study.");
 }
 
 

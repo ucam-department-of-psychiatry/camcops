@@ -93,8 +93,6 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "ciwa"
     shortname = "CIWA-Ar"
-    longname = ("Clinical Institute Withdrawal Assessment for Alcohol "
-                "Scale, Revised")
     provides_trackers = True
 
     NSCOREDQUESTIONS = 10
@@ -131,6 +129,12 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     )
 
     MAX_SCORE = 67
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Clinical Institute Withdrawal Assessment for Alcohol "
+                 "Scale, Revised")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

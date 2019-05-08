@@ -61,7 +61,6 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "gaf"
     shortname = "GAF"
-    longname = "Global Assessment of Functioning (data collection only)"
     provides_trackers = True
 
     score = CamcopsColumn(
@@ -69,6 +68,11 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
         comment="GAF score (1-100 or 0 for insufficient information)"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Global Assessment of Functioning (data collection only)")
 
     def is_complete(self) -> bool:
         return (

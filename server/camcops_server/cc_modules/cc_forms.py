@@ -169,7 +169,9 @@ from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR
 from camcops_server.cc_modules.cc_constants import (
     DEFAULT_ROWS_PER_PAGE,
     MINIMUM_PASSWORD_LENGTH,
-    SEX_CHOICES,
+    SEX_OTHER_UNSPECIFIED,
+    SEX_FEMALE,
+    SEX_MALE,
     USER_NAME_FOR_SYSTEM,
 )
 from camcops_server.cc_modules.cc_group import Group
@@ -265,6 +267,16 @@ def change_password_title(request: "CamcopsRequest") -> str:
     return _("Change password")
 
 
+def sex_choices(request: "CamcopsRequest") -> List[Tuple[str, str]]:
+    _ = request.gettext
+    return [
+        (SEX_FEMALE, _("Female (F)")),
+        (SEX_MALE, _("Male (M)")),
+        # TRANSLATOR: sex code description
+        (SEX_OTHER_UNSPECIFIED, _("Other/unspecified (X)")),
+    ]
+
+
 # =============================================================================
 # Mixin for Schema/SchemaNode objects for translation
 # =============================================================================
@@ -353,8 +365,8 @@ class TranslatableOptionalPendulumNode(OptionalPendulumNode,
             date_options=DEFAULT_WIDGET_DATE_OPTIONS_FOR_PENDULUM,
             time_options=DEFAULT_WIDGET_TIME_OPTIONS_FOR_PENDULUM
         )
-        log.critical("TranslatableOptionalPendulumNode.widget: {!r}",
-                     self.widget.__dict__)
+        # log.critical("TranslatableOptionalPendulumNode.widget: {!r}",
+        #              self.widget.__dict__)
 
 
 class TranslatableDateTimeSelectorNode(DateTimeSelectorNode,
@@ -372,8 +384,8 @@ class TranslatableDateTimeSelectorNode(DateTimeSelectorNode,
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.widget = DateTimeInputWidget()
-        log.critical("TranslatableDateTimeSelectorNode.widget: {!r}",
-                     self.widget.__dict__)
+        # log.critical("TranslatableDateTimeSelectorNode.widget: {!r}",
+        #              self.widget.__dict__)
 
 
 '''
@@ -392,8 +404,8 @@ class TranslatableDateSelectorNode(DateSelectorNode,
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.widget = DateInputWidget()
-        log.critical("TranslatableDateSelectorNode.widget: {!r}",
-                     self.widget.__dict__)
+        # log.critical("TranslatableDateSelectorNode.widget: {!r}",
+        #              self.widget.__dict__)
 '''
 
 
@@ -792,7 +804,8 @@ class ViaIndexSelector(BooleanNode, RequestAwareMixin):
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
-        self.title = _("Use server index? (Default is true; much faster.)")
+        self.title = _("Use server index?")
+        self.label = _("Use server index? (Default is true; much faster.)")
 
 
 # -----------------------------------------------------------------------------
@@ -981,16 +994,19 @@ class OptionalSexSelector(OptionalStringNode, RequestAwareMixin):
     """
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
-        values, pv = get_values_and_permissible(SEX_CHOICES, True, "Any")
-        self.widget = RadioChoiceWidget(values=values)
-        make_node_widget_horizontal(self)
-        self.validator = OneOf(pv)
+        self.validator = None  # type: Optional[ValidatorType]
+        self.widget = None  # type: Optional[Widget]
         super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("Sex")
+        choices = sex_choices(self.request)
+        values, pv = get_values_and_permissible(choices, True, _("Any"))
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
+        make_node_widget_horizontal(self)
 
 
 class MandatorySexSelector(MandatoryStringNode, RequestAwareMixin):
@@ -999,16 +1015,19 @@ class MandatorySexSelector(MandatoryStringNode, RequestAwareMixin):
     """
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
-        values, pv = get_values_and_permissible(SEX_CHOICES)
-        self.widget = RadioChoiceWidget(values=values)
-        make_node_widget_horizontal(self)
-        self.validator = OneOf(pv)
+        self.validator = None  # type: Optional[ValidatorType]
+        self.widget = None  # type: Optional[Widget]
         super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("Sex")
+        choices = sex_choices(self.request)
+        values, pv = get_values_and_permissible(choices)
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
+        make_node_widget_horizontal(self)
 
 
 # -----------------------------------------------------------------------------
@@ -1538,7 +1557,7 @@ class LanguageSelector(SchemaNode, RequestAwareMixin):
     schema_type = String
     default = DEFAULT_LOCALE
     missing = DEFAULT_LOCALE
-    widget = RadioChoiceWidget(values=_choices)
+    widget = SelectWidget(values=_choices)  # intrinsically translated!
     validator = OneOf(POSSIBLE_LOCALES)
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1550,9 +1569,7 @@ class LanguageSelector(SchemaNode, RequestAwareMixin):
         _ = self.gettext
         self.title = _("Group")
         request = self.request
-        # log.critical("{!r}", self.__dict__)
         self.title = _("Language")
-        # log.critical("{!r}", self.__dict__)
 
 
 # -----------------------------------------------------------------------------
@@ -1574,6 +1591,7 @@ class HardWorkConfirmationSchema(CSRFSchema):
         confirm_1_t = get_child_node(self, "confirm_1_t")
         confirm_1_t.title = _("Really?")
         confirm_2_t = get_child_node(self, "confirm_2_t")
+        # TRANSLATOR: string context described here
         confirm_2_t.title = _("Leave ticked to confirm")
         confirm_3_f = get_child_node(self, "confirm_3_f")
         confirm_3_f.title = _("Please untick to confirm")
@@ -1934,6 +1952,11 @@ class TextContentsSequence(SequenceSchema, RequestAwareMixin):
         self.title = _("Text contents")
         self.description = self.or_join_description
         self.widget = TranslatableSequenceWidget(request=self.request)
+        # Now it'll say "[Add]" Text Sequence because it'll make the string
+        # "Text Sequence" from the name of text_sequence. Unless we do this:
+        text_sequence = get_child_node(self, "text_sequence")
+        # TRANSLATOR: For the task filter form: the text in "Add text"
+        text_sequence.title = _("text")
 
     # noinspection PyMethodMayBeStatic
     def validator(self, node: SchemaNode, value: List[str]) -> None:
@@ -2231,7 +2254,9 @@ class ChooseTrackerSchema(CSRFSchema):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         all_tasks = get_child_node(self, "all_tasks")
-        all_tasks.title = _("Use all eligible task types?")
+        text = _("Use all eligible task types?")
+        all_tasks.title = text
+        all_tasks.label = text
 
 
 class ChooseTrackerForm(InformativeForm):
@@ -2395,23 +2420,36 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         may_upload = get_child_node(self, "may_upload")
-        may_upload.title = _("Permitted to upload from a tablet/device")
+        mu_text = _("Permitted to upload from a tablet/device")
+        may_upload.title = mu_text
+        may_upload.label = mu_text
         may_register_devices = get_child_node(self, "may_register_devices")
-        may_register_devices.title = _(
-            "Permitted to register tablet/client devices")
+        mrd_text = _("Permitted to register tablet/client devices")
+        may_register_devices.title = mrd_text
+        may_register_devices.label = mrd_text
         may_use_webviewer = get_child_node(self, "may_use_webviewer")
-        may_use_webviewer.title = _("May log in to web front end")
+        ml_text = _("May log in to web front end")
+        may_use_webviewer.title = ml_text
+        may_use_webviewer.label = ml_text
         view_all_patients_when_unfiltered = get_child_node(self, "view_all_patients_when_unfiltered")  # noqa
-        view_all_patients_when_unfiltered.title = _(
+        vap_text = _(
             "May view (browse) records from all patients when no patient "
             "filter set"
         )
+        view_all_patients_when_unfiltered.title = vap_text
+        view_all_patients_when_unfiltered.label = vap_text
         may_dump_data = get_child_node(self, "may_dump_data")
-        may_dump_data.title = _("May perform bulk data dumps")
+        md_text = _("May perform bulk data dumps")
+        may_dump_data.title = md_text
+        may_dump_data.label = md_text
         may_run_reports = get_child_node(self, "may_run_reports")
-        may_run_reports.title = _("May run reports")
+        mrr_text = _("May run reports")
+        may_run_reports.title = mrr_text
+        may_run_reports.label = mrr_text
         may_add_notes = get_child_node(self, "may_add_notes")
-        may_add_notes.title = _("May add special notes to tasks")
+        man_text = _("May add special notes to tasks")
+        may_add_notes.title = man_text
+        may_add_notes.label = man_text
 
 
 class UserGroupPermissionsFullSchema(UserGroupPermissionsGroupAdminSchema):
@@ -2422,10 +2460,12 @@ class UserGroupPermissionsFullSchema(UserGroupPermissionsGroupAdminSchema):
     groupadmin = BooleanNode(default=True)  # match ViewParam.GROUPADMIN and User attribute  # noqa
 
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        super().after_bind(node, kw)
         _ = self.gettext
         groupadmin = get_child_node(self, "groupadmin")
-        groupadmin.title = _(
-            "User is a privileged group administrator for this group")
+        text = _("User is a privileged group administrator for this group")
+        groupadmin.title = text
+        groupadmin.label = text
 
 
 class EditUserGroupAdminSchema(CSRFSchema):
@@ -2462,7 +2502,9 @@ class EditUserFullSchema(EditUserGroupAdminSchema):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         superuser = get_child_node(self, "superuser")
-        superuser.title = _("Superuser (CAUTION!)")
+        text = _("Superuser (CAUTION!)")
+        superuser.title = text
+        superuser.label = text
 
 
 class EditUserFullForm(ApplyCancelForm):

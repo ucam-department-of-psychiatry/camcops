@@ -94,7 +94,6 @@ class Phq15(TaskHasPatientMixin, Task,
     """
     __tablename__ = "phq15"
     shortname = "PHQ-15"
-    longname = "Patient Health Questionnaire-15"
     provides_trackers = True
 
     NQUESTIONS = 15
@@ -103,6 +102,11 @@ class Phq15(TaskHasPatientMixin, Task,
     ONE_TO_THREE = strseq("q", 1, 3)
     FIVE_TO_END = strseq("q", 5, NQUESTIONS)
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Patient Health Questionnaire-15")
 
     # noinspection PyUnresolvedReferences
     def is_complete(self) -> bool:

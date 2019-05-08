@@ -233,7 +233,6 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "ace3"
     shortname = "ACE-III"
-    longname = "Addenbrooke’s Cognitive Examination III"
     provides_trackers = True
 
     age_at_leaving_full_time_education = Column(
@@ -356,6 +355,11 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         VSP_SIMPLE_SCORE_FIELDS +
         strseq("mem_recall_address", 1, 7)
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Addenbrooke’s Cognitive Examination III")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

@@ -501,7 +501,6 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
     __tablename__ = None  # type: str  # also the SQLAlchemy table name
     shortname = None  # type: str
-    longname = None  # type: str
 
     # -------------------------------------------------------------------------
     # Attributes that can be overridden
@@ -514,6 +513,13 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
     # Methods always overridden by the actual task
     # -------------------------------------------------------------------------
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        """
+        Long name (in the relevant language).
+        """
+        raise NotImplementedError("Task.longname must be overridden")
 
     def is_complete(self) -> bool:
         """
@@ -689,13 +695,13 @@ class Task(GenericTabletRecordMixin, Base):
         return classes
 
     @classmethod
-    @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-    def all_subclasses_by_longname(cls) -> List[Type[TASK_FWD_REF]]:
+    def all_subclasses_by_longname(
+            cls, req: "CamcopsRequest") -> List[Type[TASK_FWD_REF]]:
         """
         Return all task classes, ordered by long name.
         """
-        classes = list(cls.gen_all_subclasses())
-        classes.sort(key=lambda c: c.longname)
+        classes = cls.all_subclasses_by_shortname()
+        classes.sort(key=lambda c: c.longname(req))
         return classes
 
     # -------------------------------------------------------------------------
@@ -1806,6 +1812,7 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def get_rio_metadata(self,
+                         req: "CamcopsRequest",
                          which_idnum: int,
                          uploading_user_id: str,
                          document_type: str) -> str:
@@ -1814,6 +1821,7 @@ class Task(GenericTabletRecordMixin, Base):
         record may want.
 
         Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             which_idnum: which CamCOPS ID number type corresponds to the RiO
                 client ID?
             uploading_user_id: RiO user ID (string) of the user who will
@@ -1919,7 +1927,7 @@ class Task(GenericTabletRecordMixin, Base):
         except AttributeError:
             client_id = ""
         title = "CamCOPS_" + self.shortname
-        description = self.longname
+        description = self.longname(req)
         author = self.get_clinician_name()  # may be blank
         document_date = format_datetime(self.when_created,
                                         DateFormat.RIO_EXPORT_UK)
@@ -2535,7 +2543,8 @@ class TaskTests(DemoDatabaseTestCase):
             self.assertIsInstance(t.get_pdf_html(req), str)
             self.assertIsInstance(t.suggested_pdf_filename(req), str)
             self.assertIsInstance(
-                t.get_rio_metadata(which_idnum=1,
+                t.get_rio_metadata(req,
+                                   which_idnum=1,
                                    uploading_user_id=self.user.id,
                                    document_type="some_doc_type"),
                 str

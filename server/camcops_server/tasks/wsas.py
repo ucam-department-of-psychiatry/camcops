@@ -83,7 +83,6 @@ class Wsas(TaskHasPatientMixin, Task,
     """
     __tablename__ = "wsas"
     shortname = "WSAS"
-    longname = "Work and Social Adjustment Scale"
     provides_trackers = True
 
     retired_etc = Column(
@@ -100,6 +99,11 @@ class Wsas(TaskHasPatientMixin, Task,
     TASK_FIELDS = QUESTION_FIELDS + ["retired_etc"]
     MAX_IF_WORKING = MAX_PER_Q * NQUESTIONS
     MAX_IF_RETIRED = MAX_PER_Q * (NQUESTIONS - 1)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Work and Social Adjustment Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

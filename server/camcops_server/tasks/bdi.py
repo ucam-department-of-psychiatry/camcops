@@ -179,13 +179,17 @@ class Bdi(TaskHasPatientMixin, Task,
     """
     __tablename__ = "bdi"
     shortname = "BDI"
-    longname = "Beck Depression Inventory (data collection only)"
     provides_trackers = True
 
     bdi_scale = Column(
         "bdi_scale", String(length=10),  # was Text
         comment="Which BDI scale (BDI-I, BDI-IA, BDI-II)?"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Beck Depression Inventory (data collection only)")
 
     def is_complete(self) -> bool:
         return (

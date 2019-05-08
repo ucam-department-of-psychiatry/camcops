@@ -7,6 +7,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%include file="db_user_info.mako"/>
 
+## TRANSLATOR: Mako comment
 <h1>${_("CamCOPS web view: Main menu")}</h1>
 
 <h3>${_("Tasks, trackers, and clinical text views")}</h3>

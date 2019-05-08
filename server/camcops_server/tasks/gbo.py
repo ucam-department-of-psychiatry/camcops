@@ -84,7 +84,6 @@ class Gbogres(TaskHasPatientMixin, Task):
     """
     __tablename__ = "gbogres"
     shortname = "GBO-GReS"
-    longname = "Goal-Based Outcomes – 1 – Goal Record Sheet"
     extrastring_taskname = "gbo"
 
     FN_DATE = "date"  # NB SQL keyword too; doesn't matter
@@ -120,6 +119,11 @@ class Gbogres(TaskHasPatientMixin, Task):
     completed_by_other = Column(
         FN_COMPLETED_BY_OTHER, UnicodeText,
         comment="If completed by 'other', who?")
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Goal-Based Outcomes – 1 – Goal Record Sheet")
 
     def get_n_core_goals(self) -> int:
         """
@@ -191,7 +195,6 @@ class Gbogpc(TaskHasPatientMixin, Task):
     """
     __tablename__ = "gbogpc"
     shortname = "GBO-GPC"
-    longname = "Goal-Based Outcomes – 2 – Goal Progress Chart"
     extrastring_taskname = "gbo"
     provides_trackers = True
 
@@ -227,6 +230,11 @@ class Gbogpc(TaskHasPatientMixin, Task):
     REQUIRED_FIELDS = [
         FN_DATE, FN_SESSION, FN_GOAL_NUMBER, FN_PROGRESS, FN_WHOSE_GOAL
     ]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Goal-Based Outcomes – 2 – Goal Progress Chart")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields()
@@ -323,7 +331,6 @@ class Gbogras(TaskHasPatientMixin, Task):
     """
     __tablename__ = "gbogras"
     shortname = "GBO-GRaS"
-    longname = "Goal-Based Outcomes – 3 – Goal Rating Sheet"
     extrastring_taskname = "gbo"
     provides_trackers = True
 
@@ -382,6 +389,11 @@ class Gbogras(TaskHasPatientMixin, Task):
         (2, FN_RATE_GOAL_2, FN_GOAL_2_DESC, FN_GOAL_2_PROGRESS),
         (3, FN_RATE_GOAL_3, FN_GOAL_3_DESC, FN_GOAL_3_PROGRESS),
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Goal-Based Outcomes – 3 – Goal Rating Sheet")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields()

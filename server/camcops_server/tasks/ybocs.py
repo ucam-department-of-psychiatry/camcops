@@ -102,7 +102,6 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     """
     __tablename__ = "ybocs"
     shortname = "Y-BOCS"
-    longname = "Yale–Brown Obsessive Compulsive Scale"
     provides_trackers = True
 
     NTARGETS = 3
@@ -136,6 +135,11 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     MAX_TOTAL = 40
     MAX_OBS = 20
     MAX_COM = 20
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Yale–Brown Obsessive Compulsive Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [
@@ -323,7 +327,6 @@ class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     """
     __tablename__ = "ybocssc"
     shortname = "Y-BOCS-SC"
-    longname = "Y-BOCS Symptom Checklist"
     extrastring_taskname = "ybocs"  # shares with Y-BOCS
 
     SC_PREFIX = "sc_"
@@ -441,6 +444,11 @@ class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         "com_misc_self_harm",
         "com_misc_other"
     ]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Y-BOCS Symptom Checklist")
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

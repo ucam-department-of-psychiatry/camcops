@@ -243,7 +243,8 @@ def make_pid_segment(
     for i in range(len(patient_id_list)):
         if not patient_id_list[i].id:
             continue
-        pid = patient_id_list[i].id  # type: str
+        ptidentifier = patient_id_list[i]
+        pid = ptidentifier.id  # type: str
         check_digit = get_mod11_checkdigit(pid)
         check_digit_scheme = "M11"  # Mod 11 algorithm
         type_id = patient_id_list[i].id_type

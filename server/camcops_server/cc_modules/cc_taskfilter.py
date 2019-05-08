@@ -88,20 +88,23 @@ class TaskClassSortMethod(Enum):
 
 
 def sort_task_classes_in_place(classlist: List[Type[Task]],
-                               sortmethod: TaskClassSortMethod) -> None:
+                               sortmethod: TaskClassSortMethod,
+                               req: "CamcopsRequest" = None) -> None:
     """
     Sort a list of task classes in place.
 
     Args:
         classlist: the list of task classes
         sortmethod: a :class:`TaskClassSortMethod` enum
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
     """
     if sortmethod == TaskClassSortMethod.TABLENAME:
         classlist.sort(key=lambda c: c.tablename)
     elif sortmethod == TaskClassSortMethod.SHORTNAME:
         classlist.sort(key=lambda c: c.shortname)
     elif sortmethod == TaskClassSortMethod.LONGNAME:
-        classlist.sort(key=lambda c: c.longname)
+        assert req is not None
+        classlist.sort(key=lambda c: c.longname(req))
 
 
 # =============================================================================
@@ -131,6 +134,7 @@ def task_classes_from_table_names(
         :exc:`KeyError` if a table name is invalid
 
     """
+    assert sortmethod != TaskClassSortMethod.LONGNAME
     d = tablename_to_task_class_dict()
     classes = []  # type: List[Type[Task]]
     for tablename in tablenames:
@@ -265,25 +269,25 @@ class TaskFilter(Base):
         # PyCharm type checker.
 
         # Python-only filtering attributes (i.e. not saved to database)
-        self.era = None  # type: str
+        self.era = None  # type: Optional[str]
         self.finalized_only = False  # used for exports
-        self.must_have_idnum_type = None  # type: int
+        self.must_have_idnum_type = None  # type: Optional[int]
 
         # Other Python-only attributes
-        self.sort_method = TaskClassSortMethod.NONE
-        self._task_classes = None  # type: List[Type[Task]]
+        self._sort_method = TaskClassSortMethod.NONE
+        self._task_classes = None  # type: Optional[List[Type[Task]]]
 
     @reconstructor
     def init_on_load(self):
         """
         SQLAlchemy function to recreate after loading from the database.
         """
-        self.era = None  # type: str
+        self.era = None  # type: Optional[str]
         self.finalized_only = False
-        self.must_have_idnum_type = None  # type: int
+        self.must_have_idnum_type = None  # type: Optional[int]
 
-        self.sort_method = TaskClassSortMethod.NONE
-        self._task_classes = None  # type: List[Type[Task]]
+        self._sort_method = TaskClassSortMethod.NONE
+        self._task_classes = None  # type: Optional[List[Type[Task]]]
 
     def __repr__(self) -> str:
         return auto_repr(self, with_addr=True)
@@ -292,7 +296,11 @@ class TaskFilter(Base):
         """
         Sets the sorting method for task types.
         """
-        self.sort_method = sort_method
+        assert sort_method != TaskClassSortMethod.LONGNAME, (
+            "If you want to use that sorting method, you need to save a "
+            "request object, because long task names use translation"
+        )
+        self._sort_method = sort_method
 
     @property
     def task_classes(self) -> List[Type[Task]]:
@@ -321,7 +329,7 @@ class TaskFilter(Base):
                     # Text filter and task has no text columns; skip
                     continue
                 self._task_classes.append(cls)
-            sort_task_classes_in_place(self._task_classes, self.sort_method)
+            sort_task_classes_in_place(self._task_classes, self._sort_method)
         return self._task_classes
 
     def skip_anonymous_tasks(self) -> bool:

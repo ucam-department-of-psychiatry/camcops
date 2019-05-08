@@ -80,7 +80,6 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
     """
     __tablename__ = "badls"
     shortname = "BADLS"
-    longname = "Bristol Activities of Daily Living Scale"
     provides_trackers = True
 
     SCORING = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 0}
@@ -108,6 +107,11 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
         "transport",  # 20
     ]
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Bristol Activities of Daily Living Scale")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [

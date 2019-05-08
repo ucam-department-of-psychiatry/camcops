@@ -67,10 +67,6 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "icd10mixed"
     shortname = "ICD10-MIXED"
-    longname = (
-        "ICD-10 symptomatic criteria for a mixed affective episode "
-        "(as in e.g. F06.3, F25, F38.00, F31.6)"
-    )
 
     date_pertains_to = Column(
         "date_pertains_to", Date,
@@ -93,6 +89,14 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         comment="Both manic and depressive symptoms must be prominent"
                 " most of the time during a period of at least two weeks."
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _(
+            "ICD-10 symptomatic criteria for a mixed affective episode "
+            "(as in e.g. F06.3, F25, F38.00, F31.6)"
+        )
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

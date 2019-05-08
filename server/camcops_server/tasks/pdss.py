@@ -84,7 +84,6 @@ class Pdss(TaskHasPatientMixin, Task,
     """
     __tablename__ = "pdss"
     shortname = "PDSS"
-    longname = "Panic Disorder Severity Scale"
     provides_trackers = True
 
     MIN_PER_Q = 0
@@ -93,6 +92,11 @@ class Pdss(TaskHasPatientMixin, Task,
     QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS
     MAX_COMPOSITE = 4
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Panic Disorder Severity Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

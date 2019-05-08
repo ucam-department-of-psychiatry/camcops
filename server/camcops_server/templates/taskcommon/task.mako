@@ -131,18 +131,24 @@ ${ task.get_task_html(req) }
             %else:
                 (${_("modified")}
             %endif
+            ## TRANSLATOR: ... deleted/modified... by <username>... at <time>
             ${_("by")} ${ task.get_removing_user_username() | h }
+            ## TRANSLATOR: ... deleted/modified... by <username>... at <time>
             ${_("at")} ${ format_datetime(task._when_removed_exact, DateFormat.SHORT_DATETIME_SECONDS) }.
         %endif
     ${_("Preserved/erased from tablet?")}
         %if task.is_preserved():
             ${ get_yes_no(req, True) }
             %if task.was_forcibly_preserved():
+                ## TRANSLATOR: ... [forcibly] preserved... by <username>... at <time>
                 (${_("forcibly preserved")}
             %else:
+                ## TRANSLATOR: ... [forcibly] preserved... by <username>... at <time>
                 (${_("preserved")}
             %endif
+            ## TRANSLATOR: ... [forcibly] preserved... by <username>... at <time>
             ${_("by")} ${ task.get_preserving_user_username() | h }
+            ## TRANSLATOR: ... [forcibly] preserved... by <username>... at <time>
             ${_("at")} ${ task._era }.
             ## ... already an UTC ISO8601 string (BUT Python transformation now).
         %else:
@@ -150,9 +156,12 @@ ${ task.get_task_html(req) }
         %endif
     ${_("Patient server PK used:")}
         ${ task.get_patient_server_pk() if not task.is_anonymous else "N/A" }.
+    ## TRANSLATOR: Information received from <url> (server version <version>) at: <datetime>.
     ${_("Information retrieved from")}
         ${ req.url | h }
+        ## TRANSLATOR: Information received from <url> (server version <version>) at: <datetime>.
         (${_("server version")} ${ CAMCOPS_SERVER_VERSION_STRING })
+        ## TRANSLATOR: Information received from <url> (server version <version>) at: <datetime>.
         ${_("at:")} ${ format_datetime(req.now, DateFormat.SHORT_DATETIME_SECONDS) }.
 </div>
 

@@ -122,7 +122,6 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "demqol"
     shortname = "DEMQOL"
-    longname = "Dementia Quality of Life measure, self-report version"
     provides_trackers = True
 
     q29 = CamcopsColumn(
@@ -141,6 +140,11 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     MAX_SCORE = MIN_SCORE * 4
 
     COMPLETENESS_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Dementia Quality of Life measure, self-report version")
 
     def is_complete(self) -> bool:
         return (
@@ -297,7 +301,6 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
                   metaclass=DemqolProxyMetaclass):
     __tablename__ = "demqolproxy"
     shortname = "DEMQOL-Proxy"
-    longname = "Dementia Quality of Life measure, proxy version"
     extrastring_taskname = "demqol"
 
     q32 = CamcopsColumn(
@@ -316,6 +319,11 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
     MAX_SCORE = MIN_SCORE * 4
 
     COMPLETENESS_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Dementia Quality of Life measure, proxy version")
 
     def is_complete(self) -> bool:
         return (

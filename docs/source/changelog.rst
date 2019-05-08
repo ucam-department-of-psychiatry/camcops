@@ -2060,8 +2060,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - Server
   - Client strings, core server to Danish
 
-  .. todo:: server internationalization: (1) server (2) per-user
-
 - Discovered camera bug (on Ubuntu system): opening camera system crashed
   client with error ``fatal: unknown(0): Failed to create OpenGL context for
   format QSurfaceFormat``; see https://bugreports.qt.io/browse/QTBUG-47191;
@@ -2091,5 +2089,3 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - :ref:`Kirby delay discounting task <kirby>`
 
   .. todo:: IN PROGRESS ***
-
-.. todo:: FORMS/TRANSLATION -- IN PROGRESS ***

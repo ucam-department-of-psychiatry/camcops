@@ -60,7 +60,6 @@ class QolSG(TaskHasPatientMixin, Task):
     """
     __tablename__ = "qolsg"
     shortname = "QoL-SG"
-    longname = "Quality of Life: Standard Gamble"
     provides_trackers = True
 
     category_start_time = Column(
@@ -127,6 +126,11 @@ class QolSG(TaskHasPatientMixin, Task):
         "utility", Float,
         comment="Calculated utility, h"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Quality of Life: Standard Gamble")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

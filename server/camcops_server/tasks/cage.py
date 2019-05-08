@@ -75,11 +75,15 @@ class Cage(TaskHasPatientMixin, Task,
     """
     __tablename__ = "cage"
     shortname = "CAGE"
-    longname = "CAGE Questionnaire"
     provides_trackers = True
 
     NQUESTIONS = 4
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("CAGE Questionnaire")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

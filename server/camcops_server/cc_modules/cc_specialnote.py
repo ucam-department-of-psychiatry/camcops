@@ -240,7 +240,6 @@ class SpecialNote(Base):
         if self.user_id == user.id:
             # Created by the current user, therefore deletable by them.
             return True
-        dbsession = SqlASession.object_session(self)
         group_id = self.get_group_id_of_target()
         if group_id is None:
             return False

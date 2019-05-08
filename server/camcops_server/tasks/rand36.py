@@ -137,7 +137,6 @@ class Rand36(TaskHasPatientMixin, Task,
     """
     __tablename__ = "rand36"
     shortname = "RAND-36"
-    longname = "RAND 36-Item Short Form Health Survey 1.0"
     provides_trackers = True
 
     NQUESTIONS = 36
@@ -182,6 +181,11 @@ class Rand36(TaskHasPatientMixin, Task,
     # ... note Q32 extremely similar to Q20.
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("RAND 36-Item Short Form Health Survey 1.0")
 
     def is_complete(self) -> bool:
         return (

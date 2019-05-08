@@ -7,9 +7,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%include file="db_user_info.mako"/>
 
-<h1>Research data dump in SQL format</h1>
+<h1>${_("Research data dump in SQL format")}</h1>
 
-<h2>Explanation</h2>
+<h2>${_("Explanation")}</h2>
 <div>
     <ul>
         <li>

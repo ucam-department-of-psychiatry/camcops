@@ -54,10 +54,14 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     """
     __tablename__ = "progressnote"
     shortname = "ProgressNote"
-    longname = "Clinical progress note"
 
     location = Column("location", UnicodeText, comment="Location")
     note = Column("note", UnicodeText, comment="Clinical note")
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Clinical progress note")
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         return [CtvInfo(content=ws.webify(self.note))]

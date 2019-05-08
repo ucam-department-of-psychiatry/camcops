@@ -59,7 +59,6 @@ class QolBasic(TaskHasPatientMixin, Task):
     """
     __tablename__ = "qolbasic"
     shortname = "QoL-Basic"
-    longname = "Quality of Life: basic assessment"
     provides_trackers = True
 
     tto = CamcopsColumn(
@@ -78,6 +77,11 @@ class QolBasic(TaskHasPatientMixin, Task):
     )
 
     TASK_FIELDS = ["tto", "rs"]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Quality of Life: basic assessment")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [

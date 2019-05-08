@@ -69,7 +69,6 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "icd10schizophrenia"
     shortname = "ICD10-SZ"
-    longname = "ICD-10 criteria for schizophrenia (F20)"
 
     passivity_bodily = CamcopsColumn(
         "passivity_bodily", Boolean,
@@ -319,6 +318,11 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "subtype_undifferentiated", "subtype_postschizophrenic_depression",
         "subtype_residual", "subtype_simple", "subtype_cenesthopathic"
     ]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("ICD-10 criteria for schizophrenia (F20)")
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

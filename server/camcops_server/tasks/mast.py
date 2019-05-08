@@ -99,13 +99,17 @@ class Mast(TaskHasPatientMixin, Task,
     """
     __tablename__ = "mast"
     shortname = "MAST"
-    longname = "Michigan Alcohol Screening Test"
     provides_trackers = True
 
     NQUESTIONS = 24
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 53
     ROSS_THRESHOLD = 13
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Michigan Alcohol Screening Test")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

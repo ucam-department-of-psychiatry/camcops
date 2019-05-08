@@ -68,7 +68,6 @@ class EpdsMetaclass(DeclarativeMeta):
 class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
     __tablename__ = "epds"
     shortname = "EPDS"
-    longname = "Edinburgh Postnatal Depression Scale"
     provides_trackers = True
 
     NQUESTIONS = 10
@@ -76,6 +75,11 @@ class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
     MAX_TOTAL = 30
     CUTOFF_1_GREATER_OR_EQUAL = 10  # Cox et al. 1987, PubMed ID 3651732.
     CUTOFF_2_GREATER_OR_EQUAL = 13  # Cox et al. 1987, PubMed ID 3651732.
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Edinburgh Postnatal Depression Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

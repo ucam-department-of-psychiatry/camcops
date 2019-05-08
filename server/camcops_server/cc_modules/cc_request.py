@@ -906,6 +906,8 @@ class CamcopsRequest(Request):
         Returns a version of ``msg`` translated into the current language.
         """
         lang = self.language
+        # We can't work out if the string is missing; gettext falls back to
+        # the source message.
         if lang == DEFAULT_LOCALE:
             translated = message
         else:
@@ -918,10 +920,7 @@ class CamcopsRequest(Request):
                 translated = translator.gettext(message)
             except OSError:  # e.g. translation file not found
                 log.warning(f"Failed to find translation files for {lang}")
-                if DEBUG_GETTEXT:
-                    translated = "MISSING→" + message
-                else:
-                    translated = message
+                translated = message
         if DEBUG_GETTEXT:
             return f"[{message}→{lang}→{translated}]"
         else:

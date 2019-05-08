@@ -112,7 +112,6 @@ class DistressThermometer(TaskHasPatientMixin, Task,
     """
     __tablename__ = "distressthermometer"
     shortname = "Distress Thermometer"
-    longname = "Distress Thermometer"
 
     distress = CamcopsColumn(
         "distress", Integer,
@@ -123,6 +122,11 @@ class DistressThermometer(TaskHasPatientMixin, Task,
 
     NQUESTIONS = 36
     COMPLETENESS_FIELDS = strseq("q", 1, NQUESTIONS) + ["distress"]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Distress Thermometer")
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if self.distress is None:

@@ -75,7 +75,6 @@ class CecaQ3(TaskHasPatientMixin, Task):
     """
     __tablename__ = "cecaq3"
     shortname = "CECA-Q3"
-    longname = "Childhood Experience of Care and Abuse Questionnaire"
 
     # -------------------------------------------------------------------------
     # Section 1(A)
@@ -1266,6 +1265,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
         "any_other_comments", UnicodeText,
         comment="Any other comments"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Childhood Experience of Care and Abuse Questionnaire")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [

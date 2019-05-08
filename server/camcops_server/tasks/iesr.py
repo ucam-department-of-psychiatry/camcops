@@ -100,7 +100,6 @@ class Iesr(TaskHasPatientMixin, Task,
     """
     __tablename__ = "iesr"
     shortname = "IES-R"
-    longname = "Impact of Events Scale – Revised"
     provides_trackers = True
 
     event = Column("event", UnicodeText, comment="Relevant event")
@@ -122,6 +121,11 @@ class Iesr(TaskHasPatientMixin, Task,
     HYPERAROUSAL_QUESTIONS = [4, 10, 14, 15, 18, 19, 21]
     HYPERAROUSAL_FIELDS = Task.fieldnames_from_list(
         "q", HYPERAROUSAL_QUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Impact of Events Scale – Revised")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [

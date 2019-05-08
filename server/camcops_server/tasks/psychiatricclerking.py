@@ -55,7 +55,6 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "psychiatricclerking"
     shortname = "Clerking"
-    longname = "Psychiatric clerking"
 
     # FIELDSPEC_A = CLINICIAN_FIELDSPECS  # replaced by has_clinician, then by TaskHasClinicianMixin  # noqa
 
@@ -138,6 +137,11 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         "current_problems", "patient_carer_concerns", "impression",
         "management_plan", "information_given"
     ]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Psychiatric clerking")
 
     def get_ctv_heading(self, req: CamcopsRequest,
                         wstringname: str) -> CtvInfo:

@@ -70,10 +70,6 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "icd10depressive"
     shortname = "ICD10-DEPR"
-    longname = (
-        "ICD-10 symptomatic criteria for a depressive episode "
-        "(as in e.g. F06.3, F25, F31, F32, F33)"
-    )
 
     mood = CamcopsColumn(
         "mood", Boolean,
@@ -253,6 +249,14 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "delusions_schizophrenic", "delusions_other",
         "stupor"
     ]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _(
+            "ICD-10 symptomatic criteria for a depressive episode "
+            "(as in e.g. F06.3, F25, F31, F32, F33)"
+        )
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

@@ -196,7 +196,6 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     """
     __tablename__ = "icd10specpd"
     shortname = "ICD10-PD"
-    longname = "ICD-10 criteria for specific personality disorders (F60)"
 
     date_pertains_to = Column(
         "date_pertains_to", Date,
@@ -280,6 +279,11 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     ANANKASTIC_FIELDS = strseq("anankastic", 1, N_ANANKASTIC)
     ANXIOUS_FIELDS = strseq("anxious", 1, N_ANXIOUS)
     DEPENDENT_FIELDS = strseq("dependent", 1, N_DEPENDENT)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("ICD-10 criteria for specific personality disorders (F60)")
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

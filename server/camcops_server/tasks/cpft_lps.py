@@ -96,7 +96,6 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     """
     __tablename__ = "cpft_lps_referral"
     shortname = "CPFT_LPS_Referral"
-    longname = "Referral to CPFT Liaison Psychiatry Service"
 
     referral_date_time = Column("referral_date_time",
                                 PendulumDateTimeAsIsoTextColType)
@@ -143,6 +142,11 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     care_coordinator = Column("care_coordinator", UnicodeText)
     other_contact_details = Column("other_contact_details", UnicodeText)
     referral_reason = Column("referral_reason", UnicodeText)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("CPFT LPS – referral")
 
     def is_complete(self) -> bool:
         return bool(
@@ -345,12 +349,16 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
     """
     __tablename__ = "cpft_lps_resetresponseclock"
     shortname = "CPFT_LPS_ResetResponseClock"
-    longname = "Reset response clock (CPFT Liaison Psychiatry Service)"
 
     reset_start_time_to = Column(
         "reset_start_time_to", PendulumDateTimeAsIsoTextColType
     )
     reason = Column("reason", UnicodeText)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("CPFT LPS – reset response clock")
 
     def is_complete(self) -> bool:
         return bool(
@@ -395,7 +403,6 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     """
     __tablename__ = "cpft_lps_discharge"
     shortname = "CPFT_LPS_Discharge"
-    longname = "Discharge from CPFT Liaison Psychiatry Service"
 
     discharge_date = Column("discharge_date", Date)
     discharge_reason_code = Column("discharge_reason_code", UnicodeText)
@@ -567,6 +574,11 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         "outcome_hospital_transfer_detail", UnicodeText
     )
     outcome_other_detail = Column("outcome_other_detail", UnicodeText)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("CPFT LPS – discharge")
 
     def is_complete(self) -> bool:
         return bool(
@@ -778,10 +790,10 @@ class LPSReportReferredNotDischarged(Report):
     def report_id(cls) -> str:
         return "cpft_lps_referred_not_subsequently_discharged"
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return "CPFT LPS – referred but not yet discharged"
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("CPFT LPS – referred but not yet discharged")
 
     # noinspection PyMethodParameters
     @classproperty
@@ -889,10 +901,10 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
     def report_id(cls) -> str:
         return "cpft_lps_referred_not_subsequently_clerked_or_discharged"
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return "CPFT LPS – referred but not yet fully assessed or discharged"
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("CPFT LPS – referred but not yet fully assessed or discharged")  # noqa
 
     # noinspection PyMethodParameters
     @classproperty

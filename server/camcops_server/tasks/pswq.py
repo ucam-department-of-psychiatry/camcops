@@ -86,7 +86,6 @@ class Pswq(TaskHasPatientMixin, Task,
     """
     __tablename__ = "pswq"
     shortname = "PSWQ"
-    longname = "Penn State Worry Questionnaire"
     provides_trackers = True
 
     MIN_PER_Q = 1
@@ -96,6 +95,11 @@ class Pswq(TaskHasPatientMixin, Task,
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MIN_TOTAL = MIN_PER_Q * NQUESTIONS
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Penn State Worry Questionnaire")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

@@ -66,12 +66,16 @@ class Bars(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
            metaclass=BarsMetaclass):
     __tablename__ = "bars"
     shortname = "BARS"
-    longname = "Barnes Akathisia Rating Scale"
     provides_trackers = True
 
     NQUESTIONS = 4
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = 14
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Barnes Akathisia Rating Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

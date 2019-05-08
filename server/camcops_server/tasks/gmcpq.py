@@ -60,7 +60,6 @@ class GMCPQ(Task):
     """
     __tablename__ = "gmcpq"
     shortname = "GMC-PQ"
-    longname = "GMC Patient Questionnaire"
 
     RATING_TEXT = " (1 poor - 5 very good, 0 does not apply)"
     AGREE_TEXT = " (1 strongly disagree - 5 strongly agree, 0 does not apply)"
@@ -206,6 +205,11 @@ class GMCPQ(Task):
         "q12_details", UnicodeText,
         comment="Ethnic group, other, details"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("GMC Patient Questionnaire")
 
     def is_complete(self) -> bool:
         return (

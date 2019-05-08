@@ -82,11 +82,15 @@ class Audit(TaskHasPatientMixin, Task,
     """
     __tablename__ = "audit"
     shortname = "AUDIT"
-    longname = "WHO Alcohol Use Disorders Identification Test"
     provides_trackers = True
 
     NQUESTIONS = 10
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("WHO Alcohol Use Disorders Identification Test")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
@@ -228,11 +232,15 @@ class AuditC(TaskHasPatientMixin, Task,
              metaclass=AuditMetaclass):
     __tablename__ = "audit_c"
     shortname = "AUDIT-C"
-    longname = "AUDIT Alcohol Consumption Questions"
     extrastring_taskname = "audit"  # shares strings with AUDIT
 
     NQUESTIONS = 3
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("AUDIT Alcohol Consumption Questions")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

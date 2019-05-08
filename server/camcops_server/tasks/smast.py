@@ -94,11 +94,15 @@ class Smast(TaskHasPatientMixin, Task,
     """
     __tablename__ = "smast"
     shortname = "SMAST"
-    longname = "Short Michigan Alcohol Screening Test"
     provides_trackers = True
 
     NQUESTIONS = 13
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Short Michigan Alcohol Screening Test")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

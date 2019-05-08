@@ -63,7 +63,6 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     """
     __tablename__ = "cgi"
     shortname = "CGI"
-    longname = "Clinical Global Impressions"
     provides_trackers = True
 
     q1 = CamcopsColumn(
@@ -94,6 +93,11 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 
     TASK_FIELDS = ["q1", "q2", "q3t", "q3s", "q3"]
     MAX_SCORE = 30
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Clinical Global Impressions")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
@@ -233,7 +237,6 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     __tablename__ = "cgi_i"
     shortname = "CGI-I"
-    longname = "Clinical Global Impressions – Improvement"
     extrastring_taskname = "cgi"  # shares with CGI
 
     q = CamcopsColumn(
@@ -243,6 +246,11 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     )
 
     TASK_FIELDS = ["q"]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Clinical Global Impressions – Improvement")
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

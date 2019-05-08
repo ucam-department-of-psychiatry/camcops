@@ -57,7 +57,6 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
     """
     __tablename__ = "deakin_1_healthreview"
     shortname = "Deakin_1_HealthReview"
-    longname = "Deakin JB – 1 – Health Review"
 
     ethnicity = CamcopsColumn(
         "ethnicity", Integer,
@@ -298,6 +297,11 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
         "willing_to_participate_in_further_studies",
         constraint_name="ck_deakin_1_healthreview_wtpifs"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Deakin JB – 1 – Health Review")
 
     def is_complete(self) -> bool:
         return (

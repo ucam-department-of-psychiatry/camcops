@@ -64,13 +64,17 @@ class Ctqsf(TaskHasPatientMixin, Task):
     """
     __tablename__ = "ctqsf"
     shortname = "CTQ-SF"
-    longname = "Childhood Trauma Questionnaire, Short Form"
     provides_trackers = False
 
     # *** fields
 
     N_QUESTIONS = 28
     QUESTION_FIELDNAMES = strseq("q", 1, N_QUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Childhood Trauma Questionnaire, Short Form")
 
     # noinspection PyMethodParameters
     @classproperty

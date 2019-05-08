@@ -340,13 +340,13 @@ QString Deakin1HealthReview::shortname() const
 
 QString Deakin1HealthReview::longname() const
 {
-    return "Deakin JB — 1 — Health review";
+    return tr("Deakin JB — 1 — Health review");
 }
 
 
 QString Deakin1HealthReview::description() const
 {
-    return "Health review for antibody-mediated psychosis study.";
+    return tr("Health review for antibody-mediated psychosis study.");
 }
 
 

@@ -81,13 +81,17 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "bprs"
     shortname = "BPRS"
-    longname = "Brief Psychiatric Rating Scale"
     provides_trackers = True
 
     NQUESTIONS = 20
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORED_FIELDS = [x for x in TASK_FIELDS if (x != "q19" and x != "q20")]
     MAX_SCORE = 126
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Brief Psychiatric Rating Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

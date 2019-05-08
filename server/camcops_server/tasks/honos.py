@@ -184,7 +184,6 @@ class Honos(HonosBase,
     """
     __tablename__ = "honos"
     shortname = "HoNOS"
-    longname = "Health of the Nation Outcome Scales, working age adults"
 
     q8problemtype = CamcopsColumn(
         "q8problemtype", CharColType,
@@ -203,6 +202,11 @@ class Honos(HonosBase,
     NQUESTIONS = 12
     QFIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 48
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Health of the Nation Outcome Scales, working age adults")
 
     # noinspection PyUnresolvedReferences
     def is_complete(self) -> bool:
@@ -354,7 +358,6 @@ class Honos65(HonosBase,
     """
     __tablename__ = "honos65"
     shortname = "HoNOS 65+"
-    longname = "Health of the Nation Outcome Scales, older adults"
 
     q8problemtype = CamcopsColumn(
         "q8problemtype", CharColType,
@@ -373,6 +376,11 @@ class Honos65(HonosBase,
     NQUESTIONS = 12
     QFIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 48
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Health of the Nation Outcome Scales, older adults")
 
     # noinspection PyUnresolvedReferences
     def is_complete(self) -> bool:
@@ -514,7 +522,6 @@ class Honosca(HonosBase,
     """
     __tablename__ = "honosca"
     shortname = "HoNOSCA"
-    longname = "Health of the Nation Outcome Scales, Children and Adolescents"
 
     NQUESTIONS = 15
     QFIELDS = strseq("q", 1, NQUESTIONS)
@@ -526,6 +533,12 @@ class Honosca(HonosBase,
     MAX_SECTION_A = 4 * len(SECTION_A_QFIELDS)
     MAX_SECTION_B = 4 * len(SECTION_B_QFIELDS)
     TASK_FIELDS = QFIELDS + ["period_rated"]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _(
+            "Health of the Nation Outcome Scales, Children and Adolescents")
 
     def is_complete(self) -> bool:
         return (

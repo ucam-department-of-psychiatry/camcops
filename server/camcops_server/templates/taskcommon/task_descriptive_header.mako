@@ -32,7 +32,7 @@ from camcops_server.cc_modules.cc_html import answer
 ## ============================================================================
 
 <div class="taskheader">
-    <b>${ task.longname | h } (${ task.shortname | h })</b><br>
+    <b>${ task.longname(req) | h } (${ task.shortname | h })</b><br>
     ${_("Created:")} ${ answer(format_datetime(task.when_created,
                                                DateFormat.LONG_DATETIME_WITH_DAY,
                                                default=None)) }

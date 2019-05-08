@@ -136,10 +136,11 @@ class PV(object):
 NO_CHAR = 'N'
 YES_CHAR = 'Y'
 
-POSSIBLE_SEX_VALUES = ["F", "M", "X"]
-
-# For forms:
-SEX_CHOICES = [("F", "F"), ("M", "M"), ("X", "X")]  # *** translation
+# Database values:
+SEX_FEMALE = "F"
+SEX_MALE = "M"
+SEX_OTHER_UNSPECIFIED = "X"
+POSSIBLE_SEX_VALUES = [SEX_FEMALE, SEX_MALE, SEX_OTHER_UNSPECIFIED]
 
 
 # =============================================================================

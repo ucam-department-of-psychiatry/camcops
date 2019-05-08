@@ -88,13 +88,17 @@ class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
     """
     __tablename__ = "zbi12"
     shortname = "ZBI-12"
-    longname = "Zarit Burden Interview-12"
 
     MIN_PER_Q = 0
     MAX_PER_Q = 4
     NQUESTIONS = 12
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Zarit Burden Interview-12")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [

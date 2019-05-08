@@ -136,7 +136,6 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "ifs"
     shortname = "IFS"
-    longname = "INECO Frontal Screening"
     provides_trackers = True
 
     q1 = CamcopsColumn(
@@ -172,6 +171,11 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     )
     MAX_TOTAL = 30
     MAX_WM = 10
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("INECO Frontal Screening")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         scoredict = self.get_score()

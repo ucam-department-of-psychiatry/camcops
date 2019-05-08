@@ -69,7 +69,6 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "photo"
     shortname = "Photo"
-    longname = "Photograph"
 
     description = Column(
         "description", UnicodeText,
@@ -88,6 +87,11 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     )
 
     photo = blob_relationship("Photo", "photo_blobid")  # type: Optional[Blob]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Photograph")
 
     def is_complete(self) -> bool:
         return self.photo_blobid is not None
@@ -183,7 +187,6 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "photosequence"
     shortname = "PhotoSequence"
-    longname = "Photograph sequence"
 
     sequence_description = Column(
         "sequence_description", UnicodeText,
@@ -196,6 +199,11 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         ancillary_fk_to_parent_attr_name="photosequence_id",
         ancillary_order_by_attr_name="seqnum"
     )  # type: List[PhotoSequenceSinglePhoto]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Photograph sequence")
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         infolist = [CtvInfo(content=self.sequence_description)]

@@ -92,7 +92,6 @@ class Phq9(TaskHasPatientMixin, Task,
     """
     __tablename__ = "phq9"
     shortname = "PHQ-9"
-    longname = "Patient Health Questionnaire-9"
     provides_trackers = True
 
     q10 = CamcopsColumn(
@@ -105,6 +104,11 @@ class Phq9(TaskHasPatientMixin, Task,
     N_MAIN_QUESTIONS = 9
     MAX_SCORE_MAIN = 3 * N_MAIN_QUESTIONS
     MAIN_QUESTIONS = strseq("q", 1, N_MAIN_QUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Patient Health Questionnaire-9")
 
     def is_complete(self) -> bool:
         if not self.are_all_fields_complete(self.MAIN_QUESTIONS):

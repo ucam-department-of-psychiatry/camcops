@@ -66,12 +66,16 @@ class LshsA(TaskHasPatientMixin, Task,
             metaclass=LshsAMetaclass):
     __tablename__ = "lshs_a"
     shortname = "LSHS-A"
-    longname = "Launay–Slade Hallucination Scale, revision A"
     provides_trackers = True
 
     NQUESTIONS = 12
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = 48
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Launay–Slade Hallucination Scale, revision A")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
@@ -156,14 +160,18 @@ class LshsLaroi2005(TaskHasPatientMixin, Task,
                     metaclass=LshsLaroi2005Metaclass):
     __tablename__ = "lshs_laroi2005"
     shortname = "LSHS-Larøi"
-    longname = (
-        "Launay–Slade Hallucination Scale, revision of "
-        "Larøi et al. (2005)"
-    )
 
     NQUESTIONS = 16
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = 64
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _(
+            "Launay–Slade Hallucination Scale, revision of "
+            "Larøi et al. (2005)"
+        )
 
     def is_complete(self) -> bool:
         return self.are_all_fields_complete(self.TASK_FIELDS)

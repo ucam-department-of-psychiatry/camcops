@@ -106,12 +106,16 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
     """
     __tablename__ = "npiq"
     shortname = "NPI-Q"
-    longname = "Neuropsychiatric Inventory Questionnaire"
 
     NQUESTIONS = 12
     ENDORSED_FIELDS = strseq(ENDORSED, 1, NQUESTIONS)
     MAX_SEVERITY = 3 * NQUESTIONS
     MAX_DISTRESS = 5 * NQUESTIONS
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Neuropsychiatric Inventory Questionnaire")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [

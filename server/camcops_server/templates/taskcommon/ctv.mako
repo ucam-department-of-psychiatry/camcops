@@ -41,7 +41,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ${ format_datetime(task.get_creation_datetime(),
                                DateFormat.LONG_DATETIME_WITH_DAY) }:
             ## Task name
-            ${ task.longname | h }
+            ${ task.longname(req) | h }
             %if not ctvinfo_list:
                 ${_("exists")}
             %endif

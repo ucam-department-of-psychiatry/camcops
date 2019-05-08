@@ -71,10 +71,10 @@ class TaskCountReport(Report):
     def report_id(cls) -> str:
         return "taskcount"
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return (
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _(
             "(Server) Count current task instances, by creation month and "
             "task type"
         )
@@ -163,10 +163,10 @@ class TaskCountByUserReport(Report):
     def report_id(cls) -> str:
         return "taskcount_by_user"
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return (
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _(
             "(Server) Count current task instances, by creation month and user"
         )
 

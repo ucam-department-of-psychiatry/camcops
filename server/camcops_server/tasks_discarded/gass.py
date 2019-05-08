@@ -69,7 +69,6 @@ class Gass(TaskHasPatientMixin, Task,
            metaclass=GassMetaclass):
     __tablename__ = "gass"
     shortname = "GASS"
-    longname = "Glasgow Antipsychotic Side-effect Scale"
     provides_trackers = True
 
     medication = Column("medication", Text)
@@ -85,6 +84,11 @@ class Gass(TaskHasPatientMixin, Task,
     list_prolactinaemic_male = [17, 18, 19, 20]
     list_weightgain = [22]
     MAX_TOTAL = 63
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Glasgow Antipsychotic Side-effect Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

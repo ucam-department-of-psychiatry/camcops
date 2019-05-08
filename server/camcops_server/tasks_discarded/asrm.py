@@ -67,12 +67,16 @@ class Asrm(TaskHasPatientMixin, Task,
            metaclass=AsrmMetaclass):
     __tablename__ = "asrm"
     shortname = "ASRM"
-    longname = "Altman Self-Rating Mania Scale"
     provides_trackers = True
 
     NQUESTIONS = 5
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = 20
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Altman Self-Rating Mania Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

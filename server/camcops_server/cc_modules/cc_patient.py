@@ -462,16 +462,21 @@ class Patient(GenericTabletRecordMixin, Base):
         f = self.forename.upper() if self.surname else "(UNKNOWN)"
         return ws.webify(s + ", " + f)
 
-    def get_dob_html(self, longform: bool) -> str:
+    def get_dob_html(self, req: "CamcopsRequest", longform: bool) -> str:
         """
         HTML fragment for date of birth.
         """
+        _ = req.gettext
         if longform:
             dob = answer(format_datetime(
                 self.dob, DateFormat.LONG_DATE, default=None))
-            return f"<br>Date of birth: {dob}"
-        dob = format_datetime(self.dob, DateFormat.SHORT_DATE)
-        return f"DOB: {dob}."
+
+            dobtext = _("Date of birth:")
+            return f"<br>{dobtext} {dob}"
+        else:
+            dobtext = _("DOB:")
+            dob = format_datetime(self.dob, DateFormat.SHORT_DATE)
+            return f"{dobtext} {dob}."
 
     def get_age(self, req: "CamcopsRequest",
                 default: str = "") -> Union[int, str]:
@@ -813,11 +818,11 @@ class DistinctPatientReport(Report):
     def report_id(cls) -> str:
         return "patient_distinct"
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return ("(Server) Patients, distinct by name, sex, DOB, all ID "
-                "numbers")
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("(Server) Patients, distinct by name, sex, DOB, all ID "
+                 "numbers")
 
     # noinspection PyMethodParameters
     @classproperty
@@ -904,7 +909,7 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_forename(), str)
         self.assertIsInstance(p.get_surname_forename_upper(), str)
         for longform in [True, False]:
-            self.assertIsInstance(p.get_dob_html(longform), str)
+            self.assertIsInstance(p.get_dob_html(req, longform), str)
         age_str_int = p.get_age(req)
         assert isinstance(age_str_int, str) or isinstance(age_str_int, int)
         self.assertIsInstanceOrNone(p.get_dob(), pendulum.Date)

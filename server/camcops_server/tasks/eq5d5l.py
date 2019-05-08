@@ -71,7 +71,6 @@ class Eq5d5l(TaskHasPatientMixin, Task):
     """  # noqa
     __tablename__ = "eq5d5l"
     shortname = "EQ-5D-5L"
-    longname = "EuroQol 5-Dimension, 5-Level Health Scale"
     provides_trackers = True
 
     q1 = CamcopsColumn(
@@ -114,6 +113,11 @@ class Eq5d5l(TaskHasPatientMixin, Task):
     MISSING_ANSWER_VALUE = 9
     QUESTIONS = strseq("q", 1, N_QUESTIONS)
     QUESTIONS += ["health_vas"]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("EuroQol 5-Dimension, 5-Level Health Scale")
 
     def is_complete(self) -> bool:
         return self.are_all_fields_complete(self.QUESTIONS)

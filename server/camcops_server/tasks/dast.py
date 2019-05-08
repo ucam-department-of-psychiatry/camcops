@@ -108,11 +108,15 @@ class Dast(TaskHasPatientMixin, Task,
     """
     __tablename__ = "dast"
     shortname = "DAST"
-    longname = "Drug Abuse Screening Test"
     provides_trackers = True
 
     NQUESTIONS = 28
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Drug Abuse Screening Test")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

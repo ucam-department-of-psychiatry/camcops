@@ -725,7 +725,7 @@ class Routes(object):
 
 
 class RoutePath(object):
-    """
+    r"""
     Class to hold a route/path pair.
 
     - Pyramid route names are just strings used internally for convenience.
@@ -1077,12 +1077,6 @@ class SqlalchemyOrmQueryWrapper(object):
         return self.query.count()
 
 
-PAGER_PATTERN = (
-    '(Page $page of $page_count; total $item_count records) '
-    '[ $link_first $link_previous ~3~ $link_next $link_last ]'
-)
-
-
 class CamcopsPage(Page):
     """
     Pagination class, for HTML views that display, for example,
@@ -1096,6 +1090,7 @@ class CamcopsPage(Page):
     def __init__(self,
                  collection: Union[Sequence[Any], Query, Select],
                  url_maker: Callable[[int], str],
+                 request: "CamcopsRequest",
                  page: int = 1,
                  items_per_page: int = 20,
                  item_count: int = None,
@@ -1108,6 +1103,7 @@ class CamcopsPage(Page):
         Args:
             ellipsis: HTML text to use as the ellipsis marker
         """
+        self.request = request
         self.ellipsis = ellipsis
         page = max(1, page)
         if item_count is None:
@@ -1136,7 +1132,7 @@ class CamcopsPage(Page):
 
     # noinspection PyShadowingBuiltins
     def pager(self,
-              format: str = PAGER_PATTERN,
+              format: str = None,
               url: str = None,
               show_if_single_page: bool = True,  # see below!
               separator: str = ' ',
@@ -1156,6 +1152,7 @@ class CamcopsPage(Page):
         example: (1) have 99 tasks; (2) view 50/page; (3) go to page 2; (4) set
         number per page to 100. Or simply use the URL to go beyond the end.
         """
+        format = format or self.default_pager_pattern()
         link_attr = link_attr or {}  # type: Dict[str, str]
         curpage_attr = curpage_attr or {}  # type: Dict[str, str]
         # dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]
@@ -1173,6 +1170,17 @@ class CamcopsPage(Page):
             curpage_attr=curpage_attr,
             dotdot_attr=dotdot_attr,
             link_tag=link_tag,
+        )
+
+    def default_pager_pattern(self) -> str:
+        """
+        Allows internationalization of the pager pattern.
+        """
+        _ = self.request.gettext
+        xlated = _("Page $page of $page_count; total $item_count records")
+        return (
+            f"({xlated}) "
+            f"[ $link_first $link_previous ~3~ $link_next $link_last ]"
         )
 
     # noinspection PyShadowingBuiltins
@@ -1323,6 +1331,7 @@ class SqlalchemyOrmPage(CamcopsPage):
     def __init__(self,
                  query: Query,
                  url_maker: Callable[[int], str],
+                 request: "CamcopsRequest",
                  page: int = 1,
                  items_per_page: int = DEFAULT_ROWS_PER_PAGE,
                  item_count: int = None,
@@ -1333,6 +1342,7 @@ class SqlalchemyOrmPage(CamcopsPage):
         assert isinstance(item_count, int) or item_count is None
         super().__init__(
             collection=query,
+            request=request,
             page=page,
             items_per_page=items_per_page,
             item_count=item_count,

@@ -1138,6 +1138,19 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     </message>
 </context>
 <context>
+    <name>Deakin1HealthReview</name>
+    <message>
+        <location filename="../tasks/deakin1healthreview.cpp" line="343"/>
+        <source>Deakin JB — 1 — Health review</source>
+        <translation>Deakin JB — 1 — sundhedsanmeldelse</translation>
+    </message>
+    <message>
+        <location filename="../tasks/deakin1healthreview.cpp" line="349"/>
+        <source>Health review for antibody-mediated psychosis study.</source>
+        <translation>Sundhedsanmeldelse for antistofmedieret psykosestudie.</translation>
+    </message>
+</context>
+<context>
     <name>DemoQuestionnaire</name>
     <message>
         <location filename="../tasks/demoquestionnaire.cpp" line="136"/>
@@ -2754,6 +2767,19 @@ enig</translation>
     </message>
 </context>
 <context>
+    <name>Khandaker1MedicalHistory</name>
+    <message>
+        <location filename="../tasks/khandaker1medicalhistory.cpp" line="132"/>
+        <source>Khandaker GM — 1 — Insight — Medical history</source>
+        <translation>Khandaker GM — 1 — Indsigt — sygehistorie</translation>
+    </message>
+    <message>
+        <location filename="../tasks/khandaker1medicalhistory.cpp" line="138"/>
+        <source>Medical history screening for Insight immunopsychiatry study.</source>
+        <translation>Medicinsk historie screening for Insight immunopsykiatri undersøgelse.</translation>
+    </message>
+</context>
+<context>
     <name>LogBox</name>
     <message>
         <location filename="../dialogs/logbox.cpp" line="90"/>
@@ -3768,7 +3794,7 @@ enig</translation>
     <message>
         <location filename="../tasks/photo.cpp" line="68"/>
         <source>Photograph</source>
-        <translation>Fotografi</translation>
+        <translation>Foto</translation>
     </message>
     <message>
         <location filename="../tasks/photo.cpp" line="74"/>

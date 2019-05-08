@@ -67,13 +67,17 @@ class Bfcrs(TaskHasPatientMixin, Task,
             metaclass=BfcrsMetaclass):
     __tablename__ = "bfcrs"
     shortname = "BFCRS"
-    longname = "Bush–Francis Catatonia Rating Scale"
     provides_trackers = True
 
     NQUESTIONS = 23
     N_CSI_QUESTIONS = 14  # the first 14
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = 69
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Bush–Francis Catatonia Rating Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

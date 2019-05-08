@@ -85,7 +85,6 @@ class DemoQuestionnaire(Task,
     """
     __tablename__ = "demoquestionnaire"
     shortname = "Demo"
-    longname = "Demonstration Questionnaire"
     is_anonymous = True
 
     mcqtext_1a = Column("mcqtext_1a", UnicodeText)
@@ -133,6 +132,11 @@ class DemoQuestionnaire(Task,
     photo = blob_relationship("DemoQuestionnaire", "photo_blobid")  # type: Optional[Blob]  # noqa
     canvas = blob_relationship("DemoQuestionnaire", "canvas_blobid")  # type: Optional[Blob]  # noqa
     canvas2 = blob_relationship("DemoQuestionnaire", "canvas2_blobid")  # type: Optional[Blob]  # noqa
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Demonstration Questionnaire")
 
     # noinspection PyMethodOverriding
     @staticmethod

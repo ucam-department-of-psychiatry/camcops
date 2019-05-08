@@ -99,10 +99,14 @@ class Kirby(TaskHasPatientMixin, Task):
     """
     __tablename__ = "kirby"
     shortname = "KirbyMCQ"
-    longname = "Kirby et al. Monetary Choice Questionnaire"
 
     # *** fields
     # *** trackers etc.
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Kirby et al. Monetary Choice Questionnaire")
 
     def is_complete(self) -> bool:
         return False # ***

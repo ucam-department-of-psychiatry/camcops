@@ -228,7 +228,6 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
     """
     __tablename__ = "frs"
     shortname = "FRS"
-    longname = "Frontotemporal Dementia Rating Scale"
 
     comments = Column(
         "comments", UnicodeText,
@@ -236,6 +235,11 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
     )
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Frontotemporal Dementia Rating Scale")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         scoredict = self.get_score()

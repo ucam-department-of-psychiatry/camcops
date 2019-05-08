@@ -146,7 +146,11 @@ class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):
     """
     __tablename__ = "pt_satis"
     shortname = "PatientSatisfaction"
-    longname = "Patient Satisfaction Scale"
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Patient Satisfaction Scale")
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(
@@ -167,7 +171,11 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
     """
     __tablename__ = "ref_satis_gen"
     shortname = "ReferrerSatisfactionSurvey"
-    longname = "Referrer Satisfaction Scale, survey"
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Referrer Satisfaction Scale, survey")
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(
@@ -189,7 +197,11 @@ class ReferrerSatisfactionSpec(TaskHasPatientMixin, AbstractSatisfaction,
     """
     __tablename__ = "ref_satis_spec"
     shortname = "ReferrerSatisfactionSpecific"
-    longname = "Referrer Satisfaction Scale, patient-specific"
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Referrer Satisfaction Scale, patient-specific")
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(

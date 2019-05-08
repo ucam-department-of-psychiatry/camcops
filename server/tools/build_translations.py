@@ -32,7 +32,6 @@ For developer use only.
 
 import argparse
 import logging
-from os import pardir
 from os.path import abspath, dirname, isfile, join
 import subprocess
 from typing import List
@@ -79,9 +78,10 @@ ALL_OPERATIONS = [OP_EXTRACT, OP_INIT_MISSING, OP_UPDATE, OP_COMPILE, OP_ALL]
 
 LOCALES = [_ for _ in POSSIBLE_LOCALES if _ != DEFAULT_LOCALE]
 LC_MESSAGES = "LC_MESSAGES"
+COMMENT_TAGS = ["TRANSLATOR:"]
 
 
-def run(cmdargs: List[str]) -> bool:
+def run(cmdargs: List[str]) -> None:
     """
     Runs a sub-command.
 
@@ -114,7 +114,7 @@ def get_po_filename(locale: str) -> str:
                 get_po_basefilename(locale))
 
 
-def get_mo_basefilename(locale: str) -> str:
+def get_mo_basefilename() -> str:
     """
     Returns the base filename of the ``.mo`` file for a given locale.
     See :func:`get_mo_filename`; this is constrained.
@@ -129,8 +129,7 @@ def get_mo_filename(locale: str) -> str:
     Note that Python's ``gettext`` module, specifically ``gettext.find``,
     explicitly expects ``localedir/lang/LC_MESSAGES/<domain>.mo``.
     """
-    return join(TRANSLATIONS_DIR, locale, LC_MESSAGES,
-                get_mo_basefilename(locale))
+    return join(TRANSLATIONS_DIR, locale, LC_MESSAGES, get_mo_basefilename())
 
 
 def main() -> None:
@@ -183,6 +182,7 @@ Operations:
 
     if op in [OP_EXTRACT, OP_ALL]:
         log.info(f"EXTRACT: from code to a .pot file: {POT_FILE}")
+        comment_tags_csv = ",".join(COMMENT_TAGS)
         cmdargs = [
             pybabel, "extract",
             # "--help",
@@ -194,6 +194,7 @@ Operations:
             f"--copyright-holder={COPYRIGHT_HOLDER}",
             f"--project={PROJECT_NAME}",
             f"--version={CAMCOPS_SERVER_VERSION_STRING}",
+            f"--add-comments={comment_tags_csv}"
         ] + SOURCE_DIRS
         run(cmdargs)
 

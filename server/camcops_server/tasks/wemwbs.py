@@ -88,7 +88,6 @@ class Wemwbs(TaskHasPatientMixin, Task,
     """
     __tablename__ = "wemwbs"
     shortname = "WEMWBS"
-    longname = "Warwick–Edinburgh Mental Well-Being Scale"
     provides_trackers = True
 
     MINQSCORE = 1
@@ -97,6 +96,11 @@ class Wemwbs(TaskHasPatientMixin, Task,
     MINTOTALSCORE = N_QUESTIONS * MINQSCORE
     MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
     TASK_FIELDS = strseq("q", 1, N_QUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Warwick–Edinburgh Mental Well-Being Scale")
 
     def is_complete(self) -> bool:
         return (
@@ -239,7 +243,6 @@ class Swemwbs(TaskHasPatientMixin, Task,
     """
     __tablename__ = "swemwbs"
     shortname = "SWEMWBS"
-    longname = "Short Warwick–Edinburgh Mental Well-Being Scale"
     extrastring_taskname = "wemwbs"  # shares
 
     MINQSCORE = 1
@@ -248,6 +251,11 @@ class Swemwbs(TaskHasPatientMixin, Task,
     MINTOTALSCORE = N_QUESTIONS * MINQSCORE
     MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
     TASK_FIELDS = strseq("q", 1, N_QUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Short Warwick–Edinburgh Mental Well-Being Scale")
 
     def is_complete(self) -> bool:
         return (

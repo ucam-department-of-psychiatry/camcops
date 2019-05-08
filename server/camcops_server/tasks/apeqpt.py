@@ -59,8 +59,6 @@ class Apeqpt(Task):
     """
     __tablename__ = "apeqpt"
     shortname = "APEQPT"
-    longname = ("Assessment Patient Experience Questionnaire: "
-                "For Psychological Therapies")
     provides_trackers = True
 
     q_datetime = CamcopsColumn(
@@ -99,6 +97,12 @@ class Apeqpt(Task):
         "q3_choice",
         "q1_satisfaction",
     ]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Assessment Patient Experience Questionnaire: "
+                 "For Psychological Therapies")
 
     def is_complete(self) -> bool:
         if not self.are_all_fields_complete(self.MAIN_QUESTIONS):

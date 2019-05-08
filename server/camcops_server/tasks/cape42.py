@@ -122,8 +122,12 @@ class Cape42(TaskHasPatientMixin, Task,
     """
     __tablename__ = "cape42"
     shortname = "CAPE-42"
-    longname = "Community Assessment of Psychic Experiences"
     provides_trackers = True
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Community Assessment of Psychic Experiences")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         fstr1 = "CAPE-42 weighted frequency score: "

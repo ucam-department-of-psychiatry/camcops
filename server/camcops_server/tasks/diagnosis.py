@@ -273,10 +273,14 @@ class DiagnosisIcd10(DiagnosisBase):
     )
 
     shortname = "Diagnosis_ICD10"
-    longname = "Diagnostic codes, ICD-10"
     dependent_classes = [DiagnosisIcd10Item]
     hl7_coding_system = "I10"
     # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Diagnostic codes, ICD-10")
 
     def get_snomed_codes(self, req: CamcopsRequest,
                          fallback: bool = True) -> List[SnomedExpression]:
@@ -367,10 +371,14 @@ class DiagnosisIcd9CM(DiagnosisBase):
     )
 
     shortname = "Diagnosis_ICD9CM"
-    longname = "Diagnostic codes, ICD-9-CM (DSM-IV-TR)"
     dependent_classes = [DiagnosisIcd9CMItem]
     hl7_coding_system = "I9CM"
     # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Diagnostic codes, ICD-9-CM (DSM-IV-TR)")
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         if not req.icd9cm_snomed_supported:
@@ -492,11 +500,11 @@ class DiagnosisICD9CMReport(Report):
     def report_id(cls) -> str:
         return "diagnoses_icd9cm"
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return ("Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all "
-                "patients")
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all "
+                 "patients")
 
     # noinspection PyMethodParameters
     @classproperty
@@ -521,10 +529,10 @@ class DiagnosisICD10Report(Report):
     def report_id(cls) -> str:
         return "diagnoses_icd10"
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return "Diagnosis – ICD-10 diagnoses for all patients"
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Diagnosis – ICD-10 diagnoses for all patients")
 
     # noinspection PyMethodParameters
     @classproperty
@@ -549,10 +557,10 @@ class DiagnosisAllReport(Report):
     def report_id(cls) -> str:
         return "diagnoses_all"
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return "Diagnosis – All diagnoses for all patients"
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Diagnosis – All diagnoses for all patients")
 
     # noinspection PyMethodParameters
     @classproperty
@@ -872,10 +880,10 @@ class DiagnosisICD10FinderReport(DiagnosisFinderReportBase):
     def report_id(cls) -> str:
         return "diagnoses_finder_icd10"
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return "Diagnosis – Find patients by ICD-10 diagnosis ± age"
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Diagnosis – Find patients by ICD-10 diagnosis ± age")
 
     def get_query(self, req: CamcopsRequest) -> SelectBase:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
@@ -917,10 +925,10 @@ class DiagnosisICD9CMFinderReport(DiagnosisFinderReportBase):
     def report_id(cls) -> str:
         return "diagnoses_finder_icd9cm"
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return (
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _(
             "Diagnosis – Find patients by ICD-9-CM (DSM-IV-TR) diagnosis ± age"
         )
 

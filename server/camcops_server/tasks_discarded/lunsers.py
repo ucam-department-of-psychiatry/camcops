@@ -65,7 +65,6 @@ class Lunsers(TaskHasPatientMixin, Task,
               metaclass=LunsersMetaclass):
     __tablename__ = "lunsers"
     shortname = "LUNSERS"
-    longname = "Liverpool University Neuroleptic Side Effect Rating Scale"
     provides_trackers = True
 
     NQUESTIONS = 51
@@ -78,6 +77,11 @@ class Lunsers(TaskHasPatientMixin, Task,
     list_hormonal_female = [7, 13, 17, 24, 46, 50]
     list_hormonal_male = [7, 17, 24, 46]
     list_redherrings = [3, 8, 11, 12, 25, 28, 30, 33, 42, 45]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Liverpool University Neuroleptic Side Effect Rating Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

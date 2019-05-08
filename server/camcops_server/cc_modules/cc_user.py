@@ -1097,11 +1097,13 @@ class User(Base):
             # https://stackoverflow.com/questions/14600619/using-not-exists-clause-in-sqlalchemy-orm-query  # noqa
         return q
 
-    def may_edit_user(self, other: "User") -> Tuple[bool, str]:
+    def may_edit_user(self, req: "CamcopsRequest",
+                      other: "User") -> Tuple[bool, str]:
         """
         May the ``self`` user edit the ``other`` user?
 
         Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             other: the user to be edited (potentially)
 
         Returns:
@@ -1109,17 +1111,18 @@ class User(Base):
 
         LOGIC SHOULD MATCH :meth:`managed_users`.
         """
+        _ = req.gettext
         if other.username == USER_NAME_FOR_SYSTEM:
-            return False, "Nobody may edit the system user"
+            return False, _("Nobody may edit the system user")
         if not self.superuser:
             if other.superuser:
-                return False, "You may not edit a superuser"
+                return False, _("You may not edit a superuser")
             if other.is_a_groupadmin:
-                return False, "You may not edit a group administrator"
+                return False, _("You may not edit a group administrator")
             groupadmin_group_ids = self.ids_of_groups_user_is_admin_for
             if not any(gid in groupadmin_group_ids for gid in other.group_ids):
-                return False, ("You are not a group administrator for any "
-                               "groups that this user is in")
+                return False, _("You are not a group administrator for any "
+                                "groups that this user is in")
         return True, ""
 
 

@@ -114,7 +114,6 @@ class Pbq(TaskHasPatientMixin, Task,
     """
     __tablename__ = "pbq"
     shortname = "PBQ"
-    longname = "Postpartum Bonding Questionnaire"
     provides_trackers = True
 
     MIN_PER_Q = 0
@@ -135,6 +134,11 @@ class Pbq(TaskHasPatientMixin, Task,
     FACTOR_2_MAX = len(FACTOR_2_Q) * MAX_PER_Q
     FACTOR_3_MAX = len(FACTOR_3_Q) * MAX_PER_Q
     FACTOR_4_MAX = len(FACTOR_4_Q) * MAX_PER_Q
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Postpartum Bonding Questionnaire")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

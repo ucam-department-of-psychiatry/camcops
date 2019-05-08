@@ -83,12 +83,16 @@ class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "hama"
     shortname = "HAM-A"
-    longname = "Hamilton Rating Scale for Anxiety"
     provides_trackers = True
 
     NQUESTIONS = 14
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 56
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Hamilton Rating Scale for Anxiety")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

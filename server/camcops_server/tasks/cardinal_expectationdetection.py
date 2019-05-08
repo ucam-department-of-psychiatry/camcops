@@ -391,7 +391,6 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
     """
     __tablename__ = "cardinal_expdet"
     shortname = "Cardinal_ExpDet"
-    longname = "Cardinal RN – Expectation–Detection task"
     use_landscape_for_pdf = True
 
     # Config
@@ -495,6 +494,11 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",
         ancillary_order_by_attr_name="group_num"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Cardinal RN – Expectation–Detection task")
 
     def is_complete(self) -> bool:
         return bool(self.finished)

@@ -282,7 +282,7 @@ class ExportedTask(Base):
         else:
             self.basetable = basetable
             self.task_server_pk = task_server_pk
-            self._task = None  # type: Task
+            self._task = None  # type: Optional[Task]
 
     @reconstructor
     def init_on_load(self) -> None:
@@ -290,7 +290,7 @@ class ExportedTask(Base):
         Called when SQLAlchemy recreates an object; see
         https://docs.sqlalchemy.org/en/latest/orm/constructors.html.
         """
-        self._task = None  # type: Task
+        self._task = None  # type: Optional[Task]
 
     @property
     def task(self) -> "Task":
@@ -526,7 +526,7 @@ class ExportedTaskHL7Message(Base):
         super().__init__(*args, **kwargs)
         self.exported_task = exported_task
 
-        self._hl7_msg = None  # type: hl7.Message
+        self._hl7_msg = None  # type: Optional[hl7.Message]
 
     @reconstructor
     def init_on_load(self) -> None:
@@ -934,6 +934,7 @@ class ExportedTaskFileGroup(Base):
         if recipient.file_export_rio_metadata:
 
             metadata = task.get_rio_metadata(
+                req,
                 recipient.rio_idnum,
                 recipient.rio_uploading_user,
                 recipient.rio_document_type

@@ -196,10 +196,10 @@ class DeviceReport(Report):
     def report_id(cls) -> str:
         return "devices"
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return "(Server) Devices registered with the server"
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("(Server) Devices registered with the server")
 
     def get_query(self, req: "CamcopsRequest") -> Query:
         dbsession = req.dbsession

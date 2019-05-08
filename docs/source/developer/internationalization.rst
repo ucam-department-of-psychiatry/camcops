@@ -264,23 +264,40 @@ We manage this as follows.
 .. code-block:: none
 
     <% _ = request.gettext %>
+    ## TRANSLATOR: string context described here
     <p>${_("Please translate me")}</p>
 
 It would be nice if we could just put the ``_`` definition in ``base.mako``,
 but that doesn't come through with ``<%inherit file=.../>``. But we can add
 it to the system context via
-:class:`camcops_server.cc_pyramid.CamcopsMakoLookupTemplateRenderer`.
+:class:`camcops_server.cc_pyramid.CamcopsMakoLookupTemplateRenderer`. So we do.
 
 **Generic Python**
 
 .. code-block:: python
 
     _ = request.gettext
+    # TRANSLATOR: string context described here
     mytext = _("Please translate me")
+
+If an appropriate comment tag is used, either in Python or Mako (here,
+``TRANSLATOR:``, as defined in ``build_translations.py``), the comment appears
+in the translation files.
 
 **Forms**
 
 See ``cc_forms.py``; the forms need to be request-aware. This is quite fiddly.
+
+**Efficiency**
+
+Try e.g.
+
+.. code-block:: bash
+
+    inotifywait --monitor server/camcops_server/translations/da_DK/LC_MESSAGES/camcops.mo
+
+... from a single-process CherryPy instance (``camcops_server
+.serve_cherrypy``), there's a single read call only.
 
 
 Updating server strings
@@ -293,6 +310,9 @@ follows:
     :language: none
 
 
-.. todo:: Mako string internationalization
-.. todo:: Task long name internationalization
-.. todo:: Report title internationalization
+.. todo::
+    There are still some of the more complex Deform widgets that aren't properly translated on a per-request basis, such as
+
+    - TranslatableOptionalPendulumNode
+    - TranslatableDateTimeSelectorNode
+    - CheckedPasswordWidget

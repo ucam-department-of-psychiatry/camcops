@@ -106,7 +106,6 @@ class Pcl5(TaskHasPatientMixin, Task,
     """
     __tablename__ = 'pcl5'
     shortname = 'PCL-5'
-    longname = 'PTSD Checklist, DSM-5 version'
     provides_trackers = True
     extrastring_taskname = "pcl5"
     N_QUESTIONS = 20
@@ -114,6 +113,11 @@ class Pcl5(TaskHasPatientMixin, Task,
     TASK_FIELDS = SCORED_FIELDS  # may be overridden
     MIN_SCORE = 0
     MAX_SCORE = 4 * N_QUESTIONS
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _('PTSD Checklist, DSM-5 version')
 
     # noinspection PyMethodParameters
     @classproperty

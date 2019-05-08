@@ -117,7 +117,6 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "hamd"
     shortname = "HAM-D"
-    longname = "Hamilton Rating Scale for Depression"
     provides_trackers = True
 
     NSCOREDQUESTIONS = 17
@@ -161,6 +160,11 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         comment="Q18B (not scored), diurnal variation, severity "
                 "(0-2, higher more severe)"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Hamilton Rating Scale for Depression")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

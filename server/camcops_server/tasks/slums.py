@@ -79,7 +79,6 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "slums"
     shortname = "SLUMS"
-    longname = "St Louis University Mental Status"
     provides_trackers = True
 
     alert = CamcopsColumn(
@@ -229,6 +228,11 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "q11a", "q11b", "q11c", "q11d"
     ]
     MAX_SCORE = 30
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("St Louis University Mental Status")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         if self.highschooleducation == 1:

@@ -112,9 +112,8 @@ class Report(object):
         """
         raise NotImplementedError("implement in subclass")
 
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
         """
         Descriptive title for display purposes.
         """
@@ -214,8 +213,7 @@ class Report(object):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def all_subclasses(cls,
-                       sort_title: bool = False) -> List[Type["Report"]]:
+    def all_subclasses(cls) -> List[Type["Report"]]:
         """
         Get all report subclasses, except those not implementing their
         ``report_id`` property. Optionally, sort by their title.
@@ -230,8 +228,6 @@ class Report(object):
                 # This is a subclass of Report, but it's still an abstract
                 # class; skip it.
                 pass
-        if sort_title:
-            instantiated_report_classes.sort(key=lambda c: c.title)
         return instantiated_report_classes
 
     # -------------------------------------------------------------------------
@@ -293,7 +289,8 @@ class Report(object):
             page = CamcopsPage(collection=rows,
                                page=page_num,
                                items_per_page=rows_per_page,
-                               url_maker=PageUrl(req))
+                               url_maker=PageUrl(req),
+                               request=req)
             return self.render_html(req=req,
                                     column_names=column_names,
                                     page=page)
@@ -319,7 +316,7 @@ class Report(object):
         """
         return render_to_response(
             "report.mako",
-            dict(title=self.title,
+            dict(title=self.title(req),
                  page=page,
                  column_names=column_names,
                  report_id=self.report_id),
@@ -331,21 +328,13 @@ class Report(object):
 # Report framework
 # =============================================================================
 
-def get_all_report_classes() -> List[Type["Report"]]:
+def get_all_report_classes(req: "CamcopsRequest") -> List[Type["Report"]]:
     """
     Returns all :class:`Report` (sub)classes, i.e. all report types.
     """
-    classes = Report.all_subclasses(sort_title=True)
+    classes = Report.all_subclasses()
+    classes.sort(key=lambda c: c.title(req))
     return classes
-
-
-def get_all_report_ids() -> List[str]:
-    """
-    Get all report IDs.
-
-    Report IDs are fixed names defined in each :class:`Report` subclass.
-    """
-    return [cls.report_id for cls in get_all_report_classes()]
 
 
 def get_report_instance(report_id: str) -> Optional[Report]:
@@ -371,13 +360,14 @@ class ReportTests(DemoDatabaseTestCase):
     """
     def test_reports(self) -> None:
         self.announce("test_reports")
-        for cls in get_all_report_classes():
+        req = self.req
+        for cls in get_all_report_classes(req):
             log.info("Testing report: {}", cls)
             from camcops_server.cc_modules.cc_forms import ReportParamSchema
             report = cls()
 
             self.assertIsInstance(report.report_id, str)
-            self.assertIsInstance(report.title, str)
+            self.assertIsInstance(report.title(req), str)
             self.assertIsInstance(report.superuser_only, bool)
 
             querydict = report.get_test_querydict()

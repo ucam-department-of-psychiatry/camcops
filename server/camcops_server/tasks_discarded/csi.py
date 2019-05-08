@@ -67,13 +67,17 @@ class Csi(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
           metaclass=CsiMetaclass):
     __tablename__ = "csi"
     shortname = "CSI"
-    longname = "Catatonia Screening Instrument"
     # !!! has_clinician was not implemented on tablet JS version; should be
     provides_trackers = True
     extrastring_taskname = "bfcrs"  # shares with BFCRS
 
     NQUESTIONS = 14
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Catatonia Screening Instrument")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

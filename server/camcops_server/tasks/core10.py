@@ -64,7 +64,6 @@ class Core10(TaskHasPatientMixin, Task):
     """
     __tablename__ = "core10"
     shortname = "CORE-10"
-    longname = "Clinical Outcomes in Routine Evaluation, 10-item measure"
     provides_trackers = True
 
     COMMENT_NORMAL = " (0 not at all - 4 most or all of the time)"
@@ -124,6 +123,11 @@ class Core10(TaskHasPatientMixin, Task):
     N_QUESTIONS = 10
     MAX_SCORE = 4 * N_QUESTIONS
     QUESTION_FIELDNAMES = strseq("q", 1, N_QUESTIONS)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Clinical Outcomes in Routine Evaluation, 10-item measure")
 
     # noinspection PyMethodParameters
     @classproperty

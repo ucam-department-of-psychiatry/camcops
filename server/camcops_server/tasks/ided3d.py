@@ -338,7 +338,6 @@ class IDED3D(TaskHasPatientMixin, Task):
     """
     __tablename__ = "ided3d"
     shortname = "ID/ED-3D"
-    longname = "Three-dimensional ID/ED task"
 
     # Config
     last_stage = Column(
@@ -435,6 +434,11 @@ class IDED3D(TaskHasPatientMixin, Task):
         ancillary_fk_to_parent_attr_name="ided3d_id",
         ancillary_order_by_attr_name="stage"
     )  # type: List[IDED3DStage]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Three-dimensional ID/ED task")
 
     def is_complete(self) -> bool:
         return bool(self.debug_display_stimuli_only) or bool(self.finished)

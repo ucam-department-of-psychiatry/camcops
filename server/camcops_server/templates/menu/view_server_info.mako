@@ -35,7 +35,7 @@
     %endfor
 </table>
 <p>
-    ${_("Sessions time out after ${session_timeout_minutes} minutes; sessions older than this are periodically deleted.")}
+    ${_("Sessions time out after")} ${session_timeout_minutes} ${_("minutes; sessions older than this are periodically deleted.")}
 </p>
 
 <h2>${_("Extra string families present")}</h2>
@@ -49,7 +49,7 @@ ${ sf | h }
 <p>${_("Format is: long name (short name; base table name).")}</p>
 <pre>
     %for tc in all_task_classes:
-${ tc.longname | h } (${ tc.shortname | h }; ${ tc.tablename | h })
+${ tc.longname(req) | h } (${ tc.shortname | h }; ${ tc.tablename | h })
     %endfor
 </pre>
 

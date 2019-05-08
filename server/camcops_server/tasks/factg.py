@@ -188,7 +188,6 @@ class Factg(TaskHasPatientMixin, Task,
     """
     __tablename__ = "factg"
     shortname = "FACT-G"
-    longname = "Functional Assessment of Cancer Therapy — General"
     provides_trackers = True
 
     N_QUESTIONS_PHYSICAL = 7
@@ -240,6 +239,11 @@ class Factg(TaskHasPatientMixin, Task,
 
     ignore_s_q7 = CamcopsColumn("ignore_s_q7", Boolean,
                                 permitted_value_checker=BIT_CHECKER)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Functional Assessment of Cancer Therapy — General")
 
     def is_complete(self) -> bool:
         questions_social = self.QUESTIONS_SOCIAL.copy()

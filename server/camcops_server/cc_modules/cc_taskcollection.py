@@ -260,8 +260,8 @@ class TaskCollection(object):
                 "Must supply taskfilter unless you supply export_recipient")
 
         self._tasks_by_class = OrderedDict()  # type: Dict[Type[Task], List[Task]]  # noqa
-        self._all_tasks = None  # type: List[Task]
-        self._all_indexes = None  # type: Union[List[TaskIndexEntry], Query]
+        self._all_tasks = None  # type: Optional[List[Task]]
+        self._all_indexes = None  # type: Optional[Union[List[TaskIndexEntry], Query]]  # noqa
 
     def __repr__(self) -> str:
         return auto_repr(self)

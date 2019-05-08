@@ -138,7 +138,11 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "nart"
     shortname = "NART"
-    longname = "National Adult Reading Test"
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("National Adult Reading Test")
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

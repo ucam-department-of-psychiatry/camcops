@@ -1358,7 +1358,7 @@ class CamcopsConfig(object):
                     f"{recip_name!r}")
         if len(set(self.export_recipient_names)) != len(self.export_recipient_names):  # noqa
             raise ValueError("Recipient names contain duplicates")
-        self._export_recipients = None  # type: List[ExportRecipientInfo]
+        self._export_recipients = []  # type: List[ExportRecipientInfo]
         self._read_export_recipients(parser)
 
         self.schedule_timezone = _get_str(es, ce.SCHEDULE_TIMEZONE, DEFAULT_TIMEZONE)  # noqa

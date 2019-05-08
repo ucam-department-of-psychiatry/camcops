@@ -99,7 +99,6 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     """
     __tablename__ = "icd10schizotypal"
     shortname = "ICD10-SZTYP"
-    longname = "ICD-10 criteria for schizotypal disorder (F21)"
 
     date_pertains_to = Column(
         "date_pertains_to", Date,
@@ -118,6 +117,11 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     N_A = 9
     A_FIELDS = strseq("a", 1, N_A)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return "ICD-10 criteria for schizotypal disorder (F21)"
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

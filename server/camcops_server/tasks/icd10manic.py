@@ -70,10 +70,6 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "icd10manic"
     shortname = "ICD10-MANIC"
-    longname = (
-        "ICD-10 symptomatic criteria for a manic/hypomanic episode "
-        "(as in e.g. F06.3, F25, F30, F31)"
-    )
 
     mood_elevated = CamcopsColumn(
         "mood_elevated", Boolean,
@@ -236,6 +232,14 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "hallucinations_schizophrenic", "hallucinations_other",
         "delusions_schizophrenic", "delusions_other"
     ]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _(
+            "ICD-10 symptomatic criteria for a manic/hypomanic episode "
+            "(as in e.g. F06.3, F25, F30, F31)"
+        )
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

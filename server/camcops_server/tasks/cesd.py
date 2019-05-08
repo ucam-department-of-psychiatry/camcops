@@ -108,7 +108,6 @@ class Cesd(TaskHasPatientMixin, Task,
     """
     __tablename__ = 'cesd'
     shortname = 'CESD'
-    longname = 'Center for Epidemiologic Studies Depression Scale'
     provides_trackers = True
     extrastring_taskname = "cesd"
     N_QUESTIONS = 20
@@ -119,6 +118,11 @@ class Cesd(TaskHasPatientMixin, Task,
     MIN_SCORE = 0
     MAX_SCORE = 3 * N_QUESTIONS
     REVERSE_SCORED_QUESTIONS = [4, 8, 12, 16]
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _('Center for Epidemiologic Studies Depression Scale')
 
     # noinspection PyMethodParameters
     @classproperty

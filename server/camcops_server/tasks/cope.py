@@ -104,7 +104,6 @@ class CopeBrief(TaskHasPatientMixin, Task,
     """
     __tablename__ = "cope_brief"
     shortname = "COPE-Brief"
-    longname = "Brief COPE Inventory"
     extrastring_taskname = "cope"
 
     NQUESTIONS = 28
@@ -133,6 +132,11 @@ class CopeBrief(TaskHasPatientMixin, Task,
         "relationship_to_patient_other", UnicodeText,
         comment="Relationship of responder to patient (if OTHER chosen)"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Brief COPE Inventory")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [

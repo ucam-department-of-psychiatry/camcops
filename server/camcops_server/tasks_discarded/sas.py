@@ -66,12 +66,16 @@ class Sas(TaskHasPatientMixin, Task,
           metaclass=SasMetaclass):
     tablename = "sas"
     shortname = "SAS"
-    longname = "Simpson–Angus Extrapyramidal Side Effects Scale"
     provides_trackers = True
 
     NQUESTIONS = 10
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = 40
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Simpson–Angus Extrapyramidal Side Effects Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

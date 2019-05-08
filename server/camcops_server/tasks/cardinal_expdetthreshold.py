@@ -178,8 +178,6 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
     """
     __tablename__ = "cardinal_expdetthreshold"
     shortname = "Cardinal_ExpDetThreshold"
-    longname = ("Cardinal RN – Threshold determination for "
-                "Expectation–Detection task")
     use_landscape_for_pdf = True
 
     # Config
@@ -269,6 +267,12 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         ancillary_fk_to_parent_attr_name="cardinal_expdetthreshold_id",
         ancillary_order_by_attr_name="trial"
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Cardinal RN – Threshold determination for "
+                 "Expectation–Detection task")
 
     def is_complete(self) -> bool:
         return bool(self.finished)

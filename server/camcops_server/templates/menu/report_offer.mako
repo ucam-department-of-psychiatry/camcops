@@ -7,7 +7,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes
 
 <%include file="db_user_info.mako"/>
 
-<h1>${_("Configure report:")} ${ report.title | h }</h1>
+<h1>${_("Configure report:")} ${ report.title(request) | h }</h1>
 
 ${ form }
 

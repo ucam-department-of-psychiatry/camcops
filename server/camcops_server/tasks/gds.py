@@ -85,7 +85,6 @@ class Gds15(TaskHasPatientMixin, Task,
     """
     __tablename__ = "gds15"
     shortname = "GDS-15"
-    longname = "Geriatric Depression Scale, 15-item version"
     provides_trackers = True
 
     NQUESTIONS = 15
@@ -93,6 +92,11 @@ class Gds15(TaskHasPatientMixin, Task,
     SCORE_IF_YES = [2, 3, 4, 6, 8, 9, 10, 12, 14, 15]
     SCORE_IF_NO = [1, 5, 7, 11, 13]
     MAX_SCORE = 15
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Geriatric Depression Scale, 15-item version")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

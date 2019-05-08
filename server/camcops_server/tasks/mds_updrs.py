@@ -64,9 +64,6 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "mds_updrs"
     shortname = "MDS-UPDRS"
-    longname = (
-        "Movement Disorder Society-Sponsored Revision of the Unified "
-        "Parkinson’s Disease Rating Scale (data collection only)")
     # Has clinician as of v2.0.0
 
     main_cmt = " (0 normal, 1 slight, 2 mild, 3 moderate, 4 severe)"
@@ -381,6 +378,14 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "q4_6", Integer, permitted_value_checker=main_pv,
         comment="Part IV, Q4.6 " + main_cmt
     )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _(
+            "Movement Disorder Society-Sponsored Revision of the Unified "
+            "Parkinson’s Disease Rating Scale (data collection only)"
+        )
 
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)

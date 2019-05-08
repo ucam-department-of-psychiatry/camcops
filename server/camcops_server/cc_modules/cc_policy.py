@@ -392,9 +392,9 @@ class TokenizedPolicy(object):
     """
     def __init__(self, policy: str) -> None:
         self.tokens = self.get_tokenized_id_policy(policy)
-        self._syntactically_valid = None  # type: bool
-        self.valid_idnums = None  # type: List[int]
-        self._valid_for_idnums = None  # type: bool
+        self._syntactically_valid = None  # type: Optional[bool]
+        self.valid_idnums = None  # type: Optional[List[int]]
+        self._valid_for_idnums = None  # type: Optional[bool]
 
     def __str__(self) -> str:
         policy = " ".join(token_to_str(t) for t in self.tokens)
@@ -1012,7 +1012,7 @@ class TokenizedPolicy(object):
         processing_and = False
         processing_or = False
         index = 0
-        value = None  # type: QuadState
+        value = None  # type: Optional[QuadState]
         while index < len(tokens):
             if want_content:
                 nextchunk, index = self._content_chunk_value(

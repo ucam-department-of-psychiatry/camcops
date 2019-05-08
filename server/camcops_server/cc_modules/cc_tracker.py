@@ -97,7 +97,8 @@ DEBUG_TRACKER_TASK_INCLUSION = False  # should be False for production system
 # =============================================================================
 # http://stackoverflow.com/questions/11788195
 
-def consistency(values: List[Any],
+def consistency(req: "CamcopsRequest",
+                values: List[Any],
                 servervalue: Any = None,
                 case_sensitive: bool = True) -> Tuple[bool, str]:
     """
@@ -122,25 +123,32 @@ def consistency(values: List[Any],
     # Replace "" with None, so we only have a single "not-present" value
     vallist = [None if x == "" else x for x in vallist]
     unique = list(set(vallist))
+    _ = req.gettext
     if len(unique) == 0:
-        return True, "consistent (no values)"
+        return True, _("consistent (no values)")
     if len(unique) == 1:
-        return True, f"consistent ({unique[0]})"
+        return True, f"{_('consistent')} ({unique[0]})"
     if len(unique) == 2:
         if None in unique:
             return True, (
-                f"consistent (all blank or {unique[1 - unique.index(None)]})"
+                f"{_('consistent')} "
+                f"({_('all blank or')} {unique[1 - unique.index(None)]})"
             )
-    return False, f"<b>INCONSISTENT (contains values {', '.join(unique)})</b>"
+    return False, (
+        f"<b>{_('INCONSISTENT')} "
+        f"({_('contains values')} {', '.join(unique)})</b>"
+    )
 
 
-def consistency_idnums(idnum_lists: List[List["PatientIdNum"]]) \
+def consistency_idnums(req: "CamcopsRequest",
+                       idnum_lists: List[List["PatientIdNum"]]) \
         -> Tuple[bool, str]:
     """
     Checks the consistency of a set of :class:`PatientIdNum` objects.
     "Are all these records from the same patient?"
 
     Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         idnum_lists: a list of lists (one per
             :class:`camcops_server.cc_modules.cc_patient.Patient` instance) of
             :class:`PatientIdNum` objects
@@ -161,18 +169,21 @@ def consistency_idnums(idnum_lists: List[List["PatientIdNum"]]) \
                 known[which_idnum].add(idnum_value)
     failures = []  # type: List[str]
     successes = []  # type: List[str]
+    _ = req.gettext
     for which_idnum, encountered_values in known.items():
         value_str = ", ".join(str(v) for v in sorted(list(encountered_values)))
         if len(encountered_values) > 1:
-            failures.append(f"idnum{which_idnum} contains values {value_str}")
+            failures.append(
+                f"idnum{which_idnum} {_('contains values')} {value_str}")
         else:
-            successes.append(f"idnum{which_idnum} all blank or {value_str}")
+            successes.append(
+                f"idnum{which_idnum} {_('all blank or')} {value_str}")
     if failures:
         return False, (
-            f"<b>INCONSISTENT ({'; '.join(failures + successes)})</b>"
+            f"<b>{_('INCONSISTENT')} ({'; '.join(failures + successes)})</b>"
         )
     else:
-        return True, f"consistent ({'; '.join(successes)})"
+        return True, f"{_('consistent')} ({'; '.join(successes)})"
 
 
 def format_daterange(start: Optional[Pendulum],
@@ -197,21 +208,27 @@ class ConsistencyInfo(object):
     Represents ID consistency information about a set of tasks.
     """
 
-    def __init__(self, tasklist: List[Task]) -> None:
+    def __init__(self, req: "CamcopsRequest", tasklist: List[Task]) -> None:
         """
         Initialize values, from a list of task instances.
         """
+        self.request = req
         self.consistent_forename, self.msg_forename = consistency(
+            req,
             [task.get_patient_forename() for task in tasklist],
             servervalue=None, case_sensitive=False)
         self.consistent_surname, self.msg_surname = consistency(
+            req,
             [task.get_patient_surname() for task in tasklist],
             servervalue=None, case_sensitive=False)
         self.consistent_dob, self.msg_dob = consistency(
+            req,
             [task.get_patient_dob_first11chars() for task in tasklist])
         self.consistent_sex, self.msg_sex = consistency(
+            req,
             [task.get_patient_sex() for task in tasklist])
         self.consistent_idnums, self.msg_idnums = consistency_idnums(
+            req,
             [task.get_patient_idnum_objects() for task in tasklist])
         self.all_consistent = (
             self.consistent_forename and
@@ -232,12 +249,13 @@ class ConsistencyInfo(object):
         Textual representation of ID information, indicating consistency or
         lack of it.
         """
+        _ = self.request.gettext
         cons = [
-            f"Forename: {self.msg_forename}",
-            f"Surname: {self.msg_surname}",
-            f"DOB: {self.msg_dob}",
-            f"Sex: {self.msg_sex}",
-            f"ID numbers: {self.msg_idnums}",
+            f"{_('Forename:')} {self.msg_forename}",
+            f"{_('Surname:')} {self.msg_surname}",
+            f"{_('DOB:')} {self.msg_dob}",
+            f"{_('Sex:')} {self.msg_sex}",
+            f"{_('ID numbers:')} {self.msg_idnums}",
         ]
         return cons
 
@@ -299,9 +317,9 @@ class TrackerCtvCommon(object):
             self.latest = all_tasks[-1].when_created
             self.patient = all_tasks[0].patient
         else:
-            self.earliest = None  # type: Pendulum
-            self.latest = None  # type: Pendulum
-            self.patient = None  # type: Patient
+            self.earliest = None  # type: Optional[Pendulum]
+            self.latest = None  # type: Optional[Pendulum]
+            self.patient = None  # type: Optional[Patient]
 
         # Summary information
         self.summary = ""
@@ -332,7 +350,7 @@ class TrackerCtvCommon(object):
         ])
 
         # Consistency information
-        self.consistency_info = ConsistencyInfo(all_tasks)
+        self.consistency_info = ConsistencyInfo(req, all_tasks)
 
     # -------------------------------------------------------------------------
     # Required for implementation

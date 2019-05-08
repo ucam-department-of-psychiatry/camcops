@@ -140,15 +140,25 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <table>
     <tr>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${_("Group name")}</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${_("Group ID")}</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${_("Group administrator?")}</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${_("May upload?")}</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${_("May register devices?")}</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${_("May use webviewer?")}</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${_("View all pts when unfiltered?")}</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${_("May dump?")}</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${_("May run reports?")}</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${_("May add notes?")}</th>
         %if req.user.superuser or req.user.authorized_as_groupadmin:
             <th>${_("Edit")}</th>

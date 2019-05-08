@@ -85,12 +85,16 @@ class Gad7(TaskHasPatientMixin, Task,
     """
     __tablename__ = "gad7"
     shortname = "GAD-7"
-    longname = "Generalized Anxiety Disorder Assessment"
     provides_trackers = True
 
     NQUESTIONS = 7
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 21
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Generalized Anxiety Disorder Assessment")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

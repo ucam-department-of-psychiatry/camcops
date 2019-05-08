@@ -54,7 +54,6 @@ class PerinatalPoem(Task):
     """
     __tablename__ = "perinatal_poem"
     shortname = "Perinatal-POEM"
-    longname = "Perinatal Patient-rated Outcome and Experience Measure"
     provides_trackers = False
 
     # Field names
@@ -289,6 +288,11 @@ class PerinatalPoem(Task):
         FN_Q2L_I_WOULD_RECOMMEND_SERVICE,
     ]
     Q3_FIELDS = REQUIRED_INPATIENT
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Perinatal Patient-rated Outcome and Experience Measure")
 
     def was_inpatient(self) -> bool:
         return self.qb == self.VAL_QB_INPATIENT

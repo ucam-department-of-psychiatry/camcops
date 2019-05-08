@@ -277,9 +277,13 @@ class PclC(PclCommon,
     """
     __tablename__ = "pclc"
     shortname = "PCL-C"
-    longname = "PTSD Checklist, Civilian version"
 
     TASK_TYPE = "C"
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("PTSD Checklist, Civilian version")
 
 
 # =============================================================================
@@ -293,9 +297,13 @@ class PclM(PclCommon,
     """
     __tablename__ = "pclm"
     shortname = "PCL-M"
-    longname = "PTSD Checklist, Military version"
 
     TASK_TYPE = "M"
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("PTSD Checklist, Military version")
 
 
 # =============================================================================
@@ -309,7 +317,6 @@ class PclS(PclCommon,
     """
     __tablename__ = "pcls"
     shortname = "PCL-S"
-    longname = "PTSD Checklist, Stressor-specific version"
 
     event = Column(
         "event", UnicodeText,
@@ -322,3 +329,8 @@ class PclS(PclCommon,
 
     TASK_FIELDS = PclCommon.SCORED_FIELDS + ["event", "eventdate"]
     TASK_TYPE = "S"
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("PTSD Checklist, Stressor-specific version")

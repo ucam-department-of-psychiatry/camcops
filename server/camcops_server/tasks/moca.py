@@ -159,7 +159,6 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "moca"
     shortname = "MoCA"
-    longname = "Montreal Cognitive Assessment"
     provides_trackers = True
 
     education12y_or_less = CamcopsColumn(
@@ -202,6 +201,11 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     ABSTRACTION_FIELDS = strseq("q", 16, 17)
     MEM_FIELDS = strseq("q", 18, 22)
     ORIENTATION_FIELDS = strseq("q", 23, 28)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Montreal Cognitive Assessment")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

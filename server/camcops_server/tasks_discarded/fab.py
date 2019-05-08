@@ -71,12 +71,16 @@ class Fab(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
           metaclass=FabMetaclass):
     __tablename__ = "fab"
     shortname = "FAB"
-    longname = "Frontal Assessment Battery"
     provides_trackers = True
 
     NQUESTIONS = 6
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = 18
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Frontal Assessment Battery")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

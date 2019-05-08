@@ -89,10 +89,14 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "cgisch"
     shortname = "CGI-SCH"
-    longname = "Clinical Global Impression – Schizophrenia"
     provides_trackers = True
 
     TASK_FIELDS = strseq("severity", 1, 5) + strseq("change", 1, 5)
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Clinical Global Impression – Schizophrenia")
 
     # noinspection PyUnresolvedReferences
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:

@@ -220,11 +220,11 @@ class ExportRecipientInfo(object):
         self.group_names = []  # type: List[str]  # not in database; see group_ids  # noqa
         self.group_ids = []  # type: List[int]
         self.tasks = []  # type: List[str]
-        self.start_datetime_utc = None  # type: datetime.datetime
-        self.end_datetime_utc = None  # type: datetime.datetime
+        self.start_datetime_utc = None  # type: Optional[datetime.datetime]
+        self.end_datetime_utc = None  # type: Optional[datetime.datetime]
         self.finalized_only = True
         self.include_anonymous = False
-        self.primary_idnum = None  # type: int
+        self.primary_idnum = None  # type: Optional[int]
         self.require_idnum_mandatory = True
 
         # Database
@@ -278,7 +278,7 @@ class ExportRecipientInfo(object):
 
         # File/RiO
 
-        self.rio_idnum = None  # type: int
+        self.rio_idnum = None  # type: Optional[int]
         self.rio_uploading_user = ""
         self.rio_document_type = ""
 

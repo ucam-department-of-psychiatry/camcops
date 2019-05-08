@@ -54,9 +54,13 @@ class Lynall2LifeEvents(TaskHasPatientMixin, Task):
     """
     __tablename__ = "lynall_2_iam_lifeevents"
     shortname = "Lynall_2_LifeEvents"
-    longname = "Lynall M-E — 2 — IAM — Life events"
 
     # *** fields
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Lynall M-E — 2 — IAM — Life events")
 
     def is_complete(self) -> bool:
         return False # ***
