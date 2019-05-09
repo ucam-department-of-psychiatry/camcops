@@ -17,6 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _Babel: http://babel.pocoo.org/
+
+
 Internationalization
 --------------------
 
@@ -306,7 +309,7 @@ Updating server strings
 There is a CamCOPS development tool, ``build_translations.py``. Its help is as
 follows:
 
-.. literalinclude:: build_translation_help.txt
+.. literalinclude:: build_translations_help.txt
     :language: none
 
 

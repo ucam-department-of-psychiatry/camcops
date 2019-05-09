@@ -1542,6 +1542,7 @@ class AllowedGroupsSequence(GroupsSequenceBase):
         super().__init__(*args, **kwargs)
 
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        super().after_bind(node, kw)
         self.description = self.or_join_description
 
 

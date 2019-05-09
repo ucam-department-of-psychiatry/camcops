@@ -2048,7 +2048,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - Search for ``if_sqlserver_disable_constraints_triggers``.
 
-  .. todo:: check this fixes the SQL Server "DELETE" bug ***
+  .. todo:: check this fixes the SQL Server "DELETE" bug +++
 
 - Excel XLSX and OpenOffice/LibreOffice ODS formats supported for basic
   download.
@@ -2076,16 +2076,16 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
-  .. todo:: IN PROGRESS ***
+  .. todo:: IN PROGRESS +++
 
 - :ref:`Lynall M-E — 1 — IAM study — medical history <lynall_1>`
 
-  .. todo:: IN PROGRESS ***
+  .. todo:: IN PROGRESS +++
 
 - :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2>`
 
-  .. todo:: IN PROGRESS ***
+  .. todo:: IN PROGRESS +++
 
 - :ref:`Kirby delay discounting task <kirby>`
 
-  .. todo:: IN PROGRESS ***
+  .. todo:: IN PROGRESS +++

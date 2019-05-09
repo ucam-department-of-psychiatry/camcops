@@ -83,6 +83,7 @@ All tasks
     ifs.rst
     irac.rst
     khandaker_1.rst
+    kirby.rst
     lynall_1.rst
     lynall_2.rst
     mast.rst

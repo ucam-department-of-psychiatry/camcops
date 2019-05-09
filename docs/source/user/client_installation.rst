@@ -17,6 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. include:: include_tabletdefs.rst
+
 Installing and configuring the client
 =====================================
 
@@ -402,6 +404,13 @@ Good to go! See :ref:`using the tablet app <client_using>`.
 
 Other CamCOPS app settings
 --------------------------
+
+Language
+~~~~~~~~
+
+|language|
+
+You can choose the language in which CamCOPS operates.
 
 Questionnaire font size and DPI settings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

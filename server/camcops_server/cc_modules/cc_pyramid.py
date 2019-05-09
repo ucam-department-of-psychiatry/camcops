@@ -319,7 +319,7 @@ MAKO_LOOKUP = TemplateLookup(
 
 
 class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
-    """
+    r"""
     A Mako template renderer that, when called:
 
     (a) loads the Mako template
@@ -447,6 +447,7 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
         {"filename": ...}  # edited
         __M_END_METADATA
         '''
+
     """  # noqa
     def __call__(self, value: Dict[str, Any], system: Dict[str, Any]) -> str:
         if DEBUG_TEMPLATE_PARAMETERS:

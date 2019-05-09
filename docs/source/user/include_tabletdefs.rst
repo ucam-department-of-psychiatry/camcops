@@ -217,6 +217,11 @@
    :height: 24px
    :width: 24px
 
+.. |language| image:: ../_app_icons/language.png
+   :align: middle
+   :height: 24px
+   :width: 24px
+
 .. |locked| image:: ../_app_icons/locked.png
    :align: middle
    :height: 24px
