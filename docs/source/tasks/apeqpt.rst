@@ -26,8 +26,6 @@ Assessment Patient Experience Questionnaire for Psychological Therapies (APEQPT)
 
 |anonymous|
 
-.. include:: include_data_collection_plus_local_upgrade.rst
-
 Sources
 ~~~~~~~
 
@@ -42,8 +40,14 @@ Sources
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Developed within the UK NHS IAPT programme.
+- Developed within the UK National Health Service (NHS) Improving Access to
+  Psychological Therapies (IAPT) programme.
 
-- **Formal rights to be established.**
+- "The Assessment Patient Experience Questionnaire: For Psychological Therapies
+  was developed by the Evidence Based Practice Unit (EBPU) and the Child
+  Outcomes Research Consortium (CORC) as part of work for the CYP IAPT
+  initiative. The APEQPT is free to use and amend." -- Lee Atkins, CORC
+  (www.corc.uk.net), personal communication to Rudolf Cardinal, 23 May 2019.
+  [CYP: Children & Young People.]
 
 - Therefore, operating on the premise of "institutional permission required".

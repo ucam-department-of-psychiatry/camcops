@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="apeqpt">
+
+    <!--
+        Assessment Patient Experience Questionnaire for Psychological Therapies (APEQPT)
+
+        "The Assessment Patient Experience Questionnaire: For Psychological Therapies
+        was developed by the Evidence Based Practice Unit (EBPU) and the Child
+        Outcomes Research Consortium (CORC) as part of work for the CYP IAPT
+        initiative. The APEQPT is free to use and amend." - Lee Atkins, CORC
+        (www.corc.uk.net), personal communication to Rudolf Cardinal, 23 May 2019.
+    -->
+
+    <!-- Instructions -->
+    <string name="instructions_to_subject_1">Please help us to improve our service by answering some questions about the service you have so far received.  We are interested in your most honest opinions, whether they are positive or negative.</string>
+    <string name="instructions_to_subject_2">Please answer all of the questions. We also welcome your comments and suggestions.</string>
+
+    <!-- Datetime question -->
+    <string name="q_date">Date &amp; Time the Assessment Tool was Completed</string>
+
+    <!-- Headings -->
+    <string name="h1">Choice</string>
+    <string name="h2">Satisfaction</string>
+
+    <!-- Choice Questions and summaries -->
+    <string name="q1_choice">Were you given information about options for choosing a treatment that is appropriate for your problems?</string>
+    <string name="q2_choice">Do you prefer any of the treatments among the options available?</string>
+    <string name="q3_choice">Have you been offered your preference?</string>
+    <string name="q1_choice_s">(Adequate information provided)</string>
+    <string name="q2_choice_s">(Treatment preference)</string>
+    <string name="q3_choice_s">(Preference offered)</string>
+
+    <!-- Choice Answers -->
+    <string name="a0_choice">No</string>
+    <string name="a1_choice">Yes</string>
+    <string name="a2_choice">N/A</string>
+
+    <!-- Satisfaction Questions and summaries -->
+    <string name="q1_satisfaction">How satisfied were you with your assessment</string>
+    <string name="q2_satisfaction">Please use this space to tell us about your experience of our service</string>
+    <string name="q2_satisfaction_s">Additional feedback</string>
+
+    <!-- Satisfaction Answers -->
+    <string name="a4_satisfaction">Completely Satisfied</string>
+    <string name="a3_satisfaction">Mostly Satisfied</string>
+    <string name="a2_satisfaction">Neither Satisfied nor Dissatisfied</string>
+    <string name="a1_satisfaction">Not Satisfied</string>
+    <string name="a0_satisfaction">Not at all Satisfied</string>
+
+    <!-- Thankyou! -->
+    <string name="thanks">Thank you very much. We appreciate your help.</string>
+
+  </task>
+</resources>

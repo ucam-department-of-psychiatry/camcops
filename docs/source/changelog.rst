@@ -2074,6 +2074,34 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix to ``SingleTaskMenu``: if you had a patient unselected, then locked
   the app, the task list wasn't appropriately refreshed.
 
+- Bugfix for SQL ``DATETIME`` columns when used via database URLs like
+  ``mysql+mysqldb://..`` rather than ``mysql+pymysql://``.
+
+  - Bug report: https://github.com/RudolfCardinal/camcops/issues/2 -- with
+    thanks to Martin Burchell.
+  - Symptom: when running e.g. ``camcops_server make_superuser``, crashes with
+    error ``sqlalchemy.exc.OperationalError:
+    (_mysql_exceptions.OperationalError) (1292, "Incorrect datetime value:
+    '2019-05-27T15:31:37.009078+00:00' for column 'last_password_change_utc' at
+    row 1")``.
+  - Reason: the ``mysqlclient`` (MySQLdb) interface, at least
+    ``mysqlclient==1.3.13``, mis-handles Pendulum objects.
+  - See also:
+
+    - :ref:`DB_URL <serverconfig_site_db_url>`.
+    - https://crateanon.readthedocs.io/en/latest/installation/database_drivers.html
+
+  - Fixes:
+
+    - Specific: in :meth:`camcops_server.cc_modules.cc_user.User.set_password`,
+      change ``self.last_password_change_utc = req.now_utc`` to
+      ``self.last_password_change_utc = req.now_utc_no_tzinfo``.
+    - Similarly for ``last_login_at_utc``.
+    - There are probably others, too. But then a generic fix: see modifications
+      to driver conversion systems, as per https://pypi.org/project/pendulum/,
+      applied in ``camcops_server.cc_modules.cc_db`` upon import. Tested and
+      working.
+
 - New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
   .. todo:: IN PROGRESS +++

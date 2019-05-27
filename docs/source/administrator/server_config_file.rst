@@ -118,6 +118,8 @@ Options for the "[site]" section
 Database connection
 ~~~~~~~~~~~~~~~~~~~
 
+.. _serverconfig_site_db_url:
+
 DB_URL
 ######
 
@@ -126,7 +128,7 @@ DB_URL
 The SQLAlchemy connection URL for the CamCOPS database. See
 http://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
 
-- MySQL under Linux via mysqlclient
+- MySQL under Linux via mysqlclient:
 
   .. code-block:: none
 
@@ -135,6 +137,14 @@ http://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
     DB_URL = mysql+mysqldb://<username>:<password>@<host>:<port>/<database>?charset=utf8
 
   (The default MySQL port is 3306, and 'localhost' is often the right host.)
+
+- MySQL under Linux via pymysql:
+
+  .. code-block:: none
+
+    $ pip install pymysql
+
+    DB_URL = mysql+pymysql://<username>:<password>@<host>:<port>/<database>?charset=utf8
 
 - SQL Server under Windows via ODBC and username/password authentication.
 
@@ -149,6 +159,9 @@ http://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
   .. code-block:: none
 
     DB_URL = mssql+pyodbc://@<odbc_dsn_name>
+
+For our notes on database drivers for a different software package, see
+https://crateanon.readthedocs.io/en/latest/installation/database_drivers.html.
 
 
 DB_ECHO

@@ -408,7 +408,7 @@ Other CamCOPS app settings
 Language
 ~~~~~~~~
 
-|language|
+:menuselection:`Settings --> Choose language` |language|
 
 You can choose the language in which CamCOPS operates.
 

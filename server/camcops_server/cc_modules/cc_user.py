@@ -599,7 +599,7 @@ class User(Base):
         """
         self.hashedpw = rnc_crypto.hash_password(new_password,
                                                  BCRYPT_DEFAULT_LOG_ROUNDS)
-        self.last_password_change_utc = req.now_utc
+        self.last_password_change_utc = req.now_utc_no_tzinfo
         self.must_change_password = False
         audit(req, "Password changed for user " + self.username)
 
@@ -624,7 +624,7 @@ class User(Base):
         """
         self.clear_login_failures(req)
         self.set_password_change_flag_if_necessary(req)
-        self.last_login_at_utc = req.now_utc
+        self.last_login_at_utc = req.now_utc_no_tzinfo
 
     def set_password_change_flag_if_necessary(self,
                                               req: "CamcopsRequest") -> None:

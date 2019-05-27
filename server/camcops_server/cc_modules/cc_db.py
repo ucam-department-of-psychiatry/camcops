@@ -36,6 +36,7 @@ from typing import (Any, Dict, Generator, List, Optional, Set, Tuple, Type,
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
+from pendulum import DateTime as Pendulum
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
@@ -72,6 +73,40 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
+
+# =============================================================================
+# Hacks for specific database drivers
+# =============================================================================
+
+try:
+    import MySQLdb
+    import MySQLdb.converters
+except ImportError:
+    MySQLdb = None
+
+try:
+    import pymysql
+    import pymysql.converters
+except ImportError:
+    pymysql = None
+
+
+# -----------------------------------------------------------------------------
+# Pendulum; see https://pypi.org/project/pendulum/
+# -----------------------------------------------------------------------------
+
+if MySQLdb:
+    log.debug("Hacking MySQLdb to support pendulum.DateTime")
+    MySQLdb.converters.conversions[Pendulum] = MySQLdb.converters.DateTime2literal  # noqa
+if pymysql:
+    log.debug("Hacking pymysql to support pendulum.DateTime")
+    pymysql.converters.conversions[Pendulum] = pymysql.converters.escape_datetime  # noqa
+
+
+# =============================================================================
+# Constants
+# =============================================================================
 
 T = TypeVar('T')
 
