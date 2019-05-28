@@ -31,8 +31,8 @@ client.**
 
 from collections import OrderedDict
 import logging
-from typing import (Any, Dict, Generator, List, Optional, Set, Tuple, Type,
-                    TYPE_CHECKING, TypeVar, Union)
+from typing import (Any, Callable, Dict, Generator, List, Optional, Set, Tuple,
+                    Type, TYPE_CHECKING, TypeVar, Union)
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
@@ -79,6 +79,11 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Hacks for specific database drivers
 # =============================================================================
 
+CRASH_ON_BAD_CONVERSIONS = False  # for debugging only!
+
+if CRASH_ON_BAD_CONVERSIONS:
+    log.error("DANGER: CRASH_ON_BAD_CONVERSIONS set in cc_db.py")
+
 try:
     import MySQLdb
     import MySQLdb.converters
@@ -91,17 +96,101 @@ try:
 except ImportError:
     pymysql = None
 
+_SQL_LITERAL_TYPE = Union[int, float, str]
+
+_MYSQL_CONVERSION_DICT_TYPE = Dict[Any, Callable]
+_MYSQLDB_PYTHON_TO_DB_TYPE = Callable[[Any, _MYSQL_CONVERSION_DICT_TYPE],
+                                      _SQL_LITERAL_TYPE]  # f(o, d) -> s
+_MYSQLDB_DB_TO_PYTHON_TYPE = Callable[[_SQL_LITERAL_TYPE], Any]  # f(s) -> o
+
+_PYMYSQL_ENCODER_DICT_TYPE = Dict[Type, Callable]
+_PYMYSQL_PYTHON_TO_DB_TYPE = Callable[[Any, Optional[_PYMYSQL_ENCODER_DICT_TYPE]],  # noqa
+                                      _SQL_LITERAL_TYPE]  # f(o, mapping) -> s
+_PYMYSQL_DB_TO_PYTHON_TYPE = Callable[[_SQL_LITERAL_TYPE], Any]
+
+
+# noinspection PyUnreachableCode
+def mysqldb_crash_on_bad_conversion(o: Any,
+                                    d: _MYSQL_CONVERSION_DICT_TYPE) -> \
+        _SQL_LITERAL_TYPE:
+    """
+    Reports a bad conversion and crashes. For debugging only (obviously)!
+
+    **Conversions by mysqlclient (MySQLdb)**
+
+    As per the help docstring for ``MySQLdb/converters.py``,
+
+    - the Python-to-database conversion function has the signature ``f(o, d)``
+      where ``o`` is the thing to be converted (such as a datetime.datetime)
+      and ``d`` is the conversion dictionary; it returns an SQL literal value.
+
+    - The database-to-Python conversion function has the argument ``f(s)``
+      where ``s`` is a string; it returns a Python object.
+
+    Both types of functions are stored in ``MySQLdb.converters``, which is a
+    ``dict``. The keys named ``FIELD_TYPE.*`` are the database-to-Python
+    converters; the others are the Python-to-database converters.
+
+    **Conversions by pymysql**
+
+    Similar (for back compatibility), but not the same.
+
+    - ``pymysql.converters.conversions`` is ``pymysql.converters.decoders`` and
+      contains database-to-Python converters.
+
+    - ``pymysql.converters.encoders`` contains Python-to-database converters.
+
+    Args:
+        o: Python object
+        d: MySQLdb conversion dictionary
+
+    Returns:
+        SQL literal
+    """
+    failmsg = (
+        f"mysqldb_crash_on_bad_conversion: attempting to convert bad Python "
+        f"object to database: {o!r}. Conversion dict is {d!r}."
+    )
+    log.critical(failmsg)
+    raise RuntimeError(failmsg)
+    return ""
+
+
+# noinspection PyUnreachableCode
+def pymysql_crash_on_bad_conversion(obj: Any,
+                                    mapping: _PYMYSQL_ENCODER_DICT_TYPE) -> \
+        _SQL_LITERAL_TYPE:
+    """
+    See :func:`mysqldb_crash_on_bad_conversion`.
+    """
+    failmsg = (
+        f"pymysql_crash_on_bad_conversion: attempting to convert bad Python "
+        f"object to database: {obj!r}. Mapping dict is {mapping!r}."
+    )
+    log.critical(failmsg)
+    raise RuntimeError(failmsg)
+    return ""
+
 
 # -----------------------------------------------------------------------------
-# Pendulum; see https://pypi.org/project/pendulum/
+# Pendulum; see https://pypi.org/project/pendulum/ -- but note that it says
+# "pymysql.converters.conversions" but should say
+# "pymysql.converters.encoders".
 # -----------------------------------------------------------------------------
 
 if MySQLdb:
     log.debug("Hacking MySQLdb to support pendulum.DateTime")
-    MySQLdb.converters.conversions[Pendulum] = MySQLdb.converters.DateTime2literal  # noqa
+    if CRASH_ON_BAD_CONVERSIONS:
+        MySQLdb.converters.conversions[Pendulum] = mysqldb_crash_on_bad_conversion  # noqa
+    else:
+        MySQLdb.converters.conversions[Pendulum] = MySQLdb.converters.DateTime2literal  # noqa
+
 if pymysql:
     log.debug("Hacking pymysql to support pendulum.DateTime")
-    pymysql.converters.conversions[Pendulum] = pymysql.converters.escape_datetime  # noqa
+    if CRASH_ON_BAD_CONVERSIONS:
+        pymysql.converters.encoders[Pendulum] = pymysql_crash_on_bad_conversion
+    else:
+        pymysql.converters.encoders[Pendulum] = pymysql.converters.escape_datetime  # noqa
 
 
 # =============================================================================

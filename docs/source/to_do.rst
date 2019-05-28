@@ -30,6 +30,7 @@ Tasks
 
 **Priority**
 
+- **SEE CHANGELOG**
 
 **To be prioritized**
 
