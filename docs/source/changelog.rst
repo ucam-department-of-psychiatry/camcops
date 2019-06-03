@@ -2110,9 +2110,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   .. todo:: IN PROGRESS +++ a/w permission clarification
 
-- :ref:`Lynall M-E — 1 — IAM study — medical history <lynall_1_iam_medical>`
-
-  .. todo:: IN PROGRESS +++
+- New task: :ref:`Lynall M-E — 1 — IAM study — medical history
+  <lynall_1_iam_medical>`
 
 - :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
 
@@ -2129,3 +2128,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - **MATERNAL ANTENATAL ATTACHMENT SCALE**
 
   .. todo:: TO BE STARTED ++
+
+- **SORT OUT camcops.xml AND DOCUMENT THE VARIOUS STRING MECHANISMS**

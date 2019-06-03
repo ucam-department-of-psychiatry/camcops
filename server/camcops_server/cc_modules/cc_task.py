@@ -2346,6 +2346,57 @@ class Task(GenericTabletRecordMixin, Base):
             defaultvalue,
             provide_default_if_none=provide_default_if_none)
 
+    def make_options_from_xstrings(self,
+                                   req: "CamcopsRequest",
+                                   prefix: str, first: int, last: int,
+                                   suffix: str = "") -> Dict[int, str]:
+        """
+        Creates a lookup dictionary from xstrings.
+
+        Args:
+            req: :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            prefix: prefix for xstring
+            first: first value
+            last: last value
+            suffix: optional suffix
+
+        Returns:
+            dict: Each entry maps ``value`` to an xstring named
+            ``<PREFIX><VALUE><SUFFIX>``.
+
+        """
+        d = {}  # type: Dict[int, str]
+        if first > last:  # descending order
+            for i in range(first, last - 1, -1):
+                d[i] = self.xstring(req, f"{prefix}{i}{suffix}")
+        else:  # ascending order
+            for i in range(first, last + 1):
+                d[i] = self.xstring(req, f"{prefix}{i}{suffix}")
+        return d
+
+    @staticmethod
+    def make_options_from_numbers(first: int, last: int) -> Dict[int, str]:
+        """
+        Creates a simple dictionary mapping numbers to string versions of those
+        numbers. Usually for subsequent (more interesting) processing!
+
+        Args:
+            first: first value
+            last: last value
+
+        Returns:
+            dict
+
+        """
+        d = {}  # type: Dict[int, str]
+        if first > last:  # descending order
+            for i in range(first, last - 1, -1):
+                d[i] = str(i)
+        else:  # ascending order
+            for i in range(first, last + 1):
+                d[i] = str(i)
+        return d
+
 
 # =============================================================================
 # Collating all task tables for specific purposes

@@ -120,6 +120,7 @@ from camcops_server.cc_modules.cc_string import (
     MISSING_LOCALE,
 )
 from camcops_server.cc_modules.cc_tabletsession import TabletSession
+from camcops_server.cc_modules.cc_text import SS, server_string
 from camcops_server.cc_modules.cc_user import User
 
 if TYPE_CHECKING:
@@ -845,6 +846,7 @@ class CamcopsRequest(Request):
                    language: str = None) -> Optional[str]:
         """
         Returns a web-safe version of an appstring (an app-wide extra string).
+        This uses the XML file shared between the client and the server.
         """
         value = self.xstring(APPSTRING_TASKNAME, stringname, default,
                              provide_default_if_none=provide_default_if_none,
@@ -904,6 +906,10 @@ class CamcopsRequest(Request):
     def gettext(self, message: str) -> str:
         """
         Returns a version of ``msg`` translated into the current language.
+        This is used for server-only strings.
+
+        The ``gettext()`` function is normally aliased to ``_()`` for
+        auto-translation tools to read the souce code.
         """
         lang = self.language
         # We can't work out if the string is missing; gettext falls back to
@@ -925,6 +931,43 @@ class CamcopsRequest(Request):
             return f"[{message}→{lang}→{translated}]"
         else:
             return translated
+
+    def wgettext(self, message: str) -> str:
+        """
+        A web-safe version of :func:`gettext`.
+        """
+        return ws.webify(self.gettext(message))
+
+    def sstring(self, which_string: SS) -> str:
+        """
+        Returns a translated server string via a lookup mechanism.
+
+        Args:
+            which_string:
+                which string? A :class:`camcops_server.cc_modules.cc_text.SS`
+                enumeration value
+
+        Returns:
+            str: the string
+
+        """
+        return server_string(self, which_string)
+
+    def wsstring(self, which_string: SS) -> str:
+        """
+        Returns a web-safe version of a translated server string via a lookup
+        mechanism.
+
+        Args:
+            which_string:
+                which string? A :class:`camcops_server.cc_modules.cc_text.SS`
+                enumeration value
+
+        Returns:
+            str: the string
+
+        """
+        return ws.webify(self.sstring(which_string))
 
     # -------------------------------------------------------------------------
     # PNG versus SVG output, so tasks don't have to care (for e.g. PDF/web)

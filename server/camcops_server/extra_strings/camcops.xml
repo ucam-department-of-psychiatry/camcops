@@ -100,6 +100,7 @@
     <string name="absent">Absent</string>
     <string name="absent_or_mild">Absent or mild</string>
     <string name="anonymous_task">Anonymous task</string>
+    <string name="answer">Answer</string>
     <string name="auditory">Auditory</string>
 
     <string name="category">Category</string>
@@ -235,6 +236,7 @@
     <string name="absent">Fraværende</string>
     <string name="absent_or_mild">Fraværende eller mild</string>
     <string name="anonymous_task">Anonym opgave</string>
+    <string name="answer">Svar</string>
     <string name="auditory">Auditiv</string>
 
     <string name="category">Kategori</string>

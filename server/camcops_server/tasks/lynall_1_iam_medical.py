@@ -26,7 +26,7 @@ camcops_server/tasks/lynall_1_iam_medical.py
 
 """
 
-from typing import Any, Dict, Tuple, Type
+from typing import Any, Dict, List, Optional, Union
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -36,8 +36,10 @@ from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import (
     bold,
+    get_yes_no,
     get_yes_no_none,
     tr_span_col,
+    tr_qa,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -46,6 +48,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_text import SS
 
 
 # =============================================================================
@@ -64,6 +67,9 @@ class Lynall1IamMedicalHistory(TaskHasPatientMixin, Task):
     Q4_N_OPTIONS = 5
     Q4_OPTION_PSYCH_BEFORE_PHYSICAL = 1
     Q4_OPTION_PSYCH_AFTER_PHYSICAL = 2
+    Q8_N_OPTIONS = 2
+    Q7B_MIN = 1
+    Q7B_MAX = 10
 
     q1_age_first_inflammatory_sx = Column(
         "q1_age_first_inflammatory_sx", Integer,
@@ -301,4 +307,122 @@ class Lynall1IamMedicalHistory(TaskHasPatientMixin, Task):
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        return "" # ***
+        def plainrow(qname: str, xstring_name: str, value: Any,
+                     if_applicable: bool = False, qsuffix: str = "") -> str:
+            ia_str = (
+                f"<i>[{req.wsstring(SS.IF_APPLICABLE)}]</i> "
+                if if_applicable else ""
+            )
+            q = f"{ia_str}{qname}. {self.wxstring(req, xstring_name)}{qsuffix}"
+            return tr_qa(q, value)
+
+        def lookuprow(qname: str, xstring_name: str, key: Optional[int],
+                      lookup: Dict[int, str],
+                      if_applicable: bool = False,
+                      qsuffix: str = "") -> str:
+            description = lookup.get(key, None)
+            value = None if description is None else f"{key}: {description}"
+            return plainrow(qname, xstring_name, value,
+                            if_applicable=if_applicable, qsuffix=qsuffix)
+
+        def ynrow(qname: str, xstring_name: str,
+                  value: Optional[Union[int, bool]]) -> str:
+            return plainrow(qname, xstring_name, get_yes_no(req, value))
+
+        def ynnrow(qname: str, xstring_name: str,
+                   value: Optional[Union[int, bool]],
+                   if_applicable: bool = False) -> str:
+            return plainrow(qname, xstring_name, get_yes_no_none(req, value),
+                            if_applicable=if_applicable)
+
+        q2_options = self.make_options_from_xstrings(
+            req, "q2_option", 1, self.Q2_N_OPTIONS)
+        q3_options = self.make_options_from_xstrings(
+            req, "q3_option", 1, self.Q3_N_OPTIONS)
+        q4a_options = self.make_options_from_xstrings(
+            req, "q4a_option", 1, self.Q4_N_OPTIONS)
+        q7a_options = self.make_options_from_xstrings(
+            req, "q7a_option", 0, 1)
+        q7b_options = self.make_options_from_numbers(self.Q7B_MIN, self.Q7B_MAX)  # noqa
+        _q7b_anchors = []  # type: List[str]
+        for _o in [1, 10]:
+            _wxstringname = f"q7b_anchor_{_o}"
+            _s = f'{_o}: {self.wxstring(req, _wxstringname)}'
+            q7b_options[_o] = _s
+            _q7b_anchors.append(_s)
+        q7b_explanation = f" <i>({' // '.join(_q7b_anchors)})</i>"
+        q8_options = self.make_options_from_xstrings(
+            req, "q8_option", 1, self.Q8_N_OPTIONS)
+        q9_options = self.make_options_from_xstrings(
+            req, "q9_option", 0, 1)
+
+        return f"""
+          <div class="{CssClass.SUMMARY}">
+            <table class="{CssClass.SUMMARY}">
+              {self.get_is_complete_tr(req)}
+            </table>
+          </div>
+          <table class="{CssClass.TASKDETAIL}">
+            <tr>
+              <th width="60%">{req.sstring(SS.QUESTION)}</th>
+              <th width="40%">{req.sstring(SS.ANSWER)}</th>
+            </tr>
+            {plainrow("1", "q1_question", self.q1_age_first_inflammatory_sx)}
+            {lookuprow("2", "q2_question", self.q2_when_psych_sx_started, q2_options)}
+            {lookuprow("3", "q3_question", self.q3_worst_symptom_last_month, q3_options)}
+            {lookuprow("4a", "q4a_question", self.q4a_symptom_timing, q4a_options)}
+            {plainrow("4b", "q4b_question", self.q4b_days_psych_before_phys, True)}
+            {plainrow("4c", "q4c_question", self.q4c_days_psych_after_phys, True)}
+            {ynnrow("5", "q5_question", self.q5_antibiotics)}
+            {ynnrow("6a", "q6a_question", self.q6a_inpatient_last_y)}
+            {plainrow("6b", "q6b_question", self.q6b_inpatient_weeks, True)}
+            {lookuprow("7a", "q7a_question", int(self.q7a_sx_last_2y), q7a_options)}
+            {lookuprow("7b", "q7b_question", self.q7b_variability, q7b_options,
+                       True, qsuffix=q7b_explanation)}
+            {lookuprow("8", "q8_question", int(self.q8_smoking), q8_options)}
+            {lookuprow("9", "q9_question", int(self.q9_pregnant), q9_options)}
+            <tr class="subheading">
+              <td><i>{self.wxstring(req, "q10_stem")}</i></td>
+              <td></td>
+            </tr>
+            {plainrow("10a", "q10a_question", self.q10a_effective_rx_physical)}
+            {plainrow("10b", "q10b_question", self.q10b_effective_rx_psych)}
+            <tr class="subheading">
+              <td><i>{self.wxstring(req, "q11_title")}</i></td>
+              <td></td>
+            </tr>
+            {ynrow("11a", "depression", self.q11a_ph_depression)}
+            {ynrow("11b", "bipolar", self.q11b_ph_bipolar)}
+            {ynrow("11c", "schizophrenia", self.q11c_ph_schizophrenia)}
+            {ynrow("11d", "autistic_spectrum", self.q11d_ph_autistic_spectrum)}
+            {ynrow("11e", "ptsd", self.q11e_ph_ptsd)}
+            {ynrow("11f", "other_anxiety", self.q11f_ph_other_anxiety)}
+            {ynrow("11g", "personality_disorder", self.q11g_ph_personality_disorder)}
+            {ynrow("11h", "other_psych", self.q11h_ph_other_psych)}
+            {plainrow("11h", "other_psych", self.q11h_ph_other_detail, True)}
+            <tr class="subheading">
+              <td><i>{self.wxstring(req, "q12_title")}</i></td>
+              <td></td>
+            </tr>
+            {ynrow("12a", "depression", self.q12a_fh_depression)}
+            {ynrow("12b", "bipolar", self.q12b_fh_bipolar)}
+            {ynrow("12c", "schizophrenia", self.q12c_fh_schizophrenia)}
+            {ynrow("12d", "autistic_spectrum", self.q12d_fh_autistic_spectrum)}
+            {ynrow("12e", "ptsd", self.q12e_fh_ptsd)}
+            {ynrow("12f", "other_anxiety", self.q12f_fh_other_anxiety)}
+            {ynrow("12g", "personality_disorder", self.q12g_fh_personality_disorder)}
+            {ynrow("12h", "other_psych", self.q12h_fh_other_psych)}
+            {plainrow("12h", "other_psych", self.q12h_fh_other_detail, True)}
+            <tr class="subheading">
+              <td><i>{self.wxstring(req, "q13_title")}</i></td>
+              <td></td>
+            </tr>
+            {ynnrow("13a", "q13a_question", self.q13a_behcet)}
+            {ynnrow("13b", "q13b_question", self.q13b_oral_ulcers, True)}
+            {ynnrow("13c", "q13c_question", self.q13c_oral_age_first, True)}
+            {ynnrow("13d", "q13d_question", self.q13d_oral_scarring, True)}
+            {ynnrow("13e", "q13e_question", self.q13e_genital_ulcers, True)}
+            {ynnrow("13f", "q13f_question", self.q13f_genital_age_first, True)}
+            {ynnrow("13g", "q13g_question", self.q13g_genital_scarring, True)}
+          </table>
+        """  # noqa
