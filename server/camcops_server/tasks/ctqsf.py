@@ -82,7 +82,7 @@ class Ctqsf(TaskHasPatientMixin, Task):
         return Version("2.2.8")
 
     def is_complete(self) -> bool:
-        return self.are_all_fields_complete(self.QUESTION_FIELDNAMES)
+        return self.all_fields_not_none(self.QUESTION_FIELDNAMES)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         return "" # *** IMPLEMENT

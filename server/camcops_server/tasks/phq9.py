@@ -111,7 +111,7 @@ class Phq9(TaskHasPatientMixin, Task,
         return _("Patient Health Questionnaire-9")
 
     def is_complete(self) -> bool:
-        if not self.are_all_fields_complete(self.MAIN_QUESTIONS):
+        if self.any_fields_none(self.MAIN_QUESTIONS):
             return False
         if self.total_score() > 0 and self.q10 is None:
             return False

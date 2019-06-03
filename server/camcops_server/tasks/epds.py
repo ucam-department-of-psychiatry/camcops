@@ -116,7 +116,7 @@ class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
         ]
 
     def is_complete(self) -> bool:
-        return self.are_all_fields_complete(self.TASK_FIELDS)
+        return self.all_fields_not_none(self.TASK_FIELDS)
 
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)

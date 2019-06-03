@@ -20,11 +20,10 @@
 #include "spacer.h"
 #include "common/uiconst.h"
 
+
 Spacer::Spacer(QWidget* parent) :
-    QWidget(parent),
-    m_size(uiconst::SPACE, uiconst::SPACE)
+    Spacer(QSize(uiconst::SPACE, uiconst::SPACE), parent)
 {
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }
 
 

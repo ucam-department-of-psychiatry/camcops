@@ -224,7 +224,7 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(WORDLIST) and
+            self.all_fields_not_none(WORDLIST) and
             self.field_contents_valid()
         )
 

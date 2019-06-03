@@ -1428,18 +1428,14 @@ class CecaQ3(TaskHasPatientMixin, Task):
                 self.s1c_separated_from_father is None):
             return False
         if self.s1c_separated_from_mother:
-            if not self.are_all_fields_complete([
-                "s1c_first_separated_from_mother_aged",
-                "s1c_mother_how_long_first_separation_years",
-                "s1c_mother_separation_reason"
-            ]):
+            if self.any_fields_none(["s1c_first_separated_from_mother_aged",
+                                     "s1c_mother_how_long_first_separation_years",  # noqa
+                                     "s1c_mother_separation_reason"]):
                 return False
         if self.s1c_separated_from_father:
-            if not self.are_all_fields_complete([
-                "s1c_first_separated_from_father_aged",
-                "s1c_father_how_long_first_separation_years",
-                "s1c_father_separation_reason"
-            ]):
+            if self.any_fields_none(["s1c_first_separated_from_father_aged",
+                                     "s1c_father_how_long_first_separation_years",  # noqa
+                                     "s1c_father_separation_reason"]):
                 return False
         return True
 
@@ -1500,7 +1496,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
         return True
 
     def complete_3c(self) -> bool:
-        return self.are_all_fields_complete([
+        return self.all_fields_not_none([
             "s3c_q1",
             "s3c_q2",
             "s3c_q3",
@@ -1593,22 +1589,18 @@ class CecaQ3(TaskHasPatientMixin, Task):
                 self.s5c_abuse_by_nonparent is None):
             return False
         if self.s5c_abused_by_mother:
-            if not self.are_all_fields_complete([
-                "s5c_mother_abuse_age_began",
-                "s5c_mother_hit_more_than_once",
-                "s5c_mother_hit_how",
-                "s5c_mother_injured",
-                "s5c_mother_out_of_control"
-            ]):
+            if self.any_fields_none(["s5c_mother_abuse_age_began",
+                                     "s5c_mother_hit_more_than_once",
+                                     "s5c_mother_hit_how",
+                                     "s5c_mother_injured",
+                                     "s5c_mother_out_of_control"]):
                 return False
         if self.s5c_abused_by_father:
-            if not self.are_all_fields_complete([
-                "s5c_father_abuse_age_began",
-                "s5c_father_hit_more_than_once",
-                "s5c_father_hit_how",
-                "s5c_father_injured",
-                "s5c_father_out_of_control"
-            ]):
+            if self.any_fields_none(["s5c_father_abuse_age_began",
+                                     "s5c_father_hit_more_than_once",
+                                     "s5c_father_hit_how",
+                                     "s5c_father_injured",
+                                     "s5c_father_out_of_control"]):
                 return False
         if (self.s5c_abuse_by_nonparent and
                 not self.s5c_nonparent_abuse_description):
@@ -1624,16 +1616,14 @@ class CecaQ3(TaskHasPatientMixin, Task):
                 self.s6_unwanted_intercourse == 0 and
                 self.s6_upsetting_sexual_adult_authority == 0):
             return True
-        if not self.are_all_fields_complete([
-            "s6_first_age",
-            "s6_first_person_known",
-            "s6_first_relative",
-            "s6_first_in_household",
-            "s6_first_more_than_once",
-            "s6_first_touch_privates_subject",
-            "s6_first_touch_privates_other",
-            "s6_first_intercourse"
-        ]):
+        if self.any_fields_none(["s6_first_age",
+                                 "s6_first_person_known",
+                                 "s6_first_relative",
+                                 "s6_first_in_household",
+                                 "s6_first_more_than_once",
+                                 "s6_first_touch_privates_subject",
+                                 "s6_first_touch_privates_other",
+                                 "s6_first_intercourse"]):
             return False
         # no checks for "other experience"
         return True

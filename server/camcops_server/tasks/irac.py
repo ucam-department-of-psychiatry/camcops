@@ -74,7 +74,7 @@ class Irac(TaskHasPatientMixin, Task):
         return _("Identify and Rate the Aim of the Contact")
 
     def is_complete(self) -> bool:
-        return (self.are_all_fields_complete(self.TASK_FIELDS) and
+        return (self.all_fields_not_none(self.TASK_FIELDS) and
                 self.field_contents_valid())
 
     def get_achieved_text(self, req: CamcopsRequest) -> str:

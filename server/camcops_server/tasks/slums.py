@@ -279,8 +279,8 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(self.PREAMBLE_FIELDS +
-                                         self.SCORED_FIELDS) and
+            self.all_fields_not_none(self.PREAMBLE_FIELDS +
+                                     self.SCORED_FIELDS) and
             self.field_contents_valid()
         )
 

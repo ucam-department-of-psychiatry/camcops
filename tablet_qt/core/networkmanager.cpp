@@ -766,7 +766,7 @@ void NetworkManager::registerSub3(QNetworkReply* reply)
     }
     statusMessage(tr("... received extra strings"));
     storeExtraStrings();
-    statusMessage(tr("Successfully registered."));
+    statusMessage(tr("Completed successfully."));
     succeed();
 }
 
@@ -808,6 +808,32 @@ void NetworkManager::fetchExtraStringsSub1(QNetworkReply* reply)
     statusMessage(tr("... received extra strings"));
     storeExtraStrings();
     succeed();
+}
+
+
+void NetworkManager::fetchAllServerInfo()
+{
+    statusMessage(tr("Fetching server info from ") + serverUrlDisplayString());
+    statusMessage(tr("Requesting ID info"));
+    Dict dict;
+    dict[KEY_OPERATION] = OP_GET_ID_INFO;
+    serverPost(dict, &NetworkManager::fetchAllServerInfoSub1);
+}
+
+
+void NetworkManager::fetchAllServerInfoSub1(QNetworkReply* reply)
+{
+    if (!processServerReply(reply)) {
+        return;
+    }
+    statusMessage(tr("... received identification information"));
+    storeServerIdentificationInfo();
+
+    statusMessage(tr("Requesting allowed tables"));
+    Dict dict;
+    dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
+    // Now we move across to the "registration" chain of functions:
+    serverPost(dict, &NetworkManager::registerSub2);
 }
 
 

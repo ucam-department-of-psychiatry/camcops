@@ -120,7 +120,7 @@ class Eq5d5l(TaskHasPatientMixin, Task):
         return _("EuroQol 5-Dimension, 5-Level Health Scale")
 
     def is_complete(self) -> bool:
-        return self.are_all_fields_complete(self.QUESTIONS)
+        return self.all_fields_not_none(self.QUESTIONS)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

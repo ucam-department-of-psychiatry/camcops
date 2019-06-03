@@ -304,10 +304,10 @@ class PerinatalPoem(Task):
         return self.future_participation == self.YES_INT
 
     def is_complete(self) -> bool:
-        if not self.are_all_fields_complete(self.REQUIRED_ALWAYS):
+        if self.any_fields_none(self.REQUIRED_ALWAYS):
             return False
         if (self.was_inpatient() and
-                not self.are_all_fields_complete(self.REQUIRED_INPATIENT)):
+                self.any_fields_none(self.REQUIRED_INPATIENT)):
             return False
         if not self.field_contents_valid():
             return False

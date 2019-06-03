@@ -244,7 +244,7 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(self.QFIELDS) and
+            self.all_fields_not_none(self.QFIELDS) and
             self.field_contents_valid()
         )
 

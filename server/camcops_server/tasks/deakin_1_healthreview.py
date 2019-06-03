@@ -305,7 +305,7 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete([
+            self.all_fields_not_none([
                 "ethnicity",
                 "handedness",
                 "education",

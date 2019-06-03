@@ -105,7 +105,7 @@ class Apeqpt(Task):
                  "For Psychological Therapies")
 
     def is_complete(self) -> bool:
-        if not self.are_all_fields_complete(self.MAIN_QUESTIONS):
+        if self.any_fields_none(self.MAIN_QUESTIONS):
             return False
         if not self.field_contents_valid():
             return False

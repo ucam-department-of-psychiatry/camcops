@@ -108,7 +108,7 @@ from camcops_server.tasks.khandaker_1_medicalhistory import (
 )
 # *** # from camcops_server.tasks.kirby import Kirby
 
-# *** # from camcops_server.tasks.lynall_1_iam_medical import Lynall1IamMedicalHistory  # noqa
+from camcops_server.tasks.lynall_1_iam_medical import Lynall1IamMedicalHistory
 # *** # from camcops_server.tasks.lynall_2_iam_life import Lynall2LifeEvents
 
 from camcops_server.tasks.mast import Mast

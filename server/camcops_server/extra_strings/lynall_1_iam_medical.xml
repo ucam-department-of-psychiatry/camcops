@@ -47,7 +47,9 @@
     <string name="q6b_question">For roughly how many weeks have you been a hospital inpatient in the last year?</string>
 
     <string name="q7_title">Q7: variability</string>
-    <string name="q7a_question">Have you had any symptoms in the last 2 years?</string>  <!-- RNC modification -->
+    <string name="q7a_question">Have you had symptoms (either physical or psychological) in the last 2 years?</string>  <!-- RNC modification -->
+    <string name="q7a_option1">Yes</string>
+    <string name="q7b_option0">No, I have felt well for the last 2 years</string>
     <string name="q7b_question">Taking your experience over the last two years, how variable are your symptoms?</string>
     <string name="q7b_anchor_10">My symptoms are there all the time</string>
     <string name="q7b_anchor_1">My symptoms come and go – sometimes they are very bad but sometimes I am fine and have no symptoms.</string>

@@ -123,7 +123,7 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         ]
 
     def is_complete(self) -> bool:
-        if not (self.are_all_fields_complete(self.TASK_FIELDS) and
+        if not (self.all_fields_not_none(self.TASK_FIELDS) and
                 self.field_contents_valid()):
             return False
         # Requirement for everything to be non-zero removed in v2.0.0
@@ -260,7 +260,7 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         )]
 
     def is_complete(self) -> bool:
-        return (self.are_all_fields_complete(self.TASK_FIELDS) and
+        return (self.all_fields_not_none(self.TASK_FIELDS) and
                 self.field_contents_valid())
 
     def get_rating_text(self, req: CamcopsRequest) -> str:

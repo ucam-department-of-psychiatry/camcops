@@ -18,6 +18,7 @@
 */
 
 #pragma once
+#include <QSize>
 #include "questionnairelib/quelement.h"
 
 
@@ -28,6 +29,9 @@ class QuSpacer : public QuElement
     Q_OBJECT
 public:
     QuSpacer();
+    QuSpacer(const QSize& size);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+protected:
+    QSize m_size;
 };

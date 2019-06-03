@@ -2104,6 +2104,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Caching for ``Task.isComplete()`` on the client.
 
+- New option :menuselection:`Settings --> Fetch all server info`.
+
 - New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
   .. todo:: IN PROGRESS +++ a/w permission clarification

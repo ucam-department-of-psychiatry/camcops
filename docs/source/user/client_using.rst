@@ -28,6 +28,7 @@ Using the client
     :local:
     :depth: 3
 
+
 Menus
 -----
 
@@ -36,6 +37,7 @@ Cognitive and Psychiatric Assessment Kit`.
 
 At any menu except the top menu, touch |back| (at the top left) to return to
 the previous menu.
+
 
 Locking
 -------
@@ -54,6 +56,7 @@ icon to change the lock status. The icon can appear as:
 - |privileged| **Privileged.** This mode is for administration, and allows full
   configuration of CamCOPS. You can enter privileged mode from the
   :tabletmenu:`|settings| Settings` menu.
+
 
 Patients
 --------
@@ -101,6 +104,7 @@ When editing a patient:
 
 - Touch |cancel| to cancel.
 
+
 Tasks
 -----
 
@@ -137,11 +141,13 @@ When a task is selected:
 
 - For anonymous tasks, touch |finishflag| to mark the task as finished.
 
+
 Anonymous tasks
 ---------------
 
 Some tasks are anonymous; they are not associated with any patient. (An example
 is the anonymous GMC patient satisfaction questionnaire.)
+
 
 Test subjects
 -------------
@@ -156,6 +162,7 @@ prohibited from doing this in a clinical environment, in which case you could
 set up a second training group in your database. (The disadvantage of that is
 the need for users, or their administrator, to select the proper group after
 training.)
+
 
 Questionnaire-style tasks
 -------------------------
@@ -235,6 +242,7 @@ When viewing a read-only facsimile of a questionnaire-style task:
   sometimes be available during editing, but will not then allow you to jump
   beyond the last seen or first incomplete page.)
 
+
 Uploading
 ---------
 
@@ -268,11 +276,13 @@ information stored on this device.
 
 You should see a message of success when the upload is complete.
 
+
 Seeing what you’ve uploaded
 ---------------------------
 
 Use any web browser (on a computer or tablet) to browse to your CamCOPS server.
 See the :ref:`web interface instructions <website_general>` for more detail.
+
 
 Help
 ----

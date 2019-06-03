@@ -2114,22 +2114,44 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return [getattr(self, f) for f in fields]
 
-    def is_field_complete(self, field: str) -> bool:
+    def is_field_not_none(self, field: str) -> bool:
         """
         Is the field not None?
         """
         return getattr(self, field) is not None
 
-    def are_all_fields_complete(self, fields: List[str]) -> bool:
+    def any_fields_none(self, fields: List[str]) -> bool:
         """
-        Are all specified fields not None?
+        Are any specified fields None?
         """
         for f in fields:
             if getattr(self, f) is None:
-                return False
-        return True
+                return True
+        return False
 
-    def n_complete(self, fields: List[str]) -> int:
+    def all_fields_not_none(self, fields: List[str]) -> bool:
+        """
+        Are all specified fields not None?
+        """
+        return not self.any_fields_none(fields)
+
+    def any_fields_null_or_empty_str(self, fields: List[str]) -> bool:
+        """
+        Are any specified fields either None or the empty string?
+        """
+        for f in fields:
+            v = getattr(self, f)
+            if v is None or v == "":
+                return True
+        return False
+
+    def are_all_fields_not_null_or_empty_str(self, fields: List[str]) -> bool:
+        """
+        Are all specified fields neither None nor the empty string?
+        """
+        return not self.any_fields_null_or_empty_str(fields)
+
+    def n_fields_not_none(self, fields: List[str]) -> int:
         """
         How many of the specified fields are not None?
         """
@@ -2139,7 +2161,7 @@ class Task(GenericTabletRecordMixin, Base):
                 total += 1
         return total
 
-    def n_incomplete(self, fields: List[str]) -> int:
+    def n_fields_none(self, fields: List[str]) -> int:
         """
         How many of the specified fields are None?
         """
@@ -2160,7 +2182,7 @@ class Task(GenericTabletRecordMixin, Base):
                 total += 1
         return total
 
-    def all_true(self, fields: List[str]) -> bool:
+    def all_truthy(self, fields: List[str]) -> bool:
         """
         Do all the specified fields evaluate to True (are they all truthy)?
         """

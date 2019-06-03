@@ -195,7 +195,7 @@ class Bdi(TaskHasPatientMixin, Task,
         return (
             self.field_contents_valid() and
             self.bdi_scale is not None and
-            self.are_all_fields_complete(TASK_SCORED_FIELDS)
+            self.all_fields_not_none(TASK_SCORED_FIELDS)
         )
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:

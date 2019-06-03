@@ -207,7 +207,7 @@ class Pbq(TaskHasPatientMixin, Task,
     def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
-            self.are_all_fields_complete(self.QUESTION_FIELDS)
+            self.all_fields_not_none(self.QUESTION_FIELDS)
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:

@@ -152,7 +152,7 @@ class Gbogres(TaskHasPatientMixin, Task):
         return self.standard_task_summary_fields()
 
     def is_complete(self) -> bool:
-        if not self.are_all_fields_complete(self.REQUIRED_FIELDS):
+        if self.any_fields_none(self.REQUIRED_FIELDS):
             return False
         if self.completed_by == AGENT_OTHER and not self.completed_by_other:
             return False
@@ -273,7 +273,7 @@ class Gbogpc(TaskHasPatientMixin, Task):
         ]
 
     def is_complete(self) -> bool:
-        if not self.are_all_fields_complete(self.REQUIRED_FIELDS):
+        if self.any_fields_none(self.REQUIRED_FIELDS):
             return False
         if self.whose_goal == AGENT_OTHER and not self.whose_goal_other:
             return False
@@ -432,7 +432,7 @@ class Gbogras(TaskHasPatientMixin, Task):
         ]
 
     def is_complete(self) -> bool:
-        if not self.are_all_fields_complete(self.REQUIRED_FIELDS):
+        if self.any_fields_none(self.REQUIRED_FIELDS):
             return False
         if self.completed_by == AGENT_OTHER and not self.completed_by_other:
             return False

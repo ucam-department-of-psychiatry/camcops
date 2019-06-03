@@ -193,6 +193,10 @@ public:
     // Register with the CamCOPS server.
     void registerWithServer();  // "register" is a C++ keyword
 
+    // Fetch all information without registration (i.e. fetch ID descriptions,
+    // table details, extra strings...).
+    void fetchAllServerInfo();
+
     // Fetch ID number type description/information from the server.
     void fetchIdDescriptions();
 
@@ -205,6 +209,7 @@ protected:
     void registerSub3(QNetworkReply* reply);
     void fetchIdDescriptionsSub1(QNetworkReply* reply);
     void fetchExtraStringsSub1(QNetworkReply* reply);
+    void fetchAllServerInfoSub1(QNetworkReply* reply);
 
     // Store ID/policy information from the server.
     void storeServerIdentificationInfo();

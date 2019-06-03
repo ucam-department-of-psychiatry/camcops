@@ -145,7 +145,7 @@ class Dast(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(Dast.TASK_FIELDS) and
+            self.all_fields_not_none(Dast.TASK_FIELDS) and
             self.field_contents_valid()
         )
 

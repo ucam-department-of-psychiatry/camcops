@@ -374,40 +374,40 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             is_false(self.g5) or
             is_false(self.g6) or
             (
-                self.are_all_fields_complete(self.GENERAL_1_FIELDS) and
+                self.all_fields_not_none(self.GENERAL_1_FIELDS) and
                 self.count_booleans(self.GENERAL_1_FIELDS) <= 1
             )
         )
 
     def is_complete_general(self) -> bool:
         return (
-            self.are_all_fields_complete(self.GENERAL_FIELDS) and
-            self.are_all_fields_complete(self.GENERAL_1_FIELDS)
+            self.all_fields_not_none(self.GENERAL_FIELDS) and
+            self.all_fields_not_none(self.GENERAL_1_FIELDS)
         )
 
     def is_complete_paranoid(self) -> bool:
-        return self.are_all_fields_complete(self.PARANOID_FIELDS)
+        return self.all_fields_not_none(self.PARANOID_FIELDS)
 
     def is_complete_schizoid(self) -> bool:
-        return self.are_all_fields_complete(self.SCHIZOID_FIELDS)
+        return self.all_fields_not_none(self.SCHIZOID_FIELDS)
 
     def is_complete_dissocial(self) -> bool:
-        return self.are_all_fields_complete(self.DISSOCIAL_FIELDS)
+        return self.all_fields_not_none(self.DISSOCIAL_FIELDS)
 
     def is_complete_eu(self) -> bool:
-        return self.are_all_fields_complete(self.EU_FIELDS)
+        return self.all_fields_not_none(self.EU_FIELDS)
 
     def is_complete_histrionic(self) -> bool:
-        return self.are_all_fields_complete(self.HISTRIONIC_FIELDS)
+        return self.all_fields_not_none(self.HISTRIONIC_FIELDS)
 
     def is_complete_anankastic(self) -> bool:
-        return self.are_all_fields_complete(self.ANANKASTIC_FIELDS)
+        return self.all_fields_not_none(self.ANANKASTIC_FIELDS)
 
     def is_complete_anxious(self) -> bool:
-        return self.are_all_fields_complete(self.ANXIOUS_FIELDS)
+        return self.all_fields_not_none(self.ANXIOUS_FIELDS)
 
     def is_complete_dependent(self) -> bool:
-        return self.are_all_fields_complete(self.DEPENDENT_FIELDS)
+        return self.all_fields_not_none(self.DEPENDENT_FIELDS)
 
     # Meets criteria? These also return null for unknown.
     def has_pd(self) -> Optional[bool]:
@@ -416,8 +416,8 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         if not self.is_complete_general():
             return None
         return (
-            self.all_true(self.GENERAL_FIELDS) and
-            self.count_booleans(self.GENERAL_1_FIELDS) > 1
+                self.all_truthy(self.GENERAL_FIELDS) and
+                self.count_booleans(self.GENERAL_1_FIELDS) > 1
         )
 
     def has_paranoid_pd(self) -> Optional[bool]:

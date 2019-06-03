@@ -125,7 +125,7 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         ]
 
     def is_complete(self) -> bool:
-        return (self.are_all_fields_complete(Aims.TASK_FIELDS) and
+        return (self.all_fields_not_none(Aims.TASK_FIELDS) and
                 self.field_contents_valid())
 
     def total_score(self) -> int:

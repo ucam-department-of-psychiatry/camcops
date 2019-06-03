@@ -210,7 +210,7 @@ class Honos(HonosBase,
 
     # noinspection PyUnresolvedReferences
     def is_complete(self) -> bool:
-        if not self.are_all_fields_complete(self.QFIELDS):
+        if self.any_fields_none(self.QFIELDS):
             return False
         if not self.field_contents_valid():
             return False
@@ -384,7 +384,7 @@ class Honos65(HonosBase,
 
     # noinspection PyUnresolvedReferences
     def is_complete(self) -> bool:
-        if not self.are_all_fields_complete(self.QFIELDS):
+        if self.any_fields_none(self.QFIELDS):
             return False
         if not self.field_contents_valid():
             return False
@@ -542,7 +542,7 @@ class Honosca(HonosBase,
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(self.TASK_FIELDS) and
+            self.all_fields_not_none(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 

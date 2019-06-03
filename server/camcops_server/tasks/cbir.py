@@ -299,7 +299,7 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
             return False
         if self.confirm_blanks:
             return True
-        return self.are_all_fields_complete(self.TASK_FIELDS)
+        return self.all_fields_not_none(self.TASK_FIELDS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         freq_dict = {None: None}

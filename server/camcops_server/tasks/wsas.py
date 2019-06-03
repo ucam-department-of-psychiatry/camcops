@@ -140,8 +140,8 @@ class Wsas(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(self.Q2_TO_END if self.retired_etc
-                                         else self.QUESTION_FIELDS) and
+            self.all_fields_not_none(self.Q2_TO_END if self.retired_etc
+                                     else self.QUESTION_FIELDS) and
             self.field_contents_valid()
         )
 

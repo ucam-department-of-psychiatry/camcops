@@ -32,6 +32,7 @@
 #include "questionnairelib/qumultipleresponse.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quslider.h"
+#include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 
@@ -132,7 +133,7 @@ Lynall1IamMedicalHistory::Lynall1IamMedicalHistory(
     addField(FN_Q7A_SX_LAST_2Y, QVariant::Bool);
     addField(FN_Q7B_VARIABILITY, QVariant::Int);
     addField(FN_Q8_SMOKING, QVariant::Int);
-    addField(FN_Q9_PREGNANT, QVariant::Int);
+    addField(FN_Q9_PREGNANT, QVariant::Bool);
     addField(FN_Q10A_EFFECTIVE_RX_PHYSICAL, QVariant::String);
     addField(FN_Q10B_EFFECTIVE_RX_PSYCH, QVariant::String);
     addField(FN_Q11A_PH_DEPRESSION, QVariant::Bool);
@@ -156,10 +157,10 @@ Lynall1IamMedicalHistory::Lynall1IamMedicalHistory(
     addField(FN_Q13A_BEHCET, QVariant::Bool);
     addField(FN_Q13B_ORAL_ULCERS, QVariant::Bool);
     addField(FN_Q13C_ORAL_AGE_FIRST, QVariant::Int);
-    addField(FN_Q13D_ORAL_SCARRING, QVariant::Int);
+    addField(FN_Q13D_ORAL_SCARRING, QVariant::Bool);
     addField(FN_Q13E_GENITAL_ULCERS, QVariant::Bool);
     addField(FN_Q13F_GENITAL_AGE_FIRST, QVariant::Int);
-    addField(FN_Q13G_GENITAL_SCARRING, QVariant::Int);
+    addField(FN_Q13G_GENITAL_SCARRING, QVariant::Bool);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -285,10 +286,9 @@ OpenableWidget* Lynall1IamMedicalHistory::editor(const bool read_only)
 
     int pagenum = 1;
     QVector<QuPage*> pages;
-    auto addPage = [&pagenum, &pages]
+    auto addPage = [this, &pagenum, &pages]
             (std::initializer_list<QuElement*> elements) -> void {
-        const QString title = QString("%1 %2").arg(textconst.question(),
-                                                   QString::number(pagenum++));
+        const QString title = xstring(QString("q%1_title").arg(pagenum++));
         auto page = new QuPage(elements);
         page->setTitle(title);
         pages.append(page);
@@ -358,12 +358,16 @@ OpenableWidget* Lynall1IamMedicalHistory::editor(const bool read_only)
     });
 
     // Q7
+    const NameValueOptions q7a_options({
+        {xstring("q7a_option1"), 1},
+        {xstring("q7a_option0"), 0},
+    });
     NameValueOptions q7b_options = NameValueOptions::makeNumbers(Q7B_MIN, Q7B_MAX);
     q7b_options.replace(NameValuePair("1: " + xstring("q7b_anchor_1"), 1));
     q7b_options.replace(NameValuePair("10: " + xstring("q7b_anchor_10"), 10));
     addPage({
         qtext("q7a_question"),
-        ynQuestion(FN_Q7A_SX_LAST_2Y),
+        new QuMcq(fieldRef(FN_Q7A_SX_LAST_2Y), q7a_options),
         qtext("q7b_question")->addTag(TAG_7B),
         // The text is very long, so even a vertical slider looks silly.
         (new QuMcq(fieldRef(FN_Q7B_VARIABILITY), q7b_options))
@@ -439,34 +443,47 @@ OpenableWidget* Lynall1IamMedicalHistory::editor(const bool read_only)
 
     // Q13
     // We add indentation via a grid.
+    // It looks better to use fixed indentation with:
+    //  - setExpandHorizontally(false)
+    //  - setFixedGrid(false)
+    //  - QuSpacer(width, 0)
+    // than to have a variable grid with
+    //  - setColumnStretch(0, 5)
+    //  - setColumnStretch(1, 5)
+    //  - setColumnStretch(2, 90)
     auto grid = new QuGridContainer();
-    grid->setColumnStretch(0, 5);
-    grid->setColumnStretch(1, 5);
-    grid->setColumnStretch(2, 90);
+    grid->setExpandHorizontally(false);
+    grid->setFixedGrid(false);
     int row = 0;
     const Qt::Alignment align = Qt::AlignTop | Qt::AlignLeft;
-    auto addCell = [&grid, &row, &align](int level, QuElement* element) -> void {
+    const int indent_px = 25;
+    auto addCell = [&grid, &row, &align]
+            (int level, const QString& tag, QuElement* element) -> void {
         const int rowspan = 1;
         const int col = level;
         const int colspan = 3 - level;
+        for (int i = 0; i < col; ++i) {
+            auto spacer = new QuSpacer(QSize(indent_px, 0));
+            spacer->addTag(tag);
+            grid->addCell(QuGridCell(spacer, row, i, 1, 1));
+        }
+        element->addTag(tag);
         grid->addCell(QuGridCell(element, row++, col, rowspan, colspan, align));
     };
-    addCell(1, qtext("q13b_question")->addTag(TAG_13B));
-    addCell(1, ynQuestion(FN_Q13B_ORAL_ULCERS)->addTag(TAG_13B));
-    addCell(2, qtext("q13c_question")->addTag(TAG_13C));
-    addCell(2, (new QuLineEditInteger(fieldRef(FN_Q13C_ORAL_AGE_FIRST),
-                                      MIN_AGE_Y, MAX_AGE_Y))
-                       ->addTag(TAG_13C));
-    addCell(2, qtext("q13d_question")->addTag(TAG_13D));
-    addCell(2, ynQuestion(FN_Q13D_ORAL_SCARRING)->addTag(TAG_13D));
-    addCell(1, qtext("q13e_question")->addTag(TAG_13E));
-    addCell(1, ynQuestion(FN_Q13E_GENITAL_ULCERS)->addTag(TAG_13E));
-    addCell(2, qtext("q13f_question")->addTag(TAG_13F));
-    addCell(2, (new QuLineEditInteger(fieldRef(FN_Q13F_GENITAL_AGE_FIRST),
-                                      MIN_AGE_Y, MAX_AGE_Y))
-                       ->addTag(TAG_13F));
-    addCell(2, qtext("q13g_question")->addTag(TAG_13G));
-    addCell(2, ynQuestion(FN_Q13G_GENITAL_SCARRING)->addTag(TAG_13G));
+    addCell(1, TAG_13B, qtext("q13b_question"));
+    addCell(1, TAG_13B ,ynQuestion(FN_Q13B_ORAL_ULCERS));
+    addCell(2, TAG_13C, qtext("q13c_question"));
+    addCell(2, TAG_13C, new QuLineEditInteger(fieldRef(FN_Q13C_ORAL_AGE_FIRST),
+                                              MIN_AGE_Y, MAX_AGE_Y));
+    addCell(2, TAG_13D, qtext("q13d_question"));
+    addCell(2, TAG_13D, ynQuestion(FN_Q13D_ORAL_SCARRING));
+    addCell(1, TAG_13E, qtext("q13e_question"));
+    addCell(1, TAG_13E, ynQuestion(FN_Q13E_GENITAL_ULCERS));
+    addCell(2, TAG_13F, qtext("q13f_question"));
+    addCell(2, TAG_13F, new QuLineEditInteger(fieldRef(FN_Q13F_GENITAL_AGE_FIRST),
+                                              MIN_AGE_Y, MAX_AGE_Y));
+    addCell(2, TAG_13G, qtext("q13g_question"));
+    addCell(2, TAG_13G, ynQuestion(FN_Q13G_GENITAL_SCARRING));
     addPage({
         qtext("q13a_question"),
         ynQuestion(FN_Q13A_BEHCET),

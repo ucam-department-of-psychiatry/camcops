@@ -168,6 +168,11 @@ void SettingsMenu::makeItems()
         MenuItem(tr("Infrequent user functions")).setLabelOnly(),
         // --------------------------------------------------------------------
         MenuItem(
+            tr("Fetch all server info"),
+            std::bind(&SettingsMenu::fetchAllServerInfo, this)
+        ).setNotIfLocked(),
+#if 0
+        MenuItem(
             tr("Re-accept ID descriptions from the server"),
             std::bind(&SettingsMenu::fetchIdDescriptions, this)
         ).setNotIfLocked(),
@@ -175,6 +180,7 @@ void SettingsMenu::makeItems()
             tr("Re-fetch extra task strings from the server"),
             std::bind(&SettingsMenu::fetchExtraStrings, this)
         ).setNotIfLocked(),
+#endif
         // --------------------------------------------------------------------
         MenuItem(tr("Administrator functions")).setLabelOnly(),
         // --------------------------------------------------------------------
@@ -1077,6 +1083,14 @@ void SettingsMenu::registerWithServer()
 }
 
 
+void SettingsMenu::fetchAllServerInfo()
+{
+    NetworkManager* netmgr = m_app.networkManager();
+    netmgr->fetchAllServerInfo();
+}
+
+
+#ifdef SETTINGSMENU_OFFER_SPECIFIC_FETCHES
 void SettingsMenu::fetchIdDescriptions()
 {
     NetworkManager* netmgr = m_app.networkManager();
@@ -1089,6 +1103,7 @@ void SettingsMenu::fetchExtraStrings()
     NetworkManager* netmgr = m_app.networkManager();
     netmgr->fetchExtraStrings();
 }
+#endif
 
 
 OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)

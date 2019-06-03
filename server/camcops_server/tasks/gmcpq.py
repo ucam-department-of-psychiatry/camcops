@@ -213,21 +213,21 @@ class GMCPQ(Task):
 
     def is_complete(self) -> bool:
         return (
-            self.is_field_complete("q1") and
-            self.is_field_complete("q3") and
-            self.is_field_complete("q4a") and
-            self.is_field_complete("q4b") and
-            self.is_field_complete("q4c") and
-            self.is_field_complete("q4d") and
-            self.is_field_complete("q4e") and
-            self.is_field_complete("q4f") and
-            self.is_field_complete("q4g") and
-            self.is_field_complete("q5a") and
-            self.is_field_complete("q5b") and
-            self.is_field_complete("q6") and
-            self.is_field_complete("q7") and
-            self.is_field_complete("q8") and
-            self.field_contents_valid()
+                self.is_field_not_none("q1") and
+                self.is_field_not_none("q3") and
+                self.is_field_not_none("q4a") and
+                self.is_field_not_none("q4b") and
+                self.is_field_not_none("q4c") and
+                self.is_field_not_none("q4d") and
+                self.is_field_not_none("q4e") and
+                self.is_field_not_none("q4f") and
+                self.is_field_not_none("q4g") and
+                self.is_field_not_none("q5a") and
+                self.is_field_not_none("q5b") and
+                self.is_field_not_none("q6") and
+                self.is_field_not_none("q7") and
+                self.is_field_not_none("q8") and
+                self.field_contents_valid()
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:

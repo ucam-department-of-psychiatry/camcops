@@ -59,9 +59,11 @@ public:
 
     // Set "fixed grid" mode. In "fixed grid" mode, columns have equal width,
     // unless specified; widgets are told to expand right as required.
+    // Default is true.
     QuGridContainer* setFixedGrid(bool fixed_grid);
 
     // Should the whole grid expand to the far right of the screen?
+    // Default is true.
     QuGridContainer* setExpandHorizontally(bool expand);
 
 protected:

@@ -249,7 +249,7 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
-        if not self.are_all_fields_complete(self.SIMPLE_Q):
+        if self.any_fields_none(self.SIMPLE_Q):
             return False
         for seqlen in self.Q4_DIGIT_LENGTHS:
             val1 = getattr(self, f"q4_len{seqlen}_1")

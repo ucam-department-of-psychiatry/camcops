@@ -23,6 +23,8 @@
 #include "crypto/secureqstring.h"
 class Questionnaire;
 
+// #define SETTINGSMENU_OFFER_SPECIFIC_FETCHES
+
 
 class SettingsMenu : public MenuWindow
 {
@@ -57,8 +59,11 @@ protected:
     void changePrivPassword();
     void deleteAllExtraStrings();
     void registerWithServer();
+    void fetchAllServerInfo();
+#ifdef SETTINGSMENU_OFFER_SPECIFIC_FETCHES
     void fetchIdDescriptions();
     void fetchExtraStrings();
+#endif
     OpenableWidget* viewServerInformation(CamcopsApp& app);
     void viewDataCounts();
     void viewSystemCounts();

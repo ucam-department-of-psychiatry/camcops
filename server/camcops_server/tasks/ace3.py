@@ -511,12 +511,12 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         )
 
     def is_complete(self) -> bool:
-        if not self.are_all_fields_complete(self.BASIC_COMPLETENESS_FIELDS):
+        if self.any_fields_none(self.BASIC_COMPLETENESS_FIELDS):
             return False
         if not self.field_contents_valid():
             return False
         if (self.lang_follow_command_practice == 1 and
-                not self.are_all_fields_complete(self.LANG_FOLLOW_CMD_FIELDS)):
+                self.any_fields_none(self.LANG_FOLLOW_CMD_FIELDS)):
             return False
         return self.is_recognition_complete()
 

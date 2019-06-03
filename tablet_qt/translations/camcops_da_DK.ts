@@ -3153,6 +3153,7 @@ enig</translation>
     </message>
     <message>
         <location filename="../core/networkmanager.cpp" line="740"/>
+        <location filename="../core/networkmanager.cpp" line="832"/>
         <source>Requesting allowed tables</source>
         <translation>Anmodning om tilladte tabeller</translation>
     </message>
@@ -3173,7 +3174,6 @@ enig</translation>
         <translation>... modtaget ekstra strenge</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="769"/>
         <source>Successfully registered.</source>
         <translation>Registreret succesfuldt.</translation>
     </message>
@@ -3188,277 +3188,297 @@ enig</translation>
         <translation>Få ekstra strenger fra </translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="856"/>
+        <location filename="../core/networkmanager.cpp" line="816"/>
+        <source>Fetching server info from </source>
+        <translation>Henter serverinfo fra </translation>
+    </message>
+    <message>
+        <location filename="../core/networkmanager.cpp" line="817"/>
+        <source>Requesting ID info</source>
+        <translation>Henter id-info</translation>
+    </message>
+    <message>
+        <location filename="../core/networkmanager.cpp" line="829"/>
+        <source>... received identification information</source>
+        <translation>... modtaget identifikationsoplysninger</translation>
+    </message>
+    <message>
+        <location filename="../core/networkmanager.cpp" line="882"/>
         <source>Saved %1 allowed tables</source>
         <translation>Gemte %1 tilladte tabeller</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="865"/>
+        <location filename="../core/networkmanager.cpp" line="891"/>
         <source>Saved %1 extra strings</source>
         <translation>Gemt %1 ekstra strings</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="880"/>
+        <location filename="../core/networkmanager.cpp" line="906"/>
         <source>Preparing to upload to: </source>
         <translation>Forbereder at uploade til:</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="903"/>
+        <location filename="../core/networkmanager.cpp" line="929"/>
         <source>Removing any defunct binary large objects</source>
         <translation>Fjernelse af eventuelle hedengangne binære store objekter</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="908"/>
-        <location filename="../core/networkmanager.cpp" line="916"/>
+        <location filename="../core/networkmanager.cpp" line="934"/>
+        <location filename="../core/networkmanager.cpp" line="942"/>
         <source>... done</source>
         <translation>... gjort</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="948"/>
-        <location filename="../core/networkmanager.cpp" line="1826"/>
+        <location filename="../core/networkmanager.cpp" line="974"/>
         <location filename="../core/networkmanager.cpp" line="1852"/>
-        <location filename="../core/networkmanager.cpp" line="1899"/>
+        <location filename="../core/networkmanager.cpp" line="1878"/>
+        <location filename="../core/networkmanager.cpp" line="1925"/>
         <source>... OK</source>
         <translation>... Okay</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1071"/>
+        <location filename="../core/networkmanager.cpp" line="1097"/>
         <source>... server doesn&apos;t want anything from this table</source>
         <translation>... server vil ikke have noget fra denne tabel</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1100"/>
+        <location filename="../core/networkmanager.cpp" line="1126"/>
         <source>Finished</source>
         <translation>Færdig</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1120"/>
+        <location filename="../core/networkmanager.cpp" line="1146"/>
         <source>Checking device is registered with server</source>
         <translation>Kontrollerer, om denne enhed er registreret hos serveren</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1129"/>
+        <location filename="../core/networkmanager.cpp" line="1155"/>
         <source>Checking user/device permitted to upload</source>
         <translation>Kontrollerer, at denne bruger/enhed er tilladt at uploade</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1138"/>
+        <location filename="../core/networkmanager.cpp" line="1164"/>
         <source>Fetching server&apos;s version/ID policies/ID descriptions</source>
         <translation>Henter serverversion, ID-politikker og ID-beskrivelser</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1154"/>
+        <location filename="../core/networkmanager.cpp" line="1180"/>
         <source>Validating patients for upload</source>
         <translation>Validering af patienter til upload</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1164"/>
+        <location filename="../core/networkmanager.cpp" line="1190"/>
         <source>Fetching server&apos;s allowed tables/client versions</source>
         <translation>Henter serverens tilladte tabeller/klientversioner</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1173"/>
+        <location filename="../core/networkmanager.cpp" line="1199"/>
         <source>Starting upload</source>
         <translation>Start upload</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1182"/>
+        <location filename="../core/networkmanager.cpp" line="1208"/>
         <source>Starting preservation</source>
         <translation>Begyndelse af bevarelse</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1191"/>
+        <location filename="../core/networkmanager.cpp" line="1217"/>
         <source>Uploading empty tables: </source>
         <translation>Uploadning af tomme tabeller: </translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1201"/>
+        <location filename="../core/networkmanager.cpp" line="1227"/>
         <source>Uploading table: </source>
         <translation>Uploadetabel: </translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1236"/>
+        <location filename="../core/networkmanager.cpp" line="1262"/>
         <source>Preparing to send table (recordwise): </source>
         <translation>Forberedelse til at sende database tabel (post med post): </translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1254"/>
-        <location filename="../core/networkmanager.cpp" line="1278"/>
+        <location filename="../core/networkmanager.cpp" line="1280"/>
+        <location filename="../core/networkmanager.cpp" line="1304"/>
         <source>Sending message: </source>
         <translation>Sender besked: </translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1286"/>
+        <location filename="../core/networkmanager.cpp" line="1312"/>
         <source>Uploading table %1, record %2/%3</source>
         <translation>Uploader tabel %1, optag %2/%3</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1320"/>
+        <location filename="../core/networkmanager.cpp" line="1346"/>
         <source>Finishing upload</source>
         <translation>Afslutning af upload</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1333"/>
+        <location filename="../core/networkmanager.cpp" line="1359"/>
         <source>Checking patient information sufficiently complete</source>
         <translation>Kontrol af patientoplysninger er tilstrækkeligt komplet</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1382"/>
+        <location filename="../core/networkmanager.cpp" line="1408"/>
         <source>Failure: %1 patient(s) having clashing ID numbers</source>
         <translation>Fejl: %1 patient(er), der har sammenbrudte ID-numre</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1387"/>
+        <location filename="../core/networkmanager.cpp" line="1413"/>
         <source>You are trying to move off %1 patient(s) using the explicit per-patient move-off flag, but they do not comply with the server&apos;s finalize ID policy [%2]</source>
         <translation>Du forsøger at flytte %1 patient(er), idet de udtrykkeligt har markeret dem, der skal flyttes, men de overholder ikke serverens færdige ID-politik [%2]</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1398"/>
+        <location filename="../core/networkmanager.cpp" line="1424"/>
         <source>Failure: %1 patient(s) do not meet the server&apos;s upload ID policy of: %2</source>
         <translation>Fejl: %1 patient(er) opfylder ikke serverens upload id-politik for: %2</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1406"/>
+        <location filename="../core/networkmanager.cpp" line="1432"/>
         <source>Failure: %1 patient(s) do not meet the server&apos;s upload ID policy [%2]; %3 patient(s) do not meet its finalize ID policy [%4]</source>
         <translation>Fejl: %1 patient(er) opfylder ikke serverens upload id-politik [%2]; %3 patient(er) opfylder ikke sin afsluttende ID-politik [%4]</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1450"/>
+        <location filename="../core/networkmanager.cpp" line="1476"/>
         <source>... not applicable; all tasks will be moved</source>
         <translation>... ikke anvendelig; alle opgaver vil blive flyttet</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1698"/>
+        <location filename="../core/networkmanager.cpp" line="1724"/>
         <source>Cataloguing tables for upload</source>
         <translation>Katalogering af tabeller til upload</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1720"/>
+        <location filename="../core/networkmanager.cpp" line="1746"/>
         <source>ERROR: Table &apos;%1&apos; contains data; it is present on the server but the client requires server version &gt;=%2; the server is version %3</source>
         <translation>FEJL: Tabellen &apos;%1&apos; indeholder data; den er til stede på serveren, men klienten kræver serverversion &gt;=%2; serveren er version %3</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1737"/>
+        <location filename="../core/networkmanager.cpp" line="1763"/>
         <source>ERROR: Table &apos;%1&apos; contains data; it is present on the server but the server requires client version &gt;=%2; you are using version %3</source>
         <translation>FEJL: Tabellen &apos;%1&apos; indeholder data; den er til stede på serveren, men serveren kræver klientversion &gt;=%2; du bruger version %3</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1820"/>
+        <location filename="../core/networkmanager.cpp" line="1846"/>
         <source>Server version (%1) doesn&apos;t match stored version (%2).</source>
         <translation>Server version (%1) matcher ikke den lagrede version (%2).</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1840"/>
+        <location filename="../core/networkmanager.cpp" line="1866"/>
         <source>Local upload policy [%1] doesn&apos;t match server&apos;s [%2].</source>
         <translation>Lokal uploadpolitik [%1] matcher ikke serverens [%2].</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1846"/>
+        <location filename="../core/networkmanager.cpp" line="1872"/>
         <source>Local finalize policy [%1] doesn&apos;t match server&apos;s [%2].</source>
         <translation>Lokal færdiggørelse af politik [%1] matcher ikke serverens [%2].</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1901"/>
+        <location filename="../core/networkmanager.cpp" line="1927"/>
         <source>Some ID numbers defined on the tablet are absent on the server!</source>
         <translation>Nogle ID-numre, der er defineret på tabletten, er fraværende på serveren!</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1904"/>
+        <location filename="../core/networkmanager.cpp" line="1930"/>
         <source>Descriptions do not match!</source>
         <translation>Beskrivelser stemmer ikke overens!</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1728"/>
+        <location filename="../core/networkmanager.cpp" line="1754"/>
         <source>WARNING: Table &apos;%1&apos; is present on the server but the client requires server version &gt;=%2; the server is version %3; proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men klienten kræver serverversion &gt;=%2; serveren er version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1745"/>
+        <location filename="../core/networkmanager.cpp" line="769"/>
+        <source>Completed successfully.</source>
+        <translation>Afsluttet med succes.</translation>
+    </message>
+    <message>
+        <location filename="../core/networkmanager.cpp" line="1771"/>
         <source>WARNING: Table &apos;%1&apos; is present on the server but the server requires client version &gt;=%2; you are using version %3; proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men serveren kræver klientversion &gt;=%2; du bruger version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1756"/>
+        <location filename="../core/networkmanager.cpp" line="1782"/>
         <source>ERROR: Table &apos;%1&apos; contains data but is absent on the server. You probably need a newer server version. (Once you have upgraded the server, re-register with it.)</source>
         <translation>FEJL: Tabel &apos;%1&apos; indeholder data, men er fraværende på serveren. Du har sikkert brug for en nyere serverversion. (Når du har opgraderet serveren, skal du registrere dig igen.)</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1763"/>
+        <location filename="../core/networkmanager.cpp" line="1789"/>
         <source>WARNING: Table &apos;%1&apos; is absent on the server. You probably need a newer server version. (Once you have upgraded the server, re-register with it.) Proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er fraværende på serveren. Du har sikkert brug for en nyere serverversion. (Når du har opgraderet serveren, skal du registrere dig igen.) Fortsæt KUN, fordi denne tabel er tom.</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1808"/>
+        <location filename="../core/networkmanager.cpp" line="1834"/>
         <source>Checking server CamCOPS version</source>
         <translation>Kontrollerer server CamCOPS version</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1814"/>
+        <location filename="../core/networkmanager.cpp" line="1840"/>
         <source>Server CamCOPS version (%1) is too old; must be &gt;= %2</source>
         <translation>Server CamCOPS version (%1) er for gammel; skal være &gt;=%2</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1833"/>
+        <location filename="../core/networkmanager.cpp" line="1859"/>
         <source>Checking ID policies match server</source>
         <translation>Kontrol af id-politikker matcher serverens</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1860"/>
+        <location filename="../core/networkmanager.cpp" line="1886"/>
         <source>Checking ID descriptions match server</source>
         <translation>Kontrol af id beskrivelser matcher serverens</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1906"/>
+        <location filename="../core/networkmanager.cpp" line="1932"/>
         <source>ID numbers %1 are used on the tablet but not defined on the server! Please edit patient records to remove them.</source>
         <translation>ID-numre %1 bruges på denne computer, men ikke defineret på serveren! Rediger patientjournaler for at fjerne dem.</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1931"/>
+        <location filename="../core/networkmanager.cpp" line="1957"/>
         <source>Server&apos;s reply was missing the key: </source>
         <translation>Serverens svar manglede nøglen: </translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1935"/>
+        <location filename="../core/networkmanager.cpp" line="1961"/>
         <source>Server requests only PKs: </source>
         <translation>Server kræver kun PK&apos;er: </translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1951"/>
+        <location filename="../core/networkmanager.cpp" line="1977"/>
         <source>Wiping table: </source>
         <translation>Sletning af alle poster fra database tabel: </translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1953"/>
+        <location filename="../core/networkmanager.cpp" line="1979"/>
         <source>... failed to delete!</source>
         <translation>... undladt at slette!</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1970"/>
+        <location filename="../core/networkmanager.cpp" line="1996"/>
         <source>Wiping any specifically requested patients and/or anonymous tasks</source>
         <translation>Sletning af specielt forespurgte patienter og/eller anonyme opgaver</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1987"/>
+        <location filename="../core/networkmanager.cpp" line="2013"/>
         <source>Query failed: </source>
         <translation>Query failed: </translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="1994"/>
+        <location filename="../core/networkmanager.cpp" line="2020"/>
         <source>... trying to clear move-off-tablet flag for table: </source>
         <translation>... forsøger at rydde &quot;flytte&quot; flag til database tabel:</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="2048"/>
+        <location filename="../core/networkmanager.cpp" line="2074"/>
         <source>... %1 defunct BLOBs</source>
         <translation>... %1 hedengangne BLOBs</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="2104"/>
+        <location filename="../core/networkmanager.cpp" line="2130"/>
         <source>Starting one-step upload</source>
         <translation>Starte &quot;ét trin&quot; upload</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="2135"/>
+        <location filename="../core/networkmanager.cpp" line="2161"/>
         <source>Please re-register with the server.</source>
         <translation>Venligst genregistrer dig hos serveren.</translation>
     </message>
@@ -4263,7 +4283,7 @@ enig</translation>
 <context>
     <name>ResearchSetsMenu</name>
     <message>
-        <location filename="../menu/researchsetsmenu.cpp" line="39"/>
+        <location filename="../menu/researchsetsmenu.cpp" line="40"/>
         <source>Sets of tasks collected together for research purposes</source>
         <translation>Sæt af opgaver samlet til forskningsformål</translation>
     </message>
@@ -4530,13 +4550,13 @@ enig</translation>
     </message>
     <message>
         <location filename="../menu/settingsmenu.cpp" line="142"/>
-        <location filename="../menu/settingsmenu.cpp" line="655"/>
+        <location filename="../menu/settingsmenu.cpp" line="661"/>
         <source>User settings</source>
         <translation>Brugerindstillinger</translation>
     </message>
     <message>
         <location filename="../menu/settingsmenu.cpp" line="149"/>
-        <location filename="../menu/settingsmenu.cpp" line="486"/>
+        <location filename="../menu/settingsmenu.cpp" line="492"/>
         <source>Intellectual property (IP) permissions</source>
         <translation>Intellektuelle ejendomsrettigheder</translation>
     </message>
@@ -4552,7 +4572,7 @@ enig</translation>
     </message>
     <message>
         <location filename="../menu/settingsmenu.cpp" line="161"/>
-        <location filename="../menu/settingsmenu.cpp" line="1260"/>
+        <location filename="../menu/settingsmenu.cpp" line="1275"/>
         <source>Show server information</source>
         <translation>Vis serveroplysninger</translation>
     </message>
@@ -4562,699 +4582,704 @@ enig</translation>
         <translation>Ufrivillige brugerfunktioner</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="171"/>
+        <location filename="../menu/settingsmenu.cpp" line="176"/>
         <source>Re-accept ID descriptions from the server</source>
         <translation>Genoptag ID-beskrivelser fra serveren</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="175"/>
+        <location filename="../menu/settingsmenu.cpp" line="180"/>
         <source>Re-fetch extra task strings from the server</source>
         <translation>Hent ekstra opgave strenger fra serveren</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="179"/>
+        <location filename="../menu/settingsmenu.cpp" line="185"/>
         <source>Administrator functions</source>
         <translation>Administrator funktioner</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="182"/>
+        <location filename="../menu/settingsmenu.cpp" line="188"/>
         <source>Set privileged mode (for items marked †)</source>
         <translation>Indstil privilegeret tilstand (for poster markeret †)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="202"/>
+        <location filename="../menu/settingsmenu.cpp" line="208"/>
         <source>Rare functions</source>
         <translation>Sjældne funktioner</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="220"/>
+        <location filename="../menu/settingsmenu.cpp" line="226"/>
         <source>Rescue operations</source>
         <translation>Redningsfunktioner</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="283"/>
+        <location filename="../menu/settingsmenu.cpp" line="289"/>
         <source>Server address</source>
         <translation>Serveradresse</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="284"/>
+        <location filename="../menu/settingsmenu.cpp" line="290"/>
         <source>host name or IP address</source>
         <translation>Værtsnavn eller IP-adresse</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="287"/>
+        <location filename="../menu/settingsmenu.cpp" line="293"/>
         <source>Server port for HTTPS</source>
         <translation>Serverport til HTTPS</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="288"/>
+        <location filename="../menu/settingsmenu.cpp" line="294"/>
         <source>default 443</source>
         <translation>standard 443</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="291"/>
+        <location filename="../menu/settingsmenu.cpp" line="297"/>
         <source>Path on server</source>
         <translation>Sti på server</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="292"/>
+        <location filename="../menu/settingsmenu.cpp" line="298"/>
         <source>no leading /; e.g. camcops/database</source>
         <translation>ingen ledende /; f.eks. camcops/database</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="295"/>
+        <location filename="../menu/settingsmenu.cpp" line="301"/>
         <source>Network timeout (ms)</source>
         <translation>Netværk timeout (ms)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="296"/>
+        <location filename="../menu/settingsmenu.cpp" line="302"/>
         <source>e.g. 50000</source>
         <translation>f.eks. 50000</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="300"/>
+        <location filename="../menu/settingsmenu.cpp" line="306"/>
         <source>Use HTTPS to server?</source>
         <translation>Brug HTTPS til server?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="301"/>
+        <location filename="../menu/settingsmenu.cpp" line="307"/>
         <source>You should &lt;b&gt;only&lt;/b&gt; disable this for debugging!</source>
         <translation>Du bør &lt;b&gt;kun &lt;/b&gt; deaktivere dette til debugging!</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="306"/>
+        <location filename="../menu/settingsmenu.cpp" line="312"/>
         <source>Validate HTTPS (TLS/SSL) certificates?</source>
         <translation>Validér HTTPS (TLS/SSL) certifikater?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="307"/>
+        <location filename="../menu/settingsmenu.cpp" line="313"/>
         <source>Should always be YES for security-conscious systems.</source>
         <translation>Bør altid være JA for sikkerhedsbevidste systemer.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="311"/>
+        <location filename="../menu/settingsmenu.cpp" line="317"/>
         <source>HTTPS (TLS/SSL) protocol?</source>
         <translation>HTTPS (TLS/SSL) protokol?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="312"/>
+        <location filename="../menu/settingsmenu.cpp" line="318"/>
         <source>Stick with the default unless your server can’t cope with it.</source>
         <translation>Stand med standard, medmindre din server ikke kan klare det.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="331"/>
+        <location filename="../menu/settingsmenu.cpp" line="337"/>
         <source>Store user’s server password?</source>
         <translation>Gem brugerens serveradgangskode?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="332"/>
+        <location filename="../menu/settingsmenu.cpp" line="338"/>
         <source>NO = fractionally more secure; YES = more convenient/fractionally less secure, but still AES-256-encrypted.</source>
         <translation>NEJ = fraktioneret mere sikker; JA = mere praktisk / fraktioneret mindre sikker, men stadig AES-256-krypteret.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="338"/>
+        <location filename="../menu/settingsmenu.cpp" line="344"/>
         <source>Upload method</source>
         <translation>Upload metode</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="347"/>
+        <location filename="../menu/settingsmenu.cpp" line="353"/>
         <source>Maximum (approximate) database size for one-step upload (bytes)</source>
         <translation>Maksimal (omtrentlig) databasestørrelse for en trins upload (bytes)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="349"/>
+        <location filename="../menu/settingsmenu.cpp" line="355"/>
         <source>e.g. 2000000 for ~2Mb</source>
         <translation>f.eks. 2000000 til ~2Mb</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="187"/>
-        <location filename="../menu/settingsmenu.cpp" line="415"/>
+        <location filename="../menu/settingsmenu.cpp" line="193"/>
+        <location filename="../menu/settingsmenu.cpp" line="421"/>
         <source>Configure server settings</source>
         <translation>Konfigurer serverindstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="194"/>
+        <location filename="../menu/settingsmenu.cpp" line="171"/>
+        <source>Fetch all server info</source>
+        <translation>Hent alle serveroplysninger</translation>
+    </message>
+    <message>
+        <location filename="../menu/settingsmenu.cpp" line="200"/>
         <source>Register this device with the server</source>
         <translation>Registrér denne enhed med serveren</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="198"/>
+        <location filename="../menu/settingsmenu.cpp" line="204"/>
         <source>Change privileged-mode password</source>
         <translation>Skift adgangskode til privilegeret tilstand</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="206"/>
+        <location filename="../menu/settingsmenu.cpp" line="212"/>
         <source>Wipe extra strings downloaded from server</source>
         <translation>Slet ekstra strenger downloadet fra serveren</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="210"/>
+        <location filename="../menu/settingsmenu.cpp" line="216"/>
         <source>View record counts for all data tables</source>
         <translation>Se rekordtællinger for alle datatabeller</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="215"/>
+        <location filename="../menu/settingsmenu.cpp" line="221"/>
         <source>View record counts for all system tables</source>
         <translation>Se rekordtællinger for alle systemtabeller</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="224"/>
+        <location filename="../menu/settingsmenu.cpp" line="230"/>
         <source>View data database as SQL</source>
         <translation>Se databas som SQL</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="229"/>
+        <location filename="../menu/settingsmenu.cpp" line="235"/>
         <source>View system database as SQL</source>
         <translation>Se systemdatabasen som SQL</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="235"/>
+        <location filename="../menu/settingsmenu.cpp" line="241"/>
         <source>Send decrypted data database to debugging stream</source>
         <translation>Send dekrypteret databasen til debugging stream</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="240"/>
+        <location filename="../menu/settingsmenu.cpp" line="246"/>
         <source>Send decrypted system database to debugging stream</source>
         <translation>Send dekrypteret systemdatabasen til debugging stream</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="249"/>
+        <location filename="../menu/settingsmenu.cpp" line="255"/>
         <source>Dump decrypted data database to SQL file</source>
         <translation>Skriv dekrypteret databasen til SQL-fil</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="254"/>
+        <location filename="../menu/settingsmenu.cpp" line="260"/>
         <source>Dump decrypted system database to SQL file</source>
         <translation>Skriv dekrypteret systemdatabasen til SQL-fil</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="316"/>
+        <location filename="../menu/settingsmenu.cpp" line="322"/>
         <source>Known secure [default]</source>
         <translation>Kendt for at være sikker [standard]</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="317"/>
+        <location filename="../menu/settingsmenu.cpp" line="323"/>
         <source>SSL v3</source>
         <translation>SSL v3</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="318"/>
+        <location filename="../menu/settingsmenu.cpp" line="324"/>
         <source>SSL v2</source>
         <translation>SSL v2</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="319"/>
+        <location filename="../menu/settingsmenu.cpp" line="325"/>
         <source>TLS v1.0</source>
         <translation>TLS v1.0</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="320"/>
+        <location filename="../menu/settingsmenu.cpp" line="326"/>
         <source>TLS v1.0 or later</source>
         <translation>TLS v1.0 eller senere</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="321"/>
+        <location filename="../menu/settingsmenu.cpp" line="327"/>
         <source>TLS v1.1</source>
         <translation>TLS v1.1</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="322"/>
+        <location filename="../menu/settingsmenu.cpp" line="328"/>
         <source>TLS v1.1 or later</source>
         <translation>TLS v1.1 eller senere</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="323"/>
+        <location filename="../menu/settingsmenu.cpp" line="329"/>
         <source>TLS v1.2</source>
         <translation>TLS v1.2</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="324"/>
+        <location filename="../menu/settingsmenu.cpp" line="330"/>
         <source>TLS v1.2 or later</source>
         <translation>TLS v1.2 eller senere</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="325"/>
+        <location filename="../menu/settingsmenu.cpp" line="331"/>
         <source>SSLv2, SSLv3, or TLSv1.0</source>
         <translation>SSLv2, SSLv3, eller TLSv1.0</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="326"/>
+        <location filename="../menu/settingsmenu.cpp" line="332"/>
         <source>TLS v1.0 or SSL v3</source>
         <translation>TLS v1.0 eller SSL v3</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="340"/>
+        <location filename="../menu/settingsmenu.cpp" line="346"/>
         <source>Multi-step (original)</source>
         <translation>Multi-trin (original)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="341"/>
+        <location filename="../menu/settingsmenu.cpp" line="347"/>
         <source>Always one-step (faster)</source>
         <translation>Altid en-trins (hurtigere)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="342"/>
+        <location filename="../menu/settingsmenu.cpp" line="348"/>
         <source>One-step if small enough (default)</source>
         <translation>Ét trin, hvis det er lille nok (standard)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="432"/>
+        <location filename="../menu/settingsmenu.cpp" line="438"/>
         <source>The settings here influence whether CamCOPS will consider some third-party tasks “permitted” on your behalf, according to their published use criteria. They do &lt;b&gt;not&lt;/b&gt; remove your responsibility to ensure that you use them in accordance with their own requirements.</source>
         <translation>Indstillingerne her påvirker, om CamCOPS overvejer nogle tredjepartsopgaver “tilladt” på dine vegne i henhold til deres offentliggjorte brugskriterier. De fjerner &lt;b&gt;ikke&lt;/b&gt; dit ansvar for at sikre, at du bruger dem i overensstemmelse med deres egne krav.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="438"/>
+        <location filename="../menu/settingsmenu.cpp" line="444"/>
         <source>WARNING. Providing incorrect information here may lead to you VIOLATING copyright law, by using a task for a purpose that is not permitted, and being subject to damages and/or prosecution.</source>
         <translation>ADVARSEL. Hvis du angiver unøjagtige oplysninger her, kan du krænke ophavsretslovgivningen ved at bruge en opgave på en uautoriseret måde, og du kan være ansvarlig for bøder og / eller retsforfølgning.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="442"/>
+        <location filename="../menu/settingsmenu.cpp" line="448"/>
         <source>The authors of CamCOPS cannot be held responsible or liable for any consequences of you misusing materials subject to copyright.</source>
         <translation>Forfatterne til CamCOPS kan ikke holdes ansvarlige for eventuelle konsekvenser af misbrug af materiale, der er underlagt ophavsret.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="446"/>
+        <location filename="../menu/settingsmenu.cpp" line="452"/>
         <source>Are you using this application for:</source>
         <translation>Bruger du denne ansøgning til:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="466"/>
+        <location filename="../menu/settingsmenu.cpp" line="472"/>
         <source>Clinical use?</source>
         <translation>Klinisk brug?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="469"/>
+        <location filename="../menu/settingsmenu.cpp" line="475"/>
         <source>WARNING: NOT FOR GENERAL CLINICAL USE; not a Medical Device; see Terms and Conditions</source>
         <translation>ADVARSEL: IKKE FOR GENEREL KLINISK BRUG; ikke en medicinsk enhed; se vilkår og betingelser</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="474"/>
+        <location filename="../menu/settingsmenu.cpp" line="480"/>
         <source>Commercial use?</source>
         <translation>Kommerciel brug?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="478"/>
+        <location filename="../menu/settingsmenu.cpp" line="484"/>
         <source>Educational use?</source>
         <translation>Uddannelsesmæssig brug?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="482"/>
+        <location filename="../menu/settingsmenu.cpp" line="488"/>
         <source>Research use?</source>
         <translation>Forskning bruger?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="530"/>
+        <location filename="../menu/settingsmenu.cpp" line="536"/>
         <source>Interactions with the server</source>
         <translation>Interaktioner med serveren</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="532"/>
+        <location filename="../menu/settingsmenu.cpp" line="538"/>
         <source>Device friendly name</source>
         <translation>Et venligt navn på enheden</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="533"/>
+        <location filename="../menu/settingsmenu.cpp" line="539"/>
         <source>e.g. “Research tablet 17 (Bob’s)”</source>
         <translation>f.eks. “Forskningstablet 17 (Victor’s)”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="535"/>
+        <location filename="../menu/settingsmenu.cpp" line="541"/>
         <source>Username on server</source>
         <translation>Brugernavn på server</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="542"/>
+        <location filename="../menu/settingsmenu.cpp" line="548"/>
         <source>Password on server</source>
         <translation>Adgangskode på server</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="544"/>
+        <location filename="../menu/settingsmenu.cpp" line="550"/>
         <source>Offer to upload every time a task is edited?</source>
         <translation>Tilbud om at uploade hver gang en opgave er redigeret?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="546"/>
+        <location filename="../menu/settingsmenu.cpp" line="552"/>
         <source>Default clinician’s details (to save you typing)</source>
         <translation>Standard klinikerens detaljer (for at gemme dig at skrive)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="549"/>
+        <location filename="../menu/settingsmenu.cpp" line="555"/>
         <source>Default clinician’s specialty</source>
         <translation>Standard klinikerens specialitet</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="550"/>
+        <location filename="../menu/settingsmenu.cpp" line="556"/>
         <source>e.g. “Liaison Psychiatry”</source>
         <translation>f.eks. “Forbindelsespsykiatri”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="553"/>
+        <location filename="../menu/settingsmenu.cpp" line="559"/>
         <source>Default clinician’s name</source>
         <translation>Standard klinikerens navn</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="554"/>
+        <location filename="../menu/settingsmenu.cpp" line="560"/>
         <source>e.g. “Dr Bob Smith”</source>
         <translation>f.eks. “Dr Viktor Jensen”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="557"/>
+        <location filename="../menu/settingsmenu.cpp" line="563"/>
         <source>Default clinician’s professional registration</source>
         <translation>Standard klinikerens faglige registrering</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="558"/>
+        <location filename="../menu/settingsmenu.cpp" line="564"/>
         <source>e.g. “GMC# 12345”</source>
         <translation>e.g. “STPS# 12345”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="561"/>
+        <location filename="../menu/settingsmenu.cpp" line="567"/>
         <source>Default clinician’s post</source>
         <translation>Standard klinikerens arbejde</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="562"/>
+        <location filename="../menu/settingsmenu.cpp" line="568"/>
         <source>e.g. “Specialist registrar”</source>
         <translation>f.eks. “Konsulent psykiater”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="565"/>
+        <location filename="../menu/settingsmenu.cpp" line="571"/>
         <source>Default clinician’s service</source>
         <translation>Standard klinikerens service</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="566"/>
+        <location filename="../menu/settingsmenu.cpp" line="572"/>
         <source>e.g. “Liaison Psychiatry Service”</source>
         <translation>f.eks. “Forbindelsespsykiatri Service”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="569"/>
+        <location filename="../menu/settingsmenu.cpp" line="575"/>
         <source>Default clinician’s contact details</source>
         <translation>Standard klinikerens kontaktoplysninger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="570"/>
+        <location filename="../menu/settingsmenu.cpp" line="576"/>
         <source>e.g. “x2167”</source>
         <translation>f.eks. “x2167”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="694"/>
+        <location filename="../menu/settingsmenu.cpp" line="700"/>
         <source>Questionnaire font size</source>
         <translation>Spørgeskema skriftstørrelse</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="695"/>
+        <location filename="../menu/settingsmenu.cpp" line="701"/>
         <source>Set the font size, as a percentage of the default.</source>
         <translation>Indstil skriftstørrelsen som en procentdel af standardværdien.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="696"/>
+        <location filename="../menu/settingsmenu.cpp" line="702"/>
         <source>Changes take effect when a screen is reloaded.</source>
         <translation>Ændringer træder i kraft, når en skærm genindlæses.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="697"/>
+        <location filename="../menu/settingsmenu.cpp" line="703"/>
         <source>You can type it in:</source>
         <translation>Du kan skrive det i:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="698"/>
+        <location filename="../menu/settingsmenu.cpp" line="704"/>
         <source>... or set it with a slider:</source>
         <translation>... eller sæt det med en skyder:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="700"/>
+        <location filename="../menu/settingsmenu.cpp" line="706"/>
         <source>DPI settings</source>
         <translation>Punkter pr. tommer indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="701"/>
+        <location filename="../menu/settingsmenu.cpp" line="707"/>
         <source>Dots per inch (DPI), or more accurately pixels per inch (PPI), are a measure of screen resolution. Higher-resolution monitors have higher DPI settings. In some circumstances, CamCOPS needs to know your screen&apos;s DPI settings accurately. If your operating system mis-reports them, you can override the system settings here.</source>
         <translation>Punkter pr. tommer (DPI) eller mere præcist pixel pr. tomme (PPI) er et mål for skærmopløsning. Højere opløsning skærme har højere DPI indstillinger. Under nogle omstændigheder skal CamCOPS kende din skærms DPI-indstillinger nøjagtigt. Hvis dit operativsystem mis-rapporterer dem, kan du tilsidesætte systemindstillingerne her.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="708"/>
+        <location filename="../menu/settingsmenu.cpp" line="714"/>
         <source>These settings take effect when you restart CamCOPS.</source>
         <translation>Disse indstillinger træder i kraft, når du genstarter CamCOPS.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="710"/>
+        <location filename="../menu/settingsmenu.cpp" line="716"/>
         <source>Logical DPI settings are used for icon sizes and similar. You are unlikely to need to override these. Current system logical DPI: </source>
         <translation>Logiske DPI-indstillinger bruges til ikonstørrelser og lignende. Det er usandsynligt, at du skal tilsidesætte disse. Nuværende system logisk DPI:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="715"/>
+        <location filename="../menu/settingsmenu.cpp" line="721"/>
         <source>Override system logical DPI settings</source>
         <translation>Overstyr systemets logiske DPI-indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="716"/>
+        <location filename="../menu/settingsmenu.cpp" line="722"/>
         <source>Logical DPI, X</source>
         <translation>Logisk DPI, X</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="717"/>
+        <location filename="../menu/settingsmenu.cpp" line="723"/>
         <source>Logical DPI, Y</source>
         <translation>Logisk DPI, Y</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="719"/>
+        <location filename="../menu/settingsmenu.cpp" line="725"/>
         <source>Physical DPI settings are used for absolute sizes (e.g. visual analogue scales). Override this for precise scaling if your system gets it slightly wrong. Current system physical DPI: </source>
         <translation>Fysiske DPI-indstillinger anvendes til absolutte størrelser (fx visuelle analoge skalaer). Overstyr dette for præcis skalering, hvis dit system får det lidt forkert. Nuværende system fysisk DPI:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="724"/>
+        <location filename="../menu/settingsmenu.cpp" line="730"/>
         <source>Override system physical DPI settings</source>
         <translation>Overstyr systemets fysiske DPI-indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="725"/>
+        <location filename="../menu/settingsmenu.cpp" line="731"/>
         <source>Physical DPI, X</source>
         <translation>Fysisk DPI, X</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="726"/>
+        <location filename="../menu/settingsmenu.cpp" line="732"/>
         <source>Physical DPI, Y</source>
         <translation>Fysisk DPI, Y</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="730"/>
+        <location filename="../menu/settingsmenu.cpp" line="736"/>
         <source>Dots per inch (DPI), e.g. 96; range %1-%2</source>
         <translation>Punkter pr. tommer (DPI), f.eks. 96; interval %1-%2</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="843"/>
+        <location filename="../menu/settingsmenu.cpp" line="849"/>
         <source>Reset to 100%</source>
         <translation>Nulstil til 100%</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="861"/>
+        <location filename="../menu/settingsmenu.cpp" line="867"/>
         <source>Set questionnaire font size and DPI settings</source>
         <translation>Indstil spørgeskema skriftstørrelse og DPI indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1003"/>
+        <location filename="../menu/settingsmenu.cpp" line="1009"/>
         <source>Server details have changed. You should consider re-registering with the server.</source>
         <translation>Serveroplysningerne er ændret. Du bør overveje at omregistrere til serveren.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1005"/>
+        <location filename="../menu/settingsmenu.cpp" line="1011"/>
         <source>Registration advised</source>
         <translation>Registrering anbefales</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1060"/>
+        <location filename="../menu/settingsmenu.cpp" line="1066"/>
         <source>&lt;b&gt;Are you sure you want to delete all extra strings?&lt;/b&gt;&lt;br&gt;(To get them back, re-download them from your server.)</source>
         <translation>&lt;b&gt;Er du sikker på, at du vil slette alle ekstra strenger?&lt;/b&gt;&lt;br&gt;(For at få dem tilbage, genindlæs dem fra din server.)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1064"/>
+        <location filename="../menu/settingsmenu.cpp" line="1070"/>
         <source>Wipe all extra strings?</source>
         <translation>Slet alle ekstra strenger?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1065"/>
+        <location filename="../menu/settingsmenu.cpp" line="1071"/>
         <source>Yes, delete them</source>
         <translation>Ja, slet dem</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1066"/>
+        <location filename="../menu/settingsmenu.cpp" line="1072"/>
         <source>No! Leave them alone</source>
         <translation>Nej! Lad dem være alene</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1096"/>
+        <location filename="../menu/settingsmenu.cpp" line="1111"/>
         <source>Server hostname/IP address:</source>
         <translation>Server værtsnavn/IP-adresse:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1097"/>
+        <location filename="../menu/settingsmenu.cpp" line="1112"/>
         <source>Port for HTTPS:</source>
         <translation>Port til HTTPS:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1098"/>
+        <location filename="../menu/settingsmenu.cpp" line="1113"/>
         <source>Path on server:</source>
         <translation>Sti på server:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1099"/>
+        <location filename="../menu/settingsmenu.cpp" line="1114"/>
         <source>Network timeout (ms):</source>
         <translation>Netværk timeout (ms):</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1100"/>
+        <location filename="../menu/settingsmenu.cpp" line="1115"/>
         <source>Last server registration/ID info acceptance:</source>
         <translation>Seneste server registrering/ID info accept:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1102"/>
+        <location filename="../menu/settingsmenu.cpp" line="1117"/>
         <source>Last successful upload:</source>
         <translation>Sidste vellykket upload:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1103"/>
+        <location filename="../menu/settingsmenu.cpp" line="1118"/>
         <source>Database title (from the server):</source>
         <translation>Database titel (fra serveren):</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1104"/>
+        <location filename="../menu/settingsmenu.cpp" line="1119"/>
         <source>Server’s upload ID policy:</source>
         <translation>Serverens upload id-politik:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1105"/>
+        <location filename="../menu/settingsmenu.cpp" line="1120"/>
         <source>Server’s finalizing ID policy:</source>
         <translation>Serverens endelige id-politik:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1106"/>
+        <location filename="../menu/settingsmenu.cpp" line="1121"/>
         <source>Server CamCOPS version:</source>
         <translation>Serverens CamCOPS version:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1210"/>
+        <location filename="../menu/settingsmenu.cpp" line="1225"/>
         <source>Description for patient identifier </source>
         <translation>Beskrivelse for patientidentifikator </translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1218"/>
+        <location filename="../menu/settingsmenu.cpp" line="1233"/>
         <source>Short description for patient identifier </source>
         <translation>Kort beskrivelse af patientidentifikator </translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1232"/>
+        <location filename="../menu/settingsmenu.cpp" line="1247"/>
         <source>Language</source>
         <translation>Sprog</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1235"/>
+        <location filename="../menu/settingsmenu.cpp" line="1250"/>
         <source>Number of strings</source>
         <translation>Antal strenger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1253"/>
+        <location filename="../menu/settingsmenu.cpp" line="1268"/>
         <source>ID number descriptions:</source>
         <translation>ID nummer beskrivelser:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1256"/>
+        <location filename="../menu/settingsmenu.cpp" line="1271"/>
         <source>Extra string counts by language:</source>
         <translation>Ekstra streng tæller efter sprog:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1273"/>
+        <location filename="../menu/settingsmenu.cpp" line="1288"/>
         <source>Main data database</source>
         <translation>Hoveddatabase</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1281"/>
+        <location filename="../menu/settingsmenu.cpp" line="1296"/>
         <source>CamCOPS system database</source>
         <translation>CamCOPS system database</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1301"/>
+        <location filename="../menu/settingsmenu.cpp" line="1316"/>
         <source>Data</source>
         <translation>Data</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1307"/>
+        <location filename="../menu/settingsmenu.cpp" line="1322"/>
         <source>System</source>
         <translation>System</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1314"/>
+        <location filename="../menu/settingsmenu.cpp" line="1329"/>
         <source>Sending data...</source>
         <translation>Afsendelse af data...</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1315"/>
+        <location filename="../menu/settingsmenu.cpp" line="1330"/>
         <source>Please wait</source>
         <translation>Vent venligst</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1323"/>
+        <location filename="../menu/settingsmenu.cpp" line="1338"/>
         <source>database sent to debugging stream</source>
         <translation>database skrevet til debugging stream</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1324"/>
+        <location filename="../menu/settingsmenu.cpp" line="1339"/>
         <source>Finished</source>
         <translation>Færdig</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1331"/>
+        <location filename="../menu/settingsmenu.cpp" line="1346"/>
         <source>Save data database as...</source>
         <translation>Gem databas som...</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1332"/>
+        <location filename="../menu/settingsmenu.cpp" line="1347"/>
         <source>Data database written to:</source>
         <translation>Databas skrevet til:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1339"/>
+        <location filename="../menu/settingsmenu.cpp" line="1354"/>
         <source>Save system database as...</source>
         <translation>Gem systemdatabasen som...</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1340"/>
+        <location filename="../menu/settingsmenu.cpp" line="1355"/>
         <source>System database written to:</source>
         <translation>Systemdatabase skrevet til:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1354"/>
+        <location filename="../menu/settingsmenu.cpp" line="1369"/>
         <source>Unable to open file: </source>
         <translation>Kan ikke åbne fil: </translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1354"/>
+        <location filename="../menu/settingsmenu.cpp" line="1369"/>
         <source>Failure</source>
         <translation>Fiasko</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1360"/>
+        <location filename="../menu/settingsmenu.cpp" line="1375"/>
         <source>You can import it into SQLite with a command like</source>
         <translation>Du kan importere den til SQLite med en kommando som</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1362"/>
+        <location filename="../menu/settingsmenu.cpp" line="1377"/>
         <source>Success</source>
         <translation>Succes</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1368"/>
+        <location filename="../menu/settingsmenu.cpp" line="1383"/>
         <source>Record counts for data database</source>
         <translation>Optagelsestællinger for database</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1374"/>
+        <location filename="../menu/settingsmenu.cpp" line="1389"/>
         <source>Record counts for system database</source>
         <translation>Optagelsestællinger for systemdatabasen</translation>
     </message>
     <message>
         <location filename="../menu/settingsmenu.cpp" line="130"/>
-        <location filename="../menu/settingsmenu.cpp" line="1396"/>
+        <location filename="../menu/settingsmenu.cpp" line="1411"/>
         <source>Choose language</source>
         <translation>Vælg sprog</translation>
     </message>
@@ -5478,73 +5503,73 @@ Anonym</translation>
 <context>
     <name>Task</name>
     <message>
-        <location filename="../tasklib/task.cpp" line="214"/>
+        <location filename="../tasklib/task.cpp" line="218"/>
         <source>MISSING PATIENT</source>
         <translation>MISSENDE PATIENT</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="251"/>
+        <location filename="../tasklib/task.cpp" line="255"/>
         <source> You have said you ARE using this software in that context (see Settings). To use this task, you must seek permission from the copyright holder (see Task Information).</source>
         <translation>Du har sagt, at du bruger denne software i den sammenhæng (se Indstillinger). For at bruge denne opgave skal du søge tilladelse fra indehaveren af ophavsretten (se Opgaveoplysninger).</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="255"/>
+        <location filename="../tasklib/task.cpp" line="259"/>
         <source> You have NOT SAID whether you are using this software in that context (see Settings).</source>
         <translation>Du har ikke sagt om du bruger denne software i den sammenhæng (se Indstillinger).</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="258"/>
+        <location filename="../tasklib/task.cpp" line="262"/>
         <source>Task permissible</source>
         <translation>Opgave er tilladt</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="262"/>
+        <location filename="../tasklib/task.cpp" line="266"/>
         <source>Task not allowed for commercial use (see Task Information).</source>
         <translation>Opgave ikke tilladt til kommerciel brug (se Opgaveoplysninger).</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="269"/>
-        <location filename="../tasklib/task.cpp" line="283"/>
+        <location filename="../tasklib/task.cpp" line="273"/>
+        <location filename="../tasklib/task.cpp" line="287"/>
         <source>Task not allowed for research use (see Task Information).</source>
         <translation>Opgave ikke tilladt til forskningsbrug (se Opgaveoplysninger).</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="276"/>
+        <location filename="../tasklib/task.cpp" line="280"/>
         <source>Task not allowed for educational use (see Task Information).</source>
         <translation>Opgave ikke tilladt til uddannelsesmæssig brug (se Opgaveoplysninger).</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="320"/>
+        <location filename="../tasklib/task.cpp" line="324"/>
         <source>Task uploadable</source>
         <translation>Opgave kan uploades</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="323"/>
+        <location filename="../tasklib/task.cpp" line="327"/>
         <source>Table &apos;%1&apos; absent on server.</source>
         <translation>Tabel &apos;%1&apos; er fraværende på serveren.</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="326"/>
+        <location filename="../tasklib/task.cpp" line="330"/>
         <source>Server requires client version &gt;=%1 for table &apos;%2&apos;, but we are only client version %3.</source>
         <translation>Server kræver klientversion &gt;=%1 for tabel &apos;%2&apos;, men vi er kun klientversion %3.</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="333"/>
+        <location filename="../tasklib/task.cpp" line="337"/>
         <source>This client requires server version &gt;=%1, but the server is only version %2.</source>
         <translation>Denne klient kræver serverversion &gt;=%1, men serveren er kun version %2.</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="339"/>
+        <location filename="../tasklib/task.cpp" line="343"/>
         <source>This client requires server version &gt;=%1 for table &apos;%2&apos;, but the server is only version %3.</source>
         <translation>Denne klient kræver serverversion &gt;= %1 for tabel &apos;%2&apos;, men serveren er kun version %3.</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="427"/>
+        <location filename="../tasklib/task.cpp" line="447"/>
         <source>MISSING SUMMARY</source>
         <translation>MISSENDE SAMMENFATNING</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="849"/>
+        <location filename="../tasklib/task.cpp" line="892"/>
         <source>&lt;b&gt;(INCOMPLETE)&lt;/b&gt;</source>
         <translation>&lt;b&gt;(UFULDSTÆNDIG)&lt;/b&gt;</translation>
     </message>

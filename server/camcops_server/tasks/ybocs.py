@@ -215,7 +215,7 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
-            self.are_all_fields_complete(self.SCORED_QUESTIONS)
+            self.all_fields_not_none(self.SCORED_QUESTIONS)
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:

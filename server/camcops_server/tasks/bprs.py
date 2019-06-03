@@ -118,7 +118,7 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(Bprs.TASK_FIELDS) and
+            self.all_fields_not_none(Bprs.TASK_FIELDS) and
             self.field_contents_valid()
         )
 

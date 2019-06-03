@@ -171,7 +171,7 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         ]
 
     def is_complete(self) -> bool:
-        return (self.are_all_fields_complete(self.SCORED_QUESTIONS) and
+        return (self.all_fields_not_none(self.SCORED_QUESTIONS) and
                 self.field_contents_valid())
 
     def total_score(self) -> int:

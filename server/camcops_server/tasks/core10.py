@@ -135,7 +135,7 @@ class Core10(TaskHasPatientMixin, Task):
         return Version("2.2.8")
 
     def is_complete(self) -> bool:
-        return self.are_all_fields_complete(self.QUESTION_FIELDNAMES)
+        return self.all_fields_not_none(self.QUESTION_FIELDNAMES)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
@@ -182,7 +182,7 @@ class Core10(TaskHasPatientMixin, Task):
         return self.sum_fields(self.QUESTION_FIELDNAMES)
 
     def n_questions_complete(self) -> int:
-        return self.n_complete(self.QUESTION_FIELDNAMES)
+        return self.n_fields_not_none(self.QUESTION_FIELDNAMES)
 
     def clinical_score(self) -> float:
         n_q_completed = self.n_questions_complete()

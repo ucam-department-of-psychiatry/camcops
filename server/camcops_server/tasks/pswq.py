@@ -140,7 +140,7 @@ class Pswq(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(self.TASK_FIELDS) and
+            self.all_fields_not_none(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 

@@ -20,10 +20,18 @@
 #include "quspacer.h"
 #include <QSizePolicy>
 #include <QWidget>
+#include "common/uiconst.h"
 #include "widgets/spacer.h"
 
 
-QuSpacer::QuSpacer()
+QuSpacer::QuSpacer() :
+    QuSpacer(QSize(uiconst::SPACE, uiconst::SPACE))
+{
+}
+
+
+QuSpacer::QuSpacer(const QSize& size) :
+    m_size(size)
 {
 }
 
@@ -31,5 +39,5 @@ QuSpacer::QuSpacer()
 QPointer<QWidget> QuSpacer::makeWidget(Questionnaire* questionnaire)
 {
     Q_UNUSED(questionnaire);
-    return QPointer<QWidget>(new Spacer());
+    return QPointer<QWidget>(new Spacer(m_size));
 }

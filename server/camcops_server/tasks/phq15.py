@@ -112,9 +112,9 @@ class Phq15(TaskHasPatientMixin, Task,
     def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
-        if not self.are_all_fields_complete(self.ONE_TO_THREE):
+        if self.any_fields_none(self.ONE_TO_THREE):
             return False
-        if not self.are_all_fields_complete(self.FIVE_TO_END):
+        if self.any_fields_none(self.FIVE_TO_END):
             return False
         if self.is_female():
             return self.q4 is not None

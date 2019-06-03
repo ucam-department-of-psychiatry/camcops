@@ -130,7 +130,7 @@ class QolBasic(TaskHasPatientMixin, Task):
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(QolBasic.TASK_FIELDS) and
+            self.all_fields_not_none(QolBasic.TASK_FIELDS) and
             self.field_contents_valid()
         )
 

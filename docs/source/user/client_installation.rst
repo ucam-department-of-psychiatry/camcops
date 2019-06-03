@@ -217,6 +217,7 @@ This section has nothing specifically to do with CamCOPS, but describes general
 good security measures to take (or measures that your institution may oblige
 you to take) with any mobile device holding sensitive information.
 
+
 iPad
 ~~~~
 
@@ -241,6 +242,7 @@ iPad
   [#iossetpasswordencryptsdata]_ [#ioskeychainvulnerable]_.
 
 - Install CamCOPS; see :ref:`above <client_installation>`.
+
 
 Android
 ~~~~~~~
@@ -402,6 +404,14 @@ Configuring CamCOPS before using it
 Good to go! See :ref:`using the tablet app <client_using>`.
 
 
+If your CamCOPS server is upgraded
+----------------------------------
+
+Use :menuselection:`Settings --> Fetch all server info` to inform the client of
+changes. (This is exactly like client registration, but doesn't require
+registration permissions.)
+
+
 Other CamCOPS app settings
 --------------------------
 
@@ -411,6 +421,7 @@ Language
 :menuselection:`Settings --> Choose language` |language|
 
 You can choose the language in which CamCOPS operates.
+
 
 Questionnaire font size and DPI settings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -316,8 +316,8 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             return False
         t = self.count_booleans(self.HYPOMANIA_MANIA_NAMES) + \
             self.count_booleans(self.MANIA_NAMES)
-        u = self.n_incomplete(self.HYPOMANIA_MANIA_NAMES) + \
-            self.n_incomplete(self.MANIA_NAMES)
+        u = self.n_fields_none(self.HYPOMANIA_MANIA_NAMES) + \
+            self.n_fields_none(self.MANIA_NAMES)
         if self.mood_elevated and (t + u < 3):
             # With elevated mood, need at least 3 symptoms
             return False
@@ -344,7 +344,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         if is_false(self.sustained4days):
             return False
         t = self.count_booleans(self.HYPOMANIA_MANIA_NAMES)
-        u = self.n_incomplete(self.HYPOMANIA_MANIA_NAMES)
+        u = self.n_fields_none(self.HYPOMANIA_MANIA_NAMES)
         if t + u < 3:
             # Need at least 3 symptoms
             return False

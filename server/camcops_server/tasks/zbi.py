@@ -123,7 +123,7 @@ class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
         return (
             self.field_contents_valid() and
             self.is_respondent_complete() and
-            self.are_all_fields_complete(self.TASK_FIELDS)
+            self.all_fields_not_none(self.TASK_FIELDS)
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:

@@ -148,7 +148,7 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(self.COMPLETENESS_FIELDS) and
+            self.all_fields_not_none(self.COMPLETENESS_FIELDS) and
             self.field_contents_valid()
         )
 
@@ -327,7 +327,7 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(self.COMPLETENESS_FIELDS) and
+            self.all_fields_not_none(self.COMPLETENESS_FIELDS) and
             self.field_contents_valid()
         )
 

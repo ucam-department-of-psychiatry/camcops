@@ -112,7 +112,7 @@ class Cage(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(Cage.TASK_FIELDS) and
+            self.all_fields_not_none(Cage.TASK_FIELDS) and
             self.field_contents_valid()
         )
 

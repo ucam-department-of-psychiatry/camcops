@@ -27,6 +27,7 @@ Troubleshooting client problems
     :local:
     :depth: 3
 
+
 I've lost the password for my CamCOPS client app
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -43,6 +44,7 @@ get your data back.
 
 Any data that was uploaded to the server should be fine.
 
+
 Windows client fails to start under Windows Server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -52,6 +54,7 @@ for large-scale server use and doesn't have multimedia components that are a
 standard part of normal Windows. See :ref:`CamCOPS client won't run under
 Windows Server <client_windows_server>`.
 
+
 Tablet upload fails with error “Read timed out”
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -60,6 +63,7 @@ photo). For example, in one of our tests a BLOB took more than 17 s to upload,
 so the tablet needs to wait at least that long after starting to send it.
 Increase the tablet’s network timeout (e.g. to 60000 ms or more) in Settings →
 Server settings.
+
 
 A photo-based task says "No camera"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,6 +75,7 @@ found. This is usually a hardware configuration problem.
 
 - If you're using a laptop, does it have a special function key combination to
   enable/disable the camera?
+
 
 What if it crashes?
 ~~~~~~~~~~~~~~~~~~~
@@ -97,6 +102,7 @@ forcibly stop and restart the app:
 *Windows*
 
 - Close it as usual; if it refuses to close, kill it via the Task Manager.
+
 
 Rescuing data from very old CamCOPS clients
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

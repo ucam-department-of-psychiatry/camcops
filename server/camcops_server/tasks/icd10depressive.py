@@ -321,8 +321,8 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def main_complete(self) -> bool:
         return (
             self.duration_at_least_2_weeks is not None and
-            self.are_all_fields_complete(self.CORE_NAMES) and
-            self.are_all_fields_complete(self.ADDITIONAL_NAMES)
+            self.all_fields_not_none(self.CORE_NAMES) and
+            self.all_fields_not_none(self.ADDITIONAL_NAMES)
         ) or bool(
             self.severe_clinically
         )
@@ -360,7 +360,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         x = self.meets_criteria_severe_ignoring_psychosis()
         if not x:
             return x
-        if not self.are_all_fields_complete(self.PSYCHOSIS_NAMES):
+        if self.any_fields_none(self.PSYCHOSIS_NAMES):
             return None
         return self.count_booleans(self.PSYCHOSIS_NAMES) == 0
 
@@ -418,7 +418,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def meets_criteria_somatic(self) -> Optional[bool]:
         t = self.n_somatic()
-        u = self.n_incomplete(self.SOMATIC_NAMES)
+        u = self.n_fields_none(self.SOMATIC_NAMES)
         if t >= 4:
             return True
         elif t + u < 4:
@@ -467,7 +467,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def is_psychotic_or_stupor(self) -> Optional[bool]:
         if self.count_booleans(self.PSYCHOSIS_NAMES) > 0:
             return True
-        elif self.are_all_fields_complete(self.PSYCHOSIS_NAMES) > 0:
+        elif self.all_fields_not_none(self.PSYCHOSIS_NAMES) > 0:
             return False
         else:
             return None

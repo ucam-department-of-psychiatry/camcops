@@ -213,7 +213,7 @@ class CopeBrief(TaskHasPatientMixin, Task,
     def is_complete(self) -> bool:
         return (
             self.is_complete_responder() and
-            self.are_all_fields_complete(
+            self.all_fields_not_none(
                 [f"q{n}" for n in range(1, self.NQUESTIONS + 1)]) and
             self.field_contents_valid()
         )

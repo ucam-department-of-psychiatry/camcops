@@ -254,7 +254,7 @@ class Factg(TaskHasPatientMixin, Task,
                   self.QUESTIONS_EMOTIONAL, self.QUESTIONS_FUNCTIONAL]
 
         for qlist in all_qs:
-            if not self.are_all_fields_complete(qlist):
+            if self.any_fields_none(qlist):
                 return False
 
         if not self.field_contents_valid():

@@ -163,7 +163,7 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     def is_complete(self) -> bool:
         return (
             self.date_pertains_to is not None and
-            self.are_all_fields_complete(self.A_FIELDS) and
+            self.all_fields_not_none(self.A_FIELDS) and
             self.b is not None and
             self.field_contents_valid()
         )

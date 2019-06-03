@@ -224,7 +224,7 @@ class HadsBase(TaskHasPatientMixin, Task,
     def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
-            self.are_all_fields_complete(self.TASK_FIELDS)
+            self.all_fields_not_none(self.TASK_FIELDS)
         )
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:

@@ -362,11 +362,15 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     # Meets criteria? These also return null for unknown.
     def meets_general_criteria(self) -> Optional[bool]:
         t_a = self.count_booleans(Icd10Schizophrenia.A_NAMES)
-        u_a = self.n_incomplete(Icd10Schizophrenia.A_NAMES)
-        t_b = self.count_booleans(Icd10Schizophrenia.B_NAMES) + \
+        u_a = self.n_fields_none(Icd10Schizophrenia.A_NAMES)
+        t_b = (
+            self.count_booleans(Icd10Schizophrenia.B_NAMES) +
             self.count_booleans(Icd10Schizophrenia.C_NAMES)
-        u_b = self.n_incomplete(Icd10Schizophrenia.B_NAMES) + \
-            self.n_incomplete(Icd10Schizophrenia.C_NAMES)
+        )
+        u_b = (
+            self.n_fields_none(Icd10Schizophrenia.B_NAMES) +
+            self.n_fields_none(Icd10Schizophrenia.C_NAMES)
+        )
         if t_a + u_a < 1 and t_b + u_b < 2:
             return False
         if self.present_one_month is not None and not self.present_one_month:
