@@ -49,6 +49,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
 )
+from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -169,7 +170,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             date_pertains_to=tr_qa(
-                req.wappstring("date_pertains_to"),
+                req.wappstring(AS.DATE_PERTAINS_TO),
                 format_datetime(self.date_pertains_to, DateFormat.LONG_DATE,
                                 default=None)
             ),
@@ -178,7 +179,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 get_true_false_none(req, self.meets_criteria())
             ),
             icd10_symptomatic_disclaimer=req.wappstring(
-                "icd10_symptomatic_disclaimer"),
+                AS.ICD10_SYMPTOMATIC_DISCLAIMER),
             mixture_or_rapid_alternation=self.get_twocol_bool_row_true_false(
                 req, "mixture_or_rapid_alternation", self.wxstring(req, "a")),
             duration_at_least_2_weeks=self.get_twocol_bool_row_true_false(

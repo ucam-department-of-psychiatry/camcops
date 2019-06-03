@@ -39,6 +39,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     ZERO_TO_FOUR_CHECKER,
 )
+from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
     Task,
@@ -123,7 +124,7 @@ class AbstractSatisfaction(object):
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-                {tr_qa(req.wappstring("satis_service_being_rated"), 
+                {tr_qa(req.wappstring(AS.SATIS_SERVICE_BEING_RATED), 
                        self.service)}
                 {tr_qa(f"{rating_q} {self.service}?", r)}
                 {tr_qa(good_q, self.good)}
@@ -155,9 +156,9 @@ class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):
     def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(
             req,
-            req.wappstring("satis_pt_rating_q"),
-            req.wappstring("satis_good_q"),
-            req.wappstring("satis_bad_q")
+            req.wappstring(AS.SATIS_PT_RATING_Q),
+            req.wappstring(AS.SATIS_GOOD_Q),
+            req.wappstring(AS.SATIS_BAD_Q)
         )
 
 
@@ -180,9 +181,9 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
     def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(
             req,
-            req.wappstring("satis_ref_gen_rating_q"),
-            req.wappstring("satis_good_q"),
-            req.wappstring("satis_bad_q")
+            req.wappstring(AS.SATIS_REF_GEN_RATING_Q),
+            req.wappstring(AS.SATIS_GOOD_Q),
+            req.wappstring(AS.SATIS_BAD_Q)
         )
 
 
@@ -206,7 +207,7 @@ class ReferrerSatisfactionSpec(TaskHasPatientMixin, AbstractSatisfaction,
     def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(
             req,
-            req.wappstring("satis_ref_spec_rating_q"),
-            req.wappstring("satis_good_q"),
-            req.wappstring("satis_bad_q")
+            req.wappstring(AS.SATIS_REF_SPEC_RATING_Q),
+            req.wappstring(AS.SATIS_GOOD_Q),
+            req.wappstring(AS.SATIS_BAD_Q)
         )

@@ -42,6 +42,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     PermittedValueChecker,
 )
+from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -108,7 +109,7 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
-                    {tr(req.wappstring("gaf_score"), answer(self.score))}
+                    {tr(req.wappstring(AS.GAF_SCORE), answer(self.score))}
                 </table>
             </div>
             {DATA_COLLECTION_ONLY_DIV}

@@ -53,16 +53,8 @@ MISSING_LOCALE = ""
 
 
 # =============================================================================
-# Localization strings
+# XML helper functions
 # =============================================================================
-# In a change to thinking... Pyramid emphasizes: NO MUTABLE GLOBAL STATE.
-# https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/advanced-features.html  # noqa
-# This is a good thing. But it means that:
-# - because we configure our XML files in our config...
-# - and in principle even two different threads coming here may have different
-#   configs...
-# - ... that string requests need to be attached to a Pyramid Request.
-
 
 def text_contents(e: Element, plain: bool = False, strip: bool = True) -> str:
     """
@@ -113,6 +105,68 @@ def text_contents(e: Element, plain: bool = False, strip: bool = True) -> str:
         return result.strip()
     else:
         return result
+
+
+# =============================================================================
+# Localization strings
+# =============================================================================
+# In a change to thinking... Pyramid emphasizes: NO MUTABLE GLOBAL STATE.
+# https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/advanced-features.html  # noqa
+# This is a good thing. But it means that:
+# - because we configure our XML files in our config...
+# - and in principle even two different threads coming here may have different
+#   configs...
+# - ... that string requests need to be attached to a Pyramid Request.
+
+class AS(object):
+    """
+    List of appstrings present in ``camcops.xml``.
+
+    Should match ``appstrings.cpp`` in the client, and of course
+    ``camcops.xml`` itself.
+    """
+    BDI_WHICH_SCALE = "bdi_which_scale"
+    DATA_COLLECTION_ONLY = "data_collection_only"
+    DATE_PERTAINS_TO = "date_pertains_to"
+    GAF_SCORE = "gaf_score"
+    HADS_ANXIETY_SCORE = "hads_anxiety_score"
+    HADS_DEPRESSION_SCORE = "hads_depression_score"
+    ICD10_SYMPTOMATIC_DISCLAIMER = "icd10_symptomatic_disclaimer"
+
+    NHS_PERSON_MARITAL_STATUS_CODE_S = "nhs_person_marital_status_code_S"
+    NHS_PERSON_MARITAL_STATUS_CODE_M = "nhs_person_marital_status_code_M"
+    NHS_PERSON_MARITAL_STATUS_CODE_D = "nhs_person_marital_status_code_D"
+    NHS_PERSON_MARITAL_STATUS_CODE_W = "nhs_person_marital_status_code_W"
+    NHS_PERSON_MARITAL_STATUS_CODE_P = "nhs_person_marital_status_code_P"
+    NHS_PERSON_MARITAL_STATUS_CODE_N = "nhs_person_marital_status_code_N"
+
+    NHS_ETHNIC_CATEGORY_CODE_A = "nhs_ethnic_category_code_A"
+    NHS_ETHNIC_CATEGORY_CODE_B = "nhs_ethnic_category_code_B"
+    NHS_ETHNIC_CATEGORY_CODE_C = "nhs_ethnic_category_code_C"
+    NHS_ETHNIC_CATEGORY_CODE_D = "nhs_ethnic_category_code_D"
+    NHS_ETHNIC_CATEGORY_CODE_E = "nhs_ethnic_category_code_E"
+    NHS_ETHNIC_CATEGORY_CODE_F = "nhs_ethnic_category_code_F"
+    NHS_ETHNIC_CATEGORY_CODE_G = "nhs_ethnic_category_code_G"
+    NHS_ETHNIC_CATEGORY_CODE_H = "nhs_ethnic_category_code_H"
+    NHS_ETHNIC_CATEGORY_CODE_J = "nhs_ethnic_category_code_J"
+    NHS_ETHNIC_CATEGORY_CODE_K = "nhs_ethnic_category_code_K"
+    NHS_ETHNIC_CATEGORY_CODE_L = "nhs_ethnic_category_code_L"
+    NHS_ETHNIC_CATEGORY_CODE_M = "nhs_ethnic_category_code_M"
+    NHS_ETHNIC_CATEGORY_CODE_N = "nhs_ethnic_category_code_N"
+    NHS_ETHNIC_CATEGORY_CODE_P = "nhs_ethnic_category_code_P"
+    NHS_ETHNIC_CATEGORY_CODE_R = "nhs_ethnic_category_code_R"
+    NHS_ETHNIC_CATEGORY_CODE_S = "nhs_ethnic_category_code_S"
+    NHS_ETHNIC_CATEGORY_CODE_Z = "nhs_ethnic_category_code_Z"
+
+    SATIS_BAD_Q = "satis_bad_q"
+    SATIS_BAD_S = "satis_bad_s"
+    SATIS_GOOD_Q = "satis_good_q"
+    SATIS_GOOD_S = "satis_good_s"
+    SATIS_PT_RATING_Q = "satis_pt_rating_q"
+    SATIS_REF_GEN_RATING_Q = "satis_ref_gen_rating_q"
+    SATIS_REF_SPEC_RATING_Q = "satis_ref_spec_rating_q"
+    SATIS_RATING_A_PREFIX = "satis_rating_a"
+    SATIS_SERVICE_BEING_RATED = "satis_service_being_rated"
 
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)

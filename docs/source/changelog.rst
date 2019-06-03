@@ -2088,7 +2088,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     ``mysqlclient==1.3.13``, mis-handles Pendulum objects.
   - See also:
 
-    - :ref:`DB_URL <serverconfig_site_db_url>`.
+    - :ref:`DB_URL <serverconfig_db_url>`.
     - https://crateanon.readthedocs.io/en/latest/installation/database_drivers.html
 
   - Fixes:

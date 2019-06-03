@@ -43,6 +43,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
+from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -286,13 +287,12 @@ class HadsBase(TaskHasPatientMixin, Task,
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
                     <tr>
-                        <td>{req.wappstring(
-            "hads_anxiety_score")}</td><td>{answer(
-            a)} / {self.MAX_ANX_SCORE}</td>
+                        <td>{req.wappstring(AS.HADS_ANXIETY_SCORE)}</td>
+                        <td>{answer(a)} / {self.MAX_ANX_SCORE}</td>
                     </tr>
                     <tr>
-                        <td>{req.wappstring(
-            "hads_depression_score")}</td><td>{answer(d)} / 21</td>
+                        <td>{req.wappstring(AS.HADS_DEPRESSION_SCORE)}</td>
+                        <td>{answer(d)} / 21</td>
                     </tr>
                 </table>
             </div>

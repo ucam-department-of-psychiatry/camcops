@@ -39,6 +39,39 @@ English is OK for the following:
 Everything else should be translatable.
 
 
+String locations in CamCOPS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Task-specific XML files.
+
+  These are loaded by the server (see :ref:`EXTRA_STRING_FILES
+  <serverconfig_extra_string_files>`) and downloaded by the client. They
+  contain string versions in different languages.
+
+  Client calls look like ``xstring("stringname")``.
+
+  Server calls look like ``req.xstring("stringname")`` or
+  ``req.wxstring("stringname")``.
+
+- Client/server shared strings.
+
+  Some strings are shared between the client and the server, but are not
+  specific to a given task. They are in the special ``camcops.xml`` string
+  file, loaded as above.
+
+  Client calls typically look like ``appstring(appstrings::STRINGNAME)``; the
+  strings are named by constants listed in ``appstrings.h``.
+
+  Server calls typically look like ``req.wappstring(AS.STRINGNAME)`` where
+  ``AS`` is defined in ``camcops_server.cc_modules.cc_string``.
+
+- Client core.
+
+  Text visible to the user should be within a Qt ``tr()`` call. Qt provides
+  tools to collect these strings into a translation file, translate them via
+  Qt Linguist, and distribute them -- see below.
+
+
 Overview of the Qt translation system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

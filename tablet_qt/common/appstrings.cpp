@@ -22,6 +22,9 @@
 namespace appstrings
 {
 
+// These should match constants in cc_string.py on the server,
+// and of course camcops.xml itself.
+
 const QString BDI_WHICH_SCALE("bdi_which_scale");
 const QString DATA_COLLECTION_ONLY("data_collection_only");
 const QString DATE_PERTAINS_TO("date_pertains_to");

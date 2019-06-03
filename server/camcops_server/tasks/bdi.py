@@ -43,6 +43,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, bold, td, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
+from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
@@ -287,7 +288,7 @@ class Bdi(TaskHasPatientMixin, Task,
             literal=True
         )
         tr_which_scale = tr_qa(
-            req.wappstring("bdi_which_scale") + " <sup>[3]</sup>",
+            req.wappstring(AS.BDI_WHICH_SCALE) + " <sup>[3]</sup>",
             ws.webify(self.bdi_scale)
         )
         return f"""

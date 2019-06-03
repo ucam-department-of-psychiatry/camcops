@@ -52,6 +52,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     SummaryCategoryColType,
 )
+from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -433,7 +434,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             date_pertains_to=tr_qa(
-                req.wappstring("date_pertains_to"),
+                req.wappstring(AS.DATE_PERTAINS_TO),
                 format_datetime(self.date_pertains_to,
                                 DateFormat.LONG_DATE, default=None)
             ),
@@ -446,7 +447,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 get_present_absent_none(req, self.psychosis_present())
             ),
             icd10_symptomatic_disclaimer=req.wappstring(
-                "icd10_symptomatic_disclaimer"),
+                AS.ICD10_SYMPTOMATIC_DISCLAIMER),
         )
 
         h += self.text_row(req, "core")

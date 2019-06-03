@@ -118,7 +118,7 @@ Options for the "[site]" section
 Database connection
 ~~~~~~~~~~~~~~~~~~~
 
-.. _serverconfig_site_db_url:
+.. _serverconfig_db_url:
 
 DB_URL
 ######
@@ -235,6 +235,8 @@ CAMCOPS_LOGO_FILE_ABSOLUTE
 As for ``LOCAL_LOGO_FILE_ABSOLUTE``, but for the CamCOPS logo. It's fine not to
 specify this; a default will be used.
 
+
+.. _serverconfig_extra_string_files:
 
 EXTRA_STRING_FILES
 ##################

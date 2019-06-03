@@ -36,6 +36,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     PermittedValueChecker,
 )
+from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
     Task,
@@ -101,7 +102,7 @@ class Fft(TaskHasPatientMixin, Task):
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-                {tr_qa(req.wappstring("satis_service_being_rated"),
+                {tr_qa(req.wappstring(AS.SATIS_SERVICE_BEING_RATED),
                        self.service)}
                 {tr_qa(self.wxstring(req, "q"), r)}
             </table>

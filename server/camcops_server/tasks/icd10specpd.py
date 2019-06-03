@@ -56,6 +56,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
 )
+from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -571,7 +572,7 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                 <table class="{CssClass.SUMMARY}">
         """
         h += self.get_is_complete_tr(req)
-        h += tr_qa(req.wappstring("date_pertains_to"),
+        h += tr_qa(req.wappstring(AS.DATE_PERTAINS_TO),
                    format_datetime(self.date_pertains_to,
                                    DateFormat.LONG_DATE, default=None))
         h += tr_qa(self.wxstring(req, "meets_general_criteria"),
