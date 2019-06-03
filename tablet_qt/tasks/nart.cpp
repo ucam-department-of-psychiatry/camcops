@@ -153,7 +153,7 @@ bool Nart::isComplete() const
 
 QStringList Nart::summary() const
 {
-    const bool complete = isComplete();
+    const bool complete = isCompleteCached();
     const int errors = numErrors();
     return QStringList{
         result(nelsonFullScaleIQ(complete, errors), false),
@@ -165,7 +165,7 @@ QStringList Nart::summary() const
 
 QStringList Nart::detail() const
 {
-    const bool complete = isComplete();
+    const bool complete = isCompleteCached();
     const int errors = numErrors();
     QStringList wordresults{"Words correct?"};
     for (int i = 0; i < ACCENTED_WORDLIST.length(); ++i) {

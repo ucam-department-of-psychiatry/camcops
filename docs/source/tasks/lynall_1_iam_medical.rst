@@ -1,4 +1,4 @@
-..  docs/source/tasks/khandaker_1.rst
+..  docs/source/tasks/lynall_1_iam_medical.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,24 +17,25 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _khandaker_1:
+.. _lynall_1_iam_medical:
 
-Khandaker GM — 1 — Insight study — medical history
---------------------------------------------------
+Lynall M-E — 1 — IAM study — medical history
+--------------------------------------------
 
-Medical history form, plus other tasks indexed elsewhere.
+Medical history questionnaire for the Inflammation in Mind (IAM) study.
 
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Copyright © 2018 Golam M. Khandaker, University of Cambridge.
+- Copyright © 2018 Mary-Ellen Lynall, University of Cambridge.
 
-- License: Creative Commons Attribution 3.0 Unported (CC BY 3.0);
-  http://creativecommons.org/licenses/by/3.0/
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA
+  4.0): https://creativecommons.org/licenses/by-sa/4.0/
 
 
 Source
 ~~~~~~
 
-- Golam Khandaker, personal communication to Rudolf Cardinal (e.g. 2018-06-27).
+- Mary-Ellen Lynall, personal communication to Rudolf Cardinal (e.g.
+  2019-04-30).

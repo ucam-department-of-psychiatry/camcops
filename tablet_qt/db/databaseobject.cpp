@@ -182,6 +182,9 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
             m_app.setNeedsUpload(true);
         }
     }
+    if (dirty) {
+        emit dataChanged();
+    }
     return dirty;
 }
 
@@ -716,6 +719,8 @@ void DatabaseObject::setFromQuery(const QueryResult& query_result,
 
     // And also:
     loadAllAncillary();
+
+    emit dataChanged();
 }
 
 
@@ -765,6 +770,7 @@ void DatabaseObject::nullify()
         field.nullify();
     }
     m_exists_in_db = false;
+    emit dataChanged();
 }
 
 
@@ -787,6 +793,7 @@ void DatabaseObject::touch(const bool only_if_unset)
     // Don't set the timestamp value with setValue()! Infinite loop.
     const QDateTime now = QDateTime::currentDateTime();
     m_record[dbconst::MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
+    emit dataChanged();
 }
 
 
@@ -797,6 +804,7 @@ void DatabaseObject::setAllDirty()
         i.next();
         i.value().setDirty();
     }
+    emit dataChanged();
 }
 
 

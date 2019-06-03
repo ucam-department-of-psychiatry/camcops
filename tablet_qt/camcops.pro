@@ -759,6 +759,8 @@ SOURCES += \
     tasks/ifs.cpp \
     tasks/irac.cpp \
     tasks/khandaker1medicalhistory.cpp \
+    tasks/lynall1iammedical.cpp \
+    tasks/lynall2iamlife.cpp \
     tasks/mast.cpp \
     tasks/mdsupdrs.cpp \
     tasks/moca.cpp \
@@ -853,8 +855,6 @@ SOURCES += \
     widgets/verticalscrollareaviewport.cpp \
     menu/setmenulynall1.cpp \
     tasks/ctqsf.cpp \
-    tasks/lynall1iam.cpp \
-    tasks/lynall2iam.cpp \
     tasks/kirby.cpp \
     common/languages.cpp
 
@@ -1175,6 +1175,8 @@ HEADERS += \
     tasks/ifs.h \
     tasks/irac.h \
     tasks/khandaker1medicalhistory.h \
+    tasks/lynall1iammedical.h \
+    tasks/lynall2iamlife.h \
     tasks/mast.h \
     tasks/mdsupdrs.h \
     tasks/moca.h \
@@ -1269,8 +1271,6 @@ HEADERS += \
     widgets/verticalscrollareaviewport.h \
     menu/setmenulynall1.h \
     tasks/ctqsf.h \
-    tasks/lynall1iam.h \
-    tasks/lynall2iam.h \
     tasks/kirby.h \
     common/languages.h
 

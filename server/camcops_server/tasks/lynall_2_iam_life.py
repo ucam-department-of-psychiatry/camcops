@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/tasks/lynall_1_iam.py
+camcops_server/tasks/lynall_2_iam_life.py
 
 ===============================================================================
 
@@ -45,22 +45,22 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 # =============================================================================
-# Lynall1MedicalHistory
+# Lynall2LifeEvents
 # =============================================================================
 
-class Lynall1IamMedicalHistory(TaskHasPatientMixin, Task):
+class Lynall2LifeEvents(TaskHasPatientMixin, Task):
     """
-    Server implementation of the Lynall_1_MedicalHistory task.
+    Server implementation of the Lynall_2_LifeEvents task.
     """
-    __tablename__ = "lynall_1_iam_medicalhistory"
-    shortname = "Lynall_1_MedicalHistory"
+    __tablename__ = "lynall_2_iam_lifeevents"
+    shortname = "Lynall_2_LifeEvents"
 
     # *** fields
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("Lynall M-E — 1 — IAM — Medical history")
+        return _("Lynall M-E — 2 — IAM — Life events")
 
     def is_complete(self) -> bool:
         return False # ***

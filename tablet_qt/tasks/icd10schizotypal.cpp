@@ -180,7 +180,7 @@ OpenableWidget* Icd10Schizotypal::editor(const bool read_only)
 
 QVariant Icd10Schizotypal::meetsCriteria() const
 {
-    if (!isComplete()) {
+    if (!isCompleteCached()) {
         return QVariant();
     }
     return countTrue(values(strseq(A_PREFIX, 1, N_A))) >= 4 && valueBool(B);

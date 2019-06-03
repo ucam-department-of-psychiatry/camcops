@@ -26,8 +26,8 @@
 #include "tasks/audit.h"
 #include "tasks/cisr.h"
 #include "tasks/ctqsf.h"
-#include "tasks/lynall1iam.h"
-#include "tasks/lynall2iam.h"
+#include "tasks/lynall1iammedical.h"
+#include "tasks/lynall2iamlife.h"
 #include "tasks/rand36.h"
 
 
@@ -57,7 +57,7 @@ void SetMenuLynall1::makeItems()
         MAKE_TASK_MENU_ITEM(Audit::AUDIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
         // *** // MAKE_TASK_MENU_ITEM(Ctqsf::CTQSF_TABLENAME, m_app),
-        // *** // MAKE_TASK_MENU_ITEM(Lynall1IamMedicalHistory::LYNALL_1_IAM_MEDICALHISTORY_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Lynall1IamMedicalHistory::LYNALL_1_IAM_MEDICALHISTORY_TABLENAME, m_app),
         // *** // MAKE_TASK_MENU_ITEM(Lynall2IamLifeEvents::LYNALL_2_IAM_LIFEEVENTS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, m_app),
     };

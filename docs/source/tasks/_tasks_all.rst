@@ -28,6 +28,9 @@ All tasks
 
 .. include:: include_task_copyright_warning.rst
 
+.. Beware renaming files here; the C++ client browses to URLs based on
+   these filenames.
+
 ..  toctree::
     :maxdepth: 1
 
@@ -58,7 +61,7 @@ All tasks
     ctqsf.rst
     dad.rst
     dast.rst
-    deakin_1.rst
+    deakin_1_healthreview.rst
     demoquestionnaire.rst
     demqol.rst
     distressthermometer.rst
@@ -82,10 +85,10 @@ All tasks
     iesr.rst
     ifs.rst
     irac.rst
-    khandaker_1.rst
+    khandaker_1_medicalhistory.rst
     kirby.rst
-    lynall_1.rst
-    lynall_2.rst
+    lynall_1_iam_medical.rst
+    lynall_2_iam_life.rst
     mast.rst
     mds_updrs.rst
     moca.rst

@@ -42,6 +42,23 @@ void NameValueOptions::append(const NameValuePair& nvp)
 }
 
 
+void NameValueOptions::replace(const NameValuePair& nvp,
+                               bool append_if_not_found)
+{
+    const int n = m_options.size();
+    const QVariant v = nvp.value();
+    for (int i = 0; i < n; ++i) {
+        if (m_options.at(i).value() == v) {
+            m_options[i] = nvp;
+            return;
+        }
+    }
+    if (append_if_not_found) {
+        append(nvp);
+    }
+}
+
+
 int NameValueOptions::size() const
 {
     return m_options.size();
@@ -56,7 +73,8 @@ const NameValuePair& NameValueOptions::at(const int index) const
 
 int NameValueOptions::indexFromName(const QString& name) const
 {
-    for (int i = 0; i < m_options.size(); ++i) {
+    const int n = m_options.size();
+    for (int i = 0; i < n; ++i) {
         if (m_options.at(i).name() == name) {
             return i;
         }
@@ -70,7 +88,8 @@ int NameValueOptions::indexFromValue(const QVariant& value) const
     if (value.isNull()) {
         return -1;
     }
-    for (int i = 0; i < m_options.size(); ++i) {
+    const int n = m_options.size();
+    for (int i = 0; i < n; ++i) {
         if (m_options.at(i).value() == value) {
             return i;
         }

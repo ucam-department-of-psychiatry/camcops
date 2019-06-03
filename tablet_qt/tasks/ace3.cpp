@@ -154,7 +154,7 @@ const int TOTAL_LANG = 26;
 const int TOTAL_VSP = 16;
 
 const int MIN_AGE = 0;
-const int MAX_AGE = 120;
+const int MAX_AGE_Y = 120;
 const int FLUENCY_TIME_SEC = 60;
 
 // We can't store a char in a variant, so an alternative would be QChar,
@@ -351,7 +351,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         instruction("preamble_instruction"),
         questionnairefunc::defaultGridRawPointer({
             {xstring("q_age_leaving_fte"),
-             new QuLineEditInteger(fieldRef(FN_AGE_FT_EDUCATION), MIN_AGE, MAX_AGE)},
+             new QuLineEditInteger(fieldRef(FN_AGE_FT_EDUCATION), MIN_AGE, MAX_AGE_Y)},
             {xstring("q_occupation"),
              new QuLineEdit(fieldRef(FN_OCCUPATION))},
             {xstring("q_handedness"),

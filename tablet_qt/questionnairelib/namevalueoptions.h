@@ -73,6 +73,10 @@ public:
     // Add a new name/value pair, at the end.
     void append(const NameValuePair& nvp);
 
+    // If a name/value pair exists with the same value, replace it with nvp.
+    // Otherwise, if append_if_not_found is true, append nvp.
+    void replace(const NameValuePair& nvp, bool append_if_not_found = false);
+
     // How many name/value pairs do we have?
     int size() const;
 

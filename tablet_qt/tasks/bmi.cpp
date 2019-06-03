@@ -284,7 +284,7 @@ OpenableWidget* Bmi::editor(const bool read_only)
 
 QVariant Bmi::bmiVariant() const
 {
-    if (!isComplete()) {
+    if (!isCompleteCached()) {
         return QVariant();
     }
     const double mass_kg = valueDouble(FN_MASS_KG);

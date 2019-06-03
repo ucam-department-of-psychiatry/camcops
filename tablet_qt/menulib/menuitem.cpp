@@ -277,12 +277,12 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // addStretch(), then stretch-multiply up those (which requires
         // encapsulating *those* in another QWidget...).
 
-        const bool complete = m_p_task->isComplete();
+        const bool complete = m_p_task->isCompleteCached();
         int timestamp_stretch = STRETCH_2COL_TIMESTAMP;
         int summary_stretch = STRETCH_2COL_SUMMARY;
 
         // Notification of "incomplete" status
-        QLabel* incomplete_icon = m_p_task->isComplete()
+        QLabel* incomplete_icon = complete
                 ? uifunc::blankIcon()
                 : uifunc::iconWidget(uifunc::iconFilename(uiconst::ICON_WARNING));
         incomplete_icon->setSizePolicy(sp_icon);

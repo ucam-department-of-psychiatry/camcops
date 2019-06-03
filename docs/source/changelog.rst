@@ -1091,7 +1091,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client v2.2.3, server v2.2.3, 2018-06-23**
 
-- :ref:`Khandaker/Insight medical history <khandaker_1>` task.
+- :ref:`Khandaker/Insight medical history <khandaker_1_medicalhistory>` task.
 
 - Client requires server v2.2.3. (Was a global requirement; should have been
   task-specific. REVERTED to minimum server version 2.2.0 in client 2.2.6.)
@@ -2102,15 +2102,17 @@ Current C++/SQLite client, Python/SQLAlchemy server
       applied in ``camcops_server.cc_modules.cc_db`` upon import. Tested and
       working.
 
+- Caching for ``Task.isComplete()`` on the client.
+
 - New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
+  .. todo:: IN PROGRESS +++ a/w permission clarification
+
+- :ref:`Lynall M-E — 1 — IAM study — medical history <lynall_1_iam_medical>`
+
   .. todo:: IN PROGRESS +++
 
-- :ref:`Lynall M-E — 1 — IAM study — medical history <lynall_1>`
-
-  .. todo:: IN PROGRESS +++
-
-- :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2>`
+- :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
 
   .. todo:: IN PROGRESS +++
 
@@ -2125,4 +2127,3 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - **MATERNAL ANTENATAL ATTACHMENT SCALE**
 
   .. todo:: TO BE STARTED ++
-

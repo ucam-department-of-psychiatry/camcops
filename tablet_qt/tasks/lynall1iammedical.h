@@ -17,14 +17,14 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if 0
-
 #pragma once
+#include <QPointer>
 #include <QString>
 #include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
+class Questionnaire;
 class TaskFactory;
 
 void initializeLynall1IamMedicalHistory(TaskFactory& factory);
@@ -42,7 +42,6 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    QString infoFilenameStem() const override;
     virtual bool isCrippled() const override { return false; }
     virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
@@ -58,11 +57,13 @@ public:
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
-signals:
 public slots:
     void updateMandatory();
+protected:
+    QPointer<Questionnaire> m_questionnaire;
+    // ------------------------------------------------------------------------
+    // Other
+    // ------------------------------------------------------------------------
 public:
     static const QString LYNALL_1_IAM_MEDICALHISTORY_TABLENAME;
 };
-
-#endif

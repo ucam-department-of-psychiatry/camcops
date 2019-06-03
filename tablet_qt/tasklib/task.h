@@ -222,6 +222,10 @@ public:
     // Is the task complete?
     virtual bool isComplete() const = 0;
 
+    // Is the task complete? Cached version (automatically reloaded when task
+    // data changes).
+    bool isCompleteCached() const;
+
     // Returns summary information about the task. (Shown in the task menus
     // and in the summary view.)
     virtual QStringList summary() const;
@@ -233,10 +237,13 @@ public:
     // editing this task (or viewing it, if read_only is true).
     virtual OpenableWidget* editor(bool read_only = false);
 
+protected:
+    void onDataChanged();
+
     // ------------------------------------------------------------------------
     // Assistance functions
     // ------------------------------------------------------------------------
-
+public:
     // When was this task created?
     QDateTime whenCreated() const;
 
@@ -355,6 +362,12 @@ protected:
     // details. Only applicable to tasks with a clinician and a respondent.
     QuPagePtr getClinicianAndRespondentDetailsPage(bool second_person);
 
+    // Create a standard set of NameValueOptions from the task's xstrings,
+    // in ascending or descending order.
+    NameValueOptions makeOptionsFromXstrings(const QString& xstring_prefix,
+                                             int first, int last,
+                                             const QString& xstring_suffix = "");
+
 public slots:
     // "The user has started to edit this task."
     void editStarted();
@@ -396,10 +409,15 @@ protected:
     // Moves this task to another patient. (Used for patient merges.)
     void moveToPatient(int patient_id);
 
+    // ------------------------------------------------------------------------
+    // Instance data
+    // ------------------------------------------------------------------------
 protected:
     mutable QSharedPointer<Patient> m_patient;  // our patient
     bool m_editing;  // are we editing?
     QDateTime m_editing_started;  // when did the current edit start?
+    mutable bool m_is_complete_is_cached;
+    mutable bool m_is_complete_cached_value;
 
     // ------------------------------------------------------------------------
     // Class data

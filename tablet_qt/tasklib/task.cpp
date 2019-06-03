@@ -68,6 +68,7 @@ Task::Task(CamcopsApp& app,
     DatabaseObject(app, db, tablename, dbconst::PK_FIELDNAME, true, true),
     m_patient(nullptr),
     m_editing(false),
+    m_is_complete_is_cached(false),
     m_is_anonymous(is_anonymous),
     m_has_clinician(has_clinician),
     m_has_respondent(has_respondent)
@@ -96,6 +97,9 @@ Task::Task(CamcopsApp& app,
         addField(RESPONDENT_NAME, QVariant::String);
         addField(RESPONDENT_RELATIONSHIP, QVariant::String);
     }
+
+    connect(this, &DatabaseObject::dataChanged,
+            this, &Task::onDataChanged);
 }
 
 
@@ -422,6 +426,22 @@ bool Task::save()
 // Specific info
 // ============================================================================
 
+bool Task::isCompleteCached() const
+{
+    if (!m_is_complete_is_cached) {
+        m_is_complete_cached_value = isComplete();
+        m_is_complete_is_cached = true;
+    }
+    return m_is_complete_cached_value;
+}
+
+
+void Task::onDataChanged()
+{
+    m_is_complete_is_cached = false;
+}
+
+
 QStringList Task::summary() const
 {
     return QStringList{tr("MISSING SUMMARY")};
@@ -459,7 +479,7 @@ QDateTime Task::whenCreated() const
 QStringList Task::completenessInfo() const
 {
     QStringList result;
-    if (!isComplete()) {
+    if (!isCompleteCached()) {
         result.append(incompleteMarker());
     }
     return result;
@@ -724,6 +744,29 @@ QuPagePtr Task::getClinicianAndRespondentDetailsPage(const bool second_person)
             ->setType(second_person ? QuPage::PageType::ClinicianWithPatient
                                     : QuPage::PageType::Clinician)
     );
+}
+
+
+NameValueOptions Task::makeOptionsFromXstrings(const QString& xstring_prefix,
+                                               const int first, const int last,
+                                               const QString& xstring_suffix)
+{
+    using stringfunc::strnum;
+    NameValueOptions options;
+    if (first > last) {  // descending order
+        for (int i = first; i >= last; --i) {
+            options.append(NameValuePair(
+                               xstring(strnum(xstring_prefix, i, xstring_suffix)),
+                               i));
+        }
+    } else {  // ascending order
+        for (int i = first; i <= last; ++i) {
+            options.append(NameValuePair(
+                               xstring(strnum(xstring_prefix, i, xstring_suffix)),
+                               i));
+        }
+    }
+    return options;
 }
 
 

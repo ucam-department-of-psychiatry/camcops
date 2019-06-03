@@ -1,4 +1,4 @@
-..  docs/source/tasks/lynall_2.rst
+..  docs/source/tasks/lynall_2_iam_life.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,7 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _lynall_2:
+.. _lynall_2_iam_life:
 
 Lynall M-E — 2 — IAM study — life events
 ----------------------------------------

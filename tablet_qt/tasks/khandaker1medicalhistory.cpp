@@ -139,12 +139,6 @@ QString Khandaker1MedicalHistory::description() const
 }
 
 
-QString Khandaker1MedicalHistory::infoFilenameStem() const
-{
-    return "khandaker_1";
-}
-
-
 Version Khandaker1MedicalHistory::minimumServerVersion() const
 {
     return KHANDAKER1MEDICALHISTORY_MIN_SERVER_VERSION;

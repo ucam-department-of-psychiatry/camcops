@@ -102,8 +102,8 @@
 #include "tasks/khandaker1medicalhistory.h"
 #include "tasks/kirby.h"
 
-#include "tasks/lynall1iam.h"
-#include "tasks/lynall2iam.h"
+#include "tasks/lynall1iammedical.h"
+#include "tasks/lynall2iamlife.h"
 
 #include "tasks/mast.h"
 #include "tasks/mdsupdrs.h"
@@ -239,7 +239,7 @@ void InitTasks(TaskFactory& factory)
     initializeKhandaker1MedicalHistory(factory);
     // *** // initializeKirby(factory);
 
-    // *** // initializeLynall1IamMedicalHistory(factory);
+    initializeLynall1IamMedicalHistory(factory);
     // *** // initializeLynall2IamLifeEvents(factory);
 
     initializeMast(factory);

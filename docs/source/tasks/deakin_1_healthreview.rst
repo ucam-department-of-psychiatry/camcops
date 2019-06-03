@@ -1,4 +1,4 @@
-..  docs/source/tasks/deakin_1.rst
+..  docs/source/tasks/deakin_1_healthreview.rst
 
 ..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,7 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _deakin_1:
+.. _deakin_1_healthreview:
 
 
 Deakin JB — 1 — Antibody-mediated psychosis study — health review
