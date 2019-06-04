@@ -48,6 +48,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_sqla_coltypes import SexColType
 from camcops_server.cc_modules.cc_task import get_from_dict, Task
+from camcops_server.cc_modules.cc_text import SS
 
 
 # =============================================================================
@@ -316,7 +317,7 @@ class GMCPQ(Task):
         h += tr_qa(self.wxstring(req, "q8"), get_yes_no_none(req, self.q8))
         h += tr_qa(self.wxstring(req, "q9_s"), ws.webify(self.q9))
         h += sep_row
-        h += tr_qa(req.wappstring("sex"), ws.webify(self.q10))
+        h += tr_qa(req.sstring(SS.SEX), ws.webify(self.q10))
         h += tr_qa(self.wxstring(req, "q11"),
                    get_from_dict(dict_q11, self.q11))
         h += tr_qa(self.wxstring(req, "q12"),

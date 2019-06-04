@@ -56,6 +56,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 
 
 # =============================================================================
@@ -175,7 +176,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                                 default=None)
             ),
             meets_criteria=tr_qa(
-                req.wappstring("meets_criteria"),
+                req.sstring(SS.MEETS_CRITERIA),
                 get_true_false_none(req, self.meets_criteria())
             ),
             icd10_symptomatic_disclaimer=req.wappstring(

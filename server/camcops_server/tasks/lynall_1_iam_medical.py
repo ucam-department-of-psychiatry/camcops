@@ -317,13 +317,19 @@ class Lynall1IamMedicalHistory(TaskHasPatientMixin, Task):
             return tr_qa(q, value)
 
         def lookuprow(qname: str, xstring_name: str, key: Optional[int],
-                      lookup: Dict[int, str],
-                      if_applicable: bool = False,
+                      lookup: Dict[int, str], if_applicable: bool = False,
                       qsuffix: str = "") -> str:
             description = lookup.get(key, None)
             value = None if description is None else f"{key}: {description}"
             return plainrow(qname, xstring_name, value,
                             if_applicable=if_applicable, qsuffix=qsuffix)
+
+        def boolrow(qname: str, xstring_name: str, value: Optional[bool],
+                    lookup: Dict[int, str], if_applicable: bool = False,
+                    qsuffix: str = "") -> str:
+            v = int(value) if value is not None else None
+            return lookuprow(qname, xstring_name, v, lookup,
+                             if_applicable=if_applicable, qsuffix=qsuffix)
 
         def ynrow(qname: str, xstring_name: str,
                   value: Optional[Union[int, bool]]) -> str:
@@ -376,11 +382,11 @@ class Lynall1IamMedicalHistory(TaskHasPatientMixin, Task):
             {ynnrow("5", "q5_question", self.q5_antibiotics)}
             {ynnrow("6a", "q6a_question", self.q6a_inpatient_last_y)}
             {plainrow("6b", "q6b_question", self.q6b_inpatient_weeks, True)}
-            {lookuprow("7a", "q7a_question", int(self.q7a_sx_last_2y), q7a_options)}
+            {boolrow("7a", "q7a_question", self.q7a_sx_last_2y, q7a_options)}
             {lookuprow("7b", "q7b_question", self.q7b_variability, q7b_options,
                        True, qsuffix=q7b_explanation)}
-            {lookuprow("8", "q8_question", int(self.q8_smoking), q8_options)}
-            {lookuprow("9", "q9_question", int(self.q9_pregnant), q9_options)}
+            {boolrow("8", "q8_question", self.q8_smoking, q8_options)}
+            {boolrow("9", "q9_question", self.q9_pregnant, q9_options)}
             <tr class="subheading">
               <td><i>{self.wxstring(req, "q10_stem")}</i></td>
               <td></td>

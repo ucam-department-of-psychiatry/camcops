@@ -5,6 +5,7 @@
 from cardinal_pythonlib.datetimefunc import format_datetime
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_html import answer
+from camcops_server.cc_modules.cc_text import SS
 %>
 
 ## ============================================================================
@@ -23,7 +24,7 @@ from camcops_server.cc_modules.cc_html import answer
     %endif
 %else:
     <div class="patient">
-        ${ req.wappstring("anonymous_task") }
+        ${ req.sstring(SS.ANONYMOUS_TASK) }
     </div>
 %endif
 

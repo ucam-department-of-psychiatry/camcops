@@ -44,6 +44,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -149,7 +150,7 @@ class Bprse(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             )
 
         total_score = tr(
-            req.wappstring("total_score") +
+            req.sstring(SS.TOTAL_SCORE) +
             f" (0–{self.MAX_SCORE}; 24–{self.MAX_SCORE} if all rated)",
             answer(self.total_score())
         )

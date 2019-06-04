@@ -46,6 +46,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -154,7 +155,7 @@ class Asrm(TaskHasPatientMixin, Task,
         """.format(
             CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
-            total_score_str=req.wappstring("total_score"),
+            total_score_str=req.sstring(SS.TOTAL_SCORE),
             score=score,
             above_cutoff_str=self.wxstring(req, "above_cutoff"),
             above_cutoff=get_yes_no(req, above_cutoff),

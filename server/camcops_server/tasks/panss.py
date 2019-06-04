@@ -48,6 +48,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -294,7 +295,7 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr_qa(
-                f"{req.wappstring('total_score')} "
+                f"{req.sstring(SS.TOTAL_SCORE)} "
                 f"({self.MIN_TOTAL}–{self.MAX_TOTAL})",
                 total
             ),

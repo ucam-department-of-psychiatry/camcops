@@ -60,6 +60,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
     TrackerLabel,
@@ -251,7 +252,7 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=hlines,
             horizontal_labels=[
-                TrackerLabel(y_upper, req.wappstring("normal")),
+                TrackerLabel(y_upper, req.sstring(SS.NORMAL)),
                 TrackerLabel(y_middle, self.wxstring(req, "category_mci")),
                 TrackerLabel(17, self.wxstring(req, "category_dementia")),
             ]
@@ -291,14 +292,14 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         score = self.total_score()
         if self.highschooleducation == 1:
             if score >= 27:
-                return req.wappstring("normal")
+                return req.sstring(SS.NORMAL)
             elif score >= 21:
                 return self.wxstring(req, "category_mci")
             else:
                 return self.wxstring(req, "category_dementia")
         else:
             if score >= 25:
-                return req.wappstring("normal")
+                return req.sstring(SS.NORMAL)
             elif score >= 20:
                 return self.wxstring(req, "category_mci")
             else:
@@ -327,11 +328,11 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
-                req.wappstring("total_score"),
+                req.sstring(SS.TOTAL_SCORE),
                 answer(score) + f" / {self.MAX_SCORE}"
             ),
             category=tr_qa(
-                req.wappstring("category") + " <sup>[1]</sup>",
+                req.sstring(SS.CATEGORY) + " <sup>[1]</sup>",
                 category
             ),
         )

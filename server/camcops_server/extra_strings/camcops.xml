@@ -92,55 +92,14 @@
 
     <!--
     ===========================================================================
-    Strings shared between multiple tasks, or used centrally
+    Strings shared between multiple tasks
     ===========================================================================
     -->
-
-    <string name="abnormal">Abnormal</string>
-    <string name="absent">Absent</string>
-    <string name="absent_or_mild">Absent or mild</string>
-    <string name="anonymous_task">Anonymous task</string>
-    <string name="answer">Answer</string>
-    <string name="auditory">Auditory</string>
-
-    <string name="category">Category</string>
 
     <string name="data_collection_only">Reproduction of this task/scale is not permitted. This CamCOPS task is a data collection tool only, with the actual task/scale not included for copyright reasons. Use it only in conjunction with a licensed copy of the original task.</string>
     <string name="date_pertains_to">Date this assessment pertains to</string>
 
-    <string name="disclaimer_title">TERMS AND CONDITIONS OF USE</string>
-    <string name="disclaimer_subtitle">You must agree to the following terms and conditions in order to use CamCOPS.</string>
-    <!-- disclaimer_content should match textconst::TERMS_CONDITIONS in the C++ app -->
-    <!-- ... but don't include hyperlinks; they break the XML reader -->
-    <string name="disclaimer_content">1. By using the Cambridge Cognitive and Psychiatric Assessment Kit application or web interface (“CamCOPS”), you are agreeing in full to these Terms and Conditions of Use. If you do not agree to these terms, do not use the software.\n\n 2. Content that is original to CamCOPS is licensed as follows.\n\n CamCOPS is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n\n CamCOPS is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details\n\n You should have received a copy of the GNU General Public License along with CamCOPS. If not, see http://www.gnu.org/licenses/.\n\n 3. Content created by others and distributed with CamCOPS may be in the public domain, or distributed under other licenses or permissions. THERE MAY BE CRITERIA THAT APPLY TO YOU THAT MEAN YOU ARE NOT PERMITTED TO USE SPECIFIC TASKS. IT IS YOUR RESPONSIBILITY TO CHECK THAT YOU ARE LEGALLY ENTITLED TO USE EACH TASK. You agree that the authors of CamCOPS are not responsible for any consequences that arise from your use of an unauthorized task.\n\n 4. While efforts have been made to ensure that CamCOPS is reliable and accurate, you agree that the authors and distributors of CamCOPS are not responsible for errors, omissions, or defects in the content, nor liable for any direct, indirect, incidental, special and/or consequential damages, in whole or in part, resulting from your use or any user’s use of or reliance upon its content.\n\n 5. Content contained in or accessed through CamCOPS should not be relied upon for medical purposes in any way. This software is not designed for use by the general public. If medical advice is required you should seek expert medical assistance. You agree that you will not rely on this software for any medical purpose.\n\n 6. Regarding the European Union Council Directive 93/42/EEC of 14 June 1993 concerning medical devices (amended by further directives up to and including Directive 2007/47/EC of 5 September 2007) (“Medical Devices Directive”): CamCOPS is not intended for the diagnosis and/or monitoring of human disease. If it is used for such purposes, it must be used EXCLUSIVELY FOR CLINICAL INVESTIGATIONS in an appropriate setting by persons professionally qualified to do so. It has NOT undergone a conformity assessment under the Medical Devices Directive, and thus cannot be marketed or put into service as a medical device. You agree that you will not use it as a medical device.\n\n 7. THIS SOFTWARE IS DESIGNED FOR USE BY QUALIFIED CLINICIANS ONLY. BY CONTINUING TO USE THIS SOFTWARE YOU ARE CONFIRMING THAT YOU ARE A QUALIFIED CLINICIAN, AND THAT YOU RETAIN RESPONSIBILITY FOR DIAGNOSIS AND MANAGEMENT.\n\nThese terms and conditions were last revised on 2017-01-23.</string>
-    <string name="disclaimer_agree">I agree to these terms and conditions</string>
-
-    <string name="event">Event</string>
-
-    <string name="false">False</string>
-
-    <string name="general">General</string>
-
     <string name="icd10_symptomatic_disclaimer">These criteria are the SYMPTOMATIC criteria and IGNORE CAUSAL criteria (such as “episode not attributable to psychoactive substance use or organic mental disorder” or history of prior episodes).</string>
-
-    <string name="location">Location</string>
-
-    <string name="meets_criteria">Meets criteria?</string>
-    <string name="mild">Mild</string>
-    <string name="mild_to_moderate">Mild to moderate</string>
-    <string name="moderate">Moderate</string>
-    <string name="moderately_severe">Moderately severe</string>
-    <string name="moderate_to_severe">Moderate to severe</string>
-
-    <string name="NA">N/A</string>
-    <string name="no">No</string>
-    <string name="none">None</string>
-    <string name="normal">Normal</string>
-    <string name="note">Note</string>
-
-    <string name="present">Present</string>
-
-    <string name="question">Question</string>
 
     <string name="satis_pt_rating_q">How would you rate the service you have received from</string>
     <string name="satis_ref_spec_rating_q">In relation to this patient’s care, how would you rate the service you have received from</string>
@@ -155,19 +114,6 @@
     <string name="satis_rating_a2">Average</string>
     <string name="satis_rating_a3">Good</string>
     <string name="satis_rating_a4">Excellent</string>
-    <string name="severe">Severe</string>
-    <string name="sex">Sex</string>
-
-    <string name="total_score">Total score</string>
-    <string name="true">True</string>
-
-    <string name="unknown">Unknown</string>
-
-    <string name="very_severe">Very severe</string>
-    <string name="visual">Visual</string>
-    <string name="volume_0_to_1">Volume (0–1)</string>
-
-    <string name="yes">Yes</string>
 
   </task>
 
@@ -178,6 +124,13 @@
   -->
 
   <task name="camcops" locale="da_DK">
+
+    <!--
+    ===========================================================================
+    NHS Data Dictionary elements
+    ===========================================================================
+    -->
+
     <string name="nhs_ethnic_category_code_A">A. Hvid – Britisk</string>
     <string name="nhs_ethnic_category_code_B">B. Hvid – Irsk</string>
     <string name="nhs_ethnic_category_code_C">C. Hvid – Enhver anden hvid baggrund</string>
@@ -202,6 +155,14 @@
     <string name="nhs_person_marital_status_code_W">Enke/overlevende medlem af registreret partnerskab</string>
     <string name="nhs_person_marital_status_code_P">Adskilt</string>
     <string name="nhs_person_marital_status_code_N">Ikke offentliggjort</string>
+
+    <!--
+    ===========================================================================
+    String elements for specific tasks that we are more or less guaranteed NOT
+    to have text for. (Note that these strings are not themselves part of the
+    tasks.)
+    ===========================================================================
+    -->
 
     <string name="bdi_which_scale">Hvilken skala samler du data fra?</string>
 
@@ -232,51 +193,16 @@
     <string name="zbi_a3">Ganske ofte</string>
     <string name="zbi_a4">Næsten altid</string>
 
-    <string name="abnormal">Abnorm</string>
-    <string name="absent">Fraværende</string>
-    <string name="absent_or_mild">Fraværende eller mild</string>
-    <string name="anonymous_task">Anonym opgave</string>
-    <string name="answer">Svar</string>
-    <string name="auditory">Auditiv</string>
-
-    <string name="category">Kategori</string>
+    <!--
+    ===========================================================================
+    Strings shared between multiple tasks
+    ===========================================================================
+    -->
 
     <string name="data_collection_only">Reproduktion af denne opgave/skala er ikke tilladt. Denne CamCOPS-opgave er kun et dataindsamlingsværktøj, hvor den egentlige opgave/skala ikke er medtaget af ophavsretlige grunde. Brug det kun i forbindelse med en licenseret kopi af den oprindelige opgave.</string>
     <string name="date_pertains_to">Dato denne vurdering vedrører</string>
 
-    <string name="disclaimer_title">VILKÅR OG BETINGELSER FOR BRUG</string>
-    <string name="disclaimer_subtitle">Du skal acceptere følgende vilkår og betingelser for at kunne bruge CamCOPS.</string>
-    <!-- disclaimer_content should match textconst::TERMS_CONDITIONS in the C++ app -->
-    <!-- ... but don't include hyperlinks; they break the XML reader -->
-    <string name="disclaimer_content">1. Ved at bruge programmet “Cambridge Cognitive and Psychiatric Assessment Kit” eller web-interface (“CamCOPS”), accepterer du fuldt ud disse vilkår og betingelser for brug. Hvis du ikke accepterer disse vilkår, må du ikke bruge softwaren.\n\n2. Indhold, der er originalt for CamCOPS, er licenseret som følger.\n\nCamCOPS er fri software: Du kan omfordele den og / eller ændre den i henhold til GNU General Public License som offentliggjort af Free Software Foundation, enten version 3 i Licensen eller (efter eget valg) en senere version.\n\nCamCOPS distribueres i håb om, at det vil være nyttigt, men uden nogen garanti; uden selv den underforståede garanti for SALGBARHED ELLER EGNETHED TIL ET BESTEMT FORMÅL. Se GNU General Public License for flere detaljer.\n\nDu skulle have modtaget en kopi af GNU General Public License sammen med CamCOPS. Hvis ikke, se http://www.gnu.org/licenses/.\n\n3. Indhold oprettet af andre og distribueret med CamCOPS kan være i det offentlige domæne eller distribueres under andre licenser eller tilladelser. Der kan være kritikker, der gælder for dig, som betyder at du ikke er tilladt at anvende specifikke opgaver. DET ER DIN ANSVAR at kontrollere, at du er lovligt oprettet til at bruge hver enkelt opgave. Du accepterer, at forfatterne til CamCOPS ikke er ansvarlige for eventuelle konsekvenser af din brug af en uautoriseret opgave.\n\n4. Mens der er gjort en indsats for at sikre, at CamCOPS er pålidelig og præcis, accepterer du, at CamCOPS's forfattere og distributører ikke er ansvarlige for fejl, udeladelser eller mangler i indholdet, heller ikke ansvarlige for direkte, indirekte, tilfældige, særlige og / eller følgeskader, helt eller delvis, som følge af din brug eller brugernes brug af eller afhængighed af indholdet.\n\n5. Indhold indeholdt i eller adgang via CamCOPS bør ikke påberåbes til medicinske formål på nogen måde. Denne software er ikke designet til brug for offentligheden. Hvis der kræves lægehjælp, skal du søge lægehjælp. Du accepterer, at du ikke vil stole på denne software til noget medicinsk formål.\n\n6. Med hensyn til EU-Rådets direktiv 93/42/EØF af 14. juni 1993 om medicinsk udstyr (ændret ved yderligere direktiver til og med direktiv 2007/47/EF af 5. september 2007) ("direktivet om medicinsk udstyr"): CamCOPS er ikke beregnet til diagnose og / eller overvågning af menneskers sygdom. Hvis det anvendes til sådanne formål, skal det udelukkende anvendes til kliniske undersøgelser i en passende indstilling af personer, der er fagligt kvalificeret til at gøre det. Det har ikke undergået en overensstemmelsesvurdering i henhold til direktivet om medicinsk udstyr og kan derfor ikke markedsføres eller tages i brug som medicinsk udstyr. Du accepterer, at du ikke vil bruge det som en medicinsk enhed.\n\n7. DENNE SOFTWARE ER KUN TIL BRUG AF KVALIFICEREDE KLINIKERE. Ved at fortsætte med at bruge denne software, bekræfter du at du er en kvalificeret kliniker, og at du tager ansvar for diagnose og ledelse.\n\nDisse vilkår og betingelser blev senest revideret 2017-01-23.</string>
-    <string name="disclaimer_agree">Jeg accepterer disse vilkår og betingelser</string>
-
-    <string name="event">Begivenhed</string>
-
-    <string name="false">Falsk</string>
-
-    <string name="general">Generel</string>
-
     <string name="icd10_symptomatic_disclaimer">Disse kriterier er de SYMPTOMATISKE kriterier og IGNORERER ÅRSAGSKRITERIER (såsom “episode, der ikke kan henføres til brug af psykoaktive stoffer eller organisk psykisk lidelse” eller “historie af tidligere episoder”).</string>
-
-    <string name="location">Beliggenhed</string>
-
-    <string name="meets_criteria">Opfylder kriterierne?</string>
-    <string name="mild">Mild</string>
-    <string name="mild_to_moderate">Mild til moderat</string>
-    <string name="moderate">Moderat</string>
-    <string name="moderately_severe">Moderat alvorlig</string>
-    <string name="moderate_to_severe">Moderat til svær</string>
-
-    <string name="NA">I/A</string>
-    <string name="no">Nej</string>
-    <string name="none">Ingen</string>
-    <string name="normal">Normal</string>
-    <string name="note">Note</string>
-
-    <string name="present">Nuværende</string>
-
-    <string name="question">Spørgsmål</string>
 
     <string name="satis_pt_rating_q">Hvordan vurderer du den service, du har modtaget fra</string>
     <string name="satis_ref_spec_rating_q">I forhold til denne patients omsorg, In relation to this patient’s care, hvordan ville du bedømme den service, du modtog fra</string>
@@ -291,19 +217,7 @@
     <string name="satis_rating_a2">Gennemsnitlig</string>
     <string name="satis_rating_a3">God</string>
     <string name="satis_rating_a4">Fremragende</string>
-    <string name="severe">Alvorlig</string>
-    <string name="sex">Køn</string>
 
-    <string name="total_score">Samlet score</string>
-    <string name="true">Sandt</string>
-
-    <string name="unknown">Ukendt</string>
-
-    <string name="very_severe">Meget alvorlig</string>
-    <string name="visual">Visuel</string>
-    <string name="volume_0_to_1">Lydstyrke (0–1)</string>
-
-    <string name="yes">Ja</string>
   </task>
 
 </resources>

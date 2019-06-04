@@ -49,6 +49,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -174,7 +175,7 @@ class Audit(TaskHasPatientMixin, Task,
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
-                    {tr(req.wappstring("total_score"),
+                    {tr(req.wsstring(SS.TOTAL_SCORE),
                         answer(score) + " / 40")}
                     {tr_qa(self.wxstring(req, "exceeds_standard_cutoff"),
                            get_yes_no(req, exceeds_cutoff))}
@@ -294,7 +295,7 @@ class AuditC(TaskHasPatientMixin, Task,
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
-                    {tr(req.wappstring("total_score"),
+                    {tr(req.sstring(SS.TOTAL_SCORE),
                         answer(score) + " / 12")}
                 </table>
             </div>

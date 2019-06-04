@@ -18,6 +18,7 @@
 */
 
 #include "iesr.h"
+#include "common/appstrings.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -121,11 +122,11 @@ QStringList Iesr::detail() const
 OpenableWidget* Iesr::editor(const bool read_only)
 {
     const NameValueOptions options{
-        {tr("Not at all"), 0},
-        {tr("A little bit"), 1},
-        {tr("Moderately"), 2},
-        {tr("Quite a bit"), 3},
-        {tr("Extremely"), 4},
+        {appstring(appstrings::IESR_A_PREFIX + "0"), 0},
+        {appstring(appstrings::IESR_A_PREFIX + "1"), 1},
+        {appstring(appstrings::IESR_A_PREFIX + "2"), 2},
+        {appstring(appstrings::IESR_A_PREFIX + "3"), 3},
+        {appstring(appstrings::IESR_A_PREFIX + "4"), 4},
     };
 
     QVector<QuestionWithOneField> qfields;

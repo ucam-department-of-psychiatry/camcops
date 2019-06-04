@@ -211,6 +211,7 @@ class CamcopsRequest(Request):
         self._debugging_db_session = None  # type: Optional[SqlASession]  # for unit testing only  # noqa
         self._debugging_user = None  # type: Optional[User]  # for unit testing only  # noqa
         self._pending_export_push_requests = []  # type: List[Tuple[str, str, int]]  # noqa
+        self._cached_sstring = {}  # type: Dict[SS, str]
         # Don't make the _camcops_session yet; it will want a Registry, and
         # we may not have one yet; see command_line_request().
         if DEBUG_REQUEST_CREATION:
@@ -951,7 +952,12 @@ class CamcopsRequest(Request):
             str: the string
 
         """
-        return server_string(self, which_string)
+        try:
+            result = self._cached_sstring[which_string]
+        except KeyError:
+            result = server_string(self, which_string)
+            self._cached_sstring[which_string] = result
+        return result
 
     def wsstring(self, which_string: SS) -> str:
         """
@@ -1848,7 +1854,7 @@ y.b  # 6
 """
 
 
-def _get_core_debugging_request() -> CamcopsDummyRequest:
+def get_core_debugging_request() -> CamcopsDummyRequest:
     """
     Returns a basic :class:`CamcopsDummyRequest`.
     """
@@ -1880,7 +1886,7 @@ def get_command_line_request() -> CamcopsRequest:
       is in :func:`camcops_server.camcops.main`.
     """
     log.debug("Creating command-line pseudo-request")
-    req = _get_core_debugging_request()
+    req = get_core_debugging_request()
 
     # If we proceed with an out-of-date database, we will have problems, and
     # those problems may not be immediately apparent, which is bad. So:
@@ -1917,7 +1923,7 @@ def get_unittest_request(dbsession: SqlASession,
       is in :func:`camcops_server.camcops.main`.
     """
     log.debug("Creating unit testing pseudo-request")
-    req = _get_core_debugging_request()
+    req = get_core_debugging_request()
     req.set_get_params(params)
 
     req._debugging_db_session = dbsession

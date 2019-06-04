@@ -44,6 +44,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -179,7 +180,7 @@ class Wemwbs(TaskHasPatientMixin, Task,
             css_summary=CssClass.SUMMARY,
             tr_is_complete=self.get_is_complete_tr(req),
             tr_total_score=tr(
-                req.wappstring("total_score"),
+                req.sstring(SS.TOTAL_SCORE),
                 answer(self.total_score()) +
                 f" (range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
             ),
@@ -336,7 +337,7 @@ class Swemwbs(TaskHasPatientMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
-                req.wappstring("total_score"),
+                req.sstring(SS.TOTAL_SCORE),
                 answer(self.total_score()) +
                 f" (range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
             ),

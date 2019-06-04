@@ -45,6 +45,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import LabelAlignment, TrackerInfo, TrackerLabel  # noqa
 
 
@@ -185,8 +186,8 @@ class Mast(TaskHasPatientMixin, Task,
         exceeds_threshold = self.exceeds_ross_threshold()
         main_dict = {
             None: None,
-            "Y": req.wappstring("yes"),
-            "N": req.wappstring("no")
+            "Y": req.sstring(SS.YES),
+            "N": req.sstring(SS.NO)
         }
         q_a = ""
         for q in range(1, self.NQUESTIONS + 1):
@@ -202,7 +203,7 @@ class Mast(TaskHasPatientMixin, Task,
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
-                    {tr(req.wappstring("total_score"),
+                    {tr(req.sstring(SS.TOTAL_SCORE),
                         answer(score) + " / {}".format(self.MAX_SCORE))}
                     {tr_qa(self.wxstring(req, "exceeds_threshold"),
                            get_yes_no(req, exceeds_threshold))}

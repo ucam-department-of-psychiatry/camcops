@@ -18,6 +18,7 @@
 */
 
 #include "zbi12.h"
+#include "common/appstrings.h"
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
@@ -106,11 +107,11 @@ QStringList Zbi12::detail() const
 OpenableWidget* Zbi12::editor(const bool read_only)
 {
     const NameValueOptions options{
-        {appstring("zbi_a0"), 0},
-        {appstring("zbi_a1"), 1},
-        {appstring("zbi_a2"), 2},
-        {appstring("zbi_a3"), 3},
-        {appstring("zbi_a4"), 4},
+        {appstring(appstrings::ZBI_A_PREFIX + "0"), 0},
+        {appstring(appstrings::ZBI_A_PREFIX + "1"), 1},
+        {appstring(appstrings::ZBI_A_PREFIX + "2"), 2},
+        {appstring(appstrings::ZBI_A_PREFIX + "3"), 3},
+        {appstring(appstrings::ZBI_A_PREFIX + "4"), 4},
     };
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {

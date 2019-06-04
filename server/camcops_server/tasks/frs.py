@@ -51,6 +51,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasPatientMixin,
     TaskHasRespondentMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 
 
 # =============================================================================
@@ -325,7 +326,7 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
         if value == NA:
             if q in SPECIAL_NA_TEXT_QUESTIONS:
                 return self.wxstring(req, prefix + "na")
-            return req.wappstring("NA")
+            return req.sstring(SS.NA)
         return None
 
     def get_task_html(self, req: CamcopsRequest) -> str:

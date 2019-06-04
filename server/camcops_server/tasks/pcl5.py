@@ -48,6 +48,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     equally_spaced_int,
     regular_tracker_axis_ticks_int,
@@ -303,7 +304,7 @@ class Pcl5(TaskHasPatientMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr_qa(
-                f"{req.wappstring('total_score')} (0–80)",
+                f"{req.sstring(SS.TOTAL_SCORE)} (0–80)",
                 score
             ),
             num_symptomatic=tr(

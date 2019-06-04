@@ -50,6 +50,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -160,7 +161,7 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
-                    {tr(req.wappstring("total_score") + " <sup>[1]</sup>",
+                    {tr(req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
                         answer(score) + " / 40")}
                 </table>
             </div>

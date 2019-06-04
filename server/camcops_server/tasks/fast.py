@@ -44,6 +44,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -156,7 +157,7 @@ class Fast(TaskHasPatientMixin, Task,
         q_a += tr_qa(self.wxstring(req, "q4"), get_from_dict(q4_dict, self.q4))
 
         tr_total_score = tr(
-            req.wappstring("total_score"),
+            req.sstring(SS.TOTAL_SCORE),
             answer(self.total_score()) + f" / {self.MAX_SCORE}"
         )
         tr_positive = tr_qa(

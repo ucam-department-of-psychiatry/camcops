@@ -125,13 +125,10 @@ class AS(object):
     Should match ``appstrings.cpp`` in the client, and of course
     ``camcops.xml`` itself.
     """
-    BDI_WHICH_SCALE = "bdi_which_scale"
-    DATA_COLLECTION_ONLY = "data_collection_only"
-    DATE_PERTAINS_TO = "date_pertains_to"
-    GAF_SCORE = "gaf_score"
-    HADS_ANXIETY_SCORE = "hads_anxiety_score"
-    HADS_DEPRESSION_SCORE = "hads_depression_score"
-    ICD10_SYMPTOMATIC_DISCLAIMER = "icd10_symptomatic_disclaimer"
+
+    # -------------------------------------------------------------------------
+    # NHS Data Dictionary elements
+    # -------------------------------------------------------------------------
 
     NHS_PERSON_MARITAL_STATUS_CODE_S = "nhs_person_marital_status_code_S"
     NHS_PERSON_MARITAL_STATUS_CODE_M = "nhs_person_marital_status_code_M"
@@ -158,6 +155,25 @@ class AS(object):
     NHS_ETHNIC_CATEGORY_CODE_S = "nhs_ethnic_category_code_S"
     NHS_ETHNIC_CATEGORY_CODE_Z = "nhs_ethnic_category_code_Z"
 
+    # -------------------------------------------------------------------------
+    # String elements for specific restricted tasks (see camcops.xml)
+    # -------------------------------------------------------------------------
+
+    BDI_WHICH_SCALE = "bdi_which_scale"
+    GAF_SCORE = "gaf_score"
+    HADS_ANXIETY_SCORE = "hads_anxiety_score"
+    HADS_DEPRESSION_SCORE = "hads_depression_score"
+    IESR_A_PREFIX = "iesr_a"
+    WSAS_A_PREFIX = "wsas_a"
+    ZBI_A_PREFIX = "zbi_a"
+
+    # -------------------------------------------------------------------------
+    # Strings shared across several tasks
+    # -------------------------------------------------------------------------
+
+    DATA_COLLECTION_ONLY = "data_collection_only"
+    DATE_PERTAINS_TO = "date_pertains_to"
+    ICD10_SYMPTOMATIC_DISCLAIMER = "icd10_symptomatic_disclaimer"
     SATIS_BAD_Q = "satis_bad_q"
     SATIS_BAD_S = "satis_bad_s"
     SATIS_GOOD_Q = "satis_good_q"

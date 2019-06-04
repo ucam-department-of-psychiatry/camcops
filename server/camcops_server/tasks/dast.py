@@ -50,6 +50,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -171,8 +172,8 @@ class Dast(TaskHasPatientMixin, Task,
         exceeds_cutoff_2 = score >= 11
         main_dict = {
             None: None,
-            "Y": req.wappstring("yes"),
-            "N": req.wappstring("no")
+            "Y": req.sstring(SS.YES),
+            "N": req.sstring(SS.NO)
         }
         q_a = ""
         for q in range(1, Dast.NQUESTIONS + 1):
@@ -208,7 +209,7 @@ class Dast(TaskHasPatientMixin, Task,
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(req.wappstring("total_score"),
+            total_score=tr(req.sstring(SS.TOTAL_SCORE),
                            answer(score) + f" / {self.NQUESTIONS}"),
             exceeds_standard_cutoff_1=tr_qa(
                 self.wxstring(req, "exceeds_standard_cutoff_1"),

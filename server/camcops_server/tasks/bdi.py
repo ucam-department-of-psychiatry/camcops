@@ -46,6 +46,7 @@ from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -272,7 +273,7 @@ class Bdi(TaskHasPatientMixin, Task,
             if qdict:
                 topic = qdict.get(q, "??")
             q_a += tr_qa(
-                f"{req.wappstring('question')} {q} ({topic})",
+                f"{req.sstring(SS.QUESTION)} {q} ({topic})",
                 getattr(self, "q" + str(q))
             )
 
@@ -295,7 +296,7 @@ class Bdi(TaskHasPatientMixin, Task,
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
-                    {tr(req.wappstring("total_score"),
+                    {tr(req.sstring(SS.TOTAL_SCORE),
                         answer(score) + " / {}".format(MAX_SCORE))}
                     <tr>
                         <td>

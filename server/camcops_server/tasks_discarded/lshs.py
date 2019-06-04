@@ -45,6 +45,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -134,7 +135,7 @@ class LshsA(TaskHasPatientMixin, Task,
         """.format(
             CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
-            total_score_str=req.wappstring("total_score"),
+            total_score_str=req.sstring(SS.TOTAL_SCORE),
             score=score,
             max_total=self.MAX_TOTAL,
             q_a=q_a,
@@ -213,7 +214,7 @@ class LshsLaroi2005(TaskHasPatientMixin, Task,
         """.format(
             CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
-            total_score_str=req.wappstring("total_score"),
+            total_score_str=req.sstring(SS.TOTAL_SCORE),
             score=score,
             max_total=self.MAX_TOTAL,
             q_a=q_a,

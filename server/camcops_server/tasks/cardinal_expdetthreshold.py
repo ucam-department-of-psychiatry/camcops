@@ -52,6 +52,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import PendulumDateTimeAsIsoTextColType  # noqa
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_text import SS
 
 
 LOWER_MARKER = 0.25
@@ -438,9 +439,9 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         if self.modality == MODALITY_AUDITORY:
-            modality = req.wappstring("auditory")
+            modality = req.sstring(SS.AUDITORY)
         elif self.modality == MODALITY_VISUAL:
-            modality = req.wappstring("visual")
+            modality = req.sstring(SS.VISUAL)
         else:
             modality = None
         h = f"""

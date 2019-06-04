@@ -25,13 +25,9 @@ namespace appstrings
 // These should match constants in cc_string.py on the server,
 // and of course camcops.xml itself.
 
-const QString BDI_WHICH_SCALE("bdi_which_scale");
-const QString DATA_COLLECTION_ONLY("data_collection_only");
-const QString DATE_PERTAINS_TO("date_pertains_to");
-const QString GAF_SCORE("gaf_score");
-const QString HADS_ANXIETY_SCORE("hads_anxiety_score");
-const QString HADS_DEPRESSION_SCORE("hads_depression_score");
-const QString ICD10_SYMPTOMATIC_DISCLAIMER("icd10_symptomatic_disclaimer");
+// ============================================================================
+// NHS Data Dictionary elements; for details see camcops.xml
+// ============================================================================
 
 const QString NHS_PERSON_MARITAL_STATUS_CODE_S("nhs_person_marital_status_code_S");
 const QString NHS_PERSON_MARITAL_STATUS_CODE_M("nhs_person_marital_status_code_M");
@@ -58,6 +54,25 @@ const QString NHS_ETHNIC_CATEGORY_CODE_R("nhs_ethnic_category_code_R");
 const QString NHS_ETHNIC_CATEGORY_CODE_S("nhs_ethnic_category_code_S");
 const QString NHS_ETHNIC_CATEGORY_CODE_Z("nhs_ethnic_category_code_Z");
 
+// ============================================================================
+// String elements for specific restricted tasks (see camcops.xml)
+// ============================================================================
+
+const QString BDI_WHICH_SCALE("bdi_which_scale");
+const QString GAF_SCORE("gaf_score");
+const QString HADS_ANXIETY_SCORE("hads_anxiety_score");
+const QString HADS_DEPRESSION_SCORE("hads_depression_score");
+const QString IESR_A_PREFIX("iesr_a");
+const QString WSAS_A_PREFIX("wsas_a");
+const QString ZBI_A_PREFIX("zbi_a");
+
+// ============================================================================
+// Strings shared across several tasks
+// ============================================================================
+
+const QString DATA_COLLECTION_ONLY("data_collection_only");
+const QString DATE_PERTAINS_TO("date_pertains_to");
+const QString ICD10_SYMPTOMATIC_DISCLAIMER("icd10_symptomatic_disclaimer");
 const QString SATIS_BAD_Q("satis_bad_q");
 const QString SATIS_BAD_S("satis_bad_s");
 const QString SATIS_GOOD_Q("satis_good_q");
@@ -67,5 +82,6 @@ const QString SATIS_REF_GEN_RATING_Q("satis_ref_gen_rating_q");
 const QString SATIS_REF_SPEC_RATING_Q("satis_ref_spec_rating_q");
 const QString SATIS_RATING_A_PREFIX("satis_rating_a");
 const QString SATIS_SERVICE_BEING_RATED("satis_service_being_rated");
+
 
 }  // namespace appstrings

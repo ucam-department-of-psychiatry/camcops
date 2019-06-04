@@ -57,6 +57,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerLabel,
     TrackerInfo,
@@ -145,9 +146,9 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=[14.5, 7.5],
             horizontal_labels=[
-                TrackerLabel(17, req.wappstring("severe")),
-                TrackerLabel(11, req.wappstring("moderate")),
-                TrackerLabel(3.75, req.wappstring("mild")),
+                TrackerLabel(17, req.sstring(SS.SEVERE)),
+                TrackerLabel(11, req.sstring(SS.MODERATE)),
+                TrackerLabel(3.75, req.sstring(SS.MILD)),
             ]
         )]
 
@@ -206,7 +207,7 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                               getattr(self, "q" + str(q)))
             )
         tr_total_score = tr(
-            req.wappstring("total_score"),
+            req.sstring(SS.TOTAL_SCORE),
             answer(score) + f" / {self.MAX_SCORE}"
         )
         tr_severity = tr_qa(

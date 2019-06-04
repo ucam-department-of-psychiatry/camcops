@@ -23,7 +23,7 @@
 
 
 // ========================================================================
-// PRINCIPLES:
+// PRINCIPLES: (see internationalization.rst)
 // ========================================================================
 //
 // - If a string is used only once, it can live in the source code (*).
@@ -46,8 +46,7 @@
 // file.)
 //
 // Note also that proper use of the internationalization system via Qt Linguist
-// also leads to function calls rather than constants; see
-// internationalization.rst.
+// leads to function calls rather than constants; see internationalization.rst.
 
 
 class TextConst : public QObject

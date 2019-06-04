@@ -34,6 +34,7 @@ from typing import Any, Callable, List, Optional, TYPE_CHECKING, Union
 import cardinal_pythonlib.rnc_web as ws
 
 from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_text import SS
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -316,7 +317,7 @@ def get_yes_no(req: "CamcopsRequest", x: Any) -> str:
     """
     'Yes' if x else 'No'
     """
-    return req.wappstring("yes") if x else req.wappstring("no")
+    return req.sstring(SS.YES) if x else req.sstring(SS.NO)
 
 
 def get_yes_no_none(req: "CamcopsRequest", x: Any) -> Optional[str]:
@@ -341,7 +342,7 @@ def get_true_false(req: "CamcopsRequest", x: Any) -> str:
     """
     'True' if x else 'False'
     """
-    return req.wappstring("true") if x else req.wappstring("false")
+    return req.sstring(SS.TRUE) if x else req.sstring(SS.FALSE)
 
 
 def get_true_false_none(req: "CamcopsRequest", x: Any) -> Optional[str]:
@@ -366,7 +367,7 @@ def get_present_absent(req: "CamcopsRequest", x: Any) -> str:
     """
     'Present' if x else 'Absent'
     """
-    return req.wappstring("present") if x else req.wappstring("absent")
+    return req.sstring(SS.PRESENT) if x else req.sstring(SS.ABSENT)
 
 
 def get_present_absent_none(req: "CamcopsRequest", x: Any) -> Optional[str]:

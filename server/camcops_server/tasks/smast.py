@@ -48,6 +48,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerLabel,
     TrackerInfo,
@@ -180,8 +181,8 @@ class Smast(TaskHasPatientMixin, Task,
         likelihood = self.likelihood(req)
         main_dict = {
             None: None,
-            "Y": req.wappstring("yes"),
-            "N": req.wappstring("no")
+            "Y": req.sstring(SS.YES),
+            "N": req.sstring(SS.NO)
         }
         q_a = ""
         for q in range(1, self.NQUESTIONS + 1):
@@ -212,7 +213,7 @@ class Smast(TaskHasPatientMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
-                req.wappstring("total_score"),
+                req.sstring(SS.TOTAL_SCORE),
                 answer(score) + f" / {self.NQUESTIONS}"
             ),
             problem_likelihood=tr_qa(

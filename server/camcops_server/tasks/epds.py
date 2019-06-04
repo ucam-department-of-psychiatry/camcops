@@ -45,6 +45,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
     TrackerLabel,
@@ -146,7 +147,7 @@ class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
                     <tr>
-                        <td>{req.wappstring("total_score")}</td>
+                        <td>{req.sstring(SS.TOTAL_SCORE)}</td>
                         <td><b>{score}</b> / {self.MAX_TOTAL}</td>
                     </tr>
                     <tr>

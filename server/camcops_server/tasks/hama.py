@@ -45,6 +45,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
     TrackerLabel,
@@ -103,10 +104,10 @@ class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=[30.5, 24.5, 17.5],
             horizontal_labels=[
-                TrackerLabel(33, req.wappstring("very_severe")),
-                TrackerLabel(27.5, req.wappstring("moderate_to_severe")),
-                TrackerLabel(21, req.wappstring("mild_to_moderate")),
-                TrackerLabel(8.75, req.wappstring("mild")),
+                TrackerLabel(33, req.sstring(SS.VERY_SEVERE)),
+                TrackerLabel(27.5, req.sstring(SS.MODERATE_TO_SEVERE)),
+                TrackerLabel(21, req.sstring(SS.MILD_TO_MODERATE)),
+                TrackerLabel(8.75, req.sstring(SS.MILD)),
             ]
         )]
 
@@ -142,13 +143,13 @@ class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         if score >= 31:
-            return req.wappstring("very_severe")
+            return req.sstring(SS.VERY_SEVERE)
         elif score >= 25:
-            return req.wappstring("moderate_to_severe")
+            return req.sstring(SS.MODERATE_TO_SEVERE)
         elif score >= 18:
-            return req.wappstring("mild_to_moderate")
+            return req.sstring(SS.MILD_TO_MODERATE)
         else:
-            return req.wappstring("mild")
+            return req.sstring(SS.MILD)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -190,7 +191,7 @@ class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
-                req.wappstring("total_score"),
+                req.sstring(SS.TOTAL_SCORE),
                 answer(score) + " / {}".format(self.MAX_SCORE)
             ),
             symptom_severity=tr_qa(

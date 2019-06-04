@@ -48,6 +48,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     equally_spaced_int,
     regular_tracker_axis_ticks_int,
@@ -283,7 +284,7 @@ class Cesdr(TaskHasPatientMixin, Task,
             )
 
         tr_total_score = tr_qa(
-            f"{req.wappstring('total_score')} (0–60)",
+            f"{req.sstring(SS.TOTAL_SCORE)} (0–60)",
             score
         )
         tr_depression_or_risk_of = tr_qa(

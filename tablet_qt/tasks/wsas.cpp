@@ -18,6 +18,7 @@
 */
 
 #include "wsas.h"
+#include "common/appstrings.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
@@ -105,15 +106,15 @@ QStringList Wsas::detail() const
 OpenableWidget* Wsas::editor(const bool read_only)
 {
     const NameValueOptions options{
-        {appstring("wsas_a0"), 0},
-        {appstring("wsas_a1"), 1},
-        {appstring("wsas_a2"), 2},
-        {appstring("wsas_a3"), 3},
-        {appstring("wsas_a4"), 4},
-        {appstring("wsas_a5"), 5},
-        {appstring("wsas_a6"), 6},
-        {appstring("wsas_a7"), 7},
-        {appstring("wsas_a8"), 8},
+        {appstring(appstrings::WSAS_A_PREFIX + "0"), 0},
+        {appstring(appstrings::WSAS_A_PREFIX + "1"), 1},
+        {appstring(appstrings::WSAS_A_PREFIX + "2"), 2},
+        {appstring(appstrings::WSAS_A_PREFIX + "3"), 3},
+        {appstring(appstrings::WSAS_A_PREFIX + "4"), 4},
+        {appstring(appstrings::WSAS_A_PREFIX + "5"), 5},
+        {appstring(appstrings::WSAS_A_PREFIX + "6"), 6},
+        {appstring(appstrings::WSAS_A_PREFIX + "7"), 7},
+        {appstring(appstrings::WSAS_A_PREFIX + "8"), 8},
     };
 
     QVector<QuestionWithOneField> q1fields{QuestionWithOneField(

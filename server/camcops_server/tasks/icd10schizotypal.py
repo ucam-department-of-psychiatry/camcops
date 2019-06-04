@@ -61,6 +61,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 
 
 # =============================================================================
@@ -209,7 +210,7 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                                 DateFormat.LONG_DATE, default=None)
             ),
             meets_criteria=tr_qa(
-                req.wappstring("meets_criteria"),
+                req.sstring(SS.MEETS_CRITERIA),
                 get_yes_no_none(req, self.meets_criteria())
             ),
             q_a=q_a,

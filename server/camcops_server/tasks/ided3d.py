@@ -52,6 +52,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_text import SS
 
 
 def a(x: Any) -> str:
@@ -493,7 +494,7 @@ class IDED3D(TaskHasPatientMixin, Task):
         h += tr_qa(
             self.wxstring(req, "counterbalance_dimensions") + "<sup>[1]</sup>",
             self.counterbalance_dimensions)
-        h += tr_qa(req.wappstring("volume_0_to_1"), self.volume)
+        h += tr_qa(req.sstring(SS.VOLUME_0_TO_1), self.volume)
         h += tr_qa(self.wxstring(req, "offer_abort"), self.offer_abort)
         h += tr_qa(self.wxstring(req, "debug_display_stimuli_only"),
                    self.debug_display_stimuli_only)

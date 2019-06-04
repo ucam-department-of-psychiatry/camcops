@@ -49,6 +49,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerAxisTick,
     TrackerInfo,
@@ -142,11 +143,11 @@ class Phq9(TaskHasPatientMixin, Task,
                 4.5
             ],
             horizontal_labels=[
-                TrackerLabel(23, req.wappstring("severe")),
-                TrackerLabel(17, req.wappstring("moderately_severe")),
-                TrackerLabel(12, req.wappstring("moderate")),
-                TrackerLabel(7, req.wappstring("mild")),
-                TrackerLabel(2.25, req.wappstring("none")),
+                TrackerLabel(23, req.sstring(SS.SEVERE)),
+                TrackerLabel(17, req.sstring(SS.MODERATELY_SEVERE)),
+                TrackerLabel(12, req.sstring(SS.MODERATE)),
+                TrackerLabel(7, req.sstring(SS.MILD)),
+                TrackerLabel(2.25, req.sstring(SS.NONE)),
             ]
         )]
 
@@ -223,15 +224,15 @@ class Phq9(TaskHasPatientMixin, Task,
     def severity(self, req: CamcopsRequest) -> str:
         total = self.total_score()
         if total >= 20:
-            return req.wappstring("severe")
+            return req.sstring(SS.SEVERE)
         elif total >= 15:
-            return req.wappstring("moderately_severe")
+            return req.sstring(SS.MODERATELY_SEVERE)
         elif total >= 10:
-            return req.wappstring("moderate")
+            return req.sstring(SS.MODERATE)
         elif total >= 5:
-            return req.wappstring("mild")
+            return req.sstring(SS.MILD)
         else:
-            return req.wappstring("none")
+            return req.sstring(SS.NONE)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         main_dict = {
@@ -293,7 +294,7 @@ class Phq9(TaskHasPatientMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
-                req.wappstring("total_score") + " <sup>[1]</sup>",
+                req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
                 answer(self.total_score()) + f" / {self.MAX_SCORE_MAIN}"
             ),
             depression_severity=tr_qa(

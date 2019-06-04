@@ -59,6 +59,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 
 
 # =============================================================================
@@ -456,7 +457,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             return self.wxstring(req, "category_none")
 
         else:
-            return req.wappstring("unknown")
+            return req.sstring(SS.UNKNOWN)
 
     def get_full_description(self, req: CamcopsRequest) -> str:
         skip_somatic = self.main_complete() and self.meets_criteria_none()
@@ -524,7 +525,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                                 default=None)
             ),
             category=tr_qa(
-                req.wappstring("category") + " <sup>[1,2]</sup>",
+                req.sstring(SS.CATEGORY) + " <sup>[1,2]</sup>",
                 self.get_full_description(req)
             ),
             n_core=tr(

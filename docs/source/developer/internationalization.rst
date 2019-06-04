@@ -23,21 +23,7 @@
 Internationalization
 --------------------
 
-CamCOPS language rules
-~~~~~~~~~~~~~~~~~~~~~~
-
-English is OK for the following:
-
-- code
-- Qt debugging stream
-- command-line text
-- debugging tests
-- task short names (typically standardized abbreviations)
-- database structure (e.g. table names, field names)
-- config file settings, and things that refer to them
-
-Everything else should be translatable.
-
+.. _dev_string_locations:
 
 String locations in CamCOPS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,10 +34,11 @@ String locations in CamCOPS
   <serverconfig_extra_string_files>`) and downloaded by the client. They
   contain string versions in different languages.
 
-  Client calls look like ``xstring("stringname")``.
+  Client calls look like ``xstring("stringname")``, or ``xstring(STRINGNAME)``.
 
   Server calls look like ``req.xstring("stringname")`` or
-  ``req.wxstring("stringname")``.
+  ``req.wxstring("stringname")``, etc. The ``w`` prefix is for functions that
+  "web-safe" their output (escaping HTML special characters).
 
 - Client/server shared strings.
 
@@ -65,11 +52,53 @@ String locations in CamCOPS
   Server calls typically look like ``req.wappstring(AS.STRINGNAME)`` where
   ``AS`` is defined in ``camcops_server.cc_modules.cc_string``.
 
+  If a string is "mission critical" for the client, then it should be built
+  into the client core instead (as below).
+
 - Client core.
 
-  Text visible to the user should be within a Qt ``tr()`` call. Qt provides
-  tools to collect these strings into a translation file, translate them via
-  Qt Linguist, and distribute them -- see below.
+  Some text does not require translation (see below).
+
+  Text visible to the user should be within a Qt ``tr("some text")`` call. Qt
+  provides tools to collect these strings into a translation file, translate
+  them via Qt Linguist, and distribute them -- see below.
+
+  Client strings that are used only once can live in the source code where they
+  are used.
+
+  Client strings that are used in several places should appear in
+  ``textconst.h``.
+
+- Server code.
+
+  Some text does not require translation (see below).
+
+  Text visible to the user should look like ``_("some text")``. The use of
+  ``_()`` is standard notation that is picked up by internationalization
+  software that scans the source code. The ``_`` function is aliased to an
+  appropriate translation function, usually via ``_ = req.gettext``. A
+  per-request system is used so that different users of the web site can
+  operate simultaneously in different languages.
+
+  Where text is re-used, it is placed in ``cc_text.py``. This is in general
+  preferable because it allows better automatic translation mechanisms than
+  the XML system.
+
+
+CamCOPS language rules
+~~~~~~~~~~~~~~~~~~~~~~
+
+Hard-coded English is OK for the following:
+
+- code
+- Qt debugging stream
+- command-line text
+- debugging tests
+- task short names (typically standardized abbreviations)
+- database structure (e.g. table names, field names)
+- config file settings, and things that refer to them
+
+Everything else should be translatable.
 
 
 Overview of the Qt translation system

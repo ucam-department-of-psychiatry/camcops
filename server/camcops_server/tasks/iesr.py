@@ -42,12 +42,14 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
+from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -221,7 +223,7 @@ class Iesr(TaskHasPatientMixin, Task,
     def get_task_html(self, req: CamcopsRequest) -> str:
         option_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            option_dict[a] = req.wappstring("iesr_a" + str(a))
+            option_dict[a] = req.wappstring(AS.IESR_A_PREFIX + str(a))
         h = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
@@ -245,7 +247,7 @@ class Iesr(TaskHasPatientMixin, Task,
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
-                {tr_qa(req.wappstring("event"), self.event)}
+                {tr_qa(req.sstring(SS.EVENT), self.event)}
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>

@@ -42,6 +42,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_true_false, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
+from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
@@ -148,7 +149,7 @@ class Wsas(TaskHasPatientMixin, Task,
     def get_task_html(self, req: CamcopsRequest) -> str:
         option_dict = {None: None}
         for a in range(self.MIN_PER_Q, self.MAX_PER_Q + 1):
-            option_dict[a] = req.wappstring("wsas_a" + str(a))
+            option_dict[a] = req.wappstring(AS.WSAS_A_PREFIX + str(a))
         q_a = ""
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))

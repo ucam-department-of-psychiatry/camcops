@@ -46,6 +46,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 # =============================================================================
@@ -130,7 +131,7 @@ class Bars(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         """.format(
             CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
-            total_score_str=req.wappstring("total_score"),
+            total_score_str=req.sstring(SS.TOTAL_SCORE),
             score=score,
             maxtotal=self.MAX_TOTAL,
         )

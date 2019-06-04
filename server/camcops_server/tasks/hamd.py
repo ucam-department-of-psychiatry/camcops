@@ -52,6 +52,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
     TrackerLabel,
@@ -323,7 +324,7 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
-                req.wappstring("total_score") + " <sup>[1]</sup>",
+                req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
                 answer(score) + " / {}".format(MAX_SCORE)
             ),
             severity=tr_qa(

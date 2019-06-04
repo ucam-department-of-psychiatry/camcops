@@ -280,6 +280,7 @@ from camcops_server.cc_modules.cc_taskfilter import (
     TaskClassSortMethod,
 )
 from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
 from camcops_server.cc_modules.cc_user import (
     SecurityAccountLockout,
@@ -642,7 +643,7 @@ def offer_terms(req: "CamcopsRequest") -> Response:
     """
     form = OfferTermsForm(
         request=req,
-        agree_button_text=req.wappstring("disclaimer_agree"))
+        agree_button_text=req.wsstring(SS.DISCLAIMER_AGREE))
 
     if FormAction.SUBMIT in req.POST:
         req.user.agree_terms(req)
@@ -651,9 +652,9 @@ def offer_terms(req: "CamcopsRequest") -> Response:
     return render_to_response(
         "offer_terms.mako",
         dict(
-            title=req.wappstring("disclaimer_title"),
-            subtitle=req.wappstring("disclaimer_subtitle"),
-            content=req.wappstring("disclaimer_content"),
+            title=req.wsstring(SS.DISCLAIMER_TITLE),
+            subtitle=req.wsstring(SS.DISCLAIMER_SUBTITLE),
+            content=req.wsstring(SS.DISCLAIMER_CONTENT),
             form=form.render(),
             head_form_html=get_head_form_html(req, [form]),
         ),

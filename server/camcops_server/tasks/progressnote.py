@@ -42,6 +42,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 
 
 # =============================================================================
@@ -73,14 +74,14 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         # Avoid tables - PDF generator crashes if text is too long.
         return f"""
             <div class="{CssClass.HEADING}">
-                {req.wappstring("location")}
+                {req.sstring(SS.LOCATION)}
             </div>
             <div>
                 {answer(ws.webify(self.location),
                         default_for_blank_strings=True)}
             </div>
             <div class="{CssClass.HEADING}">
-                {req.wappstring("note")}
+                {req.sstring(SS.NOTE)}
             </div>
             <div>
                 {answer(self.note, default_for_blank_strings=True)}

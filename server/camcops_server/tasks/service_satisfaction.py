@@ -95,11 +95,11 @@ class AbstractSatisfaction(object):
     def get_rating_text(self, req: CamcopsRequest) -> Optional[str]:
         ratingdict = {
             None: None,
-            0: req.wappstring("satis_rating_a0"),
-            1: req.wappstring("satis_rating_a1"),
-            2: req.wappstring("satis_rating_a2"),
-            3: req.wappstring("satis_rating_a3"),
-            4: req.wappstring("satis_rating_a4"),
+            0: req.wappstring(AS.SATIS_RATING_A_PREFIX + "0"),
+            1: req.wappstring(AS.SATIS_RATING_A_PREFIX + "1"),
+            2: req.wappstring(AS.SATIS_RATING_A_PREFIX + "2"),
+            3: req.wappstring(AS.SATIS_RATING_A_PREFIX + "3"),
+            4: req.wappstring(AS.SATIS_RATING_A_PREFIX + "4"),
         }
         return get_from_dict(ratingdict, self.rating)
 

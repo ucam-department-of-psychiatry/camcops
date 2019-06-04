@@ -43,6 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -217,7 +218,7 @@ class Caps(TaskHasPatientMixin, Task,
             )
 
         tr_total_score = tr_qa(
-            f"{req.wappstring('total_score')} <sup>[1]</sup> (0–32)",
+            f"{req.sstring(SS.TOTAL_SCORE)} <sup>[1]</sup> (0–32)",
             total
         )
         tr_distress = tr_qa(

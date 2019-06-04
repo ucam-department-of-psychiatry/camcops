@@ -45,6 +45,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
     TrackerLabel,
@@ -105,10 +106,10 @@ class Gad7(TaskHasPatientMixin, Task,
             axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=[14.5, 9.5, 4.5],
             horizontal_labels=[
-                TrackerLabel(17, req.wappstring("severe")),
-                TrackerLabel(12, req.wappstring("moderate")),
-                TrackerLabel(7, req.wappstring("mild")),
-                TrackerLabel(2.25, req.wappstring("none")),
+                TrackerLabel(17, req.sstring(SS.SEVERE)),
+                TrackerLabel(12, req.sstring(SS.MODERATE)),
+                TrackerLabel(7, req.sstring(SS.MILD)),
+                TrackerLabel(2.25, req.sstring(SS.NONE)),
             ]
         )]
 
@@ -144,13 +145,13 @@ class Gad7(TaskHasPatientMixin, Task,
     def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         if score >= 15:
-            severity = req.wappstring("severe")
+            severity = req.sstring(SS.SEVERE)
         elif score >= 10:
-            severity = req.wappstring("moderate")
+            severity = req.sstring(SS.MODERATE)
         elif score >= 5:
-            severity = req.wappstring("mild")
+            severity = req.sstring(SS.MILD)
         else:
-            severity = req.wappstring("none")
+            severity = req.sstring(SS.NONE)
         return severity
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -205,7 +206,7 @@ class Gad7(TaskHasPatientMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
-                req.wappstring("total_score"),
+                req.sstring(SS.TOTAL_SCORE),
                 answer(score) + " / {}".format(self.MAX_SCORE)
             ),
             anxiety_severity=tr(

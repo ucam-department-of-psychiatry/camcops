@@ -46,6 +46,7 @@ from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import CharColType
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -133,7 +134,7 @@ class Cage(TaskHasPatientMixin, Task,
             q_a += tr_qa(str(q) + " — " + self.wxstring(req, "q" + str(q)),
                          getattr(self, "q" + str(q)))  # answer is itself Y/N/NULL  # noqa
         total_score = tr(
-            req.wappstring("total_score"),
+            req.sstring(SS.TOTAL_SCORE),
             answer(score) + f" / {self.NQUESTIONS}"
         )
         over_threshold = tr_qa(

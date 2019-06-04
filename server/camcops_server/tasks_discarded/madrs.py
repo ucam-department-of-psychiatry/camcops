@@ -47,6 +47,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
     TrackerLabel,
@@ -98,10 +99,10 @@ class Madrs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 6.5,
             ],
             horizontal_labels=[
-                TrackerLabel(35, req.wappstring("severe")),
-                TrackerLabel(25, req.wappstring("moderate")),
-                TrackerLabel(14, req.wappstring("mild")),
-                TrackerLabel(3, req.wappstring("normal"))
+                TrackerLabel(35, req.sstring(SS.SEVERE)),
+                TrackerLabel(25, req.sstring(SS.MODERATE)),
+                TrackerLabel(14, req.sstring(SS.MILD)),
+                TrackerLabel(3, req.sstring(SS.NORMAL))
             ]
         )]
 
@@ -121,13 +122,13 @@ class Madrs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         if score > 34:
-            category = req.wappstring("severe")
+            category = req.sstring(SS.SEVERE)
         elif score >= 20:
-            category = req.wappstring("moderate")
+            category = req.sstring(SS.MODERATE)
         elif score >= 7:
-            category = req.wappstring("mild")
+            category = req.sstring(SS.MILD)
         else:
-            category = req.wappstring("normal")
+            category = req.sstring(SS.NORMAL)
         answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
             d = {None: "?"}
@@ -179,10 +180,10 @@ class Madrs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         """.format(
             CssClass=CssClass,
             is_complete=self.get_is_complete_tr(req),
-            total_score_str=req.wappstring("total_score"),
+            total_score_str=req.sstring(SS.TOTAL_SCORE),
             score=score,
             max_total=self.MAX_TOTAL,
-            category_str=req.wappstring("category"),
+            category_str=req.sstring(SS.CATEGORY),
             category=category,
             q_period_rated=self.wxstring(req, "q_period_rated"),
             period_rated=self.period_rated,

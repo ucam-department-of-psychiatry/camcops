@@ -45,6 +45,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
     TrackerLabel,
@@ -130,10 +131,10 @@ class Phq15(TaskHasPatientMixin, Task,
             axis_max=self.MAX_TOTAL + 0.5,
             horizontal_lines=[14.5, 9.5, 4.5],
             horizontal_labels=[
-                TrackerLabel(22, req.wappstring("severe")),
-                TrackerLabel(12, req.wappstring("moderate")),
-                TrackerLabel(7, req.wappstring("mild")),
-                TrackerLabel(2.25, req.wappstring("none")),
+                TrackerLabel(22, req.sstring(SS.SEVERE)),
+                TrackerLabel(12, req.sstring(SS.MODERATE)),
+                TrackerLabel(7, req.sstring(SS.MILD)),
+                TrackerLabel(2.25, req.sstring(SS.NONE)),
             ]
         )]
 
@@ -171,13 +172,13 @@ class Phq15(TaskHasPatientMixin, Task,
     def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         if score >= 15:
-            return req.wappstring("severe")
+            return req.sstring(SS.SEVERE)
         elif score >= 10:
-            return req.wappstring("moderate")
+            return req.sstring(SS.MODERATE)
         elif score >= 5:
-            return req.wappstring("mild")
+            return req.sstring(SS.MILD)
         else:
-            return req.wappstring("none")
+            return req.sstring(SS.NONE)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -222,7 +223,7 @@ class Phq15(TaskHasPatientMixin, Task,
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
-                req.wappstring("total_score") + " <sup>[1]</sup>",
+                req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
                 answer(score) + f" / {self.MAX_TOTAL}"
             ),
             n_severe_symptoms=tr_qa(

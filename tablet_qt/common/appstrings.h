@@ -28,15 +28,11 @@ namespace appstrings
 // those used across CamCOPS, rather than relating to a specific task, for
 // the most part).
 //
-// See also textconst.h for which strings should live where.
+// See also internationalization.rst for which strings should live where.
 
-extern const QString BDI_WHICH_SCALE;
-extern const QString DATA_COLLECTION_ONLY;
-extern const QString DATE_PERTAINS_TO;
-extern const QString GAF_SCORE;
-extern const QString HADS_ANXIETY_SCORE;
-extern const QString HADS_DEPRESSION_SCORE;
-extern const QString ICD10_SYMPTOMATIC_DISCLAIMER;
+// ============================================================================
+// NHS Data Dictionary elements; for details see camcops.xml
+// ============================================================================
 
 extern const QString NHS_PERSON_MARITAL_STATUS_CODE_S;
 extern const QString NHS_PERSON_MARITAL_STATUS_CODE_M;
@@ -63,6 +59,25 @@ extern const QString NHS_ETHNIC_CATEGORY_CODE_R;
 extern const QString NHS_ETHNIC_CATEGORY_CODE_S;
 extern const QString NHS_ETHNIC_CATEGORY_CODE_Z;
 
+// ============================================================================
+// String elements for specific restricted tasks (see camcops.xml)
+// ============================================================================
+
+extern const QString BDI_WHICH_SCALE;
+extern const QString GAF_SCORE;
+extern const QString HADS_ANXIETY_SCORE;
+extern const QString HADS_DEPRESSION_SCORE;
+extern const QString IESR_A_PREFIX;
+extern const QString WSAS_A_PREFIX;
+extern const QString ZBI_A_PREFIX;
+
+// ============================================================================
+// Strings shared across several tasks
+// ============================================================================
+
+extern const QString DATA_COLLECTION_ONLY;
+extern const QString DATE_PERTAINS_TO;
+extern const QString ICD10_SYMPTOMATIC_DISCLAIMER;
 extern const QString SATIS_BAD_Q;
 extern const QString SATIS_BAD_S;
 extern const QString SATIS_GOOD_Q;
@@ -72,5 +87,6 @@ extern const QString SATIS_REF_GEN_RATING_Q;
 extern const QString SATIS_REF_SPEC_RATING_Q;
 extern const QString SATIS_RATING_A_PREFIX;
 extern const QString SATIS_SERVICE_BEING_RATED;
+
 
 }  // namespace appstrings

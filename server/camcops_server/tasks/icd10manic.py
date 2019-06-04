@@ -59,6 +59,7 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from camcops_server.cc_modules.cc_text import SS
 
 
 # =============================================================================
@@ -393,7 +394,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         elif self.meets_criteria_none():
             return self.wxstring(req, "category_none")
         else:
-            return req.wappstring("unknown")
+            return req.sstring(SS.UNKNOWN)
 
     def is_complete(self) -> bool:
         return (
@@ -439,7 +440,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                                 DateFormat.LONG_DATE, default=None)
             ),
             category=tr_qa(
-                req.wappstring("category") + " <sup>[1,2]</sup>",
+                req.sstring(SS.CATEGORY) + " <sup>[1,2]</sup>",
                 self.get_description(req)
             ),
             psychotic_symptoms=tr_qa(

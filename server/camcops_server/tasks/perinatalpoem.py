@@ -42,6 +42,7 @@ from camcops_server.cc_modules.cc_task import (
     get_from_dict,
     Task,
 )
+from camcops_server.cc_modules.cc_text import SS
 
 
 # =============================================================================
@@ -363,7 +364,7 @@ class PerinatalPoem(Task):
                 addqa(fieldname, agree_dict)
         # General
         q_a_list.append(subheading_spanning_two_columns(
-            req.wappstring("general")))
+            req.sstring(SS.GENERAL)))
         q_a_list.append(tr_qa(
             self.wxstring(req, "general_comments_q"),
             self.general_comments

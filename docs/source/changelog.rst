@@ -2106,12 +2106,15 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - New option :menuselection:`Settings --> Fetch all server info`.
 
-- New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
-
-  .. todo:: IN PROGRESS +++ a/w permission clarification
+- ``cc_text.py`` and better server string framework for internationalization;
+  see :ref:`String locations in CamCOPS <dev_string_locations>`.
 
 - New task: :ref:`Lynall M-E — 1 — IAM study — medical history
   <lynall_1_iam_medical>`
+
+- New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
+
+  .. todo:: IN PROGRESS +++ a/w permission clarification
 
 - :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
 
@@ -2128,5 +2131,3 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - **MATERNAL ANTENATAL ATTACHMENT SCALE**
 
   .. todo:: TO BE STARTED ++
-
-- **SORT OUT camcops.xml AND DOCUMENT THE VARIOUS STRING MECHANISMS**
