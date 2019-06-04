@@ -27,17 +27,23 @@
 
 
 SvgWidgetClickable::SvgWidgetClickable(QWidget* parent) :
-    QSvgWidget(parent)
+    QSvgWidget(parent),
+    m_background_colour(QCOLOR_TRANSPARENT),
+    m_pressed_background_colour(QCOLOR_TRANSPARENT),
+    m_pressed(false),
+    m_pressing_inside(false)
 {
-    commonConstructor();
+    setTransparentForMouseEvents(false);
+    uifunc::setBackgroundColour(this, QCOLOR_TRANSPARENT);
+    setContentsMargins(0, 0, 0, 0);
 }
 
 
 SvgWidgetClickable::SvgWidgetClickable(const QString& filename,
                                        QWidget* parent) :
-    QSvgWidget(filename, parent)
+    SvgWidgetClickable(parent)  // delegating constructor
 {
-    commonConstructor();
+    load(filename);
 }
 
 
@@ -50,19 +56,6 @@ void SvgWidgetClickable::setSvgFromString(const QString& svg)
 void SvgWidgetClickable::setSvgFromFile(const QString& filename)
 {
     load(filename);
-}
-
-
-void SvgWidgetClickable::commonConstructor()
-{
-    m_pressed = false;
-    m_pressing_inside = false;
-    m_background_colour = QCOLOR_TRANSPARENT;
-    m_pressed_background_colour = QCOLOR_TRANSPARENT;
-
-    setTransparentForMouseEvents(false);
-    uifunc::setBackgroundColour(this, QCOLOR_TRANSPARENT);
-    setContentsMargins(0, 0, 0, 0);
 }
 
 

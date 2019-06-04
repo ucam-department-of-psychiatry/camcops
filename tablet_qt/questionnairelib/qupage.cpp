@@ -24,50 +24,43 @@
 #include "widgets/basewidget.h"
 
 
-QuPage::QuPage()
+QuPage::QuPage() :
+    QuPage(QVector<QuElementPtr>())  // delegating constructor
 {
-    commonConstructor();
 }
 
 
 QuPage::QuPage(const QVector<QuElementPtr>& elements) :
-    m_elements(elements)
+    m_type(PageType::Inherit),
+    m_elements(elements),
+    m_skip(false),
+    m_allow_scroll(true),
+    m_progress_blocked(false)
 {
-    commonConstructor();
 }
 
 
 QuPage::QuPage(std::initializer_list<QuElementPtr> elements) :
-    m_elements(elements)
+    QuPage(QVector<QuElementPtr>(elements))  // delegating constructor
 {
-    commonConstructor();
 }
 
 
-void QuPage::commonConstructor()
-{
-    m_type = PageType::Inherit;
-    m_skip = false;
-    m_allow_scroll = true;
-    m_progress_blocked = false;
-}
-
-
-QuPage::QuPage(const QVector<QuElement*>& elements)  // takes ownership
+QuPage::QuPage(const QVector<QuElement*>& elements) :  // takes ownership
+    QuPage(QVector<QuElementPtr>())  // delegating constructor
 {
     for (auto e : elements) {
         addElement(e);
     }
-    commonConstructor();
 }
 
 
-QuPage::QuPage(std::initializer_list<QuElement*> elements)  // takes ownership
+QuPage::QuPage(std::initializer_list<QuElement*> elements) :  // takes ownership
+    QuPage(QVector<QuElementPtr>())  // delegating constructor
 {
     for (auto e : elements) {
         addElement(e);
     }
-    commonConstructor();
 }
 
 

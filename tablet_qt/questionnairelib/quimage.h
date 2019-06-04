@@ -30,6 +30,11 @@ class QuImage : public QuElement
     // No user response offered.
 
     Q_OBJECT
+
+protected:
+    // Protected constructor
+    QuImage(const QString& filename, FieldRefPtr fieldref, const QSize& size);
+
 public:
 
     // Constructor to display a static image, from a filename.
@@ -58,7 +63,6 @@ protected slots:
     void valueChanged(const FieldRef* fieldref);
 
 protected:
-    void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 
     // Returns the image from a field, with appropriate scaling as per our

@@ -30,39 +30,32 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuMultipleResponse::QuMultipleResponse()
-{
-    commonConstructor();
-}
-
-
 QuMultipleResponse::QuMultipleResponse(
         const QVector<QuestionWithOneField>& items) :
-    m_items(items)
+    m_items(items),
+    m_minimum_answers(0),
+    m_maximum_answers(-1),
+    m_randomize(false),
+    m_show_instruction(true),
+    m_horizontal(false),
+    m_as_text_button(false),
+    m_bold(false),
+    m_instruction_label(nullptr)
 {
-    commonConstructor();
+    // Connect fieldrefs at widget build time, for simplicity.
 }
 
 
 QuMultipleResponse::QuMultipleResponse(
         std::initializer_list<QuestionWithOneField> items) :
-    m_items(items)
+    QuMultipleResponse(QVector<QuestionWithOneField>(items))  // delegating constructor
 {
-    commonConstructor();
 }
 
 
-void QuMultipleResponse::commonConstructor()
+QuMultipleResponse::QuMultipleResponse() :
+    QuMultipleResponse(QVector<QuestionWithOneField>())  // delegating constructor
 {
-    m_minimum_answers = 0;
-    m_maximum_answers = -1;
-    m_randomize = false;
-    m_show_instruction = true;
-    m_horizontal = false;
-    m_as_text_button = false;
-    m_bold = false;
-    m_instruction_label = nullptr;
-    // Connect fieldrefs at widget build time, for simplicity.
 }
 
 

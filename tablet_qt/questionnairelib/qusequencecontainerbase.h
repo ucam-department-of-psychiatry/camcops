@@ -58,8 +58,6 @@ public:
     QuSequenceContainerBase* setContainedWidgetAlignments(Qt::Alignment alignment);
 
 protected:
-    void commonConstructor();
-
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override = 0;
     virtual QVector<QuElementPtr> subelements() const override;
 

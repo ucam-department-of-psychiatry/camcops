@@ -30,6 +30,10 @@ class QuHeading : public QuText
 
     Q_OBJECT
 
+protected:
+    // Protected constructor, used internally and by derived classes.
+    QuHeading(const QString& text, FieldRefPtr fieldref);
+
 public:
     // Constructor to display static text.
     QuHeading(const QString& text);
@@ -38,7 +42,6 @@ public:
     QuHeading(FieldRefPtr fieldref);
 
 protected:
-    void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 
 protected:

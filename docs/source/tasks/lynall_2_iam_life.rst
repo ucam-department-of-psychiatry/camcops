@@ -34,6 +34,20 @@ Intellectual property rights
 History
 ~~~~~~~
 
+- List of Threatening Experiences:
+
+  - Brugha T, Bebbington P, Tennant C, Hurry J (1985).
+    The List of Threatening Experiences: a subset of 12 life event categories
+    with considerable long-term contextual threat.
+    Psychological Medicine 15: 189-194.
+    https://www.ncbi.nlm.nih.gov/pubmed/3991833
+
+  - Brugha TS, Cragg D (1990).
+    The List of Threatening Experiences: the reliability and validity of a
+    brief life events questionnaire.
+    *Acta Psychiatr Scand.* 82: 77-81.
+    https://www.ncbi.nlm.nih.gov/pubmed/2399824
+
 .. todo:: ESTABLISH HISTORY DETAILS (lynall_2)
 
 

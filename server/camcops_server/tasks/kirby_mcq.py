@@ -26,7 +26,7 @@ camcops_server/tasks/kirby.py
 
 """
 
-from typing import Any, Dict, Tuple, Type
+from typing import Any, Dict, Tuple, Type, TYPE_CHECKING
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -53,19 +53,23 @@ class KirbyRewardPair(object):
     Represents a pair of rewards: a small immediate reward (SIR) and a large
     delayed reward (LDR).
     """
-    def __init__(self, sir: int, ldr: int, delay_days: int,
-                 currency: str = "£") -> None:
+    def __init__(self,
+                 sir: int, ldr: int, delay_days: int,
+                 currency: str = "£",
+                 currency_symbol_first: bool = True) -> None:
         """
         Args:
             sir: amount of the small immediate reward (SIR)
             ldr: amount of the large delayed reward (LDR)
             delay_days: delay to the LDR, in days
             currency: currency symbol
+            currency_symbol_first: symbol before amount?
         """
         self.sir = sir
         self.ldr = ldr
         self.delay_days = delay_days
         self.currency = currency
+        self.currency_symbol_first = currency_symbol_first
 
     def k_indifference(self) -> float:
         """
@@ -79,14 +83,23 @@ class KirbyRewardPair(object):
         d2 = self.delay_days
         return ((a2 / a1) - 1) / d2
 
-    def question(self) -> str:
+    def money(self, amount: int) -> str:
+        """
+        Returns a currency amount, formatted.
+        """
+        if self.currency_symbol_first:
+            return f"{self.currency}{amount}"
+        return f"{amount}{self.currency}"
+
+    def question(self, req: CamcopsRequest) -> str:
         """
         The question posed for this reward pair.
         """
-        return (
-            f"Would you prefer {self.currency}{self.sir} today, "
-            f"or {self.currency}{self.ldr} in {self.delay_days} days?"
-        )
+        _ = req.gettext
+        s = _("Would you prefer %s today, or %s in %s days?")
+        return s % (self.money(self.sir),
+                    self.money(self.ldr),
+                    self.delay_days)
 
 
 # =============================================================================

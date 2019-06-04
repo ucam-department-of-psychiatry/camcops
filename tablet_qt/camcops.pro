@@ -608,6 +608,7 @@ SOURCES += \
     menulib/htmlmenuitem.cpp \
     menulib/menuheader.cpp \
     menulib/menuitem.cpp \
+    menulib/menuproxy.cpp \
     menulib/menuwindow.cpp \
     menulib/taskmenuitem.cpp \
     menulib/urlmenuitem.cpp \
@@ -810,6 +811,8 @@ SOURCES += \
     taskxtra/ided3dexemplars.cpp \
     taskxtra/ided3dstage.cpp \
     taskxtra/ided3dtrial.cpp \
+    taskxtra/kirbyrewardpair.cpp \
+    taskxtra/kirbytrial.cpp \
     taskxtra/pclcommon.cpp \
     taskxtra/photosequencephoto.cpp \
     taskxtra/satisfactioncommon.cpp \
@@ -1226,6 +1229,8 @@ HEADERS += \
     taskxtra/ided3dexemplars.h \
     taskxtra/ided3dstage.h \
     taskxtra/ided3dtrial.h \
+    taskxtra/kirbyrewardpair.h \
+    taskxtra/kirbytrial.h \
     taskxtra/pclcommon.h \
     taskxtra/photosequencephoto.h \
     taskxtra/satisfactioncommon.h \

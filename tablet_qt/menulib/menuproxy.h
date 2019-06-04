@@ -36,8 +36,8 @@ class MenuWindow;
 class MenuProxyBase
 {
 public:
-    MenuProxyBase() {}
-    virtual ~MenuProxyBase() {}
+    MenuProxyBase();
+    virtual ~MenuProxyBase();
     virtual MenuWindow* create(CamcopsApp& app) = 0;
 };
 

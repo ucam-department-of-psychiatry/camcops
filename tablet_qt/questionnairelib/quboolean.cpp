@@ -32,42 +32,42 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuBoolean::QuBoolean(const QString& text, FieldRefPtr fieldref) :
+QuBoolean::QuBoolean(const QString& text, const QString& filename,
+                     const QSize& size, FieldRefPtr fieldref) :
     m_text(text),
-    m_fieldref(fieldref)
-{
-    commonConstructor();
-}
-
-
-QuBoolean::QuBoolean(const QString &filename, const QSize &size,
-                     FieldRefPtr fieldref) :
     m_image_filename(filename),
     m_image_size(size),
-    m_fieldref(fieldref)
+    m_adjust_image_for_dpi(true),
+    m_fieldref(fieldref),
+    m_content_clickable(true),
+    m_indicator_on_left(true),  // due to LabelWordWrap, better as true
+    m_big_indicator(true),  // finger-sized; standard...
+    m_big_text(false),
+    m_bold(false),
+    m_italic(false),
+    m_allow_unset(false),
+    m_as_text_button(false),
+    m_false_appears_blank(false),
+    m_indicator(nullptr)
 {
-    commonConstructor();
-}
-
-
-void QuBoolean::commonConstructor()
-{
-    m_adjust_image_for_dpi = true;
-    m_content_clickable = true;
-    m_indicator_on_left = true;  // due to LabelWordWrap, better as true
-    m_big_indicator = true;  // finger-sized; standard...
-    m_big_text = false;
-    m_bold = false;
-    m_italic = false;
-    m_allow_unset = false;
-    m_as_text_button = false;
-    m_false_appears_blank = false;
-    m_indicator = nullptr;
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuBoolean::fieldValueChanged);
     connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
             this, &QuBoolean::fieldValueChanged);
+}
+
+
+QuBoolean::QuBoolean(const QString& text, FieldRefPtr fieldref) :
+    QuBoolean(text, "", QSize(), fieldref)  // delegating constructor
+{
+}
+
+
+QuBoolean::QuBoolean(const QString &filename, const QSize &size,
+                     FieldRefPtr fieldref) :
+    QuBoolean("", filename, size, fieldref)  // delegating constructor
+{
 }
 
 

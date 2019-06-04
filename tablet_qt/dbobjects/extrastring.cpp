@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define DEBUG_LANGUAGE_LOOKUP
+#define DEBUG_LANGUAGE_LOOKUP
 
 #include "extrastring.h"
 #include "core/camcopsapp.h"
@@ -36,7 +36,11 @@ ExtraString::ExtraString(CamcopsApp& app, DatabaseManager& db) :
     DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, dbconst::PK_FIELDNAME,
                    true, false, false, false)
 {
-    commonConstructor();
+    // Define fields
+    addField(TASK_FIELD, QVariant::String, true, false, false);
+    addField(NAME_FIELD, QVariant::String, true, false, false);
+    addField(LANGUAGE_FIELD, QVariant::String, false, false, false);
+    addField(VALUE_FIELD, QVariant::String, false, false, false);
 }
 
 
@@ -46,10 +50,8 @@ ExtraString::ExtraString(CamcopsApp& app,
                          const QString& task,
                          const QString& name,
                          const QString& language_code) :
-    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, dbconst::PK_FIELDNAME,
-                   true, false, false, false)
+    ExtraString(app, db)  // delegating constructor
 {
-    commonConstructor();
     if (task.isEmpty() || name.isEmpty()) {
         // Specimen only
         return;
@@ -120,10 +122,8 @@ ExtraString::ExtraString(CamcopsApp& app,
                          const QString& name,
                          const QString& language_code,
                          const QString& value) :
-    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, dbconst::PK_FIELDNAME,
-                   true, false, false, false)
+    ExtraString(app, db)  // delegating constructor
 {
-    commonConstructor();
     if (task.isEmpty() || name.isEmpty()) {
         qWarning() << Q_FUNC_INFO << "Using the save-blindly constructor "
                                      "without a name or task!";
@@ -134,16 +134,6 @@ ExtraString::ExtraString(CamcopsApp& app,
     setValue(LANGUAGE_FIELD, language_code);
     setValue(VALUE_FIELD, value);
     save();
-}
-
-
-void ExtraString::commonConstructor()
-{
-    // Define fields
-    addField(TASK_FIELD, QVariant::String, true, false, false);
-    addField(NAME_FIELD, QVariant::String, true, false, false);
-    addField(LANGUAGE_FIELD, QVariant::String, false, false, false);
-    addField(VALUE_FIELD, QVariant::String, false, false, false);
 }
 
 

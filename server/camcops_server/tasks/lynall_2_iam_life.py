@@ -52,8 +52,8 @@ class Lynall2LifeEvents(TaskHasPatientMixin, Task):
     """
     Server implementation of the Lynall_2_LifeEvents task.
     """
-    __tablename__ = "lynall_2_iam_lifeevents"
-    shortname = "Lynall_2_LifeEvents"
+    __tablename__ = "lynall_2_iam_life"
+    shortname = "Lynall_2_IAM_Life"
 
     # *** fields
 

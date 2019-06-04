@@ -23,10 +23,11 @@
 #include "lib/uifunc.h"
 
 
-ImageButton::ImageButton(QWidget* parent) :
-    QPushButton(parent)
+ImageButton::ImageButton(QWidget* parent, const QSize& size) :
+    QPushButton(parent),
+    m_image_size(size)
 {
-    commonConstructor(QSize());
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }
 
 
@@ -34,9 +35,8 @@ ImageButton::ImageButton(const QString& normal_filename,
                          const QString& pressed_filename,
                          const QSize& size,
                          QWidget* parent) :
-    QPushButton(parent)
+    ImageButton(parent, size)  // delegating constructor
 {
-    commonConstructor(size);
     setNormalImage(normal_filename, size);
     setPressedImage(pressed_filename, size);
     resizeIfNoSize();
@@ -48,10 +48,8 @@ ImageButton::ImageButton(const QString& base_filename,
                          const bool alter_unpressed_image,
                          const bool disabled,
                          QWidget* parent) :
-    QPushButton(parent)
+    ImageButton(parent, uiconst::g_iconsize)  // delegating constructor
 {
-    const QSize size = uiconst::g_iconsize;
-    commonConstructor(size);
     setImages(base_filename, filename_is_camcops_stem, alter_unpressed_image,
               true, disabled);
     resizeIfNoSize();
@@ -91,13 +89,6 @@ void ImageButton::setImages(const QString& base_filename,
         setPressedImage(pressed, false);
     }
     resizeIfNoSize();
-}
-
-
-void ImageButton::commonConstructor(const QSize& size)
-{
-    m_image_size = size;
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }
 
 

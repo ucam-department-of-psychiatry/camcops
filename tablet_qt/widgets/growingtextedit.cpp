@@ -21,29 +21,22 @@
 
 
 GrowingTextEdit::GrowingTextEdit(QWidget* parent) :
-    QTextEdit(parent)
+    QTextEdit(parent),
+    m_auto_resize(true)
 {
-    commonConstructor();
-}
-
-
-GrowingTextEdit::GrowingTextEdit(const QString& text, QWidget* parent) :
-    QTextEdit(text, parent)
-{
-    commonConstructor();
-}
-
-
-void GrowingTextEdit::commonConstructor()
-{
-    m_auto_resize = true;
-
     connect(document(), &QTextDocument::contentsChanged,
             this, &GrowingTextEdit::contentsChanged);
 
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+}
+
+
+GrowingTextEdit::GrowingTextEdit(const QString& text, QWidget* parent) :
+    GrowingTextEdit(parent)  // delegating constructor
+{
+    setText(text);
 }
 
 

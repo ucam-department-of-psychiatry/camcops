@@ -28,18 +28,28 @@
 // Constructors and associated internals
 // ============================================================================
 
-LogisticDescriptives::LogisticDescriptives(const Eigen::VectorXd& coefficients)
+LogisticDescriptives::LogisticDescriptives() :
+    m_ok(false),
+    m_b0(std::numeric_limits<double>::quiet_NaN()),
+    m_b1(std::numeric_limits<double>::quiet_NaN())
 {
-    commonConstructor();
+}
+
+
+LogisticDescriptives::LogisticDescriptives(
+        const Eigen::VectorXd& coefficients) :
+    LogisticDescriptives()  // delegating constructor
+{
     if (coefficients.size() == 2) {
         setFromGlmCoefficients(coefficients(0), coefficients(1));
     }
 }
 
 
-LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& coefficients)
+LogisticDescriptives::LogisticDescriptives(
+        const QVector<qreal>& coefficients) :
+    LogisticDescriptives()  // delegating constructor
 {
-    commonConstructor();
     if (coefficients.length() == 2) {
         setFromGlmCoefficients(coefficients.at(0), coefficients.at(1));
     }
@@ -47,19 +57,19 @@ LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& coefficients)
 
 
 LogisticDescriptives::LogisticDescriptives(const double intercept,
-                                           const double slope)
+                                           const double slope) :
+    LogisticDescriptives()  // delegating constructor
 {
-    commonConstructor();
     setFromGlmCoefficients(intercept, slope);
 }
 
 
 LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& x,
                                            const QVector<int>& y,
-                                           const bool verbose)
+                                           const bool verbose) :
+    LogisticDescriptives()  // delegating constructor
 {
     using namespace eigenfunc;
-    commonConstructor();
     if (x.size() != y.size()) {
         qCritical("Size-mismatched data set passed to LogisticDescriptives");
         return;
@@ -78,13 +88,6 @@ LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& x,
         return;
     }
     setFromGlmCoefficients(coefficients(0), coefficients(1));
-}
-
-
-void LogisticDescriptives::commonConstructor()
-{
-    m_ok = false;
-    m_b0 = m_b1 = std::numeric_limits<double>::quiet_NaN();
 }
 
 

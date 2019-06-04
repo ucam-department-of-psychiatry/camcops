@@ -20,35 +20,22 @@
 #pragma once
 #include "db/databaseobject.h"
 
+class KirbyRewardPair;
 
-class CardinalExpDetThresholdTrial : public DatabaseObject
+
+class KirbyTrial : public DatabaseObject
 {
     Q_OBJECT
 public:
     // Load, or create blank
-    CardinalExpDetThresholdTrial(CamcopsApp& app, DatabaseManager& db,
-                                 int load_pk = dbconst::NONEXISTENT_PK);
+    KirbyTrial(CamcopsApp& app, DatabaseManager& db,
+               int load_pk = dbconst::NONEXISTENT_PK);
     // Create and save
-    CardinalExpDetThresholdTrial(
-            int task_pk, int trial_num,
-            const QVariant& trial_num_ignoring_catch_trials,
-            bool target_presented,
-            CamcopsApp& app, DatabaseManager& db);
-    bool wasCaughtOutReset() const;
-    int trialNum() const;
-    int trialNumIgnoringCatchTrials() const;
-    bool targetPresented() const;
-    qreal intensity() const;
-    void setIntensity(double intensity);
-    bool yes() const;
-    void setCaughtOutReset();
-    void recordChoiceTime();
-    void recordResponse(bool yes);
-    QString summary() const;
-    void setTrialNumInCalcSeq(const QVariant& value);
-    bool isInCalculationSeq() const;
+    KirbyTrial(int task_pk, int trial_num, const KirbyRewardPair& choice,
+               CamcopsApp& app, DatabaseManager& db);
+    void recordResponse(bool chose_ldr);
 public:
-    static const QString TRIAL_TABLENAME;
+    static const QString KIRBY_TRIAL_TABLENAME;
     static const QString FN_FK_TO_TASK;
     static const QString FN_TRIAL;
 protected:

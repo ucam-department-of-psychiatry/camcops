@@ -352,6 +352,7 @@ tablet_qt
     menulib/menuheader.h.rst
     menulib/menuitem.cpp.rst
     menulib/menuitem.h.rst
+    menulib/menuproxy.cpp.rst
     menulib/menuproxy.h.rst
     menulib/menuwindow.cpp.rst
     menulib/menuwindow.h.rst
@@ -679,10 +680,10 @@ tablet_qt
     tasks/khandaker1medicalhistory.h.rst
     tasks/kirby.cpp.rst
     tasks/kirby.h.rst
-    tasks/lynall1iam.cpp.rst
-    tasks/lynall1iam.h.rst
-    tasks/lynall2iam.cpp.rst
-    tasks/lynall2iam.h.rst
+    tasks/lynall1iammedical.cpp.rst
+    tasks/lynall1iammedical.h.rst
+    tasks/lynall2iamlife.cpp.rst
+    tasks/lynall2iamlife.h.rst
     tasks/mast.cpp.rst
     tasks/mast.h.rst
     tasks/mdsupdrs.cpp.rst
@@ -781,6 +782,10 @@ tablet_qt
     taskxtra/ided3dstage.h.rst
     taskxtra/ided3dtrial.cpp.rst
     taskxtra/ided3dtrial.h.rst
+    taskxtra/kirbyrewardpair.cpp.rst
+    taskxtra/kirbyrewardpair.h.rst
+    taskxtra/kirbytrial.cpp.rst
+    taskxtra/kirbytrial.h.rst
     taskxtra/pclcommon.cpp.rst
     taskxtra/pclcommon.h.rst
     taskxtra/photosequencephoto.cpp.rst

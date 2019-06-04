@@ -57,8 +57,8 @@ void SetMenuLynall1::makeItems()
         MAKE_TASK_MENU_ITEM(Audit::AUDIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
         // *** // MAKE_TASK_MENU_ITEM(Ctqsf::CTQSF_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Lynall1IamMedicalHistory::LYNALL_1_IAM_MEDICALHISTORY_TABLENAME, m_app),
-        // *** // MAKE_TASK_MENU_ITEM(Lynall2IamLifeEvents::LYNALL_2_IAM_LIFEEVENTS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Lynall1IamMedical::LYNALL_1_IAM_MEDICAL_TABLENAME, m_app),
+        // *** // MAKE_TASK_MENU_ITEM(Lynall2IamLife::LYNALL_2_IAM_LIFE_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, m_app),
     };
 }

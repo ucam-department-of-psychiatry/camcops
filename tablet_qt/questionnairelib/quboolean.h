@@ -52,6 +52,12 @@ class QuBoolean : public QuElement
     // The formats can be customized further.
 
     Q_OBJECT
+
+protected:
+    // Protected constructor
+    QuBoolean(const QString& text, const QString& filename, const QSize& size,
+              FieldRefPtr fieldref);
+
 public:
 
     // Construct with: text to display; fieldref
@@ -105,8 +111,6 @@ public:
     QuBoolean* setFalseAppearsBlank(bool false_appears_blank = true);
 
 protected:
-    void commonConstructor();
-
     // Sets the widget state from our fieldref.
     void setFromField();
 

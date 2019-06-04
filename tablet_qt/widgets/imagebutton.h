@@ -37,7 +37,7 @@ class ImageButton : public QPushButton
 public:
 
     // Plain constructor.
-    ImageButton(QWidget* parent = nullptr);
+    ImageButton(QWidget* parent = nullptr, const QSize& size = QSize());
 
     // Construct with a pair of images.
     // Args:
@@ -115,9 +115,6 @@ public:
     void resizeImages(double factor);
 
 protected:
-    // Common constructor.
-    void commonConstructor(const QSize& size);
-
     // Standard Qt widget override.
     virtual void paintEvent(QPaintEvent* e) override;
 

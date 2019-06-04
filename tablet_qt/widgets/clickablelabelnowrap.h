@@ -86,11 +86,6 @@ public:
     virtual QSize sizeHint() const override;
 
 protected:
-
-    // Common constructor
-    void commonConstructor();
-
-protected:
     QLabel* m_label;  // our label (showing text or an image)
     QVBoxLayout* m_layout;  // our layout
 };

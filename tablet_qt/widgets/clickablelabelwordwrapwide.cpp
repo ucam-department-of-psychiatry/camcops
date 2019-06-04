@@ -31,23 +31,17 @@
 ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const QString& text,
                                                        const bool stretch,
                                                        QWidget* parent) :
-    QPushButton(parent),
-    m_label(new LabelWordWrapWide(text, this))
+    ClickableLabelWordWrapWide(stretch, parent)  // delegating constructor
 {
-    commonConstructor(stretch);
+    m_label->setText(text);  // this is what the QLabel(text, parent) constructor does
 }
 
 
 ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const bool stretch,
                                                        QWidget* parent) :
     QPushButton(parent),
-    m_label(new LabelWordWrapWide(this))
-{
-    commonConstructor(stretch);
-}
-
-
-void ClickableLabelWordWrapWide::commonConstructor(const bool stretch)
+    m_label(new LabelWordWrapWide(this)),
+    m_layout(new VBoxLayout())
 {
     m_label->setMouseTracking(false);
     m_label->setTextInteractionFlags(Qt::NoTextInteraction);
@@ -55,7 +49,6 @@ void ClickableLabelWordWrapWide::commonConstructor(const bool stretch)
 
     // m_label->setObjectName(CssConst::DEBUG_YELLOW);
 
-    m_layout = new VBoxLayout();
     // m_layout->setContentsMargins(UiConst::NO_MARGINS);
     // no, use CSS instead // layout->setMargin(0);
 

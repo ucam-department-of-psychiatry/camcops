@@ -17,10 +17,10 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _kirby:
+.. _kirby_mcq:
 
-Kirby Monetary Choice Questionnaire
------------------------------------
+Kirby Monetary Choice Questionnaire (MCQ)
+-----------------------------------------
 
 Series of hypothetical choices pitting an immediate amount of money against a
 delayed amount of money, to measure delay discounting.
@@ -34,6 +34,14 @@ History
   non-drug-using controls.
   *Journal of Experimental Psychology: General* 128: 78-87.
   https://www.ncbi.nlm.nih.gov/pubmed/10100392
+  [27-item version]
+
+- Based on the earlier 21-item version:
+  Kirby KN, Maraković NN (1996).
+  Delay-discounting probabilistic rewards: Rates decrease as amounts increase.
+  *Psychon. Bull. Rev.* 3: 100-104.
+  https://www.ncbi.nlm.nih.gov/pubmed/24214810;
+  https://dx.doi.org/10.3758/BF03210748.
 
 
 Source

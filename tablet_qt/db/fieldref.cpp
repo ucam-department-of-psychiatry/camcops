@@ -35,19 +35,61 @@
 // Constructors
 // ============================================================================
 
-FieldRef::FieldRef()
+FieldRef::FieldRef(FieldRefMethod method,
+                   const bool mandatory,
+                   Field* p_field,
+                   DatabaseObject* p_dbobject,
+                   const QString& fieldname,
+                   const bool autosave,
+                   QSharedPointer<Blob> blob,
+                   const GetterFunction& getterfunc,
+                   const SetterFunction& setterfunc,
+                   CamcopsApp* p_app,
+                   const QString& storedvar_name) :
+    m_method(method),
+    m_mandatory(mandatory),
+    m_p_field(p_field),
+    m_p_dbobject(p_dbobject),
+    m_fieldname(fieldname),
+    m_autosave(autosave),
+    m_blob(blob),
+    m_getterfunc(getterfunc),
+    m_setterfunc(setterfunc),
+    m_app(p_app),
+    m_storedvar_name(storedvar_name)
 {
-    qDebug() << "argh";
-    commonConstructor();
 }
 
 
-FieldRef::FieldRef(Field* p_field, const bool mandatory)
+FieldRef::FieldRef() :
+    FieldRef(FieldRefMethod::Invalid,  // method
+             true,  // mandatory
+             nullptr,  // p_field
+             nullptr,  // p_dbobject
+             "",  // fieldname
+             false,  // autosave
+             nullptr,  // blob
+             GetterFunction(),
+             SetterFunction(),
+             nullptr,  // p_app
+             "")  // storedvar_name
 {
-    commonConstructor();
-    m_method = FieldRefMethod::Field;
-    m_mandatory = mandatory;
-    m_p_field = p_field;
+}
+
+
+FieldRef::FieldRef(Field* p_field, const bool mandatory) :
+    FieldRef(FieldRefMethod::Field,  // method
+             mandatory,  // mandatory
+             p_field,  // p_field
+             nullptr,  // p_dbobject
+             "",  // fieldname
+             false,  // autosave
+             nullptr,  // blob
+             GetterFunction(),
+             SetterFunction(),
+             nullptr,  // p_app
+             "")  // storedvar_name
+{
 }
 
 
@@ -56,15 +98,19 @@ FieldRef::FieldRef(DatabaseObject* p_dbobject,
                    const bool mandatory,
                    const bool autosave,
                    const bool blob,
-                   CamcopsApp* p_app)
+                   CamcopsApp* p_app) :
+    FieldRef(FieldRefMethod::DatabaseObject,  // method
+             mandatory,  // mandatory
+             nullptr,  // p_field
+             p_dbobject,  // p_dbobject
+             fieldname,  // fieldname
+             autosave,  // autosave
+             nullptr,  // blob
+             GetterFunction(),
+             SetterFunction(),
+             nullptr,  // p_app
+             "")  // storedvar_name
 {
-    commonConstructor();
-    m_method = FieldRefMethod::DatabaseObject;
-    m_mandatory = mandatory;
-    m_p_dbobject = p_dbobject;
-    m_fieldname = fieldname;
-    m_autosave = autosave;
-
     if (blob) {
         if (p_app == nullptr) {
             uifunc::stopApp("Must pass p_app to FieldRef for BLOBs");
@@ -87,13 +133,20 @@ FieldRef::FieldRef(DatabaseObject* p_dbobject,
 
 FieldRef::FieldRef(QSharedPointer<Blob> blob,
                    const bool mandatory,
-                   const bool disable_creation_warning)
+                   const bool disable_creation_warning) :
+    FieldRef(FieldRefMethod::IsolatedBlobFieldForTesting,  // method
+             mandatory,  // mandatory
+             nullptr,  // p_field
+             nullptr,  // p_dbobject
+             "",  // fieldname
+             false,  // autosave
+             blob,  // blob
+             GetterFunction(),
+             SetterFunction(),
+             nullptr,  // p_app
+             "")  // storedvar_name
 {
     // for widget testing only; specimen BLOB
-    commonConstructor();
-    m_method = FieldRefMethod::IsolatedBlobFieldForTesting;
-    m_blob = blob;
-    m_mandatory = mandatory;
     if (!disable_creation_warning) {
         qWarning() << "FieldRef constructed with reference to specimen BLOB; "
                       "FOR TESTING ONLY";
@@ -103,46 +156,37 @@ FieldRef::FieldRef(QSharedPointer<Blob> blob,
 
 FieldRef::FieldRef(const GetterFunction& getterfunc,
                    const SetterFunction& setterfunc,
-                   const bool mandatory)
+                   const bool mandatory) :
+    FieldRef(FieldRefMethod::Functions,  // method
+             mandatory,  // mandatory
+             nullptr,  // p_field
+             nullptr,  // p_dbobject
+             "",  // fieldname
+             false,  // autosave
+             nullptr,  // blob
+             getterfunc,
+             setterfunc,
+             nullptr,  // p_app
+             "")  // storedvar_name
 {
-    commonConstructor();
-    m_method = FieldRefMethod::Functions;
-    m_mandatory = mandatory;
-    m_getterfunc = getterfunc;
-    m_setterfunc = setterfunc;
 }
 
 
 FieldRef::FieldRef(CamcopsApp* app, const QString& storedvar_name,
-                   const bool mandatory, const bool cached)
+                   const bool mandatory, const bool cached) :
+    FieldRef(cached ? FieldRefMethod::CachedStoredVar
+                    : FieldRefMethod::StoredVar,  // method
+             mandatory,  // mandatory
+             nullptr,  // p_field
+             nullptr,  // p_dbobject
+             "",  // fieldname
+             false,  // autosave
+             nullptr,  // blob
+             GetterFunction(),
+             SetterFunction(),
+             app,  // p_app
+             storedvar_name)  // storedvar_name
 {
-    commonConstructor();
-    m_method = cached ? FieldRefMethod::CachedStoredVar
-                      : FieldRefMethod::StoredVar;
-    m_app = app;
-    m_storedvar_name = storedvar_name;
-    m_mandatory = mandatory;
-}
-
-
-void FieldRef::commonConstructor()
-{
-    m_method = FieldRefMethod::Invalid;
-    m_mandatory = true;
-
-    m_p_field = nullptr;
-
-    m_p_dbobject = nullptr;
-    m_fieldname = "";
-    m_autosave = false;
-
-    m_blob.clear();
-
-    m_getterfunc = nullptr;
-    m_setterfunc = nullptr;
-
-    m_app = nullptr;
-    m_storedvar_name = "";
 }
 
 
@@ -265,8 +309,8 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
     default:
         qCritical() << Q_FUNC_INFO << "Bad method";
         break;
-    }
 #endif
+    }
 
     return signalSetValue(changed, originator);
 }
@@ -350,8 +394,8 @@ QVariant FieldRef::value() const
     default:
         qCritical() << Q_FUNC_INFO << "Bad method";
         return QVariant();
-    }
 #endif
+    }
 }
 
 
@@ -608,8 +652,8 @@ QString FieldRef::getFieldRefMethodDescription() const
     default:
         // Shouldn't get here
         return "Bad_method";
-    }
 #endif
+    }
 }
 
 

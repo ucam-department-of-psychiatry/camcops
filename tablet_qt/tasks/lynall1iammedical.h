@@ -27,14 +27,14 @@ class OpenableWidget;
 class Questionnaire;
 class TaskFactory;
 
-void initializeLynall1IamMedicalHistory(TaskFactory& factory);
+void initializeLynall1IamMedical(TaskFactory& factory);
 
 
-class Lynall1IamMedicalHistory : public Task
+class Lynall1IamMedical : public Task
 {
     Q_OBJECT
 public:
-    Lynall1IamMedicalHistory(CamcopsApp& app, DatabaseManager& db,
+    Lynall1IamMedical(CamcopsApp& app, DatabaseManager& db,
                              int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -42,7 +42,6 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual bool isCrippled() const override { return false; }
     virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
@@ -65,5 +64,5 @@ protected:
     // Other
     // ------------------------------------------------------------------------
 public:
-    static const QString LYNALL_1_IAM_MEDICALHISTORY_TABLENAME;
+    static const QString LYNALL_1_IAM_MEDICAL_TABLENAME;
 };

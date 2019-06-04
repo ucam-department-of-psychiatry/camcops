@@ -66,10 +66,6 @@ public:
 #endif
 
 protected:
-
-    // Common constructor
-    void commonConstructor(bool stretch);
-
     // Translates the size required by m_label to the size required by the
     // whole QPushButton.
     QSize translateSize(const QSize& size) const;

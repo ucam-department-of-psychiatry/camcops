@@ -93,7 +93,6 @@ public:
     virtual void invalidate() override;  // RNC
 
 protected:  // RNC (was private)
-    void commonConstructor(int margin);  // RNC
     virtual QSize doLayout(const QRect& rect, bool test_only) const;
     int smartSpacing(QStyle::PixelMetric pm) const;
     int itemTop(int row_top, int item_height, int row_height,

@@ -31,6 +31,9 @@ class LogisticDescriptives
     // the LogisticRegression class).
 
 public:
+    // "Invalid" initialization:
+    LogisticDescriptives();
+
     // Initialize from coefficients:
     LogisticDescriptives(const Eigen::VectorXd& coefficients);
     LogisticDescriptives(const QVector<qreal>& coefficients);
@@ -57,7 +60,6 @@ public:
     double x(double p) const;
 
 protected:
-    void commonConstructor();
     void setFromGlmCoefficients(double b0, double b1);
 
 protected:

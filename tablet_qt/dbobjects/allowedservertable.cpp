@@ -32,7 +32,9 @@ AllowedServerTable::AllowedServerTable(CamcopsApp& app, DatabaseManager& db) :
     DatabaseObject(app, db, ALLOWEDSERVERTABLES_TABLENAME, dbconst::PK_FIELDNAME,
                    true, false, false, false)
 {
-    commonConstructor();
+    // Define fields
+    addField(TABLENAME_FIELD, QVariant::String, true, true, false);  // unique
+    addField(VERSION_FIELD, convert::TYPENAME_VERSION, true, false, false);
 }
 
 
@@ -40,10 +42,8 @@ AllowedServerTable::AllowedServerTable(CamcopsApp& app, DatabaseManager& db) :
 AllowedServerTable::AllowedServerTable(CamcopsApp& app,
                                        DatabaseManager& db,
                                        const QString& tablename) :
-    DatabaseObject(app, db, ALLOWEDSERVERTABLES_TABLENAME, dbconst::PK_FIELDNAME,
-                   true, false, false, false)
+    AllowedServerTable(app, db)  // delegating constructor
 {
-    commonConstructor();
     if (!tablename.isEmpty()) {
         // Not a specimen; load
         WhereConditions where;
@@ -58,10 +58,8 @@ AllowedServerTable::AllowedServerTable(CamcopsApp& app,
                                        DatabaseManager& db,
                                        const QString& tablename,
                                        const Version& min_client_version) :
-    DatabaseObject(app, db, ALLOWEDSERVERTABLES_TABLENAME, dbconst::PK_FIELDNAME,
-                   true, false, false, false)
+    AllowedServerTable(app, db)  // delegating constructor
 {
-    commonConstructor();
     if (tablename.isEmpty()) {
         qWarning() << Q_FUNC_INFO << "Using the save-blindly constructor "
                                      "without a tablename!";
@@ -70,14 +68,6 @@ AllowedServerTable::AllowedServerTable(CamcopsApp& app,
     setValue(TABLENAME_FIELD, tablename);
     setValue(VERSION_FIELD, min_client_version.toVariant());
     save();
-}
-
-
-void AllowedServerTable::commonConstructor()
-{
-    // Define fields
-    addField(TABLENAME_FIELD, QVariant::String, true, true, false);  // unique
-    addField(VERSION_FIELD, convert::TYPENAME_VERSION, true, false, false);
 }
 
 

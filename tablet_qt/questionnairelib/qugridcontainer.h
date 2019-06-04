@@ -70,9 +70,6 @@ protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual QVector<QuElementPtr> subelements() const override;
 
-private:
-    void commonConstructor();
-
 protected:
     QVector<QuGridCell> m_cells;  // our cells
     QMap<int, int> m_column_stretch;  // maps column_index to relative_width

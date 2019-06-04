@@ -2114,13 +2114,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
 
-  .. todo:: IN PROGRESS +++
+  .. todo:: IN PROGRESS +++ a/w permission clarification
 
 - New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
   .. todo:: IN PROGRESS +++ a/w permission clarification
 
-- :ref:`Kirby delay discounting task <kirby>`
+- :ref:`Kirby delay discounting task <kirby_mcq>`
 
   .. todo:: IN PROGRESS +++
 

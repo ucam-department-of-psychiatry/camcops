@@ -24,36 +24,36 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuText::QuText(const QString& text) :
+QuText::QuText(const QString& text, FieldRefPtr fieldref) :
     m_text(text),
-    m_fieldref(nullptr)
+    m_fieldref(fieldref),
+    m_fontsize( uiconst::FontSize::Normal),
+    m_bold(false),
+    m_italic(false),
+    m_warning(false),
+    m_text_format(Qt::AutoText),
+    m_open_links(false),
+    m_text_alignment(Qt::AlignLeft | Qt::AlignVCenter),
+    m_label(nullptr),
+    m_forced_fontsize_pt(-1)
 {
-    commonConstructor();
+    if (fieldref) {
+        connect(m_fieldref.data(), &FieldRef::valueChanged,
+                this, &QuText::fieldValueChanged);
+    }
+}
+
+
+QuText::QuText(const QString& text) :
+    QuText(text, nullptr)  // delegating constructor
+{
 }
 
 
 QuText::QuText(FieldRefPtr fieldref) :
-    m_text(""),
-    m_fieldref(fieldref)
+    QuText("", fieldref)  // delegating constructor
 {
     Q_ASSERT(m_fieldref);
-    commonConstructor();
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuText::fieldValueChanged);
-}
-
-
-void QuText::commonConstructor()
-{
-    m_fontsize = uiconst::FontSize::Normal;
-    m_bold = false;
-    m_italic = false;
-    m_warning = false;
-    m_text_format = Qt::AutoText;
-    m_open_links = false;
-    m_text_alignment = Qt::AlignLeft | Qt::AlignVCenter;
-    m_label = nullptr;
-    m_forced_fontsize_pt = -1;
 }
 
 

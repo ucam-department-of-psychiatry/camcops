@@ -27,28 +27,21 @@
 
 
 GrowingPlainTextEdit::GrowingPlainTextEdit(QWidget* parent) :
-    QPlainTextEdit(parent)
+    QPlainTextEdit(parent),
+    m_auto_resize(true)
 {
-    commonConstructor();
+    connect(document(), &QTextDocument::contentsChanged,
+            this, &GrowingPlainTextEdit::contentsChanged);
+
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
 
 GrowingPlainTextEdit::GrowingPlainTextEdit(const QString& text,
                                            QWidget* parent) :
-    QPlainTextEdit(text, parent)
+    GrowingPlainTextEdit(parent)  // delegating constructor
 {
-    commonConstructor();
-}
-
-
-void GrowingPlainTextEdit::commonConstructor()
-{
-    m_auto_resize = true;
-
-    connect(document(), &QTextDocument::contentsChanged,
-            this, &GrowingPlainTextEdit::contentsChanged);
-
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    setPlainText(text);
 }
 
 

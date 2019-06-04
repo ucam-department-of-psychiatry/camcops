@@ -19,25 +19,24 @@
 
 #if 0
 
-#include "lynall2iam.h"
+#include "lynall2iamlife.h"
 #include "common/textconst.h"
 #include "lib/version.h"
 #include "tasklib/taskfactory.h"
 
 
-const QString Lynall2IamLifeEvents::LYNALL_2_IAM_LIFEEVENTS_TABLENAME(
-        "lynall_1_iam_medicalhistory");
+const QString Lynall2IamLife::LYNALL_2_IAM_LIFE_TABLENAME("lynall_2_iam_life");
 
 
-void initializeLynall2IamLifeEvents(TaskFactory& factory)
+void initializeLynall2IamLife(TaskFactory& factory)
 {
-    static TaskRegistrar<Lynall2IamLifeEvents> registered(factory);
+    static TaskRegistrar<Lynall2IamLife> registered(factory);
 }
 
 
-Lynall2IamLifeEvents::Lynall2IamLifeEvents(
+Lynall2IamLife::Lynall2IamLife(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, LYNALL_2_IAM_LIFEEVENTS_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, LYNALL_2_IAM_LIFE_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // *** add fields
 
@@ -49,31 +48,26 @@ Lynall2IamLifeEvents::Lynall2IamLifeEvents(
 // Class info
 // ============================================================================
 
-QString Lynall2IamLifeEvents::shortname() const
+QString Lynall2IamLife::shortname() const
 {
-    return "Lynall_2_LifeEvents";
+    return "Lynall_2_IAM_Life";
 }
 
 
-QString Lynall2IamLifeEvents::longname() const
+QString Lynall2IamLife::longname() const
 {
-    return "Lynall M-E — 2 — IAM — Life events";
+    return tr("Lynall M-E — 2 — IAM — Life events");
 }
 
 
-QString Lynall2IamLifeEvents::description() const
+QString Lynall2IamLife::description() const
 {
-    return "Life events questionnaire for IAM immunopsychiatry study.";
+    return tr("Life events questionnaire for IAM immunopsychiatry study.");
 }
 
 
-QString Lynall2IamLifeEvents::infoFilenameStem() const
-{
-    return "lynall_2";
-}
 
-
-Version Lynall2IamLifeEvents::minimumServerVersion() const
+Version Lynall2IamLife::minimumServerVersion() const
 {
     return Version(2, 3, 3);
 }
@@ -83,25 +77,25 @@ Version Lynall2IamLifeEvents::minimumServerVersion() const
 // Instance info
 // ============================================================================
 
-bool Lynall2IamLifeEvents::isComplete() const
+bool Lynall2IamLife::isComplete() const
 {
     // ***
 }
 
 
-QStringList Lynall2IamLifeEvents::summary() const
+QStringList Lynall2IamLife::summary() const
 {
-    return QStringList{textconst::NO_SUMMARY_SEE_FACSIMILE()};
+    return QStringList{textconst.noSummarySeeFacsimile()};
 }
 
 
-QStringList Lynall2IamLifeEvents::detail() const
+QStringList Lynall2IamLife::detail() const
 {
-    // ***
+    return QStringList{textconst.noDetailSeeFacsimile()};
 }
 
 
-OpenableWidget* Lynall2IamLifeEvents::editor(const bool read_only)
+OpenableWidget* Lynall2IamLife::editor(const bool read_only)
 {
     // ***
 }
@@ -111,7 +105,7 @@ OpenableWidget* Lynall2IamLifeEvents::editor(const bool read_only)
 // Signal handlers
 // ============================================================================
 
-void Lynall2IamLifeEvents::updateMandatory()
+void Lynall2IamLife::updateMandatory()
 {
     // ***
 }

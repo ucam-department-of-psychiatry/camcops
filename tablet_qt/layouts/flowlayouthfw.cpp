@@ -72,24 +72,16 @@ FlowLayoutHfw::FlowLayoutHfw(QWidget* parent, const int margin,
     m_h_space(h_spacing),
     m_v_space(v_spacing)
 {
-    commonConstructor(margin);
+    setContentsMargins(margin, margin, margin, margin);
+    m_halign = Qt::AlignLeft;
 }
 
 
 FlowLayoutHfw::FlowLayoutHfw(const int margin,
                              const int h_spacing,
                              const int v_spacing) :
-    m_h_space(h_spacing),
-    m_v_space(v_spacing)
+    FlowLayoutHfw(nullptr, margin, h_spacing, v_spacing)  // delegating constructor
 {
-    commonConstructor(margin);
-}
-
-
-void FlowLayoutHfw::commonConstructor(const int margin)
-{
-    setContentsMargins(margin, margin, margin, margin);
-    m_halign = Qt::AlignLeft;
 }
 
 

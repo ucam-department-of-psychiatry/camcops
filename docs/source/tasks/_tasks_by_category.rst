@@ -316,7 +316,7 @@ These are well known or fairly generic:
 - :ref:`Diagnostic coding, ICD-9-CM codes (compatible with DSM-IV-TR)
   <diagnosis_icd9cm>`
 
-- :ref:`Kirby Monetary Choice Questionnaire <kirby>`
+- :ref:`Kirby Monetary Choice Questionnaire <kirby_mcq>`
 
 - :ref:`Quality of Life: time trade-off and rating scale <qol_basic>`
 

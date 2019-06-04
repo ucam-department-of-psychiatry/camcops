@@ -27,26 +27,25 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuHeading::QuHeading(const QString& text) :
-    QuText(text)
-{
-    commonConstructor();
-}
-
-
-QuHeading::QuHeading(FieldRefPtr fieldref) :
-    QuText(fieldref)
-{
-    commonConstructor();
-}
-
-
-void QuHeading::commonConstructor()
+QuHeading::QuHeading(const QString& text, FieldRefPtr fieldref) :
+    QuText(text, fieldref)  // uses protected constructor of base class
 {
     m_fontsize = uiconst::FontSize::Heading;
     m_bold = false;
     setWidgetAlignment(Qt::Alignment());
     // ... makes it span the full width of the page.
+}
+
+
+QuHeading::QuHeading(const QString& text) :
+    QuHeading(text, nullptr)
+{
+}
+
+
+QuHeading::QuHeading(FieldRefPtr fieldref) :
+    QuText("", fieldref)
+{
 }
 
 

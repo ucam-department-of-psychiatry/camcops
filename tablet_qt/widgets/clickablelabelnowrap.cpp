@@ -30,29 +30,22 @@
 
 ClickableLabelNoWrap::ClickableLabelNoWrap(const QString& text,
                                            QWidget* parent) :
-    QPushButton(parent),
-    m_label(new QLabel(text, this))
+    ClickableLabelNoWrap(parent)  // delegating constructor
 {
-    commonConstructor();
+    m_label->setText(text);  // this is what the QLabel(text, parent) constructor does
 }
 
 
 ClickableLabelNoWrap::ClickableLabelNoWrap(QWidget* parent) :
     QPushButton(parent),
-    m_label(new QLabel(this))
-{
-    commonConstructor();
-}
-
-
-void ClickableLabelNoWrap::commonConstructor()
+    m_label(new QLabel(this)),
+    m_layout(new QVBoxLayout())
 {
     m_label->setMouseTracking(false);
     m_label->setTextInteractionFlags(Qt::NoTextInteraction);
     m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     // m_label->setObjectName(CssConst::DEBUG_GREEN);
 
-    m_layout = new QVBoxLayout();
     m_layout->setContentsMargins(uiconst::NO_MARGINS);
 
     m_layout->addWidget(m_label);
@@ -66,14 +59,12 @@ void ClickableLabelNoWrap::commonConstructor()
 
 void ClickableLabelNoWrap::setTextFormat(const Qt::TextFormat format)
 {
-    Q_ASSERT(m_label);
     m_label->setTextFormat(format);
 }
 
 
 void ClickableLabelNoWrap::setWordWrap(const bool on)
 {
-    Q_ASSERT(m_label);
     m_label->setWordWrap(on);
     updateGeometry();
 }
@@ -81,8 +72,6 @@ void ClickableLabelNoWrap::setWordWrap(const bool on)
 
 void ClickableLabelNoWrap::setAlignment(const Qt::Alignment alignment)
 {
-    Q_ASSERT(m_label);
-    Q_ASSERT(m_layout);
     m_label->setAlignment(alignment);
     m_layout->setAlignment(m_label, alignment);
 }
@@ -90,14 +79,12 @@ void ClickableLabelNoWrap::setAlignment(const Qt::Alignment alignment)
 
 void ClickableLabelNoWrap::setOpenExternalLinks(const bool open)
 {
-    Q_ASSERT(m_label);
     m_label->setOpenExternalLinks(open);
 }
 
 
 void ClickableLabelNoWrap::setPixmap(const QPixmap& pixmap)
 {
-    Q_ASSERT(m_label);
     m_label->setPixmap(pixmap);
     setFixedSize(pixmap.size());
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -107,7 +94,6 @@ void ClickableLabelNoWrap::setPixmap(const QPixmap& pixmap)
 
 QSize ClickableLabelNoWrap::sizeHint() const
 {
-    Q_ASSERT(m_label);
     ensurePolished();
     QStyleOptionButton opt;
     initStyleOption(&opt);  // protected

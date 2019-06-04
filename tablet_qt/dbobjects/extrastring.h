@@ -78,7 +78,4 @@ public:
     static const QString NAME_FIELD;
     static const QString LANGUAGE_FIELD;
     static const QString VALUE_FIELD;
-
-protected:
-    void commonConstructor();
 };

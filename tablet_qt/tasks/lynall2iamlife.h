@@ -27,14 +27,14 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializeLynall2IamLifeEvents(TaskFactory& factory);
+void initializeLynall2IamLife(TaskFactory& factory);
 
 
-class Lynall2IamLifeEvents : public Task
+class Lynall2IamLife : public Task
 {
     Q_OBJECT
 public:
-    Lynall2IamLifeEvents(CamcopsApp& app, DatabaseManager& db,
+    Lynall2IamLife(CamcopsApp& app, DatabaseManager& db,
                          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -42,8 +42,6 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    QString infoFilenameStem() const override;
-    virtual bool isCrippled() const override { return false; }
     virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
@@ -62,7 +60,7 @@ signals:
 public slots:
     void updateMandatory();
 public:
-    static const QString LYNALL_2_IAM_LIFEEVENTS_TABLENAME;
+    static const QString LYNALL_2_IAM_LIFE_TABLENAME;
 };
 
 #endif

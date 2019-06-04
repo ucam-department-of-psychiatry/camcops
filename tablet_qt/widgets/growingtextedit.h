@@ -49,10 +49,6 @@ public:
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
 
-protected:
-    // Common constructor.
-    void commonConstructor();
-
 protected slots:
     // "The contents of the text editor has changed."
     void contentsChanged();

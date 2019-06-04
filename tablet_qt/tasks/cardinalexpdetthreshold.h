@@ -31,7 +31,6 @@ class QTimer;
 class TaskFactory;
 
 class CardinalExpDetThresholdTrial;
-using CardinalExpDetThresholdTrialPtr = QSharedPointer<CardinalExpDetThresholdTrial>;
 
 void initializeCardinalExpDetThreshold(TaskFactory& factory);
 
@@ -42,6 +41,8 @@ class CardinalExpDetThreshold : public Task
     using FuncPtr = void (CardinalExpDetThreshold::*)();
     // ... a pointer to a member function of CardinalExpDetThreshold that takes
     // no parameters and returns void
+    using CardinalExpDetThresholdTrialPtr = QSharedPointer<CardinalExpDetThresholdTrial>;
+
 public:
     CardinalExpDetThreshold(CamcopsApp& app, DatabaseManager& db,
                             int load_pk = dbconst::NONEXISTENT_PK);

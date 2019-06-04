@@ -17,73 +17,29 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if 0
-
 #include "kirby.h"
 #include "common/textconst.h"
+#include "db/ancillaryfunc.h"
 #include "lib/version.h"
 #include "tasklib/taskfactory.h"
-
-
-const QString Kirby::KIRBY_TABLENAME("kirby");
-const QString CURRENCY("£");  // Make configurable? Read local currency?
+#include "../taskxtra/kirbyrewardpair.h"
+#include "../taskxtra/kirbytrial.h"
 
 
 // ============================================================================
-// Pair class
+// Constants
 // ============================================================================
 
-class KirbyRewardPair
+const QString Kirby::KIRBY_TABLENAME("kirby_mcq");
+
+
+// ============================================================================
+// Factory function
+// ============================================================================
+
+void initializeKirby(TaskFactory& factory)
 {
-public:
-    KirbyRewardPair(int sir, int ldr, int delay_days);
-
-    // Implied value of k if indifferent, according to V = A(1 + kD)
-    // where A is amount and D is delay. The units of k are days ^ -1.
-    double kIndifference() const;
-
-    // Return the question.
-    QString question() const;
-
-    int sir;  // small immediate reward
-    int ldr;  // large delayed reward
-    int delay_days;
-};
-
-
-KirbyRewardPair::KirbyRewardPair(const int sir, const int ldr,
-                                 const int delay_days) :
-    sir(sir),
-    ldr(ldr),
-    delay_days(delay_days)
-{
-}
-
-
-double KirbyRewardPair::kIndifference() const
-{
-    const double a1 = sir;  // amount A1, which is immediate i.e. delay D1 = 0
-    const double a2 = ldr;  // amount A2; A2 > A1
-    const double d2 = delay_days;  // delay D2
-    // Values:
-    //      V1 = A1/(1 + kD1) = A1
-    //      V2 = A2/(1 + kD2)
-    // At indifference,
-    //      V1 = V2
-    // so
-    //      A1      = A2/(1 + kD2)
-    //      A2 / A1 = 1 + kD2
-    // k = ((A2 / A1) - 1) / D2
-    return ((a2 / a1) - 1) / d2;
-}
-
-
-QString KirbyRewardPair::question() const
-{
-    return QString("Would you prefer %1%2 today, or %1%3 in %4 days?")
-            .arg(CURRENCY, QString::number(sir),
-                 CURRENCY, QString::number(ldr),
-                 QString::number(delay_days));
+    static TaskRegistrar<Kirby> registered(factory);
 }
 
 
@@ -125,16 +81,7 @@ const QVector<KirbyRewardPair> TRIALS{
     {22, 25, 136},
     {20, 55, 7},
 };
-
-
-// ============================================================================
-// Factory function
-// ============================================================================
-
-void initializeKirby(TaskFactory& factory)
-{
-    static TaskRegistrar<Kirby> registered(factory);
-}
+const int TOTAL_N_TRIALS = TRIALS.size();  // 27
 
 
 // ============================================================================
@@ -179,24 +126,68 @@ Version Kirby::minimumServerVersion() const
 
 
 // ============================================================================
+// Ancillary management
+// ============================================================================
+
+QStringList Kirby::ancillaryTables() const
+{
+    return QStringList{KirbyTrial::KIRBY_TRIAL_TABLENAME};
+}
+
+
+QString Kirby::ancillaryTableFKToTaskFieldname() const
+{
+    return KirbyTrial::FN_FK_TO_TASK;
+}
+
+
+void Kirby::loadAllAncillary(const int pk)
+{
+    const OrderBy order_by{{KirbyTrial::FN_TRIAL, true}};
+    ancillaryfunc::loadAncillary<KirbyTrial, KirbyTrialPtr>(
+                m_trials, m_app, m_db,
+                KirbyTrial::FN_FK_TO_TASK, order_by, pk);
+}
+
+
+QVector<DatabaseObjectPtr> Kirby::getAncillarySpecimens() const
+{
+    return QVector<DatabaseObjectPtr>{
+        KirbyTrialPtr(new KirbyTrial(m_app, m_db)),
+    };
+}
+
+
+QVector<DatabaseObjectPtr> Kirby::getAllAncillary() const
+{
+    QVector<DatabaseObjectPtr> ancillaries;
+    for (const KirbyTrialPtr& trial : m_trials) {
+        ancillaries.append(trial);
+    }
+    return ancillaries;
+}
+
+
+// ============================================================================
 // Instance info
 // ============================================================================
 
 bool Kirby::isComplete() const
 {
-    // ***
+    return false; // ***
+    // return valueBool(FN_FINISHED);
 }
 
 
 QStringList Kirby::summary() const
 {
-    return QStringList{textconst::NO_SUMMARY_SEE_FACSIMILE()};
+    return QStringList(); // ***
 }
 
 
 QStringList Kirby::detail() const
 {
-    // ***
+    return QStringList(); // ***
 }
 
 
@@ -206,6 +197,6 @@ OpenableWidget* Kirby::editor(const bool read_only)
 
     // *** see also text at https://www.gem-beta.org/public/DownloadMeasure.aspx?mdocid=472
 
+    Q_UNUSED(read_only);
+    return nullptr; // ***
 }
-
-#endif

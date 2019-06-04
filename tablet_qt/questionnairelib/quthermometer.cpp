@@ -36,35 +36,27 @@ const int DEFAULT_TEXT_GAP_PX = 5;
 QuThermometer::QuThermometer(FieldRefPtr fieldref,
                              const QVector<QuThermometerItem>& items) :
     m_fieldref(fieldref),
-    m_items(items)
-{
-    commonConstructor();
-}
-
-
-QuThermometer::QuThermometer(FieldRefPtr fieldref,
-                             std::initializer_list<QuThermometerItem> items) :
-    m_fieldref(fieldref),
-    m_items(items)
-{
-    commonConstructor();
-}
-
-
-void QuThermometer::commonConstructor()
-{
-    m_rescale = false;
-    m_rescale_factor = 0;
+    m_items(items),
+    m_rescale(false),
+    m_rescale_factor(0),
 #ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
-    m_thermometer = nullptr;
+    m_thermometer(nullptr)
 #else
-    m_main_widget = nullptr;
+    m_main_widget(nullptr)
 #endif
+{
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuThermometer::fieldValueChanged);
     connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
             this, &QuThermometer::fieldValueChanged);
+}
+
+
+QuThermometer::QuThermometer(FieldRefPtr fieldref,
+                             std::initializer_list<QuThermometerItem> items) :
+    QuThermometer(fieldref, QVector<QuThermometerItem>(items))  // delegating constructor
+{
 }
 
 

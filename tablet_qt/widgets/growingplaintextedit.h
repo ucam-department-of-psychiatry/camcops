@@ -34,8 +34,6 @@ public:
     void setAutoResize(bool auto_resize);
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
-protected:
-    void commonConstructor();
 protected slots:
     void contentsChanged();
 protected:

@@ -88,20 +88,14 @@
 
 
 LabelWordWrapWide::LabelWordWrapWide(const QString& text, QWidget* parent) :
-    QLabel(text, parent)
+    LabelWordWrapWide(parent)  // delegating constructor
 {
-    commonConstructor();
+    setText(text);  // this is what the QLabel(text, parent) constructor does
 }
 
 
 LabelWordWrapWide::LabelWordWrapWide(QWidget* parent) :
     QLabel(parent)
-{
-    commonConstructor();
-}
-
-
-void LabelWordWrapWide::commonConstructor()
 {
     setWordWrap(true);  // will also do setHeightForWidth(true);
 #ifdef GUI_USE_RESIZE_FOR_HEIGHT

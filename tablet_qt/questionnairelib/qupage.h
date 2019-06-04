@@ -130,8 +130,6 @@ public slots:
     QuPage* setSkip(bool skip = true);
 
 protected:
-    void commonConstructor();
-
     // Returns this page's widget.
     QPointer<QWidget> widget(Questionnaire* questionnaire) const;
 

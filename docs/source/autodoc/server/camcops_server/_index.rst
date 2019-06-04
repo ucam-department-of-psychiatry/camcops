@@ -54,6 +54,7 @@ server/camcops_server
     alembic/versions/0022_index_exported_tasks_start_at.py.rst
     alembic/versions/0023_comments.py.rst
     alembic/versions/0024_user_language.py.rst
+    alembic/versions/0025_lynall_1_iam_medical.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -116,6 +117,7 @@ server/camcops_server
     cc_modules/cc_taskfilter.py.rst
     cc_modules/cc_taskindex.py.rst
     cc_modules/cc_taskreports.py.rst
+    cc_modules/cc_text.py.rst
     cc_modules/cc_tracker.py.rst
     cc_modules/cc_trackerhelpers.py.rst
     cc_modules/cc_tsv.py.rst
@@ -130,7 +132,6 @@ server/camcops_server
     cc_modules/webview.py.rst
     discarded_upgrade_code.py.rst
     extra_string_templates/BLANK_TEMPLATE.xml.rst
-    extra_string_templates/apeqpt_TEMPLATE.xml.rst
     extra_string_templates/badls_TEMPLATE.xml.rst
     extra_string_templates/ctqsf_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
@@ -149,6 +150,7 @@ server/camcops_server
     extra_string_templates/zbi12_TEMPLATE.xml.rst
     extra_strings/ace3.xml.rst
     extra_strings/aims.xml.rst
+    extra_strings/apeqpt.xml.rst
     extra_strings/audit.xml.rst
     extra_strings/bmi.xml.rst
     extra_strings/bprs.xml.rst
@@ -198,6 +200,7 @@ server/camcops_server
     extra_strings/ided3d.xml.rst
     extra_strings/irac.xml.rst
     extra_strings/khandaker_1_medicalhistory.xml.rst
+    extra_strings/lynall_1_iam_medical.xml.rst
     extra_strings/mast.xml.rst
     extra_strings/moca.xml.rst
     extra_strings/panss.xml.rst
@@ -275,9 +278,9 @@ server/camcops_server
     tasks/ifs.py.rst
     tasks/irac.py.rst
     tasks/khandaker_1_medicalhistory.py.rst
-    tasks/kirby.py.rst
-    tasks/lynall_1_iam.py.rst
-    tasks/lynall_2_iam.py.rst
+    tasks/kirby_mcq.py.rst
+    tasks/lynall_1_iam_medical.py.rst
+    tasks/lynall_2_iam_life.py.rst
     tasks/mast.py.rst
     tasks/mds_updrs.py.rst
     tasks/moca.py.rst

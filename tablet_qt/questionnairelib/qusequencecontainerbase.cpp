@@ -37,28 +37,30 @@ const Qt::Alignment QuSequenceContainerBase::DefaultWidgetAlignment =
 // - http://en.cppreference.com/w/cpp/language/default_arguments
 
 
+QuSequenceContainerBase::QuSequenceContainerBase(
+        const QVector<QuElementPtr>& elements) :
+    m_elements(elements),
+    m_override_widget_alignment(true)
+{
+}
+
+
 QuSequenceContainerBase::QuSequenceContainerBase() :
-    m_override_widget_alignment(true)
+    QuSequenceContainerBase(QVector<QuElementPtr>())  // delegating constructor
 {
 }
 
 
-QuSequenceContainerBase::QuSequenceContainerBase(const QVector<QuElementPtr>& elements) :
-    m_elements(elements),
-    m_override_widget_alignment(true)
+QuSequenceContainerBase::QuSequenceContainerBase(
+        std::initializer_list<QuElementPtr> elements) :
+    QuSequenceContainerBase(QVector<QuElementPtr>(elements))  // delegating constructor
 {
 }
 
 
-QuSequenceContainerBase::QuSequenceContainerBase(std::initializer_list<QuElementPtr> elements) :
-    m_elements(elements),
-    m_override_widget_alignment(true)
-{
-}
-
-
-QuSequenceContainerBase::QuSequenceContainerBase(std::initializer_list<QuElement*> elements) :
-    m_override_widget_alignment(true)
+QuSequenceContainerBase::QuSequenceContainerBase(
+        std::initializer_list<QuElement*> elements) :
+    QuSequenceContainerBase()  // delegating constructor
 {
     for (auto e : elements) {
         addElement(e);

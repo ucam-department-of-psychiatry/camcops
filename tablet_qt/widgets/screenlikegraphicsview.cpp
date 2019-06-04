@@ -28,25 +28,19 @@
 ScreenLikeGraphicsView::ScreenLikeGraphicsView(QWidget* parent) :
     QGraphicsView(parent)
 {
-    commonConstructor();
-}
-
-
-ScreenLikeGraphicsView::ScreenLikeGraphicsView(QGraphicsScene* scene,
-                                               QWidget* parent) :
-    QGraphicsView(scene, parent)
-{
-    commonConstructor();
-}
-
-
-void ScreenLikeGraphicsView::commonConstructor()
-{
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setBackgroundBrush(QCOLOR_BLACK);
     setFrameShape(QFrame::NoFrame);
+}
+
+
+ScreenLikeGraphicsView::ScreenLikeGraphicsView(QGraphicsScene* scene,
+                                               QWidget* parent) :
+    ScreenLikeGraphicsView(parent)  // delegating constructor
+{
+    setScene(scene);  // this is what QGraphicsView(scene, parent) does internally
 }
 
 

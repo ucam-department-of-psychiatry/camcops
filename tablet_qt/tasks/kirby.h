@@ -17,8 +17,6 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if 0
-
 #pragma once
 #include <QString>
 #include "tasklib/task.h"
@@ -27,12 +25,17 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
+class KirbyRewardPair;
+class KirbyTrial;
+
+
 void initializeKirby(TaskFactory& factory);
 
 
 class Kirby : public Task
 {
     Q_OBJECT
+    using KirbyTrialPtr = QSharedPointer<KirbyTrial>;
 public:
     Kirby(CamcopsApp& app, DatabaseManager& db,
           int load_pk = dbconst::NONEXISTENT_PK);
@@ -45,6 +48,14 @@ public:
     virtual bool isCrippled() const override { return false; }
     virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
+    // Ancillary management
+    // ------------------------------------------------------------------------
+    virtual QStringList ancillaryTables() const override;
+    virtual QString ancillaryTableFKToTaskFieldname() const override;
+    virtual void loadAllAncillary(int pk) override;
+    virtual QVector<DatabaseObjectPtr> getAncillarySpecimens() const override;
+    virtual QVector<DatabaseObjectPtr> getAllAncillary() const override;
+    // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
     virtual bool isComplete() const override;
@@ -54,8 +65,14 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // Data
+    // ------------------------------------------------------------------------
+protected:
+    QVector<KirbyTrialPtr> m_trials;
+    // ------------------------------------------------------------------------
+    // Constants
+    // ------------------------------------------------------------------------
 public:
     static const QString KIRBY_TABLENAME;
 };
-
-#endif

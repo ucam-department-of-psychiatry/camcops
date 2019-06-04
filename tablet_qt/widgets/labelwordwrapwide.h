@@ -68,9 +68,6 @@ public slots:
     void setText(const QString& text);
 
 protected:
-    // Common constructor function.
-    void commonConstructor();
-
     // Returns the height of our text, given a width.
     int qlabelHeightForWidth(int width) const;
 

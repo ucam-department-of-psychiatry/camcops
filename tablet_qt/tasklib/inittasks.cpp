@@ -237,10 +237,10 @@ void InitTasks(TaskFactory& factory)
     initializeIrac(factory);
 
     initializeKhandaker1MedicalHistory(factory);
-    // *** // initializeKirby(factory);
+    initializeKirby(factory);
 
-    initializeLynall1IamMedicalHistory(factory);
-    // *** // initializeLynall2IamLifeEvents(factory);
+    initializeLynall1IamMedical(factory);
+    // *** // initializeLynall2IamLife(factory);
 
     initializeMast(factory);
     initializeMdsUpdrs(factory);

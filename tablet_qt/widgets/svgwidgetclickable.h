@@ -74,9 +74,6 @@ public:
     void setTransparentForMouseEvents(bool transparent);
 
 protected:
-    // Common constructor
-    void commonConstructor();
-
     // Standard Qt widget overrides.
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseMoveEvent(QMouseEvent* event) override;

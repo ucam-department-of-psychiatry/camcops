@@ -61,8 +61,6 @@ public:
                               bool adjust_for_dpi = true);
 
 protected:
-    void commonConstructor();
-
     // Sets the widget state from our fieldref.
     void setFromField();
 

@@ -260,9 +260,6 @@ signals:
     void completed();
 
 protected:
-    // Tasks common to all constructors.
-    void commonConstructor();
-
     // Called by build(); overridden in DynamicQuestionnaire.
     virtual void addFirstDynamicPage();
 

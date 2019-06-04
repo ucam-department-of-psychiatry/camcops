@@ -46,79 +46,62 @@
 
 
 Questionnaire::Questionnaire(CamcopsApp& app) :
-    m_app(app)
+    Questionnaire(app, QVector<QuPagePtr>())  // delegating constructor
 {
-    commonConstructor();
 }
 
 
 Questionnaire::Questionnaire(CamcopsApp& app,
                              const QVector<QuPagePtr>& pages) :
     m_app(app),
-    m_pages(pages)
+    m_pages(pages),
+    m_type(QuPage::PageType::Patient),
+    m_read_only(false),
+    m_jump_allowed(true),
+    m_within_chain(false),
+    m_built(false),
+#ifdef QUESTIONAIRE_USE_HFW_LAYOUT
+    m_outer_layout(new VBoxLayout()),
+#else
+    m_outer_layout(new QVBoxLayout()),
+#endif
+    m_current_page_index(0)  // starting page
 {
-    commonConstructor();
-}
-
-
-Questionnaire::Questionnaire(CamcopsApp& app,
-                             std::initializer_list<QuPagePtr> pages) :
-    m_app(app),
-    m_pages(pages)
-{
-    commonConstructor();
-}
-
-
-Questionnaire::Questionnaire(CamcopsApp& app,
-                             const QVector<QuPage*> pages) :
-    m_app(app)
-{
-    for (auto p : pages) {
-        addPage(p);
-    }
-    commonConstructor();
-}
-
-
-Questionnaire::Questionnaire(CamcopsApp& app,
-                             std::initializer_list<QuPage*> pages) :
-    m_app(app)
-{
-    for (auto p : pages) {
-        addPage(p);
-    }
-    commonConstructor();
-}
-
-
-void Questionnaire::commonConstructor()
-{
-    m_type = QuPage::PageType::Patient;
-    m_read_only = false;
-    m_jump_allowed = true;
-    m_within_chain = false;
-
-    m_built = false;
-    m_current_page_index = 0;  // starting page
-
     setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
 
-#ifdef QUESTIONAIRE_USE_HFW_LAYOUT
-    m_outer_layout = new VBoxLayout();
-#else
-    m_outer_layout = new QVBoxLayout();
-#endif
     setLayout(m_outer_layout);
     // You can't reset the outer layout for a widget, I think. You get:
     //      QWidget::setLayout: Attempting to set QLayout "" on Questionnaire
     //      "", which already has a layout
 
-    m_background_widget = nullptr;
-    m_mainlayout = nullptr;
-    m_p_header = nullptr;
-
     setEscapeKeyCanAbort(false);
+}
+
+
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             std::initializer_list<QuPagePtr> pages) :
+    Questionnaire(app, QVector<QuPagePtr>(pages))  // delegating constructor
+{
+}
+
+
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             const QVector<QuPage*> pages) :
+    Questionnaire(app, QVector<QuPagePtr>())  // delegating constructor
+{
+    for (auto p : pages) {
+        addPage(p);
+    }
+}
+
+
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             std::initializer_list<QuPage*> pages) :
+    Questionnaire(app, QVector<QuPagePtr>())  // delegating constructor
+{
+    for (auto p : pages) {
+        addPage(p);
+    }
 }
 
 

@@ -112,8 +112,6 @@ public slots:
     QuMultipleResponse* setMaximumAnswers(int maximum_answers);
 
 protected:
-    void commonConstructor();
-
     // Set widget state from field data.
     void setFromFields();
 

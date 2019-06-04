@@ -26,32 +26,32 @@
 #include "widgets/aspectratiopixmap.h"
 
 
-QuImage::QuImage(const QString& filename, const QSize& size) :
+QuImage::QuImage(const QString& filename, FieldRefPtr fieldref,
+                 const QSize& size) :
     m_filename(filename),
-    m_fieldref(nullptr),
-    m_size(size)
+    m_fieldref(fieldref),
+    m_label(nullptr),
+    m_size(size),
+    m_adjust_for_dpi(true),
+    m_allow_shrink(true)
 {
-    commonConstructor();
+    if (fieldref) {
+        connect(m_fieldref.data(), &FieldRef::valueChanged,
+                this, &QuImage::valueChanged);
+    }
+}
+
+
+QuImage::QuImage(const QString& filename, const QSize& size) :
+    QuImage(filename, nullptr, size)  // delegating constructor
+{
 }
 
 
 QuImage::QuImage(FieldRefPtr fieldref, const QSize& size) :
-    m_filename(""),
-    m_fieldref(fieldref),
-    m_size(size)
+    QuImage("", fieldref, size)  // delegating constructor
 {
     Q_ASSERT(m_fieldref);
-    commonConstructor();
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuImage::valueChanged);
-}
-
-
-void QuImage::commonConstructor()
-{
-    m_label = nullptr;
-    m_adjust_for_dpi = true;
-    m_allow_shrink = true;
 }
 
 

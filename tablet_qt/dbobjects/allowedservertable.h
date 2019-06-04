@@ -62,8 +62,4 @@ public:
 public:
     static const QString TABLENAME_FIELD;
     static const QString VERSION_FIELD;
-
-protected:
-    // Common constructor
-    void commonConstructor();
 };

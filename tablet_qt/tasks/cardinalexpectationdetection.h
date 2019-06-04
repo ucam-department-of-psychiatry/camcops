@@ -30,8 +30,8 @@ class QTimer;
 class TaskFactory;
 
 class CardinalExpDetTrial;
-using CardinalExpDetTrialPtr = QSharedPointer<CardinalExpDetTrial>;
 class CardinalExpDetTrialGroupSpec;
+using CardinalExpDetTrialPtr = QSharedPointer<CardinalExpDetTrial>;
 using CardinalExpDetTrialGroupSpecPtr = QSharedPointer<CardinalExpDetTrialGroupSpec>;
 
 void initializeCardinalExpectationDetection(TaskFactory& factory);
@@ -43,6 +43,7 @@ class CardinalExpectationDetection : public Task
     using FuncPtr = void (CardinalExpectationDetection::*)();
     // ... a pointer to a member function of CardinalExpectationDetection that
     // takes no parameters and returns void
+
 public:
     CardinalExpectationDetection(CamcopsApp& app, DatabaseManager& db,
                                  int load_pk = dbconst::NONEXISTENT_PK);

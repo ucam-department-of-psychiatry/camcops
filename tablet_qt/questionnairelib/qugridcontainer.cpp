@@ -97,23 +97,24 @@ What does not work properly:
 */
 
 
-QuGridContainer::QuGridContainer()
+QuGridContainer::QuGridContainer() :
+    QuGridContainer(QVector<QuGridCell>())  // delegating constructor
 {
-    commonConstructor();
 }
 
 
 QuGridContainer::QuGridContainer(const QVector<QuGridCell>& cells) :
-    m_cells(cells)
+    m_cells(cells),
+    m_expand(true),
+    m_fixed_grid(true)
+
 {
-    commonConstructor();
 }
 
 
 QuGridContainer::QuGridContainer(std::initializer_list<QuGridCell> cells) :
-    m_cells(cells)
+    QuGridContainer(QVector<QuGridCell>(cells))  // delegating constructor
 {
-    commonConstructor();
 }
 
 
@@ -140,48 +141,41 @@ void constructFromElementList(const int n_columns,
 
 QuGridContainer::QuGridContainer(const int n_columns,
                                  const QVector<QuElementPtr>& elements,
-                                 const bool override_element_alignment)
+                                 const bool override_element_alignment) :
+    QuGridContainer(QVector<QuGridCell>())  // delegating constructor
 {
     constructFromElementList(n_columns, elements, override_element_alignment,
                              m_cells);
-    commonConstructor();
 }
 
 
 QuGridContainer::QuGridContainer(const int n_columns,
                                  const QVector<QuElement*>& elements,
-                                 const bool override_element_alignment)
+                                 const bool override_element_alignment) :
+    QuGridContainer(QVector<QuGridCell>())  // delegating constructor
 {
     constructFromElementList(n_columns, elements, override_element_alignment,
                              m_cells);
-    commonConstructor();
 }
 
 
 QuGridContainer::QuGridContainer(const int n_columns,
                                  std::initializer_list<QuElementPtr> elements,
-                                 const bool override_element_alignment)
+                                 const bool override_element_alignment) :
+    QuGridContainer(QVector<QuGridCell>())  // delegating constructor
 {
     constructFromElementList(n_columns, elements, override_element_alignment,
                              m_cells);
-    commonConstructor();
 }
 
 
 QuGridContainer::QuGridContainer(const int n_columns,
                                  std::initializer_list<QuElement*> elements,
-                                 const bool override_element_alignment)
+                                 const bool override_element_alignment) :
+    QuGridContainer(QVector<QuGridCell>())  // delegating constructor
 {
     constructFromElementList(n_columns, elements, override_element_alignment,
                              m_cells);
-    commonConstructor();
-}
-
-
-void QuGridContainer::commonConstructor()
-{
-    m_expand = true;
-    m_fixed_grid = true;
 }
 
 

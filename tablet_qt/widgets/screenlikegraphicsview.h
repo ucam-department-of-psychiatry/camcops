@@ -47,9 +47,6 @@ public:
     virtual void showEvent(QShowEvent* event) override;
 
 protected:
-    // Common constructor function.
-    void commonConstructor();
-
 #ifdef SCREENLIKEGRAPHICSVIEW_REDO_FIT_IN_VIEW
     // Not currently used.
     void fitInView2(

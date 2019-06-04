@@ -30,6 +30,11 @@ class QuText : public QuElement
     // Provides static text, or text from a field.
 
     Q_OBJECT
+
+protected:
+    // Protected constructor, used internally and by derived classes.
+    QuText(const QString& text, FieldRefPtr fieldref);
+
 public:
 
     // Constructor for static text.
@@ -63,7 +68,6 @@ public:
     friend class SettingsMenu;
 
 protected:
-    void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 
     // Force the font size manually. For SettingsMenu only, to demonstrate

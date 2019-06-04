@@ -37,7 +37,7 @@
 #include "questionnairelib/qutextedit.h"
 
 
-const QString Lynall1IamMedicalHistory::LYNALL_1_IAM_MEDICALHISTORY_TABLENAME(
+const QString Lynall1IamMedical::LYNALL_1_IAM_MEDICAL_TABLENAME(
         "lynall_1_iam_medical");
 
 // "Sx" symptoms; "PH" personal history; "FH" family history
@@ -111,15 +111,15 @@ const QString TAG_13F("13F");
 const QString TAG_13G("13G");
 
 
-void initializeLynall1IamMedicalHistory(TaskFactory& factory)
+void initializeLynall1IamMedical(TaskFactory& factory)
 {
-    static TaskRegistrar<Lynall1IamMedicalHistory> registered(factory);
+    static TaskRegistrar<Lynall1IamMedical> registered(factory);
 }
 
 
-Lynall1IamMedicalHistory::Lynall1IamMedicalHistory(
+Lynall1IamMedical::Lynall1IamMedical(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, LYNALL_1_IAM_MEDICALHISTORY_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, LYNALL_1_IAM_MEDICAL_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(FN_Q1_AGE_FIRST_INFLAMMATORY_SX, QVariant::Int);
     addField(FN_Q2_WHEN_PSYCH_SX_STARTED, QVariant::Int);
@@ -170,25 +170,25 @@ Lynall1IamMedicalHistory::Lynall1IamMedicalHistory(
 // Class info
 // ============================================================================
 
-QString Lynall1IamMedicalHistory::shortname() const
+QString Lynall1IamMedical::shortname() const
 {
     return "Lynall_1_IAM_Medical";
 }
 
 
-QString Lynall1IamMedicalHistory::longname() const
+QString Lynall1IamMedical::longname() const
 {
-    return "Lynall M-E — 1 — IAM — Medical history";
+    return tr("Lynall M-E — 1 — IAM — Medical history");
 }
 
 
-QString Lynall1IamMedicalHistory::description() const
+QString Lynall1IamMedical::description() const
 {
-    return "Medical history details for IAM immunopsychiatry study.";
+    return tr("Medical history details for IAM immunopsychiatry study.");
 }
 
 
-Version Lynall1IamMedicalHistory::minimumServerVersion() const
+Version Lynall1IamMedical::minimumServerVersion() const
 {
     return Version(2, 3, 3);
 }
@@ -198,7 +198,7 @@ Version Lynall1IamMedicalHistory::minimumServerVersion() const
 // Instance info
 // ============================================================================
 
-bool Lynall1IamMedicalHistory::isComplete() const
+bool Lynall1IamMedical::isComplete() const
 {
     if (anyValuesNull({
                       FN_Q1_AGE_FIRST_INFLAMMATORY_SX,
@@ -266,19 +266,19 @@ bool Lynall1IamMedicalHistory::isComplete() const
 }
 
 
-QStringList Lynall1IamMedicalHistory::summary() const
+QStringList Lynall1IamMedical::summary() const
 {
     return QStringList{textconst.noSummarySeeFacsimile()};
 }
 
 
-QStringList Lynall1IamMedicalHistory::detail() const
+QStringList Lynall1IamMedical::detail() const
 {
     return QStringList{textconst.noDetailSeeFacsimile()};
 }
 
 
-OpenableWidget* Lynall1IamMedicalHistory::editor(const bool read_only)
+OpenableWidget* Lynall1IamMedical::editor(const bool read_only)
 {
     using stringfunc::strnum;
     QVector<QuElement*> elements;
@@ -492,21 +492,21 @@ OpenableWidget* Lynall1IamMedicalHistory::editor(const bool read_only)
 
     // Signals
     connect(fieldRef(FN_Q4A_SYMPTOM_TIMING).data(), &FieldRef::valueChanged,
-            this, &Lynall1IamMedicalHistory::updateMandatory);
+            this, &Lynall1IamMedical::updateMandatory);
     connect(fieldRef(FN_Q6A_INPATIENT_LAST_Y).data(), &FieldRef::valueChanged,
-            this, &Lynall1IamMedicalHistory::updateMandatory);
+            this, &Lynall1IamMedical::updateMandatory);
     connect(fieldRef(FN_Q7A_SX_LAST_2Y).data(), &FieldRef::valueChanged,
-            this, &Lynall1IamMedicalHistory::updateMandatory);
+            this, &Lynall1IamMedical::updateMandatory);
     connect(fieldRef(FN_Q11H_PH_OTHER_PSYCH).data(), &FieldRef::valueChanged,
-            this, &Lynall1IamMedicalHistory::updateMandatory);
+            this, &Lynall1IamMedical::updateMandatory);
     connect(fieldRef(FN_Q12H_FH_OTHER_PSYCH).data(), &FieldRef::valueChanged,
-            this, &Lynall1IamMedicalHistory::updateMandatory);
+            this, &Lynall1IamMedical::updateMandatory);
     connect(fieldRef(FN_Q13A_BEHCET).data(), &FieldRef::valueChanged,
-            this, &Lynall1IamMedicalHistory::updateMandatory);
+            this, &Lynall1IamMedical::updateMandatory);
     connect(fieldRef(FN_Q13B_ORAL_ULCERS).data(), &FieldRef::valueChanged,
-            this, &Lynall1IamMedicalHistory::updateMandatory);
+            this, &Lynall1IamMedical::updateMandatory);
     connect(fieldRef(FN_Q13E_GENITAL_ULCERS).data(), &FieldRef::valueChanged,
-            this, &Lynall1IamMedicalHistory::updateMandatory);
+            this, &Lynall1IamMedical::updateMandatory);
 
     // Questionnaire
     m_questionnaire = new Questionnaire(m_app, pages);
@@ -521,7 +521,7 @@ OpenableWidget* Lynall1IamMedicalHistory::editor(const bool read_only)
 // Signal handlers
 // ============================================================================
 
-void Lynall1IamMedicalHistory::updateMandatory()
+void Lynall1IamMedical::updateMandatory()
 {
     const bool need_q4b_before =
             valueInt(FN_Q4A_SYMPTOM_TIMING) == Q4_OPTION_PSYCH_BEFORE_PHYSICAL;

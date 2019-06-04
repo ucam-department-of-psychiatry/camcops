@@ -1866,7 +1866,11 @@ QString CamcopsApp::xstringDirect(const QString& taskname,
                                   const QString& stringname,
                                   const QString& default_str)
 {
-    ExtraString extrastring(*this, *m_sysdb, taskname, stringname, getLanguage());
+    const QString language = getLanguage();
+    qDebug().nospace().noquote()
+            << "xStringDirect: fetching " << taskname
+            << "." << stringname << "[" << language << "]";
+    ExtraString extrastring(*this, *m_sysdb, taskname, stringname, language);
     const bool found = extrastring.existsInDb();
     if (found) {
         QString result = extrastring.value();

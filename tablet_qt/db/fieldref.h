@@ -105,6 +105,20 @@ public:
     using GetterFunction = std::function<QVariant()>;
     using SetterFunction = std::function<bool(const QVariant&)>;  // returns: changed?
 
+protected:
+    // Protected constructor
+    FieldRef(FieldRefMethod method,
+             const bool mandatory,
+             Field* p_field,
+             DatabaseObject* p_dbobject,
+             const QString& fieldname,
+             const bool autosave,
+             QSharedPointer<Blob> blob,
+             const GetterFunction& getterfunc,
+             const SetterFunction& setterfunc,
+             CamcopsApp* p_app,
+             const QString& storedvar_name);
+
 public:
     // ========================================================================
     // Constructors
@@ -278,9 +292,6 @@ public:
     friend QDebug operator<<(QDebug debug, const FieldRef& f);
 
 protected:
-    // Common constructor.
-    void commonConstructor();
-
     // Signal that the value has changed; perhaps trigger an autosave.
     bool signalSetValue(bool changed, const QObject* originator);
 

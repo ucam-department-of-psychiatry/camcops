@@ -33,9 +33,7 @@ class QTimer;
 class TaskFactory;
 
 class IDED3DStage;
-using IDED3DStagePtr = QSharedPointer<IDED3DStage>;
 class IDED3DTrial;
-using IDED3DTrialPtr = QSharedPointer<IDED3DTrial>;
 
 void initializeIDED3D(TaskFactory& factory);
 
@@ -50,6 +48,9 @@ class IDED3D : public Task
     using FuncPtr = void (IDED3D::*)();
     // ... a pointer to a member function of IDED3D that takes no
     // parameters and returns void
+    using IDED3DStagePtr = QSharedPointer<IDED3DStage>;
+    using IDED3DTrialPtr = QSharedPointer<IDED3DTrial>;
+
 public:
     IDED3D(CamcopsApp& app, DatabaseManager& db,
            int load_pk = dbconst::NONEXISTENT_PK);
