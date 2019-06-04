@@ -20,6 +20,8 @@
 .. _Babel: http://babel.pocoo.org/
 
 
+.. _dev_internationalization:
+
 Internationalization
 --------------------
 

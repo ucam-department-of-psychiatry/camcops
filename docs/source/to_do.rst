@@ -30,7 +30,7 @@ Tasks
 
 **Priority**
 
-- **SEE CHANGELOG**
+- **IN PROGRESS: SEE CHANGELOG**
 
 **To be prioritized**
 
@@ -86,13 +86,8 @@ Client core
 
 **Priority**
 
-- Internationalization
-
-  - client chooses tr() strings based on locale;
-    https://doc.qt.io/qt-5/internationalization.html
-  - client downloads all languages, picks xstring() based on locale,
-    with a default language
-  - Sep 2019 for 3D/ID-ED
+- Create 64-bit ARM build, then release to Google Play Store (deadline 1 Aug
+  2019). Work in progress: ``build_qt.py --build_android_arm_v8_64``.
 
 - Ensure dialogs (e.g. initial password prompt) show the title in full, and
   don't clip text that they contain (e.g. good: upload dialogue; bad: ?some of

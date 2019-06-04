@@ -866,6 +866,13 @@ class Platform(object):
         CPU name for Android builds.
         Used by android_arch_short and in turn for various variables that get
         passed to compilers using the Android SDK. Don't alter them.
+
+        See also
+
+        - https://developer.android.com/ndk/guides/abis.html -- slightly
+          different
+        - <ANDROID_NDK_DIR>/platforms/android-<VERSION>/...
+          e.g. ``arch-arm``, ``arch-x86``, ``arch-arm64``
         """
         if not self.android:
             raise ValueError("Platform is not Android")
@@ -877,6 +884,8 @@ class Platform(object):
             return "arm"
         elif self.cpu == Cpu.ARM_V5_32:
             return "armv5"
+        elif self.cpu == Cpu.ARM_V8_64:
+            return "arm64"
         else:
             raise NotImplementedError("Don't know how to build Android for "
                                       "CPU " + self.cpu)
@@ -992,6 +1001,8 @@ class Platform(object):
     def cross_compile_prefix(self) -> str:
         """
         Work out the CROSS_COMPILE environment variable/prefix.
+
+        See e.g. <ANDROID_NDK_DIR>/toolchains
         """
         if BUILD_PLATFORM == self:
             # Compiling for the platform we're running on.
@@ -1002,6 +1013,8 @@ class Platform(object):
                     return "i686-linux-android-"
                 elif self.cpu == Cpu.ARM_V7_32:
                     return "arm-linux-androideabi-"
+                elif self.cpu == Cpu.ARM_V8_64:
+                    return "aarch64-linux-android-"
             elif self.windows:
                 # https://superuser.com/questions/238112/what-is-the-difference-between-i686-and-x86-64  # noqa
                 if self.cpu_64bit:
@@ -1158,6 +1171,7 @@ class Config(object):
         self.build_all = args.build_all  # type: bool
         self.build_android_x86_32 = args.build_android_x86_32  # type: bool
         self.build_android_arm_v7_32 = args.build_android_arm_v7_32  # type: bool  # noqa
+        self.build_android_arm_v8_64 = args.build_android_arm_v8_64  # type: bool  # noqa
         self.build_linux_x86_64 = args.build_linux_x86_64  # type: bool
         self.build_macos_x86_64 = args.build_macos_x86_64  # type: bool
         self.build_windows_x86_64 = args.build_windows_x86_64  # type: bool
@@ -1171,6 +1185,7 @@ class Config(object):
             if BUILD_PLATFORM.linux:
                 self.build_android_arm_v7_32 = True
                 # rarely used, emulator only # self.build_android_x86_32 = True
+                self.build_android_arm_v8_64 = True
                 self.build_linux_x86_64 = True
                 if CAN_CROSS_COMPILE_LINUX_TO_WINDOWS:
                     if not MXE_HAS_GCC_WITH_I386_BUG:
@@ -2343,6 +2358,10 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
                 return ["android-armeabi"]
             else:
                 return ["android-armv7"]
+        elif target_platform.cpu == Cpu.ARM_V8_64:
+            # Based on help message from OpenSSL "Configure"
+            # return ["android64-aarch64"]
+            return ["android64"]
         elif target_platform.cpu_x86_family:
             return ["android-x86"]
         # if we get here: will raise error below
@@ -2855,6 +2874,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
             android_arch_short = "x86"
         elif target_platform.cpu == Cpu.ARM_V7_32:
             android_arch_short = "armeabi-v7a"
+        elif target_platform.cpu == Cpu.ARM_V8_64:
+            # https://developer.android.com/ndk/guides/abis.html
+            android_arch_short = "arm64-v8a"
         else:
             raise NotImplementedError(
                 f"Don't know how to use CPU {target_platform.cpu!r} "
@@ -3804,8 +3826,11 @@ def master_builder(args) -> None:
     if cfg.build_android_x86_32:  # for x86 Android emulator
         build_for(Os.ANDROID, Cpu.X86_32)
 
-    if cfg.build_android_arm_v7_32:  # for native Android
+    if cfg.build_android_arm_v7_32:  # for native Android, 32-bit ARM
         build_for(Os.ANDROID, Cpu.ARM_V7_32)
+
+    if cfg.build_android_arm_v8_64:  # for native Android, 64-bit ARM
+        build_for(Os.ANDROID, Cpu.ARM_V8_64)
 
     if cfg.build_linux_x86_64:  # for 64-bit Linux
         build_for(Os.LINUX, Cpu.X86_64)
@@ -3920,7 +3945,10 @@ def main() -> None:
              "Intel x86 32-bit emulator)")
     archgroup.add_argument(
         "--build_android_arm_v7_32", action="store_true",
-        help="An architecture target (Android under a ARM processor tablet)")
+        help="An architecture target (Android with a 32-bit ARM processor)")
+    archgroup.add_argument(
+        "--build_android_arm_v8_64", action="store_true",
+        help="An architecture target (Android with a 64-bit ARM processor)")
     archgroup.add_argument(
         "--build_linux_x86_64", action="store_true",
         help="An architecture target (native Linux with a 64-bit Intel/AMD "

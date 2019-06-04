@@ -289,6 +289,19 @@ after OpenSSL has finished, and use the full number of CPU cores for the much
 longer Qt build.)
 
 
+Problem: aarch64-linux-android-gcc-4.9: not found
+#################################################
+
+You might see this when compiling for Android/64-bit ARM. The relevant arm64
+cross-compiler is missing. See
+https://stackoverflow.com/questions/28565640/build-kernel-with-aarch64-linux-gnu-gcc
+and try e.g. ``sudo apt-get install gcc-aarch64-linux-gnu``.
+
+.. todo:: IN PROGRESS ARM64
+   ``sudo apt-get install gcc-4.9-aarch64-linux-gnu``
+
+
+
 Run and set up Qt Creator
 -------------------------
 

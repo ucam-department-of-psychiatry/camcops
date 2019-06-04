@@ -2053,7 +2053,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Excel XLSX and OpenOffice/LibreOffice ODS formats supported for basic
   download.
 
-- Internationalization
+- :ref:`Internationalization <dev_internationalization>`.
 
   - Client
   - ``MenuWindow`` changes to permit dynamic language change
@@ -2112,13 +2112,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - New task: :ref:`Lynall M-E — 1 — IAM study — medical history
   <lynall_1_iam_medical>`
 
-- New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
-
-  .. todo:: IN PROGRESS +++ a/w permission clarification
-
 - :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
 
   .. todo:: IN PROGRESS +++
+
+- New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
+
+  .. todo:: IN PROGRESS +++ a/w permission clarification
 
 - :ref:`Kirby delay discounting task <kirby>`
 

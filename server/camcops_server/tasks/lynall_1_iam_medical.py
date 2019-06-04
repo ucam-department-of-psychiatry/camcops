@@ -349,14 +349,11 @@ class Lynall1IamMedicalHistory(TaskHasPatientMixin, Task):
             req, "q4a_option", 1, self.Q4_N_OPTIONS)
         q7a_options = self.make_options_from_xstrings(
             req, "q7a_option", 0, 1)
-        q7b_options = self.make_options_from_numbers(self.Q7B_MIN, self.Q7B_MAX)  # noqa
         _q7b_anchors = []  # type: List[str]
         for _o in [1, 10]:
-            _wxstringname = f"q7b_anchor_{_o}"
-            _s = f'{_o}: {self.wxstring(req, _wxstringname)}'
-            q7b_options[_o] = _s
-            _q7b_anchors.append(_s)
-        q7b_explanation = f" <i>({' // '.join(_q7b_anchors)})</i>"
+            _wxstring = self.wxstring(req, f"q7b_anchor_{_o}")
+            _q7b_anchors.append(f'{_o}: {_wxstring}')
+        q7b_explanation = f" <i>(Anchors: {' // '.join(_q7b_anchors)})</i>"
         q8_options = self.make_options_from_xstrings(
             req, "q8_option", 1, self.Q8_N_OPTIONS)
         q9_options = self.make_options_from_xstrings(
@@ -383,9 +380,9 @@ class Lynall1IamMedicalHistory(TaskHasPatientMixin, Task):
             {ynnrow("6a", "q6a_question", self.q6a_inpatient_last_y)}
             {plainrow("6b", "q6b_question", self.q6b_inpatient_weeks, True)}
             {boolrow("7a", "q7a_question", self.q7a_sx_last_2y, q7a_options)}
-            {lookuprow("7b", "q7b_question", self.q7b_variability, q7b_options,
-                       True, qsuffix=q7b_explanation)}
-            {boolrow("8", "q8_question", self.q8_smoking, q8_options)}
+            {plainrow("7b", "q7b_question", self.q7b_variability, True, 
+                      qsuffix=q7b_explanation)}
+            {lookuprow("8", "q8_question", self.q8_smoking, q8_options)}
             {boolrow("9", "q9_question", self.q9_pregnant, q9_options)}
             <tr class="subheading">
               <td><i>{self.wxstring(req, "q10_stem")}</i></td>
@@ -425,10 +422,10 @@ class Lynall1IamMedicalHistory(TaskHasPatientMixin, Task):
             </tr>
             {ynnrow("13a", "q13a_question", self.q13a_behcet)}
             {ynnrow("13b", "q13b_question", self.q13b_oral_ulcers, True)}
-            {ynnrow("13c", "q13c_question", self.q13c_oral_age_first, True)}
+            {plainrow("13c", "q13c_question", self.q13c_oral_age_first, True)}
             {ynnrow("13d", "q13d_question", self.q13d_oral_scarring, True)}
             {ynnrow("13e", "q13e_question", self.q13e_genital_ulcers, True)}
-            {ynnrow("13f", "q13f_question", self.q13f_genital_age_first, True)}
+            {plainrow("13f", "q13f_question", self.q13f_genital_age_first, True)}
             {ynnrow("13g", "q13g_question", self.q13g_genital_scarring, True)}
           </table>
         """  # noqa
