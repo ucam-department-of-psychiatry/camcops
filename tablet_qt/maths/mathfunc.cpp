@@ -65,7 +65,7 @@ bool nearlyEqual(const qreal x, const qreal y)
 }
 
 
-QVariant mean(const QVector<QVariant>& values, const bool ignore_null)
+QVariant meanOrNull(const QVector<QVariant>& values, const bool ignore_null)
 {
     double total = 0;
     int n = 0;
@@ -121,9 +121,37 @@ double kahanSum(const QVector<double>& vec)
 }
 
 
+#if 1
+
+// Simpler form of geometricMean()
 double geometricMean(const QVector<double>& data)
 {
-    // https://stackoverflow.com/questions/19980319/efficient-way-to-compute-geometric-mean-of-many-numbers
+    // The nth root of x1 * x2 * ... * xn.
+    // Based on the simple method used by scipy.stats.mstats.gmean.
+    // The principle is that:
+    //      (x1 * x2 * ... * xn) ^ (1/n)
+    //      = exp( log( (x1 * x2 * ... * xn) ^ (1/n) ) )
+    //      = exp( (1/n) * log(x1 * x2 * ... * xn) )
+    //          by log(x^y) = y * log(x)
+    //      = exp( (log(x1) + log(x2) + ... + log(xn)) / n )
+    //          by log(x*y) = log(x) + log(y)
+    //      = exp(mean of log(x) elements)
+    const int n = data.size();
+    QVector<double> log_data(n);
+    for (int i = 0; i < n; ++i) {
+        log_data[i] = std::log(data.at(i));
+    }
+    const double mean_log = mean(log_data);
+    return std::exp(mean_log);
+}
+
+#else
+
+// More complex form of geometricMean()
+double geometricMean(const QVector<double>& data)
+{
+    // The nth root of x1 * x2 * ... * xn.
+    // See https://stackoverflow.com/questions/19980319/efficient-way-to-compute-geometric-mean-of-many-numbers
     // Modified because Qt uses int rather than std::size_t for its sizes.
     // Also clarified slightly.
 
@@ -132,18 +160,33 @@ double geometricMean(const QVector<double>& data)
     double m = 1.0;  // cumulative mantissa
     long long ex = 0;  // cumulative exponent
 
+    // This function iterates through part of "data" and multiplies our
+    // running total (m * 2 ^ ex) by each part -- or at least, adds to the
+    // running exponent total and returns the mantissa part (which the caller
+    // then uses to alter m).
     auto doBucket = [&data, &ex](const int first, const int last) -> double
     {
         double ans = 1.0;
         int exponent;
         for (int i = first; i != last; ++i) {
+#ifdef DEBUG_GEOMETRIC_MEAN
+            const double old_ex = ex;
+            const double old_ans = ans;
+#endif
             ans *= std::frexp(data[i], &exponent);
             // See https://en.cppreference.com/w/cpp/numeric/math/frexp.
             // It decomposes its first argument into a normalized fraction
             // (return value) and an integral power of two. For example,
             // maps 123.45 to 0.964453 * 2^7.
             ex += exponent;
+#ifdef DEBUG_GEOMETRIC_MEAN
+            qDebug() << "doBucket: ex:" << old_ex << "->" << ex;
+            qDebug() << "doBucket: ans:" << old_ans << "->" << ans;
+#endif
         }
+#ifdef DEBUG_GEOMETRIC_MEAN
+        qDebug() << "doBucket: returning ans =" << ans;
+#endif
         return ans;
     };
 
@@ -157,12 +200,30 @@ double geometricMean(const QVector<double>& data)
 
     // Do all complete buckets
     for (int i = 0; i < n_buckets; ++i) {
+#ifdef DEBUG_GEOMETRIC_MEAN
+        const double old_m = m;
+#endif
         m *= std::pow(doBucket(i * bucket_size, (i + 1) * bucket_size), inv_n);
+#ifdef DEBUG_GEOMETRIC_MEAN
+        qDebug() << "m:" << old_m << "->" << m;
+#endif
     }
     // Finish off any residual elements
+#ifdef DEBUG_GEOMETRIC_MEAN
+    const double old_m = m;
+#endif
     m *= std::pow(doBucket(n_buckets * bucket_size, n), inv_n);
+#ifdef DEBUG_GEOMETRIC_MEAN
+    qDebug() << "m:" << old_m << "->" << m;
+#endif
 
     const int radix = std::numeric_limits<double>::radix;
+    // QUESTION: will this function still work if radix is not 2, given that
+    // frexp() guarantees to use base 2?
+
+    // At this point, the product of our data is represented as
+    // m * 2 ^ ex. We want to raise that to the power 1/n, so we use
+    // m * 2 ^ (ex * [1/n]).
     const double result = std::pow(radix, ex * inv_n) * m;
 #ifdef DEBUG_GEOMETRIC_MEAN
     qDebug().nospace()
@@ -179,6 +240,8 @@ double geometricMean(const QVector<double>& data)
 #endif
     return result;
 }
+
+#endif
 
 
 // ============================================================================
@@ -682,8 +745,10 @@ QStringList testMaths()
 
     // geometricMean()
     const QVector<QPair<QVector<double>, double>> gm_tests{
+        {{1, 4}, 2},
         {{2, 8}, 4},  // geometric mean of 2 and 8 is 4
         {{4, 9}, 6},
+        {{1, 2, 3, 4, 5, 6, 7}, 3.3800151591412964},  // scipy gmean example
     };
     for (const auto& pair : gm_tests) {
         const auto& q = pair.first;

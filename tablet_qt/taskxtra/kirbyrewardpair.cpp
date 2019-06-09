@@ -99,7 +99,7 @@ double KirbyRewardPair::kIndifference() const
     //            k = ((A2 / A1) - 1) / D2
     //              = (A2 - A1) / (A1 * D2)
 
-    return ((a2 / a1) - 1) / d2;
+    return (a2 - a1) / (a1 * d2);
 }
 
 

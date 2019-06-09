@@ -103,7 +103,7 @@ const int TOTAL_N_TRIALS = TRIALS.size();  // 27
 Kirby::Kirby(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, KIRBY_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    // *** add fields
+    // No fields beyond the basics.
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -115,13 +115,13 @@ Kirby::Kirby(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
 QString Kirby::shortname() const
 {
-    return "Kirby";
+    return "KirbyMCQ";
 }
 
 
 QString Kirby::longname() const
 {
-    return "Kirby Monetary Choice Questionnaire";
+    return "Kirby et al. 1999 Monetary Choice Questionnaire";
 }
 
 
@@ -189,7 +189,6 @@ bool Kirby::isComplete() const
     if (m_trials.length() != TOTAL_N_TRIALS) {
         return false;
     }
-    const QVector<KirbyRewardPair> results = allChoices();
     for (auto t : m_trials) {
         if (!t->answered()) {
             return false;
@@ -202,9 +201,17 @@ bool Kirby::isComplete() const
 QStringList Kirby::summary() const
 {
     const QVector<KirbyRewardPair> results = allChoices();
+    const double k_kirby = kKirby(results);
+    const double k_wileyto = kWileyto(results);
     return QStringList({
-        tr("k (days^-1, Kirby 2000 method): <b>%1</b>.").arg(kKirby(results)),
-        tr("k (days^-1, Wileyto 2004 method): <b>%1</b>").arg(kWileyto(results)),
+        tr("k (days^-1, Kirby 2000 method): <b>%1</b> "
+           "(decay to half value at %2 days).").arg(
+                           QString::number(k_kirby),
+                           QString::number(1 / k_kirby)),
+        tr("k (days^-1, Wileyto 2004 method): <b>%1</b> "
+           "(decay to half value at %2 days).").arg(
+                           QString::number(k_wileyto),
+                           QString::number(1 / k_wileyto)),
     });
 }
 
@@ -213,9 +220,13 @@ QStringList Kirby::detail() const
 {
     QStringList choices;
     const QVector<KirbyRewardPair> results = allChoices();
-    for (const KirbyRewardPair& pair : results) {
-        choices.append(QString("%1 <b>%2</b>").arg(pair.question(),
-                                                   pair.answer()));
+    for (int i = 0; i < results.size(); ++i) {
+        const KirbyRewardPair& pair = results.at(i);
+        const int trial_num = i + 1;
+        choices.append(QString("%1. %2 <b>%3</b>").arg(
+                           QString::number(trial_num),
+                           pair.question(),
+                           pair.answer()));
     }
     choices.append("");
     return choices + summary();
@@ -317,10 +328,13 @@ QVector<KirbyRewardPair> Kirby::allChoices() const
 {
     QVector<KirbyRewardPair> v;
     for (auto t : m_trials) {
-        v.append(t->info());
+        if (t->answered()) {
+            v.append(t->info());
+        }
     }
     return v;
 }
+
 
 double Kirby::kKirby(const QVector<KirbyRewardPair>& results)
 {
@@ -417,7 +431,6 @@ double Kirby::kWileyto(const QVector<KirbyRewardPair>& results)
 QVariant Kirby::getChoice(const int trial_num)
 {
     KirbyTrialPtr trial = getTrial(trial_num);
-    trial->noteTimeOfOffer();
     return trial->getChoice();
 }
 

@@ -209,6 +209,8 @@ AUDIT_SOURCE_MAX_LEN = 20  #: our choice based on use in CamCOPS code
 #: Probably ~18 so give it some headroom.
 CHARSET_MAX_LEN = 64
 
+CURRENCY_MAX_LEN = 3  #: Can have Unicode symbols like € or text like "GBP"
+
 DATABASE_TITLE_MAX_LEN = 255  #: our choice
 
 #: 191 is the maximum for MySQL + InnoDB + VARCHAR + utf8mb4 + index;
@@ -394,6 +396,7 @@ AuditSourceColType = String(length=AUDIT_SOURCE_MAX_LEN)
 
 CharColType = String(length=1)
 CharsetColType = String(length=CHARSET_MAX_LEN)
+CurrencyColType = Unicode(length=CURRENCY_MAX_LEN)
 
 DatabaseTitleColType = Unicode(length=DATABASE_TITLE_MAX_LEN)
 DeviceNameColType = String(length=DEVICE_NAME_MAX_LEN)

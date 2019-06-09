@@ -82,10 +82,18 @@ bool nearlyEqual(qreal x, qreal y);
 // Return the mean of the supplied values.
 // - ignore_null true: return the mean of the values, ignoring any NULLs.
 // - ignore_null false: return the mean, or NULL if any are NULL.
-QVariant mean(const QVector<QVariant>& values, bool ignore_null = false);
+QVariant meanOrNull(const QVector<QVariant>& values, bool ignore_null = false);
 
 // Return the mean of two numbers.
 qreal mean(qreal a, qreal b);
+
+// Return the mean of a numeric QVector
+template<typename T>
+double mean(const QVector<T>& data)
+{
+    // https://codereview.stackexchange.com/questions/109994/mean-median-and-mode-of-a-qvector
+    return std::accumulate(data.begin(), data.end(), 0.0) / data.size();
+}
 
 // Returns the (integer) centile of x within the range [minimum, maximum].
 // (So if x == minimum, this will be 0; if x == maximum, it will be 100.)
@@ -94,7 +102,7 @@ int centile(qreal x, qreal minimum, qreal maximum);
 // Adds up numbers, minimizing error. See code.
 double kahanSum(const QVector<double>& vec);
 
-// Geometric mean
+// Geometric mean (the nth root of x1 * x2 * ... * xn)
 double geometricMean(const QVector<double>& data);
 
 // ============================================================================

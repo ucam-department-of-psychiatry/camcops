@@ -26,7 +26,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::mean;
+using mathfunc::meanOrNull;
 using mathfunc::noneNull;
 using mathfunc::scorePhrase;
 using mathfunc::sumInt;
@@ -142,6 +142,6 @@ int Pdss::totalScore() const
 
 double Pdss::compositeScore() const
 {
-    const QVariant m = mean(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)), true);
+    const QVariant m = meanOrNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)), true);
     return m.toDouble();
 }

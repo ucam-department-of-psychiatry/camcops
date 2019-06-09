@@ -28,7 +28,7 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::seq;
-using mathfunc::mean;
+using mathfunc::meanOrNull;
 using mathfunc::noneNull;
 using mathfunc::scorePhraseVariant;
 using stringfunc::strnum;
@@ -372,7 +372,7 @@ QVariant Rand36::subscaleMean(const QVector<int>& questions) const
     for (int q : questions) {
         values.append(recoded(q));
     }
-    return mean(values, true);
+    return meanOrNull(values, true);
 }
 
 

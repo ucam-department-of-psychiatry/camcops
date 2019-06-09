@@ -26,7 +26,7 @@
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::mean;
+using mathfunc::meanOrNull;
 using mathfunc::noneNull;
 using stringfunc::standardResult;
 
@@ -199,5 +199,5 @@ QVariant QolBasic::meanQol() const
 {
     const QVariant tto = qolTto();
     const QVariant rs = qolRs();
-    return mean({tto, rs}, true);
+    return meanOrNull({tto, rs}, true);
 }

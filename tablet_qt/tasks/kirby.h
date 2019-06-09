@@ -74,6 +74,9 @@ protected:
     // Sort m_trials by trial number
     void sortTrials();
 
+    // Return a representation of all trials (including unanswered ones)
+    QVector<KirbyRewardPair> allTrials() const;
+
     // Return a representation of all questions/answers for analysis
     QVector<KirbyRewardPair> allChoices() const;
 

@@ -124,6 +124,7 @@ INSTALL_REQUIRES = [
     'sphinx==1.7.6',  # development only
     # 'sphinx_rtd_theme==0.4.3',  # development only
     'sqlalchemy==1.2.8',  # database access
+    'statsmodels==0.9.0',  # e.g. logistic regression
 
     'tornado<6',  # used indirectly by Celery; v6+ breaks; see
     # https://github.com/jupyter/notebook/issues/4311

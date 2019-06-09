@@ -40,8 +40,6 @@ public:
     // Return the original question.
     KirbyRewardPair info() const;
 
-    void noteTimeOfOffer();
-
     // Record a subject's response: did they choose the large delayed reward?
     void recordChoice(bool chose_ldr);
 
