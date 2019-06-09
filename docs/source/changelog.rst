@@ -2104,6 +2104,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Caching for ``Task.isComplete()`` on the client.
 
+- SQLAlchemy upgraded from 1.2.8 to 1.3.0 in response to security
+  vulnerabilities.
+
 - New option :menuselection:`Settings --> Fetch all server info`.
 
 - ``cc_text.py`` and better server string framework for internationalization;

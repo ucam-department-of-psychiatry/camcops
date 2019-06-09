@@ -123,7 +123,7 @@ INSTALL_REQUIRES = [
     'semantic_version==2.6.0',  # semantic versioning; better than semver
     'sphinx==1.7.6',  # development only
     # 'sphinx_rtd_theme==0.4.3',  # development only
-    'sqlalchemy==1.2.8',  # database access
+    'sqlalchemy==1.3.0',  # database access
     'statsmodels==0.9.0',  # e.g. logistic regression
 
     'tornado<6',  # used indirectly by Celery; v6+ breaks; see
