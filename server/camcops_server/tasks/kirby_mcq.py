@@ -326,6 +326,8 @@ class Kirby(TaskHasPatientMixin, Task):
         Returns k for a subject as determined using Wileyto et al.'s (2004)
         method. See :ref:`kirby_mcq.rst <kirby_mcq>`.
         """
+        if not results:
+            return None
         n_predictors = 2
         n_observations = len(results)
         x = np.zeros((n_observations, n_predictors))
