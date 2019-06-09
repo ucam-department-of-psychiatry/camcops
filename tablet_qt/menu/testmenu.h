@@ -50,6 +50,7 @@ protected:
     void testConversions();
     void testEigenFunctions();
     void testRandom();
+    void testOtherMaths();
     void testLogisticRegression();
     void testTranslation();
     void switchToEnglish();
