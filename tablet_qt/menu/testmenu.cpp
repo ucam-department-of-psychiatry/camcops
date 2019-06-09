@@ -182,6 +182,11 @@ void TestMenu::makeItems()
             spanner
         ),
         MenuItem(
+            tr("Test other maths functions"),
+            std::bind(&TestMenu::testOtherMaths, this),
+            spanner
+        ),
+        MenuItem(
             tr("Test logistic regression, and the underlying generalized linear model (GLM)"),
             std::bind(&TestMenu::testLogisticRegression, this),
             spanner
@@ -411,6 +416,16 @@ void TestMenu::testRandom()
 }
 
 
+void TestMenu::testOtherMaths()
+{
+    const QString text = mathfunc::testMaths().join("\n");
+    uifunc::alertLogMessageBox(
+                text,
+                tr("Miscellaneous maths functions"),
+                false);
+}
+
+
 void TestMenu::testLogisticRegression()
 {
     using namespace eigenfunc;
@@ -451,7 +466,7 @@ Our results: intercept = %1, slope = %2)
     const VectorXi y_e = eigenColumnVectorFromQVector<int>(y_q);
     LogisticRegression lr1a(Glm::SolveMethod::IRLS_KaneLewis);
     lr1a.setVerbose(true);
-    lr1a.fit(x_e, y_e);
+    lr1a.fitAddingIntercept(x_e, y_e);
     const VectorXd coeffs1a = lr1a.coefficients();
     const VectorXd p = lr1a.predictProb();
     const VectorXi cat = lr1a.predictBinary();
@@ -460,7 +475,7 @@ Our results: intercept = %1, slope = %2)
             << "1c. A more detailed look: LogisticRegression(), IRLS SVD Newton";
     LogisticRegression lr1c(Glm::SolveMethod::IRLS_SVDNewton_KaneLewis);
     lr1c.setVerbose(true);
-    lr1c.fit(x_e, y_e);
+    lr1c.fitAddingIntercept(x_e, y_e);
     const VectorXd coeffs1c = lr1c.coefficients();
 
     results.append(QString(R"(
@@ -508,7 +523,7 @@ OUT time to fit (ms): %10
             << "1d. LogisticRegression(), IRLS implemented as per R glm.fit";
     LogisticRegression lr1d(Glm::SolveMethod::IRLS_R_glmfit);
     lr1d.setVerbose(true);
-    lr1d.fit(x_e, y_e);
+    lr1d.fitAddingIntercept(x_e, y_e);
     const VectorXd coeffs1d = lr1d.coefficients();
     results.append(QString("With our implementation of R's glm.fit IRLS: "
                            "%1").arg(qStringFromEigenMatrixOrArray(coeffs1d)));
@@ -547,14 +562,14 @@ crosscheck_x (via LogisticDescriptives()) [SHOULD MATCH test_x]: %4
         1, 1});
     LogisticRegression lr2a(Glm::SolveMethod::IRLS_KaneLewis);
     lr2a.setVerbose(true);
-    lr2a.fit(x2, y2);
+    lr2a.fitAddingIntercept(x2, y2);
     const VectorXd coeffs2a = lr2a.coefficients();
 
     qInfo() << Q_FUNC_INFO
             << "2b. A more numerically complex example, via IRLS-SVD-Newton.";
     LogisticRegression lr2b(Glm::SolveMethod::IRLS_SVDNewton_KaneLewis);
     lr2b.setVerbose(true);
-    lr2b.fit(x2, y2);
+    lr2b.fitAddingIntercept(x2, y2);
     const VectorXd coeffs2b = lr2b.coefficients();
 
     results.append(QString(R"(
@@ -588,7 +603,7 @@ CamCOPS: coefficients: IRLS-SVD-Newton: %2
     qInfo() << Q_FUNC_INFO << "2c. And again with the R glm.fit method.";
     LogisticRegression lr2c(Glm::SolveMethod::IRLS_R_glmfit);
     lr2c.setVerbose(true);
-    lr2c.fit(x2, y2);
+    lr2c.fitAddingIntercept(x2, y2);
     const VectorXd coeffs2c = lr2c.coefficients();
     results.append(QString(
            "CamCOPS: coefficients: RNC implementation of R's "
