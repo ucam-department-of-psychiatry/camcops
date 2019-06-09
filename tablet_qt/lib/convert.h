@@ -243,8 +243,18 @@ QVariant toQCharVariant(const QVariant& v);
 // Specific vectors as strings
 // ============================================================================
 
-// Converts an int vector into a CSV string representation.
-QString intVectorToCsvString(const QVector<int>& vec);
+// Converts a numeric (e.g. int) vector into a CSV string representation,
+// via QString::number.
+template<typename T>
+QString numericVectorToCsvString(const QVector<T>& vec)
+{
+    QStringList strings;
+    for (const T& value : vec) {
+        strings.append(QString::number(value));
+    }
+    return strings.join(COMMA);
+}
+
 
 // Converts a CSV string into an int vector.
 // (Duff values will be converted to 0.)

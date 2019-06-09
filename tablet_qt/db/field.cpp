@@ -371,7 +371,7 @@ QVariant Field::databaseValue() const
         return convert::qStringListToCsvString(m_value.toStringList());
     case QVariant::UserType:
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
-            return convert::intVectorToCsvString(
+            return convert::numericVectorToCsvString(
                         convert::qVariantToIntVector(m_value));
         }
         if (m_type_name == convert::TYPENAME_VERSION) {

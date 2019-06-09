@@ -121,6 +121,10 @@ C++ code style used
                 very_long_condition_3 && very_long_condition_4) {
             // we indent the subsequent parts of the "if" statement once more.
         }
+
+        auto someLambdaFunction = [](int param) -> void {
+            statements;
+        };
     }
 
     // ----------------------------------------------------------------------------

@@ -18,15 +18,18 @@
 */
 
 #pragma once
+#include <QPointer>
 #include <QString>
 #include "tasklib/task.h"
 
 class CamcopsApp;
+class Questionnaire;
 class OpenableWidget;
 class TaskFactory;
 
 class KirbyRewardPair;
 class KirbyTrial;
+using KirbyTrialPtr = QSharedPointer<KirbyTrial>;
 
 
 void initializeKirby(TaskFactory& factory);
@@ -35,7 +38,6 @@ void initializeKirby(TaskFactory& factory);
 class Kirby : public Task
 {
     Q_OBJECT
-    using KirbyTrialPtr = QSharedPointer<KirbyTrial>;
 public:
     Kirby(CamcopsApp& app, DatabaseManager& db,
           int load_pk = dbconst::NONEXISTENT_PK);
@@ -65,11 +67,39 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+protected:
+    // Return (or create/save/return) a trial given a 1-based trial number.
+    KirbyTrialPtr getTrial(int trial_num);
+
+    // Sort m_trials by trial number
+    void sortTrials();
+
+    // Return a representation of all questions/answers for analysis
+    QVector<KirbyRewardPair> allChoices() const;
+
+    // Calculate k via Kirby (2000) method (see docs)
+    static double kKirby(const QVector<KirbyRewardPair>& results);
+
+    // How many choices in "results" are consistent with the given k value?
+    static int nChoicesConsistent(double k,
+                                  const QVector<KirbyRewardPair>& results);
+
+    // Calculate k via Wileyto et al. (2004) method (see docs)
+    static double kWileyto(const QVector<KirbyRewardPair>& results);
+
+    // ------------------------------------------------------------------------
+    // Questionnaire callbacks
+    // ------------------------------------------------------------------------
+    QVariant getChoice(int trial_num);
+    bool choose(int trial_num, const QVariant& chose_ldr);
+
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
 protected:
     QVector<KirbyTrialPtr> m_trials;
+    QPointer<Questionnaire> m_questionnaire;
+
     // ------------------------------------------------------------------------
     // Constants
     // ------------------------------------------------------------------------

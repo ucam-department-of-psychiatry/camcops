@@ -43,9 +43,9 @@ KirbyTrial::KirbyTrial(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     addField(FN_FK_TO_TASK, QVariant::Int);
     addField(FN_TRIAL, QVariant::Int, true);  // trial number within this session, 1-based
     // Choice
-    addField(FN_SIR, QVariant::Double);
-    addField(FN_LDR, QVariant::Double);
-    addField(FN_DELAY_DAYS, QVariant::Double);
+    addField(FN_SIR, QVariant::Int);  // int for now
+    addField(FN_LDR, QVariant::Int);  // int for now
+    addField(FN_DELAY_DAYS, QVariant::Int);  // int for now
     addField(FN_CURRENCY, QVariant::String);
     addField(FN_CURRENCY_SYMBOL_FIRST, QVariant::Bool);
     addField(FN_CHOICE_OFFERED_AT, QVariant::DateTime);
@@ -71,11 +71,54 @@ KirbyTrial::KirbyTrial(const int task_pk, const int trial_num,
     setValue(FN_CURRENCY, choice.currency);
     setValue(FN_CURRENCY_SYMBOL_FIRST, choice.currency_symbol_first);
     setValue(FN_CHOICE_OFFERED_AT, datetime::now());
+
+    save();
 }
 
 
-void KirbyTrial::recordResponse(const bool chose_ldr)
+int KirbyTrial::trialNum() const
+{
+    return valueInt(FN_TRIAL);
+}
+
+
+KirbyRewardPair KirbyTrial::info() const
+{
+    return KirbyRewardPair(
+                valueInt(FN_SIR),
+                valueInt(FN_LDR),
+                valueInt(FN_DELAY_DAYS),
+                value(FN_CHOSE_LDR),
+                valueString(FN_CURRENCY),
+                valueBool(FN_CURRENCY_SYMBOL_FIRST)
+    );
+}
+
+
+void KirbyTrial::noteTimeOfOffer()
+{
+    setValue(FN_CHOICE_OFFERED_AT, datetime::now());
+
+    save();
+}
+
+
+void KirbyTrial::recordChoice(const bool chose_ldr)
 {
     setValue(FN_RESPONDED_AT, datetime::now());
     setValue(FN_CHOSE_LDR, chose_ldr);
+
+    save();
+}
+
+
+QVariant KirbyTrial::getChoice() const
+{
+    return value(FN_CHOSE_LDR);
+}
+
+
+bool KirbyTrial::answered() const
+{
+    return !valueIsNull(FN_CHOSE_LDR);
 }

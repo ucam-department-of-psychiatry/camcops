@@ -25,32 +25,17 @@ const bool KIRBY_DEFAULT_CURRENCY_SYMBOL_FIRST = true;  // Make configurable? Re
 
 
 KirbyRewardPair::KirbyRewardPair(const int sir, const int ldr,
-                                 const int delay_days, const QString& currency,
+                                 const int delay_days,
+                                 const QVariant& chose_ldr,
+                                 const QString& currency,
                                  const bool currency_symbol_first) :
     sir(sir),
     ldr(ldr),
     delay_days(delay_days),
     currency(currency),
-    currency_symbol_first(currency_symbol_first)
+    currency_symbol_first(currency_symbol_first),
+    chose_ldr(chose_ldr)
 {
-}
-
-
-double KirbyRewardPair::kIndifference() const
-{
-    const double a1 = sir;  // amount A1, which is immediate i.e. delay D1 = 0
-    const double a2 = ldr;  // amount A2; A2 > A1
-    const double d2 = delay_days;  // delay D2
-    // Values:
-    //           V1 = A1/(1 + kD1) = A1
-    //           V2 = A2/(1 + kD2)
-    // At indifference,
-    //           V1 = V2
-    // so
-    //      A1      = A2/(1 + kD2)
-    //      A2 / A1 = 1 + kD2
-    //            k = ((A2 / A1) - 1) / D2
-    return ((a2 / a1) - 1) / d2;
 }
 
 
@@ -63,8 +48,75 @@ QString KirbyRewardPair::money(const int amount) const
 }
 
 
+QString KirbyRewardPair::sirString() const
+{
+    return QObject::tr("%1 today").arg(money(sir));
+}
+
+
+QString KirbyRewardPair::ldrString() const
+{
+    return QObject::tr("%1 in %2 days").arg(money(ldr),
+                                            QString::number(delay_days));
+}
+
+
 QString KirbyRewardPair::question() const
 {
-    return QString(QObject::tr("Would you prefer %1 today, or %2 in %3 days?"))
-            .arg(money(sir), money(ldr), QString::number(delay_days));
+    return QObject::tr("Would you prefer %1, or %2?").arg(sirString(),
+                                                          ldrString());
+}
+
+
+QString KirbyRewardPair::answer() const
+{
+    if (chose_ldr.isNull()) {
+        return "?";
+    }
+    return chose_ldr.toBool() ? ldrString() : sirString();
+}
+
+
+double KirbyRewardPair::kIndifference() const
+{
+    const double a1 = sir;  // amount A1, which is immediate i.e. delay D1 = 0
+    const double a2 = ldr;  // amount A2; A2 > A1
+    const double d2 = delay_days;  // delay D2
+
+    // Values:
+    //           V1 = A1/(1 + kD1) = A1
+    //
+    //           V2 = A2/(1 + kD2)
+    //
+    // At indifference,
+    //           V1 = V2
+    //
+    // so
+    //      A1      = A2/(1 + kD2)
+    //
+    //      A2 / A1 = 1 + kD2
+    //
+    //            k = ((A2 / A1) - 1) / D2
+    //              = (A2 - A1) / (A1 * D2)
+
+    return ((a2 / a1) - 1) / d2;
+}
+
+
+bool KirbyRewardPair::choiceConsistent(double k) const
+{
+    if (chose_ldr.isNull()) {
+        // Subject has not chosen.
+        return false;
+    }
+    const double k_indiff = kIndifference();
+    if (qFuzzyCompare(k, k_indiff)) {  // are they the same?
+        // Subject's k is at the implied indifference point for this question.
+        // Therefore, the subject should be indifferent.
+        return true;
+    }
+    const bool chose_the_ldr = chose_ldr.toBool();
+    // If subject's k < k_indiff, subject should choose the large/delayed option.
+    // If subject's k > k_indiff, subject should choose the small/immediate option.
+    return chose_the_ldr == k < k_indiff;
 }

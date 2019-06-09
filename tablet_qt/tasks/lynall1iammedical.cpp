@@ -18,6 +18,7 @@
 */
 
 #include "lynall1iammedical.h"
+#include "common/preprocessor_aid.h"
 #include "common/textconst.h"
 #include "db/fieldref.h"
 #include "lib/stringfunc.h"
@@ -457,8 +458,18 @@ OpenableWidget* Lynall1IamMedical::editor(const bool read_only)
     int row = 0;
     const Qt::Alignment align = Qt::AlignTop | Qt::AlignLeft;
     const int indent_px = 25;
-    auto addCell = [&grid, &row, &align]
-            (int level, const QString& tag, QuElement* element) -> void {
+
+    // For the following function, lambda capture of indent_px is not required
+    // by GCC, and the Qt UI (clang) says "lambda capture 'indent_px' is not
+    // required to be captured for this use". However, without it, Visual C++
+    // says "'indent_px' cannot be implicitly captured because no default
+    // capture mode has been specified". The clang perspective is described at
+    // https://stackoverflow.com/questions/43467095/why-is-a-const-variable-sometimes-not-required-to-be-captured-in-a-lambda
+    auto addCell = [&grid, &row, &align
+#ifdef COMPILER_WANTS_EXPLICIT_LAMBDA_CAPTURES
+            , &indent_px
+#endif
+            ](int level, const QString& tag, QuElement* element) -> void {
         const int rowspan = 1;
         const int col = level;
         const int colspan = 3 - level;
@@ -471,7 +482,7 @@ OpenableWidget* Lynall1IamMedical::editor(const bool read_only)
         grid->addCell(QuGridCell(element, row++, col, rowspan, colspan, align));
     };
     addCell(1, TAG_13B, qtext("q13b_question"));
-    addCell(1, TAG_13B ,ynQuestion(FN_Q13B_ORAL_ULCERS));
+    addCell(1, TAG_13B, ynQuestion(FN_Q13B_ORAL_ULCERS));
     addCell(2, TAG_13C, qtext("q13c_question"));
     addCell(2, TAG_13C, new QuLineEditInteger(fieldRef(FN_Q13C_ORAL_AGE_FIRST),
                                               MIN_AGE_Y, MAX_AGE_Y));

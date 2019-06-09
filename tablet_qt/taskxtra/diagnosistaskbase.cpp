@@ -313,7 +313,7 @@ void DiagnosisTaskBase::rebuildPage(QuPage* page)
 
         auto buttons = new QuFlowContainer({
             new QuButton(
-                TextConst::DELETE(),
+                TextConst::delete_(),
                 std::bind(&DiagnosisTaskBase::deleteItem, this, i)
             ),
             (new QuButton(

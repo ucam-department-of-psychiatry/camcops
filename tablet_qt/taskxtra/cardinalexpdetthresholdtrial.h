@@ -34,6 +34,7 @@ public:
             const QVariant& trial_num_ignoring_catch_trials,
             bool target_presented,
             CamcopsApp& app, DatabaseManager& db);
+
     bool wasCaughtOutReset() const;
     int trialNum() const;
     int trialNumIgnoringCatchTrials() const;

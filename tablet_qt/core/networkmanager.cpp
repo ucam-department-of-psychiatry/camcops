@@ -1271,7 +1271,7 @@ void NetworkManager::sendTableRecordwise(const QString& tablename)
     m_upload_current_record_index = 0;
 
     // First, DELETE WHERE pk NOT...
-    const QString pkvalues = convert::intVectorToCsvString(m_upload_recordwise_pks_to_send);
+    const QString pkvalues = convert::numericVectorToCsvString(m_upload_recordwise_pks_to_send);
     Dict dict;
     dict[KEY_OPERATION] = OP_DELETE_WHERE_KEY_NOT;
     dict[KEY_TABLE] = tablename;
@@ -1932,7 +1932,7 @@ bool NetworkManager::areDescriptionsOK() const
         statusMessage(tr(
                 "ID numbers %1 are used on the tablet but not defined "
                 "on the server! Please edit patient records to remove "
-                "them.").arg(convert::intVectorToCsvString(
+                "them.").arg(convert::numericVectorToCsvString(
                                  extra_idnums_on_tablet)));
     } else {
         statusMessage("Logic bug: something not OK but don't know why");

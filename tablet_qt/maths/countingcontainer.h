@@ -53,7 +53,11 @@ public:
         QStringList items;
         if (sorted) {
             QList<T> keys = m_map.keys();
-            qSort(keys);
+            // qSort obsolete. See
+            // https://lists.qt-project.org/pipermail/development/2013-September/013122.html
+            // Was:
+            //      qSort(keys);
+            std::sort(keys.begin(), keys.end());
             for (const T& key : keys) {
                 items.append(QString("%1: %2").arg(key).arg(m_map.value(key)));
             }

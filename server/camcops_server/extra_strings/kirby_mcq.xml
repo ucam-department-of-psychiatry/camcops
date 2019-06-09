@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="kirby_mcq">
+    <!-- Kirby et al. Monetary Choice Questionnaire -->
+
+    <string name="intro_title">Introduction</string>
+    <string name="intro">For each of the next 27 choices, please indicate which reward you would prefer: the smaller reward today, or the larger reward in the specified number of days.</string>
+    <!-- Not the original (for which see Kirby et al. 1999), but that was quite
+    long. -->
+
+    <string name="thanks_title">Thank you</string>
+    <string name="thanks">Thank you for completing this questionnaire!</string>
+
+  </task>
+</resources>

@@ -17,10 +17,12 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "mathfunc.h"
+// #define DEBUG_GEOMETRIC_MEAN
 
+#include "mathfunc.h"
 #include <QtMath>  // for e.g. qSqrt()
 #include <QObject>
+#include <QString>
 #include "common/textconst.h"
 #include "lib/convert.h"
 #include "maths/eigenfunc.h"
@@ -116,6 +118,66 @@ double kahanSum(const QVector<double>& vec)
         sum = t;
     }
     return sum;
+}
+
+
+double geometricMean(const QVector<double>& data)
+{
+    // https://stackoverflow.com/questions/19980319/efficient-way-to-compute-geometric-mean-of-many-numbers
+    // Modified because Qt uses int rather than std::size_t for its sizes.
+    // Also clarified slightly.
+
+    const int n = data.size();  // number of data points
+    const double inv_n = 1.0 / n;
+    double m = 1.0;  // cumulative mantissa
+    long long ex = 0;  // cumulative exponent
+
+    auto doBucket = [&data, &ex](const int first, const int last) -> double
+    {
+        double ans = 1.0;
+        int exponent;
+        for (int i = first; i != last; ++i) {
+            ans *= std::frexp(data[i], &exponent);
+            // See https://en.cppreference.com/w/cpp/numeric/math/frexp.
+            // It decomposes its first argument into a normalized fraction
+            // (return value) and an integral power of two. For example,
+            // maps 123.45 to 0.964453 * 2^7.
+            ex += exponent;
+        }
+        return ans;
+    };
+
+    // bucket_size = -log2(smallest double), i.e. a high positive number
+    // See https://en.cppreference.com/w/cpp/types/numeric_limits
+    const std::size_t bucket_size_t = static_cast<std::size_t>(
+                -std::log2(std::numeric_limits<double>::min()));
+    const int bucket_size = static_cast<int>(bucket_size_t);
+    // Number of complete buckets
+    const int n_buckets = n / bucket_size;  // integer division
+
+    // Do all complete buckets
+    for (int i = 0; i < n_buckets; ++i) {
+        m *= std::pow(doBucket(i * bucket_size, (i + 1) * bucket_size), inv_n);
+    }
+    // Finish off any residual elements
+    m *= std::pow(doBucket(n_buckets * bucket_size, n), inv_n);
+
+    const int radix = std::numeric_limits<double>::radix;
+    const double result = std::pow(radix, ex * inv_n) * m;
+#ifdef DEBUG_GEOMETRIC_MEAN
+    qDebug().nospace()
+            << "data = " << data
+            << ", n = " << n
+            << ", inv_n = " << inv_n
+            << ", bucket_size_t = " << bucket_size_t
+            << ", bucket_size = " << bucket_size
+            << ", n_buckets = " << n_buckets
+            << ", radix = " << radix
+            << ", m = " << m
+            << ", ex = " << ex
+            << ", result = " << result;
+#endif
+    return result;
 }
 
 
@@ -611,6 +673,30 @@ qreal intPercentToProportion(const int percent)
 {
     // convert 0-100 to 0.0-1.0
     return qBound(0, percent, 100) / 100.0;
+}
+
+
+QStringList testMaths()
+{
+    QStringList lines;
+
+    // geometricMean()
+    const QVector<QPair<QVector<double>, double>> gm_tests{
+        {{2, 8}, 4},  // geometric mean of 2 and 8 is 4
+        {{4, 9}, 6},
+    };
+    for (const auto& pair : gm_tests) {
+        const auto& q = pair.first;
+        const double correct_a = pair.second;
+        const double a = geometricMean(q);
+        const bool ok = qFuzzyCompare(a, correct_a);
+        lines.append(QString("geometricMean(%1) -> %2 [%3]").arg(
+                         convert::numericVectorToCsvString(q),
+                         QString::number(a),
+                         ok ? QObject::tr("true") : QObject::tr("WRONG")));
+    }
+
+    return lines;
 }
 
 

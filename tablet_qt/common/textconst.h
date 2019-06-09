@@ -90,7 +90,7 @@ public:
     static QString defaultHintText();
     static QString DEFUNCT_TITLE_SUFFIX;
     static QString defunctSubtitleSuffix();
-    static QString DELETE();
+    static QString delete_();  // "delete" is a C++ keyword; "DELETE" also breaks Visual C++
     static QString description();
     static QString diagnosis();
     

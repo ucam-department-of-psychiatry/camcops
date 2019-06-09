@@ -25,7 +25,9 @@
 
 class LogisticDescriptives
 {
-    // Deals with multiple ways of specifying a logistic regression equation.
+    // Deals with multiple ways of specifying a simple logistic regression
+    // equation with a SINGLE predictor.
+    //
     // This class just stores the coefficients. It can be initialized directly
     // with them, or given data with which to perform the regression (via
     // the LogisticRegression class).

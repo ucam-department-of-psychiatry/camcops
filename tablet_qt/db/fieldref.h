@@ -102,8 +102,12 @@ public:
     // ========================================================================
     // Shorthand
     // ========================================================================
+    // A function that looks like "QVariant getSomething()":
     using GetterFunction = std::function<QVariant()>;
-    using SetterFunction = std::function<bool(const QVariant&)>;  // returns: changed?
+
+    // A function that looks like "bool setSomething(const QVariant& value)";
+    // its return value is "changed?"
+    using SetterFunction = std::function<bool(const QVariant&)>;
 
 protected:
     // Protected constructor

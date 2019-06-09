@@ -82,7 +82,7 @@ LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& x,
     const RowVector<int> responses = eigenColumnVectorFromQVector<int>(y);
     LogisticRegression lr;
     lr.setVerbose(verbose);
-    lr.fit(predictors, responses);
+    lr.fitAddingIntercept(predictors, responses);
     ColumnVector<double> coefficients = lr.coefficients();
     if (coefficients.size() != 2) {
         return;

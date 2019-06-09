@@ -20,7 +20,7 @@
 #pragma once
 
 #include <cmath>  // for std::floor, etc.
-#include <QtAlgorithms>  // for qsort()
+// #include <QtAlgorithms>  // for qsort()
 #include <QVariant>
 #include <QVector>
 
@@ -93,6 +93,9 @@ int centile(qreal x, qreal minimum, qreal maximum);
 
 // Adds up numbers, minimizing error. See code.
 double kahanSum(const QVector<double>& vec);
+
+// Geometric mean
+double geometricMean(const QVector<double>& data);
 
 // ============================================================================
 // QVariant operations, and QVariant collections
@@ -324,5 +327,8 @@ int proportionToIntPercent(qreal proportion);
 
 // Converts 0-100 to 0.0-1.0
 qreal intPercentToProportion(int percent);
+
+// Test maths functions
+QStringList testMaths();
 
 }  // namespace mathfunc

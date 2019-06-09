@@ -162,12 +162,21 @@ LogisticRegression::LogisticRegression(
 }
 
 
-void LogisticRegression::fit(const MatrixXd& X,  // predictors, EXCLUDING intercept
-                             const VectorXi& y)  // depvar
+void LogisticRegression::fitAddingIntercept(
+        const MatrixXd& X,  // predictors, EXCLUDING intercept
+        const VectorXi& y)  // depvar
 {
     const MatrixXd predictors = designMatrix(X);
+    fitDirectly(predictors, y);
+}
+
+
+void LogisticRegression::fitDirectly(
+        const MatrixXd& X,  // predictors, INCLUDING intercept
+        const VectorXi& y)  // depvar
+{
     const VectorXd dependent_variable = y.cast<double>();
-    Glm::fit(predictors, dependent_variable);
+    Glm::fit(X, dependent_variable);
 }
 
 

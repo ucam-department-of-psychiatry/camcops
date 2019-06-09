@@ -339,7 +339,8 @@ public:
     // ========================================================================
 
     // Loads the record from the database by PK; returns "found?"
-    // - Also calls loadAllAncillary(), if that has been overridden.
+    // - Also calls loadAllAncillary(), if that has been overridden, to load
+    //   associated ancillary objects.
     // - If not found, calls nullify().
     virtual bool load(int pk);
 

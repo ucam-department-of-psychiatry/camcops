@@ -258,7 +258,7 @@ QString toSqlLiteral(const QVariant& value)
     case QVariant::UserType:
         if (isQVariantOfUserType(value, TYPENAME_QVECTOR_INT)) {
             QVector<int> intvec = qVariantToIntVector(value);
-            return sqlQuoteString(intVectorToCsvString(intvec));
+            return sqlQuoteString(numericVectorToCsvString(intvec));
         }
         uifunc::stopApp("toSqlLiteral: Unknown user type");
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
@@ -712,7 +712,7 @@ QString prettyValue(const QVariant& variant,
     case QVariant::UserType:
         if (isQVariantOfUserType(variant, TYPENAME_QVECTOR_INT)) {
             QVector<int> intvec = qVariantToIntVector(variant);
-            return intVectorToCsvString(intvec);
+            return numericVectorToCsvString(intvec);
         }
         uifunc::stopApp("prettyValue: Unknown user type");
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
@@ -893,16 +893,6 @@ QVariant toQCharVariant(const QVariant& v)
 // ============================================================================
 // Specific vectors as strings
 // ============================================================================
-
-QString intVectorToCsvString(const QVector<int>& vec)
-{
-    QStringList strings;
-    for (int value : vec) {
-        strings.append(QString::number(value));
-    }
-    return strings.join(COMMA);
-}
-
 
 QVector<int> csvStringToIntVector(const QString& str)
 {

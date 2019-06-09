@@ -72,7 +72,7 @@ QString TextConst::defunctSubtitleSuffix()
 {
     return " " + tr("[† Defunct.]");
 }
-QString TextConst::DELETE() { return tr("Delete"); }
+QString TextConst::delete_() { return tr("Delete"); }
 QString TextConst::description() { return tr("Description"); }
 QString TextConst::diagnosis() { return tr("Diagnosis"); }
 

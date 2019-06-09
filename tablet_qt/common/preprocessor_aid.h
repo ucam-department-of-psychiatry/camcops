@@ -30,17 +30,47 @@
 #define PREPROCESSOR_STRING2(x) #x
 #define PREPROCESSOR_STRING(x) PREPROCESSOR_STRING2(x)
 
+
+// ============================================================================
+// Compiler detection
+// ============================================================================
 // Note that Clang also defines __GNUC__, but also defines __clang__.
+// GCC defines __GNUC__.
+// Visual C++ defines _MSC_VER.
+
+#if defined __clang__  // NB defined in Qt Creator; put this first for that reason
+    #define COMPILER_IS_CLANG
+#elif defined __GNUC__  // __GNUC__ is defined for GCC and clang
+    #define COMPILER_IS_GCC
+    #if __GNUC__ >= 7  // gcc >= 7.0
+        #define GCC_AT_LEAST_7
+    #endif
+#elif defined _MSC_VER
+    #define COMPILER_IS_VISUAL_CPP
+#endif
+
+
+// ============================================================================
+// COMPILER_WANTS_EXPLICIT_LAMBDA_CAPTURES
+// ============================================================================
+// https://stackoverflow.com/questions/43467095/why-is-a-const-variable-sometimes-not-required-to-be-captured-in-a-lambda
+
+#ifdef COMPILER_IS_VISUAL_CPP
+    #define COMPILER_WANTS_EXPLICIT_LAMBDA_CAPTURES
+#endif
+
 
 // ============================================================================
 // COMPILER_WANTS_RETURN_AFTER_NORETURN
 // ============================================================================
 // - If compiler pays attention to "[[ noreturn ]]", you get e.g.
-//   - "'return' will never be executed"
+//   - "'return' will never be executed".
+// - clang pays attention to this. Other things seem not to.
 
-#ifndef __clang__
+#ifndef COMPILER_IS_CLANG
     #define COMPILER_WANTS_RETURN_AFTER_NORETURN
 #endif
+
 
 // ============================================================================
 // COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
@@ -54,17 +84,17 @@
 //   - https://softwareengineering.stackexchange.com/questions/179269/why-does-clang-llvm-warn-me-about-using-default-in-a-switch-statement-where-all
 // - The "// NOLINT" comment does not suppress clang-tidy in Qt Creator.
 
-#ifndef __clang__
+#ifndef COMPILER_IS_CLANG
     #define COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
 #endif
+
 
 // ============================================================================
 // GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
 // ============================================================================
 
-#if __GNUC__ >= 7  // gcc >= 7.0
+#ifdef GCC_AT_LEAST_7
     // https://www.gnu.org/software/gcc/gcc-7/changes.html
-    #define GCC_AT_LEAST_7
     #define GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
 #endif
 
@@ -72,12 +102,13 @@
 // evalutes to 0 when tested with "#if";
 // https://stackoverflow.com/questions/5085392/what-is-the-value-of-an-undefined-constant-used-in-if
 
+
 // ============================================================================
 // DISABLE_GCC_DATE_TIME_MACRO_WARNING
 // ============================================================================
 // "expansion of date or time macro is not reproducible"
 
-#if defined(__GNUC__) && !defined(__clang__)  // Running proper GCC
+#ifdef COMPILER_IS_GCC  // Running proper GCC
     #define DISABLE_GCC_DATE_TIME_MACRO_WARNING
 #endif
 

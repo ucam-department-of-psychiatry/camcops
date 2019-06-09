@@ -17,13 +17,25 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_SHOW_K
+// #define DEBUG_KIRBY_CALCS
+// #define DEBUG_WILEYTO_CALCS
+
 #include "kirby.h"
+#include <QtGlobal>  // for qMax()
+#include "../taskxtra/kirbyrewardpair.h"
+#include "../taskxtra/kirbytrial.h"
 #include "common/textconst.h"
 #include "db/ancillaryfunc.h"
 #include "lib/version.h"
+#include "maths/eigenfunc.h"
+#include "maths/include_eigen_core.h"
+#include "maths/logisticregression.h"
+#include "maths/mathfunc.h"
+#include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qumcq.h"
+#include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
-#include "../taskxtra/kirbyrewardpair.h"
-#include "../taskxtra/kirbytrial.h"
 
 
 // ============================================================================
@@ -174,29 +186,245 @@ QVector<DatabaseObjectPtr> Kirby::getAllAncillary() const
 
 bool Kirby::isComplete() const
 {
-    return false; // ***
-    // return valueBool(FN_FINISHED);
+    if (m_trials.length() != TOTAL_N_TRIALS) {
+        return false;
+    }
+    const QVector<KirbyRewardPair> results = allChoices();
+    for (auto t : m_trials) {
+        if (!t->answered()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 
 QStringList Kirby::summary() const
 {
-    return QStringList(); // ***
+    const QVector<KirbyRewardPair> results = allChoices();
+    return QStringList({
+        tr("k (days^-1, Kirby 2000 method): <b>%1</b>.").arg(kKirby(results)),
+        tr("k (days^-1, Wileyto 2004 method): <b>%1</b>").arg(kWileyto(results)),
+    });
 }
 
 
 QStringList Kirby::detail() const
 {
-    return QStringList(); // ***
+    QStringList choices;
+    const QVector<KirbyRewardPair> results = allChoices();
+    for (const KirbyRewardPair& pair : results) {
+        choices.append(QString("%1 <b>%2</b>").arg(pair.question(),
+                                                   pair.answer()));
+    }
+    choices.append("");
+    return choices + summary();
 }
 
 
 OpenableWidget* Kirby::editor(const bool read_only)
 {
-    // ***
+    // There are a few ways of doing this, but the questionnaire way is
+    // perfectly reasonable.
 
-    // *** see also text at https://www.gem-beta.org/public/DownloadMeasure.aspx?mdocid=472
+    QVector<QuPage*> pages;
 
-    Q_UNUSED(read_only);
-    return nullptr; // ***
+    // Intro
+    QuPage* intro_page = new QuPage();
+    intro_page->setTitle(xstring("intro_title"));
+    intro_page->addElement(new QuText(xstring("intro")));
+    pages.append(intro_page);
+
+    // Trials
+    for (int trial_num = 1; trial_num <= TOTAL_N_TRIALS; ++ trial_num) {
+        QuPage* p = new QuPage();
+        p->setTitle(QString("%1 %2").arg(textconst.question(),
+                                         QString::number(trial_num)));
+        KirbyTrialPtr trial = getTrial(trial_num);  // may create it
+        const KirbyRewardPair choice = trial->info();
+        FieldRef::GetterFunction getterfunc = std::bind(
+                    &Kirby::getChoice, this, trial_num);
+        FieldRef::SetterFunction setterfunc = std::bind(
+                    &Kirby::choose, this, trial_num, std::placeholders::_1);
+        FieldRefPtr fieldref(new FieldRef(getterfunc, setterfunc, true));
+        NameValueOptions options{
+            {choice.sirString(), false},
+            {choice.ldrString(), true},  // the boolean value is "chose LDR"
+        };
+        p->addElement(new QuMcq(fieldref, options));
+#ifdef DEBUG_SHOW_K
+        QString explanation = QString(
+                    "Indifference k: %1. A subject with a higher k (more "
+                    "impulsive) will choose the small immediate reward. A "
+                    "subject with a lower k (less impulsive) will choose the "
+                    "large delayed reward.").arg(choice.kIndifference());
+        QuText* explan_e = new QuText(explanation);
+        explan_e->setItalic();
+        p->addElement(explan_e);
+#endif
+        pages.append(p);
+    }
+
+    // Thanks
+    QuPage* thanks_page = new QuPage();
+    thanks_page->setTitle(xstring("thanks_title"));
+    thanks_page->addElement(new QuText(xstring("thanks")));
+    pages.append(thanks_page);
+
+    m_questionnaire = new Questionnaire(m_app, pages);
+    m_questionnaire->setType(QuPage::PageType::Patient);
+    m_questionnaire->setReadOnly(read_only);
+    return m_questionnaire;
+}
+
+
+// ============================================================================
+// Task-specific calculations
+// ============================================================================
+
+KirbyTrialPtr Kirby::getTrial(const int trial_num)
+{
+    Q_ASSERT(trial_num >= 1 && trial_num <= TOTAL_N_TRIALS);
+    for (auto t : m_trials) {
+        if (t->trialNum() == trial_num) {
+            return t;
+        }
+    }
+    // None found; create new.
+    const int trial_num_zb = trial_num - 1;  // zero-based
+    const KirbyRewardPair& choice = TRIALS[trial_num_zb];
+    KirbyTrialPtr t = KirbyTrialPtr(new KirbyTrial(
+        pkvalueInt(), trial_num, choice, m_app, m_db));  // will save
+    m_trials.append(t);
+    sortTrials();  // Re-sort (this shouldn't be necessary, but...)
+    return t;
+}
+
+
+void Kirby::sortTrials()
+{
+    std::sort(
+        m_trials.begin(), m_trials.end(),
+        [](const KirbyTrialPtr& a, const KirbyTrialPtr& b) {
+            // lambda comparator
+            return a->trialNum() > b->trialNum();
+        }
+    );
+}
+
+
+QVector<KirbyRewardPair> Kirby::allChoices() const
+{
+    QVector<KirbyRewardPair> v;
+    for (auto t : m_trials) {
+        v.append(t->info());
+    }
+    return v;
+}
+
+double Kirby::kKirby(const QVector<KirbyRewardPair>& results)
+{
+    // 1. For every k value assessed by the questions, establish the degree
+    //    of consistency.
+    QMap<double, int> consistency;  // maps k to n_consistent_choices
+    for (const KirbyRewardPair& pair : results) {
+        const double k = pair.kIndifference();
+        if (!consistency.contains(k)) {
+            consistency[k] = nChoicesConsistent(k, results);
+        }
+    }
+    // 2. Restrict to the results that are equally and maximally consistent.
+    QList<int> consistency_values = consistency.values();
+    const int max_consistency = *std::max_element(consistency_values.begin(),
+                                                  consistency_values.end());
+    QVector<double> good_k_values;
+    QMap<double, int>::const_iterator it = consistency.constBegin();
+    while (it != consistency.constEnd()) {
+        if (it.value() == max_consistency) {
+            good_k_values.append(it.key());
+        }
+        ++it;
+    }
+    // 3. Take the geometric mean of those good k values.
+    double subject_k = mathfunc::geometricMean(good_k_values);
+#ifdef DEBUG_KIRBY_CALCS
+    qDebug().nospace()
+            << "consistency = " << consistency
+            << ", consistency_values = " << consistency_values
+            << ", max_consistency = " << max_consistency
+            << ", good_k_values = " << good_k_values
+            << ", subject_k = " << subject_k;
+#endif
+    return subject_k;
+}
+
+
+int Kirby::nChoicesConsistent(const double k,
+                              const QVector<KirbyRewardPair>& results)
+{
+    int n_consistent = 0;
+    for (const KirbyRewardPair& pair : results) {
+        if (pair.choiceConsistent(k)) {
+            ++n_consistent;
+        }
+    }
+    return n_consistent;
+}
+
+
+double Kirby::kWileyto(const QVector<KirbyRewardPair>& results)
+{
+    const int n_predictors = 2;
+    const int n_observations = results.length();
+    Eigen::MatrixXd X(n_observations, n_predictors);
+    Eigen::VectorXi y(n_observations);
+    for (int i = 0; i < n_observations; ++i) {
+        const KirbyRewardPair& pair = results.at(i);
+        const double a1 = pair.sir;
+        const double a2 = pair.ldr;
+        const double d2 = pair.delay_days;
+        const double predictor1 = 1 - (a2 / a1);
+        const double predictor2 = d2;
+        X(i, 0) = predictor1;
+        X(i, 1) = predictor2;
+        y(i) = pair.chose_ldr.toInt();  // bool to int
+    }
+    LogisticRegression lr;
+    lr.fitDirectly(X, y);
+    const Eigen::VectorXd coeffs = lr.coefficients();
+    const double beta1 = coeffs(0);
+    const double beta2 = coeffs(1);
+    const double k = beta2 / beta1;
+#ifdef DEBUG_WILEYTO_CALCS
+    // Since qStringFromEigenMatrixOrArray is a template function, it's hard to
+    // alias and this doesn't work:
+    // constexpr auto qs = eigenfunc::qStringFromEigenMatrixOrArray;
+#define QS eigenfunc::qStringFromEigenMatrixOrArray
+    qDebug().nospace().noquote()
+            << "Wileyto: y = " << QS(y)
+            << ", X = " << QS(X)
+            << ", coeffs = " << QS(coeffs)
+            << ", predicted probabilities = " << QS(lr.predictProb());
+#endif
+    return k;
+}
+
+
+// ============================================================================
+// Questionnaire callbacks
+// ============================================================================
+
+QVariant Kirby::getChoice(const int trial_num)
+{
+    KirbyTrialPtr trial = getTrial(trial_num);
+    trial->noteTimeOfOffer();
+    return trial->getChoice();
+}
+
+
+bool Kirby::choose(const int trial_num, const QVariant& chose_ldr)
+{
+    KirbyTrialPtr trial = getTrial(trial_num);
+    trial->recordChoice(chose_ldr.toBool());
+    return true;
 }

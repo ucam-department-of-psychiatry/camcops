@@ -39,10 +39,15 @@ public:
             RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::Error);
 
     // Fit
-    void fit(const Eigen::MatrixXd& X,  // predictors, EXCLUDING intercept; n_observations x (n_predictors - 1)
-             const Eigen::VectorXi& y);  // depvar; n_observations x 1
+    void fitAddingIntercept(
+            const Eigen::MatrixXd& X,  // predictors, EXCLUDING intercept; n_observations x (n_predictors - 1)
+            const Eigen::VectorXi& y);  // depvar; n_observations x 1
+    void fitDirectly(
+            const Eigen::MatrixXd& X,  // predictors, EXCLUDING intercept; n_observations x n_predictors
+            const Eigen::VectorXi& y);  // depvar; n_observations x 1
 
-    // Creates a design matrix.
+    // Creates a design matrix by adding an initial column containing ones
+    // as the intercept term.
     // (Resembles a Python classmethod; sort-of static function.)
     Eigen::MatrixXd designMatrix(const Eigen::MatrixXd& X) const;
 

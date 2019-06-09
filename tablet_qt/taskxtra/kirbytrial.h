@@ -19,8 +19,7 @@
 
 #pragma once
 #include "db/databaseobject.h"
-
-class KirbyRewardPair;
+#include "kirbyrewardpair.h"
 
 
 class KirbyTrial : public DatabaseObject
@@ -30,10 +29,28 @@ public:
     // Load, or create blank
     KirbyTrial(CamcopsApp& app, DatabaseManager& db,
                int load_pk = dbconst::NONEXISTENT_PK);
+
     // Create and save
-    KirbyTrial(int task_pk, int trial_num, const KirbyRewardPair& choice,
+    KirbyTrial(int task_pk, int trial_num, const KirbyRewardPair& info,
                CamcopsApp& app, DatabaseManager& db);
-    void recordResponse(bool chose_ldr);
+
+    // Trial number (1-based)
+    int trialNum() const;
+
+    // Return the original question.
+    KirbyRewardPair info() const;
+
+    void noteTimeOfOffer();
+
+    // Record a subject's response: did they choose the large delayed reward?
+    void recordChoice(bool chose_ldr);
+
+    // Return the choice
+    QVariant getChoice() const;
+
+    // Answered?
+    bool answered() const;
+
 public:
     static const QString KIRBY_TRIAL_TABLENAME;
     static const QString FN_FK_TO_TASK;
