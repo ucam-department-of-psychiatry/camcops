@@ -106,7 +106,7 @@ from camcops_server.tasks.irac import Irac
 from camcops_server.tasks.khandaker_1_medicalhistory import (
     Khandaker1MedicalHistory,
 )
-# *** # from camcops_server.tasks.kirby_mcq import Kirby
+from camcops_server.tasks.kirby_mcq import Kirby
 
 from camcops_server.tasks.lynall_1_iam_medical import Lynall1IamMedicalHistory
 # *** # from camcops_server.tasks.lynall_2_iam_life import Lynall2LifeEvents

@@ -27,6 +27,7 @@
 #include "../taskxtra/kirbytrial.h"
 #include "common/textconst.h"
 #include "db/ancillaryfunc.h"
+#include "lib/convert.h"
 #include "lib/version.h"
 #include "maths/eigenfunc.h"
 #include "maths/include_eigen_core.h"
@@ -203,15 +204,16 @@ QStringList Kirby::summary() const
     const QVector<KirbyRewardPair> results = allChoices();
     const double k_kirby = kKirby(results);
     const double k_wileyto = kWileyto(results);
+    const int dp = 6;
     return QStringList({
-        tr("k (days^-1, Kirby 2000 method): <b>%1</b> "
-           "(decay to half value at %2 days).").arg(
-                           QString::number(k_kirby),
-                           QString::number(1 / k_kirby)),
-        tr("k (days^-1, Wileyto 2004 method): <b>%1</b> "
-           "(decay to half value at %2 days).").arg(
-                           QString::number(k_wileyto),
-                           QString::number(1 / k_wileyto)),
+        tr("<i>k</i> (days<sup>–1</sup>, Kirby 2000 method): <b>%1</b> "
+           "(decay to half value at <b>%2</b> days).").arg(
+                           convert::toDp(k_kirby, dp),
+                           convert::toDp(1 / k_kirby, 0)),
+        tr("<i>k</i> (days<sup>–1</sup>, Wileyto 2004 method): <b>%1</b> "
+           "(decay to half value at <b>%2</b> days).").arg(
+                           convert::toDp(k_wileyto, dp),
+                           convert::toDp(1 / k_wileyto, 0)),
     });
 }
 
@@ -219,14 +221,17 @@ QStringList Kirby::summary() const
 QStringList Kirby::detail() const
 {
     QStringList choices;
+    const int dp = 6;
     const QVector<KirbyRewardPair> results = allChoices();
     for (int i = 0; i < results.size(); ++i) {
         const KirbyRewardPair& pair = results.at(i);
         const int trial_num = i + 1;
-        choices.append(QString("%1. %2 <b>%3</b>").arg(
-                           QString::number(trial_num),
-                           pair.question(),
-                           pair.answer()));
+        choices.append(
+            QString("%1. %2 <i>(k<sub>indiff</sub> = %3)</i> <b>%4</b>").arg(
+                        QString::number(trial_num),
+                        pair.question(),
+                        convert::toDp(pair.kIndifference(), dp),
+                        pair.answer()));
     }
     choices.append("");
     return choices + summary();

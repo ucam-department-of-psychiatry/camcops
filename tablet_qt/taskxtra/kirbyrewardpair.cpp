@@ -118,5 +118,5 @@ bool KirbyRewardPair::choiceConsistent(double k) const
     const bool chose_the_ldr = chose_ldr.toBool();
     // If subject's k < k_indiff, subject should choose the large/delayed option.
     // If subject's k > k_indiff, subject should choose the small/immediate option.
-    return chose_the_ldr == k < k_indiff;
+    return chose_the_ldr == (k < k_indiff);
 }

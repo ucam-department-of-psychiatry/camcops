@@ -55,6 +55,7 @@ server/camcops_server
     alembic/versions/0023_comments.py.rst
     alembic/versions/0024_user_language.py.rst
     alembic/versions/0025_lynall_1_iam_medical.py.rst
+    alembic/versions/0026_kirby_mcq.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -200,6 +201,7 @@ server/camcops_server
     extra_strings/ided3d.xml.rst
     extra_strings/irac.xml.rst
     extra_strings/khandaker_1_medicalhistory.xml.rst
+    extra_strings/kirby_mcq.xml.rst
     extra_strings/lynall_1_iam_medical.xml.rst
     extra_strings/mast.xml.rst
     extra_strings/moca.xml.rst

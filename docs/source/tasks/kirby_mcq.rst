@@ -111,6 +111,9 @@ such estimates to be negative under conditions of inconsistent choice.
 
 .. todo:: Reference RNC new method when published.
 
+:math:`\frac{1}{k}` is the delay at which a prospective reward has decayed to
+half its original value.
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

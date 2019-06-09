@@ -26,6 +26,7 @@ camcops_server/tasks/kirby.py
 
 """
 
+# import logging
 import math
 from typing import Dict, List, Optional
 
@@ -56,6 +57,8 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
+
+# log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -163,7 +166,12 @@ class KirbyRewardPair(object):
         if math.isclose(k, k_indiff):
             # Subject is indifferent
             return True
-        return self.chose_ldr == k < k_indiff
+        # WARNING: "self.chose_ldr == k < k_indiff" FAILS.
+        # Python will evaluate this to "(self.chose_ldr == k) < k_indiff", and
+        # despite that evaluating to "a bool < an int", that's legal; e.g.
+        # "False < 4" evaluates to True.
+        # Must be bracketed like this:
+        return self.chose_ldr == (k < k_indiff)
 
 
 # =============================================================================
@@ -310,7 +318,7 @@ class Kirby(TaskHasPatientMixin, Task):
         # 3. Take the geometric mean of those good k values.
         subject_k = gmean(good_k_values)  # type: np.float64
 
-        return subject_k
+        return float(subject_k)
 
     @staticmethod
     def k_wileyto(results: List[KirbyRewardPair]) -> Optional[float]:
@@ -362,45 +370,58 @@ class Kirby(TaskHasPatientMixin, Task):
         ]
 
     def get_task_html(self, req: CamcopsRequest) -> str:
+        dp = 6
         qlines = []  # type: List[str]
         for t in self.trials:
             info = t.info()
             qlines.append(
                 tr_qa(f"{t.trial}. {info.question(req)} "
-                      f"<i>k<sub>indiff</sub> = {info.k_indifference()}",
+                      f"<i>(k<sub>indiff</sub> = "
+                      f"{round(info.k_indifference(), dp)})</i>",
                       info.answer(req))
             )
         q_a = "\n".join(qlines)
         results = self.all_choices()
         k_kirby = self.k_kirby(results)
+        if k_kirby is None:
+            inv_k_kirby = None
+        else:
+            inv_k_kirby = int(round(1 / k_kirby))  # round to int
+            # ... you'd think the int() was unnecessary but it is needed
+            k_kirby = round(k_kirby, dp)
         k_wileyto = self.k_wileyto(results)
+        if k_wileyto is None:
+            inv_k_wileyto = None
+        else:
+            inv_k_wileyto = int(round(1 / k_wileyto))  # round to int
+            k_wileyto = round(k_wileyto, dp)
         return f"""
           <div class="{CssClass.SUMMARY}">
             <table class="{CssClass.SUMMARY}">
               {self.get_is_complete_tr(req)}
               <tr>
-                <td>k (days<sup>-1</sup>, Kirby 2000 method)</td>
+                <td><i>k</i> (days<sup>–1</sup>, Kirby 2000 method)</td>
                 <td>{answer(k_kirby)}
               </tr>
               <tr>
-                <td>1/k (days, Kirby method): time to half value</td>
-                <td>{answer(1 / k_kirby)}
+                <td>1/<i>k</i> (days, Kirby method): time to half value</td>
+                <td>{answer(inv_k_kirby)}
               </tr>
               <tr>
-                <td>k (days<sup>-1</sup>, Wileyto et al. 2004 method)</td>
+                <td><i>k</i> (days<sup>–1</sup>, Wileyto et al. 2004 method)</td>
                 <td>{answer(k_wileyto)}
               </tr>
               <tr>
-                <td>1/k (days, Wileyto method): time to half value</td>
-                <td>{answer(1 / k_wileyto)}
+                <td>1/<i>k</i> (days, Wileyto method): time to half value</td>
+                <td>{answer(inv_k_wileyto)}
               </tr>
             </table>
           </div>
           <table class="{CssClass.TASKDETAIL}">
             <tr>
-              <th width="60%">Question</th>
-              <th width="40%">Answer</th>
+              <th width="75%">Question</th>
+              <th width="25%">Answer</th>
             </tr>
             {q_a}
           </table>
-        """
+        """  # noqa
