@@ -56,25 +56,30 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 2013
 ~~~~
 
+
 **Server v1.0, 2013-08-14**
 
 - First version (1.0).
+
 
 **Client v1.0, 2013-11-13**
 
 - first version
 - requires server version 1.0
 
+
 **Client v1.01, 2013-11-13**
 
 - test of version number increment
 - Bugfix: Executive menu had a duff entry in and crashed.
+
 
 **Server v1.01, 2013-11-20**
 
 - Test of version number increment (1.01).
 - Trivial change: ensure empty "\*_SUMMARY_TEMP_current\*" views
   aren't created for anonymous tasks.
+
 
 **Client 1.02, 2013-11-22 onwards**
 
@@ -91,6 +96,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Two CECAQ3 fields used the wrong keyboard/type.
 - Text field/cursor colours improved for iOS/Android.
 - Bugfix to QuestionCanvas_webview.
+
 
 **Server v1.02, 2013-11-28**
 
@@ -113,6 +119,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 2014
 ~~~~
 
+
 **Client v1.03, 2014-01-10**
 
 - Requires server version 1.03.
@@ -127,9 +134,11 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - QoL-SG phrasing improved.
 - Tested on iOS 7.0.3/7.0.4, Android 4.1.1.
 
+
 **Server v1.03, 2014-01-10**
 
 - CGI-SCH task.
+
 
 **Client v1.04, 2014-01-14**
 
@@ -138,9 +147,11 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Changes to SetMenu_Deakin_1.js
 - Confirmation of CGI-SCH permissions.
 
+
 **Client v1.05, 2014-01-14**
 
 - Password entry windows improved: return key now accepts data entry.
+
 
 **Client v1.06, 2014-01-16**
 
@@ -157,6 +168,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Variable column widths in ContainerTable, plus populateVertically option.
 - Bugfix in QuestionTypedVariables layout for colWidthPrompt.
 - (2014-01-18) Minor layour change in CPFT_LPS_Referral.
+
 
 **Server v1.06, 2014-01-16**
 
@@ -176,6 +188,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   device-specific! Was used by blob upload on the tablet, i.e.
   dbupload.sendTableRecordwise()
 
+
 **Server v1.07, 2014-02-14**
 
 - REQUIRES DATABASE CHANGE BEFORE INSTALLATION: 
@@ -194,6 +207,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Speedup to LSTRING XML processor.
 - Speedup via transaction-based database handling in the Python handler.
 - Redirect to destination URL after re-authentication.
+
 
 **Server v1.08, 2014-07-22**
 
@@ -265,13 +279,16 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Drop-down lists for filters remember state.
 - Basic research dump (likely to be the most useful in practice).
 
+
 **Client v1.08, 2014-07-23**
 
 - Requires server version 1.08.
 - Field renaming within Icd10Schizophrenia to avoid misnomers:
+
   - tpah_commentary TO hv_commentary
   - tpah_discussing TO hv_discussing
   - tpah_from_body TO hv_from_body
+
 - CPFT\* tasks remain in beta.
 - Chaining of tasks.
 - Page jump within live questionnaires (allowPageJumpDuringEditing).
@@ -288,6 +305,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Android theme changed to light (with consequent changes to questionnaire
   font size editing screen, etc.).
 
+
 **Client v1.09, 2014-08-02**
 
 - Requires server version 1.09.
@@ -295,6 +313,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   strings.
 - PANSS stripped down to data collection tool only, for copyright reasons.
 - Not distributed yet.
+
 
 **Server v1.09, 2014-08-02**
 
@@ -310,6 +329,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Internal code changes: explicit modules in all cases, removing
   cc_shared.py.
 - PANSS stripped down to data collection tool only, for copyright reasons.
+
 
 **Client v1.10, 2014-08-08**
 
@@ -328,6 +348,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Unit testing framework.
 - Not distributed yet.
 
+
 **Client v1.12, 2014-09-11**
 
 - Renamed ExpDetThreshold/ExpectationDetection tasks (and tables) to add
@@ -345,6 +366,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Bugfix: tablet registration crashed if the Patient table hadn't been created.
   And similar subsequent bug when uploading with no tables.
 - CAPE-42 task.
+
 
 **Server v1.10, 2014-08-16**
 
@@ -366,6 +388,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Make database/username more prominent (bold) in menus. Was easy to ignore.
 - pyflakes compliance.
 
+
 **Server v1.11, 2014-09-06**
 
 - Future necessity to discriminate field types that all use VARCHAR; e.g.
@@ -374,6 +397,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Significant simplification of work done in tasks with ancillary tables.
   New cc_task.Ancillary class; q.v.
 - Export to CRIS staging database and autocreate draft data dictionary.
+
 
 **Server v1.12, 2014-09-11**
 
@@ -386,9 +410,11 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Session-based authentication for tablets to improve speed (i.e. no need for
   bcrypt reauthentication within the same session, as for the web front end).
 
+
 **Server v1.13, 2014-10-02**
 
 - Trivial code changes.
+
 
 **Server v1.14, 2014-10-15**
 
@@ -399,10 +425,12 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   minimum server version. Version numbers are in cc_version.py on the server.
 - CAPE-42 task.
 
+
 **Client v1.15, 2014-10-18**
 
 - Requires server version 1.15.
 - NHS numbers were being corrupted, i.e. very long (10-digit) numbers.
+
   - Critical error. Stored correctly in database.
   - SQLite maximum integer is 2^63 - 1 = 9,223,372,036,854,775,807.
   - Javascript safe max is 9,007,199,254,740,991.
@@ -410,15 +438,19 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   - Ah. Titanium bug: https://jira.appcelerator.org/browse/TIMOB-3050
 
   - Workaround is either
+
     (a) float, which won't be quoted by the SQLite quote() function, and
     which MySQL will happily accept (rounding); and all numbers are floats
     anyway in Javascript;
+
     or
+
     (b) text, with parseInt() when reading from SQLite to Javascript.
     This will send integer values quoted, but MySQL will convert even e.g.
     '9876543209.999' (with the quotes) to 9876543210 when inserted into a
     BIGINT field, so that's OK. The parseInt() function will truncate, which
     is also fine.
+
     I guess float is slightly more logical. Let's be quite clear: in
     Javascript, all numbers are floats; they are 64-bit floating point
     values, the largest safe exact integer is Number.MAX_SAFE_INTEGER, or
@@ -437,11 +469,12 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Added changeColumnTypes() function.
 - Database upgrade changes type of patient ID numbers in patient table.
 - On the server (MySQL) side, the fields were
+
   - INT: -2,147,483,648 to 2,147,483,647 or 4,294,967,295 unsigned (4-byte)
   - and need to be
-
   - BIGINT: -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
     or 18,446,744,073,709,551,615 unsigned (8-byte)
+
 
 **Server v1.15, 2014-10-20**
 
@@ -451,9 +484,11 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   Fixes critical error (inability to represent NHS numbers.)
   See VERSION_TRACKER.txt for the tablet software.
 
+
 **Client v1.16, 2014-10-26**
 
 - Text-as-button widgets:
+
   - QuestionBooleanText / props.asTextButton
   - QuestionMultipleResponse / props.asTextButton
   - QuestionMCQ / props.asTextButton
@@ -463,16 +498,19 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Updated moment.js to 2.8.3
 - Minor other code changes and improvement of demo questionnaire.
 
+
 **Server v1.17, 2014-11-12**
 
 - HAM-D: complained inappropriately about '3' codes (meaning 'not measured')
   for weight questions; maximum score adjusted accordingly from 53 to 52;
   comment for Q16B was erroneously labelled Q16A.
 
+
 **Client v1.17, 2014-11-13**
 
 - HAM-D scoring was wrong for "weight - not measured" option. Fixed. Maximum
   changed from 53 to 52 accordingly.
+
 
 **Client v1.2, 2014-11-27**
 
@@ -481,13 +519,18 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - QuestionMCQGrid wasn't centring its buttons properly, because McqGroup wasn't
   copying its incoming tipropsArray through properly.
 - Bugfix to webclient database handling, in:
+
   - dbwebclient.js / convertResponseToRecordList()
   - netcore.js / parseServerReply()
+
 - Some improvements to MobileWeb, though Titanium bugs remain, e.g.:
+
   - https://jira.appcelerator.org/browse/TC-5065
   - https://jira.appcelerator.org/browse/TC-5071
+
 - GAF: applies 0-100 input constraint.
 - GAF: interprets raw score of zero as "unknown" for total-score purposes.
+
 
 **Server v1.2, 2014-11-28**
 
@@ -500,9 +543,12 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Scoring clarity expanded (e.g. BPRS, BPRS-E, CGI).
 - Exclude manually erased tasks from list (unless "include old versions" is
   selected). See
+
   - cc_task.get_session_candidate_task_pks_whencreated()
   - cc_task.get_all_current_pks()
+
 - Bugfix to cc_task.make_extra_summary_tables().
+
 
 **Server v1.21, 2014-12-04**
 
@@ -511,6 +557,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Draft support for RiO metadata export (for RiO's batch document upload
   facility). Some information pending, e.g. whether UTF-8 is supported in
   metadata.
+
 
 **Client v1.21, 2014-12-26**
 
@@ -523,17 +570,21 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   e.g. http://www.macroplant.com/iexplorer/
 - Curious crash on loading on an iPad whereas fine under the iOS simulator.
   Occurring in
+
   - dbinit.js
   - storedvars.databaseVersion.setValue(...)
   - this.dbstore()
   - dbcommon.storeRow()
   - dbsqlite.updateByPK()
   - dbsqlite.getFieldValueArgs()
+
   Segmentation fault (view console with Xcore > Window > Devices > click the
   tiny up-arrow at the bottom left of the right-hand pane for the device).
   Titanium SDK: 3.5.0.Alpha
   http://builds.appcelerator.com.s3.amazonaws.com/index.html
+
   ... upgraded to 3.5.0.RC (install SDK + change tiapp.xml)
+
   ... fixed. So a Titanium bug.
 
 
@@ -545,6 +596,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 **Server v1.22, 2015-01-07**
 
 - Improved audit search.
+
 
 **Client v1.30, 2015-01-30**
 
@@ -565,6 +617,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Raphael.js upgraded from 2.1.0 to 2.1.3.
 - Bugfix: if endUpload() failed, the failure wasn't processed properly.
 
+
 **Server v1.30, 2015-01-30**
 
 - REQUIRES COMMAND TO UPGRADE EACH DATABASE:
@@ -581,6 +634,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Bugfix: other filters failed if non-current tasks shown
   (get_session_candidate_task_pks_whencreated).
 
+
 **Client v1.31, 2015-02-10**
 
 - Requires server version 1.31.
@@ -596,6 +650,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   more similar subjective volumes.
 - IDED3D: Change colours for the colour-blind? A/w Annette.
 
+
 **Server v1.31, 2015-02-10**
 
 - REQUIRES COMMAND TO UPGRADE EACH DATABASE:
@@ -606,6 +661,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - HL7 resending triggered by cancelling, not deleting, existing messages
   (in cc_task.Task.delete_from_hl7_message_log(), etc.)
 
+
 **Server v1.32, 2015-02-15**
 
 - REQUIRES COMMAND TO UPGRADE EACH DATABASE:
@@ -614,9 +670,11 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Switches tables to Barracuda format to avoid uploading bug when rows too
   large.
 
+
 **Server v1.33, 2015-02-19**
 
 - Tweaks to RiO metadata export, based on feedback from Servelec.
+
 
 **Server v1.34, 2015-03-01**
 
@@ -624,6 +682,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   Tasks prone to this (ProgressNote, PsychiatricClerking) reworked to avoid
   tables.
 - Bug in RecipientDefinition.report_error() fixed.
+
 
 **Client v1.32, 2015-03-10 to 2015-04-22**
 
@@ -692,14 +751,17 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Allow user to specify the number of lines used for fixed-height multiline
   text entry: multilineDefaultNLines.
 
+
 **Client v1.33, 2015-04-26**
 
 - Bugfix: CGI didn't offer all options for Question 3 (drug effects)!
+
 
 **Client v1.34, 2015-04-26**
 
 - Probable bugfix: IDED3D performed its stage failure check before its stage
   success check at the end of trials (should be the other way round).
+
 
 **Client v1.40, 2015-05-27**
 
@@ -850,12 +912,14 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
   inserting BLOBs ("TypeError: can't use a string pattern on a bytes-like
   object").
 
+
 **Server v1.41, 2016-01-29**
 
 - Bugfix to large research data dumps (were timing out due to inefficient
   SQL). Changed cc_task.get_ancillary_items(), with some back-end functions
   in rnc_db too (changed fetch_all_objects_from_db_where(); added
   create_object_from_list() ).
+
 
 **Server v1.50, 2016-07-29**
 
@@ -880,6 +944,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
     allowed (across, but not within, device/era combinations).
 - Static type checking for server Python code.
 
+
 **Known problems and bugs at the end of the Titanium client**
 
 - visually disabled elements not yet implemented (starting point only in
@@ -893,6 +958,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Alerts with large content no longer scroll under iOS 8.
   Apparently this is an Apple bug:
   https://jira.appcelerator.org/browse/TIMOB-17745
+
 
 **Where were version numbers stored in the Titanium client?**
 
@@ -933,12 +999,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Development of C++ version from scratch. Replaces Titanium version.
 - Released as beta to Google Play on 2017-07-17.
 
+
 **Client v2.0.1 beta**
 
 - More const checking.
 - Bugfix to stone/pound/ounce conversion.
 - Bugfix to raw SQL dump.
 - ID numbers generalized so you can have >8 (= table structure change).
+
 
 **Client v2.0.2 beta**
 
@@ -950,10 +1018,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Automatic adjustment for high-DPI screens as standard in `QuBoolean` (its
   image option), `QuCanvas`, `QuImage`, `QuThermometer`.
 
+
 **Client v2.0.3 beta, 2017-08-07**
 
 - Trivial type fix to patient_wanted_copy_of_letter (String → Bool) in the
   unused task CPFTLPSDischarge.
+
 
 **Server v2.1.0 beta, 2017-10-17**
 
@@ -963,15 +1033,18 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - HOWEVER, HL7 EXPORT AND ANONYMOUS STAGING DATABASE SUPPORT DISABLED;
   further release pending.
 
+
 **Client v2.0.4 beta, 2017-10-22**
 
 - Bugfix: BLOB FKs weren’t being set properly from `BlobFieldRef` helper
   functions.
 
+
 **Client v2.0.5 beta, 2017-10-23**
 
 - Bugfix: if the server’s ID number definitions were consecutively numbered,
   the client got confused and renumbered them from 1.
+
 
 **Server v2.1.1 beta, 2017-10-23**
 
@@ -1006,6 +1079,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Menu additions for CPFT Affective Disorders Research Database.
 
+
 **Server v2.2.0, 2018-01-04 to 2018-04-24**
 
 - *To solve the problem of clients and servers being upgraded independently:*
@@ -1037,6 +1111,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix where reports would only be produced in HTML format.
 
 - New CIS-R task.
+
 
 **Server v2.2.1, 2018-04-24 to 2018-06-11**
 
@@ -1076,6 +1151,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     with the problem, regardless. (Perhaps the value came from an earlier
     version of ``merge_db.py``?)
 
+
 **Server v2.2.2, 2018-06-19**
 
 - Fixed bug in Diagnosis report for non-superusers (see
@@ -1083,11 +1159,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
   the exclusion "where" restriction was being applied wrongly and joining the
   exclusion query to the main query, giving far too many rows.
 
+
 **Client v2.2.1 beta, 2018-08-06**
 
 - Background striping for the `QuMcqGrid*` classes.
 
 - Bugfix: `android:allowBackup="false"` added back to AndroidManifest.xml
+
 
 **Client v2.2.3, server v2.2.3, 2018-06-23**
 
@@ -1095,6 +1173,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Client requires server v2.2.3. (Was a global requirement; should have been
   task-specific. REVERTED to minimum server version 2.2.0 in client 2.2.6.)
+
 
 **Client v2.2.4, 2018-07-18**
 
@@ -1329,9 +1408,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
   ``COLLATE utf8mb4_unicode_ci CHARSET utf8mb4``. See :ref:`MySQL: Illegal mix
   of collations <mysql_illegal_mix_of_collations>`.
 
+
 **Server v2.2.5, 2018-07-23**
 
 - Python package: ``camcops-server``.
+
 
 **Server and client v2.2.6, 2018-07-26**
 
@@ -1371,10 +1452,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Windows distribution (2018-08-16).
 
+
 **Server v2.2.7, 2018-07-31**
 
 - Bugfix relating to offset-naive versus offset-aware datetimes in
   ``cc_user.SecurityLoginFailure.clear_dummy_login_failures_if_necessary``.
+
 
 **Client v2.2.7, 2018-08-17**
 
@@ -1383,6 +1466,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Search facility for all-tasks list.
 
 - OS information.
+
 
 **Client v2.2.8 to 2.3.0, in progress (from 2018-09-10)**
 
@@ -1977,6 +2061,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Server released to CPFT on 2019-03-24.
 
+
 **Client and server v2.3.2 (2018-03-25 to 2018-04-04)**
 
 - Session information in ORS and SRS summaries.
@@ -2017,6 +2102,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix to
   :meth:`camcops_server.cc_modules.cc_session.CamcopsSession.n_sessions_active_since`,
   which wasn't converting to UTC properly.
+
 
 **Client and server v2.3.3 (IN PROGRESS)**
 
