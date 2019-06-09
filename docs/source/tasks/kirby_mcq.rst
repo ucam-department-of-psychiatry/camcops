@@ -46,11 +46,16 @@ Calculations
 
 **Hyperbolic delay discounting.** The principle is to judge the value :math:`V`
 of two options, :math:`V_1` and :math:`V_2`. Each has an amount :math:`A_1`,
-:math:`A_2` and a delay :math:`D_1`, :math:`D2`. Hyperbolic delay discounting
-is assumed, according to the discounting parameter :math:`k`. In the case of
-the Kirby MCQ, one option has zero delay (the small immediate reward or SIR --
-call it option 1): :math:`D_1 = 0`. One has a delay (the large delayed reward
-or LDR -- call it option 2).
+:math:`A_2` and a delay :math:`D_1`, :math:`D_2`. Hyperbolic delay discounting
+is assumed, according to the discounting parameter :math:`k`:
+
+.. math::
+
+    V = \frac{A}{1 + k D}
+
+In the case of the Kirby MCQ, one option has zero delay (the small immediate
+reward or SIR -- call it option 1): :math:`D_1 = 0`. One has a delay (the large
+delayed reward or LDR -- call it option 2).
 
 The values are therefore:
 
