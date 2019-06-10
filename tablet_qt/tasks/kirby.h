@@ -75,10 +75,10 @@ protected:
     void sortTrials();
 
     // Return a representation of all trials (including unanswered ones)
-    QVector<KirbyRewardPair> allTrials() const;
+    QVector<KirbyRewardPair> allTrialResults() const;
 
     // Return a representation of all questions/answers for analysis
-    QVector<KirbyRewardPair> allChoices() const;
+    QVector<KirbyRewardPair> allChoiceResults() const;
 
     // Calculate k via Kirby (2000) method (see docs)
     static double kKirby(const QVector<KirbyRewardPair>& results);

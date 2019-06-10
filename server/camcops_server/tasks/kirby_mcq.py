@@ -26,7 +26,7 @@ camcops_server/tasks/kirby.py
 
 """
 
-# import logging
+import logging
 import math
 from typing import Dict, List, Optional
 
@@ -58,7 +58,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
-# log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -272,7 +272,7 @@ class Kirby(TaskHasPatientMixin, Task):
                 return False
         return True
 
-    def all_choices(self) -> List[KirbyRewardPair]:
+    def all_choice_results(self) -> List[KirbyRewardPair]:
         """
         Returns a list of :class:`KirbyRewardPair` objects, one for each
         answered question.
@@ -346,7 +346,8 @@ class Kirby(TaskHasPatientMixin, Task):
         try:
             result = lr.fit()  # type: BinaryResultsWrapper
         except (LinAlgError,  # e.g. "singular matrix"
-                PerfectSeparationError):
+                PerfectSeparationError) as e:
+            log.debug(f"sm.Logit error: {e}")
             return None
         coeffs = result.params
         beta1 = coeffs[0]
@@ -354,12 +355,13 @@ class Kirby(TaskHasPatientMixin, Task):
         try:
             k = beta2 / beta1
         except ZeroDivisionError:
+            log.warning("Division by zero when calculating k = beta2 / beta1")
             return None
         return k
 
     # noinspection PyUnusedLocal
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        results = self.all_choices()
+        results = self.all_choice_results()
         return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="k_kirby", coltype=Float(),
@@ -383,7 +385,7 @@ class Kirby(TaskHasPatientMixin, Task):
                       info.answer(req))
             )
         q_a = "\n".join(qlines)
-        results = self.all_choices()
+        results = self.all_choice_results()
         k_kirby = self.k_kirby(results)
         if k_kirby is None:
             inv_k_kirby = None

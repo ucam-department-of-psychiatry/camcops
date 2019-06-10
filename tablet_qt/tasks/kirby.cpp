@@ -201,7 +201,7 @@ bool Kirby::isComplete() const
 
 QStringList Kirby::summary() const
 {
-    const QVector<KirbyRewardPair> results = allChoices();
+    const QVector<KirbyRewardPair> results = allChoiceResults();
     const double k_kirby = kKirby(results);
     const double k_wileyto = kWileyto(results);
     const int dp = 6;
@@ -222,7 +222,7 @@ QStringList Kirby::detail() const
 {
     QStringList choices;
     const int dp = 6;
-    const QVector<KirbyRewardPair> results = allChoices();
+    const QVector<KirbyRewardPair> results = allTrialResults();
     for (int i = 0; i < results.size(); ++i) {
         const KirbyRewardPair& pair = results.at(i);
         const int trial_num = i + 1;
@@ -329,7 +329,17 @@ void Kirby::sortTrials()
 }
 
 
-QVector<KirbyRewardPair> Kirby::allChoices() const
+QVector<KirbyRewardPair> Kirby::allTrialResults() const
+{
+    QVector<KirbyRewardPair> v;
+    for (auto t : m_trials) {
+        v.append(t->info());
+    }
+    return v;
+}
+
+
+QVector<KirbyRewardPair> Kirby::allChoiceResults() const
 {
     QVector<KirbyRewardPair> v;
     for (auto t : m_trials) {
@@ -395,6 +405,10 @@ double Kirby::kWileyto(const QVector<KirbyRewardPair>& results)
 {
     const int n_predictors = 2;
     const int n_observations = results.length();
+    if (n_observations == 0) {
+        return std::numeric_limits<double>::quiet_NaN();
+        // ... or it will crash when we try to operate with empty Eigen objects
+    }
     Eigen::MatrixXd X(n_observations, n_predictors);
     Eigen::VectorXi y(n_observations);
     for (int i = 0; i < n_observations; ++i) {
