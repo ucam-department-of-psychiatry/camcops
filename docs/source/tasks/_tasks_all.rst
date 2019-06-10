@@ -37,6 +37,7 @@ All tasks
     ace3.rst
     aims.rst
     apeqpt.rst
+    apeq_cpft_perinatal.rst
     audit.rst
     badls.rst
     bdi.rst

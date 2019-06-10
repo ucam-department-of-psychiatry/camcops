@@ -28,17 +28,13 @@ camcops_server/tasks/lynall_1_iam_medical.py
 
 from typing import Any, Dict, List, Optional, Union
 
-import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import (
-    bold,
     get_yes_no,
     get_yes_no_none,
-    tr_span_col,
     tr_qa,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest

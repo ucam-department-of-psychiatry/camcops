@@ -109,12 +109,15 @@ public:
     // invalid.
     QVariant value(int index) const;
 
-    // Returns the name for a given value, or "" if there isn't one.
-    QString nameFromValue(const QVariant& value) const;
-
-    // Returns the first value for a given name, or QVariant() if there isn't
+    // Returns the name for a given value, or a default string if there isn't
     // one.
-    QVariant valueFromName(const QString& name) const;
+    QString nameFromValue(const QVariant& value,
+                          const QString& default_ = "") const;
+
+    // Returns the first value for a given name, or a default if there isn't
+    // one.
+    QVariant valueFromName(const QString& name,
+                           const QVariant& default_ = QVariant()) const;
 
 public:
 

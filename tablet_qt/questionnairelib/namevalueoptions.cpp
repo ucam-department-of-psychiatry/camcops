@@ -171,15 +171,25 @@ NameValueOptions NameValueOptions::makeNumbers(const int first,
 }
 
 
-QString NameValueOptions::nameFromValue(const QVariant& value) const
+QString NameValueOptions::nameFromValue(const QVariant& value,
+                                        const QString& default_) const
 {
-    return name(indexFromValue(value));
+    const int idx = indexFromValue(value);
+    if (idx == -1) {
+        return default_;
+    }
+    return name(idx);
 }
 
 
-QVariant NameValueOptions::valueFromName(const QString& name) const
+QVariant NameValueOptions::valueFromName(const QString& name,
+                                         const QVariant& default_) const
 {
-    return value(indexFromName(name));
+    const int idx = indexFromName(name);
+    if (idx == -1) {
+        return default_;
+    }
+    return value(idx);
 }
 
 

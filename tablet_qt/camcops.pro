@@ -691,6 +691,7 @@ SOURCES += \
     tasklib/tasksorter.cpp \
     tasks/ace3.cpp \
     tasks/aims.cpp \
+    tasks/apeqcpftperinatal.cpp \
     tasks/apeqpt.cpp \
     tasks/audit.cpp \
     tasks/auditc.cpp \
@@ -1109,6 +1110,7 @@ HEADERS += \
     tasklib/tasksorter.h \
     tasks/ace3.h \
     tasks/aims.h \
+    tasks/apeqcpftperinatal.h \
     tasks/apeqpt.h \
     tasks/audit.h \
     tasks/auditc.h \

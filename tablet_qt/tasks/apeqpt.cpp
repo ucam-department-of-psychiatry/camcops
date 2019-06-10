@@ -122,31 +122,43 @@ QString Apeqpt::description() const
 bool Apeqpt::isComplete() const
 {
     QStringList required_always{FN_Q1_SATISFACTION};
-
     for (const QString& field : strseq("q", 1, CHOICE_QUESTIONS_N, CHOICE_SUFFIX)) {
         required_always.append(field);
     }
-
     required_always.append(FN_DATETIME);
-
     return !anyNullOrEmpty(values(required_always));
 }
 
 
+NameValueOptions Apeqpt::optionsSatisfaction() const
+{
+    return NameValueOptions{
+        {xstring("a4_satisfaction"), 4},  // Completely satisfied
+        {xstring("a3_satisfaction"), 3},
+        {xstring("a2_satisfaction"), 2},
+        {xstring("a1_satisfaction"), 1},
+        {xstring("a0_satisfaction"), 0},  // Not at all satisfied
+    };
+}
+
+
+NameValueOptions Apeqpt::optionsChoiceWithNA() const
+{
+    return NameValueOptions{
+        {xstring("a1_choice"), 1},  // Yes
+        {xstring("a0_choice"), 0},  // No
+        {xstring("a2_choice"), 2},  // N/A
+    };
+}
+
+
+
 QStringList Apeqpt::summary() const
 {
-    const NameValueOptions options_satisfaction {
-        {xstring("a0_satisfaction"), 0},
-        {xstring("a1_satisfaction"), 1},
-        {xstring("a2_satisfaction"), 2},
-        {xstring("a3_satisfaction"), 3},
-        {xstring("a4_satisfaction"), 4},
-    };
-
+    const NameValueOptions options_satisfaction = optionsSatisfaction();
     return QStringList{
         QString("Patient Satisfaction: %1").arg(
-            options_satisfaction.nameFromValue(
-                value(FN_Q1_SATISFACTION).toInt()))
+            options_satisfaction.nameFromValue(value(FN_Q1_SATISFACTION)))
     };
 }
 
@@ -154,13 +166,7 @@ QStringList Apeqpt::summary() const
 QStringList Apeqpt::detail() const
 {
     QStringList lines = completenessInfo();
-
-    const NameValueOptions ans{
-        {xstring("a0_choice"), 0},
-        {xstring("a1_choice"), 1},
-        {xstring("a2_choice"), 2},
-    };
-
+    const NameValueOptions ans = optionsChoiceWithNA();
     const QString spacer = " ";
     QString summaryLine, xstringname, fieldname, qnum;
     lines.append("<b>Choice</b>:");
@@ -168,7 +174,9 @@ QStringList Apeqpt::detail() const
         qnum = QString::number(i+1);
         xstringname = QString("q%1_choice_s").arg(qnum);
         fieldname = QString("q%1_choice").arg(qnum);
-        summaryLine = QString("Q%1 %2: %3").arg(qnum, xstring(xstringname), ans.nameFromValue(value(fieldname)));
+        summaryLine = QString("Q%1 %2: %3").arg(
+                    qnum, xstring(xstringname),
+                    ans.nameFromValue(value(fieldname)));
         lines.append(summaryLine);
     }
     lines.append("");
@@ -183,24 +191,12 @@ QStringList Apeqpt::detail() const
 
 OpenableWidget* Apeqpt::editor(const bool read_only)
 {
-    const NameValueOptions options_choice {
+    const NameValueOptions options_choice{
         {xstring("a1_choice"), 1},  // Yes
         {xstring("a0_choice"), 0},  // No
     };
-
-    const NameValueOptions options_choice_with_na {
-        {xstring("a1_choice"), 1},  // Yes
-        {xstring("a0_choice"), 0},  // No
-        {xstring("a2_choice"), 2},  // N/A
-    };
-
-    const NameValueOptions options_satisfaction {
-        {xstring("a4_satisfaction"), 4},  // Completely satisfied
-        {xstring("a3_satisfaction"), 3},
-        {xstring("a2_satisfaction"), 2},
-        {xstring("a1_satisfaction"), 1},
-        {xstring("a0_satisfaction"), 0},  // Not at all satisfied
-    };
+    const NameValueOptions options_choice_with_na = optionsChoiceWithNA();
+    const NameValueOptions options_satisfaction = optionsSatisfaction();
 
     const int question_width = 25;
     const QVector<int>yes_no_opts_widths{ 38, 37 };

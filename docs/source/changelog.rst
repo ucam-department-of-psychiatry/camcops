@@ -2206,18 +2206,21 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 IN PROGRESS:
 
-- :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
+- **IAM:** :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
 
   .. todo:: IN PROGRESS +++ a/w permission clarification
 
-- New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
+- **IAM:** New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
   .. todo:: IN PROGRESS +++ a/w permission clarification
 
-- **REVISED APEQPT; CPFT-specific**
+- **PERINATAL:** :ref:`Assessment Patient Experience Questionnaire for CPFT
+  Perinatal Services (APEQ-CPFT-Perinatal) <apeq_cpft_perinatal>`.
 
   .. todo:: TO BE STARTED ++
 
-- **MATERNAL ANTENATAL ATTACHMENT SCALE**
+- **PERINATAL: MATERNAL ANTENATAL ATTACHMENT SCALE**
 
   .. todo:: TO BE STARTED ++
+
+- **MOJO: A/w Joel 10 June 2019 re tasks**

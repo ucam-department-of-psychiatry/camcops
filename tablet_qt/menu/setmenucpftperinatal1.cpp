@@ -22,7 +22,8 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
-#include "tasks/apeqpt.h"
+#include "tasks/apeqcpftperinatal.h"
+// #include "tasks/apeqpt.h"
 #include "tasks/core10.h"
 #include "tasks/epds.h"
 #include "tasks/gad7.h"
@@ -61,7 +62,7 @@ void SetMenuCpftPerinatal1::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MenuItem(tr("Assessment/choice")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(Apeqpt::APEQPT_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(APEQCPFTPerinatal::APEQCPFTPERINATAL_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, m_app),
         MenuItem(tr("Generic measures")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, m_app),

@@ -538,6 +538,8 @@ tablet_qt
     tasks/ace3.h.rst
     tasks/aims.cpp.rst
     tasks/aims.h.rst
+    tasks/apeqcpftperinatal.cpp.rst
+    tasks/apeqcpftperinatal.h.rst
     tasks/apeqpt.cpp.rst
     tasks/apeqpt.h.rst
     tasks/audit.cpp.rst

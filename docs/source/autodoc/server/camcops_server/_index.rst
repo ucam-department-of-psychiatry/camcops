@@ -56,6 +56,7 @@ server/camcops_server
     alembic/versions/0024_user_language.py.rst
     alembic/versions/0025_lynall_1_iam_medical.py.rst
     alembic/versions/0026_kirby_mcq.py.rst
+    alembic/versions/0027_apeq_cpft_perinatal.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -151,6 +152,7 @@ server/camcops_server
     extra_string_templates/zbi12_TEMPLATE.xml.rst
     extra_strings/ace3.xml.rst
     extra_strings/aims.xml.rst
+    extra_strings/apeq_cpft_perinatal.xml.rst
     extra_strings/apeqpt.xml.rst
     extra_strings/audit.xml.rst
     extra_strings/bmi.xml.rst
@@ -221,6 +223,7 @@ server/camcops_server
     extra_strings/wemwbs.xml.rst
     tasks/ace3.py.rst
     tasks/aims.py.rst
+    tasks/apeq_cpft_perinatal.py.rst
     tasks/apeqpt.py.rst
     tasks/audit.py.rst
     tasks/badls.py.rst

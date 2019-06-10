@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/tasks/srs.py
+camcops_server/tasks/apeqpt.py
 
 ===============================================================================
 

@@ -37,6 +37,7 @@ Sources
 - https://www.talkingtherapies.berkshire.nhs.uk/forms/page_sa.asp?fldKey=241,
   from Berkshire Healthcare NHS Foundation Trust.
 
+
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -51,3 +52,30 @@ Intellectual property rights
   [CYP: Children & Young People.]
 
 - Therefore, operating on the premise of "institutional permission required".
+
+
+Also known as
+~~~~~~~~~~~~~
+
+The IAPT Patient Assessment Experience Questionnaire (IAPT PEQ); e.g.
+https://slam-iapt.nhs.uk/wp-content/themes/slam/uploads/2015/05/IAPT-PEQ-TREATMENT.doc.
+
+
+Things called PEQ that this is not
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Other things called "PEQ" include:
+
+- The Prosthesis Evaluation Quesionnaire (PEQ): Legro et al. (1998),
+  https://www.ncbi.nlm.nih.gov/pubmed/9710165.
+
+- The Patient Experience Questionnaire (PEQ): Steine et al. (2001),
+  https://www.ncbi.nlm.nih.gov/pubmed/11477049.
+
+- The Generic Short Patient Experiences Questionnaire (GS-PEQ): Sjetne et al.
+  (2011), https://www.ncbi.nlm.nih.gov/pubmed/21510871.
+
+- The Personal Experiences Questionnaire (PEQ), adapted from the McCoy Female
+  Sexuality Questionnaire (MFSQ): Dennerstein et al. (1991),
+  https://www.ncbi.nlm.nih.gov/pubmed/9089557,
+  https://eprovide.mapi-trust.org/instruments/personal-experiences-questionnaire.

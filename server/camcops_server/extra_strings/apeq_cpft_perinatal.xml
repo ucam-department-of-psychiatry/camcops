@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="apeq_cpft_perinatal">
+
+    <!--
+        Assessment Patient Experience Questionnaire for CPFT Perinatal Services (APEQ-CPFT-Perinatal)
+
+        See apeq_cpft_perinatal.rst
+    -->
+
+    <!-- Start -->
+    <string name="instructions_1">Please help us to improve our service by answering some questions about the service you have so far received. We are interested in your honest opinion, positive or negative.</string>
+    <string name="instructions_2">Your answers will be anonymous; they will never have your name attached to them and will not be part of your patient record.</string>
+
+    <!-- Coding of most answers -->
+    <string name="main_a2">Yes</string>
+    <string name="main_a1">Yes, to some extent</string>
+    <string name="main_a0">No</string>
+
+    <!-- Coding of answers to the friends/family question -->
+    <string name="ff_a5">Extremely likely</string>
+    <string name="ff_a4">Likely</string>
+    <string name="ff_a3">Neither likely nor unlikely</string>
+    <string name="ff_a2">Unlikely</string>
+    <string name="ff_a1">Extremely unlikely</string>
+    <string name="ff_a0">Don’t know</string>
+
+    <!-- Questions -->
+    <string name="q1">Do you feel you were treated with respect and dignity by the person who saw you today?</string>
+    <string name="q2">Did you feel listened to by the person who saw you today?</string>
+    <string name="q3">Did you feel the person who saw you today understood your needs or what might be helpful for you?</string>
+    <string name="q4">Were you given information about the team and how they might be able to support you?</string>
+    <string name="q5">Did you feel your family was considered or included in your assessment today?</string>
+    <string name="q6">Did you feel your views or preferences for support or treatment were taken into account?</string>
+    <string name="q_ff_rating">How likely are you to recommend our team to friends and family if they needed similar care or treatment?</string>
+    <string name="q_ff_why">Can you tell us why you gave that response?</string>
+    <string name="q_comments">Is there anything else you would like to tell us about your experience of our service?</string>
+
+    <!-- End -->
+    <string name="thanks">Thank you for your help.</string>
+
+  </task>
+</resources>

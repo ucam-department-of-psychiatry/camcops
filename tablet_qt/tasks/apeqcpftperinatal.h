@@ -17,8 +17,6 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// By Joe Kearney, Rudolf Cardinal.
-
 #pragma once
 #include <QPointer>
 #include <QString>
@@ -30,14 +28,14 @@ class OpenableWidget;
 class Questionnaire;
 class TaskFactory;
 
-void initializeApeqpt(TaskFactory& factory);
+void initializeAPEQCPFTPerinatal(TaskFactory& factory);
 
-class Apeqpt : public Task
+class APEQCPFTPerinatal : public Task
 {
     Q_OBJECT
 public:
-    Apeqpt(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    APEQCPFTPerinatal(CamcopsApp& app, DatabaseManager& db,
+                      int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -54,10 +52,8 @@ public:
     // ------------------------------------------------------------------------
     // Task specific
     // ------------------------------------------------------------------------
-    NameValueOptions optionsSatisfaction() const;
-    NameValueOptions optionsChoiceWithNA() const;
+    NameValueOptions optionsMain() const;
+    NameValueOptions optionsFFRating() const;
 public:
-    static const QString APEQPT_TABLENAME;
-protected:
-    QPointer<Questionnaire> m_questionnaire;
+    static const QString APEQCPFTPERINATAL_TABLENAME;
 };

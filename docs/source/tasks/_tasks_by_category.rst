@@ -289,6 +289,9 @@ Service evaluation
 - :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
   (APEQPT) <apeqpt>`.
 
+- :ref:`Assessment Patient Experience Questionnaire for CPFT Perinatal Services
+  (APEQ-CPFT-Perinatal) <apeq_cpft_perinatal>`.
+
 - :ref:`Friends and Family Test (FFT) <fft>`
 
 - :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`
