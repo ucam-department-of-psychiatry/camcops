@@ -270,6 +270,8 @@ Personality and experience
 
 - :ref:`ICD-10 criteria: schizotypal disorder <icd10_schizotypal>` (as above)
 
+- :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`
+
 - :ref:`Postpartum Bonding Questionnaire (PBQ) <pbq>`
 
 

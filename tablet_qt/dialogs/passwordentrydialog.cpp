@@ -22,6 +22,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
+#include "lib/uifunc.h"
 
 
 PasswordEntryDialog::PasswordEntryDialog(const QString& text,
@@ -30,6 +31,7 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
     QDialog(parent)
 {
     setWindowTitle(title);
+    setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     auto prompt = new QLabel(text);
 

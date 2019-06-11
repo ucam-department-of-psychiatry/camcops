@@ -24,6 +24,7 @@
 #include "common/uiconst.h"
 
 class QAbstractButton;
+class QDialog;
 class QLabel;
 class QLayout;
 class QPainter;
@@ -275,5 +276,12 @@ void applyScrollGestures(QWidget* widget);
 // If the object is a QAbstractItemView, puts its scrolling into ScrollPerPixel
 // (smooth scrolling) mode.
 void makeItemViewScrollSmoothly(QObject* object);
+
+// ============================================================================
+// Sizing
+// ============================================================================
+
+QSize minimumSizeForTitle(const QDialog* dialog);
+
 
 }  // namespace uifunc

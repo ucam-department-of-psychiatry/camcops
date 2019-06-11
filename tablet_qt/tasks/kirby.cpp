@@ -460,3 +460,26 @@ bool Kirby::choose(const int trial_num, const QVariant& chose_ldr)
     trial->recordChoice(chose_ldr.toBool());
     return true;
 }
+
+
+// ============================================================================
+// Text constants
+// ============================================================================
+// ... so they appear in Qt Linguist within the right class, without having to
+// make KirbyRewardPair a QObject.
+
+QString Kirby::textXtoday()
+{
+    return tr("%1 today");
+}
+
+QString Kirby::textXinYdays()
+{
+    return tr("%1 in %2 days");
+}
+
+
+QString Kirby::textWouldYouPreferXOrY()
+{
+    return tr("Would you prefer %1, or %2?");
+}

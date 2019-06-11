@@ -101,8 +101,8 @@ class Apeqpt(Task):
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("Assessment Patient Experience Questionnaire: "
-                 "For Psychological Therapies")
+        return _("Assessment Patient Experience Questionnaire "
+                 "for Psychological Therapies")
 
     def is_complete(self) -> bool:
         if self.any_fields_none(self.MAIN_QUESTIONS):

@@ -19,6 +19,7 @@
 
 #include "kirbyrewardpair.h"
 #include <QObject>
+#include "../tasks/kirby.h"
 
 const QString KIRBY_DEFAULT_CURRENCY("£");  // Make configurable? Read local currency?
 const bool KIRBY_DEFAULT_CURRENCY_SYMBOL_FIRST = true;  // Make configurable? Read local currency?
@@ -50,21 +51,19 @@ QString KirbyRewardPair::money(const int amount) const
 
 QString KirbyRewardPair::sirString() const
 {
-    return QObject::tr("%1 today").arg(money(sir));
+    return Kirby::textXtoday().arg(money(sir));
 }
 
 
 QString KirbyRewardPair::ldrString() const
 {
-    return QObject::tr("%1 in %2 days").arg(money(ldr),
-                                            QString::number(delay_days));
+    return Kirby::textXinYdays().arg(money(ldr), QString::number(delay_days));
 }
 
 
 QString KirbyRewardPair::question() const
 {
-    return QObject::tr("Would you prefer %1, or %2?").arg(sirString(),
-                                                          ldrString());
+    return Kirby::textWouldYouPreferXOrY().arg(sirString(), ldrString());
 }
 
 

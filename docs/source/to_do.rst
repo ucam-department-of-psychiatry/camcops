@@ -89,10 +89,6 @@ Client core
 - Create 64-bit ARM build, then release to Google Play Store (deadline 1 Aug
   2019). Work in progress: ``build_qt.py --build_android_arm_v8_64``.
 
-- Ensure dialogs (e.g. initial password prompt) show the title in full, and
-  don't clip text that they contain (e.g. good: upload dialogue; bad: ?some of
-  the cancellation dialogs).
-
 - Have facility to upload and/or automatically feed patient details into the
   server, then have clients restrict to these predefined patients. Since we are
   aiming to minimize PID on the client, this could be implemented by having the
@@ -167,12 +163,6 @@ Server
 ------
 
 **Priority**
-
-- Internationalization
-
-  - all XML strings have an associated language
-  - THINK: e.g. British vs American English
-  - server has a default language; ?configurable by user
 
 - (SERVER + CLIENT) Concept of “tasks that need doing” in the context of a
   research study.

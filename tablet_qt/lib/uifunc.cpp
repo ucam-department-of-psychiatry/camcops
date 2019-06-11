@@ -19,6 +19,7 @@
 
 // #define DEBUG_ICON_LOAD
 // #define DEBUG_SCROLL_GESTURES
+#define DEBUG_MIN_SIZE_FOR_TITLE
 
 #include "uifunc.h"
 #include <QAbstractItemView>
@@ -26,6 +27,7 @@
 #include <QBrush>
 #include <QDebug>
 #include <QDesktopServices>
+#include <QDialog>
 #include <QLabel>
 #include <QLayout>
 #include <QObject>
@@ -806,6 +808,70 @@ void makeItemViewScrollSmoothly(QObject* object)
         itemview->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
         itemview->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     }
+}
+
+
+// ============================================================================
+// Sizing
+// ============================================================================
+
+QSize minimumSizeForTitle(const QDialog* dialog)
+{
+    if (!dialog) {
+        return QSize();
+    }
+    // +---------------------------------------------+
+    // | ICON  TITLETEXT - APPTITLE    WINDOWBUTTONS |
+    // |                                             |
+    // | contents                                    |
+    // +---------------------------------------------+
+
+    // https://doc.qt.io/qt-5/qwidget.html#windowTitle-prop
+    const QString window_title = dialog->windowTitle();
+    const QString app_name = QApplication::applicationDisplayName();
+    const QString full_title = QString("%1 — %2").arg(window_title, app_name);
+    const QFont title_font = QApplication::font("QWorkspaceTitleBar");
+    const QFontMetrics fm(title_font);
+    const int title_w = fm.width(full_title);
+
+    // dialog->ensurePolished();
+    // const QSize frame_size = dialog->frameSize();
+    // const QSize content_size = dialog->size();
+    // ... problem was that both are QSize(640, 480) upon creation
+    // ... even if ensurePolished() is called first
+    // const QSize frame_extra = frame_size - content_size;
+
+    // How to count the number of icons shown on a window? ***
+    const int n_icons = 6;
+    // ... typically icon (left) plus rollup/maximize/close (right)
+    // ... plus a bit for spacing...
+
+    // How to read the size (esp. width) of a window icon? ***
+    // const int icon_w = frame_extra.height();
+    // ... on the basis that window icons are square!
+    const int icon_w = 24;
+
+    const int final_w = title_w + n_icons * icon_w;
+    const QSize dialog_min_size = dialog->minimumSize();
+    QSize size(dialog_min_size);
+    size.setWidth(qMax(size.width(), final_w));
+#ifdef DEBUG_MIN_SIZE_FOR_TITLE
+    qDebug().nospace()
+            << Q_FUNC_INFO
+            << "window_title = " << window_title
+            << ", app_name = " << app_name
+            << ", full_title = " << full_title
+            << ", title_font = " << title_font
+            << ", title_w = " << title_w
+            // << ", frame_size = " << frame_size
+            // << ", content_size = " << content_size
+            // << ", frame_extra = " << frame_extra
+            << ", n_icons = " << n_icons
+            << ", icon_w = " << icon_w
+            << ", dialog_min_size = " << dialog_min_size
+            << ", size = " << size;
+#endif
+    return size;
 }
 
 

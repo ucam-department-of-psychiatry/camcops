@@ -112,6 +112,7 @@ from camcops_server.tasks.kirby_mcq import Kirby
 from camcops_server.tasks.lynall_1_iam_medical import Lynall1IamMedicalHistory
 # *** # from camcops_server.tasks.lynall_2_iam_life import Lynall2LifeEvents
 
+from camcops_server.tasks.maas import Maas
 from camcops_server.tasks.mast import Mast
 from camcops_server.tasks.mds_updrs import MdsUpdrs
 from camcops_server.tasks.moca import Moca

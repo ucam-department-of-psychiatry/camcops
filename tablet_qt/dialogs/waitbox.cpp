@@ -22,6 +22,7 @@
 #include <QDebug>
 #include <QKeyEvent>
 #include <QThread>
+#include "lib/uifunc.h"
 
 /*
 
@@ -78,6 +79,7 @@ WaitBox::WaitBox(QWidget* parent, const QString& text, const QString& title,
     // qDebug() << Q_FUNC_INFO;
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setWindowTitle(title);
+    setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     // Prevent user interaction with what's behind:
     setWindowModality(Qt::WindowModal);

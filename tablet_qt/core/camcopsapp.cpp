@@ -97,7 +97,7 @@
 
 const QString APPSTRING_TASKNAME("camcops");  // task name used for generic but downloaded tablet strings
 const QString APP_NAME("camcops");  // e.g. subdirectory of ~/.local/share; DO NOT ALTER
-const QString APP_PRETTY_NAME("CamCOPS");
+const QString APP_PRETTY_NAME("CamCOPS");  // main window title and suffix on dialog window titles
 const QString CONNECTION_DATA("data");
 const QString CONNECTION_SYS("sys");
 const QString ENVVAR_DB_DIR("CAMCOPS_DATABASE_DIRECTORY");
@@ -1745,6 +1745,10 @@ int CamcopsApp::fontSizePt(uiconst::FontSize fontsize,
     }
 
     switch (fontsize) {
+    case uiconst::FontSize::VerySmall:
+        return static_cast<int>(factor * 8);
+    case uiconst::FontSize::Small:
+        return static_cast<int>(factor * 10);
     case uiconst::FontSize::Normal:
         return static_cast<int>(factor * 12);
     case uiconst::FontSize::Big:
@@ -1753,8 +1757,12 @@ int CamcopsApp::fontSizePt(uiconst::FontSize fontsize,
         return static_cast<int>(factor * 16);
     case uiconst::FontSize::Title:
         return static_cast<int>(factor * 16);
+    case uiconst::FontSize::Normal_x2:
+        return static_cast<int>(factor * 24);
     case uiconst::FontSize::Menus:
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
     default:
+#endif
         return static_cast<int>(factor * 12);
     }
 }

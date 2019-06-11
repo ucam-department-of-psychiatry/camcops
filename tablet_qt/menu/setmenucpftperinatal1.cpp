@@ -31,6 +31,7 @@
 #include "tasks/gbogres.h"
 #include "tasks/gbogpc.h"
 #include "tasks/honos.h"
+#include "tasks/maas.h"
 #include "tasks/pbq.h"
 #include "tasks/perinatalpoem.h"
 #include "tasks/phq9.h"
@@ -68,6 +69,7 @@ void SetMenuCpftPerinatal1::makeItems()
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Honos::HONOS_TABLENAME, m_app),
         MenuItem(tr("Mother–infant measures")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Maas::MAAS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Pbq::PBQ_TABLENAME, m_app),
         MenuItem(tr("Specific conditions")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Epds::EPDS_TABLENAME, m_app),

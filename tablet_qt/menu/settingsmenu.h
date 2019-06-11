@@ -67,6 +67,7 @@ protected:
     OpenableWidget* viewServerInformation(CamcopsApp& app);
     void viewDataCounts();
     void viewSystemCounts();
+    void dropUnknownTables();
     void viewDataDbAsSql();
     void viewSystemDbAsSql();
     void debugDataDbAsSql();

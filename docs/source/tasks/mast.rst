@@ -42,6 +42,7 @@ Scoring (cut-offs):
 http://www.bookrags.com/research/michigan-alcoholism-screening-test--edaa-02/,
 Ross et al. (1990, http://www.ncbi.nlm.nih.gov/pubmed/2270059)
 
+
 Sources
 ~~~~~~~
 
@@ -49,6 +50,7 @@ Sources
 - http://www.24thdiscourt.org/MAST.htm
 - http://alcoholism.about.com/od/tests/a/mast.htm
 - http://smchealth.org/sites/default/files/docs/1309587945SHORTMICHIGANALCOHOLSCREENINGTEST.pdf
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

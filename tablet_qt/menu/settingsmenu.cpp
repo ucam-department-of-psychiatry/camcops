@@ -225,6 +225,11 @@ void SettingsMenu::makeItems()
         // --------------------------------------------------------------------
         MenuItem(tr("Rescue operations")).setLabelOnly(),
         // --------------------------------------------------------------------
+        MenuItem(
+            tr("Drop unknown tables"),
+            std::bind(&SettingsMenu::dropUnknownTables, this),
+            spanner
+        ).setNotIfLocked(),
 #ifdef OFFER_VIEW_SQL
         MenuItem(
             PRIVPREFIX + tr("View data database as SQL"),
@@ -1279,6 +1284,38 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     questionnaire->setFinishButtonIconToTick();
     questionnaire->setReadOnly(true);
     return questionnaire;
+}
+
+
+void SettingsMenu::dropUnknownTables()
+{
+    const QString title = tr("Drop unknown tables?");
+    DatabaseManager& data_db = m_app.db();
+    DatabaseManager& sys_db = m_app.sysdb();
+    QStringList data_tables = data_db.tablesNotExplicitlyCreatedByUs();
+    QStringList sys_tables = sys_db.tablesNotExplicitlyCreatedByUs();
+    data_tables.sort();
+    sys_tables.sort();
+
+    if (data_tables.isEmpty() && sys_tables.isEmpty()) {
+        uifunc::alert(tr("All is well; no unknown tables."), title);
+        return;
+    }
+
+    QStringList lines{tr("Delete the following unknown data tables?")};
+    lines.append("");
+    lines += data_tables;
+    lines.append("");
+    lines.append(tr("... and the following unknown system tables?"));
+    lines.append("");
+    lines += sys_tables;
+    if (!uifunc::confirm(lines.join("\n"), title,
+                         tr("Yes, drop"), tr("No, cancel"), this)) {
+        return;
+    }
+    data_db.dropTablesNotExplicitlyCreatedByUs();
+    sys_db.dropTablesNotExplicitlyCreatedByUs();
+    uifunc::alert(tr("Tables dropped."), title);
 }
 
 

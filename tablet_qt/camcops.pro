@@ -763,6 +763,7 @@ SOURCES += \
     tasks/khandaker1medicalhistory.cpp \
     tasks/lynall1iammedical.cpp \
     tasks/lynall2iamlife.cpp \
+    tasks/maas.cpp \
     tasks/mast.cpp \
     tasks/mdsupdrs.cpp \
     tasks/moca.cpp \
@@ -1182,6 +1183,7 @@ HEADERS += \
     tasks/khandaker1medicalhistory.h \
     tasks/lynall1iammedical.h \
     tasks/lynall2iamlife.h \
+    tasks/maas.h \
     tasks/mast.h \
     tasks/mdsupdrs.h \
     tasks/moca.h \

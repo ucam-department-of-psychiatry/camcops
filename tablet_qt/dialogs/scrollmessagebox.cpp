@@ -22,6 +22,7 @@
 
 #define USE_CUSTOM_HFW
 // #define ENFORCE_MINIMUM
+#define DEBUG_RESIZE_FOR_TITLE
 
 #include "scrollmessagebox.h"
 #include <QApplication>
@@ -82,6 +83,7 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
 #ifdef ENFORCE_MINIMUM
     setMinimumSize(MIN_SIZE);
 #else
+    setMinimumSize(uifunc::minimumSizeForTitle(this));
     scroll->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     // ... will shrink for small contents
 #endif

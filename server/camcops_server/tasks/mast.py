@@ -46,7 +46,11 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasPatientMixin,
 )
 from camcops_server.cc_modules.cc_text import SS
-from camcops_server.cc_modules.cc_trackerhelpers import LabelAlignment, TrackerInfo, TrackerLabel  # noqa
+from camcops_server.cc_modules.cc_trackerhelpers import (
+    LabelAlignment,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================

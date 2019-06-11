@@ -205,6 +205,7 @@ server/camcops_server
     extra_strings/khandaker_1_medicalhistory.xml.rst
     extra_strings/kirby_mcq.xml.rst
     extra_strings/lynall_1_iam_medical.xml.rst
+    extra_strings/maas.xml.rst
     extra_strings/mast.xml.rst
     extra_strings/moca.xml.rst
     extra_strings/panss.xml.rst
@@ -286,6 +287,7 @@ server/camcops_server
     tasks/kirby_mcq.py.rst
     tasks/lynall_1_iam_medical.py.rst
     tasks/lynall_2_iam_life.py.rst
+    tasks/maas.py.rst
     tasks/mast.py.rst
     tasks/mds_updrs.py.rst
     tasks/moca.py.rst

@@ -33,7 +33,7 @@ import os
 import socket
 import subprocess
 import sys
-from typing import Generator, List, Tuple, TYPE_CHECKING
+from typing import Generator, List, Optional, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
     get_now_utc_datetime,

@@ -57,6 +57,13 @@ QuText::QuText(FieldRefPtr fieldref) :
 }
 
 
+QuText* QuText::setFontSize(uiconst::FontSize fontsize)
+{
+    m_fontsize = fontsize;
+    return this;
+}
+
+
 QuText* QuText::setBig(const bool big)
 {
     m_fontsize = big ? uiconst::FontSize::Big : uiconst::FontSize::Normal;

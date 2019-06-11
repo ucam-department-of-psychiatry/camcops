@@ -106,6 +106,7 @@
 #include "tasks/lynall1iammedical.h"
 #include "tasks/lynall2iamlife.h"
 
+#include "tasks/maas.h"
 #include "tasks/mast.h"
 #include "tasks/mdsupdrs.h"
 #include "tasks/moca.h"
@@ -244,6 +245,7 @@ void InitTasks(TaskFactory& factory)
     initializeLynall1IamMedical(factory);
     // *** // initializeLynall2IamLife(factory);
 
+    initializeMaas(factory);
     initializeMast(factory);
     initializeMdsUpdrs(factory);
     initializeMoca(factory);

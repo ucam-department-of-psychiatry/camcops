@@ -2195,16 +2195,25 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - New option :menuselection:`Settings --> Fetch all server info`.
 
+- Ensure dialogs (e.g. initial password prompt) show the title in full, and
+  don't clip text that they contain (e.g. good: upload dialogue; bad: ?some of
+  the cancellation dialogs). See ``uifunc::minimumSizeForTitle()``. Not
+  perfect (some guesswork), but better.
+
+- Client option to drop unknown tables.
+
 - ``cc_text.py`` and better server string framework for internationalization;
   see :ref:`String locations in CamCOPS <dev_string_locations>`.
 
 - New task: :ref:`Lynall M-E — 1 — IAM study — medical history
   <lynall_1_iam_medical>`
 
-- :ref:`Kirby delay discounting task <kirby_mcq>`
+- New task: :ref:`Kirby Monetary Choice Questionnaire (MCQ) <kirby_mcq>`
 
 - New task: :ref:`Assessment Patient Experience Questionnaire for CPFT
   Perinatal Services (APEQ-CPFT-Perinatal) <apeq_cpft_perinatal>`.
+
+- New task: :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`.
 
 
 IN PROGRESS:
@@ -2217,8 +2226,5 @@ IN PROGRESS:
 
   .. todo:: IN PROGRESS +++ a/w permission clarification
 
-- **PERINATAL: MATERNAL ANTENATAL ATTACHMENT SCALE**
+- **MOJO: line these up too**
 
-  .. todo:: TO BE STARTED ++
-
-- **MOJO: A/w Joel 10 June 2019 re tasks**

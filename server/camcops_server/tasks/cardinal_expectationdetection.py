@@ -487,13 +487,13 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         ancillary_class_name="ExpDetTrial",
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",
         ancillary_order_by_attr_name="trial"
-    )
+    )  # type: List[ExpDetTrial]
     groupspecs = ancillary_relationship(
         parent_class_name="CardinalExpectationDetection",
         ancillary_class_name="ExpDetTrialGroupSpec",
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",
         ancillary_order_by_attr_name="group_num"
-    )
+    )  # type: List[ExpDetTrialGroupSpec]
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -523,13 +523,13 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         ]
 
     def get_final_score(self) -> Optional[int]:
-        trialarray = self.trials  # type: List[ExpDetTrial]
+        trialarray = self.trials
         if not trialarray:
             return None
         return trialarray[-1].cumulative_points
 
     def get_group_html(self) -> str:
-        grouparray = self.groupspecs  # type: List[ExpDetTrialGroupSpec]
+        grouparray = self.groupspecs
         html = ExpDetTrialGroupSpec.get_html_table_header()
         for g in grouparray:
             html += g.get_html_table_row()
@@ -760,7 +760,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return html
 
     def get_trial_html(self) -> str:
-        trialarray = self.trials  # type: List[ExpDetTrial]
+        trialarray = self.trials
         html = ExpDetTrial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()
@@ -768,8 +768,8 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return html
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        grouparray = self.groupspecs  # type: List[ExpDetTrialGroupSpec]
-        trialarray = self.trials  # type: List[ExpDetTrial]
+        grouparray = self.groupspecs
+        trialarray = self.trials
         # THIS IS A NON-EDITABLE TASK, so we *ignore* the problem
         # of matching to no-longer-current records.
         # (See PhotoSequence.py for a task that does it properly.)
@@ -1125,8 +1125,8 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
 
     def get_extra_summary_tables(self, req: CamcopsRequest) \
             -> List[ExtraSummaryTable]:
-        grouparray = self.groupspecs  # type: List[ExpDetTrialGroupSpec]
-        trialarray = self.trials  # type: List[ExpDetTrial]
+        grouparray = self.groupspecs
+        trialarray = self.trials
         trialarray_auditory = [x for x in trialarray
                                if x.target_modality == AUDITORY]
         blockprob_values = []  # type: List[Dict[str, Any]]
@@ -1304,7 +1304,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         ]
 
     def get_overall_p_detect_present(self) -> Optional[float]:
-        trialarray = self.trials  # type: List[ExpDetTrial]
+        trialarray = self.trials
         (p_detected_given_present,
          p_detected_given_absent,
          c,
@@ -1313,7 +1313,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return p_detected_given_present
 
     def get_overall_p_detect_absent(self) -> Optional[float]:
-        trialarray = self.trials  # type: List[ExpDetTrial]
+        trialarray = self.trials
         (p_detected_given_present,
          p_detected_given_absent,
          c,
@@ -1322,7 +1322,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return p_detected_given_absent
 
     def get_overall_c(self) -> Optional[float]:
-        trialarray = self.trials  # type: List[ExpDetTrial]
+        trialarray = self.trials
         (p_detected_given_present,
          p_detected_given_absent,
          c,
@@ -1331,7 +1331,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return c
 
     def get_overall_d(self) -> Optional[float]:
-        trialarray = self.trials  # type: List[ExpDetTrial]
+        trialarray = self.trials
         (p_detected_given_present,
          p_detected_given_absent,
          c,

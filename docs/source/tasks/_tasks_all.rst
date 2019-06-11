@@ -90,6 +90,7 @@ All tasks
     kirby_mcq.rst
     lynall_1_iam_medical.rst
     lynall_2_iam_life.rst
+    maas.rst
     mast.rst
     mds_updrs.rst
     moca.rst

@@ -131,7 +131,7 @@ class KirbyRewardPair(object):
             ldr=self.ldr_string(req),
         )
 
-    def answer(self, req: CamcopsRequest) ->str:
+    def answer(self, req: CamcopsRequest) -> str:
         """
         Returns the subject's answer, or "?".
         """

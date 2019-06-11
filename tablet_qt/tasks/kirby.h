@@ -104,6 +104,14 @@ protected:
     QPointer<Questionnaire> m_questionnaire;
 
     // ------------------------------------------------------------------------
+    // Text constants
+    // ------------------------------------------------------------------------
+public:
+    static QString textXtoday();
+    static QString textXinYdays();
+    static QString textWouldYouPreferXOrY();
+
+    // ------------------------------------------------------------------------
     // Constants
     // ------------------------------------------------------------------------
 public:

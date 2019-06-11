@@ -686,6 +686,8 @@ tablet_qt
     tasks/lynall1iammedical.h.rst
     tasks/lynall2iamlife.cpp.rst
     tasks/lynall2iamlife.h.rst
+    tasks/maas.cpp.rst
+    tasks/maas.h.rst
     tasks/mast.cpp.rst
     tasks/mast.h.rst
     tasks/mdsupdrs.cpp.rst

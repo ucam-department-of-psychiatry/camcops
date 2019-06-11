@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="maas">
+
+    <!--
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Maternal Antenatal Attachment Scale (MAAS)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Condon, J. (2015).
+    Maternal Antenatal Attachment Scale  [Measurement instrument].
+    Retrieved from http://hdl.handle.net/2328/35292
+
+    "Copyright © John T Condon 2015. This is an Open Access article distributed
+    under the terms of the Creative Commons Attribution License 3.0
+    AU (http://creativecommons.org/licenses/by/3.0), which permits unrestricted use,
+    distribution, and reproduction in any medium, provided the original work is
+    properly cited."
+
+    Scores are 1-5 where 5 is high attachment.
+
+    Presented in reverse order: questions
+        1, 3, 5, 6, 7, 9, 10, 12, 15, 16, 18
+    Quality of attachment: questions
+        3, 6, 9, 10, 11, 12, 13, 15, 16, 19
+    Time spent in attachment mode (or intensity of preoccupation): questions
+        1, 2, 4, 5, 8, 14, 17, 18
+    Global attachment score:
+        all
+    -->
+
+    <string name="copyright">This work is licensed under a Creative Commons Attribution 3.0 Australian license (CC BY 3.0 AU). © Copyright John T. Condon. Dept. Psychiatry Flinders Medical Centre, South Australia</string>
+    <string name="title">Maternal Antenatal Attachment Scale</string>
+    <string name="instructions">These questions are about your thoughts and feelings about the developing baby.</string>
+
+    <string name="q1_q">Over the past two weeks I have thought about, or been preoccupied with the baby inside me:</string>
+    <string name="q1_a5">Almost all the time</string>
+    <string name="q1_a4">Very frequently</string>
+    <string name="q1_a3">Frequently</string>
+    <string name="q1_a2">Occasionally</string>
+    <string name="q1_a1">Not at all</string>
+
+    <string name="q2_q">Over the past two weeks when I have spoken about, or thought about the baby inside me I got emotional feelings which were:</string>
+    <string name="q2_a1">Very weak or non-existent</string>
+    <string name="q2_a2">Fairly weak</string>
+    <string name="q2_a3">In between strong and weak</string>
+    <string name="q2_a4">In between strong and weak</string>
+    <string name="q2_q5">Very strong</string>
+
+    <string name="q3_q">Over the past two weeks my feelings about the baby inside me have been:</string>
+    <string name="q3_a5">Very positive</string>
+    <string name="q3_a4">Mainly positive</string>
+    <string name="q3_a3">Mixed positive and negative</string>
+    <string name="q3_a2">Mainly negative</string>
+    <string name="q3_a1">Very negative</string>
+
+    <string name="q4_q">Over the past two weeks I have had the desire to read about or get information about the developing baby. This desire is:</string>
+    <string name="q4_a1">Very weak or non-existent</string>
+    <string name="q4_a2">Fairly weak</string>
+    <string name="q4_a3">Neither strong nor weak</string>
+    <string name="q4_a4">Moderately strong</string>
+    <string name="q4_a5">Very strong</string>
+
+    <string name="q5_q">Over the past two weeks I have been trying to picture in my mind what the developing baby actually looks like in my womb:</string>
+    <string name="q5_a5">Almost all the time</string>
+    <string name="q5_a4">Very frequently</string>
+    <string name="q5_a3">Frequently</string>
+    <string name="q5_a2">Occasionally</string>
+    <string name="q5_a1">Not at all</string>
+
+    <string name="q6_q">Over the past two weeks I think of the developing baby mostly as:</string>
+    <string name="q6_a5">A real little person with special characteristics</string>
+    <string name="q6_a4">A baby like any other baby</string>
+    <string name="q6_a3">A human being</string>
+    <string name="q6_a2">A living thing</string>
+    <string name="q6_a1">A thing not yet really alive</string>
+
+    <string name="q7_q">Over the past two weeks I have felt that the baby inside me is dependent on me for its well-being:</string>
+    <string name="q7_a5">Totally</string>
+    <string name="q7_a4">A great deal</string>
+    <string name="q7_a3">Moderately</string>
+    <string name="q7_a2">Slightly</string>
+    <string name="q7_a1">Not at all</string>
+
+    <string name="q8_q">Over the past two weeks I have found myself talking to my baby when I am alone</string>
+    <string name="q8_a1">Not at all</string>
+    <string name="q8_a2">Occasionally</string>
+    <string name="q8_a3">Frequently</string>
+    <string name="q8_a4">Very frequently</string>
+    <string name="q8_a5">Almost all the time I am alone</string>
+
+    <string name="q9_q">Over the past two weeks when I think about (or talk to) my baby inside me, my thoughts:</string>
+    <string name="q9_a5">Are always tender and loving</string>
+    <string name="q9_a4">Are mostly tender and loving</string>
+    <string name="q9_a3">Are a mixture of both tenderness and irritation</string>
+    <string name="q9_a2">Contain a fair bit of irritation</string>
+    <string name="q9_a1">Contain a lot of irritation</string>
+
+    <string name="q10_q">The picture in my mind of what the baby at this stage actually looks like inside the womb is:</string>
+    <string name="q10_a5">Very clear</string>
+    <string name="q10_a4">Fairly clear</string>
+    <string name="q10_a3">Fairly vague</string>
+    <string name="q10_a2">Very vague</string>
+    <string name="q10_a1">I have no idea at all</string>
+
+    <string name="q11_q">Over the past two weeks when I think about the baby inside me I get feelings which are:</string>
+    <string name="q11_a1">Very sad</string>
+    <string name="q11_a2">Moderately sad</string>
+    <string name="q11_a3">A mixture of happiness and sadness</string>
+    <string name="q11_a4">Moderately happy</string>
+    <string name="q11_a5">Very happy</string>
+
+    <string name="q12_q">Some pregnant women sometimes get so irritated by the baby inside them that they feel like they want to hurt it or punish it:</string>
+    <string name="q12_a5">I couldn’t imagine I would ever feel like this</string>
+    <string name="q12_a4">I could imagine I might sometimes feel like this, but I never actually have</string>
+    <string name="q12_a3">I have felt like this once or twice myself</string>
+    <string name="q12_a2">I have occasionally felt like this myself</string>
+    <string name="q12_a1">I have often felt like this myself</string>
+
+    <string name="q13_q">Over the past two weeks I have felt:</string>
+    <string name="q13_a1">Very emotionally distant from my baby</string>
+    <string name="q13_a2">Moderately emotionally distant from my baby</string>
+    <string name="q13_a3">Not particularly emotionally close to my baby</string>
+    <string name="q13_a4">Moderately close emotionally to my baby</string>
+    <string name="q13_a5">Very close emotionally to my baby</string>
+
+    <string name="q14_q">Over the past two weeks I have taken care with what I eat to make sure the baby gets a good diet:</string>
+    <string name="q14_a1">Not at all</string>
+    <string name="q14_a2">Once or twice when I ate</string>
+    <string name="q14_a3">Occasionally when I ate</string>
+    <string name="q14_a4">Quite often when I ate</string>
+    <string name="q14_a5">Every time I ate</string>
+
+    <string name="q15_q">When I first see my baby after the birth I expect I will feel:</string>
+    <string name="q15_a5">Intense affection</string>
+    <string name="q15_a4">Mostly affection</string>
+    <string name="q15_a3">Dislike about one or two aspects of the baby</string>
+    <string name="q15_a2">Dislike about quite a few aspects of the baby</string>
+    <string name="q15_a1">Mostly dislike</string>
+
+    <string name="q16_q"> When my baby is born I would like to hold the baby:</string>
+    <string name="q16_a5">Immediately</string>
+    <string name="q16_a4">After it has been wrapped in a blanket</string>
+    <string name="q16_a3">After it has been washed</string>
+    <string name="q16_a2">After a few hours for things to settle down</string>
+    <string name="q16_a1">The next day</string>
+
+    <string name="q17_q"> Over the past two weeks I have had dreams about the pregnancy or baby:</string>
+    <string name="q17_a1">Not at all</string>
+    <string name="q17_a2">Occasionally</string>
+    <string name="q17_a3">Frequently</string>
+    <string name="q17_a4">Very frequently</string>
+    <string name="q17_a5">Almost every night</string>
+
+    <string name="q18_q">Over the past two weeks I have found myself feeling, or rubbing with my hand, the outside of my stomach where the baby is:</string>
+    <string name="q18_a5">A lot of times each day</string>
+    <string name="q18_a4">At least once per day</string>
+    <string name="q18_a3">Occasionally</string>
+    <string name="q18_a2">Once only</string>
+    <string name="q18_a1">Not at all</string>
+
+    <string name="q19_q">If the pregnancy was lost at this time (due to miscarriage or other accidental event) without any pain or injury to myself, I expect I would feel:</string>
+    <string name="q19_a1">Very pleased</string>
+    <string name="q19_a2">Moderately pleased</string>
+    <string name="q19_a3">Neutral (i.e. neither sad nor pleased; or mixed feelings)</string>  <!-- "ie" changed to "i.e." -->
+    <string name="q19_a4">Moderately sad</string>
+    <string name="q19_a5">Very sad</string>
+
+    <string name="thanks">Thank you for completing this questionnaire.</string>
+
+    <string name="quality_of_attachment_score">Quality of attachment score</string>
+    <string name="time_in_attachment_mode_score">Time spent in attachment mode (or intensity of preoccupation) score</string>
+    <string name="global_attachment_score">Global attachment score</string>
+
+  </task>
+</resources>

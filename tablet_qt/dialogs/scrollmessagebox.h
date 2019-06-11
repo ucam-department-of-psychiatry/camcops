@@ -51,6 +51,7 @@ signals:
     void buttonClicked(QAbstractButton* button);
 
 protected:
+    // QSize minimumSizeHint() const override; // NOT CALLED
     void setIcon(QMessageBox::Icon icon);
     QPixmap standardIcon(QMessageBox::Icon icon);
     static QDialogButtonBox::ButtonRole forceEnumMD(QMessageBox::ButtonRole role);

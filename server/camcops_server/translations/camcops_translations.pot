@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2019-06-04 11:09+0100\n"
+"POT-Creation-Date: 2019-06-11 20:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1085,8 +1085,12 @@ msgstr ""
 msgid "Abnormal Involuntary Movement Scale"
 msgstr ""
 
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:100
+msgid "Assessment Patient Experience Questionnaire for CPFT Perinatal Services"
+msgstr ""
+
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeqpt.py:104
-msgid "Assessment Patient Experience Questionnaire: For Psychological Therapies"
+msgid "Assessment Patient Experience Questionnaire for Psychological Therapies"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/audit.py:94
@@ -1430,16 +1434,32 @@ msgstr ""
 msgid "Khandaker GM — 1 — Insight — Medical history"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/kirby.py:109
-msgid "Kirby et al. Monetary Choice Questionnaire"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/kirby_mcq.py:111
+msgid "{money} today"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/lynall_1_iam_medical.py:261
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/kirby_mcq.py:119
+msgid "{money} in {days} days"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/kirby_mcq.py:129
+msgid "Would you prefer {sir}, or {ldr}?"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/kirby_mcq.py:265
+msgid "Kirby et al. 1999 Monetary Choice Questionnaire"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/lynall_1_iam_medical.py:257
 msgid "Lynall M-E — 1 — IAM — Medical history"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/lynall_2_iam_life.py:63
 msgid "Lynall M-E — 2 — IAM — Life events"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/maas.py:67
+msgid "Maternal Antenatal Attachment Scale"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/mast.py:113

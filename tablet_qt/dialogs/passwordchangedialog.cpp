@@ -35,6 +35,8 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     m_editor_new2(nullptr)
 {
     setWindowTitle(title);
+    setMinimumSize(uifunc::minimumSizeForTitle(this));
+
     auto mainlayout = new QVBoxLayout();
 
     auto prompt = new QLabel(text);

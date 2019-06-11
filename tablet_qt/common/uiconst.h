@@ -97,6 +97,8 @@ extern const QString CSS_CAMCOPS_DIAGNOSTIC_CODE;
 // ============================================================================
 
 enum class FontSize {
+    VerySmall,
+    Small,
     Normal,
     Big,
     Title,

@@ -44,6 +44,7 @@ public:
     QuText(FieldRefPtr fieldref);
 
     // Set visual style of text.
+    QuText* setFontSize(uiconst::FontSize fontsize);
     QuText* setBig(bool setBig = true);
     QuText* setBold(bool setBold = true);
     QuText* setItalic(bool setItalic = true);

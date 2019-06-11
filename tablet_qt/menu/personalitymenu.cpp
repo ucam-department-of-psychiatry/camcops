@@ -26,6 +26,7 @@
 #include "tasks/ctqsf.h"
 #include "tasks/icd10schizotypal.h"
 #include "tasks/icd10specpd.h"
+#include "tasks/maas.h"
 #include "tasks/pbq.h"
 
 
@@ -49,6 +50,7 @@ void PersonalityMenu::makeItems()
         // *** // MAKE_TASK_MENU_ITEM(Ctqsf::CTQSF_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Icd10SpecPD::ICD10SPECPD_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Icd10Schizotypal::ICD10SZTYPAL_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Maas::MAAS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Pbq::PBQ_TABLENAME, m_app),
     };
 }

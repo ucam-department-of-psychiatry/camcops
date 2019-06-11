@@ -310,8 +310,15 @@ public:
     // Drops (deletes) a table.
     void dropTable(const QString& tablename);
 
+    // Drops (deletes) multiple tables.
+    void dropTables(const QStringList& tables);
+
     // Drops tables other than those specified.
     void dropTablesNotIn(const QStringList& good_tables);
+
+    // Get tables that are present in the database but were not explicitly
+    // created (this session) via createTable().
+    QStringList tablesNotExplicitlyCreatedByUs();
 
     // Drops tables that were not explicitly created (this session) via
     // createTable().

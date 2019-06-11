@@ -267,7 +267,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         ancillary_class_name="CardinalExpDetThresholdTrial",
         ancillary_fk_to_parent_attr_name="cardinal_expdetthreshold_id",
         ancillary_order_by_attr_name="trial"
-    )
+    )  # type: List[CardinalExpDetThresholdTrial]
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -279,7 +279,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         return bool(self.finished)
 
     def get_trial_html(self, req: CamcopsRequest) -> str:
-        trialarray = self.trials  # type: List[CardinalExpDetThresholdTrial]  # for type hinter!  # noqa
+        trialarray = self.trials
         html = CardinalExpDetThresholdTrial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()

@@ -1025,22 +1025,34 @@ void DatabaseManager::dropTable(const QString& tablename)
 }
 
 
-void DatabaseManager::dropTablesNotIn(const QStringList& good_tables)
+void DatabaseManager::dropTables(const QStringList& tables)
 {
-    const QStringList existing = getAllTables();
-    const QStringList superfluous = containers::setSubtract(existing, good_tables);
-    for (const QString& tablename : superfluous) {
+    for (const QString& tablename : tables) {
         dropTable(tablename);
     }
 }
 
 
-void DatabaseManager::dropTablesNotExplicitlyCreatedByUs()
+void DatabaseManager::dropTablesNotIn(const QStringList& good_tables)
 {
-    // See createTable(), which writes m_created_tables
-    dropTablesNotIn(m_created_tables);
+    const QStringList existing = getAllTables();
+    const QStringList superfluous = containers::setSubtract(existing, good_tables);
+    dropTables(superfluous);
 }
 
+
+QStringList DatabaseManager::tablesNotExplicitlyCreatedByUs()
+{
+    // See createTable(), which writes m_created_tables
+    const QStringList existing = getAllTables();
+    return containers::setSubtract(existing, m_created_tables);
+}
+
+
+void DatabaseManager::dropTablesNotExplicitlyCreatedByUs()
+{
+    dropTables(tablesNotExplicitlyCreatedByUs());
+}
 
 
 // ----------------------------------------------------------------------------

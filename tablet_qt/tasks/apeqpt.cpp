@@ -104,8 +104,8 @@ QString Apeqpt::shortname() const
 
 QString Apeqpt::longname() const
 {
-    return tr("Assessment Patient Experience Questionnaire: "
-              "For Psychological Therapies");
+    return tr("Assessment Patient Experience Questionnaire "
+              "for Psychological Therapies");
 }
 
 
