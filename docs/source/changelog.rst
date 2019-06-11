@@ -2203,6 +2203,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - :ref:`Kirby delay discounting task <kirby_mcq>`
 
+- New task: :ref:`Assessment Patient Experience Questionnaire for CPFT
+  Perinatal Services (APEQ-CPFT-Perinatal) <apeq_cpft_perinatal>`.
+
 
 IN PROGRESS:
 
@@ -2213,11 +2216,6 @@ IN PROGRESS:
 - **IAM:** New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
   .. todo:: IN PROGRESS +++ a/w permission clarification
-
-- **PERINATAL:** :ref:`Assessment Patient Experience Questionnaire for CPFT
-  Perinatal Services (APEQ-CPFT-Perinatal) <apeq_cpft_perinatal>`.
-
-  .. todo:: TO BE STARTED ++
 
 - **PERINATAL: MATERNAL ANTENATAL ATTACHMENT SCALE**
 

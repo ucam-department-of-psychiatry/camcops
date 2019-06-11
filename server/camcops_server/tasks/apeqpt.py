@@ -156,6 +156,4 @@ class Apeqpt(Task):
                 </tr>
                 {q_a}
             </table>
-            <div class="{CssClass.FOOTNOTES}">
-            </div>
         """

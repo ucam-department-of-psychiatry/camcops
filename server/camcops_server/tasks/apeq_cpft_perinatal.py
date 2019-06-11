@@ -26,7 +26,7 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import List
+from typing import Dict, List, Optional
 
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
@@ -34,18 +34,7 @@ from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
-    PendulumDateTimeAsIsoTextColType,
-    ZERO_TO_ONE_CHECKER,
-    ZERO_TO_TWO_CHECKER,
-    ZERO_TO_FOUR_CHECKER
-)
-from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-from camcops_server.cc_modules.cc_task import (
-    get_from_dict,
-    Task,
-)
+from camcops_server.cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -115,4 +104,37 @@ class APEQCPFTPerinatal(Task):
         return self.all_fields_not_none(self.REQUIRED_FIELDS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        XXX
+        options_main = {None: "?"}  # type: Dict[Optional[int], str]
+        for o in range(0, 2 + 1):
+            options_main[o] = self.wxstring(req, f"main_a{o}")
+        options_ff = {None: "?"}  # type: Dict[Optional[int], str]
+        for o in range(0, 5 + 1):
+            options_ff[o] = self.wxstring(req, f"ff_a{o}")
+
+        qlines = []  # type: List[str]
+        for qnum in range(self.FIRST_MAIN_Q, self.LAST_MAIN_Q + 1):
+            xstring_attr_name = f"q{qnum}"
+            qlines.append(tr_qa(
+                self.wxstring(req, xstring_attr_name),
+                options_main.get(getattr(self, xstring_attr_name))))
+        q_a = "".join(qlines)
+        return f"""
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {self.get_is_complete_tr(req)}
+                </table>
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="60%">Question</th>
+                    <th width="40%">Answer</th>
+                </tr>
+                {q_a}
+                {tr_qa(self.wxstring(req, "q_ff_rating"),
+                       options_ff.get(self.ff_rating))}
+                {tr_qa(self.wxstring(req, "q_ff_why"),
+                       self.ff_why or "")}
+                {tr_qa(self.wxstring(req, "q_comments"),
+                       self.comments or "")}
+            </table>
+        """
