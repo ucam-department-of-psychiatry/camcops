@@ -1,0 +1,21 @@
+usage: encrypt_sqlcipher.py [-h] [--password PASSWORD] [--sqlcipher SQLCIPHER]
+                            [--encoding ENCODING]
+                            plaintext encrypted
+
+Use SQLCipher to make an encrypted copy of a database
+
+positional arguments:
+  plaintext             Filename of the existing plain-text (decrypted)
+                        database
+  encrypted             Filename of the encrypted database to be created
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --password PASSWORD   Password (if blank, environment variable
+                        ENCRYPT_SQLCIPHER_PASSWORD will be used, or you will
+                        be prompted) (default: None)
+  --sqlcipher SQLCIPHER
+                        SQLCipher executable file (if blank, environment
+                        variable SQLCIPHER will be used, or the default of
+                        'sqlcipher') (default: None)
+  --encoding ENCODING   Encoding to use (default: utf-8)

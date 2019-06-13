@@ -37,6 +37,9 @@ development tools.
     :depth: 3
 
 
+**In tablet_qt/tools:**
+
+
 .. _build_qt:
 
 build_qt.py
@@ -88,3 +91,56 @@ Here's its help as of 2018-06-09:
 
 ..  literalinclude:: decrypt_sqlcipher_help.txt
     :language: none
+
+
+encrypt_sqlcipher.py
+--------------------
+
+This tool requires an installed copy of SQLCipher_. It creates an encrypted
+SQLCipher_ database from a plain SQLite_ database.
+
+Here's its help as of 2019-06-13:
+
+..  literalinclude:: encrypt_sqlcipher_help.txt
+    :language: none
+
+
+open_sqlcipher.py
+------------------
+
+This tool requires an installed copy of SQLCipher_. It opens an encrypted
+SQLCipher_ database via the SQLite_ command line tool, given the password.
+You can use this to view/edit CamCOPS databases.
+
+Here's its help as of 2019-06-13:
+
+..  literalinclude:: open_sqlcipher_help.txt
+    :language: none
+
+
+**In server/tools:**
+
+
+build_translations.py
+---------------------
+
+Builds translation files for the server. See :ref:`Internationalization
+<dev_internationalization>`.
+
+
+create_database_migration.py
+----------------------------
+
+Creates a new database migration for the server, in
+``server/camcops_server/alembic/versions/``.
+
+
+make_xml_skeleton.py
+--------------------
+
+Takes a "secret" XML file (one containing task text that is restricted to a
+particular site) and makes a generic "skeleton" XML file -- the same but with
+strings replaced by placeholder text -- so that others can see the structure
+required if they too have the permissions to create the full file.
+
+Writes to stdout (so redirect it to save to a file).

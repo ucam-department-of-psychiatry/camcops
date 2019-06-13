@@ -1,0 +1,19 @@
+usage: open_sqlcipher.py [-h] [--password PASSWORD] [--sqlcipher SQLCIPHER]
+                         [--encoding ENCODING]
+                         encrypted
+
+Open an encrypted database at the SQLCipher command line
+
+positional arguments:
+  encrypted             Filename of the existing encrypted database
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --password PASSWORD   Password (if blank, environment variable
+                        DECRYPT_SQLCIPHER_PASSWORD will be used, or you will
+                        be prompted) (default: None)
+  --sqlcipher SQLCIPHER
+                        SQLCipher executable file (if blank, environment
+                        variable SQLCIPHER will be used, or the default of
+                        'sqlcipher') (default: None)
+  --encoding ENCODING   Encoding to use (default: utf-8)
