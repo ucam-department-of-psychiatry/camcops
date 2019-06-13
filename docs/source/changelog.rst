@@ -1522,17 +1522,17 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Add network status messages to debug stream.
 
-- New task: :ref:`CORE-10 <core10>`.
+- **New task:** :ref:`CORE-10 <core10>`.
 
-- New task: :ref:`CESD <cesd>`.
+- **New task:** :ref:`CESD <cesd>`.
 
-- New task: :ref:`CESD-R <cesdr>`.
+- **New task:** :ref:`CESD-R <cesdr>`.
 
-- New task: :ref:`PTSD Checklist for DSM-5 (PCL-5) <pcl5>`.
+- **New task:** :ref:`PTSD Checklist for DSM-5 (PCL-5) <pcl5>`.
 
-- New task: :ref:`FACT-G <factg>`.
+- **New task:** :ref:`FACT-G <factg>`.
 
-- New task: :ref:`EQ-5D-5L <eq5d5l>`.
+- **New task:** :ref:`EQ-5D-5L <eq5d5l>`.
 
 - Client validates patients with the server on upload. This supports future
   "predefined patient" support. This is a "client asks", not "server tells"
@@ -1981,21 +1981,21 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - https://stackoverflow.com/questions/42447545/mouse-works-but-touch-doesnot-work-in-qml/42454302
 
-- New task: :ref:`Perinatal POEM (Patient-rated Outcome and Experience Measure)
+- **New task:** :ref:`Perinatal POEM (Patient-rated Outcome and Experience Measure)
   <perinatal_poem>`.
 
-- New task: :ref:`Goal-Based Outcomes -- Goal Record Sheet (GBO-GReS)
+- **New task:** :ref:`Goal-Based Outcomes -- Goal Record Sheet (GBO-GReS)
   <gbo_gres>`.
 
-- New task: :ref:`Goal-Based Outcomes -- Goal Progress Chart (GBO-GPC)
+- **New task:** :ref:`Goal-Based Outcomes -- Goal Progress Chart (GBO-GPC)
   <gbo_gpc>`.
 
-- New task: :ref:`Assessment Patient Experience Questionnaire for Psychological
+- **New task:** :ref:`Assessment Patient Experience Questionnaire for Psychological
   Therapies (APEQPT) <apeqpt>`.
 
-- New task: :ref:`Outcome Rating Scale (ORS) <ors>`.
+- **New task:** :ref:`Outcome Rating Scale (ORS) <ors>`.
 
-- New task: :ref:`Session Rating Scale (SRS) <srs>`.
+- **New task:** :ref:`Session Rating Scale (SRS) <srs>`.
 
 - Bugfixes 2019-03-01: upload from very old tablets (e.g. v1.33) was broken.
   Errors included ``Unknown 'idnum1' field when uploading patient table``.
@@ -2050,7 +2050,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   slow when lots of ID numbers were in use (looking like a crash and sometimes
   causing database timeouts and follow-on errors). Rewritten 2019-03-23.
 
-- New task: :ref:`Edinburgh Postnatal Depression Scale (EPDS) <epds>`.
+- **New task:** :ref:`Edinburgh Postnatal Depression Scale (EPDS) <epds>`.
   (Database revision 0019.)
 
 - ID number fields made mandatory in patient editing questionnaire on the
@@ -2081,7 +2081,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   same names. Fixable on that basis. See
   ``QuMcqGrid::setAlternateNameValueOptions``.
 
-- New task: :ref:`Postpartum Bonding Questionnaire (PBQ) <pbq>`.
+- **New task:** :ref:`Postpartum Bonding Questionnaire (PBQ) <pbq>`.
 
 - On the server, group administrators can change passwords and upload groups
   for users that they manage (meaning those users who are a member of one of
@@ -2210,15 +2210,17 @@ Current C++/SQLite client, Python/SQLAlchemy server
   away from a page. Initial use: preventing forward slashes in the server
   hostname.
 
-- New task: :ref:`Lynall M-E — 1 — IAM study — medical history
+- ``make_xml_skeleton.py`` development tool
+
+- **New task:** :ref:`Lynall M-E — 1 — IAM study — medical history
   <lynall_1_iam_medical>`
 
-- New task: :ref:`Kirby Monetary Choice Questionnaire (MCQ) <kirby_mcq>`
+- **New task:** :ref:`Kirby Monetary Choice Questionnaire (MCQ) <kirby_mcq>`
 
-- New task: :ref:`Assessment Patient Experience Questionnaire for CPFT
+- **New task:** :ref:`Assessment Patient Experience Questionnaire for CPFT
   Perinatal Services (APEQ-CPFT-Perinatal) <apeq_cpft_perinatal>`.
 
-- New task: :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`.
+- **New task:** :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`.
 
 
 IN PROGRESS:
