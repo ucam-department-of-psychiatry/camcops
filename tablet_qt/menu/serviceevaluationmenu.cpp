@@ -23,6 +23,7 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/apeqpt.h"
+#include "tasks/apeqcpftperinatal.h"
 #include "tasks/fft.h"
 #include "tasks/gbogres.h"
 #include "tasks/gbogpc.h"
@@ -51,6 +52,7 @@ void ServiceEvaluationMenu::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MAKE_TASK_MENU_ITEM(Apeqpt::APEQPT_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(APEQCPFTPerinatal::APEQCPFTPERINATAL_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(GmcPq::GMCPQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, m_app),

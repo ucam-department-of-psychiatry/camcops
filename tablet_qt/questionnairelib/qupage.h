@@ -38,6 +38,9 @@ class QuPage : public QObject
     Q_OBJECT
     friend class Questionnaire;
 
+    // ========================================================================
+    // Enums
+    // ========================================================================
 public:
     enum class PageType {  // "Who should be entering data into this page?"
         Inherit,  // from the Questionnaire
@@ -47,6 +50,19 @@ public:
         Config,
     };
 
+    // ========================================================================
+    // Shorthand
+    // ========================================================================
+    // A function that looks like "bool validatePage(QuPage*)": it returns
+    // "ok?" and is an opportunity for complex validation and alerting the
+    // user. The rule is that the validator must tell the user the reason for
+    // any failure, if it returns false.
+    // See registerValidator().
+    using PageValidatorFunction = std::function<bool(const QuPage*)>;
+
+    // ========================================================================
+    // Construction/destruction
+    // ========================================================================
 public:
     // Empty constructor.
     QuPage();
@@ -59,6 +75,10 @@ public:
 
     // Destructor
     virtual ~QuPage();
+
+    // ========================================================================
+    // Public interface
+    // ========================================================================
 
     virtual void build() {}  // for on-the-fly building
 
@@ -112,6 +132,11 @@ public:
     // Does the page allow vertical scrolling?
     bool allowsScroll() const;
 
+    // Should we prevent the user seeing controls for navigating away from this
+    // page?
+    // Checks missing input and the "progress block".
+    bool mayProgressIgnoringValidators() const;
+
     // Does the page have any missing input (mandatory and with no data)?
     bool missingInput() const;
 
@@ -121,6 +146,16 @@ public:
     // Is the page blocking progress?
     bool progressBlocked() const;
 
+    // Register a validator function. (There may be more than one.)
+    // See PageValidatorFunction above.
+    void registerValidator(const PageValidatorFunction& validator);
+
+    // Does the page pass all of any user-supplied validator functions?
+    bool validate() const;
+
+    // ========================================================================
+    // Signals and slots
+    // ========================================================================
 signals:
     // "One of our elements has changed value."
     void elementValueChanged();
@@ -129,6 +164,9 @@ public slots:
     // Sets whether this page is marked to be skipped.
     QuPage* setSkip(bool skip = true);
 
+    // ========================================================================
+    // Internals
+    // ========================================================================
 protected:
     // Returns this page's widget.
     QPointer<QWidget> widget(Questionnaire* questionnaire) const;
@@ -139,6 +177,9 @@ protected:
     // Called when the page is being closed. (In turn, signals to its elements.)
     void closing();
 
+    // ========================================================================
+    // Data
+    // ========================================================================
 protected:
     PageType m_type;  // page type (e.g. patient, clinician)
     QString m_title;  // page main title
@@ -148,4 +189,5 @@ protected:
     bool m_skip;  // skip this page?
     bool m_allow_scroll;  // allow vertical scroll?
     bool m_progress_blocked;  // is the page blocking progress?
+    QVector<PageValidatorFunction> m_validators;  // functions to validate via
 };

@@ -432,6 +432,7 @@ int countNotNull(const QVector<QVariant>& values)
     return n;
 }
 
+
 bool eq(const QVariant& x, const int test)
 {
     // SQL principle: NULL is not equal to anything

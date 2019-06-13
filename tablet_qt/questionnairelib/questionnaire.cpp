@@ -345,8 +345,8 @@ void Questionnaire::resetButtons()
     if (!page || !m_p_header) {
         return;
     }
-    const bool allow_progression = readOnly() ||
-            (!page->progressBlocked() && !page->missingInput());
+    const bool allow_progression =
+            readOnly() || page->mayProgressIgnoringValidators();
     // Optimization: calculate on_last_page only if necessary
     const bool on_last_page = allow_progression && !morePagesToGo();
     m_p_header->setButtons(
@@ -460,6 +460,12 @@ void Questionnaire::jumpClicked()
     // - In editing mode, we can jump as far as the last page that isn't
     //   incomplete.
     // - We skip skipped pages in either mode.
+    if (!m_read_only) {
+        QuPage* current_page = currentPagePtr();
+        if (current_page && !current_page->validate()) {
+            return;
+        }
+    }
     addAllAccessibleDynamicPages();
     QVector<PagePickerItem> pageitems;
     bool blocked = false;
@@ -470,7 +476,7 @@ void Questionnaire::jumpClicked()
             // Skipped pages don't block subsequent ones, either.
         }
         const QString text = page->indexTitle();
-        const bool missing_input = page->progressBlocked() || page->missingInput();
+        const bool missing_input = !page->mayProgressIgnoringValidators();
         PagePickerItem::PagePickerItemType type = blocked
             ? PagePickerItem::PagePickerItemType::BlockedByPrevious
             : (missing_input ? PagePickerItem::PagePickerItemType::IncompleteSelectable
@@ -515,10 +521,14 @@ void Questionnaire::nextClicked()
 void Questionnaire::processNextClicked()
 {
     QuPage* page = currentPagePtr();
-    if (!page || (!readOnly() && (page->progressBlocked() ||
-                                  page->missingInput()))) {
-        // Can't progress
+    if (!page) {
         return;
+    }
+    if (!readOnly()) {
+        if (!page->mayProgressIgnoringValidators() || !page->validate()) {
+            // Can't progress
+            return;
+        }
     }
     const int npages = nPages();
     for (int i = m_current_page_index + 1; i < npages; ++i) {
@@ -611,10 +621,14 @@ void Questionnaire::finishClicked()
         return;
     }
     QuPage* page = currentPagePtr();
-    if (!page || (!readOnly() && (page->progressBlocked() ||
-                                  page->missingInput()))) {
-        // Can't progress
+    if (!page) {
         return;
+    }
+    if (!readOnly()) {
+        if (!page->mayProgressIgnoringValidators() || !page->validate()) {
+            // Can't progress
+            return;
+        }
     }
     doFinish();
 }

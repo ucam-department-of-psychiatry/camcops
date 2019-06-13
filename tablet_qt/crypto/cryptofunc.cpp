@@ -36,7 +36,7 @@
 
 
 // #define DANGER_DEBUG_CRYPTO  // never use this in a production environment
-#define DEBUG_LOAD_CRYPTO_DLL
+// #define DEBUG_LOAD_CRYPTO_DLL
 
 #include "cryptofunc.h"
 #include <cmath>  // for ceil

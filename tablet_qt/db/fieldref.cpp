@@ -19,7 +19,7 @@
 
 // #define DEBUG_SET_VALUE
 // #define DEBUG_SIGNALS
-#define DEBUG_CHECK_VALID  // may be sensible to leave this on
+// #define DEBUG_CHECK_VALID  // may be sensible to leave this on
 
 #include "core/camcopsapp.h"
 #include "common/globals.h"
@@ -90,6 +90,7 @@ FieldRef::FieldRef(Field* p_field, const bool mandatory) :
              nullptr,  // p_app
              "")  // storedvar_name
 {
+    Q_ASSERT(p_field);
 }
 
 
@@ -111,6 +112,7 @@ FieldRef::FieldRef(DatabaseObject* p_dbobject,
              nullptr,  // p_app
              "")  // storedvar_name
 {
+    Q_ASSERT(p_dbobject);
     if (blob) {
         if (p_app == nullptr) {
             uifunc::stopApp("Must pass p_app to FieldRef for BLOBs");
@@ -146,6 +148,7 @@ FieldRef::FieldRef(QSharedPointer<Blob> blob,
              nullptr,  // p_app
              "")  // storedvar_name
 {
+    Q_ASSERT(blob);
     // for widget testing only; specimen BLOB
     if (!disable_creation_warning) {
         qWarning() << "FieldRef constructed with reference to specimen BLOB; "
@@ -187,6 +190,7 @@ FieldRef::FieldRef(CamcopsApp* app, const QString& storedvar_name,
              app,  // p_app
              storedvar_name)  // storedvar_name
 {
+    Q_ASSERT(app);
 }
 
 

@@ -24,9 +24,10 @@ Developer notes
     :maxdepth: 1
 
     creating_tasks.rst
-    building_client.rst
-    cpp_code_style.rst
     seeking_permissions.rst
+    cpp_code_style.rst
+    building_client.rst
+    releasing.rst
     new_task_walkthrough_core10.rst
     design_notes.rst
     development_command_line.rst

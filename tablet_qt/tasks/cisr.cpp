@@ -121,7 +121,7 @@ FURTHER THOUGHTS: we'll implement a DynamicQuestionnaire class; q.v.
 */
 
 // #define DEBUG_SHOW_PAGE_TAGS
-#define DEBUG_SHOW_QUESTIONS_CONSIDERED  // helpful; leave it on
+#define SHOW_QUESTIONS_CONSIDERED  // helpful; leave it on
 
 #include "cisr.h"
 #include "lib/stringfunc.h"
@@ -1479,7 +1479,7 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
 
     QVariant var_q;
     int v = V_MISSING;
-#ifdef DEBUG_SHOW_QUESTIONS_CONSIDERED
+#ifdef SHOW_QUESTIONS_CONSIDERED
     r.decide(QString("Considering question %1: %2").arg(
                  QString::number(enumToInt(q)), tagForQuestion(q)));
 #endif

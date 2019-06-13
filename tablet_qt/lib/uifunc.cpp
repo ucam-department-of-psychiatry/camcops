@@ -19,7 +19,7 @@
 
 // #define DEBUG_ICON_LOAD
 // #define DEBUG_SCROLL_GESTURES
-#define DEBUG_MIN_SIZE_FOR_TITLE
+// #define DEBUG_MIN_SIZE_FOR_TITLE
 
 #include "uifunc.h"
 #include <QAbstractItemView>

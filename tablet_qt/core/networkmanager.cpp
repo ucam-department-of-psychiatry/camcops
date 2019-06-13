@@ -21,7 +21,7 @@
 // #define DEBUG_NETWORK_REPLIES_RAW
 // #define DEBUG_NETWORK_REPLIES_DICT
 // #define DEBUG_ACTIVITY
-#define DEBUG_JSON
+// #define DEBUG_JSON
 #define USE_BACKGROUND_DATABASE
 
 #include "networkmanager.h"

@@ -36,6 +36,7 @@ protected:
     virtual void makeItems() override;
     OpenableWidget* configureServer(CamcopsApp& app);
     void serverSettingsSaved();
+    bool validateServerSettings(const QuPage* page);
 
     OpenableWidget* configureIntellectualProperty(CamcopsApp& app);
     void ipClinicalChanged();

@@ -70,7 +70,11 @@ void DynamicQuestionnaire::addAllAccessibleDynamicPages()
     QuPagePtr page;
     do {
         page = m_pages[page_index];
-        bool may_progress = mayProgress(page.data());
+        // Not quite the same as a standard questionnaire (see processNextClicked).
+        // We don't allow progress for blocked/missing-input pages in the
+        // read-only situation (or, for example, you get a ridiculous list of
+        // inaccessible pages; try the CIS-R).
+        bool may_progress = page && page->mayProgressIgnoringValidators();
         may_progress = may_progress && m_more_pages_to_go_fn(page_index);
         if (may_progress) {
             ++page_index;
@@ -141,7 +145,11 @@ void DynamicQuestionnaire::processNextClicked()
 {
     // As per Questionnaire:
     QuPage* page = currentPagePtr();
-    if (!mayProgress(page)) {
+    // Not quite the same as a standard questionnaire (see processNextClicked).
+    // We don't allow progress for blocked/missing-input pages in the
+    // read-only situation (or, for example, you get a ridiculous list of
+    // inaccessible pages; try the CIS-R).
+    if (!page || !page->mayProgressIgnoringValidators() || !page->validate()) {
         return;
     }
 
@@ -162,17 +170,4 @@ void DynamicQuestionnaire::processNextClicked()
     }
     m_pages.append(new_dynamic_page);
     goToPage(next_qnum);
-}
-
-
-bool DynamicQuestionnaire::mayProgress(QuPage* page) const
-{
-    // Not quite the same as a standard questionnaire (see processNextClicked).
-    // We don't allow progress for blocked/missing-input pages in the
-    // read-only situation (or, for example, you get a ridiculous list of
-    // inaccessible pages; try the CIS-R).
-    if (!page || page->progressBlocked() || page->missingInput()) {
-        return false;
-    }
-    return true;
 }

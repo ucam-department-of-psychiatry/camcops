@@ -2205,6 +2205,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``cc_text.py`` and better server string framework for internationalization;
   see :ref:`String locations in CamCOPS <dev_string_locations>`.
 
+- ``QuPage`` and corresponding questionnaire updates to provide a method for
+  more complex validation when the user clicks "Finish" or tries to navigate
+  away from a page. Initial use: preventing forward slashes in the server
+  hostname.
+
 - New task: :ref:`Lynall M-E — 1 — IAM study — medical history
   <lynall_1_iam_medical>`
 

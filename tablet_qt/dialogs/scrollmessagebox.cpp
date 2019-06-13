@@ -22,7 +22,7 @@
 
 #define USE_CUSTOM_HFW
 // #define ENFORCE_MINIMUM
-#define DEBUG_RESIZE_FOR_TITLE
+// #define DEBUG_RESIZE_FOR_TITLE
 
 #include "scrollmessagebox.h"
 #include <QApplication>

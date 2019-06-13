@@ -244,6 +244,12 @@ QVector<QuElement*> QuPage::elementsWithTag(const QString& tag)
 }
 
 
+bool QuPage::mayProgressIgnoringValidators() const
+{
+    return !(progressBlocked() || missingInput());
+}
+
+
 bool QuPage::missingInput() const
 {
     const QVector<QuElement*> elements = allElements();
@@ -261,7 +267,7 @@ bool QuPage::missingInput() const
 
         // Instead, to make things considerably easier when writing tasks, use
         // the rule that invisible widgets cannot block progress.
-        if (e->missingInput() && e->visible()) {
+        if (e->visible() && e->missingInput()) {
             return true;
         }
     }
@@ -278,6 +284,23 @@ void QuPage::blockProgress(const bool block)
 bool QuPage::progressBlocked() const
 {
     return m_progress_blocked;
+}
+
+
+void QuPage::registerValidator(const PageValidatorFunction& validator)
+{
+    m_validators.append(validator);
+}
+
+
+bool QuPage::validate() const
+{
+    for (auto validator : m_validators) {
+        if (!validator(this)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 

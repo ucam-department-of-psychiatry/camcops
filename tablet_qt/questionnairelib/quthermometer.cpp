@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_IMAGE_SIZES
+// #define DEBUG_IMAGE_SIZES
 
 #include "quthermometer.h"
 #include <QLabel>

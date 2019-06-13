@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_UNIT_CONVERSION
+// #define DEBUG_UNIT_CONVERSION
 // #define DEBUG_IMAGE_CONVERSION_TIMES
 
 #include "convert.h"

@@ -29,6 +29,8 @@ Tasks in CamCOPS by category
     :depth: 1
 
 
+.. All tasks should appear in this list.
+
 Clinical notes and logs
 -----------------------
 
