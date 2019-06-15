@@ -22,6 +22,8 @@
 Childhood Trauma Questionnaire, Short Form (CTQ-SF)
 ---------------------------------------------------
 
+.. include:: include_under_development.rst
+
 .. include:: include_data_collection_plus_local_upgrade.rst
 
 28-item self-report scale relating to childhood adverse experiences including

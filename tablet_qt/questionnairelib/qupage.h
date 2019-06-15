@@ -53,12 +53,12 @@ public:
     // ========================================================================
     // Shorthand
     // ========================================================================
-    // A function that looks like "bool validatePage(QuPage*)": it returns
-    // "ok?" and is an opportunity for complex validation and alerting the
-    // user. The rule is that the validator must tell the user the reason for
-    // any failure, if it returns false.
+    // A function that looks like:
+    //      bool validatePage(QStringList& errors, const QuPage* page);
+    // ... it returns "ok?", adding any errors to "errors", and is an
+    // opportunity for complex (e.g. multi-field) validation.
     // See registerValidator().
-    using PageValidatorFunction = std::function<bool(const QuPage*)>;
+    using PageValidatorFunction = std::function<bool(QStringList&, const QuPage*)>;
 
     // ========================================================================
     // Construction/destruction

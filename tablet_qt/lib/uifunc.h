@@ -281,7 +281,8 @@ void makeItemViewScrollSmoothly(QObject* object);
 // Sizing
 // ============================================================================
 
-QSize minimumSizeForTitle(const QDialog* dialog);
+QSize minimumSizeForTitle(const QDialog* dialog,
+                          bool include_app_name = false);
 
 
 }  // namespace uifunc

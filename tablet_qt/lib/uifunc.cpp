@@ -815,7 +815,8 @@ void makeItemViewScrollSmoothly(QObject* object)
 // Sizing
 // ============================================================================
 
-QSize minimumSizeForTitle(const QDialog* dialog)
+QSize minimumSizeForTitle(const QDialog* dialog,
+                          const bool include_app_name)
 {
     if (!dialog) {
         return QSize();
@@ -829,10 +830,16 @@ QSize minimumSizeForTitle(const QDialog* dialog)
     // https://doc.qt.io/qt-5/qwidget.html#windowTitle-prop
     const QString window_title = dialog->windowTitle();
     const QString app_name = QApplication::applicationDisplayName();
-    const QString full_title = QString("%1 — %2").arg(window_title, app_name);
+    QString full_title = window_title;
+    if (include_app_name && !platform::PLATFORM_TABLET) {
+        // Qt for Android doesn't append this suffix.
+        // It does for Linux and Windows.
+        const QString title_suffix = QString(" — %1").arg(app_name);
+        full_title += title_suffix;
+    }
     const QFont title_font = QApplication::font("QWorkspaceTitleBar");
     const QFontMetrics fm(title_font);
-    const int title_w = fm.width(full_title);
+    const int title_w = fm.width(full_title);  // "_w" means width
 
     // dialog->ensurePolished();
     // const QSize frame_size = dialog->frameSize();
@@ -842,13 +849,17 @@ QSize minimumSizeForTitle(const QDialog* dialog)
     // const QSize frame_extra = frame_size - content_size;
 
     // How to count the number of icons shown on a window? ***
-    const int n_icons = 6;
-    // ... typically icon (left) plus rollup/maximize/close (right)
-    // ... plus a bit for spacing...
+    // - Android: 0
+    // - Linux: presumably may vary with window manager, but 4 is typical under
+    //   XFCE (1 icon on left, 3 [rollup/maximize/close] on right), but need a
+    //   bit more for spacing; 6 works better (at 24 pixels width per icon)
+    // - Windows: also 4 (icon left, minimize/maximize/close on right)
+    const int n_icons = platform::PLATFORM_TABLET ? 0 : 6;
 
     // How to read the size (esp. width) of a window icon? ***
     // const int icon_w = frame_extra.height();
     // ... on the basis that window icons are square!
+    // ... but the problem is that frame size may as yet be zero
     const int icon_w = 24;
 
     const int final_w = title_w + n_icons * icon_w;

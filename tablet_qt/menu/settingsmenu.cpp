@@ -426,7 +426,8 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
     page->setTitle(tr("Configure server settings"));
     page->setType(QuPage::PageType::Config);
     page->registerValidator(std::bind(&SettingsMenu::validateServerSettings,
-                                      this, std::placeholders::_1));
+                                      this, std::placeholders::_1,
+                                      std::placeholders::_2));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setFinishButtonIconToTick();
@@ -438,13 +439,14 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
 }
 
 
-bool SettingsMenu::validateServerSettings(const QuPage* page)
+bool SettingsMenu::validateServerSettings(QStringList& errors,
+                                          const QuPage* page)
 {
     Q_UNUSED(page);
     // Note that we are using cached server variables.
     const QString hostname = m_app.getCachedVar(varconst::SERVER_ADDRESS).toString();
     if (hostname.contains("/")) {
-        uifunc::alert("No forward slashes ('/') permitted in server hostname");
+        errors.append("No forward slashes ('/') permitted in server hostname");
         return false;
     }
     return true;

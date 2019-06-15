@@ -19,6 +19,7 @@
 
 #include "qupage.h"
 #include <QWidget>
+#include "lib/uifunc.h"
 #include "db/fieldref.h"
 #include "layouts/layouts.h"
 #include "widgets/basewidget.h"
@@ -289,18 +290,27 @@ bool QuPage::progressBlocked() const
 
 void QuPage::registerValidator(const PageValidatorFunction& validator)
 {
+    // if (!m_validators.contains(validator)) {  // prevent double registration
+    //
+    // ... no, comparison of function objects is tricky; see
+    // https://stackoverflow.com/questions/20833453/comparing-stdfunctions-for-equality
+
     m_validators.append(validator);
 }
 
 
 bool QuPage::validate() const
 {
+    QStringList errors;
+    bool success = true;
     for (auto validator : m_validators) {
-        if (!validator(this)) {
-            return false;
-        }
+        // Execute all validators (more helpful to user to show all errors).
+        success = validator(errors, this) && success;
     }
-    return true;
+    if (!success) {
+        uifunc::alert(errors, tr("Invalid information"));
+    }
+    return success;
 }
 
 
