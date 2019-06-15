@@ -2222,6 +2222,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`.
 
+- **General release.**
+
 
 IN PROGRESS:
 

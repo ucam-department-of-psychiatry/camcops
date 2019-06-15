@@ -51,7 +51,7 @@ QuPhoto::QuPhoto(BlobFieldRefPtr fieldref) :
     const int n_cameras = QCameraInfo::availableCameras().count();
     m_have_camera = m_have_opengl && n_cameras > 0;
     // We check for OpenGL. If it's absent, and we try to create a camera,
-    // we can get an instant segfault/crash. Better to
+    // we can get an instant segfault/crash. Better to fail gracefully.
 
     qDebug().nospace()
             << "OpenGL present: " << m_have_opengl

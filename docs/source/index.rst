@@ -27,10 +27,6 @@ cognitive and psychiatric assessment, on tablets, laptops, and desktops. It
 offers simple questionnaires and more complex tasks, and sends its data
 securely to your server.
 
-.. note::
-    CamCOPS is currently in private beta testing (University of Cambridge,
-    CPFT) before general release.
-
 ..  toctree::
     :maxdepth: 2
     :numbered:

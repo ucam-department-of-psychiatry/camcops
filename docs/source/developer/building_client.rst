@@ -60,15 +60,33 @@ Linux
 
 - Linux should come with Python and the necessary build tools.
 
-- To build Android programs under Linux, you will also need a Java development
-  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-8-jdk``.
-
 - Tested in Aug 2018 with:
 
   .. code-block:: none
 
     Ubuntu 16.04
     Ubuntu 18.04 / gcc 7.3.0
+
+
+Android (with a Linux build host)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- To build Android programs under Linux, you will also need a Java development
+  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-8-jdk``.
+
+- Install the `Android SDK`_. Tested with:
+
+  .. code-block:: none
+
+    android-ndk-r11c  # doesn't support 64-bit ARM
+    android-ndk-r20   # as of 2019-06-15
+
+- Install the `Android NDK`_. Tested with:
+
+  .. code-block:: none
+
+    android-ndk-r11c  # doesn't support 64-bit ARM
+    android-ndk-r20   # as of 2019-06-15
 
 
 Windows
@@ -308,8 +326,6 @@ Run and set up Qt Creator
 - **Run Qt Creator.**
 
 - If you are compiling for Android:
-
-  - Install the `Android SDK`_ and the `Android NDK`_.
 
   - Configure your Android SDK/NDK and Java JDK at: :menuselection:`Tools -->
     Options --> Android`, or in newer versions of Qt Creator,

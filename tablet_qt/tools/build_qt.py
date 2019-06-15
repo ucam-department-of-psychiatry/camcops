@@ -251,8 +251,9 @@ ENVVAR_QT_BASE = "CAMCOPS_QT_BASE_DIR"
 DEFAULT_ANDROID_API_NUM = 23  # see changelog.rst 2018-07-17
 DEFAULT_ROOT_DIR = join(USER_DIR, "dev", "qt_local_build")
 DEFAULT_ANDROID_SDK = join(USER_DIR, "dev", "android-sdk-linux")
-DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r11c")
 # DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r10e")  # trying downgrade, 2018-07-16  # noqa
+# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r11c")  # until 2019-06-15  # noqa
+DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r20")  # from 2019-06-15, inc. 64-bit ARM  # noqa
 DEFAULT_NDK_HOST = "linux-x86_64"
 DEFAULT_TOOLCHAIN_VERSION = "4.9"
 

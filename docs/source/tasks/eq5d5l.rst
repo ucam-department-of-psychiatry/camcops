@@ -32,8 +32,7 @@ extreme problems. The second task component is a visual scale wherein the
 patient is asked to rate their health on a scale of 0 to 100.
 
 EQ-5D-5L evolved from EQ-5D-3L, as the five level classifier provided greater
-discriminative ability and more power to detect differences between groups
-compared.
+discriminative ability and more power to detect differences between groups.
 
 History and guide
 ~~~~~~~~~~~~~~~~~

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="da_DK">
+<TS version="2.0" language="da_DK">
 <context>
     <name>APEQCPFTPerinatal</name>
     <message>
@@ -2781,11 +2781,16 @@ enig</translation>
     </message>
     <message>
         <location filename="../tasks/kirby.cpp" line="473"/>
+        <source>%1 today</source>
+        <translation>%1 i dag</translation>
+    </message>
+    <message>
+        <location filename="../tasks/kirby.cpp" line="478"/>
         <source>%1 in %2 days</source>
         <translation>%1 om %2 dage</translation>
     </message>
     <message>
-        <location filename="../tasks/kirby.cpp" line="479"/>
+        <location filename="../tasks/kirby.cpp" line="484"/>
         <source>Would you prefer %1, or %2?</source>
         <translation>Vil du foretrække %1, eller %2?</translation>
     </message>
@@ -2816,12 +2821,12 @@ enig</translation>
     <message>
         <location filename="../tasks/lynall2iamlife.cpp" line="59"/>
         <source>Lynall M-E — 2 — IAM — Life events</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynall M-E — 2 — IAM — Livsbegivenheder</translation>
     </message>
     <message>
         <location filename="../tasks/lynall2iamlife.cpp" line="65"/>
         <source>Life events questionnaire for IAM immunopsychiatry study.</source>
-        <translation type="unfinished"></translation>
+        <translation>Livsbegivenheds spørgeskema for IAM immunopsykiatri undersøgelse.</translation>
     </message>
 </context>
 <context>
@@ -3571,12 +3576,12 @@ enig</translation>
 <context>
     <name>PagePickerDialog</name>
     <message>
-        <location filename="../dialogs/pagepickerdialog.cpp" line="102"/>
+        <location filename="../dialogs/pagepickerdialog.cpp" line="103"/>
         <source>You can’t select this page yet because preceding pages (marked with a warning symbol) are incomplete.</source>
         <translation>Du kan ikke vælge denne side endnu, fordi de foregående sider (markeret med et advarselssymbol) er ufuldstændige.</translation>
     </message>
     <message>
-        <location filename="../dialogs/pagepickerdialog.cpp" line="104"/>
+        <location filename="../dialogs/pagepickerdialog.cpp" line="105"/>
         <source>Complete preceding pages first.</source>
         <translation>Udfyld først de foregående sider.</translation>
     </message>
@@ -4108,12 +4113,12 @@ enig</translation>
         <translation>Kunne ikke oprette mappe: </translation>
     </message>
     <message>
-        <location filename="../maths/mathfunc.cpp" line="761"/>
+        <location filename="../maths/mathfunc.cpp" line="762"/>
         <source>true</source>
         <translation>sand</translation>
     </message>
     <message>
-        <location filename="../maths/mathfunc.cpp" line="761"/>
+        <location filename="../maths/mathfunc.cpp" line="762"/>
         <source>WRONG</source>
         <translation>FORKERT</translation>
     </message>
@@ -4207,6 +4212,14 @@ enig</translation>
     </message>
 </context>
 <context>
+    <name>QuPage</name>
+    <message>
+        <location filename="../questionnairelib/qupage.cpp" line="311"/>
+        <source>Invalid information</source>
+        <translation>Ugyldig information</translation>
+    </message>
+</context>
+<context>
     <name>QuPhoto</name>
     <message>
         <location filename="../questionnairelib/quphoto.cpp" line="107"/>
@@ -4274,7 +4287,7 @@ enig</translation>
         <translation>Nej, gå tilbage</translation>
     </message>
     <message>
-        <location filename="../questionnairelib/questionnaire.cpp" line="484"/>
+        <location filename="../questionnairelib/questionnaire.cpp" line="490"/>
         <source>Choose page</source>
         <translation>Vælg side</translation>
     </message>
@@ -4415,7 +4428,7 @@ enig</translation>
 <context>
     <name>ServiceEvaluationMenu</name>
     <message>
-        <location filename="../menu/serviceevaluationmenu.cpp" line="45"/>
+        <location filename="../menu/serviceevaluationmenu.cpp" line="46"/>
         <source>Service evaluation</source>
         <translation>Service evaluering</translation>
     </message>
@@ -4606,13 +4619,13 @@ enig</translation>
     </message>
     <message>
         <location filename="../menu/settingsmenu.cpp" line="142"/>
-        <location filename="../menu/settingsmenu.cpp" line="666"/>
+        <location filename="../menu/settingsmenu.cpp" line="683"/>
         <source>User settings</source>
         <translation>Brugerindstillinger</translation>
     </message>
     <message>
         <location filename="../menu/settingsmenu.cpp" line="149"/>
-        <location filename="../menu/settingsmenu.cpp" line="497"/>
+        <location filename="../menu/settingsmenu.cpp" line="514"/>
         <source>Intellectual property (IP) permissions</source>
         <translation>Intellektuelle ejendomsrettigheder</translation>
     </message>
@@ -4628,7 +4641,7 @@ enig</translation>
     </message>
     <message>
         <location filename="../menu/settingsmenu.cpp" line="161"/>
-        <location filename="../menu/settingsmenu.cpp" line="1280"/>
+        <location filename="../menu/settingsmenu.cpp" line="1297"/>
         <source>Show server information</source>
         <translation>Vis serveroplysninger</translation>
     </message>
@@ -4904,478 +4917,478 @@ enig</translation>
         <translation>Ét trin, hvis det er lille nok (standard)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="443"/>
+        <location filename="../menu/settingsmenu.cpp" line="460"/>
         <source>The settings here influence whether CamCOPS will consider some third-party tasks “permitted” on your behalf, according to their published use criteria. They do &lt;b&gt;not&lt;/b&gt; remove your responsibility to ensure that you use them in accordance with their own requirements.</source>
         <translation>Indstillingerne her påvirker, om CamCOPS overvejer nogle tredjepartsopgaver “tilladt” på dine vegne i henhold til deres offentliggjorte brugskriterier. De fjerner &lt;b&gt;ikke&lt;/b&gt; dit ansvar for at sikre, at du bruger dem i overensstemmelse med deres egne krav.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="449"/>
+        <location filename="../menu/settingsmenu.cpp" line="466"/>
         <source>WARNING. Providing incorrect information here may lead to you VIOLATING copyright law, by using a task for a purpose that is not permitted, and being subject to damages and/or prosecution.</source>
         <translation>ADVARSEL. Hvis du angiver unøjagtige oplysninger her, kan du krænke ophavsretslovgivningen ved at bruge en opgave på en uautoriseret måde, og du kan være ansvarlig for bøder og / eller retsforfølgning.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="453"/>
+        <location filename="../menu/settingsmenu.cpp" line="470"/>
         <source>The authors of CamCOPS cannot be held responsible or liable for any consequences of you misusing materials subject to copyright.</source>
         <translation>Forfatterne til CamCOPS kan ikke holdes ansvarlige for eventuelle konsekvenser af misbrug af materiale, der er underlagt ophavsret.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="457"/>
+        <location filename="../menu/settingsmenu.cpp" line="474"/>
         <source>Are you using this application for:</source>
         <translation>Bruger du denne ansøgning til:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="477"/>
+        <location filename="../menu/settingsmenu.cpp" line="494"/>
         <source>Clinical use?</source>
         <translation>Klinisk brug?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="480"/>
+        <location filename="../menu/settingsmenu.cpp" line="497"/>
         <source>WARNING: NOT FOR GENERAL CLINICAL USE; not a Medical Device; see Terms and Conditions</source>
         <translation>ADVARSEL: IKKE FOR GENEREL KLINISK BRUG; ikke en medicinsk enhed; se vilkår og betingelser</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="485"/>
+        <location filename="../menu/settingsmenu.cpp" line="502"/>
         <source>Commercial use?</source>
         <translation>Kommerciel brug?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="489"/>
+        <location filename="../menu/settingsmenu.cpp" line="506"/>
         <source>Educational use?</source>
         <translation>Uddannelsesmæssig brug?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="493"/>
+        <location filename="../menu/settingsmenu.cpp" line="510"/>
         <source>Research use?</source>
         <translation>Forskning bruger?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="541"/>
+        <location filename="../menu/settingsmenu.cpp" line="558"/>
         <source>Interactions with the server</source>
         <translation>Interaktioner med serveren</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="543"/>
+        <location filename="../menu/settingsmenu.cpp" line="560"/>
         <source>Device friendly name</source>
         <translation>Et venligt navn på enheden</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="544"/>
+        <location filename="../menu/settingsmenu.cpp" line="561"/>
         <source>e.g. “Research tablet 17 (Bob’s)”</source>
         <translation>f.eks. “Forskningstablet 17 (Victor’s)”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="546"/>
+        <location filename="../menu/settingsmenu.cpp" line="563"/>
         <source>Username on server</source>
         <translation>Brugernavn på server</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="553"/>
+        <location filename="../menu/settingsmenu.cpp" line="570"/>
         <source>Password on server</source>
         <translation>Adgangskode på server</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="555"/>
+        <location filename="../menu/settingsmenu.cpp" line="572"/>
         <source>Offer to upload every time a task is edited?</source>
         <translation>Tilbud om at uploade hver gang en opgave er redigeret?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="557"/>
+        <location filename="../menu/settingsmenu.cpp" line="574"/>
         <source>Default clinician’s details (to save you typing)</source>
         <translation>Standard klinikerens detaljer (for at gemme dig at skrive)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="560"/>
+        <location filename="../menu/settingsmenu.cpp" line="577"/>
         <source>Default clinician’s specialty</source>
         <translation>Standard klinikerens specialitet</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="561"/>
+        <location filename="../menu/settingsmenu.cpp" line="578"/>
         <source>e.g. “Liaison Psychiatry”</source>
         <translation>f.eks. “Forbindelsespsykiatri”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="564"/>
+        <location filename="../menu/settingsmenu.cpp" line="581"/>
         <source>Default clinician’s name</source>
         <translation>Standard klinikerens navn</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="565"/>
+        <location filename="../menu/settingsmenu.cpp" line="582"/>
         <source>e.g. “Dr Bob Smith”</source>
         <translation>f.eks. “Dr Viktor Jensen”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="568"/>
+        <location filename="../menu/settingsmenu.cpp" line="585"/>
         <source>Default clinician’s professional registration</source>
         <translation>Standard klinikerens faglige registrering</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="569"/>
+        <location filename="../menu/settingsmenu.cpp" line="586"/>
         <source>e.g. “GMC# 12345”</source>
         <translation>e.g. “STPS# 12345”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="572"/>
+        <location filename="../menu/settingsmenu.cpp" line="589"/>
         <source>Default clinician’s post</source>
         <translation>Standard klinikerens arbejde</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="573"/>
+        <location filename="../menu/settingsmenu.cpp" line="590"/>
         <source>e.g. “Specialist registrar”</source>
         <translation>f.eks. “Konsulent psykiater”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="576"/>
+        <location filename="../menu/settingsmenu.cpp" line="593"/>
         <source>Default clinician’s service</source>
         <translation>Standard klinikerens service</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="577"/>
+        <location filename="../menu/settingsmenu.cpp" line="594"/>
         <source>e.g. “Liaison Psychiatry Service”</source>
         <translation>f.eks. “Forbindelsespsykiatri Service”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="580"/>
+        <location filename="../menu/settingsmenu.cpp" line="597"/>
         <source>Default clinician’s contact details</source>
         <translation>Standard klinikerens kontaktoplysninger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="581"/>
+        <location filename="../menu/settingsmenu.cpp" line="598"/>
         <source>e.g. “x2167”</source>
         <translation>f.eks. “x2167”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="705"/>
+        <location filename="../menu/settingsmenu.cpp" line="722"/>
         <source>Questionnaire font size</source>
         <translation>Spørgeskema skriftstørrelse</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="706"/>
+        <location filename="../menu/settingsmenu.cpp" line="723"/>
         <source>Set the font size, as a percentage of the default.</source>
         <translation>Indstil skriftstørrelsen som en procentdel af standardværdien.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="707"/>
+        <location filename="../menu/settingsmenu.cpp" line="724"/>
         <source>Changes take effect when a screen is reloaded.</source>
         <translation>Ændringer træder i kraft, når en skærm genindlæses.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="708"/>
+        <location filename="../menu/settingsmenu.cpp" line="725"/>
         <source>You can type it in:</source>
         <translation>Du kan skrive det i:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="709"/>
+        <location filename="../menu/settingsmenu.cpp" line="726"/>
         <source>... or set it with a slider:</source>
         <translation>... eller sæt det med en skyder:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="711"/>
+        <location filename="../menu/settingsmenu.cpp" line="728"/>
         <source>DPI settings</source>
         <translation>Punkter pr. tommer indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="712"/>
+        <location filename="../menu/settingsmenu.cpp" line="729"/>
         <source>Dots per inch (DPI), or more accurately pixels per inch (PPI), are a measure of screen resolution. Higher-resolution monitors have higher DPI settings. In some circumstances, CamCOPS needs to know your screen&apos;s DPI settings accurately. If your operating system mis-reports them, you can override the system settings here.</source>
         <translation>Punkter pr. tommer (DPI) eller mere præcist pixel pr. tomme (PPI) er et mål for skærmopløsning. Højere opløsning skærme har højere DPI indstillinger. Under nogle omstændigheder skal CamCOPS kende din skærms DPI-indstillinger nøjagtigt. Hvis dit operativsystem mis-rapporterer dem, kan du tilsidesætte systemindstillingerne her.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="719"/>
+        <location filename="../menu/settingsmenu.cpp" line="736"/>
         <source>These settings take effect when you restart CamCOPS.</source>
         <translation>Disse indstillinger træder i kraft, når du genstarter CamCOPS.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="721"/>
+        <location filename="../menu/settingsmenu.cpp" line="738"/>
         <source>Logical DPI settings are used for icon sizes and similar. You are unlikely to need to override these. Current system logical DPI: </source>
         <translation>Logiske DPI-indstillinger bruges til ikonstørrelser og lignende. Det er usandsynligt, at du skal tilsidesætte disse. Nuværende system logisk DPI:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="726"/>
+        <location filename="../menu/settingsmenu.cpp" line="743"/>
         <source>Override system logical DPI settings</source>
         <translation>Overstyr systemets logiske DPI-indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="727"/>
+        <location filename="../menu/settingsmenu.cpp" line="744"/>
         <source>Logical DPI, X</source>
         <translation>Logisk DPI, X</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="728"/>
+        <location filename="../menu/settingsmenu.cpp" line="745"/>
         <source>Logical DPI, Y</source>
         <translation>Logisk DPI, Y</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="730"/>
+        <location filename="../menu/settingsmenu.cpp" line="747"/>
         <source>Physical DPI settings are used for absolute sizes (e.g. visual analogue scales). Override this for precise scaling if your system gets it slightly wrong. Current system physical DPI: </source>
         <translation>Fysiske DPI-indstillinger anvendes til absolutte størrelser (fx visuelle analoge skalaer). Overstyr dette for præcis skalering, hvis dit system får det lidt forkert. Nuværende system fysisk DPI:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="735"/>
+        <location filename="../menu/settingsmenu.cpp" line="752"/>
         <source>Override system physical DPI settings</source>
         <translation>Overstyr systemets fysiske DPI-indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="736"/>
+        <location filename="../menu/settingsmenu.cpp" line="753"/>
         <source>Physical DPI, X</source>
         <translation>Fysisk DPI, X</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="737"/>
+        <location filename="../menu/settingsmenu.cpp" line="754"/>
         <source>Physical DPI, Y</source>
         <translation>Fysisk DPI, Y</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="741"/>
+        <location filename="../menu/settingsmenu.cpp" line="758"/>
         <source>Dots per inch (DPI), e.g. 96; range %1-%2</source>
         <translation>Punkter pr. tommer (DPI), f.eks. 96; interval %1-%2</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="854"/>
+        <location filename="../menu/settingsmenu.cpp" line="871"/>
         <source>Reset to 100%</source>
         <translation>Nulstil til 100%</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="872"/>
+        <location filename="../menu/settingsmenu.cpp" line="889"/>
         <source>Set questionnaire font size and DPI settings</source>
         <translation>Indstil spørgeskema skriftstørrelse og DPI indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1014"/>
+        <location filename="../menu/settingsmenu.cpp" line="1031"/>
         <source>Server details have changed. You should consider re-registering with the server.</source>
         <translation>Serveroplysningerne er ændret. Du bør overveje at omregistrere til serveren.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1016"/>
+        <location filename="../menu/settingsmenu.cpp" line="1033"/>
         <source>Registration advised</source>
         <translation>Registrering anbefales</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1071"/>
+        <location filename="../menu/settingsmenu.cpp" line="1088"/>
         <source>&lt;b&gt;Are you sure you want to delete all extra strings?&lt;/b&gt;&lt;br&gt;(To get them back, re-download them from your server.)</source>
         <translation>&lt;b&gt;Er du sikker på, at du vil slette alle ekstra strenger?&lt;/b&gt;&lt;br&gt;(For at få dem tilbage, genindlæs dem fra din server.)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1075"/>
+        <location filename="../menu/settingsmenu.cpp" line="1092"/>
         <source>Wipe all extra strings?</source>
         <translation>Slet alle ekstra strenger?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1076"/>
+        <location filename="../menu/settingsmenu.cpp" line="1093"/>
         <source>Yes, delete them</source>
         <translation>Ja, slet dem</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1077"/>
+        <location filename="../menu/settingsmenu.cpp" line="1094"/>
         <source>No! Leave them alone</source>
         <translation>Nej! Lad dem være alene</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1116"/>
+        <location filename="../menu/settingsmenu.cpp" line="1133"/>
         <source>Server hostname/IP address:</source>
         <translation>Server værtsnavn/IP-adresse:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1117"/>
+        <location filename="../menu/settingsmenu.cpp" line="1134"/>
         <source>Port for HTTPS:</source>
         <translation>Port til HTTPS:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1118"/>
+        <location filename="../menu/settingsmenu.cpp" line="1135"/>
         <source>Path on server:</source>
         <translation>Sti på server:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1119"/>
+        <location filename="../menu/settingsmenu.cpp" line="1136"/>
         <source>Network timeout (ms):</source>
         <translation>Netværk timeout (ms):</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1120"/>
+        <location filename="../menu/settingsmenu.cpp" line="1137"/>
         <source>Last server registration/ID info acceptance:</source>
         <translation>Seneste server registrering/ID info accept:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1122"/>
+        <location filename="../menu/settingsmenu.cpp" line="1139"/>
         <source>Last successful upload:</source>
         <translation>Sidste vellykket upload:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1123"/>
+        <location filename="../menu/settingsmenu.cpp" line="1140"/>
         <source>Database title (from the server):</source>
         <translation>Database titel (fra serveren):</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1124"/>
+        <location filename="../menu/settingsmenu.cpp" line="1141"/>
         <source>Server’s upload ID policy:</source>
         <translation>Serverens upload id-politik:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1125"/>
+        <location filename="../menu/settingsmenu.cpp" line="1142"/>
         <source>Server’s finalizing ID policy:</source>
         <translation>Serverens endelige id-politik:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1126"/>
+        <location filename="../menu/settingsmenu.cpp" line="1143"/>
         <source>Server CamCOPS version:</source>
         <translation>Serverens CamCOPS version:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1230"/>
+        <location filename="../menu/settingsmenu.cpp" line="1247"/>
         <source>Description for patient identifier </source>
         <translation>Beskrivelse for patientidentifikator </translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1238"/>
+        <location filename="../menu/settingsmenu.cpp" line="1255"/>
         <source>Short description for patient identifier </source>
         <translation>Kort beskrivelse af patientidentifikator </translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1252"/>
+        <location filename="../menu/settingsmenu.cpp" line="1269"/>
         <source>Language</source>
         <translation>Sprog</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1255"/>
+        <location filename="../menu/settingsmenu.cpp" line="1272"/>
         <source>Number of strings</source>
         <translation>Antal strenger</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1273"/>
+        <location filename="../menu/settingsmenu.cpp" line="1290"/>
         <source>ID number descriptions:</source>
         <translation>ID nummer beskrivelser:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1276"/>
+        <location filename="../menu/settingsmenu.cpp" line="1293"/>
         <source>Extra string counts by language:</source>
         <translation>Ekstra streng tæller efter sprog:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1292"/>
+        <location filename="../menu/settingsmenu.cpp" line="1309"/>
         <source>Drop unknown tables?</source>
         <translation>Slet ukendte tabeller?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1301"/>
+        <location filename="../menu/settingsmenu.cpp" line="1318"/>
         <source>All is well; no unknown tables.</source>
         <translation>Alt er godt; ingen ukendte tabeller.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1305"/>
+        <location filename="../menu/settingsmenu.cpp" line="1322"/>
         <source>Delete the following unknown data tables?</source>
         <translation>Slet følgende ukendte datatabeller?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1309"/>
+        <location filename="../menu/settingsmenu.cpp" line="1326"/>
         <source>... and the following unknown system tables?</source>
         <translation>... og de følgende ukendte systemtabeller?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1313"/>
+        <location filename="../menu/settingsmenu.cpp" line="1330"/>
         <source>Yes, drop</source>
         <translation>Ja, slet</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1313"/>
+        <location filename="../menu/settingsmenu.cpp" line="1330"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1318"/>
+        <location filename="../menu/settingsmenu.cpp" line="1335"/>
         <source>Tables dropped.</source>
         <translation>Tabeller slettet.</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1325"/>
+        <location filename="../menu/settingsmenu.cpp" line="1342"/>
         <source>Main data database</source>
         <translation>Hoveddatabase</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1333"/>
+        <location filename="../menu/settingsmenu.cpp" line="1350"/>
         <source>CamCOPS system database</source>
         <translation>CamCOPS system database</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1353"/>
+        <location filename="../menu/settingsmenu.cpp" line="1370"/>
         <source>Data</source>
         <translation>Data</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1359"/>
+        <location filename="../menu/settingsmenu.cpp" line="1376"/>
         <source>System</source>
         <translation>System</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1366"/>
+        <location filename="../menu/settingsmenu.cpp" line="1383"/>
         <source>Sending data...</source>
         <translation>Afsendelse af data...</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1367"/>
+        <location filename="../menu/settingsmenu.cpp" line="1384"/>
         <source>Please wait</source>
         <translation>Vent venligst</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1375"/>
+        <location filename="../menu/settingsmenu.cpp" line="1392"/>
         <source>database sent to debugging stream</source>
         <translation>database skrevet til debugging stream</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1376"/>
+        <location filename="../menu/settingsmenu.cpp" line="1393"/>
         <source>Finished</source>
         <translation>Færdig</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1383"/>
+        <location filename="../menu/settingsmenu.cpp" line="1400"/>
         <source>Save data database as...</source>
         <translation>Gem databas som...</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1384"/>
+        <location filename="../menu/settingsmenu.cpp" line="1401"/>
         <source>Data database written to:</source>
         <translation>Databas skrevet til:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1391"/>
+        <location filename="../menu/settingsmenu.cpp" line="1408"/>
         <source>Save system database as...</source>
         <translation>Gem systemdatabasen som...</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1392"/>
+        <location filename="../menu/settingsmenu.cpp" line="1409"/>
         <source>System database written to:</source>
         <translation>Systemdatabase skrevet til:</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1406"/>
+        <location filename="../menu/settingsmenu.cpp" line="1423"/>
         <source>Unable to open file: </source>
         <translation>Kan ikke åbne fil: </translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1406"/>
+        <location filename="../menu/settingsmenu.cpp" line="1423"/>
         <source>Failure</source>
         <translation>Fiasko</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1412"/>
+        <location filename="../menu/settingsmenu.cpp" line="1429"/>
         <source>You can import it into SQLite with a command like</source>
         <translation>Du kan importere den til SQLite med en kommando som</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1414"/>
+        <location filename="../menu/settingsmenu.cpp" line="1431"/>
         <source>Success</source>
         <translation>Succes</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1420"/>
+        <location filename="../menu/settingsmenu.cpp" line="1437"/>
         <source>Record counts for data database</source>
         <translation>Optagelsestællinger for database</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="1426"/>
+        <location filename="../menu/settingsmenu.cpp" line="1443"/>
         <source>Record counts for system database</source>
         <translation>Optagelsestællinger for systemdatabasen</translation>
     </message>
     <message>
         <location filename="../menu/settingsmenu.cpp" line="130"/>
-        <location filename="../menu/settingsmenu.cpp" line="1448"/>
+        <location filename="../menu/settingsmenu.cpp" line="1465"/>
         <source>Choose language</source>
         <translation>Vælg sprog</translation>
     </message>

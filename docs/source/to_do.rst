@@ -28,6 +28,8 @@ Things to do
 Tasks
 -----
 
+- check: EQ5D vertical thermometer OK when resized?
+
 **Priority**
 
 - **IN PROGRESS: SEE CHANGELOG**

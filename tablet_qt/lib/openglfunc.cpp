@@ -46,9 +46,21 @@ bool isOpenGLPresent()
         s_opengl_presence_checked = true;
         s_opengl_present = false;
 
+#ifndef QT_NO_OPENGL
+
+        // - Android supports OpenGL ES 2.0 from Android 2.2 (API level 8).
+        // - Android supports OpenGL ES 3.0 from Android 4.3 (API level 18),
+        //   though not all devices may support this.
+        // See https://developer.android.com/guide/topics/graphics/opengl.
+
+        // For Qt support, see
+        // - https://blog.qt.io/blog/2015/09/09/cross-platform-opengl-es-3-apps-with-qt-5-6/
+        // - https://doc.qt.io/qt-5/qopenglfunctions.html
+        // - https://doc.qt.io/qt-5/qopenglversionprofile.html#details
+
         QOffscreenSurface surf;
         surf.create();
-        QSurfaceFormat fmt = surf.format();
+        const QSurfaceFormat fmt = surf.format();
         qInfo() << "OpenGL surface format:" << fmt;
 
         QOpenGLContext ctx;
@@ -59,10 +71,17 @@ bool isOpenGLPresent()
         ctx.makeCurrent(&surf);
 
         QOpenGLFunctions* glfuncs = ctx.functions();
-
         glfuncs->initializeOpenGLFunctions();
 
-        const bool opengl_v2 = QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_2_0;
+        // Doesn't work under Android:
+        // const QOpenGLFunctions_2_0* v2funcs = ctx.versionFunctions<QOpenGLFunctions_2_0>();
+        // const bool opengl_v2 = (v2funcs != nullptr);
+
+        // Deprecated and missing on Android:
+        // const bool opengl_v2 = QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_2_0;
+
+        const bool opengl_v2 = fmt.majorVersion() >= 2;
+
         const bool npot_textures = glfuncs->hasOpenGLFeature(QOpenGLFunctions::NPOTTextures);
         const bool shaders = glfuncs->hasOpenGLFeature(QOpenGLFunctions::Shaders);
         const bool framebuffers = glfuncs->hasOpenGLFeature(QOpenGLFunctions::Framebuffers);
@@ -75,10 +94,12 @@ bool isOpenGLPresent()
         s_opengl_present = opengl_v2;  // we don't need the fancy bits
 
         if (s_opengl_present) {
-            qInfo() << "OpenGL v2.0 is present and satisfactory";
+            qInfo() << "OpenGL v2.0 or higher is present and satisfactory";
         } else {
-            qCritical() << "Error: This program requires OpenGL version 2.0";
+            qCritical() << "Error: This program requires OpenGL version 2.0+";
         }
+#endif
+
     }
     return s_opengl_present;
 }

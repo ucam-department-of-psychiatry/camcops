@@ -438,15 +438,15 @@ LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3$${OBJ_EXT}"  # add .o file
 # -----------------------------------------------------------------------------
 # All set up
 # -----------------------------------------------------------------------------
-message("QMAKE_CFLAGS is now $${QMAKE_CFLAGS}")
-message("QMAKE_CXXFLAGS is now $${QMAKE_CXXFLAGS}")
-message("INCLUDEPATH is now $${INCLUDEPATH}")
-message("LIBS is now $${LIBS}")
+message("QMAKE_CFLAGS=$${QMAKE_CFLAGS}")
+message("QMAKE_CXXFLAGS=$${QMAKE_CXXFLAGS}")
+message("INCLUDEPATH=$${INCLUDEPATH}")
+message("LIBS=$${LIBS}")
 message("... qmake will add more to INCLUDEPATH and LIBS; see Makefile")
 # ... view the Makefile at the end; qmake will have added others
 # ... and run "ldd camcops" to view dynamic library dependencies
 android {
-    message("ANDROID_EXTRA_LIBS is now $${ANDROID_EXTRA_LIBS}")
+    message("ANDROID_EXTRA_LIBS=$${ANDROID_EXTRA_LIBS}")
 }
 
 # =============================================================================
