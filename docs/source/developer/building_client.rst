@@ -74,12 +74,41 @@ Android (with a Linux build host)
 - To build Android programs under Linux, you will also need a Java development
   kit (JDK), such as OpenJDK: ``sudo apt install openjdk-8-jdk``.
 
-- Install the `Android SDK`_. Tested with:
+- Install the `Android SDK`_. This is an auto-updating set of software tools;
+  run ``tools/android`` to update it.
 
-  .. code-block:: none
+  - Ensure SDK 26 is installed; this is the target version.
 
-    android-ndk-r11c  # doesn't support 64-bit ARM
-    android-ndk-r20   # as of 2019-06-15
+- Android SDK version constraints:
+
+  - Qt requires Android API ≥16 (http://doc.qt.io/qt-5/android-support.html).
+
+  - Qt 5.11.1 does not compile with the ``android-16`` toolchain (specifically
+    its Bluetooth components). Qt looks for a Java package
+    ``android.bluetooth.le``, which is the Bluetooth Low Energy component that
+    comes with Android SDK 18. So let's try 18 as the minimum. That does
+    compile.
+
+  - For whatever reasons, CamCOPS (v2.2.3-2.2.4) doesn't run on Android 4.4.x
+    (API 18) but does run on 6.0 (API 23); intermediates untested.
+
+  - Google Play store requires ``targetSdkVersion`` to be at least 26 from
+    2018-11-01
+    (https://developer.android.com/distribute/best-practices/develop/target-sdk).
+
+  - Above Android API 23, linking to non-public libraries is prohibited,
+    possibly with exceptions for SSL/crypto.
+
+    - https://android-developers.googleblog.com/2016/06/android-changes-for-ndk-developers.html
+    - https://developer.android.com/about/versions/nougat/android-7.0-changes#ndk
+
+    I think this caused fatal problems for CamCOPS in 2018-07; not sure, but
+    this might explain it.
+
+  - Android libraries should be compiled for the same SDK version as
+    ``minSdkVersion`` in ``AndroidManifest.xml`` (see
+    https://stackoverflow.com/questions/21888052/what-is-the-relation-between-app-platform-androidminsdkversion-and-androidtar/41079462#41079462,
+    and https://developer.android.com/ndk/guides/stable_apis).
 
 - Install the `Android NDK`_. Tested with:
 
@@ -87,6 +116,14 @@ Android (with a Linux build host)
 
     android-ndk-r11c  # doesn't support 64-bit ARM
     android-ndk-r20   # as of 2019-06-15
+
+- Android NDK version constraints:
+
+  - Qt favour Android NDK r10e (the May 2015 release)
+    (http://doc.qt.io/qt-5/androidgs.html) but r11c also seems to work fine.
+
+  - However, r11c doesn't support 64-bit ARM, which is required in the Google
+    Play Store as of Aug 2019, so we're trying r20.
 
 
 Windows
@@ -260,6 +297,21 @@ the CamCOPS :ref:`build_qt` tool (q.v.). For example:
 
     REM Windows
     python %CAMCOPS_SOURCE_DIR%/tablet_qt/tools/build_qt.py --build_all
+
+
+Version constraints for OpenSSL and SQLCipher
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- OpenSSL 1.0.x has long-term support and 1.1.x is the current release.
+
+- OpenSSL 1.0.2h didn't compile under 64-bit Windows, whereas OpenSSL 1.1.x
+  did.
+
+- OpenSSL 1.1.x requires Qt 5.10 or higher
+  (https://bugreports.qt.io/browse/QTBUG-52905).
+
+- SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
+  (https://discuss.zetetic.net/t/sqlcipher-3-4-1-release/1962).
 
 
 Troubleshooting build_qt
@@ -890,60 +942,6 @@ Once built, see :ref:`Releasing CamCOPS <dev_releasing>`.
 Notes
 -----
 
-Version constraints for third-party software
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- OpenSSL 1.0.x has long-term support and 1.1.x is the current release.
-
-- OpenSSL 1.0.2h didn't compile under 64-bit Windows, whereas OpenSSL 1.1.x
-  did.
-
-- OpenSSL 1.1.x requires Qt 5.10 or higher
-  (https://bugreports.qt.io/browse/QTBUG-52905).
-
-- SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
-  (https://discuss.zetetic.net/t/sqlcipher-3-4-1-release/1962).
-
-- Qt requires Android API ≥16 (http://doc.qt.io/qt-5/android-support.html).
-
-- Qt 5.11.1 does not compile with the ``android-16`` toolchain (specifically
-  its Bluetooth components). Qt looks for a Java package
-  ``android.bluetooth.le``, which is the Bluetooth Low Energy component that
-  comes with Android SDK 18. So let's try 18 as the minimum. That does compile.
-
-- Android libraries should be compiled for the same SDK version as
-  ``minSdkVersion`` in ``AndroidManifest.xml`` (see
-  https://stackoverflow.com/questions/21888052/what-is-the-relation-between-app-platform-androidminsdkversion-and-androidtar/41079462#41079462,
-  and https://developer.android.com/ndk/guides/stable_apis).
-
-- For whatever reasons, CamCOPS (v2.2.3-2.2.4) doesn't run on Android 4.4.x
-  (API 18) but does run on 6.0 (API 23); intermediates untested.
-
-- Google Play store will require ``targetSdkVersion`` to be at least 26 from
-  2018-11-01
-  (https://developer.android.com/distribute/best-practices/develop/target-sdk).
-
-- Qt favour Android NDK r10e (the May 2015 release)
-  (http://doc.qt.io/qt-5/androidgs.html) but r11c also seems to work fine.
-
-
-Android
-~~~~~~~
-
-- Above Android API 23, linking to non-public libraries is prohibited, possibly
-  with exceptions for SSL/crypto.
-
-  - https://android-developers.googleblog.com/2016/06/android-changes-for-ndk-developers.html
-  - https://developer.android.com/about/versions/nougat/android-7.0-changes#ndk
-
-  I think this caused fatal problems for CamCOPS in 2018-07; not sure, but this
-  might explain it.
-
-- ``Error: "unsupported_android_version" is not translated``: see
-  https://bugreports.qt.io/browse/QTBUG-63952. This error does not prevent you
-  from continuing.
-
-
 Debugging
 ~~~~~~~~~
 
@@ -992,6 +990,10 @@ Troubleshooting qmake/compilation
 - If an Android build fails for a bizarre reason (like garbage in a .java file
   that looks like it's been pre-supplied), delete the whole build directory,
   which is not always removed by cleaning.
+
+- ``Error: "unsupported_android_version" is not translated``: see
+  https://bugreports.qt.io/browse/QTBUG-63952. This error does not prevent you
+  from continuing.
 
 - This error whilst building CamCOPS:
 

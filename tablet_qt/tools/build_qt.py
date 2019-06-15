@@ -271,11 +271,13 @@ DEFAULT_QT_GIT_BRANCH = "5.12"
 # See: https://bugreports.qt.io/browse/QTBUG-69843
 # As of May 2019: 5.12 is now the long-term support (LTS) release.
 
-USING_QT_5_7 = False
-USING_QT_5_9 = False
-USING_QT_5_10 = False
-USING_QT_5_11 = False
-USING_QT_5_12 = True
+QT_VERSION = Version(DEFAULT_QT_GIT_BRANCH)
+
+USING_QT_5_7 = QT_VERSION.major == 5 and QT_VERSION.minor == 7
+USING_QT_5_9 = QT_VERSION.major == 5 and QT_VERSION.minor == 9
+USING_QT_5_10 = QT_VERSION.major == 5 and QT_VERSION.minor == 10
+USING_QT_5_11 = QT_VERSION.major == 5 and QT_VERSION.minor == 11
+USING_QT_5_12 = QT_VERSION.major == 5 and QT_VERSION.minor == 12
 # ... to find out which are available: go into the local git directory and run
 # "git remote show origin"
 # 2017-12-01: 5.10 still too buggy (e.g. at CamcopsApp creation as QApplication
